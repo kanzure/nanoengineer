@@ -17,6 +17,8 @@ from model.bonds import Bond
 from geometry.VQT import V, norm, vlen
 from dna.model.Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
+from icon_utilities import imagename_to_pixmap
+
 class DnaSegment(DnaStrandOrSegment):
     """
     Model object which represents a Dna Segment inside a Dna Group.
@@ -420,7 +422,14 @@ class DnaSegment(DnaStrandOrSegment):
             if obj.dad is self:
                 return True
                 
-        return False    
+        return False
+    
+    def node_icon(self, display_prefs):
+        open = display_prefs.get('open', False)
+        if open:
+            return imagename_to_pixmap("modeltree/DnaSegment.png")
+        else:
+            return imagename_to_pixmap("modeltree/DnaSegment.png")
         
                 
 # end
