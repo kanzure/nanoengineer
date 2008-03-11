@@ -28,6 +28,9 @@ and removed some obsolete functions.
 and a set of per-color sublists so selection and hover-highlight can over-ride Chunk base colors.
 ColorSortedDisplayList is now a class in the parent's displist attr to keep track of all that stuff.
 
+080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
+tubes with per-vertex colors (necessary for DNA display style)
+
 """
 
 import os
@@ -56,6 +59,7 @@ from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3f
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import glColor4fv
+from OpenGL.GL import GL_COLOR_MATERIAL
 from OpenGL.GL import GL_COMPILE
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import GL_CONSTANT_ATTENUATION
@@ -831,6 +835,20 @@ def drawpolycone_worker(params):
     glePolyCone(pos_array, None, rad_array)
     return
 
+def drawpolycone_multicolor_worker(params):
+    """
+    Draw a polycone.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see below)
+    piotr 080311: this variant accepts a color array as an additional parameter
+    """
+    (pos_array, color_array, rad_array) = params
+    glEnable(GL_COLOR_MATERIAL) # have to enable GL_COLOR_MATERIAL for
+                                # the GLE function
+    glePolyCone(pos_array, color_array, rad_array)
+    glDisable(GL_COLOR_MATERIAL)
+    return
+
 def drawsurface_worker(params):
     """Draw a surface.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
@@ -1464,7 +1482,7 @@ class ColorSorter:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
                 lcolor = color
-            assert 0, "Need to implement a C add_polycone function."
+            assert 0, "Need to implement a C add_polycone_multicolor function."
             ColorSorter._cur_shapelist.add_polycone(lcolor, pos_array, rad_array,
                                                     ColorSorter._gl_name_stack[-1], capped)
         else:
@@ -1477,6 +1495,30 @@ class ColorSorter:
 
     schedule_polycone = staticmethod(schedule_polycone)
 
+    def schedule_polycone_multicolor(color, pos_array, color_array, rad_array, capped = 0, opacity = 1.0):
+        """
+        Schedule a polycone for rendering whenever ColorSorter thinks is
+        appropriate.
+        piotr 080311: this variant accepts a color array as an additional parameter
+        """
+        if use_c_renderer and ColorSorter.sorting:
+            if len(color) == 3:
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color
+            assert 0, "Need to implement a C add_polycone function."
+            ColorSorter._cur_shapelist.add_polycone_multicolor(lcolor, pos_array, color_array, rad_array, 
+                                                    ColorSorter._gl_name_stack[-1], capped)
+        else:
+            if len(color) == 3:		
+                lcolor = (color[0], color[1], color[2], opacity)
+            else:
+                lcolor = color		    
+
+            ColorSorter.schedule(lcolor, drawpolycone_multicolor_worker, (pos_array, color_array, rad_array))
+
+    schedule_polycone_multicolor = staticmethod(schedule_polycone_multicolor)
+    
     def schedule_surface(color, pos, radius, tm, nm):
         """
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -2149,6 +2191,11 @@ def drawpolycone(color, pos_array, rad_array, opacity = 1.0):
     """Schedule a polycone for rendering whenever ColorSorter thinks is
     appropriate."""
     ColorSorter.schedule_polycone(color, pos_array, rad_array, opacity = opacity)
+
+def drawpolycone_multicolor(color, pos_array, color_array, rad_array, opacity = 1.0):
+    """Schedule a polycone for rendering whenever ColorSorter thinks is
+    appropriate. Accepts color_array for per-vertex coloring. """
+    ColorSorter.schedule_polycone_multicolor(color, pos_array, color_array, rad_array, opacity = opacity)
 
 def drawsurface(color, pos, radius, tm, nm):
     """
