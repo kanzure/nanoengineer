@@ -1,0 +1,115 @@
+mmpformat 050920 required; 080115 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.707107, 0.000000, 0.707107, 0.000000) (10.712790) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Cnt5x5CellAtoms)
+info opengroup open = True
+mol (Nanotube-1) def
+atom 1 (6) (0, 3417, -614) def
+info atom atomtype = sp2
+atom 2 (6) (1389, 3121, -614) def
+info atom atomtype = sp2
+bondg 1
+atom 3 (6) (2008, 2764, 614) def
+info atom atomtype = sp2
+bondg 2
+atom 4 (6) (2959, 1708, 614) def
+info atom atomtype = sp2
+bondg 3
+atom 5 (6) (3250, 1056, -614) def
+info atom atomtype = sp2
+bondg 4
+atom 6 (6) (3398, -357, -614) def
+info atom atomtype = sp2
+bondg 5
+atom 7 (6) (3250, -1056, 614) def
+info atom atomtype = sp2
+bondg 6
+atom 8 (6) (2539, -2286, 614) def
+info atom atomtype = sp2
+bondg 7
+atom 9 (6) (2008, -2764, -614) def
+info atom atomtype = sp2
+bondg 8
+atom 10 (6) (710, -3342, -614) def
+info atom atomtype = sp2
+bondg 9
+atom 11 (6) (0, -3417, 614) def
+info atom atomtype = sp2
+bondg 10
+atom 12 (6) (-1389, -3121, 614) def
+info atom atomtype = sp2
+bondg 11
+atom 13 (6) (-2008, -2764, -614) def
+info atom atomtype = sp2
+bondg 12
+atom 14 (6) (-2959, -1708, -614) def
+info atom atomtype = sp2
+bondg 13
+atom 15 (6) (-3250, -1056, 614) def
+info atom atomtype = sp2
+bondg 14
+atom 16 (6) (-3398, 357, 614) def
+info atom atomtype = sp2
+bondg 15
+atom 17 (6) (-3250, 1056, -614) def
+info atom atomtype = sp2
+bondg 16
+atom 18 (6) (-2539, 2286, -614) def
+info atom atomtype = sp2
+bondg 17
+atom 19 (6) (-2008, 2764, 614) def
+info atom atomtype = sp2
+bondg 18
+atom 20 (6) (-710, 3342, 614) def
+info atom atomtype = sp2
+bondg 19 1
+atom 21 (0) (-1697, -2944, 1225) def
+bondg 12
+atom 22 (0) (-3105, -1380, 1225) def
+bondg 15
+atom 23 (0) (3104, 1383, 1225) def
+bondg 4
+atom 24 (0) (3324, -708, 1225) def
+bondg 7
+atom 25 (0) (-3324, 705, 1225) def
+bondg 16
+atom 26 (0) (-2272, 2526, 1225) def
+bondg 19
+atom 27 (0) (2275, -2524, 1225) def
+bondg 8
+atom 28 (0) (353, -3380, 1225) def
+bondg 11
+atom 29 (0) (-356, 3379, 1225) def
+bondg 20
+atom 30 (0) (1700, 2942, 1225) def
+bondg 3
+atom 31 (0) (-3324, 708, -1225) def
+bondg 17
+atom 32 (0) (1697, 2944, -1225) def
+bondg 2
+atom 33 (0) (3105, 1380, -1225) def
+bondg 5
+atom 34 (0) (356, -3379, -1225) def
+bondg 10
+atom 35 (0) (-1700, -2942, -1225) def
+bondg 13
+atom 36 (0) (-2275, 2524, -1225) def
+bondg 18
+atom 37 (0) (-353, 3380, -1225) def
+bondg 1
+atom 38 (0) (3324, -705, -1225) def
+bondg 6
+atom 39 (0) (2272, -2526, -1225) def
+bondg 9
+atom 40 (0) (-3104, -1383, -1225) def
+bondg 14
+egroup (Cnt5x5CellAtoms)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Cnt5x5CellAtoms
