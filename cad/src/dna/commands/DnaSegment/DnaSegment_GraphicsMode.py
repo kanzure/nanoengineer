@@ -166,6 +166,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             
+        
+            
         #@see dn_model.DnaSegment.isAncestorOf. 
         #It checks whether the object under the 
         #cursor (which is glpane.selobj) is contained within the DnaSegment
@@ -387,7 +389,15 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #May be we should use is_movable test below? But we know its a dna
             #segment and all its members are chunks only. Also note that 
             #movables are NOT the 'selected' objects here. 
-            movables = self.command.struct.members
+            
+            #@see: DnaSegment.get_all_content_chunks() for details about 
+            #what it returns. See also DnaSegment.isAncestorOf() which 
+            #is called in self.leftDown to determine whether the DnaSegment 
+            #user is editing is an ancestor of the selobj. (it also considers
+            #'logical contents' while determining whether it is an ancestor.
+            #-- Ninad 2008-03-11
+            movables = self.command.struct.get_all_content_chunks()
+            
             if isinstance(self.o.selobj, Atom) and \
                self.o.selobj.element.role == 'axis':                
                 translateAlongAxis = True

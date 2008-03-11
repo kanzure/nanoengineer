@@ -1,6 +1,15 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaSegment.py - ... 
+DnaSegment.py 
+
+
+*DnaSegment has the following direct members --
+       -- DnaAxisChunks, 
+       -- DnaSegmentMarkers
+*It can also have following logical contents --
+      -- DnaStrandChunks  (can be accessed using DnaAxisChunk.ladder) 
+      -- DnaStrandMarkers
+      -- may be some more?
 
 @author: Bruce
 @version: $Id$
@@ -108,8 +117,7 @@ class DnaSegment(DnaStrandOrSegment):
         @see: dna_model.DnaLadder.kill_strand_chunks() for a comment.
         
         """   
-        for member in self.members:
-            
+        for member in self.members:            
             if isinstance(member, DnaAxisChunk):                
                 ladder = member.ladder
                 try:
@@ -121,18 +129,43 @@ class DnaSegment(DnaStrandOrSegment):
                     print_compact_traceback("bug in killing the ladder chunk")
         
         DnaStrandOrSegment.kill_with_contents(self)
+    
+    def get_all_content_chunks(self):
+        """
+        Return all the chunks contained within this DnaSegment. This includes 
+        the chunks which are members of the DnaSegment groups and also the ones
+        which are not 'members' but are 'logical contents' of this DnaSegment
+        e.g. in dna data model, the DnaSegment only has DnaAxisChunks as its 
+        members. But the DnaStrand chunks to which these axis atoms are
+        connected can be treated as logical contents of the DnaSegment. 
+        This method returns all such chunks (including the direct members) 
+        @see: DnaSegment_GraphicsMode.leftDrag() where this list is used to 
+              drag the whole DnaSegment including the logical contents. 
         
+        """
+        all_content_chunk_list = []
+                    
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                ladder = member.ladder
+                all_content_chunk_list.extend(ladder.all_chunks())
+            elif isinstance(member, Chunk):
+                if member.isAxisChunk() or member.isStrandChunk():
+                    #This code will only be called when dna_updater is disabled
+                    #the conditional check should be removed post dna_data model
+                    all_content_chunk_list.append(member)
+        
+        return all_content_chunk_list 
+    
     
     def getAxisEndAtoms(self):
         """
         To be modified post dna data model
-        """
+        """        
         #pre dna data model
         return self._getAxisEndAtoms_preDataModel()
         ##post dna data model ???
         ##return self.get_axis_end_baseatoms()???
-        
-    
     def _getAxisEndAtoms_preDataModel(self):
         """
         To be removed post dna data model
@@ -404,8 +437,36 @@ class DnaSegment(DnaStrandOrSegment):
         Example: If the object is an Atom, it checks whether the 
         atom's chunk is a member of this DnaSegment (chunk.dad is self)
         
+        It also considers all the logical contents of the DnaSegment to determine
+        whetehr self is an ancestor. (returns True even for logical contents)
+        
+                
+        @see: self.get_all_content_chunks()
         @see: DnaSegment_GraphicsMode.leftDrag
+        
+        @Note: when dna data model is fully implemented, the code below that is 
+        flaged 'pre-Dna data model' and thus the method should be revised 
         """
+        
+        #start of POST DNA DATA MODEL IMPLEMENTATION ===========================
+        c = None
+        if isinstance(obj, Atom):       
+           c = obj.molecule                 
+        elif isinstance(obj, Bond):
+            chunk1 = obj.atom1.molecule
+            chunk2 = obj.atom1.molecule            
+            if chunk1 is chunk2:
+                c = chunk1
+        elif isinstance(obj, Chunk):
+            c = obj
+        
+        if c is not None:
+            if c in self.get_all_content_chunks():
+                return True        
+        #end of POST DNA DATA MODEL IMPLEMENTATION =============================    
+        
+        #start of PRE- DNA DATA MODEL IMPLEMENTATION ===========================
+        
         #NOTE: Need to check if the isinstance checks are acceptable (apparently
         #don't add any import cycle) Also this method needs to be revised 
         #after we completely switch to dna data model. 
@@ -413,6 +474,11 @@ class DnaSegment(DnaStrandOrSegment):
             chunk = obj.molecule                
             if chunk.dad is self:
                 return True
+            else:
+                ladder = getattr(chunk, 'ladder', None)
+                if ladder:
+                    pass
+                
         elif isinstance(obj, Bond):
             chunk1 = obj.atom1.molecule
             chunk2 = obj.atom1.molecule            
@@ -421,6 +487,7 @@ class DnaSegment(DnaStrandOrSegment):
         elif isinstance(obj, Chunk):
             if obj.dad is self:
                 return True
+        #end of PRE- DNA DATA MODEL IMPLEMENTATION ===========================
                 
         return False
     
