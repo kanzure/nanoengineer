@@ -63,9 +63,9 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Insert DNA Duplex"
+    title         =  "Insert dsDNA"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/Duplex.png"
+    iconPath      =  "ui/actions/Tools/Build Structures/InsertDsDna.png"
 
     def __init__( self, win, editCommand ):
         """

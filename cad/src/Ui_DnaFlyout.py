@@ -115,10 +115,10 @@ class DnaFlyout:
         self.exitDnaAction.setCheckable(True)
         
         self.dnaDuplexAction = QtGui.QWidgetAction(parentWidget)
-        self.dnaDuplexAction.setText("Duplex")
+        self.dnaDuplexAction.setText("Insert dsDNA")
         self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/Duplex.png"))
+            geticon("ui/actions/Tools/Build Structures/InsertDsDna.png"))
         
         self.breakStrandAction = QtGui.QWidgetAction(parentWidget)
         self.breakStrandAction.setText("Break Strand")
