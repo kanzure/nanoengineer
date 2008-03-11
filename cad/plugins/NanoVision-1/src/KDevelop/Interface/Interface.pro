@@ -21,7 +21,10 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXSceneGraph.h
 
 INCLUDEPATH += ../../../include \
- $(OPENBABEL_INCPATH)
+ $(OPENBABEL_INCPATH) \
+ ../../../src
+# The "../../../src" is temporary for NXEntityManager to access an
+# HDF5_SimResultsImportExport plugin function directly.
 
 SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXEntityManager.cpp \

@@ -459,4 +459,34 @@ string NXEntityManager::getFileType(const string& filename) {
 		return "";
 }
 
+
+/* FUNCTION: fixHDF5_DataStore */
+NXCommandResult* NXEntityManager::fixHDF5_DataStore(const string& filename) {
+	NXCommandResult* result;
+	
+	string fileType = "nh5";
+	map<string, NXDataImportExportPlugin*>::iterator iter =
+		dataImportTable.find(fileType);
+	if (iter != dataImportTable.end()) {
+		NXDataImportExportPlugin* plugin = iter->second;
+		result =
+			((HDF5_SimResultsImportExport*)plugin)->fixDataStore(filename);
+		
+	} else {
+		string msg =
+			"fixHDF5_DataStore: no NXDataImportExportPlugin found to handle type: " +
+			fileType;
+		NXLOG_WARNING("NXEntityManager", msg);
+
+		result = new NXCommandResult();
+		result->setResult(NX_PLUGIN_NOT_FOUND);
+		vector<QString> resultVector;
+		resultVector.push_back("NXEntityManager");
+		resultVector.push_back(fileType.c_str());
+		resultVector.push_back("not found");
+		result->setParamVector(resultVector);
+	}
+	return result;
+}
+
 } // Nanorex::

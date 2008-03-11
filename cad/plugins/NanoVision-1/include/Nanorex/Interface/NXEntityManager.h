@@ -23,6 +23,9 @@ using namespace std;
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 
+// Temporary
+#include <Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.h>
+
 namespace Nanorex {
 
 class DataStorePollingThread;
@@ -87,6 +90,9 @@ class NXEntityManager : public QObject {
 			else
 				return 0;
 		}
+		
+		// TODO: Generalize the concept of plugin-provided tools
+		NXCommandResult* fixHDF5_DataStore(const string& filename);
 
 	signals:
 		// Emitted when a new frame is added from the thread that polls

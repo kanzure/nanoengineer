@@ -58,6 +58,7 @@ private slots:
 	void openActiveJobs();
 	void showPreferences();
 	void toggleLogWindow();
+	void fixHDF5_DataStore();
 
 private:
 	NXEntityManager* entityManager;
@@ -89,6 +90,7 @@ private:
 	QAction* openJobsAction;
 	QAction* abortJobAction;
 	
+	QAction* fixHDF5_DataStoreAction;
 	QAction* preferencesAction;
 	
 	// Window
@@ -106,8 +108,8 @@ private:
 	
 	map<QString, JobMonitor*> jobMonitors;
     
-    // currently opened file
-    QString fileName;
+    // Currently opened file
+    QString currentFileName;
 	
 	void createActions();
 	void createMenus();

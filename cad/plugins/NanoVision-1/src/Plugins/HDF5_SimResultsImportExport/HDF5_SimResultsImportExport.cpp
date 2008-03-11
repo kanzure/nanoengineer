@@ -455,4 +455,46 @@ string HDF5_SimResultsImportExport::getHDF5fileDirectory
 	return directory;
 }
 
+
+/* FUNCTION: fixDataStore */
+NXCommandResult* HDF5_SimResultsImportExport::fixDataStore
+		(const string& filename) {
+
+	H5Eset_auto(0, 0); // Turn off HDF5 messages to stdout
+
+	NXCommandResult* result = new NXCommandResult();
+	result->setResult(NX_CMD_SUCCESS);
+
+	// Retrieve the HDF5 data store object
+	//
+	HDF5_SimResults* simResults = new HDF5_SimResults();
+		
+	if (simResults == 0)
+		populateCommandResult(result,
+							  "fixDataStore: Could not open the HDF5_SimResults object.");
+
+	// Open the actual data store.
+	int status;
+	string message, hdf5FileDirectory;
+	if (result->getResult() == NX_CMD_SUCCESS) {
+		hdf5FileDirectory = getHDF5fileDirectory(filename);
+		status = simResults->openDataStore(hdf5FileDirectory.c_str(), message);
+		if (status)
+			populateCommandResult(result, message.c_str());
+	
+		int runResult = -1; // 0=success, 1=still running, 2=failure, 3=aborted
+		string failureDescription;
+		simResults->getRunResult(runResult, failureDescription);
+		if (runResult == 1) {
+			status = simResults->setRunResult(3, "", message);
+			if (status != 0) {
+				message =
+					string("fixDataStore: Couldn't fix data store: ") + message;
+				populateCommandResult(result, message);
+			}
+		}
+	}
+	return result;
+}
+
 Q_EXPORT_PLUGIN2 (HDF5_SimResultsImportExport, HDF5_SimResultsImportExport)

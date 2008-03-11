@@ -3,12 +3,6 @@
 #ifndef NX_HDF5_SIMRESULTSIMPORTEXPORT_H
 #define NX_HDF5_SIMRESULTSIMPORTEXPORT_H
 
-#ifdef WIN32
-#	ifdef _MSC_VER
-#		pragma warning(disable:4786)
-#	endif
-#endif
-
 #include <QDir>
 #include <QFile>
 #include <QObject>
@@ -39,7 +33,7 @@ public:
     HDF5_SimResultsImportExport();
     ~HDF5_SimResultsImportExport();
     
-                // NXDataImportExportPlugin implementation
+	// NXDataImportExportPlugin implementation
     NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
                                     NXDataStoreInfo* dataStoreInfo,
                                     const string& filename,
@@ -48,6 +42,8 @@ public:
                                 NXDataStoreInfo* dataStoreInfo,
                                 const string& filename,
                                 int frameSetId, int frameIndex);
+	
+	virtual NXCommandResult* fixDataStore(const string& filename);
     
 private:
     void populateDataStoreInfo(NXDataStoreInfo* dataStoreInfo,

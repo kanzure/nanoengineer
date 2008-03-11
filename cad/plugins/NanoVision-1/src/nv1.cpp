@@ -36,7 +36,7 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 	connect(logHandlerWidget, SIGNAL(raiseWidget()),
 			this, SLOT(raiseLogDockWidget()));
     
-    fileName.clear();
+    currentFileName.clear();
 }
 
 
@@ -127,17 +127,17 @@ void nv1::open() {
                                      importFileTypes + ";;All Types (*)");
     if (!newFileName.isEmpty()) {
         // prevent re-opening of an opened file
-        if(newFileName.compare(fileName) == 0) {
+        if(newFileName.compare(currentFileName) == 0) {
             QMessageBox::information(this, tr("Error"),tr("File already open"));
             return;
         }
         // close a previously opened file, if there is one such
-        if(!fileName.isEmpty())
+        if(!currentFileName.isEmpty())
             close();
         if (resultsWindow->loadFile(newFileName)) {
-            fileName = newFileName;
+            currentFileName = newFileName;
             statusBar()->showMessage(tr("File loaded"), 2000);
-            QFileInfo fileInfo(fileName);
+            QFileInfo fileInfo(currentFileName);
             setWindowTitle(tr("NanoVision-1: ") + fileInfo.fileName());
             resultsWindow->show();
         }
@@ -149,7 +149,7 @@ void nv1::open() {
 void nv1::close() {
     resultsWindow->closeFile();
     setWindowTitle(tr("NanoVision-1"));
-    fileName.clear();
+    currentFileName.clear();
 }
 
 
@@ -257,6 +257,11 @@ void nv1::createActions() {
     openJobsAction->setStatusTip(tr("Open an active job"));
     connect(openJobsAction, SIGNAL(triggered()), this, SLOT(openActiveJobs()));
 	
+	fixHDF5_DataStoreAction = new QAction(tr("Fix HDF5 File..."), this);
+	fixHDF5_DataStoreAction->setStatusTip(tr("Attempt to fix a problematic HDF5 file"));
+	connect(fixHDF5_DataStoreAction, SIGNAL(triggered()),
+			this, SLOT(fixHDF5_DataStore()));
+	
 	preferencesAction = new QAction(tr("Preferences..."), this);
     preferencesAction->setStatusTip(tr("Modify your preferences"));
     connect(preferencesAction, SIGNAL(triggered()),
@@ -325,6 +330,7 @@ void nv1::createMenus() {
 		jobsMenu = toolsMenu->addMenu("Job Management");
 		jobsMenu->addAction(openJobsAction);
 		jobsMenu->addSeparator();
+	toolsMenu->addAction(fixHDF5_DataStoreAction);
 	toolsMenu->addSeparator();
 	toolsMenu->addAction(preferencesAction);
     
@@ -538,3 +544,30 @@ void nv1::showPreferences() {
 void nv1::toggleLogWindow() {
 	logDockWidget->setVisible(logWindowAction->isChecked());
 }
+
+
+/* FUNCTION: fixHDF5_DataStore */
+void nv1::fixHDF5_DataStore() {
+	QString filename =
+		QFileDialog::getOpenFileName
+			(this, tr("Choose an HDF5 file to fix"), "",
+			 tr("HDF5 Simulation Results (*.h5 *.nh5)"));
+	if (filename != "") {
+		string _filename = qPrintable(filename);
+		NXCommandResult* commandResult =
+			entityManager->fixHDF5_DataStore(_filename);
+		if (commandResult->getResult() != NX_CMD_SUCCESS) {
+			QFileInfo fileInfo(filename);
+			QString message =
+				tr("Unable to fix file: %1").arg(fileInfo.fileName());
+			ErrorDialog errorDialog(message, commandResult);
+			errorDialog.exec();
+			
+		} else {	
+			QString message = tr("File fixed: %1").arg(filename);
+			NXLOG_INFO("ResultsWindow", qPrintable(message));
+		}
+		delete commandResult;
+	}
+}
+
