@@ -105,10 +105,12 @@ class SelectChunks_basicCommand(Select_basicCommand):
             # Menu items added when there are selected chunks.
             
             contextMenuList = [
-                ('Change Color of Selected Chunks...', 
-                 self.w.dispObjectColor),
-                ('Reset Color of Selected Chunks', 
-                 self.w.dispResetChunkColor),
+                # These are marked for removal (toolbar commands now available).
+                # --Mark 2008-03-10
+                #@('Change Color of Selected Chunks...', 
+                #@ self.w.dispObjectColor),
+                #@('Reset Color of Selected Chunks', 
+                #@ self.w.dispResetChunkColor),
                 ('Reset Atoms Display of Selected Chunks', 
                  self.w.dispResetAtomsDisplay),
                 ('Show Invisible Atoms of Selected Chunks', 
