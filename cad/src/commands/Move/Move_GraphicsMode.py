@@ -43,6 +43,12 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
     TranslationOnly = False
     isConstrainedDragAlongAxis = False
     
+    #The following variable stores a string. It is used in leftDrag related 
+    #methods to handle cases where the user may do a keypress *while* left 
+    #dragging, which would change the move type. This variable is assigned a 
+    #string value.See self.leftDownForTranslatation for an example. 
+    leftDownType = None
+    
     def Enter_GraphicsMode(self):
         """
         Things needed while entering the GraphicsMode (e.g. updating cursor, 

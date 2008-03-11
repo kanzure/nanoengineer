@@ -215,6 +215,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         #to avoid any attr errors. Note that this flag will often be reset in
         #self.reset_frag_vars()
         self.cursor_over_when_LMB_pressed = None
+        
+        #Initialize LMB_press_event
+        self.LMB_press_event = None
+        
         return    
     
     def reset_drag_vars(self):
