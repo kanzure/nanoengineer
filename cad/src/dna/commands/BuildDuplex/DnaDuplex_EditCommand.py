@@ -318,7 +318,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
         #Now append this dnaSegment  to self._segmentList 
         self._segmentList.append(self.struct)
-
+      
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
         self.graphicsMode.resetVariables()
@@ -637,7 +637,7 @@ class DnaDuplex_EditCommand(EditCommand):
             props = (duplexRise, basesPerTurn)
 
             dnaSegment.setProps(props)
-
+            
             return dnaSegment
 
 
@@ -646,6 +646,7 @@ class DnaDuplex_EditCommand(EditCommand):
             self._segmentList.remove(dnaSegment)
             dnaSegment.kill_with_contents()
             raise PluginBug("Internal error while trying to create DNA duplex.")
+        
 
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
@@ -723,7 +724,7 @@ class DnaDuplex_EditCommand(EditCommand):
         @rtype: float
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
-        return self.propMgr.dnaRubberBandLineDisplayComboBox.currentText()
+        return self.propMgr.duplexRiseDoubleSpinBox.value()
 
 
     #Things needed for DnaLine_GraphicsMode (DnaLine_GM)======================
