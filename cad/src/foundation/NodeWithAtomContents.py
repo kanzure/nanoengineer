@@ -39,9 +39,18 @@ class NodeWithAtomContents(NodeWith3DContents):
         assert 0, "subclass must implement"
 
     # == atom content access & maintenance methods [bruce 080306]
+
+    # initial values of instance variables
+
+    # atom content bits, minimum possible value and maximum possible value
+    # 
+    # (When the min and max bits at the same position differ, the corresponding
+    #  atom content bit is not known, and will be recomputed as needed, and
+    #  stored in both instance variables. The initial values correspond to all
+    #  content bits being uncertain.)
     
-    _min_atom_content = 0
-    _max_atom_content = -1 # all bits set
+    _min_atom_content = 0 # instance variable value is always >= 0
+    _max_atom_content = -1 # instance variable value might be < 0 or not
 
     # access
     
@@ -51,6 +60,8 @@ class NodeWithAtomContents(NodeWith3DContents):
         """
         min_content = self._min_atom_content & flags
         max_content = self._max_atom_content & flags
+##        print "get_atom_content(%r) needs %#x, sees %#x/%#x" % \
+##              (self, flags, self._min_atom_content, self._max_atom_content )
         if min_content != max_content:
             min_content = self._f_updated_atom_content() & flags
                 # note: we update all of its bits, regardless of flags --
@@ -58,6 +69,7 @@ class NodeWithAtomContents(NodeWith3DContents):
                 # into subnodes we don't care about, but on the whole
                 # it seems likely to be faster, since this method
                 # might be called for several disjoint flags in succession
+##        print "get_atom_content(%r) returns %#x" % (self, min_content)
         return min_content
 
     # recomputation
@@ -74,8 +86,12 @@ class NodeWithAtomContents(NodeWith3DContents):
         if min_content == self._max_atom_content:
             return min_content # assume these attrs are always correct
         atom_content = self._ac_recompute_atom_content()
+        assert atom_content >= 0, \
+               "illegal atom content %#x computed in %r._ac_recompute_atom_content()" % \
+               ( atom_content, self )
         self._min_atom_content = atom_content
         self._max_atom_content = atom_content
+##        print "_f_updated_atom_content(%r) returns %#x" % (self, atom_content)
         return atom_content
 
     def _ac_recompute_atom_content(self):
@@ -137,10 +153,15 @@ class NodeWithAtomContents(NodeWith3DContents):
         # inline the recursive calls of this method on self.dad.
         # much of this would then be doable in Pyrex.
         new = old = self._min_atom_content
+        assert new >= 0
         new &= (~flags)
+        assert new >= 0
         ## if (old, new) != (0, 0):
         ##     print "removed %#x from %#x to get %#x" % (flags, old, new)
         removed = old - new # often 0, so we optimize for that
+            # note: subtraction makes sense for boolean flag words in this case
+            # (though not in general) since new is a subset of old
+        assert removed >= 0
         if removed:
             self._min_atom_content = new
             dad = self.dad # usually present, optim for that
@@ -170,6 +191,8 @@ class NodeWithAtomContents(NodeWith3DContents):
         ## if (old, new) != (-1, -1):
         ##     print "added %#x to %#x to get %#x" % (flags, old, new)
         added = new - old # often 0, so we optimize for that
+            # note: subtraction makes sense for boolean flag words in this case
+            # (though not in general) since new is a superset of old
         if added:
             self._max_atom_content = new
             dad = self.dad # usually present, optim for that
@@ -177,7 +200,8 @@ class NodeWithAtomContents(NodeWith3DContents):
                 # note: no atom content is contributed
                 # directly by self -- it all comes from Atoms
                 # and those are not Nodes.
-                dad.add_some_atom_content(added)
+                dad.maybe_add_some_atom_content(added)
+                    #bruce 080311 fix bug 2657: add -> maybe_add
             ### TODO: mt_update, if needed
         return
 
@@ -195,6 +219,7 @@ class NodeWithAtomContents(NodeWith3DContents):
         [unlikely to be overridden in subclasses]
         """
         # note: see possible optimization comment in remove_some_atom_content
+        assert flags >= 0
 
         new_max = old_max = self._max_atom_content
         new_max |= flags
@@ -204,6 +229,7 @@ class NodeWithAtomContents(NodeWith3DContents):
         
         new_min = old_min = self._min_atom_content
         new_min |= flags
+        assert new_min >= 0
         ## if (old_min, new_min) != (-1, -1):
         ##     print "min: added %#x to %#x to get %#x" % (flags, old_min, new_min)
         added_min = new_min - old_min # often 0, so we optimize for that
