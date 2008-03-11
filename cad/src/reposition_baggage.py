@@ -11,8 +11,8 @@ import math
 
 from utilities import debug_flags
 from geometry.VQT import V, norm, cross, vlen
-from bond_constants import find_bond
-from bond_constants import V_SINGLE
+from model.bond_constants import find_bond
+from model.bond_constants import V_SINGLE
 
 from geometry.geometryUtilities import arbitrary_perpendicular
 

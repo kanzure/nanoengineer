@@ -160,14 +160,14 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
         whatsThis_PeptideGeneratorPropertyManager(self)
 
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
         ToolTip_PeptideGeneratorPropertyManager(self)
 
     def _aaTypeChanged(self, idx):

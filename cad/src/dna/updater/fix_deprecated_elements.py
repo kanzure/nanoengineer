@@ -7,7 +7,7 @@ fix_deprecated_elements.py - fix deprecated PAM elements in-place in models
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 
 from constants import diDEFAULT
 

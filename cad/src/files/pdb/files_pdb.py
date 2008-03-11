@@ -18,12 +18,12 @@ identical in both, so doing that should not cause a problem.)
 """
 
 import os, time
-from chunk import Chunk
-from chem import Atom
-from bonds import bond_atoms
+from model.chunk import Chunk
+from model.chem import Atom
+from model.bonds import bond_atoms
 from bonds_from_atoms import inferBonds
 from string import capitalize
-from elements import PeriodicTable, Singlet
+from model.elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A

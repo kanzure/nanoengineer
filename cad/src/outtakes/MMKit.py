@@ -36,21 +36,21 @@ from PyQt4.Qt import QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QW
 
 from MMKitDialog import Ui_MMKitDialog
 from graphics.widgets.ThumbView import MMKitView, ChunkView
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 from constants import diTUBES
 ## from chem import Atom [not used i think - bruce 071113]
 ## from chunk import Chunk [not used i think - bruce 071113]
 from foundation.Utility import imagename_to_icon, geticon
 from assembly import assembly
 from files.mmp.files_mmp import readmmp
-from part import Part
+from model.part import Part
 import foundation.env as env
 from utilities import debug_flags
 from debug import print_compact_traceback
 from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PropMgr_Constants import pmMMKitPageMargin
-from bond_constants import btype_from_v6
+from model.bond_constants import btype_from_v6
 
 # PageId constants for mmkit_tab
 AtomsPage=0
@@ -1001,7 +1001,7 @@ class MMKit(QDialog,
             self.dirView.setRootPath(libDir)
         else:
             self.rootDir = None
-            from HistoryWidget import redmsg
+            from history.HistoryWidget import redmsg
             env.history.message(redmsg("The part library directory: %s doesn't exist." %libDir))
 
     def browseDirectories(self):
@@ -1024,7 +1024,7 @@ class MMKit(QDialog,
     
     def useDefaultPartLibDirectory(self):
 	''' Slot method that to reset the part lib directory path to default'''
-	from HistoryWidget import redmsg
+	from history.HistoryWidget import redmsg
 	
 	#ninad070503 : A future enhancement would be a preference to have 
 	# a user defined 'default dir path' for the 

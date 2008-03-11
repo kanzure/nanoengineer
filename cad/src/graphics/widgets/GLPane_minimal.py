@@ -19,7 +19,7 @@ from PyQt4.Qt import QGLWidget
 
 from geometry.VQT import V, Q
 from graphics.behaviors.Trackball import Trackball
-from NamedView import NamedView
+from model.NamedView import NamedView
 
 from prefs_constants import undoRestoreView_prefs_key
 

@@ -18,19 +18,19 @@ import foundation.env as env
 from utilities import debug_flags
 from debug import Stopwatch
 
-from chem import Atom
+from model.chem import Atom
 
-from chunk import Chunk
+from model.chunk import Chunk
 
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 
-from bonds import bond_atoms
-from bonds import NeighborhoodGenerator
+from model.bonds import bond_atoms
+from model.bonds import NeighborhoodGenerator
 
-from bond_constants import V_GRAPHITE, V_SINGLE
+from model.bond_constants import V_GRAPHITE, V_SINGLE
 ##from bonds_from_atoms import make_bonds
 ##from buckyball import BuckyBall
-from bond_constants import atoms_are_bonded
+from model.bond_constants import atoms_are_bonded
 
 from commands.InsertNanotube.NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
 from command_support.GeneratorBaseClass import GeneratorBaseClass

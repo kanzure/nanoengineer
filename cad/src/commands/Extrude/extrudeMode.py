@@ -52,7 +52,7 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_bool
 
 from command_support.modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
-from bonds import bond_at_singlets
+from model.bonds import bond_at_singlets
 from icon_utilities import geticon
 from utilities.Log import redmsg
 
@@ -63,7 +63,7 @@ from geometry.VQT import V, Q, norm, vlen, cross
 from commands.Extrude.ExtrudePropertyManager import ExtrudePropertyManager
 
 from graphics.drawing.drawer import drawline
-from chunk import Chunk
+from model.chunk import Chunk
 from graphics.behaviors.shape import get_selCurve_color
 
 from graphics.drawables.handles import repunitHandleSet
@@ -2122,7 +2122,7 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         assy = oldnodes[0].assy
         for newMol in newnodes:
             if newMol is not None: #bruce 070525 precaution
-                from chunk import mol_copy_name
+                from model.chunk import mol_copy_name
                 newMol.name = mol_copy_name(newMol.name)
                     # this should work for any kind of node, unless it has an update bug for some of them,
                     # but since the node doesn't yet have a dad, that's very unlikely.

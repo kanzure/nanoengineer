@@ -17,14 +17,14 @@ TODO: make it work for PAM3 as well as PAM5.
 # - Undo and Feature Help cmdnames are wrong (not working)
 
 from constants import noop, average_value
-from bond_constants import V_SINGLE
-from bond_constants import atoms_are_bonded, find_bond
-from bonds import bond_atoms_faster, bond_direction ##, bond_atoms
+from model.bond_constants import V_SINGLE
+from model.bond_constants import atoms_are_bonded, find_bond
+from model.bonds import bond_atoms_faster, bond_direction ##, bond_atoms
 from utilities.Log import redmsg, greenmsg, quote_html ##, orangemsg
 ##from debug_prefs import debug_pref, Choice
 import foundation.env as env
 
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 Element_Sj5 = PeriodicTable.getElement('Sj5')
 Element_Ss5 = PeriodicTable.getElement('Ss5')
 

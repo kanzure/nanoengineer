@@ -43,7 +43,7 @@ from icon_utilities import geticon
 from ServerManager import ServerManager
 ## from PlatformDependent import open_file_in_editor
 from debug import print_compact_traceback
-from UserPrefs import get_filename_and_save_in_prefs
+from ne1_ui.UserPrefs import get_filename_and_save_in_prefs
 from PlatformDependent import hhmmss_str
 
 from prefs_constants import gmspath_prefs_key

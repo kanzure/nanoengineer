@@ -25,7 +25,7 @@ implementations on a few subclasses of Node.
 and paste it onto a bondpoint.
 """
 
-from chunk import Chunk # only for isinstance
+from model.chunk import Chunk # only for isinstance
 from foundation.Group import Group # only for isinstance
 
 def is_pastable(obj):

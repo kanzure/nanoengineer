@@ -50,8 +50,8 @@ import foundation.env as env
 from foundation.env import seen_before
 from geometry.VQT import A
 import re
-from chem import AtomDict
-from chunk import Chunk
+from model.chem import AtomDict
+from model.chunk import Chunk
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 from constants import filesplit
 from Process import Process
@@ -2712,7 +2712,7 @@ def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
 
 # == helper code for Minimize Selection [by bruce, circa 050406] [also used for Minimize All, probably as of 050419, as guessed 051115]
 
-from elements import Singlet
+from model.elements import Singlet
 
 def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21. 
     """
@@ -2933,7 +2933,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
                 # note: this method knows whether & how to write a Singlet as an H (repositioned)!
     def write_grounds(self, mapping):
-        from jigs import fake_Anchor_mmp_record
+        from model.jigs import fake_Anchor_mmp_record
         atoms = self.anchored_atoms_list
         nfixed = len(atoms)
         max_per_jig = 20
@@ -2955,7 +2955,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         """
         assert mapping.min #bruce 051031; detected by writemmp call, below; this scheme is a slight kluge
 
-        from jigs import Jig
+        from model.jigs import Jig
         def func_write_jigs(nn):
             if isinstance(nn, Jig) and nn.enable_minimize:
                 #bruce 051031 comment: should we exclude the ones written by write_grounds?? doesn't matter for now. ####@@@@

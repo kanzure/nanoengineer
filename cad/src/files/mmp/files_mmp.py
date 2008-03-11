@@ -31,25 +31,25 @@ import re, time
 import foundation.env as env
 from utilities import debug_flags
 
-from chem import Atom
-from jigs import AtomSet
-from jigs import Anchor
-from jigs import Stat
-from jigs import Thermo
-from jigs_motors import RotaryMotor
-from jigs_motors import LinearMotor
-from jigs_planes import GridPlane
+from model.chem import Atom
+from model.jigs import AtomSet
+from model.jigs import Anchor
+from model.jigs import Stat
+from model.jigs import Thermo
+from model.jigs_motors import RotaryMotor
+from model.jigs_motors import LinearMotor
+from model.jigs_planes import GridPlane
 from analysis.ESP.ESPImage import ESPImage
-from jigs_measurements import MeasureAngle
-from jigs_measurements import MeasureDihedral
+from model.jigs_measurements import MeasureAngle
+from model.jigs_measurements import MeasureDihedral
 from geometry.VQT import V, Q, A
 from utilities.Log import redmsg, quote_html
-from elements import PeriodicTable
-from bonds import bond_atoms
-from chunk import Chunk
+from model.elements import PeriodicTable
+from model.bonds import bond_atoms
+from model.chunk import Chunk
 from foundation.Utility import Node
 from foundation.Group import Group
-from NamedView import NamedView # for reading one, and for isinstance
+from model.NamedView import NamedView # for reading one, and for isinstance
 
 from debug import print_compact_traceback
 from debug import print_compact_stack
@@ -57,15 +57,15 @@ from debug import print_compact_stack
 from constants import gensym
 from constants import dispNames
 
-from bond_constants import find_bond
-from bond_constants import V_SINGLE
-from bond_constants import V_DOUBLE
-from bond_constants import V_TRIPLE
-from bond_constants import V_AROMATIC
-from bond_constants import V_GRAPHITE
-from bond_constants import V_CARBOMERIC
+from model.bond_constants import find_bond
+from model.bond_constants import V_SINGLE
+from model.bond_constants import V_DOUBLE
+from model.bond_constants import V_TRIPLE
+from model.bond_constants import V_AROMATIC
+from model.bond_constants import V_GRAPHITE
+from model.bond_constants import V_CARBOMERIC
 
-from Plane import Plane
+from model.Plane import Plane
 
 from files.mmp.files_mmp_registration import find_registered_parser_class
 
@@ -795,7 +795,7 @@ class _readmmp_state:
     # mdistance (name) (r, g, b) (font_name) font_size a1 a2
     # no longer modeled on motor, wware 051103
     def _read_mdistance(self, card):
-        from jigs_measurements import MeasureDistance
+        from model.jigs_measurements import MeasureDistance
         m = mdistancepat.match(card) # Try to read card
         assert len(m.groups()) == 8
         name = m.group(1)

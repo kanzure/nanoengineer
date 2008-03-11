@@ -34,7 +34,7 @@ from dna.model.Dna_Constants import getDuplexBasesPerTurn
 
 from runSim import adjustSinglet
 
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from dna.model.Dna_Constants import basesDict, dnaDict

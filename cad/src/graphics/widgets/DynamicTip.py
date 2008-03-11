@@ -35,10 +35,10 @@ import time
 from PyQt4.Qt import QToolTip, QRect
 
 import foundation.env as env
-from chem import Atom
-from elements import Singlet
-from bonds import Bond
-from jigs import Jig
+from model.chem import Atom
+from model.elements import Singlet
+from model.bonds import Bond
+from model.jigs import Jig
 from geometry.VQT import vlen
 from geometry.VQT import atom_angle_radians
 

@@ -46,8 +46,8 @@ from prefs_constants import displayOriginAxis_prefs_key
 from prefs_constants import displayOriginAsSmallAxis_prefs_key
 from prefs_constants import displayPOVAxis_prefs_key
 
-from chem import Atom
-from bonds import Bond
+from model.chem import Atom
+from model.bonds import Bond
 from foundation.Utility import Node
 from foundation.Group import Group
 

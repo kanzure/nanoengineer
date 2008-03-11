@@ -8,7 +8,7 @@ CntGroup.py - ...
 """
 
 from dna.model.Block import Block
-from chunk           import Chunk
+from model.chunk import Chunk
 
 from constants import gensym
 

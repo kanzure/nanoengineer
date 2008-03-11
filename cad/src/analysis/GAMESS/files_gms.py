@@ -13,10 +13,10 @@ to make it more modular and consistent.
 """
 
 import os, re, time
-from chunk import Chunk
-from chem import Atom
+from model.chunk import Chunk
+from model.chem import Atom
 from string import capitalize
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 from PlatformDependent import get_gms_name
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A

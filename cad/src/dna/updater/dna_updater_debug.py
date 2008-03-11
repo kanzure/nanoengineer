@@ -11,7 +11,7 @@ from utilities import debug_flags
 
 from graphics.drawing.drawer import drawline
 
-from jigs import Jig
+from model.jigs import Jig
 
 import foundation.env as env
 

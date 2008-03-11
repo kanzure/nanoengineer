@@ -40,7 +40,7 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Constants     import pmPreviewButton
 
-from bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
+from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
 #@from gui.WhatsThisText_for_PropertyManagers import whatsThis_InsertCnt_PropertyManager
 

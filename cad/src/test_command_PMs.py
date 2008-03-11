@@ -175,7 +175,7 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
         assert self.name == name # true by test and by examining GBC code
         # ignoring params and position for now
         assy = self.win.assy
-        from Comment import Comment
+        from model.Comment import Comment
         return Comment(assy, name, "comment created at " + time.asctime())
 
     #e bugs that remain:

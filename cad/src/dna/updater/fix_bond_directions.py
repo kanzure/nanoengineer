@@ -7,7 +7,7 @@ fix_bond_directions.py - dna updater helper functions
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from elements import Singlet
+from model.elements import Singlet
 
 import foundation.env as env
 from utilities.Log import orangemsg

@@ -32,7 +32,7 @@ from debug import print_compact_traceback
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 from constants import ave_colors, red
 from prefs_constants import atomHighlightColor_prefs_key
-from elements import Singlet
+from model.elements import Singlet
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 

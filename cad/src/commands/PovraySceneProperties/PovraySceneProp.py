@@ -64,7 +64,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         
         if not pov:
             self.node_is_new = True
-            from PovrayScene import PovrayScene
+            from model.PovrayScene import PovrayScene
             self.node = PovrayScene(self.win.assy, None)
         else:
             self.node_is_new = False

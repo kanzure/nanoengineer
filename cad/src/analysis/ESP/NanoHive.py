@@ -73,7 +73,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         
         # This is where What's This descriptions should go for the Nano-Hive dialog.
         # Mark 050831.
-        from gui.WhatsThisText_for_MainWindow import create_whats_this_descriptions_for_NanoHive_dialog
+        from ne1_ui.WhatsThisText_for_MainWindow import create_whats_this_descriptions_for_NanoHive_dialog
         create_whats_this_descriptions_for_NanoHive_dialog(self)
         
         return

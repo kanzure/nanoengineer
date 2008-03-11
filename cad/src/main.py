@@ -127,7 +127,7 @@ def _start_NE1():
     
     _main_globals = globals() # needed by startup_script
 
-    from startup.main_startup import startup_script
+    from ne1_startup.main_startup import startup_script
     
     startup_script( _main_globals )
 

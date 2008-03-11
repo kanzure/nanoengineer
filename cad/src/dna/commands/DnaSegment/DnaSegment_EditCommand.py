@@ -66,9 +66,9 @@ from exprs.Exprs import norm_Expr
 from prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
-from chunk import Chunk
-from chem import Atom
-from bonds import Bond
+from model.chunk import Chunk
+from model.chem import Atom
+from model.bonds import Bond
 
 
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle

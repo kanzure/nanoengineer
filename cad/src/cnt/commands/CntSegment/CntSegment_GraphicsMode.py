@@ -14,7 +14,7 @@ While in this command, user can
 
 @author: Ninad, Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id:$
+@version:$Id$
 
 History:
 Created 2008-03-10 from copy of DnaSegment_GraphicsMode.py
@@ -52,8 +52,8 @@ from debug import print_compact_traceback
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 
-from chem import Atom
-from bonds import Bond
+from model.chem import Atom
+from model.bonds import Bond
 
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2

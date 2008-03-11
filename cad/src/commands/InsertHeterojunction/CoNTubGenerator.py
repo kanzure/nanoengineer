@@ -594,8 +594,8 @@ class PluginlikeGenerator:
         print "create_methane_test"
         assy = self.win.assy
         from geometry.VQT import V
-        from chunk import Chunk
-        from chem import Atom
+        from model.chunk import Chunk
+        from model.chem import Atom
         mol = Chunk(assy, 'bug') # name is reset below!
         n = max(params[0],1)
         for x in range(n):

@@ -41,7 +41,7 @@ from foundation.state_utils import StateMixin
 
 from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
-from jigs import Jig
+from model.jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
@@ -949,7 +949,7 @@ class basicCommand(anyCommand):
         
         # This shows the Done button on the dashboard unless the current command is the 
         # Default command. Resolves bug #958 and #959. Mark 050922.
-        import UserPrefs
+        import ne1_ui.UserPrefs as UserPrefs
         if self.commandName == UserPrefs.default_commandName(): #bruce 060403 revised this
             self.w.toolsDoneAction.setVisible(0)
         else:

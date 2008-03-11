@@ -21,7 +21,7 @@ in popular cad softwares. (it probably shouldn't be in a Property manager).
 
 from commands.Paste.PastePropertyManager import PastePropertyManager
 from PM.PM_PartLib import PM_PartLib
-from gui.WhatsThisText_for_PropertyManagers import whatsThis_PartLibPropertyManager
+from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PartLibPropertyManager
 
 class PartLibPropertyManager(PastePropertyManager):
     """
@@ -123,6 +123,6 @@ class PartLibPropertyManager(PastePropertyManager):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_PartLibPropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PartLibPropertyManager
         ToolTip_PartLibPropertyManager(self)
     

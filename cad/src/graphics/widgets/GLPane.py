@@ -140,7 +140,7 @@ from debug import print_compact_traceback, print_compact_stack
 import foundation.preferences as preferences
 import foundation.env as env
 from foundation.changes import SubUsageTrackingMixin
-from cursors import createCompositeCursor
+from ne1_ui.cursors import createCompositeCursor
 
 from graphics.widgets.DynamicTip import DynamicTip
 from graphics.drawing.Guides import Guides
@@ -186,7 +186,7 @@ from graphics.widgets.GLPane_minimal import GLPane_minimal
 import qt4transition
 
 # suspicious imports [should not really be needed, according to bruce 070919]
-from bonds import Bond # used only for selobj ordering
+from model.bonds import Bond # used only for selobj ordering
 
 
 debug_lighting = False #bruce 050418

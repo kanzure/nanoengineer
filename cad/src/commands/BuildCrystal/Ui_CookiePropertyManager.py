@@ -328,14 +328,14 @@ class Ui_CookiePropertyManager(PM_Dialog):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_CookiePropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_CookiePropertyManager
         whatsThis_CookiePropertyManager(self)
         
     def _addToolTipText(self):
         """
         What's Tool Tip text for widgets in this Property Manager.  
         """       
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_CookiePropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_CookiePropertyManager
         ToolTip_CookiePropertyManager(self)
         
         

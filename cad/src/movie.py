@@ -18,7 +18,7 @@ from struct import unpack
 from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
 from geometry.VQT import A
-from chem import move_alist_and_snuggle
+from model.chem import move_alist_and_snuggle
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from debug import print_compact_stack, print_compact_traceback

@@ -19,10 +19,10 @@ from PyQt4.Qt import QMessageBox
 
 from utilities.Log import redmsg, greenmsg, orangemsg
 import foundation.env as env
-from jigs import Anchor
-from jigs import Stat
-from jigs import Thermo
-from jigs import AtomSet
+from model.jigs import Anchor
+from model.jigs import Stat
+from model.jigs import Thermo
+from model.jigs import AtomSet
 
 
 class jigmakers_Mixin:
@@ -214,7 +214,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from jigs_planes import GridPlane
+        from model.jigs_planes import GridPlane
         m = GridPlane(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
@@ -297,7 +297,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from jigs_measurements import MeasureDistance
+        from model.jigs_measurements import MeasureDistance
         d = MeasureDistance(self.assy, atoms)
         self.unpickall_in_GLPane()
         self.place_new_jig(d)
@@ -319,7 +319,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from jigs_measurements import MeasureAngle
+        from model.jigs_measurements import MeasureAngle
         d = MeasureAngle(self.assy, atoms)
         self.unpickall_in_GLPane()
         self.place_new_jig(d)
@@ -340,7 +340,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from jigs_measurements import MeasureDihedral
+        from model.jigs_measurements import MeasureDihedral
         d = MeasureDihedral(self.assy, atoms)
         self.unpickall_in_GLPane()
         self.place_new_jig(d)

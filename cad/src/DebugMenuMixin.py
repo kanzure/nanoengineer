@@ -36,7 +36,7 @@ from utilities import debug_flags
 import debug
 import debug_prefs
 
-from UserPrefs import save_window_pos_size, load_window_pos_size
+from ne1_ui.UserPrefs import save_window_pos_size, load_window_pos_size
 from prefs_constants import mainwindow_geometry_prefs_key_prefix
 from debug import registered_commands_menuspec
 from debug import print_compact_traceback

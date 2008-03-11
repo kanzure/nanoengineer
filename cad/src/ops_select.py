@@ -13,10 +13,10 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from constants import diINVISIBLE, diDEFAULT
-from jigs import Jig
-from chem import _changed_picked_Atoms
-from chunk import Chunk
-from elements import Singlet
+from model.jigs import Jig
+from model.chem import _changed_picked_Atoms
+from model.chunk import Chunk
+from model.elements import Singlet
 from geometry.VQT import V, A, norm, cross
 from Numeric import dot, transpose
 import foundation.env as env

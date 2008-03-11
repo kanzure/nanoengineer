@@ -12,7 +12,7 @@ Bruce 071105 revised init code, and split PAM3 and PAM5 data
 out of elements_data.py into separate files.
 """
 
-from elements_data import tetra4, flat, tetra2, tetra3
+from model.elements_data import tetra4, flat, tetra2, tetra3
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM3 = ('Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 

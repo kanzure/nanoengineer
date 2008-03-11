@@ -13,7 +13,7 @@ History:
 __author__ = "Mark"
 
 from PyQt4.Qt import QDialog, QTextEdit, SIGNAL
-from Comment import Comment
+from model.Comment import Comment
 from commands.CommentProperties.CommentPropDialog import Ui_CommentPropDialog
 import time
 import foundation.env as env

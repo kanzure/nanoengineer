@@ -45,8 +45,8 @@ from commands.BuildCrystal.CookieShape import CookieShape
 import graphics.drawing.drawer as drawer
 from graphics.drawing.drawer import DiGridSp
 from graphics.drawing.drawer import genDiam
-from chunk import Chunk
-from chem import Atom
+from model.chunk import Chunk
+from model.chem import Atom
 
 from constants import gensym
 from constants import diTUBES

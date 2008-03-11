@@ -1006,7 +1006,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             return self.propMgr.elementChooser.getElement()
         else:
             # we're presumably a subclass with no propMgr or a different one
-            from elements import Carbon
+            from model.elements import Carbon
             return Carbon
         
     def pastable_atomtype(self):

@@ -16,11 +16,11 @@ it to outtakes soon. In fact, why not now? Ok, moving it now.
 TODO: split into several files.
 """
 
-from chem import Atom # for isinstance
+from model.chem import Atom # for isinstance
 
 ## see also crossovers.py
 
-from bond_constants import atoms_are_bonded, find_bond
+from model.bond_constants import atoms_are_bonded, find_bond
 
 # ==
 

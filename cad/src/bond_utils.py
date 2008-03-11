@@ -19,10 +19,10 @@ import foundation.env as env
 from utilities.Log import greenmsg, redmsg, orangemsg, quote_html
 from debug import print_compact_stack
 
-from bond_constants import bonded_atoms_summary
-from bond_constants import btype_from_v6
-from bond_constants import v6_from_btype
-from bond_constants import bond_left_atom
+from model.bond_constants import bonded_atoms_summary
+from model.bond_constants import btype_from_v6
+from model.bond_constants import v6_from_btype
+from model.bond_constants import bond_left_atom
 
 def intersect_sequences(s1, s2):
     """

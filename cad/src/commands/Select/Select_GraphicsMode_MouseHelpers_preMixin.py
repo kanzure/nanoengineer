@@ -20,9 +20,9 @@ To be used as a Mixin class only for Select_basicGraphicsMode.
 """
 
 import foundation.env as env
-from bonds import Bond
-from chem  import Atom 
-from jigs  import Jig
+from model.bonds import Bond
+from model.chem import Atom 
+from model.jigs import Jig
 from debug import print_compact_stack
 debug_update_selobj_calls = False # do not commit with true
 

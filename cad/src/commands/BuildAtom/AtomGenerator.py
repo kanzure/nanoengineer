@@ -23,10 +23,10 @@ Mark 2007-07-25: Uses new PM module.
 
 from utilities import debug_flags
 import foundation.env as env
-from chem import Atom
-from chunk import Chunk
+from model.chem import Atom
+from model.chunk import Chunk
 from geometry.VQT import V
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 from utilities.Log import greenmsg
 
 from commands.BuildAtom.AtomGeneratorPropertyManager import AtomGeneratorPropertyManager

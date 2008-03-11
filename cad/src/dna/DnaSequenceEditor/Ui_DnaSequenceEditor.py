@@ -242,7 +242,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             """
             What's Tool Tip text for widgets in this Property Manager.  
             """ 
-            from gui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
+            from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
             ToolTip_SequenceEditor(self)
                
     def _addWhatsThisText(self):
@@ -250,5 +250,5 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
             What's This text for widgets in this Property Manager.  
     
             """
-            from gui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
+            from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
             whatsThis_SequenceEditor(self)

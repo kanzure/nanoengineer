@@ -137,14 +137,14 @@ class QuteMolPropertyManager(PM_Dialog):
         """
         "What's This" text for widgets in this Property Manager.
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_QuteMolPropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_QuteMolPropertyManager
         whatsThis_QuteMolPropertyManager(self)
         
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_QuteMolPropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_QuteMolPropertyManager
         ToolTip_QuteMolPropertyManager(self)
     
     def show(self):

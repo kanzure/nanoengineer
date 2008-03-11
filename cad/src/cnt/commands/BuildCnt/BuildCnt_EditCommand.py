@@ -28,11 +28,11 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from constants import gensym
 
-from Ui_CntFlyout import CntFlyout
+from ne1_ui.toolbars.Ui_CntFlyout import CntFlyout
 
-from chem import Atom 
-from chunk import Chunk
-from bonds import Bond
+from model.chem import Atom 
+from model.chunk import Chunk
+from model.bonds import Bond
 
 ##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 

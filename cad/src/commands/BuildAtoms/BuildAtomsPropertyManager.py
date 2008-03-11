@@ -24,7 +24,7 @@ import foundation.env as env
 
 from PyQt4.Qt import SIGNAL
 from commands.BuildAtoms.Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
-from bond_constants               import btype_from_v6
+from model.bond_constants import btype_from_v6
 from geometry.VQT import V
 from utilities.Comparison import same_vals
 

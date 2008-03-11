@@ -301,7 +301,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_ExtrudePropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_ExtrudePropertyManager
         whatsThis_ExtrudePropertyManager(self)
         
         return

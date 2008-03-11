@@ -32,9 +32,9 @@ from commands.Select.Select_Command import Select_basicCommand
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 
-from chem import Atom
-from chunk import Chunk
-from bonds import Bond
+from model.chem import Atom
+from model.chunk import Chunk
+from model.bonds import Bond
 
 class SelectChunks_basicCommand(Select_basicCommand):
     """

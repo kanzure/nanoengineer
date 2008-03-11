@@ -158,7 +158,7 @@ class PlanePropertyManager(EditCommand_PM):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_PlanePropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_PlanePropertyManager
         whatsThis_PlanePropertyManager(self)
         
     def show(self):

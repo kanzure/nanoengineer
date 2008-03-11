@@ -35,7 +35,7 @@ from utilities import debug_flags
 
 from graphics.rendering.povray.povheader import povpoint
 from utilities.Printing import Vector3ToString
-from elements import Singlet
+from model.elements import Singlet
 
 from debug import print_compact_stack, print_compact_traceback
 
@@ -60,13 +60,13 @@ from constants import black
 from constants import white
 from constants import orange
 
-from bond_constants import V_SINGLE
-from bond_constants import V_DOUBLE
-from bond_constants import V_TRIPLE
-from bond_constants import bond_letter_from_v6
-from bond_constants import V_AROMATIC
-from bond_constants import V_GRAPHITE
-from bond_constants import V_CARBOMERIC
+from model.bond_constants import V_SINGLE
+from model.bond_constants import V_DOUBLE
+from model.bond_constants import V_TRIPLE
+from model.bond_constants import bond_letter_from_v6
+from model.bond_constants import V_AROMATIC
+from model.bond_constants import V_GRAPHITE
+from model.bond_constants import V_CARBOMERIC
 
 from prefs_constants import _default_toolong_hicolor ## not yet in prefs db?
 from prefs_constants import diBALL_BondCylinderRadius_prefs_key

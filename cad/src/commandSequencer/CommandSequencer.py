@@ -310,7 +310,7 @@ class modeMixin(object):
         Exception if requested mode object is not found -- unlike pre-050911 code,
         never return some other mode than asked for -- let caller do that if desired.
         """
-        import UserPrefs #bruce 060403
+        import ne1_ui.UserPrefs as UserPrefs #bruce 060403
         assert commandName_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (commandName_or_obj,)
         if type(commandName_or_obj) == type(''):
             # usual case - internal or symbolic commandName string

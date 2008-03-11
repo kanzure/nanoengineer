@@ -16,7 +16,7 @@ ninad 2007-12-26: Changes to make Plane_EditCommand a command on command stack
 from utilities.Log import greenmsg
 from command_support.EditCommand import EditCommand
 from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
-from Plane import  Plane
+from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 

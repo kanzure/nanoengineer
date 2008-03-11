@@ -34,7 +34,7 @@ from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 from debug import print_compact_traceback
 import foundation.env as env
 from utilities import debug_flags
-from UserPrefs import get_pref_or_optval
+from ne1_ui.UserPrefs import get_pref_or_optval
 from widgets.widget_helpers import double_fixup
 from debug_prefs import debug_pref, Choice_boolean_False
 from prefs_widgets import connect_checkbox_with_boolean_pref

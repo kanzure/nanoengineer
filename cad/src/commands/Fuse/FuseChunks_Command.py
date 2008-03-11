@@ -22,7 +22,7 @@ import foundation.env as env
 import foundation.changes as changes
 from geometry.VQT import vlen
 
-from elements import Singlet
+from model.elements import Singlet
 from utilities.Log import redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager

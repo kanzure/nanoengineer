@@ -49,7 +49,7 @@ A ladder will be fully visible to copy and undo (i.e. it will
 contain undoable state), but will not be stored in the mmp file.
 """
 
-from bond_constants import atoms_are_bonded
+from model.bond_constants import atoms_are_bonded
 
 from dna.model.DnaChain import merged_chain
 

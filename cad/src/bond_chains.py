@@ -9,12 +9,12 @@ bond_chains.py -- helper functions related to chains of bonds
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from bond_constants import DIRBOND_CHAIN_MIDDLE
-from bond_constants import DIRBOND_CHAIN_END
-from bond_constants import DIRBOND_NONE
-from bond_constants import DIRBOND_ERROR
+from model.bond_constants import DIRBOND_CHAIN_MIDDLE
+from model.bond_constants import DIRBOND_CHAIN_END
+from model.bond_constants import DIRBOND_NONE
+from model.bond_constants import DIRBOND_ERROR
 
-from bond_constants import find_bond
+from model.bond_constants import find_bond
 
 def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized from grow_pi_sp_chain
     """

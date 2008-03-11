@@ -9,7 +9,7 @@ dna_updater_commands.py - UI commands offered directly by the dna updater.
 
 from debug import register_debug_menu_command
 
-from chem import _changed_structure_Atoms # but it's private! refactor sometime
+from model.chem import _changed_structure_Atoms # but it's private! refactor sometime
 
 import foundation.env as env
 

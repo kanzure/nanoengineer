@@ -19,7 +19,7 @@ See also: class DnaMarker, which inherits this.
 
 """
 
-from jigs import Jig
+from model.jigs import Jig
 
 _NUMBER_OF_MARKER_ATOMS = 2
 

@@ -87,18 +87,18 @@ import foundation.undo_archive as undo_archive
 from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_CHILD, S_DATA, S_REF
 
-from part import Part as Part_class # use a name we can search for [bruce 071029]
+from model.part import Part as Part_class # use a name we can search for [bruce 071029]
     ### TODO: rename the class Part itself somehow; both Part and part are too generic
 
-from part import MainPart
-from part import ClipboardItemPart
+from model.part import MainPart
+from model.part import ClipboardItemPart
 
 from icon_utilities import imagename_to_pixmap
 from commands.PartProperties.PartProp import PartProp
 from PyQt4 import QtGui
 
 from foundation.Assembly_API import Assembly_API
-from prefsTree import MainPrefsGroupPart
+from model.prefsTree import MainPrefsGroupPart
 import foundation.undo_manager as undo_manager
 from files.mmp.files_mmp_writing import writemmpfile_assy
 

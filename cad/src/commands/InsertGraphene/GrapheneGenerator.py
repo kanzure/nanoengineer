@@ -16,15 +16,15 @@ Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyMan
 from math import atan2, pi
 
 from geometry.VQT import V
-from chem import Atom
+from model.chem import Atom
 
-import bonds # for bond_atoms
-import bond_constants
+import model.bonds as bonds # for bond_atoms
+import model.bond_constants as bond_constants
 
-from chunk import Chunk
+from model.chunk import Chunk
 import foundation.env as env
 from debug import Stopwatch
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 from utilities.Log import greenmsg
 
 from commands.InsertGraphene.GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager

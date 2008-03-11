@@ -17,7 +17,7 @@ with new bonding patterns. And did some of that extension, 050511.
 """
 
 from geometry.VQT import norm
-from chem import Atom
+from model.chem import Atom
 
 from debug import print_compact_traceback
 

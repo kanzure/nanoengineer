@@ -16,9 +16,9 @@ import foundation.changes as changes
 
 from geometry.VQT import vlen
 from graphics.drawing.drawer import drawline
-from elements import Singlet
+from model.elements import Singlet
 from commands.Move.modifyMode import modifyMode
-from bonds import bond_at_singlets
+from model.bonds import bond_at_singlets
 from utilities.Log import redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager

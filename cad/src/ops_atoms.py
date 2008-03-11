@@ -17,7 +17,7 @@ from utilities.Log import greenmsg, redmsg
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 
 from PlatformDependent import fix_plurals
-from elements import Singlet
+from model.elements import Singlet
 import foundation.env as env
 
 class ops_atoms_Mixin:
@@ -33,7 +33,7 @@ class ops_atoms_Mixin:
         # now change selected atoms to the specified element
         # [bruce 041215: this should probably be made available for any modes
         #  in which "selected atoms" are permitted, not just Select modes. #e]
-        from elements import PeriodicTable
+        from model.elements import PeriodicTable
         if self.selatoms:
             dstElem = PeriodicTable.getElement(elem)
             for atm in self.selatoms.values():

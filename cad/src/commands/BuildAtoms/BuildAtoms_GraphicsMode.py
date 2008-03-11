@@ -61,10 +61,10 @@ from utilities import debug_flags
 
 from PlatformDependent import fix_plurals
 
-from chunk      import Chunk
-from chem       import Atom
-from chem       import oneUnbonded
-from elements   import Singlet
+from model.chunk import Chunk
+from model.chem import Atom
+from model.chem import oneUnbonded
+from model.elements import Singlet
 from geometry.VQT import Q, A, norm, twistor
 
 from graphics.drawing.drawer import drawline
@@ -74,8 +74,8 @@ from foundation.Utility import Node
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from graphics.behaviors.shape import get_selCurve_color
 
-from bonds           import bond_atoms, bond_at_singlets
-from bond_constants  import V_SINGLE
+from model.bonds import bond_atoms, bond_at_singlets
+from model.bond_constants import V_SINGLE
 
 from debug import print_compact_stack
 
@@ -83,11 +83,11 @@ from constants import elemKeyTab
 from constants import diINVISIBLE
 from constants import diTUBES
 
-from bond_constants import btype_from_v6
-from bond_constants import V_DOUBLE
-from bond_constants import V_GRAPHITE
-from bond_constants import V_TRIPLE
-from bond_constants import V_AROMATIC
+from model.bond_constants import btype_from_v6
+from model.bond_constants import V_DOUBLE
+from model.bond_constants import V_GRAPHITE
+from model.bond_constants import V_TRIPLE
+from model.bond_constants import V_AROMATIC
 
 from prefs_constants import buildModeSelectAtomsOfDepositedObjEnabled_prefs_key
 from prefs_constants import buildModeWaterEnabled_prefs_key

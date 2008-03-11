@@ -18,7 +18,7 @@ from dna.model.dna_model_constants import LADDER_END0
 import foundation.env as env
 from utilities.Log import redmsg
 
-from bond_constants import find_bond
+from model.bond_constants import find_bond
 
 # ==
 

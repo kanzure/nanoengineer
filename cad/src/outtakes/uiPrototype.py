@@ -69,7 +69,7 @@ from PyQt4.Qt import QTimer
 from PyQt4.Qt import QHBoxLayout
 from PyQt4.Qt import QGridLayout
 
-import modelTreeGui
+import modelTree.modelTreeGui as modelTreeGui
 
 # Hunt for the icons directory
 icons = 'icons'

@@ -7,7 +7,7 @@ PM_MolecularModelingKit.py
 
 """
 
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox import PM_GroupBox

@@ -32,11 +32,11 @@ from PyQt4.Qt import QMouseEvent
 
 import foundation.env as env
 
-from bonds import Bond
-from chem import Atom
+from model.bonds import Bond
+from model.chem import Atom
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
-from chunk import Chunk
+from model.chunk import Chunk
 from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 from OpenGL.GL import glCallList
 from debug import print_compact_traceback, print_compact_stack

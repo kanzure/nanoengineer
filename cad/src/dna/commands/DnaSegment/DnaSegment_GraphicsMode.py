@@ -53,8 +53,8 @@ from debug import print_compact_traceback
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 
-from chem import Atom
-from bonds import Bond
+from model.chem import Atom
+from model.bonds import Bond
 
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2

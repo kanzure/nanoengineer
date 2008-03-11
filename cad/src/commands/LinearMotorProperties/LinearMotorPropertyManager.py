@@ -239,7 +239,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_LinearMotorPropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_LinearMotorPropertyManager
         whatsThis_LinearMotorPropertyManager(self)
         
 
@@ -247,5 +247,5 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         What's Tool Tip text for widgets in this Property Manager.  
         """       
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_LinearMotorPropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_LinearMotorPropertyManager
         ToolTip_LinearMotorPropertyManager(self)

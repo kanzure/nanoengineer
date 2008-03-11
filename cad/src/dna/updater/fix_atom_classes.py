@@ -9,7 +9,7 @@ fix_atom_classes.py - fix classes of PAM atoms
 
 from dna.updater.dna_updater_utils import replace_atom_class
 
-from chem import Atom
+from model.chem import Atom
 
 StrandAtom = Atom # stub
 AxisAtom = Atom # stub

@@ -211,7 +211,7 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
     def _C__dy_dz(self):
         #e if axis has a dy, use that (some lines might come with one)
         # otherwise get an arb perp to our dx
-        from pi_bond_sp_chain import arb_ortho_pair
+        from model.pi_bond_sp_chain import arb_ortho_pair
             # "Given a nonzero vector, return an arbitrary pair of unit vectors perpendicular to it and to each other."
             #e refile that into geometry.py in cad/src, or use smth else in there, and grab these from a more central source in exprs
         return arb_ortho_pair(self.dx)

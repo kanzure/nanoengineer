@@ -14,7 +14,7 @@ out of elements_data.py into separate files.
 Bruce 080108 added Gv5 for use in Eric D's forthcoming PAM5 revision.
 """
 
-from elements_data import tetra4, flat, tetra2
+from model.elements_data import tetra4, flat, tetra2
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM5 = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5')
 

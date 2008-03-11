@@ -18,17 +18,17 @@ from debug         import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from foundation.Group import Group
-from chunk         import Chunk
-from chunk         import mol_copy_name
-from chem          import Atom_prekill_prep
+from model.chunk import Chunk
+from model.chunk import mol_copy_name
+from model.chem import Atom_prekill_prep
 from ops_select    import Selection
-from bonds         import bond_copied_atoms
+from model.bonds import bond_copied_atoms
 from constants     import gensym
 from ops_select    import selection_from_part
 from constants     import noop
 from geometry.VQT import V
 from geometry.BoundingBox import BBox
-from jigs          import Jig
+from model.jigs import Jig
 
 class ops_copy_Mixin:
     """

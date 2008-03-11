@@ -558,13 +558,13 @@ class Ui_MovePropertyManager( PM_Dialog ):
         What's This text for some of the widgets in this Property Manager.  
 
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_MovePropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MovePropertyManager
         whatsThis_MovePropertyManager(self)
         
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_MovePropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_MovePropertyManager
         ToolTip_MovePropertyManager(self)
             

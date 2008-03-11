@@ -25,14 +25,14 @@ import foundation.changes as changes
 
 from utilities.Log import orangemsg, redmsg
 from foundation.Group import Group
-from chem          import Atom
-from chunk         import Chunk
-from elements      import Singlet
+from model.chem import Atom
+from model.chunk import Chunk
+from model.elements import Singlet
 from pastables     import is_pastable
 from commands.BuildAtoms.depositMode import depositMode
 
 from pastables  import find_hotspot_for_pasting
-from bonds      import  bond_at_singlets
+from model.bonds import bond_at_singlets
 
 from commands.Paste.PastePropertyManager import PastePropertyManager
 

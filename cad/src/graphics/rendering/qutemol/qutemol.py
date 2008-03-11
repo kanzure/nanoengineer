@@ -30,7 +30,7 @@ from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
 from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
 from files.pdb.files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
-from elements import PeriodicTable
+from model.elements import PeriodicTable
 
 from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key

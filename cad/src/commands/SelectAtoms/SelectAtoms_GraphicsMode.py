@@ -35,10 +35,10 @@ import foundation.env as env
 from utilities import debug_flags
 
 from geometry.VQT import V, Q, norm, vlen, ptonline
-from chem import Atom
-from jigs import Jig
-from bonds import Bond
-from elements import Singlet
+from model.chem import Atom
+from model.jigs import Jig
+from model.bonds import Bond
+from model.elements import Singlet
 
 from debug import print_compact_traceback, print_compact_stack
 

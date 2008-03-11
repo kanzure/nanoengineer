@@ -19,7 +19,7 @@ from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_SpinBox       import PM_SpinBox
 
-from bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
+from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 from debug import print_compact_traceback
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
@@ -240,14 +240,14 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_NanotubeGeneratorPropertyManager
+        from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_NanotubeGeneratorPropertyManager
         whatsThis_NanotubeGeneratorPropertyManager(self)
         
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_NanotubeGeneratorPropertyManager
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_NanotubeGeneratorPropertyManager
         ToolTip_NanotubeGeneratorPropertyManager(self)
         
     def chirality_fixup(self, spinBoxValueJunk = None):

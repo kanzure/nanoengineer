@@ -13,7 +13,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
-from chunk import Chunk
+from model.chunk import Chunk
 from constants import gensym
 from dna.model.Dna_Constants import getNextStrandColor
 import foundation.env as env

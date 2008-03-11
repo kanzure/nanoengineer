@@ -35,7 +35,7 @@ from foundation.Group import Group
 from utilities.Log  import redmsg, greenmsg ##, orangemsg
 from geometry.VQT import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
-from chunk          import Chunk
+from model.chunk import Chunk
 from constants      import gensym    
 
 from dna.model.Dna_Constants import basesDict, getReverseSequence

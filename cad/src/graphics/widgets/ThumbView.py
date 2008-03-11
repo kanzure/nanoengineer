@@ -79,9 +79,9 @@ from constants import GL_FAR_Z
 from prefs_constants import bondpointHighlightColor_prefs_key
 
 from foundation.Group import Group
-from chem import Atom
-from elements import Singlet
-from chunk import Chunk
+from model.chem import Atom
+from model.elements import Singlet
+from model.chunk import Chunk
 
 from pastables import find_hotspot_for_pasting
 

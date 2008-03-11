@@ -63,8 +63,8 @@ import foundation.env as env
 from utilities import debug_flags
 from foundation.state_utils import DataMixin
 
-from chunk import Chunk
-from chem import Atom
+from model.chunk import Chunk
+from model.chem import Atom
 
 from graphics.drawing.drawer import drawPlane
 from graphics.drawing.drawer import drawwirecube
@@ -77,7 +77,7 @@ from geometry.Slab import Slab
 
 from utilities.Log import redmsg, greenmsg 
 from debug_prefs import debug_pref, Choice_boolean_False
-from jigs import Jig # REVIEW: all uses of this are suspicious!
+from model.jigs import Jig # REVIEW: all uses of this are suspicious!
 from graphics.images.ImageUtils import nEImageOps
 
 from constants import black
@@ -86,8 +86,8 @@ from constants import green
 from constants import START_NEW_SELECTION
 from constants import SUBTRACT_FROM_SELECTION
 
-from jigs_planes import RectGadget
-from jigs_planes import povStrVec
+from model.jigs_planes import RectGadget
+from model.jigs_planes import povStrVec
 
 from analysis.ESP.ESPImageProp import ESPImageProp
 from PlatformDependent import find_or_make_Nanorex_subdir

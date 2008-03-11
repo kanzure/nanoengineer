@@ -7,7 +7,7 @@ DnaLadderRailChunk.py -
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from chunk import Chunk
+from model.chunk import Chunk
 
 from constants import gensym
 from constants import black
@@ -22,7 +22,7 @@ def _DEBUG_REUSE_CHUNKS():
 import foundation.env as env
 from utilities.Log import orangemsg, graymsg
 
-from elements import Singlet
+from model.elements import Singlet
  
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder

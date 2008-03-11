@@ -22,8 +22,8 @@ from geometry.VQT import V, Q, A, norm, vlen
 from utilities.Log import greenmsg, redmsg, orangemsg
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
-from NamedView import NamedView
-from PovrayScene import PovrayScene
+from model.NamedView import NamedView
+from model.PovrayScene import PovrayScene
 
 class viewSlotsMixin:
     """

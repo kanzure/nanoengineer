@@ -96,9 +96,9 @@ from debug_prefs import Choice
 from geometry.VQT import V, A, vlen
 
 from graphics.behaviors.shape import SelectionShape
-from bonds import Bond
-from chem  import Atom 
-from jigs  import Jig
+from model.bonds import Bond
+from model.chem import Atom 
+from model.jigs import Jig
 
 from debug import print_compact_traceback
 from debug import print_compact_stack
@@ -1033,7 +1033,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                 continue
             pass
         # list is empty, just return a new one
-        from chunk import BorrowerChunk
+        from model.chunk import BorrowerChunk
         return BorrowerChunk(self.o.assy)
 
     def deallocate_borrowerchunk(self, bc):

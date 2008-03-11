@@ -11,9 +11,9 @@ from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna.model.DnaLadderRailChunk import DnaAxisChunk
 
 from debug import print_compact_stack, print_compact_traceback
-from chunk import Chunk
-from chem  import Atom
-from bonds import Bond
+from model.chunk import Chunk
+from model.chem import Atom
+from model.bonds import Bond
 from geometry.VQT import V, norm, vlen
 from dna.model.Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 

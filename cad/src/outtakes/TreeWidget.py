@@ -1379,7 +1379,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def redmsg(self, errmsg): #e someday this might come from the subclass #e refile this method near statusbar_msg
         "put an error message into the History"
-        from HistoryWidget import redmsg
+        from history.HistoryWidget import redmsg
         env.history.message( redmsg(errmsg))
         self.statusbar_msg(" ") # probably a good idea -- not sure!
         return

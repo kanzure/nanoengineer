@@ -848,8 +848,8 @@ class CookieShape(shape):
         Build Chunk for the cookies. First, combine bonds from
         all layers together, which may fuse some half bonds to full bonds.
         """
-        from chunk import Chunk
-        from chem import Atom
+        from model.chunk import Chunk
+        from model.chem import Atom
         from constants import gensym
         
         numLayers = len(self.bondLayers)

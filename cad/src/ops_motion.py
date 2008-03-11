@@ -19,9 +19,9 @@ import foundation.env as env
 from math import pi
 from debug import print_compact_traceback
 
-from chunk       import Chunk
-from jigs        import Jig
-from jigs_motors import Motor
+from model.chunk import Chunk
+from model.jigs import Jig
+from model.jigs_motors import Motor
 from analysis.ESP.ESPImage import ESPImage
 from foundation.Group import Group
 

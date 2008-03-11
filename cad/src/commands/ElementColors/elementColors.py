@@ -15,7 +15,7 @@ from PyQt4.Qt import QApplication
 from PyQt4.Qt import QGLFormat
 
 from commands.ElementColors.ElementColorsDialog import Ui_ElementColorsDialog
-from elements import PeriodicTable 
+from model.elements import PeriodicTable 
 from constants import diTrueCPK, diBALL, diTUBES 
 from graphics.widgets.ThumbView import ElementView
 from qt4transition import qt4todo

@@ -42,10 +42,10 @@ from PyQt4 import QtCore
 import foundation.env as env
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
-import modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
+import modelTree.modelTreeGui as modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
 
-from chunk import Chunk
-from jigs import Jig
+from model.chunk import Chunk
+from model.jigs import Jig
 from utilities.Log import orangemsg
 from foundation.Group import Group
 from debug import print_compact_traceback
@@ -329,9 +329,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
             try:
                 from foundation.Utility import Node
                 ## print "reloading prefsTree"
-                import prefsTree as _X
+                import model.prefsTree as _X
                 reload(_X)
-                from prefsTree import prefsTree # constructor for an object which has a tree of nodes and controls them
+                from model.prefsTree import prefsTree # constructor for an object which has a tree of nodes and controls them
                 self.pt = prefsTree(self.assy) # guess; guessing it's ok to remake it each time
                 ptnode = self.pt.topnode
                 assert ptnode is not None
@@ -478,7 +478,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 # this part of the menu-spec itself #e. [bruce 050421]
                 jig = nodeset[0]
                 
-                from jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
+                from model.jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
                 if not isinstance(jig, RectGadget): #raise  
                 
                     disabled_must = jig.disabled_by_atoms() # (by its atoms being in the wrong part)
@@ -754,7 +754,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 if allstats.njigs == 1:
                     jig = nodeset[0]
                 
-                    from jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
+                    from model.jigs_planes import RectGadget    # Try to remove this menu item. [Huaicai 10/11/05]
                     if isinstance(jig, RectGadget):
                         ## return res  -- this 'return' was causing bug 1189 by skipping the rest of the menu, not just this item.
                         # Try to do something less drastic. [bruce 051208]
