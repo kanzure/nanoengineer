@@ -130,8 +130,7 @@ class Nanotube:
             @param tfm: Transform applied to all new cell atoms.
             @type  tfm: V
             
-            @param position: The origin in space of the DNA duplex, where the
-                             3' end of strand A is 0, 0, 0.
+            @param position: The origin in space of the nanotube (0, 0, 0).
             @type  position: L{V}
             """
             try:
@@ -179,7 +178,7 @@ class Nanotube:
             y = -s * inXYZ[0] + c * inXYZ[1]
             return V(x, y, inXYZ[2] + z)
 
-        # Make the duplex.
+        # Make the nanotube.
         subgroup = group
         subgroup.open = False
         
@@ -219,7 +218,7 @@ class Nanotube:
                     (reraising): " % (self, cntCellList,))
             raise
         
-        # Orient the duplex.
+        # Orient the nanotube.
         self._orient(subgroup, endPoint1, endPoint2)
         
         # Regroup subgroup into strand and chunk groups
@@ -250,11 +249,11 @@ class Nanotube:
         the first endpoint (origin) of the nanotube. The vector I{pt1}, I{pt2}
         defines the direction and central axis of the nanotube.
         
-        @param pt1: The starting endpoint (origin) of the DNA duplex.
+        @param pt1: The starting endpoint (origin) of the nanotube.
         @type  pt1: L{V}
         
         @param pt2: The second point of a vector defining the direction
-                    and central axis of the duplex.
+                    and central axis of the nanotube.
         @type  pt2: L{V}
         """
         
@@ -333,9 +332,9 @@ class Nanotube:
         """
         self.cellsPerTurn = cellsPerTurn
     
-    def getBasesPerTurn(self):
+    def getCellsPerTurn(self):
         """
-        returns the number of bases per turn in the duplex
+        returns the number of cells per turn in the nanotube
         """
         return self.cellsPerTurn
     
