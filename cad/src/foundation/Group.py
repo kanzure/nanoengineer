@@ -489,12 +489,12 @@ class Group(NodeWithAtomContents):
         else:
             self.members.append(newchild) # Add newchild to the bottom, i.e. end (default case)
         newchild.dad = self
-        newchild.changed_dad()
+        newchild.changed_dad() # note: this picks newchild if newchild.dad is picked
         newchild.dad.changed_members() # must be done *after* they change and *after* changed_dad has made them acceptable for new dad
-        # note: if we moved newchild from one place to another in self,
-        # changed_members is called twice, once after deletion and once after re-insertion.
-        # probably ok, but I should #doc this in the related subscriber funcs
-        # so callers are aware of it. [bruce 050205]
+        # Note: if we moved newchild from one place to another in self,
+        # changed_members is called twice, once after deletion and once after
+        # re-insertion. That's probably ok, but I should #doc this in the
+        # related subscriber funcs so callers are aware of it. [bruce 050205]
         return
 
     def delmember(self, obj):
