@@ -7,6 +7,15 @@
 
 /* FUNCTION: main */
 int main(int argc, char *argv[]) {
+	
+#ifdef WIN32
+	// Create a console window to see stdout
+	AllocConsole();
+	freopen("conin$", "r", stdin);
+	freopen("conout$", "w", stdout);
+	freopen("conout$", "w", stderr);
+#endif
+
 	Q_INIT_RESOURCE(application);
 	QApplication* app = new QApplication(argc, argv);
 	

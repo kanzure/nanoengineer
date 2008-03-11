@@ -4,6 +4,8 @@ TEMPLATE = lib
 CONFIG += opengl \
  dll \
  debug_and_release
+win32: CONFIG -= dll
+win32: CONFIG += staticlib
 
 TARGET = NXOpenGLRendererPlugin
 

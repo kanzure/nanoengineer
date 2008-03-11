@@ -171,9 +171,14 @@ void ResultsWindow::setupSimulationResultsTree(void)
             if(isMMPFile(*inputFileNameIter)) {
                 int mmpFileFrameSetId = 
                     dataStoreInfo->getInputStructureId(*inputFileNameIter);
-                NXMoleculeSet *rootMoleculeSet = 
-                    entityManager->getRootMoleculeSet(mmpFileFrameSetId, 0);
-                setupMoleculeSetResultsSubtree(rootMoleculeSet, inputFileItem);
+				if (mmpFileFrameSetId > -1) {
+					NXMoleculeSet *rootMoleculeSet = 
+                    	entityManager->getRootMoleculeSet(mmpFileFrameSetId, 0);
+						setupMoleculeSetResultsSubtree(rootMoleculeSet,
+													   inputFileItem);
+				} else {
+					// TODO: handle this
+				}
             }
 
         }

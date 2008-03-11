@@ -5,6 +5,8 @@ CONFIG += stl \
  dll \
  debug_and_release
 # plugin
+win32: CONFIG -= dll
+win32: CONFIG += staticlib
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
