@@ -214,10 +214,10 @@ class DnaGroup(Block):
         # a DnaGroup -- Ninad 2008-01-17        
         strandList = []
         def filterStrands(node):
-            if node.__class__.__name__ == 'DnaStrand':
+            if isinstance(node, self.assy.DnaStrand):
                 strandList.append(node)            
             elif isinstance(node, Chunk) and node.isStrandChunk():
-                if not node.dad.__class__.__name__ == 'DnaStrand':
+                if node.parent_node_of_class(self.assy.DnaStrand) is None:
                     strandList.append(node)    
                 
         self.apply2all(filterStrands)
