@@ -317,16 +317,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """        
 
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
-        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
-        
-        print "***before, self.handlesphereRadius1 =", self.handleSphereRadius1
-        
+        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE        
 
         self._determine_resize_handle_radius()
         
-        print "***after, self.handlesphereRadius1 =", self.handleSphereRadius1
-        print "~~~~~~~~~~~"
-
         handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
 
 
