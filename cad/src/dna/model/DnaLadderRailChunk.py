@@ -58,8 +58,6 @@ class DnaLadderRailChunk(Chunk):
     # review: undo, copy for those attrs? as of 080227 I think that is not needed
     # except for resetting some of them in _undo_update.
     
-    _use_disp = diDEFAULT # display style to use at end of __init__, if not reset
-
     # default value of variable used to return info from __init__:
 
     _please_reuse_this_chunk = None
@@ -80,6 +78,9 @@ class DnaLadderRailChunk(Chunk):
         # actual name is set below, only if we don't return early
         _superclass.__init__(self, assy, _FAKENAME )
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
+
+        use_disp = diDEFAULT # display style to use at end of __init__, if not reset
+        use_picked = False # ditto for self.picked
 
         if reuse_old_chunk_if_possible:
             # Decide whether to abandon self and tell caller to reuse an old
@@ -135,23 +136,28 @@ class DnaLadderRailChunk(Chunk):
             if self._counted_chunks:
                 old_chunks = self._counted_chunks.values() # 1 or more
                 one_old_chunk = old_chunks.pop() # faster than [0] and [1:]
-                # for each property, if all old_chunks same as one_old_chunk,
-                # use that value (only one property for now, .display)
+                # for each property handled here, if all old_chunks same as
+                # one_old_chunk, use that value, otherwise a default value.
+                # Optimize for a single old chunk or a small number of them
+                # (so have only one loop over them).
                 other_old_chunks = old_chunks
-                # reuse display style?
-                _use_disp = one_old_chunk.display
+                
+                use_disp = one_old_chunk.display
+                use_picked = one_old_chunk.picked
+                
                 for chunk in other_old_chunks:
-                    if chunk.display != _use_disp:
-                        _use_disp = diDEFAULT
-                            # maybe, depending on what later code does:
-                            # do we need to distinguish this being result of
-                            # a conflict (like here) or an agreed value?
-                        break
-                self._use_disp = _use_disp
-                    # review: do we need atoms with individually set display styles
-                    # to not contribute their chunks to this calc?
+                    if chunk.display != use_disp:
+                        use_disp = diDEFAULT
+                            # review:
+                            # - do we need atoms with individually set display styles
+                            #   to not contribute their chunks to this calc?
+                            # - (depending on what later code does)
+                            #   do we need to distinguish this being result of
+                            #   a conflict (like here) or an agreed value?
+                    if not chunk.picked:
+                        use_picked = False
+                    continue                
                 # review:
-                # - what about selectedness?
                 # - what about being (or containing) glpane.selobj?
             pass
 
@@ -167,9 +173,9 @@ class DnaLadderRailChunk(Chunk):
             # todo: make not private... or get by without it here (another init arg??)
             # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
-        self._set_properties_from_grab_atom_info()
-            # uses self._use_disp, and other attrs,
-            # to set self.display and self.hidden
+        self._set_properties_from_grab_atom_info( use_disp, use_picked)
+            # uses args and self attrs to set self.display and self.hidden
+            # and possibly call self.pick()
 
         # name -- probably never seen by users, so don't spend lots of runtime
         # or coding time on it -- we use gensym only to make names unique
@@ -323,7 +329,7 @@ class DnaLadderRailChunk(Chunk):
         self._counted_atoms += len(bondpoints)
         return
     
-    def _set_properties_from_grab_atom_info(self): # 080201
+    def _set_properties_from_grab_atom_info(self, use_disp, use_picked): # 080201
         """
         If *all* atoms were in hidden chunks, hide self.
         If any or all were hidden, emit an appropriate summary message.
@@ -375,8 +381,12 @@ class DnaLadderRailChunk(Chunk):
                       ( self._atoms_were_hidden, self._atoms_were_not_hidden )
 
         # display style
-        self.display = self._use_disp
+        self.display = use_disp
 
+        # selectedness
+        if use_picked:
+            self.pick()
+        
         return # from _set_properties_from_grab_atom_info
         
     def set_wholechain(self, wholechain):
