@@ -157,8 +157,9 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         Enable or disable some gui actions depending on 
         whether user is entering or leaving the mode
         """
-        self.w.insertNanotubeAction.setEnabled(bool)
         self.w.buildDnaAction.setEnabled(bool)
+        self.w.buildCntAction.setEnabled(bool)
+        self.w.insertNanotubeAction.setEnabled(bool)
         self.w.insertGrapheneAction.setEnabled(bool)
         self.w.toolsCookieCutAction.setEnabled(bool)
         #@@This should also contain HeteroJunctionAction. (in general Plugin 

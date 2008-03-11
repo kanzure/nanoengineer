@@ -28,6 +28,7 @@ from GlobalPreferences import permit_atom_chunk_coselection
 from icon_utilities import geticon
 
 from dna.model.DnaGroup import DnaGroup
+from cnt.model.CntGroup import CntGroup
 
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
@@ -153,7 +154,7 @@ class ops_select_Mixin:
     
     def getSelectedDnaGroups(self):
         """
-        Returns a list of all the currently selected DnaGroup
+        Returns a list of the currently selected DnaGroup(s).
         
         """
         
@@ -164,6 +165,20 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedDnaGroup)
         return selDnaGroupList
+    
+    def getSelectedCntGroups(self):
+        """
+        Returns a list of the currently selected CntGroup(s).
+        
+        """
+        
+        selCntGroupList = []
+        def addSelectedCntGroup(obj, cntList = selCntGroupList):
+            if obj.picked and isinstance(obj, CntGroup):
+                cntList += [obj]
+
+        self.topnode.apply2all(addSelectedCntGroup)
+        return selCntGroupList
         
 
     def getNumberOfSelectedChunks(self):

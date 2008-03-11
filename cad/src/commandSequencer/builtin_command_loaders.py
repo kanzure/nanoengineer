@@ -52,6 +52,9 @@ from dna.commands.BreakStrands.BreakStrands_Command import BreakStrands_Command
 from dna.commands.BuildDna.BuildDna_EditCommand import BuildDna_EditCommand
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
 from dna.commands.DnaStrand.DnaStrand_EditCommand import DnaStrand_EditCommand
+from cnt.commands.BuildCnt.BuildCnt_EditCommand import BuildCnt_EditCommand
+from cnt.commands.InsertCnt.InsertCnt_EditCommand import InsertCnt_EditCommand
+from cnt.commands.CntSegment.CntSegment_EditCommand import CntSegment_EditCommand
 from commands.Move.Move_Command import Move_Command
 from commands.Rotate.RotateChunks_Command import RotateChunks_Command
 from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
@@ -96,6 +99,9 @@ def preloaded_command_classes():
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 
         DnaStrand_EditCommand,
+        BuildCnt_EditCommand,
+        InsertCnt_EditCommand,
+        CntSegment_EditCommand, 
         RotateChunks_Command,
         TranslateChunks_Command, 
         FuseChunks_Command,

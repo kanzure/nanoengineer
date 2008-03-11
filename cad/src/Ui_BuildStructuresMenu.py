@@ -4,6 +4,7 @@ $Id$
 """
 
 from PyQt4 import QtGui
+from debug_prefs import debug_pref, Choice_boolean_False
 
 def setupUi(win):
     """
@@ -15,8 +16,19 @@ def setupUi(win):
     
     # Populate the "Build Structures" menu.
     win.buildStructuresMenu.addAction(win.toolsDepositAtomAction)
-    win.buildStructuresMenu.addAction(win.buildDnaAction)   
-    win.buildStructuresMenu.addAction(win.insertNanotubeAction)
+    win.buildStructuresMenu.addAction(win.buildDnaAction)
+    
+    #  New CNT Builder or old Nanotube Generator?
+    if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+                  Choice_boolean_False, 
+                  non_debug = True,
+                  prefs_key = "A10 devel/Nanotube generator"):
+        # New "Build > CNT", experimental. --Mark 2008-03-10
+        win.buildStructuresMenu.addAction(win.buildCntAction) 
+    else:
+        # Original "Build > Nanotube"
+        win.buildStructuresMenu.addAction(win.insertNanotubeAction)
+    
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
     win.buildStructuresMenu.addAction(win.insertAtomAction)

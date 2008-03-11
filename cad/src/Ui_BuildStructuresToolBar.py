@@ -5,6 +5,7 @@ $Id$
 
 from PyQt4 import QtGui
 from foundation.wiki_help import QToolBar_WikiHelp
+from debug_prefs import debug_pref, Choice_boolean_False
 
 def setupUi(win, toolbarArea):
     """
@@ -23,8 +24,19 @@ def setupUi(win, toolbarArea):
     # Populate the "Build Structures" toolbar.
     win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
     win.buildStructuresToolBar.addAction(win.buildDnaAction)
+    
+    #  New CNT Builder or old Nanotube Generator?
+    if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+                  Choice_boolean_False, 
+                  non_debug = True,
+                  prefs_key = "A10 devel/Nanotube generator"):
+        # New "Build > CNT", experimental. --Mark 2008-03-10
+        win.buildStructuresToolBar.addAction(win.buildCntAction) 
+    else:
+        # Original "Build > Nanotube"
+        win.buildStructuresToolBar.addAction(win.insertNanotubeAction)
+    
     win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
-    win.buildStructuresToolBar.addAction(win.insertNanotubeAction)
     win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)
     
     # This adds the Atom Generator example for developers.

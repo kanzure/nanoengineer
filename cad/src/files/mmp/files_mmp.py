@@ -76,6 +76,8 @@ from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaStrand import DnaStrand
 from dna.model.Block import Block
+from cnt.model.CntGroup import CntGroup
+from cnt.model.CntSegment import CntSegment
 
 # ==
 
@@ -121,6 +123,8 @@ _GROUP_CLASSIFICATIONS = {
     'DnaSegment'   : DnaSegment,
     'DnaStrand'    : DnaStrand,
     'Block'        : Block,
+    'CntGroup'     : CntGroup,
+    'CntSegment'   : CntSegment,
  }
 
 # == patterns for reading mmp files

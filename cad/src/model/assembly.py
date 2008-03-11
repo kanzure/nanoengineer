@@ -108,6 +108,8 @@ from dna.model.DnaGroup import DnaGroup
 from dna.model.Block import Block
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaStrand import DnaStrand
+from cnt.model.CntGroup import CntGroup # --mark 2008-03-09
+from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
 
 # ==
 
@@ -356,6 +358,9 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             self.register_classname('Block',      Block)
             self.register_classname('DnaSegment', DnaSegment)
             self.register_classname('DnaStrand',  DnaStrand)
+            # Experimental CNT groups. --mark 2008-03-09.
+            self.register_classname('CntGroup',   CntGroup)
+            self.register_classname('CntSegment', CntSegment)
 
         # could remove these when they work, but no need:
         # test node_depth method: [bruce 080116]
@@ -1118,6 +1123,11 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             return DnaSegment
         elif attr == 'DnaStrand':
             return DnaStrand
+        # Experimental CNT groups. --mark 2008-03-09
+        elif attr == 'CntGroup':
+            return CntGroup
+        elif attr == 'CntSegment':
+            return CntSegment
         raise AttributeError, attr
 
     # == tracking undoable changes that aren't saved

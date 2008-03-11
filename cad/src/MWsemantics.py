@@ -66,6 +66,7 @@ from Ui_PartWindow import Ui_PartWindow
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
+import Ui_CntFlyout
 import Ui_DnaFlyout
 
 from ops_files import fileSlotsMixin
@@ -160,6 +161,8 @@ class MWsemantics(QMainWindow,
         self.dnaSegmentPropMgr = None
         self.dnaStrandPropMgr = None
         self.buildDnaPropMgr = None
+        self.buildCntPropMgr = None
+        self.cntSegmentPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot 
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -317,9 +320,21 @@ class MWsemantics(QMainWindow,
 
         from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
         self.graphenecntl = GrapheneGenerator(self)
-        from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
-        self.nanotubecntl = NanotubeGenerator(self)
 
+        #  New CNT Builder or old Nanotube Generator?
+        if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A10 devel/Nanotube generator"):
+            # New "Build > CNT", experimental. --Mark 2008-03-10
+            from cnt.commands.InsertCnt.InsertCnt_EditCommand import InsertCnt_EditCommand
+            self.InsertCntEditCommand = InsertCnt_EditCommand(self.glpane)	
+            self.nanotubecntl = self.InsertCntEditCommand
+            
+        else:
+            from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
+            self.nanotubecntl = NanotubeGenerator(self)
+        
         # Use old DNA generator or new DNA Duplex generator?
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
                       Choice_boolean_False, 
@@ -1347,6 +1362,97 @@ class MWsemantics(QMainWindow,
     def insertNanotube(self):
         self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
+        
+    # Build > CNT related slots and methods. ######################
+    
+    def activateCntTool(self):
+        """
+        Enter the InsertCnt_EditCommand command. 
+        @see:B{self.insertCnt}
+        @see: B{ops_select_Mixin.getSelectedCntGroups}
+        @see: B{cnt_model.CntGroup.edit}
+        """
+        selectedCntGroupList = self.assy.getSelectedCntGroups()
+        
+        #If exactly one CntGroup is selected then when user invokes Build > Nanotube 
+        #command, edit the selected CntGroup instead of creating a new one 
+        #For all other cases, invoking Build > Nanotube will create a new CntGroup
+        if len(selectedCntGroupList) == 1:
+            selCntGroup = selectedCntGroupList[0]
+            selCntGroup.edit()
+        else:
+            commandSequencer = self.commandSequencer        
+            if commandSequencer.currentCommand.commandName != 'BUILD_CNT':
+                commandSequencer.userEnterCommand('BUILD_CNT')
+            
+            assert self.commandSequencer.currentCommand.commandName == 'BUILD_CNT'          
+            self.commandSequencer.currentCommand.runCommand()
+            
+    def insertCnt(self, isChecked = False):
+        """
+        @param isChecked: If Nanotube button in the Cnt Flyout toolbar is 
+                          checked, enter CntLineMode. (provided you are 
+                          using the new CntEditCommand command. 
+        @type  isChecked: boolean
+        @see: B{Ui_CntFlyout.activateCnt_EditCommand}
+        """
+        #  New CNT Builder or old Nanotube Generator?
+        if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A10 devel/Nanotube generator"):
+            
+            commandSequencer = self.commandSequencer
+            currentCommand = commandSequencer.currentCommand
+            if currentCommand.commandName != "INSERT_CNT":
+                commandSequencer.userEnterTemporaryCommand(
+                    'INSERT_CNT')
+                assert commandSequencer.currentCommand.commandName == 'INSERT_CNT'
+                commandSequencer.currentCommand.runCommand()
+            else:        
+                currentCommand = self.commandSequencer.currentCommand
+                if currentCommand.commandName == 'INSERT_CNT':
+                    currentCommand.Done(exit_using_done_or_cancel_button = False)
+        else:
+            if isChecked:
+                self.nanotubecntl.show()
+        
+    def createBuildCntPropMgr_if_needed(self, editCommand):
+        """
+        Create Build CNT PM object (if one doesn't exist) 
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{BuildCnt_EditCommand}
+        @see: B{BuildCnt_EditCommand._createPropMgrObject}
+        """
+        from cnt.commands.BuildCnt.BuildCnt_PropertyManager import BuildCnt_PropertyManager
+        if self.buildCntPropMgr is None:
+            self.buildCntPropMgr = \
+                BuildCnt_PropertyManager(self, editCommand)
+        else:
+            self.buildCntPropMgr.setEditCommand(editCommand)
+
+        return self.buildCntPropMgr
+    
+    def createCntSegmentPropMgr_if_needed(self, editCommand):
+        """
+        Create the CntSegment PM object (if one doesn't exist) 
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{CntSegment_EditCommand}
+        @see: B{CntSegment_EditCommand._createPropMgrObject}
+        """
+        from cnt.commands.CntSegment.CntSegment_PropertyManager import CntSegment_PropertyManager
+        if self.cntSegmentPropMgr is None:
+            self.cntSegmentPropMgr = \
+                CntSegment_PropertyManager(self, editCommand)
+            
+        else:
+            self.cntSegmentPropMgr.setEditCommand(editCommand)
+
+        return self.cntSegmentPropMgr
 
     def activateDnaTool_OLD_NOT_USED(self):
         """
@@ -1387,7 +1493,6 @@ class MWsemantics(QMainWindow,
             
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'          
             self.commandSequencer.currentCommand.runCommand()
-    
         
     def enterBreakStrandCommand(self, isChecked = False):
         """
