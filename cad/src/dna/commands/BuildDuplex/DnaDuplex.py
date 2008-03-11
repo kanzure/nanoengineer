@@ -26,7 +26,7 @@ from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
-from constants          import gensym, darkred, blue
+from constants          import gensym, darkred, blue, orange, olive
 from constants          import diBALL, diTUBES
 from prefs_constants import dnaDefaultSegmentColor_prefs_key
 
@@ -45,6 +45,11 @@ if not basepath_ok:
 
 RIGHT_HANDED = -1
 LEFT_HANDED  =  1
+
+    
+from geometry.VQT import V, Q, norm, cross  
+from geometry.VQT import  vlen
+from Numeric import dot
 
 class Dna:
     """
@@ -68,8 +73,6 @@ class Dna:
     
     @note: Atomistic models are not supported.
     """
-    
-    
         
     def make(self, 
              group, 
@@ -112,9 +115,9 @@ class Dna:
         @param position: The position in 3d model space at which to create
                          the DNA strand. This should always be 0, 0, 0.
         @type position:  position
-        """
+        """      
         
-        self.assy               =  group.assy
+        self.assy               =  group.assy         
         assy                    =  group.assy
         baseList                =  []
         
@@ -127,7 +130,26 @@ class Dna:
         #revised) -- Ninad 2008-03-05
         self.setBasesPerTurn(basesPerTurn)
         
-        def insertBaseFromMmp(filename, subgroup, tfm, position = position):
+        #End axis atom at end1. i.e. the first mouse click point from which 
+        #user started drawing the dna duplex (rubberband line). This is initially
+        #set to None. When we start creating the duplex and read in the first 
+        #mmp file:  MiddleBasePair.mmp, we assign the appropriate atom to this 
+        #variable. See self._determine_axis_and_strandA_endAtoms_at_end_1()
+        self.axis_atom_end1 = None
+        
+        #The strand base atom of Strand-A, connected to the self.axis_atom_end1
+        #The vector between self.axis_atom_end1 and self.strandA_atom_end1 
+        #is used to determine the final orientation of the created duplex. 
+        #that aligns this vector such that it is parallel to the screen. 
+        #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
+        self.strandA_atom_end1 = None
+        
+        
+        def insertBaseFromMmp(filename, 
+                              subgroup, 
+                              tfm, 
+                              position = position
+                             ):
             """
             Insert the atoms for a nucleic acid base from an MMP file into
             a single chunk.
@@ -161,7 +183,8 @@ class Dna:
             for member in mainpart.members:
                 # 'member' is a chunk containing a full set of 
                 # base-pair pseudo atoms.
-                for atm in member.atoms.values():
+                                        
+                for atm in member.atoms.values():                            
                     atm._posn = tfm(atm._posn) + position
                 
                 member.name = "BasePairChunk"
@@ -196,12 +219,12 @@ class Dna:
 
         # Make the duplex.
         subgroup = group
-        subgroup.open = False
-        
+        subgroup.open = False    
+                        
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
-        theta        = 0.0
-        z            = 0.5 * self.getBaseRise() * (self.getNumberOfBasePairs() - 1)
+        theta = 0.0
+        z     = 0.5 * self.getBaseRise() * (self.getNumberOfBasePairs() - 1)
                 
         # Create duplex.
         for i in range(self.getNumberOfBasePairs()):
@@ -211,6 +234,24 @@ class Dna:
                 return rotateTranslateXYZ(v, theta, z1)
             
             insertBaseFromMmp(basefile, subgroup, tfm)
+            
+            if i == 0:
+                #The chunk baseList[0] should always contain the information 
+                #about the strand end and axis end atoms at end1 we are 
+                #interested in. This chunk is obtained by reading in the 
+                #first mmp file (at i =0) .
+                
+                #Note that we could have determined this after the for loop 
+                #as well. But now harm in doing it here. This is also safe 
+                #from any accidental modifications to the chunk after the for 
+                #loop. Note that 'baseList' gets populated in 
+                #sub 'def insertBasesFromMMP'.... Related TODO: The method 
+                #'def make' itself needs reafcatoring so that all submethods are
+                #direct methods of class Dna.
+                #@see self._determine_axis_and_strandA_endAtoms_at_end_1() for 
+                #more comments
+                firstChunkInBaseList = baseList[0]
+                self._determine_axis_and_strandA_endAtoms_at_end_1(baseList[0])
 
             theta -= twistPerBase
             z     -= self.getBaseRise()
@@ -233,12 +274,11 @@ class Dna:
         
         # Orient the duplex.
         self._orient(subgroup, endPoint1, endPoint2)
-        
+           
         # Regroup subgroup into strand and chunk groups
         self._regroup(subgroup)
-        
         return
-
+    
     def _postProcess(self, baseList):
         return
     
@@ -286,13 +326,14 @@ class Dna:
         # <b> is the unit vector parallel to the line (i.e. pt1, pt2).
         axis = cross(a, b)
         # <axis> is the axis of rotation.
+        
         theta = angleBetween(a, b)
         # <theta> is the angle (in degress) to rotate about <axis>.
         scalar = self.getBaseRise() * (self.getNumberOfBasePairs() - 1) * 0.5
         rawOffset = b * scalar
         
         if 0: # Debugging code.
-            print ""
+            print "~~~~~~~~~~~~~~"
             print "uVector  a = ", a
             print "uVector  b = ", b
             print "cross(a,b) =", axis
@@ -300,7 +341,7 @@ class Dna:
             print "baserise   =", self.getBaseRise()
             print "# of bases =", self.getNumberOfBasePairs()
             print "scalar     =", scalar
-            print "rawOffset  =", rawOffset
+            print "rawOffset  =", rawOffset 
         
         if theta == 0.0 or theta == 180.0:
             axis = V(0, 1, 0)
@@ -314,6 +355,56 @@ class Dna:
             m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
             m.rot(qrot)
         
+        #do further adjustments so that first base of strandA always lies
+        #in the screen parallel plane, which is passing through the 
+        #axis. 
+        self._orient_to_position_first_strandA_base_in_axis_plane(dnaGroup, 
+                                                     pt1, 
+                                                     pt2)
+            
+    def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
+        """
+        Overridden in subclasses. Default implementation does nothing. 
+                
+        @param chunk: The method itereates over chunk atoms to determine 
+                      strand and axis end atoms at end 1. 
+        @see: B_DNA_PAM3._determine_axis_and_strandA_endAtoms_at_end_1()
+              for documentation and implementation. 
+        """
+        pass
+    
+    def _orient_to_position_first_strandA_base_in_axis_plane(self, segment, end1, end2):
+        """
+        Overridden in subclasses. Default implementation does nothing.
+        
+        The self._orient method orients the DNA duplex parallel to the screen
+        (lengthwise) but it doesn't ensure align the vector
+        through the strand end atom on StrandA and the corresponding axis end 
+        atom  (at end1) , parallel to the screen. 
+        
+        This function does that ( it has some rare bugs which trigger where it
+        doesn't do its job but overall works okay )
+        
+        What it does: After self._orient() is done orienting, it finds a Quat 
+        that rotates between the 'desired vector' between strand and axis ends at
+        end1(aligned to the screen)  and the actual vector based on the current
+        positions of these atoms.  Using this quat we rotate all the chunks 
+        (as a unit) around a common center. 
+        
+        @BUG: The last part 'rotating as a unit' uses a readymade method in 
+        ops_motion.py -- 'rotateSpecifiedMovables' . This method itself may have
+        some bugs because the axis of the dna duplex is slightly offset to the
+        original axis. 
+        
+        @see: self._determine_axis_and_strandA_endAtoms_at_end_1()
+        @see: self.make()
+        
+        @see: B_DNA_PAM3._orient_to_position_first_strandA_base_in_axis_plane
+        
+        """
+        pass
+    
+    
     def _regroup(self, dnaGroup):
         """
         Regroups I{dnaGroup} into group containing three chunks: I{StrandA},
@@ -365,6 +456,8 @@ class Dna:
                       name = "Axis",
                       group = dnaGroup,
                       color = env.prefs[dnaDefaultSegmentColor_prefs_key])
+            
+
 
         return
 
@@ -634,6 +727,8 @@ class B_Dna_PAM3(B_Dna_PAM5):
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
     
+    
+    
     def _postProcess(self, baseList):
         """
         Final tweaks on the DNA chunk, including:
@@ -676,6 +771,93 @@ class B_Dna_PAM3(B_Dna_PAM5):
             adjustSinglet(singlet)
         return
     
+    def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
+        """
+        Determine the axis end atom and the strand atom on strand 1 
+        connected to it , at end1 . i.e. the first mouse click point from which 
+        user started drawing the dna duplex (rubberband line)
+        
+        These are initially set to None. 
+        
+        The strand base atom of Strand-A, connected to the self.axis_atom_end1
+        The vector between self.axis_atom_end1 and self.strandA_atom_end1 
+        is used to determine the final orientation of the created duplex
+        done in self._orient_to_position_first_strandA_base_in_axis_plane()
+        
+        This vector is aligned such that it is parallel to the screen. 
+        
+        i.e. StrandA end Atom and corresponding axis end atom are coplaner and 
+        parallel to the screen.   
+        
+        @NOTE:The caller should make sure that the appropriate chunk is passed 
+              as an argument to this method. This function itself only finds 
+              and assigns the axis ('Ax3') and strand ('Ss3' atom and on StrandA)
+              atoms it sees first to the  respective attributes. (and which pass
+              other necessary tests)        
+              
+        @see: self.make() where this function is called
+        @see: self._orient_to_position_first_strandA_base_in_axis_plane()
+        """
+        for atm in chunk.atoms.itervalues():
+            if self.axis_atom_end1 is None:
+                if atm.element.symbol == 'Ax3':
+                    self.axis_atom_end1 = atm
+            if self.strandA_atom_end1 is None:
+                if atm.element.symbol == 'Ss3' and atm.dnaBaseName == 'a':
+                    self.strandA_atom_end1 = atm
+    
+    def _orient_to_position_first_strandA_base_in_axis_plane(self, segment, end1, end2):
+        """
+        The self._orient method orients the DNA duplex parallel to the screen
+        (lengthwise) but it doesn't ensure align the vector
+        through the strand end atom on StrandA and the corresponding axis end 
+        atom  (at end1) , parallel to the screen. 
+        
+        This function does that ( it has some rare bugs which trigger where it
+        doesn't do its job but overall works okay )
+        
+        What it does: After self._orient() is done orienting, it finds a Quat 
+        that rotates between the 'desired vector' between strand and axis ends at
+        end1(aligned to the screen)  and the actual vector based on the current
+        positions of these atoms.  Using this quat we rotate all the chunks 
+        (as a unit) around a common center.
+        
+        @BUG: The last part 'rotating as a unit' uses a readymade method in 
+        ops_motion.py -- 'rotateSpecifiedMovables' . This method itself may have
+        some bugs because the axis of the dna duplex is slightly offset to the
+        original axis. 
+        
+        @see: self._determine_axis_and_strandA_endAtoms_at_end_1()
+        @see: self.make()
+        """
+        
+        #the vector between the two end points. these are more likely
+        #points clicked by the user while creating dna duplex using endpoints
+        #of a line. In genral, end1 and end2 are obtained from self.make()
+        b = norm(end2 - end1)        
+                
+        axis_strand_vector = (self.strandA_atom_end1.posn() - \
+                              self.axis_atom_end1.posn())
+               
+        vectorAlongLadderStep =  cross(-self.assy.o.lineOfSight, b)
+        unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+                        
+        self.final_pos_strand_end_atom = \
+            self.axis_atom_end1.posn() + \
+            vlen(axis_strand_vector)*unitVectorAlongLadderStep
+        
+        expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
+        
+        q_new = Q(axis_strand_vector, expected_vec)
+        
+        if dot(axis_strand_vector, self.assy.o.lineOfSight) < 0:            
+            q_new2 = Q(b, -q_new.angle)
+        else:     
+            q_new2 = Q(b, q_new.angle)      
+                
+        self.assy.rotateSpecifiedMovables(q_new2, segment.members)
+        
+                
     def _create_atomLists_for_regrouping(self, dnaGroup):
         """
         Creates and returns the atom lists that will be used to regroup the 
