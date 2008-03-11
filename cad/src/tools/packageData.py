@@ -620,6 +620,7 @@ packageMapping_for_files = {
     "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
     "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui/toolbars",
+    "Ui_CntFlyout"                     : "ui/toolbar|ne1_ui/toolbars", # I'm guessing this has to be in ne1_ui, not dna
     "Ui_DnaFlyout"                     : "ui/toolbar|ne1_ui/toolbars", # I'm guessing this has to be in ne1_ui, not dna
     "Ui_EditMenu"                      : "ui/menu",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr|commands/Extrude",
