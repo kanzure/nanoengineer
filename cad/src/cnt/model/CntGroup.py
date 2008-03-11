@@ -119,10 +119,7 @@ class CntGroup(Block):
         """
         Return a list of all our CntSegment objects.
         """
-        return self.get_topmost_subnodes_of_class('CntSegment')
-            # note: as of 080115 get_topmost_subnodes_of_class is implemented
-            # for class args, but only for a few string args (including 'CntSegment'),
-            # and is untested. String args are useful for avoiding import cycles.
+        return self.get_topmost_subnodes_of_class(self.assy.CntSegment)
 
     def addSegment(self, segment):
         """

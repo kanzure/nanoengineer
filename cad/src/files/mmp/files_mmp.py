@@ -116,7 +116,9 @@ KNOWN_INFO_KINDS = (
 # of _mmp_group_classifications in subclasses of Group.
 #
 # This assignment and the imports that support it ought to be replaced
-# by a registration scheme. Not urgent. [bruce 080115]
+# by a registration scheme. Not urgent. Alternatively, we could let these
+# values depend on the assy being read into (a good thing to do in principle)
+# and ask the assy to map these names to classes). [bruce 080115/080310]
 
 _GROUP_CLASSIFICATIONS = { 
     'DnaGroup'     : DnaGroup,

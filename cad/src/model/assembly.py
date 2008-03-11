@@ -104,6 +104,9 @@ from files.mmp.files_mmp_writing import writemmpfile_assy
 
 # kluge for register_classname -- should use a
 # registration scheme: [bruce 080115]
+#update, bruce 080310: extending this list is
+# deprecated and it will be removed soon --
+# see comments in register_classname.
 from dna.model.DnaGroup import DnaGroup
 from dna.model.Block import Block
 from dna.model.DnaSegment import DnaSegment
@@ -135,6 +138,23 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
     and lots of miscellaneous methods for manipulating
     that data.)
     """
+    # The following class constant attrs can be used in isinstance tests
+    # (e.g. isinstance( node, assy.DnaGroup)) and also as arguments
+    # to Node.parent_node_of_class. Using them can avoid import cycles
+    # (compared to other code importing these classes directly)
+    # and avoids the need for registering and passing their names
+    # as strings (in register_classname and parent_node_of_class).
+    # Once existing code is converted to use this, register_classname
+    # (and the toplevel imports of these classes) can be removed.
+    # Note that these imports must not be moved to toplevel,
+    # and are not redundant with toplevel imports if they exist. [bruce 080310]
+    from dna.model.DnaGroup import DnaGroup
+    from dna.model.Block import Block
+    from dna.model.DnaSegment import DnaSegment
+    from dna.model.DnaStrand import DnaStrand
+    from cnt.model.CntGroup import CntGroup # --mark 2008-03-09
+    from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
+
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
     #bruce 071026 added docstring
@@ -354,6 +374,12 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             # note: as of 080115, of these, only DnaSegment is needed externally;
             # see also files_mmp._GROUP_CLASSIFICATIONS (unclear if it would be a good
             # idea to incorporate that directly or use it instead -- probably not)
+            #update, bruce 080310: we also import these directly into the class
+            # definition namespace to support isinstance( object, assy.classname),
+            # which may make register_classname unnecessary at some point.
+            # So extending this list is
+            # deprecated and it will be removed soon.
+            # See also the comments in register_classname.
             self.register_classname('DnaGroup',   DnaGroup)
             self.register_classname('Block',      Block)
             self.register_classname('DnaSegment', DnaSegment)
@@ -461,6 +487,8 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
 
     def register_classname(self, classname, class1):
         """
+        [MIGHT BE DEPRECATED; if possible, use class-level imports
+         and assy attrs instead -- bruce 080310]
         """
         self._classnames[classname] = class1
         
@@ -540,9 +568,13 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         """
         try:
             # handle registered classnames
-            return self._classnames[class_or_classname]
+            res = self._classnames[class_or_classname]
         except KeyError:
             pass
+        else:
+            #bruce 080310 deprecated this and removed all known uses
+            print_compact_stack( "\n*** DEPRECATED: use of string classname %r: " % class_or_classname)
+            return res
         assert type(class_or_classname) != type(""), \
                "bug: class_or_classname_to_class: " \
                "classname %r not registered" % (class_or_classname,)
@@ -1115,19 +1147,6 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
                 meth = getattr(self.part, attr)
                 return meth(*args,**kws)
             return deleg
-        #TODO: TO BE REVISED. The following attr will be used in isinstance tests
-        #and also in Node.parent_node_of_class checks-- NINAD 2008-03-04
-        elif attr == 'DnaGroup':
-            return DnaGroup
-        elif attr == 'DnaSegment':
-            return DnaSegment
-        elif attr == 'DnaStrand':
-            return DnaStrand
-        # Experimental CNT groups. --mark 2008-03-09
-        elif attr == 'CntGroup':
-            return CntGroup
-        elif attr == 'CntSegment':
-            return CntSegment
         raise AttributeError, attr
 
     # == tracking undoable changes that aren't saved

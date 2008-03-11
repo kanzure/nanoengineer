@@ -121,10 +121,7 @@ class DnaGroup(Block):
         """
         Return a list of all our DnaSegment objects.
         """
-        return self.get_topmost_subnodes_of_class('DnaSegment')
-            # note: as of 080115 get_topmost_subnodes_of_class is implemented
-            # for class args, but only for a few string args (including 'DnaSegment'),
-            # and is untested. String args are useful for avoiding import cycles.
+        return self.get_topmost_subnodes_of_class(self.assy.DnaSegment)
 
     def addSegment(self, segment):
         """

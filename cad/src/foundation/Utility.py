@@ -321,10 +321,11 @@ class Node( StateMixin, IdentityCopyMixin):
             # important to do this in subclass, not in self or Node
         return
 
-    def parent_node_of_class(self, class_or_classname): #bruce 071206
+    def parent_node_of_class(self, class_or_classname):
         """
         If self has a parent Node in the current part
-        with the given class_or_classname (known to self.assy),
+        with the given class_or_classname (known to self.assy
+         via Assembly.register_classname),
         or a subclass of the class that refers to,
         return the innermost such node; otherwise return None.
 
@@ -333,8 +334,15 @@ class Node( StateMixin, IdentityCopyMixin):
                                     self.assy.class_or_classname_to_class
                                     except for a few hardcoded examples,
                                     as of 080115. String args can be useful
-                                    for avoiding import cycles.)
+                                    for avoiding import cycles. But it's better
+                                    to use the class Assembly attributes which
+                                    are named after classes and whose values are
+                                    those classes, in order to pass actual classes
+                                    to this method, and to extend that list as
+                                    needed.
+                                    )
         """
+        #bruce 071206; revised docstring 080310
         part = self.part
         node = self.dad
         class1 = self.assy.class_or_classname_to_class(class_or_classname)
@@ -558,7 +566,9 @@ class Node( StateMixin, IdentityCopyMixin):
         # [not presently needed, but tested]
     
     def change_current_selgroup_to_include_self(self): #bruce 050131 for Alpha
-        "#doc"
+        """
+        #doc
+        """
         # This might not be fast enough, so when there's time,
         # replace it with one that optims by stopping when dad is picked.
         foundselgroup, ours = self.find_selection_group_or_picked_dad()
