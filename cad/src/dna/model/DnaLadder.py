@@ -131,15 +131,23 @@ class DnaLadder(object):
         # on error, should be set to a short string (suitable for tooltip)
         # without instance-specific data (i.e. one of a small fixed set of
         # possible strings, so also suitable as part of a summary_format string)
+    
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
         self.strand_rails = []
         assert self.assy is not None, "%r.__init__: assy is None" % self
+        
     def baselength(self):
         return len(self.axis_rail)
+    
     def __len__(self):
         return self.baselength()
+    
+    def __nonzero__(self): # 080311
+        # avoid Python calling __len__ for this [review: need __eq__ as well?]
+        return True
+    
     def add_strand_rail(self, strand_rail): # review: _f_, since requires a lot of calling code?
         """
         This is called while constructing a dna ladder (self)
@@ -165,6 +173,7 @@ class DnaLadder(object):
         if _DEBUG_REVERSE_STRANDS():
             strand_rail.debug_check_bond_direction("in %r.add_strand_rail" % self)
         return
+    
     def finished(self): # Q. rename to 'finish'?
         """
         This is called once to signify that construction of self is done
@@ -206,6 +215,7 @@ class DnaLadder(object):
         del axis_left_end_baseatom # would be wrong after the following code
         self._finish_strand_rails()
         return
+    
     def _finish_strand_rails(self): # also used in DnaSingleStrandDomain
         """
         verify strand bond directions are antiparallel, and standardize them;
@@ -334,6 +344,7 @@ class DnaLadder(object):
                 strand2_atoms.reverse()
                 self._check_geom( axis_atoms, strand2_atoms, strand1_atoms)
         return
+    
     def _check_geom(self, axis_atoms, strand1_atoms, strand2_atoms ):
         """
         Check the first 4 atoms (out of 6 passed to us, as 3 lists of 2)
@@ -384,6 +395,7 @@ class DnaLadder(object):
 
     def num_strands(self):
         return len(self.strand_rails)
+    
     def set_valid(self, val):
         if val != self.valid:
             self.valid = val
@@ -406,6 +418,7 @@ class DnaLadder(object):
                 # tell the next run of the dna updater we're invalid
                 _invalid_dna_ladders[id(self)] = self
         return
+    
     def rail_end_baseatoms(self):
         """
         yield the 3 or 6 atoms which are end-atoms for one of our 3 rails,
@@ -443,6 +456,7 @@ class DnaLadder(object):
             if other_ladder_and_merge_info:
                 return other_ladder_and_merge_info
         return None
+    
     def do_merge(self, other_ladder_and_merge_info):
         """
         Caller promises that other_ladder_and_merge_info was returned by
@@ -456,6 +470,7 @@ class DnaLadder(object):
         other_ladder, merge_info = other_ladder_and_merge_info
         end, other_end = merge_info
         return self._do_merge_with_other_at_ends(other_ladder, end, other_end)
+    
     def _can_merge_at_end(self, end): # TODO: update & clean up docstring
         """
         Is the same valid other ladder (with no error) attached to each rail of self
@@ -554,6 +569,7 @@ class DnaLadder(object):
                 other_ladder_and_merge_info = other, merge_info
                 return other_ladder_and_merge_info
         return None
+    
     def ladder_end_atoms(self, end, reverse = False):
         """
         Return a list of our 3 rail-end atoms at the specified end,
@@ -595,6 +611,7 @@ class DnaLadder(object):
         if reverse:
             res0.reverse() #e could optim by xoring those booleans
         return res0
+    
     def __repr__(self):
         ns = self.num_strands()
         if ns == 2:
@@ -607,6 +624,7 @@ class DnaLadder(object):
         else:
             extra = " (error: %d strands)" % ns
         return "<%s at %#x, axis len %d%s>" % (self.__class__.__name__, id(self), self.axis_rail.baselength(), extra)
+
     def _do_merge_with_other_at_ends(self, other, end, other_end): # works in either class; when works, could optim for single strand
         """
         Merge two ladders, at specified ends of each one:
@@ -922,6 +940,7 @@ class DnaSingleStrandDomain(DnaLadder):
     in terms of ability to interface with other code.
     """
     valid = False # same as in super; set to True in _finish_strand_rails
+    
     def __init__(self, strand_rail):        
         self.axis_rail = None
         self.assy = strand_rail.baseatoms[0].molecule.assy
@@ -929,24 +948,31 @@ class DnaSingleStrandDomain(DnaLadder):
         assert self.assy is not None, "%r.__init__: assy is None" % self
         self._finish_strand_rails()
             # check bond direction, reverse if needed
+        return
+    
     def baselength(self):
         return len(self.strand_rails[0])
+    
     def finished(self):
         assert 0, "illegal in this class" # or could be a noop
+        
     def add_strand_rail(self, strand_rail):
         assert 0, "illegal in this class"
+        
     def all_rails(self):
         """
         Return a list of all our rails (1 strand).
         [implem is subclass-specific]
         """
         return self.strand_rails
+    
     def axis_rails(self):
         """
         Return a list of all our axis rails (none, in this subclass).
         [implem is subclass-specific]
         """
         return []
+    
     def all_rail_slots_from_top_to_bottom(self):
         """
         Return a list of all our rails (1 strand), in top to bottom order,
@@ -954,6 +980,7 @@ class DnaSingleStrandDomain(DnaLadder):
         [implem is subclass-specific]
         """
         return [self.strand_rails[0], None, None]
+    
     def __repr__(self):
         ns = self.num_strands()
         if ns == 1:
