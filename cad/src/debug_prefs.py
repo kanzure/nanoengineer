@@ -166,6 +166,8 @@ class Pref:
             # (might also help with usage tracking)
             self.value = env.prefs[self.prefs_key] #k probably we could just return this and ignore self.value in this case
         return self.value
+    def current_value_is_not_default(self): #bruce 080312
+        return not same_vals( self.current_value(), self._dfltval)
     def changer_menuspec(self):
         """
         Return a menu_spec suitable for including in some larger menu (as item or submenu is up to us)
@@ -358,7 +360,7 @@ def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
     submenu = []
     for name, value in nameval_pairs:
         text = name
-        if indicate_defaultValue and value == defaultValue: #bruce 070518 new feature
+        if indicate_defaultValue and value == defaultValue: #bruce 070518 new feature [review: does it need same_vals?]
             text += " (default)"
         mitem = ( text,
                   lambda event = None, func = newval_receiver_func, val = value: func(val),
@@ -595,15 +597,20 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 #bruce 060124 changes: always called, but gets passed debug_flags.atom_debug as an arg to filter the prefs,
 # and has new API to return a list of menu items (perhaps empty) rather than exactly one.
 
-def debug_prefs_menuspec( atom_debug):
+from utilities import debug_flags
+
+def debug_prefs_menuspec( atom_debug): #bruce 080312 split this up
     """
-    Return a list of zero or more menu items or submenus (as menu_spec tuples or lists)
-    usable to see and edit settings of all active debug prefs (for atom_debug true)
-    or all the ones that have their non_debug flag set (for atom_debug false).
+    Return the debug_prefs section for the debug menu, as a list of zero or more
+    menu items or submenus (as menu_spec tuples or lists).
     """
-    from utilities import debug_flags
+
+    # first exercise all our own debug_prefs, then get the sorted list
+    # of all known ones.
+    
     if debug_flags.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
+    
     max_menu_length = debug_pref(
         "(max debug prefs submenu length?)", #bruce 080215
              # initial paren or space puts it at start of menu
@@ -612,15 +619,56 @@ def debug_prefs_menuspec( atom_debug):
              # since it's closer to previous non-atom_debug behavior
          prefs_key = True
      )
+
+    non_default_submenu = True # could be enabled by its own debug_pref if desired
+    
     items = [(name.lower(), name, pref) for name, pref in debug_prefs.items()]
-        # use name.lower() as sortkey;
+        # use name.lower() as sortkey, in this function and some of the subfunctions;
         # name is included to disambiguate cases where sortkey is identical
     items.sort()
+
+    # then let each subsection process this in its own way.
+
+    if non_default_submenu:
+        part1 = _non_default_debug_prefs_menuspec( items )
+    else:
+        part1 = []
+
+    part2 = _main_debug_prefs_menuspec( items, max_menu_length, atom_debug)
+    
+    return part1 + part2
+
+def _non_default_debug_prefs_menuspec( items): #bruce 080312 added this
+    """
+    [private helper for debug_prefs_menuspec]
+
+    Return a submenu for the debug_prefs currently set to a non-default value,
+    if there are any. Items have a private format coming from our caller.
+    """
+    non_default_items = [item for item in items if item[-1].current_value_is_not_default()]
+    if not non_default_items:
+        return []
+    submenu = [pref.changer_menuspec() for (sortkey_junk, name_junk, pref) in non_default_items]
+    text = "debug prefs currently set (%d)" % len(submenu)
+    return [ (text, submenu) ]
+    
+def _main_debug_prefs_menuspec( items, max_menu_length, atom_debug):
+    """
+    [private helper for debug_prefs_menuspec]
+
+    Return a list of zero or more menu items or submenus (as menu_spec tuples or lists)
+    usable to see and edit settings of all active debug prefs (for atom_debug true)
+    or all the ones that have their non_debug flag set (for atom_debug false).
+
+    Items have a private format coming from our caller.
+    """
     items_wanted = []
         # will become a list of (sortkey, menuspec) pairs
     for sortkey, name_junk, pref in items:
         if pref.non_debug or atom_debug:
             items_wanted.append( (sortkey, pref.changer_menuspec()) )
+                # note: sortkey is not used below for sorting (that
+                # happened in caller), but is used for determining ranges.
         # print name_junk, to see the list for determining good ranges below
     if not items_wanted:
         if atom_debug:
