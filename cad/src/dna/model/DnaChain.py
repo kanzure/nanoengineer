@@ -20,6 +20,8 @@ from utilities.Log import redmsg
 
 from model.bond_constants import find_bond
 
+from model.elements import Pl5
+
 # ==
 
 try:
@@ -757,7 +759,7 @@ def find_Pl_bonds(atom1, atom2): #e refile
     """
     for bond1 in atom1.bonds:
         Pl = bond1.other(atom1)
-        if Pl.element.symbol.startswith("Pl"): # KLUGE
+        if Pl.element is Pl5:
             bond2 = find_bond(Pl, atom2)
             if bond2:
                 return bond1, bond2

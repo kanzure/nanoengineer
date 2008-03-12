@@ -63,6 +63,7 @@ from graphics.drawing.drawer import drawwiresphere
 from model.elements import Singlet
 from model.elements import Hydrogen
 from model.elements import PeriodicTable
+from model.elements import Pl5
 
 from model.bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
@@ -4387,7 +4388,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         in some dna-related constants file (once this method is moved
         to a dna-related subclass of Atom).
         """
-        assert self.element.symbol.startswith("Pl") # KLUGE
+        assert self.element is Pl5
         Pl_STICKY_BOND_DIRECTION = 1 ### @@@@ JUST A GUESS -- 1 or -1;
             # direction from Pl to the Ss it wants to stay with when it can
             #e refile into a dna constants file when we refile this method
@@ -4437,7 +4438,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         which are PAM Pl (pseudo-phosphate) atoms (or any variant thereof,
          which sometimes interposes between strand base sugar pseudoatoms).
         """
-        res = filter( lambda atom: atom.element.symbol.startswith("Pl"), # KLUGE
+        res = filter( lambda atom: atom.element is Pl5,
                       self.neighbors())
         return res
 

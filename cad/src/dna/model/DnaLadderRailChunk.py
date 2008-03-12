@@ -9,6 +9,9 @@ DnaLadderRailChunk.py -
 
 from model.chunk import Chunk
 
+from model.elements import Singlet
+from model.elements import Pl5
+
 from constants import gensym
 from constants import black
 from constants import ave_colors
@@ -21,8 +24,6 @@ def _DEBUG_REUSE_CHUNKS():
 
 import foundation.env as env
 from utilities.Log import orangemsg, graymsg
-
-from model.elements import Singlet
 
 from PyQt4.Qt import QFont, QString # for debug code
 
@@ -629,7 +630,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
             # regardless of class of their current chunk.
             for atom2 in atom.neighbors():
                 grab_atom2 = False # might be changed to True below
-                is_Pl = atom2.element.symbol.startswith('Pl') # KLUGE
+                is_Pl = atom2.element is Pl5
                 if is_Pl:
                     # does it prefer to stick with atom (over its other Ss neighbors, if any)?
                     # (note: usually it sticks based on bond direction, but if

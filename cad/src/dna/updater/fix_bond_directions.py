@@ -15,6 +15,8 @@ from PlatformDependent import fix_plurals
 
 from dna.updater.dna_updater_prefs import pref_print_bond_direction_errors
 
+from model.elements import Pl5
+
 # ==
 
 _DEBUG_PRINT_BOND_DIRECTION_ERRORS = False # set later to match a debug_pref
@@ -296,14 +298,14 @@ def _fix_atom_or_return_error_info(atom):
     # (note, this is not complete, just enough to catch some errors
     #  noticed in test files on 080304)
     
-    if atom.element.symbol.startswith("Pl"): # KLUGE
+    if atom.element is Pl5:
         # permit only strand atoms (not Pl) and bondpoints as neighbors, valence 2
         assert len(atom.bonds) == 2, "__ERROR: Pl valence must be 2"
         for neighbor in neighbors:
             element = neighbor.element
             assert element is Singlet or \
                    (element.role == 'strand' and
-                    not element.symbol.startswith("Pl")), \
+                    not element is Pl5), \
                     "__ERROR: Pl has non-permitted neighbor element %s" % element.symbol
     elif atom.element.role == 'strand':
         # other strand atoms (Ss or equivalent) must have 2 bonds to other strand atoms (Pl or not) or bondpoints,

@@ -10,6 +10,8 @@ delete_bare_atoms.py - delete atoms lacking required neighbors
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM3_atoms
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM5_atoms
 
+from model.elements import Pl5
+
 # ==
 
 def delete_bare_atoms( changed_atoms):
@@ -68,7 +70,7 @@ def atom_is_bare(atom):
     if atom.element.role == 'axis':
         strand_neighbors = filter(lambda other: other.element.role == 'strand', atom.neighbors())
         return not strand_neighbors
-    elif atom.element.role == 'strand' and not atom.element.symbol.startswith('Pl'): # KLUGE
+    elif atom.element.role == 'strand' and not atom.element is Pl5:
         return False # bruce 080117 revision, might be temporary --
             # but more likely, we'll replace it with some "bigger fix"
             # like adding Ub (or we might just do that manually later

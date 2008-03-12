@@ -83,6 +83,9 @@ import foundation.env as env
 from Numeric import dot
 from geometry.VQT import cross
 
+from model.elements import Pl5
+
+
 # ==
 
 # globals and accessors
@@ -1068,7 +1071,7 @@ def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile
     set1 = atom1.neighbors()
     set2 = atom2.neighbors()
     for Pl in set1:
-        if Pl in set2 and Pl.element.symbol.startswith("Pl"): # KLUGE
+        if Pl in set2 and Pl.element is Pl5:
             return True
     return False
 
