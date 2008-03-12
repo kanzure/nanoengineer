@@ -541,6 +541,25 @@ class DnaDuplex_EditCommand(EditCommand):
                      duplexRise, \
                      endPoint1, \
                      endPoint2 = params
+        
+        if numberOfBases < 2:
+            #Don't create a duplex with only one or 0 bases! 
+            #Reset a few variables. This should be done by calling a separate 
+            #method on command (there is similar code in self.createStructures)
+            #as well. 
+            self.mouseClickPoints = []
+            self.graphicsMode.resetVariables()
+            
+            msg  = redmsg("Cannot to preview/insert a DNA duplex with less than 2 base pairs.")
+            self.propMgr.updateMessage(msg)
+                
+            self.dna = None # Fixes bug 2530. Mark 2007-09-02
+            return None
+        else: 
+            msg = "Specify two points in the 3D Graphics Area to define the"\
+                     "endpoints of the DNA duplex"
+            self.propMgr.updateMessage(msg)
+            
 
         #If user enters the number of basepairs and hits preview i.e. endPoint1
         #and endPoint2 are not entered by the user and thus have default value 
@@ -553,11 +572,7 @@ class DnaDuplex_EditCommand(EditCommand):
                       self.win.glpane.right * \
                       getDuplexLength('B-DNA', numberOfBases)
 
-        if numberOfBases < 1:
-            msg = redmsg("Cannot to preview/insert a DNA duplex with 0 bases.")
-            self.propMgr.updateMessage(msg)
-            self.dna = None # Fixes bug 2530. Mark 2007-09-02
-            return None
+        
 
         if dnaForm == 'B-DNA':
             if dnaModel == 'PAM-3':
@@ -643,7 +658,6 @@ class DnaDuplex_EditCommand(EditCommand):
 
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
-            self._segmentList.remove(dnaSegment)
             dnaSegment.kill_with_contents()
             raise PluginBug("Internal error while trying to create DNA duplex.")
         
