@@ -2116,9 +2116,18 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         # mark 2007-08-16: write dnaBaseName info record.
         dnaBaseName = self.getDnaBaseName()
-        if dnaBaseName:
+        if dnaBaseName: ## and dnaBaseName != 'X':
+            #bruce 080311 comment about a desirable optimization --
+            # probably we should not write 'X',
+            # since it's assumed when not present by some calling code,
+            # and could be by more if desired. Needs more review for safety
+            # in the current code that sets and uses this.
             mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
+        # Note: maybe we should disable this *except* for Pe atoms
+        # (hoping Mark's comment was right), so it stops happening for files
+        # written with the dna updater active, as a step towards deprecating it.
+        # Review soon. [bruce 080311 comment]
         dnaStrandName = self.getDnaStrandName()
         if dnaStrandName:
             mapping.write( "info atom dnaStrandName = %s\n" % dnaStrandName )
@@ -2419,9 +2428,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         if self.atomtype is not self.element.atomtypes[0]:
             res += "(%s)" % self.atomtype.name
         if self.getDnaBaseName():
-            res += "(%s)" % self.dnaBaseName
+            res += "(%s)" % self.getDnaBaseName()
         if self.getDnaStrandName():
-            res += "(%s)" % self.dnaStrandName
+            res += "(%s)" % self.getDnaStrandName()
         return res
 
     def getToolTipInfo(self,
@@ -3890,14 +3899,23 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     # e.g. not on Pl or only on Pl)
     
     # default values of instance variables (some not needed):
+    
     _dna_updater__error = ""
-    ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
-    ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
+
+    # LIKELY BUGS: no undo decls for these attrs. [bruce 080311 comment]
+    
+    ## _dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
+
+    ## _dnaStrandName -- set when first demanded, or can be explicitly set
+    # using setDnaStrandName(). DEPRECATED when dna updater is active,
+    # since the DnaStrand object (a group) has a .name which is what
+    # we should use. As of 080311 this might soon be disabled when updater
+    # is active (disabling is nim).
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         """
-        Set the Dna base name. This is only valid for PAM Ss or Sj
-        atoms.
+        Set the Dna base name. This is only valid for PAM atoms in the list
+        'Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5', i.e. strand sugar atoms.
         
         @param dnaBaseName: The DNA base name. This is usually a single letter,
                             but it can be more. Only letters are valid.
@@ -3918,17 +3936,25 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             if not c in string.letters:
                 assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName,)
                 
-        self.dnaBaseName = dnaBaseName
+        self._dnaBaseName = dnaBaseName
         
     def getDnaBaseName(self):
         """
-        Returns the value of attr I{dnaBaseName}.
+        Returns the value of attr I{_dnaBaseName}.
         
-        @return: The DNA base name, or None if the attr I{dnaBaseName} does 
+        @return: The DNA base name, or None if the attr I{_dnaBaseName} does 
                  not exist.
         @rtype:  str
         """
-        return self.__dict__.get('dnaBaseName', "")
+        # Note: bruce 080311 revised all direct accesses of atom._dnaBaseName
+        # to go through this method, and renamed it to be private.
+        # (I also stopped storing it in mmp file when value is X, unassigned.
+        #  This is desirable to save space and speed up save and load.
+        #  If some users of this method want the value on certain atoms
+        #  to always exist, this method should be revised to look at
+        #  the element type and return 'X' instead of "" for appropriate
+        #  elements.)
+        return self.__dict__.get('_dnaBaseName', "")
     
     def get_strand_atom_mate(self):
         """
@@ -3962,16 +3988,22 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         return None
     
     def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
-        # Note: this (and probably its calls) need revision for the
-        # dna data model.
-        # [bruce 080225 comment]
+        # Note: this (and probably its calls) needs revision
+        # for the dna data model. Ultimately its only use will be
+        # to help when reading pre-data-model mmp files. Presently
+        # it's only called when reading "info atom dnaStrandName"
+        # records. Those might be saved on the wrong atomtypes
+        # by current dna updater code, but the caller tolerates
+        # exceptions here (but complains using a history summary).
+        # [bruce 080225/080311 comment]
         """
-        Set the Dna strand name. This is only valid for PAM-5 Pe atoms.
+        Set the Dna strand name. This is only valid for PAM atoms in the list
+        'Se3', 'Pe5', 'Pl5' (all deprecated when the dna updater is active).
         
         @param dnaStrandName: The DNA strand name.
         @type  dnaStrandName: str
         
-        @raise: If self is not a Pe or Pl or Se atom.
+        @raise: AssertionError if self is not a Se3 or Pe5 or Pl5 atom.
         """
         assert self.element.symbol in ('Se3', 'Pe5', 'Pl5'), \
             "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. " \
@@ -3987,20 +4019,21 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
                        % (dnaStrandName, c)
             """
                 
-        self.dnaStrandName = dnaStrandName
+        self._dnaStrandName = dnaStrandName
         
     def getDnaStrandName(self):
-        # Note: this (and probably its calls) need revision for the
-        # dna data model.
-        # [bruce 080225 comment]
         """
-        Returns the value of attr I{dnaStrandName}, or "" if it doesn't exist.
+        Returns the value of attr I{_dnaStrandName}, or "" if it doesn't exist.
         
-        @return: The DNA strand name, or "" if the attr I{dnaStrandName} does 
+        @return: The DNA strand name, or "" if the attr I{_dnaStrandName} does 
                  not exist.
         @rtype:  str
         """
-        return self.__dict__.get('dnaStrandName', "")
+        # Note: this (and probably its calls) need revision for the
+        # dna data model. [bruce 080225/080311 comment]
+        # Note: bruce 080311 revised all direct accesses of atom._dnaStrandName
+        # to go through this method, and renamed it to make it private.
+        return self.__dict__.get('_dnaStrandName', "")
         
     def directional_bond_chain_status(self): # bruce 071016, revised 080212
         """

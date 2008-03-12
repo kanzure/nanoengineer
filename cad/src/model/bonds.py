@@ -914,28 +914,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         if self.atom1.molecule is self.atom2.molecule:
             return self.atom1.molecule.name
         return ""
-    
-##    def setStrandName(self, name): # probably by Mark
-##        # Note: not used as of before 080225. Probably obsolete.
-##        # See also: Atom.setDnaStrandName.
-##        # [bruce 080225 comment]
-##        """
-##        Sets the name of the chunk this bond belongs to. This will fail if 
-##        the bond belongs to two different chunks.
-##        
-##        @param name: The strand name.
-##        @type  name: str
-##        
-##        @return: Success = True, Failure = 0. 
-##        @rtype:  bool
-##        
-##        @see: L{getStrandName}
-##        """
-##        if self.atom1.molecule is self.atom2.molecule:
-##            self.atom1.molecule.name = name
-##            return True
-##        return False
-    
+        
     def isStrandBond(self): # by Mark
         # Note: still used as of 080225. Not quite correct
         # for bonds on free-floating single strands -- probably

@@ -433,7 +433,9 @@ class Dna:
         #  which is not yet supported in the above code. It would be
         #  easy to support it if we added dnaBaseName assignments
         #  into the generator mmp files and generalized the above
-        #  symbol names, and added a 2nd pass for Pl atoms.]
+        #  symbol names, and added a 2nd pass for Pl atoms.
+        #  update, bruce 080311: it looks like something related to
+        #  this has been done without this comment being updated.]
 
         if _strandA_list:
             strandAChunk = \
@@ -683,17 +685,17 @@ class B_Dna_PAM5(B_Dna):
             for atom in m.atoms.values():
                 
                 if atom.element.symbol in ('Pl5', 'Pe5'):
-                    if atom.dnaStrandName == 'Strand1':
+                    if atom.getDnaStrandName() == 'Strand1':
                         _strandA_list.append(atom)
-                    elif atom.dnaStrandName == 'Strand2':
+                    elif atom.getDnaStrandName() == 'Strand2':
                         _strandB_list.append(atom)                        
                 if atom.element.symbol in ('Ss5', 'Sh5'):
-                    if atom.dnaBaseName == 'a':
+                    if atom.getDnaBaseName() == 'a':
                         _strandA_list.append(atom)
                         #Now reset the DnaBaseName for the added atom 
                         # to 'unassigned' base i.e. 'X'
                         atom.setDnaBaseName('X')
-                    elif atom.dnaBaseName == 'b':
+                    elif atom.getDnaBaseName() == 'b':
                         _strandB_list.append(atom)
                         #Now reset the DnaBaseName for the added atom 
                         # to 'unassigned' base i.e. 'X'
@@ -803,7 +805,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 if atm.element.symbol == 'Ax3':
                     self.axis_atom_end1 = atm
             if self.strandA_atom_end1 is None:
-                if atm.element.symbol == 'Ss3' and atm.dnaBaseName == 'a':
+                if atm.element.symbol == 'Ss3' and atm.getDnaBaseName() == 'a':
                     self.strandA_atom_end1 = atm
     
     def _orient_to_position_first_strandA_base_in_axis_plane(self, segment, end1, end2):
@@ -877,12 +879,12 @@ class B_Dna_PAM3(B_Dna_PAM5):
         for m in dnaGroup.members:
             for atom in m.atoms.values():
                 if atom.element.symbol in ('Ss3'):
-                    if atom.dnaBaseName == 'a':
+                    if atom.getDnaBaseName() == 'a':
                         _strandA_list.append(atom)
                         #Now reset the DnaBaseName for the added atom 
                         # to 'unassigned' base i.e. 'X'
                         atom.setDnaBaseName('X')
-                    elif atom.dnaBaseName == 'b':
+                    elif atom.getDnaBaseName() == 'b':
                         _strandB_list.append(atom)
                         #Now reset the DnaBaseName for the added atom 
                         # to 'unassigned' base i.e. 'X'

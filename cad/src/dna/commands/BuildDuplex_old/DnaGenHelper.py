@@ -149,7 +149,7 @@ class Dna:
                 for atm in member.atoms.values():
                     atm._posn = tfm(atm._posn) + position
                     if atm.element.symbol in ('Se3', 'Ss3', 'Ss5'):
-                        if atm.dnaBaseName == "a":
+                        if atm.getDnaBaseName() == "a":
                             baseLetter = currentBaseLetter
                         else:
                             try:
@@ -161,7 +161,7 @@ class Dna:
                                 baseLetter = currentBaseLetter
                         if 0:
                             print "Ss(%r) being set to %r." \
-                                  % (atm.dnaBaseName, baseLetter)
+                                  % (atm.getDnaBaseName(), baseLetter)
                         atm.setDnaBaseName(baseLetter)
                 
                 member.name = currentBaseLetter

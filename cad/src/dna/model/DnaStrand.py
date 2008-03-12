@@ -95,31 +95,32 @@ class DnaStrand(DnaStrandOrSegment):
     
     def getStrandSequence(self):
         """
-        Returns the strand sequence for the DaStrandChunks within this
-        DnaStrand group
-        
+        Returns the strand sequence for the DnaStrandChunks within this
+        DnaStrand group.
         
         @return: strand Sequence string
         @rtype: str
-        
-        TODO: Is their a way to make use of DnaStrandMarkers to get the strand
-              atoms in bond direction for this DnaStrandGroup?? 
-              OR: does self.members alway return DnaStrandChunks in the 
-              direction of bond dirction? 
-              
-              While the above questions remain unanswered, the following 
-              makes use of a method self.get_strand_atoms_in_bond_direction 
-              This method is mostly copied here from chunk class with some 
-              modifications ... i.e. it accepts an atomList and uses a random 
-              start atom within that list to find out the connected atoms 
-              in the bond direction. Actually, sending the list 
-              with *all atoms* of the starnd isn't really necessary. All we are 
-              interested in is a start Ss atom and bond direction which can 
-              ideally be obtained by using even a single DnaStrandChunk within 
-              this DnaStrand Group. For a short time, we will pass the whole 
-              atom list. Will definitely be revised and refactored within the
-              coming  days (need to discuss with Bruce)-- Ninad 2008-03-01
         """
+        # TODO: Is there a way to make use of DnaStrandMarkers to get the strand
+        #       atoms in bond direction for this DnaStrandGroup??
+        #       [A: they are not needed for that, but they could be used
+        #        to define an unambiguous sequence origin for a ring.]
+        #       
+        #       OR: does self.members alway return DnaStrandChunks in the 
+        #       direction of bond direction? [A. no.]
+        #       
+        #       While the above questions remain unanswered, the following 
+        #       makes use of a method self.get_strand_atoms_in_bond_direction 
+        #       This method is mostly copied here from chunk class with some 
+        #       modifications ... i.e. it accepts an atomList and uses a random 
+        #       start atom within that list to find out the connected atoms 
+        #       in the bond direction. Actually, sending the list 
+        #       with *all atoms* of the strand isn't really necessary. All we are 
+        #       interested in is a start Ss atom and bond direction which can 
+        #       ideally be obtained by using even a single DnaStrandChunk within 
+        #       this DnaStrand Group. For a short time, we will pass the whole 
+        #       atom list. Will definitely be revised and refactored within the
+        #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
         
         sequenceString = ''     
         rawAtomList = []
@@ -127,16 +128,16 @@ class DnaStrand(DnaStrandOrSegment):
             if isinstance(c, DnaStrandChunk):
                 rawAtomList.extend(c.atoms.itervalues())
         
-        #see a to do comment about rawAtom list in the method docstring.
+        #see a to do comment about rawAtom list above
         
         sequenceString = ''  
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
-            baseName = str(atm.getDnaBaseName())        
+            baseName = str(atm.getDnaBaseName())
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
                 #What if baseName is not assigned due to some error?? Example
-                #whilereading in an mmp file. 
+                #while reading in an mmp file. 
                 #As a fallback, we should assign unassigned base letter 'X'
                 #to all the base atoms that don't have a baseletter defined
                 #also, make sure that the atom is not a bondpoint. 
