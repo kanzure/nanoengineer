@@ -121,11 +121,17 @@ class MeasurementJig(Jig):
     # I'm working on now in other files, so it might be just as well for me
     # to be the one to change the code. >>>>
     # For now, I think I'll go with Jig.kill, and let Bruce modify as needed.
-    def remove_atom(self, atom):
+    # [... but this is still Node.kill. Maybe Jig.kill caused a bug and someone
+    #  else changed it back and didn't comment it? Who knows. REVIEW sometime.
+    #  bruce 080311 comment.]
+    def remove_atom(self, atom, **opts):
+        # bruce 080311 added **opts to match superclass method signature
         """
         Delete self if *any* of its atoms are deleted
+
+        [overrides superclass method]
         """
-        Node.kill(self)
+        Node.kill(self) # superclass is Jig, not Node; see long comment above
 
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
