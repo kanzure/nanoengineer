@@ -174,13 +174,15 @@ class AtomTypeDepositionTool(DepositionTool):
         """
         [private method]
 
-        Make and return an atom (of self.atomtype) bonded to the n singlets in lis,
+        Make and return an atom (of self.atomtype) bonded to the base atoms
+        of the n bondpoints in lis, in place of those bondpoints,
         which is a list of n pairs (singlet, pos), where each pos is the ideal
         position for a new atom bonded to its singlet alone.
-        The new atom will always have n real bonds and no singlets.
+        The new atom will always have n real bonds and no bondpoints,
+        and be positioned at the average of the positions passed as pos.
         We don't check whether n is too many bonds for self.atomtype, nor do we care what
         kind of bond positions it would prefer. (This is up to the caller, if
-        it matters; since the singlets typically already existed, there's not
+        it matters; since the bondpoints typically already existed, there's not
         a lot that could be done about the bonding pattern, anyway, though we
         could imagine finding a position that better matched it. #e)
         """
