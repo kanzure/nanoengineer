@@ -4395,13 +4395,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
             self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
          ):
-            if candidate and candidate.element.symbol.startswith("Ss"): # KLUGE
+            if candidate is not None and candidate.element.symbol.startswith("Ss"): # KLUGE
                 # note: this cond excludes X (good), Pl (bug if happens, but good).
                 # it excludes Sj and Hp (bad), but is only used from dna updater
                 # so that won't be an issue. Non-kluge variant would test for
                 # "a strand base atom".
                 return candidate
-        print "bug: Pl with no Ss: %r" % self # only true once dna updater enabled
+        print "bug: Pl with no Ss: %r" % self
+            # only a true statement (that this is a bug) when dna updater
+            # is enabled, but that's ok since we're only used then
         return None
     
     def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
