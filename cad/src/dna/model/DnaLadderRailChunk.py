@@ -169,7 +169,13 @@ class DnaLadderRailChunk(Chunk):
 
         if reuse_old_chunk_if_possible:
             # check that it counted correctly vs the atoms we actually grabbed
-            assert self._counted_atoms == len(self.atoms)
+            ## assert self._counted_atoms == len(self.atoms), \
+            if not (self._counted_atoms == len(self.atoms)):
+                print \
+                   "\n*** BUG: self._counted_atoms %r != len(self.atoms) %r" % \
+                   ( self._counted_atoms, len(self.atoms) )
+                # should print the missing atoms if we can, but for now print the present atoms:
+                print " present atoms are", self.atoms.values()
         
         # following import is a KLUGE to avoid recursive import
         # (still has import cycle, ought to ### FIX -- should refile that func somehow)
@@ -272,8 +278,7 @@ class DnaLadderRailChunk(Chunk):
         """
         assert not atom.element is Singlet
         if just_count:
-            self._count_atom(atom) # also counts chunks
-            self._count_bondpoints( atom.singNeighbors() )
+            self._count_atom(atom) # also counts chunks and bondpoints
             return
         # first grab info
         old_chunk = atom.molecule
@@ -306,20 +311,29 @@ class DnaLadderRailChunk(Chunk):
             self._num_extra_bondpoints += extra
         return
 
-    def _count_atom(self, atom): 
+    def _count_atom(self, atom): #bruce 080312 revised to fix PAM5 bug
         """
+        [private helper for _grab_atom when just_count is true]
+        
+        count atom and its bondpoints and their chunk
         """
-        self._counted_atoms += 1
         chunk = atom.molecule
         # no need to check chunk for being None, killed, _nullMol, etc --
         # caller will do that if necessary
         self._counted_chunks[id(chunk)] = chunk
-        return
-    
-    def _count_bondpoints(self, bondpoints): 
-        """
-        """
-        self._counted_atoms += len(bondpoints)
+
+        if 0:
+            print "counted atom", atom, "from chunk", chunk
+
+        bondpoints = atom.singNeighbors()
+
+        self._counted_atoms += (1 + len(bondpoints))
+        
+        if 0 and bondpoints: ### slow & verbose debug code
+            print "counted bondpoints", bondpoints
+            print "their base atom lists are", [bp.neighbors() for bp in bondpoints]
+            for bp in bondpoints:
+                assert len(bp.neighbors()) == 1 and bp.neighbors()[0] is atom and bp.molecule is chunk
         return
     
     def _set_properties_from_grab_atom_info(self, use_disp, use_picked): # 080201
@@ -618,29 +632,29 @@ class DnaStrandChunk(DnaLadderRailChunk):
                 is_Pl = atom2.element.symbol.startswith('Pl') # KLUGE
                 if is_Pl:
                     # does it prefer to stick with atom (over its other Ss neighbors, if any)?
+                    # (note: usually it sticks based on bond direction, but if
+                    #  it has only one real neighbor it always sticks to that
+                    #  one.)
                     if atom is atom2.Pl_preferred_Ss_neighbor(): # an Ss or None
                         grab_atom2 = True
                 elif atom2.element.role == 'unpaired-base':
                     grab_atom2 = True
                 if grab_atom2:
-                    if just_count:
-                        self._count_atom(atom2)
+                    if atom2.molecule is self:
+                        assert not just_count # since that implies no atoms yet in self
+                        print "\n***BUG: dna updater: %r is already in %r" % \
+                              (atom2, self)
+                        # since self is new, just now being made,
+                        # and since we think only one Ss can want to pull in atom2
                     else:
-                        if atom2.molecule is self:
-                            print "dna updater: should not happen: %r is already in %r" % \
-                                  (atom2, self)
-                            # since self is new, just now being made,
-                            # and since we think only one Ss can want to pull in atom2
-                        else:
-                            ## atom2.hopmol(self)
-                            self._grab_atom(atom2)
-                                # review: does this harm the chunk losing it if it too is new? @@@
-                                # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
-                                # academic for now, since it can't be new, afaik
-                                # (unless some unpaired-base atom is bonded to two Ss atoms,
-                                #  which we ought to prevent in the earlier bond-checker @@@@ NIM)
-                                # (or except for inconsistent bond directions, ditto)
-                            pass
+                        ## atom2.hopmol(self)
+                        self._grab_atom(atom2, just_count)
+                            # review: does this harm the chunk losing it if it too is new? @@@
+                            # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
+                            # academic for now, since it can't be new, afaik
+                            # (unless some unpaired-base atom is bonded to two Ss atoms,
+                            #  which we ought to prevent in the earlier bond-checker @@@@ NIM)
+                            # (or except for inconsistent bond directions, ditto)
                         pass
                     pass
                 continue
