@@ -33,7 +33,7 @@ def initialize_prefs():
     pref_per_ladder_colors()
     pref_draw_internal_markers()
 
-    _changed_debug_prefs('arbitrary value')
+    _update_our_debug_flags('arbitrary value')
         # makes them appear in the menu,
         # and also sets their debug flags
         # to the current pref values
@@ -47,7 +47,7 @@ def pref_fix_deprecated_PAM3_atoms():
                      Choice_boolean_True,
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_prefs )
+                     call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_deprecated_PAM5_atoms():
@@ -55,7 +55,7 @@ def pref_fix_deprecated_PAM5_atoms():
                      Choice_boolean_True, # False -> True, 080201
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_prefs )
+                     call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_bare_PAM3_atoms():
@@ -63,7 +63,7 @@ def pref_fix_bare_PAM3_atoms():
                      Choice_boolean_True,
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_prefs )
+                     call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_bare_PAM5_atoms():
@@ -71,8 +71,10 @@ def pref_fix_bare_PAM5_atoms():
                      Choice_boolean_True, # False -> True, 080201
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_prefs )
+                     call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
+
+# ==
 
 def pref_print_bond_direction_errors():
     res = debug_pref( "DNA updater: print bond direction errors?",
@@ -99,13 +101,54 @@ def pref_draw_internal_markers():
 
 # ==
 
+# PAM3+5 prefs.  [bruce 080312]
+
+# (These will either turn into User Prefs or per-assy settings (perhaps saved in mmp file),
+#  or perhaps become finer-grained that that (applicable to portions of the model,
+#  e.g. specific base pairs.)
+
+# Note: each minimizer may need a separate pref, since support for each one differs,
+# in how it works and how NE1 gets feedback from it that refers to specific atoms and bonds.
+
+# Note: the DNA Generator model choice may also need to change somehow, for this.
+
+def pref_mmp_read_convert_to_PAM3plus5():
+    res = debug_pref("DNA: mmp read convert to PAM3+5? ",
+                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+def pref_mmp_save_convert_to_PAM5():
+    res = debug_pref("DNA: mmp save as PAM5? ",
+                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+def pref_renderers_convert_to_PAM5():
+    res = debug_pref("DNA: render externally as PAM5?", # e.g. QuteMol, POV-Ray
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+def pref_minimizers_convert_to_PAM5():
+    res = debug_pref("DNA: minimize in PAM5? ", # i.e. for ND-1 (GROMACS or not)
+                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+# ==
+
 def pref_debug_dna_updater(): # 080228
     res = debug_pref("DNA updater: debug prints",
                      Choice(["off", "minimal", "on", "verbose"],
                             defaultValue = "on"), # todo: revise defaultValue after debugging
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_debug_prefs )
+                     call_with_new_value = _update_our_debug_flags )
     return res
 
 def pref_dna_updater_slow_asserts(): # 080228
@@ -113,19 +156,19 @@ def pref_dna_updater_slow_asserts(): # 080228
                      Choice_boolean_True, # todo: test speed effect; revise before release if too slow
                      non_debug = True,
                      prefs_key = True,
-                     call_with_new_value = _changed_debug_prefs )
+                     call_with_new_value = _update_our_debug_flags )
     return res
 
 # ==
 
-def _changed_prefs(val):
+def _changed_dna_updater_behavior_pref(val):
     if val:
         msg = "Note: to use new DNA prefs value on existing atoms, " \
               "run \"DNA: rescan all atoms\" in debug->other menu."
         env.history.message(orangemsg(msg))
     return
 
-def _changed_debug_prefs(val):
+def _update_our_debug_flags(val):
     del val
     # make sure the flags we control are defined in debug_flags
     # (i.e. that we got the right module here, and spelled them correctly)
