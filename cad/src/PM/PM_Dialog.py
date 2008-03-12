@@ -1,15 +1,16 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_Dialog.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
 
 History:
 
 mark 2007-07-22: Split PropMgrBaseClass out of PropMgrBaseClass.py into this 
 file and renamed it PM_Dialog.
+
 """
 
 from debug import print_compact_traceback

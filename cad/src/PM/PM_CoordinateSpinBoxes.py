@@ -10,6 +10,7 @@ coordinate spinboxes.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 @TODO: Need to implement connectWidgetWithState when that API is formalized.
+
 """
 
 from PyQt4.Qt            import QLabel

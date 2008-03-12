@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_DoubleSpinBox.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
 
 History:
 
@@ -39,8 +39,8 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
     in manually. The spin box supports float values but can be extended to 
     use different strings with validate(), textFromValue() and valueFromText().
     
-    Every time the value changes PM_DoubleSpinBox emits the valueChanged() signal.
-    The current value can be fetched with value() and set with setValue().
+    Every time the value changes PM_DoubleSpinBox emits the valueChanged() 
+    signal.The current value can be fetched with value() and set with setValue()
     
     Note: PM_DoubleSpinBox will round numbers so they can be displayed with the 
     current precision. In a PM_DoubleSpinBox with decimals set to 2, calling 
@@ -299,7 +299,9 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
                                         debug_metainfo)
             set_metainfo_from_stateref( self.setMaximum, stateref, 'maximum',
                                         debug_metainfo)
-            set_metainfo_from_stateref( self.setDefaultValue, stateref, 'defaultValue',
+            set_metainfo_from_stateref( self.setDefaultValue, 
+                                        stateref, 
+                                        'defaultValue',
                                         debug_metainfo)
         widget_connectWithState( self, stateref,
                                  QDoubleSpinBox_ConnectionWithState)

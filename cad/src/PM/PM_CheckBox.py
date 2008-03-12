@@ -10,6 +10,7 @@ History:
 
 mark 2007-07-22: Split PropMgrCheckBox out of PropMgrBaseClass.py into this file
 and renamed it PM_CheckBox.
+
 """
 
 from PyQt4.Qt import Qt

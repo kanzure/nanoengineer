@@ -10,6 +10,7 @@ History:
 
 mark 2007-07-22: Split PropMgrComboBox out of PropMgrBaseClass.py into this file
 and renamed it PM_ComboBox.
+
 """
 
 from PyQt4.Qt import QComboBox

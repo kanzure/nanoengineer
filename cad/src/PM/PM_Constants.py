@@ -11,7 +11,6 @@ History:
 mark 2007-07-22: Created initially for PM_Dialog as part of the code cleanup
                  and review for new coding standards. Renamed all constants
                  to names with uppercase letters.
-
 """
 
 import sys
