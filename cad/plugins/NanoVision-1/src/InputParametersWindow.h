@@ -19,12 +19,13 @@ using namespace Nanorex;
 
 /* CLASS: InputParametersWindow */
 class InputParametersWindow
-		: public QDialog, private Ui_InputParametersWindow {
+		: public DataWindow, private Ui_InputParametersWindow {
 	Q_OBJECT
 
-public:
-	InputParametersWindow(NXProperties* properties, QWidget *parent = 0);
-	~InputParametersWindow();
+	public:
+		InputParametersWindow(const QString& filename, NXProperties* properties,
+							  QWidget *parent = 0);
+		~InputParametersWindow();
 };
 
 #endif

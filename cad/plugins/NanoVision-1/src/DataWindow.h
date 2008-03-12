@@ -6,19 +6,21 @@
 #include <QtGui>
 #include <QWidget>
 
-//#include "TrajectoryGraphicsPane.h"
+#include <string>
+using namespace std;
 
 
 /* CLASS: DataWindow */
 class DataWindow : public QWidget {
 	Q_OBJECT
 
-public:
-	DataWindow(QWidget *parent = 0);
-	virtual ~DataWindow() {};
-
-protected:
-	void closeEvent(QCloseEvent *event);
+	public:
+		DataWindow(QWidget *parent = 0);
+		virtual ~DataWindow() {};
+	
+	protected:
+		void closeEvent(QCloseEvent *event);
+		void formatParameter(string& key, string& value, string& units);
 };
 
 #endif

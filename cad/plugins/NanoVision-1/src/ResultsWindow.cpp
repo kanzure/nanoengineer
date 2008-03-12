@@ -350,7 +350,16 @@ void ResultsWindow::setupSingleStructureTree(void)
 
 /* FUNCTION: userFriendlyCurrentFile */
 QString ResultsWindow::userFriendlyCurrentFile() {
-    return strippedName(curFile);
+	if (entityManager->getDataStoreInfo()->isSingleStructure())
+		return strippedName(curFile);
+	
+	else {
+		// TODO: Make this not HDF5_SimResults-specific
+		QString filename = curFile;
+		filename.remove(filename.lastIndexOf("/"), 16);
+		filename.remove(0, filename.lastIndexOf("/") + 1);
+		return filename;
+	}
 }
 
 
@@ -430,7 +439,8 @@ void InputParametersTreeItem::showWindow() {
 		NXDataStoreInfo* dataStoreInfo =
 			resultsWindow->entityManager->getDataStoreInfo();
 		inputParametersWindow =
-			new InputParametersWindow(dataStoreInfo->getInputParameters());
+			new InputParametersWindow(resultsWindow->userFriendlyCurrentFile(),
+									  dataStoreInfo->getInputParameters());
 	}
 	inputParametersWindow->show();
 }
@@ -464,7 +474,9 @@ void ResultsSummaryTreeItem::showWindow() {
 	if (resultsSummaryWindow == NULL) {
 		NXDataStoreInfo* dataStoreInfo =
 			resultsWindow->entityManager->getDataStoreInfo();
-		resultsSummaryWindow = new ResultsSummaryWindow(dataStoreInfo);
+		resultsSummaryWindow =
+			new ResultsSummaryWindow(resultsWindow->userFriendlyCurrentFile(),
+									 dataStoreInfo);
 	}
 	resultsSummaryWindow->show();
 }
@@ -472,8 +484,6 @@ void ResultsSummaryTreeItem::showWindow() {
 
 /* FUNCTION: refresh */
 void ResultsSummaryTreeItem::refresh() {
-printf("ResultsSummaryTreeItem::refresh: trajId=%d storeComplete=%d\n", trajectoryId, resultsWindow->entityManager->getDataStoreInfo()
-			->storeIsComplete(trajectoryId));
 	if (resultsSummaryWindow != NULL)
 		resultsSummaryWindow->refresh();
 

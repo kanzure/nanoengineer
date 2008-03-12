@@ -20,11 +20,12 @@ using namespace Nanorex;
 
 /* CLASS: ResultsSummaryWindow */
 class ResultsSummaryWindow
-		: public QDialog, private Ui_ResultsSummaryWindow {
+		: public DataWindow, private Ui_ResultsSummaryWindow {
 	Q_OBJECT
 
 	public:
-		ResultsSummaryWindow(NXDataStoreInfo* dataStoreInfo,
+		ResultsSummaryWindow(const QString& filename,
+							 NXDataStoreInfo* dataStoreInfo,
 							 QWidget *parent = 0);
 		~ResultsSummaryWindow();
 		
