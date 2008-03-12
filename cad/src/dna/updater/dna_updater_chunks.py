@@ -57,41 +57,52 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
 
-    # Move the chain markers whose atoms got killed, onto atoms which remain
-    # alive in the same old wholechains. (Their old wholechain objects still
+    # Move each DnaMarker in which either atom got killed or changed in
+    # structure (e.g. rebonded) onto atoms on the same old wholechain
+    # (if it has one) which remain alive. We don't yet know if they'll
+    # be in the same new wholechain and adjacent in it -- that will be
+    # checked when new wholechains are made, and we retain the moved
+    # markers so we can assert that they all get covered that way
+    # (which they ought to -- todo, doc why).
+    #
+    # Note that we might find markers which are not on old wholechains
+    # (e.g. after mmp read), and we might even find markers like that
+    # on killed atoms (e.g. after mmp insert, which kills clipboard).
+    # Those markers can't be moved, but if valid without being moved,
+    # can be found and used by a new wholechain. [revised 080311]
+    #
+    # The old wholechain objects still
     # exist within the markers, and can be used to scan their atoms even though
     # some are dead or their bonding has changed. The markers use them to help
-    # decide where and how to move.)
-    # (The markers can't yet also correlate their old chain to new chain
-    #  direction, since the new chain is not yet constructed, but they record
-    #  private info to help them do that later.)
+    # decide where and how to move. Warning: this will only be true during the early
+    # parts of the da updater run, since the wholechains rely on rail.neighbor_baseatoms
+    # to know how their rails are linked, and that will be rewritten later around
+    # when new wholechains are made. TODO: assert that we don't rely on that after
+    # it's invalid.
+    #
+    # [code and comment rewritten 080311]
 
     homeless_markers = _f_get_homeless_dna_markers() #e rename
         # this includes markers whose atoms got killed (which calls marker.remove_atom)
         # or got changed in structure (which calls marker.changed_structure)
         # so it should not be necessary to also add to this all markers noticed
         # on changed_atoms, even though that might include more markers than
-        # we have so far (if we already added atoms from invalid ladders -- not
-        #  sure if we did that yet ###CHECK).
+        # we have so far (especially after we add atoms from invalid ladders below).
     
     live_markers = []
     for marker in homeless_markers:
-        still_alive = marker._f_move_to_live_atompair_step1() #e rename, doc (also fix @@@) --
-            # this step moves them, later steps (nim now @@@) update their direction & wholechain
-            # move (if possible), and record info (old neighbor atoms?)
-            # for later use in determining new baseindex direction advice
-            # for new wholechain
-        if debug_flags.DEBUG_DNA_UPDATER:
-            print "dna updater: moved_step1 marker %r, still_alive = %r" % (marker, still_alive)
+        still_alive = marker._f_move_to_live_atompair_step1() #e @@@@ rename (no step1) (also fix @@@)
+            # note: we don't yet know if they'll still be alive
+            # when this updater run is done.
+        if debug_flags.DEBUG_DNA_UPDATER: # SOON: _VERBOSE
+            print "dna updater: fyi: moved marker %r, still_alive before new wholechains = %r" % (marker, still_alive)
         if still_alive:
-            live_markers.append(marker)
+            live_markers.append(marker) # only used for asserts
     del homeless_markers
 
-    ignore_new_changes("from updating DnaMarkers, step1")
+    ignore_new_changes("from moving DnaMarkers")
         # ignore changes caused by adding/removing marker jigs
         # to their atoms, when the jigs die/move/areborn
-
-##    # warning: all marker-related comments below here need revision, as of 071203 @@@
     
     # make sure invalid DnaLadders are recognized as such in the next step,
     # and dissolved [possible optim: also recorded for later destroy??].
@@ -99,11 +110,11 @@ def update_PAM_chunks( changed_atoms):
     # parts needn't be rescanned in the next step.
     #
     # Also make sure that atoms that are no longer in valid ladders
-    # (due to dissolved or fragmented ladders) are included below,
+    # (due to dissolved or fragmented ladders) are scanned below,
     # or that the chains they are in are covered. This is necessary so that
     # the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
-    # they cover any atom in.
-    # This might be done by adding some of their atoms into changed_atoms
+    # they cover any atom in. Presently this is done by 
+    # adding some or all of their atoms into changed_atoms
     # in the following method.
     
     dissolve_or_fragment_invalid_ladders( changed_atoms)
@@ -115,7 +126,7 @@ def update_PAM_chunks( changed_atoms):
     # not still part of valid DnaLadders. (I.e. leave existing undamaged
     # DnaLadders alone.) (The found chains or rings will be used below to
     # make new DnaChain and DnaLadder objects, and (perhaps combined with
-    # preexisting untouched chains) to make new WholeChains and tell the
+    # preexisting untouched chains ###CHECK) to make new WholeChains and tell the
     # small chains about them.)
 
     ignore_new_changes("from dissolve_or_fragment_invalid_ladders", changes_ok = False)
@@ -127,105 +138,6 @@ def update_PAM_chunks( changed_atoms):
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_chain_baseatoms(axis_chains + strand_chains)
     
-# redundant:
-##    # @@@ LOGIC ISSUE for moving markers: ....
-##    # ... we need an old complete-chain object...
-##    # or we need to move it more incrly, but even then we'd need the object at that time, so now is as a good a time
-##    # as any if we have that object. So, these chains in the markers need to be complete chains!
-##    # we need to make lists of chain fragments into complete chains and keep those in the markers.
-##    # of course we really should keep a single one in a strand or segment object shared by that obj and all markers. ### DOIT
-##    #
-##    # And when the markers move onto new ladders, the advice (which?) below is needed,
-##    # but what if they move onto old ladders,
-##    # Q do we need to update the marker situation of those too? ###figureout
-##    # A i guess those old ladder rails get
-##    # into new whole-chains in that case... so YES. ### DOIT [so in the end we process all changed strands & segs,
-##    # we just optim by incorporating unchanged ladder-rungs and ladders into them. We have higher-level chains
-##    # whose components are these rungs, which are chains of atoms.]
-
-    #@@@ not sure if still needed: [080114]
-    # [@@@ pre-ladder comment:] To help the moving markers know how to advise their new chains about
-    # internal baseindex direction coming from their old chains, we first
-    # make a dict from atom.key to (new chain id, atom's baseindex in new chain).
-    # (We might use it later as well, not sure.)
-    # (We keep axis and strand info in one dict for convenience, since both kinds
-    #  of markers are in one list we iterate over.)
-
-    #@@@ not sure if still an issue: [080114]
-    ### WORRY ABOUT RING WRAPAROUND in this marker code,
-    # where it's a current bug -- see scratch file for more info ###FIX @@@
-
-    if debug_flags.DEBUG_DNA_UPDATER:
-        print "i bet this marker-move-step2 code should now be done after new ladders are made, not before; nim now" #### @@@@
-
-# HOW TO UPDATE THIS CODE:
-# just do what has to be done before making new ladders (reversing, merging chains, maybe rotating rings)
-# to help markers do their later direction-xfer or fixing...
-#
-# WE MIGHT KEEP THIS
-# but i comment it out to mark it as needing revising and maybe deleting. 080114
-#
-##    new_chain_info = {} #k needed? @@
-##
-##    for chain in axis_chains + strand_chains:
-##        for atom, index in chain.baseatom_index_pairs(): # skips non-base atoms like Pl
-##            info = (chain.chain_id(), index)
-##            new_chain_info[atom.key] = info
-##
-##    for marker in live_markers:
-##        still_alive = marker._f_move_to_live_atompair_step2(new_chain_info)
-##            # Note: this also comes up with direction advice for the new chain,
-##            # stored in the marker and based on the direction of its new atoms
-##            # in its old chain (if enough of them remain adjacent, currently 2);
-##            # but the new chain will later take that advice from at most one marker.
-##        if debug_flags.DEBUG_DNA_UPDATER:
-##            print "dna updater: moved_step2 marker %r, still_alive = %r" % (marker, still_alive)
-##        # Note: we needn't record the markers whose atoms are still alive,
-##        # since we'll find them all later on a new chain. Any marker
-##        # that moves either finds new atoms whose chain has a change
-##        # somewhere that leads us to find it (otherwise that chain would
-##        # be unchanged and could have no new connection to whatever other
-##        # chain lost atoms which the marker was on), or finds none, and
-##        # can't move, and either dies or is of no concern to us.
-##    del live_markers #k if not, update it with new liveness
-##
-##    ignore_new_changes("from updating DnaMarkers, step2", changes_ok = False)
-##
-##    # @@@ LOGIC ISSUE: is the following about new chain fragments, or new/modified whole chains? do it before or after ladders?
-##    #
-##    # Tell all new chains to take over their atoms and any markers on them,
-##    # deciding between competing markers for influencing base indexing
-##    # and other settings, and creating new markers as needed.
-##    #
-##    # (Maybe also save markers for use in later steps, like making or updating
-##    #  Segment & Strand objects, and storing all these in DNA Groups.)
-##    #
-##    # Do axis chains first, so strand chains which need new markers or
-##    # direction decisions (etc) can be influenced by their base numbering, order, etc.
-##    #
-##    # (Future: we might have a concept of "main" and "secondary" strands
-##    # (e.g. scaffold vs staples in origami), and if so, we might want to do
-##    # all main strands before all secondary ones for the same reason.)
-##    
-##    # [Possible optim: reuse old chains if nothing has changed.
-##    # Not done at present; I'm not sure how rare the opportunity will be,
-##    # but I suspect it's rare, in which case, it's not worth the bug risk.]
-##    
-##    for chain in axis_chains:
-##        chain._f_own_atoms()
-##
-##    for chain in strand_chains:
-##        chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
-##
-##    ignore_new_changes("from updating DnaMarkers, own_atoms")
-##        # changes are ok since it can add new marker jigs to atoms
-##    
-##    # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
-##    # It also means we no longer need to care about chain.index_direction,
-##    # which frees us to permit merging of new and old chains, whose
-##    # index_directions might be incompatible at the merge points.
-##    # (I think they'll be compatible for new/new merges, but it doesn't matter.)
-
     # make ladders
     
     # Now use the above-computed info to make new DnaLadders out of the chains
@@ -260,10 +172,6 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from merging/splitting axis ladders", changes_ok = False)
 
-# redundant with new debug prints in merge_and_split_ladders:
-##    if debug_flags.DEBUG_DNA_UPDATER:
-##        print "dna updater: merged %d -> %d axis ladders" % \
-##              ( len(new_axis_ladders), len(merged_axis_ladders) )
     del new_axis_ladders
 
     # merge singlestrand ladders (with no axis)
@@ -275,9 +183,6 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from merging/splitting singlestrand ladders", changes_ok = False)
 
-##    if debug_flags.DEBUG_DNA_UPDATER:
-##        print "dna updater: merged %d -> %d singlestrand ladders" % \
-##              ( len(new_singlestrand_ladders), len(merged_singlestrand_ladders) )
     del new_singlestrand_ladders
 
     merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
@@ -298,7 +203,8 @@ def update_PAM_chunks( changed_atoms):
         # (changes are from parent chunk of atoms changing)
 
     # Now make new wholechains on all merged_ladders,
-    # let them own their atoms and markers,
+    # let them own their atoms and markers (validating any markers found,
+    # moved or not, since they may no longer be on adjacent atoms on same wholechain),
     # and choose their controlling markers.
     # These may have existing DnaSegmentOrStrand objects,
     # or need new ones (made later), and in a later step (not in this function)
@@ -361,6 +267,9 @@ def update_PAM_chunks( changed_atoms):
                 res.append(rails_for_wholechain)
         return res
 
+    # make new wholechains. This also calls marker methods on all markers they find
+    # which can kill some of the markers.
+    
     new_wholechains = (
         map( Axis_WholeChain, 
              algorithm( merged_axis_ladders,
@@ -374,10 +283,20 @@ def update_PAM_chunks( changed_atoms):
 
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_wholechain_baseatoms(new_wholechains)
-            # predict bug noticed by this [confirmed, then fixed] [circa 080120]
+
+    # The new WholeChains should have found and fully updated (or killed)
+    # all markers we had to worry about. Assert this -- but only with a
+    # debug print, since I might be wrong (e.g. for markers on oldchains
+    # of length 1, now on longer ones??) and it ought to be harmless to
+    # ignore any markers we missed so far.
+    for marker in live_markers:
+        marker._f_should_be_done_with_move()
+    del live_markers
     
-    # note: those Whatever_WholeChain constructors also have side effects:
+    # note: those Whatever_WholeChain constructors above also have side effects:
     # - own their atoms and chunks (chunk.set_wholechain)
+    # - kill markers no longer on adjacent atoms on same wholechain
+    #
     # (REVIEW: maybe use helper funcs so constructors are free of side effects?)
     #
     # but for more side effects we run another loop:
@@ -390,7 +309,7 @@ def update_PAM_chunks( changed_atoms):
     if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: owned markers of those %d new or changed wholechains" % len(new_wholechains)
 
-    ignore_new_changes("from making wholechains and owning/choosing/making markers",
+    ignore_new_changes("from making wholechains and owning/validating/choosing/making markers",
                        changes_ok = True)
         # ignore changes caused by adding/removing marker jigs
         # to their atoms, when the jigs die/move/areborn

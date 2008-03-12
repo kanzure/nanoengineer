@@ -103,7 +103,7 @@ class WholeChain(object):
     # default values of instance variables
     _strand_or_segment = None
     _controlling_marker = None
-    _num_bases = -1 # unknown, to start with (used in __repr__)
+    _num_bases = -1 # unknown, to start with (used in __repr__ and __len__)
     _all_markers = () # in instances, will be a mutable dict
         # (len is used in __repr__; could be needed before __init__ done)
     
@@ -115,17 +115,34 @@ class WholeChain(object):
         For that see own_markers.
         
         @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
+
+        @note: we can assume that rail._f_update_neighbor_baseatoms() has
+               already been called (during this run of the dna updater)
+               for every rail (preexisting or new) in dict_of_rails.
+               Therefore it is ok for us to rely on rail.neighbor_baseatoms
+               being set and correct for those rails, but conversely it is
+               too late to use that info in any old wholechains of markers.
         """
         assert dict_of_rails, "a WholeChain can't be empty"
         self._dict_of_rails = dict_of_rails
 
-        markers = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex) for their marked_atom
-        markers_2 = {} # same, but for their next_atom (will let us compute their direction & do a sanity check)
+        # Scan all our atoms, for several reasons.
+        # One is to find all the DnaMarkers on them.
+        # These markers may have moved along their old wholechain,
+        # and even if they didn't, they may no longer be on a pair of
+        # adjacent atoms on the same wholechain, so don't assume they are.
+        # (E.g. we might find one with one atom on self and the other on some
+        #  other wholechain.) For each marker we find, figure out whether it's
+        # still valid, record its position if so, kill it if not.
+        
+        markers_1 = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex) for their marked_atom
+        markers_2 = {} # same, but for their next_atom (helps check whether they're still valid, and compute new position)
         num_bases = 0
         end0_baseatoms = self._end0_baseatoms = {} # end0 atom key -> rail (aka chain)
         end1_baseatoms = self._end1_baseatoms = {}
         for rail in dict_of_rails.itervalues():
             baseatoms = rail.baseatoms
+            assert baseatoms
             num_bases += len(baseatoms)
             end0_baseatoms[baseatoms[0].key] = rail
             end1_baseatoms[baseatoms[-1].key] = rail
@@ -133,7 +150,11 @@ class WholeChain(object):
             chunk.set_wholechain(self)
             for baseindex in range(len(baseatoms)):
                 atom = baseatoms[baseindex]
-                for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@
+                for jig in atom.jigs:
+                    # note: this is only correct because marker move step1 has
+                    # found new atoms for them (or reconfirmed old ones), and
+                    # has called marker.setAtoms to ensure they are recorded
+                    # on those atoms.
                     if isinstance(jig, DnaMarker):
                         marker = jig
                         assert not marker.killed(), "marker %r is killed" % ( marker, )
@@ -142,42 +163,70 @@ class WholeChain(object):
                             # (and maintain it as markers move)?
                             # might matter when lots of old rails.
                         if marker.marked_atom is atom:
-                            markers[marker] = (rail, baseindex)
-                        if marker.next_atom is atom: # not elif, can be same atom
+                            markers_1[marker] = (rail, baseindex)
+                        if marker.next_atom is atom: # not elif, both can be true
                             markers_2[marker] = (rail, baseindex)
             continue
 
-        self._num_bases = num_bases # used only for debug (eg repr) so far, but later will help with base indexing
+        self._num_bases = num_bases
 
-        # todo: for safety, make these not be asserts, just prints ##### DOIT
-        ###BUG predicted if we fail to treat as homeless markers whose atoms change structure
-        # since if we break bond between their atoms we need to kill or move them even though atoms did not die.
-        for marker in markers.iterkeys():
-            assert marker in markers_2 # and assert the two indices are nearby, or they're on ends of different rails
-        assert len(markers) == len(markers_2)
-
-        self._all_markers = {}
+        # kill markers we only found on one of their atoms
+        # or that are not on adjacent atoms in self,
+        # and determine and record position for the others
+        # [revised 080311]
         
-        for marker, (rail, index) in markers.iteritems():
-            rail2, index2 = markers_2[marker]
-            if rail is rail2:
-                direction = index2 - index
-                if not direction:
-                    assert num_bases == 1
-                    direction = 1 # arbitrary
-                assert direction in (-1, 1)
-            # better than the following: just use rail.neighbor_baseatoms and look for atom2 ###TODO
-            elif index == 0:
-                direction = -1 # might be WRONG if len(rail) == 1! need to check neighbor_baseatoms as said above ###BUG
+        markers = {} # maps markers found on both atoms to (atom1info, atom2info),
+            # but values are later replaced with PositionInWholeChains or discarded
+        
+        for marker in markers_1.iterkeys():
+            if not marker in markers_2:
+                marker._f_kill_during_move(self, "different wholechains")
             else:
-                direction = 1
-            
-            self._all_markers[marker] = PositionInWholeChain(self, rail, index, direction)
-            # revised from just being a list of markers, 080306
+                markers[marker] = (markers_1[marker], markers_2.pop(marker))
             continue
+        for marker in markers_2.iterkeys(): # note the markers_2.pop above
+            marker._f_kill_during_move(self, "different wholechains")
+            continue
+
+        del markers_1, markers_2
+
+        for marker in markers.keys():
+            # figure out new position and direction,
+            # store it in same dict (or remove marker if invalid)
+            # LOGIC BUG - des this need _all_markers stored, to use self.yield_... @@@@@
+            pos0 = marker._f_new_position_for(self, markers[marker])
+            if pos0 is not None:
+                rail, baseindex, direction = pos0
+                pos = PositionInWholeChain(self, rail, baseindex, direction)
+                assert isinstance(pos, PositionInWholeChain) # sanity check, for now
+                markers[marker] = pos
+                marker._f_new_pos_ok_during_move(self) # for debug
+            else:
+                marker._f_kill_during_move(self, "not on adjacent atoms on wholechain")
+                del markers[marker]
+
+        self._all_markers = markers
         
         return # from __init__
 
+    def __len__(self):
+        if self._num_bases == -1:
+            # We're being called too early during init to know the value.
+            # If we just return -1, Python raises ValueError: __len__() should return >= 0.
+            # That is not understandable, so raise a better exception.
+            # Don't just work: it might hide bugs, and returning 0 might make
+            # us seem "boolean false"! (We define __nonzero__ to try to avoid that,
+            # but still it makes me nervous to return 0 here.)
+            # Note that we need __repr__ to work now (e.g. in the following line),
+            # so don't make it use len() unless it checks _num_bases first.
+            # (As of now it uses _num_bases directly.)
+            assert 0, "too early for len(%r)" % self
+        assert self._num_bases > 0 # if this fails, we're being called too early (during __init__), or had some bug during __init__
+        return self._num_bases
+
+    def __nonzero__(self):
+        return True # needed for safety & efficiency, now that we have __len__! @@@@  TODO: same in other things with __len__; __eq__ too?
+    
     def destroy(self): # 080120 7pm untested
         # note: can be called from chunk._undo_update from one of our chunks;
         # try to make it ok to call this multiple times
@@ -515,9 +564,6 @@ class WholeChain(object):
         pass
         
     # todo: methods related to base indexing
-
-    # todo: methods to help move markers, derived from or related to
-    # _f_move_to_live_atompair_step1 and _step2 in dna_updater_chunks.py
     
     def yield_rail_index_direction_counter(self, pos, counter = 0, countby = 1): # in class WholeChain
         """
@@ -538,23 +584,24 @@ class WholeChain(object):
             counter += countby
             index += direction
             # adjust
-            def jump_off(end):
+            def jump_off(rail, end):
                 neighbor_atom = rail.neighbor_baseatoms[end]
                 # neighbor_atom might be None, atom, or -1 if not yet set
                 assert neighbor_atom != -1
                 if neighbor_atom is None:
-                    rail = None # outer code will return due to this, ending the generated sequence
+                    new_rail = None # outer code will return due to this, ending the generated sequence
                     index, direction = None, None # illegal values (to detect bugs in outer code)
                 else:
-                    rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom)
-                    assert rail
-                return rail, index, direction
+                    new_rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom)
+                    assert new_rail
+                    # can't assert new_rail is not rail -- might be a ring of one rail
+                return new_rail, index, direction
             if index < 0:
                 # jump off END0 of this rail
-                rail, index, direction = jump_off(LADDER_END0)
+                rail, index, direction = jump_off(rail, LADDER_END0)
             elif index >= len(rail):
                 # jump off END1 of this rail
-                rail, index, direction = jump_off(LADDER_END1)
+                rail, index, direction = jump_off(rail, LADDER_END1)
             else:
                 pass
             # check
@@ -597,7 +644,7 @@ class PositionInWholeChain(object):
     def yield_rail_index_direction_counter(self, **options): # in class PositionInWholeChain
         return self.wholechain.yield_rail_index_direction_counter( self.pos, **options )
 
-    #e also, method to scan in both directions, etc
+    # maybe: method to scan in both directions (or caller might do it)
 
     pass
     

@@ -105,6 +105,10 @@ class DnaChain(object):
     def __len__(self):
         return self.baselength()
     
+    def __nonzero__(self): # 080311
+        # avoid Python calling __len__ for this [review: need __eq__ as well?]
+        return True
+
     def end_baseatoms(self):
         return (self.baseatoms[0], self.baseatoms[-1]) # might be same atom
 

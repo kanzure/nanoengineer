@@ -222,7 +222,7 @@ class ChainAtomMarker(Jig):
 ##        return res
 
 # REVIEW following - needed? correct for two atoms?? (i doubt it) [bruce 080111 comment]
-##    def _set_marker_atom(self, atom):
+##    def _set_marker_atom(self, atom): # OBSOLETE, REMOVE SOON, use setAtoms instead [bruce comment 080311]
 ##        ## assert not self.atoms #k needed? true for current callers, but not required in principle
 ##        assert self.is_homeless()
 ##            # this assumes we initially have an atom when we're made
@@ -232,7 +232,7 @@ class ChainAtomMarker(Jig):
 ##        #e other updates?
 ##        return
 ##
-##    def _get_marker_atom(self):
+##    def _get_marker_atom(self): # OBSOLETE, REMOVE SOON [bruce comment 080311]
 ##        if self.atoms:
 ##            return self.atoms[0]
 ##        else:

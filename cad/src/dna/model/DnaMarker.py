@@ -168,18 +168,19 @@ class DnaMarker( ChainAtomMarker):
 
     controlling = _CONTROLLING_IS_UNKNOWN
 
-##    _owning_strand_or_segment = None
-
     _inside_its_own_strand_or_segment = False # 080222 ### REVIEW: behavior when copied? undo? (copy this attr along with .dad?) @@@@
         # whether self is inside the right DnaStrandOrSegment in the model tree
         # (guess: matters only for controlling markers)
 
-    _advise_new_chain_direction = 0 ###k needed??? @@@
-        # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
+##    _advise_new_chain_direction = 0 ###k needed??? @@@
+##        # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
     _newness = None
-    
-    # guess: also needs a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@@
+
+    _info_for_step2 = None # rename -- just for asserts - says whether more action is needed to make it ok [revised 080311]
+
+# not needed I think [080311]:
+##    # guess: also needs a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@@
     
     # == Jig or Node API methods (overridden or extended from ChainAtomMarker == _superclass):
 
@@ -252,9 +253,10 @@ class DnaMarker( ChainAtomMarker):
     def set_wholechain(self, wholechain, position_holder, controlling = _CONTROLLING_IS_UNKNOWN):
         """
         [to be called by dna updater]
-        @param wholechain: a new WholeChain which owns us (not None)
+        
+        @param wholechain: a new WholeChain which now owns us (not None)
         """
-        # rail, baseindex args added 080306
+        # revised 080306/080307
         assert wholechain
         self.wholechain = wholechain
         self._position_holder = position_holder
@@ -287,15 +289,16 @@ class DnaMarker( ChainAtomMarker):
         self._clear_wholechain()
             # a new one will shortly be made by the dna updater and take us over
         self._inside_its_own_strand_or_segment = False
+        self._info_for_step2 = None # precaution
         _superclass._undo_update(self)
         return
     
-    def remove_atom(self, atom):
+    def remove_atom(self, atom, **opts):
         """
         [extends superclass method]
         """
         _homeless_dna_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
-        _superclass.remove_atom(self, atom)
+        _superclass.remove_atom(self, atom, **opts)
         return
 
     def changed_structure(self, atom): # 080118
@@ -303,8 +306,8 @@ class DnaMarker( ChainAtomMarker):
         [extends superclass method]
         """
         # (we extend this method so that if bonds change so that marked_atom and
-        #  next_atom are no longer next to one another, we'll get
-        #  updated as needed.)
+        #  next_atom are no longer next to one another, we'll get updated as
+        #  needed.)
         _homeless_dna_markers[id(self)] = self
         _superclass.changed_structure(self, atom)
         return
@@ -317,25 +320,6 @@ class DnaMarker( ChainAtomMarker):
     # == ChainAtomMarker API methods (overridden or extended):
 
     # == other methods
-
-# I suspect this is not needed 080116
-##    def set_chain(self, chain): ### REVIEW, revise docstring. @@@@
-##        """
-##        A new chain
-##            AtomChainOrRing object?? wholechain?? more args??
-##        is taking us over (but we'll stay on the same atom).
-##        (Also called during __init__ to set our initial chain.)
-##
-##        @param chain: the atom chain or ring which we now reside on (can't be None)
-##        @type chain: AtomChainOrRing instance ### REVIEW
-##        """
-##        ## was: ChainAtomMarker.set_chain(self, chain)
-##        assert not self.is_homeless()
-##        #e assert chain contains self._get_marker_atom()?
-##        assert chain is not None # or should None be allowed, as a way of unsetting it??
-##        self._chain = chain
-##
-##        self.controlling = _CONTROLLING_IS_UNKNOWN
 
     def get_DnaGroup(self):
         """
@@ -464,12 +448,6 @@ class DnaMarker( ChainAtomMarker):
         assert self._get_DnaStrandOrSegment() is strand_or_segment
         self._inside_its_own_strand_or_segment = True
         return strand_or_segment
-
-##    def _f_set_owning_strand_or_segment(self, strand_or_segment):
-##        """
-##        [friend method for dna updater]
-##        """
-##        self._owning_strand_or_segment = strand_or_segment
         
     # ==
     
@@ -482,24 +460,45 @@ class DnaMarker( ChainAtomMarker):
         if not controlling and self.wants_to_be_controlling():
             self.kill() # in future, might depend more on user-settable properties and/or on subclass
         return
+
+    # ==
+
+    # marker move methods. These are called by dna updater and/or our new WholeChain
+    # in this order: [### REVIEW, is this correct? @@@@@@] 
+    # - _f_move_to_live_atompair_step1, for markers that need to move; might kill self
+    # - f_kill_during_move, if wholechain scan finds problem with a marker on one of its atoms; will kill self
+    # - xxx_own_marker if a wholechain takes over self ### WRONG, called later
+    # - _f_move_to_live_atompair_step2, for markers for which step1 returned true (even if they were killed by f_kill_during_move)
+    #   - this prints a bug warning if neither of f_kill_during_move or xx_own_marker was called since _step1 (or if _step1 not called?)
     
-    def _f_move_to_live_atompair_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
+    def _f_move_to_live_atompair_step1(self): # rewritten 080311 ### RENAME, no step1 @@@
         """
         [friend method, called from dna_updater]
-        Our atom died; see if there is a live atom on our old wholechain which we want to move to;
-        if so, move to the best one (updating all our properties accordingly, except for
-        whatever is deferred to our _step2 sibling method) and return True;
-        if not, die and return False.
+
+        One of our atoms died or changed structure (e.g. got rebonded).
+        We still know our old wholechain and our position along it
+        (since this is early during a dna updater run),
+        so use that info to move a new location on our old wholechain
+        so that we are on two live atoms which are adjacent on it.
+        Track base position change as we do this (partly nim, since not used).
+        
+        If this works, return True; later updater steps must call one of XXX
+        to verify our atoms are still adjacent on the same new wholechain,
+        and record it and our position on it. (Also record any info they need
+        to run, but for now, this is only used by assertions or debug prints,
+        since just knowing our two atoms and total base index motion should
+        be sufficient.)
+        
+        If this fails, die and return False.
 
         @return: whether this marker is still alive after this method runs.
         @rtype: boolean
         """
 
-##        if 'SAFETY STUB 080118': # @@@@
-##            if debug_flags.DEBUG_DNA_UPDATER:
-##                print "kill %r since move step1 is nim" % self ##### @@@@
-##            self.kill()
-##            return False
+        if self._info_for_step2 is not None:
+            print "bug? _info_for_step2 is not None as _f_move_to_live_atompair_step1 starts in %r" % self
+        
+        self._info_for_step2 = None
         
         # Algorithm -- just find the nearest live atom in the right direction.
         # Do this by scanning old atom lists in chain objects known to markers,
@@ -511,24 +510,19 @@ class DnaMarker( ChainAtomMarker):
             # was an assert, but now I worry that some code plops us onto that list
             # for other reasons so this might not always be true, so make it safe
             # and find out (ie debug print) [bruce 080306]
-            print "bug or ok?? not %r.is_homeless() in _f_move_to_live_atompair_step1" % self
+            print "bug or ok?? not %r.is_homeless() in _f_move_to_live_atompair_step1" % self # might be common after undo??
 
         old_wholechain = self.wholechain
         if not old_wholechain:
-            print "bug? no wholechain in %r._f_move_to_live_atompair_step1(); dying" % self
-            self.kill()
-            return False
-
-
-
-
-        if 'SAFETY STUB 080307': # @@@@@@@ turn this on here so my code runs again for the night
-            if debug_flags.DEBUG_DNA_UPDATER:
-                print "kill %r since move step1 is nim" % self ##### @@@@
-            self.kill()
-            return False
-
-
+            print "fyi: no wholechain in %r._f_move_to_live_atompair_step1()" % self
+            # I think this might be common after mmp read. If so, remove debug print.
+            # In any case, tolerate it. Don't move, but do require new wholechain
+            # to find us.
+            self._info_for_step2 = True
+            return True
+            # don't do:
+            ## self.kill()
+            ## return False
 
         old_atom1 = self.marked_atom
         old_atom2 = self.next_atom # might be at next higher or next lower index, or be the same
@@ -537,12 +531,13 @@ class DnaMarker( ChainAtomMarker):
             # No need to move (note, these atoms might be the same)
             # but (if they are not the same) we don't know if they are still
             # bonded so as to be adjacent in the new wholechain. I don't yet know
-            # if that will be checked in step1 or step2.
-            # Also, if we return True, we may need to record what self needs to do in step2.
+            # if that will be checked in this method or a later one.
+            # Also, if we return True, we may need to record what self needs to do in a later method.
             # And we may want all returns to have a uniform debug print.
             # So -- call a common submethod to do whatever needs doing when we find the
             # atom pair we might move to.
-            return _move_step1_might_move_to(old_atom1, old_atom2)
+            return self._move_to(old_atom1, old_atom2)
+                # note: no pos arg means we're reusing old pos
 
         # We need to move (or die). Find where to move to if we can.
 
@@ -563,37 +558,89 @@ class DnaMarker( ChainAtomMarker):
         # (using the pair to define a direction of sliding and the relative
         #  index of the slide) until we find two adjacent unkilled atoms (if such exist).
 
-        ### TODO @@@@@@@ rewrite in terms of old_wholechain.yield_rail_index_direction_counter
-        # or self._position_holder.yield_rail_index_direction_counter,
-        # then pass new position, not atoms, to _move_step1_might_move_to
+        # BUG: the following code only implements sliding to the right. @@@@
+        #
+        # TODO: if this fails and it was not a ring, also try sliding to the left.
+        # (Detect a ring by whether the initial position gets returned at the end.
+        #  No need to stop then explicitly, since the generator detects that
+        #  internally and stops then.)
+
+        atom_pos_generator = self._position_holder.yield_rail_index_direction_counter( counter = 0, countby = 1)
+            # todo: when markers track their current base index,
+            # pass its initial value to counter
+            # and our direction of motion to countby.
+
+        _check_atoms = [old_atom1, old_atom2] # for assertions only -- make sure we hit these two atoms first
+
+        unkilled_atoms_posns = [] # the adjacent unkilled atoms and their posns, at current loop point
+
+        NEED_N_ATOMS = 2 # todo: could optimize, knowing that this is 2
         
-        foundit = False
-        for atom1, atom2, relindex in old_wholechain.scan_atom_pairs(old_atom1, old_atom2,
-                                                            ### IMPLEM; remember each rail can be rev or not
-                                                                     ### LOGIC BUG, we need to pass in the index of atom too
-                                                                     # (and maybe of the other atom? no, guess unambig)
-                                                           norepeat = True,
-                                                           include_this_pair_at_start = False, # could be True, doesn't matter
-                                                           forward_then_backward_for_chain = True):
-            if not atom1.killed() and not atom2.killed():
-                # we found the only place we'll consider moving to.
-                foundit = True
-                break
+        for pos in atom_pos_generator: 
+            rail, index, direction, counter = pos
+            atom = rail.baseatoms[index]
+            if _check_atoms:
+                popped = _check_atoms.pop(0)
+                ## assert atom is popped - fails when i delete a few duplex atoms, then make bare axis atom
+                if not (atom is popped):
+                    print "\n*** BUG: not (atom %r is _check_atoms.pop(0) %r), remaining _check_atoms %r, other data %r" % \
+                          (atom, popped, _check_atoms, (unkilled_atoms_posns, self, self._position_holder))
+            if not atom.killed():
+                unkilled_atoms_posns.append( (atom, pos) )
+            else:
+                unkilled_atoms_posns = []
+            if len(unkilled_atoms_posns) >= NEED_N_ATOMS:
+                # we found enough atoms to be our new position.
+                # (this is the only new position we'll consider --
+                #  if anything is wrong with it, we'll die.)
+                atom1, pos1 = unkilled_atoms_posns[-2]
+                atom2, pos2 = unkilled_atoms_posns[-1]
+                del pos2
+                return self._move_to(atom1, atom2, pos1)
             continue
 
-        if not foundit:
-            if debug_flags.DEBUG_DNA_UPDATER:
-                print "kill %r since we can't find a place to move to" % self
-            self.kill()
-            return False
+        # didn't find a good position to the right.
 
-        return _move_step1_might_move_to(atom1, atom2, relindex)
+        print "nim: try moving marker %r to the left" % self
 
-    def _move_step1_might_move_to(self, atom1, atom2, relindex):
+        # found no position to move to
+        if debug_flags.DEBUG_DNA_UPDATER:
+            print "kill %r since we can't find a place to move it to" % self
+        self.kill()
+        return False
+    
+    def _move_to(self, atom1, atom2, atom1pos = None): # revised 080311
         """
+        [private helper for _move_step1; does its side effects
+         for an actual or possible move, and returns its return value]
+        
+        Consider moving self to atom1 and atom2 at atom1pos.
+        If all requirements for this being ok are met, do it
+        (including telling wholechain and/or self where we moved to,
+         in self.position_holder)
+        (this might be done partly in _move_step2, in which case
+         we must record enough info here for it to do that).
+        Otherwise die.
+        Return whether we're still alive after the step1 part of this.
         """
+        assert not atom1.killed() and not atom2.killed()
+        
+        if atom1pos is not None:
+            # moving to a new position
+            rail, index, direction, counter = atom1pos
+            del counter # in future, use this to update our baseindex
+            assert atom1 is rail.baseatoms[index]
+        else:
+            # moving to same position we're at now (could optimize)
+            rail, index, direction = self._position_holder.pos
+            atom1, atom2 = self.marked_atom, self.next_atom        
+            assert atom1 is rail.baseatoms[index]
+        
+        ok_for_step1 = True
+    
+        # semi-obs comment:
         # The atom pair we might move to is (atom1, atom2), at the relative
-        # index relindex from the index of self.marked_atom (in the direction
+        # index relindex(?) from the index of self.marked_atom (in the direction
         # from that to self.next_atom). (This is in terms of
         # the implicit index direction in which atom2 comes after atom1, regardless
         # of internal wholechain indices, if those even exist. If we had passed
@@ -609,288 +656,155 @@ class DnaMarker( ChainAtomMarker):
         # in set_whether_controlling, only checking this if we want to stay alive
         # once we know whether we're controlling. [review])
 
-        ### ISSUE: if we move, we want to tell wholechain and/or self where we moved to!
-        # since we are assuming we always know, in terms of a rail, index, and (ideally but NIM) direction within rail.
-        # maybe we pass that info, not an atom pair, to wholechain, to do the scan? #### DECIDE #@@@@@@@@@@
-
-        # maybe we want a helper class for a "position within a WholeChain" and we own that and can
-        # scan it along, and the wholechain can own it for us too, in its dict? it has rail, index, direction. YES,
-        # this would be useful.
-
-
-
-
-        old_atom = self._get_marker_atom() ###k IMPLEM - or is it in superclass?? - and review, note that atom might be killed or not
-
-        # now find where this is in the wholechain. can we find which chain has it? to be efficient,
-        # let's make the wholechain tell us this in set_wholechain.
-        # (we could also ask it to look us up, since it has a dict to map us to that info,
-        #  but this works just as well. I might still decide that way is cleaner or better ##review.)
-        old_position_holder = self._position_holder
-
-        # now ask the wholechain to let us iterate over rails and their atoms,
-        # and look for a live atom, stopping if we get back to self (if it's a ring),
-        # looking in both directions if it's not a ring.
-
-
-
-        # @@@@@@@@@@@@@@@ where i am in rewrite
-
-
-
-        
-        old_chain = self._chain # @@@ needs revision so this is a WholeChain (list of chain frags), not just one chain frag like now
-        old_atom = self._get_marker_atom()
-        
-        assert not self.atoms
-        assert old_atom.killed() #e or we could just return if these are false, if we want to be callable then
-
-        # Find the first and last live atoms in the atom list (and their indices),
-        # both before and after our atom, whose index we also find.
-        # From this info we can simulate searching in either direction on a chain or ring,
-        # and also compute the index offset of the move.
-        # (To compute it correctly for PAM5, we don't count non-base (Pl) atoms in the indexing.)
-        
-        class stuff: #e rename
-            """
-            Track first & last live atom seen during some subsection of the chain.
-            (If exactly one atom is seen, those will be the same.)
-            (Only live atoms should be passed to self.see(atom, index).)
-            """
-            first_atom = None
-            first_index = None
-            last_atom = None
-            last_index = None
-            def see(self, atom, index):
-                # assume live atom
-                if self.first_atom is None:
-                    self.first_atom = atom
-                    self.first_index = index
-                self.last_atom = atom
-                self.last_index = index
-                return
-            def atom_index_pairs(self):
-                """
-                Return a list of the unique (atom, index) pairs we saw.
-                (Its length will be 0 or 1 or 2.)
-                """
-                res = []
-                if self.first_atom is not None:
-                    res.append( (self.first_atom, self.first_index) )
-                    assert self.last_atom is not None
-                    if self.last_atom is not self.first_atom:
-                        res.append( (self.last_atom, self.last_index) )
-                return res
-            pass
-        
-        before_stuff = stuff()
-        after_stuff = stuff()
-        
-        old_atom_index = None # note: any int is a possible value, in principle
-        
-        before = True # changed to False when we find old_atom during loop
-            # (only makes sense since we iterate over baseindices in order)
-
-        old_index_to_atom_dict = {}
-
-        for atom, baseindex in old_chain.baseatom_index_pairs(): # skips non-base atoms
-            # note: this is in order for chain (arb direction), or ring (arbitrary origin & direction)
-            # note: in current implem, found indices will start at 1, but the method can't guarantee
-            # that in general (since negative indices might be required for a user-set origin),
-            # so this code should't assume they avoid any int values.
-            #e possible optim: call chain method to do this search in a faster way??
-            old_index_to_atom_dict[baseindex] = atom
-                #e possible optim: use this to partly replace the _stuff objects?
-                #e possible optim: cache on the chain itself, for use by several moving markers?
-            if atom.killed():
-                if atom is old_atom:
-                    old_atom_index = baseindex
-                    before = False
-            else:
-                if before:
-                    before_stuff.see(atom, baseindex)
-                else:
-                    after_stuff.see(atom, baseindex)
-            continue
-        assert not before
-        
-        ###e now find new_atom (and index offset) from that info (in *_stuff and old_atom_index)
-        # note: no guarantee any atoms were live, so either or both stuffs might be empty of atoms;
-        # if not empty, they might have found the same atom as first and last, or not.
-        # For now, just use default behavior -- later some user-settings will affect this.
-        # Default behavior: move towards lower-numbered bases, or if that fails, towards higher;
-        # mark self as needing user confirmation (not urgently), no index offset.
-        # But how do we know which direction is towards lower-numbered bases? Maybe something else set a chain base direction?
-        # for now, kluge it by comparing atom key? but we'll need this direction info elsewhere too... need it to be on the chain.
-        # and it might not be preserved from one chain to a new one. (can the chains just reverse their lists to standardize it??)
-
-        # create the list of other atoms to look at, in order.
-        # our variables are lists of atom, index pairs.
-        before_look = before_stuff.atom_index_pairs()
-        after_look = after_stuff.atom_index_pairs()
-        if old_chain.ringQ:
-            # we're looking before first, so just put everything before [todo: clarify that comment]
-            lookat = after_look + before_look # in base index order, but relative to old_atom around ring
-            lookat.reverse() # in looking order (last atom before old_atom is looked at first)
+        if ok_for_step1:
+            self.setAtoms([atom1, atom2]) # maybe needed even in "move to same pos" case
+            self._position_holder.set_position(rail, index, direction)
+                # review: probably not needed, since if we actually moved,
+                # a new wholechain will take us over, so we could probably
+                # set this holder as invalid instead -- not 100% sure I'm right
+            self._info_for_step2 = True # this means, we do need to check atom adjacency in a later method
         else:
-            lookat = reversed_list(before_look) + after_look #e do we also need to record in which of these lists we find the answer?
-
-        new_atom, old_index_of_new_atom = None, None
-        
-        for atom, index in lookat:
-            # note: lookat might be empty; if not, for now we use
-            # only the first element
-            new_atom, old_index_of_new_atom = atom, index
-            break
-                # (in future we might decide if this atom is good enough
-                #  in some way, and continue if not)
-
-        # didit will be set to true below if possible:
-        didit = False # whether we succeed in moving to a valid new location
-
-        if new_atom is not None:
-            didit = self._move_to_this_atom(new_atom)
-            #e pass index offset, or info to compute it? or compute it
-            # in this method now, or before this line?
-
-        if didit:
-            # save info to move direction onto new chain
-            # (possible optim: only save a few indices in the dict --
-            #  for now I assume it's not worthwhile, we'll die soon anyway...
-            #  to do it, we'd only save old_index_to_atom_dict items whose
-            #  index (key) was old_index_of_new_atom + one of (-1,0,1))
-            self._info_for_step2 = new_atom, old_index_to_atom_dict, old_index_of_new_atom, old_chain
-        else:
-            # in future this will depend on settings:
+            # in future, whether to die here will depend on settings in self.
+            # review: if we don't die here, do we return False or True?
             self.kill()
-        return didit
-    
-    def _f_move_to_live_atompair_step2(self, new_chain_info): #e todo: split docstring ### FIX/REVIEW/REFILE/REPLACE @@@
+        return ok_for_step1
+
+    def _f_kill_during_move(self, new_wholechain, why): # 080311
         """
-        [friend method, called from dna_updater]
-        Our atom died; see if there is a live atom on our old chain which we want to move to;
-        if so, move to the best one (updating all our properties accordingly) and return True;
-        if not, die and return False.
+        [friend method, called from WholeChain.__init__ during dna_updater run]
         """
-        # this will be set to 1 or -1 below if possible:
-        advise_new_chain_direction = 0
-            # base index direction to advise new chain to take
-            # (-1 or 1, or 0 if we don't know)
+        if debug_flags.DEBUG_DNA_UPDATER: # SOON: _VERBOSE
+            print "_f_kill_during_move(%r, %r %r)" % (self, new_wholechain, why)
+        # I think we're still on an old wholechain, so we can safely
+        # die in the usual way (which calls a friend method on it).
+        assert self.wholechain is not new_wholechain
+        # not sure we can assert self.wholechain is not None, but find out...
+        # actually this will be normal for mmp read, or other ways external code
+        # can create markers, so remove when seen: @@@@
+        if self.wholechain is None:
+            print "\nfyi: remove when seen: self.wholechain is None during _f_kill_during_move(%r, %r, %r)" % \
+                  ( self, new_wholechain, why)
+        self.kill()
+        self._info_for_step2 = None # for debug, record no need to do more to move self
+        return
 
-        new_atom, old_index_to_atom_dict, old_index_of_new_atom, old_chain = self._info_for_step2
-        del self._info_for_step2
-        assert new_atom is self.atoms[0] #k
-        assert old_chain is self._chain # guess true now, but remove when works if not required, as i think
-        
-        reldir = self.compute_new_chain_relative_direction(
-            new_atom,
-            new_chain_info,
-            old_index_to_atom_dict,
-            old_index_of_new_atom
-         )
-        advise_new_chain_direction = reldir * old_chain.index_direction # can be 0 or -1 or 1
-
-        #e if that method didn't guess a direction, we could decide to die here
-        # (didit = False), but for now we don't... in future this will depend on settings:
-        didit = True
-            
-        if didit:
-            self._advise_new_chain_direction = advise_new_chain_direction ### @@@ USE ME
-        else:
-            self.kill()
-        return didit
-    
-    def _move_to_this_atom(self, atom): #e arg for index change too?   ### FIX/REVIEW/REFILE/REPLACE @@@
-        #e assert correct kind of atom, for a per-subclass kind... call a per-subclass atom_ok function?
-        self._set_marker_atom(atom)
-        #e other updates (if not done by submethod)?
-        #e set a flag telling the user to review this change, if settings ask us to... (or let caller do this??)
-        return True
-
-    def compute_new_chain_relative_direction(self,   ### FIX/REVIEW/REFILE/REPLACE @@@
-                                             new_atom,
-                                             new_chain_info,
-                                             old_index_to_atom_dict,
-                                             old_index_of_new_atom
-                                            ): #e fill in param info in docstring
+    def _f_new_position_for(self, new_wholechain, (atom1info, atom2info)): # 080311
         """
-        Figure out what base direction to advise our new chain to adopt,
-        relative to its current one,
-        if we can and in case we're asked to advise it later.
+        Assuming self.marked_atom has the position info atom1info
+        (a pair of rail and baseindex) and self.next_atom has atom2info
+        (also checking this assumption by asserts),
+        both in new_wholechain,
+        figure out new position and direction for self in new_wholechain
+        if we can. It's ok to rely on rail.neighbor_baseatoms
+        when doing this. We need to work properly (and return proper
+        direction) if one or both atoms are on a length-1 rail,
+        and fail gracefully if atoms are the same and/or new_wholechain
+        has only one atom.
 
-        @param new_atom:
-        @type new_atom: atom
-        
-        @param new_chain_info:
-        @type new_chain_info: dict from ...
-        
-        @param old_index_to_atom_dict: dict from old chain baseindex to atom,
-                                       including at least new_atom and its old
-                                       immediate neighbors, and as many more
-                                       atoms (with old baseindices on the same
-                                       old self.chain_or_ring) as you want
-        @type old_index_to_atom_dict: dict (int to atom)
-        
-        @param old_index_of_new_atom:
-        @type old_index_of_new_atom: int
-        
-        @return: base index direction to advise new chain to take (-1 or 1, or 0 if we don't know)
+        If we can, return new pos as a tuple (rail, baseindex, direction),
+        where rail and baseindex are for atom1 (revise API if we ever
+        need to swap our atoms too). Caller will make those into a
+        PositionInWholeChain object for new_wholechain.
 
-        Do this by figuring out how the old
-        chain's base direction maps onto the new one's, if any bases adjacent
-        in the old chain are still adjacent in the new one. Record the result
-        as a sign, relative to the *current* direction of the new chain.
-        (If it's direction is flipped, we are not notified, but its index_direction
-         will be reversed at the same time, so our stored sign, relative to that,
-         will remain correct. This assumes that reversing a chain reverses both
-         its .index_direction and the visible order of its atoms, at the same time.) ### REVIEW this point when done
+        If we can't, return None. This happens
+        if our atoms are not
+        adjacent in new_wholechain (too far away, or the same atom).
+
+        Never have side effects.
         """
-        # implem notes:
-        # old_atom is not relevant here at all, i think -- for old direction we look at old indexes around new atom.
-        # new_atom and its both-newly-and-oldly-adjacent atoms are the only ones relevant to look at here;
-        # for each such atom (at most 2, not counting new_atom) we just compare its index delta in old and new info.
-        # if they disagree, we can either give up, or favor the one in the old direction the marker moved. [for now: latter.]
-        # if the latter, we can just pick the first old-and-new-adj atom to look at, and use it.
-        # we can test an atom for old-adjacent during our scan... not sure... maybe we want a dict
-        # for old_chain_info which has index as key, only for old_chain? yes. we pass it in.
-        
-        new_atom_new_info = new_chain_info[new_atom.key]
-        new_atom_new_chain_id, new_atom_new_index = new_atom_new_info
+        rail1, baseindex1 = atom1info
+        rail2, baseindex2 = atom2info
 
-        assert old_index_to_atom_dict[old_index_of_new_atom] is new_atom
-        for try_this_old_index in (old_index_of_new_atom + 1, old_index_of_new_atom - 1): #e maybe only pass in this much info?
-            # note: we do this in order of which result we'll use,
-            # so we can use the first result we get.
-            # The order of +1 / -1 really depends on the old direction in which the marker wants to move.
-            # In future that will be a setting, and it's hardcoded in at least one other place besides here.
-            ### FIX SOON, for 2nd strand marker -- when adding new markers, try to add to left edge of axis & 2 strands
-            # and have them move in same way on each. Hmm, that doesn't require this variable, it's still forward
-            # in base index if we assume that's same on the two strands from this point... if it's not it's probably user-set.
-            # but if 2nd strand has direction but no marker, do we add a backwards marker there? I doubt that can happen... we'll see.
-            try:
-                try_this_old_atom = old_index_to_atom_dict[try_this_old_index]
-                info = new_chain_info[try_this_old_atom.key]
-            except KeyError: # from either of the two lookups
+        assert self.marked_atom is rail1.baseatoms[baseindex1]
+        assert self.next_atom is rail2.baseatoms[baseindex2]
+
+        if self.marked_atom is self.next_atom:
+            return None
+        
+        # Note: now we know our atoms differ, which rules out length 1
+        # new_wholechain, which means it will yield at least two positions
+        # below each time we scan its atoms, which simplifies following code.
+
+        # Simplest way to work for different rails, either or both
+        # of length 1, is to try scanning in both directions.
+        
+        try_these = [
+            (rail1, baseindex1, 1),
+            (rail1, baseindex1, -1),
+         ]
+        for rail, baseindex, direction in try_these:
+            pos = rail, baseindex, direction
+            generator = new_wholechain.yield_rail_index_direction_counter( pos )
+
+            # I thought this should work, but it failed -- I now think it was
+            # just a logic bug (since we might be at the wholechain end and
+            # therefore get only one position from the generator),
+            # but to remove sources of doubt, do it the more primitive
+            # way below.
+            ## pos_counter_A = generator.next()
+            ## pos_counter_B = generator.next() # can get exceptions.StopIteration - bug?
+
+            iter = 0
+            pos_counter_A = pos_counter_B = None
+            for pos_counter in generator:
+                iter += 1
+                if iter == 1:
+                    # should always happen
+                    pos_counter_A = pos_counter
+                elif iter == 2:
+                    # won't happen if we start at the end we scan towards
+                    pos_counter_B = pos_counter
+                    break
+                continue
+            del generator
+            assert iter in (1, 2)
+            railA, indexA, directionA, counter_junk = pos_counter_A
+            assert (railA, indexA, directionA) == (rail, baseindex, direction)
+            if iter < 2:
+                ## print "fyi: only one position yielded from %r.yield_rail_index_direction_counter( %r )" % \
+                ##    ( new_wholechain, pos )
+                ##      # remove when debugged, this is probably normal, see comment above
+                # this direction doesn't work -- no atomB!
                 pass
             else:
-                new_chain_id, new_index = info
-                # is the trial atom in the same new chain, at an adjacent index?
-                if new_chain_id == new_atom_new_chain_id:
-                    new_index_delta = new_index - new_atom_new_index # could be anything except 0
-                    assert new_index_delta != 0
-                    assert type(new_index_delta) == type(1)
-                    if new_index_delta in (-1,1):
-                        old_index_delta = try_this_old_index - old_index_of_new_atom
-                        assert old_index_delta in (-1,1) # by construction
-                        res = new_index_delta / old_index_delta
-                        assert res in (-1,1) # a fact of math (and that the '/' operator works right)
-                        return res
-                            # note: relative to current direction, which we
-                            # don't know in this method and which might not be 1
-        return 0
+                # this direction works iff we found the right atom
+                railB, indexB, directionB, counter_junk = pos_counter_B
+                atomB = railB.baseatoms[indexB]
+                if atomB is self.next_atom:
+                    return rail, baseindex, direction
+                pass
+            continue # try next direction in try_these
+
+        return None
+        
+    def _f_new_pos_ok_during_move(self, new_wholechain): # 080311
+        """
+        [friend method, called from WholeChain.__init__ during dna_updater run]
+        """
+        del new_wholechain
+        self._info_for_step2 = None # for debug, record no need to do more to move self
+        return
+    
+    def _f_should_be_done_with_move(self): # 080311
+        """
+        [friend method, called from dna_updater]
+        """
+        if self.killed():
+            return
+        if self._info_for_step2: # TODO: fix in _undo_update @@@@@
+            print "bug? marker %r was not killed or fixed after move" % self
+        # Note about why we can probably assert this: Any marker
+        # that moves either finds new atoms whose chain has a change
+        # somewhere that leads us to find it (otherwise that chain would
+        # be unchanged and could have no new connection to whatever other
+        # chain lost atoms which the marker was on), or finds none, and
+        # can't move, and either dies or is of no concern to us.
+        self._info_for_step2 = None # don't report the same bug again for self
+        return
 
     def DnaStrandOrSegment_class(self):
         return self._DnaStrandOrSegment_class
+    
     pass # end of class DnaMarker
 
 # ==
