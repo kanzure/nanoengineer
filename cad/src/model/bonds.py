@@ -1635,15 +1635,20 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
 
     def rebond(self, old, new):
         """
-        Self is a bond between old (typically a singlet) and some atom A;
+        Self is a bond between old (typically a Singlet,
+         or a Pl5 being discarded during PAM3+5 conversion)
+        and some atom A;
         replace old with new in this same bond (self),
         so that old no longer bonds to A but new does.
            The bond-valence of self is not used or changed, even if it would be
         incorrect for the new atomtypes used in the bond.
+           The bond_direction of self (if any) is cleared if new.element does
+        not permit it, and is retained otherwise.
            Unlike some other bonding methods, the number of bonds on new increases
         by 1, since no singlet on new is removed -- new is intended to be
         a just-created atom, not one with the right number of existing bonds.
-        If old is a singlet, then kill it since it now has no bonds.
+           If old is a singlet, then kill it since it now has no bonds.
+        Otherwise, *don't* add a new bondpoint to it [new behavior 080312].
         Do the necessary invalidations in self and all involved molecules.
            Warning: this can make a duplicate of an existing bond (so that
         atoms A and B are connected by two equal copies of a bond). That
@@ -1656,12 +1661,14 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         # bruce 041109: I think that means "old" is intended to be a singlet.
         # I will try to make it safe for any atoms, and do all needed invals.
         if self.atom1 is old:
-            old.unbond(self) # also kills old if it's a singlet, as of 041115
+            old.unbond(self, make_bondpoint = False)
+            # (make_bondpoint = False added by bruce 080312)
+            # also kills old if it's a singlet, as of 041115
             ## if len(old.bonds) == 1: del old.molecule.atoms[old.key] --
             ## the above code removed the singlet, old, without killing it.
             self.atom1 = new
         elif self.atom2 is old:
-            old.unbond(self)
+            old.unbond(self, make_bondpoint = False)
             self.atom2 = new
         else:
             print "fyi: bug: rebond: %r doesn't contain atom %r to replace with atom %r" % (self, old, new)

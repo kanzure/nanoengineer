@@ -27,6 +27,8 @@ from dna.updater.delete_bare_atoms import delete_bare_atoms
 
 from dna.updater.fix_bond_directions import fix_local_bond_directions
 
+from dna.updater.convert_from_PAM5 import convert_from_PAM5
+
 # ==
 
 def update_PAM_atoms_and_bonds(changed_atoms):
@@ -168,6 +170,27 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     remove_killed_atoms( changed_atoms)
 
     remove_error_atoms( changed_atoms)
+
+    # ==
+
+    # Convert from PAM5 to PAM3+5, per-atom part. [080312, unfinished]
+
+    # Potential optimization (not known whether it'd be significant):
+    # only do this after operations that might introduce new PAM5 atoms
+    # (like mmp read, mmp insert, or perhaps Dna Generator)
+    # or that change any setting that causes them to become convertable.
+    # This is not practical now, since errors or non-whole base pairs prevent
+    # conversion, and almost any operation can remove those errors or make the
+    # base pairs whole.
+    
+    convert_from_PAM5( changed_atoms)
+        # note: this replaces Pl5 with direct bonds, and may do more (undecided),
+        # but some conversion must be done later after ladders are constructed.
+        # So it might be misnamed. ###
+
+    ignore_new_changes( "from converting PAM5 to PAM3+5")
+
+    remove_killed_atoms( changed_atoms)
     
     return # from update_PAM_atoms_and_bonds
 

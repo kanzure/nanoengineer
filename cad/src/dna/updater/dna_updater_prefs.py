@@ -33,6 +33,11 @@ def initialize_prefs():
     pref_per_ladder_colors()
     pref_draw_internal_markers()
 
+    pref_mmp_read_convert_to_PAM3plus5()
+    pref_mmp_save_convert_to_PAM5()
+    pref_renderers_convert_to_PAM5()
+    pref_minimizers_convert_to_PAM5()
+
     _update_our_debug_flags('arbitrary value')
         # makes them appear in the menu,
         # and also sets their debug flags
