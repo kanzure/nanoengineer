@@ -23,7 +23,11 @@ import foundation.env as env
 from utilities.Log import orangemsg, graymsg
 
 from model.elements import Singlet
- 
+
+from PyQt4.Qt import QFont, QString # for debug code
+
+from debug_prefs import debug_pref, Choice_boolean_False
+
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
 # (below, perhaps in a cycle)
@@ -198,17 +202,6 @@ class DnaLadderRailChunk(Chunk):
         # can't do this, no self.chain; could do it if passed the chain:
         ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
         ## assert self.ladder == _rail_end_atom_to_ladder( self.chain.baseatoms[0] )
-        return
-    
-    def _undo_update(self):
-        if self.wholechain:
-            self.wholechain.destroy()
-            self.wholechain = None
-        self.invalidate_ladder() # review: sufficient? set it to None?
-        self.ladder = None #bruce 080227 guess, based on comment where class constant default value is assigned
-        for atom in self.atoms.itervalues():
-            atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
-        _superclass._undo_update(self)
         return
 
     _counted_chunks = () # kluge, so len is always legal,
@@ -394,24 +387,24 @@ class DnaLadderRailChunk(Chunk):
         [to be called by dna updater]
         @param wholechain: a new WholeChain which owns us (not None)
         """
-        assert wholechain
+        assert wholechain is not None
         # note: self.wholechain might or might not be None when this is called
         # (it's None for new chunks, but not for old ones now on new wholechains)
         self.wholechain = wholechain
 
-    def forget_wholechain(self, wholechain):
-        """
-        Remove any references we have to wholechain.
-        
-        @param wholechain: a WholeChain which refs us and is being destroyed
-        """
-        assert wholechain
-        if self.wholechain is wholechain:
+    # == invalidation-related methods overridden from superclass
+
+    def _undo_update(self):
+        if self.wholechain:
+            self.wholechain.destroy()
             self.wholechain = None
+        self.invalidate_ladder() # review: sufficient? set it to None?
+        self.ladder = None #bruce 080227 guess, based on comment where class constant default value is assigned
+        for atom in self.atoms.itervalues():
+            atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
+        _superclass._undo_update(self)
         return
-        
-    # == invalidation-related methods
-    
+
     def invalidate_ladder(self): #bruce 071203
         """
         [overrides Chunk method]
@@ -428,8 +421,6 @@ class DnaLadderRailChunk(Chunk):
         [overrides Chunk method]
         """
         return self.ladder and self.ladder.valid
-
-    # == override Chunk methods related to invalidation
 
     def addatom(self, atom):
         _superclass.addatom(self, atom)
@@ -468,6 +459,19 @@ class DnaLadderRailChunk(Chunk):
             self.ladder.invalidate() # 080120 10pm bugfix
         return _superclass.invalidate_atom_lists(self)
         
+    # == other invalidation-related methods
+    
+    def forget_wholechain(self, wholechain):
+        """
+        Remove any references we have to wholechain.
+        
+        @param wholechain: a WholeChain which refs us and is being destroyed
+        """
+        assert wholechain is not None
+        if self.wholechain is wholechain:
+            self.wholechain = None
+        return
+
     # == other methods
     
     def modify_color_for_error(self, color):
@@ -486,8 +490,41 @@ class DnaLadderRailChunk(Chunk):
             else:
                 color = black
         return color
+
+    def get_ladder_rail(self): # todo: use more widely
+        """
+        """
+        for rail in self.ladder.all_rails():
+            if rail.baseatoms[0].molecule is self:
+                return rail
+        assert 0 # might happen if used during dna updater run
+                
+    def draw(self, glpane, dispdef):
+        """
+        [overrides Chunk.draw]
+        """
+        _superclass.draw(self, glpane, dispdef)
+        if debug_pref("DNA: draw ladder rail atom indices?",
+                      Choice_boolean_False,
+                      prefs_key = True):
+            font = QFont( QString("Helvetica"), 9)
+                # WARNING: Anything smaller than 9 pt on Mac OS X results in 
+                # un-rendered text.
+            out = glpane.out * 3 # bug: 3 is too large
+            rail = self.get_ladder_rail()
+            baseatoms = rail.baseatoms
+            for atom, i in zip(baseatoms, range(len(baseatoms))):
+                text = "(%d)" % i # smaller when works
+                pos = atom.posn() + out
+                glpane.renderText(pos[0], pos[1], pos[2], \
+                          QString(text), font)
+                continue
+            pass
+        return
     
     pass # end of class DnaLadderRailChunk
+
+# ==
 
 def _make_or_reuse_DnaLadderRailChunk(constructor, assy, chain, ladder):
     """
