@@ -3955,7 +3955,21 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         #  to always exist, this method should be revised to look at
         #  the element type and return 'X' instead of "" for appropriate
         #  elements.)
-        return self.__dict__.get('_dnaBaseName', "")
+        
+        #UPDATE: The following is now revised per above coment. i.e. if it 
+        #can't find a baseName for a valid element symbol (see list below)
+        #it makes the dnaBaseName as 'X' (unassigned base) . This is useful 
+        #while reading in the strand sequence. See chunk.getStrandSequence()
+        #or DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
+        
+        baseNameString = self.__dict__.get('_dnaBaseName', "")
+        
+        if not baseNameString: 
+            valid_element_symbols = ['Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5']
+            if self.element.symbol in valid_element_symbols:
+                baseNameString = 'X'     
+
+        return baseNameString
     
     def get_strand_atom_mate(self):
         """

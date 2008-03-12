@@ -446,15 +446,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             baseName = str(atm.getDnaBaseName())        
             if baseName:
                 sequenceString = sequenceString + baseName
-            else:
-                #What if baseName is not assigned due to some error?? Example
-                #whilereading in an mmp file. 
-                #As a fallback, we should assign unassigned base letter 'X'
-                #to all the base atoms that don't have a baseletter defined
-                #also, make sure that the atom is not a bondpoint. 
-                if atm.element.symbol != 'X':                    
-                    baseName = 'X'
-                    sequenceString = sequenceString + baseName
 
         return sequenceString
 
