@@ -514,10 +514,11 @@ class DnaMarker( ChainAtomMarker):
 
         old_wholechain = self.wholechain
         if not old_wholechain:
-            print "fyi: no wholechain in %r._f_move_to_live_atompair_step1()" % self
-            # I think this might be common after mmp read. If so, remove debug print.
-            # In any case, tolerate it. Don't move, but do require new wholechain
-            # to find us.
+            if debug_flags.DEBUG_DNA_UPDATER:
+                print "fyi: no wholechain in %r._f_move_to_live_atompair_step1()" % self
+                # I think this might be common after mmp read. If so, perhaps remove debug print.
+                # In any case, tolerate it. Don't move, but do require new wholechain
+                # to find us. Note: this seems to happen a lot for 1-atom chains, not sure why. @@@ DIAGNOSE
             self._info_for_step2 = True
             return True
             # don't do:
@@ -556,54 +557,70 @@ class DnaMarker( ChainAtomMarker):
 
         # Slide this pair of atoms along the wholechain
         # (using the pair to define a direction of sliding and the relative
-        #  index of the slide) until we find two adjacent unkilled atoms (if such exist).
+        #  index of the amount of slide) until we find two adjacent unkilled
+        # atoms (if such exist). Try first to right, then (if self was not a
+        # ring) to the left.
+        # (Detect a ring by whether the initial position gets returned at the
+        #  end (which is detected by the generator and makes it stop after
+        #  returning that), or by old_wholechain.ringQ (easier, do that).)
 
-        # BUG: the following code only implements sliding to the right. @@@@
-        #
-        # TODO: if this fails and it was not a ring, also try sliding to the left.
-        # (Detect a ring by whether the initial position gets returned at the end.
-        #  No need to stop then explicitly, since the generator detects that
-        #  internally and stops then.)
+        for direction_of_slide in (1, -1):
+            if old_wholechain.ringQ and direction_of_slide == -1:
+                break
+            pos_holder = self._position_holder
+            pos_generator = pos_holder.yield_rail_index_direction_counter(
+                                relative_direction = direction_of_slide,
+                                counter = 0, countby = direction_of_slide,
+                             )
+                # todo: when markers track their current base index,
+                # pass its initial value to counter
+                # and our direction of motion to countby.
+                # (Maybe we're already passing the right thing to countby,
+                #  if base indexing always goes up in the direction
+                #  from marked_atom to next_atom, but maybe it doesn't
+                #  for some reason.)
 
-        atom_pos_generator = self._position_holder.yield_rail_index_direction_counter( counter = 0, countby = 1)
-            # todo: when markers track their current base index,
-            # pass its initial value to counter
-            # and our direction of motion to countby.
-
-        _check_atoms = [old_atom1, old_atom2] # for assertions only -- make sure we hit these two atoms first
-
-        unkilled_atoms_posns = [] # the adjacent unkilled atoms and their posns, at current loop point
-
-        NEED_N_ATOMS = 2 # todo: could optimize, knowing that this is 2
-        
-        for pos in atom_pos_generator: 
-            rail, index, direction, counter = pos
-            atom = rail.baseatoms[index]
-            if _check_atoms:
-                popped = _check_atoms.pop(0)
-                ## assert atom is popped - fails when i delete a few duplex atoms, then make bare axis atom
-                if not (atom is popped):
-                    print "\n*** BUG: not (atom %r is _check_atoms.pop(0) %r), remaining _check_atoms %r, other data %r" % \
-                          (atom, popped, _check_atoms, (unkilled_atoms_posns, self, self._position_holder))
-            if not atom.killed():
-                unkilled_atoms_posns.append( (atom, pos) )
+            if direction_of_slide == 1:
+                _check_atoms = [old_atom1, old_atom2]
+                    # for assertions only -- make sure we hit these atoms first,
+                    # in this order
             else:
-                unkilled_atoms_posns = []
-            if len(unkilled_atoms_posns) >= NEED_N_ATOMS:
-                # we found enough atoms to be our new position.
-                # (this is the only new position we'll consider --
-                #  if anything is wrong with it, we'll die.)
-                atom1, pos1 = unkilled_atoms_posns[-2]
-                atom2, pos2 = unkilled_atoms_posns[-1]
-                del pos2
-                return self._move_to(atom1, atom2, pos1)
-            continue
+                _check_atoms = [old_atom1] # if we knew pos of atom2 we could
+                    # start there, and we could save it from when we go to the
+                    # right, but there's no need.
 
-        # didn't find a good position to the right.
+            unkilled_atoms_posns = [] # the adjacent unkilled atoms and their posns, at current loop point
 
-        print "nim: try moving marker %r to the left" % self
+            NEED_N_ATOMS = 2 # todo: could optimize, knowing that this is 2
+            
+            for pos in pos_generator: 
+                rail, index, direction, counter = pos
+                atom = rail.baseatoms[index]
+                if _check_atoms:
+                    popped = _check_atoms.pop(0)
+                    ## assert atom is popped - fails when i delete a few duplex atoms, then make bare axis atom
+                    if not (atom is popped):
+                        print "\n*** BUG: not (atom %r is _check_atoms.pop(0) %r), remaining _check_atoms %r, other data %r" % \
+                              (atom, popped, _check_atoms, (unkilled_atoms_posns, self, self._position_holder))
+                if not atom.killed():
+                    unkilled_atoms_posns.append( (atom, pos) )
+                else:
+                    unkilled_atoms_posns = []
+                if len(unkilled_atoms_posns) >= NEED_N_ATOMS:
+                    # we found enough atoms to be our new position.
+                    # (this is the only new position we'll consider --
+                    #  if anything is wrong with it, we'll die.)
+                    if direction_of_slide == -1:
+                        unkilled_atoms_posns.reverse()
+                    atom1, pos1 = unkilled_atoms_posns[-2]
+                    atom2, pos2 = unkilled_atoms_posns[-1]
+                    del pos2
+                    return self._move_to(atom1, atom2, pos1)
+                continue # next pos from pos_generator
+            continue # next direction_of_slide
 
-        # found no position to move to
+        # didn't find a good position to the right or left.
+
         if debug_flags.DEBUG_DNA_UPDATER:
             print "kill %r since we can't find a place to move it to" % self
         self.kill()

@@ -125,6 +125,7 @@ class WholeChain(object):
         """
         assert dict_of_rails, "a WholeChain can't be empty"
         self._dict_of_rails = dict_of_rails
+        self.ringQ = (len(self.end_baseatoms()) == 0) # 080311
 
         # Scan all our atoms, for several reasons.
         # One is to find all the DnaMarkers on them.
@@ -253,7 +254,8 @@ class WholeChain(object):
     def end_rails(self): # bruce 080212; rename?
         """
         Return a list of those of our rails which have end_atoms of self
-        as a whole.
+        as a whole (which they determine by which neighbor_baseatoms they
+        have).
 
         @note: if we are a ring, this list will have length 0.
                if we are a length-1 wholechain, it will have length 1.
@@ -261,6 +263,8 @@ class WholeChain(object):
                depending on whether we're made of one rail or more.
                (We assert that the length is 0 or 1 or 2.)
         """
+        # note: if this shows up in any profiles, it can be easily
+        # optimized by caching its value.
         res = [rail for rail in self.rails() if rail.at_wholechain_end()]
         assert len(res) <= 2
         return res
@@ -274,7 +278,9 @@ class WholeChain(object):
         @note: result is asserted length 0 or 2; will be 0 if we are a ring
         or 2 if we are a chain.
 
-        @note: Intended for use by user ops between dna updater runs.
+        @note: Intended for use by user ops between dna updater runs,
+               but legal to call during self.__init__ as soon as
+               self._dict_of_rails has been stored.
         """
         res = []
         for rail in self.end_rails():
@@ -565,10 +571,15 @@ class WholeChain(object):
         
     # todo: methods related to base indexing
     
-    def yield_rail_index_direction_counter(self, pos, counter = 0, countby = 1): # in class WholeChain
+    def yield_rail_index_direction_counter(self,  # in class WholeChain
+                                           pos,
+                                           counter = 0,
+                                           countby = 1,
+                                           relative_direction = 1):
         """
         #doc
-        @note: the first position we yield is always the one passed, with counter at its initial value
+        @note: the first position we yield is always the one passed,
+               with counter at its initial value
         """
         # possible optim: option to skip (most) killed atoms, and optimize that
         # to notice entire dead rails (noticeable when their chunks get killed)
@@ -582,7 +593,7 @@ class WholeChain(object):
             yield rail, index, direction, counter
             # move
             counter += countby
-            index += direction
+            index += direction * relative_direction
             # adjust
             def jump_off(rail, end):
                 neighbor_atom = rail.neighbor_baseatoms[end]
@@ -593,6 +604,7 @@ class WholeChain(object):
                     index, direction = None, None # illegal values (to detect bugs in outer code)
                 else:
                     new_rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom)
+                    direction *= relative_direction
                     assert new_rail
                     # can't assert new_rail is not rail -- might be a ring of one rail
                 return new_rail, index, direction
@@ -617,6 +629,12 @@ class WholeChain(object):
                 # positions; then return.
                 yield rail, index, direction, counter
                 return
+            elif (rail, index) == pos[0:2]:
+                assert 0, "bug: direction got flipped somehow in " \
+                       "%r.yield_rail_index_direction_counter%r at %r" % \
+                       ( self,
+                         (pos, counter, countby, relative_direction),
+                         (rail, index, direction, counter) )
             continue
         assert 0 # not reached
         pass
@@ -644,7 +662,8 @@ class PositionInWholeChain(object):
     def yield_rail_index_direction_counter(self, **options): # in class PositionInWholeChain
         return self.wholechain.yield_rail_index_direction_counter( self.pos, **options )
 
-    # maybe: method to scan in both directions (or caller might do it)
+    # maybe: method to scan in both directions
+    # (for now, our main caller does that itself)
 
     pass
     
