@@ -15,7 +15,7 @@ atom 3 (301) (-5112, 7036, 3180) def
 info atom dnaBaseName = A
 bond1 1
 atom 4 (305) (-7600, 5229, 3341) def
-info atom dnaStrandName = Strand1
+info atom dnaStrandId_for_generators = Strand1
 bond1 3
 bond_direction 4 3
 atom 5 (301) (8632, -1060, 3180) def
@@ -46,7 +46,7 @@ atom 14 (301) (1659, -8537, -3179) def
 info atom dnaBaseName = G
 bond1 10 9
 atom 15 (305) (-1360, -9126, -3338) def
-info atom dnaStrandName = Strand2
+info atom dnaStrandId_for_generators = Strand2
 bond1 14
 bond_direction 15 14
 egroup (Untitled)

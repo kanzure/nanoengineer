@@ -2129,9 +2129,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # (hoping Mark's comment was right), so it stops happening for files
         # written with the dna updater active, as a step towards deprecating it.
         # Review soon. [bruce 080311 comment]
-        dnaStrandName = self.getDnaStrandName()
-        if dnaStrandName:
-            mapping.write( "info atom dnaStrandName = %s\n" % dnaStrandName )
+        #See self.getDnaStrandId_for_generators() for comments about this
+        #attr. Basically, its used only while creating a new duplex from scratch
+        #(while reading in the reference base mmp files in the plugins dir) 
+        dnaStrandId_for_generators = self.getDnaStrandId_for_generators()
+        if dnaStrandId_for_generators:
+            mapping.write( "info atom dnaStrandId_for_generators = %s\n" % dnaStrandId_for_generators )
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
         if atype is not None and atype is not self.element.atomtypes[0]:
@@ -2202,14 +2205,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
                 env.history.deferred_summary_message(summary_format)
                 pass
         
-        elif key == ['dnaStrandName']: # Mark 2007-09-04
+        elif key == ['dnaStrandId_for_generators']: # Mark 2007-09-04
             try:
-                self.setDnaStrandName(val)
+                #@see: self.getDnaStrandId_for_generators() for comments
+                #about this attr
+                self.setDnaStrandId_for_generators(val)
             except Exception, e:
                 #bruce 080304 revised printed error, added history summary
-                print "Error in mmp record, info atom dnaStrandName: %s" \
+                print "Error in mmp record, info atom dnaStrandId_for_generators: %s" \
                       " (continuing)" % (e,)
-                msg = "Error: illegal DNA strand name on [N] atom(s) " \
+                msg = "Error: illegal DNA strand id (used by dna generator) on [N] atom(s) " \
                       "(see console prints for details)"
                 summary_format = redmsg( msg )
                 env.history.deferred_summary_message(summary_format)
@@ -2421,17 +2426,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         
         If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
         and dna base name.
-
-        If a PAM-5 Pe atom, include the DNA strand name. (Note that Pe is a
-        deprecated element, so this feature will soon be useless.)
         """
         res = str(self)
         if self.atomtype is not self.element.atomtypes[0]:
             res += "(%s)" % self.atomtype.name
         if self.getDnaBaseName():
             res += "(%s)" % self.getDnaBaseName()
-        if self.getDnaStrandName():
-            res += "(%s)" % self.getDnaStrandName()
         return res
 
     def getToolTipInfo(self,
@@ -3907,8 +3907,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     
     ## _dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
 
-    ## _dnaStrandName -- set when first demanded, or can be explicitly set
-    # using setDnaStrandName(). DEPRECATED when dna updater is active,
+    ## _dnaStrandId_for_generators -- set when first demanded, or can be explicitly set
+    # using setDnaStrandId_for_generators(). DEPRECATED when dna updater is active,
     # since the DnaStrand object (a group) has a .name which is what
     # we should use. As of 080311 this might soon be disabled when updater
     # is active (disabling is nim).
@@ -4002,7 +4002,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # (single stranded region with Ax)
         return None
     
-    def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
+    def setDnaStrandId_for_generators(self, dnaStrandId_for_generators): # Mark 2007-09-04
         # Note: this (and probably its calls) needs revision
         # for the dna data model. Ultimately its only use will be
         # to help when reading pre-data-model mmp files. Presently
@@ -4015,40 +4015,56 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         Set the Dna strand name. This is only valid for PAM atoms in the list
         'Se3', 'Pe5', 'Pl5' (all deprecated when the dna updater is active).
         
-        @param dnaStrandName: The DNA strand name.
-        @type  dnaStrandName: str
+        @param dnaStrandId_for_generators: The DNA strand id used by the 
+               dna generator 
+                                        
+        @type  dnaStrandId_for_generators: str
         
         @raise: AssertionError if self is not a Se3 or Pe5 or Pl5 atom.
+        @see: self.getDnaStrandId_for_generators() for more comments.
         """
         assert self.element.symbol in ('Se3', 'Pe5', 'Pl5'), \
             "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. " \
             "Attempting to assign dnaStrandName %r to %r of element %r." \
-            % (dnaStrandName, self, self.element.name)
+            % (dnaStrandId_for_generators, self, self.element.name)
         
-        # Make sure dnaStrandName has all valid characters.
+        # Make sure dnaStrandId_for_generators has all valid characters.
         #@ Need to allow digits and letters. Mark 2007-09-04
         """
-        for c in dnaStrandName:
+        for c in dnaStrandId_for_generators:
             if not c in string.letters:
-                assert 0, "Strand name %r has an invalid character (%r)." \
-                       % (dnaStrandName, c)
+                assert 0, "Strand id for generatos %r has an invalid "\
+                "character (%r)." \
+                       % (dnaStrandId_for_generators, c)
             """
                 
-        self._dnaStrandName = dnaStrandName
+        self._dnaStrandId_for_generators = dnaStrandId_for_generators
         
-    def getDnaStrandName(self):
+    def getDnaStrandId_for_generators(self):
         """
-        Returns the value of attr I{_dnaStrandName}, or "" if it doesn't exist.
+        Returns the value of attr I{_dnaStrandId_for_generators}, or "" 
+        if it doesn't exist.
         
-        @return: The DNA strand name, or "" if the attr I{_dnaStrandName} does 
-                 not exist.
+        @return: The DNA strand id used by dna generator, or "" if the attr 
+                 I{_dnaStrandId_for_generators} does not exist.
         @rtype:  str
         """
         # Note: this (and probably its calls) need revision for the
         # dna data model. [bruce 080225/080311 comment]
-        # Note: bruce 080311 revised all direct accesses of atom._dnaStrandName
+        # Note: bruce 080311 revised all direct accesses of atom._dnaStrandId_for_generators
         # to go through this method, and renamed it to make it private.
-        return self.__dict__.get('_dnaStrandName', "")
+        
+        #UPDATE renamed previous attr dnastrandName to 
+        # dnaStrandId_for_generators based on a discussion with Bruce. 
+        #It was renamed to this new name 
+        #in order to avoid confusion with the dna strand name which can 
+        #be acceesed as node.name.  The new name 'dnaStrandId_for_generators'
+        #and this comment makes it clear enough that this will only be used
+        #by generators ... i.e. while creating a duplex from scratch by reading 
+        #in the standard mmp files in cad/plugins/PAM*/*.mmp. See 
+        #DnaDuplex._regroup to see how this is used.  -- Ninad 2008-03-12 
+        
+        return self.__dict__.get('_dnaStrandId_for_generators', "")
         
     def directional_bond_chain_status(self): # bruce 071016, revised 080212
         """

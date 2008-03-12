@@ -900,7 +900,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         # Note: used only in SelectAtoms_GraphicsMode.bondDelete,
         # for a history message, as of before 080225. Probably obsolete
         # (if not, needs renaming and revision for dna data model).
-        # See also: Atom.getDnaStrandName.
+        # See also: Atom.getDnaStrandId_for_generators.
         # [bruce 080225 comment]
         """
         Return the strand name, which is this bond's chunk name.

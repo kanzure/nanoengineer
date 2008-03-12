@@ -237,7 +237,7 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
     type for that element.
     
     If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
-    and dna base name. If a PAM Pe atom, include the DNA strand name. 
+    and dna base name. 
     
     @deprecated: For some purposes use L{Atom.getInformationString()} instead.
                  (But for others, that might not be suitable. Needs review.)
@@ -247,8 +247,7 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
         res += "(%s)" % atom.atomtype.name
     if atom.getDnaBaseName():
         res += "(%s)" % atom.getDnaBaseName()
-    if atom.getDnaStrandName():
-        res += "(%s)" % atom.getDnaStrandName()
+    
     return res
 
 # ==
