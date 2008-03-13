@@ -195,6 +195,10 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     if disp == diDEFAULT:
         disp = dispdef
 
+    # piotr 080312  
+    if disp == diDNACYLINDER:
+        return
+    
     if disp in (diTrueCPK, diDNACYLINDER):
         # new feature (previously we never drew these bonds):
         # only draw the bond if it's sufficiently long to be visible
