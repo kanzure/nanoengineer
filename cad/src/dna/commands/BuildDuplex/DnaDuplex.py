@@ -682,18 +682,17 @@ class B_Dna_PAM5(B_Dna):
         _axis_list     =  []
         # Build strand and chunk atom lists.
         for m in dnaGroup.members:
-            for atom in m.atoms.values():
-                
+            for atom in m.atoms.values():                
                 if atom.element.symbol in ('Pl5', 'Pe5'):
                     if atom.getDnaStrandId_for_generators() == 'Strand1':                        
                         _strandA_list.append(atom)
-                        #Following makes sure that the info record 
-                        #'dnaStrandId_for_genertors' won't be written for 
+                        # Following makes sure that the info record 
+                        #'dnaStrandId_for_generators' won't be written for 
                         #this atom that the dna generator outputs. i.e.
-                        #the info record 'dnaStrandId_for_genertors' is only 
-                        #required while generatiing the dna from scratch
-                        #(by reading in the stanrd base files in 'cad/plugins'
-                        #see more comments in Atom.etDnaStrandId_for_generators
+                        #the info record 'dnaStrandId_for_generators' is only 
+                        #required while generating the dna from scratch
+                        #(by reading in the strand base files in 'cad/plugins'
+                        #see more comments in Atom.getDnaStrandId_for_generators
                         atom.setDnaStrandId_for_generators('')
                     elif atom.getDnaStrandId_for_generators() == 'Strand2':
                         atom.setDnaStrandId_for_generators('')

@@ -3908,10 +3908,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     ## _dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
 
     ## _dnaStrandId_for_generators -- set when first demanded, or can be explicitly set
-    # using setDnaStrandId_for_generators(). DEPRECATED when dna updater is active,
-    # since the DnaStrand object (a group) has a .name which is what
-    # we should use. As of 080311 this might soon be disabled when updater
-    # is active (disabling is nim).
+    ## using setDnaStrandId_for_generators(). 
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         """
@@ -3930,12 +3927,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             "Can only assign dnaBaseNames to PAM strand sugar atoms. " \
             "Attempting to assign dnaBaseName %r to %r of element %r." \
             % (dnaBaseName, self, self.element.name)
-        
-        # Make sure dnaBaseName has all valid characters.
-        
-        for c in dnaBaseName:
-            if not c in string.letters:
-                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName,)
                 
         self._dnaBaseName = dnaBaseName
         
@@ -3965,7 +3956,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         baseNameString = self.__dict__.get('_dnaBaseName', "")
         
         if not baseNameString: 
-            valid_element_symbols = ['Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5']
+            valid_element_symbols = ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5')
             if self.element.symbol in valid_element_symbols:
                 baseNameString = 'X'     
 
