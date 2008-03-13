@@ -193,6 +193,20 @@ dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
+dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' # DNA style prefs piotr 080310
+dnaStyleStrandsColor_prefs_key = 'A10/DNA style strands color'
+dnaStyleStrandsScale_prefs_key = 'A10/DNA style strands scale'
+dnaStyleStrandsArrows_prefs_key = 'A10/DNA style strands arrows'
+dnaStyleAxisShape_prefs_key = 'A10/DNA style axis shape'
+dnaStyleAxisColor_prefs_key = 'A10/DNA style axis color'
+dnaStyleAxisScale_prefs_key = 'A10/DNA style axis scale'
+dnaStyleAxisTaper_prefs_key = 'A10/DNA style axis taper'
+dnaStyleStrutsShape_prefs_key = 'A10/DNA style struts shape'
+dnaStyleStrutsColor_prefs_key = 'A10/DNA style struts color'
+dnaStyleStrutsScale_prefs_key = 'A10/DNA style struts scale'
+dnaStyleBasesShape_prefs_key = 'A10/DNA style bases shape'
+dnaStyleBasesColor_prefs_key = 'A10/DNA style bases color'
+dnaStyleBasesScale_prefs_key = 'A10/DNA style bases scale'
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -493,6 +507,22 @@ prefs_table = (
     
     ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
      arrowsOnFivePrimeEnds_prefs_key, False), 
+    
+    # DNA style preferences 080310 piotr
+    ('', 'int', dnaStyleStrandsShape_prefs_key, 0),
+    ('', 'int', dnaStyleStrandsColor_prefs_key, 0),
+    ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),
+    ('', 'int', dnaStyleStrandsArrows_prefs_key, 1),
+    ('', 'int', dnaStyleAxisShape_prefs_key, 1),
+    ('', 'int', dnaStyleAxisColor_prefs_key, 0),
+    ('', 'float', dnaStyleAxisScale_prefs_key, 1.0),
+    ('', 'int', dnaStyleAxisTaper_prefs_key, 1),
+    ('', 'int', dnaStyleStrutsShape_prefs_key, 0),
+    ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
+    ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),
+    ('', 'int', dnaStyleBasesShape_prefs_key, 0),
+    ('', 'int', dnaStyleBasesColor_prefs_key, 0),
+    ('', 'float', dnaStyleBasesScale_prefs_key, 1.0),
     
     # Modes preferences [added to this table by mark 050910]
     

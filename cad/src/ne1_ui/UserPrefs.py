@@ -33,7 +33,7 @@ from PyQt4.Qt import QFont
 from PyQt4.Qt import Qt
 
 
-from ne1_ui.UserPrefsDialog import Ui_UserPrefsDialog
+from UserPrefsDialog import Ui_UserPrefsDialog
 import foundation.preferences as preferences
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
@@ -101,6 +101,22 @@ from prefs_constants import dnaStrutScaleFactor_prefs_key
 from prefs_constants import arrowsOnBackBones_prefs_key
 from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+
+# DNA style prefs 080310 piotr
+from prefs_constants import dnaStyleStrandsShape_prefs_key
+from prefs_constants import dnaStyleStrandsColor_prefs_key
+from prefs_constants import dnaStyleStrandsScale_prefs_key
+from prefs_constants import dnaStyleStrandsArrows_prefs_key
+from prefs_constants import dnaStyleAxisShape_prefs_key
+from prefs_constants import dnaStyleAxisColor_prefs_key
+from prefs_constants import dnaStyleAxisScale_prefs_key
+from prefs_constants import dnaStyleAxisTaper_prefs_key
+from prefs_constants import dnaStyleStrutsShape_prefs_key
+from prefs_constants import dnaStyleStrutsColor_prefs_key
+from prefs_constants import dnaStyleStrutsScale_prefs_key
+from prefs_constants import dnaStyleBasesShape_prefs_key
+from prefs_constants import dnaStyleBasesColor_prefs_key
+from prefs_constants import dnaStyleBasesScale_prefs_key
 
 # Undo prefs
 from prefs_constants import undoRestoreView_prefs_key
@@ -534,6 +550,22 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
         self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
 
+        # DNA style 080310 piotr 
+        self.connect(self.dnaStyleStrandsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsColor)
+        self.connect(self.dnaStyleStrutsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsColor)
+        self.connect(self.dnaStyleAxisColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisColor)        
+        self.connect(self.dnaStyleBasesColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleBasesColor)        
+        self.connect(self.dnaStyleStrandsShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsShape)
+        self.connect(self.dnaStyleStrutsShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsShape)
+        self.connect(self.dnaStyleAxisShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisShape)
+        self.connect(self.dnaStyleBasesShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleBasesShape)
+        self.connect(self.dnaStyleStrandsScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleStrandsScale)
+        self.connect(self.dnaStyleStrutsScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleStrutsScale)
+        self.connect(self.dnaStyleAxisScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleAxisScale)
+        self.connect(self.dnaStyleBasesScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleBasesScale)
+        self.connect(self.dnaStyleStrandsArrowsComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsArrows)
+        self.connect(self.dnaStyleAxisTaperComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisTaper)
+        
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
@@ -1446,6 +1478,32 @@ restored when the user undoes a structural change.</p>
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
         
+        # piotr 030810 - DNA style
+        self.dnaStyleStrandsColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsColor_prefs_key])
+        self.dnaStyleStrutsColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrutsColor_prefs_key])
+        self.dnaStyleAxisColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisColor_prefs_key])
+        self.dnaStyleBasesColorComboBox.setCurrentIndex(
+            env.prefs[dnaStyleBasesColor_prefs_key])
+        self.dnaStyleStrandsShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsShape_prefs_key])
+        self.dnaStyleStrutsShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrutsShape_prefs_key])
+        self.dnaStyleBasesShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleBasesShape_prefs_key])
+        self.dnaStyleAxisShapeComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisShape_prefs_key])
+        self.dnaStyleStrandsArrowsComboBox.setCurrentIndex(
+            env.prefs[dnaStyleStrandsArrows_prefs_key])        
+        self.dnaStyleAxisTaperComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisTaper_prefs_key])
+        self.update_dnaStyleStrandsScale()
+        self.update_dnaStyleStrutsScale()
+        self.update_dnaStyleAxisScale()
+        self.update_dnaStyleBasesScale()
+        
     def _setup_undo_page(self):
         """
         Setup widgets to initial (default or defined) values on the Undo page.
@@ -2198,6 +2256,205 @@ restored when the user undoes a structural change.</p>
         env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
         self.update_dnaStrutScaleWidgets()
         
+    # DNA display style piotr 080310
+    def change_dnaStyleStrandsColor(self, value):
+        """
+        Changes DNA Style strands color.
+        
+        @param color: The color mode:
+                    - 0 = color same as chunk
+                    - 1 = base oder
+                    - 2 = strand order
+        @type color: int
+        """
+        env.prefs[dnaStyleStrandsColor_prefs_key] = value
+        
+    def change_dnaStyleStrutsColor(self, color):
+        """
+        Changes DNA Style struts color.
+        
+        @param color: The color mode:
+                    - 0 = color same as chunk
+                    - 1 = strand order
+                    - 2 = base type
+        
+        @type color: int
+        """
+        env.prefs[dnaStyleStrutsColor_prefs_key] = color
+        
+    def change_dnaStyleAxisColor(self, color):
+        """
+        Changes DNA Style axis color.
+        
+        @param color: The color mode:
+                    - 0 = color same as chunk
+                    - 0 = color same as chunk
+                    - 1 = base oder
+                    - 2 = discrete bse order
+                    - 3 = base type
+                    - 4 = strand order
+        
+        @type color: int
+        """
+        env.prefs[dnaStyleAxisColor_prefs_key] = color
+        
+    def change_dnaStyleBasesColor(self, color):
+        """
+        Changes DNA Style bases color.
+        
+        @param color: The color mode:
+                    - 0 = color same as chunk
+                    - 1 = base order
+                    - 2 = strand order
+                    - 3 = base type
+        
+        @type color: int
+        """
+        env.prefs[dnaStyleBasesColor_prefs_key] = color
+        
+    def change_dnaStyleStrandsShape(self, shape):
+        """
+        Changes DNA Style strands shape.
+        
+        @param shape: The shape mode:
+                    - 0 = none (hidden)
+                    - 1 = cylinders
+                    - 2 = tube
+        
+        @type shape: int
+        """
+        env.prefs[dnaStyleStrandsShape_prefs_key] = shape
+        
+    def change_dnaStyleStrutsShape(self, shape):
+        """
+        Changes DNA Style strands shape.
+        
+        @param shape: The shape mode:
+                    - 0 = none (hidden)
+                    - 1 = base-axis-base
+                    - 2 = straight cylinders
+                    
+        @type shape: int
+        """
+        env.prefs[dnaStyleStrutsShape_prefs_key] = shape
+        
+    def change_dnaStyleAxisShape(self, shape):
+        """
+        Changes DNA Style strands shape.
+        
+        @param shape: The shape mode:
+                    - 0 = none (hidden)
+                    - 1 = wide tube
+                    - 2 = narrow tube
+        
+        @type shape: int
+        """
+        env.prefs[dnaStyleAxisShape_prefs_key] = shape
+        
+    def change_dnaStyleBasesShape(self, shape):
+        """
+        Changes DNA Style strands shape.
+        
+        @param shape: The shape mode:
+                    - 0 = none (hidden) 
+                    - 1 = spheres 
+                    - 2 = cartoon-like
+        
+        @type shape: int
+        """
+        env.prefs[dnaStyleBasesShape_prefs_key] = shape
+        
+    def change_dnaStyleStrandsScale(self, scale_factor):
+        """
+        @param scale_factor: The strands scale factor.
+        @type  scale_factor: float
+	"""
+        env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
+        self.update_dnaStyleStrandsScale()
+        
+    def update_dnaStyleStrandsScale(self):
+        """
+        Updates the DNA Style Strands Scale spin box. 
+        """
+        # Set strands scale.        
+        self.dnaStyleStrandsScaleSpinBox.setValue(
+            float(env.prefs[dnaStyleStrandsScale_prefs_key]))
+        
+    def change_dnaStyleStrutsScale(self, scale_factor):
+        """
+        @param scale_factor: The struts scale factor.
+        @type  scale_factor: float
+	"""
+        env.prefs[dnaStyleStrutsScale_prefs_key] = scale_factor
+        self.update_dnaStyleStrutsScale()
+
+    def update_dnaStyleStrutsScale(self):
+        """
+        Updates the DNA Style Struts Scale spin box. 
+        """
+        # Set struts scale.        
+        self.dnaStyleStrutsScaleSpinBox.setValue(
+            float(env.prefs[dnaStyleStrutsScale_prefs_key]))
+        
+    def change_dnaStyleAxisScale(self, scale_factor):
+        """
+        @param scale_factor: The axis scale factor.
+        @type  scale_factor: float
+	"""
+        env.prefs[dnaStyleAxisScale_prefs_key] = scale_factor
+        self.update_dnaStyleAxisScale()
+
+    def update_dnaStyleAxisScale(self):
+        """
+        Updates the DNA Style Axis Scale spin box. 
+        """
+        # Set axis scale.        
+        self.dnaStyleAxisScaleSpinBox.setValue(
+            float(env.prefs[dnaStyleAxisScale_prefs_key]))
+        
+    def change_dnaStyleBasesScale(self, scale_factor):
+        """
+        @param scale_factor: The bases scale factor.
+        @type  scale_factor: float
+	"""
+        env.prefs[dnaStyleBasesScale_prefs_key] = scale_factor
+        self.update_dnaStyleBasesScale()
+
+    def update_dnaStyleBasesScale(self):
+        """
+        Updates the DNA Style bases scale spin box. 
+        """
+        # Set axis scale.        
+        self.dnaStyleBasesScaleSpinBox.setValue(
+            float(env.prefs[dnaStyleBasesScale_prefs_key]))
+        
+    def change_dnaStyleStrandsArrows(self, shape):
+        """
+        Changes DNA Style strands shape.
+        
+        @param shape: The shape mode:
+                    - 0 = none (hidden) 
+        
+        @type shape: int
+        """
+        env.prefs[dnaStyleStrandsArrows_prefs_key] = shape
+        
+    def change_dnaStyleAxisTaper(self, shape):
+        """
+        Changes DNA Style strands ends.
+        
+        @param shape: The shape mode:
+                    - 0 = flat
+                    - 1 = taper beginning
+                    - 2 = taper ending
+                    - 3 = taper both ends
+                    - 4 = spherical
+        
+        @type shape: int
+        """
+        env.prefs[dnaStyleAxisTaper_prefs_key] = shape
+        
+
     ########## End of slot methods for "DNA" page widgets ###########
 
     ########## Slot methods for "Modes" page widgets ################
