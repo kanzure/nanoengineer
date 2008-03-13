@@ -152,6 +152,10 @@ def setupUi(win):
     win.editDeleteAction = QtGui.QAction(MainWindow)
     win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete"))
     win.editDeleteAction.setObjectName("editDeleteAction")
+    
+    win.editRenameAction = QtGui.QAction(MainWindow)
+    win.editRenameAction.setIcon(geticon("ui/actions/Edit/Rename.png"))
+    win.editRenameAction.setObjectName("editRenameAction")
 
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color"))
@@ -1056,6 +1060,24 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Del", 
             None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.editRenameAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename",
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editRenameAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editRenameAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename (Shift+R)", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editRenameAction.setShortcut(
+        QtGui.QApplication.translate(
+            "MainWindow", "Shift+R", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
     win.editMakeCheckpointAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Make Checkpoint", 

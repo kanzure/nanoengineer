@@ -963,6 +963,71 @@ class MWsemantics(QMainWindow,
         self.assy.delete_sel()
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win_update()
+    
+    def renameObject(self, object):
+        """
+        Prompts the user to rename I{object}, which can be a chunk, jig or 
+        node.
+        
+        @param object: The object to be renamed.
+        @type  object: Chunk, Jig or Node
+        
+        @return: A descriptive message about what happened.
+        @rtype:  string
+        """
+        # Don't allow renaming while animating (b/w views).
+        if self.glpane.is_animating:
+            return
+        
+        # Note: see similar code in rename_node_using_dialog in another class.
+        oldname = object.name
+        ok = object.rename_enabled()
+        # Various things below can set ok to False (if it's not already)
+        # and set text to the reason renaming is not ok (for use in error messages).
+        # Or they can put the new name in text, leave ok True, and do the renaming.
+        if not ok:
+            text = "Renaming this object is not permitted."
+                #e someday we might want to call try_rename on fake text
+                # to get a more specific error message... for now it doesn't have one.
+        else:
+            from widgets.simple_dialogs import grab_text_line_using_dialog
+            ok, text = grab_text_line_using_dialog(
+                            title = "Rename",
+                            label = "new name for [%s]:" % oldname,
+                            iconPath = "ui/actions/Edit/Rename.png",
+                            default = oldname )
+        if ok:
+            ok, text = object.try_rename(text)
+        if ok:
+            msg = "Renamed [%s] to [%s]" % (oldname, text)
+            self.mt.mt_update()
+        else:
+            msg = "Can't rename [%s]: %s" % (oldname, text) # text is reason why not
+        return msg
+    
+    def editRename(self):
+        """
+        Renames the selected movable (chunk or jig).
+        """
+        _cmd = greenmsg("Rename: ")
+
+        from ops_select import objectSelected, ATOMS, CHUNKS, JIGS
+        if not objectSelected(self.assy, objectFlags = CHUNKS | JIGS):
+            if objectSelected(self.assy, objectFlags = ATOMS):
+                _msg = redmsg("Cannot rename atoms.")
+            else:
+                _msg = redmsg("Nothing selected.")
+            env.history.message(_cmd + _msg)
+            return
+
+        _movables = self.assy.getSelectedMovables()
+        _numSelectedObjects = len(_movables)
+
+        if _numSelectedObjects == 1:
+            _msg = self.renameObject(_movables[0])
+        else:
+            _msg = redmsg("Only one object can be selected.")
+        env.history.message(_cmd + _msg)
 
     def editPrefs(self):
         """

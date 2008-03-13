@@ -48,6 +48,7 @@ def setupUi(win):
     win.connect(win.editDeleteAction,SIGNAL("triggered()"),win.killDo)
     win.connect(win.editMakeCheckpointAction,SIGNAL("triggered()"),win.editMakeCheckpoint)
     win.connect(win.editPasteAction,SIGNAL("triggered()"),win.editPaste)
+    win.connect(win.editRenameAction,SIGNAL("triggered()"),win.editRename)
     win.connect(win.pasteFromClipboardAction, 
                  SIGNAL("triggered()"),
                  win.editPasteFromClipboard )

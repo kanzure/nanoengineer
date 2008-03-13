@@ -1553,6 +1553,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
             ok, text = grab_text_line_using_dialog(
                             title = "Rename",
                             label = "new name for node [%s]:" % oldname,
+                            iconPath = "ui/actions/Edit/Rename.png",
                             default = oldname )
         if ok:
             ok, text = node.try_rename(text)
