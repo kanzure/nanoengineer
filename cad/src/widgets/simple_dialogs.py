@@ -9,9 +9,13 @@ TODO: merge some of them into one function.
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from PyQt4.Qt import QInputDialog, QLineEdit
+from PyQt4.Qt import QInputDialog, QLineEdit, QDialog
+from icon_utilities import geticon
 
-def grab_text_using_dialog( default = "", title = "title", label = "label" ):
+def grab_text_using_dialog( default = "", 
+                            title = "title", 
+                            label = "label",
+                            iconPath  = "ui/border/MainWindow"):
     """
     Get some text from the user by putting up a dialog with the
     supplied title, label, and default text. Return (ok, text)
@@ -33,8 +37,10 @@ def grab_text_using_dialog( default = "", title = "title", label = "label" ):
     
     # Qt4 version [070329; similar code in an exprs-module file]
     
-    parent = None
-    text, ok = QInputDialog.getText(parent, title, label,
+    inputDialog = QDialog() # No parent
+    inputDialog.setWindowIcon(geticon(iconPath))
+    
+    text, ok = QInputDialog.getText(inputDialog, title, label,
                                     QLineEdit.Normal, default)
         # note: parent arg is needed in Qt4, not in Qt3
     
@@ -55,11 +61,11 @@ def grab_text_using_dialog( default = "", title = "title", label = "label" ):
 
 def grab_text_line_using_dialog( default = "",
                                  title = "title",
-                                 label = "label" ): #bruce 070531
+                                 label = "label",
+                                 iconPath  = "ui/border/MainWindow"): #bruce 070531
     """
-    Use a dialog to get one line of text from the user,
-    with given default (initial) value,
-    dialog window title, and label text inside the dialog.
+    Use a dialog to get one line of text from the user, with given default 
+    (initial) value, dialog window title, and label text inside the dialog.
     If successful, return (True, text);
     if not, return (False, "Reason why not").
     Returned text is a python string (not unicode).
@@ -70,8 +76,11 @@ def grab_text_line_using_dialog( default = "",
     # which was modified from _set_test_from_dialog(),
     # which was modified from debug_runpycode_from_a_dialog(),
     # which does the "run py code" debug menu command.
-    parent = None
-    text, ok = QInputDialog.getText(parent, title, label,
+
+    inputDialog = QDialog() # No parent
+    inputDialog.setWindowIcon(geticon(iconPath))
+    
+    text, ok = QInputDialog.getText(inputDialog, title, label,
                                     QLineEdit.Normal, default)
         # note: parent arg needed only in Qt4
     if not ok:
