@@ -766,20 +766,12 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #(object_to_highlight, highlight_color) will 
         objectDict = {}  
         
-        #As of 2008-02-26, its impossible to have the following condition 
-        #isinstance(selobj, Chunk). So commenting out the code that checks it.
-        #The commented out code should be removed after more testing. -- Ninad
         if isinstance(selobj, Chunk):            
-            print "I think this is never called "\
-                  "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
             dnaGroup = selobj.getDnaGroup()
             if dnaGroup is not None:
                 objectDict[dnaGroup] = hiColor1
             else:
                 objectDict[selobj] = hiColor1
-            
-        
-        ##assert not isinstance(selobj, Chunk)
         
         chunkList = []
         colorList = []

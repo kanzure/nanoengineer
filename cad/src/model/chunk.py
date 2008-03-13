@@ -61,6 +61,8 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
+from OpenGL.GL import glPopName
+from OpenGL.GL import glPushName
 
 # chunk and chem form a two element import cycle
 # (chem is used here only for class Atom and one global changedict,
@@ -105,7 +107,7 @@ from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
-from constants import darkgreen
+from constants import darkgreen, yellow
 
 from constants import gensym, genKey
 
@@ -340,6 +342,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
 
         # self.displist is allocated on demand by _get_displist [bruce 070523]
+        
+        #glname is needed for highlighting the chunk as an independent object
+        #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
+        self.glname = env.alloc_my_glselect_name(self) 
 
         return # from Chunk.__init__
 
@@ -1643,6 +1649,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             #  since we're outside the begin/end for that, and that's good, since we include this in havelist
             #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
             #  displaying a different Part. [bruce 060215])
+        
+        #This is needed for chunk highlighting
+        glPushName(self.glname)
 
         # put it in its place
         glPushMatrix()
@@ -1758,6 +1767,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             print_compact_traceback("exception in Chunk.draw, continuing: ")
 
         glPopMatrix()
+        
+        glPopName()
 
         # draw external bonds.
 
@@ -1863,6 +1874,26 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         else:
             self.standard_draw_atoms(glpane, disp0)
         return
+    
+    def highlight_color_for_modkeys(self, modkeys):
+        """
+        This is used to return a highlight color for the chunk highlighting. 
+        See a comment in this method below
+        """
+        #NOTE: before 2008-03-13, the chunk highlighting was acheived by 
+        #using the atoms and bonds within the chunk. The Atom and Bond classes
+        #have their own glselect name, so the code was able to recognize them 
+        #as highlightable objects and then depending upon the graphics mode 
+        #the user was in, it used to highlight the whole chunk by accessing the
+        #chunk using, for instance, atom.molecule. although this is still 
+        #implemented, for certain display styles such as DnaCylinderChunks, the 
+        #atoms and bonds are never drawn. So there is no way to access the 
+        #chunk! To fix this, we need to make chunk a highlightable object. 
+        #This is done by making sure that the chunk gets a glselect name and 
+        #by defining this API method - Ninad 2008-03-13
+        
+        return yellow
+    
 
     def draw_highlighted(self, glpane, color):
         """
@@ -1876,8 +1907,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
 
-        """        
-
+        """      
+        
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
         #(Chunk.draw_highlighted on 2008-02-26
@@ -1921,6 +1952,17 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 pass
             pass
         else:
+            if self.get_dispdef() == diDNACYLINDER :
+                #If the chunk is drawn with the DNA cylinder display style, 
+                #then do not use the following highlighting code (which 
+                #highlights individual bonds and atoms) . When color sorter
+                #is enabled by default, the following code (else condition)
+                #can be removed. The DnaCylinder display , use the 
+                #display list and such chunks will be highlighted only when
+                #the color sorter and use displist debug pref are enabled. 
+                # --Ninad 2008-03-13
+                return
+            
             for atom in self.atoms.itervalues():
                 # draw atom and its (not yet drawn) bonds
                 atom.draw_in_abs_coords(glpane, 
