@@ -509,20 +509,21 @@ prefs_table = (
      arrowsOnFivePrimeEnds_prefs_key, False), 
     
     # DNA style preferences 080310 piotr
-    ('', 'int', dnaStyleStrandsShape_prefs_key, 0),
-    ('', 'int', dnaStyleStrandsColor_prefs_key, 0),
+    # updated on 080313
+    ('', 'int', dnaStyleStrandsShape_prefs_key, 2),
+    ('', 'int', dnaStyleStrandsColor_prefs_key, 1),
     ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),
-    ('', 'int', dnaStyleStrandsArrows_prefs_key, 1),
+    ('', 'int', dnaStyleStrandsArrows_prefs_key, 0),
     ('', 'int', dnaStyleAxisShape_prefs_key, 1),
-    ('', 'int', dnaStyleAxisColor_prefs_key, 0),
-    ('', 'float', dnaStyleAxisScale_prefs_key, 1.0),
-    ('', 'int', dnaStyleAxisTaper_prefs_key, 1),
+    ('', 'int', dnaStyleAxisColor_prefs_key, 3),
+    ('', 'float', dnaStyleAxisScale_prefs_key, 0.7),
+    ('', 'int', dnaStyleAxisTaper_prefs_key, 4),
     ('', 'int', dnaStyleStrutsShape_prefs_key, 0),
     ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
     ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),
     ('', 'int', dnaStyleBasesShape_prefs_key, 0),
     ('', 'int', dnaStyleBasesColor_prefs_key, 0),
-    ('', 'float', dnaStyleBasesScale_prefs_key, 1.0),
+    ('', 'float', dnaStyleBasesScale_prefs_key, 1.2),
     
     # Modes preferences [added to this table by mark 050910]
     
