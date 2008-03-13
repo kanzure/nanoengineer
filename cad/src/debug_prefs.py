@@ -346,25 +346,42 @@ class Choice(DataType):
                                                  defaultValue = self._defaultValue
                                                 )
         #e could add some "dimmed info" and/or menu commands to the end of submenu
+        
+        #e could use checkmark to indicate non_default = not same_vals(self._defaultValue, curval),
+        # but too confusing if _defaultValue is True and curval is False...
+        # so nevermind unless I figure out a nonfusing indication of that
+        # that is visible outside the list of values submenu
+        # and doesn't take too much room.
+        # Maybe appending a very short string to the text, in changer_menu_text?
+        # [bruce 080312 comment]
         return ( text, submenu )
     pass
 
 Choice_boolean_False = Choice([False, True])
 Choice_boolean_True =  Choice([False, True], defaultValue = True)
 
-def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
-                                   curval = None, mitem_value_func = None,
-                                   indicate_defaultValue = False, defaultValue = None
+def submenu_from_name_value_pairs( nameval_pairs,
+                                   newval_receiver_func,
+                                   curval = None,
+                                   mitem_value_func = None,
+                                   indicate_defaultValue = False,
+                                   defaultValue = None
                                    ):
+    #bruce 080312 revised to use same_vals (2 places)
     from debug import print_compact_traceback # do locally to avoid recursive import problem
     submenu = []
     for name, value in nameval_pairs:
         text = name
-        if indicate_defaultValue and value == defaultValue: #bruce 070518 new feature [review: does it need same_vals?]
+        if indicate_defaultValue and same_vals(value, defaultValue):
+            #bruce 070518 new feature
             text += " (default)"
+        command = ( lambda ## event = None,
+                           func = newval_receiver_func,
+                           val = value :
+                        func(val) )
         mitem = ( text,
-                  lambda event = None, func = newval_receiver_func, val = value: func(val),
-                  (curval == value) and 'checked' or None
+                  command,
+                  same_vals(curval, value) and 'checked' or None
                 )
         if mitem_value_func is not None:
             try:
@@ -372,7 +389,7 @@ def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
                 res = mitem_value_func(mitem, value)
                 if res is None:
                     continue # let func tell us to skip this item ###k untested
-                assert type(res) == type((1,2))
+                assert type(res) == type((1, 2))
                 mitem = res
             except:
                 print_compact_traceback("exception in mitem_value_func, or error in retval (%r): " % (res,))
