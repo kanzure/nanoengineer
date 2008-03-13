@@ -155,11 +155,8 @@ void nv1::close() {
 
 /* FUNCTION: about */
 void nv1::about() {
-    QMessageBox::about(this,
-                       tr("About NanoVision-1"),
-                       tr("Nanorex NanoVision-1 0.1.0\n"
-                          "Copyright 2008 Nanorex, Inc.\n"
-                          "See LICENSE file for details."));
+	AboutBox aboutBox;
+	aboutBox.exec();
 }
 
 
@@ -309,7 +306,7 @@ void nv1::createActions() {
     windowSeparatorAction->setSeparator(true);
     
 	// Help
-    aboutAction = new QAction(tr("&About"), this);
+    aboutAction = new QAction(tr("&About NanoVision-1"), this);
     aboutAction->setStatusTip(tr("Show NanoVision-1's About box"));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 }

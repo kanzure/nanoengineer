@@ -16,6 +16,7 @@ using namespace std;
 #include "Nanorex/Interface/NXEntityManager.h"
 using namespace Nanorex;
 
+#include "AboutBox.h"
 #include "ResultsWindow.h"
 #include "LogHandlerWidget.h"
 #include "JobSelectorDialog.h"

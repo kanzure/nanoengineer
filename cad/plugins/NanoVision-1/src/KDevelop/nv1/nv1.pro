@@ -35,7 +35,8 @@ SOURCES += ../../DataWindow.cpp \
  ../../ResultsSummaryWindow.cpp \
  ../../JobSelectorDialog.cpp \
  ../../PreferencesDialog.cpp \
- ../../UserSettings.cpp
+ ../../UserSettings.cpp \
+ ../../AboutBox.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -52,7 +53,8 @@ HEADERS += ../../DataWindow.h \
  ../../ResultsSummaryWindow.h \
  ../../JobSelectorDialog.h \
  ../../PreferencesDialog.h \
- ../../UserSettings.h
+ ../../UserSettings.h \
+ ../../AboutBox.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \
@@ -62,7 +64,8 @@ FORMS += ../../LogHandlerWidget.ui \
  ../../InputParametersWindow.ui \
  ../../ResultsSummaryWindow.ui \
  ../../JobSelectorDialog.ui \
- ../../PreferencesDialog.ui
+ ../../PreferencesDialog.ui \
+ ../../AboutBox.ui
 
 RESOURCES += ../../application.qrc
 
