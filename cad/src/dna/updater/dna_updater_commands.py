@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_commands.py - UI commands offered directly by the dna updater.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from debug import register_debug_menu_command
@@ -33,6 +33,7 @@ def rescan_atoms_in_current_part(assy, only_selected = False):
     newlen = len(_changed_structure_Atoms)
     msg = "len(_changed_structure_Atoms) %d -> %d" % (oldlen, newlen)
     env.history.message(greenmsg( "DNA debug command:") + " " + msg)
+    assy.w.win_update() #bruce 080312 bugfix
     return
 
 def rescan_all_atoms(glpane):

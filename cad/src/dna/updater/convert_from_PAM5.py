@@ -11,7 +11,7 @@ from model.elements import Pl5, Singlet
 
 from utilities import debug_flags
 
-from dna.updater.dna_updater_prefs import pref_mmp_read_convert_to_PAM3plus5
+from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
 import foundation.env as env
 from utilities.Log import orangemsg, redmsg, graymsg
@@ -20,7 +20,7 @@ from model.bond_constants import find_bond
 
 # ==
 
-def convert_from_PAM5( changed_atoms): # might be misnamed, does only some of the conversion ###
+def convert_from_PAM5( changed_atoms): # might be misnamed, if it turns out it does only some of the conversion ###
     """
     scan for PAM5 elements that should be converted, and convert them
     as well as can be done per-atom.
@@ -29,7 +29,7 @@ def convert_from_PAM5( changed_atoms): # might be misnamed, does only some of th
            but some conversion must be done later after ladders are constructed.
     """
 
-    convert = pref_mmp_read_convert_to_PAM3plus5() # misnamed?
+    convert = pref_dna_updater_convert_to_PAM3plus5()
         # note: in future this is likely to be a finer-grained setting
 
     if not convert:

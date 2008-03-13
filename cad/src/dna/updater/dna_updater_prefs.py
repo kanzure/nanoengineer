@@ -33,7 +33,7 @@ def initialize_prefs():
     pref_per_ladder_colors()
     pref_draw_internal_markers()
 
-    pref_mmp_read_convert_to_PAM3plus5()
+    pref_dna_updater_convert_to_PAM3plus5()
     pref_mmp_save_convert_to_PAM5()
     pref_renderers_convert_to_PAM5()
     pref_minimizers_convert_to_PAM5()
@@ -117,15 +117,16 @@ def pref_draw_internal_markers():
 
 # Note: the DNA Generator model choice may also need to change somehow, for this.
 
-def pref_mmp_read_convert_to_PAM3plus5():
-    res = debug_pref("DNA: mmp read convert to PAM3+5? ",
+def pref_dna_updater_convert_to_PAM3plus5():
+    res = debug_pref("DNA: edit as PAM3+5? ",
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
                       non_debug = True,
-                      prefs_key = True )
+                      prefs_key = True,
+                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_mmp_save_convert_to_PAM5():
-    res = debug_pref("DNA: mmp save as PAM5? ",
+    res = debug_pref("DNA: save as PAM5? ",
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
                       non_debug = True,
                       prefs_key = True )
@@ -168,10 +169,13 @@ def pref_dna_updater_slow_asserts(): # 080228
 
 def _changed_dna_updater_behavior_pref(val):
     if val:
-        msg = "Note: to use new DNA prefs value on existing atoms, " \
+        msg = "Note: to apply new DNA prefs value to existing atoms, " \
               "run \"DNA: rescan all atoms\" in debug->other menu."
         env.history.message(orangemsg(msg))
     return
+
+def _changed_dna_updater_behavior_pref_2(val): # rename! but, not currently used.
+    _changed_dna_updater_behavior_pref( True) # always print the message
 
 def _update_our_debug_flags(val):
     del val

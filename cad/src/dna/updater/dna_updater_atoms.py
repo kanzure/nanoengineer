@@ -185,7 +185,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     
     convert_from_PAM5( changed_atoms)
         # note: this replaces Pl5 with direct bonds, and may do more (undecided),
-        # but some conversion must be done later after ladders are constructed.
+        # but some conversion might be done later after ladders are constructed.
         # So it might be misnamed. ###
 
     ignore_new_changes( "from converting PAM5 to PAM3+5")
