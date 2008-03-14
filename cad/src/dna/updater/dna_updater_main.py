@@ -15,6 +15,7 @@ from dna.updater.dna_updater_globals import clear_updater_run_globals
 from utilities import debug_flags
 
 from dna.updater.dna_updater_utils import remove_killed_atoms
+from dna.updater.dna_updater_utils import remove_closed_or_disabled_assy_atoms
 
 from dna.updater.dna_updater_atoms import update_PAM_atoms_and_bonds
 
@@ -80,9 +81,12 @@ def _full_dna_update_0( _runcount):
                   (NUMBER_TO_PRINT, atoms[:NUMBER_TO_PRINT])
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
-        # TODO: also remove atoms from assys that have been destroyed
-        # (i.e. closed files) @@@
 
+    remove_closed_or_disabled_assy_atoms( changed_atoms)
+        # This should remove all remaining atoms from closed files.
+        # Note: only allowed when no killed atoms are present in changed_atoms;
+        # raises exceptions otherwise.
+        
     if not changed_atoms:
         return
     

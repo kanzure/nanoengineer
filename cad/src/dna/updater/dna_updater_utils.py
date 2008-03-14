@@ -9,6 +9,8 @@ dna_updater_utils.py -- miscellaneous utilities for dna_updater
 
 from utilities import debug_flags
 
+from utilities.debug import print_compact_traceback
+
 # ==
 
 def replace_atom_class( atom, newclass, *atomdicts): #e refile?
@@ -88,6 +90,10 @@ def remove_killed_atoms( atomdict):
     they can remain in global changedicts and later be seen by
     dna updater functions; this function will not remove them.
     There is presently no good way to detect a "closed-file atom".
+    Correction: that's true in general, but for non-killed atoms
+    it's not hard; see remove_closed_or_disabled_assy_atoms for this.
+
+    @see: remove_closed_or_disabled_assy_atoms
     """
     killed = []
     for atom in atomdict.itervalues():
@@ -110,6 +116,28 @@ def remove_error_atoms( atomdict):
     if debug_flags.DEBUG_DNA_UPDATER and error_atoms:
         print "dna_updater: ignoring %d atoms with _dna_updater__error" % len(error_atoms)
     for atom in error_atoms:
+        del atomdict[atom.key]
+    return
+
+def remove_closed_or_disabled_assy_atoms( atomdict): #bruce 080314
+    """
+    Assuming atomdict contains only non-killed atoms
+    (for which atom.killed() returns False),
+    remove any atoms from it whose assy does not want
+    updaters to modify its atoms (e.g. whose assy has been closed).
+    """
+    atoms_to_remove = []
+    for atom in atomdict.itervalues():
+        try:
+            disabled = atom.molecule.assy.permanently_disable_updaters
+        except:
+            print_compact_traceback("bug in atom.molecule.assy.permanently_disable_updaters: ")
+            disabled = True
+        if disabled:
+            atoms_to_remove += [atom]
+    if debug_flags.DEBUG_DNA_UPDATER and atoms_to_remove:
+        print "dna_updater: ignoring %d atoms from closed files or updater-disabled assys" % len(atoms_to_remove)
+    for atom in atoms_to_remove:
         del atomdict[atom.key]
     return
 
