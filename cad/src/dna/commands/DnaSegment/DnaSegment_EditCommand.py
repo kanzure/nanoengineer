@@ -688,7 +688,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 self.Menu_spec.append(item)
                 return
         
-        highlightedChunk.make_context_menu_items(self.Menu_spec,
+        highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                  command = self)
 
 

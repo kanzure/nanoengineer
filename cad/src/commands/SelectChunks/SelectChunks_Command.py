@@ -97,7 +97,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
                 highlightedChunk = chunk1
 
         if highlightedChunk is not None:
-            highlightedChunk.make_context_menu_items(self.Menu_spec,
+            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                      command = self)
             
 

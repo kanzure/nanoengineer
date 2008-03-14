@@ -458,7 +458,7 @@ class BuildCnt_EditCommand(EditCommand):
     def makeMenus(self): 
         """
         Create context menu for this command. (Build Cnt mode)
-        @see: chunk.make_context_menu_items
+        @see: chunk.make_glpane_context_menu_items
         @see: CntSegment_EditCommand.makeMenus
         """
         if not hasattr(self, 'graphicsMode'):
@@ -483,5 +483,5 @@ class BuildCnt_EditCommand(EditCommand):
                 highlightedChunk = chunk1
 
         if highlightedChunk is not None:
-            highlightedChunk.make_context_menu_items(self.Menu_spec,
+            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                      command = self)
