@@ -25,6 +25,7 @@ from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QMessageB
 import foundation.env as env
 from utilities.Log import orangemsg ##, redmsg, greenmsg, _graymsg
 from utilities.debug import print_compact_traceback
+from processes.Plugins import verifyExecutable
 
 from utilities.prefs_constants import megapov_enabled_prefs_key
 from utilities.prefs_constants import megapov_path_prefs_key
@@ -131,6 +132,10 @@ def decode_povray_prefs_0(win, greencmd): #bruce 060710
     if not os.path.exists(wantpath):
         return 1, "%s executable not found at specified path" % want
 
+    message = verifyExecutable(wantpath)
+    if (message):
+        return 1, message
+    
     ##e should check version of plugin, if we know how
 
     # Figure out include dir to use.

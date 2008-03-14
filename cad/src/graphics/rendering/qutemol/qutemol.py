@@ -62,7 +62,8 @@ def launch_qutemol(pdb_file):
     plugin_prefs_keys = (qutemol_enabled_prefs_key, qutemol_path_prefs_key)
             
     errorcode, errortext_or_path = \
-             checkPluginPreferences(plugin_name, plugin_prefs_keys)
+             checkPluginPreferences(plugin_name, plugin_prefs_keys,
+                                    insure_executable = True)
     if errorcode:
         return errorcode, errortext_or_path
     
