@@ -1884,13 +1884,14 @@ class SimpleCopyMixin(Node):
     for use in creating the copy-stub, and don't interfere with the attrs of self stored by this class,
     self._orig and self._mapping.
     """
-    def will_copy_if_selected(self, sel, realCopy):
+    def will_copy_if_selected(self, sel, realCopy): # in class SimpleCopyMixin
         """
         [overrides Node method]
         """
         return True
 
-    def copy_full_in_mapping(self, mapping): # warning: most of this code is copied from the Jig method.
+    def copy_full_in_mapping(self, mapping): # in class SimpleCopyMixin
+        # warning: most of this code is copied from the Jig method.
         clas = self.__class__
         method = self._um_initargs # fyi: for Node, the returned args are assy, name
         args, kws = method()
@@ -1914,7 +1915,8 @@ class SimpleCopyMixin(Node):
         # (or maybe the general copy code that calls this will take care of that then).
         return new
 
-    def _copy_fixup_at_end(self): # warning: most of this code is copied from the Jig method.
+    def _copy_fixup_at_end(self): # in class SimpleCopyMixin
+        # warning: most of this code is copied from the Jig method.
         """
         [Private method]
         This runs at the end of a copy operation to copy attributes from the old node

@@ -735,12 +735,22 @@ class Group(NodeWithAtomContents):
                 x.will_copy_if_selected(sel, True)
         return True
 
-    def copy_full_in_mapping(self, mapping): # Group method [bruce 050526]
+    def copy_full_in_mapping(self, mapping): # Group method
         """
-        #doc; overrides Node method; copies any subclass of Group as if it was a plain Group
-        [subclasses can override or extend that behavior if desired]
+        #doc; overrides Node method
         """
-        new = Group(self.name, mapping.assy, None)
+        #bruce 050526, revised 080314
+        # Note: the subclasses of Group include Block (and its subclasses
+        # DnaGroup, DnaStrand, DnaSegment), which are effectively new kinds
+        # of model objects, and PartGroup and ClipboardShelfGroup, which
+        # are needed in special places/roles in the MT to give them special
+        # behavior. The special-MT-place subclasses probably need to be copied
+        # as ordinary Groups, whereas the Block-related classes need to be
+        # copied as instances of the same subclass. To support this distinction
+        # (new feature and likely bugfix), I'll introduce a method to return
+        # the class to use for making copies. [bruce 080314]
+        class_for_copies = self._class_for_copies(mapping)
+        new = class_for_copies(self.name, mapping.assy, None)
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name; also copies .open
             # (This might be wrong for some Group subclasses! Not an issue for now, but someday
@@ -751,6 +761,16 @@ class Group(NodeWithAtomContents):
             if memcopy is not None:
                 new.addchild(memcopy)
         return new
+
+    def _class_for_copies(self, mapping): #bruce 080314
+        """
+        [private; overridden in PartGroup and ClipboardShelfGroup]
+        
+        Return the subclass of Group which should be used for making copies of self.
+        """
+        # default implem, for subclasses meant for new model objects
+        del mapping
+        return self.__class__ 
 
     # ==
 

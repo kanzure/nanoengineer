@@ -1605,6 +1605,10 @@ class PartGroup(Group):
     # drop methods should be the same as for any Group
     def permits_ungrouping(self):
         return False
+    def _class_for_copies(self, mapping):
+        #bruce 080314, preserving original behavior
+        del mapping
+        return Group
     def node_icon(self, display_prefs):
         # same whether closed or open
         return imagename_to_pixmap("modeltree/part.png")
@@ -1695,6 +1699,12 @@ class ClipboardShelfGroup(Group):
 ##        "whether tree widgets should permit the user to open/close their view of this node"
 ##        non_empty = (len(self.members) > 0)
 ##        return non_empty
+    def _class_for_copies(self, mapping):
+        #bruce 080314, preserving original behavior; probably not needed
+        del mapping
+        print "why is %r being copied?" % self
+            # since I think this should never be called
+        return Group
     def node_icon(self, display_prefs):
         del display_prefs # unlike most Groups, we don't even care about 'open'
         non_empty = (len(self.members) > 0)
