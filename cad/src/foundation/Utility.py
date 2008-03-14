@@ -902,6 +902,9 @@ class Node( StateMixin, IdentityCopyMixin):
         ###@@@ I don't know whether that new rule is yet followed by external code [bruce 050124].
         #bruce 050131 for Alpha: I tried to make sure it is; at least it's now followed in "pick" methods.
         if not self.picked:
+            if self.part is None:
+                #bruce 080314 check for this
+                print "likely to cause bugs: .part is None in .pick for %r" % self
             self.picked = True
             # bruce 050125: should we also call self.assy.permit_picked_parts() here? ###@@@ [not just in chunk.pick]
             #bruce 050131 for Alpha: I'm guessing we don't need to, for jigs or groups,
@@ -1062,8 +1065,16 @@ class Node( StateMixin, IdentityCopyMixin):
         #bruce 050308: continually let assigned node.dad.part get inherited by unassigned node.part (recursively)
         if node.dad.part is not None:
             if node.part is None:
-                # note, this is the usual way that newly made nodes acquire their .part for the first time!
-                # they might be this node or one of its kids (if they were added to a homeless Group, which is this node).
+                # Note, this is the usual way that newly made nodes
+                # acquire their .part for the first time!
+                # They might be this node or one of its kids
+                # (if they were added to a homeless Group, which is this node).
+                #
+                # update, bruce 080314: it is also ok for newly made nodes
+                # to call .inherit_part directly in their constructor,
+                # which means this call will do nothing. This is necessary
+                # before they call things that want them to have a .part,
+                # like .pick. Doing this fixed a bug in DnaLadderRailChunk.
                 node.inherit_part(node.dad.part) # recurses only into kids with no .parts
         else:
             #bruce 050527 new feature: dad can also inherit from kid, but only prior_part

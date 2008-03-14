@@ -292,6 +292,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
                   (self, node)
             print_compact_stack( msg + ": ")
             node.picked = False # too dangerous to use node.unpick() here
+            # Review: could we just make this legal, by doing
+            # self.selmols_append(node) if node is a chunk?
+            # (For now, instead, just have new nodes call .inherit_part
+            #  before .pick. This fixed a bug in DnaLadderRailChunk.)
+            # [bruce 080314 comment]
             pass
         #e should assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
         node.part = node.prior_part = self

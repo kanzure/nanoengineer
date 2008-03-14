@@ -126,7 +126,7 @@ class DnaLadderRailChunk(Chunk):
             if _DEBUG_REUSE_CHUNKS():
                 print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms)
                 print " data: atoms were in these old chunks: %r" % (self._counted_chunks.values(),)
-            
+
             # Now use the data gathered above to decide how to set some
             # properties in the new chunk. Logically we should do this even if
             # not reuse_old_chunk_if_possible, but the implem would need to
@@ -164,8 +164,18 @@ class DnaLadderRailChunk(Chunk):
                     continue                
                 # review:
                 # - what about being (or containing) glpane.selobj?
+
+                # also set self.part. Ideally we ought to always do this,
+                # but we only need it when use_picked is true, and we only
+                # have a .part handy here, so for now just do it here
+                # and assert we did it as needed. [bruce 080314]
+                self.inherit_part(one_old_chunk.part)
+                pass
             pass
 
+        if use_picked:
+            assert self.part is not None # see comment near inherit_part call
+            
         self._grab_atoms_from_chain(chain, False) #e we might change when we call this, if we implem copy for this class
 
         if reuse_old_chunk_if_possible:
@@ -393,6 +403,8 @@ class DnaLadderRailChunk(Chunk):
 
         # selectedness
         if use_picked:
+            assert self.part is not None # caller must guarantee this
+                # motivation: avoid trouble in add_part from self.pick
             self.pick()
         
         return # from _set_properties_from_grab_atom_info
