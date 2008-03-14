@@ -31,6 +31,8 @@ ColorSortedDisplayList is now a class in the parent's displist attr to keep trac
 080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
 tubes with per-vertex colors (necessary for DNA display style)
 
+080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
+
 """
 
 import os
@@ -38,14 +40,10 @@ import sys
 
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
-from math import acos, floor, ceil
-
-
+from math import floor, ceil, acos, atan2
 import Numeric
 from Numeric import sin, cos, sqrt, pi
-ONE_RADIAN = 180.0 / pi
-HALF_PI  = pi/2.0
-TWICE_PI = 2*pi
+degreesPerRadian = 180.0 / pi
 
 from OpenGL.GL import GL_AMBIENT
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
@@ -303,6 +301,217 @@ def getSphereTriangles(level):
     for i in icosix:
         ocdec += subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
     return ocdec
+
+# ==
+
+# Instead of the above recursive scheme that orients the icosahedron with the
+# midpoints of six edges perpendicular to the major axes, use a ring approach
+# to make subdivided icosa-spheres for Triangle Strips.  The vertices are
+# grouped in rings from the North Pole to the South Pole.  Each strip zig-zags
+# between two rings, and the poles are surrounded by pentagonal Triangle Fans.
+#
+# ----------------
+#
+# The pattern of five-fold vertices in a "twisted orange-slice" segment
+# covering one-fifth of the icosahedron is:
+#
+#               ... [3,0] ... (North Pole)
+#                   / | \
+#                 /   |  ...
+#               /     |
+#       ... [2,1]---[2,0] ...
+#            / \     / \
+#         ...   \   /   \  ...
+#                \ /     \ /
+#           ... [1,1]---[1,0] ...
+#                 |     /
+#             ... |   /
+#               \ | /
+#           ... [0,0] ...     (South Pole)
+#
+# ----------------
+#
+# Higher subdivision levels step the strip verts along the icos edges,
+# interpolating intermediate points on the icos and projecting each onto the
+# sphere.  Note: sphere vertex normals are the same as their coords.
+#
+#    The "*"s show approximate vertex locations at each subdivision level.
+#    Bands are numbered from South to North.  (Reason explained below.)
+#    Sub-band numbers are in angle-brackets, "<>".
+#
+#    Level 0   [3*0]      Level 1   [6*0]         Level 2  [12*0] _<3>
+#              / |       (2 steps)  / |  <1>     (4 steps)  *-*   _<2>
+#  Band 2    /   |                * - *                   *-*-*   _<1>
+#          /     |              / | / |  <0>            *-*-*-*   _<0>
+#      [2*1]- -[2*0]   =>   [4*2]-*-[4*0]     =>    [8*4]***[8*0] _<3>
+#         \     / \            \ / \ / \  <1>          *-*-*-*-*  _<2>
+#  Band 1  \   /   \            * - * - *               *-*-*-*-* _<1>
+#           \ /     \            \ / \ / \  <0>           *-*-*-*-* _<0>
+#          [1*1]---[1*0]        [2*2]-*-[2*0]            [4*4]***[4*0]_<3>
+#            |     /              | \ | /  <1>             *-*-*-* _<2>
+#  Band 0    |   /                * - *                    *-*-* _<1>
+#            | /                  | /  <0>                 *-* _<0>
+#          [0*0]                [0*0]                    [0*0]
+#
+# ----------------
+#
+# The reason for rotating east, then going west along the latitude lines, is
+# that the "grain" of triangle strip diagonals runs that way in the middle
+# band of the icos:
+#
+#     Triangle Strip triangles
+#
+#        6 ----- 4 ----- 2
+#         \5,4,6/ \3,2,4/ \
+#     ...  \   /   \   /   \
+#           \ /3,4,5\ /1,2,3\
+#            5 ----- 3 ----- 1  <- Vertex order
+#
+# This draws triangles 1-2-3, 3-2-4, 3-4-5, and 5-4-6, all counter-clockwise
+# so the normal directions don't flip-flop.
+#
+# ----------------
+#
+# This version optimizes by concatenating vertices for separate Triangle Fan
+# and Triangle Strip calls into a single long Triangle Strip to minimize calls.
+#
+# In the "pentagon cap" band at the top of the icos, points 2, 4, and 6 in the
+# above example are collapsed to the North Pole; at the bottom, points 1, 3,
+# and 5 are collapsed to the South Pole.  This makes "null triangles" with one
+# zero-length edge, and the other two edges echoing one of the other triangle
+# edges (5,4,6 and 3,2,4 at the top, and 3,4,5 and 1,2,3 at the bottom.)
+#
+# In the subdivided caps, the icosahedron bands are split into horizontal
+# sub-bands.  In the tapering-in sub-bands in the North cap, there is one less
+# vertex on the top edges of sub-bands, so we collapse the *LAST* triangle
+# there (e.g. 5,4,6 above)  On the bottom edges of the South cap bands there
+# is one less vertex, so we collapse the *FIRST* triangle (e.g. 1,2,3.)
+#
+# Similarly, moving from the end of each sub-band to the beginning of the next
+# requires a *pair* of null triangles.  We get that by simply concatenating the
+# wrapped triangle strips.  We orient point pairs in the triangle strip from
+# south to north, so this works as long as we jog northward between (sub-)bands.
+# This is the reason we start the Triangle Strip with the South Pole band.
+#
+def getSphereTriStrips(level):
+    steps = 2**level
+    points = []                         # Triangle Strip vertices o be returned.
+
+    # Construct an icosahedron with two vertices at the North and South Poles,
+    # +-1 on the Y axis, as you look toward the X-Y plane with the Z axis
+    # pointing out at you.  The "middle ring" vertices are all at the same
+    # +-latitudes, on the intersection circles of the globe with a polar-axis
+    # cylinder of the proper radius.
+    #
+    # The third "master vertex" of the icosahedron is placed on the X-Y plane,
+    # which intersects the globe at the Greenwich Meridian (the semi-circle at
+    # longitude 0, through Greenwich Observatory, 5 miles south-east of London.)
+    #
+    # The X (distance from the polar axis) and Y (height above the equatorial
+    # plane) of the master vertex make a "golden rectangle", one unit high by
+    # "phi" (1.6180339887498949) wide.  We normalize this to put it on the
+    # unit-radius sphere, and take the distance from the axis as the cylinder
+    # radius used to generate the rest of the vertices of the two middle rings.
+    #
+    # Plotted on the globe, the master vertex (first vertex of the North ring)
+    # is lat-long 31.72,0 due south of London in Africa, about 45 miles
+    # south-southwest of Benoud, Algeria.  The first vertex of the south ring is
+    # rotated 1/10 of a circle east, at lat-long -31.72,36 in the south end of
+    # the Indian Ocean, about 350 miles east-southeast of Durban, South Africa.
+    #
+    vert0 = norm(V(phi,1,0))   # Project the "master vertex" onto a unit sphere.
+    cylRad = vert0[0]          # Icos vertex distance from the Y axis.
+    ringLat = atan2(vert0[1], vert0[0]) * degreesPerRadian  # Latitude +-31.72 .
+
+    # Basic triangle-strip icosahedron vertices.  Start and end with the Poles.
+    # Reflect the master vertex into the southern hemisphere and rotate 5 copies
+    # to make the middle rings of 5 vertices at North and South latitudes.
+    p2_5 = 2*pi / 5.0
+    # Simplify indexing by replicating the Poles, so everything is in fives.
+    icosRings = [ 5 * [V(0.0, -1.0, 0.0)], # South Pole.
+
+               # South ring, first edge *centered on* the Greenwich Meridian.
+               [V(cylRad*cos((i-.5)*p2_5), -vert0[1], cylRad*sin((i-.5)*p2_5))
+                for i in range(5)],
+
+               # North ring, first vertex *on* the Greenwich Meridian.
+               [V(cylRad*cos(i*p2_5 ), vert0[1], cylRad*sin(i*p2_5))
+                for i in range(5)],
+
+               5 * [V(0.0, 1.0, 0.0)] ] # North Pole.
+
+
+    # Three bands, going from bottom to top (South to North.)
+    for band in range(3):
+        lowerRing = icosRings[band]
+        upperRing = icosRings[band+1]
+
+        # Subdivide bands into sub-bands.  When level == 0, steps == 1,
+        # subBand == 0, and we get just the icosahedron out.  (Really!)
+        for subBand in range(steps):
+
+            # Account for the tapering-in at the poles, making less points on
+            # one edge of a sub-band than there are on the other edge.
+            botOffset = 0
+            if band is 0:      # South.
+                botSteps = max(subBand, 1) # Don't divide by zero.
+                topSteps = subBand + 1
+                # Collapse the *first* triangle of south sub-band bottom edges.
+                botOffset = -1
+            elif band is 1:    # Middle.
+                botSteps = topSteps = steps
+            else:              # band is 2: North.
+                botSteps = steps - subBand
+                topSteps = max(steps - (subBand+1), 1)
+                pass
+            subBandSteps = max(botSteps, topSteps)
+
+            # Do five segments, clockwise around the North Pole (East to West.)
+            for seg in range(5):
+                nextseg = (seg+1) % 5 # Wrap-around.
+
+                # Interpolate ends of bottom & top edges of a sub-band segment.
+                fractBot = float(subBand)/float(steps)
+                fractTop = float(subBand+1)/float(steps)
+                sbBotRight = fractBot * upperRing[seg] + \
+                             (1.0-fractBot) * lowerRing[seg]
+                sbTopRight = fractTop * upperRing[seg] + \
+                             (1.0-fractTop) * lowerRing[seg]
+                sbBotLeft = fractBot * upperRing[nextseg] + \
+                            (1.0-fractBot) * lowerRing[nextseg]
+                sbTopLeft = fractTop * upperRing[nextseg] + \
+                            (1.0-fractTop) * lowerRing[nextseg]
+
+                # Output the right end of the first segment of the sub-band.
+                # We'll end up wrapping around to this same pair of points at
+                # the left end of the last segment of the sub-band.
+                if seg is 0:
+                    # Project verts from icosahedron faces onto the unit sphere.
+                    points += [norm(sbBotRight), norm(sbTopRight)]
+
+                # Step across the sub-band edges from right to left,
+                # stitching triangle pairs from their lower to upper edges.
+                for step in range(1, subBandSteps+1):
+
+                    # Interpolate step point pairs along the sub-band edges.
+                    fractLower = float(step+botOffset)/float(botSteps)
+                    lower = fractLower * sbBotLeft + \
+                            (1.0-fractLower) * sbBotRight
+                    # Collapse the *last* triangle of north sub-band top edges.
+                    fractUpper = float(min(step, topSteps))/float(topSteps)
+                    upper = fractUpper * sbTopLeft + \
+                            (1.0-fractUpper) * sbTopRight
+
+                    # Output verts, projected from icos faces onto unit sphere.
+                    points += [norm(lower), norm(upper)]
+
+                    continue # step
+                continue # seg
+            continue # subBand
+        continue # band
+    return points
+
+# ==
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
@@ -1791,15 +2000,12 @@ def setup_drawer():
     for i in range(numSphereSizes):
         sphereList += [spherelistbase+i]
         glNewList(sphereList[i], GL_COMPILE)
-        glBegin(GL_TRIANGLES)
-        ocdec = getSphereTriangles(i)
-        for tri in ocdec:
-            glNormal3fv(tri[0])
-            glVertex3fv(tri[0])
-            glNormal3fv(tri[1])
-            glVertex3fv(tri[1])
-            glNormal3fv(tri[2])
-            glVertex3fv(tri[2])
+        glBegin(GL_TRIANGLE_STRIP) # GL_LINE_LOOP to see edges.
+        stripVerts = getSphereTriStrips(i)
+        for vertNorm in stripVerts:
+            glNormal3fv(vertNorm)
+            glVertex3fv(vertNorm)
+            continue
         glEnd()
         glEndList()
 
