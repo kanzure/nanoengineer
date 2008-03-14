@@ -1809,10 +1809,12 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # which might differ on each draw call of the same object.)
             model_draw_frame = self.part # kluge, explained above
                 # note: that's the same as each bond's part.
-            repeated_bonds_dict = model_draw_frame.repeated_bonds_dict
+            repeated_bonds_dict = model_draw_frame and model_draw_frame.repeated_bonds_dict
+            del model_draw_frame
             if repeated_bonds_dict is None:
                 # This can happen when chunks are drawn in other ways than
-                # via Part.draw (e.g. as Extrude mode repeat units);
+                # via Part.draw (e.g. as Extrude mode repeat units),
+                # or [as revised 080314] due to bugs in which self.part is None;
                 # we need a better fix for this, but for now,
                 # just don't use the dict. As a kluge to avoid messing up
                 # the loop below, just use a junk dict instead.
@@ -1955,6 +1957,16 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # turn off to test effect of this optimization;
             # when testing is done, hardcode this as True
             # [bruce 080217]
+            
+            # [note, bruce 080314: this optimization got much less effective
+            #  after this code was turned into a Chunk method, since it no
+            #  longer prevents external bonds from being drawn twice,
+            #  which is probably common when highlighting DNA. To fix,
+            #  a dictionary of already drawn bonds should be passed in
+            #  or found somewhere. See references in this module to
+            #  self.part.repeated_bonds_dict for related code (but to use
+            #  that dict directly, different caller setup would be required
+            #  than is done now).]
 
         drawn_bonds = {}
 
