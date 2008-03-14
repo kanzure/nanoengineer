@@ -44,7 +44,7 @@ from widgets.prefs_widgets import connect_colorpref_to_colorframe, connect_check
 from utilities import debug_flags
 from platform.PlatformDependent import screen_pos_size
 from platform.PlatformDependent import get_rootdir
-from graphics.rendering.povray.povray import get_default_plugin_path
+from platform.Paths import get_default_plugin_path
 from utilities.icon_utilities import geticon
 
 from utilities.prefs_constants import displayCompass_prefs_key
