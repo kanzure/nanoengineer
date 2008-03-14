@@ -458,6 +458,13 @@ class DnaLadderRailChunk(Chunk):
         return
 
     def merge(self, other): # overridden just for debug, 080120 9pm
+        """
+        [overrides Chunk.merge]
+        """
+        # note: this will work, but its work will be undone by the next
+        # dna updater run, since our new atoms get into
+        # _changed_parent_Atoms, which the dna updater is watching
+        # for changed_atoms it needs to process. [bruce 080313 comment]
         if debug_flags.DEBUG_DNA_UPDATER:
             print "dna updater debug: fyi: calling %r.merge(%r)" % (self, other)
         return _superclass.merge(self, other)

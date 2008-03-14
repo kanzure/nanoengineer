@@ -1862,13 +1862,16 @@ class SimpleCopyMixin(Node):
     # Note: there's no reason to put this in its own file different than Node,
     # because it needs no imports of its own, and anything that imports it
     # also has to import Node. [bruce 071026 comment]
+    # status [bruce 080313 comment]: used only by Comment, NamedView, PovrayScene.
+    # See also def copy_..._mapping methods in other classes.
     """
     Node subclasses that want to be copyable via their _s_attr or copyable_attrs decls,
     and that don't need any optimizations for atoms or bonds or for avoiding full copy_val of all attrs,
     and that don't need any special cases like worrying about refs to other copied things needing to be
     transformed through the mapping (i.e. for which all copyable attrs are pure data, not node or atom refs),
     can mix in this class, BEFORE Node, provided they contain a correct definition of _um_initargs
-    for use in creating the copy-stub.
+    for use in creating the copy-stub, and don't interfere with the attrs of self stored by this class,
+    self._orig and self._mapping.
     """
     def will_copy_if_selected(self, sel, realCopy):
         """
