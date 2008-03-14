@@ -38,8 +38,8 @@ from MMKitDialog import Ui_MMKitDialog
 from graphics.widgets.ThumbView import MMKitView, ChunkView
 from model.elements import PeriodicTable
 from utilities.constants import diTUBES
-## from chem import Atom [not used i think - bruce 071113]
-## from chunk import Chunk [not used i think - bruce 071113]
+## from model.chem import Atom [not used i think - bruce 071113]
+## from model.chunk import Chunk [not used i think - bruce 071113]
 from foundation.Utility import imagename_to_icon, geticon
 from assembly import assembly
 from files.mmp.files_mmp import readmmp

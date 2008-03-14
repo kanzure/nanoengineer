@@ -106,7 +106,7 @@ from OpenGL.GL import GL_FRONT_AND_BACK
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
 from OpenGL.GL import glMaterialfv
 
-from chunk import Chunk
+from model.chunk import Chunk
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 

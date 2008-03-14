@@ -627,7 +627,7 @@ def fix_all_chunk_atomsets( attrdicts, modified):
 ####        print "got oldmols = %r" % (oldmols,) #### contains _UNSET_, not sure how that's possible ... i guess from new atoms?? no...
 ####        # anyway, nevermind, just zap it.
 ##    if oldmols:
-##        from chunk import _nullMol
+##        from model.chunk import _nullMol
 ##        for badmol in (None, _nullMol, _UNSET_):
 ##            # I don't know why these can be in there, but at least _nullMol can be; for now just work around it. ###@@@
 ##            if env.debug():
