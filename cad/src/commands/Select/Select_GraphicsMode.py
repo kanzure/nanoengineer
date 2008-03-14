@@ -1033,7 +1033,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                 continue
             pass
         # list is empty, just return a new one
-        from model.chunk import BorrowerChunk
+        from model.BorrowerChunk import BorrowerChunk
         return BorrowerChunk(self.o.assy)
 
     def deallocate_borrowerchunk(self, bc):
