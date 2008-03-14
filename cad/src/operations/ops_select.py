@@ -28,17 +28,22 @@ from utilities.GlobalPreferences import permit_atom_chunk_coselection
 from utilities.icon_utilities import geticon
 
 from dna.model.DnaGroup import DnaGroup
+from dna.model.DnaStrand import DnaStrand
+from dna.model.DnaSegment import DnaSegment
 from cnt.model.CntGroup import CntGroup
 
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
 CHUNKS = 2
 JIGS = 4
-ALLOBJECTS = ATOMS | CHUNKS | JIGS
+DNASTRANDS = 8
+DNASEGMENTS = 16
+DNAGROUPS = 32
+ALLOBJECTS = ATOMS | CHUNKS | JIGS | DNASTRANDS | DNASEGMENTS | DNAGROUPS
 
 def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
     """
-    Returns True if anything is selected (i.e. atoms, chunks or jigs).
+    Returns True if anything is selected (i.e. atoms, chunks, jigs, etc.).
     Returns False if nothing is selected.
 
     <objectFlags> is an enum used to test for specific object types, where:
@@ -46,7 +51,10 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
         ATOMS = 1
         CHUNKS = 2
         JIGS = 4
-        ALLOBJECT = ATOMS | CHUNKS | JIGS
+        DNASTRANDS = 8
+        DNASEGMENTS = 16
+        DNAGROUPS = 32
+        ATOMS | CHUNKS | JIGS | DNASTRANDS | DNASEGMENTS | DNAGROUPS
     """
 
     if objectFlags & ATOMS:
@@ -58,6 +66,18 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
             return True
 
     if objectFlags & JIGS:
+        if part.getSelectedJigs():
+            return True
+    
+    if objectFlags & DNASTRANDS:
+        if part.getSelectedJigs():
+            return True
+        
+    if objectFlags & DNASEGMENTS:
+        if part.getSelectedJigs():
+            return True
+        
+    if objectFlags & DNAGROUPS:
         if part.getSelectedJigs():
             return True
 
@@ -166,6 +186,34 @@ class ops_select_Mixin:
         self.topnode.apply2all(addSelectedDnaGroup)
         return selDnaGroupList
     
+    def getSelectedDnaStrands(self):
+        """
+        Returns a list of the currently selected DnaStrand(s).
+        
+        """
+        
+        selDnaStrandList = []
+        def addSelectedDnaStrand(obj, dnaList = selDnaStrandList):
+            if obj.picked and isinstance(obj, DnaStrand):
+                dnaList += [obj]
+
+        self.topnode.apply2all(addSelectedDnaStrand)
+        return selDnaStrandList
+    
+    def getSelectedDnaSegments(self):
+        """
+        Returns a list of the currently selected DnaSegment(s).
+        
+        """
+        
+        selDnaSegmentList = []
+        def addSelectedDnaSegment(obj, dnaList = selDnaSegmentList):
+            if obj.picked and isinstance(obj, DnaSegment):
+                dnaList += [obj]
+
+        self.topnode.apply2all(addSelectedDnaSegment)
+        return selDnaSegmentList
+    
     def getSelectedCntGroups(self):
         """
         Returns a list of the currently selected CntGroup(s).
@@ -207,6 +255,17 @@ class ops_select_Mixin:
                 nodes += [obj]
         self.topnode.apply2all(addMovableNode)
         return selected_movables
+    
+    def getSelectedRenameables(self):
+        """
+        Returns the list of all selected nodes that can be renamed.
+        """
+        selected_renameables = []
+        def addRenameableNode(obj, nodes=selected_renameables):
+            if obj.picked and obj.rename_enabled():
+                nodes += [obj]
+        self.topnode.apply2all(addRenameableNode)
+        return selected_renameables
 
     def selectAll(self):
         """
