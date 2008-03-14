@@ -157,7 +157,20 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             dnaGroup = a_chunk.getDnaGroup()
             if dnaGroup is not None:
                 m = dnaGroup
-    
+        else:      
+            #Fixed bug 2661 (see also similar code in self.chunkLeftUp() )
+            #Select the whole parent DnaStrand or DnaSegment group (used when Dna 
+            # updater is enabled) instead of the chunk.
+            #Note that this will be effective only in graphics modes where the 
+            #whole DnaGroup highlighting is disabled. (i.e. where the 
+            #highlighting of individual strands and segments is allowed)             
+            #-- Ninad 2008-03-14
+            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrand)
+            if strandOrSegment is None:
+                strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaSegment)            
+            if strandOrSegment is not None:
+                m = strandOrSegment
+                    
         if not m.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             m.pick()
@@ -228,6 +241,19 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             dnaGroup = a_chunk.getDnaGroup()
             if dnaGroup is not None:
                 m = dnaGroup
+        else:        
+            #Fixed bug 2661 (see also similar code in self.chunkLeftDown() )
+            #Select the whole parent DnaStrand or DnaSegment group (used when Dna 
+            # updater is enabled) instead of the chunk.
+            #Note that this will be effective only in graphics modes where the 
+            #whole DnaGroup highlighting is disabled. (i.e. where the 
+            #highlighting of individual strands and segments is allowed)             
+            #-- Ninad 2008-03-14
+            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrand)
+            if strandOrSegment is None:
+                strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaSegment)            
+            if strandOrSegment is not None:
+                m = strandOrSegment
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
