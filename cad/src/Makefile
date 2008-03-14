@@ -113,7 +113,7 @@ shared: $(SHARED_LIBRARIES)
 # On Windows, use "make atombase.dll"
 atombase.dll: atombase.o libpython$(PYVER).a
 	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll atombase.o \
-		-Wl,--output-def,atombase.def -L. -lpython$(PYVER)
+		-Wl,--output-def,atombase.def -L. -lpython$(PYVER) -lopengl32
 
 samevals.dll: samevals.o libpython$(PYVER).a
 	gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll samevals.o \

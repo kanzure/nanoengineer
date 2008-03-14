@@ -3,7 +3,9 @@
  * Type "python setup2.py build_ext --inplace" to build.
  */
 
+#ifndef WIN32
 #include <alloca.h>
+#endif
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 

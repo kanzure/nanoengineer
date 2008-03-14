@@ -303,9 +303,6 @@ static PyObject *extract_list(struct pointerlist *root, int values)
 #include <gl.h>
 #include <glu.h>
 #else
-#ifdef _WIN32
-#include <windows.h> /* Even MinGW includes this */
-#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
