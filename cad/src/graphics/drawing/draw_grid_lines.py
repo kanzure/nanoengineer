@@ -129,7 +129,7 @@ def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
     uw = width spacing between grid lines
     uh = height spacing between grid lines
     """
-    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
+    from utilities.prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return
@@ -229,7 +229,7 @@ def drawSiCGrid(color, line_type, w, h, up, right):
     """
     Draw SiC grid.
     """
-    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
+    from utilities.prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return

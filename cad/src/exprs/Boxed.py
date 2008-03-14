@@ -10,7 +10,7 @@ See also: DraggablyBoxed
 
 """
 
-from constants import white
+from utilities.constants import white
 
 from exprs.Rect import RectFrame
 from exprs.Overlay import Overlay

@@ -29,14 +29,14 @@ Mark 2007-10-18:
 import foundation.env as env
 import random
 
-from constants import darkred, blue, lightgray
+from utilities.constants import darkred, blue, lightgray
 
 from foundation.Group import Group
 from utilities.Log  import redmsg, greenmsg ##, orangemsg
 from geometry.VQT import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
 from model.chunk import Chunk
-from constants      import gensym    
+from utilities.constants import gensym    
 
 from dna.model.Dna_Constants import basesDict, getReverseSequence
 from dna.commands.BuildDuplex_old.DnaGenHelper import B_Dna_PAM3, B_Dna_PAM5

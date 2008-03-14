@@ -14,9 +14,9 @@ this file is getting kind of long - maybe split it in some sensible way?
 # note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
 # instead, it is probably fully imported by ExprsMeta.
 
-from debug import compact_stack
-from debug import print_compact_stack
-from debug import safe_repr
+from utilities.debug import compact_stack
+from utilities.debug import print_compact_stack
+from utilities.debug import safe_repr
 
 ##from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 

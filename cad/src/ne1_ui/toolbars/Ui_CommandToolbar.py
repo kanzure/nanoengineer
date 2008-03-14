@@ -55,7 +55,7 @@ from PyQt4.Qt import QSpacerItem
 from PyQt4.Qt import QString
 from PyQt4.Qt import QPalette
 
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 from foundation.wiki_help import QToolBar_WikiHelp
 from commandToolbar.CommandToolbar_Constants import cmdTbarCntrlAreaBtnColor
 from commandToolbar.CommandToolbar_Constants import cmdTbarSubCntrlAreaBtnColor

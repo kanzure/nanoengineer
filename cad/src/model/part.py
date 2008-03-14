@@ -54,7 +54,7 @@ from foundation.Assembly_API import Assembly_API
 
 from model.NamedView import NamedView
 from geometry.VQT import V, Q
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 
 from utilities.Log import greenmsg, redmsg
@@ -64,24 +64,24 @@ from model.chunk import Chunk
 from model.jigs import Jig
 from foundation.node_indices import fix_one_or_complain
 
-from constants import diINVISIBLE
+from utilities.constants import diINVISIBLE
 
 import foundation.env as env
 
 from foundation.inval import InvalMixin
 from foundation.state_utils import StateMixin, IdentityCopyMixin
-from jigmakers_Mixin import jigmakers_Mixin
-from ops_atoms     import ops_atoms_Mixin
-from ops_connected import ops_connected_Mixin
-from ops_copy      import ops_copy_Mixin
-from ops_motion    import ops_motion_Mixin
-from ops_rechunk   import ops_rechunk_Mixin
-from ops_select    import ops_select_Mixin
+from operations.jigmakers_Mixin import jigmakers_Mixin
+from operations.ops_atoms import ops_atoms_Mixin
+from operations.ops_connected import ops_connected_Mixin
+from operations.ops_copy import ops_copy_Mixin
+from operations.ops_motion import ops_motion_Mixin
+from operations.ops_rechunk import ops_rechunk_Mixin
+from operations.ops_select import ops_select_Mixin
 
-from constants import diDEFAULT
-from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
+from utilities.constants import diDEFAULT
+from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
-from prefs_constants import levelOfDetail_prefs_key
+from utilities.prefs_constants import levelOfDetail_prefs_key
 
 from model.Line import Line
 

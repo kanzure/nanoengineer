@@ -22,9 +22,9 @@ bruce 071106 split changedicts.py out of changes.py
 
 """
 
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 import foundation.env as env
-from constants import noop
+from utilities.constants import noop
 from utilities import debug_flags
 from utilities.Comparison import same_vals #bruce 060306
 

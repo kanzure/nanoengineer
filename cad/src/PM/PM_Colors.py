@@ -19,7 +19,7 @@ import sys
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QPalette
 
-from debug_prefs import debug_pref, Choice
+from utilities.debug_prefs import debug_pref, Choice
 
 
 _iconPrefix = os.path.dirname(os.path.abspath(sys.argv[0]))

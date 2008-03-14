@@ -10,7 +10,7 @@ import foundation.env as env
 from cnt.model.CntStrandOrSegment import CntStrandOrSegment
 from cnt.model.CntLadderRailChunk import CntAxisChunk
 
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 from model.chunk import Chunk
 from model.chem import Atom
 from model.bonds import Bond

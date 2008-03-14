@@ -21,8 +21,8 @@ from PyQt4.Qt import QColor
 from PyQt4.Qt import QColorDialog
 
 from commands.BuildCrystal.CookiePropertyManager import CookiePropertyManager
-from icon_utilities import geticon
-from constants import dispLabel
+from utilities.icon_utilities import geticon
+from utilities.constants import dispLabel
 
 
 class CookieCtrlPanel(CookiePropertyManager):

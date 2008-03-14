@@ -81,38 +81,38 @@ from geometry.VQT import atom_angle_radians
 from graphics.rendering.mdl.mdldata import marks, links, filler
 from graphics.rendering.povray.povheader import povpoint
 
-import debug
-from debug import print_compact_stack, print_compact_traceback
+import utilities.debug as debug
+from utilities.debug import print_compact_stack, print_compact_traceback
 ##from debug import compact_stack
-from debug_prefs import debug_pref, Choice_boolean_False, Choice
+from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice
 
 from foundation.changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
 from utilities.Log import orangemsg, redmsg
 
-from constants import genKey
+from utilities.constants import genKey
 
-from constants import diDEFAULT
-from constants import diBALL
-from constants import diTrueCPK
-from constants import diTUBES
-from constants import diINVISIBLE
+from utilities.constants import diDEFAULT
+from utilities.constants import diBALL
+from utilities.constants import diTrueCPK
+from utilities.constants import diTUBES
+from utilities.constants import diINVISIBLE
 
-from constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
+from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
-from constants import dispLabel
-from constants import default_display_mode
-from constants import TubeRadius
+from utilities.constants import dispLabel
+from utilities.constants import default_display_mode
+from utilities.constants import TubeRadius
 
-from constants import pink
-from constants import orange
+from utilities.constants import pink
+from utilities.constants import orange
 
-from constants import ErrorPickedColor
-from constants import PickedColor
+from utilities.constants import ErrorPickedColor
+from utilities.constants import PickedColor
 
-from GlobalPreferences import disable_do_not_draw_open_bonds
-from GlobalPreferences import usePyrexAtomsAndBonds
+from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
+from utilities.GlobalPreferences import usePyrexAtomsAndBonds
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import min_max_valences_from_v6
@@ -123,11 +123,11 @@ from model.bond_constants import DIRBOND_CHAIN_END
 from model.bond_constants import DIRBOND_NONE
 from model.bond_constants import DIRBOND_ERROR
 
-from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
-from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
-from prefs_constants import showValenceErrors_prefs_key
-from prefs_constants import cpkScaleFactor_prefs_key
-from prefs_constants import diBALL_AtomRadius_prefs_key
+from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import showValenceErrors_prefs_key
+from utilities.prefs_constants import cpkScaleFactor_prefs_key
+from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 
 from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
@@ -137,7 +137,7 @@ from graphics.drawables.Selobj import Selobj_API
 
 from utilities import debug_flags
 
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 
 import foundation.env as env
 
@@ -1374,7 +1374,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         """
         assert self._f_draw_bond_geometry_error_indicator_externally # for now
         assert self.bond_geometry_error_string # make private??
-        from constants import ave_colors, red
+        from utilities.constants import ave_colors, red
         color = ave_colors(0.5, orange, red) # revise? 
         self.overdraw_with_special_color( color,
             factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
@@ -3616,7 +3616,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         @warning: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
         """
         try:
-            import reposition_baggage
+            import operations.reposition_baggage as reposition_baggage
             debug.reload_once_per_event(reposition_baggage) # this can be removed when devel is done, but doesn't need to be
             reposition_baggage.reposition_baggage_0(self, baggage, planned_atom_nupos)
         except:

@@ -22,7 +22,7 @@ from PM.PM_Colors    import getPalette
 from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_Constants import pmLeftAlignment, pmRightAlignment
-from icon_utilities import getpixmap
+from utilities.icon_utilities import getpixmap
 
 class PM_DockWidget(QDockWidget):
     """

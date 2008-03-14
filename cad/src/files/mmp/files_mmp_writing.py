@@ -115,9 +115,9 @@ MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080115 preferred'
 
 from utilities import debug_flags
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from constants import dispNames
+from utilities.constants import dispNames
 
 # ==
 

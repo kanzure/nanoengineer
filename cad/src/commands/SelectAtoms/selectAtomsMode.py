@@ -31,8 +31,8 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 
 """
 
-from debug import print_compact_traceback
-from constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.debug import print_compact_traceback
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_basicGraphicsMode

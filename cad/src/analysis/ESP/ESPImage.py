@@ -76,21 +76,21 @@ from graphics.behaviors.shape import SelectionShape
 from geometry.Slab import Slab
 
 from utilities.Log import redmsg, greenmsg 
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from model.jigs import Jig # REVIEW: all uses of this are suspicious!
 from graphics.images.ImageUtils import nEImageOps
 
-from constants import black
-from constants import ave_colors
-from constants import green
-from constants import START_NEW_SELECTION
-from constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import black
+from utilities.constants import ave_colors
+from utilities.constants import green
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import SUBTRACT_FROM_SELECTION
 
 from model.jigs_planes import RectGadget
 from model.jigs_planes import povStrVec
 
 from analysis.ESP.ESPImageProp import ESPImageProp
-from PlatformDependent import find_or_make_Nanorex_subdir
+from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
 from analysis.ESP.NanoHiveUtils import get_nh_espimage_filename
 from analysis.ESP.NanoHiveUtils import run_nh_simulation
@@ -400,7 +400,7 @@ class ESPImage(RectGadget):
         # model space coords.  Mark 050930
         if 0:
             from graphics.drawing.drawer import drawline
-            from constants import yellow
+            from utilities.constants import yellow
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
 
     def writemmp(self, mapping):

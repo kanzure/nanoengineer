@@ -19,7 +19,7 @@ from struct import unpack # fyi: used for old-format header, no longer for delta
 ## from VQT import A
 from Numeric import array, Int8
 from utilities import debug_flags
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
 
 def MovieFile(filename): #bruce 050913 removed history arg, since all callers passed env.history

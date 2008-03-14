@@ -30,8 +30,8 @@ described in the bug report.
 from foundation.Group import Group # for isinstance and for autogrouping; could remove by
     # asking the assy (and/or the dropped on node) to do the grouping
 
-from ops_copy import copy_nodes_in_order
-from ops_copy import copied_nodes_for_DND
+from operations.ops_copy import copy_nodes_in_order
+from operations.ops_copy import copied_nodes_for_DND
 
 import foundation.env as env
 

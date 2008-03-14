@@ -12,7 +12,7 @@ but for now, it has to be in this separate file (maybe that's best anyway).
 Note: file needs cleanup, and code needs reimplem.
 """
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 from exprs.Exprs import OpExpr, canon_expr, expr_constant_value
 from exprs.instance_helpers import InstanceMacro

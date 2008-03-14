@@ -7,7 +7,7 @@ dna_updater_follow_strand.py - helper function for dna_updater_ladders.
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from constants import noop
+from utilities.constants import noop
 
 _FAKE_AXIS_FOR_BARE_STRANDS = [1]
     # arbitrary non-false object comparable using 'is'

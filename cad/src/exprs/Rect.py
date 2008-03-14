@@ -21,7 +21,7 @@ from OpenGL.GLU import gluPartialDisk
 
 from utilities import debug_flags
 
-from constants import gray, white, black
+from utilities.constants import gray, white, black
 
 from exprs.widget2d import Widget2D
 from exprs.attr_decl_macros import Arg, ArgOrOption, Option

@@ -16,7 +16,7 @@ from commands.PlayMovie.Ui_MoviePropertyManager import Ui_MoviePropertyManager
 from PyQt4.Qt import Qt, SIGNAL, QFileDialog, QString, QMessageBox
 import os, foundation.env as env
 from utilities.Log import redmsg, greenmsg
-from constants import filesplit
+from utilities.constants import filesplit
 
 class MoviePropertyManager(Ui_MoviePropertyManager):
     """
@@ -304,7 +304,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         # Check if file with name fn is a movie file which is valid for the current Part
         # [bruce 050324 made that a function and made it print the history messages
         #  which I've commented out below.]
-        from movie import _checkMovieFile
+        from simulation.movie import _checkMovieFile
         r = _checkMovieFile(self.w.assy.part, fn)
 
         if r == 1:
@@ -320,7 +320,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             return
 
         #bruce 050427 rewrote the following to use a new Movie object
-        from movie import find_saved_movie
+        from simulation.movie import find_saved_movie
         new_movie = find_saved_movie( self.w.assy, fn )
         if new_movie:
             new_movie.set_alist_from_entire_part(self.w.assy.part) # kluge? might need changing...

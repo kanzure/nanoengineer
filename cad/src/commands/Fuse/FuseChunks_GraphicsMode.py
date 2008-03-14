@@ -15,10 +15,10 @@ Ninad 2008-01-25: Split Command and GraphicsMode classes
 from graphics.drawing.drawer import drawline
 from graphics.behaviors.shape import get_selCurve_color
 
-from constants import green
-from constants import magenta
-from constants import blue
-from constants import darkred
+from utilities.constants import green
+from utilities.constants import magenta
+from utilities.constants import blue
+from utilities.constants import darkred
 
 from commands.Move.Move_GraphicsMode import Move_GraphicsMode
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode

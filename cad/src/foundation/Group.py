@@ -18,13 +18,13 @@ split out Node and/or LeafNode as well.)
 Bruce 080305 changed superclass from Node to NodeWithAtomContents.
 """
 
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 from utilities import debug_flags
 import foundation.env as env
 from foundation.state_constants import S_CHILDREN
 
 from commands.GroupProperties.GroupProp import GroupProp
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from foundation.NodeWithAtomContents import NodeWithAtomContents
 
@@ -548,7 +548,7 @@ class Group(NodeWithAtomContents):
             # so ob.pick() sees it's picked when its subr scans up the tree
         for ob in self.members:
             ob.pick()
-        from debug_prefs import debug_pref_History_print_every_selected_object
+        from utilities.debug_prefs import debug_pref_History_print_every_selected_object
         if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
             # bruce 050131 comment:
             # I'm very skeptical of doing this history.message

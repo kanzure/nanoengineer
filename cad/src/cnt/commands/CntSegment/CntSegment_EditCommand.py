@@ -46,18 +46,18 @@ from cnt.commands.InsertCnt.Nanotube import Cnt_Atomistic
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
-from constants import gensym
+from utilities.constants import gensym
 
 from cnt.model.Cnt_Constants import getCntLength
-from test_connectWithState import State_preMixin
+from prototype.test_connectWithState import State_preMixin
 
-from constants import noop
+from utilities.constants import noop
 from exprs.attr_decl_macros import Instance, State
 
 from exprs.__Symbols__ import _self
 from exprs.Exprs import call_Expr
 from exprs.Exprs import norm_Expr
-from prefs_widgets import ObjAttr_StateRef
+from widgets.prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
 from model.chunk import Chunk

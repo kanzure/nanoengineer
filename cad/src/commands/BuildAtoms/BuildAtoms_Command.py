@@ -40,13 +40,13 @@ from PyQt4.Qt import SIGNAL
 import foundation.env as env
 import foundation.changes as changes
 
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
-from debug import print_compact_stack
-from debug import print_compact_traceback
+from utilities.debug import print_compact_stack
+from utilities.debug import print_compact_traceback
 
-from prefs_constants import buildModeHighlightingEnabled_prefs_key
-from prefs_constants import keepBondsDuringTransmute_prefs_key
+from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
+from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 
 from commands.BuildAtoms.BuildAtomsPropertyManager import BuildAtomsPropertyManager
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand

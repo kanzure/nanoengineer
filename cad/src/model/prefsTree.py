@@ -23,7 +23,7 @@ import os
 from foundation.Utility import Node
 from foundation.Group import Group
 from model.part import Part
-from constants import noop, dispLabel, default_display_mode
+from utilities.constants import noop, dispLabel, default_display_mode
 import foundation.env as env
 
 _debug_prefstree = True # safe for commit even when True
@@ -199,7 +199,7 @@ def read_mmp_single_part(assy, filename):
         # It depends on there being only one active history object at a time.
         # (Before 050913, that object was stored as both env.history and win.history.)
     oldmessage = history.message
-    from constants import noop
+    from utilities.constants import noop
     history.message = noop # don't bother user with this file being nonstd (bad, should pass a flag, so other errors seen)
     try:
         grouplist  = readmmp(assy, filename, isInsert = True)

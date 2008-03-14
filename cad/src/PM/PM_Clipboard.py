@@ -20,7 +20,7 @@ from PyQt4.Qt import QListWidget
 from PyQt4.Qt import SIGNAL
 from graphics.widgets.ThumbView import MMKitView
 from PM.PM_GroupBox import PM_GroupBox
-from constants      import diTUBES
+from utilities.constants import diTUBES
 
 class PM_Clipboard(PM_GroupBox):     
     """

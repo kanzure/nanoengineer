@@ -75,14 +75,14 @@ from foundation.NodeWithAtomContents import NodeWithAtomContents
 
 from utilities.Log import orangemsg, redmsg, quote_html, graymsg
 
-from debug import print_compact_stack, print_compact_traceback, safe_repr
+from utilities.debug import print_compact_stack, print_compact_traceback, safe_repr
 
 from foundation.inval import InvalMixin
 from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
     # and chunks can know when they need to inval that because something drawn into it
     # would draw differently due to a change in some graphics pref it used
-from prefs_constants import bondpointHotspotColor_prefs_key
+from utilities.prefs_constants import bondpointHotspotColor_prefs_key
 import foundation.env as env
 import graphics.drawing.drawer as drawer
 from foundation.undo_archive import set_undo_nullMol
@@ -94,9 +94,9 @@ from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 from utilities import debug_flags
 
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 import model.bonds as bonds # TODO: import specific functions, since no longer an import cycle
 
@@ -107,20 +107,20 @@ from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
-from constants import darkgreen, yellow
+from utilities.constants import darkgreen, yellow
 
-from constants import gensym, genKey
+from utilities.constants import gensym, genKey
 
-from constants import diDEFAULT
-from constants import diINVISIBLE
-from constants import diBALL
-from constants import diLINES
-from constants import diTUBES
-from constants import diTrueCPK
-from constants import diDNACYLINDER
+from utilities.constants import diDEFAULT
+from utilities.constants import diINVISIBLE
+from utilities.constants import diBALL
+from utilities.constants import diLINES
+from utilities.constants import diTUBES
+from utilities.constants import diTrueCPK
+from utilities.constants import diDNACYLINDER
 
-from constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
-from constants import noop
+from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
+from utilities.constants import noop
 
 from model.elements import PeriodicTable
 
@@ -128,7 +128,7 @@ from commands.ChunkProperties.ChunkProp import ChunkProp
 
 from dna.model.Dna_Constants import getComplementSequence
 
-from bond_chains import grow_directional_bond_chain
+from operations.bond_chains import grow_directional_bond_chain
 
 from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 
@@ -3778,7 +3778,7 @@ def debug_make_BorrowerChunk_raw(do_addmol = True):
     win.win_update() #k is this done by caller?
     return
 
-from debug import register_debug_menu_command
+from utilities.debug import register_debug_menu_command
 register_debug_menu_command("make BorrowerChunk", debug_make_BorrowerChunk)
 register_debug_menu_command("make BorrowerChunk (no addmol)", debug_make_BorrowerChunk_no_addmol)
 

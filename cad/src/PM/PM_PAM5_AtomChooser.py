@@ -10,7 +10,7 @@ PM_PAM5_AtomChooser.py
 
 
 from PM.PM_MolecularModelingKit import PM_MolecularModelingKit
-from constants import diBALL
+from utilities.constants import diBALL
 
 # Elements button list to create PAM5 atoms toolbutton group.
 # Format: 

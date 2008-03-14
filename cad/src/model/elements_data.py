@@ -22,7 +22,7 @@ Bruce 071105 revised init code, and split PAM3 and PAM5 data into separate files
 """
 
 from geometry.VQT import V, A, norm
-from constants import DIAMOND_BOND_LENGTH
+from utilities.constants import DIAMOND_BOND_LENGTH
 
 _DIRECTIONAL_BOND_ELEMENTS_chemical = ('X',) # mark 071014
 

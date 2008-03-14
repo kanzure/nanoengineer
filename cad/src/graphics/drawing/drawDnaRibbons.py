@@ -32,8 +32,8 @@ from graphics.drawing.drawer import drawPoint
 from graphics.drawing.drawer import drawsphere
 
 from geometry.VQT import norm, vlen, V, cross
-from constants import white
-from constants import diBALL, diTrueCPK, diTUBES, diLINES
+from utilities.constants import white
+from utilities.constants import diBALL, diTrueCPK, diTUBES, diLINES
 
 
 #Constants for drawing the ribbon points as spheres.

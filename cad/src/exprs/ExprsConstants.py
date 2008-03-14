@@ -15,10 +15,10 @@ from geometry.VQT import V
 
 # compass positions, also usable for DrawInCorner
 
-from prefs_constants import UPPER_RIGHT
-from prefs_constants import UPPER_LEFT 
-from prefs_constants import LOWER_LEFT 
-from prefs_constants import LOWER_RIGHT
+from utilities.prefs_constants import UPPER_RIGHT
+from utilities.prefs_constants import UPPER_LEFT 
+from utilities.prefs_constants import LOWER_LEFT 
+from utilities.prefs_constants import LOWER_RIGHT
 
     # note: their values are ints -- perhaps hard to change since they might correspond to Qt radiobutton indices (guess)
 
@@ -63,12 +63,12 @@ nevermind = lambda func: identity
 
 #e maybe import the following from a different file, but for now we need to define some here
 #k need to make sure none of these are defined elsewhere in this module
-from constants import red, green, blue, white
+from utilities.constants import red, green, blue, white
 ##from constants import black, purple, magenta, violet, yellow, orange, pink, gray
     # note: various defs of purple I've seen:
     # ave_colors( 0.5, red, blue), or (0.5, 0.0, 0.5), or (0.7,0.0,0.7), or (0.6, 0.1, 0.9) == violet in constants.py
 ##from constants import aqua, darkgreen, navy, darkred, lightblue
-from constants import ave_colors
+from utilities.constants import ave_colors
     ###e what does this do to alpha? A: uses zip, which means, weight it if present in both colors, discard it otherwise.
     ###k What *should* it do? Not that, but that is at least not going to cause "crashes" in non-alpha-using code.
 

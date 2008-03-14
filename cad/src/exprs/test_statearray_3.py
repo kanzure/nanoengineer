@@ -36,7 +36,7 @@ from exprs.transforms import Translate
 
 from exprs.Overlay import Overlay
 
-from constants import white
+from utilities.constants import white
 
 from exprs.Exprs import call_Expr, tuple_Expr
 from exprs.statearray import StateArrayRefs, StateArrayRefs_getitem_as_stateref

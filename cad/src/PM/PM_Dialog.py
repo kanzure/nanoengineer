@@ -13,11 +13,11 @@ file and renamed it PM_Dialog.
 
 """
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from utilities import debug_flags
 
-from icon_utilities import geticon
-from icon_utilities import getpixmap
+from utilities.icon_utilities import geticon
+from utilities.icon_utilities import getpixmap
 
 from PyQt4.Qt import Qt
 
@@ -64,7 +64,7 @@ from PyQt4.Qt import QWhatsThis
 from PM.PM_GroupBox         import PM_GroupBox
 from PM.PM_MessageGroupBox  import PM_MessageGroupBox
 
-from Sponsors import SponsorableMixin
+from sponsors.Sponsors import SponsorableMixin
 
 class PM_Dialog( QDialog, SponsorableMixin ):
     """

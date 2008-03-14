@@ -21,13 +21,13 @@ import os, time
 from model.chunk import Chunk
 from model.chem import Atom
 from model.bonds import bond_atoms
-from bonds_from_atoms import inferBonds
+from operations.bonds_from_atoms import inferBonds
 from string import capitalize
 from model.elements import PeriodicTable, Singlet
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
-from version import Version
+from utilities.version import Version
 from datetime import datetime
 import foundation.env as env
 

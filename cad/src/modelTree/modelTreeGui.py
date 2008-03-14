@@ -67,19 +67,19 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QApplication
 from PyQt4.Qt import QPalette
 
-from debug import print_compact_traceback, print_compact_stack
-from PlatformDependent import fix_plurals
+from utilities.debug import print_compact_traceback, print_compact_stack
+from platform.PlatformDependent import fix_plurals
 from utilities.Log import quote_html
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-from menu_helpers import makemenu_helper
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+from widgets.menu_helpers import makemenu_helper
 import foundation.env as env
 
 from widgets.simple_dialogs import grab_text_line_using_dialog
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
-from constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
+from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
 
 DEBUG0 = False # debug api compliance
 DEBUG = False # debug selection stuff
@@ -251,7 +251,7 @@ class Ne1Model_api(Api):
         [But not including any children of selected nodes. --bruce]
         """
         nodes = [self.get_current_part_topnode()]
-        from ops_select import topmost_selected_nodes
+        from operations.ops_select import topmost_selected_nodes
         return topmost_selected_nodes(nodes)
 
     pass # end of class Ne1Model_api
@@ -1599,7 +1599,7 @@ class MT_View(QtGui.QWidget):
         self.modeltreegui.mt_update()
     
     def get_icons(self):
-        from icon_utilities import getpixmap
+        from utilities.icon_utilities import getpixmap
         # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
         # so here we use getpixmap which calls QPixmap. We could also try QImage and painter.drawImage
         # (known to work for crate.bmp and other test images, but presumably slower).
@@ -1893,7 +1893,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         self.setWidget(self.view)
         
         # Model Tree background color. Mark 2007-06-04
-        from prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
+        from utilities.prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
         from widgets.widget_helpers import RGBf_to_QColor
         mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
         from PM.PM_Colors  import getPalette

@@ -5,7 +5,7 @@ $Id$
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
 
 class Ui_ViewOrientation:

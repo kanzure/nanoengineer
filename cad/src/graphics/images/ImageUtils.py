@@ -24,7 +24,7 @@ import PngImagePlugin # Don't remove this, it is used by package creator to find
 PngImagePlugin
 
 from utilities import debug_flags #bruce 061127
-from debug import print_compact_traceback #bruce 061128
+from utilities.debug import print_compact_traceback #bruce 061128
 
 class nEImageOps:
     """
@@ -107,7 +107,7 @@ class nEImageOps:
             print "debug fyi: nEImageOps.__init__: %r.img.size, mode is %r, %r" % (self, self.img.size, self.img.mode) ###
         if 1:
             #bruce 060213 - let debug pref set default values of ideal_width, ideal_height
-            from debug_prefs import debug_pref, Choice
+            from utilities.debug_prefs import debug_pref, Choice
             self.ideal_width = self.ideal_height = debug_pref("image size", Choice([256,128,64,32,512,1024]),
                 prefs_key = 'A8 devel/image size' ) #bruce 060612 made this persistent
             # these are not used until client code calls getTextureData;
@@ -263,7 +263,7 @@ class nEImageOps:
         #  work before or after image is loaded. The docs mentioned elsewhere
         #  are not very clear about this.] 
         import os
-        from PlatformDependent import find_or_make_Nanorex_subdir
+        from platform.PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         basename = os.path.basename(self.imageName)
         if self._tmpmode:

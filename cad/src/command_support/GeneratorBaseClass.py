@@ -64,9 +64,9 @@ from utilities import debug_flags
 
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
 from utilities.Comparison import same_vals
-from debug import print_compact_traceback
-from constants import gensym
-from constants import permit_gensym_to_reuse_name
+from utilities.debug import print_compact_traceback
+from utilities.constants import gensym
+from utilities.constants import permit_gensym_to_reuse_name
 
 # == private definitions
 

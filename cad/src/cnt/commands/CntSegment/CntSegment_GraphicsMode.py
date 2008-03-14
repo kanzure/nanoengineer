@@ -39,7 +39,7 @@ from cnt.commands.BuildCnt.BuildCnt_GraphicsMode import BuildCnt_GraphicsMode
 from cnt.model.CntSegment import CntSegment
 
 from cnt.temporary_commands.CntLineMode import CntLine_GM
-from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawCntLadder import drawCntLadder
 
@@ -47,8 +47,8 @@ import foundation.env as env
 
 import math
 from geometry.VQT import V, norm, A, Q, vlen
-from constants import darkred, blue, black
-from debug import print_compact_traceback
+from utilities.constants import darkred, blue, black
+from utilities.debug import print_compact_traceback
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 

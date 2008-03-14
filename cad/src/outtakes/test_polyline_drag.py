@@ -15,13 +15,13 @@ Just a stub for now.
 """
 __author__ = "bruce"
 
-from test_connectWithState import State_preMixin
+from prototype.test_connectWithState import State_preMixin
 
-from test_commands import ExampleCommand
+from prototype.test_commands import ExampleCommand
 
 from geometry.VQT import V
 
-from constants import red
+from utilities.constants import red
 
 # TODO: import the following from somewhere
 DX = V(1,0,0)

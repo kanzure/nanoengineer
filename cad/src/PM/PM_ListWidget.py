@@ -16,7 +16,7 @@ from PyQt4.Qt import QLabel
 from PyQt4.Qt import QListWidget
 from PyQt4.Qt import QWidget
 
-from debug     import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 class PM_ListWidget( QListWidget ):
     """

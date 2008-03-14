@@ -9,7 +9,7 @@ fix_deprecated_elements.py - fix deprecated PAM elements in-place in models
 
 from model.elements import PeriodicTable
 
-from constants import diDEFAULT
+from utilities.constants import diDEFAULT
 
 from utilities import debug_flags
 

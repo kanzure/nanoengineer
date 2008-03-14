@@ -48,7 +48,7 @@ History:
   
 """
 
-from icon_utilities import geticon, getpixmap
+from utilities.icon_utilities import geticon, getpixmap
 
 from PyQt4.Qt import Qt, SIGNAL
 

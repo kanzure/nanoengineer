@@ -39,11 +39,11 @@ from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from model.chunk import Chunk
 from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 from OpenGL.GL import glCallList
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 
-from constants import yellow, orange, ave_colors, red
+from utilities.constants import yellow, orange, ave_colors, red
 
-from debug_prefs import debug_pref, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities import debug_flags
 
 from geometry.VQT import V, vlen
@@ -52,7 +52,7 @@ import time
 
 from commands.Select.Select_GraphicsMode import Select_basicGraphicsMode
 
-from GlobalPreferences import DEBUG_BAREMOTION
+from utilities.GlobalPreferences import DEBUG_BAREMOTION
 
 _superclass = Select_basicGraphicsMode
 

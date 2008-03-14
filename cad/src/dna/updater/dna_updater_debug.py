@@ -17,11 +17,11 @@ import foundation.env as env
 
 from utilities.Log import quote_html
 
-from debug import register_debug_menu_command
+from utilities.debug import register_debug_menu_command
 
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 
-from constants import gensym
+from utilities.constants import gensym
 
 from widgets.simple_dialogs import grab_text_using_dialog
 

@@ -15,8 +15,8 @@ providing undo/redo ops which apply those diffs to the model state.
 
 import time
 from utilities import debug_flags
-from debug import print_compact_traceback, print_compact_stack, safe_repr
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+from utilities.debug import print_compact_traceback, print_compact_stack, safe_repr
+from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import foundation.env as env
 
 import foundation.state_utils as state_utils
@@ -27,7 +27,7 @@ from foundation.state_constants import _UNSET_
 from foundation.state_constants import UNDO_SPECIALCASE_ATOM, UNDO_SPECIALCASE_BOND
 from foundation.state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
 
-from prefs_constants import historyMsgSerialNumber_prefs_key
+from utilities.prefs_constants import historyMsgSerialNumber_prefs_key
 from foundation.changes import register_postinit_object
 import foundation.changedicts as changedicts # warning: very similar to some local variable names
 
@@ -1256,7 +1256,7 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
     ## print "register_undo_updater ought to register %r but it's nim, or maybe only use of the registration is nim" % func
     # pseudocode
     if "pseudocode":
-        from constants import noop
+        from utilities.constants import noop
         somethingYouHaveToDo = progress_marker = canon = this_bfr_that = noop
     task = somethingYouHaveToDo(func)
     for name in updates:

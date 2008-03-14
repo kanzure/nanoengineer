@@ -29,7 +29,7 @@ from utilities import debug_flags
 
 from graphics.drawing.drawer import drawwirecube
 
-from constants import orange
+from utilities.constants import orange
 
 from files.mmp.files_mmp_registration import MMP_RecordParser
 from files.mmp.files_mmp_registration import register_MMP_RecordParser

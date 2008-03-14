@@ -21,7 +21,7 @@ from widgets.widget_helpers import RGBf_to_QColor
 
 from command_support.MotorPropertyManager import MotorPropertyManager
 
-from constants import gray
+from utilities.constants import gray
 
 class LinearMotorPropertyManager(MotorPropertyManager):
     """

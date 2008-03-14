@@ -23,7 +23,7 @@ from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
 
 from widgets.widget_helpers import RGBf_to_QColor
-from constants import gray
+from utilities.constants import gray
 
 from command_support.MotorPropertyManager import MotorPropertyManager
 

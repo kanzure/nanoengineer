@@ -21,7 +21,7 @@ ninad 2007-09-06: Created.
 import os
 from utilities import debug_flags
 
-from constants      import diTUBES
+from utilities.constants import diTUBES
 from graphics.widgets.ThumbView import MMKitView
 from model.assembly import assembly
 from files.mmp.files_mmp import readmmp

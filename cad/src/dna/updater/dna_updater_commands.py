@@ -7,7 +7,7 @@ dna_updater_commands.py - UI commands offered directly by the dna updater.
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from debug import register_debug_menu_command
+from utilities.debug import register_debug_menu_command
 
 from model.chem import _changed_structure_Atoms # but it's private! refactor sometime
 

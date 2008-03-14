@@ -12,10 +12,10 @@ from model.chunk import Chunk
 from model.elements import Singlet
 from model.elements import Pl5
 
-from constants import gensym
-from constants import black
-from constants import ave_colors
-from constants import diDEFAULT
+from utilities.constants import gensym
+from utilities.constants import black
+from utilities.constants import ave_colors
+from utilities.constants import diDEFAULT
 
 from utilities import debug_flags
 
@@ -27,7 +27,7 @@ from utilities.Log import orangemsg, graymsg
 
 from PyQt4.Qt import QFont, QString # for debug code
 
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder

@@ -31,20 +31,20 @@ from PyQt4.Qt import QMenu
 from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
 import graphics.drawing.drawer as drawer
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from utilities import debug_flags
 
 import foundation.env as env
 from graphics.behaviors.shape import get_selCurve_color
 
-from constants import SELSHAPE_RECT
-from constants import yellow
+from utilities.constants import SELSHAPE_RECT
+from utilities.constants import yellow
 
-from prefs_constants import zoomAboutScreenCenter_prefs_key
-from prefs_constants import displayOriginAxis_prefs_key
-from prefs_constants import displayOriginAsSmallAxis_prefs_key
-from prefs_constants import displayPOVAxis_prefs_key
+from utilities.prefs_constants import zoomAboutScreenCenter_prefs_key
+from utilities.prefs_constants import displayOriginAxis_prefs_key
+from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
+from utilities.prefs_constants import displayPOVAxis_prefs_key
 
 from model.chem import Atom
 from model.bonds import Bond
@@ -237,7 +237,7 @@ class basicGraphicsMode(GraphicsMode_API):
         [part of GLPane's drawing interface to modes]
         """
         # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
-        from debug_prefs import debug_pref, Choice_boolean_True
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True
         if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
             return 
         # figure out what kind of confirmation corner we want, and draw it
@@ -876,7 +876,7 @@ class basicGraphicsMode(GraphicsMode_API):
                 # (Old behavior was to use the same pref as for zooming in.)
                 #e [Should this be a separate user pref? For now it's a debug pref, just for testing.
                 #   We might replace these two prefs with a 3-choice pref which controls them both.]
-                from debug_prefs import debug_pref, Choice_boolean_False
+                from utilities.debug_prefs import debug_pref, Choice_boolean_False
                 if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_False,
                               prefs_key = "A9 devel/GLPane: zoom out same as zoom in?"
                               ):

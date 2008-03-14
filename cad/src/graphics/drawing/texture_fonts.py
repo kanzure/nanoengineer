@@ -18,7 +18,7 @@ from OpenGL.GLU import gluUnProject
 
 import foundation.env as env
 
-from icon_utilities import image_directory # for finding texture files
+from utilities.icon_utilities import image_directory # for finding texture files
 
 from geometry.VQT import V, A, vlen
 

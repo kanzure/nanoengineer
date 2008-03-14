@@ -3,7 +3,7 @@
 $Id$
 """
 
-from constants import white
+from utilities.constants import white
 
 from exprs.attr_decl_macros import Instance, Option
 from exprs.transforms import Translate

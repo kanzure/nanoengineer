@@ -24,7 +24,7 @@ from Numeric import add, subtract, sqrt
 from Numeric import maximum, minimum, dot
 
 from geometry.VQT import V, A, cat
-from constants import black
+from utilities.constants import black
 
 class BBox:
     """

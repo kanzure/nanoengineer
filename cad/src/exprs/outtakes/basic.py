@@ -48,11 +48,11 @@ from math import pi, sin, cos #070130
 from foundation.state_utils import transclose, same_vals
 ## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
 
-from constants import noop # def noop(*args,**kws): pass
+from utilities.constants import noop # def noop(*args,**kws): pass
 
-from debug import print_compact_traceback, print_compact_stack, safe_repr
+from utilities.debug import print_compact_traceback, print_compact_stack, safe_repr
 
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
+from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
 
 # consider also doing: import env as global_env  [070313 suggestion]
 

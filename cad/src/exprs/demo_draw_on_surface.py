@@ -21,7 +21,7 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEnd
 
-from constants import yellow, purple, red, noop
+from utilities.constants import yellow, purple, red, noop
 
 from widgets.simple_dialogs import grab_text_using_dialog
 

@@ -39,17 +39,17 @@ from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.model.DnaSegment import DnaSegment
 
 from dna.temporary_commands.DnaLineMode import DnaLine_GM
-from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 
 import foundation.env as env
-from prefs_constants import bdnaBasesPerTurn_prefs_key
+from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
 
 import math
 from geometry.VQT import V, norm, A, Q, vlen
-from constants import darkred, blue, black
-from debug import print_compact_traceback
+from utilities.constants import darkred, blue, black
+from utilities.debug import print_compact_traceback
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 

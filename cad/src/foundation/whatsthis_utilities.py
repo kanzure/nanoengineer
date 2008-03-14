@@ -69,7 +69,7 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0):
         print "returning immediately (sanity check, bug better be there or"\
               "you're insane)" ####@@@@@ yes, bug is not fixed yet
         return
-    from PlatformDependent import is_macintosh
+    from platform.PlatformDependent import is_macintosh
     mac = is_macintosh()
     if mac or enable_whatsthis_links:
         # fix text in 1 or 2 ways for all QAction objects
@@ -215,7 +215,7 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
 ##        return
     import foundation.env as env
     win = env.mainwindow()
-    from PlatformDependent import is_macintosh
+    from platform.PlatformDependent import is_macintosh
     mac = is_macintosh()
     fix_QAction_whatsthis(win.editUndoAction, mac)
     fix_QAction_whatsthis(win.editRedoAction, mac)

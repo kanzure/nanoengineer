@@ -23,10 +23,10 @@ import foundation.env as env
 from model.bonds import Bond
 from model.chem import Atom 
 from model.jigs import Jig
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 debug_update_selobj_calls = False # do not commit with true
 
-from GlobalPreferences import DEBUG_BAREMOTION, DEBUG_BAREMOTION_VERBOSE
+from utilities.GlobalPreferences import DEBUG_BAREMOTION, DEBUG_BAREMOTION_VERBOSE
 
 _count = 0
 

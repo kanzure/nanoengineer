@@ -70,20 +70,20 @@ import foundation.env as env
 from utilities import debug_flags
 
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from constants import diTrueCPK
-from constants import gray
-from constants import bluesky
-from constants import GL_FAR_Z
-from prefs_constants import bondpointHighlightColor_prefs_key
+from utilities.constants import diTrueCPK
+from utilities.constants import gray
+from utilities.constants import bluesky
+from utilities.constants import GL_FAR_Z
+from utilities.prefs_constants import bondpointHighlightColor_prefs_key
 
 from foundation.Group import Group
 from model.chem import Atom
 from model.elements import Singlet
 from model.chunk import Chunk
 
-from pastables import find_hotspot_for_pasting
+from operations.pastables import find_hotspot_for_pasting
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 
@@ -324,7 +324,7 @@ class ThumbView(GLPane_minimal):
         self.setDepthRange_setup_from_debug_pref()
         self.setDepthRange_Normal()
         
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         if debug_pref("always setup_lighting?", Choice_boolean_False):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
             # see comments in GLPane

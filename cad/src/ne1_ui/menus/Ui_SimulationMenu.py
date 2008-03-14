@@ -4,8 +4,8 @@ $Id$
 """
 
 from PyQt4 import QtGui
-from icon_utilities import geticon
-from debug_prefs  import debug_pref, Choice_boolean_False
+from utilities.icon_utilities import geticon
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 def setupUi(win):
     """

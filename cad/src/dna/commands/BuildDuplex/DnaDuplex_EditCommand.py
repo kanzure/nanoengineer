@@ -35,7 +35,7 @@ from command_support.EditCommand import EditCommand
 
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaGroup import DnaGroup
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
@@ -45,7 +45,7 @@ from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 from command_support.GeneratorBaseClass import PluginBug, UserError
 from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
-from constants import gensym
+from utilities.constants import gensym
 
 
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength

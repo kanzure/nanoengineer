@@ -7,8 +7,8 @@ dna_updater_prefs.py - access to preferences settings affecting the dna updater
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-from debug_prefs import Choice
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from utilities.debug_prefs import Choice
 
 import foundation.env as env
 

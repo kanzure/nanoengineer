@@ -16,7 +16,7 @@ from Numeric import dot
 from geometry.VQT import vlen, cross, norm, V
 import foundation.env as env
 from utilities import debug_flags
-from debug import Stopwatch
+from utilities.debug import Stopwatch
 
 from model.chem import Atom
 

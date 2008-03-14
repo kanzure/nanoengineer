@@ -12,7 +12,7 @@ might be moved into a more general package.
 
 from foundation.Group import Group
 
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 class Block(Group):
     """

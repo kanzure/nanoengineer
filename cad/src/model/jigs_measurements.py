@@ -31,14 +31,14 @@ import foundation.env as env
 from geometry.VQT import V, norm, cross, vlen, angleBetween
 from foundation.Utility import Node
 from utilities.Log import redmsg, greenmsg, orangemsg
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 from model.jigs import Jig
 from graphics.drawing.dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
 from graphics.drawing.drawer import drawtext
 
-from constants import black
-from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
-from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
+from utilities.constants import black
+from utilities.prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
+from utilities.prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
 
 def _constrainHandleToAngle(pos, p0, p1, p2):
     """

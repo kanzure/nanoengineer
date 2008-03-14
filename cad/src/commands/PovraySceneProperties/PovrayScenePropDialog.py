@@ -9,9 +9,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from icon_utilities import geticon
-from PropMgr_Constants import getHeaderFont
-from PropMgr_Constants import pmLabelLeftAlignment
+from utilities.icon_utilities import geticon
+from PM.PropMgr_Constants import getHeaderFont
+from PM.PropMgr_Constants import pmLabelLeftAlignment
 
 class Ui_PovrayScenePropDialog(object):
     def setupUi(self, PovrayScenePropDialog):

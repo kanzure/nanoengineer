@@ -22,11 +22,11 @@ History:
 """
 
 import foundation.env as env
-from constants import purple, brass, steelblue, lightgreen, darkgray, lightblue
-from constants import darkorange, violet, copper, olive, gray
-from prefs_constants import adnaBasesPerTurn_prefs_key, adnaRise_prefs_key
-from prefs_constants import bdnaBasesPerTurn_prefs_key, bdnaRise_prefs_key
-from prefs_constants import zdnaBasesPerTurn_prefs_key, zdnaRise_prefs_key
+from utilities.constants import purple, brass, steelblue, lightgreen, darkgray, lightblue
+from utilities.constants import darkorange, violet, copper, olive, gray
+from utilities.prefs_constants import adnaBasesPerTurn_prefs_key, adnaRise_prefs_key
+from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key, bdnaRise_prefs_key
+from utilities.prefs_constants import zdnaBasesPerTurn_prefs_key, zdnaRise_prefs_key
 from PyQt4.Qt import QString
 
 basesDict = \

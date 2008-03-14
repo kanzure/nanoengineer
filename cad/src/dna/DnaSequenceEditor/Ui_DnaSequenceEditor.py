@@ -30,7 +30,7 @@ from PM.PM_TextEdit   import PM_TextEdit
 from PM.PM_LineEdit   import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
 
-from icon_utilities import geticon, getpixmap
+from utilities.icon_utilities import geticon, getpixmap
 
 class Ui_DnaSequenceEditor(PM_DockWidget):
     """

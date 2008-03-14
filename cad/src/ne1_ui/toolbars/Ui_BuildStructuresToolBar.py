@@ -5,7 +5,7 @@ $Id$
 
 from PyQt4 import QtGui
 from foundation.wiki_help import QToolBar_WikiHelp
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 def setupUi(win, toolbarArea):
     """

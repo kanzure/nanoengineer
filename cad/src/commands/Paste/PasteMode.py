@@ -28,10 +28,10 @@ from foundation.Group import Group
 from model.chem import Atom
 from model.chunk import Chunk
 from model.elements import Singlet
-from pastables     import is_pastable
+from operations.pastables import is_pastable
 from commands.BuildAtoms.depositMode import depositMode
 
-from pastables  import find_hotspot_for_pasting
+from operations.pastables import find_hotspot_for_pasting
 from model.bonds import bond_at_singlets
 
 from commands.Paste.PastePropertyManager import PastePropertyManager

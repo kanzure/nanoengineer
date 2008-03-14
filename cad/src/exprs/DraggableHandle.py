@@ -11,7 +11,7 @@ to avoid confusion with the DragHandler API (which would
 otherwise differ by only the final 'r').
 """
 
-from constants import white
+from utilities.constants import white
 
 from exprs.attr_decl_macros import Instance, Option
 from exprs.transforms import Translate

@@ -27,9 +27,9 @@ from geometry.VQT import V, cross
 from utilities.Log import greenmsg
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 
-from constants import ave_colors
-from constants import diTrueCPK
-from prefs_constants import atomHighlightColor_prefs_key
+from utilities.constants import ave_colors
+from utilities.constants import diTrueCPK
+from utilities.prefs_constants import atomHighlightColor_prefs_key
 
 _psurface_import_worked = False
 
@@ -589,7 +589,7 @@ class SurfaceChunks(ChunkDisplayMode):
             rad = sqrt(rad)
             radius = rad + margin
             cspheres = []
-            from debug_prefs import debug_pref, Choice_boolean_True
+            from utilities.debug_prefs import debug_pref, Choice_boolean_True
             use_colors = debug_pref("surface: use colors?", Choice_boolean_True) #bruce 060927 (old code had 0 for use_colors)
             for i in range(len(spheres)):
                 st = spheres[i] / radius

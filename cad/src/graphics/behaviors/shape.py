@@ -35,15 +35,15 @@ from geometry.VQT import A, vlen, V
 from graphics.drawing.drawer import drawrectangle
 from graphics.drawing.drawer import drawline
 
-from constants import black
-from constants import DELETE_SELECTION
-from constants import SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from constants import START_NEW_SELECTION
-from constants import white
-from constants import red
+from utilities.constants import black
+from utilities.constants import DELETE_SELECTION
+from utilities.constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import ADD_TO_SELECTION
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import white
+from utilities.constants import red
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from utilities import debug_flags 
 
 from geometry.BoundingBox import BBox

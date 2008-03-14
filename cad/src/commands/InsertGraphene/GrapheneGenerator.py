@@ -23,7 +23,7 @@ import model.bond_constants as bond_constants
 
 from model.chunk import Chunk
 import foundation.env as env
-from debug import Stopwatch
+from utilities.debug import Stopwatch
 from model.elements import PeriodicTable
 from utilities.Log import greenmsg
 

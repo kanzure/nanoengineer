@@ -25,10 +25,10 @@ from graphics.rendering.povray.povheader import povheader, povpoint
 from graphics.rendering.mdl.mdldata import mdlheader
 from graphics.rendering.mdl.mdldata import mdlfooter
 
-from constants import diINVISIBLE
-from prefs_constants import PERSPECTIVE
-from prefs_constants import material_specular_highlights_prefs_key
-from prefs_constants import material_specular_finish_prefs_key
+from utilities.constants import diINVISIBLE
+from utilities.prefs_constants import PERSPECTIVE
+from utilities.prefs_constants import material_specular_highlights_prefs_key
+from utilities.prefs_constants import material_specular_finish_prefs_key
 
 # ==
 

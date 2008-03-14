@@ -75,47 +75,47 @@ from PyQt4.Qt import QTextCursor
 
 from utilities import debug_flags
 
-from icon_utilities import geticon, getpixmap
-from debug import print_compact_traceback
+from utilities.icon_utilities import geticon, getpixmap
+from utilities.debug import print_compact_traceback
 
-from PropMgr_Constants import pmColor
-from PropMgr_Constants import pmTitleFrameColor
-from PropMgr_Constants import pmTitleLabelColor
-from PropMgr_Constants import pmMinWidth
-from PropMgr_Constants import pmDefaultWidth
-from PropMgr_Constants import pmLabelRightAlignment
-from PropMgr_Constants import pmLabelLeftAlignment
-from PropMgr_Constants import pmMainVboxLayoutMargin
-from PropMgr_Constants import pmMainVboxLayoutSpacing
-from PropMgr_Constants import pmHeaderFrameMargin
-from PropMgr_Constants import pmHeaderFrameSpacing
-from PropMgr_Constants import getHeaderFont
-from PropMgr_Constants import pmSponsorFrameMargin
-from PropMgr_Constants import pmSponsorFrameSpacing
-from PropMgr_Constants import pmTopRowBtnsMargin
-from PropMgr_Constants import pmTopRowBtnsSpacing
-from PropMgr_Constants import pmGroupBoxSpacing
-from PropMgr_Constants import pmGrpBoxVboxLayoutMargin
-from PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
-from PropMgr_Constants import pmGridLayoutMargin
-from PropMgr_Constants import pmGridLayoutSpacing
-from PropMgr_Constants import pmGrpBoxButtonColor
-from PropMgr_Constants import pmGrpBoxButtonBorderColor
-from PropMgr_Constants import pmGrpBoxButtonTextColor
-from PropMgr_Constants import pmGrpBoxExpandedImage
-from PropMgr_Constants import pmGrpBoxCollapsedImage
-from PropMgr_Constants import pmGrpBoxGridLayoutMargin
-from PropMgr_Constants import pmGrpBoxGridLayoutSpacing
-from PropMgr_Constants import pmGrpBoxColor
-from PropMgr_Constants import pmGrpBoxBorderColor
-from PropMgr_Constants import pmMsgGrpBoxMargin
-from PropMgr_Constants import pmMsgGrpBoxSpacing
-from PropMgr_Constants import pmMessageTextEditColor
-from PropMgr_Constants import pmDoneButton
-from PropMgr_Constants import pmCancelButton
-from PropMgr_Constants import pmRestoreDefaultsButton
-from PropMgr_Constants import pmPreviewButton
-from PropMgr_Constants import pmWhatsThisButton
+from PM.PropMgr_Constants import pmColor
+from PM.PropMgr_Constants import pmTitleFrameColor
+from PM.PropMgr_Constants import pmTitleLabelColor
+from PM.PropMgr_Constants import pmMinWidth
+from PM.PropMgr_Constants import pmDefaultWidth
+from PM.PropMgr_Constants import pmLabelRightAlignment
+from PM.PropMgr_Constants import pmLabelLeftAlignment
+from PM.PropMgr_Constants import pmMainVboxLayoutMargin
+from PM.PropMgr_Constants import pmMainVboxLayoutSpacing
+from PM.PropMgr_Constants import pmHeaderFrameMargin
+from PM.PropMgr_Constants import pmHeaderFrameSpacing
+from PM.PropMgr_Constants import getHeaderFont
+from PM.PropMgr_Constants import pmSponsorFrameMargin
+from PM.PropMgr_Constants import pmSponsorFrameSpacing
+from PM.PropMgr_Constants import pmTopRowBtnsMargin
+from PM.PropMgr_Constants import pmTopRowBtnsSpacing
+from PM.PropMgr_Constants import pmGroupBoxSpacing
+from PM.PropMgr_Constants import pmGrpBoxVboxLayoutMargin
+from PM.PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
+from PM.PropMgr_Constants import pmGridLayoutMargin
+from PM.PropMgr_Constants import pmGridLayoutSpacing
+from PM.PropMgr_Constants import pmGrpBoxButtonColor
+from PM.PropMgr_Constants import pmGrpBoxButtonBorderColor
+from PM.PropMgr_Constants import pmGrpBoxButtonTextColor
+from PM.PropMgr_Constants import pmGrpBoxExpandedImage
+from PM.PropMgr_Constants import pmGrpBoxCollapsedImage
+from PM.PropMgr_Constants import pmGrpBoxGridLayoutMargin
+from PM.PropMgr_Constants import pmGrpBoxGridLayoutSpacing
+from PM.PropMgr_Constants import pmGrpBoxColor
+from PM.PropMgr_Constants import pmGrpBoxBorderColor
+from PM.PropMgr_Constants import pmMsgGrpBoxMargin
+from PM.PropMgr_Constants import pmMsgGrpBoxSpacing
+from PM.PropMgr_Constants import pmMessageTextEditColor
+from PM.PropMgr_Constants import pmDoneButton
+from PM.PropMgr_Constants import pmCancelButton
+from PM.PropMgr_Constants import pmRestoreDefaultsButton
+from PM.PropMgr_Constants import pmPreviewButton
+from PM.PropMgr_Constants import pmWhatsThisButton
 
 # Special Qt debugging functions written by Mark. 2007-05-24 ############
 

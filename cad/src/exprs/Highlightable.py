@@ -45,9 +45,9 @@ from utilities import debug_flags
 from geometry.VQT import A
 from geometry.VQT import vlen
 from geometry.VQT import V
-from constants import noop
-from constants import green
-from debug import print_compact_traceback
+from utilities.constants import noop
+from utilities.constants import green
+from utilities.debug import print_compact_traceback
 
 from exprs.Exprs import or_Expr, canon_expr
 from exprs.Exprs import printfunc

@@ -14,10 +14,10 @@ TODOs: [ as of 2008-01-04]
 import foundation.changes as changes
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
-from constants             import red
+from utilities.constants import red
 from dna.commands.BreakStrands.BreakStrands_PropertyManager import BreakStrands_PropertyManager
 
-from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 # == GraphicsMode part
 
 _superclass_for_GM = BuildAtoms_GraphicsMode

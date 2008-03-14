@@ -62,15 +62,15 @@ import os
 import time
 
 from utilities import debug_flags
-from PlatformDependent import mkdirs_in_filename
-from PlatformDependent import find_or_make_Nanorex_directory
+from platform.PlatformDependent import mkdirs_in_filename
+from platform.PlatformDependent import find_or_make_Nanorex_directory
 import foundation.env as env
-import EndUser
-from debug import print_compact_traceback
+import utilities.EndUser as EndUser
+from utilities.debug import print_compact_traceback
 
 from foundation.changes import UsageTracker
 
-from prefs_constants import prefs_table
+from utilities.prefs_constants import prefs_table
 
 # some imports remain lower down, for now: bsddb and shelve
 

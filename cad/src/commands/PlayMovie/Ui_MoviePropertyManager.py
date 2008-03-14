@@ -33,8 +33,8 @@ from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
-from NE1ToolBar          import NE1ToolBar
-from icon_utilities      import geticon
+from widgets.NE1ToolBar import NE1ToolBar
+from utilities.icon_utilities import geticon
 
 class Ui_MoviePropertyManager(PM_Dialog):
     """

@@ -9,11 +9,11 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
-from LineMode import LineMode
+from temporary_commands.LineMode import LineMode
 
 from graphics.drawing.drawCntLadder import drawCntLadder
 
-from constants import gray, black, darkred, blue, white
+from utilities.constants import gray, black, darkred, blue, white
 
 # == GraphicsMode part
 

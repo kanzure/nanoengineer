@@ -45,7 +45,7 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
-from icon_utilities import geticon, getpixmap
+from utilities.icon_utilities import geticon, getpixmap
 
 #This import is only used in isinstance check--
 from PM.PM_CheckBox import PM_CheckBox

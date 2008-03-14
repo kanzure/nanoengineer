@@ -10,7 +10,7 @@ bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr
 on __xxx__ attrs in python objects.
 """
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 ##from debug import print_compact_stack
 
 debug_counter = 0 # uncomment the related code (far below) to find out what's calling our __getattr__ [bruce 050513]

@@ -12,12 +12,12 @@ its a child of that PM) . See if that creates any issues.
 - Copies some methods from BuildDna_PropertyManager. 
 """
 from utilities import debug_flags
-from debug import  print_compact_stack
+from utilities.debug import print_compact_stack
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
 
-from DebugMenuMixin import DebugMenuMixin
+from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton

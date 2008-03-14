@@ -28,15 +28,15 @@ Bruce 080305 added some abstract classes between Node and Group
 in the inheritance hierarchy (defined in this module for now).
 """
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 from utilities import debug_flags
 import foundation.env as env
-from constants import genKey
+from utilities.constants import genKey
 from foundation.state_utils import copy_val, StateMixin, IdentityCopyMixin
 from utilities.Log import redmsg, orangemsg
 from foundation.state_constants import S_PARENT, S_DATA, S_CHILD
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from foundation.Assembly_API import Assembly_API
 

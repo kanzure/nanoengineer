@@ -17,7 +17,7 @@ this new file startup/startup_misc.py.
 
 # note: toplevel imports are now ok in this module [bruce 071008 change]
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 def call_module_init_functions(): #bruce 071005 split this out of main_startup.startup_script
     """
@@ -45,7 +45,7 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
     import model.assembly
     model.assembly.assembly.initialize()
     
-    import GroupButtonMixin
+    import PM.GroupButtonMixin as GroupButtonMixin
     GroupButtonMixin.GroupButtonMixin.initialize()
 
     return
@@ -88,7 +88,7 @@ def pre_main_show( win):
     #  screen size even on a very small screen.]
     # [bruce 050118 further modified this and removed some older comments
     #  (see cvs for those); also split out some code into platform.py.]
-    from PlatformDependent import screen_pos_size
+    from platform.PlatformDependent import screen_pos_size
     ((x0, y0), (screen_w, screen_h)) = screen_pos_size()
     # note: y0 is nonzero on mac, due to menubar at top of screen.
     
@@ -122,11 +122,11 @@ def pre_main_show( win):
 
     # After the above (whose side effects on main window geom. are used as defaults by the following code),
     # load any mainwindow geometry present in prefs db. [bruce 051218 new feature; see also new "save" features in UserPrefs.py]
-    from debug import print_compact_stack
+    from utilities.debug import print_compact_stack
     try:
         # this code is similar to debug.py's _debug_load_window_layout
         from ne1_ui.UserPrefs import load_window_pos_size
-        from prefs_constants import mainwindow_geometry_prefs_key_prefix
+        from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         load_window_pos_size( win, keyprefix)
         win._ok_to_autosave_geometry_changes = True
@@ -161,7 +161,7 @@ def _initialize_custom_display_modes(win):
     
     # diCYLINDER
     import graphics.display_styles.CylinderChunks as CylinderChunks #bruce 060609
-    from debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
     enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
                                       Choice_boolean_False, 
                                       non_debug = True, 
@@ -231,7 +231,7 @@ def _init_experimental_commands():
 def _init_command_Atom_Generator(): 
     # TODO: this function should be moved into AtomGenerator.py
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
-    from debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
     from commands.BuildAtom.AtomGenerator import enableAtomGenerator
     _atomGeneratorIsEnabled = \
                     debug_pref("Atom Generator example code: enabled?", 
@@ -244,7 +244,7 @@ def _init_command_Atom_Generator():
 
 def _init_command_Peptide_Generator(): # piotr 080304 
     # This function enables an experimental peptide generator.
-    from debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
     from commands.InsertPeptide.PeptideGenerator import enablePeptideGenerator
     _peptideGeneratorIsEnabled = \
                     debug_pref("Peptide Generator: enabled?", 
@@ -259,17 +259,17 @@ def _init_command_Select_Bad_Atoms():
     # note: I think this was imported at one point
     # (which initialized it), and then got left out of the startup code
     # by mistake for awhile, when init code was revised. [bruce 071008]
-    import chem_patterns
+    import operations.chem_patterns as chem_patterns
     chem_patterns.initialize()
     return
 
 def _init_test_commands():
     #bruce 070613 
-    from debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("test_commands enabled (next session)", 
                   Choice_boolean_False, 
                   prefs_key = True):
-        import test_commands_init
+        import prototype.test_commands_init as test_commands_init
         test_commands_init.initialize()
     return
 
@@ -312,7 +312,7 @@ def _set_mainwindow_splitter_position( win):
     # Note: the resize is visible at startup.
     
     pw = win.activePartWindow()
-    from PropMgr_Constants import pmDefaultWidth
+    from PM.PropMgr_Constants import pmDefaultWidth
     w1, w2 = pw.pwSplitter.sizes()
     magic_combined_width = w1 + w2
     new_glpane_width = magic_combined_width - pmDefaultWidth

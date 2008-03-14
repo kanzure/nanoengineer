@@ -33,7 +33,7 @@ from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
-from icon_utilities      import geticon
+from utilities.icon_utilities import geticon
 
 __author__ = "Ninad"
 

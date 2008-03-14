@@ -51,11 +51,11 @@ from foundation.Utility import Node
 from foundation.Group import Group
 from model.NamedView import NamedView # for reading one, and for isinstance
 
-from debug import print_compact_traceback
-from debug import print_compact_stack
+from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_stack
 
-from constants import gensym
-from constants import dispNames
+from utilities.constants import gensym
+from utilities.constants import dispNames
 
 from model.bond_constants import find_bond
 from model.bond_constants import V_SINGLE

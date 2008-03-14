@@ -20,7 +20,7 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_SpinBox       import PM_SpinBox
 
 from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 

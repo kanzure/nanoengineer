@@ -35,11 +35,11 @@ from commands.Extrude.extrudeMode import extrudeMode
 from commands.Paste.PasteMode import PasteMode
 from commands.PartLibrary.PartLibraryMode import PartLibraryMode
 from commands.PlayMovie.movieMode import movieMode
-from ZoomToAreaMode  import ZoomToAreaMode
-from ZoomInOutMode   import ZoomInOutMode
-from PanMode         import PanMode
-from RotateMode      import RotateMode
-from LineMode        import LineMode
+from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
+from temporary_commands.ZoomInOutMode import ZoomInOutMode
+from temporary_commands.PanMode import PanMode
+from temporary_commands.RotateMode import RotateMode
+from temporary_commands.LineMode import LineMode
 from dna.temporary_commands.DnaLineMode import DnaLineMode
 from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
 from commands.PlaneProperties.Plane_EditCommand import Plane_EditCommand

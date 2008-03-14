@@ -14,12 +14,12 @@ import re
 
 from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna.model.DnaLadderRailChunk import DnaStrandChunk
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 from dna.model.Dna_Constants import getComplementSequence
 
-from bond_chains import grow_directional_bond_chain
+from operations.bond_chains import grow_directional_bond_chain
 
 class DnaStrand(DnaStrandOrSegment):
     """

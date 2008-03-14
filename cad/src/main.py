@@ -121,7 +121,7 @@ def _start_NE1():
     # NOTE: imports of NE1 source modules MUST NOT BE DONE until after the
     # optional sys.path change done for _alternateSourcePath, just above.
 
-    import EndUser
+    import utilities.EndUser as EndUser
 
     EndUser.setAlternateSourcePath(_alternateSourcePath)
     

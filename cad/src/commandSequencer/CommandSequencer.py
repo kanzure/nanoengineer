@@ -28,7 +28,7 @@ in basicMode is really part of the command sequencer (which basicMode should jus
 interface to rather than "try to be").
 """
 
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 import foundation.env as env
 import os
@@ -660,7 +660,7 @@ class modeMixin(object):
         res = []
         try:
             # special case for cad/src/exprs/testmode.py (or .pyc)
-            from constants import CAD_SRC_PATH
+            from utilities.constants import CAD_SRC_PATH
             ## CAD_SRC_PATH = os.path.dirname(__file__)
             for filename in ('testmode.py', 'testmode.pyc'):
                 testmodefile = os.path.join( CAD_SRC_PATH, "exprs", filename)
@@ -679,7 +679,7 @@ class modeMixin(object):
                 print "fyi: error adding testmode.py from cad/src/exprs to custom modes menu (ignored)"
             pass
         try:
-            import gpl_only
+            import platform.gpl_only as gpl_only
         except ImportError:
             pass
         else:
@@ -722,7 +722,7 @@ class modeMixin(object):
                     # we'll load it from there instead. That's basically a bug,
                     # but prepending dir onto path would risk much worse bugs
                     # if dir masked any standard modules which got loaded now.
-            import gpl_only # make sure exec is ok in this version (caller should have done this already)
+            import platform.gpl_only as gpl_only # make sure exec is ok in this version (caller should have done this already)
             _module = _modeclass = None # fool pylint into realizing this is not undefined 2 lines below
             exec("import %s as _module" % (base,))
             reload(_module)

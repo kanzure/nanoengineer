@@ -18,7 +18,7 @@ Bruce 071107 split it from debug.py into this scratch file.
 # REVIEW: might require some imports from debug.py
 
 import sys, os, time, types, traceback
-from constants import noop
+from utilities.constants import noop
 import foundation.env as env
 from utilities import debug_flags
 

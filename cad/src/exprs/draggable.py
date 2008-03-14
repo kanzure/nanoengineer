@@ -70,7 +70,7 @@ from geometry.VQT import V, Q
 from geometry.VQT import norm
 from geometry.VQT import cross
 from geometry.VQT import vlen
-from constants import blue, white, ave_colors
+from utilities.constants import blue, white, ave_colors
 
 from exprs.Exprs import call_Expr, LvalueFromObjAndAttr, format_Expr, V_expr, neg_Expr
 from exprs.Boxed import Boxed

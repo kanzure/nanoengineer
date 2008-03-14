@@ -51,7 +51,7 @@ from utilities.Log import redmsg
 from model_updater.bond_updater import update_bonds_after_each_event
 from model_updater.bond_updater import process_changed_bond_types
 
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 
 # ==
 
@@ -213,7 +213,7 @@ def _autodelete_empty_groups(assy): #bruce 080305
 # temporary code for use while developing dna_updater
 
 def debug_pref_autodelete_empty_groups():
-    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     res = debug_pref("autodelete empty groups?",
                      ##Choice_boolean_False,
                      #autodelete empty groups by default. This looks safe so far
@@ -226,7 +226,7 @@ def debug_pref_autodelete_empty_groups():
     return res
 
 def debug_pref_use_dna_updater():
-    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     res = debug_pref("DNA: use dna_updater.py?",
                      Choice_boolean_False,
                      ## SOON: Choice_boolean_True,
@@ -235,10 +235,10 @@ def debug_pref_use_dna_updater():
     return res
 
 def debug_pref_reload_dna_updater():
-    import EndUser
+    import utilities.EndUser as EndUser
     if not EndUser.enableDeveloperFeatures():
         return False
-    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     res = debug_pref("DNA: auto-reload dna_updater.py?",
                      Choice_boolean_False,
                      ## SOON: Choice_boolean_True,

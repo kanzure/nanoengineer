@@ -27,13 +27,13 @@ import foundation.changes as changes
 from PyQt4 import QtGui
 from PyQt4.Qt import SIGNAL
 from commands.Move.MovePropertyManager import MovePropertyManager
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
 from geometry.VQT import V, Q
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 

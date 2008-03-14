@@ -24,7 +24,7 @@ from exprs.ExprsConstants   import ORIGIN, DX , DY
 from exprs.dna_ribbon_view  import Cylinder
 from exprs.Rect             import Sphere
    
-from constants              import white, yellow, purple, darkgreen
+from utilities.constants import white, yellow, purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle_AlongCircle import DraggableHandle_AlongCircle

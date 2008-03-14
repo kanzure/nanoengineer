@@ -80,7 +80,7 @@ def startup_script( main_globals):
 
     # do some imports used for putting up splashscreen
     
-    import icon_utilities
+    import utilities.icon_utilities as icon_utilities
     icon_utilities.initialize() 
 
 
@@ -187,7 +187,7 @@ def startup_script( main_globals):
         #bruce 070515 added condition to disable this on Mac, until Brian fixes the hang on Mac.
         # Note: this is enabled in the Mac released version, due to a patch during the release
         # building process, at least in A9.1.
-        from Sponsors import PermissionDialog
+        from sponsors.Sponsors import PermissionDialog
 ##        print "start sponsors startup code"
         # Show the dialog that asks permission to download the sponsor logos, then
         # launch it as a thread to download and process the logos.

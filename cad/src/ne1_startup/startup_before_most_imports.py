@@ -17,7 +17,7 @@ this new file startup/startup_before_most_imports.py.
 
 import sys, os
 
-import EndUser
+import utilities.EndUser as EndUser
 
 # NOTE: this module (or EndUser) must not do toplevel imports of our other
 # source modules, because it contains functions which need to be called
@@ -34,7 +34,7 @@ def before_most_imports( main_globals ):
 
     # gpl_only check at startup [bruce 041217]
     try:
-        import gpl_only as _gpl_only
+        import platform.gpl_only as _gpl_only
             # if this module is there, this lets it verify it should be there,
             # and if not, complain (to developers) whenever the program starts
         print "(running a GPL distribution)" #e retain or zap this?
@@ -46,7 +46,7 @@ def before_most_imports( main_globals ):
         rc = os.path.expanduser(rc)
         if os.path.exists(rc):
             ## execfile(rc) -- not allowed!
-            import debug as _debug
+            import utilities.debug as _debug
             _debug.legally_execfile_in_globals(rc, main_globals, error_exception = False)
                 # might fail in non-GPL versions; prints error message but
                 # does not raise an exception.

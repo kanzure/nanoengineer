@@ -19,7 +19,7 @@ from command_support.GeneratorBaseClass import AbstractMethod
 from command_support.EditCommand_PM import EditCommand_PM
 
 
-from debug               import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 class MotorPropertyManager(EditCommand_PM):
     """

@@ -24,14 +24,14 @@ reload(CoNTubGenerator)
 import os, sys, time
 
 import foundation.env as env
-import Initialize
+import utilities.Initialize as Initialize
 from utilities.Log import quote_html, redmsg ##, orangemsg, greenmsg
 from command_support.ParameterDialog import ParameterDialog, ParameterPane
 from command_support.GeneratorController import GeneratorController
 from command_support.GeneratorBaseClass import UserError, PluginBug ##, CadBug
-from debug import print_compact_traceback
-from PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
-import EndUser
+from utilities.debug import print_compact_traceback
+from platform.PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
+import utilities.EndUser as EndUser
 
 debug_install = False
 
@@ -43,7 +43,7 @@ def debug_run():
 ### one current bug: menu icon is nondeterministic. guess: need to keep a reference to the iconset that we make for it.
 # that seemed to help at first, but it's not enough, bug still happens sometimes when we reload this a lot! ####@@@@
 
-from debug_prefs import use_property_pane
+from utilities.debug_prefs import use_property_pane
 
 # ==
 
@@ -54,7 +54,7 @@ def add_insert_menu_item(win, command, name_of_what_to_insert, options = ()): ##
     undo_cmdname = "Insert %s" % (name_of_what_to_insert,) ## get this from caller, or, make it available to the command as it runs
         ###e but need to translate it ourselves, ##qApp.translate("Main Window", "Recent Files", None)
     ## self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
-    from menu_helpers import insert_command_into_menu
+    from widgets.menu_helpers import insert_command_into_menu
     insert_command_into_menu( menu, menutext, command, options = options, position = menuIndex, undo_cmdname = undo_cmdname)
     return
 
@@ -327,7 +327,7 @@ class PluginlikeGenerator:
         return
 
     def imagename_to_pixmap(self, imagename): # KLUGE, see comment where dialog_env is set to self ###@@@ might work but untested ###@@@
-        from icon_utilities import imagename_to_pixmap
+        from utilities.icon_utilities import imagename_to_pixmap
         path = None
         for trydir in [self.plugin_dir, os.path.join(self.plugin_dir, "images")]:
             trypath = os.path.join( trydir, imagename )

@@ -27,14 +27,14 @@ from PyQt4.Qt import QMessageBox, QString, QWidgetAction, QAction
 import foundation.env as env
 import foundation.changes as changes
 
-from movie import find_saved_movie
+from simulation.movie import find_saved_movie
 from command_support.modes import basicMode
 from utilities.Log import greenmsg
 from utilities.Log import redmsg, orangemsg
 from commands.PlayMovie.MoviePropertyManager import MoviePropertyManager
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
-from prefs_constants import workingDirectory_prefs_key
+from utilities.prefs_constants import workingDirectory_prefs_key
 
 class MovieRewindDialog(QDialog):
 
@@ -388,7 +388,7 @@ def simMoviePlayer(assy):
     either the current movie if any, or a previously saved
     dpb file with the same name as the current part, if one can be found.
     """
-    from movie import find_saved_movie, Movie #bruce 050329 precaution (in case of similar bug to bug 499)
+    from simulation.movie import find_saved_movie, Movie #bruce 050329 precaution (in case of similar bug to bug 499)
     win = assy.w
     if not assy.molecules: # No model, so no movie could be valid for current part.
         # bruce 050327 comment: even so, a movie file might be valid for some other Part...

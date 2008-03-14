@@ -17,8 +17,8 @@ from exprs.lvals import LvalError_ValueIsUnset
 
 from exprs.widget_env import thisname_of_class, widget_env #e refile import?? or make it an env method??
 
-from debug import print_compact_traceback
-from debug import print_compact_stack
+from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_stack
 
 from exprs.Exprs import is_pure_expr
 from exprs.Exprs import is_expr_Instance

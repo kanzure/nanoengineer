@@ -20,12 +20,12 @@ from PyQt4.Qt import QColorDialog
 import foundation.env as env
 
 from analysis.GAMESS.GamessPropDialog import Ui_GamessPropDialog
-from ServerManager import ServerManager
+from processes.ServerManager import ServerManager
 from utilities.Log import redmsg
 ##from files_gms import insertgms
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
-from qt4transition import qt4todo
+from utilities.qt4transition import qt4todo
 
 
 # Ask Bruce where all this should ultimately live.
@@ -589,7 +589,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         file in an editor.
         '''
         # Make tmp_inputfile filename (i.e. ~/Nanorex/temp/jigname_parms_info.inp)
-        from PlatformDependent import find_or_make_Nanorex_subdir
+        from platform.PlatformDependent import find_or_make_Nanorex_subdir
         tmpdir = find_or_make_Nanorex_subdir('temp')
         basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
         tmp_inputfile = os.path.join(tmpdir, "%s.inp" % basename)
@@ -598,7 +598,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         from analysis.GAMESS.files_gms import writegms_inpfile
         writegms_inpfile(tmp_inputfile, self.gamessJig)
         
-        from PlatformDependent import open_file_in_editor
+        from platform.PlatformDependent import open_file_in_editor
         open_file_in_editor(tmp_inputfile)
                 
     def run_job(self):

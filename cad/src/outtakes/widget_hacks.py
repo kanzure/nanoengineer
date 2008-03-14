@@ -93,7 +93,7 @@ def hack_QToolButton_1(qtoolbutton): #bruce 050729 experiment to work around QTo
         return # return early
     iconset = qtoolbutton.iconSet()
         ## Qt4 error: AttributeError: iconSet
-    from debug_prefs import modify_iconset_On_states
+    from utilities.debug_prefs import modify_iconset_On_states
     modify_iconset_On_states(iconset, use_color = toolbutton_highlight_color )
     qtoolbutton.setIcon(iconset) #k might not be needed
     return

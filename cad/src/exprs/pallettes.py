@@ -14,7 +14,7 @@ from exprs.Boxed import Boxed
 
 from exprs.draggable import DraggableObject
 
-from constants import blue, green
+from utilities.constants import blue, green
 
 from exprs.Exprs import or_Expr, format_Expr
 from exprs.instance_helpers import DelegatingInstanceOrExpr

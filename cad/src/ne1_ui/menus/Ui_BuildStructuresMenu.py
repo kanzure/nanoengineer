@@ -4,7 +4,7 @@ $Id$
 """
 
 from PyQt4 import QtGui
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 def setupUi(win):
     """

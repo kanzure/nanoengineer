@@ -83,13 +83,13 @@ from OpenGL.GL import glTranslate
 import foundation.env as env
 from utilities import debug_flags
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from constants import ave_colors
-from constants import blue
-from constants import white
-from constants import green
-from constants import red
+from utilities.constants import ave_colors
+from utilities.constants import blue
+from utilities.constants import white
+from utilities.constants import green
+from utilities.constants import red
 
 from exprs.reload import exprs_globals
     #bruce 071102 renamed vv -> exprs_globals and moved it out of this file,

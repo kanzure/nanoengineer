@@ -25,24 +25,24 @@ import os
 import sys
 from PyQt4.Qt import QString, QStringList, QProcess
 
-from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
-from debug import print_compact_traceback
-from debug_prefs import debug_pref, Choice_boolean_True
-from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
+from utilities.prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
+from utilities.debug import print_compact_traceback
+from utilities.debug_prefs import debug_pref, Choice_boolean_True
+from utilities.constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
 from files.pdb.files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
 from model.elements import PeriodicTable
 
-from prefs_constants import cpkScaleFactor_prefs_key
-from prefs_constants import diBALL_AtomRadius_prefs_key
-from prefs_constants import backgroundGradient_prefs_key
-from prefs_constants import backgroundColor_prefs_key
-from prefs_constants import diBALL_BondCylinderRadius_prefs_key
+from utilities.prefs_constants import cpkScaleFactor_prefs_key
+from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
+from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import backgroundColor_prefs_key
+from utilities.prefs_constants import diBALL_BondCylinderRadius_prefs_key
 
-from Plugins import checkPluginPreferences
+from processes.Plugins import checkPluginPreferences
 
-from Process import Process
+from processes.Process import Process
 from commands.GroupProperties.GroupProp import Statistics
-from PlatformDependent import find_or_make_Nanorex_subdir
+from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
 def launch_qutemol(pdb_file):
     """

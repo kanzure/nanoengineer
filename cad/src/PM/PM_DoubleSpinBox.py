@@ -16,9 +16,9 @@ from PyQt4.Qt import QDoubleSpinBox
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QWidget
 
-from prefs_widgets import widget_connectWithState
-from prefs_widgets import QDoubleSpinBox_ConnectionWithState
-from prefs_widgets import set_metainfo_from_stateref
+from widgets.prefs_widgets import widget_connectWithState
+from widgets.prefs_widgets import QDoubleSpinBox_ConnectionWithState
+from widgets.prefs_widgets import set_metainfo_from_stateref
 
 class PM_DoubleSpinBox( QDoubleSpinBox ):
     """

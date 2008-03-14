@@ -9,12 +9,12 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
-from LineMode import LineMode
+from temporary_commands.LineMode import LineMode
 
 from graphics.drawing.drawDnaLadder import drawDnaLadder
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 
-from constants import black, darkred, blue, white
+from utilities.constants import black, darkred, blue, white
 
 # == GraphicsMode part
 

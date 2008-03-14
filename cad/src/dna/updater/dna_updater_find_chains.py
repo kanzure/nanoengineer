@@ -9,14 +9,14 @@ dna_updater_find_chains.py - helper for dna_updater_chunks
 
 from utilities import debug_flags
 
-from bond_chains import abstract_bond_chain_analyzer
+from operations.bond_chains import abstract_bond_chain_analyzer
 
 from dna.model.AtomChainOrRing import AtomChain, AtomRing
 
 from dna.model.DnaChain import AxisChain, StrandChain
 from dna.model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 # ==
 

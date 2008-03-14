@@ -29,15 +29,15 @@ import os
 from PyQt4.Qt import Qt, QWidget, QFrame, QVBoxLayout, QSplitter
 from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from graphics.widgets.GLPane import GLPane
-from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
-from icon_utilities import geticon
+from PM.PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
+from utilities.icon_utilities import geticon
 from modelTree.ModelTree import modelTree
-from qt4transition import qt4warnDestruction
+from utilities.qt4transition import qt4warnDestruction
 from utilities import debug_flags
 import foundation.env as env
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from prefs_constants import captionFullPath_prefs_key
+from utilities.prefs_constants import captionFullPath_prefs_key
 
 class _pwProjectTabWidget(QTabWidget):
     """

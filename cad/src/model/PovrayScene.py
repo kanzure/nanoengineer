@@ -21,13 +21,13 @@ from PyQt4.Qt import QApplication
 
 import foundation.env as env
 from foundation.Utility import SimpleCopyMixin, Node
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 from graphics.rendering.povray.povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from graphics.rendering.fileIO import writepovfile
 from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 from utilities import debug_flags
-from PlatformDependent import find_or_make_Nanorex_subdir
-from debug import print_compact_traceback
+from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from utilities.debug import print_compact_traceback
 
 import re
 from files.mmp.files_mmp_registration import MMP_RecordParser

@@ -19,7 +19,7 @@ with new bonding patterns. And did some of that extension, 050511.
 from geometry.VQT import norm
 from model.chem import Atom
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 class DepositionTool:
     "#doc"
@@ -154,7 +154,7 @@ class AtomTypeDepositionTool(DepositionTool):
                 msg = " (%d bond(s) made)" % n
             else:
                 msg = " (%d bond(s) NOT made, since autobond is off)" % (n-1) #bruce 050901 new feature
-            from PlatformDependent import fix_plurals
+            from platform.PlatformDependent import fix_plurals
             msg = fix_plurals(msg)
             desc += msg
         return atm, desc

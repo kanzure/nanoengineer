@@ -17,7 +17,7 @@ from PyQt4.Qt import QString
 
 import foundation.env as env
 
-from constants import filesplit
+from utilities.constants import filesplit
 from utilities.Log import redmsg, greenmsg, orangemsg
 
 from analysis.ESP.NanoHiveDialog import Ui_NanoHiveDialog

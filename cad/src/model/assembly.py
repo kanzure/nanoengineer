@@ -67,24 +67,24 @@ on __xxx__ attrs in python objects.
 import os
 import time
 
-import Initialize
+import utilities.Initialize as Initialize
 
 from foundation.Utility import node_name
 from foundation.Group import Group
-from pastables import is_pastable
+from operations.pastables import is_pastable
 
-from debug import print_compact_traceback
-from prefs_constants import workingDirectory_prefs_key
+from utilities.debug import print_compact_traceback
+from utilities.prefs_constants import workingDirectory_prefs_key
 
 from utilities.Log import orangemsg ##, greenmsg, redmsg
 from utilities import debug_flags
-from PlatformDependent import find_or_make_any_directory
+from platform.PlatformDependent import find_or_make_any_directory
 import foundation.env as env
 from foundation.state_utils import StateMixin, IdentityCopyMixin
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 import foundation.undo_archive as undo_archive
 
-from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
+from utilities.constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_CHILD, S_DATA, S_REF
 
 from model.part import Part as Part_class # use a name we can search for [bruce 071029]
@@ -93,7 +93,7 @@ from model.part import Part as Part_class # use a name we can search for [bruce 
 from model.part import MainPart
 from model.part import ClipboardItemPart
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 from commands.PartProperties.PartProp import PartProp
 from PyQt4 import QtGui
 
@@ -1590,7 +1590,7 @@ class PartGroup(Group):
         regularkids = Group.MT_kids(self, display_prefs)
         if 1 and self.open:
             #bruce 080306 test code, should clean up
-            from debug_prefs import debug_pref, Choice_boolean_False
+            from utilities.debug_prefs import debug_pref, Choice_boolean_False
             want_fake_kid = debug_pref("Model Tree: show fake initial kid?", Choice_boolean_False)
             have_fake_kid = not not self._initialkids
             if have_fake_kid and not want_fake_kid:

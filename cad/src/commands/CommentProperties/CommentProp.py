@@ -18,8 +18,8 @@ from commands.CommentProperties.CommentPropDialog import Ui_CommentPropDialog
 import time
 import foundation.env as env
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
-from qt4transition import qt4todo
-from debug import print_compact_traceback
+from utilities.qt4transition import qt4todo
+from utilities.debug import print_compact_traceback
 
 cmd = greenmsg("Insert Comment: ")
 

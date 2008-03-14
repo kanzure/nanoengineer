@@ -20,8 +20,8 @@ of our class ChunkDisplayMode. For an example, see CylinderChunks.py.
 
 # to make a new display mode for whole chunks, see the instructions in the module docstring above.
 
-import constants
-from debug import register_debug_menu_command
+import utilities.constants as constants
+from utilities.debug import register_debug_menu_command
 import foundation.env as env
 
 _display_mode_handlers = {} # maps disp_name, and also its index in constants.dispNames, to a DisplayMode instance used for drawing
@@ -55,7 +55,7 @@ class DisplayMode:
         self._hide_icon_name = getattr(self, "hide_icon_name", self._icon_name)
 
     def get_icon(self, hidden):
-        from icon_utilities import imagename_to_pixmap
+        from utilities.icon_utilities import imagename_to_pixmap
         if hidden:
             return imagename_to_pixmap( self._hide_icon_name)
         else:

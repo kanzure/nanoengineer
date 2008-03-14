@@ -25,7 +25,7 @@ part of this into master_model_updater.py, leaving only the bond-
 type- and atom-type- updating code in this file.
 """
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import V_DOUBLE

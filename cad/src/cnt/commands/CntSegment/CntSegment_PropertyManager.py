@@ -10,7 +10,7 @@ See CntSegment_EditCommand for details.
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
 
-from DebugMenuMixin import DebugMenuMixin
+from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton

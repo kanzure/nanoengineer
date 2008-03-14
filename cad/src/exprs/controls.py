@@ -50,9 +50,9 @@ from exprs.staterefs import LocalVariable_StateRef ###e move to basic, if it doe
 
 ##from exprs.debug_exprs import debug_evals_of_Expr
 
-from constants import gray, blue, yellow, orange
-from debug_prefs import debug_pref
-from debug_prefs import Choice_boolean_False
+from utilities.constants import gray, blue, yellow, orange
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice_boolean_False
 
 from exprs.widget2d import Widget2D
 from exprs.Exprs import format_Expr, eq_Expr, not_Expr, call_Expr, or_Expr

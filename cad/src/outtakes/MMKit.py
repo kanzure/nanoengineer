@@ -37,7 +37,7 @@ from PyQt4.Qt import QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QW
 from MMKitDialog import Ui_MMKitDialog
 from graphics.widgets.ThumbView import MMKitView, ChunkView
 from model.elements import PeriodicTable
-from constants import diTUBES
+from utilities.constants import diTUBES
 ## from chem import Atom [not used i think - bruce 071113]
 ## from chunk import Chunk [not used i think - bruce 071113]
 from foundation.Utility import imagename_to_icon, geticon
@@ -46,10 +46,10 @@ from files.mmp.files_mmp import readmmp
 from model.part import Part
 import foundation.env as env
 from utilities import debug_flags
-from debug import print_compact_traceback
-from Sponsors import SponsorableMixin
+from utilities.debug import print_compact_traceback
+from sponsors.Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
-from PropMgr_Constants import pmMMKitPageMargin
+from PM.PropMgr_Constants import pmMMKitPageMargin
 from model.bond_constants import btype_from_v6
 
 # PageId constants for mmkit_tab
@@ -189,7 +189,7 @@ class MMKit(QDialog,
         # adding a warning in the menu text, and adding a try/except to help in debugging this if anyone ever wants to.
         # (If the bugs Will mentioned go away entirely, we can abandon support for the False value instead of fixing it,
         #  as Will suggested.)
-        from debug_prefs import debug_pref, Choice_boolean_True
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True
         self.icon_tabs = debug_pref("use icons in MMKit tabs? (only True works in Qt4)", Choice_boolean_True,
                                     prefs_key = "A7/mmkit tab icons/Qt4")
             #e Changes to this only take effect in the next session.
@@ -1010,7 +1010,7 @@ class MMKit(QDialog,
        if self.w.assy.filename: 
            odir = os.path.dirname(self.w.assy.filename)
        else: 
-           from prefs_constants import workingDirectory_prefs_key
+           from utilities.prefs_constants import workingDirectory_prefs_key
            odir = env.prefs[workingDirectory_prefs_key]
         
        fdir = QFileDialog.getExistingDirectory(self, "Choose library directory", odir)

@@ -9,10 +9,10 @@ CntLadderRailChunk.py -
 
 from model.chunk import Chunk
 
-from constants import gensym
-from constants import black
-from constants import ave_colors
-from constants import diDEFAULT
+from utilities.constants import gensym
+from utilities.constants import black
+from utilities.constants import ave_colors
+from utilities.constants import diDEFAULT
 
 from utilities import debug_flags
 

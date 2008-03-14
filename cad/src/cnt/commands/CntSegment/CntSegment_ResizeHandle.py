@@ -24,8 +24,8 @@ from exprs.Rect             import Sphere
 
 from exprs.Arrow import Arrow
    
-from constants  import yellow, darkgreen
-from constants  import olive
+from utilities.constants import yellow, darkgreen
+from utilities.constants import olive
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine

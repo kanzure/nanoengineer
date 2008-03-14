@@ -20,7 +20,7 @@ might be). [bruce 071106 comment]
 Update 071210: since that comment, it's also been used in the dna updater.
 """
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from foundation.changes import register_postinit_item
 

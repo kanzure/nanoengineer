@@ -24,10 +24,10 @@ from geometry.VQT import vlen
 
 from model.elements import Singlet
 from utilities.Log import redmsg, orangemsg
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager
-from icon_utilities import geticon
-from constants import diINVISIBLE
+from utilities.icon_utilities import geticon
+from utilities.constants import diINVISIBLE
 
 from commands.Move.Move_Command import Move_Command 
 from commands.Fuse.fusechunksMode import fusechunksBase

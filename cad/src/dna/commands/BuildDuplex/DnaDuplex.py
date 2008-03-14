@@ -18,21 +18,21 @@ import random
 
 from math    import sin, cos, pi
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from PlatformDependent  import find_plugin_dir
+from platform.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
-from constants          import gensym, darkred, blue, orange, olive
-from constants          import diBALL, diTUBES
-from prefs_constants import dnaDefaultSegmentColor_prefs_key
+from utilities.constants import gensym, darkred, blue, orange, olive
+from utilities.constants import diBALL, diTUBES
+from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
 
-from runSim import adjustSinglet
+from simulation.runSim import adjustSinglet
 
 from model.elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')

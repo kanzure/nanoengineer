@@ -196,21 +196,21 @@ except:
 from geometry.VQT import norm, vlen, V, Q, A
 import foundation.env as env #bruce 051126
 
-from constants import white, blue, red
-from constants import darkgreen, lightblue
-from constants import DIAMOND_BOND_LENGTH
-from prefs_constants import material_specular_highlights_prefs_key
-from prefs_constants import material_specular_shininess_prefs_key
-from prefs_constants import material_specular_finish_prefs_key
-from prefs_constants import material_specular_brightness_prefs_key
+from utilities.constants import white, blue, red
+from utilities.constants import darkgreen, lightblue
+from utilities.constants import DIAMOND_BOND_LENGTH
+from utilities.prefs_constants import material_specular_highlights_prefs_key
+from utilities.prefs_constants import material_specular_shininess_prefs_key
+from utilities.prefs_constants import material_specular_finish_prefs_key
+from utilities.prefs_constants import material_specular_brightness_prefs_key
 
-import debug # for debug.print_compact_traceback
+import utilities.debug as debug # for debug.print_compact_traceback
 
 # this can't be done at toplevel due to a recursive import issue.
 # TODO: fix by splitting this module (drawer) into smaller files.
 ## from Font3D import Font3D
 
-import EndUser
+import utilities.EndUser as EndUser
 
 # ==
 
@@ -911,7 +911,7 @@ def get_gl_info_string(glpane): # grantham 20051129
     gl_info_string += 'GL_RENDERER : "%s"\n' % glGetString(GL_RENDERER)
     gl_info_string += 'GL_EXTENSIONS : "%s"\n' % glGetString(GL_EXTENSIONS)
 
-    from debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("get_gl_info_string call glAreTexturesResident?", Choice_boolean_False):
         # Give a practical indication of how much video memory is available.
         # Should also do this with VBOs.
@@ -974,7 +974,7 @@ def drawwiresphere_worker(params):
 
     (color, pos, radius, detailLevel) = params
     ## assert detailLevel == 1 # true, but leave out for speed
-    from debug_prefs import debug_pref, Choice_boolean_True
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True
     newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
     oldway = not newway
     # These objects want a constant line color even if they are selected or highlighted.
@@ -1794,7 +1794,7 @@ class ColorSorter:
         Finish sorting - objects recorded since "start" will
         be sorted and invoked now.
         """
-        from debug_prefs import debug_pref, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_False
         debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
         parent_csdl = ColorSorter.parent_csdl
@@ -2181,8 +2181,8 @@ def setup_drawer():
     glEndList()
 
     # Debug Preferences
-    from debug_prefs import debug_pref, Choice_boolean_True
-    from debug_prefs import Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True
+    from utilities.debug_prefs import Choice_boolean_False
     choices = [Choice_boolean_False, Choice_boolean_True]
 
     # 20060314 grantham
@@ -3179,7 +3179,7 @@ def drawFullWindow(vtColors):
        left-down, right-down, right-up, left-up window corners.
        To draw the full window, the modelview and projection should be set in identity.
        """
-    from constants import GL_FAR_Z
+    from utilities.constants import GL_FAR_Z
     glDisable(GL_LIGHTING)
 
     glBegin(GL_QUADS)
@@ -3290,7 +3290,7 @@ def renderSurface(surfaceEntities, surfaceNormals):
     nc = len(surfaceColors)
     if 1:
         ### bruce 060927 debug code; when done debugging, we can change them to constants & simplify the code that uses them.
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         disable_lighting = debug_pref("surface: disable lighting?", Choice_boolean_False)
         if nc:
             color_first = debug_pref("surface: color before vertex?", Choice_boolean_True)

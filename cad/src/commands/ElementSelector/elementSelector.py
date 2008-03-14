@@ -12,7 +12,7 @@ from PyQt4.Qt import QVBoxLayout
 from commands.ElementSelector.ElementSelectorDialog import Ui_ElementSelectorDialog
 from graphics.widgets.ThumbView import ElementView
 from model.elements import PeriodicTable
-from constants import diTUBES
+from utilities.constants import diTUBES
 
 class elementSelector(QDialog, Ui_ElementSelectorDialog):
     def __init__(self, win):

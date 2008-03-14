@@ -13,7 +13,7 @@ __author__ = "Mark"
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
 from command_support.JigPropDialog import Ui_JigPropDialog
 

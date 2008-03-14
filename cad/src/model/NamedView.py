@@ -17,9 +17,9 @@ Mark renamed Csys to NamedView, on or after 2008-02-03.
 Bruce 080303 simplified NamedView.__init__ arg signature and some calling code.
 """
 
-from constants import gensym
+from utilities.constants import gensym
 from geometry.VQT import V, Q, vlen
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 from foundation.Utility import SimpleCopyMixin
 from foundation.Utility import Node
 from utilities import debug_flags

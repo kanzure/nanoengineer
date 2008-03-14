@@ -33,13 +33,13 @@ from graphics.drawing.drawer import drawsphere
 from graphics.drawing.drawer import drawline
 from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
 
-from constants import SUBTRACT_FROM_SELECTION
-from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from constants import START_NEW_SELECTION
-from constants import white
+from utilities.constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import OUTSIDE_SUBTRACT_FROM_SELECTION
+from utilities.constants import ADD_TO_SELECTION
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import white
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from geometry.BoundingBox import BBox
 
@@ -850,7 +850,7 @@ class CookieShape(shape):
         """
         from model.chunk import Chunk
         from model.chem import Atom
-        from constants import gensym
+        from utilities.constants import gensym
         
         numLayers = len(self.bondLayers)
         if numLayers:

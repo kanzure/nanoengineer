@@ -18,7 +18,7 @@ import foundation.env as env
 from utilities.Log import redmsg
 from model.chem import move_alist_and_snuggle
 import foundation.state_utils as state_utils
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from analysis.GAMESS.GamessJob import GamessJob
 from analysis.GAMESS.GamessProp import scftyp
@@ -47,7 +47,7 @@ from analysis.GAMESS.GamessProp import ui
 
 from utilities import debug_flags
 
-from constants import magenta
+from utilities.constants import magenta
 
 from files.mmp.files_mmp_registration import MMP_RecordParser
 from files.mmp.files_mmp_registration import register_MMP_RecordParser

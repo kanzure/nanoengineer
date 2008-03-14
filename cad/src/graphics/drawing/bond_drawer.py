@@ -37,28 +37,28 @@ from graphics.rendering.povray.povheader import povpoint
 from utilities.Printing import Vector3ToString
 from model.elements import Singlet
 
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 
-from constants import diDEFAULT
-from constants import diINVISIBLE
-from constants import diLINES
-from constants import diBALL
-from constants import diTUBES
-from constants import diTrueCPK
-from constants import diDNACYLINDER
+from utilities.constants import diDEFAULT
+from utilities.constants import diINVISIBLE
+from utilities.constants import diLINES
+from utilities.constants import diBALL
+from utilities.constants import diTUBES
+from utilities.constants import diTrueCPK
+from utilities.constants import diDNACYLINDER
 
-from constants import TubeRadius
-from constants import diBALL_SigmaBondRadius
-from constants import diDNACYLINDER_SigmaBondRadius
+from utilities.constants import TubeRadius
+from utilities.constants import diBALL_SigmaBondRadius
+from utilities.constants import diDNACYLINDER_SigmaBondRadius
 
-from constants import ave_colors
-from constants import green
-from constants import yellow
-from constants import red
-from constants import blue
-from constants import black
-from constants import white
-from constants import orange
+from utilities.constants import ave_colors
+from utilities.constants import green
+from utilities.constants import yellow
+from utilities.constants import red
+from utilities.constants import blue
+from utilities.constants import black
+from utilities.constants import white
+from utilities.constants import orange
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import V_DOUBLE
@@ -68,21 +68,21 @@ from model.bond_constants import V_AROMATIC
 from model.bond_constants import V_GRAPHITE
 from model.bond_constants import V_CARBOMERIC
 
-from prefs_constants import _default_toolong_hicolor ## not yet in prefs db?
-from prefs_constants import diBALL_BondCylinderRadius_prefs_key
-from prefs_constants import diDNACYLINDER_BondCylinderRadius_prefs_key
-from prefs_constants import pibondLetters_prefs_key
-from prefs_constants import pibondStyle_prefs_key
-from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
-from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
-from prefs_constants import arrowsOnBackBones_prefs_key
-from prefs_constants import showBondStretchIndicators_prefs_key
-from prefs_constants import linesDisplayModeThickness_prefs_key
-from prefs_constants import bondStretchColor_prefs_key
-from prefs_constants import diBALL_bondcolor_prefs_key
-from prefs_constants import dnaStrutScaleFactor_prefs_key
+from utilities.prefs_constants import _default_toolong_hicolor ## not yet in prefs db?
+from utilities.prefs_constants import diBALL_BondCylinderRadius_prefs_key
+from utilities.prefs_constants import diDNACYLINDER_BondCylinderRadius_prefs_key
+from utilities.prefs_constants import pibondLetters_prefs_key
+from utilities.prefs_constants import pibondStyle_prefs_key
+from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnBackBones_prefs_key
+from utilities.prefs_constants import showBondStretchIndicators_prefs_key
+from utilities.prefs_constants import linesDisplayModeThickness_prefs_key
+from utilities.prefs_constants import bondStretchColor_prefs_key
+from utilities.prefs_constants import diBALL_bondcolor_prefs_key
+from utilities.prefs_constants import dnaStrutScaleFactor_prefs_key
 
-from GlobalPreferences import disable_do_not_draw_open_bonds
+from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 
 # ==
 
@@ -523,7 +523,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
     if self.v6 != V_SINGLE:
         if draw_vanes:
             if debug_flags.atom_debug:
-                import graphics.drawing.draw_bond_vanes as draw_bond_vanes, debug
+                import graphics.drawing.draw_bond_vanes as draw_bond_vanes, utilities.debug as debug
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from graphics.drawing.draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()

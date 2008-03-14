@@ -22,13 +22,13 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
 from graphics.drawing.drawer import drawLineLoop, drawPlane
-from constants import black, orange, darkgreen
+from utilities.constants import black, orange, darkgreen
 
 from math import pi
 from geometry.VQT import V
 
 import foundation.env as env
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from graphics.drawables.DragHandler import DragHandler_API
 from graphics.drawables.Selobj import Selobj_API

@@ -26,9 +26,9 @@ from OpenGL.GL import glTranslate
 
 from utilities.Log import redmsg
 
-from debug_prefs import debug_pref
-from debug_prefs import Choice
-from debug import print_compact_stack
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
+from utilities.debug import print_compact_stack
 
 from command_support.GraphicsMode import commonGraphicsMode
 

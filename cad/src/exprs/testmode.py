@@ -36,10 +36,10 @@ import time
 from geometry.VQT import V, Q
 from commands.BuildAtoms.depositMode import depositMode
 
-from debug import print_compact_traceback
-from debug_prefs import Choice_boolean_True
-from debug_prefs import Choice_boolean_False
-from debug_prefs import debug_pref
+from utilities.debug import print_compact_traceback
+from utilities.debug_prefs import Choice_boolean_True
+from utilities.debug_prefs import Choice_boolean_False
+from utilities.debug_prefs import debug_pref
 
 
 annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',

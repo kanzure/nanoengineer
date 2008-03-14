@@ -53,8 +53,8 @@ from PyQt4.Qt  import QPalette
 from PyQt4.Qt  import QAbstractItemView
 ##from PyQt4.Qt import Qt
 from PM.PM_Colors import getPalette
-from constants import yellow
-from icon_utilities import geticon
+from utilities.constants import yellow
+from utilities.icon_utilities import geticon
 
 TAG_INSTRUCTIONS = ['TAG_ITEM_IN_GLPANE', 
                     'PICK_ITEM_IN_GLPANE',

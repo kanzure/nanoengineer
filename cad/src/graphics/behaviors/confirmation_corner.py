@@ -32,9 +32,9 @@ from exprs.Rect import Rect # needed for Image size option, not just for testing
 ##from constants import green # only for testing
 
 from exprs.projection import DrawInCorner ##, DrawInCorner_projection
-from prefs_constants import UPPER_RIGHT
+from utilities.prefs_constants import UPPER_RIGHT
 
-from debug import print_compact_traceback ##, print_compact_stack
+from utilities.debug import print_compact_traceback ##, print_compact_stack
 
 # button region codes (must all be true values;
 # these are used as indices in various dicts or functions,

@@ -31,7 +31,7 @@ from PM.PM_PushButton     import PM_PushButton
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from PM.PM_TextEdit       import PM_TextEdit
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 from utilities.Log import orangemsg, greenmsg, redmsg
 import foundation.env as env

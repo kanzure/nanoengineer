@@ -29,9 +29,9 @@ some methods in this file have become overdefined. This needs cleanup
 import foundation.env as env
 from utilities import debug_flags
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from constants import darkgreen, orange, yellow
+from utilities.constants import darkgreen, orange, yellow
 
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName

@@ -16,7 +16,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           SelectChunks_GraphicsMode.py]
 """
 
-from constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_basicGraphicsMode

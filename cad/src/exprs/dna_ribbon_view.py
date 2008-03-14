@@ -129,10 +129,10 @@ from exprs.pallettes import PalletteWell
 
 from geometry.VQT import norm
 
-from constants import gray, black, red, blue, purple, white
-from constants import ave_colors, noop
-from constants import green
-from constants import yellow
+from utilities.constants import gray, black, red, blue, purple, white
+from utilities.constants import ave_colors, noop
+from utilities.constants import green
+from utilities.constants import yellow
 
 from exprs.widget2d import Widget, Stub
 from exprs.Exprs import norm_Expr, vlen_Expr, int_Expr, call_Expr, getattr_Expr, format_Expr

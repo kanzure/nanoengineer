@@ -28,12 +28,12 @@ from foundation.state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
 from foundation.state_constants import _UNSET_, _Bugval
 
 import foundation.env as env
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 from utilities import debug_flags
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
-from constants import remove_prefix
+from utilities.constants import remove_prefix
 
-from GlobalPreferences import debug_pyrex_atoms
+from utilities.GlobalPreferences import debug_pyrex_atoms
 
 DEBUG_PYREX_ATOMS = debug_pyrex_atoms()
 
@@ -1681,7 +1681,7 @@ class obj_classifier:
 ##            self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
             if DEBUG_PYREX_ATOMS:
                 if not env.seen_before("DEBUG_PYREX_ATOMS"):
-                    from GlobalPreferences import usePyrexAtomsAndBonds
+                    from utilities.GlobalPreferences import usePyrexAtomsAndBonds
                     on = usePyrexAtomsAndBonds()
                     print "\nDEBUG_PYREX_ATOMS: Pyrex atoms is", on and "ON" or "OFF"
                     print

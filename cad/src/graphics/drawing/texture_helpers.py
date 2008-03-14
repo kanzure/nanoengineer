@@ -32,8 +32,8 @@ from OpenGL.GL import glTexEnvf
 
 from OpenGL.GLU import gluBuild2DMipmaps
 
-from debug_prefs import Choice_boolean_False   # in disabled code
-from debug_prefs import debug_pref   # in disabled code
+from utilities.debug_prefs import Choice_boolean_False   # in disabled code
+from utilities.debug_prefs import debug_pref   # in disabled code
 
 # note this runtime import below -- TODO, find out if it can be toplevel;
 # the file it imports is not now [071017] in any import cycles:

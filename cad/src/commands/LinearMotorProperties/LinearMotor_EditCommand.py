@@ -13,7 +13,7 @@ ninad 2007-10-09: Created.
 import foundation.env as env
 from utilities.Log   import redmsg, greenmsg, orangemsg
 from model.jigs_motors import LinearMotor
-from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
+from operations.jigmakers_Mixin import atom_limit_exceeded_and_confirmed
 from command_support.EditCommand import EditCommand
 
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode

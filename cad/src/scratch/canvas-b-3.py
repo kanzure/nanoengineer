@@ -34,7 +34,7 @@ import random
 
 import time #bruce
 try:
-    from debug import print_compact_stack
+    from utilities.debug import print_compact_stack
 except:
     print "could not import print_compact_stack"
     def print_compact_stack(msg):

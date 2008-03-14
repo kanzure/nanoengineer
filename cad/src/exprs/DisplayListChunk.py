@@ -50,9 +50,9 @@ just pointers to the draw-method-owning parents in each one, to be stored in the
 
 from OpenGL.GL import GL_COMPILE
 
-from debug_prefs import Choice_boolean_False
-from debug_prefs import debug_pref
-from debug import print_compact_traceback
+from utilities.debug_prefs import Choice_boolean_False
+from utilities.debug_prefs import debug_pref
+from utilities.debug import print_compact_traceback
 
 from foundation.changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self
 from foundation.changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self

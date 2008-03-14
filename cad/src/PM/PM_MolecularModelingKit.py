@@ -12,8 +12,8 @@ from model.elements import PeriodicTable
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
-from constants import diTUBES
-from debug import print_compact_traceback
+from utilities.constants import diTUBES
+from utilities.debug import print_compact_traceback
 
 from command_support.GeneratorBaseClass import AbstractMethod
 

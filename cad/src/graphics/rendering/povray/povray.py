@@ -24,14 +24,14 @@ from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QMessageB
 
 import foundation.env as env
 from utilities.Log import orangemsg ##, redmsg, greenmsg, _graymsg
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from prefs_constants import megapov_enabled_prefs_key
-from prefs_constants import megapov_path_prefs_key
-from prefs_constants import povray_enabled_prefs_key
-from prefs_constants import povray_path_prefs_key
-from prefs_constants import povdir_enabled_prefs_key
-from prefs_constants import povdir_path_prefs_key
+from utilities.prefs_constants import megapov_enabled_prefs_key
+from utilities.prefs_constants import megapov_path_prefs_key
+from utilities.prefs_constants import povray_enabled_prefs_key
+from utilities.prefs_constants import povray_path_prefs_key
+from utilities.prefs_constants import povdir_enabled_prefs_key
+from utilities.prefs_constants import povdir_path_prefs_key
 
 def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710 [use Plugin.py instead?]
     """
@@ -311,7 +311,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             if arg != "":
                 arguments.append(arg)
 
-        from Process import Process
+        from processes.Process import Process
         p = Process()
             #bruce 060707: this doesn't take advantage of anything not in QProcess,
             # unless it matters that it reads and discards stdout/stderr

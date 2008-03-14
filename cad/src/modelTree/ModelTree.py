@@ -41,24 +41,24 @@ from PyQt4 import QtCore
 
 import foundation.env as env
 from utilities import debug_flags
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 import modelTree.modelTreeGui as modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
 
 from model.chunk import Chunk
 from model.jigs import Jig
 from utilities.Log import orangemsg
 from foundation.Group import Group
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from GlobalPreferences import permit_atom_chunk_coselection
+from utilities.GlobalPreferences import permit_atom_chunk_coselection
 
-from constants import gensym
-from constants import SELWHAT_ATOMS
-from constants import SELWHAT_CHUNKS
-from constants import SELWHAT_NAMES
-from constants import noop
+from utilities.constants import gensym
+from utilities.constants import SELWHAT_ATOMS
+from utilities.constants import SELWHAT_CHUNKS
+from utilities.constants import SELWHAT_NAMES
+from utilities.constants import noop
 
-from qt4transition import qt4here
+from utilities.qt4transition import qt4here
 
 _debug_preftree = False # bruce 050602 experiment; do not commit with True
 
@@ -685,7 +685,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
 
         # figure out whether Copy would actually copy anything.
         part = nodeset[0].part # the same for all nodes in nodeset
-        from ops_select import selection_from_part
+        from operations.ops_select import selection_from_part
         sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
         doit = False
         for node in nodeset:
@@ -803,7 +803,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.assy.Unhide() # includes win_update
 
     def cm_set_node(self): #bruce 050604, for debugging
-        import debug
+        import utilities.debug as debug
         nodeset = self.modelTreeGui.topmost_selected_nodes()
         if len(nodeset) == 1:
             debug._node = nodeset[0]

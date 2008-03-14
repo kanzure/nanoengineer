@@ -16,9 +16,9 @@ from PyQt4.Qt import QGLFormat
 
 from commands.ElementColors.ElementColorsDialog import Ui_ElementColorsDialog
 from model.elements import PeriodicTable 
-from constants import diTrueCPK, diBALL, diTUBES 
+from utilities.constants import diTrueCPK, diBALL, diTUBES 
 from graphics.widgets.ThumbView import ElementView
-from qt4transition import qt4todo
+from utilities.qt4transition import qt4todo
 
 from utilities.Log import redmsg # Mark 050311
 from geometry.VQT import V
@@ -214,7 +214,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         if self.w.assy.filename: 
             odir = os.path.dirname(self.w.assy.filename)
         else: 
-            from prefs_constants import workingDirectory_prefs_key
+            from utilities.prefs_constants import workingDirectory_prefs_key
             odir = env.prefs[workingDirectory_prefs_key]
         self.fileName = str( QFileDialog.getOpenFileName(
                                 self,
@@ -246,7 +246,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         currently only r,g,b color of each element will be saved.
         """
         if not self.fileName:
-           from prefs_constants import workingDirectory_prefs_key   
+           from utilities.prefs_constants import workingDirectory_prefs_key   
            sdir = env.prefs[workingDirectory_prefs_key]
         else:
            sdir = self.fileName

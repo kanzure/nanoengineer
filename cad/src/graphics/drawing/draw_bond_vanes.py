@@ -34,8 +34,8 @@ from geometry.VQT import cross, vlen, norm
 import foundation.env as env
 import graphics.drawing.drawer as drawer
 
-from constants import white
-from prefs_constants import pibondStyle_prefs_key
+from utilities.constants import white
+from utilities.prefs_constants import pibondStyle_prefs_key
 
 MAXTWIST = 5 * math.pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
 
@@ -68,7 +68,7 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
     If col is not boolean false, use it as the vane color; otherwise, use a constant color
     which might be influenced by the pi orbital occupancy.
     """
-    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     ## twisted = debug_pref('pi vanes/ribbons', Choice_boolean_False)
     pi_bond_style = env.prefs[ pibondStyle_prefs_key] # one of ['multicyl','vane','ribbon']
     twisted = (pi_bond_style == 'ribbon')
@@ -99,7 +99,7 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
         #bruce 050804: initial test of bond color prefs; inadequate in several ways #######@@@@@@@
         from foundation.preferences import prefs_context
         prefs = prefs_context()
-        from prefs_constants import bondVaneColor_prefs_key
+        from utilities.prefs_constants import bondVaneColor_prefs_key
         color = prefs.get(bondVaneColor_prefs_key) #k I hope this color tuple of floats is in the correct prefs format
         assert len(color) == 3 # protect following code from color being None (which causes bus error, maybe in PyOpenGL)
         

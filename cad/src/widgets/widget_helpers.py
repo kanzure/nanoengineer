@@ -31,7 +31,7 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QMessageBox
 
 
-from qt4transition import qt4todo
+from utilities.qt4transition import qt4todo
 
 # ==
 

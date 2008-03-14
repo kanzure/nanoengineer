@@ -82,7 +82,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QToolButton
 
 from ne1_ui.toolbars.Ui_CommandToolbar import Ui_CommandToolbar
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 class CommandToolbar(Ui_CommandToolbar):
     """

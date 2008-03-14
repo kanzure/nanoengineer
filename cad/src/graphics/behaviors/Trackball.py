@@ -13,7 +13,7 @@ Note: bruce 071216 moved class Trackball into its own file, from VQT.py.
 """
 
 import foundation.env as env
-from prefs_constants import mouseSpeedDuringRotation_prefs_key
+from utilities.prefs_constants import mouseSpeedDuringRotation_prefs_key
 
 from geometry.VQT import Q
 from geometry.VQT import proj2sphere

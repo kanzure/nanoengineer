@@ -601,7 +601,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
             return
 
-        from ops_select import objectSelected
+        from operations.ops_select import objectSelected
         if objectSelected(self.o.assy):
             msg = ""
         else:

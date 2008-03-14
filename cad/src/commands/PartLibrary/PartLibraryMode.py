@@ -30,7 +30,7 @@ from utilities.Log import orangemsg, greenmsg, quote_html, redmsg
 from model.chem import Atom
 from model.elements import Singlet
 from geometry.VQT import Q
-from ops_copy        import copied_nodes_for_DND
+from operations.ops_copy import copied_nodes_for_DND
 
 from commands.Paste.PasteMode import PasteMode
 from commands.PartLibrary.PartLibPropertyManager import PartLibPropertyManager
@@ -318,7 +318,7 @@ class PartLibraryMode(PasteMode):
                         #so we should turn this into history message,
                         # not a bug print. But I'm not positive it's possible
                         #w/o a bug, so review first. ###FIX [bruce 070501 comment]
-                    import debug
+                    import utilities.debug as debug
                     debug._bugnodes = nodes
                     newnodes = []
                 msg = redmsg( "error: nothing to deposit in [%s]" % quote_html(str(newPart.name)) )
@@ -340,7 +340,7 @@ class PartLibraryMode(PasteMode):
                     #saved only once by users (due to NE1 bug in save)
                     dirjunk, base = os.path.split(newPart.name)
                     basename, extjunk = os.path.splitext(base)
-                from constants import gensym
+                from utilities.constants import gensym
                 newnode.name = gensym( basename + " " ) # name library part 
                 #based on basename recorded in its mmp file's top node
                 newnode.move(moveOffset) #k not sure this method is correctly 

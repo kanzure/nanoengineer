@@ -17,15 +17,15 @@ import os
 
 from math    import sin, cos, pi
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from PlatformDependent  import find_plugin_dir
+from platform.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
-from prefs_constants import dnaDefaultSegmentColor_prefs_key
+from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 basepath_ok, basepath = find_plugin_dir("Nanotube")
 if not basepath_ok:

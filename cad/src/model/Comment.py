@@ -14,8 +14,8 @@ registering it with files_mmp_registration instead of hardcoding it there
 """
 
 from foundation.Utility import SimpleCopyMixin, Node
-from icon_utilities import imagename_to_pixmap
-from constants import gensym
+from utilities.icon_utilities import imagename_to_pixmap
+from utilities.constants import gensym
 
 from files.mmp.files_mmp_registration import MMP_RecordParser
 from files.mmp.files_mmp_registration import register_MMP_RecordParser

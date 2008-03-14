@@ -18,7 +18,7 @@ from exprs.Boxed import Boxed
 
 from exprs.Set import Set
 
-from constants import black, pink
+from utilities.constants import black, pink
 
 from exprs.Exprs import call_Expr
 from exprs.statearray import StateArrayRefs, StateArrayRefs_getitem_as_stateref

@@ -12,16 +12,16 @@ into a reasonable form for supporting a UI.
 [060117 -- for current status see undo_archive.py module docstring]
 """
 
-from debug import register_debug_menu_command_maker
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import register_debug_menu_command_maker
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from utilities import debug_flags
-from PlatformDependent import is_macintosh
+from platform.PlatformDependent import is_macintosh
 from foundation.undo_archive import AssyUndoArchive
 import foundation.undo_archive as undo_archive # for debug_undo2;
     # could move that to a debug flags module; not urgent
-from constants import noop
-from prefs_constants import undoAutomaticCheckpoints_prefs_key
+from utilities.constants import noop
+from utilities.prefs_constants import undoAutomaticCheckpoints_prefs_key
 import foundation.env as env
 from utilities.Log import greenmsg, redmsg ##, orangemsg
 import time

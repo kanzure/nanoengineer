@@ -47,7 +47,7 @@ bruce 051201 made new source file for it, extended it to other kinds of objects
 from PyQt4 import QtGui
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QTextBrowser
-from NE1_QToolBar import NE1_QToolBar
+from widgets.NE1_QToolBar import NE1_QToolBar
 
 from PyQt4.Qt import QWhatsThisClickedEvent
 from PyQt4.Qt import QGridLayout
@@ -62,10 +62,10 @@ from PyQt4.Qt import SLOT
 import os
 import foundation.env as env
 import webbrowser
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from utilities.Log import redmsg
 ##from qt4transition import qt4todo
-from prefs_constants import wiki_help_prefix_prefs_key
+from utilities.prefs_constants import wiki_help_prefix_prefs_key
 
 def webbrowser_open(url):
     if len(webbrowser._tryorder) == 0:

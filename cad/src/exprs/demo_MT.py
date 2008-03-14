@@ -117,10 +117,10 @@ nfrs:
 
 # == imports
 
-from constants import blue, green, ave_colors, white
+from utilities.constants import blue, green, ave_colors, white
 
-from debug import print_compact_traceback
-from debug import safe_repr
+from utilities.debug import print_compact_traceback
+from utilities.debug import safe_repr
 
 from exprs.Highlightable import Highlightable
 from exprs.TextRect import TextRect

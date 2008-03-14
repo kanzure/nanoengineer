@@ -62,7 +62,7 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         
     def _set_xyspacing_enabled(self, grid_type):
         '''If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. '''
-        from prefs_constants import SiC_GRID, SQUARE_GRID
+        from utilities.prefs_constants import SiC_GRID, SQUARE_GRID
         
         if grid_type == SiC_GRID:
             self.x_spacing_spinbox.setEnabled(False)

@@ -19,10 +19,10 @@ from PyQt4.Qt import Qt
 import foundation.env as env
 from geometry.VQT import V, Q, A, vlen, norm
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from constants import SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from constants import START_NEW_SELECTION
-from constants import DELETE_SELECTION
+from utilities.constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import ADD_TO_SELECTION
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import DELETE_SELECTION
 
 _superclass = SelectChunks_GraphicsMode
 

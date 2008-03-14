@@ -9,7 +9,7 @@ PM_PAM3_AtomChooser.py
 """
 
 from PM.PM_MolecularModelingKit import PM_MolecularModelingKit
-from constants import diBALL
+from utilities.constants import diBALL
 
 # Elements button list to create PAM3 atoms toolbutton group.
 # Format: 

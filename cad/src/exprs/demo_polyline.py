@@ -33,7 +33,7 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEnd
 
-from constants import blue, noop
+from utilities.constants import blue, noop
 
 from exprs.Exprs import list_Expr, call_Expr
 from exprs.instance_helpers import DelegatingInstanceOrExpr, ModelObject

@@ -18,8 +18,8 @@ GraphicsMode parts and the these classes were moved into their own module
 [ See BuildAtoms_Command.py and BuildAtoms_GraphicsMode.py]
 """
 
-from debug import print_compact_traceback
-from constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.debug import print_compact_traceback
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_basicCommand
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_basicGraphicsMode

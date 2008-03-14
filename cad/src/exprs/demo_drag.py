@@ -54,12 +54,12 @@ from exprs.DisplayListChunk import DisplayListChunk
 
 from exprs.world import World
 
-from constants import black, noop
-from constants import red
-from constants import blue
-from constants import green
-from constants import white
-from constants import yellow
+from utilities.constants import black, noop
+from utilities.constants import red
+from utilities.constants import blue
+from utilities.constants import green
+from utilities.constants import white
+from utilities.constants import yellow
 
 from exprs.Exprs import list_Expr, eval_Expr, call_Expr
 from exprs.Exprs import mod_Expr

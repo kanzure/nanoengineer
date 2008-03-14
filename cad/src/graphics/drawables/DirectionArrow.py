@@ -27,8 +27,8 @@ from graphics.drawing.drawer import drawDirectionArrow
 
 from geometry.VQT import V, norm, vlen
 from math        import pi
-from constants   import gray, orange
-from debug       import print_compact_traceback
+from utilities.constants import gray, orange
+from utilities.debug import print_compact_traceback
 from graphics.drawables.DragHandler import DragHandler_API
 from graphics.drawables.Selobj import Selobj_API
 

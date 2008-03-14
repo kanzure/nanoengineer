@@ -22,9 +22,9 @@ from geometry.VQT import norm
 from geometry.VQT import orthodist
 import graphics.drawing.drawer as drawer
 
-from constants import ave_colors
-from constants import magenta
-from constants import blue
+from utilities.constants import ave_colors
+from utilities.constants import magenta
+from utilities.constants import blue
 
 class handleWithHandleSet:
     """

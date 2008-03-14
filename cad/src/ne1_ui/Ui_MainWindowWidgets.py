@@ -18,8 +18,8 @@ History:
 import foundation.env as env
 from PyQt4 import QtGui
 from PyQt4.Qt import QToolButton
-from icon_utilities import geticon
-from prefs_constants import displayRulers_prefs_key
+from utilities.icon_utilities import geticon
+from utilities.prefs_constants import displayRulers_prefs_key
 
 def setupUi(win):
     """

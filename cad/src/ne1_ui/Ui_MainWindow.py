@@ -8,7 +8,7 @@ $Id$
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt, QWidget, QVBoxLayout
 
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
 import ne1_ui.Ui_MainWindowWidgets as Ui_MainWindowWidgets
 import ne1_ui.Ui_MainWindowWidgetConnections as Ui_MainWindowWidgetConnections
@@ -32,7 +32,7 @@ import ne1_ui.toolbars.Ui_BuildToolsToolBar as Ui_BuildToolsToolBar
 import ne1_ui.toolbars.Ui_BuildStructuresToolBar as Ui_BuildStructuresToolBar
 import ne1_ui.toolbars.Ui_RenderingToolBar as Ui_RenderingToolBar
 
-from StatusBar import StatusBar
+from widgets.StatusBar import StatusBar
 
 import foundation.env as env
 
@@ -147,7 +147,7 @@ class Ui_MainWindow(object):
         # I intend to completely remove it soon. Mark 2008-02-29.
         Ui_BuildStructuresToolBar.setupUi(self, toolbarArea)
         
-        from prefs_constants import toolbar_state_prefs_key
+        from utilities.prefs_constants import toolbar_state_prefs_key
         # This fixes bug 2482.
         if not env.prefs[toolbar_state_prefs_key] == 'defaultToolbarState':
             # Restore the state of the toolbars from the last session.

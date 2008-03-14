@@ -99,7 +99,7 @@ import graphics.drawing.texture_helpers as texture_helpers
     #   function create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
     #   function loadTexture.
 
-from icon_utilities import image_directory # for finding texture & cursor files
+from utilities.icon_utilities import image_directory # for finding texture & cursor files
 
 # last-resort image file (same image file is used in other modules, but for different purposes)
 courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") ### TODO: RENAME
@@ -254,13 +254,13 @@ def canon_image_filename( filename):
 ##    #stub, might work for now:
 ##    thisdir = os.path.dirname(__file__) # dir of exprs module
 ##    CAD_SRC_PATH = os.path.dirname( thisdir)
-    from constants import CAD_SRC_PATH
+    from utilities.constants import CAD_SRC_PATH
         # [note: in a built Mac release, this might be Contents/Resources/Python/site-packages.zip, or
         #  a related pathname; see comments near its definition.]
     cad = os.path.dirname( CAD_SRC_PATH) # used below for cad/images
 
     # image file path extensively revised 070604, mainly so testmode can work in a built release package
-    from PlatformDependent import path_of_Nanorex_subdir
+    from platform.PlatformDependent import path_of_Nanorex_subdir
 
     # main exprs-package image directory
     cad_src_ui_exprs = os.path.join( image_directory(), "ui/exprs") # not necessarily really in cad/src (in a built release)

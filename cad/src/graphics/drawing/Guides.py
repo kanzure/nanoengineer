@@ -40,17 +40,17 @@ from PyQt4.Qt import QFont, QString, QColor
 from widgets.widget_helpers import RGBf_to_QColor
 
 from geometry.VQT import V
-from constants import  lightgray, darkgray, black
+from utilities.constants import lightgray, darkgray, black
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 import sys
 import foundation.env as env
-from prefs_constants import displayVertRuler_prefs_key
-from prefs_constants import displayHorzRuler_prefs_key
-from prefs_constants import rulerPosition_prefs_key
-from prefs_constants import rulerColor_prefs_key
-from prefs_constants import rulerOpacity_prefs_key
+from utilities.prefs_constants import displayVertRuler_prefs_key
+from utilities.prefs_constants import displayHorzRuler_prefs_key
+from utilities.prefs_constants import rulerPosition_prefs_key
+from utilities.prefs_constants import rulerColor_prefs_key
+from utilities.prefs_constants import rulerOpacity_prefs_key
 
 # These must match the order items appear in the ruler "Position" combobox
 # in the preferences dialog.

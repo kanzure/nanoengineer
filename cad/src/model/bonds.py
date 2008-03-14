@@ -35,8 +35,8 @@ from Numeric import floor
 
 from geometry.VQT import Q, vlen, norm
 
-from debug import print_compact_stack, compact_stack, print_compact_traceback
-from debug import reload_once_per_event
+from utilities.debug import print_compact_stack, compact_stack, print_compact_traceback
+from utilities.debug import reload_once_per_event
 
 from utilities import debug_flags
 
@@ -52,18 +52,18 @@ from model.bond_constants import bond_type_names
 from model.bond_constants import atoms_are_bonded
 from model.bond_constants import find_bond
 
-from bond_chains import grow_directional_bond_chain
+from operations.bond_chains import grow_directional_bond_chain
 
 import model.global_model_changedicts as global_model_changedicts
 import foundation.env as env
 
-from GlobalPreferences import usePyrexAtomsAndBonds
+from utilities.GlobalPreferences import usePyrexAtomsAndBonds
 
 from foundation.state_utils import StateMixin, IdentityCopyMixin
 from foundation.state_utils import register_instancelike_class
 
 from foundation.changedicts import register_changedict, register_class_changedicts
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.Log import redmsg, quote_html
 
 from foundation.state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
@@ -1914,9 +1914,9 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         to order the atoms in the bond left-to-right (e.g. in text strings).
         """
         if debug_flags.atom_debug:
-            import bond_utils
+            import operations.bond_utils as bond_utils
             reload(bond_utils) # at least during development
-        from bond_utils import bond_menu_section
+        from operations.bond_utils import bond_menu_section
         return bond_menu_section(self, quat = quat)
 
     # ==

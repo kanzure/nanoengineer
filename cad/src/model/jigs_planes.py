@@ -36,11 +36,11 @@ from graphics.rendering.povray.povheader import povpoint
 
 from model.jigs import Jig
 
-from constants import black
-from constants import gray
+from utilities.constants import black
+from utilities.constants import gray
 
-from prefs_constants import SQUARE_GRID
-from prefs_constants import SOLID_LINE
+from utilities.prefs_constants import SQUARE_GRID
+from utilities.prefs_constants import SOLID_LINE
 
 from geometry.BoundingBox import BBox
 

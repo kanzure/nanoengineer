@@ -34,10 +34,10 @@ from graphics.drawing.drawer import drawLinearSign
 from utilities.Log import orangemsg
 from utilities.Log import redmsg, greenmsg
 from graphics.rendering.povray.povheader import povpoint #bruce 050413
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 from model.jigs import Jig
 
-from constants import gray
+from utilities.constants import gray
 
 # == Motors
 
@@ -352,7 +352,7 @@ class RotaryMotor(Motor):
 
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
-        from PlatformDependent import fix_plurals
+        from platform.PlatformDependent import fix_plurals
         attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Rotary Motor"\
                +  "<br>" + "<font color=\"#0000FF\">Torque: </font>" + str(self.torque) +  " nN-nm " \
@@ -700,7 +700,7 @@ class LinearMotor(Motor):
 
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
-        from PlatformDependent import fix_plurals
+        from platform.PlatformDependent import fix_plurals
         attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Linear Motor"\
                +  "<br>" + "<font color=\"#0000FF\">Force: </font>" + str(self.force) +  " pN " \

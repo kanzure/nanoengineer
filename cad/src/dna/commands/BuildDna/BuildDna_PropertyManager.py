@@ -22,7 +22,7 @@ BUGS:
 - Just entering and leaving BuilddDna_EditCommand creates an empty DnaGroup
 """
 from utilities import debug_flags
-from debug import  print_compact_stack
+from utilities.debug import print_compact_stack
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
@@ -31,7 +31,7 @@ from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 
-from DebugMenuMixin import DebugMenuMixin
+from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton

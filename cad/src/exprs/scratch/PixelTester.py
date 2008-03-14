@@ -17,7 +17,7 @@ $Id$
 
 #e more imports
 
-from constants import blue, purple
+from utilities.constants import blue, purple
 
 from exprs.widget2d import Widget2D
 from exprs.Exprs import format_Expr

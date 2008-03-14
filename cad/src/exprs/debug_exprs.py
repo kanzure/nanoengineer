@@ -5,8 +5,8 @@ $Id$
 
 # == local imports with reload
 
-from debug import safe_repr
-from debug import print_compact_stack
+from utilities.debug import safe_repr
+from utilities.debug import print_compact_stack
 
 from exprs.Exprs import internal_Expr ###k probably not needed (imported by basic) but needs test
 

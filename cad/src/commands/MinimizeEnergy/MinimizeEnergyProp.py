@@ -19,25 +19,25 @@ from PyQt4.Qt import QDoubleValidator
 
 from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from commands.MinimizeEnergy.MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
-from GroupButtonMixin import GroupButtonMixin
-from Sponsors import SponsorableMixin
-from icon_utilities import geticon
+from PM.GroupButtonMixin import GroupButtonMixin
+from sponsors.Sponsors import SponsorableMixin
+from utilities.icon_utilities import geticon
 
-from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
-from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
-from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
-from prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
-from prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
-from prefs_constants import Minimize_minimizationEngine_prefs_key
-from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
+from utilities.prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
+from utilities.prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
+from utilities.prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
+from utilities.prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
+from utilities.prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
+from utilities.prefs_constants import Minimize_minimizationEngine_prefs_key
+from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 import foundation.env as env
 from utilities import debug_flags
 from ne1_ui.UserPrefs import get_pref_or_optval
 from widgets.widget_helpers import double_fixup
-from debug_prefs import debug_pref, Choice_boolean_False
-from prefs_widgets import connect_checkbox_with_boolean_pref
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_MinimizeEnergyPropDialog):
 
@@ -139,7 +139,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
     def setup_ruc(self):
         "#doc"
         #bruce 060705 use new common code, if it works
-        from widget_controllers import realtime_update_controller
+        from widgets.widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
             #( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
             ( self.update_btngrp_group, self.update_number_spinbox, self.update_units_combobox ),
@@ -208,9 +208,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
         if debug_flags.atom_debug:
             print "debug: reloading runSim on each use, for development"
-            import runSim, debug
+            import simulation.runSim as runSim, utilities.debug as debug
             debug.reload_once_per_event(runSim)
-        from runSim import Minimize_CommandRun
+        from simulation.runSim import Minimize_CommandRun
         # do this in gather?
         if self.minimize_all_rbtn.isChecked():
             self.seltype = 'All'

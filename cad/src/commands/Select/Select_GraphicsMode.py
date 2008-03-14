@@ -79,19 +79,19 @@ from OpenGL.GL import glSelectBuffer
 from OpenGL.GLU import gluProject
 from OpenGL.GLU import gluUnProject
 
-from constants import GL_FAR_Z
-from constants import SELSHAPE_RECT
-from constants import SELSHAPE_LASSO
-from constants import SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from constants import START_NEW_SELECTION
-from constants import DELETE_SELECTION
+from utilities.constants import GL_FAR_Z
+from utilities.constants import SELSHAPE_RECT
+from utilities.constants import SELSHAPE_LASSO
+from utilities.constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import ADD_TO_SELECTION
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import DELETE_SELECTION
 
-from constants import black
+from utilities.constants import black
 
 import foundation.env as env
-from debug_prefs import debug_pref
-from debug_prefs import Choice
+from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
 
 from geometry.VQT import V, A, vlen
 
@@ -100,11 +100,11 @@ from model.bonds import Bond
 from model.chem import Atom 
 from model.jigs import Jig
 
-from debug import print_compact_traceback
-from debug import print_compact_stack
+from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_stack
 
-from prefs_constants import bondHighlightColor_prefs_key
-from prefs_constants import deleteBondHighlightColor_prefs_key
+from utilities.prefs_constants import bondHighlightColor_prefs_key
+from utilities.prefs_constants import deleteBondHighlightColor_prefs_key
 
 from utilities import debug_flags
 

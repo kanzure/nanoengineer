@@ -19,10 +19,10 @@ from PyQt4.Qt import QStringList
 
 from commands.Plot.PlotToolDialog import Ui_PlotToolDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
-from movie import find_saved_movie
-from PlatformDependent import open_file_in_editor
+from simulation.movie import find_saved_movie
+from platform.PlatformDependent import open_file_in_editor
 import foundation.env as env
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 debug_gnuplot = False
 
@@ -289,7 +289,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
                 
         plotProcess = None
         try:
-            from Process import Process
+            from processes.Process import Process
             plotProcess = Process()
             
             # Run gnuplot as a new, separate process. 

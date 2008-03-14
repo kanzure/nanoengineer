@@ -23,10 +23,10 @@ as for bond2.]
 from math import floor, ceil
 
 from geometry.VQT import Q
-from debug import print_compact_traceback    
+from utilities.debug import print_compact_traceback    
 from utilities import debug_flags
 import foundation.env as env
-from PyrexSimulator import thePyrexSimulator
+from simulation.PyrexSimulator import thePyrexSimulator
 
 # ==
 

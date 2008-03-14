@@ -9,8 +9,8 @@ Note: as of 070921 reload_once is no longer called except in testdraw.py.
 """
 
 from utilities import debug_flags
-import EndUser
-from debug import reload_once_per_event
+import utilities.EndUser as EndUser
+from utilities.debug import reload_once_per_event
 
 ENABLE_RELOAD = True and debug_flags.atom_debug
 

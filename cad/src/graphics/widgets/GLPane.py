@@ -132,11 +132,11 @@ from commandSequencer.CommandSequencer import modeMixin
 from utilities import debug_flags
 
 from utilities.Log import orangemsg
-from PlatformDependent import fix_event_helper
-from PlatformDependent import wrap_key_event
-from menu_helpers import makemenu_helper
-from DebugMenuMixin import DebugMenuMixin
-from debug import print_compact_traceback, print_compact_stack
+from platform.PlatformDependent import fix_event_helper
+from platform.PlatformDependent import wrap_key_event
+from widgets.menu_helpers import makemenu_helper
+from widgets.DebugMenuMixin import DebugMenuMixin
+from utilities.debug import print_compact_traceback, print_compact_stack
 import foundation.preferences as preferences
 import foundation.env as env
 from foundation.changes import SubUsageTrackingMixin
@@ -147,43 +147,43 @@ from graphics.drawing.Guides import Guides
 
 from foundation.state_utils import transclose
 
-from prefs_constants import glpane_lights_prefs_key
-from prefs_constants import compassPosition_prefs_key
-from prefs_constants import defaultProjection_prefs_key
-from prefs_constants import defaultDisplayMode_prefs_key
-from prefs_constants import backgroundColor_prefs_key
-from prefs_constants import backgroundGradient_prefs_key
-from prefs_constants import animateStandardViews_prefs_key
-from prefs_constants import animateMaximumTime_prefs_key
-from prefs_constants import light1Color_prefs_key
-from prefs_constants import light2Color_prefs_key
-from prefs_constants import light3Color_prefs_key
-from prefs_constants import displayCompass_prefs_key
-from prefs_constants import displayOriginAxis_prefs_key
-from prefs_constants import displayOriginAsSmallAxis_prefs_key
-from prefs_constants import UPPER_RIGHT
-from prefs_constants import UPPER_LEFT
-from prefs_constants import LOWER_LEFT
-from prefs_constants import displayCompassLabels_prefs_key
-from prefs_constants import displayRulers_prefs_key
-from prefs_constants import showRulersInPerspectiveView_prefs_key
+from utilities.prefs_constants import glpane_lights_prefs_key
+from utilities.prefs_constants import compassPosition_prefs_key
+from utilities.prefs_constants import defaultProjection_prefs_key
+from utilities.prefs_constants import defaultDisplayMode_prefs_key
+from utilities.prefs_constants import backgroundColor_prefs_key
+from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import animateStandardViews_prefs_key
+from utilities.prefs_constants import animateMaximumTime_prefs_key
+from utilities.prefs_constants import light1Color_prefs_key
+from utilities.prefs_constants import light2Color_prefs_key
+from utilities.prefs_constants import light3Color_prefs_key
+from utilities.prefs_constants import displayCompass_prefs_key
+from utilities.prefs_constants import displayOriginAxis_prefs_key
+from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
+from utilities.prefs_constants import UPPER_RIGHT
+from utilities.prefs_constants import UPPER_LEFT
+from utilities.prefs_constants import LOWER_LEFT
+from utilities.prefs_constants import displayCompassLabels_prefs_key
+from utilities.prefs_constants import displayRulers_prefs_key
+from utilities.prefs_constants import showRulersInPerspectiveView_prefs_key
 
-from constants import diDEFAULT
-from constants import dispLabel
-from constants import GL_FAR_Z
-from constants import bluesky
-from constants import white
-from constants import MULTIPANE_GUI
+from utilities.constants import diDEFAULT
+from utilities.constants import dispLabel
+from utilities.constants import GL_FAR_Z
+from utilities.constants import bluesky
+from utilities.constants import white
+from utilities.constants import MULTIPANE_GUI
 
-from debug_prefs import Choice
-from debug_prefs import Choice_boolean_False
-from debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
+from utilities.debug_prefs import Choice_boolean_False
+from utilities.debug_prefs import debug_pref
 
-from GlobalPreferences import DEBUG_BAREMOTION
+from utilities.GlobalPreferences import DEBUG_BAREMOTION
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 
-import qt4transition
+import utilities.qt4transition as qt4transition
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
@@ -3168,7 +3168,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # draw some test images related to the confirmation corner
 
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
         ccdp1 = debug_pref("Conf corner test: redraw at lower left", Choice_boolean_False, prefs_key = True)
         ccdp2 = debug_pref("Conf corner test: redraw in-place", Choice_boolean_False, prefs_key = True) # default changed, same prefs_key

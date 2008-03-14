@@ -53,12 +53,12 @@ from dna.model.Dna_Constants import getReverseSequence
 
 from PM.PM_Colors import pmMessageBoxColor
 
-from prefs_constants import workingDirectory_prefs_key
+from utilities.prefs_constants import workingDirectory_prefs_key
 
 from dna.DnaSequenceEditor.Ui_DnaSequenceEditor import Ui_DnaSequenceEditor
 
 from utilities import debug_flags
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 class DnaSequenceEditor(Ui_DnaSequenceEditor):
     """

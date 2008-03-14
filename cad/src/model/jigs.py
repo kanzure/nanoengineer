@@ -43,22 +43,22 @@ from OpenGL.GL import GL_FILL
 from utilities import debug_flags
 
 from foundation.Utility import NodeWith3DContents
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 from geometry.VQT import A
 from commands.ThermostatProperties.StatProp import StatProp
 from commands.ThermometerProperties.ThermoProp import ThermoProp
 
 from utilities.Log import orangemsg
 from graphics.rendering.povray.povheader import povpoint
-from debug import print_compact_stack, print_compact_traceback
+from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
 from graphics.drawing.drawer import drawwirecube
 
-from constants import gensym
-from constants import darkgreen
-from constants import blue
-from constants import darkred
-from constants import black
+from utilities.constants import gensym
+from utilities.constants import darkgreen
+from utilities.constants import blue
+from utilities.constants import darkred
+from utilities.constants import black
 from foundation.state_constants import S_REFS
 
 from graphics.drawables.Selobj import Selobj_API
@@ -415,7 +415,7 @@ class Jig(NodeWith3DContents, Selobj_API):
 
         [extends superclass method]
         """
-        from debug_prefs import debug_pref_History_print_every_selected_object
+        from utilities.debug_prefs import debug_pref_History_print_every_selected_object
         if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
             env.history.message(self.getinfo())
                 #bruce 050901 revised this; now done even if jig is killed (might affect fixed bug 451-9)

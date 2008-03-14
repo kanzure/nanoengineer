@@ -10,9 +10,9 @@ DnaGroup.py - ...
 from dna.model.Block import Block
 from model.chunk import Chunk
 
-from constants import gensym
+from utilities.constants import gensym
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from dna.updater.dna_updater_globals import _f_DnaGroup_for_homeless_objects_in_Part
 

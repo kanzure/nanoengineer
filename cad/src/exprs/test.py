@@ -137,12 +137,12 @@ from exprs.test_statearray_3 import test_StateArrayRefs_3
 from geometry.VQT import V
 from utilities.Comparison import same_vals
 
-from constants import purple, white, blue, red, orange, green, lightgreen
-from constants import gray, pink, yellow, black
-from constants import ave_colors, noop
+from utilities.constants import purple, white, blue, red, orange, green, lightgreen
+from utilities.constants import gray, pink, yellow, black
+from utilities.constants import ave_colors, noop
 # more colors imported below, from ExprsConstants
 
-from prefs_constants import displayOriginAxis_prefs_key
+from utilities.prefs_constants import displayOriginAxis_prefs_key
 from graphics.drawing.texture_fonts import courierfile
 from exprs.reload import exprs_globals
 

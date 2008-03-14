@@ -10,9 +10,9 @@ CntGroup.py - ...
 from dna.model.Block import Block
 from model.chunk import Chunk
 
-from constants import gensym
+from utilities.constants import gensym
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from cnt.updater.cnt_updater_globals import _f_CntGroup_for_homeless_objects_in_Part
 

@@ -27,7 +27,7 @@ from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
 from ne1_ui.help.HelpDialog import Ui_HelpDialog
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
 class Ne1HelpDialog(QWidget, Ui_HelpDialog):
     """

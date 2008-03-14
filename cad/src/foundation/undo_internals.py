@@ -14,10 +14,10 @@ Module classification: foundation.
 """
 
 import foundation.env as env
-from debug import register_debug_menu_command
+from utilities.debug import register_debug_menu_command
 from PyQt4.Qt import QObject ## , QWidget, SIGNAL
 from utilities import debug_flags # for atom_debug
-import EndUser
+import utilities.EndUser as EndUser
 
 # debug print options
 
@@ -133,7 +133,7 @@ class wrappedslot:
             # Print a warning if it looks like the signal and slot argument counts don't match;
             # if DEBUG_GETARGSPEC then always print something about the analysis result.
             # Also try to save info on self, so args_info needn't be called at runtime.
-            from debug import print_compact_traceback
+            from utilities.debug import print_compact_traceback
             try:
                 self.args_info_result = args_info(slotboundmethod)
                 success, minargs, maxargs, any_kws_ok = self.args_info_result
@@ -244,7 +244,7 @@ class wrappedslot:
                             arglists_to_try.append(( args, kws ))
                     # Retry it with those arglists (zero or more of them to try)
                     worked = False
-                    from debug import print_compact_traceback
+                    from utilities.debug import print_compact_traceback
                     for args, kws in arglists_to_try:
                         try:
                             res = slotboundmethod(*args, **kws)
@@ -321,7 +321,7 @@ class wrappedslot:
                 # the leak per-cmenu is smaller than others we have per-user-command. ####@@@@ DOIT
             if fn:
                 if 1: #experiment 060121
-                    from debug import print_compact_traceback
+                    from utilities.debug import print_compact_traceback
                     try:
                         win = env.mainwindow()
                         assert win.initialised # make sure it's not too early
@@ -697,7 +697,7 @@ def args_info(func1): #bruce 071004 revised implem and return value format
         # TODO: there might be a smarter wrapper
         # for that function (which knows about bound methods specifically)
         # in some other introspection module.
-        from debug import print_compact_traceback
+        from utilities.debug import print_compact_traceback
         try:
             import inspect
             try:

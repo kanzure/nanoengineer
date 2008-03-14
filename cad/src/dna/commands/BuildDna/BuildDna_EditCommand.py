@@ -26,7 +26,7 @@ from dna.model.DnaGroup import DnaGroup
 from utilities.Log  import greenmsg
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
-from constants import gensym
+from utilities.constants import gensym
 
 from ne1_ui.toolbars.Ui_DnaFlyout import DnaFlyout
 

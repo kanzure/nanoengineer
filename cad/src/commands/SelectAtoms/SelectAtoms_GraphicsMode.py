@@ -40,21 +40,21 @@ from model.jigs import Jig
 from model.bonds import Bond
 from model.elements import Singlet
 
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from foundation.Group import Group
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
-from prefs_constants import bondHighlightColor_prefs_key
-from prefs_constants import bondpointHighlightColor_prefs_key
-from prefs_constants import atomHighlightColor_prefs_key
-from prefs_constants import deleteBondHighlightColor_prefs_key
-from prefs_constants import deleteAtomHighlightColor_prefs_key
+from utilities.prefs_constants import bondHighlightColor_prefs_key
+from utilities.prefs_constants import bondpointHighlightColor_prefs_key
+from utilities.prefs_constants import atomHighlightColor_prefs_key
+from utilities.prefs_constants import deleteBondHighlightColor_prefs_key
+from utilities.prefs_constants import deleteAtomHighlightColor_prefs_key
 
-from constants import average_value
+from utilities.constants import average_value
 
 from utilities.Log import orangemsg
 

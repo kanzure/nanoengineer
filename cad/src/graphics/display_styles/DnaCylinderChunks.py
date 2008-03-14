@@ -32,27 +32,27 @@ import foundation.env as env
 import graphics.drawing.drawer as drawer
 from geometry.geometryUtilities import matrix_putting_axis_at_z
 from geometry.VQT import V, norm, cross, angleBetween
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from graphics.display_styles.displaymodes import ChunkDisplayMode
-from constants import ave_colors, red, white, darkgreen
+from utilities.constants import ave_colors, red, white, darkgreen
 
-from prefs_constants import atomHighlightColor_prefs_key
+from utilities.prefs_constants import atomHighlightColor_prefs_key
 
 # piotr 080309: user pereferences for DNA style
-from prefs_constants import dnaStyleStrandsColor_prefs_key
-from prefs_constants import dnaStyleAxisColor_prefs_key
-from prefs_constants import dnaStyleStrutsColor_prefs_key
-from prefs_constants import dnaStyleBasesColor_prefs_key
-from prefs_constants import dnaStyleStrandsShape_prefs_key
-from prefs_constants import dnaStyleBasesShape_prefs_key
-from prefs_constants import dnaStyleStrandsArrows_prefs_key
-from prefs_constants import dnaStyleAxisShape_prefs_key
-from prefs_constants import dnaStyleStrutsShape_prefs_key
-from prefs_constants import dnaStyleStrandsScale_prefs_key
-from prefs_constants import dnaStyleAxisScale_prefs_key
-from prefs_constants import dnaStyleBasesScale_prefs_key
-from prefs_constants import dnaStyleAxisTaper_prefs_key
-from prefs_constants import dnaStyleStrutsScale_prefs_key
+from utilities.prefs_constants import dnaStyleStrandsColor_prefs_key
+from utilities.prefs_constants import dnaStyleAxisColor_prefs_key
+from utilities.prefs_constants import dnaStyleStrutsColor_prefs_key
+from utilities.prefs_constants import dnaStyleBasesColor_prefs_key
+from utilities.prefs_constants import dnaStyleStrandsShape_prefs_key
+from utilities.prefs_constants import dnaStyleBasesShape_prefs_key
+from utilities.prefs_constants import dnaStyleStrandsArrows_prefs_key
+from utilities.prefs_constants import dnaStyleAxisShape_prefs_key
+from utilities.prefs_constants import dnaStyleStrutsShape_prefs_key
+from utilities.prefs_constants import dnaStyleStrandsScale_prefs_key
+from utilities.prefs_constants import dnaStyleAxisScale_prefs_key
+from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
+from utilities.prefs_constants import dnaStyleAxisTaper_prefs_key
+from utilities.prefs_constants import dnaStyleStrutsScale_prefs_key
 
 from model.elements import Singlet
 from math import sin, cos, pi
@@ -586,7 +586,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         Draws the chunk that may depend on current view.
         """
         ### drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
-        from constants import lightgreen
+        from utilities.constants import lightgreen
         if 0:
             if chunk.isStrandChunk(): 
                 n_bases = chunk.ladder.baselength()

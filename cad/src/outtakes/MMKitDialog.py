@@ -48,31 +48,31 @@ from PropertyManagerMixin import pmAddTopRowButtons
 from PropertyManagerMixin import pmMessageGroupBox
 from PropertyManagerMixin import pmAddBottomSpacer
 
-from PropMgr_Constants import pmDoneButton
-from PropMgr_Constants import pmWhatsThisButton
-from PropMgr_Constants import pmMainVboxLayoutMargin
-from PropMgr_Constants import pmMainVboxLayoutSpacing
-from PropMgr_Constants import pmHeaderFrameMargin
-from PropMgr_Constants import pmHeaderFrameSpacing
-from PropMgr_Constants import getHeaderFont
-from PropMgr_Constants import pmLabelLeftAlignment
-from PropMgr_Constants import pmSponsorFrameMargin
-from PropMgr_Constants import pmSponsorFrameSpacing
-from PropMgr_Constants import pmGroupBoxSpacing
-from PropMgr_Constants import pmTopRowBtnsMargin
-from PropMgr_Constants import pmTopRowBtnsSpacing
-from PropMgr_Constants import pmMessageTextEditColor
-from PropMgr_Constants import pmGrpBoxVboxLayoutMargin
-from PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
-from PropMgr_Constants import pmMMKitPageMargin
-from PropMgr_Constants import pmMMKitButtonFont
-from PropMgr_Constants import pmMMKitButtonFontPointSize
-from PropMgr_Constants import pmMMKitButtonFontBold
-from PropMgr_Constants import pmMMKitButtonHeight
-from PropMgr_Constants import pmMMKitButtonWidth
-from prefs_constants import buildModeAutobondEnabled_prefs_key
-from prefs_constants import buildModeHighlightingEnabled_prefs_key
-from prefs_constants import buildModeWaterEnabled_prefs_key
+from PM.PropMgr_Constants import pmDoneButton
+from PM.PropMgr_Constants import pmWhatsThisButton
+from PM.PropMgr_Constants import pmMainVboxLayoutMargin
+from PM.PropMgr_Constants import pmMainVboxLayoutSpacing
+from PM.PropMgr_Constants import pmHeaderFrameMargin
+from PM.PropMgr_Constants import pmHeaderFrameSpacing
+from PM.PropMgr_Constants import getHeaderFont
+from PM.PropMgr_Constants import pmLabelLeftAlignment
+from PM.PropMgr_Constants import pmSponsorFrameMargin
+from PM.PropMgr_Constants import pmSponsorFrameSpacing
+from PM.PropMgr_Constants import pmGroupBoxSpacing
+from PM.PropMgr_Constants import pmTopRowBtnsMargin
+from PM.PropMgr_Constants import pmTopRowBtnsSpacing
+from PM.PropMgr_Constants import pmMessageTextEditColor
+from PM.PropMgr_Constants import pmGrpBoxVboxLayoutMargin
+from PM.PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
+from PM.PropMgr_Constants import pmMMKitPageMargin
+from PM.PropMgr_Constants import pmMMKitButtonFont
+from PM.PropMgr_Constants import pmMMKitButtonFontPointSize
+from PM.PropMgr_Constants import pmMMKitButtonFontBold
+from PM.PropMgr_Constants import pmMMKitButtonHeight
+from PM.PropMgr_Constants import pmMMKitButtonWidth
+from utilities.prefs_constants import buildModeAutobondEnabled_prefs_key
+from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
+from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
         
 class Ui_MMKitDialog(object):
     """

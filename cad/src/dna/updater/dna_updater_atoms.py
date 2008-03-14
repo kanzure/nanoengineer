@@ -7,7 +7,7 @@ dna_updater_atoms.py - enforce rules on newly changed PAM atoms and bonds
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from constants import noop as STUB_FUNCTION # FIX all uses
+from utilities.constants import noop as STUB_FUNCTION # FIX all uses
 
 from dna.updater.dna_updater_globals import get_changes_and_clear
 from dna.updater.dna_updater_globals import ignore_new_changes

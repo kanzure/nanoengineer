@@ -32,22 +32,22 @@ from PyQt4.Qt import SLOT
 from PyQt4.Qt import QThread
 from PyQt4.Qt import QMutex
 
-from SimJob import SimJob
+from simulation.SimJob import SimJob
 from analysis.GAMESS.GamessProp import GamessProp
 from analysis.GAMESS.files_gms import writegms_inpfile
 ## from files_gms import writegms_batfile
 import foundation.preferences as preferences
 import foundation.env as env # for setting prefs and doing recursive event processing
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
-from ServerManager import ServerManager
+from processes.ServerManager import ServerManager
 ## from PlatformDependent import open_file_in_editor
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from ne1_ui.UserPrefs import get_filename_and_save_in_prefs
-from PlatformDependent import hhmmss_str
+from platform.PlatformDependent import hhmmss_str
 
-from prefs_constants import gmspath_prefs_key
-from prefs_constants import gamess_enabled_prefs_key
+from utilities.prefs_constants import gmspath_prefs_key
+from utilities.prefs_constants import gamess_enabled_prefs_key
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")

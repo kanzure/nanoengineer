@@ -25,7 +25,7 @@ except:
     # The installed version of OpenGL requires argument-typed glScale calls.
     glScale = glScalef
 
-from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # note: also in basic.py as of 070302
+from utilities.prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # note: also in basic.py as of 070302
 
 from exprs.attr_decl_macros import Arg, ArgOrOption, Option
 from exprs.instance_helpers import DelegatingInstanceOrExpr

@@ -14,8 +14,8 @@ from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QDialog
 from commands.PovraySceneProperties.PovrayScenePropDialog import Ui_PovrayScenePropDialog
 import foundation.env as env, os
 from utilities.Log import redmsg, greenmsg
-from GroupButtonMixin import GroupButtonMixin
-from Sponsors import SponsorableMixin
+from PM.GroupButtonMixin import GroupButtonMixin
+from sponsors.Sponsors import SponsorableMixin
 from utilities.Comparison import same_vals
 
 class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):

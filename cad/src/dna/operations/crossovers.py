@@ -16,7 +16,7 @@ TODO: make it work for PAM3 as well as PAM5.
 # - Pl position is wrong after either op, esp. Remove
 # - Undo and Feature Help cmdnames are wrong (not working)
 
-from constants import noop, average_value
+from utilities.constants import noop, average_value
 from model.bond_constants import V_SINGLE
 from model.bond_constants import atoms_are_bonded, find_bond
 from model.bonds import bond_atoms_faster, bond_direction ##, bond_atoms

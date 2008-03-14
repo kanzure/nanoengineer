@@ -16,7 +16,7 @@ from dna.model.DnaMarker import DnaMarker # for isinstance
 from dna.model.DnaMarker import DnaSegmentMarker # constructor
 from dna.model.DnaMarker import DnaStrandMarker # constructor
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 class WholeChain(object):
     """

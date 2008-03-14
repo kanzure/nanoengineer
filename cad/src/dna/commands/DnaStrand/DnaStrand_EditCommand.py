@@ -17,18 +17,18 @@ TODO: as of 2008-02-14
     methods in class dna_model.DnaSegment change. 
 
 """
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 from geometry.VQT import  V
 from geometry.VQT import  vlen
 from geometry.VQT import  norm
 
-from test_connectWithState import State_preMixin
+from prototype.test_connectWithState import State_preMixin
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__ import _self
 from exprs.Exprs import call_Expr
 from exprs.Exprs import norm_Expr
-from prefs_widgets import ObjAttr_StateRef
+from widgets.prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
 from model.chunk import Chunk
@@ -40,7 +40,7 @@ from dna.commands.DnaStrand.DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
 
 from command_support.EditCommand import EditCommand 
 
-from constants import noop
+from utilities.constants import noop
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 

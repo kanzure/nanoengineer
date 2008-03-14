@@ -59,7 +59,7 @@ from PyQt4.Qt import Qt
 import foundation.env as env
 from utilities import debug_flags
 
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 
 from model.chunk import Chunk
 from model.chem import Atom
@@ -77,11 +77,11 @@ from graphics.behaviors.shape import get_selCurve_color
 from model.bonds import bond_atoms, bond_at_singlets
 from model.bond_constants import V_SINGLE
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
-from constants import elemKeyTab
-from constants import diINVISIBLE
-from constants import diTUBES
+from utilities.constants import elemKeyTab
+from utilities.constants import diINVISIBLE
+from utilities.constants import diTUBES
 
 from model.bond_constants import btype_from_v6
 from model.bond_constants import V_DOUBLE
@@ -89,8 +89,8 @@ from model.bond_constants import V_GRAPHITE
 from model.bond_constants import V_TRIPLE
 from model.bond_constants import V_AROMATIC
 
-from prefs_constants import buildModeSelectAtomsOfDepositedObjEnabled_prefs_key
-from prefs_constants import buildModeWaterEnabled_prefs_key
+from utilities.prefs_constants import buildModeSelectAtomsOfDepositedObjEnabled_prefs_key
+from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 
 from utilities.Log import orangemsg, redmsg
 
@@ -269,7 +269,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         if v6 is not None:
             self.set_cmdname('Change Bond')
             btype = btype_from_v6( v6)
-            from bond_utils import apply_btype_to_bond
+            from operations.bond_utils import apply_btype_to_bond
             
             apply_btype_to_bond( 
                 btype, 

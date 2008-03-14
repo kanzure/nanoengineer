@@ -32,7 +32,7 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QDir
 from PyQt4.Qt import QApplication
 
-from qt4transition import qt4todo
+from utilities.qt4transition import qt4todo
 
 folder_closed_image =[
     "16 16 9 1",

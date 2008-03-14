@@ -20,16 +20,16 @@ from model.elements import Singlet
 from commands.Move.modifyMode import modifyMode
 from model.bonds import bond_at_singlets
 from utilities.Log import redmsg, orangemsg
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 from graphics.behaviors.shape import get_selCurve_color
 
-from constants import green
-from constants import magenta
-from constants import blue
-from constants import darkred
-from constants import diINVISIBLE
+from utilities.constants import green
+from utilities.constants import magenta
+from utilities.constants import blue
+from utilities.constants import darkred
+from utilities.constants import diINVISIBLE
 
 MAKEBONDS = 'Make Bonds Between Chunks'
 FUSEATOMS = 'Fuse Overlapping Atoms'

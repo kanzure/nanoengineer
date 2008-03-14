@@ -17,7 +17,7 @@ self.o.setCursor(win.ArrowCursor)).
 from PyQt4.Qt import QCursor, QBitmap, Qt, QPainter
 import os, sys
 
-from icon_utilities import getCursorPixmap
+from utilities.icon_utilities import getCursorPixmap
 
 def loadCursors(w):
     """

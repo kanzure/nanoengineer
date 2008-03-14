@@ -12,7 +12,7 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QHBoxLayout
 from PyQt4.Qt import QLabel
 
-from qt4transition import qt4warning, qt4todo
+from utilities.qt4transition import qt4warning, qt4todo
 
 # These don't exist in Qt4 but we can make begin(QVBox) and
 # begin(QHBox) act the same as before.

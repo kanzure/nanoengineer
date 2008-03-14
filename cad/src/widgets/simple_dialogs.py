@@ -10,7 +10,7 @@ TODO: merge some of them into one function.
 """
 
 from PyQt4.Qt import QInputDialog, QLineEdit, QDialog
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 
 def grab_text_using_dialog( default = "", 
                             title = "title", 

@@ -48,18 +48,18 @@ from PyQt4.Qt import SLOT
 
 from command_support.generator_button_images import image0_data, image1_data, image2_data, image3_data, image4_data, image5_data, image6_data, image7_data
 
-from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditController_Qt #e might be gotten from env instead...
+from widgets.widget_controllers import CollapsibleGroupController_Qt, FloatLineeditController_Qt #e might be gotten from env instead...
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from qt4transition import qt4todo
+from utilities.qt4transition import qt4todo
 
 import foundation.env as env # for env.debug(); warning: some methods have a local variable which overrides this
 
-from icon_utilities import imagename_to_pixmap
+from utilities.icon_utilities import imagename_to_pixmap
 
 from tokenize import generate_tokens #bruce 080101 moved to toplevel, untested
-from parse_utils import parse_top, Whole #bruce 080101 moved to toplevel, untested
+from utilities.parse_utils import parse_top, Whole #bruce 080101 moved to toplevel, untested
 
 
 # image uses -- we should rename them ####@@@@

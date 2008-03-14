@@ -25,12 +25,12 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
 from graphics.drawing.drawer import drawLineLoop, drawPlane
-from constants  import black, orange, yellow, darkgreen, brown
+from utilities.constants import black, orange, yellow, darkgreen, brown
 
 from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 from geometry.BoundingBox import BBox
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 import foundation.env as env
 
 from utilities.Log     import redmsg

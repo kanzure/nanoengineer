@@ -138,9 +138,9 @@ from idlelib.Delegator import Delegator
 
 # from modules in cad/src
 
-from constants import remove_prefix
+from utilities.constants import remove_prefix
 ##from env import seen_before
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 # from this exprs package in cad/src
 

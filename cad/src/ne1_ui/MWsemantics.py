@@ -20,7 +20,7 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 """
 
 ##from qt4transition import qt4todo
-from qt4transition import qt4warning
+from utilities.qt4transition import qt4warning
 
 from PyQt4 import QtGui, QtCore
 
@@ -49,15 +49,15 @@ import time
 
 from utilities import debug_flags
 
-from PlatformDependent import find_or_make_Nanorex_directory
+from platform.PlatformDependent import find_or_make_Nanorex_directory
 ##from PlatformDependent import make_history_filename
-from PlatformDependent import open_file_in_editor
-from PlatformDependent import find_or_make_Nanorex_subdir
+from platform.PlatformDependent import open_file_in_editor
+from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
 from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
-from debug import print_compact_traceback
-from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug import print_compact_traceback
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
@@ -69,28 +69,28 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 import ne1_ui.toolbars.Ui_CntFlyout as Ui_CntFlyout
 import ne1_ui.toolbars.Ui_DnaFlyout as Ui_DnaFlyout
 
-from ops_files import fileSlotsMixin
-from ops_view import viewSlotsMixin
-from ops_display import displaySlotsMixin
-from ops_modify import modifySlotsMixin 
+from operations.ops_files import fileSlotsMixin
+from operations.ops_view import viewSlotsMixin
+from operations.ops_display import displaySlotsMixin
+from operations.ops_modify import modifySlotsMixin 
 
 from foundation.changes import register_postinit_object
 import foundation.preferences as preferences
 import foundation.env as env 
 import foundation.undo_internals as undo_internals
 
-from prefs_constants import nanohive_enabled_prefs_key
-from prefs_constants import gamess_enabled_prefs_key
-from prefs_constants import gromacs_enabled_prefs_key
-from prefs_constants import cpp_enabled_prefs_key
-from prefs_constants import zoomAboutScreenCenter_prefs_key
-from prefs_constants import workingDirectory_prefs_key
-from prefs_constants import getDefaultWorkingDirectory
-from prefs_constants import rememberWinPosSize_prefs_key
-from prefs_constants import captionPrefix_prefs_key
-from prefs_constants import captionSuffix_prefs_key
-from prefs_constants import captionFullPath_prefs_key
-from prefs_constants import displayRulers_prefs_key
+from utilities.prefs_constants import nanohive_enabled_prefs_key
+from utilities.prefs_constants import gamess_enabled_prefs_key
+from utilities.prefs_constants import gromacs_enabled_prefs_key
+from utilities.prefs_constants import cpp_enabled_prefs_key
+from utilities.prefs_constants import zoomAboutScreenCenter_prefs_key
+from utilities.prefs_constants import workingDirectory_prefs_key
+from utilities.prefs_constants import getDefaultWorkingDirectory
+from utilities.prefs_constants import rememberWinPosSize_prefs_key
+from utilities.prefs_constants import captionPrefix_prefs_key
+from utilities.prefs_constants import captionSuffix_prefs_key
+from utilities.prefs_constants import captionFullPath_prefs_key
+from utilities.prefs_constants import displayRulers_prefs_key
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 
@@ -681,7 +681,7 @@ class MWsemantics(QMainWindow,
         try:
             # wware 060406 bug 1263 - signal the simulator that we are exiting
             # (bruce 070618 moved this here from 3 places in prepareToCloseAndExit.)
-            from runSim import SimRunner
+            from simulation.runSim import SimRunner
             SimRunner.PREPARE_TO_CLOSE = True
         except:
             print_compact_traceback( msg )
@@ -830,7 +830,7 @@ class MWsemantics(QMainWindow,
         Slot for making a checkpoint (only available when Automatic 
         Checkpointing is disabled).
         """
-        import undo_UI
+        import operations.undo_UI as undo_UI
         undo_UI.editMakeCheckpoint(self)
         return
 
@@ -855,7 +855,7 @@ class MWsemantics(QMainWindow,
         """
         Slot for clearing the Undo Stack. Requires the user to confirm.
         """
-        import undo_UI
+        import operations.undo_UI as undo_UI
         undo_UI.editClearUndoStack(self)
         return
 
@@ -1011,7 +1011,7 @@ class MWsemantics(QMainWindow,
         """
         _cmd = greenmsg("Rename: ")
 
-        from ops_select import objectSelected, ATOMS, CHUNKS, JIGS
+        from operations.ops_select import objectSelected, ATOMS, CHUNKS, JIGS
         if not objectSelected(self.assy, objectFlags = CHUNKS | JIGS):
             if objectSelected(self.assy, objectFlags = ATOMS):
                 _msg = redmsg("Cannot rename atoms.")
@@ -1231,7 +1231,7 @@ class MWsemantics(QMainWindow,
         """
         Displays information about this version of NanoEngineer-1.
         """
-        from version import Version
+        from utilities.version import Version
         v = Version()
         product = v.product
         versionString = repr(v) + (" (%s)" % v.releaseType)
@@ -1321,9 +1321,9 @@ class MWsemantics(QMainWindow,
         """
         if debug_flags.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
             print "atom_debug: reloading runSim on each use, for development"
-            import runSim
+            import simulation.runSim as runSim
             reload(runSim)
-        from runSim import simSetup_CommandRun
+        from simulation.runSim import simSetup_CommandRun
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
         return
@@ -1380,7 +1380,7 @@ class MWsemantics(QMainWindow,
 
         @note: This is not implemented.
         """
-        from ServerManager import ServerManager
+        from processes.ServerManager import ServerManager
         ServerManager().showDialog()
 
     ###################################

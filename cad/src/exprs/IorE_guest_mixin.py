@@ -14,8 +14,8 @@ from exprs.lvals import call_but_discard_tracked_usage
 
 from exprs.widget_env import thisname_of_class, widget_env
 
-from debug import safe_repr
-from debug import print_compact_stack
+from utilities.debug import safe_repr
+from utilities.debug import print_compact_stack
 
 from exprs.Exprs import Expr
 from exprs.Exprs import is_pure_expr

@@ -36,7 +36,7 @@ TODO:
 import foundation.changes as changes
 from utilities.Comparison import same_vals
 
-from constants            import permit_gensym_to_reuse_name
+from utilities.constants import permit_gensym_to_reuse_name
 from command_support.GeneratorBaseClass import AbstractMethod
 
 from commands.Select.Select_Command import Select_Command

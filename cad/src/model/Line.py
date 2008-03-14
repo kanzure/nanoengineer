@@ -20,8 +20,8 @@ from Numeric    import dot
 from math       import pi, cos
 from geometry.VQT import V, Q, cross, A, planeXline, vlen, norm, angleBetween
 
-from debug     import print_compact_traceback
-from constants import blue
+from utilities.debug import print_compact_traceback
+from utilities.constants import blue
 from graphics.drawables.ResizeHandle import ResizeHandle
 from model.ReferenceGeometry import ReferenceGeometry
 

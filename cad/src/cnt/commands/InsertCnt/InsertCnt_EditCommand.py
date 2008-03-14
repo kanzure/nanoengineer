@@ -29,7 +29,7 @@ from command_support.EditCommand import EditCommand
 
 from cnt.model.CntSegment import CntSegment
 from cnt.model.CntGroup import CntGroup
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
@@ -39,7 +39,7 @@ from cnt.commands.InsertCnt.Nanotube import Cnt_Atomistic
 from command_support.GeneratorBaseClass import PluginBug, UserError
 from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyManager
 
-from constants import gensym
+from utilities.constants import gensym
 
 from cnt.model.Cnt_Constants import getNumberOfCellsFromCntLength
 from cnt.model.Cnt_Constants import getCntLength

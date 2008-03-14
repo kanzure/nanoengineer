@@ -12,7 +12,7 @@ from exprs.widget2d import Widget2D
 from exprs.attr_decl_macros import ArgOrOption
 from exprs.ExprsConstants import Color, Position, ORIGIN, DX
 
-from constants import gray
+from utilities.constants import gray
 
 from graphics.drawing.drawer import drawDirectionArrow 
 

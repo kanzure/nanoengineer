@@ -20,9 +20,9 @@ from PyQt4.Qt import QWidget
 
 from PM.PM_Constants import pmLeftColumn, pmRightColumn
 
-from prefs_widgets import widget_connectWithState
-from prefs_widgets import QCheckBox_ConnectionWithState
-from prefs_widgets import set_metainfo_from_stateref
+from widgets.prefs_widgets import widget_connectWithState
+from widgets.prefs_widgets import QCheckBox_ConnectionWithState
+from widgets.prefs_widgets import set_metainfo_from_stateref
 
 class PM_CheckBox( QCheckBox ):
     """

@@ -61,7 +61,7 @@ import sys
 
 from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 import foundation.changes as changes
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from utilities.Comparison import same_vals
 
 ##from utilities import debug_flags

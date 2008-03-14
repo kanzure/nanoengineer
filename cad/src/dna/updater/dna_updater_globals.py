@@ -15,7 +15,7 @@ from foundation.changedicts import _cdproc_for_dictid # but it's private!
 
 from model.chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're private! refactor sometime
 
-from debug import print_compact_stack
+from utilities.debug import print_compact_stack
 
 _DEBUG_ATOM_KEY = None # None, or a value of atom.key for which all ignored changes should be printed
 

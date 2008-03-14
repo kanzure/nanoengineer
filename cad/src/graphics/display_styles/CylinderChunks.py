@@ -17,10 +17,10 @@ import foundation.env as env
 import graphics.drawing.drawer as drawer
 from geometry.geometryUtilities import matrix_putting_axis_at_z
 from geometry.VQT import V, norm
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from graphics.display_styles.displaymodes import ChunkDisplayMode
-from constants import ave_colors
-from prefs_constants import atomHighlightColor_prefs_key
+from utilities.constants import ave_colors
+from utilities.prefs_constants import atomHighlightColor_prefs_key
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 

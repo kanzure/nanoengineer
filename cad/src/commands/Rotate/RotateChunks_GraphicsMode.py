@@ -22,7 +22,7 @@ from Numeric import dot, sign
 import foundation.env as env
 from utilities.Log import redmsg
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 from geometry.VQT import V, Q, A, vlen, norm
 from commands.Move.Move_GraphicsMode import Move_GraphicsMode
 

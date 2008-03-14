@@ -53,7 +53,7 @@ even though it can't yet replace the ones it splits out of.
 since those are all split now.]
 """
 
-from constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from command_support.Command import anyCommand, nullCommand, basicCommand
 

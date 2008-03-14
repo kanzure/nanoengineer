@@ -32,7 +32,7 @@ from commands.Select.Select_GraphicsMode import Select_basicGraphicsMode
 
 from command_support.modes import anyMode
 
-from constants import GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import GLPANE_IS_COMMAND_SEQUENCER
 
 class selectMode(Select_basicCommand, 
                  Select_basicGraphicsMode,

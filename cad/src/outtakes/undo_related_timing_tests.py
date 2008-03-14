@@ -8,16 +8,16 @@ $Id$
 # not all of these are needed, perhaps:
 from cPickle import dump, load, HIGHEST_PROTOCOL
 import foundation.env as env
-from debug import register_debug_menu_command, register_debug_menu_command_maker
+from utilities.debug import register_debug_menu_command, register_debug_menu_command_maker
     ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
     # or let them only show up if a related flag is set, or so...
 from PyQt4.Qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
-from constants import genKey, noop
+from utilities.constants import genKey, noop
 from utilities import debug_flags # for atom_debug [bruce 060128, suggested by Mark;
     # if this works, we should simplify some defs which worry if it's too early for this]
 
 
-from debug import call_func_with_timing_histmsg
+from utilities.debug import call_func_with_timing_histmsg
 
 def atpos_list(part):
     "Return a list of atom-position arrays, one per chunk in part. Warning: might include shared mutable arrays."

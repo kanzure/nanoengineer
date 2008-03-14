@@ -18,10 +18,10 @@ Probably "simulation". [bruce 071214]
 """
 
 import foundation.env as env, os, sys, time
-from PlatformDependent import find_or_make_Nanorex_subdir
-from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
+from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from utilities.prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
-from StatusBar import NanoHiveProgressReporter
+from widgets.StatusBar import NanoHiveProgressReporter
 
 def get_nh_simspec_filename(basename):
     """
@@ -280,7 +280,7 @@ def verify_program(program, version_flag, vstring):
         
     args = [version_flag]
     
-    from Process import Process
+    from processes.Process import Process
     
     arguments = []
     for arg in args:
@@ -332,7 +332,7 @@ def start_nh():
     
     #print "start_nh(): args=", args
     
-    from Process import Process
+    from processes.Process import Process
     
     arguments = []
     for arg in args:

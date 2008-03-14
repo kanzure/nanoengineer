@@ -20,9 +20,9 @@ and split it into three modules:
 assert 0, "TreeWidget.py is NO LONGER USED IN Qt4 NE1" #bruce 070503 Qt4
 
 from TreeView import * # including class TreeView, and import * from many other modules
-from menu_helpers import makemenu_helper
+from widgets.menu_helpers import makemenu_helper
 from platform import fix_buttons_helper
-from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
+from utilities.debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
 from utilities import debug_flags
 from platform import tupleFromQPoint, fix_plurals
@@ -447,7 +447,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         would need to be separately passed anyway.)
         """
         if debug_flags.atom_debug: #bruce 060713 debug code, safe to be permanent
-            import debug
+            import utilities.debug as debug
             debug._event = event
             debug._event_state = event.state()
             debug._event_stateAfter = event.stateAfter()        
@@ -677,7 +677,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def topmost_selected_nodes(self): #e might be needed by some context menus... how should the makers ask for it?
         "return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups"
         #bruce 050523 revised this
-        from ops_select import topmost_selected_nodes
+        from operations.ops_select import topmost_selected_nodes
         return topmost_selected_nodes( self.topnodes)
 
     # selection logic

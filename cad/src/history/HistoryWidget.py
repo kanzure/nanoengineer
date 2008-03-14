@@ -31,17 +31,17 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
 from utilities import debug_flags
-from PlatformDependent import mkdirs_in_filename
-from DebugMenuMixin import DebugMenuMixin
+from platform.PlatformDependent import mkdirs_in_filename
+from widgets.DebugMenuMixin import DebugMenuMixin
 import foundation.env as env
 
-from prefs_constants import historyMsgTimestamp_prefs_key
-from prefs_constants import historyMsgSerialNumber_prefs_key
-from prefs_constants import historyHeight_prefs_key
+from utilities.prefs_constants import historyMsgTimestamp_prefs_key
+from utilities.prefs_constants import historyMsgSerialNumber_prefs_key
+from utilities.prefs_constants import historyHeight_prefs_key
 
 from utilities.Log import graymsg, quote_html, greenmsg, redmsg, orangemsg
 
-from PlatformDependent import fix_plurals
+from platform.PlatformDependent import fix_plurals
 
 class message:
     """
@@ -428,9 +428,9 @@ class HistoryWidget:
         if not msg:
             return
         # now handle the present msg: save (and show transiently) or emit
-        from debug_prefs import debug_pref, Choice_boolean_False
+        from utilities.debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("print history.message() call stacks?", Choice_boolean_False): #bruce 060720
-            from debug import compact_stack
+            from utilities.debug import compact_stack
             options['compact_stack'] = compact_stack(skip_innermost_n = 2) # skips compact_stack itself, and this line that calls it
         if transient_id:
             self.statusbar_msg(msg, repaint = repaint) # (no html allowed in msg!)

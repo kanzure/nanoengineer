@@ -30,7 +30,7 @@ from utilities import debug_flags
 from model.jigs import Jig
 from geometry.VQT import V, Q, A, cross, vlen, norm, twistor_angle
 
-from bond_chains import grow_bond_chain
+from operations.bond_chains import grow_bond_chain
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import V_DOUBLE

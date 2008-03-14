@@ -16,8 +16,8 @@ from PyQt4.Qt import QLabel
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import QWidget
 
-from prefs_widgets import widget_setAction
-from prefs_widgets import QPushButton_ConnectionWithAction
+from widgets.prefs_widgets import widget_setAction
+from widgets.prefs_widgets import QPushButton_ConnectionWithAction
 
 class PM_PushButton( QPushButton ):
     """

@@ -46,11 +46,11 @@ and a couple more noted on g4:
 - a few more
 """
 
-from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
+from widgets.prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
 from foundation.changes import Formula
 
 ## from test_animation_mode_PM import test_animation_mode_PM
-from test_command_PMs import ExampleCommand1_PM
+from prototype.test_command_PMs import ExampleCommand1_PM
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_PushButton import PM_PushButton
@@ -61,12 +61,12 @@ from PM.PM_CheckBox import PM_CheckBox
 from command_support.Command import Command
 from command_support.GraphicsMode import GraphicsMode
 
-from debug import print_compact_traceback, register_debug_menu_command
+from utilities.debug import print_compact_traceback, register_debug_menu_command
 import time, math
 
 from foundation.state_utils import copy_val
 
-from constants import green, red, white, pink, black, brown, gray # other colors below
+from utilities.constants import green, red, white, pink, black, brown, gray # other colors below
 from math import pi
 from graphics.drawing.drawer import drawline, drawbrick, drawsphere, drawcylinder
 from OpenGL.GL import GL_LIGHTING, glDisable, glEnable
@@ -968,7 +968,7 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 # these imports are not needed in a minimal example like ExampleCommand2;
 # to make that clear, we put them down here instead of at the top of the file
 from graphics.drawing.drawer import drawline
-from constants import red, green
+from utilities.constants import red, green
 ##from exprs.ExprsConstants import PIXELS
 from exprs.images import Image
 ##from exprs.Overlay import Overlay

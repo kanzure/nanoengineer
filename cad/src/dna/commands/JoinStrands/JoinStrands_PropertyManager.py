@@ -19,7 +19,7 @@ pending because of some remaining things in GBC cleanup (such as
 NanotubeGenerator etc) 
 """
 import sys
-from DebugMenuMixin import DebugMenuMixin
+from widgets.DebugMenuMixin import DebugMenuMixin
 from PM.PM_Dialog import PM_Dialog
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton

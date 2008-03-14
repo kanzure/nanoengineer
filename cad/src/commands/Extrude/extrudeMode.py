@@ -48,12 +48,12 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QCursor
 
-from debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_boolean_True
 
 from command_support.modes import basicMode
-from debug import print_compact_traceback, print_compact_stack
+from utilities.debug import print_compact_traceback, print_compact_stack
 from model.bonds import bond_at_singlets
-from icon_utilities import geticon
+from utilities.icon_utilities import geticon
 from utilities.Log import redmsg
 
 from geometry.VQT import check_posns_near, check_quats_near
@@ -69,8 +69,8 @@ from graphics.behaviors.shape import get_selCurve_color
 from graphics.drawables.handles import repunitHandleSet
 from graphics.drawables.handles import niceoffsetsHandleSet
 from graphics.drawables.handles import draggableHandle_HandleSet
-from constants import blue
-from constants import green
+from utilities.constants import blue
+from utilities.constants import green
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
@@ -1602,7 +1602,7 @@ class extrudeMode(basicMode):
                       Choice_boolean_False, prefs_key = True ): #bruce 070928
             if self.product_type == 'closed ring':
                 try:
-                    from constants import red
+                    from utilities.constants import red
                     self.update_ring_geometry(emit_messages = False)
                         # emit_messages = False to fix infinite redraw loop
                         # when it chooses z-y plane and prints a message about that
@@ -2107,7 +2107,7 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         # WARNING: the following code after our call to copy_nodes_in_order is similar to
         # other code after calls to the related function copied_nodes_for_DND, e.g. in depositMode.py.
         # A higher-level utility routine which does all this post-processing should be added to ops_copy.py. ###e
-        from ops_copy import copy_nodes_in_order
+        from operations.ops_copy import copy_nodes_in_order
             #bruce 070525 precaution: use this instead of copied_nodes_for_DND, since order
             # (in fact, precise 1-1 orig-copy correspondence) matters here.
         oldnodes = self._mols

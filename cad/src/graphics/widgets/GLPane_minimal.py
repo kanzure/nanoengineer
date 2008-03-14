@@ -21,12 +21,12 @@ from geometry.VQT import V, Q
 from graphics.behaviors.Trackball import Trackball
 from model.NamedView import NamedView
 
-from prefs_constants import undoRestoreView_prefs_key
+from utilities.prefs_constants import undoRestoreView_prefs_key
 
-from debug_prefs import Choice
-from debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
+from utilities.debug_prefs import debug_pref
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 import foundation.env as env
 

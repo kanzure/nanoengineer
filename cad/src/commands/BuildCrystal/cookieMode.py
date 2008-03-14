@@ -48,14 +48,14 @@ from graphics.drawing.drawer import genDiam
 from model.chunk import Chunk
 from model.chem import Atom
 
-from constants import gensym
-from constants import diTUBES
-from constants import SELSHAPE_LASSO
-from constants import START_NEW_SELECTION
-from constants import white
-from constants import ADD_TO_SELECTION
-from constants import SUBTRACT_FROM_SELECTION
-from constants import SELSHAPE_RECT
+from utilities.constants import gensym
+from utilities.constants import diTUBES
+from utilities.constants import SELSHAPE_LASSO
+from utilities.constants import START_NEW_SELECTION
+from utilities.constants import white
+from utilities.constants import ADD_TO_SELECTION
+from utilities.constants import SUBTRACT_FROM_SELECTION
+from utilities.constants import SELSHAPE_RECT
 
 import foundation.changes as changes
 

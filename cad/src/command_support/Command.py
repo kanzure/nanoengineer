@@ -27,19 +27,19 @@ basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup.
 
 from PyQt4.Qt import QToolButton
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
-from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 
 from utilities import debug_flags
-from PlatformDependent import shift_name
-from PlatformDependent import control_name
-from PlatformDependent import context_menu_prefix
+from platform.PlatformDependent import shift_name
+from platform.PlatformDependent import control_name
+from platform.PlatformDependent import context_menu_prefix
 
 import foundation.env as env
 from foundation.state_utils import StateMixin
 
-from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
+from utilities.constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
 from model.jigs import Jig
     # this is used only for cmenu making
