@@ -997,6 +997,9 @@ class MWsemantics(QMainWindow,
                         title = "Add Suffixes",
                         label = "Suffix to add to selected nodes:",
                         iconPath = "ui/actions/Edit/Add_Suffixes.png")
+        
+        if not ok:
+            return
     
         _number_renamed = 0
         for _object in _renameList:
@@ -1035,6 +1038,9 @@ class MWsemantics(QMainWindow,
                         title = "Rename Nodes",
                         label = "New name of selected nodes:",
                         iconPath = "ui/actions/Edit/Rename_Objects.png")
+        
+        if not ok:
+            return
 
         _number_renamed = 0
         for _object in _renameList:
