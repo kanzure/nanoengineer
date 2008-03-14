@@ -7,6 +7,16 @@
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 
+// remove this when everyone is using a python which defines Py_ssize_t.
+typedef int XXX_Py_ssize_t;
+
+// remove this when everyone is using a python which defines these
+#ifndef Py_RETURN_TRUE
+#define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
+#define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
+#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#endif
+
 #define XX(z)    z
 //#define XX(z)
 
@@ -26,7 +36,7 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
     if (typ1 == &PyDict_Type) {
         PyObject *key;
         PyObject *value;
-        Py_ssize_t pos = 0;
+        XXX_Py_ssize_t pos = 0;
         
         if (PyDict_Size(v1) != PyDict_Size(v2)) {
             return 1;
