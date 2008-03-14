@@ -1,0 +1,10 @@
+The directory tree for the build is as follows:
+Top_level
+|
++-dist (a directory to hold the compiled gromacs binary tree:
+|       ftp://ftp.gromacs.org/pub/gromacs/gromacs-3.3.2.tar.gz)
+|
++-mcpp (mcpp binary distribution which can be gotten from: 
+        http://mcpp.sourceforge.net/download.html
+
+ReadMe.html,License.txt and GMX_installer.nsi should all reside in the top level directory
