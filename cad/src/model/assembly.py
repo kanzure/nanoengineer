@@ -838,7 +838,9 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         """
         make sure each selgroup has its own Part, and all is correct about them
         """
-        # presumably this is only called when debug_flags.atom_debug, but that's up to the caller
+        # presumably this is only called when debug_flags.atom_debug,
+        # but that's up to the caller, and as of 080314 there are many calls,
+        # including at least one which calls it even when not atom_debug.
         for node in self.topnodes_with_own_parts():
             try:
                 assert node.is_top_of_selection_group() ##e rename node.is_selection_group()??
@@ -852,6 +854,9 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             except:
                 print "following exception is in checkparts(%s) of %r about node %r" % \
                       (when and `when` or "", self, node)
+                # this would be useful, but doesn't seem to work right in this context:
+                ## if not when:
+                ##     print_compact_stack(" ... which was called from here: ") #bruce 080314
                 raise
         return
 

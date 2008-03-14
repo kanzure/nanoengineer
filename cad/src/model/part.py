@@ -284,7 +284,15 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
                 print "debug_parts: fyi: node added to new part so removed from old part first:", node, self, node.part
             node.part.remove(node)
         assert node.part is None
-        assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
+        # this is a desired assertion, but make it a debug print
+        # so as not to cause worse bugs: [bruce 080314]
+        ## assert not node.picked # since remove did it, or it was not in a part and could not have been picked (I think!)
+        if node.picked:
+            msg = "\n***BUG: node.picked in %r.add(%r); clearing it to avoid more bugs" % \
+                  (self, node)
+            print_compact_stack( msg + ": ")
+            node.picked = False # too dangerous to use node.unpick() here
+            pass
         #e should assert a mol's atoms not picked too (too slow to do it routinely; bugs in this are likely to be noticed)
         node.part = node.prior_part = self
             #bruce 050527 comment: I hope and guess this is the only place node.part is set to anything except None; need to check ###k
