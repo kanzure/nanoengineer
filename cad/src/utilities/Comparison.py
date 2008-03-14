@@ -35,7 +35,7 @@ import foundation.env as env
 
 _debug_same_vals = False #bruce 060419; relates to bug 1869
 
-SAMEVALS_SPEEDUP = False
+SAMEVALS_SPEEDUP = True
     # If true, try to use the C extension version in samevals.c
     # [which is not yet fully correct, IIRC -- bruce 071005 comment];
     # will be set to False if "import samevals" fails below.
