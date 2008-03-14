@@ -866,8 +866,16 @@ def get_gms_name():
 def find_pyrexc():
     import Pyrex # not a toplevel import -- module not present for most users
     if sys.platform == 'darwin':
+
+        # MacOS
         x = os.path.dirname(Pyrex.__file__).split('/')
-        return '/'.join(x[:-4] + ['bin', 'pyrexc'])
+        y = '/'.join(x[:-4] + ['bin', 'pyrexc'])
+        if os.path.exists(y):
+            return y
+        elif os.path.exists('/usr/local/bin/pyrexc'):
+            return '/usr/local/bin/pyrexc'
+        raise Exception('cannot find Mac pyrexc')
+
     elif sys.platform == 'linux2':
         if os.path.exists('/usr/bin/pyrexc'):
             return '/usr/bin/pyrexc'
