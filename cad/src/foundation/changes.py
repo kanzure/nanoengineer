@@ -357,7 +357,9 @@ class begin_end_matcher: #bruce 050804
 # ==
 
 def default_track(thing): #bruce 050804; see also the default definition of track in env module
-    "Default implementation -- will be replaced at runtime whenever usage of certain things is being tracked."
+    """
+    Default implementation -- will be replaced at runtime whenever usage of certain things is being tracked.
+    """
 ##    if debug_flags.atom_debug:
 ##        print "atom_debug: fyi (from changes module): something asked to be tracked, but nothing is tracking: ", thing
 ##        # if this happens and is not an error, then we'll zap the message.
@@ -427,7 +429,11 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
             #  And it might be legitimate. So don't add a restriction like that.]
         return match_checking_code
     def end_tracking_usage(self, match_checking_code, invalidator, debug = False):
-        "#doc; new feature 070109, mainly for debugging-related uses: returns the usage_tracker_obj"
+        """
+        #doc;
+        returns the usage_tracker_obj
+        """
+        # new feature 070109, mainly for debugging-related uses
         obj = usage_tracker.end( match_checking_code)
         obj.standard_end( invalidator, debug = debug)
             ##e or we could pass our own invalidator which wraps that one,
@@ -668,7 +674,9 @@ class begin_disallowing_usage_tracking(SubUsageTrackingMixin):
     def __repr__(self):
         return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.whosays)
     def end_tracking_usage(self, match_checking_code, invalidator):
-        "[THIS OVERRIDES the method from SubUsageTrackingMixin]"
+        """
+        [THIS OVERRIDES the method from SubUsageTrackingMixin]
+        """
         obj = usage_tracker.end( match_checking_code) # same as in mixin
         obj.standard_end( invalidator) # same as in mixin, but we'll remove this later, so don't just call the mixin version here
         if obj.whatweused: # a private attr of obj (a usage_tracker_obj), that we happen to know about, being a friend of it
@@ -950,7 +958,9 @@ def register_postinit_item( typename, item):
 _keep_these_forever = {}
 
 def keep_forever(thing):
-    "a place to put stuff if you need to make sure it's never deallocated by Python"
+    """
+    a place to put stuff if you need to make sure it's never deallocated by Python
+    """
     _keep_these_forever[id(thing)] = thing
 
 # ==
@@ -960,10 +970,15 @@ _op_id = 0
 debug_begin_ops = False #bruce 051018 changed from debug_flags.atom_debug
 
 class op_run:
-    "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"
+    """
+    Track one run of one operation or suboperation, as reported to
+    env.begin_op and env.end_op in nested pairs
+    """
     def __init__(self, op_type = None, in_event_loop = False, typeflag = ''): #bruce 060321 added typeflag
         #bruce 060127 adding in_event_loop for Undo
-        "[this gets all the args passed to env.begin_op()]"
+        """
+        [this gets all the args passed to env.begin_op()]
+        """
         self.op_type = op_type # this might be almost anything, mainly meant for humans to see
         self.in_event_loop = in_event_loop
         self.typeflag = typeflag # this is one of a small set of constants which control how this is treated by undo (at least)
@@ -979,7 +994,9 @@ class op_run:
             self.printmsg( "%send op_id %r, op_type %r" % (self.indent(), self.op_id, self.op_type) )
         pass
     def error(self, errmsg_text):
-        "called for begin_op with no matching end_op, just before our .end() and the next outer end_op is called"
+        """
+        called for begin_op with no matching end_op, just before our .end() and the next outer end_op is called
+        """
         if debug_begin_ops: # 
             self.printmsg( "%serror op_id %r, op_type %r, errmsg %r" % (self.indent(), self.op_id, self.op_type, errmsg_text) )
         pass
@@ -988,7 +1005,9 @@ class op_run:
             # print "atom_debug: fyi: %s" % text
             env.history.message( "debug: " + text ) # might be recursive call of history.message; ok in theory but untested ###@@@
     def indent(self):
-        "return an indent string based on the stack length; we assume the stack does not include this object"
+        """
+        return an indent string based on the stack length; we assume the stack does not include this object
+        """
         #e (If the stack did include this object, we should subtract 1 from its length. But for now, it never does.)
         return "| " * len(op_tracker.stack)
     pass
@@ -997,7 +1016,10 @@ _in_event_loop = True #bruce 060127; also keep a copy of this in env; probably t
 env._in_event_loop = _in_event_loop
 
 def _op_tracker_stack_changed( tracker, infodict ): #bruce 050908 for Undo
-    "[private] called when op_tracker's begin/end stack is created, and after every time it changes"
+    """
+    [private]
+    called when op_tracker's begin/end stack is created, and after every time it changes
+    """
     #e we might modify some sort of env.prefs object, or env.history (to filter out history messages)...
     #e and we might figure out when outer-level ops happen, as part of undo system
     #e and we might install something to receive reports about possible missing begin_op or end_op calls
@@ -1084,7 +1106,8 @@ def env_in_op(*args, **kws): # (disabled, separately, bruce 060127)
     return
 
 def env_after_op(): # (disabled, separately, bruce 060127)
-    """This gets called at the start of GLPane repaint events
+    """
+    This gets called at the start of GLPane repaint events
     [#e or at other times not usually inside user-event handling methods],
     which don't occur during an "op" unless there is recursive Qt event processing.
     """
@@ -1104,13 +1127,17 @@ def env_after_op(): # (disabled, separately, bruce 060127)
 ##env.after_op = env_after_op
 
 def env_begin_recursive_event_processing():
-    "call this just before calling qApp.processEvents()"
+    """
+    call this just before calling qApp.processEvents()
+    """
     env_in_op('(env_begin_recursive_event_processing)')
     return env_begin_op('(recursive_event_processing)', in_event_loop = True, typeflag = 'beginrec') #bruce 060321 added typeflag
         #bruce 060127 added in_event_loop = True
 
 def env_end_recursive_event_processing(mc):
-    "call this just after calling qApp.processEvents()"
+    """
+    call this just after calling qApp.processEvents()
+    """
     return env_end_op(mc) #bruce 060321: no typeflag needed (or allowed), gets it from matching begin_op
 
 env.begin_recursive_event_processing = env_begin_recursive_event_processing
