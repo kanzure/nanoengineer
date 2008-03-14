@@ -230,7 +230,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #When the structure (segment) is finalized (afterthe  modifications)
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
-            self._parentDnaGroup = self.struct.get_DnaGroup() 
+            self._parentDnaGroup = self.struct.getDnaGroup() 
             #Set the duplex rise and number of bases
             self.propMgr.setParameters(self.struct.getProps())
             #Store the previous parameters. Important to set it after you 
@@ -680,7 +680,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             dnaGroup = self.struct.parent_node_of_class(self.assy.DnaGroup)
             if dnaGroup is None:
                 return
-            #following should be self.struct.get_DnaGroup or self.struct.getDnaGroup
+            #following should be self.struct.getDnaGroup or self.struct.getDnaGroup
             #need to formalize method name and then make change.
             if not dnaGroup is highlightedChunk.parent_node_of_class(self.assy.DnaGroup):
                 item = ("Edit unavailable: Member of a different DnaGroup",

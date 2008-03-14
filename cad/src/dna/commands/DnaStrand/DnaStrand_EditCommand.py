@@ -382,7 +382,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                         noop, 'disabled')
                 self.Menu_spec.append(item)
                 return	 
-            #following should be self.struct.get_DnaGroup or self.struct.getDnaGroup
+            #following should be self.struct.getDnaGroup or self.struct.getDnaGroup
             #need to formalize method name and then make change.
             dnaGroup = self.struct.parent_node_of_class(self.assy.DnaGroup)
             if dnaGroup is None:

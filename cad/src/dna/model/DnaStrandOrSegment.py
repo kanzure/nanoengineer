@@ -55,7 +55,7 @@ class DnaStrandOrSegment(Block):
     # Note: we definitely can't inherit Block, or we'd show up in MT
     # as a child of a DnaGroup!
 
-    def get_DnaGroup(self):
+    def getDnaGroup(self):
         """
         Return the DnaGroup we are contained in, or None if we're not
         inside one.

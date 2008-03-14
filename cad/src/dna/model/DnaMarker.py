@@ -321,7 +321,7 @@ class DnaMarker( ChainAtomMarker):
 
     # == other methods
 
-    def get_DnaGroup(self):
+    def getDnaGroup(self):
         """
         Return the DnaGroup we are contained in, or None if we're not
         inside one.
@@ -843,7 +843,7 @@ class DnaSegmentMarker(DnaMarker): #e rename to DnaAxisMarker? guess: no...
         @see: self.controlling, for whether we control base indexing
         (and perhaps other aspects) of the DnaSegment that owns us.
 
-        @see: get_DnaGroup
+        @see: getDnaGroup
         """
         res = self._get_DnaStrandOrSegment()
         assert isinstance(res, DnaSegment)
@@ -869,7 +869,7 @@ class DnaStrandMarker(DnaMarker):
         @see: self.controlling, for whether we control base indexing
         (and perhaps other aspects) of the DnaStrand that owns us.
 
-        @see: get_DnaGroup
+        @see: getDnaGroup
         """
         res = self._get_DnaStrandOrSegment()
         assert isinstance(res, DnaStrand)
