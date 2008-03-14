@@ -79,6 +79,13 @@ import foundation.preferences as preferences
 import foundation.env as env 
 import foundation.undo_internals as undo_internals
 
+from operations.ops_select import objectSelected
+from operations.ops_select import ATOMS, CHUNKS, JIGS
+from operations.ops_select import DNASTRANDS, DNASEGMENTS, DNAGROUPS
+
+from widgets.widget_helpers import TextMessageBox
+from widgets.simple_dialogs import grab_text_line_using_dialog
+
 from utilities.prefs_constants import nanohive_enabled_prefs_key
 from utilities.prefs_constants import gamess_enabled_prefs_key
 from utilities.prefs_constants import gromacs_enabled_prefs_key
@@ -964,13 +971,86 @@ class MWsemantics(QMainWindow,
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win_update()
     
+    def editAddSuffix(self):
+        """
+        Adds a suffix to the name(s) the selected objects.
+        """
+        # Don't allow renaming while animating (b/w views).
+        if self.glpane.is_animating:
+            return
+        
+        _cmd = greenmsg("Add Suffix: ")
+
+        if not objectSelected(self.assy):
+            if objectSelected(self.assy, objectFlags = ATOMS):
+                _msg = redmsg("Cannot rename atoms.")
+            else:
+                _msg = redmsg("Nothing selected.")
+            env.history.message(_cmd + _msg)
+            return
+
+        _renameList = self.assy.getSelectedRenameables()
+        
+        ok, new_name = grab_text_line_using_dialog(
+                        title = "Add Suffixes",
+                        label = "Suffix to add to selected nodes:",
+                        iconPath = "ui/actions/Edit/Add_Suffixes.png")
+    
+        _number_renamed = 0
+        for _object in _renameList:
+            if _object.rename_enabled():
+                _new_name = _object.name + new_name
+                print "new name = ", _new_name
+                ok, info = _object.try_rename(_new_name)
+                if ok:
+                    _number_renamed += 1
+
+        _msg = "%d of %d selected objects renamed." \
+             % (_number_renamed, len(_renameList))
+        env.history.message(_cmd + _msg)
+        
+    def editRenameSelectedObjects(self):
+        """
+        Renames multiple selected objects (chunks or jigs).
+        """
+        # Don't allow renaming while animating (b/w views).
+        if self.glpane.is_animating:
+            return
+        
+        _cmd = greenmsg("Rename selected objects: ")
+
+        if not objectSelected(self.assy):
+            if objectSelected(self.assy, objectFlags = ATOMS):
+                _msg = redmsg("Cannot rename atoms.")
+            else:
+                _msg = redmsg("Nothing selected.")
+            env.history.message(_cmd + _msg)
+            return
+
+        _renameList = self.assy.getSelectedRenameables()
+        
+        ok, new_name = grab_text_line_using_dialog(
+                        title = "Rename Nodes",
+                        label = "New name of selected nodes:",
+                        iconPath = "ui/actions/Edit/Rename_Objects.png")
+
+        _number_renamed = 0
+        for _object in _renameList:
+            if _object.rename_enabled():
+                ok, info = _object.try_rename(new_name)
+                if ok:
+                    _number_renamed += 1
+
+        _msg = "%d of %d selected objects renamed." \
+             % (_number_renamed, len(_renameList))
+        env.history.message(_cmd + _msg)
+    
     def renameObject(self, object):
         """
-        Prompts the user to rename I{object}, which can be a chunk, jig or 
-        node.
+        Prompts the user to rename I{object}, which can be any renameable node.
         
         @param object: The object to be renamed.
-        @type  object: Chunk, Jig or Node
+        @type  object: Node
         
         @return: A descriptive message about what happened.
         @rtype:  string
@@ -990,7 +1070,6 @@ class MWsemantics(QMainWindow,
                 #e someday we might want to call try_rename on fake text
                 # to get a more specific error message... for now it doesn't have one.
         else:
-            from widgets.simple_dialogs import grab_text_line_using_dialog
             ok, text = grab_text_line_using_dialog(
                             title = "Rename",
                             label = "new name for [%s]:" % oldname,
@@ -1007,12 +1086,13 @@ class MWsemantics(QMainWindow,
     
     def editRename(self):
         """
-        Renames the selected movable (chunk or jig).
+        Renames the selected node/object.
+        
+        @note: Does not work for DnaStrands or DnaSegments.
         """
         _cmd = greenmsg("Rename: ")
 
-        from operations.ops_select import objectSelected, ATOMS, CHUNKS, JIGS
-        if not objectSelected(self.assy, objectFlags = CHUNKS | JIGS):
+        if not objectSelected(self.assy):
             if objectSelected(self.assy, objectFlags = ATOMS):
                 _msg = redmsg("Cannot rename atoms.")
             else:
@@ -1020,11 +1100,16 @@ class MWsemantics(QMainWindow,
             env.history.message(_cmd + _msg)
             return
 
-        _movables = self.assy.getSelectedMovables()
-        _numSelectedObjects = len(_movables)
+        _renameableList = self.assy.getSelectedRenameables()
+        _numSelectedObjects = len(_renameableList)
+        # _numSelectedObjects is > 1 if the user selected a single DnaStrand
+        # or DnaSegment, since they contain chunk nodes. This is a bug 
+        # that I will discuss with Bruce. --Mark 2008-03-14
 
-        if _numSelectedObjects == 1:
-            _msg = self.renameObject(_movables[0])
+        if _numSelectedObjects == 0:
+            _msg = "Renaming this object is not permitted."
+        elif _numSelectedObjects == 1:
+            _msg = self.renameObject(_renameableList[0])
         else:
             _msg = redmsg("Only one object can be selected.")
         env.history.message(_cmd + _msg)
@@ -1202,7 +1287,6 @@ class MWsemantics(QMainWindow,
         """
         ginfo = get_gl_info_string( self.glpane) #bruce 070308 added glpane arg
 
-        from widgets.widget_helpers import TextMessageBox
         msgbox = TextMessageBox(self)
         msgbox.setWindowTitle("Graphics Card Info")
         msgbox.setText(ginfo)

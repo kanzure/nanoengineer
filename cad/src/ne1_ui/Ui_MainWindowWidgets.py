@@ -156,6 +156,14 @@ def setupUi(win):
     win.editRenameAction = QtGui.QAction(MainWindow)
     win.editRenameAction.setIcon(geticon("ui/actions/Edit/Rename.png"))
     win.editRenameAction.setObjectName("editRenameAction")
+    
+    win.editRenameObjectsAction = QtGui.QAction(MainWindow)
+    win.editRenameObjectsAction.setIcon(geticon("ui/actions/Edit/Rename_Objects.png"))
+    win.editRenameObjectsAction.setObjectName("editRenameObjectsAction")
+    
+    win.editAddSuffixAction = QtGui.QAction(MainWindow)
+    win.editAddSuffixAction.setIcon(geticon("ui/actions/Edit/Add_Suffixes.png"))
+    win.editAddSuffixAction.setObjectName("editAddSuffixAction")
 
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color"))
@@ -1076,6 +1084,32 @@ def retranslateUi(win):
     win.editRenameAction.setShortcut(
         QtGui.QApplication.translate(
             "MainWindow", "Shift+R", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.editRenameObjectsAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename Objects",
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editRenameObjectsAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename Objects", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editRenameObjectsAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Rename Objects", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.editAddSuffixAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Add Suffixes",
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editAddSuffixAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Add Suffixes", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.editAddSuffixAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Add Suffixes", 
             None, QtGui.QApplication.UnicodeUTF8))
     
     win.editMakeCheckpointAction.setIconText(
