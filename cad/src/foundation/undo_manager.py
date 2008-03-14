@@ -295,6 +295,8 @@ class AssyUndoManager(UndoManager):
         # Now I have a theory about the bug's cause: if this happens in a closed assy,
         # deinit has set self.assy to None. To repeat, open and close a dna file with dna updater
         # off, then turn dna updater on. Now this should cause the "bug (harmless?)" print below.
+        #bruce 080314 update: that does happen, so that print is useless and verbose,
+        # so disable it for now. Retain the other ones.
         if assy is None or node is None:
             print "\n*** BUG: node_departing_assy(%r, %r, %r) sees assy or node is None" % \
                   (self, node, assy)
@@ -303,9 +305,10 @@ class AssyUndoManager(UndoManager):
             # this will happen for now when the conditions that caused today's bug reoccur,
             # until we fix the dna updater to never run inside a closed assy (desirable)
             # [bruce 080219]
-            print "\nbug (harmless?): node_departing_assy(%r, %r, %r), but " \
-                  "self.assy is None (happens when self's file is closed)" % \
-                  (self, node, assy)
+            if 0: #bruce 080314
+                print "\nbug (harmless?): node_departing_assy(%r, %r, %r), but " \
+                      "self.assy is None (happens when self's file is closed)" % \
+                      (self, node, assy)
             return
         if not (assy is self.assy):
             print "\n*** BUG: " \
