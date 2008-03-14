@@ -215,14 +215,18 @@ import utilities.EndUser as EndUser
 # ==
 
 # ColorSorter control
-allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
-allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
-use_color_sorted_dls = use_color_sorted_dls_default = False #russ 080225: Added.
+#bruce 060323 changed this to False for A7 release. russ 080314: default on.
+allow_color_sorting = allow_color_sorting_default = True
+#bruce 060323 changed this to disconnect it from old pref setting
+allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
+#russ 080225: Added, 080314: default on.
+use_color_sorted_dls = use_color_sorted_dls_default = True
 use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
 
 # Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
 use_c_renderer = use_c_renderer_default = False
-use_c_renderer_prefs_key = "use_c_renderer_rev2" #bruce 060323 changed this to disconnect it from old pref setting
+#bruce 060323 changed this to disconnect it from old pref setting
+use_c_renderer_prefs_key = "use_c_renderer_rev2"
 
 if EndUser.getAlternateSourcePath() != None:
     sys.path.append(os.path.join( EndUser.getAlternateSourcePath(), "experimental/pyrex-opengl"))
