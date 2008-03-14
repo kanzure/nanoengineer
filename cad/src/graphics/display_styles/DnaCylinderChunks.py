@@ -247,7 +247,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             
             return strandChunkList
         
-        def drawStrand(points, colors, radii, shape, arrows):
+        def drawStrand(points, colors, radii, color_style, shape, arrows):
             """
             Renders a strand shape along points array using colors 
             and radii arrays, optionally with arrows. 
@@ -268,10 +268,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     #drawer.drawpolycone(colors[1], 
                     #                    points,
                     #                    radii)
-                    drawer.drawpolycone_multicolor(colors[1], 
-                                                   points,
-                                                   colors,
-                                                   radii)
+                    if color_style==1:
+                        drawer.drawpolycone_multicolor(colors[1], 
+                                                       points,
+                                                       colors,
+                                                       radii)
+                    else:
+                        drawer.drawpolycone(colors[1], 
+                                            points,
+                                            radii)
                 elif shape==2: # draw spline tube
                     gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                                     | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED)                    
@@ -293,8 +298,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     new_points[0] = 3.0*new_points[1]-3.0*new_points[2]+new_points[3] 
                     new_points[o] = 3.0*new_points[o-1]-3.0*new_points[o-2]+new_points[o-3] 
                     # draw the tube
-                    drawer.drawpolycone_multicolor(
-                        colors[1], new_points, new_colors, new_radii)
+                    if color_style==1:
+                        drawer.drawpolycone_multicolor(
+                            colors[1], new_points, new_colors, new_radii)
+                    else:
+                        drawer.drawpolycone(
+                            colors[1], new_points, new_radii)
             # draw the arrows
             if arrows==1 or arrows==3:
                 drawer.drawpolycone(colors[n-2],
@@ -438,12 +447,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     drawer.drawsphere(colors[1], 
                                       points[1], radii[1], 2)
                     drawer.drawsphere(colors[pos-1], 
-                                      points[pos-1], radii[pos-1], 2)
-                    
+                                      points[pos-1], radii[pos-1], 2)                    
                 # draw the polycone
                 gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
-                                | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED)             
+                                | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
+            if dnaStyleAxisColor==1 or dnaStyleAxisColor==2 or dnaStyleAxisColor==3: # render discrete colors                
                 drawer.drawpolycone_multicolor(colors[1], points, colors, radii)
+            else:   
+                drawer.drawpolycone(colors[1], points, radii)
 
         elif chunk.isStrandChunk(): # strands, struts and bases            
             if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
@@ -480,7 +491,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 for bond in chunk.externs:
                     if bond.atom1.molecule.dad==bond.atom2.molecule.dad: # same group
                         if bond.atom1.molecule!=bond.atom2.molecule: # but different chunks
-                            print "external bond ", bond
                             drawer.drawcylinder(
                                 colors[1], 
                                 bond.atom1.posn()-chunk.center, 
@@ -494,7 +504,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             if bond.atom2==chunk.ladder.strand_rails[chunk_strand].baseatoms[n_bases-1].posn():
                                 points[pos] = bond.atom1.posn()-chunk.center
                 
-                drawStrand(points, colors, radii, dnaStyleStrandsShape, dnaStyleStrandsArrows)
+                drawStrand(points, colors, radii, dnaStyleStrandsColor, dnaStyleStrandsShape, dnaStyleStrandsArrows)
 
             # render struts
             if dnaStyleStrutsShape>0:
@@ -570,6 +580,29 @@ class DnaCylinderChunks(ChunkDisplayMode):
         """
         drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
         return
+    
+    def drawchunk_realtime(self, glpane, chunk):
+        """
+        Draws the chunk that may depend on current view.
+        """
+        ### drawchunk(self, glpane, chunk, selection_frame_color, memo, highlighted)
+        from constants import lightgreen
+        if 0:
+            if chunk.isStrandChunk(): 
+                n_bases = chunk.ladder.baselength()
+                if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+                    chunk_strand = 0
+                else:
+                    chunk_strand = 1
+                for pos in range(0,n_bases):
+                    atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+                    atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+                    # compute a normal to the view plane
+                    vz = glpane.quat.unrot(V(0.0,0.0,1.0)) 
+                    v2 = norm(atom1.posn()-atom2.posn())
+                    a = angleBetween(vz,v2)
+                    if abs(a)<30.0:
+                        drawer.drawsphere(lightgreen,atom1.posn(),1.5,2)
     
     def compute_memo(self, chunk):
         """
