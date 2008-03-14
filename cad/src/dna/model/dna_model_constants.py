@@ -40,6 +40,22 @@ CHAIN_OTHER_END = [1,0] # 1 - end
 CHAIN_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND = [-1, 1]
 
 
-MAX_LADDER_LENGTH = 20 # @@@@ TODO: also use this to split long ladders
+MAX_LADDER_LENGTH = 500     # @@@@ TODO: also use this to split long ladders
+    # MAX_LADDER_LENGTH limits the length of a DnaLadder that we will create
+    # by merging (this is implemented, and ran at 20 for a long time),
+    # and (not yet implemented) causes us to split DnaLadders that are longer
+    # than this (when encountered by the dna updater).
+    #
+    # When it's fully implemented, the best value should be determined based
+    # on performance (eg of graphics), and might be 20 or lower (splitting
+    # would be fairly common for 20).
+    #
+    # Right now, since it's only partly implemented, and since
+    # some display or UI ops may not yet handle split ladders ideally,
+    # make it a large enough value that failure to split
+    # (resulting in history-dependence of final state) will be rare.
+    #
+    # [bruce 080314]
+    
 
 # end
