@@ -388,6 +388,8 @@ class SimRunner:
                             gromacsFullBaseFileInfo.completeBaseName()
                         os.mkdir(hdf5DataStoreDir)
                             
+                        sleep(1) # Give GMX/HDF5 a chance to write basic info
+						
                         # Determine the GMX process id (pid) for passing to nv1.
                         pid = str(gromacsProcess.pid())
                         if (sys.platform == 'win32'):
@@ -410,7 +412,6 @@ class SimRunner:
                         self.part.writemmpfile(inputFileName)
                         
                         # Launch the NV1 process
-                        sleep(1) # Give GMX/HDF5 a chance to write basic info
                         nv1Process = Process()
                         nv1Args = [
                             "-f", hdf5DataStoreDir + ".nh5",
