@@ -776,17 +776,34 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         chunkList = []
         colorList = []
         
+        #Note: Make sure to check if its a 'DnaStrand' so that its 
+        #draw_highlighted method gets called when applicable. There could be 
+        #several such things in the future. so need to think of a better way to 
+        #do it.
         if isinstance(selobj, Atom):
-            chunkList = [selobj.molecule]     
+            dnaStrand = selobj.molecule.parent_node_of_class(self.win.assy.DnaStrand)
+            if dnaStrand:
+                chunkList = [dnaStrand]
+            else:
+                chunkList = [selobj.molecule]                 
             colorList = [hiColor1]
         elif isinstance(selobj, Bond):            
             chunk1 = selobj.atom1.molecule
             chunk2 = selobj.atom2.molecule
             if chunk1 is chunk2:
-                chunkList = [chunk1] 
+                dnaStrand = chunk1.parent_node_of_class(self.win.assy.DnaStrand)
+                if dnaStrand:
+                    chunkList = [dnaStrand]
+                else:
+                    chunkList = [chunk1]                     
                 colorList = [hiColor1]
             else:
-                chunkList = [chunk1, chunk2]
+                for c in [chunk1, chunk2]:
+                    dnaStrand = c.parent_node_of_class(self.win.assy.DnaStrand)
+                    if dnaStrand:
+                        chunkList.append(dnaStrand)
+                    else:
+                        chunkList.append(c)
                 colorList = [hiColor1, hiColor2]
 
         if self._is_dnaGroup_highlighting_enabled(): 

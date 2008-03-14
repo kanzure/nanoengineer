@@ -49,6 +49,12 @@ class DnaStrand(DnaStrandOrSegment):
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
     
+    #Define highlighting policy for this object (whether it should responf to 
+    #highlighting). It returns True by default. For some commands it might 
+    #be switched off (usually by the user but can be done internally as well)
+    #see self.getHighlightPolicy() for details
+    _highlightPolicy = True
+    
     def edit(self):
         """
         Edit this DnaSegment. 
@@ -72,10 +78,76 @@ class DnaStrand(DnaStrandOrSegment):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
-        
-                    
+                        
     def getStrandChunks(self): 
         pass
+    
+    def _get_commandNames_honoring_highlightPolicy(self):
+        """
+        Return a tuple containing the command names that honor the 
+        self._highlightPolicy of this object.
+        @see: self.getHighlightPolicy()
+        """
+        commandNames_that_honor_highlightPolicy = ('BUILD_DNA', 
+                                                   'DNA_STRAND', 
+                                                   'DNA_SEGMENT')
+        
+        return commandNames_that_honor_highlightPolicy 
+    
+    def setHighlightPolicy(self, highlight = True):
+        """
+        Set the highlighting flag that decides whether to highlight 'self' when 
+        self is the object under cursor. This is set as a property of self 
+        that helps enabling or disabling highlighting while in a particular 
+        command. Note that NE1 honors this property of the object overriding the 
+        'hover_highligiting_enabled' flag of the current command/ Graphics mode
+        
+        Example: While in BuildDna_EditCommand and some of its its subcommands, 
+                 the user may wish to switch off highlighting for a particular
+                 DNA strand as it gets in the way. (example the huge scaffold 
+                 strand). The user may do so my going into the strand edit 
+                 command and checking the option 'Don't highlight while in Dna.'
+                 This tells the structure not to get highlighted while in 
+                 BuildDna mode and some of its subcommands (the structure can 
+                 decide for which commands it should switch its highlighting 
+                 off. Note that the other strands will still respond to the
+                 hover highlighting. In all other commands, this object 
+                 (dnaStrand) will still respond to highlighting. 
+        @see: self.getHighlightPolicy()
+        @see: self._get_commandNames_honoring_highlightPolicy()
+        @see: DnaStrand_PropertyManager.change_struct_highlightPolicy()
+        """
+        #@NOTE: This property is a temporary implementation for to be used by
+        #Mark and Tom for the DNA Four hole tile project (the highlighting
+        #for scaffold gets in their way as it takes long time.. so they need 
+        #to switch it off for the bug scaffold strand) If we think its a good 
+        #feature overall, then it can become an API method. More thought needs
+        #to be put on whether its structure that checks the current command 
+        #to decide whether it needs to be highlighted (like the check done in
+        #self.draw_highlighted() or its the command that sets the flag for 
+        #each and every structure. The former approach is followed right now
+        #(see self.getHighlightPolicy for details) and it looks like a better
+        #approach
+        #Also note that this state is not saved to the mmp file. (we can do that
+        #if we decide to make it a general API method) -- Ninad 2008-03-14
+        self._highlightPolicy = highlight            
+        
+    def getHighlightPolicy(self):
+        """
+        Returns the highlighting state of the object. Note that it doesn't 
+        always mean that the object won't get highlighted if this returns False
+        In fact, this state will be used only in certain commands. 
+        @see self.setHighlightPolicy
+        """
+        commandSequencer = self.assy.w.commandSequencer
+        currentCommandName = commandSequencer.currentCommand.commandName        
+        if currentCommandName in self._get_commandNames_honoring_highlightPolicy():            
+            highlighting_wanted = self._highlightPolicy
+        else:
+            highlighting_wanted = True
+            
+        return highlighting_wanted
+    
         
     def draw_highlighted(self, glpane, color):
         """
@@ -87,11 +159,14 @@ class DnaStrand(DnaStrandOrSegment):
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
         @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
-        """  
-        #Does DnaStrand group has any member other than DnastrandChunks?
-        for c in self.members: 
-            if isinstance(c, DnaStrandChunk):
-                c.draw_highlighted(glpane, color)            
+        """            
+        highlighting_wanted = self.getHighlightPolicy()
+            
+        if highlighting_wanted:
+            #Does DnaStrand group has any member other than DnastrandChunks?
+            for c in self.members: 
+                if isinstance(c, DnaStrandChunk):
+                    c.draw_highlighted(glpane, color)            
     
     def getStrandSequence(self):
         """
@@ -146,7 +221,6 @@ class DnaStrand(DnaStrandOrSegment):
                     sequenceString = sequenceString + baseName
                     
         return sequenceString
-        
         
     
     def setStrandSequence(self, sequenceString):

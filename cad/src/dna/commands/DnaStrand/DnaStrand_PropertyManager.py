@@ -16,6 +16,7 @@ from utilities.debug import print_compact_stack
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
+from PyQt4.Qt import Qt
 
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
@@ -24,6 +25,7 @@ from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_GroupBox      import PM_GroupBox
+from PM.PM_CheckBox      import PM_CheckBox
 
 
 class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -91,6 +93,15 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          label         =  "Strand name ",
                          text          =  "",
                          setAsDefault  =  False)
+        
+        self.disableStructHighlightingCheckbox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "Don't highlight while editing DNA",
+                         widgetColumn  = 0,
+                         state        = Qt.Unchecked,
+                         setAsDefault = True,
+                         spanWidth = True
+                         )
     
             
     def _loadSequenceEditor(self):
@@ -147,6 +158,11 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect( self.sequenceEditor.assignStrandSequencePushButton,
                       SIGNAL("clicked()"),
                       self.assignStrandSequence)
+        
+        change_connect(self.disableStructHighlightingCheckbox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self.change_struct_highlightPolicy)
+        
             
     def assignStrandSequence(self):
         """
@@ -239,7 +255,21 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             sequenceString = QString(sequenceString) 
             sequenceString = sequenceString.toUpper()
             self.sequenceEditor.setSequence(sequenceString) 
-    
+            
+    def change_struct_highlightPolicy(self,checkedState = False):
+        """
+        Change the 'highlight policy' of the structure being edited 
+        (i.e. self.editCommand.struct) . 
+        @param checkedState: The checked state of the checkbox that says 
+                             'Don't highlight while editing DNA'. So, it 
+                             its True, the structure being edited won't get
+                             highlighted. 
+        @see: DnaStrand.setHighlightPolicy for more comments        
+        """        
+        if self.editCommand and self.editCommand.hasValidStructure():
+            highlight = not checkedState
+            self.editCommand.struct.setHighlightPolicy(highlight = highlight)
+
     def _addWhatsThisText(self):
         """
         Add what's this text. 
