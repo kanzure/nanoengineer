@@ -67,7 +67,16 @@ def _fixPluginProblem(plugin_name, errortext):
         "the Preferences dialog and retry rendering, or Cancel."
     return _dialogToOfferPluginPrefsFixup(caption, text)
 
-def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
+def verifyExecutable(executable_path):
+    if (os.access(executable_path, os.F_OK)):
+        if (os.access(executable_path, os.X_OK)):
+            return None
+        return "%s exists, but is not executable" % executable_path
+    return "%s: file does not exist" % executable_path
+
+def _checkPluginPreferences_0(plugin_name,
+                              plugin_prefs_keys,
+                              insure_executable):
     """
     [private helper for checkPluginPreferences()]
     
@@ -110,6 +119,11 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
             return 1, "%s executable not found at specified path %s" % (plugin_name, plugin_path)
         executable_path = executable_path[0:last_space]
 
+    if (insure_executable):
+        message = verifyExecutable(executable_path)
+        if (message):
+            return 1, message
+    
     ##e should check version of plugin, if we know how
 
     return 0, plugin_path
@@ -117,7 +131,8 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
 def checkPluginPreferences(plugin_name,
                            plugin_prefs_keys,
                            ask_for_help = True,
-                           extra_check = None):
+                           extra_check = None,
+                           insure_executable = False):
     """
     Checks I{plugin_name} to make sure it is enabled and that its path points 
     to a file. I{ask_for_help} can be set to B{False} if the user shouldn't be 
@@ -158,7 +173,9 @@ def checkPluginPreferences(plugin_name,
     # until user fixes them or gives up.
     while 1:
         errorcode, errortext_or_path = \
-                 _checkPluginPreferences_0(plugin_name, plugin_prefs_keys)
+                 _checkPluginPreferences_0(plugin_name,
+                                           plugin_prefs_keys,
+                                           insure_executable)
         if (extra_check and not errorcode):
             extra_message = extra_check(errortext_or_path)
             if (extra_message):
