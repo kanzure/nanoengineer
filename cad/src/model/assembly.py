@@ -208,7 +208,19 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
     # initial values of some instance variables
     undo_manager = None #bruce 060127
 
-    assy_valid = False # whether it's ok for updaters to run [bruce 080117]
+    assy_valid = False # whether it's ok for updaters to run right now [###misnamed] [bruce 080117]
+
+    assy_closed = False # whether this assy has been closed by calling self.close_assy [bruce 080314]
+        # todo: use this more.
+    
+    permanently_disable_updaters = False # whether the running of updaters on objects
+        # in this assy has been permanently disabled. Note that once this is set
+        # to True, it might cause errors to ever reset it to False.
+        # Currently it is only set when closing this assy, but we could also
+        # set it on assys in which we want to disable ever running updaters
+        # (e.g. the assys used in MMKit) if desired.
+        # Not yet implemented in all updaters. Implemented in dna updater.
+        # [bruce 080314]
     
     def __init__(self, win, name = None, own_window_UI = False):
         """
@@ -424,13 +436,38 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
                id(self))
         return res
     
-    def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]
+    def deinit(self): # bruce 060122
+        """
+        make sure assys don't fight over control of main menus, etc
+        """
+        # as of 080314, this is only called by:
+        # - MWsemantics.cleanUpBeforeExiting
+        # - __init__ of the next mainwindow assy, if this is one (I think).
+
+        if not self.assy_closed:
+            print "\nbug: deinit with no close_assy of %r" % self
+            self.close_assy()
+            pass
+        
         ###e should this be extended into a full destroy method, and renamed? guess: yes. [bruce 060126]
         if self.undo_manager:
             self.undo_manager.deinit()
             #e more? forget self.w?? maybe someday, in case someone uses it now who should be using env.mainwindow()
         return
 
+    def close_assy(self): #bruce 080314
+        """
+        self is no longer being actively used, and never will be again.
+        Record this state, and do (or permit by recording it)
+        various optimizations and safety changes for closed assys.
+
+        @note: doesn't yet do most of what it ought to do (e.g. destroy atoms).
+        """
+        # print "\nfyi: close_assy(%r)" % self # works
+        self.assy_closed = True
+        self.permanently_disable_updaters = True
+        return
+    
     # ==
 
     _glselect_name_dict = None # in case of access before init

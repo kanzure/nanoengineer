@@ -371,6 +371,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
+    assy = None #bruce 080314
+    
     def __init__(self, assy, parent = None, name = None, win = None):
 
         shareWidget = None
@@ -781,8 +783,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         sure I'm right about that, since I didn't test it.
            Revised 050911: leaves mode as nullmode.
         """
-        ##e should previous self.assy be destroyed, or at least made to no longer point to self? [bruce 051227 question]
-        assy.set_glpane(self) # sets assy.o and assy.glpane
+        if self.assy:
+            # make sure the old assy (if any) was closed [bruce 080314]
+            # Note: if future changes to permit MDI allow one GLPane to switch
+            # between multiple assys, then the following might not be a bug.
+            # Accordingly, we only complain, we don't close it.
+            # Callers should close it before calling this method.
+            if not self.assy.assy_closed:
+                print "\nlikely bug: GLPane %r .setAssy(%r) but old assy %r was not closed" % \
+                      (self, assy, self.assy)
+            ##e should previous self.assy be destroyed, or at least
+            # made to no longer point to self? [bruce 051227 question]
+            pass
         self.assy = assy
         mainpart = assy.tree.part
         assert mainpart
@@ -798,7 +810,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             ##    print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
             ##mainpart = Part(self) # use this just for its lastView
             ##self._setInitialViewFromPart( mainpart)        
+
+        assy.set_glpane(self) # sets assy.o and assy.glpane
+            # logically I'd prefer to move this to just after set_part, but right now
+            # I have no time to fully analyze whether set_part might depend on
+            # this having been done, so I won't move it down for now. [bruce 080314]
+            
         self.set_part( mainpart)
+
 
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911

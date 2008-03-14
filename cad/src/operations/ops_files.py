@@ -1524,6 +1524,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
 
         # see also MWsemantics.__init__, which contains similar code.
+
+        if self.assy:
+            # print "\nfyi: closing old assy %r in __clear" % self.assy # works
+            self.assy.close_assy() #bruce 080314
         
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403

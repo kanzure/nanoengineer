@@ -712,7 +712,9 @@ class MWsemantics(QMainWindow,
             print_compact_traceback( msg )
 
         try:
-            self.assy.deinit()
+            if self.assy:
+                self.assy.close_assy()
+                self.assy.deinit()
                 # in particular, stop trying to update Undo/Redo actions all the time
                 # (which might cause crashes once their associated widgets are deallocated)
         except:
