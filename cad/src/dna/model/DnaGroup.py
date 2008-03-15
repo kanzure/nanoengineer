@@ -7,7 +7,8 @@ DnaGroup.py - ...
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna.model.Block import Block
+##from dna.model.Block import Block
+from foundation.Group import Group
 from model.chunk import Chunk
 
 from utilities.constants import gensym
@@ -22,7 +23,7 @@ from utilities import debug_flags
 # Following import is disabled. See addSegment method for reason.
 ## from dna_model.DnaSegment import DnaSegment
 
-class DnaGroup(Block):
+class DnaGroup(Group):
     """
     Model object which packages together some Dna Segments, Dna Strands,
     and other objects needed to represent all their PAM atoms and markers.
@@ -72,6 +73,12 @@ class DnaGroup(Block):
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
     
+    #The flag that determines which members can be MT_kids. i.e. the members
+    #which are allowed to be displayed as self's subnodes. 
+    #@see: self._raw_MT_kids() This class constant overrides 
+    #Group._list_all_allowed_MT_kids
+    _list_all_allowed_MT_kids = False
+    
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
@@ -82,7 +89,33 @@ class DnaGroup(Block):
         if self.all_content_is_hidden():    
             return imagename_to_pixmap( self.hide_iconPath)
         else:
-            return imagename_to_pixmap( self.iconPath)     
+            return imagename_to_pixmap( self.iconPath) 
+
+    def _raw_MT_kids(self):
+        """
+        Returns all allowed MT kifs 'raw kids' because this isn't a final list
+        This is used by self.MT_kids() to further decide which members to show
+        in the MT as subnodes
+        @see: self.allowed_MT_kids()
+        @see: self.make_modeltree_context_menu()
+        @see: self.openable()
+        @see: self.toggle_listing_of_allowed_MT_kids()
+        """
+        lst = (self.assy.DnaSegment, 
+               self.assy.DnaStrand, 
+               self.assy.Block
+           )
+        return filter( lambda member: 
+                       member.__class__ in lst, 
+                       self.members )
+    
+    def allowed_MT_kids(self):
+        """
+        Returns a list of subnodes of self that are allowed to be shown 
+        as subnodes in the Model Tree. 
+        """
+        return self._raw_MT_kids() 
+    
 
     def make_DnaStrandOrSegment_for_marker(self, controlling_marker): # review: wholechain arg needed? @@@
         """

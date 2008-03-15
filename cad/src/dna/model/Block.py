@@ -53,8 +53,6 @@ class Block(Group):
         """
         pass # even if self._show_all_kids_for_debug()
 
-    def MT_kids(self, display_prefs = {}): #bruce 080108 revised semantics
-        return self._raw_MT_kids()
 
     def _raw_MT_kids(self):
         if self._show_all_kids_for_debug():

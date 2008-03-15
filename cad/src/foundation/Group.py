@@ -18,17 +18,18 @@ split out Node and/or LeafNode as well.)
 Bruce 080305 changed superclass from Node to NodeWithAtomContents.
 """
 
-from utilities.debug import print_compact_stack, print_compact_traceback
-from utilities import debug_flags
+from utilities.debug          import print_compact_stack, print_compact_traceback
+from utilities                import debug_flags
+from utilities.constants      import noop
+from utilities.icon_utilities import imagename_to_pixmap
+from utilities.Log            import redmsg, quote_html
+
 import foundation.env as env
 from foundation.state_constants import S_CHILDREN
 
 from commands.GroupProperties.GroupProp import GroupProp
-from utilities.icon_utilities import imagename_to_pixmap
 
 from foundation.NodeWithAtomContents import NodeWithAtomContents
-
-from utilities.Log import redmsg, quote_html
 
 # ==
 
@@ -71,6 +72,12 @@ class Group(NodeWithAtomContents):
         # There is no need for more than one element except to support
         # old code reading new mmp files.
         # [bruce 080115]
+        
+    _list_all_allowed_MT_kids= True
+	#The flag that determines which members can be MT_kids. i.e. the members
+	#which are allowed to be displayed as self's subnodes. 
+	#@see: self._raw_MT_kids() This class constant overrides 
+	#Group._list_all_allowed_MT_kids -- Ninad 2008-03-15
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before _superclass.__init__ [bruce 050316]
@@ -245,14 +252,7 @@ class Group(NodeWithAtomContents):
         if only_if_new and (func in self.__cmfuncs):
             return
         self.__cmfuncs.append( func) # might occur during use of same func!
-
-    def openable(self): # overrides Node.openable()
-        """
-        whether tree widgets should permit the user to open/close their view of this node
-        """
-        # if we decide this depends on the tree widget or on something about it,
-        # we'll have to pass in some args... don't do that unless/until we need to.
-        return True
+    
 
     # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
 
@@ -868,6 +868,12 @@ class Group(NodeWithAtomContents):
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113
         Update, bruce 080306 -- maybe as of a change today, it does -- we'll see.]
+        
+        
+        @see: self.allowed_MT_kids()
+        @see: self.make_modeltree_context_menu()
+        @see: self.openable()
+        @see: self.toggle_listing_of_allowed_MT_kids()
         """
         # Historical note: self.members used to be stored in reversed order, but
         # Mark fixed that some time ago. Some callers in modelTree needed reversed
@@ -875,8 +881,89 @@ class Group(NodeWithAtomContents):
         # it had been, but because modeltree methods added tree items in reverse
         # order (which I fixed yesterday).
         # [bruce 050110 inference from addmember implems/usage]
+        if self._list_all_allowed_MT_kids:
+            mt_kids = self._raw_MT_kids() # review: is this list copying needed?
+        else:
+            mt_kids = ()
+            
+        return mt_kids
+    
+    def openable(self): # overrides Node.openable()
+        """
+        whether tree widgets should permit the user to open/close their view of this node
+        """
+        # if we decide this depends on the tree widget or on somet for thing about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
         
-        return list(self.members) # review: is this list copying needed?
+        #If there are no MT_kids (subnodes visible in MT under this group) then
+        #don't make this node 'openable'. This makes sure that expand/ collapse
+        #pixmap next to the node is not shown for Group with 0 MT_kids
+        #Examples of such groups include empty groups, DnaStrand Groups,
+        #DnaSegments etc -- Ninad 2008-03-15
+        return len(self.MT_kids()) != 0
+    
+    def make_modeltree_context_menu(self):
+        """
+        @see:self.MT_kids()
+        @see: self.allowed_MT_kids()
+        @see: self.make_modeltree_context_menu()
+        @see: self.openable()
+        @see: self.toggle_listing_of_allowed_MT_kids()
+        @see: DnaGroup._raw_MT_kids for an example. 
+        """
+        contextMenu = []
+        contextMenu.append(None) #Adds a 'Separator'
+        
+        current_MT_kids_count = len(self.MT_kids())
+        allowed_MT_kids_count = len(self.allowed_MT_kids())
+        
+        
+        if allowed_MT_kids_count != 0:
+            if current_MT_kids_count == allowed_MT_kids_count:
+                
+                item = ( ('Unlist all %d contents'%current_MT_kids_count), 
+                           self.toggle_listing_of_allowed_MT_kids
+                            )
+            else:
+                item = ( ('List all %d contents'%allowed_MT_kids_count),
+                           self.toggle_listing_of_allowed_MT_kids, 
+                        )                
+            contextMenu.append(item)
+            contextMenu.append(None) #Adds a 'Separator'
+            
+        return contextMenu
+    
+    def allowed_MT_kids(self):
+	"""
+        Returns a list of subnodes of self that are allowed to be shown 
+        as subnodes in the Model Tree.
+        """
+        return self._raw_MT_kids()
+    
+    def _raw_MT_kids(self, display_prefs = {}):
+	"""
+        Returns all allowed MT kifs 'raw kids' because this isn't a final list
+        This is used by self.MT_kids() to further decide which members to show
+        in the MT as subnodes
+        @see: self.allowed_MT_kids()
+        @see: self.make_modeltree_context_menu()
+        @see: self.openable()
+        @see: self.toggle_listing_of_allowed_MT_kids()
+        """
+        return list(self.members)
+    
+    def toggle_listing_of_allowed_MT_kids(self):
+	"""
+	Toggles the boolean value of the attribute that decides whether to list
+	or unlist contents withing a group (i.e. MT kids)
+	@see: self.MT_kids()
+	@see: self._raw_MT_kids()
+	@see: self.make_modeltree_context_menu()
+	
+	"""
+        self._list_all_allowed_MT_kids = not self._list_all_allowed_MT_kids
+        self.assy.mt.mt_update()
+
 
     def edit(self):
         """

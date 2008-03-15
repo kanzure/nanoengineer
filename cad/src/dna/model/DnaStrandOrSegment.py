@@ -7,12 +7,9 @@ DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-##from Group import Group
-from dna.model.Block import Block
+from foundation.Group import Group
 
-from dna.model.DnaGroup import DnaGroup
-
-class DnaStrandOrSegment(Block):
+class DnaStrandOrSegment(Group):
     """
     Abstract superclass for DnaStrand and DnaSegment,
     which represent a Dna Strand or Dna Segment inside a Dna Group.
@@ -50,10 +47,14 @@ class DnaStrandOrSegment(Block):
         or segment (as it
         will in any case control its base indexing).
     """
-    # maybe: inherit some more specialized subclass of Group?
-    # May not matter, since we ourselves never show up in MT.
-    # Note: we definitely can't inherit Block, or we'd show up in MT
-    # as a child of a DnaGroup!
+    def _raw_MT_kids(self, display_prefs = {}):
+        """
+        DnaStrand or DnaSegment groups (subclasses of this class) should not 
+        show any MT kids.
+        @see: Group._raw__MT_kids()
+        @see: Group.MT_kids()
+        """
+        return ()
 
     def getDnaGroup(self):
         """
@@ -63,7 +64,7 @@ class DnaStrandOrSegment(Block):
         @note: Returning None should never happen
                if we have survived a run of the dna updater.
         """
-        return self.parent_node_of_class( DnaGroup)
+        return self.parent_node_of_class( self.assy.DnaGroup)
 
     def move_into_your_members(self, node):
         """

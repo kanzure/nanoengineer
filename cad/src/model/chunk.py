@@ -368,7 +368,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         return False
 
-    def make_context_menu_items(self, contextMenuList, command = None):
+    def make_glpane_context_menu_items(self, contextMenuList, command = None):
         """
         TODO: See checm.make_selobj_cmenu_items. This method is very similar to 
         that method. But its not named like that because the chunk may not be 
@@ -2724,6 +2724,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
+            
         if not self.picked:
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
