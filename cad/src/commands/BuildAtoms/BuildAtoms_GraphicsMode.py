@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 BuildAtoms_GraphicsMode.py 
 
@@ -13,7 +13,7 @@ For example:
 
                         
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: [as of 2008-01-04]
 - Items mentioned in Select_GraphicsMode.py 
@@ -1117,7 +1117,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         else: # Delete
             return False
         
-    #===HotSpot related methods 
+    #===HotSpot related methods
+    
     def setHotSpot_clipitem(self): 
         #bruce 050416; duplicates some code from setHotSpot_mainPart
         """
@@ -1148,7 +1149,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         if selatom and selatom.element is Singlet:
             selatom.molecule.set_hotspot( selatom)
             
-            new = selatom.molecule.copy(None) # None means no dad yet
+            new = selatom.molecule.copy_single_chunk(None) # None means no dad yet
             #bruce 050531 removing centering:
             ## new.move(-new.center) # perhaps no longer needed [bruce 041206]
             #bruce 041124: open clipboard, so user can see new pastable there
@@ -1203,8 +1204,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                             
         return
     
-               
     # cursor update methods
+    
     def update_cursor_for_no_MB_selection_filter_disabled(self):
         """
         Update the cursor for 'Build Atoms' mode, when no mouse button is 

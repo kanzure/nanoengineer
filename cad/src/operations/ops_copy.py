@@ -423,7 +423,7 @@ class ops_copy_Mixin:
         errorMsg = None
         moveOffset = V(0, 0, 0)
         
-        newChunk = pastable.copy(None)
+        newChunk = pastable.copy_single_chunk(None)
         chunkCenter  = newChunk.center
         
         if pos:
@@ -466,7 +466,9 @@ class ops_copy_Mixin:
         
         assy = self.assy
         
-        newGroup = Group(pastable.name, assy, None)             
+        newGroup = Group(pastable.name, assy, None)
+            # Review: should this use Group or groupToPaste.__class__,
+            # e.g. re a DnaGroup or DnaSegment? [bruce 080314 question]
         nodes = list(pastable.members)             
         newNodeList = copied_nodes_for_DND(nodes, 
                                         autogroup_at_top = False, 
@@ -475,6 +477,7 @@ class ops_copy_Mixin:
         if not newNodeList:
             errorMsg = orangemsg("Clipboard item is an empty group."\
                                  "Paste cancelled")
+                # review: is this claim about the cause always correct?
             return newGroup, errorMsg
         
             
@@ -531,6 +534,13 @@ class ops_copy_Mixin:
         moveOffset = V(0, 0, 0)
         
         newJig = pastable.copy(None)
+            # Note: there is no def copy on Jig or any subclass of Jig,
+            # so this would run Node.copy, which prints a redmsg to history
+            # and returns None. What we need is new paste code which uses
+            # something like the existing code to "copy a list of nodes".
+            # Or perhaps a new implem of Node.copy which uses the existing
+            # general copy code properly (if pastables are always single nodes).
+            # [bruce 080314 comment]
         jigCenter  = newJig.center
         
         if pos:

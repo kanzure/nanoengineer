@@ -75,7 +75,10 @@ from foundation.NodeWithAtomContents import NodeWithAtomContents
 
 from utilities.Log import graymsg
 
-from utilities.debug import print_compact_stack, print_compact_traceback, safe_repr
+from utilities.debug import print_compact_stack
+from utilities.debug import compact_stack
+from utilities.debug import print_compact_traceback
+from utilities.debug import safe_repr
 
 from foundation.inval import InvalMixin
 from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
@@ -3270,19 +3273,23 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             #numol.set_hotspot( hotspot, silently_fix_if_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
             self.set_hotspot( hotspot, silently_fix_if_invalid = True) # this checks everything before setting it; if invalid, silent noop
 
-    # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)... actually we'll keep it for awhile,
-    # since it's used in many places and ways in depositMode and extrudeMode... it'd be nice to rewrite it to call general copier...
-
-    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1):
-        # NOTE: to copy several chunks and not break interchunk bonds, don't use this --
-        # use either copied_nodes_for_DND or copy_nodes_in_order as appropriate
-        # (or other related routines we might add near them in the future),
-        # then do a few more things to fix up their output -- see their existing calls
-        # for details. [bruce 070412/070525 comment]
-        #
-        #bruce 060308 major rewrite, and no longer permit args to vary from defaults
+    # == 
+    
+    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1): #bruce 080314
         """
-        Public method: Copy the Chunk self to a new Chunk.
+        Public method. DEPRECATED, see code comments for details.
+        Deprecated alias for copy_single_chunk (also deprecated but still in use).
+        """
+        cs = compact_stack("\n*** print once: called deprecated Chunk.copy from: ")
+        if not env.seen_before(cs):
+            print cs
+        return self.copy_single_chunk( dad, offset, cauterize)
+    
+    def copy_single_chunk(self, dad = None, offset = V(0,0,0), cauterize = 1):
+        """
+        Public method. DEPRECATED, see code comments for details.
+
+        Copy the Chunk self to a new Chunk.
         Offset tells where it will go relative to the original.
         Unless cauterize = 0, replace bonds out of self (to atoms in other Chunks)
         with singlets in the copy [though that's not very nice when we're
@@ -3303,15 +3310,41 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         dad but lack of being in dad's members list, and tolerate it but complain
         when atom_debug. This should all be cleaned up sometime soon. ###@@@
         """
+        #bruce 080314 renamed, added even more deprecated alias method under
+        # the prior name (copy) (see also Node.copy, NamedView.copy), fixed all uses
+        # to call the new name. The uses are mainly in pasting and setHotSpot.
+        # It's almost certain that Extrude no longer calls this.
+        # The new name includes "single" to emphasize the reason this method is
+        # inherently defective and therefore deprecated -- that in copying only
+        # one chunk, unaware of a larger set of things being copied, it can't
+        # help but break its inter-chunk bonds.
+        #
+        # older comments:
+        # 
+        # This is the old copy method -- should remove ASAP but might still be needed
+        # for awhile (as of 050526)... actually we'll keep it for awhile,
+        # since it's used in many places and ways in depositMode and
+        # extrudeMode... it'd be nice to rewrite it to call general copier...
+        #
+        # NOTE: to copy several chunks and not break interchunk bonds, don't use this --
+        # use either copied_nodes_for_DND or copy_nodes_in_order as appropriate
+        # (or other related routines we might add near them in the future),
+        # then do a few more things to fix up their output -- see their existing calls
+        # for details. [bruce 070412/070525 comment]
+        #
+        #bruce 060308 major rewrite, and no longer permit args to vary from defaults
+        
         assert cauterize == 1
         assert same_vals( offset, V(0,0,0) )
         assert dad is None
+
         # bruce added cauterize feature 041116, and its hotspot behavior 041123.
         # Without hotspot feature, Build mode pasting could have an exception.
         ##print "fyi debug: mol.copy on %r" % self
         # bruce 041116: note: callers seem to be mainly in model tree copy ops
         # and in depositMode.
         # [where do they call addmol? why did extrude's copies break on 041116?]
+        
         from model.bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         pairlis = []
         ndix = {}

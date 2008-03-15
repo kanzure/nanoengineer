@@ -734,7 +734,16 @@ class extrudeMode(basicMode):
             ## newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below) 
             ## new = newmols[0]
             # new code 050216:
-            new = self.basemol.copy(None) # None is the dad, and as of 050214 or so, passing any other dad is deprecated for now
+            new = self.basemol.copy_single_chunk(None)
+                # None is the dad, and as of 050214 or so, passing any other dad is deprecated for now.
+                #bruce 080314 using copy_single_chunk in place of copy.
+                # This is a bug if self.basemol can be anything other than a Chunk or a
+                # fake_merged_mol. I'm sure it can't be. In fact, it is almost certain that
+                # self.basemol is always a fake_merged_mol, not a Chunk;
+                # if true, this method could be renamed to copy_single_fake_merged_mol.
+                # The point is to make it easy to find all uses and implems of copy methods
+                # that need revision. The need for revision in this case is to generalize
+                # what the extrude unit can be.
             if isinstance(new, fake_copied_mol):#bruce 070407 kluge
                 ## new_nodes = [new._group]
                 new_nodes = new._mols
@@ -2100,9 +2109,14 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         # update 070411: self.center is computed and cached in full_inval_and_update; before that it's illegal to ask for
         raise AttributeError, "%r has no %r" % (self, attr)
     def copy(self, dad):
-        # copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
+        self.copy_single_chunk(dad)
+    def copy_single_chunk(self, dad):
+        """
+        copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
+        """
+        #bruce 080314 renamed (here and in class Chunk), added copy glue; see comment where it's called here
         assert dad is None
-        ## copies = [mol.copy(None) for mol in self._mols]
+        ## copies = [mol.copy_single_chunk(None) for mol in self._mols]
             # this is wrong when there are bonds between these mols!
         # WARNING: the following code after our call to copy_nodes_in_order is similar to
         # other code after calls to the related function copied_nodes_for_DND, e.g. in depositMode.py.

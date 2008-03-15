@@ -228,9 +228,10 @@ class PartLibraryMode(PasteMode):
             if hotspotAtom and hotspotAtom.is_singlet() and \
                attch2Singlet .is_singlet():
 
-                newMol = hotspotAtom.molecule.copy(None) # [this can break 
-                #interchunk bonds, thus it still has bug 2028]
-                newMol.setAssy(self.o.assy) #bruce 051227 revised this
+                newMol = hotspotAtom.molecule.copy_single_chunk(None)
+                    # [this can break interchunk bonds,
+                    #  thus it still has bug 2028]
+                newMol.setAssy(self.o.assy)
                 hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
                 attch2Atom = attch2Singlet.singlet_neighbor() # attach to atom
@@ -267,9 +268,10 @@ class PartLibraryMode(PasteMode):
         if attach2Bond: # Connect part to a bondpoint of an existing chunk
             for m in newPart.molecules:
                 if not m is hotspotAtom.molecule: 
-                    newMol = m.copy(None) # [this can break interchunk bonds, thus 
-                    #it still has bug 2028]
-                    newMol.setAssy(self.o.assy) #bruce 051227 revised this
+                    newMol = m.copy_single_chunk(None)
+                        # [this can break interchunk bonds,
+                        #  thus it still has bug 2028]
+                    newMol.setAssy(self.o.assy)
 
                     ## Get each of all other chunks' center movement for the 
                     ## rotation around 'rotCenter'
@@ -367,7 +369,7 @@ class PartLibraryMode(PasteMode):
 ##            # pre-060627 old code, breaks interchunk bonds since it copies 
 ##            #chunks one at a time (bug 2028)
 ##            for m in nodes:
-##                newMol = m.copy(None)
+##                newMol = m.copy(None) # later: renamed Chunk method to copy_single_chunk -- not sure if this was only called on chunks
 ##                newMol.setAssy(self.o.assy) #bruce 051227 revised this
 ##                
 ##                newMol.move(moveOffset)

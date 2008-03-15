@@ -502,10 +502,11 @@ class PasteMode(depositMode):
         hotspot = hotspot_or_whynot
 
         if isinstance(pastable, Chunk):
-            numol = pastable.copy(None)
+            numol = pastable.copy_single_chunk(None)
+            #bruce 080314 use new name copy_single_chunk
             # bruce 041116 added (implicitly, by default) cauterize = 1
             # to mol.copy() above; change this to cauterize = 0 here if 
-            # unwanted,and for other uses of mol.copy in this file.
+            # unwanted, and for other uses of mol.copy in this file.
             # For this use, there's an issue that new singlets make it harder to
             # find a default hotspot! Hmm... I think copy should set one then.
             # So now it does [041123].
@@ -529,10 +530,9 @@ class PasteMode(depositMode):
             self.o.assy.addmol(numol) # do this last, in case it computes bbox
             return numol, "copy of %r" % pastable.name
         elif isinstance(pastable, Group):
-            msg1 = "Pasting a group with hotspot onto a bond point "
-            msg2 = "is not implemented"
-            msg3  = msg1 + msg2 
-            return None, msg3
+            msg = "Pasting a group with hotspot onto a bond point " \
+                  "is not implemented"
+            return None, msg
             ##if debug_flags.atom_debug:     
                 ###@@@ EXPERIMENTAL CODE TO PASTE a GROUP WITH A HOTSPOT  
                 ##if 0:
