@@ -65,6 +65,7 @@ private:
 	NXEntityManager* entityManager;
 	
 	QToolBar* fileToolBar;
+	QToolBar* jobsToolBar;
 	QDockWidget* logDockWidget;
 
 	MainWindowTabWidget* mainWindowTabs;

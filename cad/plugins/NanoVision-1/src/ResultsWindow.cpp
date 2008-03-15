@@ -277,8 +277,7 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
         new StructureGraphicsTreeItem(molSetPtr, this, parentItem);
     molSetItem->setIcon(0, atomSetIcon);
     molSetItem->setText(0, (molSetPtr->getTitle()).c_str());
-    molSetItem->setFlags(Qt::ItemIsEnabled);
-    molSetItem->setFlags(Qt::ItemIsSelectable);
+    molSetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     
 /*    QObject::connect((QTreeWidget*) molSetItem,
                      SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
@@ -295,8 +294,7 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
             new StructureGraphicsTreeItem(molPtr, this, molSetItem);
         molItem->setIcon(0,atomIcon);
         molItem->setText(0, tr(molPtr->GetTitle()));
-		molItem->setFlags(Qt::ItemIsEnabled);
-        molItem->setFlags(Qt::ItemIsSelectable);
+		molItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
     
     NXMoleculeSetIterator childMolSetIter;

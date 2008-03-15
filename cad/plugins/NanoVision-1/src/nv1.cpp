@@ -222,13 +222,13 @@ void nv1::createActions() {
     
 	// File
     openAction =
-        new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open..."), this);
+        new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open File..."), this);
     openAction->setShortcut(tr("Ctrl+O"));
     openAction->setStatusTip(tr("Open an existing file"));
     connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
     
     closeAction =
-        new QAction(QIcon(":/Icons/File/Close.png"), tr("&Close"), this);
+        new QAction(tr("&Close File"), this);
     closeAction->setShortcut(tr("Ctrl+W"));
     closeAction->setStatusTip(tr("Close and open file"));
     connect(closeAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -250,7 +250,8 @@ void nv1::createActions() {
 	//
 	// Job Management
 	openJobsAction =
-        new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open Active Job..."), this);
+        new QAction(QIcon(":/Icons/Tools/OpenActiveJob.png"),
+					tr("&Open Active Job..."), this);
     openJobsAction->setStatusTip(tr("Open an active job"));
     connect(openJobsAction, SIGNAL(triggered()), this, SLOT(openActiveJobs()));
 	
@@ -346,7 +347,8 @@ void nv1::createMenus() {
 void nv1::createToolBars() {
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(openAction);
-    fileToolBar->addAction(closeAction);
+	jobsToolBar = addToolBar(tr("Jobs"));
+	jobsToolBar->addAction(openJobsAction);
 }
 
 
@@ -385,7 +387,7 @@ void nv1::addMonitoredJob(const QString& processType, const QString& id,
 						  const QString& title) {
     QString actionTitle = tr("Abort %1").arg(title);
     abortJobAction =
-        new QAction(QIcon(":/Icons/File/Open.png"), actionTitle, this);
+        new QAction(QIcon(":/Icons/Tools/AbortJob.png"), actionTitle, this);
     abortJobAction->setStatusTip(tr("Abort a running job"));
     
     QSignalMapper* signalMapper = new QSignalMapper(this);

@@ -1,7 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
       <file>Icons/File/Open.png</file>
-      <file>Icons/File/Close.png</file>
+	  <file>Icons/Tools/OpenActiveJob.png</file>
+	  <file>Icons/Tools/AbortJob.png</file>
       <file>Icons/splashscreen.png</file>
       <file>Icons/eye-icon.png</file>
       <file>Icons/home.png</file>
