@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 instance_helpers.py -- provides InstanceOrExpr and some related things
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History (partial):
 
@@ -40,7 +42,8 @@ from exprs.__Symbols__ import _self
 # ==
 
 # maybe merge this into InstanceOrExpr docstring:
-"""Instances of subclasses of this can be unplaced or placed (aka "instantiated");
+"""
+Instances of subclasses of this can be unplaced or placed (aka "instantiated");
 if placed, they might be formulas (dependent on aspects of drawing-env state)
 for appearance and behavior (justifying the name Drawable),
 or for some value used in that (e.g. a color, vector, string).
@@ -52,7 +55,8 @@ If it did, the instance created by placing such an expr will (usually) have some
 # note about nonexistent class IorE: IorE is a common abbreviation for class InstanceOrExpr.
 
 class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the basic kluge of using one class for both
-    """Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
+    """
+    Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
     and (more importantly for the user) whose use as a constructor usually constructs an Expr.
     Used (for example) for Column, Rect, If, Widget2D, etc. See elsewhere for general explanation [#nim].
        The rest of this docstring discusses some fine points of the class semantics and implementation,
@@ -126,7 +130,9 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         # Is the real issue for determining the attrname/methodname not "model" or "expr" but "what you make vs what you are"?? ###k
 
     def _e_model_type_you_make(self): ###k 070215 very experimental #e move below init
-        "#doc; overridden on some subclasses, notably DelegatingInstanceOrExpr"
+        """
+        #doc; overridden on some subclasses, notably DelegatingInstanceOrExpr
+        """
         # but lots of specific DIorE don't delegate it...
         # model obj DIorE don't, but graphical ones do. For now assume we know by whether it's subclass of ModelObj.
         # This implem is meant for graphical prims like Rect.
@@ -190,7 +196,9 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
     
     # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
     def custom_compute_method(self, attr):###NAMECONFLICT?
-        "return a compute method using our custom formula for attr, or None if we don't have one"
+        """
+        return a compute method using our custom formula for attr, or None if we don't have one
+        """
         try:
             formula = self._e_kws[attr]
         except KeyError:
@@ -210,10 +218,13 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
             print "WARNING: copying an instance %r" % (self,) # this might be ok...
         return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
     def copy(self):#061213 experiment, used in demo_drag.py, background.copy(color=green) ###k
-        "copy an expr or instance to make a new expr with the same formulas [experimental]"
+        """
+        copy an expr or instance to make a new expr with the same formulas [experimental]
+        """
         return self._copy(_instance_warning = False)
     def _destructive_copy(self, old):
-        """[private]
+        """
+        [private]
         Modify self to be a copy of old, an expr of the same class.
         """
         assert not self._e_is_instance
@@ -225,7 +236,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 
     # common private submethods of __init__ and __call__
     def _destructive_init(self, args, kws):
-        """[private, called by __init__ or indirectly by __call__]
+        """
+        [private, called by __init__ or indirectly by __call__]
         Modify self to give it optional args and optional ordinary keyword args.
         """
         assert not self._e_is_instance
@@ -235,7 +247,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
             self._destructive_supply_args(args)
         return
     def _destructive_customize(self, kws):
-        """[private]
+        """
+        [private]
         Destructively modify self, an expr, customizing it with the formulas represented by the given keyword arguments.
         """
         assert not self._e_is_instance
@@ -312,7 +325,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 
     # instantiation methods
     def _e_make_in(self, env, ipath):
-        """Instantiate self in env, at the given index-path [by default] [or return an existing instance at that ipath??].
+        """
+        Instantiate self in env, at the given index-path [by default] [or return an existing instance at that ipath??].
         [Note [semi-obs]: as of some time before 061110, this is usually called via _e_eval;
          and as of 061110 it's probably always called that way;
          probably they'll be merged at some point, unless some subtle difference
@@ -363,7 +377,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
             # note: if you accidentally define __init__ in your IorE subclass, instead of having it get its args using Arg etc,
             # you might get an exception here something like "TypeError: __init__ got an unexpected keyword argument _make_in". [070314]
     def _destructive_make_in(self, data):
-        """[private]
+        """
+        [private]
         This is the main internal instantiation-helper method.
         For expr, env, ipath = data, modify self (which initially knows nothing)
         to be an instance of expr, in the given env, at the given index-path.
@@ -452,12 +467,14 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         return # from _destructive_make_in
     
     def _init_class(self): ###@@@ CALL ME
-        """called once per directly-instantiated python class, when its first python instance is created
+        """
+        called once per directly-instantiated python class, when its first python instance is created
         [subclasses should replace this]
         """
         pass
     def _init_expr(self): ###@@@ CALL ME
-        """called once per Expr when it gets its args [details unclear, maybe not yet needed]
+        """
+        called once per Expr when it gets its args [details unclear, maybe not yet needed]
         [subclasses should replace this]
         """
         pass
@@ -532,7 +549,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
     # this -- this def means it won't. Still, for now keep it here since implem never changes. Later clean up delegation for this
     # as discussed elsewhere. ###fix [070201]
     def fix_color(self, color): #e move to glpane??
-        """Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
+        """
+        Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
         The color is assumed to be evaluated (i.e. no longer a formula), but perhaps in some general data format
         and perhaps needing to be subjected to global color transformations stored transiently in the drawing medium object
         (e.g. a color warp or constant alpha, stored in the glpane).
@@ -574,7 +592,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 ##        return
 
     def KLUGE_gl_update(self): #070213
-        """###KLUGE: call our glpane.gl_update explicitly. Should never be needed (unless there are bugs),
+        """
+        ###KLUGE: call our glpane.gl_update explicitly. Should never be needed (unless there are bugs),
         since any change that affects what we draw should be changed-tracked when made, and usage-tracked when some
         draw method (used directly or to make displist contents) uses it. But evidently there are such bugs [as of 070213],
         since some things apparently need to call this.
@@ -589,7 +608,8 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 # ==
 
 class InstanceHolder: #070414
-    """A self-contained place to make and hold Instances of exprs for use with a given glpane,
+    """
+    A self-contained place to make and hold Instances of exprs for use with a given glpane,
     which makes its own drawing env and (by default) its own state and initial ipath,
     and which caches the Instances at specified indices (using the API of InstanceOrExpr.Instance for details).
     """
@@ -604,14 +624,17 @@ class InstanceHolder: #070414
             # make this exactly once;
             # its only purpose is to cache instances and provide the .Instance API
     def Instance(self, expr, index, **kws):
-        """make instances in self, using API similar to IorE.Instance
+        """
+        make instances in self, using API similar to IorE.Instance
         [identical in present implem, but that may not last]
         """
         return self._thing.Instance(expr, index, **kws)
     pass
 
 def get_glpane_InstanceHolder(glpane): #070414
-    "Find or make a central place to store cached expr Instances associated with a given glpane."
+    """
+    Find or make a central place to store cached expr Instances associated with a given glpane.
+    """
     try:
         place = glpane._exprs__InstanceHolder
         #e could decide whether we need to remake it for some reason, e.g. code-reload
@@ -624,7 +647,8 @@ def get_glpane_InstanceHolder(glpane): #070414
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
 
 class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070121 renamed delegate -> _delegate, let IorE relate them
-    """#doc: like Delegator, but only legal in subclasses which also inherit from InstanceOrExpr;
+    """
+    #doc: like Delegator, but only legal in subclasses which also inherit from InstanceOrExpr;
     other differences from Delegator:
     - we delegate to self._delegate rather than self.delegate
     - we don't delegate any attrs that start with '_'
@@ -739,7 +763,8 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070
 # let's try an explicit experiment, InstanceMacro:
 
 class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring revised 061127 & 070117; see also DelegatingInstanceOrExpr
-    """Superclass for "macros" -- they should define a formula for _value which they should always look like.
+    """
+    Superclass for "macros" -- they should define a formula for _value which they should always look like.
     # WARNING: a defect in InstanceMacro means that "default defs" in its client class (e.g. thing, ww in Boxed),
     # or in a superclass of that, will override their defs in _value rather than being delegated to _value
     # (since they are already defined, so they're never seen by DelegatingMixin.__getattr__);
@@ -792,7 +817,8 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring re
 # ==
 
 class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & basic 061211, created a few days before
-    """#doc
+    """
+    #doc
     """
     #e this might replace most uses of DelegatingMixin and InstanceMacro, if I like it
 
@@ -840,7 +866,8 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
 class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.py; see also ModelObject3D, Geom3D...
     ###WARNING: as of 070401 it's unclear if the value of _e_model_type_you_make is used for anything except other implems
     # of the same method.
-    """#doc -- class for datalike objects within the model
+    """
+    #doc -- class for datalike objects within the model
     [this may diverge from DelegatingInstanceOrExpr somehow -- or i might be mistaken that it needs to differ,
     but if so, it might have a better name! ###e]
     """
@@ -851,14 +878,19 @@ class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.p
     # and some don't, and without this, the ones that don't have an assertfail when they ought to have an AttributeError.
     delegate = None
     def _e_model_type_you_make(self): ###k 070215 very experimental
-        "#doc; overrides super version"
+        """
+        #doc; overrides super version
+        """
         # but lots of specific DIorE don't delegate it...
         # model obj DIorE don't [that's us], but graphical ones do. For now assume we know by whether it's subclass of ModelObj.
         return InstanceOrExpr._e_model_type_you_make(self) # that implem has the right idea for us -- use classname
     pass
 
 class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental, ###UNTESTED (except for not damaging delegate when instantiated)
-    "#doc better -- be like arg1, but with arg2 specifying the model type -- note, arg2 has to be accessed even when we're an expr"
+    """
+    #doc better -- be like arg1, but with arg2 specifying the model type --
+    note, arg2 has to be accessed even when we're an expr
+    """
     delegate = Arg(InstanceOrExpr) #e first use of that as type -- ok in general? correct here?
     arg_for_model_type = Arg(str) #e wrong Arg type? #e have an option to say this Arg works even on exprs???? (very dubious idea)
     def _e_model_type_you_make(self): ###k 070215 very experimental
@@ -874,7 +906,10 @@ class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental, ###UNTESTE
     pass
 
 class WithAttributes(DelegatingInstanceOrExpr): # 070216 experimental, STUB
-    "#doc better -- be like arg1, but with options specifying attrs you have (like customizations, but with new Option decls too)"
+    """
+    #doc better -- be like arg1, but with options specifying attrs you have
+    (like customizations, but with new Option decls too)
+    """
     delegate = Arg(InstanceOrExpr)
     def _init_instance(self):
         for k, v in self._e_kws.items():
@@ -891,7 +926,9 @@ class WithAttributes(DelegatingInstanceOrExpr): # 070216 experimental, STUB
 # ==
 
 class _this(SymbolicExpr): # it needs to be symbolic to support automatic getattr_Expr
-    """_this(class) refers to the instance of the innermost lexically enclosing expr with the same name(?) as class.
+    """
+    _this(class) refers to the instance of the innermost lexically
+    enclosing expr with the same name(?) as class.
     """
     #### NOT YET REVIEWED FOR EVAL_REFORM 070117
     #k will replacement in _e_args be ok? at first it won't matter, I think.
