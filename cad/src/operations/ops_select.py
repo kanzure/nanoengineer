@@ -70,15 +70,15 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
             return True
     
     if objectFlags & DNASTRANDS:
-        if part.getSelectedJigs():
+        if part.getSelectedDnaStrands():
             return True
         
     if objectFlags & DNASEGMENTS:
-        if part.getSelectedJigs():
+        if part.getSelectedDnaSegments():
             return True
         
     if objectFlags & DNAGROUPS:
-        if part.getSelectedJigs():
+        if part.getSelectedDnaGroups():
             return True
 
     return False
