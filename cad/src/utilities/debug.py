@@ -274,14 +274,17 @@ def compact_traceback():
 
 # stack
 
-def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2, **kws ): #bruce 061118 added **kws
-    print >> sys.__stderr__, msg + \
-          compact_stack( skip_innermost_n = skip_innermost_n, **kws )
+def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2, **kws ):
+    #bruce 061118 added **kws
+    #bruce 080314 pass our msg arg to new msg arg of compact_stack
+    print >> sys.__stderr__, \
+          compact_stack( msg, skip_innermost_n = skip_innermost_n, **kws )
 
 STACKFRAME_IDS = False # don't commit with True,
     # but set to True in debugger to see more info in compact_stack printout [bruce 060330]
 
-def compact_stack( skip_innermost_n = 1, linesep = ' ', frame_repr = None ): #bruce 061118 added linesep, frame_repr
+def compact_stack( msg = "", skip_innermost_n = 1, linesep = ' ', frame_repr = None ):
+    #bruce 061118 added linesep, frame_repr; 080314 added msg arg
     printlines = []
     frame = sys._getframe( skip_innermost_n)
     while frame is not None: # innermost first
@@ -313,7 +316,7 @@ def compact_stack( skip_innermost_n = 1, linesep = ' ', frame_repr = None ): #br
         printlines.append("[%s:%r%s]%s" % ( os.path.basename(filename), lineno, extra, more ))
         frame = frame.f_back
     printlines.reverse() # make it outermost first, like compact_traceback
-    return linesep.join(printlines)
+    return msg + linesep.join(printlines)
 
 # test code for those -- but more non-test code follows, below this!
 
