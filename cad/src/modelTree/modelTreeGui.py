@@ -504,6 +504,12 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     # - MT needs to include this data in what it compares about a node when deciding if redraw is needed.
     #   Until it does, even an MT click often won't update the MT as needed.
     #   (So to test this as it is so far, modify the model, then save and reopen the file.)
+    #
+    # Also need to revise behavior. See Qs below. Here are notes about the answers: [080314]
+    ##yellow ghost: chunks in groups count (for both indicators)
+    ##but hidden whole can coexist with ghost if the ghost is about hidden atoms 
+    ## (since unhide of them requires another step)
+    ## (and the latter is nim, we'll make bug report)
     
     node_symbols = debug_pref("Model Tree: add special symbols to node icons?", 
                               Choice_boolean_True, #bruce 080307 False -> True
