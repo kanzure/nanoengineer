@@ -30,7 +30,8 @@ Majorly rewritten/refactored by Eric M circa 12/2007 [bruce comment 071228]
 """
 
 import os, time
-from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox, QStatusBar
+from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL
+from PyQt4.Qt import QMessageBox, QStatusBar
 from utilities import debug_flags
 from platform.PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import foundation.env as env
@@ -39,6 +40,7 @@ from utilities.icon_utilities import getpixmap
 from utilities.Log import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 from utilities.qt4transition import qt4todo
 from utilities.debug import print_compact_traceback
+from widgets.GlobalDisplayStylesComboBox import GlobalDisplayStylesComboBox
 
 class StatusBar(QStatusBar):
     def __init__(self, win):
@@ -56,35 +58,34 @@ class StatusBar(QStatusBar):
         self.progressBar.hide()
     
         self.simAbortButton = QToolButton(win)
-        pixmap = geticon("ui/actions/Simulation/Stopsign.png")
-        self.simAbortButton.setIcon(QIcon(pixmap))
+        self.simAbortButton.setIcon(
+            geticon("ui/actions/Simulation/Stopsign.png"))
         self.simAbortButton.setMaximumWidth(32)
         self.addPermanentWidget(self.simAbortButton)
         self.connect(self.simAbortButton,SIGNAL("clicked()"),self.simAbort)
         self.simAbortButton.hide()
 
-        self.dispbarLabel = QLabel()
-        self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.dispbarLabel = QLabel(win)
+        #self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.dispbarLabel.setText( "Global display style:" )
         self.addPermanentWidget(self.dispbarLabel)
         
-        # Current display style status
-        if 0:
-            self.currentDisplayStyleLabel = QLabel()
-            self.currentDisplayStyleLabel.setPixmap(
-                getpixmap("ui/actions/View/Display/Default.png"))
-            self.currentDisplayStyleLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-            self.addPermanentWidget(self.currentDisplayStyleLabel)
+        # Global display styles combobox
+        self.globalDisplayStylesComboBox = GlobalDisplayStylesComboBox(win)
+        self.addPermanentWidget(self.globalDisplayStylesComboBox)
         
-        # Selection lock status
-        self.selectionLockLabel = QLabel()
+        # Selection lock status. Currently a QLabel, but maybe it should be
+        # the QAction itself. This would allow the user to click on it.
+        # Other benefits include getting the what's this description for free.
+        # --Mark 2008-03-16
+        self.selectionLockLabel = QLabel(win)
         self.selectionLockLabel.setPixmap(
             getpixmap("ui/actions/Tools/Select/Selection_Unlocked.png"))
         self.selectionLockLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         self.addPermanentWidget(self.selectionLockLabel)
 
         # Only use of this appears to be commented out in MWsemantics as of 2007/12/14
-        self.modebarLabel = QLabel()
-        #self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.modebarLabel = QLabel(win)
         self.addPermanentWidget(self.modebarLabel)
         self.abortableCommands = {}
         

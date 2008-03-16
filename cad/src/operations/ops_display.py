@@ -47,57 +47,43 @@ class displaySlotsMixin:
     # or the GLPane global default if nothing is
     def dispDefault(self):
         """
-        Sets the selected chunks or atoms to I{Default} display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to the display style defined in user preferences.
+        Sets the display style of the selection to I{Default}. 
         """
         self.setDisplay(diDEFAULT, True)
 
     def dispInvis(self):
         """
-        Sets the selected chunks or atoms to I{Invisible} display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to Invisible display mode.
+        Sets the display style of the selection to I{Invisible}.
         """
         self.setDisplay(diINVISIBLE)
 
     def dispLines(self):
         """
-        Sets the selected chunks or atoms to I{Lines} display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to Lines display mode.
+        Sets the display style of the selection to I{Lines}.
         """
         self.setDisplay(diLINES)
 
     def dispTubes(self):
         """
-        Sets the selected chunks or atoms to I{Tubes} display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to Tubes display mode.
+        Sets the display style of the selection to I{Tubes}.
         """
         self.setDisplay(diTUBES)
         
     def dispBall(self): #e this slot method (here and in .ui file) renamed from dispCPK to dispBall [bruce 060607]
         """
-        Sets the selected chunks or atoms to I{Ball and Stick} display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to Ball and Stick display mode.
+        Sets the display style of the selection to I{Ball and Stick}.
         """
         self.setDisplay(diBALL)
         
     def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
         """
-        Sets the selected chunks or atoms to I{CPK} (space fill) display mode. 
-        If nothing is selected when called, then the default display is 
-        changed to CPK display mode.
+        Sets the display style of the selection to I{CPK} (space fill).
         """
         self.setDisplay(diTrueCPK)
         
     def dispDnaCylinder(self):
         """
-        Sets the selected chunks to I{DNA Cylinder} display mode. If nothing
-        is selected, then the default display is changed to DNA Cylinder
-        display mode.
+        Sets the display style of the selection to I{DNA Cylinder}.
         """
         # This code was copied from dispCylinder(). Mark 2008-02-13.
         cmd = greenmsg("Set Display DNA Cylinder: ")
@@ -108,9 +94,7 @@ class displaySlotsMixin:
 
     def dispCylinder(self):
         """
-        Sets the selected chunks to I{Cylinder} display mode. If nothing
-        is selected, then the default display is changed to Cylinder
-        display mode.
+        Sets the display style of the selection to I{Cylinder}.
         
         @note: I{Cylinder} is an experimental display style. It is disabled
         by default. It can be enabled setting the debug (menu) pref
@@ -126,9 +110,7 @@ class displaySlotsMixin:
     
     def dispSurface(self):
         """
-        Sets the selected chunks to I{Surface} display mode. If nothing
-        is selected, then the default display is changed to Surface
-        display mode.
+        Sets the display style of the selection to I{Surface}.
         
         @note: I{Surface} is an experimental display style. It is disabled
         by default. It can be enabled setting the debug (menu) pref
@@ -162,25 +144,46 @@ class displaySlotsMixin:
         """
         self.assy.unhideSelection()
 
-    def setDisplay(self, form, default_display = False):
+    def setDisplay(self, 
+                   display_style, 
+                   default_display = False, 
+                   cmd = greenmsg("Set display style: ")):
         """
-        Set the display of the selection to 'form'.  If nothing is selected, then change
-        the GLPane's current display to 'form'.
+        Set the display of the selection to I{display_style}.
+        
+        @param display_style: The display style.
+        @type  display_style: int
+        
+        @param default_display: If True, set the global display style to 
+                                I{display_style}. This is currently unsupported.
+        @type  default_display: boolean
+        
+        @param cmd: The caller's command string.
+        @type  cmd: string
+        
+        @deprecated: I{default_display} is unsupported and will be removed.
         """
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
-                ob.setDisplay(form)
+                ob.setDisplay(display_style)
         elif self.assy and self.assy.selmols:
             for ob in self.assy.selmols:
-                ob.setDisplay(form)
-        else:
-            if self.glpane.displayMode == form:
+                ob.setDisplay(display_style)
+        elif 0: # Keep in case we decide to offer a user preference. --Mark 2008-03-16
+            # Nothing is selected, so change the global display style to
+            # 'display_style'.
+            if self.glpane.displayMode == display_style:
                 pass ## was 'return' # no change needed
                 # bruce 041129 removing this optim, tho correct in theory,
                 # since it's not expensive to changeapp and repaint if user
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
-            self.glpane.setDisplay(form, default_display) # See docstring for info about default_display
+            self.glpane.setDisplay(display_style, default_display) 
+                # See docstring for info about default_display
+        else:
+            msg = "No atoms or chunks selected. Nothing changed."
+            env.history.message(cmd + msg)
+            return
         self.win_update() # bruce 041206, needed for model tree display mode icons, as well as glpane
         return
     

@@ -984,7 +984,7 @@ class cookieMode(basicMode):
         self.setThickness(self.propMgr.layerCellsSpinBox.value())
         button = self.propMgr.orientButtonGroup.button(self.whichsurf)
         button.setChecked(True)     
-        self.w.statusBar().dispbarLabel.setText(button.toolTip()) 
+        #self.w.statusBar().dispbarLabel.setText(button.toolTip()) #@ unnecessary. --Mark 2008-03-15
 
     def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)

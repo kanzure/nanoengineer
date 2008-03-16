@@ -2354,26 +2354,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @note: doesn't update the MT, and callers typically won't need to,
                since the per-node display style icons are not changing.
         """
-        # Fix to bug 800. Mark 050807
-        if default_display:
-            # Used when the user presses "Default Display" or changes the "Default Display"
-            # in the preferences dialog.  
-            header = "Default Display: " 
-        else:
-            # Used for all other purposes.
-            header = "Current Display: " 
-
         if disp == diDEFAULT:
             disp = env.prefs[ defaultDisplayMode_prefs_key ]
         #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
-        ##Huaicai 3/29/05: Add the condition to fix bug 477
+        
+        # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
         if self.currentCommand.commandName == 'COOKIE':
-            self.win.statusBar().dispbarLabel.setText("    ")
-        else:    
-            #self.win.statusBar().dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
-            self.win.statusBar().dispbarLabel.setText( header + dispLabel[disp] )
+            self.win.statusBar().dispbarLabel.setEnabled(False)
+            self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
+        else:
+            self.win.statusBar().dispbarLabel.setEnabled(True)
+            self.win.statusBar().globalDisplayStylesComboBox.setEnabled(True)
+        
+        self.win.statusBar().globalDisplayStylesComboBox.setDisplayStyle(disp)
         # Note: we don't need to call changeapp on all chunks with no individual
         # display style set, because their draw methods compare self.displayMode
         # (or their currently set individual display style) to the one they used

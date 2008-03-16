@@ -348,11 +348,12 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.setViewZoomtoSelectionAction.setEnabled(0) # Disable Zoom to Selection
         self.w.viewOrientationAction.setEnabled(0) #Disable Orientation Window
         
-        # These should be OK, so I'm leaving them enabled. Without them, users
-        # without a 3-button mouse cannot zoom, pan or rotate easily. 
-        # Mark 2008-01-30.
-        #self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        #self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
+        # Temporarily disable the global display style combobox since this 
+        # has its own special "crystal" display styles (i.e. spheres and tubes).
+        # I decided to leave them enabled since the user might want to see the
+        # entire model and change the global display style. --Mark 2008-03-16
+        #self.win.statusBar().dispbarLabel.setEnabled(False)
+        #self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
         
         # Disable these toolbars
         self.w.buildToolsToolBar.setEnabled(False)
@@ -387,9 +388,10 @@ class CookieCtrlPanel(CookiePropertyManager):
         # Enable all those view options
         self.enableViewChanges(True)
             
-        #Restore display style status message
-        self.w.statusBar().dispbarLabel.setText( "Current Display: " +
-                                                 dispLabel[self.w.glpane.displayMode] )
+        # Restore global display style label and combobox.
+        # (see note above in initGui(). )
+        #self.win.statusBar().dispbarLabel.setEnabled(False)
+        #self.win.statusBar().globalDisplayStylesComboBox.setEnabled(False)
             
         # Restore view projection, enable them.
         self.w.setViewOrthoAction.setEnabled(True)
