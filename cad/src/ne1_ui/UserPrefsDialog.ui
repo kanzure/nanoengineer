@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>747</width>
-    <height>777</height>
+    <width>711</width>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -44,506 +44,137 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="groupBox14" >
-           <property name="title" >
-            <string>Settings for Adjust</string>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
            </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="0" >
-             <layout class="QHBoxLayout" >
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="default_display_grpBox" >
+             <property name="title" >
+              <string>Global Display Style at start-up</string>
+             </property>
+             <layout class="QGridLayout" >
               <property name="margin" >
-               <number>0</number>
+               <number>9</number>
               </property>
               <property name="spacing" >
                <number>6</number>
               </property>
-              <item>
-               <layout class="QVBoxLayout" >
-                <property name="margin" >
-                 <number>0</number>
+              <item row="1" column="1" >
+               <widget class="QRadioButton" name="ballNstick_rbtn" >
+                <property name="toolTip" >
+                 <string>Ball and Stick Display Style</string>
                 </property>
-                <property name="spacing" >
-                 <number>6</number>
+                <property name="text" >
+                 <string>Ball and Stick</string>
                 </property>
-                <item>
-                 <widget class="QCheckBox" name="watch_min_in_realtime_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable/disable real time graphical updates for &lt;b>Adjust All&lt;/b> or &lt;b>Adjust Selection&lt;/b></string>
-                  </property>
-                  <property name="text" >
-                   <string>Watch motion in real time</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
-                  <property name="text" >
-                   <string>Enable Electrostatics for DNA Reduced Model</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item row="2" column="0" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QGroupBox" name="update_btngrp" >
-                <property name="title" >
-                 <string/>
-                </property>
-                <layout class="QVBoxLayout" >
-                 <property name="margin" >
-                  <number>9</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <widget class="QRadioButton" name="update_asap_rbtn" >
-                   <property name="toolTip" >
-                    <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
-                   </property>
-                   <property name="text" >
-                    <string>Update as fast as possible</string>
-                   </property>
-                   <property name="checked" >
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QRadioButton" name="update_every_rbtn" >
-                     <property name="toolTip" >
-                      <string>Specify how often to update the screen during adjustments</string>
-                     </property>
-                     <property name="text" >
-                      <string>Update every</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QSpinBox" name="update_number_spinbox" >
-                     <property name="toolTip" >
-                      <string>Specify how often to update the screen during adjustments</string>
-                     </property>
-                     <property name="maximum" >
-                      <number>9999</number>
-                     </property>
-                     <property name="minimum" >
-                      <number>1</number>
-                     </property>
-                     <property name="value" >
-                      <number>1</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="update_units_combobox" >
-                     <property name="toolTip" >
-                      <string>Specify how often to update the screen during adjustments</string>
-                     </property>
-                     <item>
-                      <property name="text" >
-                       <string>frames</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>seconds</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>minutes</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>hours</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
                </widget>
               </item>
-              <item>
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
+              <item row="1" column="0" >
+               <widget class="QRadioButton" name="tubes_rbtn" >
+                <property name="toolTip" >
+                 <string>Tubes Display Style</string>
                 </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
+                <property name="text" >
+                 <string>Tubes</string>
                 </property>
-               </spacer>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QRadioButton" name="lines_rbtn" >
+                <property name="toolTip" >
+                 <string>Lines Display Style</string>
+                </property>
+                <property name="text" >
+                 <string>Lines</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QRadioButton" name="cpk_rbtn" >
+                <property name="toolTip" >
+                 <string>CPK (Space Fill) Display Style</string>
+                </property>
+                <property name="text" >
+                 <string>CPK</string>
+                </property>
+               </widget>
               </item>
              </layout>
-            </item>
-            <item row="3" column="0" >
-             <widget class="QGroupBox" name="groupBox20" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>5</hsizetype>
-                <vsizetype>5</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="title" >
-               <string>Convergence Criteria</string>
-              </property>
-              <layout class="QGridLayout" >
-               <property name="margin" >
-                <number>9</number>
-               </property>
-               <property name="spacing" >
-                <number>6</number>
-               </property>
-               <item row="0" column="0" >
-                <layout class="QHBoxLayout" >
-                 <property name="margin" >
-                  <number>0</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <layout class="QHBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <layout class="QVBoxLayout" >
-                     <property name="margin" >
-                      <number>0</number>
-                     </property>
-                     <property name="spacing" >
-                      <number>6</number>
-                     </property>
-                     <item>
-                      <widget class="QLabel" name="endrms_lbl" >
-                       <property name="toolTip" >
-                        <string>Target RMS force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>EndRMS :</string>
-                       </property>
-                       <property name="alignment" >
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="endmax_lbl" >
-                       <property name="toolTip" >
-                        <string>Target max force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>EndMax :</string>
-                       </property>
-                       <property name="alignment" >
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" >
-                     <property name="margin" >
-                      <number>0</number>
-                     </property>
-                     <property name="spacing" >
-                      <number>6</number>
-                     </property>
-                     <item>
-                      <widget class="QLineEdit" name="endrms_linedit" >
-                       <property name="maximumSize" >
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="toolTip" >
-                        <string>Target RMS force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>1.0</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="endmax_linedit" >
-                       <property name="maximumSize" >
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="toolTip" >
-                        <string>Target max force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>10.0</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <spacer>
-                   <property name="orientation" >
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" >
-                    <size>
-                     <width>21</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <layout class="QVBoxLayout" >
-                     <property name="margin" >
-                      <number>0</number>
-                     </property>
-                     <property name="spacing" >
-                      <number>6</number>
-                     </property>
-                     <item>
-                      <widget class="QLabel" name="cutoverrms_lbl" >
-                       <property name="toolTip" >
-                        <string>Cutover RMS force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>CutoverRMS :</string>
-                       </property>
-                       <property name="alignment" >
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="cutovermax_lbl" >
-                       <property name="toolTip" >
-                        <string>Cutover max force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>CutoverMax :</string>
-                       </property>
-                       <property name="alignment" >
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" >
-                     <property name="margin" >
-                      <number>0</number>
-                     </property>
-                     <property name="spacing" >
-                      <number>6</number>
-                     </property>
-                     <item>
-                      <widget class="QLineEdit" name="cutoverrms_linedit" >
-                       <property name="maximumSize" >
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="toolTip" >
-                        <string>Cutover RMS force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>50.0</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="cutovermax_linedit" >
-                       <property name="maximumSize" >
-                        <size>
-                         <width>60</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                       <property name="toolTip" >
-                        <string>Cutover max force (pN)</string>
-                       </property>
-                       <property name="text" >
-                        <string>300.0</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="0" column="0" >
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="buildmode_groupbox" >
+             <property name="title" >
+              <string>Build Atoms Settings</string>
+             </property>
              <layout class="QVBoxLayout" >
               <property name="margin" >
-               <number>0</number>
+               <number>9</number>
               </property>
               <property name="spacing" >
                <number>6</number>
               </property>
               <item>
-               <layout class="QHBoxLayout" >
-                <property name="margin" >
-                 <number>0</number>
+               <widget class="QCheckBox" name="autobond_checkbox" >
+                <property name="toolTip" >
+                 <string>Build mode's default setting for Autobonding at startup (enabled/disabled)</string>
                 </property>
-                <property name="spacing" >
-                 <number>6</number>
+                <property name="text" >
+                 <string>Autobond</string>
                 </property>
-                <item>
-                 <widget class="QLabel" name="min_options_label_4" >
-                  <property name="text" >
-                   <string>Adjust Engine</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer>
-                  <property name="orientation" >
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType" >
-                   <enum>QSizePolicy::Expanding</enum>
-                  </property>
-                  <property name="sizeHint" >
-                   <size>
-                    <width>21</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="grpbtn_4" >
-                  <property name="sizePolicy" >
-                   <sizepolicy>
-                    <hsizetype>0</hsizetype>
-                    <vsizetype>0</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize" >
-                   <size>
-                    <width>16</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                  <property name="icon" >
-                   <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-                  </property>
-                  <property name="autoDefault" >
-                   <bool>false</bool>
-                  </property>
-                  <property name="default" >
-                   <bool>false</bool>
-                  </property>
-                  <property name="flat" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="minimize_engine_combobox" >
+               <widget class="QCheckBox" name="buildmode_highlighting_checkbox" >
                 <property name="toolTip" >
-                 <string>Choose the simulation engine with which to minimize energy.</string>
+                 <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
                 </property>
-                <item>
-                 <property name="text" >
-                  <string>NanoDynamics-1 (Default)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>GROMACS with ND1 Force Field</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Background GROMACS with ND1 Force Field</string>
-                 </property>
-                </item>
+                <property name="text" >
+                 <string>Highlighting</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="water_checkbox" >
+                <property name="toolTip" >
+                 <string>Build mode's default setting for Water at startup (enabled/disabled)</string>
+                </property>
+                <property name="text" >
+                 <string>Water</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="buildmode_select_atoms_checkbox" >
+                <property name="toolTip" >
+                 <string>Automatically select atoms when depositing</string>
+                </property>
+                <property name="text" >
+                 <string>Select Atoms of Deposited Object</string>
+                </property>
                </widget>
               </item>
              </layout>
-            </item>
-           </layout>
-          </widget>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
          <item>
           <layout class="QVBoxLayout" >
@@ -553,59 +184,6 @@
            <property name="spacing" >
             <number>6</number>
            </property>
-           <item>
-            <widget class="QGroupBox" name="sponsorLogosGroupBox" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>3</hsizetype>
-               <vsizetype>3</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title" >
-              <string>Sponsor Logos Download Permission</string>
-             </property>
-             <layout class="QGridLayout" >
-              <property name="margin" >
-               <number>9</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item row="2" column="0" >
-               <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
-                <property name="toolTip" >
-                 <string>Never download sponsor logos from the Nanorex server</string>
-                </property>
-                <property name="text" >
-                 <string>Never download</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" >
-               <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
-                <property name="toolTip" >
-                 <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
-                </property>
-                <property name="text" >
-                 <string>Never ask before downloading</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" >
-               <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
-                <property name="toolTip" >
-                 <string>Always ask permission to download sponsor logos from the Nanorex server</string>
-                </property>
-                <property name="text" >
-                 <string>Always ask before downloading</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item>
             <widget class="QGroupBox" name="rulersGroupBox" >
              <property name="title" >
@@ -780,6 +358,269 @@
             </spacer>
            </item>
           </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="sponsorLogosGroupBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>3</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title" >
+              <string>Sponsor Logos Download Permission</string>
+             </property>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
+                <property name="toolTip" >
+                 <string>Always ask permission to download sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Always ask before downloading</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
+                <property name="toolTip" >
+                 <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Never ask before downloading</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
+                <property name="toolTip" >
+                 <string>Never download sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Never download</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox7_2" >
+           <property name="title" >
+            <string>Axes</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Point of View Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Point of View Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Origin Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Origin Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox17_2" >
+           <property name="title" >
+            <string>Compass</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="2" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="textLabel1_4" >
+                <property name="text" >
+                 <string>Location :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="compass_position_combox" >
+                <item>
+                 <property name="text" >
+                  <string>Upper Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass Labels</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_compass_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="default_projection_grpBox" >
+           <property name="toolTip" >
+            <string/>
+           </property>
+           <property name="title" >
+            <string>Default Projection</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QRadioButton" name="perspective_radioButton" >
+              <property name="text" >
+               <string>Perspective</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QRadioButton" name="orthographic_radioButton" >
+              <property name="text" >
+               <string>Orthographic</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <spacer>
@@ -1185,193 +1026,6 @@
               </property>
               <property name="text" >
                <string>Animate between views</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" >
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0" >
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupBox7_2" >
-           <property name="title" >
-            <string>Axes</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Point of View Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Point of View Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Origin Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Origin Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox17_2" >
-           <property name="title" >
-            <string>Compass</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="2" column="0" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="textLabel1_4" >
-                <property name="text" >
-                 <string>Location :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="compass_position_combox" >
-                <item>
-                 <property name="text" >
-                  <string>Upper Right</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Upper Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Right</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass Labels</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_compass_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="default_projection_grpBox" >
-           <property name="toolTip" >
-            <string/>
-           </property>
-           <property name="title" >
-            <string>Default Projection</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="0" column="0" >
-             <widget class="QRadioButton" name="perspective_radioButton" >
-              <property name="text" >
-               <string>Perspective</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QRadioButton" name="orthographic_radioButton" >
-              <property name="text" >
-               <string>Orthographic</string>
               </property>
               <property name="checked" >
                <bool>true</bool>
@@ -1943,46 +1597,7 @@
        <property name="spacing" >
         <number>6</number>
        </property>
-       <item row="5" column="3" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="6" column="0" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>144</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="1" colspan="3" >
-        <widget class="QCheckBox" name="show_valence_errors_checkbox" >
-         <property name="toolTip" >
-          <string>Enable/Disable Valence Error Checker</string>
-         </property>
-         <property name="text" >
-          <string>Show Valence Errors</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2" colspan="2" >
+       <item row="0" column="2" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
@@ -1998,370 +1613,8 @@
          </property>
         </spacer>
        </item>
-       <item row="3" column="1" colspan="3" >
-        <widget class="QCheckBox" name="showBondStretchIndicators_checkBox" >
-         <property name="toolTip" >
-          <string>Enable/Disable Display of Bond Stretch Indicators</string>
-         </property>
-         <property name="text" >
-          <string>Show  Bond Stretch Indicators</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="3" >
-        <widget class="QCheckBox" name="show_bond_labels_checkbox" >
-         <property name="toolTip" >
-          <string>Display Bond Type Label</string>
-         </property>
-         <property name="text" >
-          <string>Show Bond Type Letters</string>
-         </property>
-        </widget>
-       </item>
-       <item rowspan="5" row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox4" >
-         <property name="title" >
-          <string>Colors</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType" >
-               <enum>QSizePolicy::Expanding</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="reset_bond_colors_btn" >
-              <property name="text" >
-               <string>Restore Default Colors</string>
-              </property>
-              <property name="autoDefault" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="1" >
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="textLabel3_2" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>5</hsizetype>
-                <vsizetype>5</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text" >
-               <string>Bond Highlighting :</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QFrame" name="bond_stretch_color_frame" >
-                <property name="minimumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="frameShape" >
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow" >
-                 <enum>QFrame::Plain</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="bond_stretch_color_btn" >
-                <property name="text" >
-                 <string>Choose...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-                <property name="default" >
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="0" column="1" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QFrame" name="bond_hilite_color_frame" >
-                <property name="minimumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="frameShape" >
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow" >
-                 <enum>QFrame::Plain</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="bond_hilite_color_btn" >
-                <property name="text" >
-                 <string>Choose...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0" >
-             <widget class="QLabel" name="textLabel3_3" >
-              <property name="text" >
-               <string>Vane/Ribbon :</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QFrame" name="ballstick_bondcolor_frame" >
-                <property name="minimumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="frameShape" >
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow" >
-                 <enum>QFrame::Plain</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ballstick_bondcolor_btn" >
-                <property name="text" >
-                 <string>Choose...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QLabel" name="textLabel3" >
-              <property name="text" >
-               <string>Ball and Stick Cylinder :</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="textLabel3_2_2" >
-              <property name="sizePolicy" >
-               <sizepolicy>
-                <hsizetype>5</hsizetype>
-                <vsizetype>5</vsizetype>
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize" >
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text" >
-               <string>Bond Stretch :</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QFrame" name="bond_vane_color_frame" >
-                <property name="minimumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>23</width>
-                  <height>23</height>
-                 </size>
-                </property>
-                <property name="frameShape" >
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow" >
-                 <enum>QFrame::Plain</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="bond_vane_color_btn" >
-                <property name="text" >
-                 <string>Choose...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="1" >
-        <widget class="QGroupBox" name="high_order_bond_display_groupbox" >
-         <property name="title" >
-          <string>High Order Bonds</string>
-         </property>
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>11</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QRadioButton" name="multCyl_radioButton" >
-            <property name="toolTip" >
-             <string>Display high order bonds using multiple cylinders</string>
-            </property>
-            <property name="text" >
-             <string>Multiple Cylinders</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="vanes_radioButton" >
-            <property name="toolTip" >
-             <string>Display pi systems in high order bonds as Vanes</string>
-            </property>
-            <property name="text" >
-             <string>Vanes</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="ribbons_radioButton" >
-            <property name="toolTip" >
-             <string>Display pi systems in high order bonds as Ribbons</string>
-            </property>
-            <property name="text" >
-             <string>Ribbons</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="5" column="0" >
-        <layout class="QHBoxLayout" >
+        <layout class="QVBoxLayout" >
          <property name="margin" >
           <number>0</number>
          </property>
@@ -2369,43 +1622,402 @@
           <number>6</number>
          </property>
          <item>
-          <layout class="QVBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
+          <widget class="QGroupBox" name="high_order_bond_display_groupbox" >
+           <property name="title" >
+            <string>High Order Bonds</string>
            </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="textLabel1_3" >
-             <property name="toolTip" >
-              <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
-             </property>
-             <property name="text" >
-              <string>Ball and Stick Bond Scale :</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="textLabel1" >
-             <property name="toolTip" >
-              <string>Bond thickness (in pixels) for Lines Display Mode</string>
-             </property>
-             <property name="text" >
-              <string>Bond Line Thickness :</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
+           <layout class="QVBoxLayout" >
+            <property name="margin" >
+             <number>11</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="multCyl_radioButton" >
+              <property name="toolTip" >
+               <string>Display high order bonds using multiple cylinders</string>
+              </property>
+              <property name="text" >
+               <string>Multiple Cylinders</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="vanes_radioButton" >
+              <property name="toolTip" >
+               <string>Display pi systems in high order bonds as Vanes</string>
+              </property>
+              <property name="text" >
+               <string>Vanes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="ribbons_radioButton" >
+              <property name="toolTip" >
+               <string>Display pi systems in high order bonds as Ribbons</string>
+              </property>
+              <property name="text" >
+               <string>Ribbons</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
-          <layout class="QVBoxLayout" >
+          <widget class="QCheckBox" name="show_bond_labels_checkbox" >
+           <property name="toolTip" >
+            <string>Display Bond Type Label</string>
+           </property>
+           <property name="text" >
+            <string>Show Bond Type Letters</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="show_valence_errors_checkbox" >
+           <property name="toolTip" >
+            <string>Enable/Disable Valence Error Checker</string>
+           </property>
+           <property name="text" >
+            <string>Show Valence Errors</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="showBondStretchIndicators_checkBox" >
+           <property name="toolTip" >
+            <string>Enable/Disable Display of Bond Stretch Indicators</string>
+           </property>
+           <property name="text" >
+            <string>Show  Bond Stretch Indicators</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox4" >
+           <property name="title" >
+            <string>Colors</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="1" column="0" colspan="2" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType" >
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="reset_bond_colors_btn" >
+                <property name="text" >
+                 <string>Restore Default Colors</string>
+                </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1" >
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="textLabel3_2" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>5</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text" >
+                 <string>Bond Highlighting :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="bond_stretch_color_frame" >
+                  <property name="minimumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="bond_stretch_color_btn" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="bond_hilite_color_frame" >
+                  <property name="minimumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="bond_hilite_color_btn" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="0" >
+               <widget class="QLabel" name="textLabel3_3" >
+                <property name="text" >
+                 <string>Vane/Ribbon :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="ballstick_bondcolor_frame" >
+                  <property name="minimumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="ballstick_bondcolor_btn" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="textLabel3" >
+                <property name="text" >
+                 <string>Ball and Stick Cylinder :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="textLabel3_2_2" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>5</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize" >
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text" >
+                 <string>Bond Stretch :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="bond_vane_color_frame" >
+                  <property name="minimumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="bond_vane_color_btn" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" >
            <property name="margin" >
             <number>0</number>
            </property>
@@ -2413,54 +2025,116 @@
             <number>6</number>
            </property>
            <item>
-            <widget class="QSpinBox" name="cpk_cylinder_rad_spinbox" >
-             <property name="toolTip" >
-              <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
+            <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
              </property>
-             <property name="suffix" >
-              <string>%</string>
+             <property name="spacing" >
+              <number>6</number>
              </property>
-             <property name="maximum" >
-              <number>400</number>
-             </property>
-             <property name="minimum" >
-              <number>50</number>
-             </property>
-             <property name="value" >
-              <number>100</number>
-             </property>
-            </widget>
+             <item>
+              <widget class="QLabel" name="textLabel1_3" >
+               <property name="toolTip" >
+                <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
+               </property>
+               <property name="text" >
+                <string>Ball and Stick Bond Scale :</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="textLabel1" >
+               <property name="toolTip" >
+                <string>Bond thickness (in pixels) for Lines Display Mode</string>
+               </property>
+               <property name="text" >
+                <string>Bond Line Thickness :</string>
+               </property>
+               <property name="alignment" >
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QSpinBox" name="bond_line_thickness_spinbox" >
-             <property name="toolTip" >
-              <string>Bond thickness (in pixels) for Lines Display Mode</string>
+            <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
              </property>
-             <property name="suffix" >
-              <string> pixel</string>
+             <property name="spacing" >
+              <number>6</number>
              </property>
-             <property name="maximum" >
-              <number>4</number>
+             <item>
+              <widget class="QSpinBox" name="cpk_cylinder_rad_spinbox" >
+               <property name="toolTip" >
+                <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
+               </property>
+               <property name="suffix" >
+                <string>%</string>
+               </property>
+               <property name="maximum" >
+                <number>400</number>
+               </property>
+               <property name="minimum" >
+                <number>50</number>
+               </property>
+               <property name="value" >
+                <number>100</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="bond_line_thickness_spinbox" >
+               <property name="toolTip" >
+                <string>Bond thickness (in pixels) for Lines Display Mode</string>
+               </property>
+               <property name="suffix" >
+                <string> pixel</string>
+               </property>
+               <property name="maximum" >
+                <number>4</number>
+               </property>
+               <property name="minimum" >
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
              </property>
-             <property name="minimum" >
-              <number>1</number>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Expanding</enum>
              </property>
-            </widget>
+             <property name="sizeHint" >
+              <size>
+               <width>16</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
          <item>
           <spacer>
            <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeType" >
             <enum>QSizePolicy::Expanding</enum>
            </property>
            <property name="sizeHint" >
             <size>
-             <width>16</width>
-             <height>20</height>
+             <width>20</width>
+             <height>144</height>
             </size>
            </property>
           </spacer>
@@ -2473,542 +2147,1094 @@
       <attribute name="title" >
        <string>DNA</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget" >
-       <property name="geometry" >
-        <rect>
-         <x>11</x>
-         <y>200</y>
-         <width>357</width>
-         <height>152</height>
-        </rect>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
        </property>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QGroupBox" name="groupBox_3" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>3</hsizetype>
-            <vsizetype>5</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title" >
-           <string>Display Options</string>
-          </property>
-          <layout class="QGridLayout" >
-           <property name="margin" >
-            <number>9</number>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="2" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5" >
+           <property name="title" >
+            <string>DNA Cylinder Display Style Options</string>
            </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item row="2" column="1" >
-            <layout class="QHBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QSpinBox" name="dnaStrutScaleFactorSpinBox" >
-               <property name="suffix" >
-                <string>%</string>
-               </property>
-               <property name="maximum" >
-                <number>200</number>
-               </property>
-               <property name="minimum" >
-                <number>50</number>
-               </property>
-               <property name="singleStep" >
-                <number>5</number>
-               </property>
-               <property name="value" >
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="reset_dnaStrutScaleToolButton" >
-               <property name="toolTip" >
-                <string>Restore default value</string>
-               </property>
-               <property name="text" >
-                <string/>
-               </property>
-               <property name="icon" >
-                <iconset>../../:icons/UserPrefsDialog_image0</iconset>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" >
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="1" >
-            <layout class="QHBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QComboBox" name="dnaColorBasesByComboBox" >
-               <item>
-                <property name="text" >
-                 <string>Strand color</string>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QTabWidget" name="tabWidget_3" >
+              <property name="currentIndex" >
+               <number>0</number>
+              </property>
+              <widget class="QWidget" name="tab_4" >
+               <attribute name="title" >
+                <string>Axis</string>
+               </attribute>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>9</number>
                 </property>
-               </item>
-               <item>
-                <property name="text" >
-                 <string>Segment color</string>
+                <property name="spacing" >
+                 <number>6</number>
                 </property>
-               </item>
+                <item row="0" column="1" >
+                 <widget class="QComboBox" name="dnaStyleAxisShapeComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Wide tube</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Narrow tube</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_30" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Shape:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" >
+                 <widget class="QComboBox" name="dnaStyleAxisTaperComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Taper start</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Taper end</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Taper both</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Spherical</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="3" column="0" >
+                 <widget class="QLabel" name="label_32" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Ending style:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" >
+                 <widget class="QComboBox" name="dnaStyleAxisColorComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>Same as chunk</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base order (discrete)</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base type</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Strand order</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QLabel" name="label_31" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QDoubleSpinBox" name="dnaStyleAxisScaleSpinBox" >
+                  <property name="maximum" >
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="textLabel1_3_2_11" >
+                  <property name="toolTip" >
+                   <string>CPK Atom Scale factor for CPK display mode</string>
+                  </property>
+                  <property name="text" >
+                   <string>Scale:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
-             </item>
-             <item>
-              <spacer>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" >
-                <size>
-                 <width>5</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="1" >
-            <layout class="QHBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QFrame" name="dnaDefaultSegmentColorFrame" >
-               <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>0</hsizetype>
-                 <vsizetype>0</vsizetype>
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize" >
-                <size>
-                 <width>23</width>
-                 <height>23</height>
-                </size>
-               </property>
-               <property name="maximumSize" >
-                <size>
-                 <width>23</width>
-                 <height>23</height>
-                </size>
-               </property>
-               <property name="frameShape" >
-                <enum>QFrame::Box</enum>
-               </property>
-               <property name="frameShadow" >
-                <enum>QFrame::Plain</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="dnaDefaultSegmentColorPushButton" >
-               <property name="text" >
-                <string>Choose...</string>
-               </property>
-               <property name="autoDefault" >
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_7" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>1</hsizetype>
-               <vsizetype>5</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text" >
-              <string>Default segment color:</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_8" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>1</hsizetype>
-               <vsizetype>5</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text" >
-              <string>Color bases by:</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_9" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>1</hsizetype>
-               <vsizetype>5</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text" >
-              <string>Strut scale factor:</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>231</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget" >
-       <property name="geometry" >
-        <rect>
-         <x>11</x>
-         <y>358</y>
-         <width>357</width>
-         <height>124</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QGroupBox" name="dna_reduced_model_options_grpbox" >
-          <property name="title" >
-           <string>Strand Options</string>
-          </property>
-          <layout class="QGridLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item row="0" column="0" >
-            <widget class="QCheckBox" name="arrowsOnBackBones_checkBox" >
-             <property name="text" >
-              <string>Show arrows on back bones</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QCheckBox" name="arrowsOnThreePrimeEnds_checkBox" >
-             <property name="text" >
-              <string>Show arrows on 3' ends</string>
-             </property>
-             <property name="checked" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QCheckBox" name="arrowsOnFivePrimeEnds_checkBox" >
-             <property name="text" >
-              <string>Show arrows on 5' ends</string>
-             </property>
-             <property name="checked" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget" >
-       <property name="geometry" >
-        <rect>
-         <x>11</x>
-         <y>11</y>
-         <width>357</width>
-         <height>183</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QGroupBox" name="groupBox" >
-          <property name="title" >
-           <string>DNA Default Values</string>
-          </property>
-          <layout class="QVBoxLayout" >
-           <property name="margin" >
-            <number>9</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item row="1" column="0" >
-              <widget class="QLabel" name="label_4" >
-               <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>1</hsizetype>
-                 <vsizetype>5</vsizetype>
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text" >
-                <string>Bases per turn:</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1" >
-              <widget class="QDoubleSpinBox" name="dnaBasesPerTurnDoubleSpinBox" >
-               <property name="decimals" >
-                <number>2</number>
-               </property>
-               <property name="singleStep" >
-                <double>0.100000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" >
-              <widget class="QLabel" name="label_6" >
-               <property name="text" >
-                <string>Rise:</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1" >
-              <widget class="QDoubleSpinBox" name="dnaRiseDoubleSpinBox" >
-               <property name="suffix" >
-                <string> Angstroms</string>
-               </property>
-               <property name="decimals" >
-                <number>3</number>
-               </property>
-               <property name="singleStep" >
-                <double>0.010000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" >
-              <widget class="QLabel" name="label_11" >
-               <property name="sizePolicy" >
-                <sizepolicy>
-                 <hsizetype>1</hsizetype>
-                 <vsizetype>5</vsizetype>
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text" >
-                <string>Conformation:</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1" >
-              <widget class="QComboBox" name="dnaConformationComboBox" >
-               <item>
-                <property name="text" >
-                 <string>B-DNA</string>
+              <widget class="QWidget" name="tab_9" >
+               <attribute name="title" >
+                <string>Strands</string>
+               </attribute>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>9</number>
                 </property>
-               </item>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item row="3" column="1" >
+                 <widget class="QComboBox" name="dnaStyleStrandsArrowsComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Start</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>End</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Both</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="3" column="0" >
+                 <widget class="QLabel" name="label_262" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Arrows:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" >
+                 <widget class="QComboBox" name="dnaStyleStrandsColorComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>Same as chunk</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Strand order</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QLabel" name="label_261" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QDoubleSpinBox" name="dnaStyleStrandsScaleSpinBox" >
+                  <property name="maximum" >
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="textLabel1_3_2_9" >
+                  <property name="toolTip" >
+                   <string>CPK Atom Scale factor for CPK display mode</string>
+                  </property>
+                  <property name="text" >
+                   <string>Scale:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" >
+                 <widget class="QComboBox" name="dnaStyleStrandsShapeComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Cylinders</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Tube</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_26" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Shape:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <spacer>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" >
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="dnaRestoreFactoryDefaultsPushButton" >
-               <property name="text" >
-                <string>Restore Factory Defaults</string>
-               </property>
-               <property name="autoDefault" >
-                <bool>false</bool>
-               </property>
+              <widget class="QWidget" name="tab_3" >
+               <attribute name="title" >
+                <string>Struts</string>
+               </attribute>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>9</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item row="2" column="1" >
+                 <widget class="QComboBox" name="dnaStyleStrutsColorComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>Same as chunk</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Strand order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base type</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QDoubleSpinBox" name="dnaStyleStrutsScaleSpinBox" >
+                  <property name="maximum" >
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QLabel" name="label_28" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" >
+                 <widget class="QComboBox" name="dnaStyleStrutsShapeComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base-axis-base cylinders</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Straight cylinders</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_27" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Shape:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="textLabel1_3_2_10" >
+                  <property name="toolTip" >
+                   <string>CPK Atom Scale factor for CPK display mode</string>
+                  </property>
+                  <property name="text" >
+                   <string>Scale:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget" >
-       <property name="geometry" >
-        <rect>
-         <x>381</x>
-         <y>11</y>
-         <width>331</width>
-         <height>652</height>
-        </rect>
+              <widget class="QWidget" name="tab_5" >
+               <attribute name="title" >
+                <string>Bases</string>
+               </attribute>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>9</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item row="0" column="1" >
+                 <widget class="QComboBox" name="dnaStyleBasesShapeComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Spheres</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Cartoon</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_33" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Shape:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="textLabel1_3_2_12" >
+                  <property name="toolTip" >
+                   <string>CPK Atom Scale factor for CPK display mode</string>
+                  </property>
+                  <property name="text" >
+                   <string>Scale:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QLabel" name="label_34" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" >
+                 <widget class="QComboBox" name="dnaStyleBasesColorComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>Same as chunk</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Strand order</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base type</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <widget class="QDoubleSpinBox" name="dnaStyleBasesScaleSpinBox" >
+                  <property name="maximum" >
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>421</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox" >
+           <property name="title" >
+            <string>DNA Default Values</string>
+           </property>
+           <layout class="QVBoxLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_4" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>1</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text" >
+                 <string>Bases per turn:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QDoubleSpinBox" name="dnaBasesPerTurnDoubleSpinBox" >
+                <property name="decimals" >
+                 <number>2</number>
+                </property>
+                <property name="singleStep" >
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="label_6" >
+                <property name="text" >
+                 <string>Rise:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" >
+               <widget class="QDoubleSpinBox" name="dnaRiseDoubleSpinBox" >
+                <property name="suffix" >
+                 <string> Angstroms</string>
+                </property>
+                <property name="decimals" >
+                 <number>3</number>
+                </property>
+                <property name="singleStep" >
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="label_11" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>1</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text" >
+                 <string>Conformation:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <widget class="QComboBox" name="dnaConformationComboBox" >
+                <item>
+                 <property name="text" >
+                  <string>B-DNA</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="dnaRestoreFactoryDefaultsPushButton" >
+                <property name="text" >
+                 <string>Restore Factory Defaults</string>
+                </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_3" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>3</hsizetype>
+             <vsizetype>5</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title" >
+            <string>General Display Options</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="2" column="1" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QSpinBox" name="dnaStrutScaleFactorSpinBox" >
+                <property name="suffix" >
+                 <string>%</string>
+                </property>
+                <property name="maximum" >
+                 <number>200</number>
+                </property>
+                <property name="minimum" >
+                 <number>50</number>
+                </property>
+                <property name="singleStep" >
+                 <number>5</number>
+                </property>
+                <property name="value" >
+                 <number>100</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="reset_dnaStrutScaleToolButton" >
+                <property name="toolTip" >
+                 <string>Restore default value</string>
+                </property>
+                <property name="text" >
+                 <string/>
+                </property>
+                <property name="icon" >
+                 <iconset>../../:icons/UserPrefsDialog_image0</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="1" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QComboBox" name="dnaColorBasesByComboBox" >
+                <item>
+                 <property name="text" >
+                  <string>Strand color</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Segment color</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>5</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="dnaDefaultSegmentColorFrame" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>0</hsizetype>
+                  <vsizetype>0</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize" >
+                 <size>
+                  <width>23</width>
+                  <height>23</height>
+                 </size>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>23</width>
+                  <height>23</height>
+                 </size>
+                </property>
+                <property name="frameShape" >
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow" >
+                 <enum>QFrame::Plain</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="dnaDefaultSegmentColorPushButton" >
+                <property name="text" >
+                 <string>Choose...</string>
+                </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_7" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>1</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>Default segment color:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="label_8" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>1</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>Color bases by:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLabel" name="label_9" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>1</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>Strut scale factor:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="dna_reduced_model_options_grpbox" >
+           <property name="title" >
+            <string>Strand Options</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="arrowsOnBackBones_checkBox" >
+              <property name="text" >
+               <string>Show arrows on back bones</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="arrowsOnThreePrimeEnds_checkBox" >
+              <property name="text" >
+               <string>Show arrows on 3' ends</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QCheckBox" name="arrowsOnFivePrimeEnds_checkBox" >
+              <property name="text" >
+               <string>Show arrows on 5' ends</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TabPage" >
+      <attribute name="title" >
+       <string>Adjust</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>9</number>
        </property>
-       <layout class="QGridLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="0" >
-         <widget class="QGroupBox" name="groupBox_5" >
-          <property name="title" >
-           <string>DNA Display Style</string>
-          </property>
-          <layout class="QGridLayout" >
-           <property name="margin" >
-            <number>9</number>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox14" >
+           <property name="title" >
+            <string>Settings for Adjust</string>
            </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item row="0" column="0" >
-            <widget class="QTabWidget" name="tabWidget_3" >
-             <property name="currentIndex" >
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="tab_4" >
-              <attribute name="title" >
-               <string>Axis</string>
-              </attribute>
-              <widget class="QWidget" name="layoutWidget_2" >
-               <property name="geometry" >
-                <rect>
-                 <x>10</x>
-                 <y>10</y>
-                 <width>271</width>
-                 <height>133</height>
-                </rect>
-               </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="1" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
                <layout class="QVBoxLayout" >
                 <property name="margin" >
                  <number>0</number>
@@ -3017,209 +3243,159 @@
                  <number>6</number>
                 </property>
                 <item>
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
+                 <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
+                  <property name="text" >
+                   <string>Enable Electrostatics for DNA Reduced Model</string>
                   </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_30" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Shape:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleAxisShapeComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>None</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Wide tube</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Narrow tube</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="textLabel1_3_2_11" >
-                    <property name="toolTip" >
-                     <string>CPK Atom Scale factor for CPK display mode</string>
-                    </property>
-                    <property name="text" >
-                     <string>Scale:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="dnaStyleAxisScaleSpinBox" >
-                    <property name="maximum" >
-                     <double>10.000000000000000</double>
-                    </property>
-                    <property name="singleStep" >
-                     <double>0.100000000000000</double>
-                    </property>
-                    <property name="value" >
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_31" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Color:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleAxisColorComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>Same as chunk</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base order</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base order (discrete)</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base type</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Strand order</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_32" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Ending style:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleAxisTaperComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>None</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Taper start</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Taper end</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Taper both</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Spherical</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
+                 </widget>
                 </item>
                </layout>
-              </widget>
-             </widget>
-             <widget class="QWidget" name="tab_9" >
-              <attribute name="title" >
-               <string>Strands</string>
-              </attribute>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QGroupBox" name="update_btngrp" >
+                <property name="title" >
+                 <string>Watch motion in real time</string>
+                </property>
+                <property name="checkable" >
+                 <bool>true</bool>
+                </property>
+                <layout class="QVBoxLayout" >
+                 <property name="margin" >
+                  <number>9</number>
+                 </property>
+                 <property name="spacing" >
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="update_asap_rbtn" >
+                   <property name="toolTip" >
+                    <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
+                   </property>
+                   <property name="text" >
+                    <string>Update as fast as possible</string>
+                   </property>
+                   <property name="checked" >
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" >
+                   <property name="margin" >
+                    <number>0</number>
+                   </property>
+                   <property name="spacing" >
+                    <number>6</number>
+                   </property>
+                   <item>
+                    <widget class="QRadioButton" name="update_every_rbtn" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <property name="text" >
+                      <string>Update every</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="update_number_spinbox" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <property name="maximum" >
+                      <number>9999</number>
+                     </property>
+                     <property name="minimum" >
+                      <number>1</number>
+                     </property>
+                     <property name="value" >
+                      <number>1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="update_units_combobox" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <item>
+                      <property name="text" >
+                       <string>frames</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>seconds</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>minutes</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>hours</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QGroupBox" name="groupBox20" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>5</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title" >
+               <string>Convergence Criteria</string>
+              </property>
               <layout class="QGridLayout" >
                <property name="margin" >
                 <number>9</number>
@@ -3228,7 +3404,7 @@
                 <number>6</number>
                </property>
                <item row="0" column="0" >
-                <layout class="QVBoxLayout" >
+                <layout class="QHBoxLayout" >
                  <property name="margin" >
                   <number>0</number>
                  </property>
@@ -3244,43 +3420,97 @@
                     <number>6</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="label_26" >
-                     <property name="sizePolicy" >
-                      <sizepolicy>
-                       <hsizetype>1</hsizetype>
-                       <vsizetype>5</vsizetype>
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
                      </property>
-                     <property name="text" >
-                      <string>Shape:</string>
+                     <property name="spacing" >
+                      <number>6</number>
                      </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
+                     <item>
+                      <widget class="QLabel" name="endrms_lbl" >
+                       <property name="toolTip" >
+                        <string>Target RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>EndRMS :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="endmax_lbl" >
+                       <property name="toolTip" >
+                        <string>Target max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>EndMax :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
-                    <widget class="QComboBox" name="dnaStyleStrandsShapeComboBox" >
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
+                     </property>
+                     <property name="spacing" >
+                      <number>6</number>
+                     </property>
                      <item>
-                      <property name="text" >
-                       <string>None</string>
-                      </property>
+                      <widget class="QLineEdit" name="endrms_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Target RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>1.0</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
-                      <property name="text" >
-                       <string>Cylinders</string>
-                      </property>
+                      <widget class="QLineEdit" name="endmax_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Target max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>10.0</string>
+                       </property>
+                      </widget>
                      </item>
-                     <item>
-                      <property name="text" >
-                       <string>Tube</string>
-                      </property>
-                     </item>
-                    </widget>
+                    </layout>
                    </item>
                   </layout>
+                 </item>
+                 <item>
+                  <spacer>
+                   <property name="orientation" >
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" >
+                    <size>
+                     <width>21</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                  <item>
                   <layout class="QHBoxLayout" >
@@ -3291,129 +3521,82 @@
                     <number>6</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="textLabel1_3_2_9" >
-                     <property name="toolTip" >
-                      <string>CPK Atom Scale factor for CPK display mode</string>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
                      </property>
-                     <property name="text" >
-                      <string>Scale:</string>
+                     <property name="spacing" >
+                      <number>6</number>
                      </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
+                     <item>
+                      <widget class="QLabel" name="cutoverrms_lbl" >
+                       <property name="toolTip" >
+                        <string>Cutover RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>CutoverRMS :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="cutovermax_lbl" >
+                       <property name="toolTip" >
+                        <string>Cutover max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>CutoverMax :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
-                    <widget class="QDoubleSpinBox" name="dnaStyleStrandsScaleSpinBox" >
-                     <property name="maximum" >
-                      <double>10.000000000000000</double>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
                      </property>
-                     <property name="singleStep" >
-                      <double>0.100000000000000</double>
+                     <property name="spacing" >
+                      <number>6</number>
                      </property>
-                     <property name="value" >
-                      <double>1.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLabel" name="label_261" >
-                     <property name="sizePolicy" >
-                      <sizepolicy>
-                       <hsizetype>1</hsizetype>
-                       <vsizetype>5</vsizetype>
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="text" >
-                      <string>Color:</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="dnaStyleStrandsColorComboBox" >
                      <item>
-                      <property name="text" >
-                       <string>Same as chunk</string>
-                      </property>
+                      <widget class="QLineEdit" name="cutoverrms_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Cutover RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>50.0</string>
+                       </property>
+                      </widget>
                      </item>
                      <item>
-                      <property name="text" >
-                       <string>Base order</string>
-                      </property>
+                      <widget class="QLineEdit" name="cutovermax_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Cutover max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>300.0</string>
+                       </property>
+                      </widget>
                      </item>
-                     <item>
-                      <property name="text" >
-                       <string>Strand order</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLabel" name="label_262" >
-                     <property name="sizePolicy" >
-                      <sizepolicy>
-                       <hsizetype>1</hsizetype>
-                       <vsizetype>5</vsizetype>
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="text" >
-                      <string>Arrows:</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="dnaStyleStrandsArrowsComboBox" >
-                     <item>
-                      <property name="text" >
-                       <string>None</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>Start</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>End</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text" >
-                       <string>Both</string>
-                      </property>
-                     </item>
-                    </widget>
+                    </layout>
                    </item>
                   </layout>
                  </item>
@@ -3421,494 +3604,107 @@
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="tab_3" >
-              <attribute name="title" >
-               <string>Struts</string>
-              </attribute>
-              <widget class="QWidget" name="layoutWidget" >
-               <property name="geometry" >
-                <rect>
-                 <x>11</x>
-                 <y>11</y>
-                 <width>271</width>
-                 <height>99</height>
-                </rect>
-               </property>
-               <layout class="QGridLayout" >
+            </item>
+            <item row="0" column="0" >
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <layout class="QHBoxLayout" >
                 <property name="margin" >
                  <number>0</number>
                 </property>
                 <property name="spacing" >
                  <number>6</number>
                 </property>
-                <item row="2" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
+                <item>
+                 <widget class="QLabel" name="min_options_label_4" >
+                  <property name="text" >
+                   <string>Adjust Engine</string>
                   </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_28" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Color:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleStrutsColorComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>Same as chunk</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base order</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Strand order</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base type</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
+                 </widget>
                 </item>
-                <item row="1" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="spacing" >
-                   <number>6</number>
+                  <property name="sizeType" >
+                   <enum>QSizePolicy::Expanding</enum>
                   </property>
-                  <item>
-                   <widget class="QLabel" name="textLabel1_3_2_10" >
-                    <property name="toolTip" >
-                     <string>CPK Atom Scale factor for CPK display mode</string>
-                    </property>
-                    <property name="text" >
-                     <string>Scale:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="dnaStyleStrutsScaleSpinBox" >
-                    <property name="maximum" >
-                     <double>10.000000000000000</double>
-                    </property>
-                    <property name="singleStep" >
-                     <double>0.100000000000000</double>
-                    </property>
-                    <property name="value" >
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>21</width>
+                    <height>16</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
+                <item>
+                 <widget class="QPushButton" name="grpbtn_4" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
                   </property>
-                  <property name="spacing" >
-                   <number>6</number>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>16</width>
+                    <height>16</height>
+                   </size>
                   </property>
-                  <item>
-                   <widget class="QLabel" name="label_27" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Shape:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleStrutsShapeComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>None</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base-axis-base cylinders</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Straight cylinders</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="icon" >
+                   <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="flat" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
-              </widget>
-             </widget>
-             <widget class="QWidget" name="tab_5" >
-              <attribute name="title" >
-               <string>Bases</string>
-              </attribute>
-              <widget class="QWidget" name="layoutWidget" >
-               <property name="geometry" >
-                <rect>
-                 <x>10</x>
-                 <y>10</y>
-                 <width>271</width>
-                 <height>99</height>
-                </rect>
-               </property>
-               <layout class="QGridLayout" >
-                <property name="margin" >
-                 <number>0</number>
-                </property>
-                <property name="spacing" >
-                 <number>6</number>
-                </property>
-                <item row="1" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="textLabel1_3_2_12" >
-                    <property name="toolTip" >
-                     <string>CPK Atom Scale factor for CPK display mode</string>
-                    </property>
-                    <property name="text" >
-                     <string>Scale:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDoubleSpinBox" name="dnaStyleBasesScaleSpinBox" >
-                    <property name="maximum" >
-                     <double>10.000000000000000</double>
-                    </property>
-                    <property name="singleStep" >
-                     <double>0.100000000000000</double>
-                    </property>
-                    <property name="value" >
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="2" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_34" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Color:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleBasesColorComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>Same as chunk</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base order</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Strand order</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Base type</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>6</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_33" >
-                    <property name="sizePolicy" >
-                     <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>5</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text" >
-                     <string>Shape:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="dnaStyleBasesShapeComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>None</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Spheres</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Cartoon</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="1" column="0" >
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>421</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="TabPage" >
-      <attribute name="title" >
-       <string>Modes</string>
-      </attribute>
-      <layout class="QGridLayout" >
-       <property name="margin" >
-        <number>9</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item row="1" column="0" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>91</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="0" column="0" >
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <layout class="QVBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QGroupBox" name="default_display_grpBox" >
-             <property name="title" >
-              <string>Default Display Style</string>
-             </property>
-             <layout class="QGridLayout" >
-              <property name="margin" >
-               <number>11</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item row="0" column="0" >
-               <widget class="QRadioButton" name="cpk_rbtn" >
-                <property name="toolTip" >
-                 <string>CPK (Space Filling) Display Mode</string>
-                </property>
-                <property name="text" >
-                 <string>CPK</string>
-                </property>
-               </widget>
               </item>
-              <item row="1" column="0" >
-               <widget class="QRadioButton" name="ballNstick_rbtn" >
+              <item>
+               <widget class="QComboBox" name="minimize_engine_combobox" >
                 <property name="toolTip" >
-                 <string>Ball and Stick Display Mode</string>
+                 <string>Choose the simulation engine with which to minimize energy.</string>
                 </property>
-                <property name="text" >
-                 <string>Ball and Stick</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" >
-               <widget class="QRadioButton" name="lines_rbtn" >
-                <property name="toolTip" >
-                 <string>Lines Display Mode</string>
-                </property>
-                <property name="text" >
-                 <string>Lines</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QRadioButton" name="tubes_rbtn" >
-                <property name="toolTip" >
-                 <string>Tubes Display Mode</string>
-                </property>
-                <property name="text" >
-                 <string>Tubes</string>
-                </property>
+                <item>
+                 <property name="text" >
+                  <string>NanoDynamics-1 (Default)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GROMACS with ND1 Force Field</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Background GROMACS with ND1 Force Field</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="buildmode_groupbox" >
-             <property name="title" >
-              <string>Build Mode Defaults</string>
-             </property>
-             <layout class="QGridLayout" >
-              <property name="margin" >
-               <number>9</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item row="1" column="0" colspan="2" >
-               <widget class="QCheckBox" name="buildmode_highlighting_checkbox" >
-                <property name="toolTip" >
-                 <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
-                </property>
-                <property name="text" >
-                 <string>Highlighting</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" colspan="2" >
-               <widget class="QCheckBox" name="buildmode_select_atoms_checkbox" >
-                <property name="toolTip" >
-                 <string>Automatically select atoms when depositing</string>
-                </property>
-                <property name="text" >
-                 <string>Select Atoms of Deposited Object</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" >
-               <widget class="QCheckBox" name="water_checkbox" >
-                <property name="toolTip" >
-                 <string>Build mode's default setting for Water at startup (enabled/disabled)</string>
-                </property>
-                <property name="text" >
-                 <string>Water</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" >
-               <widget class="QCheckBox" name="autobond_checkbox" >
-                <property name="toolTip" >
-                 <string>Build mode's default setting for Autobonding at startup (enabled/disabled)</string>
-                </property>
-                <property name="text" >
-                 <string>Autobond</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <spacer>
@@ -3927,6 +3723,19 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item row="1" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>91</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -6559,14 +6368,6 @@
   <tabstop>restore_bgcolor_btn</tabstop>
   <tabstop>animate_views_checkbox</tabstop>
   <tabstop>animation_speed_slider</tabstop>
-  <tabstop>watch_min_in_realtime_checkbox</tabstop>
-  <tabstop>update_asap_rbtn</tabstop>
-  <tabstop>update_number_spinbox</tabstop>
-  <tabstop>update_units_combobox</tabstop>
-  <tabstop>endrms_linedit</tabstop>
-  <tabstop>endmax_linedit</tabstop>
-  <tabstop>cutoverrms_linedit</tabstop>
-  <tabstop>cutovermax_linedit</tabstop>
   <tabstop>ok_btn</tabstop>
   <tabstop>change_element_colors_btn</tabstop>
   <tabstop>atom_hilite_color_btn</tabstop>
@@ -6587,14 +6388,6 @@
   <tabstop>multCyl_radioButton</tabstop>
   <tabstop>show_bond_labels_checkbox</tabstop>
   <tabstop>show_valence_errors_checkbox</tabstop>
-  <tabstop>cpk_rbtn</tabstop>
-  <tabstop>ballNstick_rbtn</tabstop>
-  <tabstop>tubes_rbtn</tabstop>
-  <tabstop>lines_rbtn</tabstop>
-  <tabstop>autobond_checkbox</tabstop>
-  <tabstop>buildmode_highlighting_checkbox</tabstop>
-  <tabstop>buildmode_select_atoms_checkbox</tabstop>
-  <tabstop>water_checkbox</tabstop>
   <tabstop>light_combobox</tabstop>
   <tabstop>light_checkbox</tabstop>
   <tabstop>light_color_btn</tabstop>
@@ -6669,22 +6462,6 @@
     <hint type="destinationlabel" >
      <x>20</x>
      <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>watch_min_in_realtime_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>update_btngrp</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>38</x>
-     <y>292</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>53</x>
-     <y>297</y>
     </hint>
    </hints>
   </connection>

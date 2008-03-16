@@ -462,12 +462,13 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.setWindowTitle("Preferences")
         self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
 
-        self.update_btngrp_group = QButtonGroup()
-        self.update_btngrp_group.setExclusive(True)
+        #@ WHAT IS THIS? Mark
+        #self.update_btngrp_group = QButtonGroup()
+        #self.update_btngrp_group.setExclusive(True)
 
-        for obj in self.update_btngrp.children():
-            if isinstance(obj, QAbstractButton):
-                self.update_btngrp_group.addButton(obj)
+        #for obj in self.update_btngrp.children():
+        #    if isinstance(obj, QAbstractButton):
+        #        self.update_btngrp_group.addButton(obj)
 
         # Default Projection Groupbox in General tab (as of 070430)
         self.default_projection_btngrp = QButtonGroup()
@@ -677,7 +678,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
 
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
-        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.setEnabled)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
@@ -730,7 +730,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                                                 of View Axis""")
         self.display_compass_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
         self.display_compass_labels_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
-        self.watch_min_in_realtime_checkbox.setWhatsThis("""<p><b>Watch motion in real time</b></p>Enables/disables real
+        self.update_btngrp.setWhatsThis("""<p><b>Watch motion in real time</b></p>Enables/disables real
                                                      time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>""")
         self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
                                                 <p>Specify how often to update
@@ -1068,18 +1068,8 @@ restored when the user undoes a structural change.</p>
         else:
             self.orthographic_radioButton.setChecked(True)
 
-
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
-        connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, Adjust_watchRealtimeMinimization_prefs_key )
-
-
-        #Preference for enabling/disabling electrostatics during Adjustment 
-        #for the DNA reduced model. Ninad 20070809
-        connect_checkbox_with_boolean_pref(
-            self.electrostaticsForDnaDuringAdjust_checkBox,
-            electrostaticsForDnaDuringAdjust_prefs_key)
-
-
+        
         # This has been removed for A9. It has never been implemented anyway. Mark 060815.
         # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
 
@@ -1095,6 +1085,31 @@ restored when the user undoes a structural change.</p>
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
 
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+        
+        # Set "Global Display Style at start-up" option.
+        startup_display_style = env.prefs[defaultDisplayMode_prefs_key]
+        if startup_display_style == 2:
+            self.cpk_rbtn.setChecked(True)
+        elif startup_display_style == 4: 
+            self.ballNstick_rbtn.setChecked(True)
+        elif startup_display_style == 3: 
+            self.lines_rbtn.setChecked(True)
+        elif startup_display_style == 5: 
+            self.tubes_rbtn.setChecked(True)
+                
+            # bruce comments:
+            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
+            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
+            #   match our internal display style codes, and are set by buttongroup.insert in the pyuic output file,
+            #   but for some reason the buttons are inserted in a different order than they're shown.
+            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
+            #   while the dialog is shown.
+        
+        # Build Atoms Default Settings.  mark 060203.
+        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
 
         if 0:
             # bruce 070424: comment out this code which doesn't yet work in Qt4
@@ -1107,25 +1122,6 @@ restored when the user undoes a structural change.</p>
                 self.displayOriginAsSmallAxis_rbtn.setChecked(True)
             else:
                 self.displayOriginAsCrossWires_rbtn.setChecked(True) 
-
-
-        self.update_btngrp.setEnabled(env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
-
-
-        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
-        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
-        self.endrms_linedit.setText(str(self.endrms))
-
-        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, '')
-        self.endmax_linedit.setText(str(self.endmax))
-
-        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, '')
-        self.cutoverrms_linedit.setText(str(self.cutoverrms))
-
-        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
-        self.cutovermax_linedit.setText(str(self.cutovermax))
-
-        self.minimize_engine_combobox.setCurrentIndex(env.prefs[Adjust_minimizationEngine_prefs_key])
 
         # Setup Background Color widgets.
         if self.glpane.backgroundGradient:
@@ -1183,51 +1179,43 @@ restored when the user undoes a structural change.</p>
         self.cpp_checkbox.setChecked(env.prefs[cpp_enabled_prefs_key])
         self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
 
-    def _setup_modes_page(self):
+    def _setup_adjust_page(self):
         """
         Setup widgets to initial (default or defined) values on the Modes page.
         """
+        
+        # "Settings for Adjust" groupbox. ###########################
+        
+        # Adjust Engine combobox.
+        self.minimize_engine_combobox.setCurrentIndex(
+            env.prefs[Adjust_minimizationEngine_prefs_key])
+        # Watch motion in real time checkbox.
+        connect_checkbox_with_boolean_pref(
+            self.update_btngrp,
+            Adjust_watchRealtimeMinimization_prefs_key )
+        #Preference for enabling/disabling electrostatics during Adjustment 
+        #for the DNA reduced model. Ninad 20070809
+        connect_checkbox_with_boolean_pref(
+            self.electrostaticsForDnaDuringAdjust_checkBox,
+            electrostaticsForDnaDuringAdjust_prefs_key)
+        
+        # "Update..." radio btngroup
+        self.update_btngrp.setEnabled(
+            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
 
-        #ninad070430 startup and default modes are same for A9 
-        #(== select chunks) so following is disabled
+        # Convergence Criteria groupbox
+        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
+        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
+        self.endrms_linedit.setText(str(self.endrms))
 
-        # Update the "Default Mode" and "Startup Mode" combo boxes.
-        ##self.default_mode_combox.setCurrentIndex( default_modes.index( default_commandName() )) #bruce 060403 revised this
+        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, '')
+        self.endmax_linedit.setText(str(self.endmax))
 
-        # Fix for bug 1008. Mark 050924. [use '$DEFAULT_MODE' == startup_modes[0] if smode not in startup_modes]
-        # [then bruce 060403 revised this to do same thing in a different way]
-        smode = startup_commandName()
-##        smode = env.prefs[ startupMode_prefs_key ]
-##        if smode not in startup_modes:
-##            smode = startup_modes[0] # = Default Mode
+        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, '')
+        self.cutoverrms_linedit.setText(str(self.cutoverrms))
 
-        #ninad070430 startup and default modes are same for A9 
-        #(== select chunks) so following is disabled
-        ##self.startup_mode_combox.setCurrentIndex(startup_modes.index(smode))
-
-        # Bug 799 fix.  Mark 050731
-
-        disp_key = env.prefs[defaultDisplayMode_prefs_key]
-        if disp_key == 2:self.cpk_rbtn.setChecked(True)
-        elif disp_key == 4: self.ballNstick_rbtn.setChecked(True)
-        elif disp_key == 3: self.lines_rbtn.setChecked(True)
-        elif disp_key == 5: self.tubes_rbtn.setChecked(True)
-
-
-            # bruce comments:
-            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
-            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
-            #   match our internal display mode codes, and are set by buttongroup.insert in the pyuic output file,
-            #   but for some reason the buttons are inserted in a different order than they're shown.
-            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
-            #   while the dialog is shown.
-
-        # Build Mode Defaults.  mark 060203.
-        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
-
+        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
+        self.cutovermax_linedit.setText(str(self.cutovermax))
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
     def _setup_lighting_page(self, lights=None): #mark 051124
@@ -2474,20 +2462,21 @@ restored when the user undoes a structural change.</p>
         self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
         return
 
-    def set_default_display_mode(self, displayMode): #bruce 050810 revised this to set the pref immediately
+    def set_default_display_mode(self, display_style): #bruce 050810 revised this to set the pref immediately
         """
-	Set default display mode to <displayMode>. 
-        This also changes the current display mode of the glpane to <displayMode>.
+	Set the global display style at start up to I{display_style}. 
+        
+        This also changes the global display style of the glpane to 
+        <display_style>.
         """        
-        if displayMode == env.prefs[defaultDisplayMode_prefs_key]:
-            print "No change in Default Display Mode: ddm=", displayMode
+        if display_style == env.prefs[defaultDisplayMode_prefs_key]:
             return
         # set the pref
-        env.prefs[defaultDisplayMode_prefs_key] = displayMode
+        env.prefs[defaultDisplayMode_prefs_key] = display_style
 
         # Set the current display mode in the glpane.
         # (This will be noticed later by chunk.draw of affected chunks.)
-        self.glpane.setDisplay(displayMode, True)
+        self.glpane.setDisplay(display_style, True)
         self.glpane.gl_update()
         # (Note: no mt_update is needed, since per-node display style icons
         #  have not changed.)
@@ -3299,8 +3288,8 @@ restored when the user undoes a structural change.</p>
                 self._setup_bonds_page()
             elif pagename == 'DNA':
                 self._setup_dna_page()
-            elif pagename == 'Modes':
-                self._setup_modes_page()
+            elif pagename == 'Adjust':
+                self._setup_adjust_page()
             elif pagename == 'Lighting':
                 self._setup_lighting_page()
             elif pagename == 'Plug-ins':
