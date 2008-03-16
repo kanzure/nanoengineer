@@ -93,7 +93,7 @@ class GlobalDisplayStylesComboBox(QComboBox):
         @param index: the combobox index
         @type  index: int
         """
-        assert index
+        assert index in range(self.count())
         
         glpane = self.win.assy.glpane
         glpane.setDisplay(displayIndexes[index])
@@ -102,8 +102,11 @@ class GlobalDisplayStylesComboBox(QComboBox):
     def setDisplayStyle(self, display_style):
         """
         Public method. Sets the display style to I{display_style}.
+        
+        @param display_style: display style code (i.e. diTUBES, diLINES, etc.)
+        @type  display_style: int
         """
-        assert display_style
+        assert display_style in displayIndexes
         
         # If self is already set to display_style, return.
         if self.currentIndex() == displayIndexes.index(display_style):
