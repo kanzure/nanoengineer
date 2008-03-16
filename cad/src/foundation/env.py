@@ -93,24 +93,6 @@ def mainwindow(): #bruce 051209
 
     return _mainWindow
 
-def currentpart(): #mark 2008-03-16
-    """
-    Return the current part (assy) object.  The current part is the one that is 
-    currently active. Until NE1 supports MDI, this is simply the assy currently
-    opened.
-    
-    Fails if called before main window is inited (and it and assy point to 
-    each other).
-    """
-
-    # sanity check, and makes sure it's not too early for these things
-    # to have been set up
-    assert not _mainWindow is None, "setMainWindow not called yet"
-    assert _mainWindow.assy.w is _mainWindow 
-        # Talk to Bruce about adding a new/similar check for part/assy.
-
-    return _mainWindow.assy
-
 def debug(): #bruce 060222
     """
     Should debug checks be run, and debug messages be printed, and debug options offered in menus?
