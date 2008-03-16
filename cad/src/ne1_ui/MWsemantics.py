@@ -2274,7 +2274,7 @@ class MWsemantics(QMainWindow,
         """
         
         # LIST_CAPACITY could be set by user preference (NIY).
-        LIST_CAPACITY = 4
+        LIST_CAPACITY = 9
             # Warning: Potential bug if number of recent files >= 10
             # (i.e. LIST_CAPACITY >= 10). See fileSlotsMixin.openRecentFile().
         
