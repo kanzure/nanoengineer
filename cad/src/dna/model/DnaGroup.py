@@ -103,7 +103,8 @@ class DnaGroup(Group):
         """
         lst = (self.assy.DnaSegment, 
                self.assy.DnaStrand, 
-               self.assy.Block
+               self.assy.Block,
+               self.assy.Group
            )
         return filter( lambda member: 
                        member.__class__ in lst, 

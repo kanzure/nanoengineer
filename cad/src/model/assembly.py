@@ -154,6 +154,7 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
     from dna.model.DnaStrand import DnaStrand
     from cnt.model.CntGroup import CntGroup # --mark 2008-03-09
     from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
+    from foundation.Group     import Group
 
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
