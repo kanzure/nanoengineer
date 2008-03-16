@@ -5,6 +5,7 @@ $Id$
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
+from PyQt4.Qt import QRect
 from utilities.icon_utilities import geticon
 
 
@@ -15,14 +16,19 @@ class Ui_ViewOrientation:
         win = self.win
         MainWindow = self.win
         
-        #VIEW > ORIENTATION Dock Widget 
+        # Set the default width and height.
+        _width = 150
+        _height = 280
+        _maxWidth = 400 # 400 should be more than enough. --mark
+        
+        # "View > Orientation" Dock Widget 
         orientationWidget.setEnabled(True) 
         orientationWidget.setFloating(True)
         orientationWidget.setVisible(False)
         orientationWidget.setWindowTitle("Orientation" )
-        #orientationWidget.setWindowIcon(QtGui.QIcon("ui/actions/View/Orientation"))
-        orientationWidget.setFixedWidth(118)  
-        orientationWidget.setFixedHeight(240)   
+        orientationWidget.setWindowIcon(QtGui.QIcon("ui/actions/View/Modify/Orientation"))
+        orientationWidget.setGeometry(QRect(0, 0, _width, _height))
+        orientationWidget.setMaximumWidth(400)
                 
         x = max(0, win.geometry().x())
         y = max(0, win.geometry().y())
