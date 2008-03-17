@@ -5,7 +5,7 @@
 #endif
 
 #include <errno.h>
-
+#include <unistd.h>
 #include <sys/stat.h>
 
 // hdf5_simresults.h is the GMX adaptor for HDF5_SimResults
@@ -14,6 +14,60 @@
 
 int frameIndex = 0;
 Nanorex::HDF5_SimResults* simResults = 0;
+
+
+#ifdef WIN32
+#include "windows.h"
+
+/* FUNCTION: checkNamedMutexUnlocked
+ *
+ * Returns true if the mutex with the given name exists and was acquired by this
+ * function, false otherwise.
+ */
+char mutexName[32];
+bool mutexNameInitialized = false;
+HANDLE mutex = NULL;
+bool checkNamedMutex(const char* name) {
+	
+	// Add pid to mutex name so we only affect this process.
+	if (!mutexNameInitialized) {
+		sprintf(mutexName, "%s%d", name, getpid());
+printf(">> mutexName=%s\n", mutexName);
+		mutexNameInitialized = true;
+	}
+
+	if (mutex == NULL)
+		mutex =
+			OpenMutex( 
+				MUTEX_ALL_ACCESS,	// request full access
+				FALSE,				// handle not inheritable
+				TEXT(mutexName));	// object name
+
+	if (mutex != NULL) {
+printf(">>> Mutex open\n");fflush(0);
+		bool gotMutexLock = false;
+		while (!gotMutexLock) {
+			DWORD result =
+				WaitForSingleObject( 
+					mutex,			// handle to mutex
+					500);			// give signaller 500 ms to let us lock
+					
+			if (result == WAIT_OBJECT_0) {
+printf(">>> Got mutex (%s)\n", mutexName); fflush(0);
+				gotMutexLock = true;
+				
+			} else {
+printf(">>> didn't get mutex\n"), fflush(0);
+			}
+		}
+		return true;
+		
+	} else {
+printf(">>> mutex null\n");fflush(0);
+	}
+	return false;
+}
+#endif
 
 
 /* FUNCTION: openHDF5dataStore */
@@ -152,6 +206,7 @@ void addHDF5resultsData(const HDF5resultsData* resultsData) {
 		reason = "Received SIGTERM.";
 	}
 	simResults->setRunResult(result, reason.c_str(), message);
+printf(">>> addHDF5resultsData: runResult=%d\n", result);fflush(0);
 	
 	simResults->setIntResult
 		("FinalStep", resultsData->finalStep, message);

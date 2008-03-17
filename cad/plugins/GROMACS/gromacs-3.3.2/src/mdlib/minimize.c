@@ -323,7 +323,7 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
 
   /* Handle SIGTERM signals */
   signal(SIGTERM,signal_handler);
-  
+
   init_em(log,CG,inputrec,&lambda,&mynrnb,mu_tot,state->box,
 	  fr,mdatoms,top,nsb,cr,&vcm,&start,&end);
   
@@ -834,6 +834,11 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
      */	
     converged= converged || (fmax < inputrec->em_tol);
     
+#ifdef WIN32
+	if (checkNamedMutex("GMX_SIGTERM_Signal"))
+		bbGotTermSignal = TRUE;
+#endif
+
   } /* End of the loop */
   
   if(converged)	

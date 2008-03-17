@@ -22,6 +22,10 @@ typedef struct {
 	float totalEnergy, maxForce;
 } HDF5resultsData;
 
+#ifdef WIN32
+bool checkNamedMutex(const char* name);
+#endif
+
 void openHDF5dataStore(const char* dataStoreName);
 void addHDF5inputParameters(const HDF5inputParameters* inputParams);
 void addHDF5resultsData(const HDF5resultsData* resultsData);
