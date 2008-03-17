@@ -71,6 +71,7 @@ RESOURCES += ../../application.qrc
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
+ $(HDF5_SIMRESULTS_INCPATH) \
  ../../Plugins/RenderingEngines/OpenGL/GLT \
  ../../../src \
  ../../../src/Plugins/RenderingEngines/OpenGL

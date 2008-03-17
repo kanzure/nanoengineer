@@ -146,16 +146,27 @@ public:
 												true); // inPollingThread
 		
 			// TODO: Handle if result != 0
+			// TODO: Fix - why does NV1 crash on Win32 when we emit this logging
+			//       message?
 			if (result->getResult() != NX_CMD_SUCCESS) {
+				printf("DataStorePollingThread: %s\n",
+					   qPrintable(GetNV1ResultCodeString(result)));
+			/*
 				NXLOG_WARNING("DataStorePollingThread",
 							  qPrintable(GetNV1ResultCodeString(result)));
+			*/
 			}
+			delete result;
 			
 			msleep(500);//100);
+printf("DataStorePollingThread: stop=%d storeComplete=%d lastFrame=%d\n", _stop,dataStoreInfo->storeIsComplete(frameSetId),dataStoreInfo->isLastFrame(frameSetId));fflush(0); 
 		}
 	}
 	
-	void stop() { _stop = true; }
+	void stop() {
+printf("DataStorePollingThread::stop()\n");
+		_stop = true;
+	}
 	
 private:
 	int frameSetId;

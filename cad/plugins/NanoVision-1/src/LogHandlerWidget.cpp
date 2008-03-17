@@ -14,7 +14,7 @@ LogHandlerWidget::LogHandlerWidget(NXLogLevel logLevel, QWidget* parent)
 /* FUNCTION: publish */
 void LogHandlerWidget::publish(LogRecord logRecord) {
 	if (logRecord.getLogLevel() >= logLevel) {
-		mutex.lock();
+		//mutex.lock();
 		QString color = "";
 		QString bgcolor = "";
 		if (logRecord.getLogLevel() == 3)
@@ -42,6 +42,6 @@ void LogHandlerWidget::publish(LogRecord logRecord) {
 		if (logRecord.getLogLevel() > 2)
 			emit raiseWidget();
 		
-		mutex.unlock();
+		//mutex.unlock();
 	}
 }

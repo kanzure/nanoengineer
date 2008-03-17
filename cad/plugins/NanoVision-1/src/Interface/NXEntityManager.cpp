@@ -349,6 +349,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 		resultVector.push_back("not found");
 		result->setParamVector(resultVector);
 	}
+
 	//PR_Unlock(importExportPluginsMutex);
 	return result;
 }

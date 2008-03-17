@@ -29,6 +29,7 @@ INCLUDEPATH += ../../../../../../include \
  ../../../../../../src \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
  $(OPENBABEL_INCPATH) \
+ $(HDF5_SIMRESULTS_INCPATH) \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL
 
 LIBS += -L$(OPENBABEL_LIBPATH) \

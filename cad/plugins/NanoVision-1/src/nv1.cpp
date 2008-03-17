@@ -423,6 +423,7 @@ void nv1::removeMonitoredJob(const QString& id) {
     delete abortJobAction;
     
     JobMonitor* jobMonitor = jobMonitors[id];
+	jobMonitor->wait();
     if (jobMonitor->isFinished())
         delete jobMonitor;
     else

@@ -10,6 +10,7 @@
 
 #include <QMutex>
 #include <QDateTime>
+//#include <QMutexLocker>
 
 namespace Nanorex {
 
@@ -93,12 +94,14 @@ class NXLogger {
 		
 		void log(NXLogLevel logLevel, const std::string& source,
 				 const std::string& message) {
+			mutex.lock();
 			LogRecord logRecord(logLevel, source, message);
 			std::list<NXLogHandler*>::iterator iter = logHandlers.begin();
 			while (iter != logHandlers.end()) {
 				(*iter)->publish(logRecord);
 				iter++;
 			}
+			mutex.unlock();
 		}
 		
 		void addHandler(NXLogHandler* logHandler) {
@@ -111,6 +114,7 @@ class NXLogger {
 		static NXLogger* Instance() { return ThisInstance; }
 
 	private:
+		QMutex mutex;
 		std::list<NXLogHandler*> logHandlers;
 		static NXLogger* ThisInstance;
 };
@@ -158,7 +162,7 @@ class NXConsoleLogHandler : public NXLogHandler {
 		NXConsoleLogHandler(NXLogLevel logLevel) : NXLogHandler(logLevel) { }
 		void publish(LogRecord logRecord) {
 			if (logRecord.getLogLevel() >= logLevel) {
-				mutex.lock();
+				//mutex.lock();
 				printf("%s  [%-7s]  %s %s\n",
 					   qPrintable(logRecord.getDateTime()
 									.toString("yyyy-MM-dd hh:mm:ss.zzz")),
@@ -167,7 +171,7 @@ class NXConsoleLogHandler : public NXLogHandler {
 							"" : logRecord.getSource().append(":").c_str()),
 					   logRecord.getMessage().c_str());
 				fflush(0);
-				mutex.unlock();
+				//mutex.unlock();
 			}
 		}
 
@@ -204,7 +208,7 @@ class NXFileLogHandler : public NXLogHandler {
 		}
 		void publish(LogRecord logRecord) {
 			if ((filehandle != 0) && (logRecord.getLogLevel() >= logLevel)) {
-				mutex.lock();
+				//mutex.lock();
 				fprintf(filehandle,"%s  [%-7s]  %s %s\n",
 						qPrintable(logRecord.getDateTime()
 							.toString("yyyy-MM-dd hh:mm:ss.zzz")),
@@ -212,7 +216,7 @@ class NXFileLogHandler : public NXLogHandler {
 						(logRecord.getSource().length() == 0 ?
 							"" : logRecord.getSource().append(":").c_str()),
 						logRecord.getMessage().c_str());
-				mutex.unlock();
+				//mutex.unlock();
 			}
 		}
 

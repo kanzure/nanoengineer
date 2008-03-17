@@ -22,8 +22,9 @@ HEADERS += \
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
- ../../../src
-# The "../../../src" is temporary for NXEntityManager to access an
+ ../../../src \
+ $(HDF5_SIMRESULTS_INCPATH)
+# The "../../../src" and $HDF5... are temporary for NXEntityManager to access an
 # HDF5_SimResultsImportExport plugin function directly.
 
 SOURCES += ../../Interface/NXDataStoreInfo.cpp \

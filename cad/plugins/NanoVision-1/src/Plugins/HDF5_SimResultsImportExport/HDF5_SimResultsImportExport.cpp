@@ -82,9 +82,10 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		int runResult = -1; // 0=success, 1=still running, 2=failure, 3=aborted
 		string failureDescription;
 		simResults->getRunResult(runResult, failureDescription);
-		if (runResult == 1)
+		if (runResult == 1) {
 			dataStoreInfo->setStoreComplete(frameSetId, false);
-		else {
+printf("HDF5: setstorecomplete(false)\n");fflush(0);
+		} else {
 			if (((frameIndex != 0) || (frameSetId != 0)) &&
 				!dataStoreInfo->storeIsComplete(frameSetId)) {
 				// The data store just completed, read the results summary info
@@ -92,6 +93,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 				dataStoreInfo->setResultsSummary(properties);
 			}
 			dataStoreInfo->setStoreComplete(frameSetId, true);
+printf("HDF5: setStoreComplete(true)\n");
 		}
 	}
 	

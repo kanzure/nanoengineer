@@ -29,7 +29,7 @@ class LogHandlerWidget : public QWidget, public NXLogHandler,
 		void raiseWidget();
 		
 	private:
-		QMutex mutex;
+		//QMutex mutex;
 };
 
 #endif
