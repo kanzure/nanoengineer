@@ -5,6 +5,10 @@ dna_updater_prefs.py - access to preferences settings affecting the dna updater
 @author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+
+History:
+
+bruce 080317 revised many debug_pref menu texts, prefs_keys, non_debug settings
 """
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
@@ -50,42 +54,43 @@ def initialize_prefs():
 def pref_fix_deprecated_PAM3_atoms():
     res = debug_pref("DNA: fix deprecated PAM3 atoms?",
                      Choice_boolean_True,
-                     non_debug = True,
-                     prefs_key = True,
+                     ## non_debug = True, # disabled, bruce 080317
+                     prefs_key = "A10/DNA: fix deprecated PAM3 atoms?", # changed, bruce 080317
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_deprecated_PAM5_atoms():
     res = debug_pref("DNA: fix deprecated PAM5 atoms?",
                      Choice_boolean_True, # False -> True, 080201
-                     non_debug = True,
-                     prefs_key = True,
+                     ## non_debug = True, # disabled, bruce 080317
+                     prefs_key = "A10/DNA: fix deprecated PAM5 atoms?", # changed, bruce 080317
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_bare_PAM3_atoms():
     res = debug_pref("DNA: fix bare PAM3 atoms?",
                      Choice_boolean_True,
-                     non_debug = True,
-                     prefs_key = True,
+                     ## non_debug = True, # disabled, bruce 080317
+                     prefs_key = "A10/DNA: fix bare PAM3 atoms?", # changed, bruce 080317
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def pref_fix_bare_PAM5_atoms():
     res = debug_pref("DNA: fix bare PAM5 atoms?",
                      Choice_boolean_True, # False -> True, 080201
-                     non_debug = True,
-                     prefs_key = True,
+                     ## non_debug = True, # disabled, bruce 080317
+                     prefs_key = "A10/DNA: fix bare PAM5 atoms?", # changed, bruce 080317
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 # ==
 
 def pref_print_bond_direction_errors():
-    res = debug_pref( "DNA updater: print bond direction errors?",
+    # really this means "print verbose details of them" -- they're always summarized, even when this is off
+    res = debug_pref( "DNA: debug: print bond direction errors?", #bruce 080317 revised text
                       Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = True,
+                      ## non_debug = True, # disabled, bruce 080317
+                      prefs_key = "A10/DNA updater: print bond direction errors?", # changed, bruce 080317
                      )
     return res
 
@@ -93,14 +98,14 @@ def pref_per_ladder_colors():
     res = debug_pref("DNA: debug: per-ladder colors?",
                       Choice_boolean_False,
                       non_debug = True,
-                      prefs_key = True )
+                      prefs_key = "A10/DNA: debug: per-ladder colors?" )
     return res
 
 def pref_draw_internal_markers():
-    res = debug_pref("DNA: draw internal markers?",
+    res = debug_pref("DNA: draw internal DnaMarkers?", #bruce 080317 revised text
                      Choice_boolean_False,
                      non_debug = True,
-                     prefs_key = True,
+                     prefs_key = "A10/DNA: draw internal markers?", # changed, bruce 080317
                      call_with_new_value = (lambda val: env.mainwindow().glpane.gl_update()) )
     return res
 
@@ -149,19 +154,20 @@ def pref_minimizers_convert_to_PAM5():
 # ==
 
 def pref_debug_dna_updater(): # 080228
-    res = debug_pref("DNA updater: debug prints",
+    res = debug_pref("DNA: updater debug prints",
                      Choice(["off", "minimal", "on", "verbose"],
                             defaultValue = "on"), # todo: revise defaultValue after debugging
+                         # defaultValue left "on" for now, though a bit verbose, bruce 080317
                      non_debug = True,
-                     prefs_key = True,
+                     prefs_key = "A10 devel/DNA updater: debug prints", # changed, bruce 080317
                      call_with_new_value = _update_our_debug_flags )
     return res
 
 def pref_dna_updater_slow_asserts(): # 080228
-    res = debug_pref("DNA updater: slow asserts?",
+    res = debug_pref("DNA: updater slow asserts?",
                      Choice_boolean_True, # todo: test speed effect; revise before release if too slow
                      non_debug = True,
-                     prefs_key = True,
+                     prefs_key = "A10 devel/DNA updater: slow asserts?", # changed, bruce 080317
                      call_with_new_value = _update_our_debug_flags )
     return res
 

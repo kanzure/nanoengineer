@@ -117,9 +117,8 @@ def _master_model_updater( warn_if_needed = False ):
 def _run_dna_updater(): #bruce 080210 split this out
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here
-    if debug_pref_use_dna_updater(): # soon will be if 1
-        if debug_pref_reload_dna_updater(): # for release, always false
-            _reload_dna_updater() # also reinits it if needed
+    if debug_pref_use_dna_updater():
+        # never implemented sufficiently: if ...: _reload_dna_updater()
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
         from dna.updater.dna_updater_main import full_dna_update
             # soon will be toplevel import
@@ -214,36 +213,24 @@ def _autodelete_empty_groups(assy): #bruce 080305
 
 def debug_pref_autodelete_empty_groups():
     from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    res = debug_pref("autodelete empty groups?",
+    res = debug_pref("autodelete empty Dna-related groups?", #bruce 080317 revised text
                      ##Choice_boolean_False,
                      #autodelete empty groups by default. This looks safe so far
                      #and soon, we will make it mainstream (not just a debug 
                      #option) -- Ninad 2008-03-07
                      Choice_boolean_True, 
-                     non_debug = True,
+                     ## non_debug = True, #bruce 080317 disabled
                      prefs_key = True 
                      )
     return res
 
 def debug_pref_use_dna_updater():
     from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    res = debug_pref("DNA: use dna_updater.py?",
-                     Choice_boolean_False,
-                     ## SOON: Choice_boolean_True,
+    res = debug_pref("DNA: enable dna updater?", #bruce 080317 revised text
+                     Choice_boolean_True, #bruce 080317 False -> True
                      non_debug = True,
-                     prefs_key = True)
-    return res
-
-def debug_pref_reload_dna_updater():
-    import utilities.EndUser as EndUser
-    if not EndUser.enableDeveloperFeatures():
-        return False
-    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    res = debug_pref("DNA: auto-reload dna_updater.py?",
-                     Choice_boolean_False,
-                     ## SOON: Choice_boolean_True,
-                     non_debug = True,
-                     prefs_key = True)
+                     prefs_key = "A10/DNA: enable dna updater?" #bruce 080317 changed prefs_key
+                    )
     return res
     
 _initialized_dna_updater_yet = False
@@ -254,13 +241,6 @@ def _ensure_ok_to_call_dna_updater():
         from dna.updater import dna_updater_init
         dna_updater_init.initialize()
         _initialized_dna_updater_yet = True
-    return
-
-def _reload_dna_updater():
-    from dna.updater import dna_updater_atoms
-    reload(dna_updater_atoms)
-    #e could add more modules to that list, in order;
-    # no need to reinit
     return
 
 # ==
