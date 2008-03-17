@@ -15,6 +15,9 @@ Note: bruce 080210 split whatsthis_utilities.py out of this file
 into their own new file. 
 
 To do:
+- Change the heading for all Display Style actions from "Display <ds>" to
+"Apply <ds> Display Style to the selection". Change tooltips and wiki help
+pages as well.
 - Replace current text string name with "_text" (like "Open File" example)
 """
 
@@ -813,7 +816,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Display CPK # [bruce extended and slightly corrected text, 060307]
 
-    dispCPKActionText = \
+    _text = \
         "<u><b>Display CPK</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/CPK.png\"><br> "\
@@ -827,11 +830,28 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<b>Atoms</b> page of the <b>Preferences</b> dialog."\
         "</p>"
 
-    win.dispCPKAction.setWhatsThis(dispCPKActionText )
+    win.dispCPKAction.setWhatsThis( _text )
+    
+    # DNA Cylinder
+    
+    _text = \
+        "<u><b>Display DNA Cylinder</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/Display/DNACylinder.png\"><br> "\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "DNA, etc.) to <b>DNA Cylinder</b> display style.  DNA are rendered "\
+        "based on the settings found in the <b>DNA Cylinder Display Style "\
+        "Options</b> in the <b>DNA</b> page of the <b>Preferences</b> dialog."\
+        "</p>"\
+        "<p>Atoms and bonds are not rendered. This is considered a bug that "\
+        "will be fixed soon."\
+        "</p>"
+
+    win.dispDnaCylinderAction.setWhatsThis( _text )
     
     # Hide (Selection)
 
-    hideActionText = \
+    _text = \
         "<u><b>Hide</b></u>    "\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Hide.png\"><br> "\
@@ -839,7 +859,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "other object that can be hidden."\
         "</p>"
 
-    win.dispHideAction.setWhatsThis(hideActionText)
+    win.dispHideAction.setWhatsThis( _text )
     
     # Unhide (Selection)
 
