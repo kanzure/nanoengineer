@@ -21,6 +21,8 @@ See also: class DnaMarker, which inherits this.
 
 from model.jigs import Jig
 
+from debug import print_compact_traceback
+
 _NUMBER_OF_MARKER_ATOMS = 2
 
 # ==
@@ -162,9 +164,17 @@ class ChainAtomMarker(Jig):
         [extends superclass method]
         """
         # check a few things, then call superclass method
-        assert not self.is_homeless() # redundant as of 080111, that's ok
-        assert len(self.atoms) in (1, _NUMBER_OF_MARKER_ATOMS)
-        self._check_atom_order()
+        try:
+            assert not self.is_homeless() # redundant as of 080111, that's ok
+            assert len(self.atoms) in (1, _NUMBER_OF_MARKER_ATOMS)
+            self._check_atom_order()
+        except:
+            #bruce 080317, for save file traceback in assert not self.is_homeless()
+            # reported by Tom (untested)
+            msg = "\n*** BUG: exception in checks before DnaMarker.writemmp; " \
+                  "continuing, but beware of errors when reopening the file"
+            print_compact_traceback( msg + ": ")
+            pass
         
         return Jig.writemmp(self, mapping)
 
