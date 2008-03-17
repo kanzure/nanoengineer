@@ -631,10 +631,10 @@ def debug_prefs_menuspec( atom_debug): #bruce 080312 split this up
     max_menu_length = debug_pref(
         "(max debug prefs submenu length?)", #bruce 080215
              # initial paren or space puts it at start of menu
-         Choice([40,30,20,10,50,60,70]),
-             # personally I like 20, but 40 is a better default
-             # since it's closer to previous non-atom_debug behavior
-         prefs_key = True
+         Choice([10, 20, 30, 40, 50, 60, 70], defaultValue = 20),
+             #bruce 080317 changed default from 40 to 20, and revised order
+         non_debug = True, #bruce 080317
+         prefs_key = "A10/max debug prefs submenu length" # revised, bruce 080317
      )
 
     non_default_submenu = True # could be enabled by its own debug_pref if desired
