@@ -36,7 +36,7 @@ import os.path
 
 from packageData import packageColors
 from packageData import packageLevels
-from packageData import packageMapping
+from packageData import packageGroupMapping
 
 try:
     set
@@ -137,6 +137,8 @@ libraryReferences = [
     "bearing_data",
     "samevals",
     "psurface",
+    "zipfile",
+    "colorsys",
     ]
 
 filesToProcess = []
@@ -185,9 +187,9 @@ def moduleToDotNode(moduleName, returnPackageName):
     if (returnPackageName):
         if (moduleName in libraryReferences):
             return "library"
-        if (packageMapping.has_key(moduleName)):
-            return packageMapping[moduleName]
         if (isPackage(moduleName)):
+            if (packageGroupMapping.has_key(moduleName)):
+                return packageGroupMapping[moduleName]
             return moduleName
         mod = moduleName
         while (True):
@@ -196,6 +198,8 @@ def moduleToDotNode(moduleName, returnPackageName):
                 return "top"
             mod = mod[:i]
             if (isPackage(mod)):
+                if (packageGroupMapping.has_key(mod)):
+                    return packageGroupMapping[mod]
                 return mod
     return moduleName
 
@@ -203,6 +207,7 @@ def printPackage(fromPackageName, toPackageName, fromModuleName, toModuleName):
     if (optionByPackage):
         if (toPackageName != "library" and toPackageName != "tools"):
             print >>sys.stderr, "%s -> %s, %s -> %s" % (fromPackageName, toPackageName, fromModuleName, toModuleName)
+
 
 def importsInFile(fileName):
     importSet = set([])
@@ -278,6 +283,7 @@ def createNode(name, fullModuleName):
 def getPackageLevel(packageName):
     if (packageLevels.has_key(packageName)):
         return packageLevels[packageName]
+    print >>sys.stderr, "undefined package level: " + packageName
     return 9
 
 def printEdge(fromNode, toNode):
@@ -295,7 +301,17 @@ def printEdge(fromNode, toNode):
         print "    %s -> %s [color=%s];" % (fn, tn, color)
     else:
         print "    %s -> %s;" % (fn, tn)
-    
+
+excludeFromEdges = [
+    "prototype",
+    ]
+
+excludeToEdges = [
+    "library",
+    "tools",
+    "top",    # only excluded to prevent required relative imports and spurious library references from showing up
+    "prototype",
+    ]
 
 def dependenciesInFile(fromModuleName, printing):
     if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
@@ -308,7 +324,7 @@ def dependenciesInFile(fromModuleName, printing):
         if (toModuleName in externalModules or toModuleName in pruneModules or toModuleName in unreferencedModules):
             continue
 
-        if (printing and toModuleName != "library" and toModuleName != "top" and toModuleName != "tools"):
+        if (printing and fromModuleName not in excludeFromEdges and toModuleName not in excludeToEdges):
             printEdge(fromModuleName, toModuleName)
 
         if (fromModuleCount.has_key(fromModuleName)):

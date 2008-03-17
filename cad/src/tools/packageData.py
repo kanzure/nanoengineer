@@ -135,19 +135,26 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
     "ui"              : "#8050ff",
     "PM"              : "#8070ff",
     "graphics"        : "#80a0ff",
+    "geometry"        : "#8040ff",
 
     "model"           : "#80ff50",
     "foundation"      : "#80ff70",
     "exprs"           : "#80ffa0",
+    "commands"        : "#80ff20",
 
     "io"              : "#ffff80",
     "utilities"       : "#ffa080",
+    "platform"        : "#ffc080",
 
+    "prototype"       : "#ffffff",
 ##    "examples"        : "#ff3030",
 ##    "test"            : "#ff3060",
     
     "top_level"       : "#ff3090",
     "root"            : "#ff3090",
+    "startup"         : "#ff3090",
+    "top"             : "#ff3090",
+    
     }
 
 # ==
@@ -156,10 +163,13 @@ packageLevels = {
     # plan: for each entry, review it, revise subclassifications. @@@
     # put in basic topics like dna...
     "top_level"   : 7, # files that need to stay at top level for technical reasons (we'll put them at top of import graph)
+    "top"         : 7, # files that need to stay at top level for technical reasons (we'll put them at top of import graph)
     "root"        : 7, # other files that belong at top of import graph (but that might be moved into subdirs)
+    "startup"     : 7, # other files that belong at top of import graph (but that might be moved into subdirs)
 ##    "test"        : 7, ### none left!
 ##    "examples"    : 7, ### DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
     "ui"          : 6, # has 137 instances - half the modules. (not counting new ones like command, unsplit_mode, simulation)
+    "commands"    : 6,
     "PM"          : 6,
     "io"          : 5, #? hmm, so high?
     "model"       : 4, #k wants subdivision? not urgent...
@@ -689,6 +699,99 @@ for package_name in packageMapping_for_packages.keys():
 packageMapping = dict( packageMapping_for_files)
 
 packageMapping.update( packageMapping_for_packages)
+
+packageGroupMapping = {
+    "analysis.ESP"                    : "model",
+    "analysis.GAMESS"                 : "model",
+    "cnt.commands.BuildCnt"           : "commands",
+    "cnt.commands.CntSegment"         : "commands",
+    "cnt.commands.InsertCnt"          : "commands",
+    "cnt.model"                       : "model",
+    "cnt.temporary_commands"          : "commands",
+    "cnt.updater"                     : "model",
+    "commands.BuildAtom"              : "commands",
+    "commands.BuildAtoms"             : "commands",
+    "commands.BuildCrystal"           : "commands",
+    "commands.ChunkProperties"        : "commands",
+    "commands.CommentProperties"      : "commands",
+    "commands.ElementColors"          : "commands",
+    "commands.ElementSelector"        : "commands",
+    "commandSequencer"                : "commands",
+    "commands.Extrude"                : "commands",
+    "commands.Fuse"                   : "commands",
+    "commands.GridPlaneProperties"    : "commands",
+    "commands.GroupProperties"        : "commands",
+    "commands.InsertGraphene"         : "commands",
+    "commands.InsertHeterojunction"   : "commands",
+    "commands.InsertNanotube"         : "commands",
+    "commands.InsertPeptide"          : "commands",
+    "commands.LinearMotorProperties"  : "commands",
+    "commands.MinimizeEnergy"         : "commands",
+    "commands.Move"                   : "commands",
+    "commands.PartLibrary"            : "commands",
+    "commands.PartProperties"         : "commands",
+    "commands.Paste"                  : "commands",
+    "commands.PlaneProperties"        : "commands",
+    "commands.PlayMovie"              : "commands",
+    "commands.Plot"                   : "commands",
+    "commands.PovraySceneProperties"  : "commands",
+    "commands.QuteMol"                : "commands",
+    "commands.RotaryMotorProperties"  : "commands",
+    "commands.Rotate"                 : "commands",
+    "commands.SelectAtoms"            : "commands",
+    "commands.SelectChunks"           : "commands",
+    "commands.Select"                 : "commands",
+    "commands.ThermometerProperties"  : "commands",
+    "commands.ThermostatProperties"   : "commands",
+    "commands.Translate"              : "commands",
+    "command_support"                 : "commands",
+    "commandToolbar"                  : "commands",
+    "dna.commands.BreakStrands"       : "commands",
+    "dna.commands.BuildDna"           : "commands",
+    "dna.commands.BuildDuplex"        : "commands",
+    "dna.commands.BuildDuplex_old"    : "commands",
+    "dna.commands.DnaSegment"         : "commands",
+    "dna.commands.DnaStrand"          : "commands",
+    "dna.commands.JoinStrands"        : "commands",
+    "dna.DnaSequenceEditor"           : "ui",
+    "dna.model"                       : "model",
+    "dna.operations"                  : "model",
+    "dna.temporary_commands"          : "commands",
+    "dna.updater"                     : "model",
+    "exprs"                           : "exprs",
+    "files.dpb_trajectory"            : "io",
+    "files.mmp"                       : "io",
+    "files.pdb"                       : "io",
+    "foundation"                      : "foundation",
+    "geometry"                        : "geometry",
+    "graphics.behaviors"              : "graphics",
+    "graphics.display_styles"         : "graphics",
+    "graphics.drawables"              : "graphics",
+    "graphics.drawing"                : "graphics",
+    "graphics.images"                 : "graphics",
+    "graphics.rendering"              : "graphics",
+    "graphics.rendering.mdl"          : "graphics",
+    "graphics.rendering.povray"       : "graphics",
+    "graphics.rendering.qutemol"      : "graphics",
+    "graphics.widgets"                : "graphics",
+    "history"                         : "utilities",
+    "modelTree"                       : "ui",
+    "model_updater"                   : "model",
+    "ne1_startup"                     : "startup",
+    "ne1_ui.help"                     : "ui",
+    "ne1_ui.menus"                    : "ui",
+    "ne1_ui"                          : "ui",
+    "ne1_ui.toolbars"                 : "ui",
+    "operations"                      : "model",
+    "platform"                        : "platform",
+    "PM"                              : "ui",
+    "processes"                       : "ui",
+    "simulation.GROMACS"              : "io",
+    "simulation"                      : "io",
+    "sponsors"                        : "ui",
+    "temporary_commands"              : "commands",
+    "widgets"                         : "ui",
+    }
 
 # ==
 
