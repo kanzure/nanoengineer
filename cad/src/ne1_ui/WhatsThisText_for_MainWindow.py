@@ -13,6 +13,9 @@ text for widgets in the NE1 Property Managers.
 
 Note: bruce 080210 split whatsthis_utilities.py out of this file
 into their own new file. 
+
+To do:
+- Replace current text string name with "_text" (like "Open File" example)
 """
 
 from PyQt4.Qt import QWhatsThis
@@ -34,13 +37,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     #
 
     # Open File
-    fileOpenText = \
+    _text = \
         "<u><b>Open File</b></u>    (Ctrl + O)"\
         "<p><img source=\"ui/actions/File/Open.png\"><br> "\
         "Opens a new file."\
         "</p>"
 
-    win.fileOpenAction.setWhatsThis( fileOpenText )
+    win.fileOpenAction.setWhatsThis( _text )
     # Import File
 
     fileImportText = \
@@ -732,24 +735,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Display Default</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Default.png\"><br> "\
-        "Changes the <i>display setting</i> of selected "\
-        "atoms or chunks to <b>Default</b> , rendering them "\
-        "in the <b>Current Display Mode</b>. "\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "atoms, chunks, DNA, etc.) to <b>Default</b>. Objects with their "\
+        "display setting set to <b>Default</b> are rendered in the "\
+        "<b>Global Display Style</b>. "\
         "</p>"\
-        "<p>If no atoms or chunks are selected, then this "\
-        "action will change the <b>Current Display Mode</b> "\
-        "of the 3D workspace to the <b>Default Display Mode</b>. " \
-        "All chunks with their display setting set to "\
-        "<b>Default</b> will be rendered in the "\
-        "<b>Default Display Mode</b>."\
-        "</p>"\
-        "<p>The <b>Default Display Mode</b> can be changed "\
-        "via the <b>Edit > Preferences</b> menu and "\
-        "selecting the <b>Modes</b> tab."\
-        "</p>"\
-        "<p>The <b>Current or Default Display Mode</b> is "\
-        "displayed in the status bar in the "\
-        "lower right corner of the main window."\
+        "<p>The current <b>Global Display Style</b> is displayed in the "\
+        "status bar in the lower right corner of the main window and can "\
+        "be changed from there."\
         "</p>"
 
     win.dispDefaultAction.setWhatsThis(dispDefaultActionText )
@@ -773,20 +766,16 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
     # Display Lines
-
     dispLinesActionText = \
         "<u><b>Display Lines</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Lines.png\"><br> "\
-        "Changes the <i>display setting</i> of selected atoms "\
-        "or chunks to <b>Lines</b>.  Only bonds are rendered "\
-        "as colored lines. "\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "atoms, chunks, DNA, etc.) to <b>Lines</b> display style. "\
+        "Only bonds are rendered as colored lines. "\
         "</p>"\
-        "<p>If no atoms or chunks are selected, then this "\
-        "action will change the <b>Current Display Mode</b> "\
-        "of the 3D workspace to <b>Lines</b>. All chunks with "\
-        "their display setting set to <b>Default</b> will "\
-        "inherit this display property."\
+        "<p>The thickness of bond lines can be changed from the <b>Bonds</b> "\
+        "page of the <b>Preferences</b> dialog."\
         "</p>"
 
     win.dispLinesAction.setWhatsThis(dispLinesActionText )  
@@ -797,15 +786,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Display Tubes</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Tubes.png\"><br> "\
-        "Changes the <i>display setting</i> of selected atoms "\
-        "or chunks to <b>Tubes</b>.  Atoms and bonds are "\
-        "rendered as colored tubes."\
-        "</p>"\
-        "<p>If no atoms or chunks are selected, then this "\
-        "action will change the <b>Current Display Mode</b> "\
-        "of the 3D workspace to <b>Tubes</b>. All chunks with "\
-        "their display setting set to <b>Default</b> will "\
-        "inherit this display property."\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "atoms, chunks, DNA, etc.) to <b>Tubes</b> display style. "\
+        "Atoms and bonds are rendered as colored tubes."\
         "</p>"
     
     win.dispTubesAction.setWhatsThis(dispTubesActionText )  
@@ -816,16 +799,10 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Display Ball and Stick</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Ball_and_Stick.png\"><br> "\
-        "Changes the <i>display setting</i> of selected atoms "\
-        "or chunks to <b>Ball and Stick</b> mode.  Atoms are "\
-        "rendered as spheres and bonds are rendered as narrow "\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "atoms, chunks, DNA, etc.) to <b>Ball and Stick</b> display style. "\
+        "Atoms are rendered as spheres and bonds are rendered as narrow "\
         "cylinders."\
-        "</p>"\
-        "<p>If no atoms or chunks are selected, then this "\
-        "action will change the <b>Current Display Mode</b> of "\
-        "the 3D workspace to <b>Ball and Stick</b>. All "\
-        "chunks with their display setting set to "\
-        "<b>Default</b> will inherit this display property."\
         "</p>"\
         "<p>The scale of the spheres and cylinders can be "\
         "changed from the <b>Atoms</b> and <b>Bonds</b> pages "\
@@ -840,22 +817,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Display CPK</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/CPK.png\"><br> "\
-        "Changes the <i>display setting</i> of selected atoms "\
-        "or chunks to <b>CPK</b> mode.  Atoms are rendered as "\
-        "spheres with a size equal to 0.78 of their VdW radius, "\
-        "corresponding to a contact force of approximately "\
-        "0.1 nN with neighboring nonbonded atoms. Bonds are not "\
-        "rendered."\
-        "</p>"\
-        "<p>If no atoms or chunks are selected, then this "\
-        "action will change the <b>Current Display Mode</b> of "\
-        "the 3D workspace to <b>CPK</b>. All chunks with their "\
-        "display setting set to <b>Default</b> will inherit "\
-        "this display property."\
+        "Changes the <i>display setting</i> of the selection (i.e. selected "\
+        "atoms, chunks, DNA, etc.) to <b>CPK</b> display style.  Atoms are "\
+        "rendered as spheres with a size equal to 0.775 of their VdW radius, "\
+        "corresponding to a contact force of approximately 0.1 nN with "\
+        "neighboring nonbonded atoms. Bonds are not rendered."\
         "</p>"\
         "<p>The scale of the spheres can be changed from the "\
-        "<b>Atoms</b> and <b>Bonds</b> pages of the "\
-        "<b>Preferences</b> dialog."\
+        "<b>Atoms</b> page of the <b>Preferences</b> dialog."\
         "</p>"
 
     win.dispCPKAction.setWhatsThis(dispCPKActionText )
@@ -1773,7 +1742,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # What's This
 
-    helpWhatsThisText = \
+    _text = \
         "<u><b>What's This</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Help/WhatsThis.png\"><br> "\
@@ -1783,12 +1752,48 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "A popup box appears with information about the "\
         "feature.</p>"
 
-    win.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
+    win.helpWhatsThisAction.setWhatsThis( _text )
     
     win.helpMouseControlsAction.setWhatsThis('Displays help for mouse controls')
     
     win.helpKeyboardShortcutsAction.setWhatsThis('Displays help for keyboard"\
     "shortcuts')
+    
+    #
+    # Status bar
+    #
+    
+    # Global Display Style combobox
+    _text = \
+        "<u><b>Global Display Style</b></u>"\
+        "<p>"\
+        "Use this widget to change the <b>Global Display Style</b>."\
+        "</p>"\
+        "Objects with their display setting set to <b>Default</b> are "\
+        "rendered in the <b>Global Display Style</b>."\
+        "</p>"
+    
+    win.statusBar().globalDisplayStylesComboBox.setWhatsThis( _text )
+    
+    # Selection lock state label
+    _text = \
+        "<b>Selection Lock State</b>    "\
+        "<p>"\
+        "<img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\">"\
+        " (off) "\
+        "<img source=\"ui/actions/Tools/Select/Selection_Locked.png\">"\
+        " (on)<br> "\
+        "When enabled, selection operations using the mouse (i.e. clicks and "\
+        "drags) are disabled in the 3D graphics area. All other selection "\
+        "commands available via toolbars, menus, the model tree and keyboard "\
+        "shortcuts are not affected when the Selection Lock is turned on."\
+        "</p>"\
+        "<p>The selection lock state can be toggled on and off using "\
+        "<b>Ctrl + L</b> (or <b>Command + L</b> on Macs) or selecting the "\
+        "<b>Selection Lock</b> button on the <b>Select</b> toolbar."\
+        "</p>"
+    
+    win.statusBar().selectionLockLabel.setWhatsThis( _text )
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."
