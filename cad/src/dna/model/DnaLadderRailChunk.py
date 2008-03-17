@@ -69,19 +69,43 @@ class DnaLadderRailChunk(Chunk):
     
     # == init methods
     
-    def __init__(self, assy, chain, reuse_old_chunk_if_possible = False):
+    def __init__(self, assy, name = None, chain = None, reuse_old_chunk_if_possible = False):
+        """
+        @note: init method signature is compatible with _superclass.__init__,
+               since it needs to work in _superclass.copy_empty_shell_in_mapping
+               passing just assy and name, expecting us to have no atoms.
+        """
+        # TODO: check if this arg signature is ok re undo, copy, etc;
+        # and if ok for rest of Node API if that matters for this kind of chunk;
+        # for now just assume chain is a DnaChain
 
+        # actual name is set below, but only if we don't return early
+        _superclass.__init__(self, assy, name or _FAKENAME )
+
+        if chain is not None:
+            self._init_atoms_from_chain( chain, reuse_old_chunk_if_possible)
+            if self._please_reuse_this_chunk is not None:
+                return
+
+        if not name:
+            # choose a name -- probably never seen by users, so don't spend
+            # lots of runtime or coding time on it -- we use gensym only to
+            # make names unique for debugging. (If it did become user-visible,
+            # we might want to derive and reuse a common prefix, except that
+            # there's no fast way to do that.)
+            self.name = gensym(self.__class__.__name__.split('.')[-1])
+
+        return
+
+    def _init_atoms_from_chain( self, chain, reuse_old_chunk_if_possible):
+        """
+        [private helper for __init__ when a chain is supplied]
+        """
         if _DEBUG_HIDDEN:
             self._atoms_were_hidden = []
             self._atoms_were_not_hidden = []
             self._num_extra_bondpoints = 0
 
-        # TODO: check if this arg signature is ok re undo, copy, etc;
-        # and if ok for rest of Node API if that matters for this kind of chunk;
-        # for now just assume chain is a DnaChain
-
-        # actual name is set below, only if we don't return early
-        _superclass.__init__(self, assy, _FAKENAME )
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
 
         use_disp = diDEFAULT # display style to use at end of __init__, if not reset
@@ -197,14 +221,8 @@ class DnaLadderRailChunk(Chunk):
         self._set_properties_from_grab_atom_info( use_disp, use_picked)
             # uses args and self attrs to set self.display and self.hidden
             # and possibly call self.pick()
-
-        # name -- probably never seen by users, so don't spend lots of runtime
-        # or coding time on it -- we use gensym only to make names unique
-        # for debugging. (If it did become user-visible, we might want to derive
-        # and reuse a common prefix, except that there's no fast way to do that.)
-        self.name = gensym(self.__class__.__name__.split('.')[-1]) ## + ' (internal)'
         
-        return # from __init__
+        return # from _init_atoms_from_chain
 
     def _f_set_new_ladder(self, ladder):
         """
@@ -563,7 +581,8 @@ class DnaLadderRailChunk(Chunk):
 def _make_or_reuse_DnaLadderRailChunk(constructor, assy, chain, ladder):
     """
     """
-    new_chunk = constructor(assy, chain, reuse_old_chunk_if_possible = True)
+    name = ""
+    new_chunk = constructor(assy, name, chain, reuse_old_chunk_if_possible = True)
     res = new_chunk # tentative
     if new_chunk._please_reuse_this_chunk:
         res = new_chunk._please_reuse_this_chunk # it's an old chunk
