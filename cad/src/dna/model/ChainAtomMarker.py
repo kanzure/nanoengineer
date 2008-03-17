@@ -21,7 +21,7 @@ See also: class DnaMarker, which inherits this.
 
 from model.jigs import Jig
 
-from debug import print_compact_traceback
+from utilities.debug import print_compact_traceback
 
 _NUMBER_OF_MARKER_ATOMS = 2
 
