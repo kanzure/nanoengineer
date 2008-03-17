@@ -1224,22 +1224,69 @@ def retranslateUi(win):
     #VIEW > DISPLAY MENU ITEMS
     win.dispBallAction.setText(QtGui.QApplication.translate("MainWindow", "Ball and Stick", None, QtGui.QApplication.UnicodeUTF8))
     win.dispBallAction.setIconText(QtGui.QApplication.translate("MainWindow", "Ball and Stick", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispBallAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Ball and Stick</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispDefaultAction.setText(QtGui.QApplication.translate("MainWindow", "Default", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDefaultAction.setIconText(QtGui.QApplication.translate("MainWindow", "Default", None, QtGui.QApplication.UnicodeUTF8))
-
+    win.dispDefaultAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Default</b> display setting to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispInvisAction.setText(QtGui.QApplication.translate("MainWindow", "Invisible", None, QtGui.QApplication.UnicodeUTF8))
     win.dispInvisAction.setIconText(QtGui.QApplication.translate("MainWindow", "Invisible", None, QtGui.QApplication.UnicodeUTF8))
     win.dispLinesAction.setText(QtGui.QApplication.translate("MainWindow", "Lines", None, QtGui.QApplication.UnicodeUTF8))
     win.dispLinesAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lines", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispLinesAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Lines</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispTubesAction.setText(QtGui.QApplication.translate("MainWindow", "Tubes", None, QtGui.QApplication.UnicodeUTF8))
     win.dispTubesAction.setIconText(QtGui.QApplication.translate("MainWindow", "Tubes", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispTubesAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Tubes</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispCPKAction.setText(QtGui.QApplication.translate("MainWindow", "CPK", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCPKAction.setIconText(QtGui.QApplication.translate("MainWindow", "CPK", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispCPKAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>CPK</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispHybridAction.setText(QtGui.QApplication.translate("MainWindow", "Hybrid Display", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHybridAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hybrid", None, QtGui.QApplication.UnicodeUTF8))
     win.dispSurfaceAction.setIconText(QtGui.QApplication.translate("MainWindow", "Surface", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispSurfaceAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Surface</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cylinder", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispCylinderAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>Cylinder</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispDnaCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "DNA Cylinder", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispDnaCylinderAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", 
+            "Apply <b>DNA Cylinder</b> display style to the selection", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
     win.dispUnhideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Unhide", None, QtGui.QApplication.UnicodeUTF8))
