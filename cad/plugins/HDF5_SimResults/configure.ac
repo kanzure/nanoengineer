@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.56)
 
 # Autoconf composes the distribution filename like: 4thArg-2ndArg, but we want
 # an underscore between the NanoEngineer-1 and its version. The following line
