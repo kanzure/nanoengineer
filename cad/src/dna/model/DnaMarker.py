@@ -498,7 +498,7 @@ class DnaMarker( ChainAtomMarker):
         so that we are on two live atoms which are adjacent on it.
         Track base position change as we do this (partly nim, since not used).
         
-        If this works, return True; later updater steps must call one of XXX
+        If this works, return True; later updater steps must call one of XXX ###doc
         to verify our atoms are still adjacent on the same new wholechain,
         and record it and our position on it. (Also record any info they need
         to run, but for now, this is only used by assertions or debug prints,
@@ -510,7 +510,8 @@ class DnaMarker( ChainAtomMarker):
         @return: whether this marker is still alive after this method runs.
         @rtype: boolean
         """
-
+        # REVIEW: should we not return anything and just make callers check marker.killed()?
+        
         if self._info_for_step2 is not None:
             print "bug? _info_for_step2 is not None as _f_move_to_live_atompair_step1 starts in %r" % self
         
@@ -536,7 +537,9 @@ class DnaMarker( ChainAtomMarker):
                 # In any case, tolerate it. Don't move, but do require new wholechain
                 # to find us. Note: this seems to happen a lot for 1-atom chains, not sure why. @@@ DIAGNOSE
             self._info_for_step2 = True
-            return True
+            return not self.killed() #bruce 080318 bugfix, was return True
+                # note: this can return False. I didn't verify it can return True,
+                # but probably it can (e.g. after mmp read).
             # don't do:
             ## self.kill()
             ## return False
