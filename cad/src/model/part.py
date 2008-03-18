@@ -818,17 +818,23 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
 
     addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
 
-    def ensure_toplevel_group(self): #bruce 080115 revised so Block doesn't count
+    def ensure_toplevel_group(self): #bruce 080115 revised so Block doesn't count; 080318 revised again
         """
-        Make sure this Part's toplevel node is a Group (which is not a Block),
+        Make sure this Part's toplevel node is a Group (of a kind which
+         does not mind having arbitrary new members added to it),
         by Grouping it if not.
         
         @note: most operations which create new nodes and want to add them
-        needn't call this directly, since they can call self.addnode or
-        assy.addnode instead.
+               needn't call this directly, since they can call self.addnode or
+               assy.addnode instead.
         """
-        assert self.topnode
-        if not self.topnode.is_group() or self.topnode.is_block():
+        topnode = self.topnode
+        assert topnode is not None
+        if not topnode.is_group() or not topnode.MT_DND_can_drop_inside():
+            # REVIEW: is that the best condition? Do we need an argument
+            # to help us know what kinds of groups are acceptable here?
+            # And if the current one is not, what kind to create?
+            # [bruce 080318 comment, and revised condition]
             self.create_new_toplevel_group()
         return
 
