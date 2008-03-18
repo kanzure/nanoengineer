@@ -565,7 +565,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if not group.members and group.permits_ungrouping():
                 count_holder[0] += 1 # UnboundLocalError when this was count += 1
         for node in nodeset:
-            node.apply_to_groups(func) # note: this treats Blocks as leaves
+            node.apply_to_groups(func) # note: this treats Blocks as leaves ### NEEDS REVIEW after Block changes circa 080318
         count = count_holder[0]
         if count == 1 and len(nodeset) == 1 and not nodeset[0].members:
             # this is about the single top selected node,
@@ -975,7 +975,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if not group.members and group.permits_ungrouping():
                 empties.append(group)
         for node in nodeset:
-            node.apply_to_groups(func) # note: this treats Blocks as leaves
+            node.apply_to_groups(func) # note: this treats Blocks as leaves ### NEEDS REVIEW after Block changes circa 080318
         for group in empties:
             group.kill()
         msg = fix_plurals("removed %d empty Group(s)" % len(empties))
