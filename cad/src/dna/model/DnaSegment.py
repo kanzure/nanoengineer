@@ -47,6 +47,7 @@ class DnaSegment(DnaStrandOrSegment):
     Note that this object will never show up directly in the Model Tree
     once the DNA Data Model is fully implemented, since it will always
     occur inside a DnaGroup (and since it's not a Block).
+    [WRONG as of before 080318 -- behavior has been revised]
     """
 
     # This should be a tuple of classifications that appear in

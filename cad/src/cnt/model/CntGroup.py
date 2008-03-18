@@ -22,7 +22,7 @@ from utilities import debug_flags
 # Following import is disabled. See addSegment method for reason.
 ## from cnt_model.CntSegment import CntSegment
 
-class CntGroup(Block):
+class CntGroup(Block): ### NEEDS REVIEW after recent changes to usage of Block in DnaGroup [bruce 080318 comment]
     """
     Model object which packages together some Cnt Segments, Cnt Strands,
     and other objects needed to represent all their PAM atoms and markers.

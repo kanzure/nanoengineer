@@ -12,7 +12,7 @@ from dna.model.Block import Block
 
 from cnt.model.CntGroup import CntGroup
 
-class CntStrandOrSegment(Block):
+class CntStrandOrSegment(Block): ### NEEDS REVIEW after recent changes to usage of Block in DnaGroup [bruce 080318 comment]
     """
     Abstract superclass for DnaStrand and DnaSegment,
     which represent a Dna Strand or Dna Segment inside a Dna Group.

@@ -541,7 +541,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
             # (this implies it's a group, or enough like one)
             node = nodeset[0]
-            if node.is_block(): #bruce 080207
+            if node.is_block(): #bruce 080207; NEEDS REVIEW due to recent Block changes, 080318
                 # then we probably should not be here... but in case we are:
                 text = "Ungroup %s (unsupported)" % (node.__class__.__name__.split('.')[-1],)
                     # todo: put that into Node.classname_for_ModelTree()
