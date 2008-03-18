@@ -1940,10 +1940,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         @param: GLPane object
         @param color: The highlight color
         @see: dna_model.DnaGroup.draw_highlighted
-        @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
+        @see: SelectChunks_GraphicsMode.drawHighlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
 
-        """      
+        """
         
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
@@ -1978,11 +1978,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         if allow_color_sorting and use_color_sorted_dls:
             #russ 080225: Alternate drawing method using colorless display list.
-            assert self.__dict__.has_key('displist')
-            apply_material(color)
-            self.pushMatrix()
-            glCallList(self.displist.nocolor_dl)
-            self.popMatrix()
+            ##russ 080317 Bypass assertion for DnaStrand.
+            ##assert self.__dict__.has_key('displist')
+            if self.__dict__.has_key('displist') and self.displist.nocolor_dl:
+                apply_material(color)
+                self.pushMatrix()
+                glCallList(self.displist.nocolor_dl)
+                self.popMatrix()
 
             #russ 080302: Draw external bonds.
             if self.externs:
