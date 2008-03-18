@@ -9,6 +9,8 @@ DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 
 from foundation.Group import Group
 
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
+
 class DnaStrandOrSegment(Group):
     """
     Abstract superclass for DnaStrand and DnaSegment,
@@ -48,14 +50,32 @@ class DnaStrandOrSegment(Group):
         will in any case control its base indexing).
     """
 
-    def MT_DND_can_drop_inside(self): #bruce 080317
+    def permits_ungrouping(self): #bruce 080207 in Block, copied to DnaStrandOrSegment 080318
+        """
+        Should the user interface permit users to dissolve this Group
+        using self.ungroup?
+        [overridden from Group]
+        """
+        return self._show_all_kids_for_debug() # normally False
+            # note: modelTree should modify menu text for Ungroup to say "(unsupported)",
+            # but this is broken as of before 080318 since it uses a self.is_block() test.
+
+    def _show_all_kids_for_debug(self): #bruce 080207 in Block, copied to DnaStrandOrSegment 080318
+        classname_short = self.__class__.__name__.split('.')[-1]
+        debug_pref_name = "Model Tree: show content of %s?" % classname_short
+            # typical examples (for text searches to find them here):
+            # Model Tree: show content of DnaGroup?
+            # Model Tree: show content of Block?
+        return debug_pref( debug_pref_name, Choice_boolean_False )
+
+    def MT_DND_can_drop_inside(self): #bruce 080317, revised 080318
         """
         Are ModelTree Drag and Drop operations permitted to drop nodes
         inside self?
 
         [overrides Node/Group method]
         """
-        return False
+        return self._show_all_kids_for_debug() # normally False
 
     def _raw_MT_kids(self, display_prefs = {}):
         """
@@ -64,6 +84,9 @@ class DnaStrandOrSegment(Group):
         @see: Group._raw__MT_kids()
         @see: Group.MT_kids()
         """
+        if self._show_all_kids_for_debug(): # normally False
+            # bruce 080318
+            return self.members
         return ()
 
     def getDnaGroup(self):
