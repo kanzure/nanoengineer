@@ -549,10 +549,21 @@ class Jig(NodeWith3DContents, Selobj_API):
     
     def _mmp_record_last_part(self, mapping):
         """
-        Last part of the record. Subclass can override this method to provide specific version of this part.
-        @note: If it returns anything other than empty, make sure to put one extra space character at the front.
+        Last part of the mmp record. By default, this lists self's atoms,
+        encoded by mapping. In some cases it lists a subset of self's atoms.
+
+        Subclass can override this method if needed.
+        As of long before 080317, some subclasses do that to work around bugs
+        or kluges in class Jig methods which cause problems when they have
+        no atoms.
+        
+        @note: If this returns anything other than empty, make sure to put
+               one extra space character at the front. [As of long before 080317,
+               it is likely that this is done by caller and therefore
+               no longer needed in this method. ###review]
         """
-        # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Image, which is none.
+        #Huaicai 9/21/05: split this from mmp_record, so the last part
+        # can be different for a jig like ESP Image, which has no atoms.
         if mapping is not None:
             ndix = mapping.atnums
             minflag = mapping.min # writing this record for Minimize? [bruce 051031]
@@ -560,8 +571,11 @@ class Jig(NodeWith3DContents, Selobj_API):
             ndix = None
             minflag = False
         nums = self.atnums_or_None( ndix, return_partial_list = minflag )
+        assert nums is not None # bruce 080317
+            # caller must ensure this by calling this with mapping.min set
+            # or when all atoms are encodable. [bruce comment 080317]
         
-        return " " + " ".join(map(str,nums))
+        return " " + " ".join(map(str, nums))
         
     def mmp_record(self, mapping = None): 
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
@@ -631,7 +645,9 @@ class Jig(NodeWith3DContents, Selobj_API):
             mmprectype_name = "%s (%s)" % (self.mmp_record_name, name)
             fwd_ref_to_return_now = "forward_ref (%s) # %s\n" % (str(ref_id), mmprectype_name) # the stuff after '#' is just a comment
             after_these = self.node_must_follow_what_nodes()
-            assert after_these # but this alone does not assert that they weren't all already written out! The next method should do that.
+            assert after_these # but this alone does not assert that they
+                # weren't all already written out! The next method should
+                # do that.
             mapping.write_forwarded_node_after_nodes( self, after_these, force_disabled_for_sim = self.is_disabled() )
             return fwd_ref_to_return_now , False
         
@@ -639,9 +655,29 @@ class Jig(NodeWith3DContents, Selobj_API):
         midpart = self.mmp_record_jigspecific_midpart()
         lastpart = self._mmp_record_last_part(mapping) # note: this also calls atnums_or_None
 
-        if lastpart == " ": # kluge! should return a flag instead [bruce 051102 for "enable in minimize"]
-            # this happens during "minimize selection" if a jig is enabled for minimize but none of its atoms are being minimized.
-            return "# jig with no selected atoms skipped for minimize\n", False
+        if lastpart == " ": # bruce 051102 for "enable in minimize"
+            # kluge! should return a flag instead.
+            # this happens during "minimize selection" if a jig is enabled
+            # for minimize but none of its atoms are being minimized.
+            if not self.atoms:
+                #bruce 080317 add this case as a bugfix;
+                # this might mean some of the existing subclass overrides of
+                # _mmp_record_last_part are no longer needed (###review).
+                # KLUGE, to work around older kluge which was causing bugs:
+                # this value of lastpart is normal in this case.
+                # But warn in the file if this looks like a bug.
+                if self.needs_atoms_to_survive():
+                    # untested?
+                    print "bug? %r being written with no atoms, but needs them" % self
+                    lastpart += "# bug? no atoms, but needs them"
+                # now use lastpart in return value as usual
+                pass
+            else:
+                # (before bruce 080317 bugfix, this was what we did
+                #  even when not self.atoms)
+                # return a comment instead of the entire mmp record:
+                return "# jig with no selected atoms skipped for minimize\n", False
+            pass
         
         return frontpart + midpart + lastpart + "\n" , True
 
