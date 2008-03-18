@@ -93,7 +93,7 @@ class DnaGroup(Group):
 
     def _raw_MT_kids(self):
         """
-        Returns all allowed MT kifs 'raw kids' because this isn't a final list
+        Returns all allowed MT kids, called 'raw kids' because this isn't a final list.
         This is used by self.MT_kids() to further decide which members to show
         in the MT as subnodes
         @see: self.allowed_MT_kids()
@@ -101,7 +101,8 @@ class DnaGroup(Group):
         @see: self.openable()
         @see: self.toggle_listing_of_allowed_MT_kids()
         """
-        return self.members #bruce 080317 bugfix; CLEAN UP OR COMMENT BEFORE COMMIT
+        return self.members #bruce 080317 temporary bugfix during review
+            # (not the intended design to hide some kinds of non-Block kids and show others)
 ##        lst = (self.assy.DnaSegment, 
 ##               self.assy.DnaStrand, 
 ##               self.assy.Block,
