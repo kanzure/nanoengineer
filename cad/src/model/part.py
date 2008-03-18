@@ -785,9 +785,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
 
     # ==
 
-    def addmol(self, mol): 
+    def addmol(self, mol): # searching for "def addnode" should also find this
         """
-        [Public method:]
+        [Public method; the name addmol is DEPRECATED, use addnode instead:]
+        
         Add any kind of Node to this Part (usually the "current Part"),
         at the end of the top level of its node tree
         (so it will be visible as the last node in this Part's
@@ -813,10 +814,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
         #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
         # btw does readmmp even need to call addmol anymore??
         #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this debug code:
-        if 1 and debug_flags.atom_debug:
+        if debug_flags.atom_debug:
             self.assy.checkparts()
 
-    addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
+    addnode = addmol #bruce 060604/080318; should make addnode the fundamental one, and clean up above comments
 
     def ensure_toplevel_group(self): #bruce 080115 revised so Block doesn't count; 080318 revised again
         """
