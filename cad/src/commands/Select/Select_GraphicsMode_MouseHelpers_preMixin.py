@@ -22,6 +22,7 @@ To be used as a Mixin class only for Select_basicGraphicsMode.
 import foundation.env as env
 from model.bonds import Bond
 from model.chem import Atom 
+from model.chunk import Chunk
 from model.jigs import Jig
 from utilities.debug import print_compact_stack
 debug_update_selobj_calls = False # do not commit with true
@@ -195,7 +196,8 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
 	@param event: Left down mouse event 
 	@type  event: QMouseEvent instance
 	"""
-                
+        if isinstance(obj, Chunk):
+            self.chunkLeftDown(obj, event)
         if isinstance(obj, Atom) and obj.is_singlet(): 
             self.singletLeftDown(obj, event)# Cursor over a singlet               
         elif isinstance(obj, Atom) and not obj.is_singlet(): 
@@ -246,8 +248,9 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
                 pass
             else:
                 return
-          
-        if isinstance(obj, Atom):
+        if isinstance(obj, Chunk):
+            self.chunkLeftUp(obj, event)
+        elif isinstance(obj, Atom):
             if obj.is_singlet(): # Bondpoint                
                 self.singletLeftUp(obj, event)                
             else: # Real atom
@@ -408,6 +411,48 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         pass
         
     # == End of bond selection helper methods
+    
+    #== Chunk helper methods
+    
+    def chunkLeftDown(self, a_chunk, event):
+        """
+        Overridden is subclasses. Default implementation does nothing. 
+        
+        Depending on the modifier key(s) pressed, it does various operations on
+        chunk..typically pick or unpick the chunk(s) or do nothing.
+        
+        If an object left down happens, the left down method of that object
+        calls this method (chunkLeftDown) as it is the 'selectMolsMode' which 
+        is supposed to select Chunk of the object clicked
+        @param a_chunk: The chunk of the object clicked (example, if the  object 
+                      is an atom, then it is atom.molecule
+        @type a_chunk: B{Chunk}
+        @param event: MouseLeftDown event
+        @see: self.atomLeftDown
+        @see: self.chunkLeftUp
+        
+        @see: SelectChunks_GraphicsMode.chunkLeftDown()
+        """
+        pass
+    
+    def chunkLeftUp(self, a_chunk, event):   
+        """
+        
+        Overridden is subclasses. Default implementation does nothing. 
+        
+        Depending on the modifier key(s) pressed, it does various operations on
+        chunk. Example: if Shift and Control modkeys are pressed, it deletes the
+        chunk
+        @param a_chunk: The chunk of the object clicked (example, if the  object 
+                      is an atom, then it is atom.molecule
+        @type a_chunk: B{Chunk}
+        @param event: MouseLeftUp event
+        @see: self.atomLeftUp
+        @see: self.chunkLeftdown
+        @see: SelectChunks_GraphicsMode.chunkLeftUp()
+        """
+        pass
+    
 
     # == Singlet helper methods
 
