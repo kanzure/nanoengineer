@@ -397,29 +397,40 @@ void nv1::addMonitoredJob(const QString& processType, const QString& id,
             this, SLOT(abortJob(const QString&)));
     
 	// Write job details to a file for later resumption of monitoring
+	QString message;
 	QFileInfo fileInfo(UserSettings::Instance()->fileName());
 	QDir dir(fileInfo.absolutePath().append("/Jobs"));
 	if (!dir.exists()) {
-		dir.cdUp();
+		dir.cd(fileInfo.absolutePath());
 		dir.mkdir("Jobs");
+		dir.cd("Jobs");
 	}
 	QString jobFilename =
-		dir.absolutePath().append("/Jobs/").append(processType)
-			.append("_").append(id);
+		dir.absolutePath().append("/").append(processType).append("_")
+			.append(id);
 	QFile jobFile(jobFilename);
 	if (jobFile.open(QIODevice::WriteOnly)) {
 		jobFile.write(qPrintable(resultsWindow->currentFile()));
 		jobFile.close();
+		message = QString("Created job monitor file: %1").arg(jobFilename);
+		NXLOG_INFO("nv1", qPrintable(message));
+		
+	} else {
+		message =
+			QString("Unable to create job monitor file: %1").arg(jobFilename);
+		NXLOG_WARNING("nv1", qPrintable(message));
 	}
 	// TODO: catch/emit errors
 	
     jobsMenu->addAction(abortJobAction);
+	jobsToolBar->addAction(abortJobAction);
 }
 
 
 /* FUNCTION: removeMonitoredJob */
 void nv1::removeMonitoredJob(const QString& id) {
     jobsMenu->removeAction(abortJobAction);
+	jobsToolBar->removeAction(abortJobAction);
     delete abortJobAction;
     
     JobMonitor* jobMonitor = jobMonitors[id];
@@ -470,24 +481,36 @@ void nv1::checkForActiveJobs(string& filename, string& processType,
 	QFileInfo fileInfo(UserSettings::Instance()->fileName());
 	QDir dir(fileInfo.absolutePath().append("/Jobs"));
 	if (!dir.exists()) {
-		dir.cdUp();
+		dir.cd(fileInfo.absolutePath());
 		dir.mkdir("Jobs");
+		dir.cd("Jobs");
 	}
-	bool jobActive;
+	bool jobActive, monitorError;
 	QStringList activeJobs;
 	QStringList fileList = dir.entryList(QDir::Files);
 	QStringList::const_iterator constIterator;
 	for (constIterator = fileList.constBegin();
 		 constIterator != fileList.constEnd(); ++constIterator) {
-		jobActive = false;
+		jobActive = monitorError = false;
 		if ((*constIterator).startsWith("GMX")) {
 			QString pid = (*constIterator).mid(4);
-			jobActive = GROMACS_JobMonitor::CheckJobActive(pid);
+			GROMACS_JobMonitor::CheckJobActive(pid, jobActive, monitorError);
 		}
-		if (jobActive)
+		if (jobActive && !monitorError) {
 			activeJobs.append(*constIterator);
-		else
-			; // TODO: Delete job file
+			
+		} else if (!monitorError) {
+			// Delete job file
+			QFile file(dir.absoluteFilePath(*constIterator));
+			QString message =
+				tr("Deleting dead job file: %1").arg(file.fileName());
+			NXLOG_INFO("nv1", qPrintable(message));
+			if (!file.remove()) {
+				message =
+					tr("Unable to remove GMX job file: %1").arg(file.fileName());
+				NXLOG_WARNING("nv1", qPrintable(message));
+			}
+		}
 	}
 	
 	// Show a selector dialog

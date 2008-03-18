@@ -5,12 +5,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>350</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Dialog</string>
+   <string>Running Job Selector</string>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >
@@ -22,7 +22,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>Choose an existing job to open, or click Cancel.</string>
+      <string>Choose a running job to open, or click Cancel.</string>
      </property>
     </widget>
    </item>
@@ -72,6 +72,22 @@
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listWidget</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
+   <receiver>JobSelectorDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>159</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>159</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>

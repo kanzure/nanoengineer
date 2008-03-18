@@ -30,40 +30,11 @@ void GROMACS_JobMonitor::run() {
 	bool emittedJobAborted = false;
 	bool monitorError = false;
 	bool stillRunning = true;
-	int status;
-	static int bufferSize = 64;
-	char buffer[bufferSize];
 	QString pid = initString;
-	QString command = QString("ps %1").arg(pid);
-	FILE* commandPipe;
 	while (stillRunning && /*!_aborted &&*/ !monitorError) {
 		sleep(1);
 		
-		commandPipe = popen(qPrintable(command), "r");
-		if (commandPipe == 0) {
-			QString logMessage = tr("Command failed: %1").arg(command);
-			NXLOG_SEVERE("GROMACS_JobMonitor::run", qPrintable(logMessage));
-			monitorError = true;
-			continue;
-		}
-
-		stillRunning = false;
-printf("%s output:\n", qPrintable(command));
-		while (fgets(buffer, bufferSize, commandPipe) != 0) {
-printf("\t%s\n", buffer);
-			string bufferString = buffer;
-			
-			// Remove spaces from beginning of line
-			while ((bufferString.length() > 0) && (bufferString[0] == ' '))
-				bufferString = bufferString.substr(1);
-			
-			if (bufferString.compare(0, pid.length(), qPrintable(pid)) == 0)
-				stillRunning = true;
-		}
-
-		status = pclose(commandPipe);
-		if (status == -1)
-			NXLOG_DEBUG("GROMACS_JobMonitor::run", "close pipe failed");
+		CheckJobActive(pid, stillRunning, monitorError);
 		
 		jobControlMutex.lock();
 		_aborted = aborted;
@@ -88,9 +59,40 @@ printf("\t%s\n", buffer);
 
 
 /* FUNCTION: CheckJobActive */
-bool GROMACS_JobMonitor::CheckJobActive(const QString& pid) {
-	// TODO: Implement
-	return true;
+void GROMACS_JobMonitor::CheckJobActive(const QString& pid, bool& stillRunning,
+										bool& monitorError) {
+	monitorError = false;
+	QString command = QString("ps %1").arg(pid);
+	FILE* commandPipe;
+
+	commandPipe = popen(qPrintable(command), "r");
+	if (commandPipe == 0) {
+		QString logMessage = tr("Command failed: %1").arg(command);
+		NXLOG_SEVERE("GROMACS_JobMonitor::CheckJobActive",
+					 qPrintable(logMessage));
+		monitorError = true;
+		return; // Abort function
+	}
+
+	stillRunning = false;
+	static int bufferSize = 64;
+	char buffer[bufferSize];
+printf("%s output:\n", qPrintable(command));
+	while (fgets(buffer, bufferSize, commandPipe) != 0) {
+printf("\t%s\n", buffer);
+		string bufferString = buffer;
+		
+		// Remove spaces from beginning of line
+		while ((bufferString.length() > 0) && (bufferString[0] == ' '))
+			bufferString = bufferString.substr(1);
+		
+		if (bufferString.compare(0, pid.length(), qPrintable(pid)) == 0)
+			stillRunning = true;
+	}
+
+	int status = pclose(commandPipe);
+	if (status == -1)
+		NXLOG_DEBUG("GROMACS_JobMonitor::run", "close pipe failed");
 }
 
 

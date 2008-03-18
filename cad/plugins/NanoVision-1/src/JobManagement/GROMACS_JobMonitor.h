@@ -25,7 +25,8 @@ class GROMACS_JobMonitor : public JobMonitor {
 		~GROMACS_JobMonitor();
 		
 		void run();
-		static bool CheckJobActive(const QString& pid);
+		static void CheckJobActive(const QString& pid, bool& stillRunning,
+								   bool& monitorError);
 		
 	signals:
 		void startedMonitoring(const QString& processType, const QString id,
