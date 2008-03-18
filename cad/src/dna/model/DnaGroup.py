@@ -101,14 +101,15 @@ class DnaGroup(Group):
         @see: self.openable()
         @see: self.toggle_listing_of_allowed_MT_kids()
         """
-        lst = (self.assy.DnaSegment, 
-               self.assy.DnaStrand, 
-               self.assy.Block,
-               self.assy.Group
-           )
-        return filter( lambda member: 
-                       member.__class__ in lst, 
-                       self.members )
+        return self.members #bruce 080317 bugfix; CLEAN UP OR COMMENT BEFORE COMMIT
+##        lst = (self.assy.DnaSegment, 
+##               self.assy.DnaStrand, 
+##               self.assy.Block,
+##               self.assy.Group
+##           )
+##        return filter( lambda member: 
+##                       member.__class__ in lst, 
+##                       self.members )
     
     def allowed_MT_kids(self):
         """

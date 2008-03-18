@@ -383,7 +383,9 @@ class WholeChain(object):
             return self._strand_or_segment
         assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
         strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment(make = True)
-        assert strand_or_segment
+        assert strand_or_segment, "%r._controlling_marker == %r has no " \
+               "owning_strand_or_segment and can't make one" % \
+               (self, self._controlling_marker)
         self._strand_or_segment = strand_or_segment
         return strand_or_segment
 

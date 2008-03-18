@@ -23,6 +23,8 @@ from model.jigs import Jig
 
 from utilities.debug import print_compact_traceback
 
+from utilities import debug_flags
+
 _NUMBER_OF_MARKER_ATOMS = 2
 
 # ==
@@ -169,8 +171,10 @@ class ChainAtomMarker(Jig):
             assert len(self.atoms) in (1, _NUMBER_OF_MARKER_ATOMS)
             self._check_atom_order()
         except:
-            #bruce 080317, for save file traceback in assert not self.is_homeless()
-            # reported by Tom (untested)
+            #bruce 080317, for debugging the save file traceback in
+            # "assert not self.is_homeless()" (above) in bug 2673,
+            # happens when saving after region select + delete of any
+            # duplex; fixed now
             msg = "\n*** BUG: exception in checks before DnaMarker.writemmp; " \
                   "continuing, but beware of errors when reopening the file"
             print_compact_traceback( msg + ": ")
@@ -218,7 +222,10 @@ class ChainAtomMarker(Jig):
         [misnamed, since if only next_atom is killed, we're not really
          homeless -- we just need an update.]
         """
-        return len(self.atoms) < self._expected_number_of_atoms()
+        res = ( len(self.atoms) < self._expected_number_of_atoms() )
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
+            print "is_homeless(%r) returning %r" % (self, res)
+        return res
     
 # old code:
 ##        res = (not self.atoms) and (self._old_atom is not None)
