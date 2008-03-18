@@ -4,6 +4,7 @@
  * gcc -shared -o gdb_help.so gdb_help.o
  */
 
+static char const svnId[] = "$Id$";
 
 #include <stdio.h>
 #include <unistd.h>

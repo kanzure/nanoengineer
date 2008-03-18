@@ -1,5 +1,8 @@
 // Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-// gcc -I/usr/include/python2.4 -c -Wall atombasehelp.c 
+
+// to build: make shared
+
+static char const svnId[] = "$Id$";
 
 #include "Python.h"
 #include "Numeric/arrayobject.h"

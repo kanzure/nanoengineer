@@ -92,7 +92,8 @@ pyclean: cleanpyc
 	rm -f $(PYFILES0) *~
 
 clean: cleanpyc
-	rm -f *~ *.o *.so *.a *.dll *.def atombase.c samevals.c core
+	rm -f *~ *.o *.so *.a *.dll *.def core
+	rm -f atombase.c samevals.c pyrex_test.c
 
 pyrex: $(PYREXTARGET)
 
