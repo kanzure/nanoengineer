@@ -18,7 +18,7 @@ import random
 
 from math    import sin, cos, pi
 
-from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from platform.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
@@ -72,7 +72,31 @@ class Dna:
     @type numberOfBasePairs: int
     
     @note: Atomistic models are not supported.
+    @TODO: This classe's attribute 'assy' (self.assy) is determined in self.make
+           Its okay because callers only call dna.make() first. If assy object 
+           is going to remain constant,(hopefully is the case) the caller should
+           pass it to the costructor of this class. (not defined as of 
+           2008-03-17.
+    
     """
+    #initialize sel.assy to None. This is determined each time in self.make()
+    #using the 'group' argument of that method. 
+    assy = None
+    #The following is a list bases inserted in to the model while generating
+    #dna. see self.make()
+    baseList = []
+    
+    def modify_NOT_IMPLEMENTED(self, 
+               ladder, 
+               endPoint1,
+               endPoint2              
+               ):
+        """
+        NOT IMPLEMENTED AS OF 2008-03-17
+        """  
+        
+        pass
+    
         
     def make(self, 
              group, 
@@ -115,11 +139,19 @@ class Dna:
         @param position: The position in 3d model space at which to create
                          the DNA strand. This should always be 0, 0, 0.
         @type position:  position
+        
+        @see: self.fuseBasePairChunks()
+        @see:self._insertBasesFromMMP()
+        @see: self._regroup()
+        @see: self._postProcess()
+        @see: self._orient()
+        @see: self._rotateTranslateXYZ()
         """      
         
         self.assy               =  group.assy         
         assy                    =  group.assy
-        baseList                =  []
+        #Make sure to clear self.baseList each time self.make() is called
+        self.baseList           =  []
         
         self.setNumberOfBasePairs(numberOfBasePairs)
         self.setBaseRise(duplexRise)
@@ -144,82 +176,11 @@ class Dna:
         #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
         self.strandA_atom_end1 = None
         
-        
-        def insertBaseFromMmp(filename, 
-                              subgroup, 
-                              tfm, 
-                              position = position
-                             ):
-            """
-            Insert the atoms for a nucleic acid base from an MMP file into
-            a single chunk.
-             - If atomistic, the atoms for each base are in a separate chunk.
-             - If PAM5, the pseudo atoms for each base-pair are together in a 
-               chunk.
-            
-            @param filename: The mmp filename containing the base 
-                             (or base-pair).
-            @type  filename: str
-            
-            @param subgroup: The part group to add the atoms to.
-            @type  subgroup: L{Group}
-            
-            @param tfm: Transform applied to all new base atoms.
-            @type  tfm: V
-            
-            @param position: The origin in space of the DNA duplex, where the
-                             3' end of strand A is 0, 0, 0.
-            @type  position: L{V}
-            """
-            try:
-                grouplist = readmmp(assy, filename, isInsert = True)
-            except IOError:
-                raise PluginBug("Cannot read file: " + filename)
-            if not grouplist:
-                raise PluginBug("No atoms in DNA base? " + filename)
-            
-            viewdata, mainpart, shelf = grouplist
-            
-            for member in mainpart.members:
-                # 'member' is a chunk containing a full set of 
-                # base-pair pseudo atoms.
-                                        
-                for atm in member.atoms.values():                            
-                    atm._posn = tfm(atm._posn) + position
                 
-                member.name = "BasePairChunk"
-                subgroup.addchild(member)
-                baseList.append(member)
-            
-            # Clean up.
-            del viewdata                
-            shelf.kill()
-
-        def rotateTranslateXYZ(inXYZ, theta, z):
-            """
-            Returns the new XYZ coordinate rotated by I{theta} and 
-            translated by I{z}.
-            
-            @param inXYZ: The original XYZ coordinate.
-            @type  inXYZ: V
-            
-            @param theta: The base twist angle.
-            @type  theta: float
-            
-            @param z: The base rise.
-            @type  z: float
-            
-            @return: The new XYZ coordinate.
-            @rtype:  V
-            """
-            c, s = cos(theta), sin(theta)
-            x = c * inXYZ[0] + s * inXYZ[1]
-            y = -s * inXYZ[0] + c * inXYZ[1]
-            return V(x, y, inXYZ[2] + z)
-
         # Make the duplex.
         subgroup = group
         subgroup.open = False    
+        
                         
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
@@ -228,15 +189,20 @@ class Dna:
                 
         # Create duplex.
         for i in range(self.getNumberOfBasePairs()):
-            basefile, zoffset, thetaOffset = \
-                self._strandAinfo(i)
-            def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
-                return rotateTranslateXYZ(v, theta, z1)
+            basefile, zoffset, thetaOffset = self._strandAinfo(i)
             
-            insertBaseFromMmp(basefile, subgroup, tfm)
+            def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
+                return self._rotateTranslateXYZ(v, theta, z1)
+            
+            #Note that self.baseList gets updated in the the following method
+            self._insertBaseFromMmp(basefile, 
+                                    subgroup, 
+                                    tfm, 
+                                    self.baseList,
+                                    position = position)
             
             if i == 0:
-                #The chunk baseList[0] should always contain the information 
+                #The chunk self.baseList[0] should always contain the information 
                 #about the strand end and axis end atoms at end1 we are 
                 #interested in. This chunk is obtained by reading in the 
                 #first mmp file (at i =0) .
@@ -244,32 +210,28 @@ class Dna:
                 #Note that we could have determined this after the for loop 
                 #as well. But now harm in doing it here. This is also safe 
                 #from any accidental modifications to the chunk after the for 
-                #loop. Note that 'baseList' gets populated in 
+                #loop. Note that 'self.baseList' gets populated in 
                 #sub 'def insertBasesFromMMP'.... Related TODO: The method 
                 #'def make' itself needs reafcatoring so that all submethods are
                 #direct methods of class Dna.
                 #@see self._determine_axis_and_strandA_endAtoms_at_end_1() for 
                 #more comments
-                firstChunkInBaseList = baseList[0]
-                self._determine_axis_and_strandA_endAtoms_at_end_1(baseList[0])
+                firstChunkInBaseList = self.baseList[0]
+                self._determine_axis_and_strandA_endAtoms_at_end_1(self.baseList[0])
 
             theta -= twistPerBase
             z     -= self.getBaseRise()
-
+            
         # Fuse the base-pair chunks together into continuous strands.
-        fcb = fusechunksBase()
-        fcb.tol = 1.5
-        for i in range(len(baseList) - 1):
-            fcb.find_bondable_pairs([baseList[i]], [baseList[i + 1]])
-            fcb.make_bonds(assy)
+        self.fuseBasePairChunks(self.baseList)
         
         try:
-            self._postProcess(baseList)
+            self._postProcess(self.baseList)
         except:
             if env.debug():
                 print_compact_traceback( 
-                    "debug: exception in %r._postProcess(baseList = %r) \
-                    (reraising): " % (self, baseList,))
+                    "debug: exception in %r._postProcess(self.baseList = %r) \
+                    (reraising): " % (self, self.baseList,))
             raise
         
         # Orient the duplex.
@@ -279,8 +241,121 @@ class Dna:
         self._regroup(subgroup)
         return
     
+    #START -- Helper methods used in generating dna (see self.make())===========
+    
+    def _insertBaseFromMmp(self,
+                          filename, 
+                          subgroup, 
+                          tfm, 
+                          baseList,
+                          position = V(0, 0, 0) ):
+        """
+        Insert the atoms for a nucleic acid base from an MMP file into
+        a single chunk.
+         - If atomistic, the atoms for each base are in a separate chunk.
+         - If PAM5, the pseudo atoms for each base-pair are together in a 
+           chunk.
+        
+        @param filename: The mmp filename containing the base 
+                         (or base-pair).
+        @type  filename: str
+        
+        @param subgroup: The part group to add the atoms to.
+        @type  subgroup: L{Group}
+        
+        @param tfm: Transform applied to all new base atoms.
+        @type  tfm: V
+        
+        @param baseList: A list that maintains the bases inserted into the 
+                         model Example self.baseList
+        
+        @param position: The origin in space of the DNA duplex, where the
+                         3' end of strand A is 0, 0, 0.
+        @type  position: L{V}
+        
+        """
+        
+        #@TODO: The argument baselist ACTUALLY MODIFIES self.baseList. Should we 
+        #directly use self.baseList instead? Only comments are added for 
+        #now. See also self.make()(the caller)
+        try:
+            grouplist = readmmp(self.assy, filename, isInsert = True)
+        except IOError:
+            raise PluginBug("Cannot read file: " + filename)
+        if not grouplist:
+            raise PluginBug("No atoms in DNA base? " + filename)
+        
+        viewdata, mainpart, shelf = grouplist
+        
+        for member in mainpart.members:
+            # 'member' is a chunk containing a full set of 
+            # base-pair pseudo atoms.
+                                    
+            for atm in member.atoms.values():                            
+                atm._posn = tfm(atm._posn) + position
+            
+            member.name = "BasePairChunk"
+            subgroup.addchild(member)
+            
+            #Append the 'member' to the baseList. Note that this actually 
+            #modifies self.baseList. Should self.baseList be directly used here?
+            baseList.append(member)
+        
+        # Clean up.
+        del viewdata                
+        shelf.kill()
+
+    def _rotateTranslateXYZ(self, inXYZ, theta, z):
+        """
+        Returns the new XYZ coordinate rotated by I{theta} and 
+        translated by I{z}.
+        
+        @param inXYZ: The original XYZ coordinate.
+        @type  inXYZ: V
+        
+        @param theta: The base twist angle.
+        @type  theta: float
+        
+        @param z: The base rise.
+        @type  z: float
+        
+        @return: The new XYZ coordinate.
+        @rtype:  V
+        """
+        c, s = cos(theta), sin(theta)
+        x = c * inXYZ[0] + s * inXYZ[1]
+        y = -s * inXYZ[0] + c * inXYZ[1]
+        return V(x, y, inXYZ[2] + z)
+    
+    
+    def fuseBasePairChunks(self, baseList):
+        """
+        Fuse the base-pair chunks together into continuous strands.
+        
+        @param baseList: The list of bases inserted in the model. See self.make
+                          (the caller) for an example.
+        @see: self.make()
+        @NOTE: self.assy is determined in self.make() so this method 
+               must be called from that method only.
+        """
+        
+        if self.assy is None:
+            print_compact_stack("bug:self.assy not defined.Unable to fusebases")
+            return 
+        
+        # Fuse the base-pair chunks together into continuous strands.
+        fcb = fusechunksBase()
+        fcb.tol = 1.5
+        for i in range(len(baseList) - 1):
+            #Note that this is actually self.baseList that we are using. 
+            #Example see self.make() which calls this method. 
+            fcb.find_bondable_pairs([baseList[i]], [baseList[i + 1]])
+            fcb.make_bonds(self.assy)
+            
     def _postProcess(self, baseList):
         return
+    
+    #END Helper methods used in dna generation (see self.make())================
     
     def _baseFileName(self, basename):
         """
