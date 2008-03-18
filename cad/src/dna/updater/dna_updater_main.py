@@ -26,6 +26,9 @@ from dna.updater.dna_updater_groups import update_DNA_groups
 from dna.updater.dna_updater_debug import debug_prints_as_dna_updater_starts
 from dna.updater.dna_updater_debug import debug_prints_as_dna_updater_ends
 
+from dna.model.DnaMarker import _f_are_there_any_homeless_dna_markers
+from dna.model.DnaMarker import _f_get_homeless_dna_markers
+
 # ==
 
 _runcount = 0 # for debugging [bruce 080227]
@@ -64,12 +67,18 @@ def _full_dna_update_0( _runcount):
         # note: this function should not modify changed_atoms.
         # note: the corresponding _ends call is in our caller.
     
-    if not changed_atoms:
+    if not changed_atoms and not _f_are_there_any_homeless_dna_markers():
+        # note: adding marker check (2 places) fixed bug 2673 [bruce 080317]
         return # optimization (might not be redundant with caller)
 
+    # print debug info about the set of changed_atoms (and markers needing update)
     if debug_flags.DEBUG_DNA_UPDATER_MINIMAL:
-        print "\ndna updater: %d changed atoms to scan" % len(changed_atoms)
-    if debug_flags.DEBUG_DNA_UPDATER: # should be _VERBOSE, but has been useful enough to keep seeing for awhile
+        print "\ndna updater: %d changed atoms to scan%s" % \
+              ( len(changed_atoms),
+                _f_are_there_any_homeless_dna_markers() and " (and some DnaMarkers)" or ""
+              )
+    if debug_flags.DEBUG_DNA_UPDATER and changed_atoms:
+        # someday: should be _VERBOSE, but has been useful enough to keep seeing for awhile
         items = changed_atoms.items()
         items.sort()
         atoms = [item[1] for item in items]
@@ -80,23 +89,33 @@ def _full_dna_update_0( _runcount):
             print " the first %d of them are: %r ..." % \
                   (NUMBER_TO_PRINT, atoms[:NUMBER_TO_PRINT])
 
-    remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
+    if changed_atoms:
+        remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
 
-    remove_closed_or_disabled_assy_atoms( changed_atoms)
-        # This should remove all remaining atoms from closed files.
-        # Note: only allowed when no killed atoms are present in changed_atoms;
-        # raises exceptions otherwise.
+    if changed_atoms:
+        remove_closed_or_disabled_assy_atoms( changed_atoms)
+            # This should remove all remaining atoms from closed files.
+            # Note: only allowed when no killed atoms are present in changed_atoms;
+            # raises exceptions otherwise.
         
-    if not changed_atoms:
-        return
+    if changed_atoms:
+        update_PAM_atoms_and_bonds( changed_atoms)
     
-    update_PAM_atoms_and_bonds( changed_atoms)
-    
-    if not changed_atoms:
-        # (unlikely, but no harm)
-        return
+    if not changed_atoms and not _f_are_there_any_homeless_dna_markers():
+        return # optimization
 
-    new_chunks, new_wholechains = update_PAM_chunks( changed_atoms)
+    homeless_markers = _f_get_homeless_dna_markers() #e rename, homeless is an obs misleading term ####
+        # this includes markers whose atoms got killed (which calls marker.remove_atom)
+        # or got changed in structure (which calls marker.changed_structure)
+        # so it should not be necessary to also add to this all markers noticed
+        # on changed_atoms, even though that might include more markers than
+        # we have so far (especially after we add atoms from invalid ladders below).
+        #
+        # NOTE: it can include fewer markers than are noticed by _f_are_there_any_homeless_dna_markers
+        # since that does not check whether they are truly homeless.
+    assert not _f_are_there_any_homeless_dna_markers() # since getting them cleared them
+    
+    new_chunks, new_wholechains = update_PAM_chunks( changed_atoms, homeless_markers)
 
     # review: if not new_chunks, return? wait and see if there are also new_markers, etc...
     
@@ -109,6 +128,12 @@ def _full_dna_update_0( _runcount):
 
     ignore_new_changes("as full_dna_update returns", changes_ok = False )
 
+    if debug_flags.DEBUG_DNA_UPDATER_MINIMAL:
+        if _f_are_there_any_homeless_dna_markers():
+            print "dna updater fyi: as updater returns, some DnaMarkers await processing by next run"
+                # might be normal...don't know. find out, by printing it even
+                # in minimal debug output. [bruce 080317]
+    
     return # from _full_dna_update_0
 
 # end

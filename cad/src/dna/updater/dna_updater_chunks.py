@@ -17,8 +17,6 @@ from dna.updater.dna_updater_debug import assert_unique_chain_baseatoms
 from dna.updater.dna_updater_debug import assert_unique_ladder_baseatoms
 from dna.updater.dna_updater_debug import assert_unique_wholechain_baseatoms
 
-from dna.model.DnaMarker import _f_get_homeless_dna_markers
-
 from dna.model.WholeChain import Axis_WholeChain, Strand_WholeChain
 
 from dna.updater.dna_updater_find_chains import find_axis_and_strand_chains_or_rings
@@ -29,7 +27,7 @@ from dna.updater.dna_updater_ladders import make_new_ladders, merge_and_split_la
 
 # ==
 
-def update_PAM_chunks( changed_atoms):
+def update_PAM_chunks( changed_atoms, homeless_markers):
     """
     Update chunks containing changed PAM atoms, ensuring that
     PAM atoms remain divided into AxisChunks and StrandChunks
@@ -43,6 +41,8 @@ def update_PAM_chunks( changed_atoms):
                           Note: in present calling code [071127]
                           this dict might include atoms from closed files.
 
+    @param homeless_markers: ###doc, ###rename
+    
     @return: the 2-tuple (all_new_chunks, new_wholechains),
              containing a list of all newly made DnaLadderRailChunks
              (or modified ones, if that's ever possible),
@@ -82,7 +82,7 @@ def update_PAM_chunks( changed_atoms):
     #
     # [code and comment rewritten 080311]
 
-    homeless_markers = _f_get_homeless_dna_markers() #e rename
+    ## homeless_markers = _f_get_homeless_dna_markers() #e rename # now an arg, 080317
         # this includes markers whose atoms got killed (which calls marker.remove_atom)
         # or got changed in structure (which calls marker.changed_structure)
         # so it should not be necessary to also add to this all markers noticed
@@ -94,10 +94,16 @@ def update_PAM_chunks( changed_atoms):
         still_alive = marker._f_move_to_live_atompair_step1() #e @@@@ rename (no step1) (also fix @@@)
             # note: we don't yet know if they'll still be alive
             # when this updater run is done.
-        if debug_flags.DEBUG_DNA_UPDATER: # SOON: _VERBOSE
-            print "dna updater: fyi: moved marker %r, still_alive before new wholechains = %r" % (marker, still_alive)
         if still_alive:
             live_markers.append(marker) # only used for asserts
+        if (not not still_alive) != (not marker.killed()):
+            print "\n***BUG: still_alive is %r but %r.killed() is %r" % \
+                  (still_alive, marker, marker.killed())
+        if debug_flags.DEBUG_DNA_UPDATER: # SOON: _VERBOSE
+            if still_alive:
+                print "dna updater: moved marker %r, still alive after step1" % (marker,)
+            else:
+                print "dna updater: killed marker %r (couldn't move it)" % (marker,)
     del homeless_markers
 
     ignore_new_changes("from moving DnaMarkers")

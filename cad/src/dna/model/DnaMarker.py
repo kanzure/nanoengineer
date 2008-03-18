@@ -44,26 +44,42 @@ _CONTROLLING_IS_UNKNOWN = True # represents an unknown value of self.controlling
 
 # ==
 
-# globals and their accessors
+# globals and their accessors [TODO -- move these to updater globals or so]
 
 _marker_newness_counter = 1
 
 _homeless_dna_markers = {}
 
-def _f_get_homeless_dna_markers(): # MISNAMED, see is_homeless docstring. Maybe rename to end "markers_that_need_update"?
+def _f_get_homeless_dna_markers(): # MISNAMED, see is_homeless docstring in superclass. Maybe rename to
+        # something that ends in "markers_that_need_update"?
     """
     Return the homeless dna markers,
     and clear the list so they won't be returned again
     (unless they are newly made homeless).
 
-    Friend function for dna updater. Other calls
-    would cause it to miss newly homeless markers,
-    causing serious bugs.
+    [Friend function for dna updater. Other calls
+     would cause it to miss newly homeless markers,
+     causing serious bugs.]
     """
     res = _homeless_dna_markers.values()
     _homeless_dna_markers.clear()
-    res = filter( lambda marker: marker.is_homeless(), res ) # probably not needed
+    res = filter( lambda marker: marker.is_homeless(), res ) # review: is filtering needed?
     return res
+
+def _f_are_there_any_homeless_dna_markers(): # MISNAMED, see _f_get_homeless_dna_markers docstring
+    """
+    [friend function for dna updater]
+
+    Are there any DnaMarkers needing action by the dna updater?
+
+    @see: _f_get_homeless_dna_markers
+
+    @note: this function does not filter the markers that have been
+           recorded as possibly needing update. _f_get_homeless_dna_markers
+           does filter them. So this might return True even if that would
+           return an empty list. This is ok, but callers should be aware of it.
+    """
+    return not not _homeless_dna_markers
 
 # ==
 
@@ -199,7 +215,7 @@ class DnaMarker( ChainAtomMarker):
         """
         Extend Node method, for debugging and for notifying self.wholechain
         """
-        if debug_flags.DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
             msg = "dna updater: killing %r" % (self,)
             print msg
         if self.wholechain:
@@ -621,7 +637,7 @@ class DnaMarker( ChainAtomMarker):
 
         # didn't find a good position to the right or left.
 
-        if debug_flags.DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
             print "kill %r since we can't find a place to move it to" % self
         self.kill()
         return False
