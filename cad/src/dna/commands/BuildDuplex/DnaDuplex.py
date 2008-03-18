@@ -86,8 +86,12 @@ class Dna:
     #dna. see self.make()
     baseList = []
     
-    def modify_NOT_IMPLEMENTED(self, 
+    def modify_NOT_IMPLEMENTED_YET(self,
+               group,
                ladder, 
+               numberOfBasePairs, 
+               basesPerTurn, 
+               duplexRise,
                endPoint1,
                endPoint2              
                ):
@@ -95,6 +99,14 @@ class Dna:
         NOT IMPLEMENTED AS OF 2008-03-17
         """  
         
+        ##ladder.ladder_end_base_atoms(ladderEnd)
+        
+        if 0:
+        
+            group_with_raw_duplex = self._create_raw_duplex(group, 
+                                                            numberOfBasePairs, 
+                                                            basesPerTurn, 
+                                                            duplexRise)
         pass
     
         
@@ -176,7 +188,38 @@ class Dna:
         #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
         self.strandA_atom_end1 = None
         
-                
+        #Create a duplex by inserting basepairs from the mmp file. 
+        group_with_rawDuplex = self._create_raw_duplex(group, 
+                                                       numberOfBasePairs, 
+                                                       basesPerTurn, 
+                                                       duplexRise,
+                                                       position = position)
+        
+        
+        # Orient the duplex.
+        self._orient(group_with_rawDuplex, endPoint1, endPoint2)
+           
+        # Regroup subgroup into strand and chunk groups
+        self._regroup(group_with_rawDuplex)
+        return
+    
+    #START -- Helper methods used in generating dna (see self.make())===========
+    
+    def _create_raw_duplex(self,
+                           group, 
+                           numberOfBasePairs, 
+                           basesPerTurn, 
+                           duplexRise,
+                           position = V(0, 0, 0)):
+        """
+        Create a raw dna duplex in the specified group. This will be created 
+        along the Z axis. Later it will undergo more operations such as 
+        orientation change anc chunk regrouping. 
+        
+        @return: A group object containing the 'raw dna duplex'
+        @see: self.make()
+        
+        """
         # Make the duplex.
         subgroup = group
         subgroup.open = False    
@@ -234,14 +277,9 @@ class Dna:
                     (reraising): " % (self, self.baseList,))
             raise
         
-        # Orient the duplex.
-        self._orient(subgroup, endPoint1, endPoint2)
-           
-        # Regroup subgroup into strand and chunk groups
-        self._regroup(subgroup)
-        return
+        return subgroup
+        
     
-    #START -- Helper methods used in generating dna (see self.make())===========
     
     def _insertBaseFromMmp(self,
                           filename, 
