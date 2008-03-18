@@ -791,14 +791,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #Create a dictionary of objects to be drawn highlighted. 
         #(object_to_highlight, highlight_color) will 
         objectDict = {}  
-        
-        if isinstance(selobj, Chunk):            
-            dnaGroup = selobj.getDnaGroup()
-            if dnaGroup is not None:
-                objectDict[dnaGroup] = hiColor1
-            else:
-                objectDict[selobj] = hiColor1
-        
+                
         chunkList = []
         colorList = []
         
@@ -806,7 +799,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #draw_highlighted method gets called when applicable. There could be 
         #several such things in the future. so need to think of a better way to 
         #do it.
-        if isinstance(selobj, Atom):
+        if isinstance(selobj, Chunk): 
+            dnaStrand = selobj.parent_node_of_class(self.win.assy.DnaStrand)            
+            if dnaStrand:
+                chunkList = [dnaStrand]
+            else:
+                chunkList = [selobj]
+            colorList = [hiColor1]
+        elif isinstance(selobj, Atom):
             dnaStrand = selobj.molecule.parent_node_of_class(self.win.assy.DnaStrand)
             if dnaStrand:
                 chunkList = [dnaStrand]
