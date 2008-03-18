@@ -1748,43 +1748,73 @@ class MWsemantics(QMainWindow,
         
         @see: Ui_DnaFlyout.orderDnaCommand
         @see: self._writeDnaSequence
+        @TODO: This works only for a single DNA group So dnaGroupList always 
+                contain a single item. 
         """
+        
+        dnaGroupNameString = ''
                
         fileBaseName = 'DnaSequence'
         
         dnaSequence = ''
+               
         
         if dnaGroupList:
+            dnaSequence = ''
             for dnaGroup in dnaGroupList:
-                dnaSequence = dnaGroup.getDnaSequence(format = 'CSV')            
+                dnaSequence = dnaSequence + dnaGroup.getDnaSequence(format = 'CSV')            
         else:
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'BUILD_DNA':
                 if currentCommand.struct is not None:
                     dnaSequence = currentCommand.struct.getDnaSequence()
-                    fileBaseName = currentCommand.struct.name
+                    dnaGroupNameString = currentCommand.struct.name
+                    fileBaseName = dnaGroupNameString
+                    
                 
-        if dnaSequence:
+        if dnaSequence: 
             tmpdir = find_or_make_Nanorex_subdir('temp')
             temporaryFile = os.path.join(tmpdir, "%s.csv" % fileBaseName)            
-            self._writeDnaSequence(temporaryFile, dnaSequence)            
+            self._writeDnaSequence(temporaryFile, 
+                                   dnaGroupNameString, 
+                                   dnaSequence)      
+            
             open_file_in_editor(temporaryFile)
         
     
-    def _writeDnaSequence(self, fileName, dnaSequence):
+    def _writeDnaSequence(self, fileName, dnaGroupNameString, dnaSequence):
         """
         Open a temporary file and write the specified dna sequence to it
         @param fileName: the full path of the temporary file to be opened
         @param  dnaSequence: The dnaSequence string to be written to the file.
         @see: self.orderDna
         """
-                       
-        f = open(fileName,'w') 
+        
+        #Create Header
+        headerString = '#Dna Sequence created on: '
+        timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
+        
+        
+        if self.assy.filename:
+            mmpFileName = "[" + os.path.normpath(self.assy.filename) + "]"
+        else:
+            mmpFileName = "[" + self.assy.name + "]" + \
+                        " ( The mmp file was probably not saved when the "\
+                        " sequence was written)"
             
+        if dnaGroupNameString:
+            fileNameInfo_header = "#This sequence is created for node "\
+                                "[%s] of file %s\n\n"%(dnaGroupNameString, 
+                                                     mmpFileName)
+        else:
+            fileNameInfo_header = "#This sequence is created for file '%s\n\n'"%(
+                                    mmpFileName)
+                            
+        headerString = headerString + timestr + fileNameInfo_header
+                    
+        f = open(fileName,'w')             
         # Write header
-        f.write ('Dna Sequence created on: ')
-        timestr = "%s\n\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
-        f.write(timestr)
+        f.write(headerString)
         f.write("Sequence name,Sequence,Scale,Notes\n")
         f.write(dnaSequence)
             
