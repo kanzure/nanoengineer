@@ -10,7 +10,7 @@ __author__ = "Will"
 
 import types
 import Numeric
-from inval import InvalMixin
+from foundation.inval import InvalMixin
 
 cdef extern from "atombasehelp.c":
 
