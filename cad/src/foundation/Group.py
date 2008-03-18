@@ -610,6 +610,42 @@ class Group(NodeWithAtomContents):
             # to res = res or ob.unpick_all_except( node)!
         return res
 
+    def pick_if_invisible_but_visible_contents_are_picked(self, from_glpane): #bruce 080317
+        """
+        ###doc -- warning, "invisible" has nothing to do with diINVISIBLE
+
+        [overrides Node method; might be overridden in some subclasses,
+         but if possible they should only override member_visible_for_pick]
+        """
+        if not self.picked: # a necessary optim, or maybe an infrecur avoider
+            # we might pick self
+            some_visible_picked = some_visible_unpicked = False # reset below
+            for member in self.members:
+                if self.member_visible_for_pick(member, from_glpane):
+                    member.pick_if_invisible_but_visible_contents_are_picked(from_glpane)
+                    if member.picked:
+                        some_visible_picked = True
+                    else:
+                        some_visible_unpicked = True
+                        break # this decides it
+                    pass
+                continue
+            if some_visible_picked and not some_visible_unpicked:
+                # all visible are picked, and at least one is visible
+                self.pick()
+                pass
+            pass
+        return
+
+    def member_visible_for_pick(self, member, from_glpane): #bruce 080317
+        # todo: maybe rename; override in subclasses?? or just visible_for_pick?
+        """
+        ###doc
+
+        @param member: a member of self
+        """
+        return member.visible_for_pick(from_glpane) ### IMPLEM, maybe rename
+
     def inherit_part(self, part): # Group method; bruce 050308
         """
         Self (a Group) is inheriting part from its dad.

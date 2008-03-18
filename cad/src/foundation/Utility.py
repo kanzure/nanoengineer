@@ -1033,6 +1033,15 @@ class Node( StateMixin, IdentityCopyMixin):
         # this implem is only correct for leaf nodes:
         self.unpick() # before 050131 was Node.unpick(self), which was wrong for chunk and jig.
 
+    def pick_if_invisible_but_visible_contents_are_picked(self, from_glpane): #bruce 080317
+        """
+        ###doc -- warning, "invisible" has nothing to do with diINVISIBLE
+
+        [overridden in Group and some subclasses]
+        """
+        self.pick()
+        return
+    
     _old_dad = None ###k not yet used? #####@@@@@ review got to here, except: to chgdad added only cmts plus docstring plus new name
 
     def in_clipboard(self): #bruce 050205 temporary ###@@@ [should use a more general concept of assy.space]
