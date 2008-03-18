@@ -47,6 +47,16 @@ class DnaStrandOrSegment(Group):
         or segment (as it
         will in any case control its base indexing).
     """
+
+    def MT_DND_can_drop_inside(self): #bruce 080317
+        """
+        Are ModelTree Drag and Drop operations permitted to drop nodes
+        inside self?
+
+        [overrides Node/Group method]
+        """
+        return False
+
     def _raw_MT_kids(self, display_prefs = {}):
         """
         DnaStrand or DnaSegment groups (subclasses of this class) should not 

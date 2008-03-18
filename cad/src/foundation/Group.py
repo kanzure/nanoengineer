@@ -163,6 +163,15 @@ class Group(NodeWithAtomContents):
     def drag_copy_ok(self):
         return True # for my testing... REVIEW: maybe make it False for Alpha though 050201
 
+    def MT_DND_can_drop_inside(self): #bruce 080317
+        """
+        Are ModelTree Drag and Drop operations permitted to drop nodes
+        inside self?
+
+        [overrides Node method; overridden again in some subclasses]
+        """
+        return True # for most Groups
+
     def is_selection_group_container(self): #bruce 050131 for Alpha
         """
         Whether this group causes each of its direct members to be treated
@@ -351,6 +360,11 @@ class Group(NodeWithAtomContents):
         [overrides Node implem; different behavior;
          see Node implem docstring for documentation of both implems]
         """
+        if not self.MT_DND_can_drop_inside():
+            #bruce 080317 -- we should revise all addmember calls that this turns up
+            # to test what they care about and call addchild or addsibling explicitly
+            print_compact_stack( "WARNING: addmember on class of %r has not been reviewed for correctness: " % self) ###
+        
         self.addchild( node, top = before_or_top)
         return
 

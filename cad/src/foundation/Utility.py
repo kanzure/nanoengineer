@@ -772,6 +772,15 @@ class Node( StateMixin, IdentityCopyMixin):
         """
         return False
 
+    def MT_DND_can_drop_inside(self): #bruce 080317
+        """
+        Are ModelTree Drag and Drop operations permitted to drop nodes
+        inside self?
+
+        [overridden in Group and again in some of its subclasses]
+        """
+        return False
+
     def node_icon(self, display_prefs):
         """
         #doc this - should return a cached icon
@@ -1505,6 +1514,8 @@ class Node( StateMixin, IdentityCopyMixin):
 
     def moveto(self, node, before = False):
         """
+        DEPRECATED. Use node.addchild(self) or node.addsibling(self) instead.
+        
         Move self to a new location in the model tree, before or after node
         according to the <before> flag, or if node is a Group, somewhere
         inside it (reinterpreting 'before' flag as 'top' flag, to decide where
@@ -1512,6 +1523,7 @@ class Node( StateMixin, IdentityCopyMixin):
         (even if node is a Group).
         """
         #todo: rename for DND, and clean up; has several external calls
+        # (but as of 080317, no longer used in MT DND)
 
         ###REVIEW: how should each call of this behave if node is a group that
         # acts like a leaf node for some purposes, e.g. DnaGroup? @@@@
@@ -1528,7 +1540,7 @@ class Node( StateMixin, IdentityCopyMixin):
         # BTW we *do* need to call addmember (with its dual personality
         # depending on node being a leaf or not) for now, while DND uses
         # "drop onto a leaf node" to mean what "drop under it" ought to mean.
-        
+
         node.addmember(self, before_or_top = before)
             # note: this needs to be addmember, not addchild or addsibling
         return

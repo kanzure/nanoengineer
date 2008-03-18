@@ -88,7 +88,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         if drag_type == 'move':
             for node in nodes:
                 if (node is not self.node and node.is_ascendant(self.node)) or \
-                   (node is self.node and node.is_group()):
+                   (node is self.node and node.MT_DND_can_drop_inside()):
                     print "fyi: refusing drag-move since it would form a cycle"
                     whynot = "would form a cycle"
                     return ( False, whynot )
@@ -117,7 +117,11 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                  happen in some cases for move)
         @rtype: list of nodes
         """
-        autogroup_at_top = self.node.drop_on_should_autogroup(drag_type, nodes)
+        will_drop_inside = self.node.MT_DND_can_drop_inside()
+            # if true, nodes or their copies will become new children of self.node;
+            # if false, they will become new siblings. [revised, bruce 080317]
+        autogroup_at_top = will_drop_inside and \
+                           self.node.drop_on_should_autogroup(drag_type, nodes)
         if autogroup_at_top:
             #bruce 050203/080303:
             # nodes dropped onto the clipboard come from one
@@ -145,8 +149,8 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         #bruce 050216: order is correct if you're dropping on a group, but (for the ops used below)
         # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge
         # [revised to fix bug 2403 (most likely, this never worked as intended for copy until now), bruce 070525]:
-        if not isinstance(self.node, Group):
-            # drops on leaf nodes (like self.node) are placed after them,
+        if not will_drop_inside:
+            # drops on nodes which act like leaf nodes are placed after them,
             # when done by the methods named in the following flags,
             # so to drop several nodes in a row and preserve order,
             # drop them in reverse order -- but *when* we reverse them
@@ -156,7 +160,8 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             reverse_moveto = True
             reverse_addmember = True
         else:
-            # drops on groups (like self.node) go at the end of their members,
+            # drops on groups which accept drops inside themselves
+            # go at the end of their members,
             # when done by those methods, so *don't* reverse node order.
             #
             # [WARNING: this might change if we decide to put nodes dropped
@@ -174,7 +179,12 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             if reverse_moveto:
                 nodes = nodes[::-1]
             for node in nodes[:]:
-                node.moveto(self.node)
+                ## node.moveto(self.node)
+                if will_drop_inside:
+                    self.node.addchild(node, top = False)
+                else:
+                    self.node.addsibling(node, before = False)
+
         else:
             #bruce 050527 [revised 071025] this uses copied_nodes_for_DND,
             # new code to "copy anything". That code is preliminary
@@ -198,8 +208,14 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                     # note: if autogroup_at_top makes len(nodes) == 1, this has no effect,
                     # but it's harmless then, and logically best to do it whenever using
                     # addmember on list elements.
-            for nc in nodes[:]:
-                self.node.addmember(nc) # self.node is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
+            for nc in nodes[:]: 
+                ## self.node.addmember(nc) # self.node is sometimes a Group,
+                ##     # so this does need to be addmember (not addchild or addsibling)
+                if will_drop_inside:
+                    self.node.addchild(nc, top = False)
+                else:
+                    self.node.addsibling(nc, before = False)
+                pass
         self.node.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
         return res
 
@@ -223,7 +239,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         between existing adjacent nodes.
         [some subclasses should override this]
         """
-        return hasattr(self.node, 'addchild') # i.e. whether it's a Group!
+        return self.node.MT_DND_can_drop_inside()
 
     # See comment above for status of unused method 'drop_under', which should be kept around. [bruce 070703]
     def drop_under(self, drag_type, nodes, after = None): #e move to Group[obs idea?], implem subrs, use ###@@@

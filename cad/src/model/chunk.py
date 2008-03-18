@@ -3314,7 +3314,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         reset it to assy.tree! Also, tho we set dad in the copy as asked,
         we don't add the copied mol to dad.members! Bruce 050202-050206 thinks we
         should deprecate passing dad for now, just pass None, and caller
-        should use addmol or addmember (but not both) to place the mol somewhere.
+        should use one of addmol or addchild or addsibling to place the mol somewhere.
         Not sure what happens now; so I made addchild notice the setting of
         dad but lack of being in dad's members list, and tolerate it but complain
         when atom_debug. This should all be cleaned up sometime soon. ###@@@
