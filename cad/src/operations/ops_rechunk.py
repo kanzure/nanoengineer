@@ -215,10 +215,10 @@ class ops_rechunk_Mixin:
         for a in atomList:
             a.hopmol(newChunk)
         
-        if group:
-            group.addmember(newChunk)
+        if group is not None:
+            group.addchild(newChunk) #bruce 080318 addmember -> addchild
         else:
-            self.addmol(newChunk)
+            self.addnode(newChunk)
             
         newChunk.setcolor(color)
         
