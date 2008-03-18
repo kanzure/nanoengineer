@@ -909,6 +909,8 @@ void Mol::getDefaultViewRotation
         sqrt(defaultViewRotation[1] * defaultViewRotation[1] +
              defaultViewRotation[2] * defaultViewRotation[2] +
              defaultViewRotation[3] * defaultViewRotation[3]);
+        // piotr 080318 added a workaround for scale==0.0 case:
+        if (scale<1e-6) scale = 1.0f;
 	*axisX = defaultViewRotation[1] / scale;
 	*axisY = defaultViewRotation[2] / scale;
 	*axisZ = defaultViewRotation[3] / scale;
