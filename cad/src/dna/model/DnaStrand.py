@@ -268,7 +268,26 @@ class DnaStrand(DnaStrandOrSegment):
             complementBaseName= getComplementSequence(str(baseName))
             if strandAtomMate is not None:
                 strandAtomMate.setDnaBaseName(str(complementBaseName)) 
-    
+
+        # piotr 080319:
+        # Redraw the chunks in DNA display style
+        # to reflect the sequence changes.
+        from utilities.constants import diDNACYLINDER
+        for c in self.members: 
+            if isinstance(c, DnaStrandChunk):
+                if c.get_dispdef() == diDNACYLINDER:
+                    c.inval_display_list() # redraw the chunk
+                    # do the same for all complementary chunks
+                    prev_cc = None
+                    for atom in c.atoms.itervalues():
+                        atm_mate = atom.get_strand_atom_mate()
+                        if atm_mate:
+                            cc = atm_mate.molecule
+                            if cc!=prev_cc and isinstance(cc, DnaStrandChunk):
+                                prev_cc = cc
+                                if cc.get_dispdef() == diDNACYLINDER:
+                                    cc.inval_display_list()
+                
     def get_strand_atoms_in_bond_direction(self, inputAtomList): 
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
