@@ -87,11 +87,13 @@ def _master_model_updater( warn_if_needed = False ):
         # running of this in the middle of loading an mmp file, and for
         # preventing errors from that,
         # but it only works for the main assy -- not e.g. for a partlib
-        # assy. I don't yet know if this is needed. [bruce 080117]    
-        assy = env.mainwindow().assy
-        if not assy.assy_valid:
+        # assy. I don't yet know if this is needed. [bruce 080117]
+        #update 080319: just in case, I'm fixing the mmpread code
+        # to also use the global assy to store this.
+        kluge_main_assy = env.mainwindow().assy
+        if not kluge_main_assy.assy_valid:
             msg = "deferring _master_model_updater(warn_if_needed = %r) " \
-                  "since not %r.assy_valid" % (warn_if_needed, assy)
+                  "since not %r.assy_valid" % (warn_if_needed, kluge_main_assy)
             print_compact_stack(msg + ": ") # soon change to print...
             return
         pass
@@ -106,7 +108,7 @@ def _master_model_updater( warn_if_needed = False ):
 
     env.history.emit_all_deferred_summary_messages()
 
-    _autodelete_empty_groups(assy)
+    _autodelete_empty_groups(kluge_main_assy)
 
     env.history.emit_all_deferred_summary_messages()
 

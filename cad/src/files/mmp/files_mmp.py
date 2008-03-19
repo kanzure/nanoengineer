@@ -1451,13 +1451,19 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
                                a file. Default is False.
     @type  showProgressDialog: boolean
     """
-    assert assy.assy_valid
-    assy.assy_valid = False # disable updaters during _readmmp [bruce 080117/080124]
+    kluge_main_assy = env.mainwindow().assy
+        # use this instead of assy to fix logic bug in use of assy_valid flag
+        # (explained where it's used in master_model_updater)
+        # which would be a potential bug during partlib mmpread
+        # [bruce 080319]
+    assert kluge_main_assy.assy_valid
+    kluge_main_assy.assy_valid = False # disable updaters during _readmmp
+        # [bruce 080117/080124, revised 080319]
     try:
         grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
             # warning: can show a dialog, which can cause paintGL calls.
     finally:
-        assy.assy_valid = True
+        kluge_main_assy.assy_valid = True
     if (not isInsert):
         _reset_grouplist(assy, grouplist)
             # note: handles grouplist is None (though not very well)
