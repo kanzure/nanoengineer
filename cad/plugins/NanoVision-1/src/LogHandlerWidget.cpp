@@ -37,7 +37,6 @@ void LogHandlerWidget::publish(LogRecord logRecord) {
 		if (logRecord.getLogLevel() == 3)
 			bgcolor = "yellow";
 		if (logRecord.getLogLevel() == 4) {
-			color = "";
 			bgcolor = "orange";
 		}
 		QString level =

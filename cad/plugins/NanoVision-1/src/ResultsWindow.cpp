@@ -11,6 +11,8 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 : QWidget(parent), Ui_ResultsWindow(),
     workspace(NULL),		windowMapper(NULL),
     entityManager(NULL),	curFile(),     resultsTree(NULL),
+	resultsTreeIcon(		tr(":/Icons/results_tree.png")),
+	nh5FileIcon(			tr(":/Icons/nh5_file.png")),
     mmpFileIcon(			tr(":/Icons/nanoENGINEER-1.ico")),
     atomIcon(				tr(":/Icons/atom.png")),
     atomSetIcon(			tr(":/Icons/atom_set.png")),
@@ -35,7 +37,7 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
     resultsTree = new QTreeWidget(tabWidget);
     resultsTree->setHeaderLabel(tr(""));
     tabWidget->removeTab(0);
-    tabWidget->insertTab(0,resultsTree,tr("Results Tree"));
+    tabWidget->insertTab(0, resultsTree, resultsTreeIcon, "");
     
     splitter->insertWidget(1, workspace);
     delete widget;
@@ -111,6 +113,9 @@ void ResultsWindow::setupResultsTree(void)
     else if (dataStoreInfo->isSimulationResults()) {
         setupSimulationResultsTree();
     }
+	
+	resultsTree->resizeColumnToContents(0);
+	
 	connect(resultsTree,
 			SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 			this,
@@ -135,26 +140,31 @@ void ResultsWindow::setupSimulationResultsTree(void)
     QWidget *tab1Widget = tabWidget->widget(0);
     resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
     resultsTree->clear();
-    resultsTree->setHeaderLabel("Sim Results");
+	QTreeWidgetItem* rootNode = new QTreeWidgetItem(resultsTree);
+	rootNode->setText(0, userFriendlyCurrentFile());
+	rootNode->setIcon(0, nh5FileIcon);
+	rootNode->setFlags(Qt::ItemIsEnabled);
+	rootNode->setExpanded(true);
+	resultsTree->addTopLevelItem(rootNode);
     
     // input parameters
     NXProperties *inputParameters = dataStoreInfo->getInputParameters();
     if (inputParameters != NULL) {
         DataWindowTreeItem* inputParametersItem =
-			new InputParametersTreeItem(this, resultsTree);
+			new InputParametersTreeItem(this, rootNode);
         inputParametersItem->setIcon(0, inputParametersIcon);
         inputParametersItem->setText(0, tr("Input parameters"));
 		inputParametersItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        resultsTree->addTopLevelItem(inputParametersItem);
     }
     
     // input files
     vector<string> inputFileNames = dataStoreInfo->getInputFileNames();
     if (inputFileNames.size() > 0) {
-        QTreeWidgetItem *inputFilesItem = new QTreeWidgetItem(resultsTree);
+        QTreeWidgetItem *inputFilesItem = new QTreeWidgetItem(rootNode);
         inputFilesItem->setIcon(0, inputFilesIcon);
         inputFilesItem->setText(0, tr("Input files"));
 		inputFilesItem->setFlags(Qt::ItemIsEnabled);
+		inputFilesItem->setExpanded(true);
         
         vector<string>::const_iterator inputFileNameIter;
         for (inputFileNameIter = inputFileNames.begin();
@@ -182,8 +192,6 @@ void ResultsWindow::setupSimulationResultsTree(void)
             }
 
         }
-        
-        resultsTree->addTopLevelItem(inputFilesItem);
     }
     
     // Results
@@ -194,11 +202,11 @@ void ResultsWindow::setupSimulationResultsTree(void)
     // don't create if no children
     if (resultsSummary == NULL && trajectoryNames.size()==0) return;
     
-    QTreeWidgetItem *resultsItem = new QTreeWidgetItem(resultsTree);
+    QTreeWidgetItem *resultsItem = new QTreeWidgetItem(rootNode);
     resultsItem->setIcon(0, resultsIcon);
     resultsItem->setText(0, tr("Results"));
 	resultsItem->setFlags(Qt::ItemIsEnabled);
-    resultsTree->addTopLevelItem(resultsItem);
+	resultsItem->setExpanded(true);
     
     // Results -> Summary
     DataWindowTreeItem* resultsSummaryItem = NULL;
@@ -214,6 +222,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
         trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
         trajectoryItem->setText(0, tr("Trajectories"));
 		trajectoryItem->setFlags(Qt::ItemIsEnabled);
+		trajectoryItem->setExpanded(true);
         
         vector<string>::const_iterator trajectoryNameIter;
         for (trajectoryNameIter = trajectoryNames.begin();
@@ -330,12 +339,12 @@ void ResultsWindow::setupSingleStructureTree(void)
     QFileInfo fileInfo(fileFullPath);
     QString const fileName = fileInfo.fileName();
     QTreeWidgetItem *fileItem = new QTreeWidgetItem(resultsTree);
-    fileItem->setIcon(0, mmpFileIcon);
+    fileItem->setIcon(0, inputFileIcon);
     fileItem->setText(0, fileName);
 	fileItem->setFlags(Qt::ItemIsEnabled);
     resultsTree->addTopLevelItem(fileItem);
-    QString const fileSuffix = fileInfo.suffix();
-    resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
+    //QString const fileSuffix = fileInfo.suffix();
+    //resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
     
     if(isMMPFile(singleStructureFileName)) {
         int frameSetID = dataStoreInfo->getSingleStructureId();
@@ -418,8 +427,8 @@ void DataWindowTreeItem::refresh() { }
 
 /* CONSTRUCTOR */
 InputParametersTreeItem::InputParametersTreeItem(ResultsWindow* resultsWindow,
-												 QTreeWidget* treeWidget)
-		: DataWindowTreeItem(resultsWindow, treeWidget) {
+												 QTreeWidgetItem* treeWidgetItem)
+		: DataWindowTreeItem(resultsWindow, treeWidgetItem) {
 	inputParametersWindow = NULL;
 }
 

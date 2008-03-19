@@ -363,10 +363,10 @@ void nv1::readSettings() {
 
     QPoint pos =
 		UserSettings::Instance()->value("Layout/Position",
-										QPoint(200, 200)).toPoint();
+										QPoint(100, 100)).toPoint();
     QSize size =
 		UserSettings::Instance()->value("Layout/Size",
-										QSize(400, 400)).toSize();
+										QSize(800, 600)).toSize();
     resize(size);
     move(pos);
 }

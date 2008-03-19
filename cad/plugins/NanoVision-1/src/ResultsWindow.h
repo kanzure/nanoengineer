@@ -54,6 +54,8 @@ class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 		QString curFile;
 		
 		QTreeWidget *resultsTree;
+		QIcon resultsTreeIcon;
+		QIcon nh5FileIcon;
 		QIcon mmpFileIcon;
 		QIcon atomIcon;
 		QIcon atomSetIcon;
@@ -105,7 +107,7 @@ class InputParametersTreeItem : public DataWindowTreeItem {
 
 	public:
 		InputParametersTreeItem(ResultsWindow* resultsWindow,
-								QTreeWidget* treeWidget);
+								QTreeWidgetItem* treeWidgetItem);
 		~InputParametersTreeItem();
 		
 		void showWindow();
