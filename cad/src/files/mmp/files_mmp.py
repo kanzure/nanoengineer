@@ -1338,7 +1338,10 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     # but later we should either hook it up or create our own progress
     # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
     if showProgressDialog:
-        assert not assy.assy_valid #bruce 080117
+        kluge_main_assy = env.mainwindow().assy
+            # see comment about kluge_main_assy elsewhere in this file
+            # [bruce 080319]
+        assert not kluge_main_assy.assy_valid #bruce 080117
         _progressValue = 0
         _progressFinishValue = len(lines)
         win = env.mainwindow()
@@ -1371,7 +1374,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
                     # To prevent bugs or slowdowns from drawing incomplete
                     # models or from trying to run updaters (or take undo
                     # checkpoints?) before drawing them, the GLPane now checks
-                    # assy.assy_valid to prevent redrawing when this happens.
+                    # kluge_main_assy.assy_valid to prevent redrawing when this happens.
                     # (Does ThumbView also need this fix?? ### REVIEW)
                     # [bruce 080117 comment / bugfix]                    
             else:
@@ -1522,7 +1525,7 @@ def _reset_grouplist(assy, grouplist):
         #bruce 050309 for assy/part split;
         # 080117 added do_post_event_updates = False;
         # 080124 removed that option (and revised when caller restores
-        # assy.assy_valid) to fix recent bug in which all newly read
+        # kluge_main_assy.assy_valid) to fix recent bug in which all newly read
         # files are recorded as modified; at the time I thought that option was
         # needed for safety, like the disabling of updaters during paintGL is,
         # but a closer analysis of the following code shows that it's not.
@@ -1574,8 +1577,13 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     """
     Read an mmp file and insert its main part into the existing model.
     """
-    assert assy.assy_valid
-    assy.assy_valid = False # disable updaters during insert [bruce 080117]
+    kluge_main_assy = env.mainwindow().assy
+        # use this instead of assy to fix logic bug in use of assy_valid flag
+        # (explained where it's used in master_model_updater)
+        # which would be a potential bug during partlib mmpread
+        # [bruce 080319]
+    assert kluge_main_assy.assy_valid
+    kluge_main_assy.assy_valid = False # disable updaters during insert [bruce 080117]
     try:
         grouplist  = _readmmp(assy, filename, isInsert = True)
             # isInsert = True prevents most side effects on assy;
@@ -1610,7 +1618,7 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
             # assy's modified flag), so the usual post-user-op run will be fine.
             # [bruce 080124 comment]
     finally:
-        assy.assy_valid = True
+        kluge_main_assy.assy_valid = True
     return
 
 def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
