@@ -5,7 +5,7 @@
 !define PRODUCT_NAME "GROMACS_HDF5"
 !define PRODUCT_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_WEB_SITE "http://www.nanorex.com"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\mdrun.exe"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_VERSION}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
@@ -14,8 +14,13 @@
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
+!define MUI_ICON "install.ico"
+!define MUI_UNICON "uninstall.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "install-header.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "install-header.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
@@ -24,7 +29,7 @@
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
-!define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Install Folder (Must not have spaces!)"
+!define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Install Folder (DIRECTORIES MUST NOT HAVE SPACES IN THEIR NAMES)"
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
@@ -42,12 +47,13 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "GROMACS_HDF5-${PRODUCT_VERSION}-Setup.exe"
-InstallDir "c:\GROMACS_HDF5"
+InstallDir "c:\GROMACS_HDF5-${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
-SectionGroup /e "Gromacs Base"
-Section "GROMACS+HDF5 (required)" SEC_GMX_BASE
+
+SectionGroup /e "GROMACS"
+Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File ".\ReadMe.html"
@@ -56,7 +62,7 @@ Section "GROMACS+HDF5 (required)" SEC_GMX_BASE
   SetOverwrite try
   File ".\dist\bin\*"
 SectionEnd
-Section /o "Includes & Headers" SEC_GMX_LIBHDR
+Section /o "Headers & Libraries" SEC_GMX_LIBHDR
   SetOutPath "$INSTDIR\include\gromacs"
   File ".\dist\include\gromacs\*"
   SetOutPath "$INSTDIR\include\gromacs\types"
@@ -105,8 +111,8 @@ Section /o "Source" SEC_GMX_SRC
 SectionEnd
 SectionGroupEnd
 
-SectionGroup /e "MCPP Base"
-Section "MCPP (required)" SEC_MCPP
+SectionGroup /e "MCPP"
+Section "MCPP (Required)" SEC_MCPP
   SetOutPath "$INSTDIR\MCPP\bin"
   File ".\mcpp\bin\mcpp.exe"
   SetOutPath "$INSTDIR\MCPP"
@@ -116,7 +122,7 @@ Section "MCPP (required)" SEC_MCPP
   File ".\mcpp\NEWS"
   File ".\mcpp\README"
 SectionEnd
-Section /o "MCPP source" SEC_MCPP_SRC
+Section /o "Source" SEC_MCPP_SRC
   SetOutPath "$INSTDIR\MCPP\source"
   File /r ".\mcpp\source\*"
 SectionEnd
@@ -141,13 +147,13 @@ SectionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_BASE} "Base install for gromacs with hdf5"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_DOC} "Documentation for gromacs"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_TUTOR} "Tutorials for gromacs"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_SRC} "Source code for gromacs patched with hdf5"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_LIBHDR} "Libraries and Header files for gromacs"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MCPP} "C pre processor needed for gromacs"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MCPP_SRC} "C pre processor source code"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_BASE} "Base GROMACS install with experimental HDF5 support (will not affect regular GMX performance.)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_DOC} "GROMACS documentation."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_TUTOR} "GROMACS tutorials."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_SRC} "Source code for GROMACS patched with the experimental HDF5_SimResults file format."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_GMX_LIBHDR} "Headers and libraries for GROMACS development."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MCPP} "A free, open-source C pre-processor for use with GROMACS."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MCPP_SRC} "Source code for MCPP"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
