@@ -277,9 +277,27 @@ class PM_SelectionListWidget(PM_ListWidget):
         
         if self._tagInstruction != 'TAG_ITEM_IN_GLPANE':
             #Unpick all list widget items in the 3D workspace
-            self._unpick_all_listWidgetItems_in_glpane()  
+            #if no modifier key is pressed. Earlier implementation 
+            #used to only unpick items that were also present in the list 
+            #widgets.But if we have multiple list widgets, example like
+            #in Build DNA  mode, it can lead to confusion like in Bug XXX             
+            #NOTE ABOUT A NEW POSSIBLE BUG: 
+            #self.glpan.modkeys not changed when focus is inside the 
+            #Property manager? Example: User holds down Shift key and starts 
+            #selecting things inside  -- Ninad 2008-03-18
+            
+            if self.glpane.modkeys is None:
+                self.win.assy.unpickall_in_GLPane()
+                
+            #Deprecated call of _unpick_all_listWidgetItems_in_glpane 
+            #(deprecated on 2008-03-18
+            ##self._unpick_all_listWidgetItems_in_glpane()  
+            
+            #Now pick the items selected in this list widget 
             self._pick_selected_listWidgetItems_in_glpane()
-        
+            
+        #Note: 2008-03-18 Following tag instruction is deprecated sometime ago 
+        #LKeeping this code intact for now. 
         if self._tagInstruction != 'PICK_ITEM_IN_GLPANE':
             tagPositions = []
             #Note: method selectedItems() is inherited from QListWidget 
@@ -309,7 +327,10 @@ class PM_SelectionListWidget(PM_ListWidget):
         """
         Deselect (unpick) all the items (object) in the GLPane that 
         correspond to the items in this list widget.
+        
+        Deprecated as of 2008-03-18. See a comment in self.tagItems
         """        
+        
         for item in self._itemDictionary.values():
             if item.picked:
                 item.unpick()
