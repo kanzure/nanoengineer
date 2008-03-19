@@ -71,6 +71,10 @@ class SelectChunks_basicCommand(Select_basicCommand):
         """
         """
         self.w.toolsSelectMoleculesAction.setChecked(True)
+        #Fixes bugs like 2682 where command toolbar (the flyout toolbar 
+        #portion) doesn't get updated even when in the default mode. 
+        self.win.commandToolbar.resetToDefaultState()
+                
  
     def restore_gui(self):
         """

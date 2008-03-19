@@ -135,6 +135,25 @@ class CommandToolbar(Ui_CommandToolbar):
         control area.
         """ 
         self._updateFlyoutToolBar(btnId, self.in_a_mode)
+        
+    def resetToDefaultState(self):
+        """
+        Reset the Command Toolbar to the default state. i.e. the state which
+        the user sees when NE1 is started -- Build button in the control area
+        of the toolbar checked and the flyout toolbar on the right hand side
+        shows the sub-menu items of the build control area.
+        @see: SelectChunks_Command.init_gui() which calls this while entering 
+        the NE1 default select chunks mode. (fixes bugs like 2682)
+
+        """
+        self.cmdButtonGroup.button(0).setChecked(True)
+        #Now update the command toolbar (flyout area) such that it shows 
+        #the sub-menu items of the control  button
+        self._setControlButtonMenu_in_flyoutToolbar(self.cmdButtonGroup.checkedId())
+        
+        ##FYI Same effect can be acheived by using the following commented out 
+        ##code. But its not obvious so not using it. 
+        ###self.updateCommandToolbar(None, None, entering = False)
    
     def _updateFlyoutToolBar(self, btnId =0, in_a_mode = False):
         """
