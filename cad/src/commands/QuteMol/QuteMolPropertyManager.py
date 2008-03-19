@@ -149,6 +149,8 @@ class QuteMolPropertyManager(PM_Dialog):
         """
         Shows the Property Manager. Overrides PM_Dialog.show)
         """
+        if self.isVisible(): # Fixes bug 2680. --Mark 2008-03-19
+            return
         PM_Dialog.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
 
