@@ -8,6 +8,7 @@ HEADERS += \
 ../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
  ../../../include/Nanorex/Interface/NXDataStoreInfo.h \
  ../../../include/Nanorex/Interface/NXEntityManager.h \
+ ../../../include/Nanorex/Interface/NXGraphicsManager.h \
  ../../../include/Nanorex/Interface/NXMoleculeData.h \
  ../../../include/Nanorex/Interface/NXMoleculeSet.h \
  ../../../include/Nanorex/Interface/NXNanoVisionResultCodes.h \
@@ -29,6 +30,7 @@ INCLUDEPATH += ../../../include \
 
 SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXEntityManager.cpp \
+ ../../Interface/NXGraphicsManager.cpp \
  ../../Interface/NXMoleculeData.cpp \
  ../../Interface/NXMoleculeSet.cpp \
  ../../Interface/NXNumbers.cpp \
