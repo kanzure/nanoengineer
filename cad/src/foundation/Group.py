@@ -700,6 +700,11 @@ class Group(NodeWithAtomContents):
                         self.part.ensure_toplevel_group() # must do this before first use of self.dad
                     self.dad.addchild(m, after = move_after_this) #k verify it removes m from old home == self
                     move_after_this = m
+                    if 1:
+                        # emit a summary message                    
+                        summary_format = "Warning: ejected [N] nonpermitted member(s) of a %s of class %s" % \
+                                         (self.short_classname(), m.short_classname())
+                        env.history.deferred_summary_message( redmsg(summary_format) )
                 else:
                     # keep m, but process it recursively
                     ejected_anything = m.is_group() and m._f_move_nonpermitted_members(**opts)
@@ -710,6 +715,10 @@ class Group(NodeWithAtomContents):
                     if ejected_anything:
                         if m._f_wants_to_be_killed(**opts):
                             m.kill()
+                            if 1:
+                                summary_format = "Warning: killed [N] invalid object(s) of class %s" % \
+                                         (m.short_classname(), )
+                                env.history.deferred_summary_message( redmsg(summary_format) )
                         have_unscanned_members = True
                         # we might (or might not) improve the ordering of moved nodes
                         # by starting over here using 'break', but in some cases

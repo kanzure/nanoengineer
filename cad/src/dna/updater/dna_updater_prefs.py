@@ -157,15 +157,15 @@ def pref_minimizers_convert_to_PAM5():
 # ==
 
 def pref_fix_after_readmmp_before_updaters():
-    res = debug_pref("DNA: do fix_after_readmmp_before_updaters?",
-                      Choice_boolean_False, # maybe won't change to True -- risky, and no huge need
+    res = debug_pref("DNA: do fix_after_readmmp_before_updaters? ",
+                      Choice_boolean_True, # might change to False for release -- risky, maybe slow, and no huge need
                       non_debug = True,
                       prefs_key = True )
     return res
 
 def pref_fix_after_readmmp_after_updaters():
-    res = debug_pref("DNA: do fix_after_readmmp_after_updaters?",
-                      Choice_boolean_False, # maybe won't change to True -- risky, and no huge need
+    res = debug_pref("DNA: do fix_after_readmmp_after_updaters? ",
+                      Choice_boolean_True, # same comment as for before_updaters version
                       non_debug = True,
                       prefs_key = True )
     return res

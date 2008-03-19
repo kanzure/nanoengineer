@@ -748,6 +748,14 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         if self.prefs_node is not None:
             res.append( self.prefs_node)
         return res
+
+    def all_parts(self): #bruce 080319
+        """
+        Return all Parts in assy. Assume without checking
+        that update_parts (or the part of it that fixes .part structure)
+        has been run since the last time assy's node tree structure changed.
+        """
+        return [topnode.part for topnode in self.topnodes_with_own_parts()]
     
     def update_parts(self,
                      do_post_event_updates = True,

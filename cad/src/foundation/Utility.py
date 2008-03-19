@@ -206,6 +206,15 @@ class Node( StateMixin, IdentityCopyMixin):
             self.__declare_undoable_attrs()
         return
 
+    def short_classname(self): #bruce 080319
+        """
+        return self's classname, with package/module names removed
+        (e.g. "DnaStrand" rather than "dna.model.DnaStrand.DnaStrand")
+        """
+        # could be more general, e.g. a helper function
+        # todo: use this in a lot of places that inline this
+        return self.__class__.__name__.split('.')[-1]
+    
     def __repr__(self): #bruce 060220
         """
         [subclasses can override this, and often do]

@@ -554,7 +554,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
 
     # == scanners (maybe not all of them?)
 
-    def enforce_permitted_members_in_groups(self, **opts): #bruce 080319 ### CALL ME
+    def enforce_permitted_members_in_groups(self, **opts): #bruce 080319
         """
         Intended to be called after self has just been read, either
         before or after update_parts and/or the dna updater has first run

@@ -79,6 +79,8 @@ from dna.model.Block import Block
 from cnt.model.CntGroup import CntGroup
 from cnt.model.CntSegment import CntSegment
 
+from dna.updater.fix_after_readmmp import will_special_updates_after_readmmp_do_anything
+
 # ==
 
 # KNOWN_INFO_KINDS lists the legal "kinds" of info encodable in info records.
@@ -1447,7 +1449,10 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     
     @param isInsert: if True, the file contents are being added to an
                      existing assembly, otherwise the file contents are being
-                     used to initialize a new assembly.
+                     used to initialize a new assembly. When this is true,
+                     some behavior is not done, e.g. calling assy.update_parts
+                     and all the updaters it normally calls. Doing that
+                     (or tolerating not doing it) is up to the caller.
     @type  isInsert: boolean
     
     @param showProgressDialog: if True, display a progress dialog while reading
@@ -1524,6 +1529,8 @@ def _reset_grouplist(assy, grouplist):
     
     assy.update_parts( do_special_updates_after_readmmp = True)
         #bruce 080319 added do_special_updates_after_readmmp = True
+        # (note: we don't test will_special_updates_after_readmmp_do_anything()
+        #  since we have to call this even if they won't.)
         #
         # Note: by the time this is called, our callers as of 080319
         # will have restored kluge_main_assy.assy_valid = True,
@@ -1586,6 +1593,8 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     """
     Read an mmp file and insert its main part into the existing model.
     """
+    # Note: this is a normal user operation, so there is no need
+    # to refrain from setting assy's modified flag.
     kluge_main_assy = env.mainwindow().assy
         # use this instead of assy to fix logic bug in use of assy_valid flag
         # (explained where it's used in master_model_updater)
@@ -1619,13 +1628,24 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
             #   I presume it's ok to kill these atoms without first inserting them into any Part...
             # at least, it seems unlikely to mess up any specific Part, since they're not now in one.
             #e in future -- set up special history-message behavior for jigs killed by this:
+            
             shelf.kill()
+
             #e in future -- end of that special history-message behavior
 
-            # note: no need to run updaters (as is done in _reset_grouplist for readmmp),
-            # since this is a normal user operation (no need to refrain from setting
-            # assy's modified flag), so the usual post-user-op run will be fine.
-            # [bruce 080124 comment]
+            # run special updaters for readmmp, but (as optim for usual case)
+            # only if necessary, since otherwise the normal updater run after
+            # we return (which happens since this is a normal user op)
+            # will be sufficient. For big files this might be a significant
+            # optim (in spite of incremental nature of updater) (guess).
+            #
+            # note: for readmmp this is done in _reset_grouplist, in a call
+            # of update_parts which is always required.
+            # [bruce 080319]
+            if will_special_updates_after_readmmp_do_anything():
+                assy.update_parts( do_special_updates_after_readmmp = True)
+            pass
+        pass
     finally:
         kluge_main_assy.assy_valid = True
     return
