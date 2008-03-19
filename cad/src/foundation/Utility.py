@@ -1033,15 +1033,78 @@ class Node( StateMixin, IdentityCopyMixin):
         # this implem is only correct for leaf nodes:
         self.unpick() # before 050131 was Node.unpick(self), which was wrong for chunk and jig.
 
-    def pick_if_invisible_but_visible_contents_are_picked(self, from_glpane): #bruce 080317
+    def is_glpane_content_itself(self): #bruce 080319
+        # note: some code which tests for "Chunk or Jig" might do better
+        # to test for this method's return value.
         """
-        ###doc -- warning, "invisible" has nothing to do with diINVISIBLE
+        Is self (not counting its content) normally shown in the glpane
+        due to its class or nature (ignoring anything transient like
+        display style settings or current part)?
+        
+        And if so, should its not being picked prevent Groups
+        containing it from being picked due to all their other
+        glpane content being picked, when they occur inside certain
+        kinds of Groups on which this can be called? (This is a moot
+        point for most kinds of nodes based on planned usage of this
+        method as of 080319, but might matter later.)
 
-        [overridden in Group and some subclasses]
+        @rtype: boolean
+
+        @see: methods (on other classes) with "movable" in their name.
+        
+        [many subclasses must override this; not all yet do, but this
+         does not yet cause harm due to how this so far needs to be used,
+         as of 080319. For current usage, Chunk must override this,
+         and DnaMarker must return false for it. For correctness,
+         many other jigs, including ChainAtomMarker by default,
+         ought to return True for it, but this may be NIM.]
         """
-        self.pick()
+        # See comment on Jig method for effect of this being False
+        # when self is visible in GLPane, and discussion. [bruce 080319]
+        return False
+
+    def pick_if_all_glpane_content_is_picked(self): #bruce 080319
+        """
+        For documentation, see the Group implementation of this method.
+
+        @return: whether self contains any (or is, itself) "glpane content".
+
+        @see: Group.pick_if_all_glpane_content_is_picked
+
+        @note: has no side effect when self is a leaf node, since if it
+               should pick self, self is already picked.
+               
+        [must be overridden by Group; should not need to be overridden
+         by any other subclasses]
+        """
+        return self.is_glpane_content_itself() # correct for leaf nodes
+
+    def call_on_topmost_unpicked_nodes_of_certain_classes(self, func, classes): #bruce 080319
+        """
+        Call func on the topmost unpicked subnodes of self (i.e. self
+        or its members at any level) which have one of the given classes.
+
+        (The "topmost such nodes" means the ones that are not contained in other
+        such nodes. I.e. if we call func on a node, we never call it on
+        a member of that node at any level.)
+        """
+        if self.picked:
+            return
+        call_on_self = False
+        for clas in classes:
+            if isinstance(self, clas):
+                # review: can isinstance just be passed a list or tuple?
+                # (in Pythons as old as the ones we still support)
+                call_on_self = True
+                break
+            continue
+        if call_on_self:
+            func(self)
+        elif self.is_group():
+            for m in self.members:
+                m.call_on_topmost_unpicked_nodes_of_certain_classes(func, classes)
         return
-    
+
     _old_dad = None ###k not yet used? #####@@@@@ review got to here, except: to chgdad added only cmts plus docstring plus new name
 
     def in_clipboard(self): #bruce 050205 temporary ###@@@ [should use a more general concept of assy.space]

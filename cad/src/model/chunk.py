@@ -2800,6 +2800,18 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         return
 
+    def is_glpane_content_itself(self): #bruce 080319
+        # note: some code which tests for "Chunk or Jig" might do better
+        # to test for this method's return value.
+        """
+        @see: For documentation, see Node method docstring.
+
+        @rtype: boolean
+
+        [overrides Node method]
+        """
+        return True
+
     def kill(self):
         """
         (Public method)

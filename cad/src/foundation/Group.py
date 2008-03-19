@@ -610,41 +610,64 @@ class Group(NodeWithAtomContents):
             # to res = res or ob.unpick_all_except( node)!
         return res
 
-    def pick_if_invisible_but_visible_contents_are_picked(self, from_glpane): #bruce 080317
+    def is_glpane_content_itself(self): #bruce 080319
         """
-        ###doc -- warning, "invisible" has nothing to do with diINVISIBLE
+        For documentation, see the Node implementation of this method.
 
-        [overrides Node method; might be overridden in some subclasses,
-         but if possible they should only override member_visible_for_pick]
+        [overrides Node method; not normally overridden on subclasses of Group]
         """
-        if not self.picked: # a necessary optim, or maybe an infrecur avoider
-            # we might pick self
-            some_visible_picked = some_visible_unpicked = False # reset below
-            for member in self.members:
-                if self.member_visible_for_pick(member, from_glpane):
-                    member.pick_if_invisible_but_visible_contents_are_picked(from_glpane)
-                    if member.picked:
-                        some_visible_picked = True
-                    else:
-                        some_visible_unpicked = True
-                        break # this decides it
-                    pass
-                continue
-            if some_visible_picked and not some_visible_unpicked:
-                # all visible are picked, and at least one is visible
-                self.pick()
-                pass
-            pass
-        return
+        return False
 
-    def member_visible_for_pick(self, member, from_glpane): #bruce 080317
-        # todo: maybe rename; override in subclasses?? or just visible_for_pick?
+    def pick_if_all_glpane_content_is_picked(self): #bruce 080319
         """
-        ###doc
+        If not self.is_glpane_content_itself()
+        (which is the case for Group and all subclasses as of 080319),
+        but if some of self's content *is* "glpane content" in that sense,
+        and if all such content is picked, then pick self.
+        (Note that picking self picks all its contents.)
 
-        @param member: a member of self
+        @return: whether self contains any (or is, itself) "glpane content".
+
+        @note: in spite of the name, if self contains *no* glpane content,
+               and is not glpane content itself, this does not pick self.
+        
+        [overrides Node method; shouldn't need to be overridden on subclasses,
+         since they can override is_glpane_content_itself instead]
         """
-        return member.visible_for_pick(from_glpane) ### IMPLEM, maybe rename
+        has_glpane_content = False # modified below if glpane content is found
+        any_is_unpicked = False # modified below; only covers glpane content
+        
+        for m in self.members:
+            m_has_glpane_content = m.pick_if_all_glpane_content_is_picked()
+            if m_has_glpane_content:
+                has_glpane_content = True
+                if not m.picked:
+                    any_is_unpicked = True
+                    # this means we won't pick self, but we must still
+                    # continue, to determine has_glpane_content
+                    # and to call pick_if_all_glpane_content_is_picked for its
+                    # side effects within remaining members
+            continue
+        
+        for m in [self]: # this form shows the similarity with the above loop
+            m_has_glpane_content = m.is_glpane_content_itself()
+            if m_has_glpane_content:
+                has_glpane_content = True
+                if not m.picked:
+                    any_is_unpicked = True
+            continue
+        
+        if any_is_unpicked and self.picked:
+            print "\n*** BUG: %r is picked but apparently has unpicked content" % self
+        
+        if has_glpane_content and not any_is_unpicked:
+            # note: we might add arguments which modify when this behavior
+            # occurs, e.g., to disable it for ordinary Groups which are not
+            # inside any special Groups (such as DnaGroups) for some callers;
+            # if so, they may be able to skip some of the member loop as well.
+            self.pick()
+        
+        return has_glpane_content
 
     def inherit_part(self, part): # Group method; bruce 050308
         """

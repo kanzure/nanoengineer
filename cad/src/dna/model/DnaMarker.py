@@ -244,6 +244,22 @@ class DnaMarker( ChainAtomMarker):
     def _should_draw(self):
         return pref_draw_internal_markers()
 
+    def is_glpane_content_itself(self): #bruce 080319
+        """
+        @see: For documentation, see Node method docstring.
+
+        @rtype: boolean
+
+        [overrides Jig method, but as of 080319 has same implem]
+        """
+        # Note: we want this return value even if self *is* shown
+        # (due to debug prefs), provided it's an internal marker.
+        # It might even be desirable for other kinds of markers
+        # which are not internal. See comment in Jig method,
+        # for the effect of this being False for things visible in GLPane.
+        # [bruce 080319]
+        return False
+
     def gl_update_node(self): # not presently used
         """
         Cause whatever graphics areas show self to update themselves.

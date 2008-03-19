@@ -222,6 +222,28 @@ class Jig(NodeWith3DContents, Selobj_API):
                             changed_structure = self._affects_atom_structure )
         return
 
+    def is_glpane_content_itself(self): #bruce 080319
+        # note: some code which tests for "Chunk or Jig" might do better
+        # to test for this method's return value.
+        """
+        @see: For documentation, see Node method docstring.
+
+        @rtype: boolean
+
+        [overrides Node method, but as of 080319 has same implem]
+        """
+        # Note: we may want this False return value even if self *is* shown
+        # and if this does get called in practice (see Node docstring
+        # for context of this comment). The effect of this being False
+        # for things visible in GLPane is that in some cases they
+        # would be picked automatically due to things in the same Groups
+        # being picked. If we don't decide to revise this behavior for most Jigs,
+        # and if it matters due to this being called for normal Groups
+        # (not just inside special Dna groups of various kinds),
+        # it probably means this method is misnamed or misdescribed.
+        # [bruce 080319]
+        return False
+    
     def needs_atoms_to_survive(self):
         return True # for most Jigs
     
