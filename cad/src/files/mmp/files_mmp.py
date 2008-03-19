@@ -1521,7 +1521,15 @@ def _reset_grouplist(assy, grouplist):
         assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     assy.kluge_patch_toplevel_groups()
-    assy.update_parts()
+    
+    assy.update_parts( do_special_updates_after_readmmp = True)
+        #bruce 080319 added do_special_updates_after_readmmp = True
+        #
+        # Note: by the time this is called, our callers as of 080319
+        # will have restored kluge_main_assy.assy_valid = True,
+        # so updaters run by update_parts (such as dna updater)
+        # will *not* be disabled. [bruce 080319 comment]
+        #
         #bruce 050309 for assy/part split;
         # 080117 added do_post_event_updates = False;
         # 080124 removed that option (and revised when caller restores
@@ -1539,6 +1547,7 @@ def _reset_grouplist(assy, grouplist):
         # (presently determined by code in our callers). Neither is trivial,
         # both are doable -- not yet clear if it's worth the trouble.
         # [bruce comment 080124]
+    
     # Now the parts exist, so it's safe to store the viewdata into the mainpart;
     # this imitates what the pre-050418 code did when the csys records were parsed;
     # note that not all mmp files have anything at all in viewdata

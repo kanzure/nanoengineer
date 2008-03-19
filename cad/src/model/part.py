@@ -552,6 +552,88 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
             self.drawLevel = lod
         return
 
+    # == scanners (maybe not all of them?)
+
+    def enforce_permitted_members_in_groups(self, **opts): #bruce 080319 ### CALL ME
+        """
+        Intended to be called after self has just been read, either
+        before or after update_parts and/or the dna updater has first run
+        (with appropriate options passed to distinguish those cases).
+        
+        Make sure all our groups that only permit some kinds of members
+        (e.g. DnaStrandOrSegment groups)
+        only have that kind of members, by ejecting non-permitted members
+        to higher groups, making a new toplevel group if necessary.
+
+        FYI: As of 080319 this just means we make sure the only members
+        of a DnaStrand or DnaSegment (i.e. a DnaStrandOrSegment)
+        are chunks (any subclass) and DnaMarker jigs. The dna updater,
+        run later, will make sure there is a 1-1 correspondence between
+        controlling markers and DnaStrandOrSegments, and (nim?) that only
+        DnaLadderRailChunks are left inside DnaStrandOrSegments.
+        (It may have a bug in which a DnaStrandOrSegment containing only
+        an ordinary chunk with non-PAM atoms would be left in that state.)
+
+        @param opts: options to pass to group API methods permit_as_member
+                     and _f_wants_to_be_killed. As of 080319, only
+                     pre_updaters is recognized, default True,
+                     saying whether we're running before updaters
+                     (especially the dna updater) have first been run.
+
+        @warning: implementation is mostly in friend methods in class Node
+                  and/or Group, and is intended to be simple and safe, *not* fast.
+                  Therefore this is not suitable to run within the dna updater,
+                  only after mmp read.
+
+        @warning: this does not check self.topnode._f_wants_to_be_killed
+                  since that is nontrivial to do safely and is probably not
+                  needed at present.
+
+        @note: this method's only purpose (and that of the friend methods
+               it calls) is to clean up incorrect mmp files whose UI ops
+               were not properly enforcing these rules.
+        """
+        assert self.topnode
+        orig_topnode = self.topnode
+        ejected_anything = self.topnode.is_group() and \
+            self.topnode._f_move_nonpermitted_members(**opts)
+        # if it ejected anything, then as a special case for being at the top,
+        # ensure_toplevel_group created a group to wrap the old topnode,
+        # which is what contains the ejected nodes.
+        # Verify this, and if it happened, repeat once, and then
+        # ungroup if it has one or no members.        
+        if ejected_anything != (orig_topnode is not self.topnode):
+            if ejected_anything:
+                print "\n***BUG: sanitize_dnagroups ejected from topnode %r " \
+                      "but didn't replace it" % orig_topnode
+            else:
+                print "\n***BUG: sanitize_dnagroups replaced topnode %r " \
+                      "with %r but didn't eject anything" % \
+                      (orig_topnode, self.topnode)
+            pass
+        else:
+            # no bug, safe to proceed
+            if orig_topnode is not self.topnode:
+                # repeat, but only once (all new activity should be confined
+                #  within the new topnode, presumably an ordinary Group
+                #  made by ensure_toplevel_part)
+                ejected_anything = self.topnode.is_group() and \
+                    self.topnode._f_move_nonpermitted_members(**opts)
+                if ejected_anything:
+                    print "\n***BUG: sanitize_dnagroups ejected from new topnode in %r" % self
+                    # don't print new topnode, we don't know whether or not it changed --
+                    # if this ever happens, revise to print more info
+                elif not self.topnode.is_group():
+                    print "\n***BUG: sanitize_dnagroups replaced topnode with a non-Group in %r" % self
+                else:
+                    # still no bug, safe to proceed
+                    if len(self.topnode) <= 1:
+                        self.topnode.ungroup() #k
+                    pass
+                pass
+            pass
+        return
+
     # == Bounding box methods
 
     ### BUG: these only consider chunks (self.molecules) --

@@ -42,6 +42,9 @@ def initialize_prefs():
     pref_renderers_convert_to_PAM5()
     pref_minimizers_convert_to_PAM5()
 
+    pref_fix_after_readmmp_before_updaters()
+    pref_fix_after_readmmp_after_updaters()
+    
     _update_our_debug_flags('arbitrary value')
         # makes them appear in the menu,
         # and also sets their debug flags
@@ -147,6 +150,22 @@ def pref_renderers_convert_to_PAM5():
 def pref_minimizers_convert_to_PAM5():
     res = debug_pref("DNA: minimize in PAM5? ", # i.e. for ND-1 (GROMACS or not)
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+# ==
+
+def pref_fix_after_readmmp_before_updaters():
+    res = debug_pref("DNA: do fix_after_readmmp_before_updaters?",
+                      Choice_boolean_False, # maybe won't change to True -- risky, and no huge need
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+def pref_fix_after_readmmp_after_updaters():
+    res = debug_pref("DNA: do fix_after_readmmp_after_updaters?",
+                      Choice_boolean_False, # maybe won't change to True -- risky, and no huge need
                       non_debug = True,
                       prefs_key = True )
     return res

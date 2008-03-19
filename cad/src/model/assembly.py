@@ -146,16 +146,22 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
     # as strings (in register_classname and parent_node_of_class).
     # Once existing code is converted to use this, register_classname
     # (and the toplevel imports of these classes) can be removed.
+    #
     # Note that these imports must not be moved to toplevel,
     # and are not redundant with toplevel imports if they exist. [bruce 080310]
-    from dna.model.DnaGroup import DnaGroup
-    from dna.model.Block import Block
+    from foundation.Group import Group
+    from model.chunk      import Chunk
+    
+    from dna.model.Block  import Block
+    from dna.model.DnaGroup   import DnaGroup
     from dna.model.DnaSegment import DnaSegment
-    from dna.model.DnaStrand import DnaStrand
-    from cnt.model.CntGroup import CntGroup # --mark 2008-03-09
+    from dna.model.DnaStrand  import DnaStrand
+    from dna.model.DnaMarker  import DnaMarker
+    from dna.model.DnaLadderRailChunk import DnaLadderRailChunk
+    
+    from cnt.model.CntGroup   import CntGroup # --mark 2008-03-09
     from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
-    from foundation.Group     import Group
-
+    
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
     #bruce 071026 added docstring
@@ -743,7 +749,9 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             res.append( self.prefs_node)
         return res
     
-    def update_parts(self, do_post_event_updates = True):
+    def update_parts(self,
+                     do_post_event_updates = True,
+                     do_special_updates_after_readmmp = False ):
         """
         For every node in this assy, make sure it's in the correct Part,
         creating new parts as necessary (of the correct classes).
@@ -754,8 +762,20 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         Also call env.do_post_event_updates(), unless the option
         do_post_event_updates is false.
 
+        Also do special updates meant to be done just after models
+        are read by readmmp (or after part of them are inserted by insertmmp),
+        if the option do_special_updates_after_readmmp is True.
+        Some of these might happen before any updaters run in this call
+        (and might be desirable to do before they *ever* run
+         to make it safe and/or effective to run the updaters),
+        so be sure to pass this on the first update_parts call
+        (which happens when updaters are enabled by kluge_main_assy.assy_valid)
+        after readmmp or insertmmp modifies assy.
+
         [See also the checkparts method.]        
         """
+        #bruce 080319 added option do_special_updates_after_readmmp
+        #
         #bruce 071119 revised docstring, added do_post_event_updates option
         # (which was effectively always True before).
         #
@@ -786,18 +806,35 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             # but rather than not do it then, I'll just make it fast, since it should be able to be fast
             # (except for needing to recompute externs, but probably something else would need to do that anyway).
             # [bruce 050513] [####@@@@ review this decision later]
+        
         # now make sure current_selgroup() runs without errors, and also make sure
         # its side effects (from fixing an out of date selgroup, notifying observers
         # of any changes (e.g. glpane)) happen now rather than later.
         sg = self.current_selgroup()
         # and make sure selgroup_part finds a part from it, too
         assert self.selgroup_part(sg)
+        
+        if do_special_updates_after_readmmp:
+            # do the "pre-updaters" updates of this kind.
+            # initial kluge: don't use registration, or pass new args to
+            # env.do_post_event_updates, just hardcode the before and after
+            # updaters. This also makes it easier to run only on the correct assy
+            # (self).
+            from dna.updater.fix_after_readmmp import fix_after_readmmp_before_updaters
+            fix_after_readmmp_before_updaters(self)
+        
         if do_post_event_updates:
             # 050519 new feature: since bonds might have been broken above
             # (by break_interpart_bonds), do this too:
             ## self.update_bonds() #e overkill -- might need to be optimized
             env.do_post_event_updates() #bruce 050627 this replaces update_bonds
-        return
+        
+        if do_special_updates_after_readmmp:
+            # do the "post-updaters" updates of this kind.
+            from dna.updater.fix_after_readmmp import fix_after_readmmp_after_updaters
+            fix_after_readmmp_after_updaters(self)
+        
+        return # from update_parts
     
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
         """

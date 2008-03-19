@@ -68,6 +68,41 @@ class DnaStrandOrSegment(Group):
             # Model Tree: show content of Block?
         return debug_pref( debug_pref_name, Choice_boolean_False )
 
+    def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment [bruce 080319]
+        """
+        [friend method for enforce_permitted_members_in_groups and subroutines]
+
+        Does self permit node as a direct member,
+        when called from enforce_permitted_members_in_groups with
+        the same options as we are passed?
+
+        @rtype: boolean
+
+        [overrides Group method]
+        """
+        # someday, reject if superclass would reject -- so far, it never does
+        del opts
+        assy = self.assy
+        res = isinstance( node, assy.DnaMarker) or \
+              isinstance( node, assy.DnaLadderRailChunk) or \
+              pre_updaters and isinstance( node, assy.Chunk)
+        return res
+    
+    def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in DnaStrandOrSegment [bruce 080319]
+        """
+        [friend method for enforce_permitted_members_in_groups and subroutines]
+        
+        Does self want to be killed due to members that got ejected
+        by _f_move_nonpermitted_members (or due to completely invalid structure
+        from before then, and no value in keeping self even temporarily)?
+
+        @rtype: boolean
+
+        [overrides Group method]        
+        """
+        del opts, pre_updaters
+        return not self.members
+
     def MT_DND_can_drop_inside(self): #bruce 080317, revised 080318
         """
         Are ModelTree Drag and Drop operations permitted to drop nodes
