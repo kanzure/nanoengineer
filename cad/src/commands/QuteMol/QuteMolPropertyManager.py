@@ -128,8 +128,6 @@ class QuteMolPropertyManager(PM_Dialog):
             iconPath  = "ui/actions/Properties Manager/QuteMol.png",
             spanWidth = True )           
 
-        self.launchQuteMolButton.setCheckable(True)
-        self.launchQuteMolButton.setAutoRaise(True)
         self.launchQuteMolButton.setToolButtonStyle(
             Qt.ToolButtonTextBesideIcon)
         
@@ -162,7 +160,7 @@ class QuteMolPropertyManager(PM_Dialog):
         currentCommand = self.win.commandSequencer.currentCommand 
         if not currentCommand.command_has_its_own_gui:
             currentCommand.Done()
-        self.connect_or_disconnect_signals(False)
+        self.connect_or_disconnect_signals(isConnect = False)
         PM_Dialog.close(self) 
         
     def ok_btn_clicked(self):
@@ -231,7 +229,7 @@ class QuteMolPropertyManager(PM_Dialog):
                      self.changeBasesDisplay)
         
         change_connect(self.launchQuteMolButton, 
-                       SIGNAL("toggled(bool)"), 
+                       SIGNAL("clicked()"), 
                        self.launchQuteMol)
     
     def updateMessage(self, msg = ''):
@@ -284,7 +282,7 @@ class QuteMolPropertyManager(PM_Dialog):
         #print "Bases display option=", optionText
         #print "Bases Flags=", self._basesFlags
     
-    def launchQuteMol(self, val):
+    def launchQuteMol(self):
         """
         Slot for 'Launch QuteMolX' button.
         Opens the QuteMolX rendering program and loads a copy of the current 
