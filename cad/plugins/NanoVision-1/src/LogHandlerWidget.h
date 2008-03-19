@@ -24,6 +24,8 @@ class LogHandlerWidget : public QWidget, public NXLogHandler,
 		~LogHandlerWidget() { }
 			
 		void publish(LogRecord logRecord);
+		
+		QSize sizeHint() const;
 	
 	signals:
 		void raiseWidget();
