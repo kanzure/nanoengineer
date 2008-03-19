@@ -164,11 +164,17 @@ def pref_fix_after_readmmp_before_updaters():
     return res
 
 def pref_fix_after_readmmp_after_updaters():
+    # temporary kluge (since probably not enough to protect this
+    #  from making updater exceptions much worse in effect):
+    # disable when dna updater is off, to work around bug in that case
+    # (described in checkin mail today)
+    # (only needed in "after" version) [bruce 080319]
+    from model_updater.master_model_updater import debug_pref_use_dna_updater # might be recursive if at toplevel
     res = debug_pref("DNA: do fix_after_readmmp_after_updaters? ",
                       Choice_boolean_True, # same comment as for before_updaters version
                       non_debug = True,
                       prefs_key = True )
-    return res
+    return res and debug_pref_use_dna_updater() # only ok to do this if dna updater is on
 
 # ==
 
