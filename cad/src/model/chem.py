@@ -3404,16 +3404,22 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         """
         debugging method
         """
-        if len(self.molecule.atoms) == 1:
-            print "warning: invalidate_everything on the only atom in mol %r\n" \
-                  " might kill mol as a side effect!" % self.molecule
-        # note: delatom invals self.bonds
-        self.molecule.delatom(self) # note: this kills the mol if it becomes empty!
-        self.molecule.addatom(self)
+        if len(self.molecule.atoms) <= 1:
+            print "warning: invalidate_everything on the lone atom %r in chunk %r does nothing" % (self, self.molecule)
+            print " since otherwise it might kill that chunk as a side effect!"
+        else:
+            #bruce 080318 bugfix: don't do this if only one atom; revise print above to say so
+            # note: delatom invals self.bonds
+            self.molecule.delatom(self) # note: this kills the mol if it becomes empty!
+            self.molecule.addatom(self)
         return
 
     def update_everything(self):
-        print "Atom.update_everything() does nothing"
+        """
+        debugging method
+        """
+        # too verbose, don't do this [bruce 080318]:
+        ## print "Atom.update_everything() does nothing"
         return
 
     #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
