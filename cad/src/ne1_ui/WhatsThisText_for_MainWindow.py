@@ -57,7 +57,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileImportOpenBabelAction.setWhatsThis(fileImportText)
+    
+    
+    # Close File
+    fileCloseAction = \
+        "<b>Close and begin a new model</b>"\
+        "<p>"\
+        "Close the .mmp file currently being edited and loads a new one "\
+        "</p>"
 
+    win.fileCloseAction.setWhatsThis(fileCloseAction)
+    
+    
     #Export File 
     fileExportText = \
         "<u><b>Open Babel</b></u>"\
@@ -79,6 +90,101 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileSaveAction.setWhatsThis( fileSaveText )
+    
+    # Save File As
+
+    fileSaveAsText = \
+        "<b>Save File As</b>"\
+        "<p>"\
+        "Allows the user to save the current .mmp file with a new name or."\
+        "in a different location"\
+        "</p>"
+
+    win.fileSaveAsAction.setWhatsThis( fileSaveAsText )
+    
+    # Import Molcular Machine Part
+
+    fileInsertMmpActionText = \
+        "<b> Molecular Machine Part</b>"\
+        "<p>"\
+        "Loads an existing .mmp file in to the current NE1 session"\
+        "</p>"
+
+    win.fileInsertMmpAction.setWhatsThis( fileInsertMmpActionText )
+    
+    # Import Protein Data Bank File
+
+    fileInsertPdbActionText = \
+        "<b> Protein Databank File</b>"\
+        "<p>"\
+        "Loads an existing .pdb file in to the current NE1 session"\
+        "</p>"
+
+    win.fileInsertPdbAction.setWhatsThis( fileInsertPdbActionText )
+    
+    # Export Protein Data Bank File
+
+    fileExportPdbActionText = \
+        "<b> Export Protein Databank File</b>"\
+        "<p>"\
+        "Saves the current .mmp model as a Protein Databank File"\
+        "</p>"
+
+    win.fileExportPdbAction.setWhatsThis( fileExportPdbActionText )
+
+ # Export Jpeg File
+
+    fileExportJpgActionText = \
+        "<b> Export JPEG File</b>"\
+        "<p>"\
+        "Saves the current .mmp model as a JPEG File"\
+        "</p>"
+
+    win.fileExportJpgAction.setWhatsThis( fileExportJpgActionText )
+
+    # Export PNG File
+
+    fileExportPngActionText = \
+        "<b> Export PNG File</b>"\
+        "<p>"\
+        "Saves the current .mmp model as a PNG File"\
+        "</p>"
+
+    win.fileExportPngAction.setWhatsThis( fileExportPngActionText )
+
+    # Export POV-ray File
+
+    fileExportPovActionText = \
+        "<b> Export POV-Ray File</b>"\
+        "<p>"\
+        "Saves the current .mmp model as a POV-Ray File"\
+        "</p>"
+
+    win.fileExportPovAction.setWhatsThis( fileExportPovActionText )
+    
+    # Export POV-ray File
+
+    fileExportAmdlActionText = \
+        "<b> Export Animation Master Model</b>"\
+        "<p>"\
+        "Saves the current .mmp model as an Animation Master Model File"\
+        "</p>"
+
+    win.fileExportAmdlAction.setWhatsThis( fileExportAmdlActionText )
+    
+    # Exit
+
+    fileExitActionText = \
+        "<b> Exit NanoEngineer-1</b>"\
+        "<p>"\
+        "Closes NanoEngineer-1"\
+        "<p>"\
+        "You will be prompted to save any current changes to the .mmp file"\
+        "</p>"
+
+    win.fileExitAction.setWhatsThis( fileExitActionText )
+
+
 
     #
     # Edit Toolbar
@@ -234,6 +340,41 @@ def createWhatsThisTextForMainWindowWidgets(win):
      
     win.pasteFromClipboardAction.setWhatsThis( pasteFromClipboardText )
         
+   
+    #Rename
+    EditrenameActionText = \
+        "<u><b>Rename Chunk</b></u> "\
+        "<p>"\
+        "<img source=\"ui/actions/Edit/Rename.png\">"\
+        "<br> "\
+        "Allows the user to rename the selected object "\
+        "</p>"
+     
+    win.editRenameAction.setWhatsThis( EditrenameActionText )
+    
+    #Rename Object
+    EditrenameobjectsActionText = \
+        "<u><b>Rename Node</b></u> "\
+        "<p>"\
+        "<img source=\"ui/actions/Edit/Rename_Objects\">"\
+        "<br> "\
+        "Allows the user to rename the selected node "\
+        "</p>"
+     
+    win.editRenameObjectsAction.setWhatsThis( EditrenameobjectsActionText )
+    
+    #editAddSuffixAction
+    EditeditAddSuffixActionActionText = \
+        "<u><b>Add Suffix</b></u> "\
+        "<p>"\
+        "<img source=\"ui/actions/Edit/Add_Suffix\">"\
+        "<br> "\
+        "Allows the user to add a suffix to the name of the selected object "\
+        "or objects"\
+        "</p>"
+     
+    win.editAddSuffixAction.setWhatsThis( EditeditAddSuffixActionActionText )
+    
     # Translate
 
     toolsMoveMoleculeActionText = \
@@ -678,7 +819,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build Nanotube</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
-        "Inserts a carbon or boron nitride nanotube in "\
+        "Inserts a carbon nanotube in "\
         "the model based on the current parameters in "\
         "the Property Manager. To preview the structure "\
         "based on the current parameters, click the "\
@@ -687,7 +828,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
         "</p>"
 
-    win.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
+    win.buildCntAction.setWhatsThis(insertNanotubeActionText )
 
     # Build DNA
 
@@ -727,6 +868,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.insertCommentAction.setWhatsThis(insertCommentActionText )
+    
+    #Insert Plane
+    referencePlaneActionText = \
+        "<b>Insert Reference Plane</b>"\
+        "<p>"\
+        "<img source=\"ui/actions/Insert/Reference Geometry/Plane.png\"><br> "\
+        "Inserts a reference plane into the 3D graphics area based on the. "\
+        "current visual orientation and user specified parameters"\
+        "</p>"
+
+    win.referencePlaneAction.setWhatsThis(referencePlaneActionText )
+    
 
     #
     # Display toolbar
