@@ -53,12 +53,13 @@ from model.global_model_changedicts import LAST_RUN_SUCCEEDED
 import model.global_model_changedicts as global_model_changedicts # for setting flags in it
 
 import foundation.env as env
+
 from utilities.Log import redmsg
+from utilities.GlobalPreferences import dna_updater_is_enabled
+from utilities.debug import print_compact_stack, print_compact_traceback
 
 from model_updater.bond_updater import update_bonds_after_each_event
 from model_updater.bond_updater import process_changed_bond_types
-
-from utilities.debug import print_compact_stack, print_compact_traceback
 
 # ==
 
@@ -128,7 +129,7 @@ def _run_dna_updater(): #bruce 080210 split this out
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here
     #bruce 080319 added sets of status_of_last_dna_updater_run
-    if debug_pref_use_dna_updater():
+    if dna_updater_is_enabled():
         # never implemented sufficiently: if ...: _reload_dna_updater()
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
         from dna.updater.dna_updater_main import full_dna_update
@@ -241,14 +242,6 @@ def debug_pref_autodelete_empty_groups():
                      )
     return res
 
-def debug_pref_use_dna_updater():
-    from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    res = debug_pref("DNA: enable dna updater?", #bruce 080317 revised text
-                     Choice_boolean_True, #bruce 080317 False -> True
-                     non_debug = True,
-                     prefs_key = "A10/DNA: enable dna updater?" #bruce 080317 changed prefs_key
-                    )
-    return res
     
 _initialized_dna_updater_yet = False
 
@@ -268,7 +261,7 @@ def initialize():
     (in the order in which they should run). These will be
     run by env.do_post_event_updates().
     """
-    if debug_pref_use_dna_updater():
+    if dna_updater_is_enabled():
         ## from dna_updater import dna_updater_init
         ## dna_updater_init.initialize()
         _ensure_ok_to_call_dna_updater() # TODO: replace with the commented out 2 lines above

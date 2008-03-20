@@ -16,8 +16,14 @@ the kinds of things in it so far -- bruce 080220 comment]
 """
 
 from utilities.prefs_constants import permit_atom_chunk_coselection_prefs_key
-from utilities.debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
+from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.debug import print_compact_traceback
+
+# ==
+
+DEBUG_BAREMOTION = False #bruce 080129, for bug 2606; should be disabled for commits
+
+DEBUG_BAREMOTION_VERBOSE = False
 
 # ==
 
@@ -94,7 +100,9 @@ def debug_pyrex_atoms():
     return res
 # ==
 
-# bruce 060721; intended to become constant True for A9
+# bruce 060721; was intended to become constant True for A9; as of 080320 it's not planned for A10
+# but might be good to try to get to afterwards
+
 def permit_atom_chunk_coselection():
     res = debug_pref("permit atom/chunk coselection?",
                      ## use Choice_boolean_True once this has no obvious bugs
@@ -102,6 +110,8 @@ def permit_atom_chunk_coselection():
                      non_debug = True,
                      prefs_key = permit_atom_chunk_coselection_prefs_key )
     return res
+
+# ==
 
 def disable_do_not_draw_open_bonds():
     """
@@ -120,8 +130,15 @@ def disable_do_not_draw_open_bonds():
 
 # ==
 
-DEBUG_BAREMOTION = False #bruce 080129, for bug 2606; should be disabled for commits
+def _debug_pref_use_dna_updater(): #bruce 080320 moved this here from master_model_updater.py, made private
+    res = debug_pref("DNA: enable dna updater?", #bruce 080317 revised text
+                     Choice_boolean_True, #bruce 080317 False -> True
+                     non_debug = True,
+                     prefs_key = "A10/DNA: enable dna updater?" #bruce 080317 changed prefs_key
+                    )
+    return res
 
-DEBUG_BAREMOTION_VERBOSE = False
+def dna_updater_is_enabled(): #bruce 080320
+    return _debug_pref_use_dna_updater()
 
 # end

@@ -17,6 +17,7 @@ from utilities.debug_prefs import Choice
 import foundation.env as env
 
 from utilities.Log import orangemsg
+from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from utilities import debug_flags
 
@@ -169,14 +170,13 @@ def pref_fix_after_readmmp_after_updaters():
     # disable when dna updater is off, to work around bug in that case
     # (described in checkin mail today)
     # (only needed in "after" version) [bruce 080319]
-    from model_updater.master_model_updater import debug_pref_use_dna_updater # might be recursive if at toplevel
-    if not debug_pref_use_dna_updater():
+    if not dna_updater_is_enabled():
         print "bug: the permanent version of this fix is not working, noticed in pref_fix_after_readmmp_after_updaters"
     res = debug_pref("DNA: do fix_after_readmmp_after_updaters? ",
                       Choice_boolean_True, # same comment as for before_updaters version
                       non_debug = True,
                       prefs_key = True )
-    return res and debug_pref_use_dna_updater() # only ok to do this if dna updater is on
+    return res and dna_updater_is_enabled() # only ok to do this if dna updater is on
 
 # ==
 
