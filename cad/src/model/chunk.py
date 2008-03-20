@@ -1795,8 +1795,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # manipulation of DNA segments by a factor of 3-4x in tube 
         # or balls-and-sticks display styles.
         # this extends the prevoius condition to suppress the external
-        # bonds during animation. 
-        if (not glpane.in_drag or \
+        # bonds during animation.
+        in_drag = False
+        if hasattr(glpane,"in_drag"): in_drag=glpane.in_drag
+        if (not in_drag or \
             not debug_pref("GLPane: suppress external bonds when dragging?",
                            Choice_boolean_False,
                            non_debug = True,
