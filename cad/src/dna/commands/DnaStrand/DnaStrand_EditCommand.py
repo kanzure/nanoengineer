@@ -206,6 +206,27 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         See more comments in the method.
         """    
         pass
+    
+    def _finalizeStructure(self):
+        """
+        Overrides EditCommand._finalizeStructure. 
+        @see: EditCommand.preview_or_finalize_structure
+        """     
+        if self.struct is not None:
+            #@TODO 2008-03-19:Should we always do this even when strand sequence
+            #is not changed?? Should it waste time in comparing the current 
+            #sequence with a previous one? Assigning sequence while leaving the 
+            #command will be slow for large files.Need to be optimized if 
+            #problematic.
+            #What if a flag is set in self.propMgr_updateSequence() when it 
+            #updates the seq for the second time and we check that here. 
+            #Thats  not good if the method gets called multiple times for some 
+            #reason other than the user entered sequence. So not doing here. 
+            #Better fix would be to check if sequence gets changed (textChanged)
+            #in DnaSequence editor class .... Need to be revised
+            self.assignStrandSequence()
+            EditCommand._finalizeStructure(self) 
+                
 
     def getStructureName(self):
         """
@@ -236,6 +257,18 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
         if self.hasValidStructure():
             self.struct.name = name
+            
+    def assignStrandSequence(self):
+        """
+        Assigns the sequence typed in the sequence editor text field to 
+        the selected strand chunk. The method it invokes also assigns 
+        a complimentary sequence to the mate strand.
+        @see: Chunk.setStrandSequence
+        """
+        sequenceString = self.propMgr.sequenceEditor.getPlainSequence()
+        sequenceString = str(sequenceString)       
+        self.struct.setStrandSequence(sequenceString) 
+        
 
     def editStructure(self, struct = None):
         """
@@ -244,7 +277,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @type struct: chunk or None (this will change post dna data model)
         """
         EditCommand.editStructure(self, struct)        
-        if self.struct:
+        if self.hasValidStructure():
             #TO BE REVISED post dna data model - 2008-02-14
             if isinstance(self.struct.dad , self.assy.DnaSegment):
                 self._parentDnaSegment = self.struct.dad   

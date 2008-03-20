@@ -155,25 +155,10 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.sequenceEditor:
             self.sequenceEditor.connect_or_disconnect_signals(isConnect)
             
-            change_connect( self.sequenceEditor.assignStrandSequencePushButton,
-                      SIGNAL("clicked()"),
-                      self.assignStrandSequence)
         
         change_connect(self.disableStructHighlightingCheckbox, 
                        SIGNAL('stateChanged(int)'), 
                        self.change_struct_highlightPolicy)
-        
-            
-    def assignStrandSequence(self):
-        """
-        Assigns the sequence typed in the sequence editor text field to 
-        the selected strand chunk. The method it invokes also assigns 
-        a complimentary sequence to the mate strand.
-        @see: Chunk.setStrandSequence
-        """
-        sequenceString = self.sequenceEditor.getPlainSequence()
-        sequenceString = str(sequenceString)
-        self.struct.setStrandSequence(sequenceString) 
         
     def show(self):
         """
@@ -204,8 +189,15 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None:
             name = str(self.nameLineEdit.text())
             self.editCommand.setStructureName(name)
-        if self.sequenceEditor is not None:
+            
+        if self.sequenceEditor:
             self.sequenceEditor.close()
+            if self.win.viewFullScreenAction.isChecked() or \
+               self.win.viewSemiFullScreenAction.isChecked():
+                pass
+            else:
+                self.win.reportsDockWidget.show()
+                
         EditCommand_PM.close(self)
             
     def _showSequenceEditor(self):
@@ -229,8 +221,8 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.sequenceEditor.show()         
                               
             self._updateSequence()
-            if self.struct is not None:
-                msg = ("Viewing properties of %s") %(self.struct.name)
+            if self.editCommand.hasValidStructure():
+                msg = ("Viewing properties of %s") %(self.editCommand.struct.name)
                 self.updateMessage(msg)
     
     def _updateSequence(self):
@@ -241,10 +233,10 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #show it in the text edit in the sequence editor.
         ##strand = self.strandListWidget.getPickedItem()
         
-        if self.struct is None:
+        if not self.editCommand.hasValidStructure():
             return
         
-        strand = self.struct
+        strand = self.editCommand.struct
         
         titleString = 'Sequence Editor for ' + strand.name
                            

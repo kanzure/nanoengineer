@@ -14,8 +14,6 @@ TODO: as of 2008-01-11
 - Needs more documentation and the file is subjected to heavy revision. 
 This is an initial implementation of default Dna edit mode.
 - Methods such as callback_addSegments might be renamed.
-- DEPRECATE THE self.sequenceEditor. (that code has been commented out) 
-   see a comment in self,__init__
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
   BuildDna_EditCommand from a a temporary command. 
@@ -39,7 +37,6 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
-from dna.model.DnaSegment import DnaSegment
 
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -72,9 +69,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
-        self.isAlreadyDisconnected = False
-        
-        self.sequenceEditor = None              
+        self.isAlreadyDisconnected = False           
         
         EditCommand_PM.__init__( self, 
                                     win,
@@ -87,24 +82,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmWhatsThisButton)
         
-        #Loading the sequence editor is disabled. Instead, we will call the 
-        #DnaStrand_Editcommand which will load its own sequence editor. 
-        #After more testing, the sequence editor attr of the BuildDna_EditCommand
-        # /PM will be removed. -- Ninad 2008-02-29
-        ##self._loadSequenceEditor()                
-            
-    def _loadSequenceEditor(self):
-        """
-        NOT CALLED AS OF 2008-02-29. SOON THIS WILL BE DEPRECATED. 
-        See comment in self.__init__
-        Temporary code  that shows the Sequence editor ..a doc widget docked
-        at the bottom of the mainwindow. The implementation is going to change
-        before 'rattleSnake' product release.
-        As of 2007-11-20: This feature (sequence editor) is waiting 
-        for the ongoing dna model work to complete.
-        """
-        self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
-        self.sequenceEditor.hide()
+
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -145,17 +123,6 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.strandListWidget.connect_or_disconnect_signals(isConnect)        
         self.segmentListWidget.connect_or_disconnect_signals(isConnect)
         
-        if self.sequenceEditor:
-            self.sequenceEditor.connect_or_disconnect_signals(isConnect)
-            
-            change_connect( self.sequenceEditor.assignStrandSequencePushButton,
-                      SIGNAL("clicked()"),
-                      self.assignStrandSequence)
-        
-                
-        #change_connect(self.editStrandPropertiesButton,
-                      #SIGNAL("clicked()"),
-                      #self._showSequenceEditor)
         change_connect(self.editStrandPropertiesButton,
                       SIGNAL("clicked()"),
                       self._editDnaStrand)
@@ -163,22 +130,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.editSegmentPropertiesButton,
                       SIGNAL("clicked()"),
                       self._editDnaSegment)
-
-    def assignStrandSequence(self):
-        """
-        Assigns the sequence typed in the sequence editor text field to 
-        the selected strand chunk. The method it invokes also assigns 
-        a complimentary sequence to the mate strand.
-        @see: Chunk.setStrandSequence
-        """
-        sequenceString = self.sequenceEditor.getPlainSequence()
-        sequenceString = str(sequenceString)
-        #@We can do this only if only a single item is selected in the 
-        #strand list widget (which is what happens as of 2008-01-11)
-        strand = self.strandListWidget.getPickedItem() 
-        #Set the strand sequence for the selected strand and also change 
-        #the strand sequence of its mate strand!
-        strand.setStrandSequence(sequenceString)   
+ 
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
@@ -225,15 +177,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.segmentListWidget.updateSelection(selectedSegments)
         
         if len(selectedStrands) == 1:
-            self.editStrandPropertiesButton.setEnabled(True)
-            if self.sequenceEditor:
-                self.sequenceEditor.update_state(bool_enable = True) 
-            if self.sequenceEditor and self.sequenceEditor.isVisible():
-                self._updateSequence(selectedStrands[0])                           
+            self.editStrandPropertiesButton.setEnabled(True)                         
         else:
-            self.editStrandPropertiesButton.setEnabled(False)
-            if self.sequenceEditor:       
-                self.sequenceEditor.update_state(bool_enable = False)   
+            self.editStrandPropertiesButton.setEnabled(False)  
         
         if len(selectedSegments) == 1:
             self.editSegmentPropertiesButton.setEnabled(True)
@@ -335,15 +281,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         if self.segmentListWidget:
             self.segmentListWidget.clear()
-        
-        if self.sequenceEditor:
-            self.sequenceEditor.hide()
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.show()
-           
+            
         EditCommand_PM.close(self)
     
     def show(self):
@@ -369,54 +307,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             strand = selectedStrandList[0]
             strand.edit()
 
-    def _showSequenceEditor(self):
-        if self.sequenceEditor:
-            
-            #hide the history widget first
-            #(It will be shown back during self.close)
-            #The history widget is hidden or shown only when both 
-            # 'View > Full Screen' and View > Semi Full Screen actions 
-            # are *unchecked*
-            #Thus show or close methods won't do anything to history widget
-            # if either of the above mentioned actions is checked.
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.hide()
-            
-            if not self.sequenceEditor.isVisible():
-                #Show the sequence editor
-                self.sequenceEditor.show() 
-            
-            selectedStrandList = self.editCommand.struct.getSelectedStrands()
-            
-            if len(selectedStrandList) == 1:                   
-                self._updateSequence(selectedStrandList[0])
-    
-    def _updateSequence(self, pickedStrand):
-        """
-        Update the sequence string in the sequence editor
-        """
-        #Read in the strand sequence of the selected strand and 
-        #show it in the text edit in the sequence editor.
-        ##strand = self.strandListWidget.getPickedItem()
-        
-        strand = pickedStrand
-        
-        titleString = 'Sequence Editor for ' + strand.name
-        
-        if self.struct:
-            titleString = titleString +  ' [of ' + self.struct.name + ']'
-            
-        self.sequenceEditor.setWindowTitle(titleString)
-        
-        sequenceString = strand.getStrandSequence()
-        if sequenceString:
-            sequenceString = QString(sequenceString) 
-            sequenceString = sequenceString.toUpper()
-            self.sequenceEditor.setSequence(sequenceString) 
-    
+
     def _editDnaSegment(self):
         """
         """
@@ -485,7 +376,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         segmentList = []
         if self.editCommand and self.editCommand.hasValidStructure(): 
             def func(node):
-                if isinstance(node, DnaSegment):
+                if isinstance(node, self.win.assy.DnaSegment):
                     segmentList.append(node)    
                     
             self.editCommand.struct.apply2all(func)
@@ -570,7 +461,4 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
-        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
-        ToolTip_SequenceEditor(self)
-        print "inside add tool tiptest"
         pass
