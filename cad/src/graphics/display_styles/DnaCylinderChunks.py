@@ -342,11 +342,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return
 
         strand_positions, strand_sequences, axis_positions, colors, radii, \
-                        chunk_strand, num_strands = memo
+                        group_color, chunk_strand, num_strands = memo
         
         # set a default chunk color
         chunk_color = chunk.color
-        
+                
         n_points = len(axis_positions)
         
         # render axis cylinder        
@@ -379,7 +379,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 colors[1], 
                                 bond.atom1.posn()-chunk.center, 
                                 bond.atom2.posn()-chunk.center, 
-                                1.0*self.dnaStyleStrandsScale, True)                        
+                                1.0*self.dnaStyleStrandsScale, True)   
+                            """
                             if bond.atom1==chunk.ladder.strand_rails[chunk_strand].baseatoms[0]:
                                 points[1] = bond.atom2.posn()-chunk.center
                             if bond.atom1==chunk.ladder.strand_rails[chunk_strand].baseatoms[n_bases-1]:
@@ -388,7 +389,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 points[1] = bond.atom1.posn()-chunk.center
                             if bond.atom2==chunk.ladder.strand_rails[chunk_strand].baseatoms[n_bases-1]:
                                 points[pos] = bond.atom1.posn()-chunk.center
-
+                            """
+                            
                 # draw the strand itself
                 drawStrand(strand_positions[chunk_strand], 
                            colors, radii, 
@@ -397,7 +399,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                            self.dnaStyleStrandsArrows)            
             
             # render struts
-            if self.dnaStyleStrutsShape>0 and num_strands>0:
+            if self.dnaStyleStrutsShape>0 and num_strands>1:
                 for pos in range(1,n_points-1):
                     atom1_pos = strand_positions[chunk_strand][pos]
                     atom3_pos = strand_positions[1-chunk_strand][n_points-pos-1]                        
@@ -431,14 +433,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         if chunk_strand==0:
                             color = self.getRainbowColorInRange(pos-1, n_points-2, 0.75, 1.0)
                         else:
-                            color = self.getRainbowColorInRange(n_bases-pos+1, n_bases, 0.75, 1.0)                        
+                            color = self.getRainbowColorInRange(n_points-pos+1, n_points, 0.75, 1.0)                        
                     elif self.dnaStyleBasesColor==2:
                         color = group_color
                     else:
                         color = self.getBaseColor(strand_sequences[chunk_strand][pos])
                     if self.dnaStyleBasesShape==1: # draw spheres
                         drawer.drawsphere(color, atom_pos, self.dnaStyleBasesScale, 2)
-                    elif self.dnaStyleBasesShape==2: # draw a schematic 'cartoon' shape
+                    elif self.dnaStyleBasesShape==2 and num_strands>1: # draw a schematic 'cartoon' shape
                         atom1_pos = strand_positions[chunk_strand][pos]
                         atom3_pos = strand_positions[1-chunk_strand][n_points-pos-1]                        
                         if chunk_strand==0:
@@ -594,7 +596,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             file.write("}\n")
             
         strand_positions, strand_sequences, axis_positions, colors, radii, \
-                        chunk_strand, num_strands = memo
+                        group_color, chunk_strand, num_strands = memo
         
         # render axis cylinder        
         if chunk.isAxisChunk(): # this is the DNA axis           
@@ -741,6 +743,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         colors = zeros([n_bases+2,3],Float)
         radii = zeros([n_bases+2],Float)                            
 
+        group_color = white
+        
         # process the axis cylinder        
         if chunk.isAxisChunk() and axis_atoms: # this is the DNA axis           
             if self.dnaStyleAxisShape>0:
@@ -856,7 +860,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                    + strand_positions[chunk_strand][pos-2]                       
                                     
         return (strand_positions, strand_sequences, axis_positions, 
-                colors, radii, chunk_strand, num_strands)
+                colors, radii, group_color, chunk_strand, num_strands)
     
     pass # end of class DnaCylinderChunks
 
