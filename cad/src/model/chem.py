@@ -113,6 +113,7 @@ from utilities.constants import PickedColor
 
 from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
+from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import min_max_valences_from_v6
@@ -801,6 +802,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     #  those selected atoms.
     #  [Q: should it apply to the subset of the same element, if that's not all?
     #   Guess: yes. That further enhancement is NIM for now.])
+    # Revision for dna data model, bruce 080320: remove entries involving
+    # deprecated PAM elements when dna updater is active. As of now,
+    # that will remove all entries!
     _transmuteContextMenuEntries = {
         'Ae3': ['Ax3'],
         'Ax3': ['Ae3'],
@@ -819,13 +823,53 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         'Ss5': ['Sj5', 'Hp5'],
         'Hp5': ['Ss5'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
         }
+    _transmuteContextMenuEntries_for_dna_updater = None # replaced at runtime, within class
+    def _init_transmuteContextMenuEntries_for_dna_updater(self): #bruce 080320
+        """
+        [private helper]
+
+        Remove entries involving deprecated PAM elements
+        from class constant _transmuteContextMenuEntries
+        to initialize class constant
+        _transmuteContextMenuEntries_for_dna_updater.
+        """
+        assert self._transmuteContextMenuEntries_for_dna_updater is None
+        input = self._transmuteContextMenuEntries
+        output = {} # modified below
+        if 0 and 'testing':
+            input['C'] = ['Si'] # works
+        for fromSymbol in input.keys():
+            fromElement = PeriodicTable.getElement(fromSymbol)
+            if fromElement.deprecated_to:
+                continue
+            for toSymbol in input[fromSymbol]:
+                toElement = PeriodicTable.getElement(toSymbol)
+                if toElement.deprecated_to:
+                    continue
+                print "\nfyi: retaining transmute entry: %r -> %r" % (fromSymbol, toSymbol) # won't happen as of 080320
+                output.setdefault(fromSymbol, [])
+                output[fromSymbol].append(toSymbol)
+                continue
+            continue
+        self.__class__._transmuteContextMenuEntries_for_dna_updater = output
+        # print "\nfyi: _transmuteContextMenuEntries_for_dna_updater =", output
+        return
     def make_selobj_cmenu_items(self, menu_spec):
         """
         Add self-specific context menu items to <menu_spec> list when self is the selobj,
         in modes that support it (e.g. depositMode and selectMode and subclasses).
         """
+        transmute_entries = self._transmuteContextMenuEntries # non-updater version
+        if dna_updater_is_enabled():
+            # bruce 080320: use only entries not involving deprecated PAM elements
+            transmute_entries = self._transmuteContextMenuEntries_for_dna_updater
+            if transmute_entries is None:
+                self._init_transmuteContextMenuEntries_for_dna_updater()
+                transmute_entries = self._transmuteContextMenuEntries_for_dna_updater
+                assert transmute_entries is not None
+            pass
         fromSymbol = self.element.symbol
-        if (self._transmuteContextMenuEntries.has_key(fromSymbol)):
+        if (transmute_entries.has_key(fromSymbol)):
             #bruce 070412 (enhancing EricM's recent new feature):
             # If unpicked, do it for just this atom;
             # If picked, do it for all picked atoms, but only if they are all the same element.
@@ -857,7 +901,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
                         menu_spec.append(None) # separator
                         menu_spec.extend(ms1)
             menu_spec.append(None) # separator
-            for toSymbol in self._transmuteContextMenuEntries[fromSymbol]:
+            for toSymbol in transmute_entries[fromSymbol]:
                 newElement = PeriodicTable.getElement(toSymbol)
                 if self.picked and len(selatoms) > 1:
                     if doall:
