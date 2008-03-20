@@ -2607,15 +2607,34 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             self.molecule.changed_selection() #bruce 060227
         return
     
-    def copy(self): #bruce 041116
+    def copy(self): #bruce 041116, revised bruce 080319 to not copy default-valued attrs
         """
-        Public method: copy an atom, with no special assumptions;
-        new atom is not in any mol but could be added to one using mol.addatom.
+        Public method: copy the atom self, with no special assumptions,
+        and return the copy (a new atom);
+        new atom is not initially in any chunk,
+        but could be added to one using Chunk.addatom.
         """
-        nuat = Atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
-        nuat.display = self.display
-            # no need in new atoms for anything like _changed_otherwise_Atoms[nuat.key] = nuat #bruce 060322 guess ###@@@ #k
-        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
+        nuat = Atom(self, self.posn(), None)
+            #bruce 050524: pass self so its atomtype is copied
+        
+        # optimization: assume the class defaults for the following copied
+        # attrs are all boolean false [verified by test], and the legal
+        # nondefault values are all boolean true (believed) -- this optimizes
+        # the following tests for whether they need to be set in nuat
+        # [bruce 080319]
+        
+        if self.display:
+            nuat.display = self.display
+        if self.info:
+            nuat.info = self.info #bruce 041109; revised 050524;
+                # needed by extrude and other future things
+        if self._dnaBaseName:
+            nuat._dnaBaseName = self._dnaBaseName #bruce 080319
+
+        # no need in new atoms for anything like
+        # _changed_otherwise_Atoms[nuat.key] = nuat
+        # [bruce 060322 guess ###@@@ #k]
+        
         return nuat
 
     def set_info(self, newinfo): #bruce 060322
@@ -3914,23 +3933,26 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     ## _dnaStrandId_for_generators -- set when first demanded, or can be explicitly set
     ## using setDnaStrandId_for_generators(). 
 
+    VALID_ELEMENTS_FOR_DNABASENAME = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
+        # TODO: use a boolean element attribute instead.
+        # review: not the same as role == 'strand'... but is it if we exclude Pl?
+    
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         #bruce 080319 revised, mainly to support undo/copy
         """
         Set the Dna base name. This is only valid for PAM atoms in the list
-        'Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5', i.e. strand sugar atoms.
+        Atom.VALID_ELEMENTS_FOR_DNABASENAME, i.e. strand sugar atoms,
+        presently defined as ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3').
         
         @param dnaBaseName: The DNA base name. This is usually a single letter,
-                            but it can be more. Only letters are valid
+                            but it can be more (though whether all code supports
+                            that is not reviewed). Only letters are valid
                             (but this is not enforced here).
         @type  dnaBaseName: str
         
-        @raise: If self is not Sj or Ss (or similar).
-        
+        @raise: AssertionError, if self is not a strand sugar atom.
         """
-        # TODO: make this tuple and the same one in getDnaBaseName a named constant
-        # (or use a boolean element attribute).
-        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5'), \
+        assert self.element.symbol in self.VALID_ELEMENTS_FOR_DNABASENAME, \
             "Can only assign dnaBaseNames to PAM strand sugar atoms. " \
             "Attempting to assign dnaBaseName %r to %r of element %r." \
             % (dnaBaseName, self, self.element.name)
@@ -3968,8 +3990,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         #while reading in the strand sequence. See chunk.getStrandSequence()
         #or DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
 
-        valid_element_symbols = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
-            # review: not the same as role == 'strand'... but is it if we exclude Pl?
+        valid_element_symbols = self.VALID_ELEMENTS_FOR_DNABASENAME
         allowed_on_this_element = (self.element.symbol in valid_element_symbols)
         
         baseNameString = self.__dict__.get('_dnaBaseName', "") # modified below
