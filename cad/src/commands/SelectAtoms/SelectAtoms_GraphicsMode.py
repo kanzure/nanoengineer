@@ -235,22 +235,31 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     
     def _getAtomHighlightColor(self, selobj):
         """
-	Return the Atom highlight color 
-	@return: Highlight color of the object (Atom or Singlet)
+	Return the Atom highlight color to use for selobj
+	which is the object under the mouse.
+
+	@note: ok to make use of self.only_highlight_singlets,
+	       and when it's set, self.current_obj. See code comments
+	       for details.
+	       
+	@return: Highlight color to use for the object (Atom or Singlet)
 	""" 
         assert isinstance(selobj, Atom)
 
         if selobj.is_singlet():
             return self._getSingletHighlightColor()
         else:
+            # selobj is a real atom
             if self.only_highlight_singlets: 
-                # Above is True only when dragging a bondpoint (in Build mode).
-                # Highlight this atom if it has bondpoints.
+                # Above is True only when dragging a bondpoint (in Build mode)
+                # (namely, we are dragging self.current_obj, a bondpoint).
+                # Highlight this atom (selobj) if it has bondpoints
+                # (but only if it's not the base atom of self.current_obj,
+                #  to fix bug 1522 -- mark 060301).
                 if selobj.singNeighbors():
-                    if self.current_obj in selobj.singNeighbors(): 
+                    if self.current_obj in selobj.singNeighbors():
                         # Do not highlight the atom that the current 
-                        # singlet belongs to.
-                        # Fixes bug 1522. mark 060301.
+                        # singlet (self.current_obj) belongs to.
                         return None
                     return env.prefs[atomHighlightColor_prefs_key]
                         # Possible bug: bruce 070413 seems to observe this not 
@@ -259,20 +268,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
                         # (which counts as the atom for highlighting),
                         # or when the atom is already highlighted. 
                         # (Could it be the cursor going over the rubberband
-                        # line? Not always. But it might be intermittent.)
-                elif selobj.element.symbol == 'Sh':
-                    ##e and isinstance(self.current_obj, Atom), and is_singlet, 
-                    ## and its neighbor is a Pl:
-                    # bruce 070413 KLUGE: make new depositMode behavior in 
-                    #(a specialcase of) this case possible
-                    ###e [needs to be generalized, and made so that only one 
-                    ###place needs to know this condition;
-                    # note that the above is not the complete condition since 
-                    # i got lazy (and this NFR is urgent)]
-                    ##if env.debug():
-                        ##print "highlighting Sh like a bondpoint"
-                    # look like bondpoint, since treated as one--
-                    return env.prefs[bondpointHighlightColor_prefs_key] 
+                        #  line? Not always. But it might be intermittent.)
                 else:
                     return None
             if self.o.modkeys == 'Shift+Control':
@@ -282,8 +278,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def _getSingletHighlightColor(self):
         """
-	Return the Singlet highlight color 
-	@return: Highlight color of the Singlet
+	Return the Singlet (bondpoint) highlight color.
+	
+	@return: Highlight color to use for any bondpoint (specific bondpoint is not passed)
 	"""
         # added highlight_singlets to fix bug 1540. mark 060220.
         if self.highlight_singlets: 
@@ -300,8 +297,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def _getBondHighlightColor(self, selobj):
         """
-	Return the Bond highlight color 
-	@return: Highlight color of the bond
+	Return the Bond highlight color.
+	
+	@return: Highlight color to use for this bond (selobj)
 	"""
         assert isinstance(selobj, Bond)
         # Following might be an outdated or 'not useful anymore' comment. 

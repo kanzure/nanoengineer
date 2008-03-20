@@ -306,10 +306,11 @@ def writepdb(part,
     def exclude(atm): #bruce 050318
         """
         Exclude this atom (and bonds to it) from the file under the following
-        conditions:
+        conditions (as selected by excludeFlags):
             - if it is a singlet
             - if it is not visible
             - if it is a member of a hidden chunk
+            - some dna-related conditions (see code for details)
         """
         # Added not visible and hidden member of chunk. This effectively deletes
         # these atoms, which might be considered a bug.
@@ -327,16 +328,23 @@ def writepdb(part,
             if not atm.visible():
                 return True # Exclude
         if excludeFlags & EXCLUDE_DNA_AXIS_ATOMS:
-            if atm.element.symbol in ('Ax3', 'Ae3'):
+##            if atm.element.symbol in ('Ax3', 'Ae3'):
+            #bruce 080320 bugfix: revise to cover new elements and PAM5.
+            if atm.element.role == 'axis':
                 return True # Exclude
         if excludeFlags & EXCLUDE_DNA_ATOMS:
             # PAM5 atoms begin at 200.
+            #
+            # REVIEW: better to check atom.element.pam?
+            # What about "carbon nanotube pseudoatoms"?
+            # [bruce 080320 question]
             if atm.element.eltnum >= 200:
                 return True # Exclude
         # Always exclude singlets connected to DNA p-atoms.
         if atm.element == Singlet: 
             for a in atm.neighbors():
                 if a.element.eltnum >= 200:
+                    # REVIEW: see above comment about atom.element.pam vs >= 200
                     return True
         return False # Don't exclude.
 
@@ -363,10 +371,13 @@ def writepdb(part,
     
             for b in a.bonds:
                 a2 = b.other(a)
-                # The following removes bonds b/w PAM3 axis atoms. 
+                # The following removes bonds b/w PAM3 axis atoms.
                 if excludeFlags & EXCLUDE_DNA_AXIS_BONDS:
-                    if a.element.symbol in ('Ax3', 'Ae3'):
-                        if a2.element.symbol in ('Ax3', 'Ae3'):
+##                    if a.element.symbol in ('Ax3', 'Ae3'):
+##                        if a2.element.symbol in ('Ax3', 'Ae3'):
+##                            continue
+                    #bruce 080320 bugfix: revise to cover new elements and PAM5.
+                    if a.element.role == 'axis' and a2.element.role == 'axis':
                             continue
                         
                 if a2.key in atomsTable:

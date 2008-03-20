@@ -207,10 +207,10 @@ class ops_connected_Mixin:
                     really_connected = True # will be changed to False for certain bonds below.
                     if not self.o.tripleClick:
                         # New feature:
-                        # Don't consider PAM5 strand-axis bonds as really connected unless
-                        # the user did a triple-click (on a PAM5 atom).
+                        # Don't consider PAM strand-axis bonds as really connected unless
+                        # the user did a triple-click (on a PAM atom).
                         # (initial kluge for trying it out -- needs cleanup, generalization, 
-                        # optim (use element attrs, not lists), control by option
+                        # optim (use element attrs, not lists [done now]), control by option
                         # of this method, and needs to also affect
                         # neighbors_of_last_deleted_atom() in selectMode.py ###e) [bruce 070411]
                         #
@@ -219,17 +219,8 @@ class ops_connected_Mixin:
                         # function in bond_constants.py which computes it for a pair of atoms.
                         # Someday we might have other kinds of non-connected bonds,
                         # e.g. hydrogen bonds, or higher-level analogues of that. [bruce 070411]
-
-                        ## axis_elements = ('Ax3','Ae3', 'Ax5', 'Ae5') # element.role == 'axis'
-                        ## strand_elements = ('Ss3','Pl3','Sj3','Se3','Sh3', 'Hp3',
-                        ##                    'Ss5','Pl5','Sj5','Pe5','Sh5', 'Hp5') #k needs review: does Hp belong in this list?
-                        ## # element.role == 'strand'
-                        
-                        ## if at1.element.role == 'axis' and at2.element.role == 'strand':
-                        ##     really_connected = False
-                        ## elif at2.element.role == 'axis' and at1.element.role == 'strand':
-                        ##     really_connected = False
-
+                        #
+                        # update:
                         # Revised for new role 'unpaired-base' -- just select connected sets of
                         # the same role, or connected bondpoints. (We have to include those even
                         # though they're not selectable, since we have an option to include them.)

@@ -746,45 +746,32 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # There is also a call
             # to update_selatom with singOnly = True, which doesn't have this
             # special case for non-bondpoints, but I don't know whether it's
-            # related to what happens here. And finally, the element symbols
-            # hardcoded below are no longer correct, so that Pl-Sh special case
-            # is effectively disabled!
-            # (Obsolete element symbols also appear elsewhere in *Mode.py.)
+            # related to what happens here.
             # All this may or may not relate to bug 2587.
+            #update, bruce 080320: removed nonworking code that used
+            # element symbols 'Pl' and 'Sh' (with no '5' appended).
+            # (Obsolete element symbols may also appear elsewhere in *Mode.py.)
             if a.singNeighbors():
                 if env.debug() and len(a.singNeighbors()) > 1:
                     #bruce 060721, cond revised 071121
                     print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
                 return a.singNeighbors()[0]
-            # note the obsolete element symbols below (and see comment above);
-            # needs fixing sometime.
-            if reaction_from == 'Pl' and \
-               a.element.symbol == 'Sh' and \
-               len(a.bonds) == 1 and \
-               len(a.realNeighbors()) == 1:
-                #bruce 070413 for "Joining strands by dragging a Pl bondboint 
-                # and dropping on Sh."
-                # (Should also verify the realNeighbor is an Ss, I suppose. ##e)
-                # Doing this here is not enough to make it work
-                # -- selectAtomsMode.selobj_highlight_color
-                # filters the highlighting, and also needs to know this is ok, 
-                # so I taught it (too generously, for now).
-                # That's a kluge -- we need a central source for this info.
-                if env.debug():
-                    print "reacting Pl-bondpoint to %r, by transmuting %r to a bondpoint" % (a,a)
-                a.mvElement(Singlet) ##e ok, but emits debug print 
-                                     ##-- should fix that.
-                return a
         return None
     
     #==========
+    
     def _createBond(self, s1, a1, s2, a2):
         """
         Create bond between atom <a1> and atom <a2>, <s1> and <s2>
-        are their singlets. No rotation/movement involved. Based on
-        a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05]
-                       
+        are their singlets. No rotation/movement involved.
         """
+        # Based on method actually_bond() in bonds.py--[Huaicai 8/25/05]
+        ### REVIEW: the code this is based on has, since then, been modified --
+        # perhaps bugfixed, perhaps just cleaned up. This code ought to be fixed
+        # in the same way, or (better) common helper code factored out and used.
+        # Not urgent, but keep in mind if this code might have any bugs.
+        # [bruce 080320 comment]
+        
         try: # use old code until new code works and unless new code is needed;
             # CHANGE THIS SOON #####@@@@@
             v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
@@ -796,9 +783,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             bond_atoms(a1,a2)
             return
         
-        vnew = min(v1,v2)
-        bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or
-        # reduce; let this do everything now, incl updates
+        vnew = min(v1, v2)
+        bond = bond_atoms(a1, a2, vnew, s1, s2) # tell it the singlets to replace or
+            # reduce; let this do everything now, incl updates
         return
 
 

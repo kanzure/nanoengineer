@@ -199,7 +199,7 @@ class DnaSegment(DnaStrandOrSegment):
                 atm1, atm2 = atm2, atm1
             return atm1, atm2
         elif len(endAtomList) > 2:
-            print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
+            print_compact_stack("bug: The axis chunk has more than 2 'Ae3' atoms: ")
         else:
             return None, None
         

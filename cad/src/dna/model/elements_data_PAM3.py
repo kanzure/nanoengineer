@@ -51,6 +51,8 @@ _mendeleev = [
     ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]],       dict(role = 'strand', deprecated_to = 'Ss3')),
     ("Ae3", "PAM3-Axis-End",       304, 1.0, [[3, 200, tetra3]],     dict(role = 'axis',   deprecated_to = 'Ax3')),
     ("Se3", "PAM3-Sugar-End",      305, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
+        # WARNING: Se3 is a confusing name, since Se with no '3' or '5' is Selenium (unrelated).
+        # Fortunately Se3 is one of the deprecated PAM elements, and there is no Se5. [bruce 080320]
     ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
     ("Hp3", "PAM3-Hairpin",        307, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss3')),
 

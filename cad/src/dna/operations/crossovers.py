@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 crossovers.py -- support for DNA crossovers, modelled at various levels
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
 
@@ -23,6 +23,8 @@ from model.bonds import bond_atoms_faster, bond_direction ##, bond_atoms
 from utilities.Log import redmsg, greenmsg, quote_html ##, orangemsg
 ##from debug_prefs import debug_pref, Choice
 import foundation.env as env
+
+from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from model.elements import PeriodicTable
 Element_Sj5 = PeriodicTable.getElement('Sj5')
@@ -557,7 +559,10 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     del Pl1, Pl2, twoPls
 
     # transmute base sugars to Sj or Ss as appropriate
-    want = make and Element_Sj5 or Element_Ss5
+    if dna_updater_is_enabled():
+        want = Element_Ss5 #bruce 080320 bugfix
+    else:
+        want = make and Element_Sj5 or Element_Ss5
     for obj in (a,b,c,d):
         obj.atom.Transmute(want)
         # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up.

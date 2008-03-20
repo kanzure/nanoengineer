@@ -2475,8 +2475,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         possible for the atom's element and the atom's type is not the default 
         type for that element.
         
-        If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
-        and dna base name.
+        If a PAM Ss (strand sugar) atom, returns a string like Ss28(A) with atom name
+        and dna base letter.
         """
         res = str(self)
         if self.atomtype is not self.element.atomtypes[0]:
@@ -4112,7 +4112,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         @see: self.getDnaStrandId_for_generators() for more comments.
         """
         assert self.element.symbol in ('Se3', 'Pe5', 'Pl5'), \
-            "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. " \
+            "Can only assign dnaStrandNames to Se3, Pe5, or Pl5 (PAM) atoms. " \
             "Attempting to assign dnaStrandName %r to %r of element %r." \
             % (dnaStrandId_for_generators, self, self.element.name)
         
@@ -4594,6 +4594,13 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             return None
         if atom1._dna_updater__error: #bruce 080131 new feature (part 2 of 3)
             return None
+        # REVIEW: the following should probably test element.role == 'strand',
+        # but that includes Se3 and Sh3 end-atoms, unlike this list.
+        # Not an issue when dna updater is on and working,
+        # but if it's disabled to work with an old file, that change
+        # might cause bugs. But I don't feel fully comfortable with
+        # making this depend at runtime on dna_updater_is_enabled()
+        # (not sure why). So leave it alone for now. [bruce 080320]
         symbol = atom1.element.symbol # KLUGE -- should use another element attr, or maybe Atom subclass
         if symbol[0:2] not in ('Ss', 'Sj', 'Hp', 'Pl'): # base or base linker atoms (#todo: verify or de-kluge)
             return None

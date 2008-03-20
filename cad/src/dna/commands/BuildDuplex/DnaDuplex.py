@@ -822,7 +822,7 @@ class B_Dna_PAM5(B_Dna):
                         # to 'unassigned' base i.e. 'X'
                         atom.setDnaBaseName('X')
                     else:
-                        msg = "Ss3 atom not assigned to strand 'a' or 'b'."
+                        msg = "Ss5 or Sh5 atom not assigned to strand 'a' or 'b'."
                         raise PluginBug(msg)
                 elif atom.element.symbol in ('Ax5', 'Ae5', 'Gv5', 'Gr5'):
                     _axis_list.append(atom)
@@ -876,6 +876,9 @@ class B_Dna_PAM3(B_Dna_PAM5):
         # Transmute Ax3 caps to Ae3 atoms. 
         # Note: this leaves two "killed singlets" hanging around,  
         #       one from each Ax3 cap.
+        #
+        # REVIEW: is it safe to simply not do this when dna_updater_is_enabled()?
+        # [bruce 080320 question]
         for atom in Ax_caps:
             atom.Transmute(Element_Ae3)
         
