@@ -1927,10 +1927,20 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.helpWhatsThisAction.setWhatsThis( _text )
     
-    win.helpMouseControlsAction.setWhatsThis('Displays help for mouse controls')
+    win.helpMouseControlsAction.setWhatsThis("Displays help for mouse controls")
     
-    win.helpKeyboardShortcutsAction.setWhatsThis('Displays help for keyboard"\
-    "shortcuts')
+    win.helpKeyboardShortcutsAction.setWhatsThis("Displays help for keyboard"\
+    "shortcuts")
+    
+    win.helpSelectionShortcutsAction.setWhatsThis("Displays help for selection"\
+    " controls")
+    
+    win.helpGraphicsCardAction.setWhatsThis("Displays information for the"\
+    " computer's graphics card") 
+    
+    win.helpAboutAction.setWhatsThis("Displays information about this version"\
+    " of NanoEngineer-1") 
+    
     
     #
     # Status bar
