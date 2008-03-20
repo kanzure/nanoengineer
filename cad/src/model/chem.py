@@ -802,9 +802,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     #  those selected atoms.
     #  [Q: should it apply to the subset of the same element, if that's not all?
     #   Guess: yes. That further enhancement is NIM for now.])
-    # Revision for dna data model, bruce 080320: remove entries involving
-    # deprecated PAM elements when dna updater is active. As of now,
-    # that will remove all entries!
+    # Revision for dna data model, bruce 080320: remove entries that
+    # transmute *to* deprecated PAM elements when dna updater is active.
+    # As of now, all entries go either to or from deprecated elements
+    # (or both), but some will be retained since they are
+    # "from deprecate to non-deprecated". But they won't normally show up
+    # to users since they only show up on applicable elements.
     _transmuteContextMenuEntries = {
         'Ae3': ['Ax3'],
         'Ax3': ['Ae3'],
@@ -828,7 +831,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         """
         [private helper]
 
-        Remove entries involving deprecated PAM elements
+        Remove entries going *to* deprecated PAM elements
         from class constant _transmuteContextMenuEntries
         to initialize class constant
         _transmuteContextMenuEntries_for_dna_updater.
@@ -836,23 +839,28 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         assert self._transmuteContextMenuEntries_for_dna_updater is None
         input = self._transmuteContextMenuEntries
         output = {} # modified below
-        if 0 and 'testing':
+        testing = 1 ###
+        if testing:
             input['C'] = ['Si'] # works
         for fromSymbol in input.keys():
             fromElement = PeriodicTable.getElement(fromSymbol)
-            if fromElement.deprecated_to:
-                continue
+            # don't disallow "from" a deprecated element --
+            # it might help users fix their input errors!
+            ## if fromElement.deprecated_to:
+            ##     continue
             for toSymbol in input[fromSymbol]:
                 toElement = PeriodicTable.getElement(toSymbol)
                 if toElement.deprecated_to:
                     continue
-                print "\nfyi: retaining transmute entry: %r -> %r" % (fromSymbol, toSymbol) # won't happen as of 080320
+                if testing:
+                    print "\nfyi: retaining transmute entry: %r -> %r" % (fromSymbol, toSymbol)
                 output.setdefault(fromSymbol, [])
                 output[fromSymbol].append(toSymbol)
                 continue
             continue
         self.__class__._transmuteContextMenuEntries_for_dna_updater = output
-        # print "\nfyi: _transmuteContextMenuEntries_for_dna_updater =", output
+        if testing:
+            print "\nfyi: _transmuteContextMenuEntries_for_dna_updater =", output
         return
     def make_selobj_cmenu_items(self, menu_spec):
         """
