@@ -70,34 +70,30 @@ class ops_motion_Mixin:
         @type movables: list
         
         """
+        numMovables = len(movables)
         
         if commonCenter is None:            
             # Find the common center of all selected chunks to fix bug 594 
             #--Huaicai 8/30/05
             comCenter = V(0.0, 0.0, 0.0)
+            if numMovables:
+                for m in movables: 
+                    comCenter += m.center                      
+                comCenter /= numMovables
+           
         else:
             comCenter = commonCenter
-        
-        numMovables = len(movables)
-        
-        if numMovables:
-            for m in movables: comCenter += m.center
-            
-            comCenter /= numMovables
-            
-                   
-            # Move the selected chunks    
-            for m in movables:
-                self.changed() #Not sure if this can be combined into one call
-                
-                # Get the moving offset because of the rotation around each 
-                # movable's own center
-                rotOff = quat.rot(m.center - comCenter)    
-                rotOff = comCenter - m.center + rotOff
-                                
-                m.move(rotOff) 
-                m.rot(quat) 
-        
+     
+        # Move the selected chunks    
+        for m in movables:
+            self.changed() #Not sure if this can be combined into one call
+            # Get the moving offset because of the rotation around each 
+            # movable's own center
+            rotOff = quat.rot(m.center - comCenter)  
+            rotOff = comCenter - m.center + rotOff 
+            m.move(rotOff) 
+            m.rot(quat) 
+                    
     
     def Stretch(self):
         """
