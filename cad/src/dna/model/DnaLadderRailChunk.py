@@ -566,7 +566,10 @@ class DnaLadderRailChunk(Chunk):
             rail = self.get_ladder_rail()
             baseatoms = rail.baseatoms
             for atom, i in zip(baseatoms, range(len(baseatoms))):
-                text = "(%d)" % i # smaller when works
+                baseLetter = atom.getDnaBaseName() # "" for axis
+                if baseLetter == 'X':
+                    baseLetter = ""
+                text = "(%d%s)" % (i, baseLetter)
                 pos = atom.posn() + out
                 glpane.renderText(pos[0], pos[1], pos[2], \
                           QString(text), font)
