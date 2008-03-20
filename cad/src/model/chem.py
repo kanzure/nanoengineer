@@ -336,10 +336,10 @@ _changed_picked_Atoms = {} # tracks changes to atom.picked (for live or dead ato
 register_changedict( _changed_picked_Atoms, '_changed_picked_Atoms', ('picked',) )
 
 
-_changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode is the only one so far)
-    # related attributes: display
+_changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display style, dnaBaseName)
+    # related attributes: display, _dnaBaseName
 
-register_changedict( _changed_otherwise_Atoms, '_changed_otherwise_Atoms', ('display',) )
+register_changedict( _changed_otherwise_Atoms, '_changed_otherwise_Atoms', ('display', '_dnaBaseName') )
 
 
 # Notes (design scratch): for which Atom attrs is the value mutable in practice? bonds, jigs, maybe _posn (probably not).
@@ -399,6 +399,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # (note that Nodes also have .picked, with the same meaning, but atoms
         #  are not Nodes)
     display = diDEFAULT # rarely changed for atoms
+    _dnaBaseName = "" #bruce 080319 revised this
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
@@ -500,6 +501,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     _s_attr_picked = S_DATA
     _s_categorize_picked = 'selection' ##k this is noticed and stored, but I don't think it yet has any effect (??) [bruce 060313]
     _s_attr_display = S_DATA
+    _s_attr__dnaBaseName = S_DATA #bruce 080319
     _s_attr_info = S_DATA
     _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
         # (and without it, reviving a dead atom triggered an assertfail, unsurprisingly)
@@ -3904,35 +3906,45 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     
     # default values of instance variables (some not needed):
     
-    _dna_updater__error = ""
-
-    # LIKELY BUGS: no undo decls for these attrs. [bruce 080311 comment]
+    _dna_updater__error = "" # intentionally not undoable/copyable
     
-    ## _dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
+    # this is now higher up, with an undo _s_attr decl:
+    ## _dnaBaseName = "" #bruce 080319 revised
 
     ## _dnaStrandId_for_generators -- set when first demanded, or can be explicitly set
     ## using setDnaStrandId_for_generators(). 
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
+        #bruce 080319 revised, mainly to support undo/copy
         """
         Set the Dna base name. This is only valid for PAM atoms in the list
         'Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5', i.e. strand sugar atoms.
         
         @param dnaBaseName: The DNA base name. This is usually a single letter,
-                            but it can be more. Only letters are valid.
+                            but it can be more. Only letters are valid
+                            (but this is not enforced here).
         @type  dnaBaseName: str
         
-        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid 
-                character(s).
+        @raise: If self is not Sj or Ss (or similar).
         
         """
+        # TODO: make this tuple and the same one in getDnaBaseName a named constant
+        # (or use a boolean element attribute).
         assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5'), \
             "Can only assign dnaBaseNames to PAM strand sugar atoms. " \
             "Attempting to assign dnaBaseName %r to %r of element %r." \
             % (dnaBaseName, self, self.element.name)
-                
-        self._dnaBaseName = dnaBaseName
-        
+
+        if dnaBaseName == 'X':
+            dnaBaseName = ""
+
+        if self._dnaBaseName != dnaBaseName:
+            self._dnaBaseName = dnaBaseName
+            _changed_otherwise_Atoms[self.key] = self #bruce 080319
+            # todo: in certain display styles, self.molecule.changeapp(0)
+            self.changed() # bruce 080319
+        return
+    
     def getDnaBaseName(self):
         """
         Returns the value of attr I{_dnaBaseName}.
