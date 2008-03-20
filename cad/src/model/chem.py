@@ -839,7 +839,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         assert self._transmuteContextMenuEntries_for_dna_updater is None
         input = self._transmuteContextMenuEntries
         output = {} # modified below
-        testing = 1 ###
+        testing = False
         if testing:
             input['C'] = ['Si'] # works
         for fromSymbol in input.keys():
