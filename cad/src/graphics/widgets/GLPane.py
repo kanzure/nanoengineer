@@ -2034,6 +2034,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         except:
             print_compact_traceback("exception in mode's mouseReleaseEvent handler (bug, ignored): ") #bruce 060126
 
+        # piotr 080320:
+        # "fast manipulation" mode where the external bonds are not displayed
+        # the glpane has to be redrawn after mouse button is released
+        # to show the bonds again
+        if debug_pref("GLPane: suppress external bonds when dragging?",
+               Choice_boolean_False,
+               non_debug = True,
+               prefs_key = True
+               ):
+            self.gl_update()
+    
         self.checkpoint_after_drag(event) #bruce 060126 moved this later, to fix bug 1384, and split it out, for clarity
         return
 
@@ -3170,6 +3181,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(self.aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
+                
         #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
         # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
         # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;

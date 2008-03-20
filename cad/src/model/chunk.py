@@ -1786,18 +1786,28 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # [bruce 050513 comment]
         if self.externs:
             self._draw_external_bonds(glpane, disp, drawLevel)
-
-        self._draw_dna_markers(glpane) # piotr 080314
         
         return # from Chunk.draw()
 
     def _draw_external_bonds(self, glpane, disp, drawLevel): #bruce 080215 split this out, added debug_pref
-        if not self.assy.o.is_animating or \
-           not debug_pref("GLPane: suppress external bonds when animating?",
-                          Choice_boolean_False,
-                          non_debug = True,
-                          prefs_key = True
-                          ):
+        # piotr 080320: if this debug_pref is set, the external bonds 
+        # are hidden whenever mouse is dragged. this speeds up interactive 
+        # manipulation of DNA segments by a factor of 3-4x in tube 
+        # or balls-and-sticks display styles.
+        # this extends the prevoius condition to suppress the external
+        # bonds during animation. 
+        if (not glpane.in_drag or \
+            not debug_pref("GLPane: suppress external bonds when dragging?",
+                           Choice_boolean_False,
+                           non_debug = True,
+                           prefs_key = True
+                           )) and \
+           (not self.assy.o.is_animating or \
+            not debug_pref("GLPane: suppress external bonds when animating?",
+                           Choice_boolean_False,
+                           non_debug = True,
+                           prefs_key = True
+                           )):
             bondcolor = self.drawing_color()
             ColorSorter.start(None) # grantham 20051205 #russ 080225: Added arg.
 
@@ -1840,32 +1850,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     bond.draw(glpane, disp, bondcolor, drawLevel)
             ColorSorter.finish() # grantham 20051205
         return # from _draw_external_bonds
-
-    def _draw_dna_markers(self, glpane): # piotr 080314
-        """
-        Draw realtime markers to highlight DNA bases perpendicular 
-        to the view plane.
-        """
-        from utilities.constants import lightgreen
-        from geometry.VQT import norm, angleBetween
-        if debug_pref("Draw DNA markers",
-                         Choice_boolean_False,
-                         prefs_key = True,
-                         non_debug = False):            
-            if self.isStrandChunk(): 
-                n_bases = self.ladder.baselength()
-                if self==self.ladder.strand_rails[0].baseatoms[0].molecule:
-                    chunk_strand = 0
-                else:
-                    chunk_strand = 1
-                for pos in range(0,n_bases):
-                    atom1 = self.ladder.strand_rails[chunk_strand].baseatoms[pos]
-                    atom2 = self.ladder.axis_rail.baseatoms[pos]
-                    # calculate an angle between axis-base vector
-                    # and a normal to the current view plane
-                    a = angleBetween(glpane.out,atom1.posn()-atom2.posn())
-                    if abs(a)<30.0: 
-                        drawer.drawsphere(lightgreen,atom1.posn(),1.5,2)
         
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
 ##        "[private submethod of self.draw]"
