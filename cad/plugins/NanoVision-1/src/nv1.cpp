@@ -42,6 +42,7 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 
 /* DESTRUCTOR */
 nv1::~nv1() {
+	NXLOG_DEBUG("nv1", "Destructor called.");
 }
 
 
@@ -114,6 +115,7 @@ void nv1::closeEvent(QCloseEvent *event) {
     if (resultsWindow != 0)
         delete resultsWindow;
     
+	NXLOG_INFO("nv1", "Writing settings.");
     writeSettings();
     event->accept();
 }

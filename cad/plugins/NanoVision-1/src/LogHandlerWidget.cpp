@@ -11,7 +11,7 @@ LogHandlerWidget::LogHandlerWidget(NXLogLevel logLevel, QWidget* parent)
 
     QFont font;
 #if defined(WIN32)
-	font.setPointSize(13); // TODO: set
+	font.setPointSize(8); // TODO: set
 #elif defined(__APPLE__)
     font.setPointSize(11);
 #else

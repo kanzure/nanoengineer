@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
 	//splash->finish(mainWindow);
 	//delete splash;
 	int appReturn = app->exec();
+	NXLOG_DEBUG("main", "QApplication::exec() returned.");
 	delete app;
 	return appReturn;
 }
