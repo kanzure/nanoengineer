@@ -242,15 +242,33 @@ class Process(QProcess):
         like set_stdout, set_stderr, setWorkingDirectory,
         and optionally setArguments if args are not provided here.
         """
-        #print "%s: starting" % self.processName
+        # IMPORTANT: program and args that contain spaces need to be quoted.
+        # Running a program that has spaces in its path or args with spaces
+        # will fail. This is a major bug and needs to be fixed.
+        # See http://doc.trolltech.com/4.3/qprocess.html#start
+        # Leave the print statements (below) in until the bug mentioned above
+        # is fixed. --Mark 2008-03-20
         if (args is None):
             args = []
         self.currentError = None
-        self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
-
-        if (background):
-            return 0
-        return self.getExitValue(abortHandler)
+        
+        if background:
+            print "\n%s [%s]: starting in the background with args:\n%s" \
+                  % (self.processName, program, args)
+            # Run 'program' as a separate process. 
+            # startDetached() returns True on success.
+            rval = not self.startDetached(program, args)
+        else:
+            print "\n%s [%s]: starting in the foreground with args:\n%s" \
+                  % (self.processName, program, args)
+            # Run 'program' as a child process.
+            self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
+            rval = self.getExitValue(abortHandler)
+        
+        if 1:
+            print "%s: started. Return val=%d" % (self.processName, rval)
+        return rval
+        
     pass
 
 def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
