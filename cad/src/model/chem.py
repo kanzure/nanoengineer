@@ -2117,12 +2117,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         # mark 2007-08-16: write dnaBaseName info record.
         dnaBaseName = self.getDnaBaseName()
-        if dnaBaseName: ## and dnaBaseName != 'X':
-            #bruce 080311 comment about a desirable optimization --
-            # probably we should not write 'X',
-            # since it's assumed when not present by some calling code,
-            # and could be by more if desired. Needs more review for safety
-            # in the current code that sets and uses this.
+        if dnaBaseName and dnaBaseName != 'X':
+            #bruce 080319 optimization -- never write this when it's 'X',
+            # since it's assumed to be 'X' when not present (for valid atoms).
             mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
         # Note: maybe we should disable this *except* for Pe atoms
@@ -3958,14 +3955,23 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         #it makes the dnaBaseName as 'X' (unassigned base) . This is useful 
         #while reading in the strand sequence. See chunk.getStrandSequence()
         #or DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
-        
-        baseNameString = self.__dict__.get('_dnaBaseName', "")
-        
-        if not baseNameString: 
-            valid_element_symbols = ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5')
-            if self.element.symbol in valid_element_symbols:
-                baseNameString = 'X'     
 
+        valid_element_symbols = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
+            # review: not the same as role == 'strand'... but is it if we exclude Pl?
+        allowed_on_this_element = (self.element.symbol in valid_element_symbols)
+        
+        baseNameString = self.__dict__.get('_dnaBaseName', "") # modified below
+
+        if not allowed_on_this_element:
+            #bruce 080319 change: enforce this never existing on disallowed
+            # element (probably just a clarification, since setting code was
+            # probably already enforcing this)
+            baseNameString = ""
+        else:
+            if not baseNameString:
+                baseNameString = 'X' # unassigned base
+            pass
+        
         return baseNameString
     
     def get_strand_atom_mate(self):
