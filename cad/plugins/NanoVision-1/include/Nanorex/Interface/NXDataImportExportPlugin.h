@@ -14,9 +14,7 @@ using namespace std;
 
 #include <QtPlugin>
 
-//#include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXCommandResult.h"
-//#include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
 #include "Nanorex/Interface/NXDataStoreInfo.h"
 
@@ -62,6 +60,6 @@ class NXDataImportExportPlugin {
 } // Nanorex::
 
 Q_DECLARE_INTERFACE(Nanorex::NXDataImportExportPlugin,
-					"com.Nanorex.Interface.NXDataImportExportPlugin/1.0")
+					"com.Nanorex.Interface.NXDataImportExportPlugin/0.1.0")
 
 #endif

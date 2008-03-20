@@ -343,8 +343,6 @@ void ResultsWindow::setupSingleStructureTree(void)
     fileItem->setText(0, fileName);
 	fileItem->setFlags(Qt::ItemIsEnabled);
     resultsTree->addTopLevelItem(fileItem);
-    //QString const fileSuffix = fileInfo.suffix();
-    //resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
     
     if(isMMPFile(singleStructureFileName)) {
         int frameSetID = dataStoreInfo->getSingleStructureId();

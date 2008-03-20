@@ -16,7 +16,7 @@ void NXEntityManagerTest::setUp() {
 
 /* FUNCTION: tearDown */
 void NXEntityManagerTest::tearDown() {
-	//delete entityManager;
+	delete entityManager;
 }
 
 

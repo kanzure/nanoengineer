@@ -17,13 +17,15 @@ NXEntityManager::NXEntityManager() {
 
 /* DESTRUCTOR */
 NXEntityManager::~NXEntityManager() {
-	//delete rootMoleculeSet;
+	reset();
+	delete dataStoreInfo;
 }
 
 
 /* FUNCTION: reset */
 void NXEntityManager::reset(void) {
 	dataStoreInfo->reset();
+	
 	vector<vector<NXMoleculeSet*> >::iterator v;
 	for (v = moleculeSets.begin(); v != moleculeSets.end(); ++v) {
 		vector<NXMoleculeSet*>::iterator w;
@@ -117,55 +119,65 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 
 		} else {
 			plugin = qobject_cast<NXDataImportExportPlugin*>(pluginObject);
+			if (plugin == 0) {
+				msg =
+					"Couldn't load Data Import/Export plugin: " + pluginLibrary
+					+ " object is wrong type.";
+				NXLOG_WARNING("NXEntityManager", msg);
+				
+			} else {
 			
-			// Import formats registration
-			pluginFormats =
-				string(properties->getProperty(pluginKey +
-							".importFormats"));
-			if (importFileTypesString.length() == 0)
-				importFileTypesString = pluginFormats;
-			else
-				importFileTypesString.append(";;").append(pluginFormats);
-			int index1 = pluginFormats.find("(");
-			int index2 = 0;
-			string formats, format;
-			while (index1 > 0) {
-				index2 = pluginFormats.find(")", index1 + 1);
-				formats = pluginFormats.substr(index1 + 1, index2 - index1 - 1);
-				NXStringTokenizer tokenizer(formats, " ");
-				while (tokenizer.hasMoreTokens()) {
-					format = tokenizer.getNextToken();
-					// Remove the "*."
-					format = format.substr(2);
-					dataImportTable[format] = plugin;
+				// Import formats registration
+				pluginFormats =
+					string(properties->getProperty(pluginKey +
+								".importFormats"));
+				if (importFileTypesString.length() == 0)
+					importFileTypesString = pluginFormats;
+				else
+					importFileTypesString.append(";;").append(pluginFormats);
+				int index1 = pluginFormats.find("(");
+				int index2 = 0;
+				string formats, format;
+				while (index1 > 0) {
+					index2 = pluginFormats.find(")", index1 + 1);
+					formats =
+						pluginFormats.substr(index1 + 1, index2 - index1 - 1);
+					NXStringTokenizer tokenizer(formats, " ");
+					while (tokenizer.hasMoreTokens()) {
+						format = tokenizer.getNextToken();
+						// Remove the "*."
+						format = format.substr(2);
+						dataImportTable[format] = plugin;
+					}
+					index1 = pluginFormats.find("(", index2 + 1);
 				}
-				index1 = pluginFormats.find("(", index2 + 1);
-			}
-
-			// Export formats registration
-			pluginFormats =
-				string(properties->getProperty(pluginKey +
-							".exportFormats"));
-			if (exportFileTypesString.length() == 0)
-				exportFileTypesString = pluginFormats;
-			else
-				exportFileTypesString.append(";;").append(pluginFormats);
-			index1 = pluginFormats.find("(");
-			index2 = 0;
-			while (index1 > 0) {
-				index2 = pluginFormats.find(")", index1 + 1);
-				formats = pluginFormats.substr(index1 + 1, index2 - index1 - 1);
-				NXStringTokenizer tokenizer(formats, " ");
-				while (tokenizer.hasMoreTokens()) {
-					format = tokenizer.getNextToken();
-					// Remove the "*."
-					format = format.substr(2);
-					dataExportTable[format] = plugin;
+	
+				// Export formats registration
+				pluginFormats =
+					string(properties->getProperty(pluginKey +
+								".exportFormats"));
+				if (exportFileTypesString.length() == 0)
+					exportFileTypesString = pluginFormats;
+				else
+					exportFileTypesString.append(";;").append(pluginFormats);
+				index1 = pluginFormats.find("(");
+				index2 = 0;
+				while (index1 > 0) {
+					index2 = pluginFormats.find(")", index1 + 1);
+					formats =
+						pluginFormats.substr(index1 + 1, index2 - index1 - 1);
+					NXStringTokenizer tokenizer(formats, " ");
+					while (tokenizer.hasMoreTokens()) {
+						format = tokenizer.getNextToken();
+						// Remove the "*."
+						format = format.substr(2);
+						dataExportTable[format] = plugin;
+					}
+					index1 = pluginFormats.find("(", index2 + 1);
 				}
-				index1 = pluginFormats.find("(", index2 + 1);
+				msg = "Loaded plugin: " + pluginLibrary;
+				NXLOG_INFO("NXEntityManager", msg);
 			}
-			msg = "Loaded plugin: " + pluginLibrary;
-			NXLOG_INFO("NXEntityManager", msg);
 		}
 		pluginIndex++;
 		pluginKey =
@@ -186,7 +198,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 												 int frameSetId,
 												 bool inPollingThread,
 												 bool inRecursiveCall) {
-	NXCommandResult* result;
+	NXCommandResult* result = NULL;
 	//PR_Lock(importExportPluginsMutex);
 	
 	string fileType = getFileType(filename);
@@ -203,6 +215,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 		if (!inPollingThread && !inRecursiveCall)
 			dataStoreInfo->setFileName(filename, frameSetId);
 		int frameIndex = getFrameCount(frameSetId); // Theoretical new frame id
+		bool moleculeSetRegistered = false;
 		NXMoleculeSet* moleculeSet = new NXMoleculeSet();
 
 		try {
@@ -222,6 +235,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				} else {
 					int oldFrameIndex = frameIndex;
 					frameIndex = addFrame(frameSetId, moleculeSet);
+					moleculeSetRegistered = true;
 					if (frameIndex != oldFrameIndex)
 						NXLOG_WARNING("NXEntityManager::importFromFile",
 									  "Frame indexes out of sync.");
@@ -245,6 +259,8 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				while (!inRecursiveCall &&
 					   (!dataStoreInfo->isLastFrame(frameSetId)) &&
 					   (result->getResult() == NX_CMD_SUCCESS)) {
+					delete result;
+					result = NULL;
 					frameIndex = addFrame(frameSetId);
 					result =
 						plugin->importFromFile(getRootMoleculeSet(frameSetId,
@@ -293,6 +309,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 								NXLOG_INFO("NXEntityManager",
 										   qPrintable(logMessage));
 							}
+							delete _result;
 						}
 						iter++;
 					}
@@ -307,8 +324,9 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					pollingThread->start();
 				}
 				
-			} else
+			} else {
 				delete moleculeSet;
+			}
 				
 			if (inPollingThread && dataStoreInfo->storeIsComplete(frameSetId) &&
 				!storeIsComplete_Emitted[frameSetId]) {
@@ -318,7 +336,11 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 			}
 
 		} catch (...) {
-			delete moleculeSet;
+			if (!moleculeSetRegistered)
+				delete moleculeSet;
+			
+			if (result != NULL)
+				delete result;
 			
 			string msg = fileType;
 			msg += "->importFromFile() threw exception";
@@ -372,7 +394,7 @@ NXCommandResult* NXEntityManager::exportToFile
 	 *		 yet. This would be File | Export | Entire results...
 	 */
 		
-	NXCommandResult* result = 0;
+	NXCommandResult* result = NULL;
 	//PR_Lock(importExportPluginsMutex);
 	
 	// TODO: Abort if there are no molecule sets, general error checking.
@@ -401,6 +423,7 @@ NXCommandResult* NXEntityManager::exportToFile
 			while (allFrameExport &&
 				   (iter != moleculeSets[frameSetId].end()) &&
 				   (result->getResult() == NX_CMD_SUCCESS)) {
+				delete result;
 				dataStoreInfo->setLastFrame
 					(frameSetId,
 					 frameIndex > (int)moleculeSets[frameSetId].size() - 2);
@@ -418,6 +441,9 @@ NXCommandResult* NXEntityManager::exportToFile
 			string msg = fileType;
 			msg += "->exportToFile() threw exception";
 			NXLOG_SEVERE("NXEntityManager", msg);
+			
+			if (result != NULL)
+				delete result;
 
 			result->setResult(NX_PLUGIN_CAUSED_ERROR);
 			std::vector<QString> resultVector;

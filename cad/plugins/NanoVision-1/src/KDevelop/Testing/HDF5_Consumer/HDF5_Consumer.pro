@@ -3,7 +3,10 @@ SOURCES += ../../../Testing/HDF5_Consumer/HDF5_Consumer.cpp
 TEMPLATE = app
 
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
-../../../../include
+ ../../../../include \
+ ../../../../src
+# The "../../../src" is temporary for NXEntityManager to access an
+# HDF5_SimResultsImportExport plugin function directly.
 
 LIBS += -L$(OPENBABEL_LIBPATH) \
 -L../../../../lib \

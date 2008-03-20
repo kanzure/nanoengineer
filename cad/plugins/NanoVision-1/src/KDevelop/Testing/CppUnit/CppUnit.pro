@@ -23,7 +23,10 @@ LIBS += -L../../../../lib \
 
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH) \
- $(HDF5_SIMRESULTS_INCPATH)
+ $(HDF5_SIMRESULTS_INCPATH) \
+ ../../../../src
+# The "../../../src" is temporary for NXEntityManager to access an
+# HDF5_SimResultsImportExport plugin function directly.
 
 HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Utility/NXLoggerTest.h \

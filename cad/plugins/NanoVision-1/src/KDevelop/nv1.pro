@@ -9,6 +9,6 @@ CONFIG += warn_on \
 SUBDIRS += Utility \
   Interface \
   Plugins \
- nv1
-#   Testing 
+ nv1 \
+   Testing 
 
