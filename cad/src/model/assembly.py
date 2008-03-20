@@ -838,9 +838,20 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             env.do_post_event_updates() #bruce 050627 this replaces update_bonds
         
         if do_special_updates_after_readmmp:
-            # do the "post-updaters" updates of this kind.
-            from dna.updater.fix_after_readmmp import fix_after_readmmp_after_updaters
-            fix_after_readmmp_after_updaters(self)
+            # Do the "post-updaters" updates of this kind.
+            # For now, there is only one (hardcoded), for the dna updater.
+            # And [bruce 080319 bugfix] it's only safe if the last potential run
+            # of the dna updater (in env.do_post_event_updates, above)
+            # actually happened, and succeeded.
+            from dna.updater.fix_after_readmmp import fix_after_readmmp_after_updaters            
+            import model.global_model_changedicts as global_model_changedicts
+            from model.global_model_changedicts import LAST_RUN_SUCCEEDED
+            if global_model_changedicts.status_of_last_dna_updater_run == LAST_RUN_SUCCEEDED:
+                fix_after_readmmp_after_updaters(self)
+            else:
+                print "fyi: skipped fix_after_readmmp_after_updaters since status_of_last_dna_updater_run = %r, needs to be %r" % \
+                      ( global_model_changedicts.status_of_last_dna_updater_run, LAST_RUN_SUCCEEDED )
+            pass
         
         return # from update_parts
     

@@ -63,4 +63,14 @@ changed_bond_types = {}
 
 # ==
 
+# status codes for updater runs of all kinds
+# (not yet used for all updaters, though).
+
+LAST_RUN_DIDNT_HAPPEN = 9 # due to all updaters skipped, or that updater disabled, or program just started
+LAST_RUN_IS_ONGOING = 10
+LAST_RUN_FAILED = 11 # i.e. raised an exception and ended early
+LAST_RUN_SUCCEEDED = 12
+
+status_of_last_dna_updater_run = LAST_RUN_DIDNT_HAPPEN
+
 # end

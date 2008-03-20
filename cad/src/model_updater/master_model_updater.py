@@ -45,6 +45,13 @@ bruce 080305 added _autodelete_empty_groups.
 from model.global_model_changedicts import changed_structure_atoms
 from model.global_model_changedicts import changed_bond_types
 
+from model.global_model_changedicts import LAST_RUN_DIDNT_HAPPEN
+from model.global_model_changedicts import LAST_RUN_IS_ONGOING
+from model.global_model_changedicts import LAST_RUN_FAILED
+from model.global_model_changedicts import LAST_RUN_SUCCEEDED
+
+import model.global_model_changedicts as global_model_changedicts # for setting flags in it
+
 import foundation.env as env
 from utilities.Log import redmsg
 
@@ -92,6 +99,7 @@ def _master_model_updater( warn_if_needed = False ):
         # to also use the global assy to store this.
         kluge_main_assy = env.mainwindow().assy
         if not kluge_main_assy.assy_valid:
+            global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_DIDNT_HAPPEN
             msg = "deferring _master_model_updater(warn_if_needed = %r) " \
                   "since not %r.assy_valid" % (warn_if_needed, kluge_main_assy)
             print_compact_stack(msg + ": ") # soon change to print...
@@ -99,7 +107,7 @@ def _master_model_updater( warn_if_needed = False ):
         pass
 
     env.history.emit_all_deferred_summary_messages() #bruce 080212 (3 places)
-    
+
     _run_dna_updater()
 
     env.history.emit_all_deferred_summary_messages()
@@ -119,19 +127,26 @@ def _master_model_updater( warn_if_needed = False ):
 def _run_dna_updater(): #bruce 080210 split this out
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here
+    #bruce 080319 added sets of status_of_last_dna_updater_run
     if debug_pref_use_dna_updater():
         # never implemented sufficiently: if ...: _reload_dna_updater()
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
         from dna.updater.dna_updater_main import full_dna_update
             # soon will be toplevel import
+        global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_IS_ONGOING
         try:
             full_dna_update()
         except:
+            global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_FAILED
             msg = "\n*** exception in dna updater; will attempt to continue"
             print_compact_traceback(msg + ": ")
             msg2 = "Error: exception in dna updater (see console for details); will attempt to continue"
             env.history.message(redmsg(msg2))
+        else:
+            global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_SUCCEEDED            
         pass
+    else:
+        global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_DIDNT_HAPPEN
     return
 
 # ==
