@@ -55,6 +55,8 @@ from utilities.debug import print_compact_traceback
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 from utilities.constants import ave_colors, black, red, white, darkgreen
 
+from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 
 # piotr 080309: user pereferences for DNA style
@@ -487,76 +489,117 @@ class DnaCylinderChunks(ChunkDisplayMode):
         """
         Draws the chunk style that may depend on a current view.
         These are experimental features, work in progress as of 080319.
+        For the DNA style, draws base orientation indicators and strand labels.
+        080321 piotr: added better label positioning
+        and 
         """
         from utilities.constants import lightgreen
         from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
         from widgets.widget_helpers import RGBf_to_QColor
+        from dna.model.DnaLadderRailChunk import DnaStrandChunk
 
-        if 1: # orientation markers
+        
+        if debug_pref("Draw DNA base orientation indicators?",
+                         Choice_boolean_False,
+                         prefs_key = True,
+                         non_debug = False ): # draw the orientation indicators
+            self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
+            self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
+            self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
+            dnaBaseOrientationThreshold = 30.0
             if chunk.isStrandChunk(): 
-                n_bases = chunk.ladder.baselength()
-                if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
-                    chunk_strand = 0
-                else:
-                    chunk_strand = 1
-                for pos in range(0,n_bases):
-                    atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
-                    atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                    # compute a normal to the view plane
-                    vz = glpane.quat.unrot(V(0.0,0.0,1.0)) 
-                    v2 = norm(atom1.posn()-atom2.posn())
-                    a = angleBetween(vz,v2)
-                    if abs(a)<30.0:
-                        drawer.drawsphere(lightgreen,atom1.posn()-chunk.center,1.5,2)
+                if self.dnaStyleStrandsShape>0 or \
+                   self.dnaStyleBasesShape>0 or \
+                   self.dnaStyleStrutsShape>0:                   
+                    n_bases = chunk.ladder.baselength()
+                    if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+                        chunk_strand = 0
+                    else:
+                        chunk_strand = 1
+                    for pos in range(0,n_bases):
+                        atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+                        atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+                        # compute a normal to the view plane
+                        vz = glpane.out 
+                        v2 = norm(atom1.posn()-atom2.posn())
+                        # calculate an angle between this vector 
+                        # and the vector towards the viewer
+                        a = angleBetween(vz,v2)
+                        if abs(a)<dnaBaseOrientationThreshold:
+                            drawer.drawsphere(
+                                lightgreen,atom1.posn()-chunk.center,1.5,2)
 
-        if 0: # labels
-            n_bases = chunk.ladder.baselength()
+        if debug_pref("Draw DNA strand labels?",
+                         Choice_boolean_False,
+                         prefs_key = True,
+                         non_debug = False ): # draw the strand labels
+
+            self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
+            self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
+            self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
+
             if chunk.isStrandChunk(): 
-                if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
-                    chunk_strand = 0
-                else:
-                    chunk_strand = 1
-                """
-                labelFont = QFont( QString("Helvetica"), 20)     
-                glpane.qglColor(RGBf_to_QColor(black))
-                fm = QFontMetrics(labelFont)
-                label_text = QString(chunk.dad.name)
-                textsize = fm.width(label_text)
-                textpos = 0.0-12.0*glpane.up+15.0*glpane.out-0.5*textsize*glpane.right
-                glpane.renderText(textpos[0], textpos[1], textpos[2], 
-                                  label_text, labelFont)
-                """
-                if chunk_strand==0:
-                    atom = chunk.ladder.strand_rails[chunk_strand].baseatoms[0]
-                else:
-                    atom = chunk.ladder.strand_rails[chunk_strand].baseatoms[n_bases-1]                
-            else:
-                atom = chunk.ladder.axis_rail.baseatoms[n_bases-1]                
+                if self.dnaStyleStrandsShape>0 or \
+                   self.dnaStyleBasesShape>0 or \
+                   self.dnaStyleStrutsShape>0:                   
+                    
+                    # I need to find a 5' sugar atom of the strand
+                    # is there any more efficient way of doing that?
+                    # this is terribly slow... I need something like
+                    # "get_strand_chunks_in_bond_direction"...             
+                    # (copied from DnaStrand)
+         
+                    strandGroup = chunk.parent_node_of_class(chunk.assy.DnaStrand)
+                    if strandGroup is None:
+                        strand = chunk
+                    else:
+                         #dna_updater case which uses DnaStrand object for 
+                         #internal DnaStrandChunks
+                        strand = strandGroup                  
+                                
+                    rawAtomList = []
+                    for c in strand.members:
+                        if isinstance(c, DnaStrandChunk):
+                            rawAtomList.extend(c.atoms.itervalues())
+                            
+                    atoms_dir = strand.get_strand_atoms_in_bond_direction(rawAtomList)
+        
+                    atom = atoms_dir[1]
+                    if atom.molecule!=chunk: 
+                        return # this is not the first chunk, so return
+        
+                    # vector to move the label slightly away from the atom center
+                    halfbond = 0.5*(atoms_dir[1].posn()-atoms_dir[2].posn())
                 
-            labelFont = QFont( QString("Helvetica"), 24)     
-            labelFontBold = QFont( QString("HelveticaBold"), 24)     
-            glpane.qglColor(RGBf_to_QColor(chunk.color))
-            fm = QFontMetrics(labelFont)
-            label_text = QString(chunk.name)
-            textsize = fm.width(label_text)
-            # textpos = atom.posn()-chunk.center+10.0*glpane.out
-
-            x = V(0.0,0.0,0.0)
-            nb = 0.0
-            for n in atom.neighbors():
-                x += (atom.posn()-n.posn())
-                nb += 1.0
-            x /= nb
+                    # calculate text size
+                    # this is kludgy...
+                    font_scale = int(1000.0/glpane.scale)
+                    if font_scale<9: font_scale = 9
+                    if font_scale>50: font_scale = 50
+                    
+                    labelFont = QFont( QString("Helvetica"), font_scale)     
+                    glpane.qglColor(RGBf_to_QColor(chunk.color))
+                    fm = QFontMetrics(labelFont)
+                    label_text = QString(strand.name)
+                    textsize = fm.width(label_text)
+                    
+                    # calculate the text position
+                    # move into viewers direction
+                    textpos = atom.posn()-chunk.center+halfbond+10.0*glpane.out 
+                    
+                    # calculate shift for right alignment... kludge
+                    dright = 0.0025*textsize*glpane.scale*glpane.right 
+        
+                    # check if the alignment is necessary
+                    if dot(glpane.right,halfbond)<0.0:
+                        textpos -= dright
+                    
+                    # draw the label
+                    glDisable(GL_LIGHTING)
+                    glpane.renderText(
+                        textpos[0], textpos[1], textpos[2], label_text, labelFont)
+                    glEnable(GL_LIGHTING)
             
-            x = glpane.quat.unrot(x)
-            
-            textpos = atom.posn()+0.5*x+10.0*glpane.out
-            #+15.0*glpane.out###-float(textsize)*glpane.right/glpane.scale
-            glDisable(GL_LIGHTING)
-            glpane.renderText(textpos[0], textpos[1], textpos[2], 
-                              label_text, labelFontBold)
-            glEnable(GL_LIGHTING)
-
     def writepov(self, chunk, memo, file):
         """
         Renders the chunk to a POV-Ray file.

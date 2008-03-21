@@ -172,6 +172,25 @@ class ChunkDisplayMode(DisplayMode):
         self.drawchunk_selection_frame( glpane, chunk, selection_frame_color, memo, highlighted = highlighted)
         return
 
+    def _drawchunk_realtime(self, glpane, chunk):
+        """
+        Call the drawing method that may depend on current view settings,
+        e.g. orientation. 
+        piotr 080313
+        """
+        # assume we don't need memo here       
+        ### memo = self.getmemo(chunk) 
+        self.drawchunk_realtime(glpane, chunk)
+        return
+
+    def _writepov(self, chunk, file):
+        """ 
+        piotr 080314
+        Render the chunk to a POV-Ray file
+        """
+        memo = self.getmemo(chunk)        
+        self.writepov(chunk, memo, file)
+        
     def getmemo(self, chunk):
         """
         [needs doc]

@@ -1796,6 +1796,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             #@@ninad 070219 disabling the following--
             #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
 
+            # piotr 080320
+            if hd:
+                hd._drawchunk_realtime(glpane, self)
+                
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                    "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)

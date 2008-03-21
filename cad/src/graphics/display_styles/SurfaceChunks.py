@@ -531,6 +531,12 @@ class SurfaceChunks(ChunkDisplayMode):
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
         drawer.drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
         return
+    def drawchunk_realtime(self, glpane, chunk):
+        """
+        Draws the chunk style that may depend on a current view.
+        piotr 080320
+        """        
+        return    
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
         compute that info and return it.
