@@ -962,7 +962,7 @@ restored when the user undoes a structural change.</p>
                       self.set_nanohive_path)
         self.connect(self.nanohive_choose_btn,
                      SIGNAL("clicked()"),
-                     self.set_nanohive_path)
+                     self.choose_nanohive_path)
         
         # POV-Ray signal-slot connections.
         self.connect(self.povray_checkbox,
@@ -973,7 +973,7 @@ restored when the user undoes a structural change.</p>
                       self.set_povray_path)
         self.connect(self.povray_choose_btn,
                      SIGNAL("clicked()"),
-                     self.set_povray_path)
+                     self.choose_povray_path)
         
         # POV dir signal-slot connections.
         self.connect(self.povdir_checkbox,
@@ -2992,7 +2992,7 @@ restored when the user undoes a structural change.</p>
     
     # NanoHive-1 slots #####################################
 
-    def set_nanohive_path(self):
+    def choose_nanohive_path(self):
         """
         Slot for Nano-Hive path "Choose" button.
         """
