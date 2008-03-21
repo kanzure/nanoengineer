@@ -68,6 +68,8 @@ from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import gromacs_path_prefs_key
 from utilities.prefs_constants import cpp_enabled_prefs_key
 from utilities.prefs_constants import cpp_path_prefs_key
+from utilities.prefs_constants import nv1_enabled_prefs_key
+from utilities.prefs_constants import nv1_path_prefs_key
 
 from utilities.prefs_constants import MINIMIZE_ENGINE_UNSPECIFIED
 from utilities.prefs_constants import MINIMIZE_ENGINE_GROMACS_FOREGROUND
@@ -204,6 +206,29 @@ class SimRunner:
         if not use_dylib_sim:
             env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
         return
+    
+    def verifyNanoVision1Plugin(self):
+        """
+        Verify NanoVision-1 plugin.
+        
+        @return: True if NanoVision-1 is properly enabled.
+        @rtype: boolean
+        """
+        
+        plugin_name = "NanoVision-1"
+        plugin_prefs_keys = (nv1_enabled_prefs_key, nv1_path_prefs_key)
+            
+        errorcode, errortext_or_path = \
+                 checkPluginPreferences(plugin_name, plugin_prefs_keys,
+                                        insure_executable = True)
+        if errorcode:
+            msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
+            env.history.message(msg)
+            return False
+        
+        self.nv1_executable_path = errortext_or_path
+        
+        return True
 
     def verifyGromacsPlugin(self):
         """
