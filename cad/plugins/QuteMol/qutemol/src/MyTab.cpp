@@ -23,6 +23,11 @@
 #include<wx/utils.h>
 #include<wx/stdpaths.h>
 
+#include "image/logo.xpm"
+#include "image/geo1.xpm"
+#include "image/geo2.xpm"
+#include "image/geo3.xpm"
+
 const float MAX_BLEND = 0.25; // maximal blend factor for colors (when per chain)
 
 // GEOM TAB
@@ -891,7 +896,8 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
     
     buttonSetSpacefill = new wxRadioButton(this, ID_SetSpacefill, _T(""), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE );
     
-    wxStaticBitmap *bitmap1 = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("geo1")), wxDefaultPosition );
+    wxBitmap geo1Bitmap(geo1_xpm, wxBITMAP_TYPE_XPM);
+    wxStaticBitmap *bitmap1 = new wxStaticBitmap(this, wxID_ANY, geo1Bitmap, wxDefaultPosition );
     
     sizer1->Add(bitmap1);
     sizer1->Add(5, 5,      1,  wxALL, 5); // spacer
@@ -907,7 +913,8 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
     //sizer2->Enable(false);
     
     buttonSetBallnstick= new wxRadioButton(this, ID_SetBallnstick, _T(""), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE );
-    wxStaticBitmap *bitmap2 = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("geo2")), wxDefaultPosition );
+    wxBitmap geo2Bitmap(geo2_xpm, wxBITMAP_TYPE_XPM);
+    wxStaticBitmap *bitmap2 = new wxStaticBitmap(this, wxID_ANY, geo2Bitmap, wxDefaultPosition );
 
     wxSizer *sizer2r = new wxBoxSizer(wxVERTICAL);
       sizer2r->Add( newLabelledSlider( 
@@ -963,7 +970,8 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
     wxSizer *sizer3 = new wxStaticBoxSizer(box3, wxHORIZONTAL);
     
     buttonSetLicorice = new wxRadioButton(this, ID_SetLicorice, _T(""), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE );
-    wxStaticBitmap *bitmap3 = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("geo3")), wxDefaultPosition );
+    wxBitmap geo3Bitmap(geo3_xpm, wxBITMAP_TYPE_XPM);
+    wxStaticBitmap *bitmap3 = new wxStaticBitmap(this, wxID_ANY, geo3Bitmap, wxDefaultPosition );
     
     wxSizer *sizer3r = new wxBoxSizer(wxVERTICAL);
       /*wxSizer *sizer3rr = new wxBoxSizer(wxHORIZONTAL);
@@ -1314,7 +1322,8 @@ Right Mouse Button: move Light\n\
     
    
     wxSizer *sizerC = new wxBoxSizer( wxHORIZONTAL);
-    wxStaticBitmap *bitmap = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("logo")), wxDefaultPosition );    
+    wxBitmap logoBitmap(logo_xpm, wxBITMAP_TYPE_XPM);
+    wxStaticBitmap *bitmap = new wxStaticBitmap(this, wxID_ANY, logoBitmap, wxDefaultPosition );    
     sizerC->Add(bitmap, 0, wxALIGN_BOTTOM);
     sizerC->Add(1,1,1);
     sizerC->Add(new wxStaticText(this, wxID_ANY,

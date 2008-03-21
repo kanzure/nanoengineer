@@ -52,7 +52,16 @@
 #  include <GL/glu.h>
 #endif
 
-//#include "sample.xpm"
+#include "image/gear2.xpm"
+#include "image/qutemolsm.xpm"
+#include "image/quiton.xpm"
+#include "image/quitoff.xpm"
+#include "image/snap_off2.xpm"
+#include "image/snap_on.xpm"
+#include "image/open_off2.xpm"
+#include "image/open_on.xpm"
+#include "image/snap_noborder.xpm"
+#include "image/open_noborder.xpm"
 
 typedef unsigned char Byte;
 typedef unsigned int uint;
@@ -113,22 +122,6 @@ bool PNGSaveWithAlpha( const char * filename, const Byte * data, int sx, int sy,
 void downsample2x2(Byte * data, int sx, int sy);
 void downsample2x2NoAlpha(Byte * data, int sx, int sy);
 
-
-
-wxBitmap *LoadPngImage(wxString st){
-#ifdef __DARWIN__
-	wxString basePath = wxStandardPaths::Get().GetResourcesDir();
-  wxBitmap* res=new wxBitmap(basePath+_T("/image/")+st+_T(".png"),wxBITMAP_TYPE_PNG);
-#else
-  wxBitmap* res=new wxBitmap(_T("image/")+st+_T(".png"),wxBITMAP_TYPE_PNG);
-#endif  
-  //wxBitmap* res=new wxBitmap(st,wxBITMAP_TYPE_PNG_RESOURCE);
-  
-  // Marke all black pixels as transparent (useful for Windows NT only)
-  //res->SetMask(new wxMask(*res, wxColor(0,0,0)));
-
-  return res;
-}
 
 void MyTab::SceneChanged(){
   ((TestGLCanvas*)frame2redraw)->SceneChanged();
@@ -250,29 +243,39 @@ MyToolbar::MyToolbar(wxTopLevelWindow *_parent, wxWindowID id,
       parent->SetBackgroundColour(notebook->GetBackgroundColour());
   }
   
-#ifndef __DARWIN__    
+#ifndef __DARWIN__
+  wxBitmap snap_off2Bitmap(snap_off2_xpm, wxBITMAP_TYPE_XPM);
   wxBitmapButton *snapButton = new wxBitmapButton(this, SnapButton, 
-                                *LoadPngImage(_T("snap_off2")), wxDefaultPosition, wxSize(48,48),0);
-  snapButton->SetBitmapSelected(*LoadPngImage(_T("snap_on")));  
+                                snap_off2Bitmap, wxDefaultPosition, wxSize(48,48),0);
+  wxBitmap snap_onBitmap(snap_on_xpm, wxBITMAP_TYPE_XPM);
+  snapButton->SetBitmapSelected(snap_onBitmap);  
     
+  wxBitmap open_off2Bitmap(open_off2_xpm, wxBITMAP_TYPE_XPM);
   wxBitmapButton *openButton = new wxBitmapButton(this, OpenButton, 
-                                *LoadPngImage(_T("open_off2")),wxDefaultPosition, wxSize(48,48),0);
-  openButton->SetBitmapSelected(*LoadPngImage(_T("open_on")));  
+                                open_off2Bitmap,wxDefaultPosition, wxSize(48,48),0);
+  wxBitmap open_onBitmap(open_on_xpm, wxBITMAP_TYPE_XPM);
+  openButton->SetBitmapSelected(open_onBitmap);  
 #else
+  wxBitmap snap_noborderBitmap(snap_noborder_xpm, wxBITMAP_TYPE_XPM);
   wxBitmapButton *snapButton = new wxBitmapButton(this, SnapButton, 
-                                *LoadPngImage(_T("snap_noborder")), wxDefaultPosition, wxSize(48,48),0);
+                                snap_noborderBitmap, wxDefaultPosition, wxSize(48,48),0);
+  wxBitmap open_noborderBitmap(open_noborder_xpm, wxBITMAP_TYPE_XPM);
   wxBitmapButton *openButton = new wxBitmapButton(this, OpenButton, 
-                                *LoadPngImage(_T("open_noborder")),wxDefaultPosition, wxSize(48,48),0);
+                                open_noborderBitmap,wxDefaultPosition, wxSize(48,48),0);
 
 #endif
+  wxBitmap quitoffBitmap(quitoff_xpm, wxBITMAP_TYPE_XPM);
   wxBitmapButton *quitButton = new wxBitmapButton(this, QuitButton, 
-                           *LoadPngImage(_T("quitoff")),
+                           quitoffBitmap,
                            wxDefaultPosition, wxSize(15,16) , 0);
-  quitButton->SetBitmapSelected(*LoadPngImage(_T("quiton")));  
-  
-  wxStaticBitmap *logo = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("qutemolsm")), wxDefaultPosition );
+  wxBitmap quitonBitmap(quiton_xpm, wxBITMAP_TYPE_XPM);
+  quitButton->SetBitmapSelected(quitonBitmap);  
 
-  gear = new wxStaticBitmap(this, wxID_ANY, *LoadPngImage(_T("gear2")), wxDefaultPosition );
+  wxBitmap qutemolsmBitmap(qutemolsm_xpm, wxBITMAP_TYPE_XPM);
+  wxStaticBitmap *logo = new wxStaticBitmap(this, wxID_ANY, qutemolsmBitmap, wxDefaultPosition );
+
+  wxBitmap gear2Bitmap(gear2_xpm, wxBITMAP_TYPE_XPM);
+  gear = new wxStaticBitmap(this, wxID_ANY, gear2Bitmap, wxDefaultPosition );
   
   wxSizer *sizerButtons = new wxBoxSizer( wxVERTICAL );
   sizerButtons->Add(openButton, 0,  wxALL, 1);
