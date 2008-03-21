@@ -2,10 +2,10 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_VERSION "0.5.0b1"
-!define PRODUCT_NAME "QutemolX-${PRODUCT_VERSION}"
+!define PRODUCT_NAME "QuteMolX"
 !define PRODUCT_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_WEB_SITE "http://www.nanorex.com"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_VERSION}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
@@ -14,8 +14,13 @@
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
+!define MUI_ICON "install.ico"
+!define MUI_UNICON "uninstall.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "install-header.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "install-header.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
@@ -28,7 +33,6 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ReadMe.html"
 !define MUI_FINISHPAGE_SHOWREADME ".\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
@@ -40,36 +44,28 @@
 
 ; MUI end ------
 
-Name "${PRODUCT_NAME}"
-OutFile "QutemolX-${PRODUCT_VERSION}-setup.exe"
-InstallDir "$PROGRAMFILES\QutemolX"
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+OutFile "QuteMolX-${PRODUCT_VERSION}-setup.exe"
+InstallDir "$PROGRAMFILES\QuteMolX"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
-SectionGroup /e "QutemolX"
-Section "Base Install" SEC_QMX_BASE
+SectionGroup /e "QuteMolX"
+Section "QuteMolX (Required)" SEC_QMX_BASE
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File ".\License.txt"
   File ".\ReadMe.html"
   File "build\*"
-  SetOutPath "$INSTDIR\image"
-  File "build\image\*"
-  SetOutPath "$INSTDIR\image\old"
-  File "build\image\old\*"
-  SetOutPath "$INSTDIR\image"
-  File "build\image\*"
+;  SetOutPath "$INSTDIR\image"
+;  File "build\image\*"
   SetOutPath "$INSTDIR\presets"
   File "build\presets\*"
-;  SetOutPath "$INSTDIR"
-;  File "build\progress.o"
-;  File "build\qutemol.cfg"
-;  File "build\QuteMolX.exe"
   SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\QutemolX"
-  CreateShortCut "$SMPROGRAMS\QutemolX\QutemolX.lnk" "$INSTDIR\QuteMolX.exe"
-  CreateShortCut "$DESKTOP\QutemolX.lnk" "$INSTDIR\QuteMolX.exe"
+  CreateDirectory "$SMPROGRAMS\QuteMolX"
+  CreateShortCut "$SMPROGRAMS\QuteMolX\QuteMolX.lnk" "$INSTDIR\QuteMolX.exe"
+  CreateShortCut "$DESKTOP\QuteMolX.lnk" "$INSTDIR\QuteMolX.exe"
 SectionEnd
 Section /o "Source" SEC_QMX_SRC
   SetOutPath "$INSTDIR\source"
@@ -81,16 +77,16 @@ SectionGroupEnd
 
 Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\QutemolX\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
-  CreateShortCut "$SMPROGRAMS\QutemolX\Uninstall.lnk" "$INSTDIR\uninst.exe"
+  CreateShortCut "$SMPROGRAMS\QuteMolX\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
+  CreateShortCut "$SMPROGRAMS\QuteMolX\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Section -Post
   WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\QutemolX.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\QuteMolX.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\QutemolX.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\QuteMolX.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
@@ -98,8 +94,8 @@ SectionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_QMX_BASE} "Base install for QutemolX, a branch of Qutemol which integrates with NanoEngineer-1"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_QMX_SRC} "Source code and dependencies for QutemolX"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_QMX_BASE} "Base QuteMolX install, a branch of QuteMol which integrates with NanoEngineer-1"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_QMX_SRC} "Source code for QuteMolX"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function un.onUninstSuccess
@@ -115,15 +111,14 @@ FunctionEnd
 Section Uninstall
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
 
-  Delete "$SMPROGRAMS\QutemolX\Uninstall.lnk"
-  Delete "$SMPROGRAMS\QutemolX\Website.lnk"
-  Delete "$DESKTOP\QutemolX.lnk"
-  Delete "$SMPROGRAMS\QutemolX\QutemolX.lnk"
+  Delete "$SMPROGRAMS\QuteMolX\Uninstall.lnk"
+  Delete "$SMPROGRAMS\QuteMolX\Website.lnk"
+  Delete "$DESKTOP\QuteMolX.lnk"
+  Delete "$SMPROGRAMS\QuteMolX\QuteMolX.lnk"
 
-  RMDir "$SMPROGRAMS\QutemolX"
+  RMDir "$SMPROGRAMS\QuteMolX"
   RMDir /r "$INSTDIR\presets\"
-  RMDir /r "$INSTDIR\image\old"
-  RMDir /r "$INSTDIR\image"
+  ;RMDir /r "$INSTDIR\image"
   RMDir /r "$INSTDIR\source"
   RMDir /r "$INSTDIR"
 
