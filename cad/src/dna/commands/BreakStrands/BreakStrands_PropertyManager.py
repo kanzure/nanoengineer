@@ -19,9 +19,14 @@ pending because of some remaining things in GBC cleanup (such as
 NanotubeGenerator etc) 
 """
 from widgets.DebugMenuMixin import DebugMenuMixin
-from PM.PM_Dialog import PM_Dialog
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+from PyQt4.Qt import Qt
+from PM.PM_Dialog   import PM_Dialog
+from PM.PM_GroupBox import PM_GroupBox
+from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
+from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
 
 class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -81,14 +86,33 @@ class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """  
         #TODO: Cancel button needs to be removed. See comment at the top
         self.win.toolsDone()
-        
-        
+    
     def _addGroupBoxes( self ):
         """
-        Add the DNA Property Manager group boxes.
-        """  
-        pass
+        Add the Property Manager group boxes.
+        """        
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Options" )
+        self._loadGroupBox1( self._pmGroupBox1 )
     
+    def _loadGroupBox1(self, pmGroupBox):
+        """
+        Load widgets in group box.
+        """
+        _state = Qt.Checked
+        
+        self.assignColorToBrokenDnaStrandsCheckBox = \
+            PM_CheckBox(pmGroupBox ,
+                        text         = 'Assign new color to broken strands',
+                        widgetColumn = 1,
+                        state        = _state
+                        )
+        
+        connect_checkbox_with_boolean_pref(
+            self.assignColorToBrokenDnaStrandsCheckBox, 
+            assignColorToBrokenDnaStrands_prefs_key )
+        
+        # This (re)initializes the pref to _state (True) each time NE1 starts.
+        self.assignColorToBrokenDnaStrandsCheckBox.setCheckState(_state)
     
     def _addWhatsThisText( self ):
         """

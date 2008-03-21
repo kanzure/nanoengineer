@@ -205,6 +205,7 @@ dnaStyleStrutsScale_prefs_key = 'A10/DNA style struts scale'
 dnaStyleBasesShape_prefs_key = 'A10/DNA style bases shape'
 dnaStyleBasesColor_prefs_key = 'A10/DNA style bases color'
 dnaStyleBasesScale_prefs_key = 'A10/DNA style bases scale'
+assignColorToBrokenDnaStrands_prefs_key = 'A10/Assign color to broken DNA strands'
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -507,6 +508,8 @@ prefs_table = (
     ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
      arrowsOnFivePrimeEnds_prefs_key, False), 
     
+    ('', 'boolean', assignColorToBrokenDnaStrands_prefs_key, True),
+     
     # DNA style preferences 080310 piotr
     # updated on 080313
     ('', 'int', dnaStyleStrandsShape_prefs_key, 2),

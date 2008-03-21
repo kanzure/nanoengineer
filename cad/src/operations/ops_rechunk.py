@@ -15,6 +15,7 @@ from utilities.Log import greenmsg, redmsg
 from platform.PlatformDependent import fix_plurals
 from model.chunk import Chunk
 from utilities.constants import gensym
+from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
 from dna.model.Dna_Constants import getNextStrandColor
 import foundation.env as env
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
@@ -284,7 +285,10 @@ class ops_rechunk_Mixin:
         # See self.ensure_toplevel_group() docstring for explanation.
         self.ensure_toplevel_group()
         _group_five_prime_was_in = _five_prime_atom.molecule.dad
-        _new_strand_color = getNextStrandColor(_five_prime_atom.molecule.color)
+        if env.prefs[assignColorToBrokenDnaStrands_prefs_key]:
+            _new_strand_color = getNextStrandColor(_five_prime_atom.molecule.color)
+        else:
+            _new_strand_color = _five_prime_atom.molecule.color
         return self.makeChunkFromAtomList(atomList,
                                           group = _group_five_prime_was_in,
                                           name = gensym("Strand"), 
