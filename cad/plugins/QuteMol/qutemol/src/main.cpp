@@ -1024,7 +1024,7 @@ void MyFrame::OnReadFile (wxString filename)
 void MyFrame::OnOpenFile (wxCommandEvent & event)
 { 
   static const wxString FILETYPES = _T( 
-                   "Protein Data Bank molecule (pdb, vdb)|*.pdb;*.vdb|"
+                   "Protein Data Bank molecule (pdb, vdb, qdb)|*.pdb;*.vdb;*.qdb|"
                    "All files|*.*"
                   );
   wxFileDialog * openFileDialog =
