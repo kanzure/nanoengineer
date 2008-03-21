@@ -19,9 +19,10 @@
 #include "CgUtil.h"
 #include "Common.h"
 
-#include<wx/colordlg.h>
-#include<wx/utils.h>
-#include<wx/stdpaths.h>
+#include <wx/colordlg.h>
+#include <wx/utils.h>
+#include <wx/stdpaths.h>
+#include <wx/filename.h>
 
 #include "image/logo.xpm"
 #include "image/geo1.xpm"
@@ -503,13 +504,15 @@ void MyTab::OnButton(wxCommandEvent & event){
 
   default:
     int pid=id-ID_FirstPreset;
+    
+    // Determine absolute path to presets
+    wxStandardPaths standardPaths;
+    wxString presetsPath = standardPaths.GetExecutablePath();
+    wxFileName fileName(presetsPath);
+    presetsPath = fileName.GetPath(wxPATH_GET_SEPARATOR);
+    
     if ( (pid>=0) && (pid<NPreset) ) {
-#ifdef __DARWIN__
-			wxString presetPath = wxStandardPaths::Get().GetResourcesDir() + "/" + presetFile[pid];
-			if (!cgSettings.Load( presetPath.c_str() )) {
-#else
-      if (!cgSettings.Load( presetFile[pid] )) {
-#endif			
+      if (!cgSettings.Load( presetsPath + presetFile[pid] )) {
         wxMessageBox(_T("Unable to load presets!"), _T(":-("), wxOK | wxICON_EXCLAMATION, this);
       }
       emphCurrentPreset(pid);
