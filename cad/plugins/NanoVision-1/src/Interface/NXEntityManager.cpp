@@ -131,13 +131,20 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 				pluginFormats =
 					string(properties->getProperty(pluginKey +
 								".importFormats"));
+					
+				// Qt has a nice replace() function
+				QString _pluginFormats = pluginFormats.c_str();
+				_pluginFormats.replace(QString(")"), QString(");;"));
+				pluginFormats = qPrintable(_pluginFormats);
+				pluginFormats.erase(pluginFormats.length() - 2);
+
 				if (importFileTypesString.length() == 0)
 					importFileTypesString = pluginFormats;
 				else
 					importFileTypesString.append(";;").append(pluginFormats);
 				int index1 = pluginFormats.find("(");
 				int index2 = 0;
-				string formats, format;
+				string formats, format, message;
 				while (index1 > 0) {
 					index2 = pluginFormats.find(")", index1 + 1);
 					formats =
@@ -148,6 +155,9 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 						// Remove the "*."
 						format = format.substr(2);
 						dataImportTable[format] = plugin;
+						message =
+							"Associating " + format + " with " + pluginLibrary;
+						NXLOG_DEBUG("NXEntityManager", message);
 					}
 					index1 = pluginFormats.find("(", index2 + 1);
 				}
