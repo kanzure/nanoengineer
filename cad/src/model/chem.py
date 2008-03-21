@@ -4516,7 +4516,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
             self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
          ):
-            if candidate is not None and candidate.element.symbol.startswith("Ss"): # KLUGE
+            if candidate is not None and candidate.element.symbol.startswith("Ss"): # KLUGE, matches Ss3 or Ss5
                 # note: this cond excludes X (good), Pl (bug if happens, but good).
                 # it excludes Sj and Hp (bad), but is only used from dna updater
                 # so that won't be an issue. Non-kluge variant would test for

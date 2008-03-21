@@ -57,7 +57,7 @@ def delete_bare_atoms( changed_atoms):
 
     return
 
-def atom_is_bare(atom): # fyi: only used in this file as of 080312
+def atom_is_bare(atom): # fyi: only used in this file as of 080312; ### REVIEW [080320]: better to mark as errors, not delete?
     """
     Is atom an axis atom with no axis-strand bonds,
     or (IF this is not allowed -- as of 080117 it *is* allowed)
