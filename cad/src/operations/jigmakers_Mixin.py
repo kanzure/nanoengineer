@@ -37,6 +37,15 @@ class jigmakers_Mixin:
         Creates a Rotary Motor edit controller, whhich in turn creates a
         rotory motor connected to the selected atoms.
         """    
+        atoms = self.win.assy.selatoms_list()
+        #This check fixes bug 2697. Simply don't enter the command (to create 
+        #a new motor), if the there aren't enough atoms selected.
+        if len(atoms) < 2:
+            logMessage = "To create a rotary motor, you muse select atleast"\
+            " two atoms. Rotary motor not created "
+            env.history.message(redmsg(logMessage))
+            return
+        
         commandSequencer = self.assy.w.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "ROTARY_MOTOR":
@@ -50,6 +59,18 @@ class jigmakers_Mixin:
         Creates a Linear Motor edit controller, whhich in turn creates a
         linear motor connected to the selected atoms.
         """ 
+        
+        atoms = self.win.assy.selatoms_list()
+        
+        #This check fixes bug 2697. Simply don't enter the command (to create 
+        #a new motor), if the there aren't enough atoms selected.
+        
+        if len(atoms) < 2:
+            logMessage = "To create a linear motor, you muse select atleast"\
+            " two atoms. Linear motor not created "
+            env.history.message(redmsg(logMessage))
+            return
+                    
         commandSequencer = self.assy.w.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "LINEAR_MOTOR":
@@ -394,5 +415,6 @@ def atom_limit_exceeded_and_confirmed(parent, natoms, limit = 200):
     env.history.message(orangemsg(wmsg))
         
     return False # from atom_limit_exceeded_and_confirmed
+
 
 # end
