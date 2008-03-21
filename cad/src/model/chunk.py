@@ -133,9 +133,8 @@ from dna.model.Dna_Constants import getComplementSequence
 
 from operations.bond_chains import grow_directional_bond_chain
 
-from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
-
-
+from graphics.drawing.drawer import apply_material, allow_color_sorting
+from graphics.drawing.drawer import use_color_sorted_dls, use_color_sorted_vbos
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -1743,7 +1742,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
             #bruce 060215 adding drawLevel to havelist
             if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
-                glCallList(self.displist.dl)
+                self.displist.draw_dl()
             else:
                 if 1:
                     #bruce 060608: record info to help per-chunk display modes
@@ -1785,8 +1784,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     # This is the only place where havelist is set to anything true;
                     # the value it's set to must match the value it's compared with, above.
                     # [bruce 050415 revised what it's set to/compared with; details above]
-                    self.havelist = (disp, eltprefs, matprefs, drawLevel)
-                    assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
+                    if not (allow_color_sorting and use_color_sorted_vbos): #russ 080320 Added.
+                        self.havelist = (disp, eltprefs, matprefs, drawLevel)
+                        assert self.havelist, \
+                               "bug: havelist must be set to a true value here, not %r" \
+                               % (self.havelist,)
                     # always set the self.havelist flag, even if exception happened,
                     # so it doesn't keep happening with every redraw of this Chunk.
                     #e (in future it might be safer to remake the display list to contain

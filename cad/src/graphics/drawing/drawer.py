@@ -68,6 +68,7 @@ from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import GL_DIFFUSE
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
+from OpenGL.GL import glDrawArrays
 from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
@@ -111,6 +112,7 @@ from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import glNewList
 from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glNormal3fv
+from OpenGL.GL import GL_NORMAL_ARRAY
 from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
 from OpenGL.GL import GL_POLYGON
 from OpenGL.GL import glPolygonMode
@@ -128,6 +130,7 @@ from OpenGL.GL import glRotatef
 from OpenGL.GL import GL_SHININESS
 from OpenGL.GL import GL_SPECULAR
 from OpenGL.GL import GL_SRC_ALPHA
+from OpenGL.GL import GL_STATIC_DRAW
 from OpenGL.GL import glTexCoord2f
 from OpenGL.GL import glTexCoord2fv
 from OpenGL.GL import GL_TEXTURE_2D
@@ -212,6 +215,9 @@ import utilities.debug as debug # for debug.print_compact_traceback
 
 import utilities.EndUser as EndUser
 
+from graphics.drawing.buffers import VertexBuffer
+import numpy
+
 # ==
 
 # ColorSorter control
@@ -222,6 +228,9 @@ allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
 #russ 080225: Added, 080314: default on.
 use_color_sorted_dls = use_color_sorted_dls_default = True
 use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
+#russ 080320: Added.
+use_color_sorted_vbos = use_color_sorted_vbos_default = False
+use_color_sorted_vbos_prefs_key = "use_color_sorted_vbos"
 
 # Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
 use_c_renderer = use_c_renderer_default = False
@@ -648,7 +657,7 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        global use_c_renderer, allow_color_sorting, use_color_sorted_dls
+        global use_c_renderer, allow_color_sorting, use_color_sorted_dls, use_color_sorted_vbos
         self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
@@ -672,6 +681,8 @@ class glprefs:
                                             allow_color_sorting_default)
         use_color_sorted_dls = env.prefs.get(use_color_sorted_dls_prefs_key,
                                             use_color_sorted_dls_default)
+        use_color_sorted_vbos = env.prefs.get(use_color_sorted_vbos_prefs_key,
+                                            use_color_sorted_vbos_default)
         use_c_renderer = quux_module_import_succeeded and \
                        env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
 
@@ -702,6 +713,8 @@ class glprefs:
                               allow_color_sorting_default),)
         res += (env.prefs.get(use_color_sorted_dls_prefs_key,
                               use_color_sorted_dls_default),)
+        res += (env.prefs.get(use_color_sorted_vbos_prefs_key,
+                              use_color_sorted_vbos_default),)
         return res
 
     pass # end of class glprefs
@@ -962,10 +975,27 @@ def drawsphere_worker(params):
     deferment.  Right now this is only ColorSorter.schedule (see below)"""
 
     (pos, radius, detailLevel) = params
+
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
-    glCallList(sphereList[detailLevel])
+
+    if not (allow_color_sorting and use_color_sorted_vbos): #russ 080320 Added.
+        glCallList(sphereList[detailLevel])
+    else:
+        vbo = sphereVBOs[detailLevel]
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_NORMAL_ARRAY)
+
+        vbo.bind_vertexes(3, GL_FLOAT)
+        vbo.bind_normals(GL_FLOAT)
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, vbo.size)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_NORMAL_ARRAY)
+        pass
+
     glPopMatrix()
     return
 
@@ -1435,6 +1465,20 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
         return
 
+    def draw_dl(self):                  #russ 080320 Added.
+        """
+        Draw the displist (cached display procedure.)
+        """
+        if not (allow_color_sorting and use_color_sorted_vbos):
+            # Call a normal OpenGL display list.
+            glCallList(self.dl)
+        else:
+            # VBO drawing from cached ColorSorter lists.
+            ColorSorter.draw_sorted(self.sorted_by_color)
+            pass
+        return
+        
+
     def selectPick(self, boolVal):
         """
         Remember whether we're selected or not.
@@ -1770,7 +1814,8 @@ class ColorSorter:
 
         if csdl != None:
             parent_top = csdl.dl
-            if not (allow_color_sorting and use_color_sorted_dls):
+            if not (allow_color_sorting and (use_color_sorted_dls
+                                             or use_color_sorted_vbos)): #russ 080320
                 # This is the beginning of the single display list created when color
                 # sorting is turned off.  It is ended in ColorSorter.finish .  In
                 # between, the calls to draw{sphere,cylinder,polycone} methods pass
@@ -1791,7 +1836,6 @@ class ColorSorter:
             ColorSorter.sorted_by_color = {}
 
     start = staticmethod(start)
-
 
     def finish():
         """
@@ -1826,43 +1870,27 @@ class ColorSorter:
             if debug_which_renderer:
                 print "using Python renderer: use_color_sorted_dls %s enabled" \
                       % (use_color_sorted_dls and 'IS' or 'is NOT')
+                print "using Python renderer: use_color_sorted_vbos %s enabled" \
+                      % (use_color_sorted_vbos and 'IS' or 'is NOT')
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
-            if not (allow_color_sorting and use_color_sorted_dls) or parent_csdl is None: #russ 080225
+            if not (allow_color_sorting and use_color_sorted_dls) \
+               or (allow_color_sorting and use_color_sorted_vbos) \
+               or parent_csdl is None:  #russ 080225 Added, 080320 VBOs added.
 
                 # Either all in one display list, or immediate-mode drawing.
-                for color, funcs in ColorSorter.sorted_by_color.iteritems():
-
-                    opacity = color[3]
-                    if opacity < 0:
-                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
-                        glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
-                        glColor3fv(color[:3])
-                    else:
-                        apply_material(color)
-                        pass
-
-                    for func, params, name in funcs:
-                        objects_drawn += 1
-                        if name != 0:
-                            glPushName(name)
-                        func(params)
-                        if name != 0:
-                            glPopName()
-                            pass
-                        continue
-
-                    if opacity < 0:
-                        glEnable(GL_LIGHTING)
-
-                    continue
+                objects_drawn += ColorSorter.draw_sorted(ColorSorter.sorted_by_color)
 
                 #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
-                    # Terminate a single display list, created when color sorting
-                    # is turned off.  It was started in ColorSorter.start .
-                    glEndList()
+                    if allow_color_sorting and use_color_sorted_vbos: #russ 080320
+                        # Remember the ColorSorter lists as a pseudo-display-list.
+                        parent_csdl.sorted_by_color = ColorSorter.sorted_by_color
+                    else:
+                        # Terminate a single display list, created when color sorting
+                        # is turned off.  It was started in ColorSorter.start .
+                        glEndList()
                     pass
 
                 pass
@@ -1943,6 +1971,41 @@ class ColorSorter:
 
     finish = staticmethod(finish)
 
+    def draw_sorted(sorted_by_color):     #russ 080320: factored out of finish().
+        """
+        Traverse color-sorted lists, invoking worker procedures.
+        """
+        objects_drawn = 0               # Keep track and return.
+        glEnable(GL_LIGHTING)
+
+        for color, funcs in sorted_by_color.iteritems():
+
+            opacity = color[3]
+            if opacity < 0:
+                #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                glColor3fv(color[:3])
+            else:
+                apply_material(color)
+                pass
+
+            for func, params, name in funcs:
+                objects_drawn += 1
+                if name != 0:
+                    glPushName(name)
+                func(params)
+                if name != 0:
+                    glPopName()
+                    pass
+                continue
+
+            if opacity < 0:
+                glEnable(GL_LIGHTING)
+
+            continue
+        return objects_drawn
+
+    draw_sorted = staticmethod(draw_sorted)
 
 halfHeight = 0.45
 
@@ -1996,8 +2059,9 @@ def setup_drawer():
     since the allocated display list names are stored in globals set by this function,
     but in general those names might differ if this was called in different GL contexts.
     """
-        #bruce 060613 added docstring, cleaned up display list name allocation
+    #bruce 060613 added docstring, cleaned up display list name allocation
     # bruce 071030 renamed from setup to setup_drawer
+
     spherelistbase = glGenLists(numSphereSizes)
     global sphereList
     sphereList = []
@@ -2012,6 +2076,17 @@ def setup_drawer():
             continue
         glEnd()
         glEndList()
+        continue
+
+    # A VertexBufferObject version, in place of the display lists.
+    global sphereVBOs
+    sphereVBOs = []
+    for i in range(numSphereSizes):
+        stripVerts = getSphereTriStrips(i)
+        Cverts = numpy.array(stripVerts, dtype=numpy.float32)
+        vbo = VertexBuffer(Cverts, GL_STATIC_DRAW)
+        sphereVBOs += [vbo]
+        continue
 
     global wiresphere1list
     wiresphere1list = glGenLists(1) #bruce 060415
@@ -2199,6 +2274,10 @@ def setup_drawer():
     initial_choice = choices[use_color_sorted_dls_default]
     use_color_sorted_dls_pref = debug_pref("Use Color-sorted Display Lists?",
                                            initial_choice, prefs_key = use_color_sorted_dls_prefs_key)
+    #russ 080225: Added.
+    initial_choice = choices[use_color_sorted_vbos_default]
+    use_color_sorted_vbos_pref = debug_pref("Use Color-sorted Vertex Buffer Objects?",
+                                           initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
 
     # temporarily always print this, while default setting might be in flux,
     # and to avoid confusion if the two necessary prefs are set differently
@@ -2207,6 +2286,10 @@ def setup_drawer():
         print "\nnote: this session WILL use color sorted display lists"
     else:
         print "\nnote: this session will NOT use color sorted display lists"
+    if allow_color_sorting_pref and use_color_sorted_vbos_pref:
+        print "note: this session WILL use color sorted Vertex Buffer Objects\n"
+    else:
+        print "note: this session will NOT use color sorted Vertex Buffer Objects\n"
     
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
