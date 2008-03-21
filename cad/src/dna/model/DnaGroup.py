@@ -7,9 +7,7 @@ DnaGroup.py - ...
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-##from dna.model.Block import Block
 from foundation.Group import Group
-from model.chunk import Chunk
 
 from utilities.constants import gensym
 
@@ -19,9 +17,6 @@ from dna.updater.dna_updater_globals import _f_DnaGroup_for_homeless_objects_in_
 
 from utilities import debug_flags
 
-
-# Following import is disabled. See addSegment method for reason.
-## from dna_model.DnaSegment import DnaSegment
 
 class DnaGroup(Group):
     """
@@ -73,12 +68,6 @@ class DnaGroup(Group):
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
     
-    #The flag that determines which members can be MT_kids. i.e. the members
-    #which are allowed to be displayed as self's subnodes. 
-    #@see: self._raw_MT_kids() This class constant overrides 
-    #Group._list_all_allowed_MT_kids
-    _list_all_allowed_MT_kids = False
-    
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
@@ -90,35 +79,7 @@ class DnaGroup(Group):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath) 
-
-    def _raw_MT_kids(self):
-        """
-        Returns all allowed MT kids, called 'raw kids' because this isn't a final list.
-        This is used by self.MT_kids() to further decide which members to show
-        in the MT as subnodes
-        @see: self.allowed_MT_kids()
-        @see: self.make_modeltree_context_menu()
-        @see: self.openable()
-        @see: self.toggle_listing_of_allowed_MT_kids()
-        """
-        return self.members #bruce 080317 temporary bugfix during review
-            # (not the intended design to hide some kinds of non-Block kids and show others)
-##        lst = (self.assy.DnaSegment, 
-##               self.assy.DnaStrand, 
-##               self.assy.Block,
-##               self.assy.Group
-##           )
-##        return filter( lambda member: 
-##                       member.__class__ in lst, 
-##                       self.members )
-    
-    def allowed_MT_kids(self):
-        """
-        Returns a list of subnodes of self that are allowed to be shown 
-        as subnodes in the Model Tree. 
-        """
-        return self._raw_MT_kids() 
-    
+        
 
     def make_DnaStrandOrSegment_for_marker(self, controlling_marker): # review: wholechain arg needed? @@@
         """
@@ -165,11 +126,7 @@ class DnaGroup(Group):
         
         @param segment: The DnaSegment to be added to this DnaGroup object
         @type: B{DnaSegment}  
-        """
-        # importing DnaSegment created an import cycle which throws error. 
-        # So this isinstance check is disabled for now.
-        ## assert isinstance(segment, DnaSegment)
-        
+        """       
         self.addchild(segment)
     
     def getProps(self):
@@ -249,7 +206,7 @@ class DnaGroup(Group):
         def filterStrands(node):
             if isinstance(node, self.assy.DnaStrand):
                 strandList.append(node)            
-            elif isinstance(node, Chunk) and node.isStrandChunk():
+            elif isinstance(node, self.assy.Chunk) and node.isStrandChunk():
                 if node.parent_node_of_class(self.assy.DnaStrand) is None:
                     strandList.append(node)    
                 
@@ -270,7 +227,7 @@ class DnaGroup(Group):
         # a DnaGroup -- Ninad 2008-02-02       
         axisChunkList = []
         def filterAxisChunks(node):
-            if isinstance(node, Chunk) and node.isAxisChunk():
+            if isinstance(node, self.assy.Chunk) and node.isAxisChunk():
                 axisChunkList.append(node)    
                 
         self.apply2all(filterAxisChunks)
@@ -335,7 +292,7 @@ class DnaGroup(Group):
             unpickedNodes = []
             
             def func(node):
-                if isinstance(node, Chunk):
+                if isinstance(node, self.assy.Chunk):
                     if not node.picked:
                         unpickedNodes.append(node)
                     else:
@@ -354,7 +311,7 @@ class DnaGroup(Group):
         """
         atomList = []
         def func(node):
-            if isinstance(node, Chunk):
+            if isinstance(node, self.assy.Chunk):
                 atomList.extend(node.atoms.itervalues())
         
         self.apply2all(func)
