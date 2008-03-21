@@ -78,7 +78,7 @@ from utilities.prefs_constants import cpp_enabled_prefs_key
 from utilities.prefs_constants import cpp_path_prefs_key
 from utilities.prefs_constants import nv1_enabled_prefs_key
 from utilities.prefs_constants import nv1_path_prefs_key
-from utilities.prefs_constants import defaultDisplayMode_prefs_key
+from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
 from utilities.prefs_constants import buildModeAutobondEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
 from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
@@ -1160,7 +1160,7 @@ restored when the user undoes a structural change.</p>
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
         
         # Set "Global Display Style at start-up" option.
-        startup_display_style = env.prefs[defaultDisplayMode_prefs_key]
+        startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
         if startup_display_style == 2:
             self.cpk_rbtn.setChecked(True)
         elif startup_display_style == 4: 
@@ -1175,7 +1175,7 @@ restored when the user undoes a structural change.</p>
             # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
             #   match our internal display style codes, and are set by buttongroup.insert in the pyuic output file,
             #   but for some reason the buttons are inserted in a different order than they're shown.
-            # - this is only sufficient because nothing outside this dialog can change env.prefs[defaultDisplayMode_prefs_key]
+            # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
             #   while the dialog is shown.
         
         # Build Atoms Default Settings.  mark 060203.
@@ -2546,10 +2546,10 @@ restored when the user undoes a structural change.</p>
         This also changes the global display style of the glpane to 
         <display_style>.
         """        
-        if display_style == env.prefs[defaultDisplayMode_prefs_key]:
+        if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
             return
         # set the pref
-        env.prefs[defaultDisplayMode_prefs_key] = display_style
+        env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
 
         # Set the current display mode in the glpane.
         # (This will be noticed later by chunk.draw of affected chunks.)

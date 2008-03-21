@@ -93,8 +93,6 @@ animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.py. Mark 060726.
 backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
-##defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
-    # [disabled since assigned differently below -- bruce 080212]
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
@@ -155,7 +153,7 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 deleteAtomHighlightColor_prefs_key = 'A10/Delete Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
 bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
-defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
+startupGlobalDisplayStyle_prefs_key = 'A6/Default Display Mode'
 diBALL_AtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage' # this is about diBALL which as of 060307 is called Ball and Stick in UI
     #bruce 060607 renamed cpkAtomRadius_prefs_key -> diBALL_AtomRadius_prefs_key ###DOIT
 cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which as of 060307 is called CPK in UI
@@ -399,7 +397,7 @@ prefs_table = (
     ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
     ('background_color', 'color', backgroundColor_prefs_key, white),
     ('background_gradient', 'int', backgroundGradient_prefs_key, 1), # 1 = Sky Blue . Mark 060814.
-    ('default_display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Mark 060815.
+    ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
     ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
@@ -460,7 +458,6 @@ prefs_table = (
     
     ('', 'float', diBALL_AtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
     ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
-    ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diTrueCPK to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     # Preference to force to keep bonds while transmuting atoms 
     ('keep_bonds_during_transmute', 'boolean', 

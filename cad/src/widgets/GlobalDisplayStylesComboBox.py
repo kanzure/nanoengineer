@@ -17,7 +17,7 @@ from PyQt4.Qt import SIGNAL, QComboBox
 import foundation.env as env
 from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
 from utilities.constants import diBALL, diTUBES, diDNACYLINDER
-from utilities.prefs_constants import defaultDisplayMode_prefs_key
+from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
 from utilities.icon_utilities import geticon
 
 # Should DNA Cylinder be a global display style? Selecting it makes everything
@@ -54,7 +54,7 @@ class GlobalDisplayStylesComboBox(QComboBox):
         """
         
         if display_style == diDEFAULT:
-            display_style = env.prefs[ defaultDisplayMode_prefs_key ]
+            display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         
         if disconnect:
             self.disconnect( self,

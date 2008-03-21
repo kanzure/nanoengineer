@@ -150,7 +150,7 @@ from foundation.state_utils import transclose
 from utilities.prefs_constants import glpane_lights_prefs_key
 from utilities.prefs_constants import compassPosition_prefs_key
 from utilities.prefs_constants import defaultProjection_prefs_key
-from utilities.prefs_constants import defaultDisplayMode_prefs_key
+from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
 from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
 from utilities.prefs_constants import animateStandardViews_prefs_key
@@ -515,7 +515,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # default display form for objects in the window even tho there is only one assembly to a window,
         # this is here in anticipation of being able to have multiple windows on the same assembly.
         # Start the GLPane's current display mode in "Default Display Mode" (pref).
-        self.displayMode = env.prefs[defaultDisplayMode_prefs_key]
+        self.displayMode = env.prefs[startupGlobalDisplayStyle_prefs_key]
         #self.win.statusBar().dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
 
         ###### End of User Preference initialization ########################## 
@@ -2366,7 +2366,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                since the per-node display style icons are not changing.
         """
         if disp == diDEFAULT:
-            disp = env.prefs[ defaultDisplayMode_prefs_key ]
+            disp = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
