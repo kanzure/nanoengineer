@@ -1957,26 +1957,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
     
     win.statusBar().globalDisplayStylesComboBox.setWhatsThis( _text )
-    
-    # Selection lock state label
-    _text = \
-        "<b>Selection Lock State</b>    "\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\">"\
-        " (off) "\
-        "<img source=\"ui/actions/Tools/Select/Selection_Locked.png\">"\
-        " (on)<br> "\
-        "When enabled, selection operations using the mouse (i.e. clicks and "\
-        "drags) are disabled in the 3D graphics area. All other selection "\
-        "commands available via toolbars, menus, the model tree and keyboard "\
-        "shortcuts are not affected when the Selection Lock is turned on."\
-        "</p>"\
-        "<p>The selection lock state can be toggled on and off using "\
-        "<b>Ctrl + L</b> (or <b>Command + L</b> on Macs) or selecting the "\
-        "<b>Selection Lock</b> button on the <b>Select</b> toolbar."\
-        "</p>"
-    
-    win.statusBar().selectionLockLabel.setWhatsThis( _text )
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."

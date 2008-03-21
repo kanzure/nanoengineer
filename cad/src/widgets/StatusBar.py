@@ -31,7 +31,7 @@ Majorly rewritten/refactored by Eric M circa 12/2007 [bruce comment 071228]
 
 import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL
-from PyQt4.Qt import QMessageBox, QStatusBar
+from PyQt4.Qt import QMessageBox, QStatusBar, QWidget, QFrame, QHBoxLayout, QToolBar
 from utilities import debug_flags
 from platform.PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import foundation.env as env
@@ -74,36 +74,16 @@ class StatusBar(QStatusBar):
         self.globalDisplayStylesComboBox = GlobalDisplayStylesComboBox(win)
         self.addPermanentWidget(self.globalDisplayStylesComboBox)
         
-        # Selection lock status. Currently a QLabel, but maybe it should be
-        # the QAction itself. This would allow the user to click on it.
-        # Other benefits include getting the what's this description for free.
-        # --Mark 2008-03-16
-        self.selectionLockLabel = QLabel(win)
-        self.selectionLockLabel.setPixmap(
-            getpixmap("ui/actions/Tools/Select/Selection_Unlocked.png"))
-        self.selectionLockLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-        self.addPermanentWidget(self.selectionLockLabel)
+        # Selection lock button. It always displays the selection lock state
+        # and it is available to click.
+        self.selectionLockButton = QToolButton(win)
+        self.selectionLockButton.setDefaultAction(win.selectLockAction)
+        self.addPermanentWidget(self.selectionLockButton)
 
         # Only use of this appears to be commented out in MWsemantics as of 2007/12/14
         self.modebarLabel = QLabel(win)
         self.addPermanentWidget(self.modebarLabel)
         self.abortableCommands = {}
-        
-    def updateSelectionLockStatus(self, lockState):
-        """
-        Updates the selection lock state icon on the status bar.
-        
-        @param lockState: The selection lock state, where:
-                        - True  = selection locked
-                        - False = selection unlocked
-        @type  lockState: boolean
-        """
-        if lockState:
-            self.selectionLockLabel.setPixmap(
-                getpixmap("ui/actions/Tools/Select/Selection_Locked.png"))
-        else:
-            self.selectionLockLabel.setPixmap(
-                getpixmap("ui/actions/Tools/Select/Selection_Unlocked.png"))
 
     def makeCommandNameUnique(self, commandName):
         index = 1

@@ -442,8 +442,7 @@ class ops_select_Mixin:
         
         self.o.mouse_selection_lock_enabled = lockState
         # Update the cursor and statusbar.
-        self.o.setCursor() 
-        self.win.statusBar().updateSelectionLockStatus(lockState)
+        self.o.setCursor()
         
         if 0:
             print "mouse_selection_lock_enabled=", \
