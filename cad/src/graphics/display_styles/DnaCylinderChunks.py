@@ -492,7 +492,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
         from widgets.widget_helpers import RGBf_to_QColor
 
-        if 0: # orientation markers
+        if 1: # orientation markers
             if chunk.isStrandChunk(): 
                 n_bases = chunk.ladder.baselength()
                 if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
@@ -507,7 +507,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     v2 = norm(atom1.posn()-atom2.posn())
                     a = angleBetween(vz,v2)
                     if abs(a)<30.0:
-                        drawer.drawsphere(lightgreen,atom1.posn(),1.5,2)
+                        drawer.drawsphere(lightgreen,atom1.posn()-chunk.center,1.5,2)
 
         if 0: # labels
             n_bases = chunk.ladder.baselength()
@@ -849,16 +849,24 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     else:
                         colors[pos] = group_color
                     radii[pos] = 1.0*self.dnaStyleStrandsScale
-                # compute first and last dummy atom coordinates    
-                strand_positions[chunk_strand][0] = \
-                               3.0*strand_positions[chunk_strand][1] \
-                             - 3.0*strand_positions[chunk_strand][2] \
-                                 + strand_positions[chunk_strand][3]              
-                strand_positions[chunk_strand][pos+1] = \
-                                 3.0*strand_positions[chunk_strand][pos] \
-                               - 3.0*strand_positions[chunk_strand][pos-1] \
-                                   + strand_positions[chunk_strand][pos-2]                       
-                                    
+                # compute first and last dummy atom coordinates 
+                if n_bases>3:
+                    strand_positions[chunk_strand][0] = \
+                                    3.0*strand_positions[chunk_strand][1] \
+                                  - 3.0*strand_positions[chunk_strand][2] \
+                                      + strand_positions[chunk_strand][3]              
+                    strand_positions[chunk_strand][pos+1] = \
+                                    3.0*strand_positions[chunk_strand][pos] \
+                                  - 3.0*strand_positions[chunk_strand][pos-1] \
+                                      + strand_positions[chunk_strand][pos-2]                       
+                else:
+                    strand_positions[chunk_strand][0] = \
+                                   2.0*strand_positions[chunk_strand][1] \
+                                     - strand_positions[chunk_strand][2] 
+                    strand_positions[chunk_strand][pos+1] = \
+                                     2.0*strand_positions[chunk_strand][pos] \
+                                       - strand_positions[chunk_strand][pos-1] 
+                    
         return (strand_positions, strand_sequences, axis_positions, 
                 colors, radii, group_color, chunk_strand, num_strands)
     
