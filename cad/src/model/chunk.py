@@ -196,19 +196,58 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     _colorfunc = None
     _dispfunc = None
-    # this overrides global display (GLPane.display)
-    # but is overriden by atom value if not default
-    # [bruce 051011 moved it here from __init__, desirable for all undoable attrs]
-    display = diDEFAULT
-    # this overrides atom colors if set
-    color = None
+
     is_movable = True #mark 060120 [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
 
-    # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
+    # Undoable/copyable attrs: (no need for _s_attr decls since copyable_attrs provides them)
+    
+    # self.display overrides global display (GLPane.display)
+    # but is overriden by atom value if not default
+    
+    display = diDEFAULT
 
-    copyable_attrs = _superclass.copyable_attrs + ('display', 'color') # this extends the tuple from Node
-        # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday,
-        #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
+    # this overrides atom colors if set
+    color = None
+
+    # user_specified_center -- as of 050526 it's sometimes used, but it's always None.
+    #
+    # note: if we implement self.user_specified_center as user-settable,
+    # it also needs to be moved/rotated with the mol, like a datum point
+    # rigidly attached to the mol (or like an atom)
+    
+    user_specified_center = None # never changed for now, so not in copyable_attrs
+
+    # PAM3+5 attributes (these only affect PAM atoms in self, if any):
+    #
+    # self.display_as_pam can be "pam3" or "pam5" to force conversion on input
+    #   to the specified PAM model for display and editing of self, or can be
+    #   "" to use global preference settings. (There is no value which always
+    #   causes no conversion, but there may be preference settings which disable
+    #   ever doing conversion. But in practice, a PAM chunk will be all PAM3 or
+    #   all PAM5, so this can be set to the model the chunk uses to prevent
+    #   conversion for that chunk.)
+    #
+    #  The value "pam3" implies preservation of PAM5 data when present
+    #  (aka "pam3+5" or "pam3plus5"). The allowed values are "", "pam3", "pam5".
+    #
+    # self.save_as_pam can be "pam3" or "pam5" to force conversion on save
+    #   to the specified PAM model. When not set, global settings or save
+    #   parameters determine which model to convert to, and whether to ever
+    #   convert.
+    #
+    # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent ladder merge when different
+    
+    display_as_pam = "" # PAM model to use for displaying and editing PAM atoms in self (not set means use user pref)
+
+    save_as_pam = "" # PAM model to use for saving self (not normally set; not set means use save-op params)
+    
+    copyable_attrs = _superclass.copyable_attrs + ('display', 'color',
+                                                   'display_as_pam', 'save_as_pam')
+        # this extends the tuple from Node
+        # (could add _colorfunc, but better to handle it separately in case this
+        #  gets used for mmp writing someday. as of 051003 _colorfunc would
+        #  anyway not be permitted since state_utils.copy_val doesn't know
+        #  how to copy it.)
         #e should add user_specified_center once that's in active use
 
     #bruce 060313 no longer need to store diffs of our .atoms dict!
@@ -1507,11 +1546,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     # Center.
 
-    # if we implement self.user_specified_center as user-settable,
-    # it also needs to be moved/rotated with the mol, like a datum point
-    # rigidly attached to the mol (or like an atom)
-    user_specified_center = None # never changed for now
-
     def _get_center(self):
         # _get_center seems better than _recompute_center since this attr
         # is only needed by the UI and this method is fast
@@ -2223,27 +2257,64 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             r,g,b = map(int, val.split())
             color = r/255.0, g/255.0, b/255.0
             self.setcolor(color)
+        elif key == ['display_as_pam']:
+            # val should be one of the strings "", "pam3", "pam5";
+            # if not recognized, use ""
+            if val not in ("", "pam3", "pam5"):
+                print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
+                val = ""
+            self.display_as_pam = val
+        elif key == ['save_as_pam']:
+            # val should be one of the strings "", "pam3", "pam5";
+            # if not recognized, use ""
+            if val not in ("", "pam3", "pam5"):
+                print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
+                val = ""
+            self.save_as_pam = val
         else:
             if debug_flags.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
         return
 
-    def atoms_in_mmp_file_order(self): #bruce 050228
+    def atoms_in_mmp_file_order(self, mapping = None):
         """
-        Return a list of our atoms, in the same order as they would be written to an mmp file
-        (which is the same order in which they occurred in one, *if* they were just read from one).
-        We know it's the same order as they'd be written, since self.writemmp() calls this method.
-        We know it's the same order they were just read in (if they were just read), since it's
-        the order of atom.key, which is assigned successive values (guaranteed to sort in order)
-        as atoms are read from the file and created for use in this session.
+        Return a list of our atoms, in the same order as they would be written
+        to an mmp file produced for the given mapping (none by default)
+        (which is the same order in which they occurred in one,
+         *if* they were just read from one, at least for this class's
+         implem of this method).
+        
+        We know it's the same order as they'd be written, since self.writemmp()
+        calls this method. (Subclasses are permitted to override this method
+         in order to revise the order. This can help optimize mmp writing and
+         reading. It does have effects in the code when the atoms are read,
+         but these are usually unimportant.)
+        
+        We know it's the same order they were just read in (if they were just
+        read), since it's the order of atom.key, which is assigned successive
+        values (guaranteed to sort in order) as atoms are read from the file
+        and created for use in this session.
+
+        @param mapping: writemmp_mapping being used for the writing process,
+                        or None if this is not being used for mmp writing.
+                        This can affect the set of atoms (and in principle,
+                        their order) due to conversions requested by the
+                        mapping, e.g. PAM3 -> PAM5.
+        @type mapping: an instance of class writemmp_mapping, or None.
+        
+        [subclasses can override this, as described above]
         """
-        # as of 060308 atlist is also sorted (so equals res), but we don't want to recompute it and atpos and basepos
-        # just due to calling this. Maybe that's silly and this should just return self.atlist,
+        #bruce 050228; revised docstring and added mapping arg, 080321
+        del mapping
+        # as of 060308 atlist is also sorted (so equals res), but we don't want
+        # to recompute it and atpos and basepos just due to calling this. Maybe
+        # that's silly and this should just return self.atlist,
         # or at least optim by doing that when it's in self.__dict__. ##e
         pairs = self.atoms.items() # key, val pairs; keys are atom.key,
-            # which is an int which counts from 1 as atoms are created in one session,
-            # and which is (as of now, 050228) specified to sort in order of creation
-            # even if we later change the kind of value it produces.
+            # which is an int which counts from 1 as atoms are created in one
+            # session, and which is (as of now, 050228) specified to sort in
+            # order of creation even if we later change the kind of value it
+            # produces.
         pairs.sort()
         res = [atm for key, atm in pairs]
         return res
@@ -2255,19 +2326,53 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         disp = mapping.dispname(self.display)
         mapping.write("mol (" + mapping.encode_name(self.name) + ") " + disp + "\n")
         self.writemmp_info_leaf(mapping)
+        self.writemmp_info_chunk_before_atoms(mapping)
         #bruce 050228: write atoms in the same order they were created in,
         # so as to preserve atom order when an mmp file is read and written
         # with no atoms created or destroyed and no chunks reordered, thus
         # making previously-saved movies more likely to retain their validity.
-        for atm in self.atoms_in_mmp_file_order():
+        # (Due to the .dpb format not storing its own info about atom identity.)
+        for atm in self.atoms_in_mmp_file_order(mapping):
             atm.writemmp(mapping)
+        self.writemmp_info_chunk_after_atoms(mapping)
+        return
+
+    def writemmp_info_chunk_before_atoms(self, mapping): #bruce 080321
+        """
+        Write whatever info chunk records need to be written before our atoms
+        (since their value, during mmp read, might be needed when reading the
+        atoms or their bonds).
+
+        [subclasses should override this as needed]
+        """
+        if self.display_as_pam:
+            # not normally set on most chunks, even when PAM3+5 is in use.
+            # future optim (unimportant since not normally set):
+            # we needn't write this is self contains no PAM atoms.
+            # and if we failed to write it when dna updater was off, that would be ok.
+            # so we could assume we don't need it for ordinary chunks
+            # (even though that means dna updater errors on atoms would discard it).
+            mapping.write("info chunk display_as_pam = %s\n" % self.display_as_pam)
+        if self.save_as_pam:
+            # not normally set, even when PAM3+5 is in use
+            mapping.write("info chunk save_as_pam = %s\n" % self.save_as_pam)
+        return
+    
+    def writemmp_info_chunk_after_atoms(self, mapping): #bruce 080321 split this out
+        """
+        Write whatever info chunk records should be written after our atoms
+        and our internal bonds, or any other info chunk records not written
+        by writemmp_info_chunk_before_atoms.
+
+        [subclasses should override this as needed]
+        """
         #bruce 050217 new feature [see also a comment added to files_mmp.py]:
         # also write the hotspot, if there is one.
         hs = self.hotspot # uses getattr to validate it
         if hs:
             # hs is a valid hotspot in this chunk, and was therefore one of the
-            # atoms just written above, and therefore should have an encoding
-            # already assigned for the current mmp file:
+            # atoms just written by the caller, and therefore should have an
+            # encoding already assigned for the current mmp file:
             hs_num = mapping.encode_atom(hs)
             assert hs_num is not None
             mapping.write("info chunk hotspot = %s\n" % hs_num)
@@ -2277,7 +2382,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             b = int(self.color[2]*255 + 0.5)
             mapping.write("info chunk color = %d %d %d\n" % (r, g, b))
         return
-
+    
     def writepov(self, file, disp):
         """
         Draw self (if visible) into an open povray file

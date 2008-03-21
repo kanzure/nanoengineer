@@ -100,18 +100,19 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 080115 preferred' -- bruce, adding group classifications DnaGroup, DnaSegment, DnaStrand, Block
 
+'050920 required; 080321 preferred' -- bruce, adding info chunk display_as_pam, save_as_pam
+
 ===
 
-General notes about when to change the mmp format version:
-see a separate file, files_mmp_format_version.txt
-(renamed from fileIO-doc.txt, bruce 071213).
-
-[bruce 050227 moved those notes out of this docstring and into that
-new file, which is initially in the same directory as this file.]
+General notes about when and how to change the mmp format version:
+see a separate file, files_mmp_format_version.txt,
+which may be in the same directory as this source file.
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080115 preferred'
-# this semi-formally indicates required & ideal reader versions... see general notes above.
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080321 preferred'
+    # this semi-formally indicates required & ideal reader versions...
+    # for notes about when/how to revise this, see general notes referred to
+    # at end of module docstring.
 
 from utilities import debug_flags
 

@@ -173,8 +173,13 @@ class DnaLadderRailChunk(Chunk):
                 
                 use_disp = one_old_chunk.display
                 use_picked = one_old_chunk.picked
+                use_display_as_pam = one_old_chunk.display_as_pam
+                use_save_as_pam = one_old_chunk.save_as_pam
                 
                 for chunk in other_old_chunks:
+                    # todo: make a helper method to do this loop over each attr;
+                    # make decent error messages by knowing whether use_xxx was reset yet
+                    # (use deferred_summary_message)
                     if chunk.display != use_disp:
                         use_disp = diDEFAULT
                             # review:
@@ -185,6 +190,14 @@ class DnaLadderRailChunk(Chunk):
                             #   a conflict (like here) or an agreed value?
                     if not chunk.picked:
                         use_picked = False
+                    if chunk.display_as_pam != use_display_as_pam:
+                        # should never happen, since DnaLadder merging should be disallowed then
+                        # (simplifies mmp read conversion)
+                        use_display_as_pam = ""
+                    if chunk.save_as_pam != use_save_as_pam:
+                        # should never happen, since DnaLadder merging should be disallowed then
+                        # (simplifies mmp save conversion)
+                        use_save_as_pam = ""
                     continue                
                 # review:
                 # - what about being (or containing) glpane.selobj?
@@ -218,7 +231,8 @@ class DnaLadderRailChunk(Chunk):
             # todo: make not private... or get by without it here (another init arg??)
             # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
-        self._set_properties_from_grab_atom_info( use_disp, use_picked)
+        self._set_properties_from_grab_atom_info( use_disp, use_picked,
+                                                  use_display_as_pam, use_save_as_pam)
             # uses args and self attrs to set self.display and self.hidden
             # and possibly call self.pick()
         
@@ -365,11 +379,12 @@ class DnaLadderRailChunk(Chunk):
                 assert len(bp.neighbors()) == 1 and bp.neighbors()[0] is atom and bp.molecule is chunk
         return
     
-    def _set_properties_from_grab_atom_info(self, use_disp, use_picked): # 080201
+    def _set_properties_from_grab_atom_info(self, use_disp, use_picked,
+                                                  use_display_as_pam, use_save_as_pam): # 080201
         """
         If *all* atoms were in hidden chunks, hide self.
         If any or all were hidden, emit an appropriate summary message.
-        Set display style to a common old one or a new one.
+        Set other properties as given.
         """
         if self._num_old_atoms_hidden and not self._num_old_atoms_not_hidden:
             self.hide()
@@ -424,9 +439,16 @@ class DnaLadderRailChunk(Chunk):
             assert self.part is not None # caller must guarantee this
                 # motivation: avoid trouble in add_part from self.pick
             self.pick()
+
+        if use_display_as_pam:
+            self.display_as_pam = use_display_as_pam
+        if use_save_as_pam:
+            self.save_as_pam = use_save_as_pam
         
         return # from _set_properties_from_grab_atom_info
-        
+
+    # ==
+    
     def set_wholechain(self, wholechain):
         """
         [to be called by dna updater]
@@ -524,7 +546,17 @@ class DnaLadderRailChunk(Chunk):
             self.wholechain = None
         return
 
-    # == other methods
+    # == convenience methods for external use, e.g. access methods
+
+    def get_ladder_rail(self): # todo: use more widely
+        """
+        """
+        for rail in self.ladder.all_rails():
+            if rail.baseatoms[0].molecule is self:
+                return rail
+        assert 0 # might happen if used during dna updater run
+        
+    # == graphics methods
     
     def modify_color_for_error(self, color):
         """
@@ -543,14 +575,6 @@ class DnaLadderRailChunk(Chunk):
                 color = black
         return color
 
-    def get_ladder_rail(self): # todo: use more widely
-        """
-        """
-        for rail in self.ladder.all_rails():
-            if rail.baseatoms[0].molecule is self:
-                return rail
-        assert 0 # might happen if used during dna updater run
-                
     def draw(self, glpane, dispdef):
         """
         [overrides Chunk.draw]
@@ -576,7 +600,60 @@ class DnaLadderRailChunk(Chunk):
                 continue
             pass
         return
+
+    # == mmp methods
+
+    def atoms_in_mmp_file_order(self, mapping = None): #bruce 080321
+        """
+        [overrides Chunk method]
+        """
+        initial_atoms = self.indexed_atoms_in_order(mapping = mapping)
+            # (implem is per-subclass)
+            
+        # the initial_atoms need to be written in a definite order,
+        # and (nim, elsewhere) we might also need to know their mmp encodings
+        # for use in info records. (If we do, no need to worry
+        # about that here -- just look them up from mapping for the
+        # first and last atoms in this order, after writing them.)
+
+        number_of_atoms = len(self.atoms) + \
+                          self.number_of_conversion_atoms(mapping)
+
+        if len(initial_atoms) == number_of_atoms:
+            # optimization; might often be true for DnaAxisChunk,
+            # and for DnaStrandChunk when not doing PAM3 -> PAM5 conversion
+            return initial_atoms
+        
+        all_atoms = _superclass.atoms_in_mmp_file_order(self, mapping)
+            # preserve this "standard order" for non-initial atoms
+
+        if len(all_atoms) != number_of_atoms:
+            print "\n*** BUG: wrong number of conversion atoms in %r, %d + %d != %d" % \
+                  (self, len(self.atoms), self.number_of_conversion_atoms(mapping), len(all_atoms))
+        
+        dict1 = {} # helps return each atom exactly once
+        for atom in initial_atoms:
+            dict1[atom.key] = atom #e could optim: do directly from list of keys
+        res = list(initial_atoms) # extended below
+        for atom in all_atoms: # in this order
+            if not dict1.has_key(atom.key):
+                res.append(atom)
+        assert len(res) == len(all_atoms)
+            # if this ever fails, see if initial_atoms has atoms not in all_atoms
+        return res
+
+    def indexed_atoms_in_order(self, mapping): #bruce 080321
+        """
+        [abstract method of DnaLadderRailChunk]
+        """
+        assert 0, "subclass must implement"
     
+    def number_of_conversion_atoms(self, mapping): #bruce 080321
+        """
+        [abstract method of DnaLadderRailChunk]
+        """
+        assert 0, "subclass must implement"
+        
     pass # end of class DnaLadderRailChunk
 
 # ==
@@ -618,7 +695,20 @@ class DnaAxisChunk(DnaLadderRailChunk):
         @see: Chunk.isStrandChunk() , overridden here.  
         """
         return False
+
+    def indexed_atoms_in_order(self, mapping): #bruce 080321
+        """
+        [implements abstract method of DnaLadderRailChunk]
+        """
+        return self.get_ladder_rail().baseatoms
     
+    def number_of_conversion_atoms(self, mapping): #bruce 080321
+        """
+        [implements abstract method of DnaLadderRailChunk]
+        """
+        del mapping
+        return 0
+
     pass
 
 def make_or_reuse_DnaAxisChunk(assy, chain, ladder):
@@ -702,6 +792,28 @@ class DnaStrandChunk(DnaLadderRailChunk):
                 continue
             continue
         return # from _grab_atoms_from_chain
+
+    def indexed_atoms_in_order(self, mapping): #bruce 080321
+        """
+        [implements abstract method of DnaLadderRailChunk]
+        """
+        atoms = self.get_ladder_rail().baseatoms
+        ##### TODO for PAM3+5:
+        # now interleave between these (or before/after for end Pl atom)
+        # the real and/or converted Pl atoms
+        # (note: we might want to retain the conversion atoms so they have constant keys;
+        #  worry about undo, etc; if we do retain them, do it in order to make interleaving efficient;
+        #  might not be worth it to retain them, or might work better if retained on each Ss atom ###likely)
+        return atoms
+    
+    def number_of_conversion_atoms(self, mapping): #bruce 080321
+        """
+        [implements abstract method of DnaLadderRailChunk]
+        """
+        ### STUB, needs to change when conversion atoms can be included by self.indexed_atoms_in_order
+        del mapping
+        return 0
+
     pass # end of class DnaStrandChunk
 
 def make_or_reuse_DnaStrandChunk(assy, chain, ladder):
