@@ -931,21 +931,6 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         """
         return self.is_directional()
     
-    def isStrandOpenBond(self): # by Mark
-        # Note: not used as of before 080225. Maybe obsolete.
-        # [bruce 080225 comment]
-        """
-        Checks if this bond is a DNA (backbone) open bond. An open bond
-        is a strand bond that has a singlet as one of its atoms.
-        
-        @return: True if this bond is a DNA (backbone) open bond.
-                 Otherwise, returns False.
-        @rtype:  bool
-        """
-        if self.isStrandBond():
-            return self.is_open_bond()
-        return False
-        
     def isThreePrimeOpenBond(self): # by Mark
         """
         Checks if this is a 3' open bond.
@@ -973,21 +958,6 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
                         return True
         return False
     
-    def getStrandThreePrimeAtom(self): # probably by Mark
-        # Note: NIM, and has no uses. Maybe obsolete.
-        # [bruce 080225 comment]
-        """
-        Returns the 3' atom (i.e. a Ss3 atom and never a singlet) belonging to
-        the strand this bond is a member of.
-        
-        @return: The 3' atom of this bond's strand. Returns None if this
-                 bond is not a strand bond.
-                 
-        @exception: If this is a strand bond, but there is no 3' atom.
-        """
-        assert 0, "not yet implemented"
-        return None
-
     def _dna_updater_error_tooltip_info(self): #bruce 080206
         """
         [private helper for getToolTipInfo]
