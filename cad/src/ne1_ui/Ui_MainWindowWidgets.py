@@ -70,6 +70,9 @@ def setupUi(win):
     win.fileExportPdbAction = QtGui.QAction(MainWindow)
     win.fileExportPdbAction.setObjectName("fileExportPdbAction")
     
+    win.fileExportQuteMolXPdbAction = QtGui.QAction(MainWindow)
+    win.fileExportQuteMolXPdbAction.setObjectName("fileExportQuteMolXPdbAction")
+    
     win.fileExportJpgAction = QtGui.QAction(MainWindow)
     win.fileExportJpgAction.setObjectName("fileExportJpgAction")
     
@@ -939,6 +942,11 @@ def retranslateUi(win):
     win.fileExportPdbAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Protein Data Bank...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileExportQuteMolXPdbAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Protein Data Bank for QuteMolX...", 
             None, QtGui.QApplication.UnicodeUTF8))
     
     win.fileExportJpgAction.setText(

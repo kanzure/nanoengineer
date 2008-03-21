@@ -21,6 +21,7 @@ def setupUi(win):
     
     # Populate the "Export" submenu.
     win.exportMenu.addAction(win.fileExportPdbAction)
+    win.exportMenu.addAction(win.fileExportQuteMolXPdbAction)
     win.exportMenu.addSeparator()
     win.exportMenu.addAction(win.fileExportJpgAction)
     win.exportMenu.addAction(win.fileExportPngAction)
