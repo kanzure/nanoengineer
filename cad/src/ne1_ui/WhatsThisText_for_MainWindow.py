@@ -107,7 +107,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
     fileInsertMmpActionText = \
         "<b> Molecular Machine Part</b>"\
         "<p>"\
-        "Loads an existing .mmp file in to the current NE1 session"\
+        "<img source=\"ui/actions/Insert/Molecular_Machine_Part.png\"><br> "\
+        "Inserts an existing .mmp file into the current part."\
         "</p>"
 
     win.fileInsertMmpAction.setWhatsThis( fileInsertMmpActionText )
@@ -117,7 +118,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     fileInsertPdbActionText = \
         "<b> Protein Databank File</b>"\
         "<p>"\
-        "Loads an existing .pdb file in to the current NE1 session"\
+        "Inserts an existing .pdb file into the current part."\
         "</p>"
 
     win.fileInsertPdbAction.setWhatsThis( fileInsertPdbActionText )
@@ -858,6 +859,17 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
 
+    # Part Library
+    
+    _text = \
+        "<u><b>Part Library</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/Insert/Partlib.png\"><br> "\
+        "Prompts the user to select an .mmp file from the NanoEngineer-1 "\
+        "Part Library to be inserted into the current part. "\
+        "</p>"
+    win.partLibAction.setWhatsThis( _text )
+    
     # Comment
 
     insertCommentActionText = \
@@ -1432,7 +1444,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<b>Build Atoms</b> allows you to build structures one atom at "\
         "a time or by depositing objects that are on the paste "\
         "clipboard. You can also insert structures from the "\
-        "NanoEngineer-1  Parts Library.</p>"\
+        "NanoEngineer-1 Parts Library.</p>"\
         "<p>"\
         "It is also possible to change bond types "\
         "between atoms using the <b>Bond Tool</b> or "\

@@ -448,6 +448,8 @@ def setupUi(win):
 
     win.fileInsertMmpAction = QtGui.QAction(MainWindow)
     win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
+    win.fileInsertMmpAction.setIcon(
+        geticon('ui/actions/Insert/Molecular_Machine_Part.png'))
     
     win.fileInsertPdbAction = QtGui.QAction(MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
@@ -456,9 +458,7 @@ def setupUi(win):
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setText("Part from Part Library...")    
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
-    win.partLibAction.setWhatsThis("Insert Part from Library" )
     
-
     win.insertCommentAction = QtGui.QAction(MainWindow)
     win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))
     win.insertCommentAction.setObjectName("insertCommentAction")
