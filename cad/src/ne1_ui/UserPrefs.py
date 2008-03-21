@@ -76,6 +76,8 @@ from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import gromacs_path_prefs_key
 from utilities.prefs_constants import cpp_enabled_prefs_key
 from utilities.prefs_constants import cpp_path_prefs_key
+from utilities.prefs_constants import nv1_enabled_prefs_key
+from utilities.prefs_constants import nv1_path_prefs_key
 from utilities.prefs_constants import defaultDisplayMode_prefs_key
 from utilities.prefs_constants import buildModeAutobondEnabled_prefs_key
 from utilities.prefs_constants import buildModeWaterEnabled_prefs_key
@@ -594,33 +596,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.logosDownloadPermissionBtnGroup,
                      SIGNAL("buttonClicked(int)"),
                      self.setPrefsLogoDownloadPermissions)
-        self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
-        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         
-        #connect GROMACS checkbox under Preferences > Plugins when 
-        #to enable/disable GROMACS plugin line edit and the 'choose button'
-        self.connect(self.gromacs_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_gromacs)
-        self.connect(self.gromacs_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_gromacs_path)
-        self.connect(self.gromacs_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_gromacs_path)
         
-        #connect cpp checkbox under Preferences > Plugins when 
-        #to enable/disable cpp plugin line edit and the 'choose button'
-        self.connect(self.cpp_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_cpp)
-        self.connect(self.cpp_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_cpp_path)
-        self.connect(self.cpp_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_cpp_path)
-      
+        
+        
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
@@ -637,8 +616,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
-        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.enable_megapov)
-        self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
         self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
@@ -649,15 +626,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
-        self.connect(self.qutemol_checkbox,SIGNAL("toggled(bool)"),self.enable_qutemol)
-        self.connect(self.qutemol_choose_btn,SIGNAL("clicked()"),self.set_qutemol_path)
-        self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
-        self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
+        
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
-        self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
-        self.connect(self.povray_checkbox,SIGNAL("toggled(bool)"),self.enable_povray)
-        self.connect(self.povray_choose_btn,SIGNAL("clicked()"),self.set_povray_path)
+        
+        
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
@@ -864,7 +836,7 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
                                                       When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
         self.buildmode_highlighting_checkbox.setWhatsThis("""Build mode's default setting for Highlighting at startup (enabled/disabled)""")
 
-        self.gromacs_labe.setWhatsThis("""Enable GROMACS and choose the mdrun executable path to use.""")
+        self.gromacs_label.setWhatsThis("""Enable GROMACS and choose the mdrun executable path to use.""")
         self.gromacs_checkbox.setWhatsThis("""This enables GROMACS as a plug-in. GROMACS is a free rendering program available from http://www.gromacs.org/. GROMACS must be installed on your computer before you can enable the GROMACS plug-in.  Check this and choose the the path to the mdrun executable from your GROMACS distribution.""")
         self.gromacs_path_lineedit.setWhatsThis("""The full path to the mdrun executable file for GROMACS.""")
         self.gromacs_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
@@ -884,17 +856,17 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
         self.nanohive_lbl.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
         self.nanohive_checkbox.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
 
-        self.povray_path_linedit.setWhatsThis("""The full path to the POV-Ray executable file.""")
-        self.qutemol_path_linedit.setWhatsThis("""The full path to the QuteMolX executable file.""")
-        self.nanohive_path_linedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
+        self.povray_path_lineedit.setWhatsThis("""The full path to the POV-Ray executable file.""")
+        self.qutemol_path_lineedit.setWhatsThis("""The full path to the QuteMolX executable file.""")
+        self.nanohive_path_lineedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
         self.gamess_lbl.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
                                      <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
 PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
 <p>For Linux and MacOS users,
 GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
-        self.megapov_path_linedit.setWhatsThis("""The full path to the MegaPOV executable file (megapov.exe).""")
+        self.megapov_path_lineedit.setWhatsThis("""The full path to the MegaPOV executable file (megapov.exe).""")
         self.megapov_checkbox.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
-        self.gamess_path_linedit.setWhatsThis("""The gamess executable file. Usually it's called gamess.??.x or
+        self.gamess_path_lineedit.setWhatsThis("""The gamess executable file. Usually it's called gamess.??.x or
                                           ??gamess.exe.""")
         self.gamess_checkbox.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
                                           as a plug-in. </p>
@@ -902,7 +874,7 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
 PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
 <p>For Linux and MacOS users,
 GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
-        self.povdir_linedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
+        self.povdir_lineedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
                                      files such as transforms.inc.""")
         
         
@@ -965,11 +937,112 @@ restored when the user undoes a structural change.</p>
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
     caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
 
-    def _setup_plugin_signals(self): #bruce 060710
-        self.connect( self.povdir_linedit, SIGNAL("textChanged ( const QString & ) "), \
-                      self.povdir_linedit_textChanged )
-        self.connect( self.povdir_linedit, SIGNAL("returnPressed()"), \
-                      self.povdir_linedit_returnPressed )
+    def _setup_plugin_signals(self):
+        """
+        Signal-slot connections for all widgets on the 'Plugins' page.
+        """
+        
+        # QuteMolX signal-slot connections.
+        self.connect(self.qutemol_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_qutemol)
+        self.connect( self.qutemol_path_lineedit, 
+                      SIGNAL("textEdited (const QString&) "), \
+                      self.set_qutemol_path)
+        self.connect(self.qutemol_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_qutemol_path)
+        
+        # NanoHive-1 signal-slot connections.
+        self.connect(self.nanohive_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_nanohive)
+        self.connect( self.nanohive_path_lineedit, 
+                      SIGNAL("textEdited (const QString&) "), \
+                      self.set_nanohive_path)
+        self.connect(self.nanohive_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.set_nanohive_path)
+        
+        # POV-Ray signal-slot connections.
+        self.connect(self.povray_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_povray)
+        self.connect( self.povray_path_lineedit, 
+                      SIGNAL("textEdited (const QString&) "), \
+                      self.set_povray_path)
+        self.connect(self.povray_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.set_povray_path)
+        
+        # POV dir signal-slot connections.
+        self.connect(self.povdir_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_povdir)
+        self.connect( self.povdir_lineedit, 
+                      SIGNAL("textEdited (const QString&) "), \
+                      self.povdir_lineedit_textChanged )
+        self.connect(self.povdir_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.set_povdir)
+        self.connect( self.povdir_lineedit, 
+                      SIGNAL("returnPressed()"), \
+                      self.povdir_lineedit_returnPressed )
+        
+        # MegaPOV signal-slot connections.
+        self.connect(self.megapov_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_megapov)
+        self.connect( self.megapov_path_lineedit, 
+                      SIGNAL("textEdited (const QString&) "), \
+                      self.set_megapov_path )
+        self.connect(self.megapov_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_megapov_path)
+        
+        # GAMESS signal-slot connections.
+        self.connect(self.gamess_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_gamess)
+        self.connect(self.gamess_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
+                     self.set_gamess_path)
+        self.connect(self.gamess_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_gamess_path)
+        
+        # GROMACS signal-slot connections.
+        self.connect(self.gromacs_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_gromacs)
+        self.connect(self.gromacs_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
+                     self.set_gromacs_path)
+        self.connect(self.gromacs_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_gromacs_path)
+        
+        # cpp signal-slot connections.
+        self.connect(self.cpp_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_cpp)
+        self.connect(self.cpp_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
+                     self.set_cpp_path)
+        self.connect(self.cpp_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_cpp_path)
+        
+        # NanoVision-1 signal-slots connections.
+        self.connect(self.nv1_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_nv1)
+        self.connect(self.nv1_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
+                     self.set_nv1_path)
+        self.connect(self.nv1_choose_btn,
+                     SIGNAL("clicked()"),
+                     self.choose_nv1_path)
 
     def showDialog(self, pagename = 'General'):
         """
@@ -1025,11 +1098,11 @@ restored when the user undoes a structural change.</p>
         """
         widgetList = [self.nanohive_lbl, 
                       self.nanohive_checkbox, 
-                      self.nanohive_path_linedit,
+                      self.nanohive_path_lineedit,
                       self.nanohive_choose_btn,
                       self.gamess_checkbox,
                       self.gamess_lbl,
-                      self.gamess_path_linedit,
+                      self.gamess_path_lineedit,
                       self.gamess_choose_btn]      
         
         for widget in widgetList:    
@@ -1144,32 +1217,32 @@ restored when the user undoes a structural change.</p>
 
         # QuteMolX executable path.
         self.qutemol_checkbox.setChecked(env.prefs[qutemol_enabled_prefs_key])
-        self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
+        self.qutemol_path_lineedit.setText(env.prefs[qutemol_path_prefs_key])
 
         # Nano-Hive executable path.
         self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
-        self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
+        self.nanohive_path_lineedit.setText(env.prefs[nanohive_path_prefs_key])
 
         # POV-Ray executable path.
         self.povray_checkbox.setChecked(env.prefs[povray_enabled_prefs_key])
-        self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
+        self.povray_path_lineedit.setText(env.prefs[povray_path_prefs_key])
 
         # MegaPOV executable path.
         self.megapov_checkbox.setChecked(env.prefs[megapov_enabled_prefs_key])
-        self.megapov_path_linedit.setText(env.prefs[megapov_path_prefs_key])
+        self.megapov_path_lineedit.setText(env.prefs[megapov_path_prefs_key])
 
         # POV include dir (directory for POV-Ray or MegaPOV include files, or "" to get the default choice)
         # Added by Will & Bruce 060710 for Mac A8 release, not present in Windows A8,
         # since needed to support use of Unix compiles of those programs on the Mac,
         # which is the only way to get a command-line version which NE1 can call. [bruce 060710]
         self.povdir_checkbox.setChecked(env.prefs[povdir_enabled_prefs_key])
-        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+        self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
 
         self._update_povdir_enables() #bruce 060710
 
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
-        self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
+        self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
         
         # GROMACS executable path.
         self.gromacs_checkbox.setChecked(env.prefs[gromacs_enabled_prefs_key])
@@ -1178,6 +1251,10 @@ restored when the user undoes a structural change.</p>
         # cpp executable path.
         self.cpp_checkbox.setChecked(env.prefs[cpp_enabled_prefs_key])
         self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
+        
+        # NV1 executable path.
+        self.nv1_checkbox.setChecked(env.prefs[nv1_enabled_prefs_key])
+        self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
 
     def _setup_adjust_page(self):
         """
@@ -2668,7 +2745,7 @@ restored when the user undoes a structural change.</p>
 
     ########## Slot methods for "Plug-ins" page widgets ################
 
-    def set_gamess_path(self):
+    def choose_gamess_path(self):
         """
         Slot for GAMESS path "Choose" button.
         """
@@ -2677,9 +2754,15 @@ restored when the user undoes a structural change.</p>
                                                     'Choose GAMESS Executable')
 
         if gamess_exe:
-            self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
+            self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
 
-    def enable_gamess(self, enable=True):
+    def set_gamess_path(self, newValue):
+        """
+        Slot for GAMESS path line editor.
+        """
+        env.prefs[gamess_path_prefs_key] = str(newValue)
+        
+    def enable_gamess(self, enable = True):
         """
         Enables/disables GAMESS plugin.
         
@@ -2687,17 +2770,17 @@ restored when the user undoes a structural change.</p>
         @type  enable: bool
         """
         if enable:
-            self.gamess_path_linedit.setEnabled(1)
+            self.gamess_path_lineedit.setEnabled(1)
             self.gamess_choose_btn.setEnabled(1)
             env.prefs[gamess_enabled_prefs_key] = True
 
         else:
-            self.gamess_path_linedit.setEnabled(0)
+            self.gamess_path_lineedit.setEnabled(0)
             self.gamess_choose_btn.setEnabled(0)
-            self.gamess_path_linedit.setText("")
+            self.gamess_path_lineedit.setText("")
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
-            
+    
     # GROMACS slots #######################################
     
     def choose_gromacs_path(self):
@@ -2705,9 +2788,10 @@ restored when the user undoes a structural change.</p>
         Slot for GROMACS path "Choose" button.
         """
 
-        mdrun_executable = get_filename_and_save_in_prefs(self,
-                                                          gromacs_path_prefs_key,
-                                                          'Choose mdrun Executable (GROMACS)')
+        mdrun_executable = \
+            get_filename_and_save_in_prefs(self,
+                                           gromacs_path_prefs_key,
+                                           'Choose mdrun executable (GROMACS)')
 
         if mdrun_executable:
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
@@ -2805,10 +2889,63 @@ restored when the user undoes a structural change.</p>
             env.prefs[cpp_path_prefs_key] = ''
             env.prefs[cpp_enabled_prefs_key] = False
             
+    # NanoVision-1 slots #######################################
+    
+    def choose_nv1_path(self):
+        """
+        Slot for NanoVision-1 path "Choose" button.
+        """
 
+        nv1_executable = get_filename_and_save_in_prefs(self,
+                                                        nv1_path_prefs_key,
+                                                        'Choose NanoVision-1 Executable')
+
+        if nv1_executable:
+            self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
+    
+    def set_nv1_path(self, newValue):
+        """
+        Slot for NanoVision-1 path line editor.
+        """
+        env.prefs[nv1_path_prefs_key] = str(newValue)
+    
+    def enable_nv1(self, enable = True):
+        """
+        If True, NV1 path is set in Preferences>Plug-ins
+        
+        @param enable: Is the path set?
+        @type  enable: bool
+        """
+
+        state = self.nv1_checkbox.checkState()
+        if enable:
+            if (state != Qt.Checked):
+                self.nv1_checkbox.setCheckState(Qt.Checked)
+            self.nv1_path_lineedit.setEnabled(True)
+            self.nv1_choose_btn.setEnabled(True)
+            env.prefs[nv1_enabled_prefs_key] = True
+            
+            # Sets the NV1 (executable) path to the standard location, if it exists.
+            if not env.prefs[nv1_path_prefs_key]:
+                env.prefs[nv1_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\Program Files\\Nanorex\\NanoVision-1\\NanoVision-1.exe", \
+                    "/usr/local/bin/NanoVision-1", \
+                    "/usr/local/bin/NanoVision-1")
+                
+            self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
+            
+        else:
+            if (state != Qt.Unchecked):
+                self.nv1_checkbox.setCheckState(Qt.Unchecked)
+            self.nv1_path_lineedit.setEnabled(False)
+            self.nv1_choose_btn.setEnabled(False)
+            self.nv1_path_lineedit.setText("")
+            env.prefs[nv1_path_prefs_key] = ''
+            env.prefs[nv1_enabled_prefs_key] = False
+        
     # QuteMolX slots #######################################
 
-    def set_qutemol_path(self):
+    def choose_qutemol_path(self):
         """
         Slot for QuteMolX path "Choose" button.
         """
@@ -2817,7 +2954,13 @@ restored when the user undoes a structural change.</p>
                                             'Choose QuteMolX Executable')
 
         if qp:
-            self.qutemol_path_linedit.setText(qp)
+            self.qutemol_path_lineedit.setText(qp)
+            
+    def set_qutemol_path(self, newValue):
+        """
+        Slot for QuteMol path line editor.
+        """
+        env.prefs[qutemol_path_prefs_key] = str(newValue)
 
     def enable_qutemol(self, enable = True):
         """
@@ -2827,7 +2970,7 @@ restored when the user undoes a structural change.</p>
         @type  enable: bool
         """
         if enable:
-            self.qutemol_path_linedit.setEnabled(1)
+            self.qutemol_path_lineedit.setEnabled(1)
             self.qutemol_choose_btn.setEnabled(1)
             env.prefs[qutemol_enabled_prefs_key] = True
 
@@ -2838,15 +2981,15 @@ restored when the user undoes a structural change.</p>
                     "/usr/local/bin/QuteMolX", \
                     "/usr/local/bin/QuteMolX")
 
-            self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
+            self.qutemol_path_lineedit.setText(env.prefs[qutemol_path_prefs_key])
 
         else:
-            self.qutemol_path_linedit.setEnabled(0)
+            self.qutemol_path_lineedit.setEnabled(0)
             self.qutemol_choose_btn.setEnabled(0)
-            self.qutemol_path_linedit.setText("")
+            self.qutemol_path_lineedit.setText("")
             env.prefs[qutemol_path_prefs_key] = ''
             env.prefs[qutemol_enabled_prefs_key] = False
-
+    
     # NanoHive-1 slots #####################################
 
     def set_nanohive_path(self):
@@ -2859,8 +3002,14 @@ restored when the user undoes a structural change.</p>
                                             'Choose Nano-Hive Executable')
 
         if nh:
-            self.nanohive_path_linedit.setText(nh)
-            
+            self.nanohive_path_lineedit.setText(nh)
+    
+    def set_nanohive_path(self, newValue):
+        """
+        Slot for NanoHive path line editor.
+        """
+        env.prefs[nanohive_path_prefs_key] = str(newValue)
+        
     def enable_nanohive(self, enable=True):
         """
         Enables/disables NanoHive-1 plugin.
@@ -2871,7 +3020,7 @@ restored when the user undoes a structural change.</p>
         @attention: This is disabled since the NH1 plugin doesn't work yet.
         """
         if enable:
-            self.nanohive_path_linedit.setEnabled(1)
+            self.nanohive_path_lineedit.setEnabled(1)
             self.nanohive_choose_btn.setEnabled(1)
             # Leave Nano-Hive action button/menu hidden for A7.  Mark 2006-01-04.
             # self.w.simNanoHiveAction.setVisible(1)
@@ -2885,7 +3034,7 @@ restored when the user undoes a structural change.</p>
 
 
             env.prefs[nanohive_enabled_prefs_key] = True
-            self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
+            self.nanohive_path_lineedit.setText(env.prefs[nanohive_path_prefs_key])
 
             # Create the Nano-Hive dialog widget.
             # Not needed for A7.  Mark 2006-01-05.
@@ -2894,24 +3043,34 @@ restored when the user undoes a structural change.</p>
             #    self.w.nanohive = NanoHive(self.assy)
 
         else:
-            self.nanohive_path_linedit.setEnabled(0)
+            self.nanohive_path_lineedit.setEnabled(0)
             self.nanohive_choose_btn.setEnabled(0)
             self.w.nanohive = None
             self.w.simNanoHiveAction.setVisible(0)
-            self.nanohive_path_linedit.setText("")
+            self.nanohive_path_lineedit.setText("")
             env.prefs[nanohive_path_prefs_key] = ''
             env.prefs[nanohive_enabled_prefs_key] = False
+        
+    # POV-Ray slots #####################################
 
-    def set_povray_path(self):
+    def choose_povray_path(self):
         """
         Slot for POV-Ray path "Choose" button.
         """
-        povray_exe = get_filename_and_save_in_prefs(self, povray_path_prefs_key, 'Choose POV-Ray Executable')
+        povray_exe = get_filename_and_save_in_prefs(self, 
+                                                    povray_path_prefs_key, 
+                                                    'Choose POV-Ray Executable')
 
         if povray_exe:
-            self.povray_path_linedit.setText(povray_exe)
+            self.povray_path_lineedit.setText(povray_exe)
 
-    def enable_povray(self, enable=True):
+    def set_povray_path(self, newValue):
+        """
+        Slot for POV-Ray path line editor.
+        """
+        env.prefs[povray_path_prefs_key] = str(newValue)
+        
+    def enable_povray(self, enable = True):
         """
         Enables/disables POV-Ray plugin.
         
@@ -2919,7 +3078,7 @@ restored when the user undoes a structural change.</p>
         @type  enable: bool
         """
         if enable:
-            self.povray_path_linedit.setEnabled(1)
+            self.povray_path_lineedit.setEnabled(1)
             self.povray_choose_btn.setEnabled(1)
             env.prefs[povray_enabled_prefs_key] = True
 
@@ -2930,26 +3089,34 @@ restored when the user undoes a structural change.</p>
                     "/usr/local/bin/pvengine", \
                     "/usr/local/bin/pvengine")
 
-            self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
+            self.povray_path_lineedit.setText(env.prefs[povray_path_prefs_key])
 
         else:
-            self.povray_path_linedit.setEnabled(0)
+            self.povray_path_lineedit.setEnabled(0)
             self.povray_choose_btn.setEnabled(0)
-            self.povray_path_linedit.setText("")
+            self.povray_path_lineedit.setText("")
             env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
+    
+    # MegaPOV slots #####################################
 
-    def set_megapov_path(self):
+    def choose_megapov_path(self):
         """
         Slot for MegaPOV path "Choose" button.
         """
         megapov_exe = get_filename_and_save_in_prefs(self, megapov_path_prefs_key, 'Choose MegaPOV Executable')
 
         if megapov_exe:
-            self.megapov_path_linedit.setText(megapov_exe)
+            self.megapov_path_lineedit.setText(megapov_exe)
+            
+    def set_megapov_path(self, newValue):
+        """
+        Slot for MegaPOV path line editor.
+        """
+        env.prefs[megapov_path_prefs_key] = str(newValue)
 
-    def enable_megapov(self, enable=True):
+    def enable_megapov(self, enable = True):
         """
         Enables/disables MegaPOV plugin.
         
@@ -2957,7 +3124,7 @@ restored when the user undoes a structural change.</p>
         @type  enable: bool
         """
         if enable:
-            self.megapov_path_linedit.setEnabled(1)
+            self.megapov_path_lineedit.setEnabled(1)
             self.megapov_choose_btn.setEnabled(1)
             env.prefs[megapov_enabled_prefs_key] = True
 
@@ -2968,15 +3135,17 @@ restored when the user undoes a structural change.</p>
                     "/usr/local/bin/megapov", \
                     "/usr/local/bin/megapov")
 
-            self.megapov_path_linedit.setText(env.prefs[megapov_path_prefs_key])
+            self.megapov_path_lineedit.setText(env.prefs[megapov_path_prefs_key])
 
         else:
-            self.megapov_path_linedit.setEnabled(0)
+            self.megapov_path_lineedit.setEnabled(0)
             self.megapov_choose_btn.setEnabled(0)
-            self.megapov_path_linedit.setText("")
+            self.megapov_path_lineedit.setText("")
             env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
+            
+    # POV-Ray include slots #######################################
 
     # pov include directory [bruce 060710 for Mac A8; will be A8.1 in Windows, not sure about Linux]
 
@@ -2994,11 +3163,11 @@ restored when the user undoes a structural change.</p>
         self.povdir_lbl.setEnabled(enable_checkbox)
         enable_edits = enable_checkbox and env.prefs[povdir_enabled_prefs_key]
             # note: that prefs value should and presumably does agree with self.povdir_checkbox.isChecked()
-        self.povdir_linedit.setEnabled(enable_edits)
+        self.povdir_lineedit.setEnabled(enable_edits)
         self.povdir_choose_btn.setEnabled(enable_edits)
         return
 
-    def enable_povdir(self, enable=True): #bruce 060710
+    def enable_povdir(self, enable = True): #bruce 060710
         """
         Slot method for povdir checkbox.
         povdir is enabled when enable=True.
@@ -3006,7 +3175,7 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[povdir_enabled_prefs_key] = not not enable
         self._update_povdir_enables()
-##        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+##        self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
         return
 
     def set_povdir(self): #bruce 060710
@@ -3022,20 +3191,20 @@ restored when the user undoes a structural change.</p>
         # (or uncheck the checkbox for the same effect). (#e do we want a "clear" button, for A8.1?)
 
         if povdir_path:
-            self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+            self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
             # the function above already saved it in prefs, under the same condition
         return
 
-    def povdir_linedit_textChanged(self, *args): #bruce 060710
+    def povdir_lineedit_textChanged(self, *args): #bruce 060710
         if debug_povdir_signals():
-            print "povdir_linedit_textChanged",args
+            print "povdir_lineedit_textChanged",args
             # this happens on programmatic changes, such as when the page is shown or the choose button slot sets the text
         try:
             # note: Ideally we'd only do this when return was pressed, mouse was clicked elsewhere (with that also removing keyfocus),
             # other keyfocus removals, including dialog ok or cancel. That is mostly nim,
             # so we have to do it all the time for now -- this is the only way for the user to set the text to "".
             # (This even runs on programmatic sets of the text. Hope that's ok.)
-            env.prefs[povdir_path_prefs_key] = path = str( self.povdir_linedit.text() ).strip()
+            env.prefs[povdir_path_prefs_key] = path = str( self.povdir_lineedit.text() ).strip()
             if debug_povdir_signals():
                 print "debug fyi: set pov include dir to [%s]" % (path,)
         except:
@@ -3043,9 +3212,9 @@ restored when the user undoes a structural change.</p>
                 print_compact_traceback("bug, ignored: ")
         return
 
-    def povdir_linedit_returnPressed(self, *args): #bruce 060710
+    def povdir_lineedit_returnPressed(self, *args): #bruce 060710
         if debug_povdir_signals():
-            print "povdir_linedit_returnPressed",args
+            print "povdir_lineedit_returnPressed",args
             # this happens when return is pressed in the widget, but NOT when user clicks outside it
             # or presses OK on the dialog -- which means it's useless when taken alone,
             # in case user edits text and then presses ok without ever pressing return.

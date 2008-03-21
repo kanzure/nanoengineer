@@ -254,6 +254,8 @@ gromacs_path_prefs_key = 'A10/GROMACS Path'
 gromacs_enabled_prefs_key = 'A10/GROMACS Enabled'
 cpp_path_prefs_key = 'A10/cpp Path'
 cpp_enabled_prefs_key = 'A10/cpp Enabled'
+nv1_path_prefs_key = 'A10/NanoVision-1 Path'
+nv1_enabled_prefs_key = 'A10/NanoVision-1 Enabled'
 
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
@@ -571,6 +573,8 @@ prefs_table = (
     ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
     ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
     ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
+    ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
+    ('nv1_enabled', 'boolean', nv1_enabled_prefs_key, False ),
     
     # Undo and History preferences [added to this table by bruce 050810]
     ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
