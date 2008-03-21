@@ -227,7 +227,8 @@ class Process(QProcess):
 
     def getExitValue(self, abortHandler):
         """
-        Return the exitcode, or -2 if it crashed or was terminated. Only call this after it exited.
+        Return the exitcode, or -2 if it crashed or was terminated. Only call
+        this after it exited.
         """
         code = self.wait_for_exit(abortHandler)
         if (self.exitStatus() == QProcess.NormalExit):
@@ -236,18 +237,34 @@ class Process(QProcess):
 
     def run(self, program, args = None, background = False, abortHandler = None):
         """
-        Do everything needed to run the process with these args
-        (a list of strings, starting with program name or path),
-        except for the setX methods which caller might want to call first,
-        like set_stdout, set_stderr, setWorkingDirectory,
-        and optionally setArguments if args are not provided here.
+        Starts the program I{program} in a new process, passing the command 
+        line arguments in I{args}.
+
+        On Windows, arguments that contain spaces are wrapped in quotes.
+        
+        @param program: The program to start.
+        @type  program: string
+        
+        @param args: a list of arguments.
+        @type  args: list
+        
+        @param background: If True, starts the program I{program} in a new 
+                           process, and detaches from it. If NE1 exits, the 
+                           detached process will continue to live. 
+                           The default is False (not backgrounded).
+        @type  background: boolean
+        
+        @param abortHandler: The abort handler.
+        @type  abortHandler: L{AbortHandler}
+        
+        @return: 0 if the process starts successfully.
+        @rtype:  int
+        
+        @note: processes are started asynchronously, which means the started()
+        and error() signals may be delayed. If this is not a backgrounded
+        process, run() makes sure the process has started (or has failed to
+        start) and those signals have been emitted. For a backgrounded process
         """
-        # IMPORTANT: program and args that contain spaces need to be quoted.
-        # Running a program that has spaces in its path or args with spaces
-        # will fail. This is a major bug and needs to be fixed.
-        # See http://doc.trolltech.com/4.3/qprocess.html#start
-        # Leave the print statements (below) in until the bug mentioned above
-        # is fixed. --Mark 2008-03-20
         if (args is None):
             args = []
         self.currentError = None
