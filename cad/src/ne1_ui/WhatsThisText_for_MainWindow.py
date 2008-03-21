@@ -761,6 +761,68 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewOrientationAction.setWhatsThis( viewOrientationActionText )
+    
+    # zoom to center of screen
+    
+    viewZoomAboutScreenCenterActionText = \
+        "<b>Zoom About Screen Center</b>"\
+        "<p>"\
+        "Toggles between Zoom to Cursor and About Center of the Screen"\
+        "</p>"
+    
+    win.viewZoomAboutScreenCenterAction.setWhatsThis\
+       ( viewZoomAboutScreenCenterActionText )    
+    
+    # Set Current View to Home View
+    
+    setViewHomeToCurrentActionText = \
+        "<b>Set Current View to Home View</b>"\
+        "<p>"\
+        "Sets the current view displayed in the 3D graphics area to the Home View "\
+        "</p>"
+
+    win.setViewHomeToCurrentAction.setWhatsThis( setViewHomeToCurrentActionText )
+    
+    # Semi-Full Screen view 
+    
+    viewSemiFullScreenActionText = \
+        "<b>Semi-Full Screen</b>"\
+        "<p>"\
+        "Sets display to Semi-Full Screen "\
+        "</p>"
+
+    win.viewSemiFullScreenAction.setWhatsThis( viewSemiFullScreenActionText )
+    
+    # Display Rulers
+    
+    viewRulersActionText = \
+        "<b>Display Rulers</b>"\
+        "<p>"\
+        "Toggles the display of 3D graphics area rulers"\
+        "</p>"
+
+    win.viewRulersAction.setWhatsThis( viewRulersActionText )
+    
+    # Display Reports
+    
+    viewReportsActionText = \
+        "<b>Display Reports</b>"\
+        "<p>"\
+        "Toggles the display of the report window"\
+        "</p>"
+
+    win.viewReportsAction.setWhatsThis( viewReportsActionText )
+    
+    # Full Screen view 
+    
+    viewFullScreenActionText = \
+        "<b>Full Screen</b>"\
+        "<p>"\
+        "Sets display to Full Screen "\
+        "</p>"
+
+    win.viewFullScreenAction.setWhatsThis( viewFullScreenActionText )
+    
 
     # QuteMolX
 
