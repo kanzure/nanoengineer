@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Graphics mode intended to be used while in CntSegment_EditCommand. 
+Graphics mode intended to be used while in NanotubeSegment_EditCommand. 
 While in this command, user can 
 (a) Highlight and then left drag the resize handles located at the 
     two 'axis endpoints' of thje segment to change its length.  
@@ -35,10 +35,10 @@ modes so this should be refactored then.
 """
 from Numeric import dot
 from PyQt4.Qt import QMouseEvent
-from cnt.commands.BuildCnt.BuildCnt_GraphicsMode import BuildCnt_GraphicsMode
-from cnt.model.CntSegment import CntSegment
+from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
+from cnt.model.NanotubeSegment import NanotubeSegment
 
-from cnt.temporary_commands.CntLineMode import CntLine_GM
+from cnt.temporary_commands.NanotubeLineMode import CntLine_GM
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawCntLadder import drawCntLadder
@@ -59,14 +59,14 @@ SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2
 
 
-from cnt.commands.BuildCnt.BuildCnt_GraphicsMode import DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND
+from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND
 
-_superclass = BuildCnt_GraphicsMode
+_superclass = BuildNanotube_GraphicsMode
 
-class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
-                              BuildCnt_GraphicsMode):
+class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
+                              BuildNanotube_GraphicsMode):
     """
-    Graphics mode for CntSegment_EditCommand. 
+    Graphics mode for NanotubeSegment_EditCommand. 
     """
     _sphereColor = darkred
     _sphereOpacity = 0.5
@@ -118,16 +118,16 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     #START-- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION 
     #The following methods are not used as of 2008-03-04 due to a change in
     #implementation" Earlier, if you click on a strand or segment (while 
-    #in BuildCnt_EditCommand or its subcommands) it used to enter the edit mode 
+    #in BuildNanotube_EditCommand or its subcommands) it used to enter the edit mode 
     #of the object being editable. I am planning to make it a user preference
     #-- Ninad 2008-03-04
     def chunkLeftDown(self, aChunk, event):
         if 0:
             if self.command and self.command.hasValidStructure():
-                cntGroup = aChunk.getCntGroup()
+                cntGroup = aChunk.getNanotubeGroup()
                 
                 if cntGroup is not None:
-                    if cntGroup is self.command.struct.getCntGroup():
+                    if cntGroup is self.command.struct.getNanotubeGroup():
                         if aChunk.isStrandChunk():
                             aChunk.pick()
                             pass
@@ -145,7 +145,7 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:        
             if aChunk.picked:
                 if aChunk.isAxisChunk():   
-                    segmentGroup = aChunk.parent_node_of_class(self.o.assy.CntSegment)
+                    segmentGroup = aChunk.parent_node_of_class(self.o.assy.NanotubeSegment)
                     if segmentGroup is not None:                    
                         segmentGroup.edit()
 
@@ -159,9 +159,9 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             
-        #@see dn_model.CntSegment.isAncestorOf. 
+        #@see dn_model.NanotubeSegment.isAncestorOf. 
         #It checks whether the object under the 
-        #cursor (which is glpane.selobj) is contained within the CntSegment
+        #cursor (which is glpane.selobj) is contained within the NanotubeSegment
         #currently being edited
         #Example: If the object is an Atom, it checks whether the 
         #atoms is a part of the cnt segment. *being edited*
@@ -285,7 +285,7 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             ###it is likely to happen by accident while you are in segment edit 
             ###mode and just click on empty space, Therefore, we simply call 
             ###Command.Done(). See a related bug mentioned in 
-            ###CntSegment_EditCommand.setStructureName
+            ###NanotubeSegment_EditCommand.setStructureName
             ##self.command.Done()
 
 
@@ -308,7 +308,7 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #I don't know why it does that... I think it always assums that the 
         #drag handler is officially a node in the MT? In our case, 
         #the drag handler is a 'Highlightable' object (actually 
-        #an instance of 'CntSegment_ResizeHandle' (has superclass from 
+        #an instance of 'NanotubeSegment_ResizeHandle' (has superclass from 
         #exprs module ..which implements API for a highlightable object
         #So it doesn't get registered in the selectMovables list. Thats why 
         #we are not calling _superclass.leftDrag. The above mentioned 
@@ -319,8 +319,8 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             return
                        
         #If the cursor was not over something that belownged to structure 
-        #being edited (example - atom or bond of a CntSegment) don't 
-        #do left drag.(left drag will work only for the CntSegment being edited)
+        #being edited (example - atom or bond of a NanotubeSegment) don't 
+        #do left drag.(left drag will work only for the NanotubeSegment being edited)
         if self.cursor_over_when_LMB_pressed != 'Structure Being Edited':
             return
         
@@ -486,7 +486,7 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             
             #Note: The displayStyle argument for the rubberband line should 
             #really be obtained from self.command.struct. But the struct 
-            #is a CntSegment (a Group) and doesn't have attr 'display'
+            #is a NanotubeSegment (a Group) and doesn't have attr 'display'
             #Should we then obtain this information from one of its strandChunks?
             #but what if two strand chunks and axis chunk are rendered 
             #in different display styles? since situation may vary, lets 
@@ -527,10 +527,10 @@ class CntSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             self.command.updateHandlePositions()
             
 
-class CntSegment_DragHandles_GraphicsMode(CntLine_GM):
+class NanotubeSegment_DragHandles_GraphicsMode(CntLine_GM):
     """
     EXPERIMENTAL class to use CntLine_GM functionality while dragging a handle
-    See a comment in class CntSegment_EditCommand, just above the method
+    See a comment in class NanotubeSegment_EditCommand, just above the method
     'EXPERIMENTALswitchGraphicsModeTo'
     """
 
@@ -553,7 +553,7 @@ class CntSegment_DragHandles_GraphicsMode(CntLine_GM):
         draw handles
         """    
         if self.command and self.command.struct:
-            if isinstance(self.command.struct, CntSegment):
+            if isinstance(self.command.struct, NanotubeSegment):
                 for handle in self.command.handles:
                     handle.draw()
     

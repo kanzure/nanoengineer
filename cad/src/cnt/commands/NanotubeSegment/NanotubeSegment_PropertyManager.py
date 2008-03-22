@@ -5,7 +5,7 @@
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: as of 2008-01-18
-See CntSegment_EditCommand for details. 
+See NanotubeSegment_EditCommand for details. 
 """
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
@@ -16,19 +16,18 @@ from command_support.EditCommand_PM import EditCommand_PM
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
-from PM.PM_Constants     import pmPreviewButton
 
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
-from cnt.model.Cnt_Constants import getNumberOfCellsFromCntLength, getCntLength
+from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength, getCntLength
 
 from geometry.VQT import V, vlen
 
-class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
-    The CntSegmenta_PropertyManager class provides a Property Manager 
-    for the CntSegment_EditCommand. 
+    The NanotubeSegmenta_PropertyManager class provides a Property Manager 
+    for the NanotubeSegment_EditCommand. 
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -75,7 +74,6 @@ class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
-                                pmPreviewButton | \
                                 pmWhatsThisButton)
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -105,7 +103,7 @@ class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Show this property manager. Overrides EditCommand_PM.show()
         This method also retrives the name information from the 
         editCommand's structure for its name line edit field. 
-        @see: CntSegment_EditCommand.getStructureName()
+        @see: NanotubeSegment_EditCommand.getStructureName()
         @see: self.close()
         """
         EditCommand_PM.show(self)
@@ -121,7 +119,7 @@ class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Also sets the name of the self.editCommand's structure to the one 
         displayed in the line edit field.
         @see self.show()
-        @see: CntSegment_EditCommand.setStructureName
+        @see: NanotubeSegment_EditCommand.setStructureName
         """
         if self.editCommand is not None:
             name = str(self.nameLineEdit.text())
@@ -168,7 +166,7 @@ class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         This is called only when user is editing an existing structure. 
         Its different than self.update_widgets_in_pm_before_show. (that method 
         is called just before showing the property manager) 
-        @see: CntSegment_EditCommand.editStructure()
+        @see: NanotubeSegment_EditCommand.editStructure()
         
         """
         if self.editCommand is not None and self.editCommand.hasValidStructure():
@@ -184,8 +182,8 @@ class CntSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             #_update_widgets_in_PM_before_show is called in self.show, before
             #you connect the signals. So, for the 'first show' we will need to 
             #manually set the value of the cnt length in that field. 
-            #But later, whan a different CntSegment is clicked, (while still in 
-            #CntSegment_EditCommand, the propMgr will already be connected 
+            #But later, whan a different NanotubeSegment is clicked, (while still in 
+            #NanotubeSegment_EditCommand, the propMgr will already be connected 
             #so the call below in that case is redundant (but harmless)
             self.numberOfCellsChanged(numberOfCells)
     

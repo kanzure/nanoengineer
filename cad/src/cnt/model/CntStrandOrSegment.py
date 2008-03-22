@@ -10,7 +10,7 @@ DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 ##from Group import Group
 from dna.model.Block import Block
 
-from cnt.model.CntGroup import CntGroup
+from cnt.model.NanotubeGroup import NanotubeGroup
 
 class CntStrandOrSegment(Block): ### NEEDS REVIEW after recent changes to usage of Block in DnaGroup [bruce 080318 comment]
     """
@@ -53,17 +53,17 @@ class CntStrandOrSegment(Block): ### NEEDS REVIEW after recent changes to usage 
     # maybe: inherit some more specialized subclass of Group?
     # May not matter, since we ourselves never show up in MT.
     # Note: we definitely can't inherit Block, or we'd show up in MT
-    # as a child of a CntGroup!
+    # as a child of a NanotubeGroup!
 
-    def get_CntGroup(self):
+    def get_NanotubeGroup(self):
         """
-        Return the CntGroup we are contained in, or None if we're not
+        Return the NanotubeGroup we are contained in, or None if we're not
         inside one.
         
         @note: Returning None should never happen
                if we have survived a run of the dna updater.
         """
-        return self.parent_node_of_class( CntGroup)
+        return self.parent_node_of_class( NanotubeGroup)
 
     def move_into_your_members(self, node):
         """

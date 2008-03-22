@@ -30,7 +30,7 @@ from utilities.icon_utilities import geticon
 from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaStrand import DnaStrand
 from dna.model.DnaSegment import DnaSegment
-from cnt.model.CntGroup import CntGroup
+from cnt.model.NanotubeGroup import NanotubeGroup
 
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
@@ -214,19 +214,19 @@ class ops_select_Mixin:
         self.topnode.apply2all(addSelectedDnaSegment)
         return selDnaSegmentList
     
-    def getSelectedCntGroups(self):
+    def getSelectedNanotubeGroups(self):
         """
-        Returns a list of the currently selected CntGroup(s).
+        Returns a list of the currently selected NanotubeGroup(s).
         
         """
         
-        selCntGroupList = []
-        def addSelectedCntGroup(obj, cntList = selCntGroupList):
-            if obj.picked and isinstance(obj, CntGroup):
+        selNanotubeGroupList = []
+        def addSelectedNanotubeGroup(obj, cntList = selNanotubeGroupList):
+            if obj.picked and isinstance(obj, NanotubeGroup):
                 cntList += [obj]
 
-        self.topnode.apply2all(addSelectedCntGroup)
-        return selCntGroupList
+        self.topnode.apply2all(addSelectedNanotubeGroup)
+        return selNanotubeGroupList
         
 
     def getNumberOfSelectedChunks(self):

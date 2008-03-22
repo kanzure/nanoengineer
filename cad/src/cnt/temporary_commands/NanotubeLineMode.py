@@ -19,11 +19,11 @@ from utilities.constants import gray, black, darkred, blue, white
 
 class CntLine_GM( LineMode.GraphicsMode_class ):
     """
-    Custom GraphicsMode for use as a component of CntLineMode.
-    @see: L{CntLineMode} for more comments. 
+    Custom GraphicsMode for use as a component of NanotubeLineMode.
+    @see: L{NanotubeLineMode} for more comments. 
     @see: InsertCnt_EditCommand where this is used as a GraphicsMode class.
           The default command part in this file is a Default class
-          implementation  of self.command (see class CntLineMode)          
+          implementation  of self.command (see class NanotubeLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
     #first endpoint of the line. See LineMode.Draw for details. 
@@ -130,7 +130,7 @@ class CntLine_GM( LineMode.GraphicsMode_class ):
         
 
 # == Command part
-class CntLineMode(LineMode): 
+class NanotubeLineMode(LineMode): 
     """
     Encapsulates the LineMode functionality.
     Example:
@@ -148,11 +148,11 @@ class CntLineMode(LineMode):
     @see: InsertCnt_EditCommand.getCursorTextForTemporaryMode
     
     NOTE: [2008-01-11]
-    The default CntLineMode (command) part is not used as of 2008-01-11
+    The default NanotubeLineMode (command) part is not used as of 2008-01-11
     Instead, the interested commands use its GraphicsMode class. 
     However, its still possible to use and implement the default command 
     part. (The old implementation of generating Cnt using endpoints of a 
-    line used this default command class (CntLineMode). so the method in this
+    line used this default command class (NanotubeLineMode). so the method in this
     class  such as self.createStructure does nothing . 
     @see: InsertCnt_EditCommand where the GraphicsMode class of this command is 
           used
@@ -180,7 +180,7 @@ class CntLineMode(LineMode):
     def createStructure(self):
         """
         Does nothing. 
-        @see: CntLineMode_GM.leftUp
+        @see: NanotubeLineMode_GM.leftUp
         @see: comment at the beginning of the class
         
         """

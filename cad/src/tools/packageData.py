@@ -703,8 +703,8 @@ packageMapping.update( packageMapping_for_packages)
 packageGroupMapping = {
     "analysis.ESP"                    : "model",
     "analysis.GAMESS"                 : "model",
-    "cnt.commands.BuildCnt"           : "commands",
-    "cnt.commands.CntSegment"         : "commands",
+    "cnt.commands.BuildNanotube"      : "commands",
+    "cnt.commands.NanotubeSegment"         : "commands",
     "cnt.commands.InsertCnt"          : "commands",
     "cnt.model"                       : "model",
     "cnt.temporary_commands"          : "commands",

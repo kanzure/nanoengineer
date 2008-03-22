@@ -14,7 +14,7 @@ __author__ = "Mark"
 
 import foundation.env as env
 
-from cnt.model.Cnt_Constants import getCntRise, getCntLength
+from cnt.model.Nanotube_Constants import getCntRise, getCntLength
 from cnt.commands.InsertCnt.Chirality import Chirality
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
@@ -40,7 +40,6 @@ from math import pi
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
-from PM.PM_Constants     import pmPreviewButton
 
 from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
@@ -96,7 +95,6 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
-                                pmPreviewButton | \
                                 pmWhatsThisButton)
           
     def connect_or_disconnect_signals(self, isConnect):
@@ -247,7 +245,7 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Load widgets in group box 3.
         """
-        #Following toolbutton facilitates entering a temporary CntLineMode
+        #Following toolbutton facilitates entering a temporary NanotubeLineMode
         #to create a CNT using endpoints of the specified line. 
         self.specifyCntLineButton = PM_ToolButton(
             pmGroupBox, 

@@ -111,8 +111,8 @@ from dna.model.DnaGroup import DnaGroup
 from dna.model.Block import Block
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaStrand import DnaStrand
-from cnt.model.CntGroup import CntGroup # --mark 2008-03-09
-from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
+from cnt.model.NanotubeGroup import NanotubeGroup # --mark 2008-03-09
+from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
 
 # ==
 
@@ -159,8 +159,8 @@ class assembly( StateMixin, Assembly_API):
     from dna.model.DnaMarker  import DnaMarker
     from dna.model.DnaLadderRailChunk import DnaLadderRailChunk
     
-    from cnt.model.CntGroup   import CntGroup # --mark 2008-03-09
-    from cnt.model.CntSegment import CntSegment # --mark 2008-03-09
+    from cnt.model.NanotubeGroup   import NanotubeGroup # --mark 2008-03-09
+    from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
     
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
@@ -404,8 +404,8 @@ class assembly( StateMixin, Assembly_API):
             self.register_classname('DnaSegment', DnaSegment)
             self.register_classname('DnaStrand',  DnaStrand)
             # Experimental CNT groups. --mark 2008-03-09.
-            self.register_classname('CntGroup',   CntGroup)
-            self.register_classname('CntSegment', CntSegment)
+            self.register_classname('NanotubeGroup',   NanotubeGroup)
+            self.register_classname('NanotubeSegment', NanotubeSegment)
 
         # could remove these when they work, but no need:
         # test node_depth method: [bruce 080116]

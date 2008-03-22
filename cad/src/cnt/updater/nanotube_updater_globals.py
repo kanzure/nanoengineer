@@ -1,6 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-cnt_updater_globals.py -- global variables or mutables for cnt_updater,
+nanotube_updater_globals.py -- global variables or mutables for cnt_updater,
 and their lowest-level accessors.
 
 @author: Bruce
@@ -114,7 +114,7 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
 
 # These should be cleared at the start and end of any cnt updater run.
 
-_f_CntGroup_for_homeless_objects_in_Part = {}
+_f_NanotubeGroup_for_homeless_objects_in_Part = {}
 
 def clear_updater_run_globals(): #bruce 080218
     """
@@ -122,7 +122,7 @@ def clear_updater_run_globals(): #bruce 080218
     """
     # Note: perhaps not all such globals are here yet, which should be.
     # And there are some in fix_bond_directions (IIRC) which can't be here.
-    _f_CntGroup_for_homeless_objects_in_Part.clear()
+    _f_NanotubeGroup_for_homeless_objects_in_Part.clear()
     return
 
 # end

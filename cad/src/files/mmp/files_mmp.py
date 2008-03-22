@@ -76,8 +76,8 @@ from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaStrand import DnaStrand
 from dna.model.Block import Block
-from cnt.model.CntGroup import CntGroup
-from cnt.model.CntSegment import CntSegment
+from cnt.model.NanotubeGroup import NanotubeGroup
+from cnt.model.NanotubeSegment import NanotubeSegment
 
 from dna.updater.fix_after_readmmp import will_special_updates_after_readmmp_do_anything
 
@@ -123,12 +123,12 @@ KNOWN_INFO_KINDS = (
 # and ask the assy to map these names to classes). [bruce 080115/080310]
 
 _GROUP_CLASSIFICATIONS = { 
-    'DnaGroup'     : DnaGroup,
-    'DnaSegment'   : DnaSegment,
-    'DnaStrand'    : DnaStrand,
-    'Block'        : Block,
-    'CntGroup'     : CntGroup,
-    'CntSegment'   : CntSegment,
+    'DnaGroup'         : DnaGroup,
+    'DnaSegment'       : DnaSegment,
+    'DnaStrand'        : DnaStrand,
+    'Block'            : Block,
+    'NanotubeGroup'    : NanotubeGroup,
+    'NanotubeSegment'  : NanotubeSegment,
  }
 
 # == patterns for reading mmp files

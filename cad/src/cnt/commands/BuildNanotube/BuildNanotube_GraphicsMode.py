@@ -11,12 +11,12 @@ TODO:
 """
 
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from cnt.model.CntSegment import CntSegment
+from cnt.model.NanotubeSegment import NanotubeSegment
 
 DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = False
 
 _superclass = SelectChunks_GraphicsMode
-class BuildCnt_GraphicsMode(SelectChunks_GraphicsMode):
+class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
     """
     """    
     
@@ -33,7 +33,7 @@ class BuildCnt_GraphicsMode(SelectChunks_GraphicsMode):
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
             if aChunk.picked:
                 if aChunk.isAxisChunk():   
-                    segmentGroup = aChunk.parent_node_of_class(CntSegment)
+                    segmentGroup = aChunk.parent_node_of_class(NanotubeSegment)
                     if segmentGroup is not None:                    
                         segmentGroup.edit()
                 
@@ -42,13 +42,13 @@ class BuildCnt_GraphicsMode(SelectChunks_GraphicsMode):
         Overrides SelectChunks_GraphicsMode._is_cntGroup_highlighting_enabled()
         
         Returns a boolean that decides whether to highlight the whole 
-        CntGroup or just the chunk of the glpane.selobj. 
+        NanotubeGroup or just the chunk of the glpane.selobj. 
         Example: In default mode (SelectChunks_graphicsMode) if the cursor is
-        over an atom or a bond which belongs to a CntGroup, the whole 
-        CntGroup is highlighted. But if you are in buildCnt mode, the 
+        over an atom or a bond which belongs to a NanotubeGroup, the whole 
+        NanotubeGroup is highlighted. But if you are in buildCnt mode, the 
         individual strand and axis chunks will be highlighted in this case. 
         Therefore, subclasses of SelectChunks_graphicsMode should override this
-        method to enable or disable the CntGroup highlighting. (the Default 
+        method to enable or disable the NanotubeGroup highlighting. (the Default 
         implementation returns True)
         @see: self._get_objects_to_highlight()
         @see: self.drawHighlightedChunk()

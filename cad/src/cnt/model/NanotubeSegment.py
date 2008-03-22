@@ -1,6 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-CntSegment.py - ... 
+NanotubeSegment.py - ... 
 
 @author: Bruce, Mark
 @version: $Id$
@@ -15,9 +15,9 @@ from model.chunk import Chunk
 from model.chem import Atom
 from model.bonds import Bond
 from geometry.VQT import V, norm, vlen
-from cnt.model.Cnt_Constants import getCntRise, getCntRiseFromNumberOfCells
+from cnt.model.Nanotube_Constants import getCntRise, getCntRiseFromNumberOfCells
 
-class CntSegment(CntStrandOrSegment):
+class NanotubeSegment(CntStrandOrSegment):
     """
     Model object which represents a Cnt Segment inside a Cnt Group.
 
@@ -25,23 +25,23 @@ class CntSegment(CntStrandOrSegment):
     subobjects, described in the superclass docstring.
 
     Among its (self's) Group.members are its CntAxisChunks and its
-    CntSegmentMarkers, including exactly one controlling marker.
+    NanotubeSegmentMarkers, including exactly one controlling marker.
     These occur in undefined order (??). Note that its CntStrand
     atoms are not inside it; they are easily found from the CntAxisChunks.
 
     [Note: we might decide to put the CntStrandChunks inside the
-     CntSegment whose axis they attach to, instead; for more info,
+     NanotubeSegment whose axis they attach to, instead; for more info,
      see docstring of class CntStrand. bruce comment 080111]
 
     Note that this object will never show up directly in the Model Tree
     once the DNA Data Model is fully implemented, since it will always
-    occur inside a CntGroup (and since it's not a Block).
+    occur inside a NanotubeGroup (and since it's not a Block).
     """
 
     # This should be a tuple of classifications that appear in
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
     # See comment in class Group for more info. [bruce 080115]
-    _mmp_group_classifications = ('CntSegment',)
+    _mmp_group_classifications = ('NanotubeSegment',)
     
     _cntRise = None
     _cellsPerTurn = None
@@ -74,8 +74,8 @@ class CntSegment(CntStrandOrSegment):
         
     def edit(self):
         """
-        Edit this CntSegment. 
-        @see: CntSegment_EditCommand
+        Edit this NanotubeSegment. 
+        @see: NanotubeSegment_EditCommand
         """
         commandSequencer = self.assy.w.commandSequencer
         if commandSequencer.currentCommand.commandName != "CNT_SEGMENT":
@@ -93,13 +93,13 @@ class CntSegment(CntStrandOrSegment):
         """
         Kill this Node including the 'logical contents' of the node. i.e. 
         the contents of the node that are self.members as well as non-members. 
-        Example: A CntSegment's logical contents are AxisChunks and StrandChunks 
-        Out of these, only AxisChunks are the direct members of the CntSegment
+        Example: A NanotubeSegment's logical contents are AxisChunks and StrandChunks 
+        Out of these, only AxisChunks are the direct members of the NanotubeSegment
         but the 'StrandChunks are logical contents of it (non-members) . 
         So, some callers may specifically want to delete self along with its 
         members and logical contents. These callers should use this method. 
         The default implementation just calls self.kill()
-        @see: B{Node.CntSegment.kill_with_contents}  which is overridden here
+        @see: B{Node.NanotubeSegment.kill_with_contents}  which is overridden here
               method. 
         @see: EditCommand._removeStructure() which calls this Node API method
         @see: Cnt_EditCommand._removeSegments()
@@ -311,7 +311,7 @@ class CntSegment(CntStrandOrSegment):
         (but if the structure is read from an mmp file, this won't work. As a 
         fall back, it returns some constant values) 
         @see: Cnt_EditCommand.createStructure which calls this method. 
-        @see: self.getProps, CntSegment_EditCommand.editStructure        
+        @see: self.getProps, NanotubeSegment_EditCommand.editStructure        
         """        
         
         cntRise, cellsPerTurn = props                
@@ -322,9 +322,9 @@ class CntSegment(CntStrandOrSegment):
     def getProps(self):
         """
         Returns some properties such as cntRise. This is a temporary 
-        @see: CntSegment_EditCommand.editStructure where it is used. 
-        @see: CntSegment_PropertyManager.getParameters
-        @see: CntSegmentEditCommand._createStructure        
+        @see: NanotubeSegment_EditCommand.editStructure where it is used. 
+        @see: NanotubeSegment_PropertyManager.getParameters
+        @see: NanotubeSegmentEditCommand._createStructure        
         """                                    
         props = (self.getCntRise(), self.getBasesPerTurn())
         return props
@@ -379,7 +379,7 @@ class CntSegment(CntStrandOrSegment):
         Returns the number of axis atoms present within this dna segment 
         Returns None if more than one axis chunks are present 
         This is a temporary method until dna data model is fully working. 
-        @see: CntSegment_EditCommand.editStructure where it is used. 
+        @see: NanotubeSegment_EditCommand.editStructure where it is used. 
         """
         axisChunkList = []
         numberOfAxisAtoms = None
@@ -397,12 +397,12 @@ class CntSegment(CntStrandOrSegment):
         
     def isAncestorOf(self, obj):
         """
-        Checks whether the object <obj> is contained within the CntSegment
+        Checks whether the object <obj> is contained within the NanotubeSegment
         
         Example: If the object is an Atom, it checks whether the 
-        atom's chunk is a member of this CntSegment (chunk.dad is self)
+        atom's chunk is a member of this NanotubeSegment (chunk.dad is self)
         
-        @see: CntSegment_GraphicsMode.leftDrag
+        @see: NanotubeSegment_GraphicsMode.leftDrag
         """
         #NOTE: Need to check if the isinstance checks are acceptable (apparently
         #don't add any import cycle) Also this method needs to be revised 

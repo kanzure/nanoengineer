@@ -1,10 +1,10 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-CntSegment_EditCommand provides a way to edit an existing CntSegment. 
+NanotubeSegment_EditCommand provides a way to edit an existing NanotubeSegment. 
 
-To edit a segment, first enter BuildCnt_EditCommand (accessed using Build > Cnt) 
-then, select an axis chunk of an existing CntSegment  within the CntGroup you
-are editing. When you select the axis chunk, it enters CntSegment_Editcommand
+To edit a segment, first enter BuildNanotube_EditCommand (accessed using Build > Cnt) 
+then, select an axis chunk of an existing NanotubeSegment  within the NanotubeGroup you
+are editing. When you select the axis chunk, it enters NanotubeSegment_Editcommand
 and shows the property manager with its widgets showing the properties of 
 selected segment. 
 
@@ -18,7 +18,7 @@ While in this command, user can
 
     Note that implementation b and c may change slightly if we implement special
     handles to do these oprations. 
-    See also: CntSegment_GraphicsMode .. the default graphics mode for this 
+    See also: NanotubeSegment_GraphicsMode .. the default graphics mode for this 
     command
 
 
@@ -30,11 +30,11 @@ History:
 Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
 """
 from command_support.EditCommand import EditCommand 
-from cnt.model.CntSegment import CntSegment
-from cnt.commands.CntSegment.CntSegment_GraphicsMode import CntSegment_GraphicsMode
-from cnt.commands.CntSegment.CntSegment_GraphicsMode import CntSegment_DragHandles_GraphicsMode
+from cnt.model.NanotubeSegment import NanotubeSegment
+from cnt.commands.NanotubeSegment.NanotubeSegment_GraphicsMode import NanotubeSegment_GraphicsMode
+from cnt.commands.NanotubeSegment.NanotubeSegment_GraphicsMode import NanotubeSegment_DragHandles_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
-from cnt.model.Cnt_Constants import getCntRise, getNumberOfCellsFromCntLength
+from cnt.model.Nanotube_Constants import getCntRise, getNumberOfCellsFromCntLength
 
 from utilities.Log  import redmsg
 
@@ -47,7 +47,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from utilities.constants import gensym
 
-from cnt.model.Cnt_Constants import getCntLength
+from cnt.model.Nanotube_Constants import getCntLength
 from prototype.test_connectWithState import State_preMixin
 
 from utilities.constants import noop
@@ -64,7 +64,7 @@ from model.chem import Atom
 from model.bonds import Bond
 
 
-from cnt.commands.CntSegment.CntSegment_ResizeHandle import CntSegment_ResizeHandle
+from cnt.commands.NanotubeSegment.NanotubeSegment_ResizeHandle import NanotubeSegment_ResizeHandle
 from graphics.drawables.RotationHandle import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
@@ -72,16 +72,16 @@ HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
 
 #Flag that appends rotation handles to the self.handles (thus enabling their 
-#display and computation while in CntSegment_EditCommand
+#display and computation while in NanotubeSegment_EditCommand
 DEBUG_ROTATION_HANDLES = False
 
 
-class CntSegment_EditCommand(State_preMixin, EditCommand):
+class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     """
-    Command to edit a CntSegment object. 
-    To edit a segment, first enter BuildCnt_EditCommand (accessed using Build > Cnt) 
-    then, select an axis chunk of an existing CntSegment  within the CntGroup you
-    are editing. When you select the axis chunk, it enters CntSegment_Editcommand
+    Command to edit a NanotubeSegment object. 
+    To edit a segment, first enter BuildNanotube_EditCommand (accessed using Build > Cnt) 
+    then, select an axis chunk of an existing NanotubeSegment  within the NanotubeGroup you
+    are editing. When you select the axis chunk, it enters NanotubeSegment_Editcommand
     and shows the property manager with its widgets showing the properties of 
     selected segment.
     """
@@ -104,13 +104,13 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     call_makeMenus_for_each_event = True 
 
     #Graphics Mode 
-    GraphicsMode_class = CntSegment_GraphicsMode
+    GraphicsMode_class = NanotubeSegment_GraphicsMode
 
-    #This is set to BuildCnt_EditCommand.flyoutToolbar (as of 2008-01-14, 
+    #This is set to BuildNanotube_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
 
-    _parentCntGroup = None    
+    _parentNanotubeGroup = None    
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
@@ -119,7 +119,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     rotationHandleBasePoint2 = State( Point, ORIGIN)
 
     #See self._determine_hresize_handle_radius where this gets changed. 
-    #also see CntSegment_ResizeHandle to see how its implemented. 
+    #also see NanotubeSegment_ResizeHandle to see how its implemented. 
     handleSphereRadius1 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
     handleSphereRadius2 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
 
@@ -132,7 +132,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     cntRise =  getCntRise()  #@ FIX THIS.
 
     leftHandle = Instance(         
-        CntSegment_ResizeHandle(    
+        NanotubeSegment_ResizeHandle(    
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = handlePoint1,
@@ -143,7 +143,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
                            ))
 
     rightHandle = Instance( 
-        CntSegment_ResizeHandle(
+        NanotubeSegment_ResizeHandle(
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
             origin = handlePoint2,
@@ -198,7 +198,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         Initialize gui. 
         """
 
-        #Note that CntSegment_EditCommand only act as an edit command for an 
+        #Note that NanotubeSegment_EditCommand only act as an edit command for an 
         #existing structure. The call to self.propMgr.show() is done only during
         #the call to self.editStructure ..i .e. only after self.struct is 
         #updated. This is done because of the following reason:
@@ -219,11 +219,11 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         if self.struct:
             #@@@TEMPORARY CODE -- might be revised once cnt data model is in
             #place           
-            assert isinstance(self.struct, CntSegment)
+            assert isinstance(self.struct, NanotubeSegment)
             #When the structure (segment) is finalized (afterthe  modifications)
-            #it will be added to the original CntGroup to which it belonged 
+            #it will be added to the original NanotubeGroup to which it belonged 
             #before we began editing (modifying) it. 
-            self._parentCntGroup = self.struct.get_CntGroup() 
+            self._parentNanotubeGroup = self.struct.get_NanotubeGroup() 
             #Set the duplex rise and number of bases
             self.propMgr.setParameters(self.struct.getProps())
             #Store the previous parameters. Important to set it after you 
@@ -256,12 +256,12 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
             if self.hasValidStructure():                
                 if group is self.struct:
                     bool_keep = True
-                elif group is self.struct.parent_node_of_class(self.assy.CntGroup):
+                elif group is self.struct.parent_node_of_class(self.assy.NanotubeGroup):
                     bool_keep = True
             #If this command doesn't have a valid structure, as a fall back, 
-            #lets instruct it to keep ALL the CntGroup objects even when empty
+            #lets instruct it to keep ALL the NanotubeGroup objects even when empty
             #Reason? ..see explanation in BreakStrands_Command.keep_empty_group
-            elif isinstance(group, self.assy.CntGroup):
+            elif isinstance(group, self.assy.NanotubeGroup):
                 bool_keep = True
         
         return bool_keep
@@ -279,7 +279,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         if not isValid:
             return isValid
 
-        if not isinstance(self.struct, CntSegment): 
+        if not isinstance(self.struct, NanotubeSegment): 
             return False    
 
         # would like to check here whether it's empty of axis chunks;
@@ -291,7 +291,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         """        
         Updates the list of handles (self.handles) 
         @see: self.editStructure
-        @see: CntSegment_GraphicsMode._drawHandles()
+        @see: NanotubeSegment_GraphicsMode._drawHandles()
         """   
         # note: if handlePoint1 and/or handlePoint2 can change more often than this 
         # runs, we'll need to rerun the two assignments above whenever they 
@@ -365,7 +365,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         editCommand. 
         """
         assert not self.propMgr
-        propMgr = self.win.createCntSegmentPropMgr_if_needed(self)
+        propMgr = self.win.createNanotubeSegmentPropMgr_if_needed(self)
         return propMgr
 
     def _gatherParameters(self):
@@ -447,7 +447,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-        cntSegment = CntSegment(self.name, 
+        cntSegment = NanotubeSegment(self.name, 
                                 self.win.assy,
                                 self.win.assy.part.topnode,
                                 editCommand = self  )
@@ -463,10 +463,10 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
                      endPoint2)
             
             #set some properties such as cntRise and number of bases per turn
-            #This information will be stored on the CntSegment object so that
+            #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
             #This works with or without cnt_updater. Now the question is 
-            #should these props be assigned to the CntSegment in 
+            #should these props be assigned to the NanotubeSegment in 
             #Nanotube.make() itself ? This needs to be answered while modifying
             #make() method to fit in the cnt data model. --Ninad 2008-03-05
             
@@ -527,15 +527,15 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         self.struct = self._createStructure()
         # Now append the new structure in self._segmentList (this list of 
         # segments will be provided to the previous command 
-        # (BuildCnt_EditCommand)
+        # (BuildNanotube_EditCommand)
         # TODO: Should self._createStructure does the job of appending the 
         # structure to the list of segments? This fixes bug 2599 
-        # (see also BuildCnt_PropertyManager.Ok 
+        # (see also BuildNanotube_PropertyManager.Ok 
 
-        if self._parentCntGroup is not None:
-            #Should this be an assertion? (assert self._parentCntGroup is not 
-            #None. For now lets just print a warning if parentCntGroup is None 
-            self._parentCntGroup.addSegment(self.struct)
+        if self._parentNanotubeGroup is not None:
+            #Should this be an assertion? (assert self._parentNanotubeGroup is not 
+            #None. For now lets just print a warning if parentNanotubeGroup is None 
+            self._parentNanotubeGroup.addSegment(self.struct)
         return  
 
     def getStructureName(self):
@@ -543,7 +543,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         Returns the name string of self.struct if there is a valid structure. 
         Otherwise returns None. This information is used by the name edit field 
         of  this command's PM when we call self.propMgr.show()
-        @see: CntSegment_PropertyManager.show()
+        @see: NanotubeSegment_PropertyManager.show()
         @see: self.setStructureName
         """
         if self.hasValidStructure():
@@ -558,7 +558,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         The PM of this command callss this method while closing itself 
         @param name: name of the structure to be set.
         @type name: string
-        @see: CntSegment_PropertyManager.close()
+        @see: NanotubeSegment_PropertyManager.close()
         @see: self.getStructureName()
 
         """
@@ -568,7 +568,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
                 #exits the command by clicking on empty space. 
                 #This should really be done in self._finalizeStructure but that 
                 #method doesn't get called when you click on empty space to exit 
-                #the command. See CntSegment_GraphicsMode.leftUp for a detailed 
+                #the command. See NanotubeSegment_GraphicsMode.leftUp for a detailed 
                 #comment. 
 
         if self.hasValidStructure():
@@ -577,7 +577,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     def getCursorText(self):
         """
         This is used as a callback method in CntLine mode 
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         if self.grabbedHandle is None:
             return
@@ -610,7 +610,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         the private method self._modifyStructure. self._modifyStructure is 
         called only by self.preview_or_finalize_structure
 
-        @see: B{CntSegment_ResizeHandle.on_release} (the caller)
+        @see: B{NanotubeSegment_ResizeHandle.on_release} (the caller)
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
               the relevent method in DragHandler API. )
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
@@ -636,7 +636,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
 
     def makeMenus(self): 
         """
-        Create context menu for this command. (Build Cnt mode)
+        Create context menu for this command. (Build Nanotube mode)
         """
         if not hasattr(self, 'graphicsMode'):
             return
@@ -664,13 +664,13 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
 
         if self.hasValidStructure():        
              
-            cntGroup = self.struct.parent_node_of_class(self.assy.CntGroup)
+            cntGroup = self.struct.parent_node_of_class(self.assy.NanotubeGroup)
             if cntGroup is None:
                 return
-            #following should be self.struct.get_CntGroup or self.struct.getCntGroup
+            #following should be self.struct.get_NanotubeGroup or self.struct.getNanotubeGroup
             #need to formalize method name and then make change.
-            if not cntGroup is highlightedChunk.parent_node_of_class(self.assy.CntGroup):
-                item = ("Edit unavailable: Member of a different CntGroup",
+            if not cntGroup is highlightedChunk.parent_node_of_class(self.assy.NanotubeGroup):
+                item = ("Edit unavailable: Member of a different NanotubeGroup",
                         noop, 'disabled')
                 self.Menu_spec.append(item)
                 return
@@ -688,7 +688,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     #some challenges -- may be we need to save the event and explicitely 
     #call the CntLine_GM.leftDown, passing this event as an argument. 
     #Other issues include -- We need to specify certain attrs/ methods on the 
-    #CntSegment_EditCommand so that CntLineMode_GM works. In general, 
+    #NanotubeSegment_EditCommand so that NanotubeLineMode_GM works. In general, 
     #for this to work , we need to refactor CntLine_GM at some point 
     #(it was originally designed to work as a temporary mode which returns to 
     #the previous mode after certain mouse clicks.) -- Ninad 2008-02-01
@@ -742,7 +742,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
 
         self.default_graphicsMode = GM_class(*args, **kws)
         self.drag_handles_graphicsMode  = \
-            CntSegment_DragHandles_GraphicsMode(*args, **kws)
+            NanotubeSegment_DragHandles_GraphicsMode(*args, **kws)
 
         self.graphicsMode = self.default_graphicsMode
 
@@ -775,7 +775,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         EXPERIMENTAL method. rename it to getCursorTextForTemporaryMode while 
         trying out CntLine_GM
         This is used as a callback method in CntLine mode 
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         cntLength = vlen(endPoint2 - endPoint1)
         numberOfCells = getNumberOfCellsFromCntLength(cntLength, 'Carbon')
@@ -796,7 +796,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
         This is used as a callback method in CntLine mode . 
         @return: The current display style for the rubberband line. 
         @rtype: string
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         return "Ribbons"
 
@@ -810,7 +810,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
 	user enters a temporary mode , does something there and returns back to
 	the previous mode he was in. He also needs to send some data from 
 	previous mode to the temporary mode .	 
-	@see: B{CntLineMode}
+	@see: B{NanotubeLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
         """
 

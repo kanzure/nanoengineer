@@ -1528,29 +1528,29 @@ class MWsemantics(QMainWindow,
         """
         Enter Build Nanotube. 
         @see:B{self.insertCnt}
-        @see: B{ops_select_Mixin.getSelectedCntGroups}
-        @see: B{cnt_model.CntGroup.edit}
+        @see: B{ops_select_Mixin.getSelectedNanotubeGroups}
+        @see: B{cnt_model.NanotubeGroup.edit}
         """
-        selectedCntGroupList = self.assy.getSelectedCntGroups()
+        selectedNanotubeGroupList = self.assy.getSelectedNanotubeGroups()
         
-        #If exactly one CntGroup is selected then when user invokes Build > Nanotube 
-        #command, edit the selected CntGroup instead of creating a new one 
-        #For all other cases, invoking Build > Nanotube will create a new CntGroup
-        if len(selectedCntGroupList) == 1:
-            selCntGroup = selectedCntGroupList[0]
-            selCntGroup.edit()
+        #If exactly one NanotubeGroup is selected then when user invokes Build > Nanotube 
+        #command, edit the selected NanotubeGroup instead of creating a new one 
+        #For all other cases, invoking Build > Nanotube will create a new NanotubeGroup
+        if len(selectedNanotubeGroupList) == 1:
+            selNanotubeGroup = selectedNanotubeGroupList[0]
+            selNanotubeGroup.edit()
         else:
             commandSequencer = self.commandSequencer        
-            if commandSequencer.currentCommand.commandName != 'BUILD_CNT':
-                commandSequencer.userEnterCommand('BUILD_CNT')
+            if commandSequencer.currentCommand.commandName != 'BUILD_NANOTUBE':
+                commandSequencer.userEnterCommand('BUILD_NANOTUBE')
             
-            assert self.commandSequencer.currentCommand.commandName == 'BUILD_CNT'          
+            assert self.commandSequencer.currentCommand.commandName == 'BUILD_NANOTUBE'          
             self.commandSequencer.currentCommand.runCommand()
             
     def insertCnt(self, isChecked = False):
         """
         @param isChecked: If Nanotube button in the Cnt Flyout toolbar is 
-                          checked, enter CntLineMode. (provided you are 
+                          checked, enter NanotubeLineMode. (provided you are 
                           using the new CntEditCommand command. 
         @type  isChecked: boolean
         @see: B{Ui_NanotubeFlyout.activateCnt_EditCommand}
@@ -1576,37 +1576,37 @@ class MWsemantics(QMainWindow,
             if isChecked:
                 self.nanotubecntl.show()
         
-    def createBuildCntPropMgr_if_needed(self, editCommand):
+    def createBuildNanotubePropMgr_if_needed(self, editCommand):
         """
-        Create Build CNT PM object (if one doesn't exist) 
+        Create Build Nanotube PM object (if one doesn't exist) 
         If this object is already present, then set its editCommand to this
         parameter
         @parameter editCommand: The edit controller object for this PM 
-        @type editCommand: B{BuildCnt_EditCommand}
-        @see: B{BuildCnt_EditCommand._createPropMgrObject}
+        @type editCommand: B{BuildNanotube_EditCommand}
+        @see: B{BuildNanotube_EditCommand._createPropMgrObject}
         """
-        from cnt.commands.BuildCnt.BuildCnt_PropertyManager import BuildCnt_PropertyManager
+        from cnt.commands.BuildNanotube.BuildNanotube_PropertyManager import BuildNanotube_PropertyManager
         if self.buildCntPropMgr is None:
             self.buildCntPropMgr = \
-                BuildCnt_PropertyManager(self, editCommand)
+                BuildNanotube_PropertyManager(self, editCommand)
         else:
             self.buildCntPropMgr.setEditCommand(editCommand)
 
         return self.buildCntPropMgr
     
-    def createCntSegmentPropMgr_if_needed(self, editCommand):
+    def createNanotubeSegmentPropMgr_if_needed(self, editCommand):
         """
-        Create the CntSegment PM object (if one doesn't exist) 
+        Create the NanotubeSegment PM object (if one doesn't exist) 
         If this object is already present, then set its editCommand to this
         parameter
         @parameter editCommand: The edit controller object for this PM 
-        @type editCommand: B{CntSegment_EditCommand}
-        @see: B{CntSegment_EditCommand._createPropMgrObject}
+        @type editCommand: B{NanotubeSegment_EditCommand}
+        @see: B{NanotubeSegment_EditCommand._createPropMgrObject}
         """
-        from cnt.commands.CntSegment.CntSegment_PropertyManager import CntSegment_PropertyManager
+        from cnt.commands.NanotubeSegment.NanotubeSegment_PropertyManager import NanotubeSegment_PropertyManager
         if self.cntSegmentPropMgr is None:
             self.cntSegmentPropMgr = \
-                CntSegment_PropertyManager(self, editCommand)
+                NanotubeSegment_PropertyManager(self, editCommand)
             
         else:
             self.cntSegmentPropMgr.setEditCommand(editCommand)

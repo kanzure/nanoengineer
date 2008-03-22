@@ -27,8 +27,8 @@ TODO: (list copied and kept from DnaDuplex_EditCommand.py --Mark)
 """
 from command_support.EditCommand import EditCommand
 
-from cnt.model.CntSegment import CntSegment
-from cnt.model.CntGroup import CntGroup
+from cnt.model.NanotubeSegment import NanotubeSegment
+from cnt.model.NanotubeGroup import NanotubeGroup
 from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
@@ -40,10 +40,10 @@ from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyM
 
 from utilities.constants import gensym
 
-from cnt.model.Cnt_Constants import getNumberOfCellsFromCntLength
-from cnt.model.Cnt_Constants import getCntRise, getCntLength
+from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength
+from cnt.model.Nanotube_Constants import getCntRise, getCntLength
 
-from cnt.temporary_commands.CntLineMode import CntLine_GM
+from cnt.temporary_commands.NanotubeLineMode import CntLine_GM
 
 
 class InsertCnt_EditCommand(EditCommand):
@@ -54,12 +54,12 @@ class InsertCnt_EditCommand(EditCommand):
     This command should be invoked only from InsertCnt_EditCommand 
 
     User can create as many nanotubes as he/she needs just by specifying 
-    two end points for each nanotube. This uses CntLineMode_GM  class as its
+    two end points for each nanotube. This uses NanotubeLineMode_GM  class as its
     GraphicsMode 
     """
     cmd              =  greenmsg("Insert CNT: ")
     sponsor_keyword  =  'CNT'
-    prefix           =  'Cnt '   # used for gensym
+    prefix           =  'Cnt'   # used for gensym
     cmdname          = "Insert CNT"
     commandName      = 'INSERT_CNT'
     featurename      = 'Insert CNT'
@@ -82,7 +82,7 @@ class InsertCnt_EditCommand(EditCommand):
     #this command and returns back to the previous one (InsertCnt_EditCommand),
     #it calls this method and provides a list of segments created while this 
     #command was  running. (the segments are stored within a temporary cnt group
-    #see self._fallbackCntGroup
+    #see self._fallbackNanotubeGroup
     callback_addSegments  = None
 
     #This is set to InsertCnt_EditCommand.flyoutToolbar (as of 2008-01-14, 
@@ -96,44 +96,45 @@ class InsertCnt_EditCommand(EditCommand):
 
         EditCommand.__init__(self, commandSequencer)        
 
-        #_fallbackCntGroup stores the CntSegments created while in 
+        #_fallbackNanotubeGroup stores the NanotubeSegments created while in 
         #this command. This temporary cntGroup is created IF AND ONLY IF 
         #InsertCnt_EditCommand is unable to access the cntGroup object of the 
         #parent InsertCnt_EditCommand. (so if this group gets created, it should
         #be considered as a bug. While exiting the command the list of segments 
         #of this group is given to the InsertCnt_EditCommand where they get 
         #their new parent. @see self.restore_gui
-        self._fallbackCntGroup = None
+        self._fallbackNanotubeGroup = None
 
-        #_parentCntGroup is the cntgroup of InsertCnt_EditCommand 
-        self._parentCntGroup = None
+        #_parentNanotubeGroup is the cntgroup of InsertCnt_EditCommand 
+        self._parentNanotubeGroup = None
 
         #Maintain a list of segments created while this command was running. 
         #Note that the segments , when created will be added directly to the 
-        # self._parentCntGroup (or self._fallbackCntGroup if there is a bug) 
-        # But self._parentCntGroup (which must be = the cntGroup of 
-        # InsertCnt_EditCommand.) may already contain CntSegments (added earlier)
+        # self._parentNanotubeGroup (or self._fallbackNanotubeGroup if there is a bug) 
+        # But self._parentNanotubeGroup (which must be = the cntGroup of 
+        # InsertCnt_EditCommand.) may already contain NanotubeSegments (added earlier)
         # so, we can not use group.steal_members() in case user cancels the 
         #structure creation (segment addition). 
         self._segmentList = []
 
         self.struct = struct
 
-    def _createFallbackCntGroup(self):
+    def _createFallbackNanotubeGroup(self):
         """
-        Creates a temporary CntGroup object in which all the CntSegments 
+        Creates a temporary NanotubeGroup object in which all the NanotubeSegments 
         created while in this command will be added as members. 
         While exiting this command, these segments will be added first taken 
-        away from the temporary group and then added to the CntGroup of
+        away from the temporary group and then added to the NanotubeGroup of
         InsertCnt_EditCommand 
         @see: self.restore_gui
         @see: InsertCnt_EditCommand.callback_addSegments()
         """
-        if self._fallbackCntGroup is None:
+        if self._fallbackNanotubeGroup is None:
             self.win.assy.part.ensure_toplevel_group()
-            self._fallbackCntGroup =  CntGroup("Fallback Cnt", 
-                                               self.win.assy,
-                                               self.win.assy.part.topnode )
+            self._fallbackNanotubeGroup = \
+                NanotubeGroup("Fallback Cnt", 
+                              self.win.assy,
+                              self.win.assy.part.topnode )
 
 
     def init_gui(self):
@@ -160,9 +161,9 @@ class InsertCnt_EditCommand(EditCommand):
         self._segmentList = []
 
         prevMode = self.commandSequencer.prevMode 
-        if prevMode.commandName == 'BUILD_CNT':
+        if prevMode.commandName == 'BUILD_NANOTUBE':
             params = prevMode.provideParamsForTemporaryMode(self.commandName)
-            self.callback_addSegments, self._parentCntGroup = params
+            self.callback_addSegments, self._parentNanotubeGroup = params
             
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
@@ -185,10 +186,10 @@ class InsertCnt_EditCommand(EditCommand):
                 if not self.flyoutToolbar.insertCntAction.isChecked():
                     self.flyoutToolbar.insertCntAction.setChecked(True)
         else:
-            #Should this be an assertion? Should we always kill _parentCntGroup
+            #Should this be an assertion? Should we always kill _parentNanotubeGroup
             #if its not None? ..not a good idea. Lets just make it to None. 
-            self._parentCntGroup = None             
-            self._createFallbackCntGroup()
+            self._parentNanotubeGroup = None             
+            self._createFallbackNanotubeGroup()
 
     def restore_gui(self):
         """
@@ -208,8 +209,8 @@ class InsertCnt_EditCommand(EditCommand):
         if self.flyoutToolbar:
             self.flyoutToolbar.insertCntAction.setChecked(False)
 
-        self._parentCntGroup = None 
-        self._fallbackCntGroup = None
+        self._parentNanotubeGroup = None 
+        self._fallbackNanotubeGroup = None
         self._segmentList = []
 
 
@@ -234,14 +235,14 @@ class InsertCnt_EditCommand(EditCommand):
         bool_keep = EditCommand.keep_empty_group(self, group)
         
         if not bool_keep: 
-            #Don't delete any CntSegements or CntGroups at all while 
+            #Don't delete any CntSegements or NanotubeGroups at all while 
             #in InsertCnt_EditCommand. 
             #Reason: See BreakStrand_Command.keep_empty_group. In addition to 
-            #this, this command can create multiple CntSegments Although those 
+            #this, this command can create multiple NanotubeSegments Although those 
             #won't be empty, it doesn't hurt in waiting for this temporary 
             #command to exit before deleting any empty groups.             
-            if isinstance(group, self.assy.CntSegment) or \
-                 isinstance(group, self.assy.CntGroup):
+            if isinstance(group, self.assy.NanotubeSegment) or \
+                 isinstance(group, self.assy.NanotubeGroup):
                 bool_keep = True
         
         return bool_keep
@@ -265,7 +266,7 @@ class InsertCnt_EditCommand(EditCommand):
 
     def createStructure(self, showPropMgr = True):
         """
-        Overrides superclass method. Creates the structure (CntSegment) 
+        Overrides superclass method. Creates the structure (NanotubeSegment) 
 
         """        
         assert self.propMgr is not None
@@ -286,7 +287,7 @@ class InsertCnt_EditCommand(EditCommand):
         #Unpick the cnt segments (while this command was still 
         #running. ) This is necessary , so that when you strat drawing 
         #rubberband line, it matches the display style of the glpane. 
-        #If something was selected, and while in CntLineMode you changed the
+        #If something was selected, and while in NanotubeLineMode you changed the
         #display style, it will be applied only to the selected chunk. 
         #(and the glpane's display style will not change. This , in turn 
         #won't change the display of the rubberband line being drawn. 
@@ -295,8 +296,8 @@ class InsertCnt_EditCommand(EditCommand):
         #that itself is undesirable. Okay for now -- Ninad 2008-02-20
         #UPDATE 2008-02-21: The following code is commented out. Don't 
         #change the selection state of the 
-        ##if self._fallbackCntGroup is not None:
-            ##for segment in self._fallbackCntGroup.members:
+        ##if self._fallbackNanotubeGroup is not None:
+            ##for segment in self._fallbackNanotubeGroup.members:
                 ##segment.unpick()
 
 
@@ -333,7 +334,7 @@ class InsertCnt_EditCommand(EditCommand):
         Finalize the structure. This is a step just before calling Done method.
         to exit out of this command. Subclasses may overide this method
         @see: EditCommand_PM.ok_btn_clicked
-        @see: CntSegment_EditCommand where this method is overridden. 
+        @see: NanotubeSegment_EditCommand where this method is overridden. 
         """
         #The following can happen in this case: User creates first nanotube, 
         #Now clicks inside 3D workspace to define the first point of the 
@@ -421,7 +422,7 @@ class InsertCnt_EditCommand(EditCommand):
 
     def _removeSegments(self):
         """
-        Remove the segments created while in this command self._fallbackCntGroup 
+        Remove the segments created while in this command self._fallbackNanotubeGroup 
         (if one exists its a bug).
 
         This deletes all the segments created while this command was running
@@ -430,10 +431,10 @@ class InsertCnt_EditCommand(EditCommand):
 
         segmentList = []
 
-        if self._parentCntGroup is not None:
+        if self._parentNanotubeGroup is not None:
             segmentList = self._segmentList
-        elif self._fallbackCntGroup is not None:
-            segmentList = self._fallbackCntGroup.get_segments()
+        elif self._fallbackNanotubeGroup is not None:
+            segmentList = self._fallbackNanotubeGroup.get_segments()
             
 
         for segment in segmentList: 
@@ -443,9 +444,9 @@ class InsertCnt_EditCommand(EditCommand):
                 segment.kill_with_contents()
             self._revertNumber()
         
-        if self._fallbackCntGroup is not None:
-            self._fallbackCntGroup.kill()
-            self._fallbackCntGroup = None
+        if self._fallbackNanotubeGroup is not None:
+            self._fallbackNanotubeGroup.kill()
+            self._fallbackNanotubeGroup = None
             
 
         self._segmentList = []	
@@ -487,21 +488,21 @@ class InsertCnt_EditCommand(EditCommand):
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
 
-        if self._parentCntGroup is None:
-            print_compact_stack("bug: Parent CntGroup in InsertCnt_EditCommand"\
+        if self._parentNanotubeGroup is None:
+            print_compact_stack("bug: Parent NanotubeGroup in InsertCnt_EditCommand"\
                                 "is None. This means the previous command "\
                                 "was not 'InsertCnt_EditCommand' Ignoring for now")
-            if self._fallbackCntGroup is None:
-                self._createFallbackCntGroup()
+            if self._fallbackNanotubeGroup is None:
+                self._createFallbackNanotubeGroup()
 
-            cntGroup = self._fallbackCntGroup
+            cntGroup = self._fallbackNanotubeGroup
         else:
-            cntGroup = self._parentCntGroup
+            cntGroup = self._parentNanotubeGroup
 
-        cntSegment = CntSegment(self.name, 
-                                self.win.assy,
-                                cntGroup,
-                                editCommand = self  )
+        cntSegment = NanotubeSegment(self.name, 
+                                     self.win.assy,
+                                     cntGroup,
+                                     editCommand = self  )
         try:
             # Make the nanotube. <cntGroup> will contain one chunk:
             #  - Axis (Segment)
@@ -511,10 +512,10 @@ class InsertCnt_EditCommand(EditCommand):
             cntSegment.addchild(cntChunk)
 
             #set some properties such as cntRise and number of cells per turn
-            #This information will be stored on the CntSegment object so that
+            #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
             #This works with or without cnt_updater. Now the question is 
-            #should these props be assigned to the CntSegment in 
+            #should these props be assigned to the NanotubeSegment in 
             #insertCnt.make() itself ? This needs to be answered while modifying
             #make() method to fit in the cnt data model. --Ninad 2008-03-05
             
@@ -542,7 +543,7 @@ class InsertCnt_EditCommand(EditCommand):
 	user enters a temporary mode , does something there and returns back to
 	the previous mode he was in. He also needs to send some data from 
 	previous mode to the temporary mode .	 
-	@see: B{CntLineMode}
+	@see: B{NanotubeLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
         """
         assert temporaryModeName == 'CNT_LINE_MODE'
@@ -563,7 +564,7 @@ class InsertCnt_EditCommand(EditCommand):
     def getCursorTextForTemporaryMode(self, endPoint1, endPoint2):
         """
         This is used as a callback method in CntLine mode 
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         cntLength = vlen(endPoint2 - endPoint1)
         text = '%5.3f A' % cntLength
@@ -586,7 +587,7 @@ class InsertCnt_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode . 
         @return: The current display style for the rubberband line. 
         @rtype: string
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         return self.propMgr.cntRubberBandLineDisplayComboBox.currentText()
 
@@ -595,7 +596,7 @@ class InsertCnt_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode. 
         @return: The current nanotube rise. 
         @rtype: float
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         return self.propMgr.cntRiseDoubleSpinBox.value()
     
@@ -604,7 +605,7 @@ class InsertCnt_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode. 
         @return: The current nanotube diameter. 
         @rtype: float
-        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         return self.propMgr.cntChirality.getRadius() * 2.0
 

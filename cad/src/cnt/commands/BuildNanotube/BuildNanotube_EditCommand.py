@@ -1,6 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-BuildCnt_EditCommand.py
+BuildNanotube_EditCommand.py
 
 @author: Ninad
 @version: $Id$
@@ -16,13 +16,13 @@ This is an initial implementation of default Cnt edit mode.
 - Methods such as callback_addSegments might be renamed.
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
-  BuildCnt_EditCommand from a a temporary command. 
-- Just entering and leaving BuildCnt_EditCommand creates an empty CntGroup
+  BuildNanotube_EditCommand from a a temporary command. 
+- Just entering and leaving BuildNanotube_EditCommand creates an empty NanotubeGroup
 """
 
 
 from command_support.EditCommand import EditCommand
-from cnt.model.CntGroup import CntGroup
+from cnt.model.NanotubeGroup import NanotubeGroup
 from utilities.Log  import greenmsg
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
@@ -36,21 +36,21 @@ from model.bonds import Bond
 
 ##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
-from cnt.commands.BuildCnt.BuildCnt_GraphicsMode import BuildCnt_GraphicsMode
+from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 
-class BuildCnt_EditCommand(EditCommand):
+class BuildNanotube_EditCommand(EditCommand):
     """
-    BuildCnt_EditCommand provides a convenient way to edit or create
-    a CntGroup object     
+    BuildNanotube_EditCommand provides a convenient way to edit or create
+    a NanotubeGroup object     
     """
-    cmd              =  greenmsg("Build CNT: ")
-    sponsor_keyword  =  'CNT'
-    prefix           =  'Cnt '   # used for gensym
-    cmdname          = "Build CNT"
-    commandName       = 'BUILD_CNT'
-    featurename       = 'Build_Cnt'
+    cmd              =  greenmsg("Build Nanotube: ")
+    sponsor_keyword  =  'Nanotube'
+    prefix           =  'Nanotube' # used for gensym
+    cmdname          = "Build Nanotube"
+    commandName       = 'BUILD_NANOTUBE'
+    featurename       = 'Build_Nanotube'
 
-    GraphicsMode_class = BuildCnt_GraphicsMode
+    GraphicsMode_class = BuildNanotube_GraphicsMode
 
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
@@ -69,7 +69,7 @@ class BuildCnt_EditCommand(EditCommand):
 
     def __init__(self, commandSequencer, struct = None):
         """
-        Constructor for BuildCnt_EditCommand
+        Constructor for BuildNanotube_EditCommand
         """
 
         EditCommand.__init__(self, commandSequencer)
@@ -103,15 +103,15 @@ class BuildCnt_EditCommand(EditCommand):
         while resuming command. 
 
         Example: A user enters BreakStrands_Command by suspending 
-        BuildCnt_EditCommand, then breaks a few strands, thereby creating new 
-        strand chunks. Now when the user returns to the BuildCnt_EditCommand, 
+        BuildNanotube_EditCommand, then breaks a few strands, thereby creating new 
+        strand chunks. Now when the user returns to the BuildNanotube_EditCommand, 
         the command's property manager needs to update the list of strands 
         because of the changes done while in BreakStrands_Command.  
         @see: Command.resume_gui
         @see: Command._enterMode where this method is called.
         """
         #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
-        #consider this situation : You are in a) BuildCnt_EditCommand, then you 
+        #consider this situation : You are in a) BuildNanotube_EditCommand, then you 
         #b) enter CntDuplex_EditCommand(i.e. Cnt line) and from this temporary 
         #command, you directly c) enter BreakStrands_Command 
         #-- During b to c, 1) it first exits (b) , 2) resumes (a) 
@@ -239,7 +239,7 @@ class BuildCnt_EditCommand(EditCommand):
         if not isValid:
             return isValid
 
-        if isinstance(self.struct, CntGroup): 
+        if isinstance(self.struct, NanotubeGroup): 
             return True    
 
         return False
@@ -251,7 +251,7 @@ class BuildCnt_EditCommand(EditCommand):
         editCommand. 
         """
         assert not self.propMgr        
-        propMgr = self.win.createBuildCntPropMgr_if_needed(self)
+        propMgr = self.win.createBuildNanotubePropMgr_if_needed(self)
         return propMgr
 
 
@@ -285,10 +285,10 @@ class BuildCnt_EditCommand(EditCommand):
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
 
-        cntGroup = CntGroup(self.name, 
-                            self.win.assy,
-                            self.win.assy.part.topnode,
-                            editCommand = self)
+        cntGroup = NanotubeGroup(self.name, 
+                                 self.win.assy,
+                                 self.win.assy.part.topnode,
+                                 editCommand = self)
         try:
 
             self.win.assy.place_new_geometry(cntGroup)
@@ -305,7 +305,7 @@ class BuildCnt_EditCommand(EditCommand):
         """
         Return the parameters needed to build this structure
 
-        @return: A list of all CntSegments present withing the self.struct 
+        @return: A list of all NanotubeSegments present withing the self.struct 
                  (which is a cnt group) or None if self.structure doesn't exist
         @rtype:  tuple
         """       
@@ -314,7 +314,7 @@ class BuildCnt_EditCommand(EditCommand):
         ##if self.struct:
             ##segmentList = []
             ##for segment in self.struct.members:
-                ##if isinstance(segment, CntSegment):
+                ##if isinstance(segment, NanotubeSegment):
                     ##segmentList.append(segment)
 
             ##if segmentList:
@@ -364,21 +364,21 @@ class BuildCnt_EditCommand(EditCommand):
     def _finalizeStructure(self):
         """
         Overrides EditCommand._finalizeStructure. 
-        This method also makes sure that the CntGroup is not empty ..if its 
+        This method also makes sure that the NanotubeGroup is not empty ..if its 
         empty it deletes it. 
-        @see: cnt_model.CntGroup.isEmpty
+        @see: cnt_model.NanotubeGroup.isEmpty
         @see: EditCommand.preview_or_finalize_structure
         """     
         if self.struct is not None:
             if self.struct.isEmpty():
-                #Don't keep empty CntGroup Fixes bug 2603. 
+                #Don't keep empty NanotubeGroup Fixes bug 2603. 
                 self._removeStructure()
                 self.win.win_update()
             else:
                 EditCommand._finalizeStructure(self) 
 
         if self.struct is not None:
-            #Make sure that he CntGroup in the Model Tree is in collapsed state
+            #Make sure that he NanotubeGroup in the Model Tree is in collapsed state
             #after finalizing the structure.
             #DON'T DO self.struct.open = False in the above conditional
             #because the EditCommand._finalizeStructure may have assigned
@@ -401,7 +401,7 @@ class BuildCnt_EditCommand(EditCommand):
 	user enters a temporary mode , does something there and returns back to
 	the previous mode he was in. He also needs to send some data from 
 	previous mode to the temporary mode .	 
-	@see: B{CntLineMode}
+	@see: B{NanotubeLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
 
         @see CntDuplex_EditCommand._createSegment(), 
@@ -414,8 +414,8 @@ class BuildCnt_EditCommand(EditCommand):
             #Pass the self.struct to the CntDuplex_EdiCommand
             #This deprecates use of self.callback_addSegments (in which 
             #segments created while in CntDuplex command are added after 
-            #returning to BuildCnt mode) The new implementation provides the 
-            #CntGroup to the CntDuplex command and then adds the created 
+            #returning to BuildNanotube mode) The new implementation provides the 
+            #NanotubeGroup to the CntDuplex command and then adds the created 
             #segments directly to it. 
             #See: CntDuplex_EditCommand._createSegment(), 
             #    CntDuplex_EditCommand.createStructure(), and
@@ -438,8 +438,8 @@ class BuildCnt_EditCommand(EditCommand):
 
         @TODO: Remove this method when safe. DEPRECATED AS OF 2008-02-24
                See self.provideParametersForTemporaryMode which pass on 
-               self.struct (a CntGroup) to be used in CntDuplex_EditCommand 
-               (which adds created CntSegments to it ) 
+               self.struct (a NanotubeGroup) to be used in CntDuplex_EditCommand 
+               (which adds created NanotubeSegments to it ) 
         """      
 
         if self.struct is None:
@@ -457,9 +457,9 @@ class BuildCnt_EditCommand(EditCommand):
 
     def makeMenus(self): 
         """
-        Create context menu for this command. (Build Cnt mode)
+        Create context menu for this command. (Build Nanotube mode)
         @see: chunk.make_glpane_context_menu_items
-        @see: CntSegment_EditCommand.makeMenus
+        @see: NanotubeSegment_EditCommand.makeMenus
         """
         if not hasattr(self, 'graphicsMode'):
             return

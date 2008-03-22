@@ -1,6 +1,6 @@
 # Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Cnt_Constants.py -- constants for (carbon and boron nitride) nanotubes.
+Nanotube_Constants.py -- constants for (carbon and boron nitride) nanotubes.
 
 @author: Mark Sims
 @version: $Id$

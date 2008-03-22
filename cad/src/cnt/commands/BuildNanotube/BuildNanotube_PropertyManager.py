@@ -1,6 +1,6 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-BuildCnt_PropertyManager.py
+BuildNanotube_PropertyManager.py
 
 @author: Ninad, Mark
 @version: $Id$
@@ -18,8 +18,8 @@ This is an initial implementation of default Cnt edit mode.
    see a comment in self,__init__
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
-  BuildCnt_EditCommand from a a temporary command. 
-- Just entering and leaving BuildCnt_EditCommand creates an empty CntGroup
+  BuildNanotube_EditCommand from a a temporary command. 
+- Just entering and leaving BuildNanotube_EditCommand creates an empty NanotubeGroup
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
@@ -39,11 +39,11 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
-from cnt.model.CntSegment import CntSegment
+from cnt.model.NanotubeSegment import NanotubeSegment
 
-class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
-    The BuildCnt_PropertyManager class provides a Property Manager 
+    The BuildNanotube_PropertyManager class provides a Property Manager 
     for the B{Build > CNT } command.
 
     @ivar title: The title that appears in the property manager header.
@@ -64,7 +64,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     def __init__( self, win, editCommand ):
         """
-        Constructor for the Build CNT property manager.
+        Constructor for the Build Nanotube property manager.
         """
         
         #For model changed signal
@@ -127,7 +127,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         change_connect(self.editSegmentPropertiesButton,
                       SIGNAL("clicked()"),
-                      self._editCntSegment)
+                      self._editNanotubeSegment)
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
@@ -278,7 +278,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         EditCommand_PM.show(self) 
         self.updateListWidgets()    
     
-    def _editCntSegment(self):
+    def _editNanotubeSegment(self):
         """
         """
         if self.editCommand is not None and self.editCommand.hasValidStructure(): 
@@ -315,7 +315,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         segmentList = []
         if self.editCommand and self.editCommand.hasValidStructure(): 
             def func(node):
-                if isinstance(node, CntSegment):
+                if isinstance(node, NanotubeSegment):
                     segmentList.append(node)    
                     
             self.editCommand.struct.apply2all(func)
