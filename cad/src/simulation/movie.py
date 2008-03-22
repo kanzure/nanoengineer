@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 movie.py -- class Movie, used for simulation parameters and open movie files
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -18,6 +18,7 @@ from struct import unpack
 from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
 from geometry.VQT import A
+from foundation.state_utils import IdentityCopyMixin
 from model.chem import move_alist_and_snuggle
 from utilities import debug_flags
 from platform.PlatformDependent import fix_plurals
@@ -38,7 +39,7 @@ playDirection = { FWD : "Forward", REV : "Reverse" }
 
 # ==
 
-class Movie:
+class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     """
     Movie object.
 
