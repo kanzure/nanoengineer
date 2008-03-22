@@ -4,7 +4,7 @@ Draws the CNT in a ladder display.
 
 @author:    Ninad, Mark
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
-@version:   $Id:$
+@version:   $Id$
 @license:   GPL
 """
 
@@ -83,8 +83,8 @@ def drawCntLadder(endCenter1,
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
        
-    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep*0.5*ladderWidth    
-    ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep*0.5*ladderWidth
+    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep * 0.5 * ladderWidth    
+    ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep * 0.5 * ladderWidth
     
     #Following limits the arrowHead Size to the given value. When you zoom out, 
     #the rest of ladder drawing becomes smaller (expected) and the following

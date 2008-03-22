@@ -15,6 +15,7 @@ __author__ = "Mark"
 import foundation.env as env
 
 from cnt.model.Cnt_Constants import getCntRise, getCntLength
+from cnt.commands.InsertCnt.Chirality import Chirality
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
 
@@ -34,6 +35,7 @@ from PM.PM_CheckBox   import PM_CheckBox
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 from geometry.VQT import V
+from math import pi
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
@@ -41,6 +43,8 @@ from PM.PM_Constants     import pmCancelButton
 from PM.PM_Constants     import pmPreviewButton
 
 from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
+
+ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 
 #@from gui.WhatsThisText_for_PropertyManagers import whatsThis_InsertCnt_PropertyManager
 
@@ -78,8 +82,11 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._cntRise    = getCntRise(self._type)
         self._cntLength  = getCntLength(self._type, 
                                         self._numberOfCells)
-        self._n = 5
-        self._m = 5
+        self.n = 5
+        self.m = 5
+        self.bond_length = ntBondLengths[0] # Carbon
+        
+        self.cntChirality = Chirality(self.n, self.m, self.bond_length)
     
         EditCommand_PM.__init__( self, 
                                  win,
@@ -108,27 +115,31 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         change_connect( self.typeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
-                      self.typeComboBoxChanged )
-        
-        change_connect( self.numberOfCellsSpinBox,
-                      SIGNAL("valueChanged(int)"),
-                      self.numberOfCellsChanged )
+                      self._typeComboBoxChanged )
+
+        #change_connect( self.numberOfCellsSpinBox,
+        #              SIGNAL("valueChanged(int)"),
+        #              self.numberOfCellsChanged )
         
         #change_connect( self.cellsPerTurnDoubleSpinBox,
         #              SIGNAL("valueChanged(double)"),
         #              self.cellsPerTurnChanged )
         
-        change_connect( self.cntRiseDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.cntRiseChanged )
+        #change_connect( self.cntRiseDoubleSpinBox,
+        #              SIGNAL("valueChanged(double)"),
+        #              self.cntRiseChanged )
         
         change_connect(self.chiralityNSpinBox,
                        SIGNAL("valueChanged(int)"),
-                       self.chirality_fixup)
+                       self._chiralityFixup)
         
         change_connect(self.chiralityMSpinBox,
                        SIGNAL("valueChanged(int)"),
-                       self.chirality_fixup)
+                       self._chiralityFixup)
+        
+        change_connect(self.bondLengthDoubleSpinBox,
+                       SIGNAL("valueChanged(double)"),
+                       self.bondLengthChanged)
   
     def ok_btn_clicked(self):
         """
@@ -218,8 +229,17 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox3 = PM_GroupBox( self, title = "Advanced Options" )
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Nanotube Distortion" )
         self._loadGroupBox3( self._pmGroupBox3 )
+        self._pmGroupBox3.hide() #@ Temporary.
+        
+        self._pmGroupBox4 = PM_GroupBox( self, title = "Multi-Walled CNTs" )
+        self._loadGroupBox4( self._pmGroupBox4 )
+        self._pmGroupBox4.hide() #@ Temporary.
+        
+        self._pmGroupBox5 = PM_GroupBox( self, title = "Advanced Options" )
+        self._loadGroupBox5( self._pmGroupBox5 )
+        self._pmGroupBox5.hide() #@ Temporary.
 
     
        
@@ -263,18 +283,11 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Load widgets in group box 2.
         """
 
-        cntTypeChoices = ['Carbon'] #, 'Boron Nitride']
+        cntTypeChoices = ['Carbon', 'Boron Nitride']
         self.typeComboBox  = \
             PM_ComboBox( pmGroupBox,
                          label         =  "Type:", 
                          choices       =  cntTypeChoices,
-                         setAsDefault  =  True)
-
-        cntModelChoices = ['Atomistic', 'PAM-1']
-        self.modelComboBox = \
-            PM_ComboBox( pmGroupBox,     
-                         label         =  "Model:", 
-                         choices       =  cntModelChoices,
                          setAsDefault  =  True)
         
         self.cntRiseDoubleSpinBox  =  \
@@ -287,18 +300,19 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                               decimals      =  3,
                               singleStep    =  0.01 )
         
-        # Nanotube Length (i.e. the number of cells)
-        self.numberOfCellsSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of Cells:", 
-                        value         =  self._numberOfCells,
-                        setAsDefault  =  False,
-                        minimum       =  0,
-                        maximum       =  10000 )
+        self.cntRiseDoubleSpinBox.hide()
         
-        self.numberOfCellsSpinBox.setDisabled(True)   
+        #self.numberOfCellsSpinBox = \
+        #    PM_SpinBox( pmGroupBox, 
+        #                label         =  "Number of Cells:", 
+        #                value         =  self._numberOfCells,
+        #                setAsDefault  =  False,
+        #                minimum       =  0,
+        #                maximum       =  10000 )
         
-        # Duplex Length
+        #self.numberOfCellsSpinBox.setDisabled(True)
+        
+        # Nanotube Length
         self.cntLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
                          label         =  "Nanotube Length: ",
@@ -306,17 +320,27 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          setAsDefault  =  False)
 
         self.cntLengthLineEdit.setDisabled(True)
+        self.cntLengthLineEdit.hide()
+        
+        # Nanotube Radius
+        self.cntRadiusLineEdit  =  \
+            PM_LineEdit( pmGroupBox,
+                         label         =  "Nanotube Radius: ",
+                         setAsDefault  =  False)
+
+        self.cntRadiusLineEdit.setDisabled(True)
+        self.updateCntRadius()
                 
         self.chiralityNSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (n) :", 
-                        value        = self._n, 
+                        value        = self.n, 
                         setAsDefault = True )
         
         self.chiralityMSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (m) :", 
-                        value        = self._m, 
+                        value        = self.m, 
                         setAsDefault = True )
                 
         self.bondLengthDoubleSpinBox = \
@@ -330,6 +354,8 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                               decimals     = 3, 
                               suffix       = " Angstroms" )
         
+        self.bondLengthDoubleSpinBox.hide()
+        
         endingChoices = ["None", "Hydrogen", "Nitrogen"]
         
         self.endingsComboBox= \
@@ -339,10 +365,84 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          index        = 0, 
                          setAsDefault = True,
                          spanWidth    = False )
-
-    def _loadGroupBox3(self, pmGroupBox):
+        
+    def _loadGroupBox3(self, inPmGroupBox):
         """
         Load widgets in group box 3.
+        """
+        
+        self.zDistortionDoubleSpinBox = \
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "Z-distortion :", 
+                              value        = 0.0, 
+                              setAsDefault = True,
+                              minimum      = 0.0, 
+                              maximum      = 10.0, 
+                              singleStep   = 0.1, 
+                              decimals     = 3, 
+                              suffix       = " Angstroms" )
+        
+        self.xyDistortionDoubleSpinBox = \
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "XY-distortion :", 
+                              value        = 0.0, 
+                              setAsDefault = True,
+                              minimum      = 0.0, 
+                              maximum      = 2.0, 
+                              singleStep   = 0.1, 
+                              decimals     = 3, 
+                              suffix       = " Angstroms" )
+        
+        self.twistSpinBox = \
+            PM_SpinBox( inPmGroupBox, 
+                        label        = "Twist :", 
+                        value        = 0, 
+                        setAsDefault = True,
+                        minimum      = 0, 
+                        maximum      = 100, # What should maximum be?
+                        suffix       = " deg/A" )
+        
+        self.bendSpinBox = \
+            PM_SpinBox( inPmGroupBox, 
+                        label        = "Bend :", 
+                        value        = 0, 
+                        setAsDefault = True,
+                        minimum      = 0, 
+                        maximum      = 360,
+                        suffix       = " deg" )
+
+    def _loadGroupBox4(self, inPmGroupBox):
+        """
+        Load widgets in group box 4.
+        """
+        
+        # "Number of Nanotubes" SpinBox
+        self.mwntCountSpinBox = \
+            PM_SpinBox( inPmGroupBox, 
+                        label        = "Number :", 
+                        value        = 1, 
+                        setAsDefault = True,
+                        minimum      = 1, 
+                        maximum      = 10,
+                        suffix       = " nanotubes" )
+        
+        self.mwntCountSpinBox.setSpecialValueText("SWNT")
+            
+        # "Spacing" lineedit.
+        self.mwntSpacingDoubleSpinBox = \
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "Spacing :", 
+                              value        = 2.46, 
+                              setAsDefault = True,
+                              minimum      = 1.0, 
+                              maximum      = 10.0, 
+                              singleStep   = 0.1, 
+                              decimals     = 3, 
+                              suffix       = " Angstroms" )
+        
+    def _loadGroupBox5(self, pmGroupBox):
+        """
+        Load widgets in group box 5.
         """
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
@@ -367,30 +467,13 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Tool Tip text for widgets in the Insert CNT Property Manager.  
         """
         pass
-        
-    def typeComboBoxChanged( self, inIndex ):
-        """
-        Slot for the Type combobox. It is called whenever the
-        Type choice is changed.
-
-        @param inIndex: The new index.
-        @type  inIndex: int
-        """
-        type  =  self.typeComboBox.currentText()
-
-        if type not in ("Carbon", "Boron Nitride"):
-            msg = redmsg("typeComboBoxChanged(): \
-                         Error - unknown nanotube type. Index = "+ inIndex)
-            env.history.message(msg)
-            
-        self.cntLengthSpinBox.setSingleStep(getCntRise(type))
 
     def numberOfCellsChanged( self, numberOfCells ):
         """
         Slot for the B{Number of Cells} spinbox.
         """
-        # Update the Duplex Length lineEdit widget.
-        text = str(getCntLength(self._type, 
+        # Update the nanotube Length lineEdit widget.
+        lengthText = str(getCntLength(self._type, 
                                    numberOfCells,
                                    self._cntRise)) \
              + " Angstroms"
@@ -407,33 +490,52 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._cellsPerTurn = cellsPerTurn
         return
     
-    def cntRiseChanged( self, rise ):
+    def cntRiseChanged( self, rise ): 
         """
         Slot for the B{Rise} spinbox.
         """
+        #@ Consider moving this code into chiralityFixup(). --Mark
         self.editCommand.cntRise = rise
         self._cntRise = rise
         return
-
+    
+    def bondLengthChanged(self, bondLength):
+        """
+        Slot for the B{Bond Length} spinbox.
+        """
+        #@ Consider moving this code into chiralityFixup(). --Mark
+        #@self.editCommand.cntRise = rise
+        self.bond_length = bondLength
+        self.updateCntRadius()
+        return
+    
     def getParameters(self):
         """
-        Return the parameters from this property manager
-        to be used to create the nanotube. 
-        @return: A tuple containing the parameters
+        Return the parameters from this property manager to be used to create
+        the nanotube. 
+        
+        @return: A tuple containing the nanotube parameters.
         @rtype: tuple
+        
         @see: L{InsertCnt_EditCommand._gatherParameters} where this is used 
         """
         
-        cntType  = str(self.typeComboBox.currentText())
-        cntModel = str(self.modelComboBox.currentText())
-        numberOfCells = self.numberOfCellsSpinBox.value()
-        cellsPerTurn = self._cellsPerTurn # self.cellsPerTurnDoubleSpinBox.value()
-        cntRise = self.cntRiseDoubleSpinBox.value()
+        members = self.typeComboBox.currentIndex() #@ int, not str. --Mark
+        n = self.chiralityNSpinBox.value()
+        m = self.chiralityMSpinBox.value()
+        bond_length = self.bondLengthDoubleSpinBox.value()
         
-        cntChiralityN = self.chiralityNSpinBox.value()
-        cntChiralityM = self.chiralityMSpinBox.value()
-        cntBondLength = self.bondLengthDoubleSpinBox.value()
-        cntEndings = str(self.endingsComboBox.currentText())
+        zdist = self.zDistortionDoubleSpinBox.value()
+        xydist = self.xyDistortionDoubleSpinBox.value()
+        mwnt_spacing = self.mwntSpacingDoubleSpinBox.value()
+
+        twist = pi * self.twistSpinBox.value() / 180.0
+        bend = pi * self.bendSpinBox.value() / 180.0
+        members = self.typeComboBox.currentIndex()
+        endings = self.endingsComboBox.currentText()
+        if endings == "Capped" and not debug_flags.atom_debug:
+            raise Exception('Nanotube endcaps not implemented yet.')
+        numwalls = self.mwntCountSpinBox.value()
         
         # First endpoint (origin) of nanotube
         x1 = self.x1SpinBox.value()
@@ -449,35 +551,47 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint1 = V(x1, y1, z1)
         if not self.endPoint2:
             self.endPoint2 = V(x2, y2, z2)
-
-        return (cntType,
-                cntModel,
-                numberOfCells,
-                cellsPerTurn,
-                cntRise,
-                cntChiralityN, cntChiralityM,
-                cntBondLength,
-                cntEndings,
-                self.endPoint1, 
-                self.endPoint2)
+        
+        return (members, n, m, bond_length, endings,
+                zdist, xydist, twist, bend, 
+                numwalls, mwnt_spacing,
+                self.endPoint1, self.endPoint2)
     
-    def chirality_fixup(self, spinBoxValueJunk = None):
+    def _typeComboBoxChanged( self, inIndex ):
+        """
+        Slot for the Type combobox. It is called whenever the
+        Type choice is changed.
+
+        @param inIndex: The new index.
+        @type  inIndex: int
+        """
+        type  =  self.typeComboBox.currentText()
+
+        if type not in ("Carbon", "Boron Nitride"):
+            msg = redmsg("typeComboBoxChanged(): \
+                         Error - unknown nanotube type. Index = "+ inIndex)
+            env.history.message(msg)
+        
+        self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
+        
+    def _chiralityFixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or 
         changes a spinbox.
+        
         @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None  
         """
                 
-        if not hasattr(self, '_n'):
-            print_compact_traceback("Bug: no attr '_n' ") # mark 2007-05-24
+        if not hasattr(self, 'n'):
+            print_compact_traceback("Bug: no attr 'n' ") # mark 2007-05-24
             return
         
-        n_previous = int(self._n)
-        m_previous = int(self._m)
+        n_previous = int(self.n)
+        m_previous = int(self.m)
         n = self.chiralityNSpinBox.value()
         m = self.chiralityMSpinBox.value()
         # Two restrictions to maintain
@@ -493,10 +607,22 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             # The user changed n. If n became smaller than m, make m smaller.
             if m > n:
                 m = n
+        
+        self.n = n
+        self.m = m
+        
         self.chiralityNSpinBox.setValue(n)
         self.chiralityMSpinBox.setValue(m)
-        self._m, self._n = _m, _n
-        self.updateMessageGroupBox()
+        self.cntRiseDoubleSpinBox.setValue(getCntRise(self._type, n, m))
+        self.updateCntRadius()
+    
+    def updateCntRadius(self):
+        """
+        Update the nanotube Radius lineEdit widget.
+        """
+        self.cntChirality.updateChirality(self.n, self.m, self.bond_length)
+        radiusText = "%-7.4f Angstroms" %  (self.cntChirality.getRadius())
+        self.cntRadiusLineEdit.setText(radiusText)
         
     def _addWhatsThisText(self):
         """

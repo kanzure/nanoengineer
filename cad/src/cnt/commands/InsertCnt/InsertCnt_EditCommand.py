@@ -33,8 +33,7 @@ from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
-from cnt.commands.InsertCnt.Nanotube import Cnt_PAM1
-from cnt.commands.InsertCnt.Nanotube import Cnt_Atomistic
+from cnt.commands.InsertCnt.Nanotube import Cnt
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyManager
@@ -42,7 +41,7 @@ from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyM
 from utilities.constants import gensym
 
 from cnt.model.Cnt_Constants import getNumberOfCellsFromCntLength
-from cnt.model.Cnt_Constants import getCntLength
+from cnt.model.Cnt_Constants import getCntRise, getCntLength
 
 from cnt.temporary_commands.CntLineMode import CntLine_GM
 
@@ -279,9 +278,8 @@ class InsertCnt_EditCommand(EditCommand):
         self.propMgr.endPoint2 = self.mouseClickPoints[1]
         cntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
 
-        numberOfCells = getNumberOfCellsFromCntLength(cntLength)
-
-        self.propMgr.numberOfCellsSpinBox.setValue(numberOfCells)
+        #@numberOfCells = getNumberOfCellsFromCntLength(cntLength)
+        #@self.propMgr.numberOfCellsSpinBox.setValue(numberOfCells)
 
         self.preview_or_finalize_structure(previewing = True)
 
@@ -370,7 +368,6 @@ class InsertCnt_EditCommand(EditCommand):
         """        
 
         return self.propMgr.getParameters()       
-
 
     def _modifyStructure(self, params):
         """
@@ -463,31 +460,11 @@ class InsertCnt_EditCommand(EditCommand):
         @note: This needs to return a CNT object once that model is implemented        
         """
 
+        # No error checking here; do all error checking in _gatherParameters().
         params = self._gatherParameters()
 
-        # No error checking in build_struct, do all your error
-        # checking in gather_parameters        
-        cntType, \
-                cntModel, \
-                numberOfCells, \
-                cellsPerTurn, \
-                cntRise, \
-                cntChiralityN, cntChiralityM, \
-                cntBondLength, \
-                cntEndings, \
-                endPoint1, \
-                endPoint2  = params
-
-        if cntType == 'Carbon':
-            if cntModel == 'PAM-1':
-                cnt = Cnt_PAM1()
-            if cntModel == 'Atomistic':
-                cnt = Cnt_Atomistic()
-            else:
-                print "bug: unknown cntModel type: ", cntModel
-        else:
-            raise PluginBug("Unsupported CNT type: " + cntType)
-
+        
+        cnt = Cnt()
         self.cnt  =  cnt  # needed for done msg
 
         # self.name needed for done message
@@ -528,13 +505,11 @@ class InsertCnt_EditCommand(EditCommand):
         try:
             # Make the nanotube. <cntGroup> will contain one chunk:
             #  - Axis (Segment)
-            cnt.make(cntSegment, 
-                     numberOfCells, 
-                     cellsPerTurn, 
-                     cntRise,
-                     endPoint1,
-                     endPoint2)
+            position = V(0.0, 0.0, 0.0)
+            cntChunk = cnt.build(self.name, self.win.assy, params, position)
             
+            cntSegment.addchild(cntChunk)
+
             #set some properties such as cntRise and number of cells per turn
             #This information will be stored on the CntSegment object so that
             #it can be retrieved while editing this object. 
@@ -549,9 +524,9 @@ class InsertCnt_EditCommand(EditCommand):
             #structure (such as cnt) without actually recreating the whole 
             #structure, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.
-            props = (cntRise, cellsPerTurn)
+            #@props = (cntRise, cellsPerTurn)
 
-            cntSegment.setProps(props)
+            #@cntSegment.setProps(props)
 
             return cntSegment
 
@@ -590,12 +565,8 @@ class InsertCnt_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode 
         @see: CntLineMode.setParams, CntLineMode_GM.Draw
         """
-
         cntLength = vlen(endPoint2 - endPoint1)
-
-        text = '%5.3f' \
-             % (cntLength)
-
+        text = '%5.3f A' % cntLength
         return text 
 
     def isRubberbandLineSnapEnabled(self):
@@ -627,6 +598,15 @@ class InsertCnt_EditCommand(EditCommand):
         @see: CntLineMode.setParams, CntLineMode_GM.Draw
         """
         return self.propMgr.cntRiseDoubleSpinBox.value()
+    
+    def getCntDiameter(self):
+        """
+        This is used as a callback method in CntLine mode. 
+        @return: The current nanotube diameter. 
+        @rtype: float
+        @see: CntLineMode.setParams, CntLineMode_GM.Draw
+        """
+        return self.propMgr.cntChirality.getRadius() * 2.0
 
 
     #Things needed for CntLine_GraphicsMode (CntLine_GM)======================
@@ -641,7 +621,11 @@ class InsertCnt_EditCommand(EditCommand):
         """
         self.mouseClickLimit = None
         self.cntType = self.propMgr.typeComboBox.currentText()
-        self.cntRise = self.propMgr.cntRiseDoubleSpinBox.value()
+        self.n = self.propMgr.chiralityNSpinBox.value()
+        self.m = self.propMgr.chiralityMSpinBox.value()
+        self.cntRise = getCntRise(self.cntType, self.n, self.m)
+        self.cntDiameter = self.propMgr.cntChirality.getRadius() * 2.0
+        print "cntDiameter=", self.cntDiameter
         #self.cellsPerTurn = self.propMgr.cellsPerTurnDoubleSpinBox.value()
         self.jigList = self.win.assy.getSelectedJigs()
 
@@ -652,3 +636,5 @@ class InsertCnt_EditCommand(EditCommand):
 
         self.callback_rubberbandLineDisplay = \
             self.getDisplayStyleForRubberbandLine
+        
+        self.cntDiameter = self.propMgr.cntChirality.getRadius() * 2.0

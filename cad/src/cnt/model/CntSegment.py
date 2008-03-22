@@ -15,7 +15,7 @@ from model.chunk import Chunk
 from model.chem import Atom
 from model.bonds import Bond
 from geometry.VQT import V, norm, vlen
-from cnt.model.Cnt_Constants import getCntRiseFromNumberOfCells
+from cnt.model.Cnt_Constants import getCntRise, getCntRiseFromNumberOfCells
 
 class CntSegment(CntStrandOrSegment):
     """
@@ -58,7 +58,7 @@ class CntSegment(CntStrandOrSegment):
     
     def __init__(self, name, assy, dad, members = (), editCommand = None):
         
-        self._cntRise = 2.0 #Default value.
+        self._cntRise = getCntRise()  #Default value.
         self._cellsPerTurn = 10 #Default value
         
         CntStrandOrSegment.__init__(self, 

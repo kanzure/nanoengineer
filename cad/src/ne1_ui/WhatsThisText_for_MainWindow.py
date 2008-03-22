@@ -876,10 +876,10 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
 
-    # Build Nanotube
+    # Insert Nanotube (old)
 
-    insertNanotubeActionText = \
-        "<u><b>Build Nanotube</b></u>"\
+    _text = \
+        "<u><b>Insert Nanotube</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
         "Inserts a carbon nanotube in "\
@@ -891,7 +891,19 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
         "</p>"
 
-    win.buildCntAction.setWhatsThis(insertNanotubeActionText )
+    win.insertNanotubeAction.setWhatsThis( _text )
+    
+    # Build Nanotube (new)
+
+    _text = \
+        "<u><b>Build Nanotube</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/Tools/Build Structures/CNT.png\"> <br>"\
+        "Insert a carbon nanotube (CNT) or boron nitride nanotube (BNNT) "\
+        "in the 3D graphics area by defining the two endpoints."\
+        "</p>"
+
+    win.buildCntAction.setWhatsThis( _text )
 
     # Build DNA
 

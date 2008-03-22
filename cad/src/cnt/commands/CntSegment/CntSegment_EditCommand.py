@@ -41,8 +41,7 @@ from utilities.Log  import redmsg
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm
 
-from cnt.commands.InsertCnt.Nanotube import Cnt_PAM1
-from cnt.commands.InsertCnt.Nanotube import Cnt_Atomistic
+from cnt.commands.InsertCnt.Nanotube import Cnt
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
@@ -130,7 +129,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
     rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
     rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
 
-    cntRise =  getCntRise('Carbon')
+    cntRise =  getCntRise()  #@ FIX THIS.
 
     leftHandle = Instance(         
         CntSegment_ResizeHandle(    
@@ -424,15 +423,7 @@ class CntSegment_EditCommand(State_preMixin, EditCommand):
             self.cnt = None # Fixes bug 2530. Mark 2007-09-02
             return None
 
-        if cntType == 'Carbon':
-            if cntModel == 'PAM-1':
-                cnt = Cnt_PAM1()
-            if cntModel == 'Atomistic':
-                cnt = Cnt_Atomistic()
-            else:
-                print "bug: unknown cntModel type: ", cntModel
-        else:
-            raise PluginBug("Unsupported CNT type: " + cntType)
+        cnt = Cnt()
 
         self.cnt  =  cnt  # needed for done msg
 

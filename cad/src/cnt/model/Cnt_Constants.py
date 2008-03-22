@@ -3,7 +3,7 @@
 Cnt_Constants.py -- constants for (carbon and boron nitride) nanotubes.
 
 @author: Mark Sims
-@version: $Id:$
+@version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -42,7 +42,7 @@ def getCntLength(type, numberOfUnits, cntRise = 0):
         
     return cntLength
 
-def getCntRise(type):
+def getCntRise(type = 'Carbon', n = 5, m = 5):
     """
     Returns the nanotube U{rise} specified in this function.
     
@@ -52,7 +52,18 @@ def getCntRise(type):
     @return: The rise in Angstroms.
     @rtype: float
     """
-    return 2.5 # Rise also attr in Nanotube class. How can a get/return that value?
+    # Need to create table, or better yet, a formula to return rise.
+    # I'm sure this is doable, but I need to research it further to learn
+    # how to compute rise from these params. --Mark 2008-03-12
+    rise = 2.5 # default
+    if m == 0:
+        rise = 2.146
+    if m == 5:
+        rise = 2.457
+        
+    print "Type=", type, ", (n, m)=", n, m,", Rise=", rise
+    
+    return rise
 
 def getNumberOfCellsFromCntLength(cntLength, cntType = "Carbon", cntRise = 2.5):
     """

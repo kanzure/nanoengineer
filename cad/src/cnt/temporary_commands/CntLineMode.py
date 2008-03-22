@@ -96,9 +96,10 @@ class CntLine_GM( LineMode.GraphicsMode_class ):
                 # disabled and is superseded by the ribbons ruberband display. 
                 drawCntLadder(self.endPoint1,
                               self.endPoint2, 
-                              self.command.cntRise,
+                              self.command.getCntRise(),
                               self.glpane.scale,
                               self.glpane.lineOfSight,
+                              ladderWidth = self.command.getCntDiameter(),
                               beamThickness = 4.0,
                               beam1Color = gray,
                               beam2Color = gray,
