@@ -63,7 +63,7 @@ class Dna:
     @type handedness: int
     
     @ivar model: The model representation, where:
-                    - "PAM3" = PAM-5 reduced model.
+                    - "PAM3" = PAM-3 reduced model.
                     - "PAM5" = PAM-5 reduced model.
                           
     @type model: str
