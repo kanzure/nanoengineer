@@ -66,7 +66,7 @@ from ne1_ui.Ui_PartWindow import Ui_PartWindow
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
-import ne1_ui.toolbars.Ui_CntFlyout as Ui_CntFlyout
+import ne1_ui.toolbars.Ui_NanotubeFlyout as Ui_NanotubeFlyout
 import ne1_ui.toolbars.Ui_DnaFlyout as Ui_DnaFlyout
 
 from operations.ops_files import fileSlotsMixin
@@ -1553,7 +1553,7 @@ class MWsemantics(QMainWindow,
                           checked, enter CntLineMode. (provided you are 
                           using the new CntEditCommand command. 
         @type  isChecked: boolean
-        @see: B{Ui_CntFlyout.activateCnt_EditCommand}
+        @see: B{Ui_NanotubeFlyout.activateCnt_EditCommand}
         """
         #  New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 

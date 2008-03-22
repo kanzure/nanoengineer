@@ -3,7 +3,7 @@
 $Id$
 
 TODO: (list copied and kept from Ui_DnaFlyout.py --Mark)
-- Does the parentWidget for the CntFlyout always needs to be a propertyManager
+- Does the parentWidget for the NanotubeFlyout always needs to be a propertyManager
   The parentWidget is the propertyManager object of the currentCommand on the 
   commandSequencer. What if the currentCommand doesn't have a PM but it wants 
   its own commandToolbar?  Use the mainWindow as its parentWidget? 
@@ -22,10 +22,10 @@ from PyQt4.Qt import SIGNAL
 from utilities.icon_utilities import geticon
 from utilities.Log import greenmsg
 
-_theCntFlyout = None
+_theNanotubeFlyout = None
 
-#NOTE: global methods setupUi, activateCntFlyout are not called as of 2007-12-19
-#Use methods like CntFlyout.activateFlyoutToolbar instead. 
+#NOTE: global methods setupUi, activateNanotubeFlyout are not called as of 2007-12-19
+#Use methods like NanotubeFlyout.activateFlyoutToolbar instead. 
 #Command toolbar needs to be integrated with the commandSequencer. 
 #See InsertCntLine_EditCommand.init_gui for an example. (still experimental)
 
@@ -34,17 +34,17 @@ def setupUi(mainWindow):
     Construct the QWidgetActions for the Cnt flyout on the 
     Command Manager toolbar.
     """
-    global _theCntFlyout
+    global _theNanotubeFlyout
 
-    _theCntFlyout = CntFlyout(mainWindow)
+    _theNanotubeFlyout = NanotubeFlyout(mainWindow)
     
 # probably needs a retranslateUi to add tooltips too...
 
-def activateCntFlyout(mainWindow):
+def activateNanotubeFlyout(mainWindow):
     mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildNanotubeAction, 
-                                                   _theCntFlyout)
+                                                   _theNanotubeFlyout)
 
-class CntFlyout:    
+class NanotubeFlyout:    
     def __init__(self, mainWindow, parentWidget):
         """
         Create necessary flyout action list and update the flyout toolbar in
@@ -154,8 +154,8 @@ class CntFlyout:
         
         #Temporary workaround for bug 2600 
         #until the Command Toolbar code is revised
-        #When CntFlyout toolbar is activated, it should switch to (check) the 
-        #'Build Button' in the control area. So that the CntFlyout 
+        #When NanotubeFlyout toolbar is activated, it should switch to (check) the 
+        #'Build Button' in the control area. So that the NanotubeFlyout 
         #actions are visible in the flyout area of the command toolbar. 
         #-- Ninad 2008-01-21. 
         self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)

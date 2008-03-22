@@ -28,7 +28,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from utilities.constants import gensym
 
-from ne1_ui.toolbars.Ui_CntFlyout import CntFlyout
+from ne1_ui.toolbars.Ui_NanotubeFlyout import NanotubeFlyout
 
 from model.chem import Atom 
 from model.chunk import Chunk
@@ -91,7 +91,7 @@ class BuildCnt_EditCommand(EditCommand):
         EditCommand.init_gui(self)    
 
         if self.flyoutToolbar is None:
-            self.flyoutToolbar = CntFlyout(self.win, self.propMgr)
+            self.flyoutToolbar = NanotubeFlyout(self.win, self.propMgr)
 
         self.flyoutToolbar.activateFlyoutToolbar()
 
