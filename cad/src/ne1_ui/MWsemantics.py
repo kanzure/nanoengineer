@@ -330,8 +330,8 @@ class MWsemantics(QMainWindow,
         from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
         self.graphenecntl = GrapheneGenerator(self)
 
-        #  New CNT Builder or old Nanotube Generator?
-        if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+        #  New Nanotube Builder or old Nanotube Generator?
+        if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
                       Choice_boolean_False, 
                       non_debug = True,
                       prefs_key = "A10 devel/Nanotube generator"):
@@ -1524,9 +1524,9 @@ class MWsemantics(QMainWindow,
         
     # Build > CNT related slots and methods. ######################
     
-    def activateCntTool(self):
+    def activateNanotubeTool(self):
         """
-        Enter the InsertCnt_EditCommand command. 
+        Enter Build Nanotube. 
         @see:B{self.insertCnt}
         @see: B{ops_select_Mixin.getSelectedCntGroups}
         @see: B{cnt_model.CntGroup.edit}
@@ -1555,8 +1555,8 @@ class MWsemantics(QMainWindow,
         @type  isChecked: boolean
         @see: B{Ui_CntFlyout.activateCnt_EditCommand}
         """
-        #  New CNT Builder or old Nanotube Generator?
-        if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+        #  New Nanotube Builder or old Nanotube Generator?
+        if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
                       Choice_boolean_False, 
                       non_debug = True,
                       prefs_key = "A10 devel/Nanotube generator"):

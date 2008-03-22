@@ -158,7 +158,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         whether user is entering or leaving the mode
         """
         self.w.buildDnaAction.setEnabled(bool)
-        self.w.buildCntAction.setEnabled(bool)
+        self.w.buildNanotubeAction.setEnabled(bool)
         self.w.insertNanotubeAction.setEnabled(bool)
         self.w.insertGrapheneAction.setEnabled(bool)
         self.w.toolsCookieCutAction.setEnabled(bool)

@@ -563,10 +563,10 @@ def setupUi(win):
         geticon("ui/actions/Tools/Build Structures/Nanotube"))
     win.insertNanotubeAction.setObjectName("insertNanotubeAction")
 
-    win.buildCntAction = QtGui.QWidgetAction(MainWindow)
-    win.buildCntAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/CNT"))
-    win.buildCntAction.setObjectName("buildCntAction")
+    win.buildNanotubeAction = QtGui.QWidgetAction(MainWindow)
+    win.buildNanotubeAction.setIcon(
+        geticon("ui/actions/Tools/Build Structures/Nanotube.png"))
+    win.buildNanotubeAction.setObjectName("buildNanotubeAction")
     
     win.buildDnaAction = QtGui.QWidgetAction(MainWindow)
     win.buildDnaAction.setIcon(
@@ -1535,19 +1535,19 @@ def retranslateUi(win):
         "Build DNA", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.buildCntAction.setText(QtGui.QApplication.translate(
+    win.buildNanotubeAction.setText(QtGui.QApplication.translate(
         "MainWindow", 
-        "CNT", 
+        "Nanotube", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.buildCntAction.setIconText(QtGui.QApplication.translate(
+    win.buildNanotubeAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
-        "CNT",
+        "Nanotube",
         None,
         QtGui.QApplication.UnicodeUTF8))
-    win.buildCntAction.setToolTip(QtGui.QApplication.translate(
+    win.buildNanotubeAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow",
-        "Build CNT", 
+        "Build Nanotube", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
 

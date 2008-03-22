@@ -18,13 +18,13 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.toolsDepositAtomAction)
     win.buildStructuresMenu.addAction(win.buildDnaAction)
     
-    #  New CNT Builder or old Nanotube Generator?
-    if debug_pref("Use new 'Build > CNT' nanotube builder? (next session)", 
+    #  New Nanotube Builder or old Nanotube Generator?
+    if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
                   Choice_boolean_False, 
                   non_debug = True,
                   prefs_key = "A10 devel/Nanotube generator"):
         # New "Build > CNT", experimental. --Mark 2008-03-10
-        win.buildStructuresMenu.addAction(win.buildCntAction) 
+        win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
     else:
         # Original "Build > Nanotube"
         win.buildStructuresMenu.addAction(win.insertNanotubeAction)

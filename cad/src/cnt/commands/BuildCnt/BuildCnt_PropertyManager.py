@@ -58,7 +58,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "CNT Properties"
+    title         =  "Nanotube Properties"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/CNT.png"
 

@@ -41,7 +41,7 @@ def setupUi(mainWindow):
 # probably needs a retranslateUi to add tooltips too...
 
 def activateCntFlyout(mainWindow):
-    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildCntAction, 
+    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildNanotubeAction, 
                                                    _theCntFlyout)
 
 class CntFlyout:    
@@ -160,7 +160,7 @@ class CntFlyout:
         #-- Ninad 2008-01-21. 
         self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
         #Now update the command toolbar (flyout area)
-        self.win.commandToolbar.updateCommandToolbar(self.win.buildCntAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildNanotubeAction,
                                                      self)
         #self.win.commandToolbar._setControlButtonMenu_in_flyoutToolbar(
                     #self.cmdButtonGroup.checkedId())
@@ -179,7 +179,7 @@ class CntFlyout:
         self.resetStateOfActions()
             
         self.connect_or_disconnect_signals(False)    
-        self.win.commandToolbar.updateCommandToolbar(self.win.buildCntAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildNanotubeAction,
                                                      self,
                                                      entering = False)
     

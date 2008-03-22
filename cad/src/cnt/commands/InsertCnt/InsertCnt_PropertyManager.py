@@ -620,7 +620,7 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Update the nanotube Radius lineEdit widget.
         """
-        self.cntChirality.updateChirality(self.n, self.m, self.bond_length)
+        self.cntChirality.update(self.n, self.m, self.bond_length)
         radiusText = "%-7.4f Angstroms" %  (self.cntChirality.getRadius())
         self.cntRadiusLineEdit.setText(radiusText)
         

@@ -898,12 +898,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         "<u><b>Build Nanotube</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/Tools/Build Structures/CNT.png\"> <br>"\
-        "Insert a carbon nanotube (CNT) or boron nitride nanotube (BNNT) "\
-        "in the 3D graphics area by defining the two endpoints."\
+        "<img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
+        "Inserts a carbon nanotube (CNT) or boron nitride nanotube (BNNT) "\
+        "in the 3D graphics area by defining the two endpoints of the "\
+        "nanotube."\
         "</p>"
 
-    win.buildCntAction.setWhatsThis( _text )
+    win.buildNanotubeAction.setWhatsThis( _text )
 
     # Build DNA
 
