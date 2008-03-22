@@ -25,13 +25,15 @@ for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 from model.atomtypes import AtomType
 from foundation.state_utils import IdentityCopyMixin
 
-class Elem(IdentityCopyMixin): # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
+class Elem(IdentityCopyMixin):
     """
     There is exactly one of these objects for each supported element in the periodic table.
     Its identity (as a python object) never changes during the run.
     Instead, if prefs changes are made in color, radius, or perhaps bonding pattern,
     this object's contents will be modified accordingly.
     """
+    # bruce 050510 renamed this from 'elem'
+    # (not using 'Element' since too common in strings/comments)
     
     # default values of per-instance constants
     bonds_can_be_directional = False #bruce 071015
