@@ -86,7 +86,9 @@ def parse_arg_pattern(argpat):
     return argpat
 
 def arg_str(arg):
-    "like str(arg) but suitable for use on a command line"
+    """
+    like str(arg) but suitable for use on a command line
+    """
     try:
         ###@@@ horrible temporary kluge for $T item -> value mapping
         res = {"None":0, "Hydrogen": 1, "Nitrogen": 7}[arg]
@@ -96,7 +98,8 @@ def arg_str(arg):
     return str(arg) ###e stub, probably good enough for contub
 
 class PluginlikeGenerator:
-    """Superclass for generators whose code is organized similar to that of a (future) plugin.
+    """
+    Superclass for generators whose code is organized similar to that of a (future) plugin.
     Subclasses contain data and methods which approximate the functionality
     of metadata and/or code that would ultimately be found in a plugin directory.
     See the example subclass in this file for details.
@@ -128,7 +131,8 @@ class PluginlikeGenerator:
         # this gets set to errortext for the first error that permanently disabled this plugin
 
     def fatal(self, errortext, errorcode = 1):
-        """Our submethods call this to report a fatal setup/use error; it prints errortext appropriately
+        """
+        Our submethods call this to report a fatal setup/use error; it prints errortext appropriately
         and sets self.errorcode and self.errortext.
         """
         if not errorcode:
@@ -183,8 +187,9 @@ class PluginlikeGenerator:
         pass
     
     def setup_from_plugin_dir(self):
-        "Using self.plugin_dir, setup dialogs, commands, etc. Report errors to self.fatal as usual."
-        
+        """
+        Using self.plugin_dir, setup dialogs, commands, etc. Report errors to self.fatal as usual.
+        """
         # The following will someday read metainfo from the plugin.desc file,
         # but for now we just grab that info from constants set by the subclass
         # (the subclass which won't exist when this is a real public plugin API).
@@ -220,7 +225,7 @@ class PluginlikeGenerator:
         # (even run a self test if it defines one? or wait 'til first used?)
         return
 
-    whatsThisText = '''<u><b>Insert Heterojunction</b></u>
+    whatsThisText = """<u><b>Insert Heterojunction</b></u>
     <p>A heterojunction is a joint connecting two carbon nanotubes which may differ in radius
     and chirality. The joint is made of sp<sup>2</sup>-hybridized carbon atoms, arranged in
     hexagons and pentagons (the pentagons allow for curvature of the surface) to join the two
@@ -234,7 +239,7 @@ class PluginlikeGenerator:
     <p>Nanorex\'s modifications include translation from Java to C++,
     performance improvement in bond inference, changing the output file
     format from pdb to mmp, and revising the stderr messages and exit code.
-    </p>'''
+    </p>"""
 
     def install_in_UI(self):
         """
@@ -287,7 +292,9 @@ class PluginlikeGenerator:
     param_desc_path_modtime = None
     
     def make_dialog_if_needed(self):
-        "Create self.dialog if necessary."
+        """
+        Create self.dialog if necessary.
+        """
         # For developers, remake the dialog from its description file each time that file changes.
         # (The point of only remaking it then is not speed, but to test the code when it doesn't get remade,
         #  since that's what always happens for non-developers.)
@@ -308,7 +315,8 @@ class PluginlikeGenerator:
                 self.dialog = None
             pass
         if not self.dialog:
-            if debug_run(): print "making dialog from", self.parameter_set_filename
+            if debug_run():
+                print "making dialog from", self.parameter_set_filename
             dialog_env = self
                 # KLUGE... it needs to be something with an imagename_to_pixmap function that knows our icon_path.
                 # the easiest way to make one is self... in future we want our own env, and to modify it by inserting that path...
@@ -340,7 +348,8 @@ class PluginlikeGenerator:
         return imagename_to_pixmap(path)
     
     def command_for_insert_menu(self):
-        """Run an Insert Whatever menu command to let the user generate things using this plugin.
+        """
+        Run an Insert Whatever menu command to let the user generate things using this plugin.
         """
         if self.errorcode:
             env.history.message(redmsg("Plugin %r is permanently disabled due to this error, reported previously: %s" % \
@@ -348,7 +357,8 @@ class PluginlikeGenerator:
             return
         self.create_working_directory_if_needed()
         assert not self.errorcode
-        if debug_run(): print 'ought to insert a', self.what_we_generate
+        if debug_run():
+            print 'ought to insert a', self.what_we_generate
         self.make_dialog_if_needed()
         dialog = self.dialog
         ###e Not yet properly handled: retaining default values from last time it was used. (Should pass dict of them to the maker.)
@@ -366,7 +376,10 @@ class PluginlikeGenerator:
         pass###e
 
     def build_struct(self, name, params, position):
-        "Same API as in GeneratorBaseClass (though we are not its subclass). On error, raise an exception."
+        """
+        Same API as in GeneratorBaseClass (though we are not its subclass).
+        On error, raise an exception.
+        """
         # get executable, append exe, ensure it exists
         program = self.executable_path
         # make command line args from params
@@ -404,7 +417,8 @@ class PluginlikeGenerator:
         return thing
 
     def setup_commandline_info(self):
-        """#doc
+        """
+        #doc
         [This is run at setup time, but we put this method here
         since the arg data it compiles (into a nonobvious internal format)
         is used to make the command lines at runtime, in the methods just below.]
@@ -467,7 +481,8 @@ class PluginlikeGenerator:
         return
 
     def command_line_args_and_outfiles(self, params, name):
-        """Given the parameter-value tuple (same order as self.paramnames_order),
+        """
+        Given the parameter-value tuple (same order as self.paramnames_order),
         and the desired name of the generated structure in the MT (optional to use it here
          since insert code will also impose it),
         return a list of command line args, and a list of output files, for use in one command run.
@@ -499,7 +514,8 @@ class PluginlikeGenerator:
         return args, outfiles
 
     def run_command(self, program, args):
-        if debug_run(): print "will run this command:",program,args
+        if debug_run():
+            print "will run this command:", program, args
         from PyQt4.Qt import QStringList, QProcess, QObject, SIGNAL, QDir
         # modified from runSim.py
         arguments = QStringList()
@@ -527,7 +543,8 @@ class PluginlikeGenerator:
             QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
             QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
         started = simProcess.start() ###k what is this code? i forget if true means ok or error
-        if debug_run(): print "qprocess started:",started
+        if debug_run():
+            print "qprocess started:",started
         while 1:
             ###e need to make it abortable! from which abort button? ideally, one on the dialog; maybe cancel button??
             # on exception: simProcess.kill()
@@ -552,7 +569,8 @@ class PluginlikeGenerator:
     
     def insert_output(self, outfiles, params, name):
         ## return self.create_methane_test(params, name)
-        if debug_run(): print "inserting output from",outfiles ###@@@
+        if debug_run():
+            print "inserting output from",outfiles ###@@@
         # modified from dna generator's local function insertmmp(filename, tfm)
         assert len(outfiles) == 1 # for now
         filename = outfiles[0]
@@ -611,7 +629,8 @@ class PluginlikeGenerator:
     pass # end of class PluginlikeGenerator
 
 class HeterojunctionGenerator(PluginlikeGenerator):
-    """Encapsulate the plugin-specific data and code (or references to it)
+    """
+    Encapsulate the plugin-specific data and code (or references to it)
     for the CoNTub plugin's heterojunction command.
        In a real plugin API, this data would come from the plugin directory,
     and this code would be equivalent to either code in nE-1 parameterized by metadata in the plugin directory,
