@@ -145,6 +145,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes'; as of 051209 one is 'dict_for_stats'
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
+        self.save_as_pam = options.get('save_as_pam', "") # by default, do no conversion either way
         if self.min:
             self.sim = True
         self.for_undo = options.get('for_undo', False)
