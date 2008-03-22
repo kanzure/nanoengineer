@@ -1,13 +1,13 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_modify.py provides modifySlotsMixin for MWsemantics,
 with modify slot methods and related helper methods.
 
 @author: Mark
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-Note: most other ops_*.py files provide mixin classes for Part,
+Note: many ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
 
 History:
@@ -16,6 +16,7 @@ mark 2008-02-02 split this out of MWsemantics.py.
 """
 
 from utilities import debug_flags
+from utilities.debug import reload_once_per_event
 
 class modifySlotsMixin:
     """
@@ -28,10 +29,10 @@ class modifySlotsMixin:
         Adjust the current selection.
         """
         if debug_flags.atom_debug:
-            print "debug: reloading runSim on each use, for development"
-            import simulation.runSim as runSim, utilities.debug as debug
-            debug.reload_once_per_event(runSim)
-        from simulation.runSim import Minimize_CommandRun
+            print "debug: reloading sim_commandruns on each use, for development"
+            import simulation.sim_commandruns as sim_commandruns
+            reload_once_per_event(sim_commandruns)
+        from simulation.sim_commandruns import Minimize_CommandRun
         cmdrun = Minimize_CommandRun( self, 'Sel', type = 'Adjust')
         cmdrun.run()
         return
@@ -41,10 +42,10 @@ class modifySlotsMixin:
         Adjust all atoms.
         """
         if debug_flags.atom_debug:
-            print "debug: reloading runSim on each use, for development"
-            import simulation.runSim as runSim, utilities.debug as debug
-            debug.reload_once_per_event(runSim)
-        from simulation.runSim import Minimize_CommandRun
+            print "debug: reloading sim_commandruns on each use, for development"
+            import simulation.sim_commandruns as sim_commandruns
+            reload_once_per_event(sim_commandruns)
+        from simulation.sim_commandruns import Minimize_CommandRun
         cmdrun = Minimize_CommandRun( self, 'All', type = 'Adjust')
         cmdrun.run()
         return

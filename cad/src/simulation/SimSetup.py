@@ -266,7 +266,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 #   but its return value will be ignored if it's called for the last frame.)
                 # The details of these functions (and the UI feeding them) might be revised.
     
-                # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
+                # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize()
                 if update_as_fast_as_possible:
                     # This radiobutton might be misnamed; it really means "use the old code,
                     # i.e. not worse than 20% slowdown, with threshholds".

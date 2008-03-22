@@ -1,14 +1,15 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 MinimizeEnergyProp.py - the MinimizeEnergyProp class, including all methods needed by the Minimize Energy dialog.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 mark 060705 - Created for Alpha 8 NFR: "Simulator > Minimize Energy".
-'''
-__author__ = "Mark"
+"""
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QButtonGroup
@@ -32,6 +33,8 @@ from utilities.prefs_constants import Minimize_minimizationEngine_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
 from utilities.debug import print_compact_traceback
+from utilities.debug import reload_once_per_event
+
 import foundation.env as env
 from utilities import debug_flags
 from ne1_ui.UserPrefs import get_pref_or_optval
@@ -137,7 +140,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         self.update_widgets() # to make sure self attrs are set
 
     def setup_ruc(self):
-        "#doc"
+        """
+        #doc
+        """
         #bruce 060705 use new common code, if it works
         from widgets.widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
@@ -151,7 +156,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         return
 
     def setup(self):
-        """Setup and show the Minimize Energy dialog."""
+        """
+        Setup and show the Minimize Energy dialog.
+        """
         # Get widget parameters, update widgets, save previous parameters (for Restore Defaults) and show dialog.
 
         # use selection to decide if default is Sel or All
@@ -165,7 +172,8 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         self.show()
            
     def gather_parameters(self): ###e should perhaps include update_data from ruc (not sure it's good) -- but no time for A8
-        """Returns a tuple with the current parameter values from the widgets. Also sets those in env.prefs.
+        """
+        Returns a tuple with the current parameter values from the widgets. Also sets those in env.prefs.
         Doesn't do anything about self.seltype, since that is a choice of command, not a parameter for a command.
         """
         self.change_endrms('notused')
@@ -175,7 +183,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         return tuple([env.prefs[key] for key in (endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key)])
     
     def update_widgets(self, update_seltype = True):
-        """Update the widgets using the current env.prefs values and self attrs."""
+        """
+        Update the widgets using the current env.prefs values and self attrs.
+        """
         if update_seltype:
             if self.seltype == 'All':
                 self.minimize_all_rbtn.setChecked(1)
@@ -199,18 +209,20 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         return
         
     def ok_btn_clicked(self):
-        'Slot for OK button.'
+        """
+        Slot for OK button
+        """
         QDialog.accept(self)
         if env.debug():
-            print 'ok'
+            print "ok"
         self.gather_parameters()
         ### kluge: has side effect on env.prefs
         # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
         if debug_flags.atom_debug:
-            print "debug: reloading runSim on each use, for development"
-            import simulation.runSim as runSim, utilities.debug as debug
-            debug.reload_once_per_event(runSim)
-        from simulation.runSim import Minimize_CommandRun
+            print "debug: reloading sim_commandruns on each use, for development"
+            import simulation.sim_commandruns as sim_commandruns
+            reload_once_per_event(sim_commandruns)
+        from simulation.sim_commandruns import Minimize_CommandRun
         # do this in gather?
         if self.minimize_all_rbtn.isChecked():
             self.seltype = 'All'
@@ -228,8 +240,11 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         return
         
     def cancel_btn_clicked(self):
-        'Slot for Cancel button.'
-        if env.debug(): print 'cancel'
+        """
+        Slot for Cancel button
+        """
+        if env.debug():
+            print "cancel"
         # restore values we grabbed on entry.
         for key,val in zip((endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key), self.previousParams):
             env.prefs[key] = val
@@ -238,29 +253,39 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         return
         
     def restore_defaults_btn_clicked(self):
-        'Slot for Restore Defaults button.'
+        """
+        Slot for Restore Defaults button
+        """
         # restore factory defaults # for A8, only for conv crit, not for watch motion settings
         env.prefs.restore_defaults([endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key])
         self.update_widgets(update_seltype = False)
         
     def whatsthis_btn_clicked(self):
-        'Slot for the What\'s This button'
+        """
+        Slot for the What's This button
+        """
         QWhatsThis.enterWhatsThisMode()
         
     # Property Manager groupbox button slots
 
     def toggle_grpbtn_1(self):
-        'Slot for first groupbox toggle button'
+        """
+        Slot for first groupbox toggle button
+        """
         self.toggle_groupbox_in_dialogs(self.grpbtn_1, self.line1,
                             self.minimize_all_rbtn, self.minimize_sel_rbtn)
 
     def toggle_grpbtn_2(self):
-        'Slot for second groupbox toggle button'
+        """
+        Slot for second groupbox toggle button
+        """
         self.toggle_groupbox_in_dialogs(self.grpbtn_2, self.line2,
                             self.watch_minimization_checkbox, self.update_btngrp)
         
     def toggle_grpbtn_3(self):
-        'Slot for third groupbox toggle button'
+        """
+        Slot for third groupbox toggle button
+        """
         self.toggle_groupbox_in_dialogs(self.grpbtn_3, self.line3,
                             self.endrms_lbl, self.endrms_linedit,
                             self.endmax_lbl, self.endmax_linedit,
@@ -270,7 +295,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
                             )
 
     def toggle_grpbtn_4(self):
-        'Slot for fourth groupbox toggle button'
+        """
+        Slot for fourth groupbox toggle button
+        """
         self.toggle_groupbox_in_dialogs(self.grpbtn_4, self.line4,
                             self.minimize_engine_combobox)
 

@@ -1414,10 +1414,10 @@ class MWsemantics(QMainWindow,
         Creates a movie of a molecular dynamics simulation.
         """
         if debug_flags.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
-            print "atom_debug: reloading runSim on each use, for development"
-            import simulation.runSim as runSim
-            reload(runSim)
-        from simulation.runSim import simSetup_CommandRun
+            print "atom_debug: reloading sim_commandruns on each use, for development"
+            import simulation.sim_commandruns as sim_commandruns
+            reload(sim_commandruns)
+        from simulation.sim_commandruns import simSetup_CommandRun
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
         return

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 SelectAtoms_Command.py 
 
@@ -14,7 +14,7 @@ For example:
   to override them).
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -29,8 +29,8 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 
 """
 from utilities import debug_flags
-from simulation.runSim import LocalMinimize_function
 from utilities.debug import print_compact_traceback
+from utilities.debug import reload_once_per_event
 
 from commands.Select.Select_Command import Select_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
@@ -87,16 +87,16 @@ class SelectAtoms_basicCommand(Select_basicCommand):
             
             # see comments in depositMode version
             self.Menu_spec.append((
-                'Adjust atom %s' % selatom, 
-                lambda e1=None,a=selatom: self.localmin(a,0) ))
+                "Adjust atom %s" % selatom, 
+                lambda e1 = None, a = selatom: self.localmin(a, 0) ))
             
             self.Menu_spec.append((
-                'Adjust 1 layer', 
-                lambda e1=None,a=selatom: self.localmin(a,1) ))
+                "Adjust 1 layer", 
+                lambda e1 = None, a = selatom: self.localmin(a, 1) ))
             
             self.Menu_spec.append((
-                'Adjust 2 layers', 
-                lambda e1=None,a=selatom: self.localmin(a,2) ))
+                "Adjust 2 layers", 
+                lambda e1 = None, a = selatom: self.localmin(a, 2) ))
 
         # selobj-specific menu items. [revised by bruce 060405; 
         #for more info see the same code in depositMode]
@@ -104,8 +104,8 @@ class SelectAtoms_basicCommand(Select_basicCommand):
             try:
                 selobj.make_selobj_cmenu_items(self.Menu_spec)
             except:
-                print_compact_traceback("bug: exception (ignored) in"
-                                        " make_selobj_cmenu_items "
+                print_compact_traceback("bug: exception (ignored) in "
+                                        "make_selobj_cmenu_items "
                                         "for %r: " % selobj)
 
         # separator and other mode menu items.
@@ -116,18 +116,18 @@ class SelectAtoms_basicCommand(Select_basicCommand):
         # This is duplicated in depositMode.makeMenus() and 
         #selectMolsMode.makeMenus().
         if self.o.jigSelectionEnabled:
-            self.Menu_spec.extend( [('Enable Jig Selection',  
+            self.Menu_spec.extend( [("Enable Jig Selection",  
                                      self.graphicsMode.toggleJigSelection, 
                                      'checked')])
         else:
-            self.Menu_spec.extend( [('Enable Jig Selection', 
+            self.Menu_spec.extend( [("Enable Jig Selection", 
                                      self.graphicsMode.toggleJigSelection, 
                                      'unchecked')])
 
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ('Change Background Color...', self.w.changeBackgroundColor),
+            ("Change Background Color...", self.w.changeBackgroundColor),
         ])
 
         return # from makeMenus
@@ -138,17 +138,17 @@ class SelectAtoms_basicCommand(Select_basicCommand):
                                        #take a list or pair of atoms, other 
                                        #options
         if debug_flags.atom_debug:
-            print "debug: reloading runSim on each use, for development"\
+            print "debug: reloading sim_commandruns on each use, for development"\
                   "[localmin %s, %d]" % (atom, nlayers)
-            import simulation.runSim as runSim, utilities.debug as debug
-            debug.reload_once_per_event(runSim) #bruce 060705 revised this
+            import simulation.sim_commandruns as sim_commandruns
+            reload_once_per_event(sim_commandruns) #bruce 060705 revised this
         if 1:
             # this does not work, 
             #I don't know why, should fix sometime: [bruce 060705]
             self.set_cmdname("Adjust Atoms") # for Undo (should we be more 
                                              #specific, like the menu text was? 
                                              #why didn't that get used?)
-        
+        from simulation.sim_commandruns import LocalMinimize_function # should not be toplevel
         LocalMinimize_function( [atom], nlayers )
         return
 

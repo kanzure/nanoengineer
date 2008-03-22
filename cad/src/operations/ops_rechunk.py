@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_rechunk.py -- operations for changing the way atoms are divided
 into chunks, without altering the atoms or bonds themselves.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -20,7 +20,7 @@ from dna.model.Dna_Constants import getNextStrandColor
 import foundation.env as env
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.debug import print_compact_stack
-from simulation.runSim import adjustSinglet
+from simulation.sim_commandruns import adjustSinglet
 
 class ops_rechunk_Mixin:
     """

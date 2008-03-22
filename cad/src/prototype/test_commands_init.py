@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_commands_init.py -- make the commands in test_commands available in the UI.
- 
-$Id$
+
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 How to run these test commands: see test_commands.py docstring.
 
@@ -16,8 +18,9 @@ import utilities.EndUser as EndUser, utilities.Initialize as Initialize
 # ==
 
 def construct_cmdrun( cmd_class, glpane):
-    """Construct and return a new "CommandRun" object, for use in the given glpane.
-    Don't Start it -- there is no obligation for the caller to ever start it;
+    """
+    Construct and return a new "command run" object, for use in the given glpane.
+    Don't start it -- there is no obligation for the caller to ever start it;
     and if it does, it's allowed to do that after other user events and model changes
     happened in the meantime [REVIEW THAT, it's not good for "potential commands"] --
     but it should not be after this glpane or its underlying model (assembly object)

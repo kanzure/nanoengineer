@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaDuplex.py -- DNA duplex generator helper classes, based on empirical data.
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -32,7 +32,7 @@ from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
 
-from simulation.runSim import adjustSinglet
+from simulation.sim_commandruns import adjustSinglet
 
 from model.elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')

@@ -111,7 +111,7 @@ try:
 except:
     _things_seen_before = {}
 
-def seen_before(thing): #bruce 060317 [moved from runSim to env, 060324]
+def seen_before(thing): #bruce 060317
     """
     Return True if and only if thing has never been seen before (as an argument passed to this function).
     Useful for helping callers do things only once per session.

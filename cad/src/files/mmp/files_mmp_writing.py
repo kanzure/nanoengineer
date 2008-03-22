@@ -370,7 +370,7 @@ def writemmpfile_part(part, filename, **mapping_options):
     Write an mmp file for a single Part.
     """
     # todo: should merge with writemmpfile_assy
-    # and/or with def writemmpfile in class runSim.sim_aspect
+    # and/or with def writemmpfile in class sim_aspect
     #bruce 051209 added mapping_options
     # as of 050412 this didn't yet turn singlets into H;
     # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
@@ -386,9 +386,6 @@ def writemmpfile_part(part, filename, **mapping_options):
     #e assert node is tree or shelf member? is there a method for that already? is_topnode?
     fp = open(filename, "w")
     mapping = writemmp_mapping(assy, **mapping_options)
-        #bruce 051209 passing options from caller; they used to be: leave_out_sim_disabled_nodes = True, sim = True;
-        # but those were only appropriate for runSim's call (they're now copied there), not for "save selection" (semi-nim code).
-        #bruce 050811 added sim = True to fix bug 254 for sim runs, for A6.
     mapping.set_fp(fp)
     try:
         mapping.write_header() ###e header should differ in this case
