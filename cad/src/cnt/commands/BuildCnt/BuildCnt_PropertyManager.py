@@ -60,7 +60,7 @@ class BuildCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     title         =  "Nanotube Properties"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/CNT.png"
+    iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
     def __init__( self, win, editCommand ):
         """
