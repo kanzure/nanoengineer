@@ -10,6 +10,7 @@ convert_from_PAM5.py - detect PAM5 atoms and convert (some of) them to PAM3+5
 from model.elements import Pl5, Singlet
 
 from utilities import debug_flags
+from utilities.constants import MODEL_PAM5
 
 from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
@@ -42,7 +43,7 @@ def convert_from_PAM5( changed_atoms): # might be misnamed, if it turns out it d
             _convert_Pl5(atom) # and save others to convert later?? see _save_Pl_info ...
         else:
             pam = atom.element.pam
-            if pam == 'PAM5':
+            if pam == MODEL_PAM5:
                 pam5_atoms += [atom]
         continue
 

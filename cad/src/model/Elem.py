@@ -40,7 +40,8 @@ class Elem(IdentityCopyMixin):
 
     # attributes for classifying elements -- tentative in name, meaning, and value-encoding [bruce 071106]
     # (warning: these default values are never used, since __init__ always sets these attrs in self)
-    pam = None # name of pseudo-atom model (e.g. 'PAM3'), or None; not sure if Singlet and regular elems have same .pam
+    pam = None # name of pseudo-atom model (e.g. MODEL_PAM3 == 'PAM3'), or None;
+        # not sure if Singlet and regular elems have same .pam
         # REVIEW: it might be simplest if Singlet had None here, and all others had a true value, e.g. 'PAM3' or 'PAM5' or 'Chem'.
         # If we use that scheme, then we certainly need to rename this. It is an "element class"? "element model"??
     role = None # element role in its pseudo-atom model; for DNA PAM atoms

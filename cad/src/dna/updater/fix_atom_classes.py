@@ -59,7 +59,7 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
     assert not atom.is_singlet()
     element = atom.element
 
-    pam = element.pam # 'PAM3' or 'PAM5' or None ### use this?
+    pam = element.pam # MODEL_PAM3 or MODEL_PAM5 or None ### use this?
     role = element.role # 'strand' or 'axis' or 'unpaired-base' or None
     if role == 'strand':
         return StrandAtom # PAM3_StrandAtom? subclass of StrandAtom? What about Pl?

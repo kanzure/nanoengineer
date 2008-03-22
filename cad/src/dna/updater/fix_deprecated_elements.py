@@ -18,6 +18,7 @@ from dna.updater.dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
 
 import foundation.env as env
 from utilities.Log import orangemsg
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 # ==
 
@@ -36,10 +37,10 @@ def fix_deprecated_elements( changed_atoms):
             # an element symbol, or None, or 'remove'
         if deprecated_to:
             pam = atom.element.pam
-            assert pam in ('PAM3', 'PAM5')
-            if pam == 'PAM3':
+            assert pam in (MODEL_PAM3, MODEL_PAM5)
+            if pam == MODEL_PAM3:
                 fix = fix_PAM3
-            elif pam == 'PAM5':
+            elif pam == MODEL_PAM5:
                 fix = fix_PAM5
             else:
                 fix = False

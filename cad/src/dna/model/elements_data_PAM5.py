@@ -15,6 +15,7 @@ Bruce 080108 added Gv5 for use in Eric D's forthcoming PAM5 revision.
 """
 
 from model.elements_data import tetra4, flat, tetra2
+from utilities.constants import MODEL_PAM5
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM5 = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5')
 
@@ -70,7 +71,7 @@ _mendeleev = [
 def init_PAM5_elements( periodicTable):
     periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
                                _DIRECTIONAL_BOND_ELEMENTS_PAM5,
-                               default_options = dict(pam = 'PAM5')
+                               default_options = dict(pam = MODEL_PAM5)
                               )
     return
 

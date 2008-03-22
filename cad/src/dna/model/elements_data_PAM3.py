@@ -13,6 +13,7 @@ out of elements_data.py into separate files.
 """
 
 from model.elements_data import tetra4, flat, tetra2, tetra3
+from utilities.constants import MODEL_PAM3
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM3 = ('Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 
@@ -67,7 +68,7 @@ _mendeleev = [
 def init_PAM3_elements( periodicTable):
     periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
                                _DIRECTIONAL_BOND_ELEMENTS_PAM3,
-                               default_options = dict(pam = 'PAM3')
+                               default_options = dict(pam = MODEL_PAM3)
                               )
     return
 

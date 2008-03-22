@@ -125,6 +125,8 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
 
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
+
 from model.elements import PeriodicTable
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
@@ -218,7 +220,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     # PAM3+5 attributes (these only affect PAM atoms in self, if any):
     #
-    # self.display_as_pam can be "pam3" or "pam5" to force conversion on input
+    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on input
     #   to the specified PAM model for display and editing of self, or can be
     #   "" to use global preference settings. (There is no value which always
     #   causes no conversion, but there may be preference settings which disable
@@ -226,10 +228,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     #   all PAM5, so this can be set to the model the chunk uses to prevent
     #   conversion for that chunk.)
     #
-    #  The value "pam3" implies preservation of PAM5 data when present
-    #  (aka "pam3+5" or "pam3plus5"). The allowed values are "", "pam3", "pam5".
+    #  The value MODEL_PAM3 implies preservation of PAM5 data when present
+    #  (aka "pam3+5" or "pam3plus5"). The allowed values are "", MODEL_PAM3, MODEL_PAM5.
     #
-    # self.save_as_pam can be "pam3" or "pam5" to force conversion on save
+    # self.save_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on save
     #   to the specified PAM model. When not set, global settings or save
     #   parameters determine which model to convert to, and whether to ever
     #   convert.
@@ -2264,16 +2266,16 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             color = r/255.0, g/255.0, b/255.0
             self.setcolor(color)
         elif key == ['display_as_pam']:
-            # val should be one of the strings "", "pam3", "pam5";
+            # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""
-            if val not in ("", "pam3", "pam5"):
+            if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
                 val = ""
             self.display_as_pam = val
         elif key == ['save_as_pam']:
-            # val should be one of the strings "", "pam3", "pam5";
+            # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""
-            if val not in ("", "pam3", "pam5"):
+            if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 print "fyi: info chunk save_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
                 val = ""
             self.save_as_pam = val

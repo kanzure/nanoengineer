@@ -18,6 +18,8 @@ from dna.model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
 
 from utilities.debug import print_compact_stack
 
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
+
 # ==
 
 # helper classes (will probably turn out to be private, or perhaps
@@ -135,13 +137,13 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
         # REVIEW: need to worry about atoms with too few bonds?
         element = atom.element
         role = element.role # 'axis' or 'strand' or 'unpaired-base' or None
-        pam = element.pam # 'PAM3' or 'PAM5' or None
+        pam = element.pam # MODEL_PAM3 or MODEL_PAM5 or None
         if role == 'axis':
             axis_atoms[atom.key] = atom
-            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
+            assert pam in (MODEL_PAM3, MODEL_PAM5) # REVIEW: separate these too?
         elif role == 'strand':
             strand_atoms[atom.key] = atom
-            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
+            assert pam in (MODEL_PAM3, MODEL_PAM5) # REVIEW: separate these too?
         else:
             pass # ignore all others, including role == 'unpaired-base' atoms
         return

@@ -1986,13 +1986,15 @@ def _part_contains_pam5_atoms(part): # probably by EricM
     Returns non-zero if the given part contains any pam5 atoms.
     Returns less than zero if the part contains both pam5 and other atoms.
     """
+    from utilities.constants import MODEL_PAM5
+
     contents = [ False, False ]
 
     def check_for_pam5(n):
         if (isinstance(n, Chunk)):
             for a in n.atoms.itervalues():
                 elt = a.element
-                if (elt.pam == "PAM5"):
+                if (elt.pam == MODEL_PAM5):
                     contents[0] = True
                 else:
                     # REVIEW: if elt is Singlet, should we skip this atom?

@@ -232,6 +232,20 @@ diDNACYLINDER_SigmaBondRadius = 1.3
 
 # ==
 
+# PAM models. (Possible values of atom.element.pam, besides None,
+#  and of some "info chunk" attributes in the mmp format, besides "".
+#  Values must never be changed (unless info chunk read/write code
+#  is revised to hide the change), since they are part of mmp format.)
+#
+# [bruce 080321]
+
+MODEL_PAM3 = 'PAM3'
+MODEL_PAM5 = 'PAM5'
+
+PAM_MODELS = (MODEL_PAM3, MODEL_PAM5)
+
+# ==
+
 def filesplit(pathname):
     """
     Splits pathname into directory part (not ending with '/'),

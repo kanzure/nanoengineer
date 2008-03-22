@@ -12,6 +12,8 @@ from dna.updater.dna_updater_prefs import pref_fix_bare_PAM5_atoms
 
 from model.elements import Pl5
 
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
+
 # ==
 
 def delete_bare_atoms( changed_atoms):
@@ -46,8 +48,8 @@ def delete_bare_atoms( changed_atoms):
     for atom in changed_atoms.itervalues():
         pam = atom.element.pam
         if pam: # optimization
-            if (pam == 'PAM3' and fix_PAM3) or \
-               (pam == 'PAM5' and fix_PAM5):
+            if (pam == MODEL_PAM3 and fix_PAM3) or \
+               (pam == MODEL_PAM5 and fix_PAM5):
                 if not atom.killed():
                     if atom_is_bare(atom):
                         delete_these.append(atom)
