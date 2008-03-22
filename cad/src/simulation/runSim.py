@@ -97,18 +97,26 @@ _FAILURE_ALREADY_DOCUMENTED = -10101
 # ==
 
 def timestep_flag_and_arg( mflag = False): #bruce 060503
-    timestep_fs_str = debug_pref("dynamics timestep (fs)", Choice(["0.1", "0.2", "0.5", "1.0"]), non_debug = True)
+    timestep_fs_str = debug_pref("dynamics timestep (fs)",
+                                 Choice(["0.1", "0.2", "0.5", "1.0"]),
+                                 non_debug = True )
     timestep_fs = float(timestep_fs_str)
-        # kluge: we use a string in the menu, since float 0.1 shows up in menu text as 0.100000000000000001 or so
+        # kluge: we use a string in the menu, since float 0.1 shows up in
+        # menu text as 0.100000000000000001 or so
     timestep = timestep_fs * 1e-15
     use_timestep_arg = (timestep_fs != 0.1) and not mflag
-        # only supply the arg if not minimizing, and if a non-default value is chosen
-        # (in case the code to supply it has a bug, or supplies it to the sim in the wrong format)
+        # only supply the arg if not minimizing,
+        # and if a non-default value is chosen
+        # (in case the code to supply it has a bug,
+        # or supplies it to the sim in the wrong format)
     return use_timestep_arg, timestep
 
-##timestep_flag_and_arg() # Exercise the debug_pref so it shows up in the debug menu before the first sim/min run...
-##    # Oops, this doesn't work from here, since this module is not imported until it's needed! Never mind for now,
-##    # since it won't be an issue later when timestep is again supported as a movie attribute.
+##timestep_flag_and_arg()
+##    # Exercise the debug_pref so it shows up in the debug menu
+##    # before the first sim/min run...
+##    # Oops, this doesn't work from here, since this module is not imported
+##    # until it's needed! Never mind for now, since it won't be an issue
+##    # later when timestep is again supported as a movie attribute.
 
 def verifyGromppAndMdrunExecutables(gromacs_plugin_path):
     gromacs_bin_dir, junk_exe = os.path.split(gromacs_plugin_path)
@@ -163,32 +171,49 @@ class SimRunner:
     Class for running the simulator.
     [subclasses can run it in special ways, maybe]
     """
-    #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
-    # esp. since i don't yet know how much to factor the input-file writing, process spawning,
-    # file-growth watching, file reading, file using. Surely in future we'll split out file using
-    # into separate code, and maybe file-growth watching if we run procs remotely
-    # (or we might instead be watching results come in over a tcp stream, frames mixed with trace records).
-    # So for now, let's make the minimal class for running the sim, up to having finished files to look at
-    # but not looking at them, then the old writemovie might call this class to do most of its work
+    #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup;
+    # experimental, esp. since i don't yet know how much to factor the
+    # input-file writing, process spawning, file-growth watching, file reading,
+    # file using. Surely in future we'll split out file using into separate
+    # code, and maybe file-growth watching if we run processes remotely
+    # (or we might instead be watching results come in over a tcp stream,
+    # frames mixed with trace records).
+    # So for now, let's make the minimal class for running the sim,
+    # up to having finished files to look at but not looking at them;
+    # then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
 
-    # wware 060406 bug 1263 - provide a mechanism to be notified when the program is exiting
-    # This is set to True in ops_files.py. This is a class (not instance) variable which matters
-    # because ops_files.py can set this without a reference to the currently active SimRunner instance.
+    # wware 060406 bug 1263 - provide a mechanism to be notified when the
+    # program is exiting. This is set to True in ops_files.py. This is a class
+    # (not instance) variable, which matters because ops_files.py can set this
+    # without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False, hasPAM5 = False):
+    def __init__(self, part, mflag,
+                 simaspect = None,
+                 use_dylib_sim = use_pyrex_sim,
+                 cmdname = "Simulator",
+                 cmd_type = 'Minimize',
+                 useGromacs = False,
+                 background = False,
+                 hasPAM5 = False ):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
-        "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
+        """
+        set up external relations from the part we'll operate on;
+        take mflag arg, since someday it'll specify the subclass to use.
+        """
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
         self.win = assy.w  # might be used only for self.win.progressbar.launch
         self.part = part # needed?
         self.mflag = mflag # see docstring
-        self.simaspect = simaspect # None for entire part, or an object describing what aspect of it to simulate [bruce 050404]
-        self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
+        self.simaspect = simaspect # None for entire part, or an object describing
+            # what aspect of it to simulate [bruce 050404]
+        self.errcode = 0 # public attr used after we're done;
+            # 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
-        self.pyrexSimInterrupted = False  #wware 060323, bug 1725, if interrupted we don't need so many warnings
+        self.pyrexSimInterrupted = False
+            #wware 060323, bug 1725, if interrupted we don't need so many warnings
         self.useGromacs = useGromacs
         self.background = background
         self.hasPAM5 = hasPAM5
@@ -204,7 +229,8 @@ class SimRunner:
         self.cmdname = cmdname
         self.cmd_type = cmd_type #060705
         if not use_dylib_sim:
-            env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
+            msg = "Using the standalone simulator (not the pyrex simulator)"
+            env.history.message(greenmsg(msg))
         return
     
     def verifyNanoVision1Plugin(self):
@@ -268,16 +294,21 @@ class SimRunner:
         
         return True
 
-    def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
-        self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
-        # note, this movie object (really should be a simsetup object?) does not yet know a proper alist (or any alist, I hope) [bruce 050404]
-        self.errcode = self.set_options_errQ( ) # set movie alist, output filenames, sim executable pathname (verify it exists)
+    def run_using_old_movie_obj_to_hold_sim_params(self, movie):
+        self._movie = movie # general kluge for old-code compat
+            # (lots of our methods still use this and modify it)
+        # note, this movie object (really should be a simsetup object?)
+        # does not yet know a proper alist (or any alist, I hope) [bruce 050404]
+        self.errcode = self.set_options_errQ( )
+            # set movie alist, output filenames, sim executable pathname (verify it exists)
             #obs comment [about the options arg i removed?? or smth else?]
             # options include everything that affects the run except the set of atoms and the part
         if self.errcode: # used to be a local var 'r'
-            # bruce 051115 comment: more than one reason this can happen, one is sim executable missing
+            # bruce 051115 comment: more than one reason this can happen;
+            # one is sim executable missing
             return
-        self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
+        self.sim_input_file = self.sim_input_filename()
+            # might get name from options or make up a temporary filename
         if (self.mflag == 1 and self.useGromacs):
             if (not self.verifyGromacsPlugin()):
                 self.errcode = _FAILURE_ALREADY_DOCUMENTED
@@ -289,7 +320,9 @@ class SimRunner:
         self.win.disable_QActions_for_sim(True)
 
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
-            self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
+            self.write_sim_input_file()
+                # for Minimize, this uses simaspect to write file;
+                # puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
             self.spawn_process()
                 # spawn_process is misnamed since it can go thru either 
@@ -465,13 +498,19 @@ class SimRunner:
                 # This works.  Mark 050210
                 self.simProcess.kill()
 
-        elif not self.pyrexSimInterrupted and self.errcode != _FAILURE_ALREADY_DOCUMENTED:   # wware 060323 bug 1725
+        elif not self.pyrexSimInterrupted and \
+             self.errcode != _FAILURE_ALREADY_DOCUMENTED: # wware 060323 bug 1725
             # Something failed...
-            msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
-            env.history.message(self.cmdname + ": " + msg)
-                #fyi this was 'cmd' which was wrong, it says 'Simulator' even for Minimize [bruce 060106 comment, fixed it now]
-        self.said_we_are_done = True # since saying we aborted or had an error is good enough... ###e revise if kill can take time.
+            msg = "Simulation failed: exit code or internal error code %r " % \
+                  self.errcode #e identify error better!
+            env.history.message(self.cmdname + ": " + redmsg(msg))
+                #fyi this was 'cmd' which was wrong, it says 'Simulator'
+                # even for Minimize [bruce 060106 comment, fixed it now]
+        self.said_we_are_done = True
+            # since saying we aborted or had an error is good enough...
+            ###e revise if kill can take time.
         return # caller should look at self.errcode
+        
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
         # results themselves are a separate object (or more than one?) stored in attrs... (I guess ###k)
         # ... at this point the caller probably extracts the results object and uses it separately
@@ -482,9 +521,11 @@ class SimRunner:
 
     def set_options_errQ(self): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
         """
-        Set movie alist (from simaspect or entire part); debug-msg if it was already set (and always ignore old value).
+        Set movie alist (from simaspect or entire part);
+        debug-msg if it was already set (and always ignore old value).
         Figure out and set filenames, including sim executable path.
-        All inputs and outputs are self attrs or globals or other obj attrs... except, return error code if sim executable missing
+        All inputs and outputs are self attrs or globals or other obj attrs...
+        except, return error code if sim executable missing
         or on other errors detected by subrs.
 
         old docstring:
@@ -500,8 +541,11 @@ class SimRunner:
 
         # set up alist (list of atoms for sim input and output files, in order)
         if movie.alist is not None:
-            # this movie object is being reused, which is a bug. complain... and try to work around.
-            if debug_flags.atom_debug: # since I expect this is possible for "save movie file" until fixed... [bruce 050404] (maybe not? it had assert 0)
+            # this movie object is being reused, which is a bug.
+            # complain... and try to work around.
+            if debug_flags.atom_debug:
+                # since I expect this is possible for "save movie file" until fixed...
+                # [bruce 050404] (maybe not? it had assert 0)
                 print "BUG (worked around??): movie object being reused unexpectedly"
             movie.alist = None
         movie.alist_fits_entire_part = False # might be changed below
@@ -515,8 +559,8 @@ class SimRunner:
                 env.history.message(msg)
                 return -1
             movie.set_alist_from_entire_part(part) ###@@@ needs improvement, see comments in it
-            for atm in movie.alist:
-                assert atm.molecule.part == part ###@@@ remove when works
+            for atom in movie.alist:
+                assert atom.molecule.part == part ###@@@ remove when works
             movie.alist_fits_entire_part = True # permits optims... but note it won't be valid
                 # anymore if the part changes! it's temporary... not sure it deserves to be an attr
                 # rather than local var or retval.
@@ -524,8 +568,8 @@ class SimRunner:
             # the simaspect should know what to minimize...
             alist = self.simaspect.atomslist()
             movie.set_alist(alist)
-            for atm in movie.alist: # redundant with set_alist so remove when works
-                assert atm.molecule.part == part
+            for atom in movie.alist: # redundant with set_alist so remove when works
+                assert atom.molecule.part == part
 
         # Set up filenames.
         # We use the process id to create unique filenames for this instance of the program
@@ -1808,14 +1852,18 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     findRmsForce = re.compile("rms ([0-9.]+) pN")
     findHighForce = re.compile("high ([0-9.]+) pN")
     def __init__(self, owner, minimize = False, simopts = None):
-        "store owner so we can later set owner.said_we_are_done = True; also start"
+        """
+        store owner so we can later set owner.said_we_are_done = True; also start
+        """
         self.owner = owner
         self.simopts = simopts #bruce 060705 for A8
         self.minimize = minimize # whether to check for line syntax specific to Minimize
         self.__last_plain_line_words = None # or words returned from string.split(None, 4)
         self.start() # too easy for client code to forget to do this
     def start(self):
-        "prepare to loop over lines"
+        """
+        prepare to loop over lines
+        """
         self.seen = {} # whether we saw each known error or warning tracefile-keyword
         self.donecount = 0 # how many Done keywords we saw in there
         self.mentioned_sim_trace_file = False # public, can be set by client code
@@ -1888,7 +1936,9 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                         ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
         return
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
-        "Return some brief text suitable for periodically displaying on statusbar to show progress"
+        """
+        Return some brief text suitable for periodically displaying on statusbar to show progress
+        """
         words = self.__last_plain_line_words
         if not words:
             return ""
@@ -1958,9 +2008,10 @@ def part_contains_pam5_atoms(part):
 
 # ==
 
-# writemovie used to be here, but is now split into methods of class SimRunner above [bruce 050401]
+# writemovie used to be here, but is now split into methods
+# of class SimRunner above [bruce 050401]
 
-# ... here's a compat stub... i guess ###doit
+# ... here's a compatibility stub... i guess
 
 #obs comment:
 # Run the simulator and tell it to create a dpb or xyz trajectory file.
@@ -1974,7 +2025,15 @@ def part_contains_pam5_atoms(part):
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False):
+def writemovie(part,
+               movie,
+               mflag = 0,
+               simaspect = None,
+               print_sim_warnings = False,
+               cmdname = "Simulator",
+               cmd_type = 'Minimize',
+               useGromacs = False,
+               background = False):
         #bruce 060106 added cmdname
     """
     Write an input file for the simulator, then run the simulator,
@@ -2002,7 +2061,8 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
 
     hasPAM5 = part_contains_pam5_atoms(part)
     if (hasPAM5 < 0):
-        env.history.message(orangemsg("calculations with mixed PAM5 and other atoms are not supported"))
+        msg = "calculations with mixed PAM5 and other atoms are not supported"
+        env.history.message(orangemsg(msg))
     hasPAM5 = not not hasPAM5
     simrun = SimRunner(part,
                        mflag,
@@ -2027,7 +2087,8 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
         if fn:
             if not movie.minimize_flag: #bruce 060112
                 #e a more accurate condition would be something like "if we made a movie file and bragged about it"
-                env.history.message(greenmsg("(current atom positions correspond to movie frame %d)" % fn))
+                msg = "(current atom positions correspond to movie frame %d)" % fn
+                env.history.message(greenmsg(msg))
         assert movie.currentFrame == fn
     if print_sim_warnings and simrun.errcode != _FAILURE_ALREADY_DOCUMENTED:
         # If there was a clear error then don't print a lot of lower-priority less urgent stuff
@@ -2083,8 +2144,8 @@ def readxyz(filename, alist):
     newAtomsPos = [] 
 
     try:     
-        numAtoms = int(lines[0]) # bruce comment 050324: numAtoms is not used
-        rms = float(lines[1][4:]) # bruce comment 050324: rms is not used
+        numAtoms_junk = int(lines[0])
+        rms_junk = float(lines[1][4:])
     except ValueError:
         msg = "readxyz: %s: File format error in Line 1 and/or Line 2" % xyzFile
         print msg
@@ -2151,7 +2212,7 @@ def readGromacsCoordinates(filename, atomList):
     newAtomsPos = [] 
 
     try:     
-        numAtoms = int(lines[1]) # bruce comment 050324: numAtoms is not used
+        numAtoms_junk = int(lines[1])
     except ValueError:
         msg = "readGromacsCoordinates: %s: File format error in Line 2" % filename
         print msg
@@ -2181,11 +2242,11 @@ def readGromacsCoordinates(filename, atomList):
             # coordinates of virtual sites are reported at end of
             # list, and we want to ignore them.
             newAtomsPos += [[x, y, z]]
-    if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
+    if (len(newAtomsPos) != len(atomList)):
         msg = "readGromacsCoordinates: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
             (filename, len(newAtomsPos), len(atomList))
         print msg
-        return msg #bruce 050404 added error return after the above print statement; not sure if its lack was new or old bug
+        return msg
 
     return newAtomsPos
 
@@ -2289,7 +2350,8 @@ class simSetup_CommandRun(CommandRun):
             # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
             movie.destroy()
             return -1
-        r = writemovie(self.part, movie, print_sim_warnings = True, cmdname = self.cmdname) # not passing mtype means "run dynamic sim (not minimize), make movie"
+        r = writemovie(self.part, movie, print_sim_warnings = True, cmdname = self.cmdname)
+            # not passing mtype means "run dynamic sim (not minimize), make movie"
             ###@@@ bruce 050324 comment: maybe should do following in that function too
         if not r: 
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
@@ -2310,7 +2372,7 @@ def capitalize_first_word(words): #bruce 060705 ##e refile sometime
             print "debug warning: %r did not change in capitalize_first_word" % (words,)
     return res
 
-MIN_ALL, LOCAL_MIN, MIN_SEL = range(3) # internal codes for minimize command subtypes (bruce 051129)
+_MIN_ALL, _LOCAL_MIN, _MIN_SEL = range(3) # internal codes for minimize command subtypes (bruce 051129)
     # this is a kluge compared to using command-specific subclasses, but better than testing something else like cmdname
 
 class Minimize_CommandRun(CommandRun):
@@ -2320,8 +2382,7 @@ class Minimize_CommandRun(CommandRun):
     create it when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
     [#e A future code cleanup might split this into a Minimize superclass
-    and separate subclasses for 'All' vs 'Sel' -- or it might not.
-    As of 050412 the official distinction is stored in entire_part.]
+     and separate subclasses for 'All' vs 'Sel' -- or it might not.]
     """
     def run(self):
         """
@@ -2368,31 +2429,25 @@ class Minimize_CommandRun(CommandRun):
             self.word_minimization = "adjustment"
             self.word_minimizing = "adjusting"
         else:
-            assert cmd_type.startswith('Minimize') ####@@@@ remove when works
+            assert cmd_type.startswith('Minimize')
             self.word_minimize = "minimize"
             self.word_minimization = "minimization"
             self.word_minimizing = "minimizing"
 
         self.word_Minimize = capitalize_first_word( self.word_minimize)
         self.word_Minimizing = capitalize_first_word( self.word_minimizing)
-
-        entire_part = (cmd_subclass_code == 'All')
-            # (a self attr for entire_part is not yet needed)
-            #e someday, entire_part might also be set later if selection happens to include everything, to permit optims,
-            # but only for internal use, not for messages to user distinguishing the two commands.
-            # Probably that would be a bad idea. [bruce 051129 revised this comment]
-
+        
         if cmd_subclass_code == 'All':
-            cmdtype = MIN_ALL
+            cmdtype = _MIN_ALL
             cmdname = "%s All" % self.word_Minimize
 
         elif cmd_subclass_code == 'Sel':
-            cmdtype = MIN_SEL
+            cmdtype = _MIN_SEL
             cmdname = "%s Selection" % self.word_Minimize
 
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
-            cmdtype = LOCAL_MIN
+            cmdtype = _LOCAL_MIN
             cmdname = "%s Atoms"  % self.word_Minimize #bruce 060705; some code may assume this is always Adjust Atoms, as it is
             # self.args is parsed later
 
@@ -2402,17 +2457,13 @@ class Minimize_CommandRun(CommandRun):
         startmsg = cmdname + ": ..."
         del cmd_subclass_code
 
-        # redundant, in case these got changed in the if-statements:
-        self.word_Minimize = capitalize_first_word( self.word_minimize)
-        self.word_Minimizing = capitalize_first_word( self.word_minimizing)
-
         # Make sure some chunks are in the part.
         # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.
             env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to %s." % self.word_minimize))
             return
 
-        if cmdtype == MIN_SEL:
+        if cmdtype == _MIN_SEL:
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
                 msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected.") + \
@@ -2420,7 +2471,7 @@ class Minimize_CommandRun(CommandRun):
                         #e might need further changes for Minimize Energy, if it's confusing that Sel/All is a dialog setting then
                 env.history.message( msg)
                 return
-        elif cmdtype == LOCAL_MIN:
+        elif cmdtype == _LOCAL_MIN:
             from operations.ops_select import selection_from_atomlist
             junk, atomlist, ntimes_expand = self.args
             selection = selection_from_atomlist( self.part, atomlist) #e in cleaned up code, selection object might come from outside
@@ -2496,13 +2547,13 @@ class Minimize_CommandRun(CommandRun):
             #
             # wware 060410 bug 1240
             atoms = selection.selatoms
-            for atm in atoms.values():
-                # enumerate the monovalents bonded to atm
-                for atm2 in filter(lambda atm: not atm.is_singlet(), atm.baggageNeighbors()):
-                    atoms[atm2.key] = atm2
+            for atom in atoms.values():
+                # enumerate the monovalents bonded to atom
+                for atom2 in filter(lambda atom: not atom.is_singlet(), atom.baggageNeighbors()):
+                    atoms[atom2.key] = atom2
 
         else:
-            assert cmdtype == MIN_ALL
+            assert cmdtype == _MIN_ALL
             selection = self.part.selection_for_all()
                 # like .selection_from_glpane() but for all atoms presently in the part [bruce 050419]
             # no need to check emptiness, this was done above
@@ -2555,14 +2606,16 @@ class Minimize_CommandRun(CommandRun):
 
         The mtype flag means:
         1 = tell writemovie() to create a single-frame XYZ file.
-        2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
+        2 = tell writemovie() to create a multi-frame DPB moviefile.
+            [###@@@ not presently used, might not work anymore]
         """
         assert mtype == 1 #bruce 051115
         assert simaspect is not None #bruce 051115
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
-            env.history.message( redmsg( "%s is not yet implemented for clipboard items." % self.word_Minimize))
+            msg = "%s is not yet implemented for clipboard items." % self.word_Minimize
+            env.history.message( redmsg( msg))
             return
         #e use suffix below? maybe no need since it's ok if the same filename is reused for this.
 
@@ -2571,37 +2624,56 @@ class Minimize_CommandRun(CommandRun):
         # the one already stored from some sim run.
         # [this is for mtype == 1 (always true now) and might affect writemovie ###@@@ #k.]
 
-        # NOTE: the movie object is used to hold params and results from minimize, even if it makes an xyz file rather than a movie file.
-        # And at the moment it never makes a movie file when called from this code. [bruce 051115 comment about months-old situation]
+        # NOTE: the movie object is used to hold params and results from minimize,
+        # even if it makes an xyz file rather than a movie file.
+        # And at the moment it never makes a movie file when called from this code.
+        # [bruce 051115 comment about months-old situation]
 
-        movie = Movie(self.assy) # do this in writemovie? no, the other call of it needs it passed in from the dialog... #k
-            # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
-            # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
-            #  or maybe it needs a subobject which has such subclasses -- not yet sure. [bruce 050329])
+        movie = Movie(self.assy)
+            # do this in writemovie? no, the other call of it needs it passed in
+            # from the dialog... #k
+            # note that Movie class is misnamed since it's really a
+            # SimRunnerAndResultsUser... which might use .xyz or .dpb results...
+            # maybe rename it SimRun? ###e also, it needs subclasses for the
+            # different kinds of sim runs and their results... or maybe it needs
+            # a subobject which has such subclasses -- not yet sure. [bruce 050329]
 
-        self._movie = movie #bruce 050415 kluge; note that class SimRun does the same thing.
-            # Probably it means that this class, SimRun, and this way of using Movie should all be the same,
-            # or at least have more links than they do now. ###@@@
+        self._movie = movie
+            #bruce 050415 kluge; note that class SimRun does the same thing.
+            # Probably it means that this class, SimRun, and this way of using
+            # class Movie should all be the same, or at least have more links
+            # than they do now. ###@@@
 
-        # Set update_cond for controlling realtime update settings for watching this "movie" (an ongoing sim).
-        # There are three possible ways (soon after A8 only the first one will be used) [bruce 060705]:
+        # Set update_cond for controlling realtime update settings for watching
+        # this "movie" (an ongoing sim). There are three possible ways
+        # (soon after A8 only the first one will be used) [bruce 060705]:
         # - caller specified it.
         # - if it didn't, use new common code to get it from General Prefs page.
         # - if that fails, use older code for that.
         #
-        # WARNING: it turns out this happens whether or not the checkbox pref says it should --
-        # that is checked separately elsewhere! And that's a bug, since we need to use a different checkbox
-        # depending on the command.
-        # let's see if we can consolidate the "enabling flag" into update_cond itself? so it is None or False if we won't update.
+        # WARNING: it turns out this happens whether or not the checkbox pref
+        # says it should -- that is checked separately elsewhere! That's a bug,
+        # since we need to use a different checkbox depending on the command.
+        # let's see if we can consolidate the "enabling flag" into
+        # update_cond itself? so it is None or False if we won't update.
         # this is now attempted...
         if env.debug():
-            print "debug fyi: runSim watch_motion update_cond computed here (even if not watching motion)" #bruce 060705
+            print "debug fyi: runSim watch_motion update_cond computed here " \
+                  "(even if not watching motion)" #bruce 060705
         try:
-            # Only the client code knows where to find the correct realtime update settings widgets
-            # (or someday, knows whether these values come from widgets at all, vs from a script).
-            # It should figure out the update_cond (False if we should not watch motion), and tell us in self.kws['update_cond'].
+            # Only the client code knows where to find the correct realtime
+            # update settings widgets (or someday, knows whether these values
+            # come from widgets at all, vs from a script).
+            # It should figure out the update_cond
+            # (False if we should not watch motion),
+            # and tell us in self.kws['update_cond'].
             update_cond = self.kws['update_cond']
             assert update_cond or (update_cond is False) # a callable or False [remove when works]
+            # WARNING: as of 080321, this apparently fails routinely
+            # for Adjust All, and then the first fallback in the
+            # except clause also fails (userPrefs.update_btngrp_group
+            # attributeerror), and then its fallback finally works.
+            # Cleanup is severely needed. [bruce 080321 comment]
         except:
             ## print_compact_traceback("bug ...: ")
             if env.debug():
@@ -2614,10 +2686,17 @@ class Minimize_CommandRun(CommandRun):
             try:
                 from widgets.widget_controllers import realtime_update_controller
                 userPrefs = env.mainwindow().userPrefs
-                from utilities.prefs_constants import Adjust_watchRealtimeMinimization_prefs_key ###@@@ should depend on command, or be in movie...
+                from utilities.prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
+                    ###@@@ should depend on command, or be in movie...
                 ruc = realtime_update_controller(
-                    ( userPrefs.update_btngrp_group, ###k name
-                      userPrefs.update_number_spinbox, userPrefs.update_units_combobox ),
+                    ( userPrefs.update_btngrp_group,
+                          # Note: update_btngrp_group exists in MinimizeEnergyProp.py
+                          # and in SimSetup.py, but it's commented out in UserPrefs.py --
+                          # looks like a bug. And indeed, at least for Adjust All,
+                          # this apparently fails routinely. See related comment above.
+                          # [bruce 080321 comment]
+                      userPrefs.update_number_spinbox,
+                      userPrefs.update_units_combobox ),
                     None, # checkbox ###@@@ maybe not needed, since UserPrefs sets up the connection #k
                     Adjust_watchRealtimeMinimization_prefs_key )
                 update_cond = ruc.get_update_cond_from_widgets()
@@ -2627,11 +2706,13 @@ class Minimize_CommandRun(CommandRun):
                 assert update_cond or (update_cond is False) # a callable or False
             except:
                 # even that didn't work. Complain, then fall back to otherwise-obsolete old code.
-                print_compact_traceback("bug using realtime_update_controller in runSim, will use older code instead: ")
+                msg = "bug using realtime_update_controller in runSim, will use older code instead: "
+                print_compact_traceback(msg)
                 # This code works (except for always using the widgets from the General Prefs page,
                 # even for Minimize Energy), but I'll try to replace it with calls to common code.
                 # [bruce 060705]
-                # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
+                # This code for setting update_cond is duplicated (inexactly)
+                # in SimSetup.createMoviePressed() in SimSetup.py.
                 userPrefs = env.mainwindow().userPrefs
                 update_units = userPrefs.update_units_combobox.currentText()
                 update_number = userPrefs.update_number_spinbox.value()
@@ -2657,17 +2738,21 @@ class Minimize_CommandRun(CommandRun):
         movie.update_cond = update_cond
 
         # semi-obs comment, might still be useful [as of 050406]:
-        # Minimize Selection [bruce 050330] (ought to be a distinct command subclass...)
-        # this will use the spawning code in writemovie but has its own way of writing the mmp file.
-        # to make this clean, we need to turn writemovie into more than one method of a class
-        # with more than one subclass, so we can override one of them (writing mmp file)
-        # and another one (finding atom list). But to get it working I might just kluge it
+        # Minimize Selection [bruce 050330] (ought to be a distinct
+        # command subclass...) this will use the spawning code in writemovie
+        # but has its own way of writing the mmp file.
+        # To make this clean, we need to turn writemovie into more than one
+        # method of a class with more than one subclass, so we can override
+        # one of them (writing mmp file) and another one (finding atom list).
+        # But to get it working I might just kluge it
         # by passing it some specialized options... ###@@@ not sure
 
-        movie._cmdname = self.cmdname #bruce 050415 kluge so writemovie knows proper progress bar caption to use
+        movie._cmdname = self.cmdname
+            #bruce 050415 kluge so writemovie knows proper progress bar caption to use
             # (not really wrong -- appropriate for only one of several
-            # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
-            # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
+            # classes Movie should be split into, i.e. one for the way we're using it here,
+            # to know how to run the sim, which is perhaps really self (a SimRunner),
+            # once the code is fully cleaned up.
 
         # write input for sim, and run sim
         # this also sets movie.alist from simaspect
@@ -2691,7 +2776,8 @@ class Minimize_CommandRun(CommandRun):
                     return
                 newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
             else:
-                newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
+                newPositions = readxyz( movie.filename, movie.alist )
+                    # movie.alist is now created in writemovie [bruce 050325]
             # retval is either a list of atom posns or an error message string.
             assert type(newPositions) in [type([]),type("")]
             if type(newPositions) == type([]):
@@ -2786,21 +2872,25 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
 # So current_movie maybe split from last_simrun? might fix some bugs from aborted simruns...
 # for prefs we want last_started_simrun, for movies we want last_opened_movie (only if valid? not sure)...
 
-def atom_is_anchored(atm):
+def atom_is_anchored(atom):
     """
-    is an atm anchored in space, when simulated?
+    is an atom anchored in space, when simulated?
     """
     ###e refile as atom method?
     #e permit filtering set of specific jigs (instances) that can affect it?
     #e really a Part method??
     res = False
-    for jig in atm.jigs:
-        if jig.anchors_atom(atm): # as of 050321, true only for Anchor jigs
+    for jig in atom.jigs:
+        if jig.anchors_atom(atom): # as of 050321, true only for Anchor jigs
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
 
-class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Run Sim; verified by debug_sim output.
-    # warning: it also assumes this internally -- see comment below about "min = True".
+class sim_aspect:
+    # Note: as of 051115 this class is used for Adjust Selection and Adjust All
+    # but not for Run Dynamics [using modern names for these features, 080321];
+    # verified by debug_sim output.
+    # WARNING: this class also assumes internally that those are its only uses,
+    # by setting mapping.min = True.
     """
     Class for a "simulatable aspect" of a Part.
     For now, there's only one kind (a subset of atoms, some fixed in position),
@@ -2851,32 +2941,32 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         self.boundary1_atoms = AtomDict()
         self.boundary2_atoms = AtomDict()
         assert atoms, "no atoms in sim_aspect"
-        for atm in atoms:
-            assert atm.molecule.part == part
-            assert atm.element != Singlet # when singlets are selectable, this whole thing needs rethinking
-            if atom_is_anchored(atm):
-                self.boundary1_atoms[atm.key] = atm
+        for atom in atoms:
+            assert atom.molecule.part == part
+            assert atom.element != Singlet # when singlets are selectable, this whole thing needs rethinking
+            if atom_is_anchored(atom):
+                self.boundary1_atoms[atom.key] = atom
             else:
-                self.moving_atoms[atm.key] = atm
+                self.moving_atoms[atom.key] = atom
             # pretend that all singlets of selected atoms were also selected
-            # (but were not grounded, even if atm was)
-            for sing in atm.singNeighbors():
+            # (but were not grounded, even if atom was)
+            for sing in atom.singNeighbors():
                 self.moving_atoms[sing.key] = sing
         del atoms
         # now find the boundary1 of the moving_atoms
-        for movatm in self.moving_atoms.values():
-            for atm2 in movatm.realNeighbors():
+        for moving_atom in self.moving_atoms.values():
+            for atom2 in moving_atom.realNeighbors():
                 # (not covering singlets is just an optim, since they're already in moving_atoms)
                 # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
-                if atm2.key not in self.moving_atoms:
-                    self.boundary1_atoms[atm2.key] = atm2 # might already be there, that's ok
+                if atom2.key not in self.moving_atoms:
+                    self.boundary1_atoms[atom2.key] = atom2 # might already be there, that's ok
         # now find the boundary2 of the boundary1_atoms;
         # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
         # no need to re-explore moving atoms since we already covered their real and singlet neighbors
-        for b1atm in self.boundary1_atoms.values():
-            for atm2 in b1atm.neighbors():
-                if (atm2.key not in self.moving_atoms) and (atm2.key not in self.boundary1_atoms):
-                    self.boundary2_atoms[atm2.key] = atm2 # might be added more than once, that's ok
+        for b1atom in self.boundary1_atoms.values():
+            for atom2 in b1atom.neighbors():
+                if (atom2.key not in self.moving_atoms) and (atom2.key not in self.boundary1_atoms):
+                    self.boundary2_atoms[atom2.key] = atom2 # might be added more than once, that's ok
         # no need to explore further -- not even for singlets on boundary2 atoms.
 
         # Finally, come up with a global atom order, and enough info to check our validity later if the Part changes.
@@ -2905,7 +2995,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         """
         return number of singlets to be written as H for the sim
         """
-        singlets = filter( lambda atm: atm.is_singlet(), self._atoms_list )
+        singlets = filter( lambda atom: atom.is_singlet(), self._atoms_list )
         return len(singlets)
     def nsinglets_leftout(self):
         """
@@ -2927,9 +3017,11 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         assy = self.part.assy
         fp = open(filename, "w")
         mapping = writemmp_mapping(assy, min = True)
+        assert mapping.sim
             #e rename min option? (for minimize; implies sim as well;
             #   affects mapping attrnames in chem.py atom.writemmp)
-            #bruce 051031 comment: it seems wrong that this class assumes min = True (rather than being told this in __init__). ###@@@
+            #bruce 051031 comment: it seems wrong that this class assumes min = True
+            # (rather than being told this in __init__). ###@@@
         mapping.set_fp(fp)    
         # note that this mmp file doesn't need any grouping or chunking info at all.
         try:
@@ -2948,10 +3040,13 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             mapping.close()
         return
     def write_atoms(self, mapping):
-        assert mapping.sim
-        for atm in self._atoms_list: # includes both real atoms and singlets, both moving and anchored, all sorted by key
-            atm.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
-                # note: this method knows whether & how to write a Singlet as an H (repositioned)!
+        for atom in self._atoms_list: # includes both real atoms and singlets, both moving and anchored, all sorted by key
+            atom.writemmp( mapping) # mapping.sim means don't include any info not relevant to the sim
+                # Note: this method knows whether & how to write a Singlet as an H (repositioned)!
+                # Note: this writes bonds, but only after their 2nd atom gets written.
+                # therefore it will end up only writing bonds for which both atoms get written.
+                # That should be ok (within Adjust Selection) since atoms with two few bonds
+                # will be anchored. [bruce 080321 comment]
     def write_grounds(self, mapping):
         from model.jigs import fake_Anchor_mmp_record
         atoms = self.anchored_atoms_list
@@ -2971,7 +3066,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
 
     def write_minimize_enabled_jigs(self, mapping): # Mark 051006
         """
-        Writes any jig to the mmp file which has the attr "enable_minimize"=True
+        Writes any jig to the mmp file which has the attr "enable_minimize" = True
         """
         assert mapping.min #bruce 051031; detected by writemmp call, below; this scheme is a slight kluge
 
