@@ -80,7 +80,7 @@ from utilities.Log import orangemsg ##, greenmsg, redmsg
 from utilities import debug_flags
 from platform.PlatformDependent import find_or_make_any_directory
 import foundation.env as env
-from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import StateMixin
 from utilities.debug import print_compact_stack
 import foundation.undo_archive as undo_archive
 
@@ -129,7 +129,7 @@ undo_archive.register_class_nickname("Assembly", "assembly") # for use in Undo a
 
 # ==
 
-class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
+class assembly( StateMixin, Assembly_API):
     """
     (This is the closest thing we have to an object
     representing the contents of an open mmp file,

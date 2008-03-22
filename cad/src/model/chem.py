@@ -142,7 +142,7 @@ from platform.PlatformDependent import fix_plurals
 
 import foundation.env as env
 
-from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import StateMixin
 from foundation.state_utils import register_instancelike_class
 
 import foundation.undo_archive as undo_archive
@@ -373,7 +373,7 @@ def Atom_prekill_prep(): #bruce 060328
     Utility._will_kill_count += 1
     return Utility._will_kill_count
     
-class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
+class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
     # update, bruce 071113: I am removing that assignment below. See comment there.

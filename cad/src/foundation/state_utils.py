@@ -1875,7 +1875,40 @@ class obj_classifier:
 
 # ==
 
-class StateMixin( _eq_id_mixin_ ):
+class IdentityCopyMixin: # by EricM
+    def _copyOfObject(self, copyfunc):
+        """
+        Implements the copying of an object for copy_val.  For objects
+        which care about their identity (which inherit from
+        IdentityCopyMixin), this will return a new reference to the
+        same object.  There is no need to override this method.
+        Compare this with the behavior of DataMixin._copyOfObject().
+        """
+        return self
+
+    def _isIdentityCopyMixin(self):
+        """
+        This method acts as a flag allowing us to tell the difference
+        between things which inherit from DataMixin and those which
+        inherit from IdentityCopyMixin.  Any given class should only
+        inherit from one of those two mixin interfaces (or from StateMixin,
+        which inherits from IdentityCopyMixin).  So, both
+        _isIdentityCopyMixin and _s_isPureData should not be defined
+        on the same object.  This can be used to check coverage of
+        types in copy_InstanceType().
+        """
+        pass
+    pass
+
+# Review: The only known classes which need IdentityCopyMixin but not StateMixin
+# are Elem, AtomType, and Movie (as of 080321). In the case of Elem and AtomType,
+# this is because they are immutable (EricM suggested an Immutable class
+# to document that). In the case of Movie, it's not immutable, but it's free of
+# any state known to Undo. If more examples of this arise, it will make sense
+# to classify them and figure out if they should inherit from any new declarative
+# classes. [bruce 080321 comment]
+
+class StateMixin( _eq_id_mixin_, IdentityCopyMixin ):
     """
     Convenience mixin for classes that contain state-attribute (_s_attr)
     declarations, to help them follow the rules for __eq__,
@@ -1944,29 +1977,6 @@ class DataMixin:
         return not (self == other) # this uses the __eq__ above, or one which the main class defined
     pass
 
-class IdentityCopyMixin:
-    def _copyOfObject(self, copyfunc):
-        """
-        Implements the copying of an object for copy_val.  For objects
-        which care about their identity (which inherit from
-        IdentityCopyMixin), this will return a new reference to the
-        same object.  There is no need to override this method.
-        Compare this with the behavior of DataMixin._copyOfObject().
-        """
-        return self
-
-    def _isIdentityCopyMixin(self):
-        """
-        This method acts as a flag allowing us to tell the difference
-        between things which inherit from DataMixin and those which
-        inherit from IdentityCopyMixin.  Any given class should only
-        inherit from one of the above two mixin interfaces.  So, both
-        _isIdentityCopyMixin and _s_isPureData should not be defined
-        on the same object.  This can be used to check coverage of
-        types in copy_InstanceType().
-        """
-        pass
-    pass
 # ===
 
 # test code

@@ -32,7 +32,7 @@ from utilities.debug import print_compact_stack
 from utilities import debug_flags
 import foundation.env as env
 from utilities.constants import genKey
-from foundation.state_utils import copy_val, StateMixin, IdentityCopyMixin
+from foundation.state_utils import copy_val, StateMixin
 from utilities.Log import redmsg, orangemsg
 from foundation.state_constants import S_PARENT, S_DATA, S_CHILD
 
@@ -84,7 +84,7 @@ _will_kill_count = 1
 
 # ==
 
-class Node( StateMixin, IdentityCopyMixin):
+class Node( StateMixin):
     """
     Superclass for model components which can be displayed in the Model Tree.
     This is inherited by Groups, molecules (Chunks), Jigs, and some more

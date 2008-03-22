@@ -69,7 +69,7 @@ from utilities.constants import diINVISIBLE
 import foundation.env as env
 
 from foundation.inval import InvalMixin
-from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import StateMixin
 from operations.jigmakers_Mixin import jigmakers_Mixin
 from operations.ops_atoms import ops_atoms_Mixin
 from operations.ops_connected import ops_connected_Mixin
@@ -94,7 +94,7 @@ debug_parts = False # set this to True in a debugger, to enable some print state
 
 debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
-class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
+class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
             ):

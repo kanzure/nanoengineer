@@ -59,7 +59,7 @@ import foundation.env as env
 
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
 
-from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import StateMixin
 from foundation.state_utils import register_instancelike_class
 
 from foundation.changedicts import register_changedict, register_class_changedicts
@@ -591,7 +591,7 @@ _Bond_global_dicts = [_changed_Bonds]
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
+class Bond(BondBase, StateMixin, Selobj_API):
     """
     A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
