@@ -192,7 +192,7 @@ class LinearMotor_EditCommand(EditCommand):
         """
         """
         logMessage = ""
-        isAtomRequirementMet = False
+        isAtomRequirementMet = True
         
                 
         if numberOfAtoms == 0:

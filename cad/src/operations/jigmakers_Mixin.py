@@ -65,9 +65,9 @@ class jigmakers_Mixin:
         #This check fixes bug 2697. Simply don't enter the command (to create 
         #a new motor), if the there aren't enough atoms selected.
         
-        if len(atoms) < 2:
+        if len(atoms) < 1:
             logMessage = "To create a linear motor, you muse select atleast"\
-            " two atoms. Linear motor not created "
+            " one atom. Linear motor not created "
             env.history.message(redmsg(logMessage))
             return
                     
