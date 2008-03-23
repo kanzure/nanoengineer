@@ -1,17 +1,17 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 confirmation_corner.py -- helpers for modes with a confirmation corner
 (or other overlay widgets).
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: confirmation corners make use of two methods added to the "GraphicsMode API"
 (the one used by GLPane to interface to glpane.graphicsMode for mouse and drawing)
-for their sake, currently [071015] defined only in basicGraphicsMode: draw_overlay
-and mouse_event_handler_for_event_position. These are general enough to
-handle all kinds of overlays, in principle, but the current implem and
+for their sake, currently [071015] defined only in basicGraphicsMode:
+draw_overlay, and mouse_event_handler_for_event_position. These are general enough
+to handle all kinds of overlays, in principle, but the current implem and
 some API details may be just barely general enough for the confirmation
 corner.
 
@@ -93,7 +93,7 @@ class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and
 
 # ==
 
-trans_image = Image(convert = 'RGBA', decal = False, blend = True,
+_trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                     # don't need (I think): alpha_test = False
                     shape = 'upper-right-half', #bruce 070628 maybe this will fix bug 2474 (which I can't see on Mac);
                         # note that it has a visible effect on Mac (makes the intended darker edge of the buttons less thick),
@@ -101,10 +101,14 @@ trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                     clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
                     ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
 
-def expr_for_imagename(imagename): ### WARNING: this is not optimized -- it recomputes and discards this expr on every access!
+def _expr_for_imagename(imagename):
+    # WARNING: this is not optimized -- it recomputes and discards this expr on every access!
+    # (But it looks like its caller, _expr_instance_for_imagename, caches the expr instances,
+    #  so only the uninstantiated expr itself is recomputed each time, so it's probably ok.
+    #  [bruce 080323 comment])
     if '/' not in imagename:
         imagename = os.path.join( "ui/confcorner", imagename)
-    image_expr = trans_image( imagename )
+    image_expr = _trans_image( imagename )
     return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
 
 IMAGENAMES = """BigCancel.png
@@ -126,46 +130,52 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     """
     
     # initial values of state variables, etc
-    last_button_position = False # False or an element of BUTTON_CODES
-    pressed_button = False # False or an element of BUTTON_CODES; valid regardless of self.glpane.in_drag
+    _last_button_position = False # False or an element of BUTTON_CODES
+    _pressed_button = False # False or an element of BUTTON_CODES; valid regardless of self.glpane.in_drag
 
-    cctype = -1 # intentionally illegal value, different from any real value
+    _cctype = -1 # intentionally illegal value, different from any real value
+
+    # review: are self.glpane and self.command, set below, private?
+    # if so, should rename them to indicate this. [bruce 080323 comment]
     
     def __init__(self, glpane):
         self.glpane = glpane
         for imagename in IMAGENAMES:
-            self.preload(imagename) # to avoid slowness when each image is first used in real life
+            self._preload(imagename) # to avoid slowness when each image is first used in real life
         return
 
-    def preload(self, imagename):
-        self.expr_instance_for_imagename(imagename)
+    def _preload(self, imagename):
+        self._expr_instance_for_imagename(imagename)
         return
 
-    def expr_instance_for_imagename(self, imagename):
+    def _expr_instance_for_imagename(self, imagename):
         ih = get_glpane_InstanceHolder(self.glpane)
         index = imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
-        expr = expr_for_imagename(imagename)
+        expr = _expr_for_imagename(imagename)
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
 
-    def _advise_find_args(self, cctype, command):
+    def _f_advise_find_args(self, cctype, command):
         """
-        private; can be called as often as every time this is drawn;
-        cctype can be None or one of a few string constants
+        [friend method; can be called as often as every time this is drawn;
+         cctype can be None or one of a few string constants.]
+        
+        Set self._button_codes correctly for cctype and command,
+        also saving those in attrs of self of related names.
         """
         self.command = command # used to find buttons for doing actions; not cross-checked with passed or found modes...
-        if self.cctype != cctype:
+        if self._cctype != cctype:
             # note: no point in updating drawing here if cctype changes,
             # since we're only called within glpane calling graphicsMode.draw_overlay.
-            ## self.update_drawing()
-            self.cctype = cctype
+            ## self._update_drawing()
+            self._cctype = cctype
             if cctype:
-                self.button_codes = cctype.split('+')
-                assert len(self.button_codes) in (1,2)
-                for bc in self.button_codes:
+                self._button_codes = cctype.split('+')
+                assert len(self._button_codes) in (1, 2)
+                for bc in self._button_codes:
                     assert bc in BUTTON_CODES
             else:
-                self.button_codes = []
+                self._button_codes = []
         return
 
     # == event position (internal and _API methods), and other methods ###DESCRIBE better
@@ -180,9 +190,9 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         or moves when not pressed (glpane.in_drag will be unset); deprecated for internal calls.
         The current implem does not depend on only being called at those times, AFAIK.
         """
-        return self.button_region_for_event_position(wX, wY)
+        return self._button_region_for_event_position(wX, wY)
     
-    def button_region_for_event_position(self, wX, wY):
+    def _button_region_for_event_position(self, wX, wY):
         """
         Return False if wX, wY is not over self, or a button-region-code
         (whose boolean value is true; an element of BUTTON_CODES) if it is,
@@ -193,13 +203,13 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         dy = self.glpane.height - wY
         if dx + dy <= 100:
             # this event is over the CC triangular region; which of our buttons is it over?
-            if len(self.button_codes) == 2:
+            if len(self._button_codes) == 2:
                 if -dy >= -dx: # note: not the same as wY >= wX if glpane is not square!
-                    return self.button_codes[0] # top half of corner triangle; usually 'Done'
+                    return self._button_codes[0] # top half of corner triangle; usually 'Done'
                 else:
-                    return self.button_codes[1] # right half of corner triangle; usually 'Cancel'
-            elif len(self.button_codes) == 1:
-                return self.button_codes[0]
+                    return self._button_codes[1] # right half of corner triangle; usually 'Cancel'
+            elif len(self._button_codes) == 1:
+                return self._button_codes[0]
             else:
                 return False # can this ever happen? I don't know, but if it does, it should work.
         return False
@@ -210,52 +220,52 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         (so our implem can be the same, whether the incremental drawing optim for the rest
         of the GLPane content is operative or not).
         """
-        # print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position)
+        # print "draw CC for cctype %r and state %r, %r" % (self._cctype, self._pressed_button, self._last_button_position)
 
         # figure out what image expr to draw
 
         # NOTE: this is currently not nearly as general as the rest of our logic,
-        # regarding what values of self.button_codes are supported.
+        # regarding what values of self._button_codes are supported.
         # If we need it to be more general, we can split the expr into two triangular pieces,
         # using Image's shape option and Overlay, so its two buttons are independent
         # (as is done in some of the tests in exprs/test.py).
 
-        if self.button_codes == []:
+        if self._button_codes == []:
             # the easy case
             return
-        elif self.button_codes == ['Cancel']:
-            if self.pressed_button == 'Cancel':
+        elif self._button_codes == ['Cancel']:
+            if self._pressed_button == 'Cancel':
                 imagename = "BigCancel_pressed.png"
             else:
                 imagename = "BigCancel.png"
-        elif self.button_codes == ['Done']:
-            if self.pressed_button == 'Done':
+        elif self._button_codes == ['Done']:
+            if self._pressed_button == 'Done':
                 imagename = "BigOK_pressed.png"
             else:
                 imagename = "BigOK.png"
-        elif self.button_codes == ['Done', 'Cancel']:
-            if self.pressed_button == 'Done':
+        elif self._button_codes == ['Done', 'Cancel']:
+            if self._pressed_button == 'Done':
                 imagename = "OK_pressed.png"
-            elif self.pressed_button == 'Cancel':
+            elif self._pressed_button == 'Cancel':
                 imagename = "Cancel_pressed.png"
             else:
                 imagename = "OK_Cancel.png"
-        elif self.button_codes == ['Transient-Done', 'Cancel']:
-            if self.pressed_button == 'Transient-Done':
+        elif self._button_codes == ['Transient-Done', 'Cancel']:
+            if self._pressed_button == 'Transient-Done':
                 imagename = "OK_pressed_DnaLine.png"
-            elif self.pressed_button == 'Cancel':
+            elif self._pressed_button == 'Cancel':
                 imagename = "Cancel_pressed_DnaLine.png"
             else:
                 imagename = "OK_Cancel_DnaLine.png"
-        elif self.button_codes == ['Transient-Done']:
-            if self.pressed_button == 'Transient-Done':
+        elif self._button_codes == ['Transient-Done']:
+            if self._pressed_button == 'Transient-Done':
                 imagename = "BigOK_pressed_DnaLine.png"
             else:
                 imagename = "BigOK_DnaLine.png"            
         else:
-            assert 0, "unsupported list of buttoncodes: %r" % (self.button_codes,)
+            assert 0, "unsupported list of buttoncodes: %r" % (self._button_codes,)
 
-        expr_instance = self.expr_instance_for_imagename(imagename)
+        expr_instance = self._expr_instance_for_imagename(imagename)
 
             ### REVIEW: worry about value of PIXELS vs perspective? worry about depth writes?
     
@@ -270,9 +280,9 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         assert self.glpane is graphicsMode.glpane
         win = graphicsMode.win # for access to cursors
         wX, wY = wpos
-        bc = self.button_region_for_event_position(wX, wY)
+        bc = self._button_region_for_event_position(wX, wY)
         # figure out want_cursor (False or a button code; in future there may be other codes for modified cursors)
-        if not self.pressed_button:
+        if not self._pressed_button:
             # mouse is not down; cursor reflects where we are at the moment (False or a button code)
             want_cursor = bc 
         else:
@@ -280,7 +290,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # (based on whether we're over it now or not)
             # (for now, if the button will act, the cursor does not look any different
             #  than if we're hovering over the button, but revising that would be easy)
-            if self.pressed_button == bc:
+            if self._pressed_button == bc:
                 want_cursor = bc
             else:
                 want_cursor = False
@@ -312,45 +322,45 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     def mousePressEvent(self, event):
         # print "meh press"
         wX, wY = wpos = self.glpane._last_event_wXwY
-        bc = self.button_region_for_event_position(wX, wY)
-        self.last_button_position = bc # this is for knowing when our appearance might change
-        self.pressed_button = bc # this and glpane.in_drag serve as our state variables
+        bc = self._button_region_for_event_position(wX, wY)
+        self._last_button_position = bc # this is for knowing when our appearance might change
+        self._pressed_button = bc # this and glpane.in_drag serve as our state variables
         if not bc:
             print "bug: not bc in meh.mousePressEvent" # should never happen; if it does, do nothing
         else:
-            self.update_drawing()
+            self._update_drawing()
         return
 
     def mouseMoveEvent(self, event): ###e should we get but & mod as new args, or from glpane attrs set by fix_event??
         wX, wY = wpos = self.glpane._last_event_wXwY # or we could get these from event
-        bc = self.button_region_for_event_position(wX, wY)
-        if self.last_button_position != bc:
-            self.last_button_position = bc
-            self.update_drawing()
-            self.do_update_cursor()
+        bc = self._button_region_for_event_position(wX, wY)
+        if self._last_button_position != bc:
+            self._last_button_position = bc
+            self._update_drawing()
+            self._do_update_cursor()
         return
 
     def mouseReleaseEvent(self, event):
         # print "meh rel"
         wX, wY = self.glpane._last_event_wXwY
-        bc = self.button_region_for_event_position(wX, wY)
-        if self.last_button_position != bc:
-            print "unexpected: self.last_button_position != bc in meh.mouseReleaseEvent (should be harmless)" ###
-        self.last_button_position = bc
-        if self.pressed_button and self.pressed_button == bc:
+        bc = self._button_region_for_event_position(wX, wY)
+        if self._last_button_position != bc:
+            print "unexpected: self._last_button_position != bc in meh.mouseReleaseEvent (should be harmless)" ###
+        self._last_button_position = bc
+        if self._pressed_button and self._pressed_button == bc:
             #e in future: if action might take time, maybe change drawing appearance to indicate we're "doing it"
-            self.do_action(bc)
-        self.pressed_button = False
-        self.update_drawing() # might be redundant with do_action (which may need to update even more, I don't know for sure)
+            self._do_action(bc)
+        self._pressed_button = False
+        self._update_drawing() # might be redundant with _do_action (which may need to update even more, I don't know for sure)
             # Note: this might not be needed if no action happens -- depends on nature of highlighting;
             # note that you can press one button and release over the other, and then the other might need to highlight
             # if it has mouseover highlighting (tho in current design, it doesn't).
-        self.do_update_cursor() # probably not needed (but should be ok as a precaution)
+        self._do_update_cursor() # probably not needed (but should be ok as a precaution)
         return
 
     # == internal update methods
     
-    def do_update_cursor(self): ### TODO: REVISE DOCSTRING; it's unclear after recent changes [bruce 070628]
+    def _do_update_cursor(self): ### TODO: REVISE DOCSTRING; it's unclear after recent changes [bruce 070628]
         """
         internal helper for calling our external API method update_cursor with the right arguments --
         but only if we're still responsible for the cursor according to the GLPane --
@@ -364,7 +374,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # is always active then).
         return
     
-    def update_drawing(self):
+    def _update_drawing(self):
         ### TODO: figure out if our appearance has changed, and do nothing if not (important optim)
         # (be careful about whether we're the last CC to be drawn, if there's more than one and they get switched around!
         #  we might need those events about enter/leave that the glpane doesn't yet send us; or some about changing the cc) ###
@@ -372,13 +382,13 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
     # == internal action methods
 
-    def do_action(self, buttoncode):
+    def _do_action(self, buttoncode):
         """
         do the action corresponding to buttoncode (protected from exceptions)
         """
         #e in future: statusbar message?
 
-        # print "do_action", buttoncode
+        # print "_do_action", buttoncode
 
         ###REVIEW: maybe all the following should be a Command method?
         # Note: it will all get revised and cleaned up once we have a command stack
@@ -425,7 +435,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 def find_or_make(cctype, graphicsMode):
     """
     Return a confirmation corner instance for graphicsMode, of the given cctype.
-    [Called from basicMode.draw_overlay]
+    [Public; called from basicMode.draw_overlay]
     """
     command = graphicsMode.command #bruce 071015 to fix bug 2565
         # This means we cache this on the Command, not on the GraphicsMode.
@@ -438,7 +448,7 @@ def find_or_make(cctype, graphicsMode):
     except AttributeError:
         command._confirmation_corner__cached_meh = cc_MouseEventHandler(command.glpane)
     res = command._confirmation_corner__cached_meh
-    res._advise_find_args(cctype, command) # in case it wants to store these (especially since it's shared for different values of them)
+    res._f_advise_find_args(cctype, command) # in case it wants to store these (especially since it's shared for different values of them)
     return res
     # see also exprs/cc_scratch.py
 

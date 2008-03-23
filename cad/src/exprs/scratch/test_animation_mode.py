@@ -1260,7 +1260,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         if 1:
             expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.jpg", size = Rect(), two_sided = True)
         
-        # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
+        # note: this code is similar to _expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
         index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
         self._expr_instance = ih.Instance( expr, index, skip_expr_compare = True)

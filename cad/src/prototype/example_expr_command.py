@@ -157,7 +157,7 @@ class ExampleCommand2E( ExampleCommand2, object):
             # whereas some other constrained drag code is correct for 3D but not yet directly usable in Boxed.
             # So this is just an example interactive expr, not the best way to do resizing in 3D. (Though it could be fixed.)
 
-        # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
+        # note: this code is similar to _expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
         expr = expr2
         index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
