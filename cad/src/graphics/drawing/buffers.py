@@ -32,7 +32,8 @@ class VertexBuffer(object):
                  ADT.voidDataPointer(data), usage)
 
   def __del__(self):
-    glDeleteBuffers(1, GL.GLuint(self.buffer))
+    if GL:                              # Added.
+      glDeleteBuffers(1, GL.GLuint(self.buffer))
 
   def bind(self):
     glBindBuffer(GL_ARRAY_BUFFER_ARB, self.buffer)
@@ -74,7 +75,8 @@ class ElementBuffer(object):            # Added.
                  ADT.voidDataPointer(data), usage)
 
   def __del__(self):
-    glDeleteBuffers(1, GL.GLuint(self.buffer))
+    if GL:
+      glDeleteBuffers(1, GL.GLuint(self.buffer))
 
   def bind(self):
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, self.buffer)
