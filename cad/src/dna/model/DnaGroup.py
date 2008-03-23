@@ -17,6 +17,8 @@ from dna.updater.dna_updater_globals import _f_DnaGroup_for_homeless_objects_in_
 
 from utilities import debug_flags
 
+from utilities.debug import print_compact_stack
+
 
 class DnaGroup(Group):
     """
@@ -199,10 +201,20 @@ class DnaGroup(Group):
         @see: B{BuildDna_PropertyManager.updateStrandListWidget()} 
         @see: B{BuildDna_PropertyManager._currentSelectionParams}
         """
+        
         #TO BE REVISED. As of 2008-01-17, it uses isinstance check for  
         #Chunk and some additional things to find out a list of strands inside
         # a DnaGroup -- Ninad 2008-01-17        
+        
+        if self.assy is None:
+            #This is to avoid possible bugs if group gets deleted. But print 
+            #traceback so that we know about this bug. This could happen due to 
+            #insufficient command sequencer stack. Temporary fix for bug 2699
+            print_compact_stack("bug: self.assy is None for DnaGroup %s."%self)
+            return ()
+        
         strandList = []
+        
         def filterStrands(node):
             if isinstance(node, self.assy.DnaStrand):
                 strandList.append(node)            
@@ -222,9 +234,17 @@ class DnaGroup(Group):
                  within self.
         @rtype: list
         """
+        if self.assy is None:
+            #This is to avoid possible bugs if group gets deleted. But print 
+            #traceback so that we know about this bug. This could happen due to 
+            #insufficient command sequencer stack. Temporary fix for bug 2699        
+            print_compact_stack("bug: self.assy is None for DnaGroup %s."%self)
+            return ()
+        
         #TO BE REVISED. It uses isinstance check for  
         #Chunk and some additional things to find out a list of strands inside
-        # a DnaGroup -- Ninad 2008-02-02       
+        # a DnaGroup -- Ninad 2008-02-02  
+        
         axisChunkList = []
         def filterAxisChunks(node):
             if isinstance(node, self.assy.Chunk) and node.isAxisChunk():
