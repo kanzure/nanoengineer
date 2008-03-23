@@ -111,18 +111,19 @@ def _expr_for_imagename(imagename):
     image_expr = _trans_image( imagename )
     return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
 
-IMAGENAMES = """BigCancel.png
-BigCancel_pressed.png
-BigOK.png
-BigOK_pressed.png
-Cancel_pressed.png
-OK_Cancel.png
-OK_pressed.png
-OK_Cancel_DnaLine.png
-OK_pressed_DnaLine.png
-Cancel_pressed_DnaLine.png
-BigOK_DnaLine.png
-BigOK_pressed_DnaLine.png""".split()
+IMAGENAMES = """
+Command_CancelBig.png
+Command_CancelBig_Pressed.png
+Command_DoneBig.png
+Command_DoneBig_Pressed.png
+Command_DoneSmall_Cancel_Pressed.png
+Command_DoneSmall.png
+Command_DoneSmall_Pressed.png
+Command_TransDoneSmall.png
+Command_TransDoneSmall_Pressed.png
+Command_TransDoneSmall_Cancel_Pressed.png
+Command_TransDoneBig.png
+Command_TransDoneBig_Pressed.png""".split()
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     """
@@ -235,33 +236,33 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             return
         elif self._button_codes == ['Cancel']:
             if self._pressed_button == 'Cancel':
-                imagename = "BigCancel_pressed.png"
+                imagename = "Command_CancelBig_Pressed.png"
             else:
-                imagename = "BigCancel.png"
+                imagename = "Command_CancelBig.png"
         elif self._button_codes == ['Done']:
             if self._pressed_button == 'Done':
-                imagename = "BigOK_pressed.png"
+                imagename = "Command_DoneBig_Pressed.png"
             else:
-                imagename = "BigOK.png"
+                imagename = "Command_DoneBig.png"
         elif self._button_codes == ['Done', 'Cancel']:
             if self._pressed_button == 'Done':
-                imagename = "OK_pressed.png"
+                imagename = "Command_DoneSmall_Pressed.png"
             elif self._pressed_button == 'Cancel':
-                imagename = "Cancel_pressed.png"
+                imagename = "Command_DoneSmall_Cancel_Pressed.png"
             else:
-                imagename = "OK_Cancel.png"
+                imagename = "Command_DoneSmall.png"
         elif self._button_codes == ['Transient-Done', 'Cancel']:
             if self._pressed_button == 'Transient-Done':
-                imagename = "OK_pressed_DnaLine.png"
+                imagename = "Command_TransDoneSmall_Pressed.png"
             elif self._pressed_button == 'Cancel':
-                imagename = "Cancel_pressed_DnaLine.png"
+                imagename = "Command_TransDoneSmall_Cancel_Pressed.png"
             else:
-                imagename = "OK_Cancel_DnaLine.png"
+                imagename = "Command_TransDoneSmall.png"
         elif self._button_codes == ['Transient-Done']:
             if self._pressed_button == 'Transient-Done':
-                imagename = "BigOK_pressed_DnaLine.png"
+                imagename = "Command_TransDoneBig_Pressed.png"
             else:
-                imagename = "BigOK_DnaLine.png"            
+                imagename = "Command_TransDoneBig.png"            
         else:
             assert 0, "unsupported list of buttoncodes: %r" % (self._button_codes,)
 
