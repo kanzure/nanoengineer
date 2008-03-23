@@ -42,7 +42,6 @@ from geometry.VQT import V
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
-from PM.PM_Constants     import pmPreviewButton
 
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
 
@@ -90,7 +89,6 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
-                                pmPreviewButton | \
                                 pmWhatsThisButton)
         
           
