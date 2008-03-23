@@ -1786,11 +1786,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     # This is the only place where havelist is set to anything true;
                     # the value it's set to must match the value it's compared with, above.
                     # [bruce 050415 revised what it's set to/compared with; details above]
-                    if not (allow_color_sorting and use_color_sorted_vbos): #russ 080320 Added.
-                        self.havelist = (disp, eltprefs, matprefs, drawLevel)
-                        assert self.havelist, \
-                               "bug: havelist must be set to a true value here, not %r" \
-                               % (self.havelist,)
+                    self.havelist = (disp, eltprefs, matprefs, drawLevel)
+                    assert self.havelist, (
+                        "bug: havelist must be set to a true value here, not %r"
+                        % (self.havelist,))
                     # always set the self.havelist flag, even if exception happened,
                     # so it doesn't keep happening with every redraw of this Chunk.
                     #e (in future it might be safer to remake the display list to contain
