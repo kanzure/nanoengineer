@@ -1644,7 +1644,7 @@ def retranslateUi(win):
     win.selectNoneAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setText(QtGui.QApplication.translate("MainWindow", "&Invert", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setIconText(QtGui.QApplication.translate("MainWindow", "Invert", None, QtGui.QApplication.UnicodeUTF8))
-    win.selectInvertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select Invert (Ctrl+Shift+I)", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectInvertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Invert Selection (Ctrl+Shift+I)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+I", None, QtGui.QApplication.UnicodeUTF8))
     win.selectConnectedAction.setText(QtGui.QApplication.translate("MainWindow", "&Connected", None, QtGui.QApplication.UnicodeUTF8))
     win.selectConnectedAction.setIconText(QtGui.QApplication.translate("MainWindow", "Connected", None, QtGui.QApplication.UnicodeUTF8))
