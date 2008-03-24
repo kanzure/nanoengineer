@@ -4,7 +4,7 @@
 !define PRODUCT_VERSION "0.5.0b1"
 !define PRODUCT_NAME "QuteMolX"
 !define PRODUCT_PUBLISHER "Nanorex, Inc"
-!define PRODUCT_WEB_SITE "http://www.nanorex.com"
+!define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com/QuteMolX/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_VERSION}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
