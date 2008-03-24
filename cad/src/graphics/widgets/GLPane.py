@@ -1164,6 +1164,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # Finished animating.
         self.is_animating = False
 
+        # piotr 030324
+        # If "GLPane: suppress external bonds when animating?"
+        # debug pref is set, redraw once again to show the external bonds
+        # after the animation is finished.
+        if debug_pref("GLPane: suppress external bonds when animating?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True):
+            self.gl_update()
+        
     # == "callback methods" from modeMixin:
 
     def setCursor(self, cursor = None):
