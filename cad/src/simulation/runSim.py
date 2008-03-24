@@ -314,6 +314,10 @@ class SimRunner:
             if (not self.verifyGromacsPlugin()):
                 self.errcode = FAILURE_ALREADY_DOCUMENTED
                 return
+            if (self.background):
+                if (not self.verifyNanoVision1Plugin()):
+                    self.errcode = FAILURE_ALREADY_DOCUMENTED
+                    return
         self.set_waitcursor(True)
         progressBar = self.win.statusBar().progressBar
 
@@ -349,7 +353,7 @@ class SimRunner:
                 grompp = \
                     os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
                 mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
-                nv1 = os.path.join(sim_bin_dir, "nv1%s" % dot_exe)
+                nv1 = self.nv1_executable_path
                 
                 gromacsFullBaseFileName = self._movie.filename
                 gromacsFullBaseFileInfo = QFileInfo(gromacsFullBaseFileName)
@@ -405,34 +409,37 @@ class SimRunner:
                         
                     trajectoryOutputFile = None
                     if (self.background):
-                        trajectoryOutputFile = \
-                            gromacsFullBaseFileInfo.completeBaseName();
-                        trajectoryOutputFile = \
-                            "%s.%s" % (trajectoryOutputFile, "nh5")
+                        trajectoryOutputFile = "%s/%s.%s" % \
+                            (gromacsFullBaseFileInfo.absolutePath(),
+                             gromacsFullBaseFileInfo.completeBaseName(), "nh5")
                     else:
                         progressBar.show()
                         trajectoryOutputFile = \
-                            "%s.%s" % (gromacsBaseFileName, "trr")
+                            "%s.%s" % (gromacsFullBaseFileName, "trr")
                         
                     mdrunArgs = [
-                        "-s", "%s.tpr" % gromacsBaseFileName,
+                        "-s", "%s.tpr" % gromacsFullBaseFileName,
                         "-o", "%s" % trajectoryOutputFile,
-                        "-e", "%s.edr" % gromacsBaseFileName,
-                        "-c", "%s-out.gro" % gromacsBaseFileName,
-                        "-g", "%s-mdrun.log" % gromacsBaseFileName,
+                        "-e", "%s.edr" % gromacsFullBaseFileName,
+                        "-c", "%s-out.gro" % gromacsFullBaseFileName,
+                        "-g", "%s-mdrun.log" % gromacsFullBaseFileName,
                         ]
                     if (self.hasPAM5):
-                        tableFile = os.path.join(gromacs_plugin_path, "Pam5Potential.xvg")
+                        tableFile = \
+                            os.path.join(gromacs_plugin_path,
+                                         "Pam5Potential.xvg")
                         mdrunArgs += [ "-table", tableFile ]
                     if (self.background):
                         abortHandler = None
                     else:
-                        abortHandler = AbortHandler(self.win.statusBar(), "mdrun")
+                        abortHandler = \
+                            AbortHandler(self.win.statusBar(), "mdrun")
                     errorCode = \
-                              gromacsProcess.run(mdrun, mdrunArgs, self.background, abortHandler)
+                              gromacsProcess.run(mdrun, mdrunArgs,
+                                                 self.background, abortHandler)
                     abortHandler = None
                     if (errorCode != 0):
-                        msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
+                        msg = redmsg("GROMACS minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
                         self.errcode = 3;
                     if (self.background and errorCode == 0):
@@ -444,24 +451,34 @@ class SimRunner:
                         sleep(1) # Give GMX/HDF5 a chance to write basic info
 						
                         # Determine the GMX process id (pid) for passing to nv1.
-                        pid = str(gromacsProcess.pid())
-                        if (sys.platform == 'win32'):
-                            # (Py)QProcess.pid() doesn't return anything useable
-                            # on Windows, read the pid from the mdrun log file.
-                            mdrunLogFileName = \
-                                "%s-mdrun.log" % gromacsFullBaseFileName
-                            logFile = open(mdrunLogFileName, 'r')
-                            for line in logFile:
-                                index = line.find(" pid: ");
-                                if (index != -1):
-                                    pid = line[index+6:]
-                                    pid = pid.split(" ")[0];
-                                    break
-                            logFile.close()
+                        #
+                        # (Py)QProcess.pid() doesn't return anything useable
+                        # for new, non-child processes, read the pid from the
+                        # mdrun log file.
+                        mdrunLogFileName = \
+                            "%s-mdrun.log" % gromacsFullBaseFileName
+                        fileOpenAttemptIndex = 0
+                        while (fileOpenAttemptIndex < 3):
+                            try:
+                                logFile = open(mdrunLogFileName, 'r')
+                                for line in logFile:
+                                    index = line.find(" pid: ");
+                                    if (index != -1):
+                                        pid = line[index+6:]
+                                        pid = pid.split(" ")[0];
+                                        break
+                                logFile.close()
+                                fileOpenAttemptIndex = 99
+                                
+                            except:
+                                fileOpenAttemptIndex += 1
+                                env.history.message(self.cmdname + ": Waiting for GROMACS process identifier availability...")
+                                sleep(1)
                         
                         # Write the input file into the HDF5 data store
                         # directory. (It is part of data store.)
                         inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
+                        env.history.message(self.cmdname + ": Writing input.mmp file to HDF5 data store directory.")
                         self.part.writemmpfile(inputFileName)
                         
                         # Launch the NV1 process
@@ -473,8 +490,8 @@ class SimRunner:
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
                         nv1Process.setProcessName("nv1")
+                        env.history.message(self.cmdname + ": Launching NanoVision-1...")
                         nv1Process.run(nv1, nv1Args, True)
-        
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
