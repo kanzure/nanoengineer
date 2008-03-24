@@ -24,7 +24,7 @@ import os
 
 from exprs.ExprsConstants import PIXELS
 from exprs.images import Image
-##from exprs.Overlay import Overlay
+from exprs.Overlay import Overlay
 
 from exprs.instance_helpers import get_glpane_InstanceHolder
 
@@ -95,6 +95,10 @@ class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and
 
 # ==
 
+# exprs for images
+
+# overlay image (command-specific icon)
+
 # This draws a 22 x 22 icon in the upper left corner of the glpane.
 # I need to be able to change the origin of the icon so it can be drawn at
 # a different location inside the confirmation corner, but I cannot
@@ -107,12 +111,35 @@ _overlay_image = Image(convert = 'RGBA',
                        #ideal_height = 22,
                        size = Rect(22 * PIXELS))
 
+from exprs.transforms import Translate
+from exprs.Exprs import V_expr
+from exprs.Rect import Spacer
+
 def _expr_for_overlay_imagename(imagename):
     # WARNING: this is not optimized (see comment for _expr_for_imagename()).
     image_expr = _overlay_image( imagename )
-    return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
+    dx, dy = -45, -4 ### for Mark to revise.
+        # NOTE: If the desired dx,dy depends on other settings,
+        # like whether one or two CC buttons are shown,
+        # then it's simplest to make more variants of this expr,
+        # with dx, dy hardcoded differently in each one.
+        # Or if that's not practical, let me know and I'll
+        # revise the code that draws this to accomodate that variability.
+        # Also make sure to revise the code that calls each one
+        # (i.e. a modified copy of _expr_instance_for_overlay_imagename)
+        # to use a different "index" even when using the same imagename.
+        # (For example, it could include dx,dy in the index.)
+        # [bruce 080324]
+    return DrawInCorner(corner = UPPER_RIGHT)(
+        Overlay(
+            Spacer(22 * PIXELS),
+            Translate( image_expr, V_expr(dx * PIXELS, dy * PIXELS, 0)),
+         )
+     )
 
 # ==
+
+# button images
 
 _trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                     # don't need (I think): alpha_test = False
@@ -133,6 +160,14 @@ def _expr_for_imagename(imagename):
     image_expr = _trans_image( imagename )
     return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
 
+# ==
+
+# These IMAGENAMES are used only for a preloading optimization.
+# If this list is not complete, it will not cause bugs,
+# it will just mean the first use of certain images is slower
+# (but startup is faster by the same amount).
+# [bruce 080324 comment]
+
 IMAGENAMES = """
 CancelBig.png
 CancelBig_Pressed.png
@@ -146,6 +181,8 @@ TransientDoneSmall_Pressed.png
 TransientDoneSmall_Cancel_Pressed.png
 TransientDoneBig.png
 TransientDoneBig_Pressed.png""".split()
+
+# ==
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     """
@@ -180,7 +217,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     
     def _expr_instance_for_overlay_imagename(self, imagename):
         ih = get_glpane_InstanceHolder(self.glpane)
-        index = imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
+        index = 1, imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
         expr = _expr_for_overlay_imagename(imagename)
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
