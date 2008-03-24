@@ -348,18 +348,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<p>"\
         "<img source=\"ui/actions/Edit/Rename.png\">"\
         "<br> "\
-        "Allows the user to rename the selected object "\
+        "Allows the user to rename the selected chunk "\
         "</p>"
      
     win.editRenameAction.setWhatsThis( EditrenameActionText )
     
     #Rename Object
     EditrenameobjectsActionText = \
-        "<u><b>Rename Node</b></u> "\
+        "<u><b>Rename Object</b></u> "\
         "<p>"\
         "<img source=\"ui/actions/Edit/Rename_Objects\">"\
         "<br> "\
-        "Allows the user to rename the selected node "\
+        "Allows the user to rename the selected object "\
         "</p>"
      
     win.editRenameObjectsAction.setWhatsThis( EditrenameobjectsActionText )
