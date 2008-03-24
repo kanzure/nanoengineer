@@ -365,7 +365,7 @@ printGromacsToplogy(char *basename, struct part *p)
     }
     fprintf(mdp, "pbc                 =  no\n"); // disable periodic boundary conditions
     fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
-    fprintf(mdp, "nsteps              =  1000\n"); // max number of iterations
+    fprintf(mdp, "nsteps              =  100000\n"); // max number of iterations
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
