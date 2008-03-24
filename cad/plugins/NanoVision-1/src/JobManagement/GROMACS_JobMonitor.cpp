@@ -62,7 +62,13 @@ void GROMACS_JobMonitor::run() {
 void GROMACS_JobMonitor::CheckJobActive(const QString& pid, bool& stillRunning,
 										bool& monitorError) {
 	monitorError = false;
+#if defined(WIN32)
+	QString command =
+		QString("%1/ps %2")
+			.arg(QCoreApplication::applicationDirPath()).arg(pid);
+#else
 	QString command = QString("ps %1").arg(pid);
+#endif
 	FILE* commandPipe;
 
 	commandPipe = popen(qPrintable(command), "r");
