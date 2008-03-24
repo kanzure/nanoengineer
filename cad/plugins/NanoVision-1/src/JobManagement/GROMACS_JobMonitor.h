@@ -8,6 +8,7 @@ using namespace std;
 
 #include <QObject>
 #include <QString>
+#include <QCoreApplication>
 
 #include "Nanorex/Utility/NXLogger.h"
 using namespace Nanorex;
