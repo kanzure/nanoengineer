@@ -36,6 +36,8 @@ from utilities.prefs_constants import UPPER_RIGHT
 
 from utilities.debug import print_compact_traceback ##, print_compact_stack
 
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
+
 # button region codes (must all be true values;
 # these are used as indices in various dicts or functions,
 # and are used as components of cctypes like 'Done+Cancel')
@@ -93,19 +95,39 @@ class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and
 
 # ==
 
+# This draws a 22 x 22 icon in the upper left corner of the glpane.
+# I need to be able to change the origin of the icon so it can be drawn at
+# a different location inside the confirmation corner, but I cannot
+# figure out how to do this. I will discuss with Bruce soon. -Mark 2008-03-23
+
+_overlay_image = Image(convert = 'RGBA', 
+                       decal = False, 
+                       blend = True,
+                       #ideal_width = 22, 
+                       #ideal_height = 22,
+                       size = Rect(22 * PIXELS))
+
+def _expr_for_overlay_imagename(imagename):
+    # WARNING: this is not optimized (see comment for _expr_for_imagename()).
+    image_expr = _overlay_image( imagename )
+    return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
+
+# ==
+
 _trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                     # don't need (I think): alpha_test = False
                     shape = 'upper-right-half', #bruce 070628 maybe this will fix bug 2474 (which I can't see on Mac);
                         # note that it has a visible effect on Mac (makes the intended darker edge of the buttons less thick),
                         # but this seems ok.
                     clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
-                    ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
+                    ideal_width = 100, ideal_height = 100, size = Rect(100 * PIXELS))
 
 def _expr_for_imagename(imagename):
     # WARNING: this is not optimized -- it recomputes and discards this expr on every access!
     # (But it looks like its caller, _expr_instance_for_imagename, caches the expr instances,
     #  so only the uninstantiated expr itself is recomputed each time, so it's probably ok.
     #  [bruce 080323 comment])
+    
     if '/' not in imagename:
         imagename = os.path.join( "ui/confcorner", imagename)
     image_expr = _trans_image( imagename )
@@ -153,6 +175,13 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         ih = get_glpane_InstanceHolder(self.glpane)
         index = imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
         expr = _expr_for_imagename(imagename)
+        expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
+        return expr_instance
+    
+    def _expr_instance_for_overlay_imagename(self, imagename):
+        ih = get_glpane_InstanceHolder(self.glpane)
+        index = imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
+        expr = _expr_for_overlay_imagename(imagename)
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
 
@@ -215,6 +244,23 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 return False # can this ever happen? I don't know, but if it does, it should work.
         return False
     
+    def _transient_overlay_icon_name(self, imagename):
+        """
+        Returns the transient overlay icon filename to include in the 
+        confirmation corner. This is the current command's icon that is used
+        in the title of the property manager.
+        
+        @param imagename: Confirmation corner imagename.
+        @type  imagename: string
+        
+        @return: Iconpath of the image to use as an overlay in the confimation
+                 corner.
+        @rtype:  string
+        """
+        if "Transient" in imagename:
+            return self.command.propMgr.iconPath
+        return None
+    
     def draw(self):
         """
         MouseEventHandler_API method: draw self. Assume background is already correct
@@ -267,11 +313,19 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             assert 0, "unsupported list of buttoncodes: %r" % (self._button_codes,)
 
         expr_instance = self._expr_instance_for_imagename(imagename)
-
             ### REVIEW: worry about value of PIXELS vs perspective? worry about depth writes?
-    
         expr_instance.draw() # Note: this draws expr_instance in the same coordsys used for drawing the model.
         
+        if debug_pref("Confirmation Corner: Draw transient overlay icons?", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A10 devel/Transient overlay icons"):
+            
+            overlay_imagename = self._transient_overlay_icon_name(imagename)
+            if overlay_imagename:
+                expr_instance = self._expr_instance_for_overlay_imagename(overlay_imagename)
+                expr_instance.draw()
+            
         return
     
     def update_cursor(self, graphicsMode, wpos):
