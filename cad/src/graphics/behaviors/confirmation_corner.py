@@ -115,10 +115,9 @@ from exprs.transforms import Translate
 from exprs.Exprs import V_expr
 from exprs.Rect import Spacer
 
-def _expr_for_overlay_imagename(imagename):
+def _expr_for_overlay_imagename(imagename, dx = 0, dy = 0):
     # WARNING: this is not optimized (see comment for _expr_for_imagename()).
     image_expr = _overlay_image( imagename )
-    dx, dy = -45, -4 ### for Mark to revise.
         # NOTE: If the desired dx,dy depends on other settings,
         # like whether one or two CC buttons are shown,
         # then it's simplest to make more variants of this expr,
@@ -215,10 +214,10 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
     
-    def _expr_instance_for_overlay_imagename(self, imagename):
+    def _expr_instance_for_overlay_imagename(self, imagename, dx = 0, dy = 0):
         ih = get_glpane_InstanceHolder(self.glpane)
         index = 1, imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
-        expr = _expr_for_overlay_imagename(imagename)
+        expr = _expr_for_overlay_imagename(imagename, dx, dy)
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
 
@@ -291,28 +290,40 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         @type  imagename: string
         
         @return: Iconpath of the image to use as an overlay in the confimation
-                 corner.
-        @rtype:  string
+                 corner, delta x and delta y translation for positioning the
+                 icon in the confirmation corner.
+        @rtype:  string, int, int
         """
         if "Transient" in imagename:
-            return self.command.propMgr.iconPath
-        return None
+            if "Big" in imagename:
+                dx = -46
+                dy = -6
+            else:
+                dx = -51
+                dy = -1
+            return (self.command.propMgr.iconPath, dx, dy)
+        return (None, 0, 0)
     
     def draw(self):
         """
-        MouseEventHandler_API method: draw self. Assume background is already correct
-        (so our implem can be the same, whether the incremental drawing optim for the rest
-        of the GLPane content is operative or not).
+        MouseEventHandler_API method: draw self. Assume background is already
+        correct (so our implem can be the same, whether the incremental drawing
+        optim for the rest of the GLPane content is operative or not).
         """
-        # print "draw CC for cctype %r and state %r, %r" % (self._cctype, self._pressed_button, self._last_button_position)
+        if 0:
+            print "draw CC for cctype %r and state %r, %r" \
+                  % (self._cctype, 
+                     self._pressed_button, 
+                     self._last_button_position)
 
         # figure out what image expr to draw
 
-        # NOTE: this is currently not nearly as general as the rest of our logic,
-        # regarding what values of self._button_codes are supported.
-        # If we need it to be more general, we can split the expr into two triangular pieces,
-        # using Image's shape option and Overlay, so its two buttons are independent
-        # (as is done in some of the tests in exprs/test.py).
+        # NOTE: this is currently not nearly as general as the rest of our 
+        # logic, regarding what values of self._button_codes are supported.
+        # If we need it to be more general, we can split the expr into two 
+        # triangular pieces, using Image's shape option and Overlay, so its
+        # two buttons are independent (as is done in some of the tests in 
+        # exprs/test.py).
 
         if self._button_codes == []:
             # the easy case
@@ -347,41 +358,46 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             else:
                 imagename = "TransientDoneBig.png"            
         else:
-            assert 0, "unsupported list of buttoncodes: %r" % (self._button_codes,)
+            assert 0, "unsupported list of buttoncodes: %r" \
+                   % (self._button_codes,)
 
         expr_instance = self._expr_instance_for_imagename(imagename)
-            ### REVIEW: worry about value of PIXELS vs perspective? worry about depth writes?
-        expr_instance.draw() # Note: this draws expr_instance in the same coordsys used for drawing the model.
-        
-        if debug_pref("Confirmation Corner: Draw transient overlay icons?", 
-                      Choice_boolean_False, 
-                      non_debug = True,
-                      prefs_key = "A10 devel/Transient overlay icons"):
+            ### REVIEW: worry about value of PIXELS vs perspective? 
+            ###         worry about depth writes?
+        expr_instance.draw() 
+            # Note: this draws expr_instance in the same coordsys used for 
+            # drawing the model.
             
-            overlay_imagename = self._transient_overlay_icon_name(imagename)
-            if overlay_imagename:
-                expr_instance = self._expr_instance_for_overlay_imagename(overlay_imagename)
-                expr_instance.draw()
+        overlay_imagename, dx, dy = self._transient_overlay_icon_name(imagename)
+        if overlay_imagename:
+            expr_instance = \
+                self._expr_instance_for_overlay_imagename(overlay_imagename, 
+                                                          dx, dy)
+            expr_instance.draw()
             
         return
     
     def update_cursor(self, graphicsMode, wpos):
         """
-        MouseEventHandler_API method; change cursor based on current state and event position
+        MouseEventHandler_API method; change cursor based on current state and
+        event position
         """
         assert self.glpane is graphicsMode.glpane
         win = graphicsMode.win # for access to cursors
         wX, wY = wpos
         bc = self._button_region_for_event_position(wX, wY)
-        # figure out want_cursor (False or a button code; in future there may be other codes for modified cursors)
+        # figure out want_cursor (False or a button code; in future there may
+        # be other codes for modified cursors)
         if not self._pressed_button:
-            # mouse is not down; cursor reflects where we are at the moment (False or a button code)
+            # mouse is not down; cursor reflects where we are at the moment 
+            # (False or a button code)
             want_cursor = bc 
         else:
-            # a button is pressed; cursor reflects whether this button will act or not
-            # (based on whether we're over it now or not)
-            # (for now, if the button will act, the cursor does not look any different
-            #  than if we're hovering over the button, but revising that would be easy)
+            # a button is pressed; cursor reflects whether this button will act
+            # or not (based on whether we're over it now or not)
+            # (for now, if the button will act, the cursor does not look any
+            # different than if we're hovering over the button, but revising
+            # that would be easy)
             if self._pressed_button == bc:
                 want_cursor = bc
             else:
@@ -398,12 +414,18 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             self.glpane.setCursor(cursor)
         else:
             # We want to set a cursor which indicates that we'll do nothing.
-            # Modes won't tell us that cursor, but they'll set it as a side effect of graphicsMode.update_cursor_for_no_MB().
-            # Actually, they may set the wrong cursor then (e.g. cookieMode, which looks at glpane.modkeys, but if we're
-            # here with modkeys we're going to ignore them). If that proves to be misleading, we'll revise this.
-            self.glpane.setCursor(win.ArrowCursor) # in case the following method does nothing (can happen)
+            # Modes won't tell us that cursor, but they'll set it as a side
+            # effect of graphicsMode.update_cursor_for_no_MB().
+            # Actually, they may set the wrong cursor then (e.g. cookieMode, 
+            # which looks at glpane.modkeys, but if we're here with modkeys
+            # we're going to ignore them). If that proves to be misleading,
+            # we'll revise this.
+            self.glpane.setCursor(win.ArrowCursor) 
+                # in case the following method does nothing (can happen)
             try:
-                graphicsMode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
+                graphicsMode.update_cursor_for_no_MB() 
+                    # _no_MB is correct, even though a button is presumably
+                    # pressed.
             except:
                 print_compact_traceback("bug: exception (ignored) in %r.update_cursor_for_no_MB(): " % (graphicsMode,) )
                 pass
