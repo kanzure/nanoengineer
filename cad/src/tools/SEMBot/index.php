@@ -169,7 +169,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td class="summary">This mechanism
         <ol>
             <li>Runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on the code to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.
-            <li>Runs <a href="http://doxygen.org/">Doxygen</a> on the NV1 code to generate formatted <a href="SVN-D/cad/plugins/NanoVision-1/docs/api/html/">NV1 API Documentation</a>
+            <li>Runs <a href="http://doxygen.org/">Doxygen</a> on the NV1 and HDF5_SimResults code to generate formatted <a href="SVN-D/cad/plugins/NanoVision-1/docs/api/html/">NV1 API Documentation</a> and <a href="SVN-D/cad/plugins/HDF5_SimResults/docs/api/html/">HDF5_SimResults API Documentation</a>
         </ol>
     </td>
   </tr>
@@ -185,14 +185,14 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Last result</span></td>
     <td class="summary">
-      NE1 docs: <span class="summary-name"><?php include 'NE1_Docs.result'; ?></span>, NV1 docs: <span class="summary-name"><?php include 'NV1_Docs.result'; ?></span></td>
+      NE1 docs: <span class="summary-name"><?php include 'NE1_Docs.result'; ?></span>, NV1 docs: <span class="summary-name"><?php include 'NV1_Docs.result'; ?></span>, HDF5 docs: <span class="summary-name"><?php include 'HDF5_Docs.result'; ?></span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Log</span></td>
     <td class="summary">
-      <span class="summary-name"><a href="NE1_Docs.log">NE1_Docs.log</a></span>, <span class="summary-name"><a href="NV1_Docs.log">NV1_Docs.log</a></span></td>
+      <span class="summary-name"><a href="NE1_Docs.log">NE1_Docs.log</a></span>, <span class="summary-name"><a href="NV1_Docs.log">NV1_Docs.log</a></span>, <span class="summary-name"><a href="HDF5_Docs.log">HDF5_Docs.log</a></span></td>
   </tr>
 
   <tr>
@@ -206,6 +206,8 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
       Epydoc chokes on <tt>__author__ = ['Mark', 'Bruce']</tt> so please use <tt>__author__ = "Mark, Bruce"</tt> instead.
       <p>
       <b>NV1 Docs:</b> NV1's Doxygen configuration file is checked in as /cad/plugins/NanoVision-1/src/Documentation/doxygen.cfg and is updated before each Doxygen run.
+      <p>
+      <b>HDF5_SimResults Docs:</b> HDF5_SimResults' Doxygen configuration file is checked in as /cad/plugins/HDF5_SimResults/src/Documentation/doxygen.cfg and is updated before each Doxygen run.
     </td>
   </tr>
 </table>
