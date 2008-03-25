@@ -281,7 +281,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         state). See also _f_invalidate_atom_lists_and_maybe_deallocate_displist,
         which is called (later) whether we are now alive or dead.
         """
-        assert self.assy is not None #bruce 080227 guess
+        assert self.assy is not None #bruce 080227 guess (from docstring) [can fail, 080325, tom bug when updater turned on after separate @@@]
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
         # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
         # [bruce 060313]

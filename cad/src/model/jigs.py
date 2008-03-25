@@ -669,7 +669,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             after_these = self.node_must_follow_what_nodes()
             assert after_these # but this alone does not assert that they
                 # weren't all already written out! The next method should
-                # do that.
+                # do that. [### need to assert they are not killed??]
             mapping.write_forwarded_node_after_nodes( self, after_these, force_disabled_for_sim = self.is_disabled() )
             return fwd_ref_to_return_now , False
         

@@ -304,7 +304,13 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
                 return # best to never write it in this case!
             # assume we're writing the whole assy, so in this case, write it no sooner than just inside the shelf group.
             after_these = list(after_these) + [self.assy.shelf] # for a group, being after it means being after its "begin record"
-        afterposns = map( lambda node1: node_position(node1, root), after_these)
+        try:
+            afterposns = map( lambda node1: node_position(node1, root), after_these)
+        except:
+            #bruce 080325
+            msg = "ignoring exception in map of node_position; won't write forwarded %r: " % node
+            print_compact_traceback(msg)
+            return
         after_this_pos = max(afterposns)
         after_this_node = node_at(root, after_this_pos)
         if after_this_node.is_group():
