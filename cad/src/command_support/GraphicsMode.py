@@ -577,6 +577,27 @@ class basicGraphicsMode(GraphicsMode_API):
     def middleUp(self, event):
         self.picking = False
         self.update_cursor()
+        
+    def end_selection_from_GLPane(self):
+        """
+        GraphicsMode API method that decides whether to do some additional 
+        selection/ deselection (delegates this to a node API method)
+        
+        Example: If all content od a Dna group is selected (such as 
+        direct members, other logical contents), then pick the whole DnaGroup
+        
+        @see: Node.pick_if_all_glpane_content_is_picked()
+        @see: Select_GraphicsMode.end_selection_curve() for an example use
+	"""
+        part = self.win.assy.part
+        
+        class_list = (self.win.assy.DnaStrandOrSegment, self.win.assy.DnaGroup)
+        
+        topnode = part.topnode
+        topnode.call_on_topmost_unpicked_nodes_of_certain_classes(
+            lambda node: node.pick_if_all_glpane_content_is_picked(),
+            class_list )
+        
 
     def dragstart_using_GL_DEPTH(self, event, **kws):
         """

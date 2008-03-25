@@ -263,7 +263,9 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
                     self.o.assy.onlypick_at_event(event)
                 if selSense == DELETE_SELECTION: 
                     self.o.assy.delete_at_event(event)
-
+                    
+            #Call graphics mode API method
+            self.end_selection_from_GLPane()
             self.w.win_update()
     
     def clear_leftA_variables(self): # bruce 070605 #####@@@@CALL ME  

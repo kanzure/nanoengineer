@@ -386,6 +386,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             chunk1.kill()
             chunk2.kill()
             self.o.selobj =  None
+        
+        #call API method to do any special selection (e.g. select the whole 
+        #DnaStrand if all its chunks are selected)
+        self.end_selection_from_GLPane()
 
     # == Singlet helper methods
     def singletLeftDown(self, s, event):

@@ -629,8 +629,13 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         else:
             print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
             return
+        
+        #call API method to do any additinal selection
+        self.end_selection_from_GLPane()
 
-        if nochange: return
+        if nochange: 
+            return
+
         self.o.gl_update()
 
     def jigLeftDouble(self):

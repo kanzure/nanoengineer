@@ -277,6 +277,11 @@ class ops_select_Mixin:
         if self.selwhat == SELWHAT_CHUNKS:
             for m in self.molecules:
                 m.pick()
+            #Call Graphics mode API method to do any additinal selection 
+            #(example select an entire DnaGroup if all its contents are selected
+            #@see: basicGraphicsMode.end_selection_from_GLPane()
+            currentCommand = self.w.commandSequencer.currentCommand
+            currentCommand.graphicsMode.end_selection_from_GLPane()
         else:
             assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:
@@ -320,6 +325,11 @@ class ops_select_Mixin:
             self.unpickparts()
             for m in newpicked:
                 m.pick()
+            #Call Graphics mode API method to do any additinal selection 
+            #(example select an entire DnaGroup if all its contents are selected
+            #@see: basicGraphicsMode.end_selection_from_GLPane()
+            currentCommand = self.w.commandSequencer.currentCommand
+            currentCommand.graphicsMode.end_selection_from_GLPane()
         else:
             assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:

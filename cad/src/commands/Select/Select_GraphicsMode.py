@@ -585,6 +585,10 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             self.o.shape.select(self.o.assy) # do the actual selection.
 
             self.o.shape = None
+        
+        #Call the API method that decides whether to select/deselect anything 
+        #else (e.g. pick a DnaGroup if all its content is selected)
+        self.end_selection_from_GLPane()
 
         self.selCurve_List = []
             # (for debugging purposes, it's sometimes useful to not reset 
@@ -598,6 +602,9 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # are changing. [bruce 070626]
 
     # == End of Selection Curve helper methods
+    
+    
+    
     
     def get_obj_under_cursor(self, event): # docstring appears wrong
         """
