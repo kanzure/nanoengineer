@@ -279,10 +279,10 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     Present user with the Qt file chooser to select an existing directory.
     If they do that, and if prefs_key is not null, save its full pathname in 
     env.prefs[prefs_key].
-    
+
     @param prefs_key: the pref_key to save the pathname.
     @type  prefs_key: text
-    
+
     @param caption: the string for the dialog caption.
     @type  caption: text
     """
@@ -404,7 +404,7 @@ def validate_gamess_path(parent, gmspath):
     This function does not check whether the GAMESS path is actually GAMESS 
     or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS
     for Windows).
-    
+
     @return:  "gmspath" if it is validated or if the user does not want to 
               change it for any reason, or
               "new_gmspath" if gmspath is invalid and the user selected a new
@@ -450,7 +450,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
-        
+
         #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin, 
         #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
         #This is for the rattlesnake spring backlog item 
@@ -458,7 +458,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         #See also: Ui_SimulationMenu.py where the coresponding commands are hidden
         #or shown based on a debug pref. 
         self._hideOrShowTheseWidgetsInUserPreferenceDialog()
-        
+
         self.resetMouseSpeedDuringRotation_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
         self.reset_cpk_scale_factor_btn.setIcon(
@@ -552,9 +552,9 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
-        
+
         # DNA page signal/slot connections.
-        
+
         self.connect(self.dnaBasesPerTurnDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaBasesPerTurn)
         self.connect(self.dnaRiseDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaRise)
         self.connect(self.dnaRestoreFactoryDefaultsPushButton,SIGNAL("clicked()"),self.dnaRestoreFactoryDefaults)
@@ -577,7 +577,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaStyleBasesScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleBasesScale)
         self.connect(self.dnaStyleStrandsArrowsComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsArrows)
         self.connect(self.dnaStyleAxisTaperComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisTaper)
-        
+
         # piotr 080325
         self.connect(self.dnaDisplayStrandLabelsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayStrandLabelsGroupBox)
         self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
@@ -614,7 +614,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.logosDownloadPermissionBtnGroup,
                      SIGNAL("buttonClicked(int)"),
                      self.setPrefsLogoDownloadPermissions)
-        
+
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
@@ -641,10 +641,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
-        
+
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        
-        
+
+
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
@@ -718,7 +718,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.display_compass_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
         self.display_compass_labels_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
         self.update_btngrp.setWhatsThis("""<p><b>Watch motion in real time</b></p>Enables/disables real
-                                                     time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>""")
+                                    time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>""")
         self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
                                                 <p>Specify how often to update
 the model during the adjustment. This allows the user to monitor results during adjustments.</p>""")
@@ -855,7 +855,7 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
         self.gromacs_checkbox.setWhatsThis("""This enables GROMACS as a plug-in. GROMACS is a free rendering program available from http://www.gromacs.org/. GROMACS must be installed on your computer before you can enable the GROMACS plug-in.  Check this and choose the the path to the mdrun executable from your GROMACS distribution.""")
         self.gromacs_path_lineedit.setWhatsThis("""The full path to the mdrun executable file for GROMACS.""")
         self.gromacs_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
-                                        location of the GROMACS executable (mdrun).""")
+                                         location of the GROMACS executable (mdrun).""")
 
         self.cpp_label.setWhatsThis("""Specify the C-preprocessor (cpp) for GROMACS to use.""")
         self.cpp_checkbox.setWhatsThis("""Specify the C-preprocessor (cpp) for GROMACS to use.""")
@@ -882,7 +882,7 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
         self.megapov_path_lineedit.setWhatsThis("""The full path to the MegaPOV executable file (megapov.exe).""")
         self.megapov_checkbox.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
         self.gamess_path_lineedit.setWhatsThis("""The gamess executable file. Usually it's called gamess.??.x or
-                                          ??gamess.exe.""")
+                                           ??gamess.exe.""")
         self.gamess_checkbox.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
                                           as a plug-in. </p>
 <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
@@ -890,9 +890,9 @@ PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS
 <p>For Linux and MacOS users,
 GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
         self.povdir_lineedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
-                                     files such as transforms.inc.""")
-        
-        
+                                      files such as transforms.inc.""")
+
+
         self.qutemol_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                          location of the QuteMolX executable.""")
         self.nanohive_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
@@ -919,7 +919,7 @@ restored when the user undoes a structural change.</p>
         self.save_current_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
         self.restore_saved_size_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
         return
-    
+
 
     def _setup_caption_signals(self):
         # caption_prefix signals
@@ -956,7 +956,7 @@ restored when the user undoes a structural change.</p>
         """
         Signal-slot connections for all widgets on the 'Plugins' page.
         """
-        
+
         # QuteMolX signal-slot connections.
         self.connect(self.qutemol_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -967,7 +967,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.qutemol_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_qutemol_path)
-        
+
         # NanoHive-1 signal-slot connections.
         self.connect(self.nanohive_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -978,7 +978,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.nanohive_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_nanohive_path)
-        
+
         # POV-Ray signal-slot connections.
         self.connect(self.povray_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -989,7 +989,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.povray_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_povray_path)
-        
+
         # POV dir signal-slot connections.
         self.connect(self.povdir_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1003,7 +1003,7 @@ restored when the user undoes a structural change.</p>
         self.connect( self.povdir_lineedit, 
                       SIGNAL("returnPressed()"), \
                       self.povdir_lineedit_returnPressed )
-        
+
         # MegaPOV signal-slot connections.
         self.connect(self.megapov_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1014,7 +1014,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.megapov_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_megapov_path)
-        
+
         # GAMESS signal-slot connections.
         self.connect(self.gamess_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1025,7 +1025,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.gamess_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_gamess_path)
-        
+
         # GROMACS signal-slot connections.
         self.connect(self.gromacs_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1036,7 +1036,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.gromacs_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_gromacs_path)
-        
+
         # cpp signal-slot connections.
         self.connect(self.cpp_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1047,7 +1047,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.cpp_choose_btn,
                      SIGNAL("clicked()"),
                      self.choose_cpp_path)
-        
+
         # NanoVision-1 signal-slots connections.
         self.connect(self.nv1_checkbox,
                      SIGNAL("toggled(bool)"),
@@ -1062,7 +1062,7 @@ restored when the user undoes a structural change.</p>
     def showDialog(self, pagename = 'General'):
         """
         Display the Preferences dialog with page I{pagename}. 
-        
+
         @param pagename: name of the Preferences page. Default is "General".
         @type  pagename: text
         """
@@ -1109,7 +1109,7 @@ restored when the user undoes a structural change.</p>
         #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
         #This is for the rattlesnake spring backlog item 
         #'disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)'
-        
+
         """
         widgetList = [self.nanohive_lbl, 
                       self.nanohive_checkbox, 
@@ -1119,11 +1119,11 @@ restored when the user undoes a structural change.</p>
                       self.gamess_lbl,
                       self.gamess_path_lineedit,
                       self.gamess_choose_btn]      
-        
+
         for widget in widgetList:    
             if debug_pref("Show GAMESS and ESP Image UI options",
-                      Choice_boolean_False,
-                      prefs_key = True):
+                          Choice_boolean_False,
+                          prefs_key = True):
                 widget.show()
             else:
                 widget.hide()
@@ -1138,14 +1138,14 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
-        
+
         if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
             self.rulerDisplayComboBox.setCurrentIndex(0)
         elif not env.prefs[displayHorzRuler_prefs_key]:
             self.rulerDisplayComboBox.setCurrentIndex(1)
         elif not env.prefs[displayVertRuler_prefs_key]:
             self.rulerDisplayComboBox.setCurrentIndex(2)
-        
+
         self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
         connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
         self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
@@ -1157,7 +1157,7 @@ restored when the user undoes a structural change.</p>
             self.orthographic_radioButton.setChecked(True)
 
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
-        
+
         # This has been removed for A9. It has never been implemented anyway. Mark 060815.
         # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
 
@@ -1173,7 +1173,7 @@ restored when the user undoes a structural change.</p>
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
 
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
-        
+
         # Set "Global Display Style at start-up" option.
         startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
         if startup_display_style == 2:
@@ -1184,7 +1184,7 @@ restored when the user undoes a structural change.</p>
             self.lines_rbtn.setChecked(True)
         elif startup_display_style == 5: 
             self.tubes_rbtn.setChecked(True)
-                
+
             # bruce comments:
             # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
             # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
@@ -1192,7 +1192,7 @@ restored when the user undoes a structural change.</p>
             #   but for some reason the buttons are inserted in a different order than they're shown.
             # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
             #   while the dialog is shown.
-        
+
         # Build Atoms Default Settings.  mark 060203.
         connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
@@ -1258,15 +1258,15 @@ restored when the user undoes a structural change.</p>
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
         self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
-        
+
         # GROMACS executable path.
         self.gromacs_checkbox.setChecked(env.prefs[gromacs_enabled_prefs_key])
         self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
-        
+
         # cpp executable path.
         self.cpp_checkbox.setChecked(env.prefs[cpp_enabled_prefs_key])
         self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
-        
+
         # NV1 executable path.
         self.nv1_checkbox.setChecked(env.prefs[nv1_enabled_prefs_key])
         self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
@@ -1275,9 +1275,9 @@ restored when the user undoes a structural change.</p>
         """
         Setup widgets to initial (default or defined) values on the Modes page.
         """
-        
+
         # "Settings for Adjust" groupbox. ###########################
-        
+
         # Adjust Engine combobox.
         self.minimize_engine_combobox.setCurrentIndex(
             env.prefs[Adjust_minimizationEngine_prefs_key])
@@ -1290,7 +1290,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringAdjust_checkBox,
             electrostaticsForDnaDuringAdjust_prefs_key)
-        
+
         # "Update..." radio btngroup
         self.update_btngrp.setEnabled(
             env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
@@ -1526,22 +1526,22 @@ restored when the user undoes a structural change.</p>
         """
         Setup widgets to initial (default or defined) values on the DNA page.
         """
-        
+
         self.dnaBasesPerTurnDoubleSpinBox.setValue(
             env.prefs[bdnaBasesPerTurn_prefs_key])
         self.dnaRiseDoubleSpinBox.setValue(
             env.prefs[bdnaRise_prefs_key])
-        
+
         connect_colorpref_to_colorframe( 
             dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
-        
+
         self.dnaColorBasesByComboBox.setCurrentIndex(
             env.prefs[dnaColorBasesBy_prefs_key])
-        
+
         self.update_dnaStrutScaleWidgets()
-        
+
         self.dnaColorBasesByComboBox.setEnabled(False) # Not implemented yet.
-        
+
         #self.dnaStrutScaleFactorSpinBox.setEnabled(False) # Not implemented yet.
 
 
@@ -1557,7 +1557,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
-        
+
         # piotr 030810 - DNA style
         self.dnaStyleStrandsColorComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrandsColor_prefs_key])
@@ -1583,7 +1583,7 @@ restored when the user undoes a structural change.</p>
         self.update_dnaStyleStrutsScale()
         self.update_dnaStyleAxisScale()
         self.update_dnaStyleBasesScale()
-	# piotr 080325
+        # piotr 080325
         self.dnaDisplayStrandLabelsGroupBox.setChecked(
             env.prefs[dnaStrandLabelsEnabled_prefs_key])
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
@@ -1592,11 +1592,11 @@ restored when the user undoes a structural change.</p>
             env.prefs[dnaStrandLabelsColorMode_prefs_key])
         self.update_dnaBaseIndicatorsAngle()
         self.update_dnaBaseIndicatorsDistance()
-	connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
-				    self.dnaBaseOrientationIndicatorsColorFrame)
-	connect_colorpref_to_colorframe(dnaStrandLabelsColor_prefs_key,
-				    self.dnaStrandLabelColorFrame)
-	
+        connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
+                                        self.dnaBaseOrientationIndicatorsColorFrame)
+        connect_colorpref_to_colorframe(dnaStrandLabelsColor_prefs_key,
+                                        self.dnaStrandLabelColorFrame)
+
     def _setup_undo_page(self):
         """
         Setup widgets to initial (default or defined) values on the Undo page.
@@ -1671,7 +1671,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.includeVdwRadiiInAtomDistanceInfo,
             dynamicToolTipVdwRadiiInAtomDistance_prefs_key)
-        
+
 
         #Bond related dynamic tool tip preferences
         connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
@@ -1720,7 +1720,7 @@ restored when the user undoes a structural change.</p>
     def set_compass_position(self, val):
         """
         Set position of compass.
-        
+
         @param val: The position, where:
                     - 0 = upper right
                     - 1 = upper left
@@ -1737,7 +1737,7 @@ restored when the user undoes a structural change.</p>
     def set_default_projection(self, projection):
         """
         Set the projection.
-        
+
         @param projection: The projection, where:
                            - 0 = Perspective
                            - 1 = Orthographic
@@ -1762,7 +1762,7 @@ restored when the user undoes a structural change.</p>
     def change_high_quality_graphics(self, state): #mark 060315.
         """
         Enable/disable high quality graphics during view animations.
-        
+
         @attention: This has never been implemented. The checkbox has been 
                     removed from the UI file for A9. Mark 060815.
         """
@@ -1876,7 +1876,7 @@ restored when the user undoes a structural change.</p>
         Combobox action, sets Adjust_minimizationEngine preference
         """
         env.prefs[Adjust_minimizationEngine_prefs_key] = engine
-        
+
     def setPrefsLogoDownloadPermissions(self, permission):
         """
         Set the sponsor logos download permissions in the persistent user
@@ -1995,54 +1995,54 @@ restored when the user undoes a structural change.</p>
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
-    
+
     def set_ruler_display(self, display):
         """
         Set display of individual rulers.
-        
+
         @param display: The ruler display, where:
                     - 0 = display both rulers
                     - 1 = display vertical ruler only
                     - 2 = display horizontal ruler only
-        
+
         @type  display: int
         """
         env.prefs[displayVertRuler_prefs_key] = True
         env.prefs[displayHorzRuler_prefs_key] = True
-        
+
         if display == 1:
             env.prefs[displayHorzRuler_prefs_key] = False
-        
+
         elif display == 2:
             env.prefs[displayVertRuler_prefs_key] = False
-        
+
         # update the glpane
         self.glpane.gl_update()
-        
+
     def set_ruler_position(self, position):
         """
         Set position of ruler(s).
-        
+
         @param position: The ruler position, where:
                     - 0 = lower left
                     - 1 = upper left
                     - 2 = lower right
                     - 3 = upper right
-        
+
         @type  position: int
         """
         # set the pref
         env.prefs[rulerPosition_prefs_key] = position
-        
+
         # update the glpane
         self.glpane.gl_update()
-        
+
     def change_ruler_color(self):
         """
         Change the ruler color.
         """
         self.usual_change_color( rulerColor_prefs_key)
-        
+
     def change_ruler_opacity(self, opacity):
         """
         Change the ruler opacity.
@@ -2126,7 +2126,7 @@ restored when the user undoes a structural change.</p>
             - 1 = medium
             - 2 = high
             - 3 = variable (based on number of atoms in the part)
-        
+
         @note: the prefs db value for 'variable' is -1, to allow for higher LOD 
                levels in the future.
         """
@@ -2268,7 +2268,7 @@ restored when the user undoes a structural change.</p>
         """
         #bruce 060607 renamed change_cpk_cylinder_radius -> change_ballstick_cylinder_radius (in this file and .ui/.py dialog files)
         env.prefs[diBALL_BondCylinderRadius_prefs_key] = val *.01
-        
+
         # Bruce wrote:
         #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
         # so I tested it and confirmed that gl_update() isn't needed.
@@ -2276,9 +2276,9 @@ restored when the user undoes a structural change.</p>
         #self.glpane.gl_update() 
 
     ########## End of slot methods for "Bonds" page widgets ###########
-    
+
     ########## Slot methods for "DNA" page widgets ################
-    
+
     def save_dnaBasesPerTurn(self, bases_per_turn):
         """
         Slot for I{Bases per turn} spinbox.
@@ -2286,7 +2286,7 @@ restored when the user undoes a structural change.</p>
         @type  bases_per_turn: double
 	"""
         env.prefs[bdnaBasesPerTurn_prefs_key] = bases_per_turn
-        
+
     def save_dnaRise(self, rise):
         """
         Slot for B{Rise} spinbox.
@@ -2294,7 +2294,7 @@ restored when the user undoes a structural change.</p>
         @type  rise: double
 	"""
         env.prefs[bdnaRise_prefs_key] = rise
-        
+
     def dnaRestoreFactoryDefaults(self):
         """
         Slot for I{Restore Factory Defaults} button.
@@ -2303,12 +2303,12 @@ restored when the user undoes a structural change.</p>
             bdnaBasesPerTurn_prefs_key,
             bdnaRise_prefs_key,
         ])
-        
+
         # These generate signals (good), which calls slots 
         # save_dnaBasesPerTurn() and save_dnaRise()
         self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
         self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
-        
+
     def changeDnaDefaultSegmentColor(self):
         """
         Slot for the I{Choose...} button for changing the 
@@ -2324,7 +2324,7 @@ restored when the user undoes a structural change.</p>
 	"""
         env.prefs[dnaStrutScaleFactor_prefs_key] = scale_factor * .01
         self.update_dnaStrutScaleWidgets()
-        
+
     def update_dnaStrutScaleWidgets(self):
         """
         Updates the DNA Strut Scale spin box and reset button. 
@@ -2332,7 +2332,7 @@ restored when the user undoes a structural change.</p>
         # Set strut scale.        
         self.dnaStrutScaleFactorSpinBox.setValue(
             int (env.prefs[dnaStrutScaleFactor_prefs_key] * 100.0))
-        
+
         # Need a test to determine if <scale> is the same as 
         # dnaStrutScaleFactor_prefs_key's default value. Asking Bruce.
         # Mark 2008-01-31
@@ -2348,12 +2348,12 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
         self.update_dnaStrutScaleWidgets()
-        
+
     # DNA display style piotr 080310
     def change_dnaStyleStrandsColor(self, value):
         """
         Changes DNA Style strands color.
-        
+
         @param color: The color mode:
                     - 0 = color same as chunk
                     - 1 = base oder
@@ -2361,24 +2361,24 @@ restored when the user undoes a structural change.</p>
         @type color: int
         """
         env.prefs[dnaStyleStrandsColor_prefs_key] = value
-        
+
     def change_dnaStyleStrutsColor(self, color):
         """
         Changes DNA Style struts color.
-        
+
         @param color: The color mode:
                     - 0 = color same as chunk
                     - 1 = strand order
                     - 2 = base type
-        
+
         @type color: int
         """
         env.prefs[dnaStyleStrutsColor_prefs_key] = color
-        
+
     def change_dnaStyleAxisColor(self, color):
         """
         Changes DNA Style axis color.
-        
+
         @param color: The color mode:
                     - 0 = color same as chunk
                     - 0 = color same as chunk
@@ -2386,77 +2386,77 @@ restored when the user undoes a structural change.</p>
                     - 2 = discrete bse order
                     - 3 = base type
                     - 4 = strand order
-        
+
         @type color: int
         """
         env.prefs[dnaStyleAxisColor_prefs_key] = color
-        
+
     def change_dnaStyleBasesColor(self, color):
         """
         Changes DNA Style bases color.
-        
+
         @param color: The color mode:
                     - 0 = color same as chunk
                     - 1 = base order
                     - 2 = strand order
                     - 3 = base type
-        
+
         @type color: int
         """
         env.prefs[dnaStyleBasesColor_prefs_key] = color
-        
+
     def change_dnaStyleStrandsShape(self, shape):
         """
         Changes DNA Style strands shape.
-        
+
         @param shape: The shape mode:
                     - 0 = none (hidden)
                     - 1 = cylinders
                     - 2 = tube
-        
+
         @type shape: int
         """
         env.prefs[dnaStyleStrandsShape_prefs_key] = shape
-        
+
     def change_dnaStyleStrutsShape(self, shape):
         """
         Changes DNA Style strands shape.
-        
+
         @param shape: The shape mode:
                     - 0 = none (hidden)
                     - 1 = base-axis-base
                     - 2 = straight cylinders
-                    
+
         @type shape: int
         """
         env.prefs[dnaStyleStrutsShape_prefs_key] = shape
-        
+
     def change_dnaStyleAxisShape(self, shape):
         """
         Changes DNA Style strands shape.
-        
+
         @param shape: The shape mode:
                     - 0 = none (hidden)
                     - 1 = wide tube
                     - 2 = narrow tube
-        
+
         @type shape: int
         """
         env.prefs[dnaStyleAxisShape_prefs_key] = shape
-        
+
     def change_dnaStyleBasesShape(self, shape):
         """
         Changes DNA Style strands shape.
-        
+
         @param shape: The shape mode:
                     - 0 = none (hidden) 
                     - 1 = spheres 
                     - 2 = cartoon-like
-        
+
         @type shape: int
         """
         env.prefs[dnaStyleBasesShape_prefs_key] = shape
-        
+
     def change_dnaStyleStrandsScale(self, scale_factor):
         """
         @param scale_factor: The strands scale factor.
@@ -2464,7 +2464,7 @@ restored when the user undoes a structural change.</p>
 	"""
         env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
         self.update_dnaStyleStrandsScale()
-        
+
     def update_dnaStyleStrandsScale(self):
         """
         Updates the DNA Style Strands Scale spin box. 
@@ -2472,7 +2472,7 @@ restored when the user undoes a structural change.</p>
         # Set strands scale.        
         self.dnaStyleStrandsScaleSpinBox.setValue(
             float(env.prefs[dnaStyleStrandsScale_prefs_key]))
-        
+
     def change_dnaStyleStrutsScale(self, scale_factor):
         """
         @param scale_factor: The struts scale factor.
@@ -2488,7 +2488,7 @@ restored when the user undoes a structural change.</p>
         # Set struts scale.        
         self.dnaStyleStrutsScaleSpinBox.setValue(
             float(env.prefs[dnaStyleStrutsScale_prefs_key]))
-        
+
     def change_dnaStyleAxisScale(self, scale_factor):
         """
         @param scale_factor: The axis scale factor.
@@ -2504,7 +2504,7 @@ restored when the user undoes a structural change.</p>
         # Set axis scale.        
         self.dnaStyleAxisScaleSpinBox.setValue(
             float(env.prefs[dnaStyleAxisScale_prefs_key]))
-        
+
     def change_dnaStyleBasesScale(self, scale_factor):
         """
         @param scale_factor: The bases scale factor.
@@ -2526,7 +2526,7 @@ restored when the user undoes a structural change.</p>
         @param angle: The angular threshold for DNA base indicators.
         @type  angle: double
 	"""
-	print "angle (set) = ", angle
+        print "angle (set) = ", angle
         env.prefs[dnaBaseIndicatorsAngle_prefs_key] = angle
         self.update_dnaBaseIndicatorsAngle()
 
@@ -2534,16 +2534,16 @@ restored when the user undoes a structural change.</p>
         """
         Updates the DNA base orientation indicators angular threshold spinbox. 
         """
-	print "angle = ", float(env.prefs[dnaBaseIndicatorsAngle_prefs_key])
-	self.dnaBaseOrientationIndicatorsThresholdSpinBox.setValue(
-	    float(env.prefs[dnaBaseIndicatorsAngle_prefs_key]))
+        print "angle = ", float(env.prefs[dnaBaseIndicatorsAngle_prefs_key])
+        self.dnaBaseOrientationIndicatorsThresholdSpinBox.setValue(
+            float(env.prefs[dnaBaseIndicatorsAngle_prefs_key]))
 
     def change_dnaBaseIndicatorsDistance(self, distance):
         """
         @param distance: The distance threshold for DNA base indicators.
         @type  distance: double
 	"""
-	print "distance (set) = ", distance
+        print "distance (set) = ", distance
         env.prefs[dnaBaseIndicatorsDistance_prefs_key] = distance
         self.update_dnaBaseIndicatorsDistance()
 
@@ -2551,40 +2551,40 @@ restored when the user undoes a structural change.</p>
         """
         Updates the DNA base orientation indicators distance threshold spinbox. 
         """
-	print "distance = ", int(env.prefs[dnaBaseIndicatorsDistance_prefs_key])
-	self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setValue(
-	    int(env.prefs[dnaBaseIndicatorsDistance_prefs_key]))
-	
+        print "distance = ", int(env.prefs[dnaBaseIndicatorsDistance_prefs_key])
+        self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setValue(
+            int(env.prefs[dnaBaseIndicatorsDistance_prefs_key]))
+
     def change_dnaStyleStrandsArrows(self, shape):
         """
         Changes DNA Style strands shape.
-        
+
         @param shape: The shape mode:
                     - 0 = none (hidden) 
-        
+
         @type shape: int
         """
         env.prefs[dnaStyleStrandsArrows_prefs_key] = shape
-        
+
     def change_dnaStyleAxisTaper(self, shape):
         """
         Changes DNA Style strands ends.
-        
+
         @param shape: The shape mode:
                     - 0 = flat
                     - 1 = taper beginning
                     - 2 = taper ending
                     - 3 = taper both ends
                     - 4 = spherical
-        
+
         @type shape: int
         """
         env.prefs[dnaStyleAxisTaper_prefs_key] = shape
-        
+
     def toggle_dnaDisplayStrandLabelsGroupBox(self, state):        
         """
         Toggles DNA Strand Labels GroupBox.
-        
+
         @param state: Is the GroupBox enabled?
                     - True = on
                     - False = off
@@ -2595,7 +2595,7 @@ restored when the user undoes a structural change.</p>
     def toggle_dnaDisplayBaseOrientationIndicatorsGroupBox(self, state):
         """
         Toggles DNA Base Orientation Indicators GroupBox.
-        
+
         @param state: Is the GroupBox enabled?
                     - True = on
                     - False = off
@@ -2616,21 +2616,21 @@ restored when the user undoes a structural change.</p>
         DNA strand labels color.
         """
         self.usual_change_color( dnaStrandLabelsColor_prefs_key )
-        
+
     def change_dnaStrandLabelsColorMode(self, mode):
         """
         Changes DNA Style strand labels color mode.
-        
+
         @param mode: The color mode:
                     - 0 = same as chunk
                     - 1 = black
                     - 2 = white
 		    - 3 = custom
-        
+
         @type mode: int
         """
         env.prefs[dnaStrandLabelsColorMode_prefs_key] = mode
-        
+
     ########## End of slot methods for "DNA" page widgets ###########
 
     ########## Slot methods for "Modes" page widgets ################
@@ -2653,7 +2653,7 @@ restored when the user undoes a structural change.</p>
     def set_default_display_mode(self, display_style): #bruce 050810 revised this to set the pref immediately
         """
 	Set the global display style at start up to I{display_style}. 
-        
+
         This also changes the global display style of the glpane to 
         <display_style>.
         """        
@@ -2727,7 +2727,7 @@ restored when the user undoes a structural change.</p>
         """
         Slot for light color "Choose" button.  Saves the new color in the 
         prefs db.
-        
+
         Changes the current Light color in the graphics area and the light 
         color swatch in the UI.
         """
@@ -2872,11 +2872,11 @@ restored when the user undoes a structural change.</p>
         Slot for GAMESS path line editor.
         """
         env.prefs[gamess_path_prefs_key] = str(newValue)
-        
+
     def enable_gamess(self, enable = True):
         """
         Enables/disables GAMESS plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
@@ -2891,32 +2891,32 @@ restored when the user undoes a structural change.</p>
             self.gamess_path_lineedit.setText("")
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
-    
+
     # GROMACS slots #######################################
-    
+
     def choose_gromacs_path(self):
         """
         Slot for GROMACS path "Choose" button.
         """
 
         mdrun_executable = \
-            get_filename_and_save_in_prefs(self,
-                                           gromacs_path_prefs_key,
-                                           'Choose mdrun executable (GROMACS)')
+                         get_filename_and_save_in_prefs(self,
+                                                        gromacs_path_prefs_key,
+                                                        'Choose mdrun executable (GROMACS)')
 
         if mdrun_executable:
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
-    
+
     def set_gromacs_path(self, newValue):
         """
         Slot for GROMACS path line editor.
         """
         env.prefs[gromacs_path_prefs_key] = str(newValue)
-    
+
     def enable_gromacs(self, enable = True):
         """
         If True, GROMACS path is set in Preferences>Plug-ins
-        
+
         @param enable: Is the path set?
         @type  enable: bool
         """
@@ -2928,16 +2928,16 @@ restored when the user undoes a structural change.</p>
             self.gromacs_path_lineedit.setEnabled(True)
             self.gromacs_choose_btn.setEnabled(True)
             env.prefs[gromacs_enabled_prefs_key] = True
-            
+
             # Sets the GROMACS (executable) path to the standard location, if it exists.
             if not env.prefs[gromacs_path_prefs_key]:
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS\\bin\\mdrun.exe", \
                     "/usr/bin/mdrun",
                     "/usr/bin/mdrun")
-                
+
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
-            
+
         else:
             if (state != Qt.Unchecked):
                 self.gromacs_checkbox.setCheckState(Qt.Unchecked)
@@ -2946,9 +2946,9 @@ restored when the user undoes a structural change.</p>
             self.gromacs_path_lineedit.setText("")
             env.prefs[gromacs_path_prefs_key] = ''
             env.prefs[gromacs_enabled_prefs_key] = False
-            
+
     # cpp slots #######################################
-    
+
     def choose_cpp_path(self):
         """
         Sets the path to cpp (C pre-processor)
@@ -2960,17 +2960,17 @@ restored when the user undoes a structural change.</p>
 
         if cpp_executable:
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
-    
+
     def set_cpp_path(self, newValue):
         """
         Slot for cpp path line editor.
         """
         env.prefs[cpp_path_prefs_key] = str(newValue)
-    
+
     def enable_cpp(self, enable = True):
         """
         Enables/disables cpp plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
@@ -2981,16 +2981,16 @@ restored when the user undoes a structural change.</p>
             self.cpp_path_lineedit.setEnabled(True)
             self.cpp_choose_btn.setEnabled(True)
             env.prefs[cpp_enabled_prefs_key] = True
-            
+
             # Sets the cpp path to the standard location, if it exists.
             if not env.prefs[cpp_path_prefs_key]:
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS\\cpp.exe", \
                     "/usr/bin/cpp", \
                     "/usr/bin/cpp")
-                
+
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
-            
+
         else:
             if (state != Qt.Unchecked):
                 self.cpp_checkbox.setCheckState(Qt.Unchecked)
@@ -2999,9 +2999,9 @@ restored when the user undoes a structural change.</p>
             self.cpp_path_lineedit.setText("")
             env.prefs[cpp_path_prefs_key] = ''
             env.prefs[cpp_enabled_prefs_key] = False
-            
+
     # NanoVision-1 slots #######################################
-    
+
     def choose_nv1_path(self):
         """
         Slot for NanoVision-1 path "Choose" button.
@@ -3013,17 +3013,17 @@ restored when the user undoes a structural change.</p>
 
         if nv1_executable:
             self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
-    
+
     def set_nv1_path(self, newValue):
         """
         Slot for NanoVision-1 path line editor.
         """
         env.prefs[nv1_path_prefs_key] = str(newValue)
-    
+
     def enable_nv1(self, enable = True):
         """
         If True, NV1 path is set in Preferences>Plug-ins
-        
+
         @param enable: Is the path set?
         @type  enable: bool
         """
@@ -3035,16 +3035,16 @@ restored when the user undoes a structural change.</p>
             self.nv1_path_lineedit.setEnabled(True)
             self.nv1_choose_btn.setEnabled(True)
             env.prefs[nv1_enabled_prefs_key] = True
-            
+
             # Sets the NV1 (executable) path to the standard location, if it exists.
             if not env.prefs[nv1_path_prefs_key]:
                 env.prefs[nv1_path_prefs_key] = get_default_plugin_path( \
                     "C:\\Program Files\\Nanorex\\NanoVision-1\\NanoVision-1.exe", \
                     "/usr/local/bin/NanoVision-1", \
                     "/usr/local/bin/NanoVision-1")
-                
+
             self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
-            
+
         else:
             if (state != Qt.Unchecked):
                 self.nv1_checkbox.setCheckState(Qt.Unchecked)
@@ -3053,7 +3053,7 @@ restored when the user undoes a structural change.</p>
             self.nv1_path_lineedit.setText("")
             env.prefs[nv1_path_prefs_key] = ''
             env.prefs[nv1_enabled_prefs_key] = False
-        
+
     # QuteMolX slots #######################################
 
     def choose_qutemol_path(self):
@@ -3066,7 +3066,7 @@ restored when the user undoes a structural change.</p>
 
         if qp:
             self.qutemol_path_lineedit.setText(qp)
-            
+
     def set_qutemol_path(self, newValue):
         """
         Slot for QuteMol path line editor.
@@ -3076,7 +3076,7 @@ restored when the user undoes a structural change.</p>
     def enable_qutemol(self, enable = True):
         """
         Enables/disables QuteMolX plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
@@ -3100,7 +3100,7 @@ restored when the user undoes a structural change.</p>
             self.qutemol_path_lineedit.setText("")
             env.prefs[qutemol_path_prefs_key] = ''
             env.prefs[qutemol_enabled_prefs_key] = False
-    
+
     # NanoHive-1 slots #####################################
 
     def choose_nanohive_path(self):
@@ -3114,20 +3114,20 @@ restored when the user undoes a structural change.</p>
 
         if nh:
             self.nanohive_path_lineedit.setText(nh)
-    
+
     def set_nanohive_path(self, newValue):
         """
         Slot for NanoHive path line editor.
         """
         env.prefs[nanohive_path_prefs_key] = str(newValue)
-        
+
     def enable_nanohive(self, enable=True):
         """
         Enables/disables NanoHive-1 plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
-        
+
         @attention: This is disabled since the NH1 plugin doesn't work yet.
         """
         if enable:
@@ -3161,7 +3161,7 @@ restored when the user undoes a structural change.</p>
             self.nanohive_path_lineedit.setText("")
             env.prefs[nanohive_path_prefs_key] = ''
             env.prefs[nanohive_enabled_prefs_key] = False
-        
+
     # POV-Ray slots #####################################
 
     def choose_povray_path(self):
@@ -3180,11 +3180,11 @@ restored when the user undoes a structural change.</p>
         Slot for POV-Ray path line editor.
         """
         env.prefs[povray_path_prefs_key] = str(newValue)
-        
+
     def enable_povray(self, enable = True):
         """
         Enables/disables POV-Ray plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
@@ -3209,7 +3209,7 @@ restored when the user undoes a structural change.</p>
             env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
-    
+
     # MegaPOV slots #####################################
 
     def choose_megapov_path(self):
@@ -3220,7 +3220,7 @@ restored when the user undoes a structural change.</p>
 
         if megapov_exe:
             self.megapov_path_lineedit.setText(megapov_exe)
-            
+
     def set_megapov_path(self, newValue):
         """
         Slot for MegaPOV path line editor.
@@ -3230,7 +3230,7 @@ restored when the user undoes a structural change.</p>
     def enable_megapov(self, enable = True):
         """
         Enables/disables MegaPOV plugin.
-        
+
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
@@ -3255,7 +3255,7 @@ restored when the user undoes a structural change.</p>
             env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
-            
+
     # POV-Ray include slots #######################################
 
     # pov include directory [bruce 060710 for Mac A8; will be A8.1 in Windows, not sure about Linux]
@@ -3373,7 +3373,7 @@ restored when the user undoes a structural change.</p>
         """
         Slot for both the width and height spinboxes that change the current 
         window size. 
-        
+
         Also called from other slots to change the window size based on new 
         values in spinboxes. <val> is not used.
         """
