@@ -65,6 +65,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._conformation = 'B-DNA'
         self.duplexRise = 3.18
         self.basesPerTurn = 10
+        self.dnaModel = 'PAM-3'
         
         EditCommand_PM.__init__( self, 
                                     win,
@@ -143,22 +144,41 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         ..better to name them all in one style?  
         """
         #Set the duplex rise and bases per turn spinbox values. 
-        duplexRise, basesPerTurn = params 
-        if duplexRise:
-            self.duplexRiseDoubleSpinBox.setValue(duplexRise)
-        if basesPerTurn:
-            self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)
         
+        numberOfBasePairs, \
+                         dnaForm, \
+                             dnaModel,\
+                             basesPerTurn, \
+                             duplexRise, \
+                             endPoint1, \
+                             endPoint2   = params 
+        
+        if numberOfBasePairs is not None:
+            self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        if dnaForm is not None:
+            self._conformation = dnaForm
+        if dnaModel is not None:
+            self.dnaModel = dnaModel
+        if duplexRise is not None:
+            self.duplexRiseDoubleSpinBox.setValue(duplexRise)
+        if basesPerTurn is not None:
+            self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)
+        if endPoint1 is not None:
+            self.endPoint1 = endPoint1
+        if endPoint2 is not None:
+            self.endPoint2 = endPoint2
+        
+    
         
     def getParameters(self):
         """
         """
         numberOfBases = self.numberOfBasePairsSpinBox.value()
-        dnaForm  = 'B-DNA'
+        dnaForm  = self._conformation
+        dnaModel = self.dnaModel
         basesPerTurn = self.basesPerTurn
         duplexRise = self.duplexRise
-        dnaModel = 'PAM-3'
-      
+              
         return (numberOfBases, 
                 dnaForm,
                 dnaModel,

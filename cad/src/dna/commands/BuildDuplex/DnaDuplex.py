@@ -46,38 +46,40 @@ if not basepath_ok:
 RIGHT_HANDED = -1
 LEFT_HANDED  =  1
 
-    
+
 from geometry.VQT import V, Q, norm, cross  
 from geometry.VQT import  vlen
 from Numeric import dot
 
+ENABLE_DEBUG_PRINTS = False
+
 class Dna:
     """
     Dna base class. It is inherited by B_Dna and Z_Dna subclasses.
-    
+
     @ivar baseRise: The rise (spacing) between base-pairs along the helical
                     (Z) axis.
     @type baseRise: float
-    
+
     @ivar handedness: Right-handed (B and A forms) or left-handed (Z form).
     @type handedness: int
-    
+
     @ivar model: The model representation, where:
                     - "PAM3" = PAM-3 reduced model.
                     - "PAM5" = PAM-5 reduced model.
-                          
+
     @type model: str
-    
+
     @ivar numberOfBasePairs: The number of base-pairs in the duplex.
     @type numberOfBasePairs: int
-    
+
     @note: Atomistic models are not supported.
     @TODO: This classe's attribute 'assy' (self.assy) is determined in self.make
            Its okay because callers only call dna.make() first. If assy object 
            is going to remain constant,(hopefully is the case) the caller should
            pass it to the costructor of this class. (not defined as of 
            2008-03-17.
-    
+
     """
     #initialize sel.assy to None. This is determined each time in self.make()
     #using the 'group' argument of that method. 
@@ -85,10 +87,13 @@ class Dna:
     #The following is a list bases inserted in to the model while generating
     #dna. see self.make()
     baseList = []
-    
-    def modify_NOT_IMPLEMENTED_YET(self,
+
+    strandA_atom_end1 = None
+    strandB_atom_end1 = None
+
+    def modify(self,
                group,
-               ladder, 
+               ladderEndAxisAtom,
                numberOfBasePairs, 
                basesPerTurn, 
                duplexRise,
@@ -96,20 +101,283 @@ class Dna:
                endPoint2              
                ):
         """
-        NOT IMPLEMENTED AS OF 2008-03-17
+        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-24. 
+        NEED CLEANUP , LOTS OF DOCUMENTATION AND RENAMING. 
         """  
+        self.assy               =  group.assy         
+        assy                    =  group.assy
+        #Make sure to clear self.baseList each time self.make() is called
+        self.baseList           =  []
+
+        self.setNumberOfBasePairs(abs(numberOfBasePairs))
+        self.setBaseRise(duplexRise)
+        #See a note in DnaSegment_EditCommand._createStructure(). Should 
+        #the parentGroup object <group> be assigned properties such as
+        #duplexRise, basesPerTurn in this method itself? to be decided 
+        #once dna data model is fully functional (and when this method is 
+        #revised) -- Ninad 2008-03-05
+        self.setBasesPerTurn(basesPerTurn)
+
+        #End axis atom at end1. i.e. the first mouse click point from which 
+        #user started drawing the dna duplex (rubberband line). This is initially
+        #set to None. When we start creating the duplex and read in the first 
+        #mmp file:  MiddleBasePair.mmp, we assign the appropriate atom to this 
+        #variable. See self._determine_axis_and_strandA_endAtoms_at_end_1()
+        self.axis_atom_end1 = None
+
+        #The strand base atom of Strand-A, connected to the self.axis_atom_end1
+        #The vector between self.axis_atom_end1 and self.strandA_atom_end1 
+        #is used to determine the final orientation of the created duplex. 
+        #that aligns this vector such that it is parallel to the screen. 
+        #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
+        self.strandA_atom_end1 = None
+
+        self._original_structure_lastBaseAtom_strand1 = None
+        self._original_structure_lastBaseAtom_axis = None
         
-        ##ladder.ladder_end_base_atoms(ladderEnd)
+        #Do a safety check. If number of base pairs to add or subtract is 0, 
+        #don't proceed further. 
+        if numberOfBasePairs == 0:
+            print "Duplex not created. The number of base pairs are unchanged"
+            return
         
-        if 0:
+        if numberOfBasePairs < 0:
+            numberOfBasePairsToSubtract = abs(numberOfBasePairs)
+            self._subtract_bases_from_duplex(group, 
+                                             ladderEndAxisAtom,
+                                             numberOfBasePairsToSubtract)
+            return
         
-            group_with_raw_duplex = self._create_raw_duplex(group, 
-                                                            numberOfBasePairs, 
-                                                            basesPerTurn, 
-                                                            duplexRise)
-        pass
+        if ENABLE_DEBUG_PRINTS:        
+            print "*** number of base pairs = ", numberOfBasePairs
+            print "*** basesPerTurn =" , basesPerTurn
+            print "*** duplexRise =", duplexRise
+
+        self._create_raw_duplex(group, 
+                                numberOfBasePairs, 
+                                basesPerTurn, 
+                                duplexRise
+                            )
+        
+        
+
+        DEBUG_ORIENTATION = True
+        
+
+        # Orient the duplex.
+        
+        #Correct one to use
+        self._orient(self.baseList, ladderEndAxisAtom.posn(), endPoint2)
+
+        if not DEBUG_ORIENTATION:
+            if ENABLE_DEBUG_PRINTS:
+                print "*** _NOT_ debugging final orientation code. Returning after basic orientation"
+            return
+        else:
+            if ENABLE_DEBUG_PRINTS:
+                print "***DEBUGGING FINAL ORIENTATION"
+                print "#############################\n"
+
+        ladder = ladderEndAxisAtom.molecule.ladder                        
+        endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(ladderEndAxisAtom)
+        
+        if ENABLE_DEBUG_PRINTS:
+            print "***endBaseAtomList", endBaseAtomList
+            print "***endPoint1 = %s, \n endPoint2 = %s"%(endPoint1, endPoint2)
+
+        if endBaseAtomList and len(endBaseAtomList) > 2:
+
+            self._original_structure_lastBaseAtom_strand1 = endBaseAtomList[0]
+
+            self._original_structure_lastBaseAtom_axis = endBaseAtomList[1]
+
+            #Run full dna update so that the newly created duplex represents
+            #one in dna data model. Do it before calling self._orient_for_modify
+            self.assy.update_parts()
+
+            #earlier implementation for _orient_for_modify_ORIGINAL20080320
+            ##self._orient_for_modify(self.chunkList, endPoint1, endPoint2)
+
+            self._orient_for_modify(endPoint1, endPoint2)
+
+            FUSE_DEBUG = 1
+            
+            if FUSE_DEBUG:
+                new_ladder = self.axis_atom_end1.molecule.ladder     
+                new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
+                endBaseAtomList_generated_duplex  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
+
+                #strandA atom should be first in the list
+                if self.strandA_atom_end1 in endBaseAtomList_generated_duplex and \
+                   self.strandA_atom_end1 != endBaseAtomList_generated_duplex[0]:
+                    endBaseAtomList_generated_duplex.reverse()
+
+
+                #Get the set of base atoms next to the 'new_endBaseAtomList' 
+                #This will become our new end base atoms (as we will be deleting
+                #the first set of new_endBaseAtomList                
+                new_endBaseAtomList = []
+                if ENABLE_DEBUG_PRINTS:
+                    print "###################################################"
+                for atm in endBaseAtomList_generated_duplex:
+                    rail = atm.molecule.get_ladder_rail()
+                    if ENABLE_DEBUG_PRINTS:
+                        print "***atm =", atm
+                        print "***atm.next_base_atom_in_bond_direction 1", atm.next_atom_in_bond_direction(1)
+                        print "***atm.next_base_atom_in_bond_direction 1", atm.next_atom_in_bond_direction(-1)
+                        ##print "***atm.molecule.atoms =", atm.molecule.atoms.values()
+                        ##print "***atm.molecule.wholechain ", atm.molecule.wholechain.end_baseatoms()
+                        print "***rail.baseatoms, ", rail.baseatoms
+                        print "***rail.neighbor_baseatoms =", rail.neighbor_baseatoms
+                        
+                    baseindex = rail.baseatoms.index(atm)
+
+                    next_atm = None
+                    if len(rail.baseatoms) == 1:
+                        for bond_direction in (1, -1):
+                            next_atm = atm.next_atom_in_bond_direction(bond_direction)
+                    else:                        
+                        if new_ladder_end == 0:
+                            #@@@BUG 2008-03-21. Handle special case when len(rail.baseatoms == 1)
+                            next_atm = rail.baseatoms[1]
+                        elif new_ladder_end == 1:
+                            next_atm = rail.baseatoms[-2]
+
+                    assert next_atm is not None                        
+                    new_endBaseAtomList.append(next_atm)
+
+                #@@REVIEW This doesn't invalidate the ladder. We just delete 
+                #all the atoms and then the dna updater runs. 
+                for atm in endBaseAtomList_generated_duplex:
+                    atm.kill()   
+
+                #update dna again
+                self.assy.update_parts()
+
+                
+                self.axis_atom_end1 = None
+
+                chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
+                              new_endBaseAtomList[0].molecule]
+                
+                if ENABLE_DEBUG_PRINTS:
+                    print "***new_endBaseAtomList for fusing ", new_endBaseAtomList
+                    print "***for fusing, chunkList1 = ", chunkList1
+
+                chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
+                              new_endBaseAtomList[1].molecule]
+
+                chunkList3 = [endBaseAtomList[2].molecule, 
+                              new_endBaseAtomList[2].molecule]
+
+                self.fuseBasePairChunks(chunkList1)
+                self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
+                self.fuseBasePairChunks(chunkList3)
+
+            #Delete the first base in the baselist -- OLD implementation
+            #when self._orient_for_modify_ORIGINAL20008... is used
+            if 0:
+                chunkToRemove = self.baseList[0]
+                self.baseList.remove(chunkToRemove)
+                chunkToRemove.kill()
+
+
+                chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
+                              self.baseList[0]]                
+                chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
+                              self.baseList[0]]
+
+                chunkList3 = [endBaseAtomList[2].molecule, self.baseList[0]]
+
+
+                self.fuseBasePairChunks(chunkList1)
+                self.fuseBasePairChunks(chunkList2, fuseTolerance = 2.0)
+                self.fuseBasePairChunks(chunkList3)
+
+
+        self.assy.update_parts()
+        
     
+    def _subtract_bases_from_duplex(self,
+                                    group, 
+                                    ladderEndAxisAtom, 
+                                    numberOfBasePairsToSubtract): 
+        """
+        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-25. Will be cleaned 
+        up. 
         
+        THIS IS BUGGY.
+        """
+        
+        ladder = ladderEndAxisAtom.molecule.ladder
+        
+        atomsScheduledForDeletion = []
+          
+        atm = ladderEndAxisAtom    
+        atomsScheduledForDeletion.extend(atm.strand_neighbors())
+        
+        #We have already considered the first set of atoms to delete (i.e.
+        #the end strand atoms appended to atomsScheduledForDeletion above. 
+        #So, only loop until it reaches 1 
+        #NOTE: The following destructively modifies numberOfBasePairsToSubtract
+        #as there is no use of this variable later. 
+        while numberOfBasePairsToSubtract > 1:
+            rail = atm.molecule.get_ladder_rail()                
+            baseindex = rail.baseatoms.index(atm)
+            
+            #Following copies some code from DnaMarker.py
+            try_these = [
+                            (rail, baseindex, 1),
+                            (rail, baseindex, -1),
+                         ]
+            for item_rail, item_baseIndex, item_direction in try_these:
+                pos = item_rail, item_baseIndex, item_direction
+                pos_generator = atm.molecule.wholechain.yield_rail_index_direction_counter(
+                            pos
+                         )
+                
+                iter = 0
+                pos_counter_A = pos_counter_B = None
+                for pos_counter in pos_generator:
+                    iter += 1
+                    if iter == 1:
+                        # should always happen
+                        pos_counter_A = pos_counter
+                    elif iter == 2:
+                        # won't happen if we start at the end we scan towards
+                        pos_counter_B = pos_counter
+                        break
+                    continue
+                del pos_generator
+                assert iter in (1, 2)
+                railA, indexA, directionA, counter_junk = pos_counter_A
+                assert (railA, indexA, directionA) == (item_rail, item_baseIndex, item_direction)
+                atomB = None
+                if iter < 2:
+                    # this direction doesn't work -- no atomB!
+                    pass
+                else:
+                    # this direction works iff we found the right atom
+                    railB, indexB, directionB, counter_junk = pos_counter_B
+                    atomB = railB.baseatoms[indexB]
+                    
+                if atomB is not None:
+                    atm = atomB
+                    strand_neighbors = atomB.strand_neighbors()
+                    for strand_atom in strand_neighbors:
+                        if strand_atom not in atomsScheduledForDeletion:
+                            atomsScheduledForDeletion.append(strand_atom)
+                    
+            numberOfBasePairsToSubtract = numberOfBasePairsToSubtract - 1
+            
+        for atm in atomsScheduledForDeletion:
+            if atm:
+                try:
+                    atm.kill()
+                except:
+                    print_compact_traceback("bug in deleting atom while resizing the segment")
+            
+         
     def make(self, 
              group, 
              numberOfBasePairs, 
@@ -122,36 +390,36 @@ class Dna:
         Makes a DNA duplex with the I{numberOfBase} base-pairs. 
         The duplex is oriented with its central axis coincident to the
         line (endPoint1, endPoint1), with its origin at endPoint1.
-        
+
         @param assy: The assembly (part).
         @type  assy: L{assembly}
-        
+
         @param group: The group node object containing the DNA. The caller
                       is responsible for creating an empty group and passing
                       it here. When finished, this group will contain the DNA
                       model.
         @type  group: L{Group}
-        
+
         @param numberOfBasePairs: The number of base-pairs in the duplex.
         @type  numberOfBasePairs: int
-        
+
         @param basesPerTurn: The number of bases per helical turn.
         @type  basesPerTurn: float
-        
+
         @param duplexRise: The rise; the distance between adjacent bases.
         @type  duplexRise: float
-        
+
         @param endPoint1: The origin of the duplex.
         @param endPoint1: L{V}
-        
+
         @param endPoint2: The second point that defines central axis of 
                           the duplex.
         @param endPoint2: L{V}
-        
+
         @param position: The position in 3d model space at which to create
                          the DNA strand. This should always be 0, 0, 0.
         @type position:  position
-        
+
         @see: self.fuseBasePairChunks()
         @see:self._insertBasesFromMMP()
         @see: self._regroup()
@@ -159,12 +427,12 @@ class Dna:
         @see: self._orient()
         @see: self._rotateTranslateXYZ()
         """      
-        
+
         self.assy               =  group.assy         
         assy                    =  group.assy
         #Make sure to clear self.baseList each time self.make() is called
         self.baseList           =  []
-        
+
         self.setNumberOfBasePairs(numberOfBasePairs)
         self.setBaseRise(duplexRise)
         #See a note in DnaSegment_EditCommand._createStructure(). Should 
@@ -173,38 +441,45 @@ class Dna:
         #once dna data model is fully functional (and when this method is 
         #revised) -- Ninad 2008-03-05
         self.setBasesPerTurn(basesPerTurn)
-        
+
         #End axis atom at end1. i.e. the first mouse click point from which 
         #user started drawing the dna duplex (rubberband line). This is initially
         #set to None. When we start creating the duplex and read in the first 
         #mmp file:  MiddleBasePair.mmp, we assign the appropriate atom to this 
         #variable. See self._determine_axis_and_strandA_endAtoms_at_end_1()
         self.axis_atom_end1 = None
-        
+
         #The strand base atom of Strand-A, connected to the self.axis_atom_end1
         #The vector between self.axis_atom_end1 and self.strandA_atom_end1 
         #is used to determine the final orientation of the created duplex. 
         #that aligns this vector such that it is parallel to the screen. 
         #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
         self.strandA_atom_end1 = None
-        
+
         #Create a duplex by inserting basepairs from the mmp file. 
-        group_with_rawDuplex = self._create_raw_duplex(group, 
-                                                       numberOfBasePairs, 
-                                                       basesPerTurn, 
-                                                       duplexRise,
-                                                       position = position)
-        
-        
+        self._create_raw_duplex(group, 
+                                numberOfBasePairs, 
+                                basesPerTurn, 
+                                duplexRise,
+                                position = position)
+
+
         # Orient the duplex.
-        self._orient(group_with_rawDuplex, endPoint1, endPoint2)
-           
+        self._orient(self.baseList, endPoint1, endPoint2)
+
+        #do further adjustments so that first base of strandA always lies
+        #in the screen parallel plane, which is passing through the 
+        #axis. 
+        self._orient_to_position_first_strandA_base_in_axis_plane(self.baseList, 
+                                                                  endPoint1, 
+                                                                  endPoint2)
+
         # Regroup subgroup into strand and chunk groups
-        self._regroup(group_with_rawDuplex)
+        self._regroup(group)
         return
-    
+
     #START -- Helper methods used in generating dna (see self.make())===========
-    
+
     def _create_raw_duplex(self,
                            group, 
                            numberOfBasePairs, 
@@ -215,41 +490,41 @@ class Dna:
         Create a raw dna duplex in the specified group. This will be created 
         along the Z axis. Later it will undergo more operations such as 
         orientation change anc chunk regrouping. 
-        
+
         @return: A group object containing the 'raw dna duplex'
         @see: self.make()
-        
+
         """
         # Make the duplex.
         subgroup = group
         subgroup.open = False    
-        
-                        
+
+
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
         theta = 0.0
-        z     = 0.5 * self.getBaseRise() * (self.getNumberOfBasePairs() - 1)
-                
+        z     = 0.5 * duplexRise * (numberOfBasePairs - 1)
+
         # Create duplex.
-        for i in range(self.getNumberOfBasePairs()):
+        for i in range(numberOfBasePairs):
             basefile, zoffset, thetaOffset = self._strandAinfo(i)
-            
+
             def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
                 return self._rotateTranslateXYZ(v, theta, z1)
-            
+
             #Note that self.baseList gets updated in the the following method
             self._insertBaseFromMmp(basefile, 
                                     subgroup, 
                                     tfm, 
                                     self.baseList,
                                     position = position)
-            
+
             if i == 0:
                 #The chunk self.baseList[0] should always contain the information 
                 #about the strand end and axis end atoms at end1 we are 
                 #interested in. This chunk is obtained by reading in the 
                 #first mmp file (at i =0) .
-                
+
                 #Note that we could have determined this after the for loop 
                 #as well. But now harm in doing it here. This is also safe 
                 #from any accidental modifications to the chunk after the for 
@@ -263,11 +538,11 @@ class Dna:
                 self._determine_axis_and_strandA_endAtoms_at_end_1(self.baseList[0])
 
             theta -= twistPerBase
-            z     -= self.getBaseRise()
-            
+            z     -= duplexRise
+
         # Fuse the base-pair chunks together into continuous strands.
         self.fuseBasePairChunks(self.baseList)
-        
+
         try:
             self._postProcess(self.baseList)
         except:
@@ -276,43 +551,41 @@ class Dna:
                     "debug: exception in %r._postProcess(self.baseList = %r) \
                     (reraising): " % (self, self.baseList,))
             raise
-        
-        return subgroup
-        
-    
-    
+
+
+
     def _insertBaseFromMmp(self,
-                          filename, 
-                          subgroup, 
-                          tfm, 
-                          baseList,
-                          position = V(0, 0, 0) ):
+                           filename, 
+                           subgroup, 
+                           tfm, 
+                           baseList,
+                           position = V(0, 0, 0) ):
         """
         Insert the atoms for a nucleic acid base from an MMP file into
         a single chunk.
          - If atomistic, the atoms for each base are in a separate chunk.
          - If PAM5, the pseudo atoms for each base-pair are together in a 
            chunk.
-        
+
         @param filename: The mmp filename containing the base 
                          (or base-pair).
         @type  filename: str
-        
+
         @param subgroup: The part group to add the atoms to.
         @type  subgroup: L{Group}
-        
+
         @param tfm: Transform applied to all new base atoms.
         @type  tfm: V
-        
+
         @param baseList: A list that maintains the bases inserted into the 
                          model Example self.baseList
-        
+
         @param position: The origin in space of the DNA duplex, where the
                          3' end of strand A is 0, 0, 0.
         @type  position: L{V}
-        
+
         """
-        
+
         #@TODO: The argument baselist ACTUALLY MODIFIES self.baseList. Should we 
         #directly use self.baseList instead? Only comments are added for 
         #now. See also self.make()(the caller)
@@ -322,23 +595,23 @@ class Dna:
             raise PluginBug("Cannot read file: " + filename)
         if not grouplist:
             raise PluginBug("No atoms in DNA base? " + filename)
-        
+
         viewdata, mainpart, shelf = grouplist
-        
+
         for member in mainpart.members:
             # 'member' is a chunk containing a full set of 
             # base-pair pseudo atoms.
-                                    
+
             for atm in member.atoms.values():                            
                 atm._posn = tfm(atm._posn) + position
-            
+
             member.name = "BasePairChunk"
             subgroup.addchild(member)
-            
+
             #Append the 'member' to the baseList. Note that this actually 
             #modifies self.baseList. Should self.baseList be directly used here?
             baseList.append(member)
-        
+
         # Clean up.
         del viewdata                
         shelf.kill()
@@ -347,16 +620,16 @@ class Dna:
         """
         Returns the new XYZ coordinate rotated by I{theta} and 
         translated by I{z}.
-        
+
         @param inXYZ: The original XYZ coordinate.
         @type  inXYZ: V
-        
+
         @param theta: The base twist angle.
         @type  theta: float
-        
+
         @param z: The base rise.
         @type  z: float
-        
+
         @return: The new XYZ coordinate.
         @rtype:  V
         """
@@ -364,72 +637,76 @@ class Dna:
         x = c * inXYZ[0] + s * inXYZ[1]
         y = -s * inXYZ[0] + c * inXYZ[1]
         return V(x, y, inXYZ[2] + z)
-    
-    
-    def fuseBasePairChunks(self, baseList):
+
+
+    def fuseBasePairChunks(self, baseList, fuseTolerance = 1.5):
         """
         Fuse the base-pair chunks together into continuous strands.
-        
+
         @param baseList: The list of bases inserted in the model. See self.make
                           (the caller) for an example.
         @see: self.make()
         @NOTE: self.assy is determined in self.make() so this method 
                must be called from that method only.
         """
-        
+
         if self.assy is None:
             print_compact_stack("bug:self.assy not defined.Unable to fusebases")
             return 
-        
+
         # Fuse the base-pair chunks together into continuous strands.
         fcb = fusechunksBase()
-        fcb.tol = 1.5
+        fcb.tol = fuseTolerance
+        
         for i in range(len(baseList) - 1):
             #Note that this is actually self.baseList that we are using. 
             #Example see self.make() which calls this method. 
-            fcb.find_bondable_pairs([baseList[i]], [baseList[i + 1]])
+            tol_string = fcb.find_bondable_pairs([baseList[i]], 
+                                                 [baseList[i + 1]],
+                                                 ignore_chunk_picked_state = True
+                                             ) 
             fcb.make_bonds(self.assy)
-            
+
     def _postProcess(self, baseList):
         return
-    
+
     #END Helper methods used in dna generation (see self.make())================
-    
+
     def _baseFileName(self, basename):
         """
         Returns the full pathname to the mmp file containing the atoms 
         of a nucleic acid base (or base-pair).
-        
+
         Example: If I{basename} is "MidBasePair" and this is a PAM5 model of
         B-DNA, this returns:
-         
+
           - "C:$HOME\cad\plugins\DNA\B-DNA\PAM5-bases\MidBasePair.mmp"
-        
+
         @param basename: The basename of the mmp file without the extention
                          (i.e. "adenine", "MidBasePair", etc.).
         @type  basename: str
-        
+
         @return: The full pathname to the mmp file.
         @rtype:  str
         """
         form    = self.form             # A-DNA, B-DNA or Z-DNA
         model   = self.model + '-bases' # PAM3 or PAM5
         return os.path.join(basepath, form, model, '%s.mmp' % basename)
-    
-    def _orient(self, dnaGroup, pt1, pt2):
+
+    def _orient(self, baseList, pt1, pt2):
         """
         Orients the DNA duplex I{dnaGroup} based on two points. I{pt1} is
         the first endpoint (origin) of the duplex. The vector I{pt1}, I{pt2}
         defines the direction and central axis of the duplex.
-        
+
         @param pt1: The starting endpoint (origin) of the DNA duplex.
         @type  pt1: L{V}
-        
+
         @param pt2: The second point of a vector defining the direction
                     and central axis of the duplex.
         @type  pt2: L{V}
         """
-        
+
         a = V(0.0, 0.0, -1.0)
         # <a> is the unit vector pointing down the center axis of the default
         # DNA structure which is aligned along the Z axis.
@@ -439,12 +716,12 @@ class Dna:
         # <b> is the unit vector parallel to the line (i.e. pt1, pt2).
         axis = cross(a, b)
         # <axis> is the axis of rotation.
-        
+
         theta = angleBetween(a, b)
         # <theta> is the angle (in degress) to rotate about <axis>.
         scalar = self.getBaseRise() * (self.getNumberOfBasePairs() - 1) * 0.5
         rawOffset = b * scalar
-        
+
         if 0: # Debugging code.
             print "~~~~~~~~~~~~~~"
             print "uVector  a = ", a
@@ -455,93 +732,93 @@ class Dna:
             print "# of bases =", self.getNumberOfBasePairs()
             print "scalar     =", scalar
             print "rawOffset  =", rawOffset 
-        
+
         if theta == 0.0 or theta == 180.0:
             axis = V(0, 1, 0)
             # print "Now cross(a,b) =", axis
-            
+
         rot =  (pi / 180.0) * theta  # Convert to radians
         qrot = Q(axis, rot) # Quat for rotation delta.
-        
+
         # Move and rotate the base chunks into final orientation.
-        for m in dnaGroup.members:
-            m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
-            m.rot(qrot)
-        
-        #do further adjustments so that first base of strandA always lies
-        #in the screen parallel plane, which is passing through the 
-        #axis. 
-        self._orient_to_position_first_strandA_base_in_axis_plane(dnaGroup, 
-                                                     pt1, 
-                                                     pt2)
-            
+        ##for m in dnaGroup.members:
+        for m in baseList:
+            if isinstance(m, self.assy.Chunk):        
+                m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
+                m.rot(qrot)
+
+
+
     def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
         """
         Overridden in subclasses. Default implementation does nothing. 
-                
+
         @param chunk: The method itereates over chunk atoms to determine 
                       strand and axis end atoms at end 1. 
         @see: B_DNA_PAM3._determine_axis_and_strandA_endAtoms_at_end_1()
               for documentation and implementation. 
         """
         pass
-    
-    def _orient_to_position_first_strandA_base_in_axis_plane(self, segment, end1, end2):
+
+    def _orient_for_modify(self, baseList, end1, end2):        
+        pass
+
+    def _orient_to_position_first_strandA_base_in_axis_plane(self, baseList, end1, end2):
         """
         Overridden in subclasses. Default implementation does nothing.
-        
+
         The self._orient method orients the DNA duplex parallel to the screen
         (lengthwise) but it doesn't ensure align the vector
         through the strand end atom on StrandA and the corresponding axis end 
         atom  (at end1) , parallel to the screen. 
-        
+
         This function does that ( it has some rare bugs which trigger where it
         doesn't do its job but overall works okay )
-        
+
         What it does: After self._orient() is done orienting, it finds a Quat 
         that rotates between the 'desired vector' between strand and axis ends at
         end1(aligned to the screen)  and the actual vector based on the current
         positions of these atoms.  Using this quat we rotate all the chunks 
         (as a unit) around a common center. 
-        
+
         @BUG: The last part 'rotating as a unit' uses a readymade method in 
         ops_motion.py -- 'rotateSpecifiedMovables' . This method itself may have
         some bugs because the axis of the dna duplex is slightly offset to the
         original axis. 
-        
+
         @see: self._determine_axis_and_strandA_endAtoms_at_end_1()
         @see: self.make()
-        
+
         @see: B_DNA_PAM3._orient_to_position_first_strandA_base_in_axis_plane
-        
+
         """
         pass
-    
-    
+
+
     def _regroup(self, dnaGroup):
         """
         Regroups I{dnaGroup} into group containing three chunks: I{StrandA},
         I{StrandB} and I{Axis} of the DNA duplex.
-        
+
         @param dnaGroup: The DNA group which contains the base-pair chunks
                          of the duplex.
         @type  dnaGroup: L{Group}
-        
+
         @return: The new DNA group that contains the three chunks
                  I{StrandA}, I{StrandB} and I{Axis}.
         @rtype:  L{Group}
         """
-         #Get the lists of atoms (two lists for two strands and one for the axis
-         #for creating new chunks 
-         
+            #Get the lists of atoms (two lists for two strands and one for the axis
+            #for creating new chunks 
+
         _strandA_list, _strandB_list, _axis_list = \
                      self._create_atomLists_for_regrouping(dnaGroup)
-        
-        
-                
+
+
+
         # Create strand and axis chunks from atom lists and add 
         # them to the dnaGroup.
-        
+
         # [bruce 080111 add conditions to prevent bugs in PAM5 case
         #  which is not yet supported in the above code. It would be
         #  easy to support it if we added dnaBaseName assignments
@@ -552,26 +829,26 @@ class Dna:
 
         if _strandA_list:
             strandAChunk = \
-                     self.assy.makeChunkFromAtomList(
-                         _strandA_list,
-                         name = gensym("Strand"),
-                         group = dnaGroup,
-                         color = darkred)
+                         self.assy.makeChunkFromAtomList(
+                             _strandA_list,
+                             name = gensym("Strand"),
+                             group = dnaGroup,
+                             color = darkred)
         if _strandB_list:
             strandBChunk = \
-                     self.assy.makeChunkFromAtomList(
-                         _strandB_list,
-                         name = gensym("Strand"),
-                         group = dnaGroup,
-                         color = blue)
+                         self.assy.makeChunkFromAtomList(
+                             _strandB_list,
+                             name = gensym("Strand"),
+                             group = dnaGroup,
+                             color = blue)
         if _axis_list:
             axisChunk = \
-                  self.assy.makeChunkFromAtomList(
-                      _axis_list,
-                      name = "Axis",
-                      group = dnaGroup,
-                      color = env.prefs[dnaDefaultSegmentColor_prefs_key])
-            
+                      self.assy.makeChunkFromAtomList(
+                          _axis_list,
+                          name = "Axis",
+                          group = dnaGroup,
+                          color = env.prefs[dnaDefaultSegmentColor_prefs_key])
+
 
 
         return
@@ -581,31 +858,31 @@ class Dna:
         Get the base rise (spacing) between base-pairs.
         """
         return float( self.baseRise )
-    
+
     def setBaseRise( self, inBaseRise ):
         """
         Set the base rise (spacing) between base-pairs.
-        
+
         @param inBaseRise: The base rise in Angstroms.
         @type  inBaseRise: float
         """
         self.baseRise  =  inBaseRise
-        
+
     def getNumberOfBasePairs( self ):
         """
         Get the number of base-pairs in this duplex.
         """
         return self.numberOfBasePairs
-    
+
     def setNumberOfBasePairs( self, inNumberOfBasePairs ):
         """
         Set the base rise (spacing) between base-pairs.
-        
+
         @param inNumberOfBasePairs: The number of base-pairs.
         @type  inNumberOfBasePairs: int
         """
         self.numberOfBasePairs  =  inNumberOfBasePairs
-        
+
     def setBasesPerTurn(self, basesPerTurn):
         """
         Sets the number of base pairs per turn
@@ -613,23 +890,23 @@ class Dna:
         @type  basesPerTurn: int
         """
         self.basesPerTurn = basesPerTurn
-    
+
     def getBasesPerTurn(self):
         """
         returns the number of bases per turn in the duplex
         """
         return self.basesPerTurn
-    
+
     pass
 
 class A_Dna(Dna):
     """
     Provides an atomistic model of the A form of DNA.
-    
+
     The geometry for A-DNA is very twisty and funky. We need to to research 
     the A form since it's not a simple helix (like B) or an alternating helix 
     (like Z).
-    
+
     @attention: This class is not implemented yet.
     """
     form       =  "A-DNA"
@@ -639,7 +916,7 @@ class A_Dna(Dna):
 class A_Dna_PAM5(A_Dna):
     """
     Provides a PAM-5 reduced model of the B form of DNA.
-    
+
     @attention: This class is not implemented yet.
     """
     model = "PAM5"
@@ -648,7 +925,7 @@ class A_Dna_PAM5(A_Dna):
 class A_Dna_PAM3(A_Dna):
     """
     Provides a PAM-5 reduced model of the B form of DNA.
-    
+
     @attention: This class is not implemented yet.
     """
     model = "PAM3"
@@ -661,9 +938,9 @@ class B_Dna(Dna):
     form       =  "B-DNA"
     baseRise   =  dnaDict['B-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
-   
+
     basesPerTurn = getDuplexBasesPerTurn('B-DNA')   
-    
+
     pass
 
 class B_Dna_PAM5(B_Dna):
@@ -671,14 +948,14 @@ class B_Dna_PAM5(B_Dna):
     Provides a PAM-5 reduced model of the B form of DNA.
     """
     model = "PAM5"
-    
+
     def _isStartPosition(self, index):
         """
         Returns True if I{index} points the first base-pair position (5').
-        
+
         @param index: Base-pair index.
         @type  index: int
-        
+
         @return: True if index is zero.
         @rtype : bool
         """
@@ -686,14 +963,14 @@ class B_Dna_PAM5(B_Dna):
             return True
         else:
             return False
-        
+
     def _isEndPosition(self, index):
         """
         Returns True if I{index} points the last base-pair position (3').
-        
+
         @param index: Base-pair index.
         @type  index: int
-        
+
         @return: True if index is zero.
         @rtype : bool
         """
@@ -701,35 +978,35 @@ class B_Dna_PAM5(B_Dna):
             return True
         else:
             return False
-    
+
     def _strandAinfo(self, index):
         """
         Returns parameters needed to add a base, including its complement base,
         to strand A.
-        
+
         @param index: Base-pair index.
         @type  index: int
         """
         zoffset      =  0.0
         thetaOffset  =  0.0
         basename     =  "MiddleBasePair"
-        
+
         if self._isStartPosition(index):
             basename = "StartBasePair"
-        
+
         if self._isEndPosition(index):
             basename = "EndBasePair"
-            
+
         if self.getNumberOfBasePairs() == 1:
             basename = "SingleBasePair"
-            
+
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
-    
+
     def _postProcess(self, baseList): # bruce 070414
         """
         Set bond direction on the backbone bonds.
-        
+
         @param baseList: List of basepair chunks that make up the duplex.
         @type  baseList: list
         """
@@ -747,7 +1024,7 @@ class B_Dna_PAM5(B_Dna):
         atoms = baseList[0].atoms.values()
         Pe_list = filter( lambda atom: atom.element.symbol in ('Pe5'), atoms)
         Sh_list = filter( lambda atom: atom.element.symbol in ('Sh5'), atoms)
-        
+
         if len(Pe_list) == len(Sh_list) == 1:
             for atom in Pe_list:
                 assert len(atom.bonds) == 1
@@ -759,9 +1036,9 @@ class B_Dna_PAM5(B_Dna):
             #bruce 070604 mitigate bug in above code when number of bases == 1
             # by not raising an exception when it fails.
             msg = "Warning: strand not terminated, bond direction not set \
-            (too short)"
+                (too short)"
             env.history.message( orangemsg( msg))
-                
+
             # Note: It turns out this bug is caused by a bug in the rest of the
             # generator (which I didn't try to diagnose) -- for number of 
             # bases == 1 it doesn't terminate the strands, so the above code
@@ -773,17 +1050,17 @@ class B_Dna_PAM5(B_Dna):
             #       (baseList, len(baseList), atoms)
             ## baseList = [<molecule 'unknown' (11 atoms) at 0xb3d6f58>],
             ## its len = 1, atoms in [0] = [Ax1, X2, X3, Ss4, Pl5, X6, X7, Ss8, Pl9, X10, X11]
-            
+
             # It would be a mistake to fix this here (by giving it that
             # intimate knowledge) -- instead we need to find and fix the bug 
             # in the rest of generator when number of bases == 1.
         return
-    
+
     def _create_atomLists_for_regrouping(self, dnaGroup):
         """
         Creates and returns the atom lists that will be used to regroup the 
         chunks  within the DnaGroup. 
-        
+
         @param dnaGroup: The DnaGroup whose atoms will be filtered and put into 
                          individual strand A or strandB or axis atom lists.
         @return: Returns a tuple containing three atom lists 
@@ -826,7 +1103,7 @@ class B_Dna_PAM5(B_Dna):
                         raise PluginBug(msg)
                 elif atom.element.symbol in ('Ax5', 'Ae5', 'Gv5', 'Gr5'):
                     _axis_list.append(atom)
-                    
+
         return (_strandA_list, _strandB_list, _axis_list)
 
 class B_Dna_PAM3(B_Dna_PAM5):
@@ -834,45 +1111,54 @@ class B_Dna_PAM3(B_Dna_PAM5):
     Provides a PAM-3 reduced model of the B form of DNA.
     """
     model = "PAM3"
-    
+
+    strandA_atom_end1 = None
+    strandB_atom_end1 = None
+
     def _strandAinfo(self, index):
         """
         Returns parameters needed to add the next base-pair to the duplex 
         build built.
-        
+
         @param index: Base-pair index.
         @type  index: int
         """
-        
+
         zoffset      =  0.0
         thetaOffset  =  0.0
         basename     =  "MiddleBasePair"
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
-    
-    
-    
+
+
+
     def _postProcess(self, baseList):
         """
         Final tweaks on the DNA chunk, including:
-        
+
           - Transmute Ax3 atoms on each end into Ae3.
           - Adjust open bond singlets.
-        
+
         @param baseList: List of basepair chunks that make up the duplex.
         @type  baseList: list
-        
+
         @note: baseList must contain at least two base-pair chunks.
         """
+        
+        if len(baseList) < 1:
+            print_compact_stack("bug? (ignoring) DnaDuplex._postProcess called but "\
+                                " baseList is empty. May be dna_updater was "\
+                                "run? ")
+            return
 
         start_basepair_atoms = baseList[0].atoms.values()
         end_basepair_atoms = baseList[-1].atoms.values()
-        
+
         Ax_caps = filter( lambda atom: atom.element.symbol in ('Ax3'), 
                           start_basepair_atoms)
         Ax_caps += filter( lambda atom: atom.element.symbol in ('Ax3'), 
                            end_basepair_atoms)
-            
+
         # Transmute Ax3 caps to Ae3 atoms. 
         # Note: this leaves two "killed singlets" hanging around,  
         #       one from each Ax3 cap.
@@ -881,14 +1167,14 @@ class B_Dna_PAM3(B_Dna_PAM5):
         # [bruce 080320 question]
         for atom in Ax_caps:
             atom.Transmute(Element_Ae3)
-        
+
         # X_List will contain 6 singlets, 2 of which are killed (non-bonded).
         # The other 4 are the 2 pair of strand open bond singlets.
         X_List = filter( lambda atom: atom.element.symbol in ('X'), 
-                          start_basepair_atoms)
+                         start_basepair_atoms)
         X_List += filter( lambda atom: atom.element.symbol in ('X'), 
-                           end_basepair_atoms)
-                
+                          end_basepair_atoms)
+
         # Adjust the 4 open bond singlets.
         for singlet in X_List:
             if singlet.killed():
@@ -896,31 +1182,31 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 continue
             adjustSinglet(singlet)
         return
-    
+
     def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
         """
         Determine the axis end atom and the strand atom on strand 1 
         connected to it , at end1 . i.e. the first mouse click point from which 
         user started drawing the dna duplex (rubberband line)
-        
+
         These are initially set to None. 
-        
+
         The strand base atom of Strand-A, connected to the self.axis_atom_end1
         The vector between self.axis_atom_end1 and self.strandA_atom_end1 
         is used to determine the final orientation of the created duplex
         done in self._orient_to_position_first_strandA_base_in_axis_plane()
-        
+
         This vector is aligned such that it is parallel to the screen. 
-        
+
         i.e. StrandA end Atom and corresponding axis end atom are coplaner and 
         parallel to the screen.   
-        
+
         @NOTE:The caller should make sure that the appropriate chunk is passed 
               as an argument to this method. This function itself only finds 
               and assigns the axis ('Ax3') and strand ('Ss3' atom and on StrandA)
               atoms it sees first to the  respective attributes. (and which pass
               other necessary tests)        
-              
+
         @see: self.make() where this function is called
         @see: self._orient_to_position_first_strandA_base_in_axis_plane()
         """
@@ -931,64 +1217,222 @@ class B_Dna_PAM3(B_Dna_PAM5):
             if self.strandA_atom_end1 is None:
                 if atm.element.symbol == 'Ss3' and atm.getDnaBaseName() == 'a':
                     self.strandA_atom_end1 = atm
-    
-    def _orient_to_position_first_strandA_base_in_axis_plane(self, segment, end1, end2):
+
+    def _orient_for_modify(self, end1, end2):    
+        from model.Line import Line
+
+        original_ladder = self._original_structure_lastBaseAtom_axis.molecule.ladder
+        original_ladder_end = original_ladder.get_ladder_end(self._original_structure_lastBaseAtom_axis)
+
+        rail_for_strandA_of_original_duplex = self._original_structure_lastBaseAtom_strand1.molecule.get_ladder_rail()      
+
+        rail_bond_direction_of_strandA_of_original_duplex = rail_for_strandA_of_original_duplex.bond_direction()
+
+        b = norm(end2 - end1)
+        new_ladder =   self.axis_atom_end1.molecule.ladder
+        new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
+
+        chunkListForRotation = new_ladder.all_chunks()
+
+        endBaseAtomList  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
+
+        #DETERMINE NEW STRAND A ATOM
+        if ENABLE_DEBUG_PRINTS:
+            print "~~~~~~~~~~#DETERMINE NEW STRAND A ATOM~~~~"
+        
+        endStrandbaseAtoms = (endBaseAtomList[0], endBaseAtomList[2])        
+
+        self.strandA_atom_end1 = None
+        for atm in endStrandbaseAtoms:
+            rail = atm.molecule.get_ladder_rail()
+
+            bond_direction = rail.bond_direction()
+            
+            if ENABLE_DEBUG_PRINTS:
+                print "***strand atm = %s, rail.bond_direction =%s "%(atm,bond_direction)
+                print "***rail_bond_direction_of_strandA_of_original_duplex = ", rail_bond_direction_of_strandA_of_original_duplex
+
+            if new_ladder_end == original_ladder_end:                
+                if bond_direction != rail_bond_direction_of_strandA_of_original_duplex:
+                    self.strandA_atom_end1 = atm
+            else:
+                if bond_direction == rail_bond_direction_of_strandA_of_original_duplex:
+                    self.strandA_atom_end1 = atm 
+                    
+        if ENABLE_DEBUG_PRINTS:
+            print "***chunkListForRotation =", chunkListForRotation   
+            print "***self.strandA_atom_end1 =", self.strandA_atom_end1
+
+        #if endBaseAtomList and len(endBaseAtomList) > 2:        
+            #self.strandA_atom_end1 = endBaseAtomList[0]
+
+        axis_strand_vector = (self.strandA_atom_end1.posn() - \
+                              self.axis_atom_end1.posn())
+
+
+        vectorAlongLadderStep =  self._original_structure_lastBaseAtom_strand1.posn() - \
+                              self._original_structure_lastBaseAtom_axis.posn()
+
+        unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+
+        self.final_pos_strand_end_atom = \
+            self.axis_atom_end1.posn() + \
+            vlen(axis_strand_vector)*unitVectorAlongLadderStep
+
+        expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
+        
+        DEBUG_BY_DRAWING_LINES = 0
+
+        if DEBUG_BY_DRAWING_LINES:
+            pointList1 = (self.strandA_atom_end1.posn() ,
+                          self.axis_atom_end1.posn())
+            line1 = Line(self.assy.w, pointList = pointList1)
+
+            pointList2 = (self._original_structure_lastBaseAtom_strand1.posn(),
+                          self._original_structure_lastBaseAtom_axis.posn())
+            line2 = Line(self.assy.w, pointList = pointList2)
+
+            pointList3 = (self.final_pos_strand_end_atom, self.axis_atom_end1.posn())
+            line3 = Line(self.assy.w, pointList = pointList3)
+
+            pointList4 = (end1, end2)
+            line4 = Line(self.assy.w, pointList = pointList4)
+            print "~~~~~~~~~~~~~~~~~~~~"
+            print "***self.strandA_atom_end1 =", self.strandA_atom_end1
+            print "***%s vector before orientation" %(line1.name)
+            print "***%s orientation of the last duplex"%(line2.name)
+            print "***%s expected orientation of new duplex"%(line3.name)
+            print "***%s end1  to end2"%(line4.name)
+            print "~~~~~~~~~~~~~~~~~~~~"
+
+        
+        q_new = Q(axis_strand_vector, vectorAlongLadderStep)
+
+        if dot(axis_strand_vector, cross(vectorAlongLadderStep, b)) < 0:
+            ##print "***dot(axis_strand_vector, self.assy.o.lineOfSight) < 0 "
+            q_new2 = Q(b, -q_new.angle)
+        else:     
+            q_new2 = Q(b, q_new.angle) 
+
+
+        self.assy.rotateSpecifiedMovables(q_new2, chunkListForRotation, end1)
+
+    def _orient_for_modify_ORIGINAL20080320(self, baseList, end1, end2):    
+        from model.Line import Line
+
+        b = norm(end2 - end1)
+
+        axis_strand_vector = (self.strandA_atom_end1.posn() - \
+                              self.axis_atom_end1.posn())
+
+
+        vectorAlongLadderStep =  self._original_structure_lastBaseAtom_strand1.posn() - \
+                              self._original_structure_lastBaseAtom_axis.posn()
+
+        unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+
+        self.final_pos_strand_end_atom = \
+            self.axis_atom_end1.posn() + \
+            vlen(axis_strand_vector)*unitVectorAlongLadderStep
+
+        expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
+
+        if 1:
+            pointList1 = (self.strandA_atom_end1.posn() ,
+                          self.axis_atom_end1.posn())
+            line1 = Line(self.assy.w, pointList = pointList1)
+
+            pointList2 = (self._original_structure_lastBaseAtom_strand1.posn(),
+                          self._original_structure_lastBaseAtom_axis.posn())
+            line2 = Line(self.assy.w, pointList = pointList2)
+
+            pointList3 = (self.final_pos_strand_end_atom, self.axis_atom_end1.posn())
+            line3 = Line(self.assy.w, pointList = pointList3)
+
+            pointList4 = (end1, end2)
+            line4 = Line(self.assy.w, pointList = pointList4)
+
+            print "***Line1 vector before orientation"
+            print "***Line2 orientation of the last duplex"
+            print "***Line3 expected orientation of new duplex"
+            print "***Line4 end1  to end2"
+
+        ##q_new = Q(axis_strand_vector, expected_vec)
+
+        q_new = Q(axis_strand_vector, vectorAlongLadderStep)
+
+
+        ##if dot(axis_strand_vector, self.assy.o.lineOfSight) < 0:
+        if dot(axis_strand_vector, cross(vectorAlongLadderStep, b)) < 0:
+            print "***dot(axis_strand_vector, self.assy.o.lineOfSight) < 0 but still you are setting it +q_new.angle"
+            q_new2 = Q(b, -q_new.angle)
+        else:     
+            q_new2 = Q(b, q_new.angle) 
+
+        q_new2 = Q(b, q_new.angle)  
+        
+        
+        self.assy.rotateSpecifiedMovables(q_new2, baseList, end1)
+
+
+    def _orient_to_position_first_strandA_base_in_axis_plane(self, baseList, end1, end2):
         """
         The self._orient method orients the DNA duplex parallel to the screen
         (lengthwise) but it doesn't ensure align the vector
         through the strand end atom on StrandA and the corresponding axis end 
         atom  (at end1) , parallel to the screen. 
-        
+
         This function does that ( it has some rare bugs which trigger where it
         doesn't do its job but overall works okay )
-        
+
         What it does: After self._orient() is done orienting, it finds a Quat 
         that rotates between the 'desired vector' between strand and axis ends at
         end1(aligned to the screen)  and the actual vector based on the current
         positions of these atoms.  Using this quat we rotate all the chunks 
         (as a unit) around a common center.
-        
+
         @BUG: The last part 'rotating as a unit' uses a readymade method in 
         ops_motion.py -- 'rotateSpecifiedMovables' . This method itself may have
         some bugs because the axis of the dna duplex is slightly offset to the
         original axis. 
-        
+
         @see: self._determine_axis_and_strandA_endAtoms_at_end_1()
         @see: self.make()
         """
-        
+
         #the vector between the two end points. these are more likely
         #points clicked by the user while creating dna duplex using endpoints
         #of a line. In genral, end1 and end2 are obtained from self.make()
         b = norm(end2 - end1)        
-                
+
         axis_strand_vector = (self.strandA_atom_end1.posn() - \
                               self.axis_atom_end1.posn())
-               
+
         vectorAlongLadderStep =  cross(-self.assy.o.lineOfSight, b)
         unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-                        
+
         self.final_pos_strand_end_atom = \
             self.axis_atom_end1.posn() + \
             vlen(axis_strand_vector)*unitVectorAlongLadderStep
-        
+
         expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
-        
+
         q_new = Q(axis_strand_vector, expected_vec)
-        
+
         if dot(axis_strand_vector, self.assy.o.lineOfSight) < 0:            
             q_new2 = Q(b, -q_new.angle)
         else:     
-            q_new2 = Q(b, q_new.angle)      
-                
-        self.assy.rotateSpecifiedMovables(q_new2, segment.members)
-        
-                
+            q_new2 = Q(b, q_new.angle) 
+
+
+        self.assy.rotateSpecifiedMovables(q_new2, baseList, end1)
+
+
     def _create_atomLists_for_regrouping(self, dnaGroup):
         """
         Creates and returns the atom lists that will be used to regroup the 
         chunks  within the DnaGroup. 
-        
+
         @param dnaGroup: The DnaGroup whose atoms will be filtered and put into 
                          individual strand A or strandB or axis atom lists.
         @return: Returns a tuple containing three atom lists 
@@ -998,7 +1442,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         _strandA_list  =  []
         _strandB_list  =  []
         _axis_list     =  []
-        
+
         # Build strand and chunk atom lists.
         for m in dnaGroup.members:
             for atom in m.atoms.values():
@@ -1018,42 +1462,42 @@ class B_Dna_PAM3(B_Dna_PAM5):
                         raise PluginBug(msg)
                 elif atom.element.symbol in ('Ax3', 'Ae3'):
                     _axis_list.append(atom)
-                    
+
         return (_strandA_list, _strandB_list, _axis_list)
-        
-    
+
+
 
 class Z_Dna(Dna):
     """
     Provides an atomistic model of the Z form of DNA.
     """
-    
+
     form       =  "Z-DNA"
     baseRise   =  dnaDict['Z-DNA']['DuplexRise']
     handedness =  LEFT_HANDED
-    
+
 class Z_Dna_Atomistic(Z_Dna):
     """
     Provides an atomistic model of the Z form of DNA.
-    
+
     @attention: This class will never be implemented.
     """
     model = "PAM5"
-    
+
     def _strandAinfo(self, baseLetter, index):
         """
         Returns parameters needed to add a base to strand A.
-        
+
         @param baseLetter: The base letter.
         @type  baseLetter: str
-        
+
         @param index: Base-pair index.
         @type  index: int
         """
-        
+
         thetaOffset  =  0.0
         basename  =  basesDict[baseLetter]['Name']
-        
+
         if (index & 1) != 0: 
             # Index is odd.
             basename  +=  "-outer"
@@ -1062,39 +1506,39 @@ class Z_Dna_Atomistic(Z_Dna):
             # Index is even.
             basename  +=  '-inner'
             zoffset    =  0.0
-        
+
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
     def _strandBinfo(self, baseLetter, index):
         """
         Returns parameters needed to add a base to strand B.
-        
+
         @param baseLetter: The base letter.
         @type  baseLetter: str
-        
+
         @param index: Base-pair index.
         @type  index: int
         """
-        
+
         thetaOffset  =  0.5 * pi
         basename     =  basesDict[baseLetter]['Name']
-        
+
         if (index & 1) != 0:
             basename  +=  '-inner'
             zoffset    =  -0.055
         else:
             basename  +=  "-outer"
             zoffset    =  -2.1
-        
+
         basefile     = self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
 class Z_Dna_PAM5(Z_Dna):
     """
     Provides a PAM-5 reduced model of the Z form of DNA.
-    
+
     @attention: This class is not implemented yet.
     """
     pass
-    
+

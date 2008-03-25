@@ -40,6 +40,7 @@ from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsM
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_DragHandles_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 from dna.model.Dna_Constants import getDuplexRise, getNumberOfBasePairsFromDuplexLength
+from dna.model.Dna_Constants import getDuplexLength
 
 from utilities.Log  import redmsg
 
@@ -58,6 +59,7 @@ from dna.model.Dna_Constants import getDuplexLength
 from prototype.test_connectWithState import State_preMixin
 
 from utilities.constants import noop
+from utilities.Comparison import same_vals
 from exprs.attr_decl_macros import Instance, State
 
 from exprs.__Symbols__ import _self
@@ -71,8 +73,13 @@ from model.chem import Atom
 from model.bonds import Bond
 
 
+from utilities.debug_prefs import debug_pref, Choice_boolean_True
+
+
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from graphics.drawables.RotationHandle import RotationHandle
+
+from utilities.Comparison import same_vals
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -81,6 +88,14 @@ ORIGIN = V(0,0,0)
 #Flag that appends rotation handles to the self.handles (thus enabling their 
 #display and computation while in DnaSegment_EditCommand
 DEBUG_ROTATION_HANDLES = False
+
+def pref_dna_segment_resize_without_recreating_duplex():
+    res = debug_pref("DNA: Segment: resize without recreating whole duplex", 
+                      Choice_boolean_True,
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+    
 
 
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
@@ -199,6 +214,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #Graphics handles for editing the structure . 
         self.handles = []        
         self.grabbedHandle = None
+        
+        #Initialize DEBUG preference
+        pref_dna_segment_resize_without_recreating_duplex()
 
     def init_gui(self):
         """
@@ -223,20 +241,34 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
-        if self.struct:
-            #@@@TEMPORARY CODE -- might be revised once dna data model is in
-            #place           
-            assert isinstance(self.struct, DnaSegment)
-            #When the structure (segment) is finalized (afterthe  modifications)
+        if self.hasValidStructure():         
+            #When the structure (segment) is finalized (after the  modifications)
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
             self._parentDnaGroup = self.struct.getDnaGroup() 
             #Set the duplex rise and number of bases
-            self.propMgr.setParameters(self.struct.getProps())
+            basesPerTurn, duplexRise = self.struct.getProps()
+            endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+            params_for_propMgr = (None, 
+                                  None,
+                                  None,
+                                  basesPerTurn, 
+                                  duplexRise, 
+                                  endPoint1, 
+                                  endPoint2)
+            
+            #TODO 2008-03-25: better to get all parameters from self.struct and
+            #set it in propMgr?  This will mostly work except that reverse is 
+            #not true. i.e. we can not specify same set of params for 
+            #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
+            #by the structure when needed. Commenting out following line of code
+            ##self.propMgr.setParameters(self.struct.getProps())
+            
+            
             #Store the previous parameters. Important to set it after you 
             #set duplexRise and basesPerTurn attrs in the propMgr. 
             #self.previousParams is used in self._previewStructure and 
-            #self._finalizeStructure to check if self.stuct changed.
+            #self._finalizeStructure to check if self.struct changed.
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
@@ -392,7 +424,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @rtype: L{Group}  
         @note: This needs to return a DNA object once that model is implemented        
         """
-
+    
         params = self._gatherParameters()
         
 
@@ -498,6 +530,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             raise PluginBug("Internal error while trying to create DNA duplex.")
 
 
+        
     def _modifyStructure(self, params):
         """
         Modify the structure based on the parameters specified. 
@@ -506,6 +539,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
         """    
+        
+        if pref_dna_segment_resize_without_recreating_duplex():
+            self._modifyStructure_NEW_SEGMENT_RESIZE(params)
+            return
+        
+        
         assert self.struct
         # parameters have changed, update existing structure
         self._revertNumber()
@@ -548,6 +587,122 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #None. For now lets just print a warning if parentDnaGroup is None 
             self._parentDnaGroup.addSegment(self.struct)
         return  
+    
+        
+    def _modifyStructure_NEW_SEGMENT_RESIZE(self, params):
+        """
+        Modify the structure based on the parameters specified. 
+        Overrides EditCommand._modifystructure. This method removes the old 
+        structure and creates a new one using self._createStructure. This 
+        was needed for the structures like this (Dna, Nanotube etc) . .
+        See more comments in the method.
+        """        
+        
+        #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
+        #to self._modifyStructure, after more testing
+        #This method is used for debug prefence: 
+        #'DNA Segment: resize without recreating whole duplex'
+        #see also self.modifyStructure_NEW_SEGMENT_RESIZE
+        
+        assert self.struct
+        # parameters have changed, update existing structure
+        self._revertNumber()
+
+
+        # self.name needed for done message
+        if self.create_name_from_prefix:
+            # create a new name
+            name = self.name = gensym(self.prefix) # (in _build_struct)
+            self._gensym_data_for_reusing_name = (self.prefix, name)
+        else:
+            # use externally created name
+            self._gensym_data_for_reusing_name = None
+                # (can't reuse name in this case -- not sure what prefix it was
+                #  made with)
+            name = self.name
+
+        self.dna = B_Dna_PAM3()
+            
+        numberOfBases, \
+                    dnaForm, \
+                    dnaModel, \
+                    basesPerTurn, \
+                    duplexRise, \
+                    endPoint1, \
+                    endPoint2 = params
+        
+        #Delete unused parameters. 
+        del endPoint1
+        del endPoint2
+        
+        numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
+        
+                
+        ladderEndAxisAtom = self._get_axisEndAtom_at_resize_end()
+        
+        if numberOfBasePairsToAddOrRemove != 0:   
+            
+            resizeEnd_final_position = self._get_resizeEnd_final_position(
+                ladderEndAxisAtom, 
+                abs(numberOfBasePairsToAddOrRemove),
+                duplexRise )
+              
+            self.dna.modify(self.struct, 
+                            ladderEndAxisAtom,
+                            numberOfBasePairsToAddOrRemove, 
+                            basesPerTurn, 
+                            duplexRise,
+                            ladderEndAxisAtom.posn(),
+                            resizeEnd_final_position)
+        
+        #Find new end points of structure parameters after modification 
+        #and set these values in the propMgr. 
+        new_end1 , new_end2 = self.struct.getAxisEndPoints()
+       
+        params_to_set_in_propMgr = (numberOfBases, 
+                                    dnaForm,
+                                    dnaModel,
+                                    basesPerTurn, 
+                                    duplexRise,
+                                    new_end1,
+                                    new_end2)
+        
+        
+        self.previousParams = params
+        
+        #UPDATE 2008-03-25 The following (adding self.struct to 
+        #self._parentDnaGroup  was needed because we were recreating
+        #self.struct from scratch even in self._modifyStructure. Its probably
+        #won't be needed now. 
+
+        # Now append the new structure in self._segmentList (this list of 
+        # segments will be provided to the previous command 
+        # (BuildDna_EditCommand)
+        # TODO: Should self._createStructure does the job of appending the 
+        # structure to the list of segments? This fixes bug 2599 
+        # (see also BuildDna_PropertyManager.Ok 
+        
+        if self._parentDnaGroup is not None:            
+            #Should this be an assertion? (assert self._parentDnaGroup is not 
+            #None. For now lets just print a warning if parentDnaGroup is None 
+            self._parentDnaGroup.addSegment(self.struct)
+        return  
+    
+    def _get_resizeEnd_final_position(self, ladderEndAxisAtom, numberOfBases, duplexRise):
+        
+        final_position = getDuplexLength     
+        if self.grabbedHandle:
+            final_position = self.grabbedHandle.currentPosition
+        else:
+            other_axisEndAtom = self.struct.getOtherAxisEndAtom(ladderEndAxisAtom)
+            axis_vector = ladderEndAxisAtom.posn() - other_axisEndAtom.posn()
+            segment_length_to_add = getDuplexLength('B-DNA', 
+                                                    numberOfBases, 
+                                                    duplexRise = duplexRise)
+            
+            final_position = ladderEndAxisAtom.posn() + norm(axis_vector)*segment_length_to_add
+            
+        return final_position
 
     def getStructureName(self):
         """
@@ -610,8 +765,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         return text
-
-
+    
+    
     def modifyStructure(self):
         """
         Called when a resize handle is dragged to change the length of the 
@@ -632,6 +787,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         As of 2008-02-01 it recreates the structure
         @see: a note in self._createStructure() about use of dnaSegment.setProps 
         """
+        
+        if pref_dna_segment_resize_without_recreating_duplex():
+            self.modifyStructure_NEW_SEGMENT_RESIZE()
+            return
+        
+        
         if self.grabbedHandle is None:
             return        
 
@@ -646,6 +807,171 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         self.updateHandlePositions()
         self.glpane.gl_update()
+    
+
+    def modifyStructure_NEW_SEGMENT_RESIZE(self):
+        """
+        
+        Called when a resize handle is dragged to change the length of the 
+        segment. (Called upon leftUp) . This method assigns the new parameters 
+        for the segment after it is resized and calls 
+        preview_or_finalize_structure which does the rest of the job. 
+        Note that Client should call this public method and should never call
+        the private method self._modifyStructure. self._modifyStructure is 
+        called only by self.preview_or_finalize_structure
+
+        @see: B{DnaSegment_ResizeHandle.on_release} (the caller)
+        @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
+              the relevent method in DragHandler API. )
+        @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
+        @see: B{self.preview_or_finalize_structure }
+        @see: B{self._modifyStructure}        
+
+        As of 2008-02-01 it recreates the structure
+        @see: a note in self._createStructure() about use of dnaSegment.setProps 
+        """
+        #TODO: need to cleanup this and may be use use something like
+        #self.previousParams = params in the end -- 2008-03-24 (midnight)
+        
+        
+        #@TODO: - rename this method from modifyStructure_NEW_SEGMENT_RESIZE
+        #to self.modifyStructure, after more testing
+        #This method is used for debug prefence: 
+        #'DNA Segment: resize without recreating whole duplex'
+        #see also self._modifyStructure_NEW_SEGMENT_RESIZE
+    
+        
+        if self.grabbedHandle is None:
+            return   
+        
+        DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD = False
+        
+        if DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD:
+
+            length = vlen(self.grabbedHandle.fixedEndOfStructure - \
+                          self.grabbedHandle.currentPosition )
+            
+            new_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                     length )
+      
+            endAtom1, endAtom2 = self.struct.getAxisEndAtoms()            
+            
+            for atm in (endAtom1, endAtom2):
+                if not same_vals(self.grabbedHandle.fixedEndOfStructure,  atm.posn()):
+                    ladderEndAxisAtom = atm
+                    break
+                
+                endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+                old_dulex_length = vlen(endPoint1 - endPoint2)
+                old_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                         old_dulex_length)
+        
+                self.propMgr.numberOfBasePairsSpinBox.setValue(new_numberOfBasePairs)
+                        
+                numberOfBasePairsToAdd = new_numberOfBasePairs - old_numberOfBasePairs + 1
+                       
+                basesPerTurn, duplexRise = self.struct.getProps()       
+                
+                params_to_set_in_propMgr = (new_numberOfBasePairs,
+                          '',
+                          'B-DNA',
+                          basesPerTurn,
+                          duplexRise,
+                          self.grabbedHandle.origin,
+                          self.grabbedHandle.currentPosition,
+                          )
+                                  
+                ##self._modifyStructure(params)
+                ############################################
+                
+                self.dna = B_Dna_PAM3()
+                
+                numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()  
+                ladderEndAxisAtom = self._get_axisEndAtom_at_resize_end()
+                
+                self.dna.modify(self.struct, 
+                                ladderEndAxisAtom,
+                                numberOfBasePairsToAddOrRemove, 
+                                basesPerTurn, 
+                                duplexRise,
+                                ladderEndAxisAtom.posn(),
+                                self.grabbedHandle.currentPosition)
+                
+                
+                ##########################################
+                    
+        ##dnaForm = 'B-DNA'
+        ##dnaModel = 'PAM-3'
+        ##basesPerTurn, duplexRise = self.struct.getProps()
+       
+        ##params_to_set_in_propMgr = (None, 
+                                  ##dnaForm,
+                                  ##dnaModel,
+                                  ##basesPerTurn, 
+                                  ##duplexRise,
+                                  ##self.grabbedHandle.fixedEndOfStructure,
+                                  ##self.grabbedHandle.currentPosition)
+         
+        
+        ##self.propMgr.setParameters(params_to_set_in_propMgr)  
+        
+        #TODO: Important note: How does NE1 know that structure is modified? 
+        #Because number of base pairs parameter in the PropMgr changes as you 
+        #drag the handle . This is done in self.getCursorText() ... not the 
+        #right place to do it. OR that method needs to be renamed to reflect
+        #this as suggested in that method -- Ninad 2008-03-25
+        
+        self.preview_or_finalize_structure(previewing = True) 
+        
+        ##self.previousParams = params_to_set_in_propMgr
+
+        self.updateHandlePositions()
+        self.glpane.gl_update()
+        
+    def _get_axisEndAtom_at_resize_end(self):
+        ladderEndAxisAtom = None
+        if self.grabbedHandle is not None:
+            ladderEndAxisAtom = self.struct.getAxisEndAtomAtPosition(self.grabbedHandle.origin)
+        else:
+            endAtom1, endAtom2 = self.struct.getAxisEndAtoms()
+            ladderEndAxisAtom = endAtom2
+                        
+        return ladderEndAxisAtom
+            
+    def _determine_numberOfBasePairs_to_change(self):
+        """
+        """
+        duplexRise = self.struct.getDuplexRise()
+       
+        #The Property manager will be showing the current number 
+        #of base pairs (w. May be we can use that number directly here? 
+        #The following is  safer to do so lets just recompute the 
+        #number of base pairs. (if it turns out to be slow, we will consider
+        #using the already computed calue from the property manager
+        new_numberOfBasePairs = self.propMgr.numberOfBasePairsSpinBox.value()
+        
+        endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+        original_dulex_length = vlen(endPoint1 - endPoint2)
+        
+        original_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 original_dulex_length, 
+                                                                 duplexRise = duplexRise
+                                                             )
+        
+        
+        numberOfBasesToAddOrRemove = new_numberOfBasePairs - original_numberOfBasePairs 
+        
+        if numberOfBasesToAddOrRemove > 0:
+            #dna.modify will remove the first base pair it creates 
+            #(that basepair will only be used for proper alignment of the 
+            #duplex with the existing structure) So we need to compensate for
+            #this basepair by adding 1 to the new number of base pairs. 
+            numberOfBasesToAddOrRemove += 1
+
+                               
+        return numberOfBasesToAddOrRemove
+        
+    
 
     def makeMenus(self): 
         """

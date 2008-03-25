@@ -422,8 +422,9 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_EditCommand.editStructure where it is used. 
         @see: DnaSegment_PropertyManager.getParameters
         @see: DnaSegmentEditCommand._createStructure        
-        """                                    
-        props = (self.getDuplexRise(), self.getBasesPerTurn())
+        """           
+        props = (self.getBasesPerTurn(), 
+                 self.getDuplexRise() )
         return props
     
     def getDuplexRise(self):
