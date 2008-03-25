@@ -353,7 +353,6 @@ class SimRunner:
                 grompp = \
                     os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
                 mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
-                nv1 = self.nv1_executable_path
                 
                 gromacsFullBaseFileName = self._movie.filename
                 gromacsFullBaseFileInfo = QFileInfo(gromacsFullBaseFileName)
@@ -482,6 +481,7 @@ class SimRunner:
                         self.part.writemmpfile(inputFileName)
                         
                         # Launch the NV1 process
+                        nv1 = self.nv1_executable_path
                         nv1Process = Process()
                         nv1Args = [
                             "-f", hdf5DataStoreDir + ".nh5",
