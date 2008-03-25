@@ -120,6 +120,15 @@ from utilities.prefs_constants import dnaStyleBasesShape_prefs_key
 from utilities.prefs_constants import dnaStyleBasesColor_prefs_key
 from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
 
+# DNA labels and base indicators. 080325 piotr
+from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
+from utilities.prefs_constants import dnaStrandLabelsColor_prefs_key
+from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+
 # Undo prefs
 from utilities.prefs_constants import undoRestoreView_prefs_key
 from utilities.prefs_constants import undoAutomaticCheckpoints_prefs_key
@@ -569,6 +578,15 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaStyleStrandsArrowsComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsArrows)
         self.connect(self.dnaStyleAxisTaperComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisTaper)
         
+        # piotr 080325
+        self.connect(self.dnaDisplayStrandLabelsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayStrandLabelsGroupBox)
+        self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
+        self.connect(self.dnaBaseOrientationIndicatorsThresholdSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsAngle)
+        self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsDistance)
+        self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton,SIGNAL("clicked()"),self.change_dnaBaseIndicatorsColor)
+        self.connect(self.dnaChooseStrandLabelColorButton,SIGNAL("clicked()"),self.change_dnaStrandLabelsColor)
+        self.connect(self.dnaStrandLabelColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStrandLabelsColorMode)
+
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
@@ -596,9 +614,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.logosDownloadPermissionBtnGroup,
                      SIGNAL("buttonClicked(int)"),
                      self.setPrefsLogoDownloadPermissions)
-        
-        
-        
         
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
@@ -1568,7 +1583,20 @@ restored when the user undoes a structural change.</p>
         self.update_dnaStyleStrutsScale()
         self.update_dnaStyleAxisScale()
         self.update_dnaStyleBasesScale()
-        
+	# piotr 080325
+        self.dnaDisplayStrandLabelsGroupBox.setChecked(
+            env.prefs[dnaStrandLabelsEnabled_prefs_key])
+        self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
+            env.prefs[dnaBaseIndicatorsEnabled_prefs_key])
+        self.dnaStrandLabelColorComboBox.setCurrentIndex(
+            env.prefs[dnaStrandLabelsColorMode_prefs_key])
+        self.update_dnaBaseIndicatorsAngle()
+        self.update_dnaBaseIndicatorsDistance()
+	connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
+				    self.dnaBaseOrientationIndicatorsColorFrame)
+	connect_colorpref_to_colorframe(dnaStrandLabelsColor_prefs_key,
+				    self.dnaStrandLabelColorFrame)
+	
     def _setup_undo_page(self):
         """
         Setup widgets to initial (default or defined) values on the Undo page.
@@ -2287,7 +2315,7 @@ restored when the user undoes a structural change.</p>
         DNA default segment color.
         """
         self.usual_change_color( dnaDefaultSegmentColor_prefs_key )
-    
+
     def save_dnaStrutScale(self, scale_factor):
         """
         Slot for B{Strut Scale Factor} spinbox.
@@ -2492,7 +2520,41 @@ restored when the user undoes a structural change.</p>
         # Set axis scale.        
         self.dnaStyleBasesScaleSpinBox.setValue(
             float(env.prefs[dnaStyleBasesScale_prefs_key]))
-        
+
+    def change_dnaBaseIndicatorsAngle(self, angle):
+        """
+        @param angle: The angular threshold for DNA base indicators.
+        @type  angle: double
+	"""
+	print "angle (set) = ", angle
+        env.prefs[dnaBaseIndicatorsAngle_prefs_key] = angle
+        self.update_dnaBaseIndicatorsAngle()
+
+    def update_dnaBaseIndicatorsAngle(self):
+        """
+        Updates the DNA base orientation indicators angular threshold spinbox. 
+        """
+	print "angle = ", float(env.prefs[dnaBaseIndicatorsAngle_prefs_key])
+	self.dnaBaseOrientationIndicatorsThresholdSpinBox.setValue(
+	    float(env.prefs[dnaBaseIndicatorsAngle_prefs_key]))
+
+    def change_dnaBaseIndicatorsDistance(self, distance):
+        """
+        @param distance: The distance threshold for DNA base indicators.
+        @type  distance: double
+	"""
+	print "distance (set) = ", distance
+        env.prefs[dnaBaseIndicatorsDistance_prefs_key] = distance
+        self.update_dnaBaseIndicatorsDistance()
+
+    def update_dnaBaseIndicatorsDistance(self):
+        """
+        Updates the DNA base orientation indicators distance threshold spinbox. 
+        """
+	print "distance = ", int(env.prefs[dnaBaseIndicatorsDistance_prefs_key])
+	self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setValue(
+	    int(env.prefs[dnaBaseIndicatorsDistance_prefs_key]))
+	
     def change_dnaStyleStrandsArrows(self, shape):
         """
         Changes DNA Style strands shape.
@@ -2519,7 +2581,56 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[dnaStyleAxisTaper_prefs_key] = shape
         
+    def toggle_dnaDisplayStrandLabelsGroupBox(self, state):        
+        """
+        Toggles DNA Strand Labels GroupBox.
+        
+        @param state: Is the GroupBox enabled?
+                    - True = on
+                    - False = off
+        @type state: boolean
+        """
+        env.prefs[dnaStrandLabelsEnabled_prefs_key] = state
 
+    def toggle_dnaDisplayBaseOrientationIndicatorsGroupBox(self, state):
+        """
+        Toggles DNA Base Orientation Indicators GroupBox.
+        
+        @param state: Is the GroupBox enabled?
+                    - True = on
+                    - False = off
+        @type state: boolean
+        """
+        env.prefs[dnaBaseIndicatorsEnabled_prefs_key] = state
+
+    def change_dnaBaseIndicatorsColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA base indicators color.
+        """
+        self.usual_change_color( dnaBaseIndicatorsColor_prefs_key )
+
+    def change_dnaStrandLabelsColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA strand labels color.
+        """
+        self.usual_change_color( dnaStrandLabelsColor_prefs_key )
+        
+    def change_dnaStrandLabelsColorMode(self, mode):
+        """
+        Changes DNA Style strand labels color mode.
+        
+        @param mode: The color mode:
+                    - 0 = same as chunk
+                    - 1 = black
+                    - 2 = white
+		    - 3 = custom
+        
+        @type mode: int
+        """
+        env.prefs[dnaStrandLabelsColorMode_prefs_key] = mode
+        
     ########## End of slot methods for "DNA" page widgets ###########
 
     ########## Slot methods for "Modes" page widgets ################

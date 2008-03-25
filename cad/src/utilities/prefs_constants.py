@@ -36,7 +36,7 @@ getDefaultWorkingDirectory.
 ### do no imports that would not be ok for constants.py to do! ###
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
-from utilities.constants import blue, gray, white, green, lightgray
+from utilities.constants import blue, gray, white, green, lightgray, lightgreen
 from utilities.constants import ave_colors, diTUBES
 
 import sys, os # for getDefaultWorkingDirectory
@@ -191,7 +191,9 @@ dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
-dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' # DNA style prefs piotr 080310
+
+# DNA style prefs piotr 080310
+dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' 
 dnaStyleStrandsColor_prefs_key = 'A10/DNA style strands color'
 dnaStyleStrandsScale_prefs_key = 'A10/DNA style strands scale'
 dnaStyleStrandsArrows_prefs_key = 'A10/DNA style strands arrows'
@@ -206,6 +208,15 @@ dnaStyleBasesShape_prefs_key = 'A10/DNA style bases shape'
 dnaStyleBasesColor_prefs_key = 'A10/DNA style bases color'
 dnaStyleBasesScale_prefs_key = 'A10/DNA style bases scale'
 assignColorToBrokenDnaStrands_prefs_key = 'A10/Assign color to broken DNA strands'
+
+# DNA labels and base orientation preferences. 080325 piotr
+dnaStrandLabelsEnabled_prefs_key = 'A10/DNA strand labels enabled'
+dnaStrandLabelsColor_prefs_key = 'A10/DNA strand labels color'
+dnaStrandLabelsColorMode_prefs_key = 'A10/DNA strand labels color mode'
+dnaBaseIndicatorsEnabled_prefs_key = 'A10/DNA base orientation indicators enabled'
+dnaBaseIndicatorsAngle_prefs_key = 'A10/DNA base orientation indicators angle'
+dnaBaseIndicatorsColor_prefs_key = 'A10/DNA base orientation indicators color'
+dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -332,6 +343,9 @@ _default_HICOLOR_bondpoint = pink
 
 _default_toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red; 050805 even for lines mode
 _default_toolong_hicolor = ave_colors( 0.8, magenta, black) ## not yet in prefs db
+
+_default_strandLabelsColor = black # piotr 080325 added these default colors
+_default_baseIndicatorsColor = lightgreen
 
 def _compute_default_bondVaneColor():
     ord_pi_for_color = 0.5
@@ -526,7 +540,16 @@ prefs_table = (
     ('', 'int', dnaStyleBasesShape_prefs_key, 0),
     ('', 'int', dnaStyleBasesColor_prefs_key, 0),
     ('', 'float', dnaStyleBasesScale_prefs_key, 1.2),
-    
+
+    # DNA angle and base indicators 080325 piotr
+    ('', 'boolean', dnaStrandLabelsEnabled_prefs_key, False),
+    ('', 'color', dnaStrandLabelsColor_prefs_key, _default_strandLabelsColor),
+    ('', 'int', dnaStrandLabelsColorMode_prefs_key, 0),
+    ('', 'boolean', dnaBaseIndicatorsEnabled_prefs_key, False),
+    ('', 'color', dnaBaseIndicatorsColor_prefs_key, _default_baseIndicatorsColor),
+    ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
+    ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
+     
     # Modes preferences [added to this table by mark 050910]
     
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),

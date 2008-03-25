@@ -75,6 +75,15 @@ from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
 from utilities.prefs_constants import dnaStyleAxisTaper_prefs_key
 from utilities.prefs_constants import dnaStyleStrutsScale_prefs_key
 
+# piotr 080325 added more user preferences
+from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
+from utilities.prefs_constants import dnaStrandLabelsColor_prefs_key
+from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+
 from model.elements import Singlet
 from math import sin, cos, pi
 from Numeric import zeros, Float, Float32
@@ -496,19 +505,20 @@ class DnaCylinderChunks(ChunkDisplayMode):
         from widgets.widget_helpers import RGBf_to_QColor
         from dna.model.DnaLadderRailChunk import DnaStrandChunk
 
-        if chunk.color:
+        labels_enabled = env.prefs[dnaStrandLabelsEnabled_prefs_key]
+        indicators_enabled = env.prefs[dnaBaseIndicatorsEnabled_prefs_key]
+                
+        if chunk.color: # sometimes the chunk.color is not defined
             chunk_color = chunk.color
         else:
             chunk_color = white
             
-        if debug_pref("Draw DNA base orientation indicators?",
-                         Choice_boolean_False,
-                         prefs_key = True,
-                         non_debug = False ): # draw the orientation indicators
+        if indicators_enabled: # draw the orientation indicators
             self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
             self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
             self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
-            dnaBaseOrientationThreshold = 30.0
+            indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
+            indicators_color = env.prefs[dnaBaseIndicatorsColor_prefs_key]
             if chunk.isStrandChunk(): 
                 if chunk.ladder.axis_rail:
                     if self.dnaStyleStrandsShape>0 or \
@@ -522,24 +532,30 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         for pos in range(0,n_bases):
                             atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
                             atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                            # compute a normal to the view plane
                             vz = glpane.out 
                             v2 = norm(atom1.posn()-atom2.posn())
                             # calculate an angle between this vector 
                             # and the vector towards the viewer
-                            a = angleBetween(vz,v2)
-                            if abs(a)<dnaBaseOrientationThreshold:
+                            a = angleBetween(vz, v2)
+                            if abs(a)<indicators_angle:
                                 drawer.drawsphere(
-                                    lightgreen,atom1.posn()-chunk.center,1.5,2)
+                                    indicators_color, 
+                                    atom1.posn()-chunk.center, 1.5, 2)
 
-        if debug_pref("Draw DNA strand labels?",
-                         Choice_boolean_False,
-                         prefs_key = True,
-                         non_debug = False ): # draw the strand labels
-
+        if labels_enabled: # draw the strand labels
+            
             self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
             self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
             self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
+
+            labels_color_mode = env.prefs[dnaStrandLabelsColorMode_prefs_key]
+            
+            if labels_color_mode==1:
+                labels_color = black
+            elif labels_color_mode==2:
+                labels_color = white
+            else: 
+                labels_color = env.prefs[dnaStrandLabelsColor_prefs_key]
 
             if chunk.isStrandChunk(): 
                 if self.dnaStyleStrandsShape>0 or \
@@ -580,8 +596,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if font_scale<9: font_scale = 9
                     if font_scale>50: font_scale = 50
                     
-                    labelFont = QFont( QString("Helvetica"), font_scale)     
-                    glpane.qglColor(RGBf_to_QColor(chunk_color))
+                    # create the label font
+                    labelFont = QFont( QString("Helvetica"), font_scale)
+  
+                    # define a color of the label
+                    if labels_color_mode==0:
+                        glpane.qglColor(RGBf_to_QColor(chunk_color))
+                    else:
+                        glpane.qglColor(RGBf_to_QColor(labels_color))
+                        
                     fm = QFontMetrics(labelFont)
                     label_text = QString(strand.name)
                     textsize = fm.width(label_text)
@@ -599,8 +622,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     
                     # draw the label
                     glDisable(GL_LIGHTING)
-                    glpane.renderText(
-                        textpos[0], textpos[1], textpos[2], label_text, labelFont)
+                    glpane.renderText(textpos[0], textpos[1], textpos[2], 
+                                      label_text, labelFont)
                     glEnable(GL_LIGHTING)
             
     def writepov(self, chunk, memo, file):
