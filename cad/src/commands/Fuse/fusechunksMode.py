@@ -141,26 +141,20 @@ class fusechunksBase:
                 # Skip this mol if its bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
                 if not chunk.overlapping_chunk(mol, self.tol):
-                    print "***in find bondable pairs, Skipping ", mol.name
                     continue
                 else:
-                    print "***in find bondable pairs, in else loop"
-
                     # Loop through all the singlets in the selected chunk.
                     for s1 in chunk.singlets:
-                        print "***singlet s1 of chunk =", s1
                         # We can skip mol if the singlet lies outside its bbox.
                         if not mol.overlapping_atom(s1, self.tol):
                             continue
                         # Loop through all the singlets in this chunk.
                         for s2 in mol.singlets:
-                            print "***singlet s2 of mol =" , s2
 
                             # I substituted the line below in place of mergeable_singlets_Q_and_offset,
                             # which compares the distance between s1 and s2.  If the distance
                             # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
                             # a proper use of tol, but it works for now.   Mark 050327
-                            print "*** vlen(s1.posn() - s2.posn()) ", vlen(s1.posn() - s2.posn())
                             if vlen (s1.posn() - s2.posn()) <= self.tol:
 
                             # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
