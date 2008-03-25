@@ -344,6 +344,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             assert self.nodecount == 0
             assert not self.topnode
             self.destroy()
+            # NOTE: since Node.part is undoable, a destroyed Part can come back
+            # to life after Undo. I don't know if this is related to a newly found bug:
+            # make duplex with dna updater on, undo to before that, redo, nodecount is wrong.
+            # For more info see today's comment in assembly.py.
+            # [bruce 080325]
         return
 
     def destroy_with_topnode(self): #bruce 050927; consider renaming this to destroy, and destroy to something else

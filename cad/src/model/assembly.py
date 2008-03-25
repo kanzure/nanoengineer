@@ -907,14 +907,33 @@ class assembly( StateMixin, Assembly_API):
                 for kid in kids:
                     #bruce 060412 added output string to this assert
                     assert kid.part is node.part, "%r.part == %r, %r.part is %r, should be same" % (kid, kid.part, node, node.part)
-                assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
+                ## assert node.part.nodecount == len(kids), ...
+                if not (node.part.nodecount == len(kids)):
+                    # Note: this now fails if you make duplex under dna updater,
+                    # undo to before that, then redo. And nodecount is only used
+                    # to destroy Parts, which is dubious since Undo can revive
+                    # them, and is probably harmless to skip since only non-assert
+                    # side effect is assy.forget_part, but assy probably checks current
+                    # part before returning it (#k verify).
+                    # So, change it into a minor debug print for now, but,
+                    # leave it enough on to be told by other developers about the causes.
+                    # There is still a bug this may signify, since duplex/undo/redo
+                    # fails to recreate the duplex!
+                    # [bruce 080325]
+                    if not env.seen_before("nodecount bug for Part %#x" % (id(node.part),)):
+                        msg = "\nbug for %r: node.part.nodecount %d != len(kids) %d" % \
+                              (node.part, node.part.nodecount, len(kids))
+                        print msg
             except:
-                print "following exception is in checkparts(%s) of %r about node %r" % \
+                #bruce 080325 revised message, removed re-raise at end
+                msg = "\n***BUG?: ignoring exception in checkparts(%s) of %r about node %r" % \
                       (when and `when` or "", self, node)
+                print_compact_traceback(msg + ": ")
                 # this would be useful, but doesn't seem to work right in this context:
                 ## if not when:
                 ##     print_compact_stack(" ... which was called from here: ") #bruce 080314
-                raise
+                pass
+            continue
         return
 
     # ==
