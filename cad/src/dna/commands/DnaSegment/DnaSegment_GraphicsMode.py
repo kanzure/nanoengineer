@@ -78,8 +78,31 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     #of handle positions each time the mouse moves 
     #@see self.leftUp , self.leftDrag, seld.Draw for more details
     _handleDrawingRequested = True
+    
+    #Some left drag variables used to drag the whole segment along axis or 
+    #rotate the segment around its own axis of for free drag translation 
+    _movablesForLeftDrag = []
+    
+    #The common center is the center about which the list of movables (the segment
+    #contents are rotated. 
+    #@see: self.leftADown where this is set. 
+    #@see: self.leftDrag where it is used. 
+    _commonCenterForRotation = None 
+    _axis_for_constrained_motion = None
+    
+    #Flags that decide the type of left drag. 
+    #@see: self.leftADown where it is set and self.leftDrag where these are used
+    _translateAlongAxis = False
+    _rotateAboutAxis = False
+    _freeDragWholeStructure = False
 
-    cursor_over_when_LMB_pressed = ''        
+    cursor_over_when_LMB_pressed = ''  
+    
+    def Enter_GraphicsMode(self):
+        _superclass.Enter_GraphicsMode(self)
+        #Precaution
+        self.clear_leftA_variables()
+        
 
     def bareMotion(self, event):
         """
@@ -160,14 +183,14 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         """
         self.reset_drag_vars()
+        
+        self.clear_leftA_variables()
                        
         obj = self.get_obj_under_cursor(event)
 
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
-            
-        
-            
+       
         #@see dn_model.DnaSegment.isAncestorOf. 
         #It checks whether the object under the 
         #cursor (which is glpane.selobj) is contained within the DnaSegment
@@ -207,7 +230,14 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #Subclasses should override one of the following method if they need 
         #to do additional things to prepare for dragging. 
         self._leftDown_preparation_for_dragging(event)
-
+        
+    def clear_leftA_variables(self):
+        self._movablesForLeftDrag = []
+        self._commonCenterForRotation = None
+        self._axis_for_constrained_motion = None
+        _translateAlongAxis = False
+        _rotateAboutAxis = False
+        _freeDragWholeStructure = False
 
     def _leftDown_preparation_for_dragging(self, event):
         """ 
@@ -225,7 +255,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
         self.leftADown(event)
         
-
+        
     def leftADown(self, event):
         """
         Method called during mouse left down . It sets some parameters 
@@ -236,11 +266,23 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         method is named as 'leftADrag'  (A= Axis) 
         """
         ma = V(0, 0, 0)
+        
+        
         if self.command and self.command.struct:
             ma = self.command.struct.getAxisVector()
-
+            
+        self._axis_for_constrained_motion = self.command.struct.getAxisVector()
+        
+        #@see: DnaSegment.get_all_content_chunks() for details about 
+        #what it returns. See also DnaSegment.isAncestorOf() which 
+        #is called in self.leftDown to determine whether the DnaSegment 
+        #user is editing is an ancestor of the selobj. (it also considers
+        #'logical contents' while determining whether it is an ancestor.
+        #-- Ninad 2008-03-11
+        self._movablesForLeftDrag = self.command.struct.get_all_content_chunks()
 
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+        
         self.Zmat = A([ma,[-ma[1],ma[0]]])
 
         obj = self.get_obj_under_cursor(event)
@@ -251,8 +293,38 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #selected object. So make sure to let self.leftAError method sets
             #proper flag so that left-A drag won't be done in this case.
             return
-
-        ##self.doObjectSpecificLeftDown(obj, event)
+         
+        if isinstance(obj, Atom) and \
+           obj.element.role == 'axis':                
+            self._translateAlongAxis = True
+            self._rotateAboutAxis = False
+            self._freeDragWholeStructure = False
+        elif isinstance(obj, Atom) and \
+             obj.element.role == 'strand':
+            self._translateAlongAxis = False
+            self._rotateAboutAxis = True
+            self._freeDragWholeStructure = False
+            #The self._commonCenterForrotation is a point on segment axis
+            #about which the whole segment will be rotated. Specifying this
+            #as a common center  for rotation fixes bug 2578. We determine this
+            #by selecting the center of the axis atom that is connected 
+            #(bonded) to the strand atom being left dragged. Using this as a 
+            #common center instead of the avaraging the center of the segment 
+            #axis atoms has an advantage. We compute the rotation offset 'dy'
+            #with reference to the strand atom being dragged, so it seems more 
+            #appropriate to use the nearest axis center for segment rotation 
+            #about axis. But what happens if the axis is not straigt but is 
+            #curved? Should we select the averaged center of all axis atoms? 
+            #..that may not be right. Or should we take _average center_ of 
+            #a the following axis atoms --strand atoms axis_neighbors and 
+            #axis atom centers directly connected to this axis atom. 
+            #  -- Ninad 2008-03-25
+            self._commonCenterForRotation = obj.axis_neighbor().posn()
+        elif isinstance(obj, Bond):
+            self._translateAlongAxis = False
+            self._rotateAboutAxis = False
+            self._freeDragWholeStructure = True
+                
         self.o.SaveMouse(event)
         self.dragdist = 0.0
 
@@ -260,11 +332,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def leftUp(self, event):
         """
         Method called during Left up event. 
-        """
-             
-                
-        _superclass.leftUp(self, event)  
-        
+        """                
+        _superclass.leftUp(self, event)          
         self.update_selobj(event)
         self.update_cursor()
         self.o.gl_update()
@@ -361,7 +430,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if self.command.grabbedHandle is None:
                 self._handleDrawingRequested = False
         
-        #Copies AND modifies some code from move_GraphicsMode for doing 
+        #Copies AND modifies some code from Move_GraphicsMode for doing 
         #leftDrag translation or rotation. 
                
         w = self.o.width + 0.0
@@ -372,78 +441,23 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)       
 
-        movables = []
-        rotateAboutAxis = False
-        translateAlongAxis = False
-        freeDragWholeStructure = False # If true, the whole segment will be 
-                                       #free dragged
-        
-        #Refactoring / optimization TODO: May be we should set these flags in 
-        #leftDown (rather in self._leftDown_preparation_for_dragging)
-        #by defining a method such as self._setLeftDragsFlags and retieve 
-        #those in leftDrag (rather than computing them here everytime. 
-        #Same goes for movable list. -- Ninad 2008-02-12
-        if self.command and self.command.struct:
-            #Resultant axis is the axis of the segment itself. 
-            resAxis = self.command.struct.getAxisVector()
-            #May be we should use is_movable test below? But we know its a dna
-            #segment and all its members are chunks only. Also note that 
-            #movables are NOT the 'selected' objects here. 
-            
-            #@see: DnaSegment.get_all_content_chunks() for details about 
-            #what it returns. See also DnaSegment.isAncestorOf() which 
-            #is called in self.leftDown to determine whether the DnaSegment 
-            #user is editing is an ancestor of the selobj. (it also considers
-            #'logical contents' while determining whether it is an ancestor.
-            #-- Ninad 2008-03-11
-            movables = self.command.struct.get_all_content_chunks()
-            
-            if isinstance(self.o.selobj, Atom) and \
-               self.o.selobj.element.role == 'axis':                
-                translateAlongAxis = True
-                rotateAboutAxis = False
-                freeDragWholeStructure = False
-            elif isinstance(self.o.selobj, Atom) and \
-                 self.o.selobj.element.role == 'strand':
-                translateAlongAxis = False
-                rotateAboutAxis = True
-                freeDragWholeStructure = False
-            elif isinstance(self.o.selobj, Bond):
-                translateAlongAxis = False
-                rotateAboutAxis = False
-                freeDragWholeStructure = True
-        
+        if self._translateAlongAxis:
+            for mol in self._movablesForLeftDrag:
+                mol.move(dx*self._axis_for_constrained_motion)
 
-        if translateAlongAxis:
-            for mol in movables:
-                mol.move(dx*resAxis)
-
-        if rotateAboutAxis:
-            #Don't include the axis chunk in the list of movables. 
-            #Fixes (or works around) a bug due to which the axis chunk 
-            #displaces from its original position while rotating about that axis.
-            #The bug might be in the computation of common center in 
-            #ops_motion.rotateSpecifiedMovables or it could be some weired effect
-            # in chunk center computation ..because of which the common center
-            #of chunks is slightly off the axis. Considering only strand chunks 
-            # (and not axisChunk) is a workaround for this bug. Actual bug 
-            #might be harder to fix not sure. -- Ninad 2008-02-12
-            
-            #UPDATE 2008-02-13
-            #Disabled temporarily to see if this fixes a recently introduced 
-            #bug :strands don't rotate about segment's axis:
-            ##new_movables = list(movables)
-            ##for chunk in new_movables:
-                ##if chunk.isAxisChunk():
-                    ##new_movables.remove(chunk)
-            self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
-                                                movables = movables) 
+        if self._rotateAboutAxis:
+            rotation_quat = Q(self._axis_for_constrained_motion, -dy)
+            self.o.assy.rotateSpecifiedMovables(
+                rotation_quat, 
+                movables = self._movablesForLeftDrag,
+                commonCenter = self._commonCenterForRotation ) 
         
-        if freeDragWholeStructure:
+        if self._freeDragWholeStructure:
             try:
                 point = self.dragto( self.movingPoint, event) 
                 offset = point - self.movingPoint
-                self.o.assy.translateSpecifiedMovables(offset, movables = movables)
+                self.o.assy.translateSpecifiedMovables(offset,
+                                                       movables = self._movablesForLeftDrag)
                 self.movingPoint = point
             except:
                 #may be self.movingPoint is not defined in leftDown? 
