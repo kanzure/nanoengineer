@@ -17,7 +17,7 @@ page_head("");
         href="#qa">QA</a>&nbsp;&nbsp;&nbsp;</th>
 
       <th nowrap>&nbsp;&nbsp;&nbsp;<a
-        href="NE1_Documentation">NE1 API Docs</a>&nbsp;&nbsp;&nbsp;</th>
+        href="NE1_Documentation">API Docs</a>&nbsp;&nbsp;&nbsp;</th>
 
       <th nowrap>&nbsp;&nbsp;&nbsp;<a
         href="#builds">Nightly Builds</a>&nbsp;&nbsp;&nbsp;</th>
@@ -115,24 +115,15 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
         <tr>
           <td align="right">Pylint: </td>
           <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
-          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0403.txt">W0403</a>*  <a href="W0611.txt">W0611</a>*  <a href="E0602.txt">E0602</a>*)</td></tr>
+          <td nowrap><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0403.txt">W0403</a>*  <a href="W0611.txt">W0611</a>*  <a href="E0602.txt">E0602</a>*)</td></tr>
         <tr>
           <td valign="top" align="right">Import dependencies: </td>
           <td valign="top"><span class="summary-name">Modules (arcs): <?php include 'depend.dot.lines'; ?>&nbsp;</span></td>
-          <td><a href="depend.dot">depend.dot</a></td></tr>
-  <!-- 
-     Note: the import dependencies tool is currently broken for packages, 
-     so dependpack.dot is nonsense, so leave it out until this is fixed.
-     It is still generated nightly and can be seen at the same URL as before.
-     -- Bruce 080227
+          <td valign="top"><a href="depend.dot">depend.dot</a></td></tr>
         <tr>
           <td></td>
-          <td valign="top"><span class="summary-name">Packages (arcs): <?php include 'dependpack.dot.lines'; ?>&nbsp;</span></td>
-          <td><a href="dependpack.dot">dependpack.dot</a></td></tr>
-   -->
-        <tr>
-          <td align="right">Module classification: </td>
-          <td><a href="proposed_file_listing.txt">proposed package/module listing</a></td></tr>
+          <td valign="top" nowrap><span class="summary-name">Packages (arcs): <?php include 'dependpack.dot.lines'; ?>&nbsp;</span></td>
+          <td valign="top"><a href="dependpack.dot">dependpack.dot</a></td></tr>
       </table></td>
   </tr>
 
@@ -149,18 +140,13 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td class="summary">
       <b>Pylint:</b> Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a>
       <p>
-      <b>Import dependencies:</b> For modules, only import cycles are shown; fewer arcs is better. Zero is ideal, but not always practical 
-      with respect to code clarity and convenience. This graph may be incomplete if any relative import warnings (W0403) are reported above.
-      For packages, all imports are shown; black arcs are fine, red arcs are deprecated. (However, as of Jan 1, 2008, the package import tool has not been updated
-      to handle the latest package classification, so the package graph is not very meaningful at the moment.)
-      <p>
       * W0403 - Relative import warning. Emitted when an import statement uses a package-relative pathname (which confuses our import-analysis tools).
       <p>
       * W0611 - Unused import warning. Emitted when an imported module or variable is not used.
       <p>
       * E0602 - Undefined variable error. Emitted when a non-builtin symbol is used, but no definition or import of it can be found.
       <p>
-      <b>Module classification:</b> Proposed module/package listing derived from packageData.py. See <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_module/package_organization">NE1 module/package organization</a>.
+      <b>Import dependencies:</b> For modules, only import cycles are shown; fewer arcs is better. Zero is ideal, but not always practical with respect to code clarity and convenience. This graph may be incomplete if any relative import warnings (W0403) are reported above. For packages, all imports are shown; black arcs are fine, red arcs are deprecated. (However, as of Jan 1, 2008, the package import tool has not been updated to handle the latest package classification, so the package graph is not very meaningful at the moment.)
     </td>
   </tr>
 </table>
@@ -168,19 +154,24 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 
 </pre>
 
-<!-- Epydoc -->
+<!-- Documentation -->
 <a name="epydoc"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="600" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
-    <span class="table-header">Epydoc API Documentation Generation</span></td>
+    <span class="table-header">API Documentation Generation</span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">This mechanism runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on the codebase to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.</td>
+    <td class="summary">This mechanism
+        <ol>
+            <li>Runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on the code to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.
+            <li>Runs <a href="http://doxygen.org/">Doxygen</a> on the NV1 code to generate formatted <a href="SVN-D/cad/plugins/NanoVision-1/docs/api/html/">NV1 API Documentation</a>
+        </ol>
+    </td>
   </tr>
 
   <tr>
@@ -194,25 +185,28 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Last result</span></td>
     <td class="summary">
-      <span class="summary-name"><?php include 'NE1_Docs.result'; ?></span></td>
+      NE1 docs: <span class="summary-name"><?php include 'NE1_Docs.result'; ?></span>, NV1 docs: <span class="summary-name"><?php include 'NV1_Docs.result'; ?></span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Log</span></td>
     <td class="summary">
-      <span class="summary-name"><a href="http://www.nanohive-1.org/Engineering/NE1_Docs.log">NE1_Docs.log</a></span></td>
+      <span class="summary-name"><a href="NE1_Docs.log">NE1_Docs.log</a></span>, <span class="summary-name"><a href="NV1_Docs.log">NV1_Docs.log</a></span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Notes</span></td>
     <td class="summary">
-      The Epydoc configuration file is checked in as /cad/src/epydoc.config and is updated before each Epydoc run.
+      <b>NE1 Docs:</b> NE1's Epydoc configuration file is checked in as /cad/src/epydoc.config and is updated before each Epydoc run.
       <p>
       To add images to your Epydoc documentation, use the following format: <tt>IMAGE(<i>URL</i>)</tt> which gets transcribed as <tt>&lt;img src="<i>URL</i>"&gt;</tt>
       <p>
-      Epydoc chokes on <tt>__author__ = ['Mark', 'Bruce']</tt> so please use <tt>__author__ = "Mark, Bruce"</tt> instead.</td>
+      Epydoc chokes on <tt>__author__ = ['Mark', 'Bruce']</tt> so please use <tt>__author__ = "Mark, Bruce"</tt> instead.
+      <p>
+      <b>NV1 Docs:</b> NV1's Doxygen configuration file is checked in as /cad/plugins/NanoVision-1/src/Documentation/doxygen.cfg and is updated before each Doxygen run.
+    </td>
   </tr>
 </table>
 <pre>

@@ -23,7 +23,7 @@ fi
 echo ${RESULT} > NE1_Docs.result
 
 # Format image tags to html
-for file in `find NE1_Documentation -name *.html`; do
+for file in `find NE1_Documentation -name "*.html"`; do
   sed 's/IMAGE(\([^"]\+\))/<img src="\1">/g' < $file > tmp.html
   mv tmp.html $file
 done
