@@ -198,6 +198,9 @@ dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # Then it will become legal to read (but not yet to write) the new forms
     # of the names which are proposed in bug 2662.
 
+_new_dispNames = ["def", "Invisible", "CPK", "Lines", "BallAndStick", "Tubes"]
+    #bruce 080324 re bug 2662; permit for reading, but don't write them yet
+
 def get_dispName_for_writemmp(display): #bruce 080324
     """
     Turn a display-style code integer (e.g. diDEFAULT; as stored in Atom.display
@@ -206,8 +209,7 @@ def get_dispName_for_writemmp(display): #bruce 080324
     """
     return dispNames[display]
 
-def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 080324,
-    # so dispNames can soon be made private for lookup, and aliases introduced
+def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 080324
     """
     Turn a display-style code string (a short string constant used in mmp files
     for encoding atom and chunk display styles) into the corresponding
@@ -219,17 +221,29 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 
     If atom is true (the default), only consider "atom display styles" to be
     valid; otherwise, also permit "chunk display styles".
     """
-    try:
-        res = dispNames.index(dispname)
-    except ValueError:
-        # not found
-        return defaultValue
-    else:
+    def _return(res):
         if res > diTUBES and atom and remap_atom_dispdefs.has_key(res):
             # note: the initial res > diTUBES is an optimization kluge
             return defaultValue
         return res
-    pass
+    
+    try:
+        res = dispNames.index(dispname)
+    except ValueError:
+        # not found, in first array (the one with old names, and that gets extended)
+        pass
+    else:
+        return _return(res)
+
+    try:
+        res = _new_dispNames.index(dispname)
+    except ValueError:
+        # not found, in 2nd array (new names, which are aliases for old ones)
+        pass
+    else:
+        return _return(res)
+
+    return defaultValue # from interpret_dispName
 
 # <properDisplayNames> used by write_qutemol_pdb_file() in qutemol.py only.
 # Set qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.

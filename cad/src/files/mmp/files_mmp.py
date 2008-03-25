@@ -143,9 +143,11 @@ new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d
 namedviewpat = re.compile("namedview \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
 keypat = re.compile("\S+")
-molpat = re.compile("mol \(.*\) (\S\S\S)")
+## molpat = re.compile("mol \(.*\) (\S\S\S)")
+molpat = re.compile("mol \(.*\) (\w+)")
 atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
-atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
+##atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
+atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\w+)") # \w == [a-zA-Z0-9_]
 
 # Old Rotary Motor record format: 
 # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
@@ -178,11 +180,11 @@ plane_pat = re.compile("plane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\
 esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
 # atomset (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
-atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
+atomsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
 
 # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 #bruce 060228 generalize pattern so "anchor" is also accepted; see also _read_anchor
-grdpat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\)")
+groundpat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\)")
 
 # stat (name) (r, g, b) (temp) first_atom last_atom boxed_atom
 statpat = re.compile("stat \((.+)\) \((\d+), (\d+), (\d+)\) \((\d+)\)" )
@@ -611,7 +613,7 @@ class _readmmp_state:
         m = new_rmotpat.match(card) # Try to read card with new format
         if not m:
             m = old_rmotpat.match(card) # If that didn't work, read card with old format
-        ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
+        ngroups = len(m.groups()) # ngroups = number of fields found (12 = old, 15 = new)
         name = m.group(1)
         name = self.decode_name(name)
         col = map(lambda (x): int(x) / 255.0,
@@ -650,7 +652,7 @@ class _readmmp_state:
         m = new_lmotpat.match(card) # Try to read card with new format
         if not m:
             m = old_lmotpat.match(card) # If that didn't work, read card with old format
-        ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
+        ngroups = len(m.groups()) # ngroups = number of fields found (12 = old, 15 = new)
         name = m.group(1)
         name = self.decode_name(name)
         col = map(lambda (x): int(x) / 255.0,
@@ -688,7 +690,7 @@ class _readmmp_state:
         grid_type = int(m.group(14)); line_type = int(m.group(15)); x_space = float(m.group(16)); y_space = float(m.group(17))
         grid_color = map(lambda (x): int(x) / 255.0, [m.group(18), m.group(19), m.group(20)])
         
-        gridPlane = GridPlane(self.assy, [], READ_FROM_MMP=True)
+        gridPlane = GridPlane(self.assy, [], READ_FROM_MMP = True)
         gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
                            line_type, x_space, y_space, grid_color)
         self.addmember(gridPlane)
@@ -710,7 +712,7 @@ class _readmmp_state:
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
                
-        plane = Plane(self.assy.w, READ_FROM_MMP=True)
+        plane = Plane(self.assy.w, READ_FROM_MMP = True)
         props = (name, border_color, width, height, center, quat)
         plane.setProps(props)
         self.addmember(plane)
@@ -719,7 +721,7 @@ class _readmmp_state:
     # atomset (name) atom1 atom2 ... atom_n {no limit}
 
     def _read_atomset(self, card):
-        m = atmsetpat.match(card)
+        m = atomsetpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
         col = map(lambda (x): int(x) / 255.0,
@@ -771,7 +773,7 @@ class _readmmp_state:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 
     def _read_ground(self, card): # see also _read_anchor
-        m = grdpat.match(card)
+        m = groundpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
         col = map(lambda (x): int(x) / 255.0,
