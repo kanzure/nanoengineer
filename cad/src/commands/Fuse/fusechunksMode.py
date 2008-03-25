@@ -101,10 +101,18 @@ class fusechunksBase:
         # so it is the responsibility of the caller to Draw() (i.e. win_update() or gl_update()) to reset it to 
         # False before each redraw if desired. For more info, see comments in Draw().
 
-    def find_bondable_pairs(self, chunk_list = None, selmols_list = None):
+    def find_bondable_pairs(self, 
+                            chunk_list = None, 
+                            selmols_list = None,
+                            ignore_chunk_picked_state = False
+                            ):
         """
         Checks the bondpoints of the selected chunk to see if they are close enough
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
+        
+        @param ignore_chunk_picked_state: If True, this method treats selected
+        or unselected chunks without any difference. i.e. it finds bondable 
+        pairs even for a chunk that is 'picked' 
         """
         self.bondable_pairs = []
         self.ways_of_bonding = {}
@@ -113,6 +121,7 @@ class fusechunksBase:
             chunk_list = self.o.assy.molecules
         if not selmols_list:
             selmols_list = self.o.assy.selmols
+            
 
         for chunk in selmols_list:
             if chunk.hidden or chunk.display == diINVISIBLE: 
@@ -122,29 +131,36 @@ class fusechunksBase:
             # Loop through all the mols in the part to search for bondable pairs of singlets.
             # for mol in self.o.assy.molecules:
             for mol in chunk_list:
-                if chunk is mol: continue # Skip itself
-                if mol.hidden or mol.display == diINVISIBLE: continue # Skip hidden and invisible chunks.
-                if mol.picked: continue # Skip selected chunks
+                if chunk is mol: 
+                    continue # Skip itself
+                if mol.hidden or mol.display == diINVISIBLE:
+                    continue # Skip hidden and invisible chunks.
+                if mol.picked and not ignore_chunk_picked_state: 
+                    continue # Skip selected chunks
 
                 # Skip this mol if its bounding box does not overlap the selected chunk's bbox.
                 # Remember: chunk = a selected chunk, mol = a non-selected chunk.
                 if not chunk.overlapping_chunk(mol, self.tol):
-                    # print "Skipping ", mol.name
+                    print "***in find bondable pairs, Skipping ", mol.name
                     continue
                 else:
+                    print "***in find bondable pairs, in else loop"
 
                     # Loop through all the singlets in the selected chunk.
                     for s1 in chunk.singlets:
+                        print "***singlet s1 of chunk =", s1
                         # We can skip mol if the singlet lies outside its bbox.
                         if not mol.overlapping_atom(s1, self.tol):
                             continue
                         # Loop through all the singlets in this chunk.
                         for s2 in mol.singlets:
+                            print "***singlet s2 of mol =" , s2
 
                             # I substituted the line below in place of mergeable_singlets_Q_and_offset,
                             # which compares the distance between s1 and s2.  If the distance
                             # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
                             # a proper use of tol, but it works for now.   Mark 050327
+                            print "*** vlen(s1.posn() - s2.posn()) ", vlen(s1.posn() - s2.posn())
                             if vlen (s1.posn() - s2.posn()) <= self.tol:
 
                             # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
