@@ -27,6 +27,7 @@ from geometry.VQT import V, norm, vlen
 from dna.model.Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
 from utilities.icon_utilities import imagename_to_pixmap
+from utilities.Comparison     import same_vals
 
 class DnaSegment(DnaStrandOrSegment):
     """
@@ -89,7 +90,9 @@ class DnaSegment(DnaStrandOrSegment):
         Edit this DnaSegment. 
         @see: DnaSegment_EditCommand
         """
-        commandSequencer = self.assy.w.commandSequencer
+        
+        commandSequencer = self.assy.w.commandSequencer       
+        
         if commandSequencer.currentCommand.commandName != "DNA_SEGMENT":
             commandSequencer.userEnterTemporaryCommand('DNA_SEGMENT')
             
@@ -158,15 +161,73 @@ class DnaSegment(DnaStrandOrSegment):
         
         return all_content_chunk_list 
     
+    def getAxisEndAtomAtPosition(self, position):
+        """
+        Given a position, return the axis end atom at that position (if it 
+        exists)
+        """
+        axisEndAtom = None
+        endAtom1, endAtom2 = self.getAxisEndAtoms()    
+        for atm in (endAtom1, endAtom2):
+            if atm is not None and same_vals(position,  atm.posn()):
+                axisEndAtom = atm
+                break
+        return axisEndAtom   
     
+    def getOtherAxisEndAtom(self, axisEndAtom):
+        """
+        Return the axis end atom at the opposite end 
+        @param axisEndAtom: Axis end atom at a given end. We will use this to 
+                           find the axis end atom at the opposite end.
+        """
+        #@TODO: 
+        #1. Optimize this further?
+        #2. Can a DnaSegment have more than two axis end atoms? 
+        #I guess 'No' . so okay to do the following -- Ninad 2008-03-24
+        other_axisEndAtom = None
+        endAtom1, endAtom2 = self.getAxisEndAtoms()
+        for atm in (endAtom1, endAtom2):
+            if atm is not None and not atm is axisEndAtom:
+                other_axisEndAtom = atm
+        
+        return other_axisEndAtom
+                    
+            
     def getAxisEndAtoms(self):
         """
-        To be modified post dna data model
+        THIS RETURNS AXIS END ATOMS ONLY FOR DNA DATA MODEL. 
+        DOESN'T ANYMORE SUPPORT THE PRE DATA MODEL CASE -- 2008-03-24
         """        
         #pre dna data model
-        return self._getAxisEndAtoms_preDataModel()
-        ##post dna data model ???
-        ##return self.get_axis_end_baseatoms()???
+        ##return self._getAxisEndAtoms_preDataModel()
+        
+        #post dna data model
+        return self._getAxisEndAtoms_postDataModel()
+    
+    def _getAxisEndAtoms_postDataModel(self):
+        """
+        """
+        atm1, atm2 = self.get_axis_end_baseatoms()
+        #Figure out which end point (atom) is which. endPoint1 will be the 
+        #endPoint
+        #on the left side of the 3D workspace and endPoint2 is the one on 
+        #the 'more right hand side' of the 3D workspace.
+        #It uses some code from bond_constants.bonded_atoms_summary
+        # [following code is also duplicated in a method below]
+        if atm1 and atm2:
+            atmPosition1 = atm1.posn()
+            atmPosition2 = atm2.posn()
+            
+            glpane = self.assy.o
+            quat = glpane.quat
+            vec = atmPosition2 - atmPosition1
+            vec = quat.rot(vec)
+            if vec[0] < 0.0:
+                atm1, atm2 = atm2, atm1
+                
+        return atm1, atm2
+    
+        
     def _getAxisEndAtoms_preDataModel(self):
         """
         To be removed post dna data model

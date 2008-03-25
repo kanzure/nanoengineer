@@ -440,6 +440,57 @@ class DnaLadder(object):
         # DnaLadderRailChunk.delatom, so changed atoms inval their
         # entire ladders
         self.set_valid(False)
+        
+    def get_ladder_end(self, endBaseAtom):
+        """
+        Returns the end (0 or 1)of the ladder at the given end base atom
+        @param endBaseAtom: One of the end atoms of the ladder. If this can't be
+        found in the ladder end atoms, it returns None
+        
+        """
+        for ladderEnd in LADDER_ENDS:
+            if endBaseAtom in self.ladder_end_atoms(ladderEnd):
+                return ladderEnd
+        
+        return None
+    
+    def get_endBaseAtoms_containing_atom(self, baseAtom):
+        """
+        Returns a list of end Base atoms that contain <baseAtom> (including that
+        atom. 
+        """
+        endBaseAtomList = []
+        sortedEndBaseAtomList = []
+        end_strand_base_atoms = ()
+        for ladderEnd in LADDER_ENDS:
+            if baseAtom in self.ladder_end_atoms(ladderEnd):
+                endBaseAtomList = self.ladder_end_atoms(ladderEnd)
+                break
+        if len(endBaseAtomList) > 2:
+            end_strand_base_atoms = (endBaseAtomList[0], endBaseAtomList[2])
+        else:
+            #@TODO: single stranded dna. Need to figure out if it has 
+            #strand1 or strand2 as its strand.
+            pass
+        
+        
+        strand1Atom = None
+        axisAtom =  endBaseAtomList [1]
+        strand2Atom = None
+        for atm in end_strand_base_atoms:            
+            temp_strand = atm.molecule        
+            rail = temp_strand.get_ladder_rail()
+            #rail goes from left to right. (increasing chain index order)                
+            
+            if rail.bond_direction() == 1:
+                strand1Atom = atm
+            elif rail.bond_direction() == -1:
+                strand2Atom = atm
+     
+        endBaseAtomList = [strand1Atom, axisAtom, strand2Atom]
+        
+        return endBaseAtomList                
+            
 
     # == ladder-merge methods
     
