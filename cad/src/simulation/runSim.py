@@ -479,6 +479,13 @@ class SimRunner:
                         inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
                         env.history.message(self.cmdname + ": Writing input.mmp file to HDF5 data store directory.")
                         self.part.writemmpfile(inputFileName)
+						
+                        # Write a file that maps the ids of the atoms actually
+                        # used for simulation to the atom ids of the complete
+                        # structure stored in the MMP file above.
+                        mapFilename = \
+                            hdf5DataStoreDir + os.sep + "trajAtomIdMap.txt"
+                        self.writeTrajectoryAtomIdMapFile(mapFilename)
                         
                         # Launch the NV1 process
                         nv1 = self.nv1_executable_path
@@ -1829,6 +1836,24 @@ class SimRunner:
         # print summary/done
         self.tracefileProcessor.finish()
         return
+
+
+    def writeTrajectoryAtomIdMapFile(self, filename):
+        """
+        Write a file that maps the ids of the atoms actually used for simulation
+        to the atom ids of the complete structure as it would be stored in an
+        MMP file.
+        """
+        try:
+            fileHandle = open(filename, 'w')
+            fileHandle.write("# Format: simulation_atom_id mmp_file_atom_id")
+
+            
+            fileHandle.close()
+            
+        except:
+            env.history.message(orangemsg(self.cmdname + ": Failed to write the simulation atom id to mmp file atom id map."))
+        
 
     pass # end of class SimRunner
 
