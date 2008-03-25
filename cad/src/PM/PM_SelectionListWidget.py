@@ -280,7 +280,7 @@ class PM_SelectionListWidget(PM_ListWidget):
             #if no modifier key is pressed. Earlier implementation 
             #used to only unpick items that were also present in the list 
             #widgets.But if we have multiple list widgets, example like
-            #in Build DNA  mode, it can lead to confusion like in Bug XXX             
+            #in Build DNA  mode, it can lead to confusion like in Bug 2681           
             #NOTE ABOUT A NEW POSSIBLE BUG: 
             #self.glpan.modkeys not changed when focus is inside the 
             #Property manager? Example: User holds down Shift key and starts 
