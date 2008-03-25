@@ -2089,7 +2089,7 @@ def setup_drawer():
             vbo = VertexBuffer(Cverts, GL_STATIC_DRAW)
             sphereVBOs += [vbo]
             continue
-
+        vbo.unbind()
         pass
 
     global wiresphere1list

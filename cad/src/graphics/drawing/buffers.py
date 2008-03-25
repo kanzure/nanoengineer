@@ -38,6 +38,9 @@ class VertexBuffer(object):
   def bind(self):
     glBindBuffer(GL_ARRAY_BUFFER_ARB, self.buffer)
 
+  def unbind(self):                     # Added.
+    glBindBuffer(GL_ARRAY_BUFFER_ARB, 0)
+
   def bind_colors(self, size, type, stride=0):
     self.bind()
     glColorPointer(size, type, stride, None)
