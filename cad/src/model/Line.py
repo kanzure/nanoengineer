@@ -36,7 +36,9 @@ class Line(ReferenceGeometry):
     copyable_attrs = ReferenceGeometry.copyable_attrs 
     mmp_record_name = "line"
     
-    def __init__(self, win, plane = None, lst = None, READ_FROM_MMP = False):
+    def __init__(self, win, plane = None, lst = None,
+                 pointList = None,
+                 READ_FROM_MMP = False):
         self.w = self.win = win                      
         ReferenceGeometry.__init__(self, win)  
         self.plane = plane
@@ -48,6 +50,10 @@ class Line(ReferenceGeometry):
         if lst:            
             for a in lst:
                 self.controlPoints.append(a.posn())  
+        elif pointList:
+            for a in pointList:
+                self.controlPoints.append(a)  
+            
         
         self.win.assy.place_new_geometry(self)
             
