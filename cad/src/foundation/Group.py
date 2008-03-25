@@ -60,24 +60,19 @@ class Group(NodeWithAtomContents):
         # if desired.) The current command's keep_empty_group method
         # will then get to decide, assuming that command doesn't override its
         # autodelete_empty_groups method. [bruce 080305]
-        
+
     _s_attr_members = S_CHILDREN # this declares group.members for Undo
         # note: group.members are informally called its "kids",
         # but need not be identical to the output of group.MT_kids(),
         # which gives the list of nodes to show as its children in the Model Tree.
-    
+
     _mmp_group_classifications = () # this should be extended in some subclasses...
         # This should be a tuple of classifications that appear in
         # files_mmp._GROUP_CLASSIFICATIONS, most general first.
         # There is no need for more than one element except to support
         # old code reading new mmp files.
         # [bruce 080115]
-        
-    _list_all_allowed_MT_kids= True
-	#The flag that determines which members can be MT_kids. i.e. the members
-	#which are allowed to be displayed as self's subnodes. 
-	#@see: self._raw_MT_kids() This class constant overrides 
-	#Group._list_all_allowed_MT_kids -- Ninad 2008-03-15
+
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before _superclass.__init__ [bruce 050316]
@@ -121,7 +116,7 @@ class Group(NodeWithAtomContents):
     _extra_classifications = ()
     def set_extra_classifications( self, extra_classifications): #bruce 080115
         self._extra_classifications = list(extra_classifications)
-        
+
     open_specified_by_mmp_file = False
     def readmmp_info_opengroup_setitem( self, key, val, interp ): #bruce 050421, to read group open state from mmp file
         """
@@ -229,7 +224,7 @@ class Group(NodeWithAtomContents):
                 except:
                     print_compact_traceback("error in some cmfunc, ignored by %r: " % self)
         return
-    
+
     def _ac_recompute_atom_content(self): #bruce 080306
         """
         Recompute and return (but do not record) our atom content,
@@ -261,7 +256,7 @@ class Group(NodeWithAtomContents):
         if only_if_new and (func in self.__cmfuncs):
             return
         self.__cmfuncs.append( func) # might occur during use of same func!
-    
+
 
     # methods before this are by bruce 050108 and should be reviewed when my rewrite is done ###@@@
 
@@ -291,7 +286,7 @@ class Group(NodeWithAtomContents):
             elif child.is_group():
                 res.extend( child.get_topmost_subnodes_of_class( class1) )
         return res
-    
+
     def kluge_change_class(self, subclass):
         #bruce 050109 ###@@@ temporary [until files_mmp & assy make this kind of assy.root, shelf, tree on their own]
         """
@@ -305,8 +300,8 @@ class Group(NodeWithAtomContents):
             # bug (or mmp format error), but an assertion might not be fully
             # safe [bruce 080115]
             msg = "Bug: self has _encoded_classifications %r (discarded) " \
-                  "in kluge_change_class to %r: %r" % \
-                  (self._encoded_classifications(), subclass.__name__, self)
+                "in kluge_change_class to %r: %r" % \
+                (self._encoded_classifications(), subclass.__name__, self)
             print msg
             env.history.message( redmsg(quote_html(msg)) )
             pass # but continue anyway
@@ -421,9 +416,9 @@ class Group(NodeWithAtomContents):
         ## assert self.assy is newchild.assy, \
         if not (self.assy is newchild.assy):
             print "\nBUG***: " \
-               "%r.addchild(%r) assy mismatch: %r is not %r" % \
-               (self, newchild, self.assy, newchild.assy)
-        
+                  "%r.addchild(%r) assy mismatch: %r is not %r" % \
+                  (self, newchild, self.assy, newchild.assy)
+
         #bruce 050205:
         # adding several safety checks (and related new feature of auto-delmember)
         # for help with MT DND; they're a good idea anyway.
@@ -773,7 +768,7 @@ class Group(NodeWithAtomContents):
             if m.part is None:
                 m.inherit_part(part)
         return
-    
+
     def all_content_is_hidden(self): # Ninad 080129; revised by Bruce 080205
         """
         [overrides Node.all_content_is_hidden]
@@ -785,7 +780,7 @@ class Group(NodeWithAtomContents):
             if not memberNode.all_content_is_hidden():
                 return False     
         return True 
-    
+
     def hide(self):
         for ob in self.members:
             ob.hide()
@@ -930,7 +925,7 @@ class Group(NodeWithAtomContents):
     def _class_for_copies(self, mapping): #bruce 080314
         """
         [private; overridden in PartGroup and ClipboardShelfGroup]
-        
+
         Return the subclass of Group which should be used for making copies of self.
         """
         # default implem, for subclasses meant for new model objects
@@ -990,7 +985,7 @@ class Group(NodeWithAtomContents):
         """
         Return the number of nodes currently selected in this subtree.
         [extends Node.nodespicked()]
-        
+
         Warning (about current implementation [050113]):
         scans the entire tree... calling this on every node in the tree
         might be slow (every node scanned as many times as it is deep in the tree).
@@ -1011,7 +1006,7 @@ class Group(NodeWithAtomContents):
     def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 renamed from kids to MT_kids, revised semantics
         """
         [Overrides Node.MT_kids(); is overridden in our subclass Block]
-        
+
         Return the ordered list of our kids which should be displayed in a model
         tree widget which is using (for this node itself) the given display prefs.
 
@@ -1021,24 +1016,21 @@ class Group(NodeWithAtomContents):
          our MT_kids if self is openable and open. Note that some
          implementations of self.openable() might check whether MT_kids
          returns any kids or not, so ideally it should be fast.)
-        
+
         (Don't include inter-kid gaps for drag&drop explicitly; see another method
          for that. ###nim)
-        
+
         Subclasses can override this; this version is valid for any Group whose .members
         don't need filtering or updating, or augmenting (like PartGroup does as of 050109).
-        
+
          [Note that it ought to be ok for subclasses to have a set of MT_kids which is
         not related to their .members, provided callers (tree widgets) never assume node.dad
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113
         Update, bruce 080306 -- maybe as of a change today, it does -- we'll see.]
-        
-        
-        @see: self.allowed_MT_kids()
+
         @see: self.make_modeltree_context_menu()
         @see: self.openable()
-        @see: self.toggle_listing_of_allowed_MT_kids()
         """
         # Historical note: self.members used to be stored in reversed order, but
         # Mark fixed that some time ago. Some callers in modelTree needed reversed
@@ -1046,89 +1038,41 @@ class Group(NodeWithAtomContents):
         # it had been, but because modeltree methods added tree items in reverse
         # order (which I fixed yesterday).
         # [bruce 050110 inference from addmember implems/usage]
-        if self._list_all_allowed_MT_kids:
-            mt_kids = self._raw_MT_kids() # review: is this list copying needed?
-        else:
-            mt_kids = ()
-            
-        return mt_kids
-    
+
+        return self._raw_MT_kids()
+
     def openable(self): # overrides Node.openable()
         """
         whether tree widgets should permit the user to open/close their view of this node
         """
         # if we decide this depends on the tree widget or on somet for thing about it,
         # we'll have to pass in some args... don't do that unless/until we need to.
-        
+
         #If there are no MT_kids (subnodes visible in MT under this group) then
         #don't make this node 'openable'. This makes sure that expand/ collapse
         #pixmap next to the node is not shown for Group with 0 MT_kids
         #Examples of such groups include empty groups, DnaStrand Groups,
         #DnaSegments etc -- Ninad 2008-03-15
         return len(self.MT_kids()) != 0
-    
+
     def make_modeltree_context_menu(self):
         """
-        @see:self.MT_kids()
-        @see: self.allowed_MT_kids()
-        @see: self.make_modeltree_context_menu()
-        @see: self.openable()
-        @see: self.toggle_listing_of_allowed_MT_kids()
-        @see: DnaGroup._raw_MT_kids for an example. 
-        """
-        contextMenu = []
-        contextMenu.append(None) #Adds a 'Separator'
         
-        current_MT_kids_count = len(self.MT_kids())
-        allowed_MT_kids_count = len(self.allowed_MT_kids())
-        
-        
-        if allowed_MT_kids_count != 0:
-            if current_MT_kids_count == allowed_MT_kids_count:
-                
-                item = ( ('Unlist all %d contents'%current_MT_kids_count), 
-                           self.toggle_listing_of_allowed_MT_kids
-                            )
-            else:
-                item = ( ('List all %d contents'%allowed_MT_kids_count),
-                           self.toggle_listing_of_allowed_MT_kids, 
-                        )                
-            contextMenu.append(item)
-            contextMenu.append(None) #Adds a 'Separator'
-            
-        return contextMenu
-    
-    def allowed_MT_kids(self):
-	"""
-        Returns a list of subnodes of self that are allowed to be shown 
-        as subnodes in the Model Tree.
-        """
-        return self._raw_MT_kids()
-    
+        Subclasses may override this method. The default impllementation returns
+        an empty list.
+        """    
+        return ()
+
+
     def _raw_MT_kids(self, display_prefs = {}):
-	"""
+        """
         Returns all allowed MT kifs 'raw kids' because this isn't a final list
         This is used by self.MT_kids() to further decide which members to show
         in the MT as subnodes
-        @see: self.allowed_MT_kids()
         @see: self.make_modeltree_context_menu()
         @see: self.openable()
-        @see: self.toggle_listing_of_allowed_MT_kids()
         """
         return list(self.members)
-    
-    def toggle_listing_of_allowed_MT_kids(self):
-	"""
-	Toggles the boolean value of the attribute that decides whether to list
-	or unlist contents withing a group (i.e. MT kids)
-	@see: self.MT_kids()
-	@see: self._raw_MT_kids()
-	@see: self.make_modeltree_context_menu()
-	
-	"""
-        self._list_all_allowed_MT_kids = not self._list_all_allowed_MT_kids
-        self.assy.mt.mt_update()
-
 
     def edit(self):
         """
@@ -1222,8 +1166,8 @@ class Group(NodeWithAtomContents):
         mapping.write( "group (%s)%s\n" % (
             mapping.encode_name( self.name),
             encoded_classifications and
-                (" " + encoded_classifications) or ""
-         ))
+            (" " + encoded_classifications) or ""
+        ))
         # someday: we might optimize by skipping info opengroup open if it has
         # the default value, but it's hard to find out what that is reliably
         # for the variou special cases. It's not yet known if it will be
@@ -1253,7 +1197,7 @@ class Group(NodeWithAtomContents):
         if self._extra_classifications:
             classifications.extend( self._extra_classifications)
         return " ".join(classifications)
-    
+
     def writepov(self, f, dispdef):
         if self.hidden:
             return
