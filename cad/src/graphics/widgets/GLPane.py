@@ -1140,6 +1140,15 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # we snap to the destination view.  This also eliminates the possibility
             # of any roundoff error in the increment values, which might result in a 
             # slightly wrong final viewpoint.
+            self.is_animating = False 
+                # piotr 080325: Moved the flag reset to here to make sure 
+                # the last frame is redrawn the same way as it was before 
+                # the animation has started (e.g. to show external bonds
+                # if they were suppressed during the animation).
+                # I'm not entirely sure if that is a safe solution.
+                # The is_animating attribute is used to disable view and 
+                # object renaming and I'm not sure if setting it "False"
+                # early will not interfere with the renaming code.
             self.snapToView(q2, s2, p2, z2, update_duration = True)
                 # snapToView() must call gl_update_duration() and not gl_update(), 
                 # or we'll have an issue if total_frames ever ends up = 1. In that case,
@@ -1162,18 +1171,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.win.enableViews(True)
 
         # Finished animating.
+        # piotr 080325: set it off again just to make sure it is off
+        # if there was an exception in the animation loop 
         self.is_animating = False
 
-        # piotr 030324
-        # If "GLPane: suppress external bonds when animating?"
-        # debug pref is set, redraw once again to show the external bonds
-        # after the animation is finished.
-        if debug_pref("GLPane: suppress external bonds when animating?",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = True):
-            self.gl_update()
-        
     # == "callback methods" from modeMixin:
 
     def setCursor(self, cursor = None):
@@ -2048,6 +2049,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # "fast manipulation" mode where the external bonds are not displayed
         # the glpane has to be redrawn after mouse button is released
         # to show the bonds again
+        #
+        # this has to be moved to GlobalPreferences (this debug_pref is
+        # also called in chunk.py) piotr 080325
         if debug_pref("GLPane: suppress external bonds when dragging?",
                Choice_boolean_False,
                non_debug = True,
