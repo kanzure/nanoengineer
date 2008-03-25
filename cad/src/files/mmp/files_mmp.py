@@ -55,7 +55,7 @@ from utilities.debug import print_compact_traceback
 from utilities.debug import print_compact_stack
 
 from utilities.constants import gensym
-from utilities.constants import dispNames
+from utilities.constants import interpret_dispName
 
 from model.bond_constants import find_bond
 from model.bond_constants import V_SINGLE
@@ -520,10 +520,7 @@ class _readmmp_state:
             # so we'd detect more errors if they did search for it [bruce 050405]
         disp = molpat.match(card)
         if disp:
-            try:
-                mol.setDisplay(dispNames.index(disp.group(1)))
-            except ValueError:
-                pass
+            mol.setDisplay(interpret_dispName(disp.group(1), atom = False)) #bruce 080324 revised
         self.addmember(mol) #bruce 050405; removes need for _addMolecule
 
     def _read_atom(self, card):
@@ -553,10 +550,7 @@ class _readmmp_state:
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
-            try:
-                a.setDisplay(dispNames.index(disp.group(1)))
-            except ValueError:
-                pass
+            a.setDisplay(interpret_dispName(disp.group(1))) #bruce 080324 revised
         self.ndix[n] = a
         self.prevatom = a
         self.prevcard = card

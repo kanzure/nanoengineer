@@ -118,7 +118,7 @@ from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback
 
-from utilities.constants import dispNames
+from utilities.constants import get_dispName_for_writemmp
 
 # ==
 
@@ -249,7 +249,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         if self.sim:
             disp = "-" # assume sim ignores this field
         else:
-            disp = dispNames[display]
+            ## disp = dispNames[display]
+            disp = get_dispName_for_writemmp(display) #bruce 080324 revised
         return disp
     # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time
     # (to be used for jigs which occur before their atoms in the model tree ordering)

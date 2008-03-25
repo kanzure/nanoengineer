@@ -163,6 +163,13 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
 
 # Display styles (aka display modes)
 
+# Note: this entire section ought to be split into its own file.
+# BUT, the loop below, initializing ATOM_CONTENT_FOR_DISPLAY_STYLE,
+# needs to run before dispNames, or (preferably) on a copy of it
+# from before it's modified, by external init code. [bruce 080324 comment]
+
+remap_atom_dispdefs = {} #bruce 080324 moved this here from displaymodes.py
+
 # These are arranged in order of increasing thickness of the bond representation.
 # They are indices of dispNames and dispLabel.
 # Josh 11/2
@@ -186,6 +193,43 @@ diSURFACE = 8
 # note: some of the following lists are extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
+    # NOTE: as of bruce 080324, dispNames is now private.
+    # Soon it will be renamed and generalized to permit aliases for the names.
+    # Then it will become legal to read (but not yet to write) the new forms
+    # of the names which are proposed in bug 2662.
+
+def get_dispName_for_writemmp(display): #bruce 080324
+    """
+    Turn a display-style code integer (e.g. diDEFAULT; as stored in Atom.display
+    or Chunk.display) into a display-style code string as used in the current
+    writing format for mmp files.
+    """
+    return dispNames[display]
+
+def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 080324,
+    # so dispNames can soon be made private for lookup, and aliases introduced
+    """
+    Turn a display-style code string (a short string constant used in mmp files
+    for encoding atom and chunk display styles) into the corresponding
+    display-style code integer (its index in dispNames, as extended at runtime).
+
+    If dispname is not a valid display-style code string, return defaultValue,
+    which is diDEFAULT by default.
+
+    If atom is true (the default), only consider "atom display styles" to be
+    valid; otherwise, also permit "chunk display styles".
+    """
+    try:
+        res = dispNames.index(dispname)
+    except ValueError:
+        # not found
+        return defaultValue
+    else:
+        if res > diTUBES and atom and remap_atom_dispdefs.has_key(res):
+            # note: the initial res > diTUBES is an optimization kluge
+            return defaultValue
+        return res
+    pass
 
 # <properDisplayNames> used by write_qutemol_pdb_file() in qutemol.py only.
 # Set qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.
@@ -196,6 +240,37 @@ properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
 
+def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
+    """
+    [friend function for displaymodes.py]
+    """
+    #bruce 080324 split this out of displaymodes.py, to permit making
+    # these globals (dispNames, dispLabel) private soon
+    if disp_name in dispNames:
+        # this is only legal [nim] if the classname is the same;
+        # in that case, we ought to replace things (useful for reload
+        # during debugging)
+        assert 0, "reload during debug for display modes " \
+               "is not yet implemented; or, non-unique " \
+               "mmp_code %r" % (disp_name,)
+    assert len(dispNames) == len(dispLabel)
+    dispNames.append(disp_name)
+    dispLabel.append(disp_label)
+    ind = dispNames.index(disp_name) # internal value used by setDisplay
+    if not allowed_for_atoms:
+        remap_atom_dispdefs[ind] = diDEFAULT # kluge?
+    return ind
+
+# ==
+
+# display style for new glpanes (#e should be a user preference) [bruce 041129]
+default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
+
+TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
+diBALL_SigmaBondRadius = 0.1
+diDNACYLINDER_SigmaBondRadius = 1.3
+
+# ==
 
 # atom content flags [bruce 080306]
 
@@ -209,6 +284,9 @@ ATOM_CONTENT_FOR_DISPLAY_STYLE = [] # modified by the loop below to be same leng
 AC_HAS_INDIVIDUAL_DISPLAY_STYLE = 1
 AC_INVISIBLE = 1 << diINVISIBLE # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
 for _disp in range(len(dispNames)):
+    # WARNING:
+    # - must run before dispNames is modified by external code
+    # - assumes no styles defined in displaymodes.py can apply to atoms
     if not _disp:
         assert _disp == diDEFAULT
         _content_for_disp = 0
@@ -220,15 +298,6 @@ for _disp in range(len(dispNames)):
         (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
         # this uses bits 1 through len(dispNames) - 1, plus bit 0 for "any of those"
     ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)
-
-# ==
-
-# display style for new glpanes (#e should be a user preference) [bruce 041129]
-default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
-
-TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
-diBALL_SigmaBondRadius = 0.1
-diDNACYLINDER_SigmaBondRadius = 1.3
 
 # ==
 

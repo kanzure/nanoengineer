@@ -99,11 +99,13 @@ from utilities.constants import diTrueCPK
 from utilities.constants import diTUBES
 from utilities.constants import diINVISIBLE
 
-from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
+from utilities.constants import remap_atom_dispdefs #revised, bruce 080324
 
 from utilities.constants import dispLabel
 from utilities.constants import default_display_mode
 from utilities.constants import TubeRadius
+
+from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
 from utilities.constants import pink
 from utilities.constants import orange
@@ -147,9 +149,6 @@ from foundation.state_utils import register_instancelike_class
 
 import foundation.undo_archive as undo_archive
 from foundation.undo_archive import register_undo_updater
-
-from graphics.display_styles.displaymodes import remap_atom_dispdefs
-    # (moved from chem to displaymodes to break import cycle, bruce 071102)
 
 from foundation.inval import InvalMixin #bruce 050510
 

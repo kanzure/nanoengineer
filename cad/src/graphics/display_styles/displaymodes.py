@@ -20,16 +20,18 @@ of our class ChunkDisplayMode. For an example, see CylinderChunks.py.
 
 # to make a new display mode for whole chunks, see the instructions in the module docstring above.
 
-import utilities.constants as constants
+from utilities.constants import _f_add_display_style_code
+
 from utilities.debug import register_debug_menu_command
 import foundation.env as env
 
 _display_mode_handlers = {} # maps disp_name, and also its index in constants.dispNames, to a DisplayMode instance used for drawing
 
-remap_atom_dispdefs = {}
+## remap_atom_dispdefs = {}
     # some dispdef values should be replaced with others in Atom.setDisplay,
     # since they are not legal for atoms. [bruce 060607]
     # (moved from chem to displaymodes to break import cycle, bruce 071102)
+    # (then moved to constants.py to permit some refactoring, bruce 080324)
 
 def get_display_mode_handler(disp):
     return _display_mode_handlers.get(disp)
@@ -74,15 +76,22 @@ class DisplayMode:
         """
         disp_name = clas.mmp_code # we treat this as a unique index; error if not unique, unless classname is the same
         disp_label = clas.disp_label
-        if disp_name in constants.dispNames:
-            # this is only legal if the classname is the same; in that case, replace things (useful for reload during debugging)
-            assert 0, "reload during debug for display modes is not yet implemented; or, non-unique mmp_code %r" % (disp_name,)
-        assert len(constants.dispNames) == len(constants.dispLabel)
-        constants.dispNames.append(disp_name)
-        constants.dispLabel.append(disp_label)
-        ind = constants.dispNames.index(disp_name) # internal value used by setDisplay
-        if clas.chunk_only:
-            remap_atom_dispdefs[ind] = constants.diDEFAULT # kluge?
+
+        #bruce 080324 refactored this:
+        allowed_for_atoms = not clas.chunk_only
+        ind = _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms )
+
+# old form of above _f_add_display_style_code call, can be removed soon:
+##        if disp_name in constants.dispNames:
+##            # this is only legal if the classname is the same; in that case, replace things (useful for reload during debugging)
+##            assert 0, "reload during debug for display modes is not yet implemented; or, non-unique mmp_code %r" % (disp_name,)
+##        assert len(constants.dispNames) == len(constants.dispLabel)
+##        constants.dispNames.append(disp_name)
+##        constants.dispLabel.append(disp_label)
+##        ind = constants.dispNames.index(disp_name) # internal value used by setDisplay
+##        if clas.chunk_only:
+##            remap_atom_dispdefs[ind] = constants.diDEFAULT # kluge?
+
         inst = clas(ind)
         _display_mode_handlers[disp_name] = inst
         _display_mode_handlers[ind] = inst #k are both of these needed??
