@@ -344,11 +344,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return
 
         strand_positions, strand_sequences, axis_positions, colors, radii, \
-                        group_color, chunk_strand, num_strands = memo
+                        chunk_color, group_color, chunk_strand, num_strands \
+                        = memo
         
-        # set a default chunk color
-        chunk_color = chunk.color
-                
         n_points = len(axis_positions)
         
         # render axis cylinder        
@@ -498,7 +496,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
         from widgets.widget_helpers import RGBf_to_QColor
         from dna.model.DnaLadderRailChunk import DnaStrandChunk
 
-        
+        if chunk.color:
+            chunk_color = chunk.color
+        else:
+            chunk_color = white
+            
         if debug_pref("Draw DNA base orientation indicators?",
                          Choice_boolean_False,
                          prefs_key = True,
@@ -508,26 +510,27 @@ class DnaCylinderChunks(ChunkDisplayMode):
             self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
             dnaBaseOrientationThreshold = 30.0
             if chunk.isStrandChunk(): 
-                if self.dnaStyleStrandsShape>0 or \
-                   self.dnaStyleBasesShape>0 or \
-                   self.dnaStyleStrutsShape>0:                   
-                    n_bases = chunk.ladder.baselength()
-                    if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
-                        chunk_strand = 0
-                    else:
-                        chunk_strand = 1
-                    for pos in range(0,n_bases):
-                        atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
-                        atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                        # compute a normal to the view plane
-                        vz = glpane.out 
-                        v2 = norm(atom1.posn()-atom2.posn())
-                        # calculate an angle between this vector 
-                        # and the vector towards the viewer
-                        a = angleBetween(vz,v2)
-                        if abs(a)<dnaBaseOrientationThreshold:
-                            drawer.drawsphere(
-                                lightgreen,atom1.posn()-chunk.center,1.5,2)
+                if chunk.ladder.axis_rail:
+                    if self.dnaStyleStrandsShape>0 or \
+                       self.dnaStyleBasesShape>0 or \
+                       self.dnaStyleStrutsShape>0:                   
+                        n_bases = chunk.ladder.baselength()
+                        if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+                            chunk_strand = 0
+                        else:
+                            chunk_strand = 1
+                        for pos in range(0,n_bases):
+                            atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+                            atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+                            # compute a normal to the view plane
+                            vz = glpane.out 
+                            v2 = norm(atom1.posn()-atom2.posn())
+                            # calculate an angle between this vector 
+                            # and the vector towards the viewer
+                            a = angleBetween(vz,v2)
+                            if abs(a)<dnaBaseOrientationThreshold:
+                                drawer.drawsphere(
+                                    lightgreen,atom1.posn()-chunk.center,1.5,2)
 
         if debug_pref("Draw DNA strand labels?",
                          Choice_boolean_False,
@@ -578,7 +581,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if font_scale>50: font_scale = 50
                     
                     labelFont = QFont( QString("Helvetica"), font_scale)     
-                    glpane.qglColor(RGBf_to_QColor(chunk.color))
+                    glpane.qglColor(RGBf_to_QColor(chunk_color))
                     fm = QFontMetrics(labelFont)
                     label_text = QString(strand.name)
                     textsize = fm.width(label_text)
@@ -639,7 +642,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
             file.write("}\n")
             
         strand_positions, strand_sequences, axis_positions, colors, radii, \
-                        group_color, chunk_strand, num_strands = memo
+                        chunk_color, group_color, chunk_strand, num_strands \
+                        = memo
         
         # render axis cylinder        
         if chunk.isAxisChunk(): # this is the DNA axis           
@@ -677,7 +681,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     elif self.dnaStyleStrutsShape==2:
                         atom2_pos = 0.5*(atom1+atom3)
                     if self.dnaStyleStrutsColor==0 or chunk_selected:
-                        color = chunk.color
+                        color = chunk_color
                     elif self.dnaStyleStrutsColor==1:
                         color = self.getRainbowColorInRange(pos, n_bases, 0.75, 1.0)                        
                     elif self.dnaStyleStrutsColor==2:
@@ -729,7 +733,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return
         
         chunk_center = chunk.center
-        
+        if chunk.color:
+            chunk_color = chunk.color
+        else:
+            chunk_color = white
+            
         # import the style preferences from User Preferences
         self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
         self.dnaStyleStrandsColor = env.prefs[dnaStyleStrandsColor_prefs_key]
@@ -845,7 +853,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     for pos in range (1,n_bases+1):
                         axis_positions[pos] = axis_atoms[pos-1].posn()-chunk.center
                         if self.dnaStyleAxisColor==0 or chunk.picked:
-                            colors[pos] = chunk.color
+                            colors[pos] = chunk_color
                         elif self.dnaStyleAxisColor==1:
                             colors[pos] = self.getRainbowColorInRange(pos-1, 
                                                                       n_bases, 
@@ -884,7 +892,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if self.dnaStyleStrandsShape>0:
                 for pos in range (1,n_bases+1):
                     if self.dnaStyleStrandsColor==0 or chunk.picked:
-                        colors[pos] = chunk.color
+                        colors[pos] = chunk_color
                     elif self.dnaStyleStrandsColor==1:
                         colors[pos] = self.getRainbowColorInRange(pos-1, 
                                                                   n_bases, 
@@ -911,7 +919,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                        - strand_positions[chunk_strand][pos-1] 
                     
         return (strand_positions, strand_sequences, axis_positions, 
-                colors, radii, group_color, chunk_strand, num_strands)
+                colors, radii, chunk_color, group_color, chunk_strand, num_strands)
     
     pass # end of class DnaCylinderChunks
 
