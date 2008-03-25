@@ -133,7 +133,9 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     in future this will be able to write forward refs for jigs and save
     the unwritten jigs they refer to until they're written at the end.
     """
+    
     fp = None
+
     def __init__(self, assy, **options):
         """
         #doc; assy is used for some side effects (hopefully that can be cleaned up).
@@ -160,14 +162,23 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             self.aux_dict = {}
         self.forwarded_nodes_after_opengroup = {}
         self.forwarded_nodes_after_child = {}
-        pass
+        return
+    
     def set_fp(self, fp):
-        "set file pointer to write to (don't forget to call write_header after this!)"
+        """
+        set file pointer to write to (don't forget to call write_header after this!)
+        """
         self.fp = fp
+        return
+    
     def write(self, lines):
-        "write one or more \n-terminates lines (passed as a single string) to our file pointer"
+        """
+        write one or more \n-terminates lines (passed as a single string) to our file pointer
+        """
         #e future versions might also hash these lines, to help make a movie id
         self.fp.write(lines)
+        return
+    
     def encode_name(self, name): #bruce 050618 to fix part of bug 474 (by supporting ')' in node names)
         "encode name suitable for being terminated by ')', as it is in the current mmp format"
         #e could extend to encode unicode chars as well
@@ -178,6 +189,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         name = name.replace('(', '%28') # not needed except to let parens in mmp files be balanced (for the sake of text editors)
         name = name.replace(')', '%29') # needed
         return name
+    
     def close(self, error = False):
         if error:
             try:
@@ -187,6 +199,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             except:
                 print_compact_traceback("exception writing to mmp file, ignored: ")
         self.fp.close()
+        return
+    
     def write_header(self):
         assy = self.assy
         # The MMP File Format is initialized here, just before we write the file.
@@ -207,6 +221,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         # To be added for Beta.  Mark 05-01-16
         ## f.write("movie_id %d\n" % assy.movieID)
         return
+    
     def encode_next_atom(self, atom):
         """
         Assign the next sequential number (for use only in this writing of this mmp file)
@@ -221,6 +236,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         atnums[atom.key] = num
         assert str(num) == self.encode_atom(atom)
         return str(num)
+    
     def encode_atom(self, atom):
         """
         Return an encoded reference to this atom (a short string, actually
@@ -242,6 +258,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         else:
             return None
         pass
+    
     def dispname(self, display):
         """
         (replaces disp = dispNames[self.display] in older code)
@@ -252,14 +269,19 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             ## disp = dispNames[display]
             disp = get_dispName_for_writemmp(display) #bruce 080324 revised
         return disp
+    
     # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time
     # (to be used for jigs which occur before their atoms in the model tree ordering)
     # 1. methods for when the node first wishes it could be written out
+    
     past_sim_part_of_file = False # set to True by external code (kluge?)
+    
     def not_yet_past_where_sim_stops_reading_the_file(self):
         return not self.past_sim_part_of_file
+    
     def node_ref_id(self, node):
         return id(node)
+    
     def write_forwarded_node_after_nodes( self, node, after_these, force_disabled_for_sim = False ):
         """
         Due to the mmp file format, node says it must come after the given nodes in the file,
@@ -293,29 +315,46 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             self.push_node(node, self.forwarded_nodes_after_opengroup, after_this_node)
         else:
             self.push_node(node, self.forwarded_nodes_after_child, after_this_node)
+        return
+    
     def push_node(self, node, dict1, key):
         list1 = dict1.setdefault(key, []) #k syntax #k whether pyobjs ok as keys
         list1.append(node)
+        return
+    
     # 2. methods for actually writing it out, when it finally can be
+    
     def pop_forwarded_nodes_after_opengroup(self, og):
         return self.pop_nodes( self.forwarded_nodes_after_opengroup, og)
+    
     def pop_forwarded_nodes_after_child(self, ch):
         return self.pop_nodes( self.forwarded_nodes_after_child, ch)
+    
     def pop_nodes( self, dict1, key):
         list1 = dict1.pop(key, [])
         return list1
+    
     def write_forwarded_node_for_real(self, node):
         self.write_node(node)
         #e also write some forward anchor... not sure if before or after... probably "after child" or "after node" (or leaf if is one)
         assert not node.is_group() # for now; true since we're only used on jigs; desirable since "info leaf" only works in this case
         self.write_info_leaf( 'forwarded', self.node_ref_id(node) )
+        return
+    
     def write_info_leaf( self, key, val):
-        "write an info leaf record for key and val. WARNING: writes str(val) for any python type of val"
+        """
+        write an info leaf record for key and val.
+        @warning: writes str(val) for any python type of val.
+        """
         val = str(val)
         assert '\n' not in val
         self.write( "info leaf %s = %s\n" % (key, val) )
+        return
+    
     def write_node(self, node):
         node.writemmp(self)
+        return
+    
     pass # end of class writemmp_mapping
 
 # ==
