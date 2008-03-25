@@ -2078,15 +2078,19 @@ def setup_drawer():
         glEndList()
         continue
 
-    # A VertexBufferObject version, in place of the display lists.
-    global sphereVBOs
-    sphereVBOs = []
-    for i in range(numSphereSizes):
-        stripVerts = getSphereTriStrips(i)
-        Cverts = numpy.array(stripVerts, dtype=numpy.float32)
-        vbo = VertexBuffer(Cverts, GL_STATIC_DRAW)
-        sphereVBOs += [vbo]
-        continue
+    if glGetString(GL_EXTENSIONS).find("GL_ARB_vertex_buffer_object") >= 0:
+
+        # A VertexBufferObject version, in place of the display lists.
+        global sphereVBOs
+        sphereVBOs = []
+        for i in range(numSphereSizes):
+            stripVerts = getSphereTriStrips(i)
+            Cverts = numpy.array(stripVerts, dtype=numpy.float32)
+            vbo = VertexBuffer(Cverts, GL_STATIC_DRAW)
+            sphereVBOs += [vbo]
+            continue
+
+        pass
 
     global wiresphere1list
     wiresphere1list = glGenLists(1) #bruce 060415
