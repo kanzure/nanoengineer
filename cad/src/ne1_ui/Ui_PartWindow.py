@@ -342,7 +342,7 @@ class Ui_PartWindow(QWidget):
                         msg1 = "Last PropMgr %r doesn't have method" % lastwidgetobject
                         msg2 =" update_props_if_needed_before_closing. That's"
                         msg3 = " OK (for now, only implemented for Plane PM). "
-                        msg4 = "Ignoring Exception"
+                        msg4 = "Ignoring Exception: "
                         print_compact_traceback(msg1 + msg2 + msg3 + msg4)
                 else:
                     lastwidgetobject.update_props_if_needed_before_closing()

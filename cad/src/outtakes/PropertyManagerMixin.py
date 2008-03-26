@@ -669,8 +669,8 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         except:
             if debug_flags.atom_debug:
                 msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
-                msg2 =  " That is OK (for now,only implemented in GeometryGenerators)"
-                msg3 = "Ignoring Exception"
+                msg2 =  " That is OK (for now, only implemented in GeometryGenerators)"
+                msg3 = "Ignoring Exception: "
                 print_compact_traceback(msg1 + msg2 + msg3)
             pass
         
