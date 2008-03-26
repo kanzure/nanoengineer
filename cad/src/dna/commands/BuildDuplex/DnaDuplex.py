@@ -156,13 +156,9 @@ class Dna:
         self._create_raw_duplex(group, 
                                 numberOfBasePairs, 
                                 basesPerTurn, 
-                                duplexRise
-                            )
+                                duplexRise )      
         
-        
-
         DEBUG_ORIENTATION = True
-        
 
         # Orient the duplex.
         
@@ -204,6 +200,16 @@ class Dna:
             
             if FUSE_DEBUG:
                 new_ladder = self.axis_atom_end1.molecule.ladder     
+                #REFACTOR: Reset the dnaBaseNames of the atoms to 'X' 
+                #replacing the original dnaBaseNames 'a' or 'b'. Do not do it 
+                #inside self._postProcess because that method is also used by
+                #self.make that calls self._create_atomLists_for_regrouping
+                #after calling self._postProcess
+                for m in new_ladder.all_chunks():
+                    for atm in m.atoms.values():
+                        if atm.element.symbol in ('Ss3') and atm.getDnaBaseName() in ('a','b'):
+                            atm.setDnaBaseName('X')
+                                
                 new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
                 endBaseAtomList_generated_duplex  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
 
@@ -258,7 +264,7 @@ class Dna:
                 self.axis_atom_end1 = None
 
                 chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
-                              new_endBaseAtomList[0].molecule]
+                    new_endBaseAtomList[0].molecule]
                 
                 if ENABLE_DEBUG_PRINTS:
                     print "***new_endBaseAtomList for fusing ", new_endBaseAtomList
@@ -1129,6 +1135,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         basename     =  "MiddleBasePair"
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
+    
 
 
 
@@ -1181,6 +1188,8 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 # Skip the 2 killed singlets.
                 continue
             adjustSinglet(singlet)
+            
+ 
         return
 
     def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
