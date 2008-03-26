@@ -37,6 +37,7 @@ getDefaultWorkingDirectory.
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, lightgray, lightgreen
+from utilities.constants import orange
 from utilities.constants import ave_colors, diTUBES
 
 import sys, os # for getDefaultWorkingDirectory
@@ -191,6 +192,12 @@ dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
+
+# DNA Minor Groove Error Indicator prefs
+dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
+dnaMinMinorGrooveAngle_prefs_key = 'A10/DNA minimum minor groove angle'
+dnaMaxMinorGrooveAngle_prefs_key = 'A10/DNA maximum minor groove angle'
+dnaMinorGrooveErrorIndicatorColor_prefs_key = 'A10/DNA minor groove error indicator color'
 
 # DNA style prefs piotr 080310
 dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' 
@@ -513,15 +520,21 @@ prefs_table = (
     ('', 'int', dnaColorBasesBy_prefs_key, 0),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
     
+    # Strand display option prefs.
     ('show_arrows_on_all_directional_bonds', 'boolean', 
      arrowsOnBackBones_prefs_key, True), 
-    
     ('show_three_prime_ends_as_out_arrow_heads', 'boolean', 
      arrowsOnThreePrimeEnds_prefs_key, True), 
-    
     ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
      arrowsOnFivePrimeEnds_prefs_key, False), 
     
+    # DNA minor groove error indicator prefs.
+    ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
+    ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  90),
+    ('', 'int', dnaMaxMinorGrooveAngle_prefs_key, 155),
+    ('', 'color', dnaMinorGrooveErrorIndicatorColor_prefs_key, orange),
+    
+    # Only used in "Break Strands" PM.
     ('', 'boolean', assignColorToBrokenDnaStrands_prefs_key, True),
      
     # DNA style preferences 080310 piotr

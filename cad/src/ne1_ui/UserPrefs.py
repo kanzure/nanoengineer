@@ -104,6 +104,12 @@ from utilities.prefs_constants import arrowsOnBackBones_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
 
+# DNA Minor Groove Error Indicator prefs
+from utilities.prefs_constants import dnaDisplayMinorGrooveErrorIndicators_prefs_key
+from utilities.prefs_constants import dnaMinMinorGrooveAngle_prefs_key
+from utilities.prefs_constants import dnaMaxMinorGrooveAngle_prefs_key
+from utilities.prefs_constants import dnaMinorGrooveErrorIndicatorColor_prefs_key
+
 # DNA style prefs 080310 piotr
 from utilities.prefs_constants import dnaStyleStrandsShape_prefs_key
 from utilities.prefs_constants import dnaStyleStrandsColor_prefs_key
@@ -561,7 +567,21 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
         self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
         self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
-
+        
+        # DNA Minor Groove Error Indicator signal/slot connections.
+        self.connect(self.dnaMinGrooveAngleSpinBox,
+                     SIGNAL("valueChanged(int)"),
+                     self.save_dnaMinMinorGrooveAngles)
+        self.connect(self.dnaMaxGrooveAngleSpinBox,
+                     SIGNAL("valueChanged(int)"),
+                     self.save_dnaMaxMinorGrooveAngles)
+        self.connect(self.dnaGrooveIndicatorColorButton,
+                     SIGNAL("clicked()"),
+                     self.change_dnaMinorGrooveErrorIndicatorColor)
+        self.connect(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton,
+                     SIGNAL("clicked()"),
+                     self._restore_dnaMinorGrooveFactoryDefaults)
+        
         # DNA style 080310 piotr 
         self.connect(self.dnaStyleStrandsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsColor)
         self.connect(self.dnaStyleStrutsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsColor)
@@ -1557,6 +1577,22 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
+        
+        # Display Minor Groove Error Indicator groupbox widgets.
+        
+        connect_checkbox_with_boolean_pref(
+            self.dnaDisplayMinorGrooveErrorGroupBox,
+            dnaDisplayMinorGrooveErrorIndicators_prefs_key)
+        
+        self.dnaMinGrooveAngleSpinBox.setValue(
+            env.prefs[dnaMinMinorGrooveAngle_prefs_key])
+        
+        self.dnaMaxGrooveAngleSpinBox.setValue(
+            env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
+        
+        connect_colorpref_to_colorframe( 
+            dnaMinorGrooveErrorIndicatorColor_prefs_key, 
+            self.dnaGrooveIndicatorColorFrame)
 
         # piotr 030810 - DNA style
         self.dnaStyleStrandsColorComboBox.setCurrentIndex(
@@ -2349,6 +2385,48 @@ restored when the user undoes a structural change.</p>
         env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
         self.update_dnaStrutScaleWidgets()
 
+    def save_dnaMinMinorGrooveAngles(self, minAngle):
+        """
+        Slot for minimum minor groove angle spinboxes.
+        
+        @param minAngle: The minimum angle.
+        @type  minAngle: int
+        """
+        env.prefs[dnaMinMinorGrooveAngle_prefs_key] = minAngle
+        
+    def save_dnaMaxMinorGrooveAngles(self, maxAngle):
+        """
+        Slot for maximum minor groove angle spinboxes.
+        
+        @param maxAngle: The maximum angle.
+        @type  maxAngle: int
+        """
+        env.prefs[dnaMaxMinorGrooveAngle_prefs_key] = maxAngle
+        
+    def change_dnaMinorGrooveErrorIndicatorColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA minor groove error indicator color.
+        """
+        self.usual_change_color( dnaMinorGrooveErrorIndicatorColor_prefs_key )
+        
+    def _restore_dnaMinorGrooveFactoryDefaults(self):
+        """
+        Slot for Minor Groove Error Indicator I{Restore Factory Defaults} 
+        button.
+	"""
+        env.prefs.restore_defaults([
+            dnaMinMinorGrooveAngle_prefs_key,
+            dnaMaxMinorGrooveAngle_prefs_key,
+            dnaMinorGrooveErrorIndicatorColor_prefs_key,
+        ])
+
+        # These generate signals!
+        self.dnaMinGrooveAngleSpinBox.setValue(
+            env.prefs[dnaMinMinorGrooveAngle_prefs_key])
+        self.dnaMaxGrooveAngleSpinBox.setValue(
+            env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
+        
     # DNA display style piotr 080310
     def change_dnaStyleStrandsColor(self, value):
         """
