@@ -132,6 +132,9 @@ from utilities.prefs_constants import showValenceErrors_prefs_key
 from utilities.prefs_constants import cpkScaleFactor_prefs_key
 from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 
+from utilities.prefs_constants import dnaMinMinorGrooveAngle_prefs_key
+from utilities.prefs_constants import dnaMaxMinorGrooveAngle_prefs_key
+
 from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
 
@@ -1412,7 +1415,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 ss1, ss2 = strand_neighbors
                 angle = atom_angle_radians( ss1, self, ss2 ) * 180/math.pi
                 angle = int(angle + 0.5)
-                low, high = 130, 155 # todo: put legal range in user prefs
+                ## low, high = 130, 155
+                low = env.prefs[dnaMinMinorGrooveAngle_prefs_key]
+                high = env.prefs[dnaMaxMinorGrooveAngle_prefs_key]
+                ### TODO: make sure changing those invalidates enough
+                # to recompute this, and redraw if needed. BUG until done.
+                # Probably easiest to refactor: separate recomputing the angle
+                # (inval code same as now) from testing it against limits
+                # (done each time we draw it). The latter would be part of
+                # drawing code, and would test all related prefs, and capture
+                # their usage as for other drawing prefs. [bruce 080326]
                 if not (low <= angle <= high): 
                     error = "minor groove angle %d degrees (should be %d-%d)" % \
                             (angle, low, high)
