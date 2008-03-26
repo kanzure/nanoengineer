@@ -237,7 +237,6 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         self.duplexRise = rise
         
-    
                           
     def _addGroupBoxes( self ):
         """
@@ -263,7 +262,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                         label         =  "Base Pairs :", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
-                        minimum       =  0,
+                        minimum       =  2,
                         maximum       =  10000 )
         
         self.basesPerTurnDoubleSpinBox  =  \
