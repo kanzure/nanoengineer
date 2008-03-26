@@ -474,11 +474,10 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         return
     
-    def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
+    def _is_dnaGroup_highlighting_enabled(self):
         """
-        [overrides SelectChunks_basicGraphicsMode method]
+        Overrides SelectChunks_basicGraphicsMode method.
         """
-        # bruce 071008 (intending to be equivalent to prior code)
         return False
     
     
