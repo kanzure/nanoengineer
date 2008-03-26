@@ -86,12 +86,16 @@ def image_directory(): #bruce 070604
     global _iconprefix
     return _iconprefix
 
-def geticon(name):
+def geticon(name, print_errors = True):
     """
     Return the QIcon for the given image path name. 
     @param name: The image path name provided by the user. The path should start 
            with 'ui/' directory inside the src directory.
     @type  name: str
+
+    @param print_errors: whether to report errors for missing icon files
+                         when atom_debug is set. True by default.
+    @type print_errors: boolean
     
     @return: QIcon object for the given image path.
     @rtype:  QIcon object. 
@@ -105,7 +109,7 @@ def geticon(name):
     iconPath = os.path.normpath(iconPath)      
     
     if not os.path.exists(iconPath):
-        if debug_flags.atom_debug:
+        if debug_flags.atom_debug and print_errors:
             print "icon path %s doesn't exist." % (iconPath,)
     
     # Always set the icon with the 'iconPath'. Don't set it as an empty string 
@@ -137,13 +141,17 @@ def getCursorPixmap(png_filename):
     """
     return getpixmap(os.path.join("ui/cursors/", png_filename))
     
-def getpixmap(name):
+def getpixmap(name, print_errors = True):
     """
     Return the QPixmap for the given image path name.
     
     @param name: The image path name provided by the user. The path should start 
            with 'ui/' directory inside the src directory.
     @type  name: str
+
+    @param print_errors: whether to report errors for missing pixmap files
+                         when atom_debug is set. True by default.
+    @type print_errors: boolean
     
     @return: QPixmap object for the given image path. (could return a Null icon)
     @rtype:  QPixmap object.
@@ -162,12 +170,12 @@ def getpixmap(name):
         # before setting the icon. 
         # @see: L{PM_GroupBox.addPmWidget} for an example on how this is done
         pixmap = QtGui.QPixmap('')
-        if debug_flags.atom_debug:
+        if debug_flags.atom_debug and print_errors:
             # This could be a common case. As the client uses getpixmap function 
             # to see if a pixmap exists. So if its obscuring other debug messages,
             # the following print statement can be removed
-            print "pixmap path %s doesn't exist." %(pixmapPath)
-        
+            print "pixmap path %s doesn't exist." % pixmapPath
+        pass
     return pixmap
 
 def imagename_to_pixmap(imagename): #bruce 050108

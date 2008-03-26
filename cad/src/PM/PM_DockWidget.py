@@ -226,7 +226,7 @@ class PM_DockWidget(QDockWidget):
             #Create Label as a pixmap (instead of text) if a valid icon path 
             #is provided
             labelPath = str(pmWidget.label)
-            if labelPath:
+            if labelPath and labelPath.startswith("ui/"): #bruce 080325 revised
                 labelPixmap = getpixmap(labelPath)
                 if not labelPixmap.isNull():
                     pmWidget.labelWidget.setPixmap(labelPixmap)

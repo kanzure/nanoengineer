@@ -462,7 +462,7 @@ class PM_GroupBox( QGroupBox ):
             #Create Label as a pixmap (instead of text) if a valid icon path 
             #is provided
             labelPath = str(pmWidget.label)
-            if labelPath:
+            if labelPath and labelPath.startswith("ui/"): #bruce 080325 revised
                 labelPixmap = getpixmap(labelPath)
                 if not labelPixmap.isNull():
                     pmWidget.labelWidget.setPixmap(labelPixmap)
@@ -565,7 +565,7 @@ class PM_GroupBox( QGroupBox ):
         # Mark 2007-05-20
         self.titleButton.setPalette(self._getTitleButtonPalette())
         self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
         self._containerWidget.hide()
         self.expanded = False 
     
@@ -588,7 +588,7 @@ class PM_GroupBox( QGroupBox ):
         # Mark 2007-05-20
         self.titleButton.setPalette(self._getTitleButtonPalette())
         self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
         self._containerWidget.show()
         self.expanded = True
            
@@ -673,7 +673,7 @@ class PM_GroupBox( QGroupBox ):
         # there is no way to left align the push button text but to subclass it.
         # (could means a lot of work for such a minor thing).  So OK for now.
         
-        button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+        button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
         
         return button
     
