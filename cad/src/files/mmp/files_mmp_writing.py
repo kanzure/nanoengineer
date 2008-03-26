@@ -144,9 +144,12 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.atnums = atnums = {}
         atnums['NUM'] = 0 # kluge from old code, kept for now
             #e soon change atnums to store strings, and keep 'NUM' as separate instvar
-        self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes'; as of 051209 one is 'dict_for_stats'
+        self.options = options # as of 050422, one of them is 'leave_out_sim_disabled_nodes';
+            # as of 051209 one is 'dict_for_stats';
+            # as of 080325 one is add_atomids_to_dict
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
+        self.add_atomids_to_dict = options.get('add_atomids_to_dict', None)
         self.save_as_pam = options.get('save_as_pam', "") # by default, do no conversion either way
         if self.min:
             self.sim = True
@@ -180,7 +183,9 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         return
     
     def encode_name(self, name): #bruce 050618 to fix part of bug 474 (by supporting ')' in node names)
-        "encode name suitable for being terminated by ')', as it is in the current mmp format"
+        """
+        encode name suitable for being terminated by ')', as it is in the current mmp format
+        """
         #e could extend to encode unicode chars as well
         #e could extend to encode newlines, tho we don't generally want to allow newlines in names anyway
         # The encoding used is %xx for xx the 2-digit hex ASCII code of the encoded character (like in URLs).
@@ -234,6 +239,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         atnums['NUM'] += 1 # old kluge, to be removed
         num = atnums['NUM']
         atnums[atom.key] = num
+        if self.add_atomids_to_dict is not None:
+            self.add_atomids_to_dict[atom.key] = num
         assert str(num) == self.encode_atom(atom)
         return str(num)
     

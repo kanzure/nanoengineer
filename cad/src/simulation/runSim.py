@@ -82,7 +82,7 @@ debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug m
 debug_all_frames = 0 # DO NOT COMMIT with 1
 debug_all_frames_atom_index = 1 # index of atom to print in detail, when debug_all_frames
 
-debug_sim = 0 # DO NOT COMMIT with 1
+DEBUG_SIM = False # DO NOT COMMIT with True
 debug_pyrex_prints = 0 # prints to stdout the same info that gets shown transiently in statusbar
 debug_timing_loop_on_sbar = 0
 
@@ -188,6 +188,8 @@ class SimRunner:
     # (not instance) variable, which matters because ops_files.py can set this
     # without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
+
+    used_atoms = None
     
     def __init__(self, part, mflag,
                  simaspect = None,
@@ -478,14 +480,20 @@ class SimRunner:
                         # directory. (It is part of data store.)
                         inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
                         env.history.message(self.cmdname + ": Writing input.mmp file to HDF5 data store directory.")
-                        self.part.writemmpfile(inputFileName)
+                        all_atoms = {}
+                        self.part.writemmpfile(inputFileName,
+                                               add_atomids_to_dict = all_atoms)
 						
                         # Write a file that maps the ids of the atoms actually
                         # used for simulation to the atom ids of the complete
                         # structure stored in the MMP file above.
+                        used_atoms = self.used_atoms
+                        assert used_atoms is not None, \
+                               "self.used_atoms didn't get stored"
                         mapFilename = \
                             hdf5DataStoreDir + os.sep + "trajAtomIdMap.txt"
-                        self.writeTrajectoryAtomIdMapFile(mapFilename)
+                        self.writeTrajectoryAtomIdMapFile(mapFilename,
+                                                          used_atoms, all_atoms)
                         
                         # Launch the NV1 process
                         nv1 = self.nv1_executable_path
@@ -802,12 +810,21 @@ class SimRunner:
         mmpfile = self.sim_input_file # the filename to write to
         movie = self._movie # old-code compat kluge
         assert movie.alist is not None #bruce 050404
+        self.used_atoms = {} #bruce 080325
 
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
-            if debug_sim:
+            # note: as of 080325, this case certainly runs for Run Dynamics,
+            # and probably runs for all whole-part Adjust, Minimize, or
+            # Dynamics operations. [bruce 080325 comment]
+            if DEBUG_SIM:
                 print "part.writemmpfile(%r)" % (mmpfile,)
             stats = {}
-            part.writemmpfile( mmpfile, leave_out_sim_disabled_nodes = True, sim = True, dict_for_stats = stats)
+            part.writemmpfile( mmpfile,
+                               leave_out_sim_disabled_nodes = True,
+                               sim = True,
+                               dict_for_stats = stats,
+                               add_atomids_to_dict = self.used_atoms
+                              )
                 #bruce 051209 added options (used to be hardcoded in files_mmp), plus a new one, dict_for_stats
                 # As of 051115 this is still called for Run Sim [Run Dynamics].
                 # As of 050412 this didn't yet turn singlets into H;
@@ -820,13 +837,15 @@ class SimRunner:
                 info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during simulation)" % nsinglets_H )
                 env.history.message( info)
         else:
-            #bruce 051209 comment: I believe this case can never run (and is obs), but didn't verify this.
-            if debug_sim:
+            # note: as of 080325, this case certainly runs for Adjust 1 atom
+            # (from its glpane cmenu), and probably runs for all part-subset
+            # Adjust, Minimize, or Dynamics operations. [bruce 080325 comment]
+            if DEBUG_SIM:
                 print "simaspect.writemmpfile(%r)" % (mmpfile,)
             # note: simaspect has already been used to set up movie.alist; simaspect's own alist copy is used in following:
-            self.simaspect.writemmpfile( mmpfile) # this also turns singlets into H
+            self.simaspect.writemmpfile( mmpfile, add_atomids_to_dict = self.used_atoms)
+                # this also turns singlets into H
             # obs comments:
-            # can't yet happen (until Minimize Selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
             # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
 
@@ -859,7 +878,7 @@ class SimRunner:
         making its args [or setting its params] based on some of self's attributes.
         Wait til we're done with this simulation, then record results in other self attributes.
         """
-        if debug_sim:
+        if DEBUG_SIM:
             #bruce 051115 confirmed this is always called for any use of sim (Minimize or Run Sim)
             print "calling spawn_process" 
         # First figure out process arguments
@@ -984,7 +1003,7 @@ class SimRunner:
                 args.insert(1, '--time-step')
                 args.insert(2, '%f' % timestep)
             args += [ "--system-parameters", self.system_parameters_file ]
-            if debug_sim:
+            if DEBUG_SIM:
                 print  "program = ",program
                 print  "Spawnv args are %r" % (args,) # note: we didn't yet remove args equal to "", that's done below
             arguments = QStringList()
@@ -1200,7 +1219,7 @@ class SimRunner:
             ## Start the simulator in a different process 
             self.simProcess = QProcess()
             simProcess = self.simProcess
-            if debug_sim: #bruce 051115 revised this debug code
+            if DEBUG_SIM: #bruce 051115 revised this debug code
                 # wware 060104  Create a shell script to re-run simulator
                 outf = open("args", "w")
                 # On the Mac, "-f" prevents running .bashrc
@@ -1276,7 +1295,7 @@ class SimRunner:
                 pass
             #bruce 050407 moving this into the try, since it can fail if we lack write permission
             # (and it's a good idea to give up then, so we're not fooled by an old file)
-            if debug_sim:
+            if DEBUG_SIM:
                 print "deleting moviefile: [",moviefile,"]"
             os.remove (moviefile) # Delete before spawning simulator.
         return        
@@ -1837,23 +1856,60 @@ class SimRunner:
         self.tracefileProcessor.finish()
         return
 
-
-    def writeTrajectoryAtomIdMapFile(self, filename):
+    def writeTrajectoryAtomIdMapFile(self, filename, used_atoms, all_atoms):
         """
         Write a file that maps the ids of the atoms actually used for simulation
-        to the atom ids of the complete structure as it would be stored in an
-        MMP file.
+        (used_atoms) to the atom ids of the same atoms within the complete
+        structure (a Part) as it was stored in an MMP file (all_atoms).
+
+        @param filename: pathname of file to create and write to.
+        
+        @param used_atoms: dict of atoms used (atom.key -> atom id used for sim)
+
+        @param all_atoms: dict of all atoms in one Part (atom.key -> atom id
+                          used when writing the file for that Part)
         """
+        #brian & bruce 080325
+        print "writeTrajectoryAtomIdMapFile", filename, \
+            len(used_atoms), len(all_atoms) # remove when works @@@@@
         try:
             fileHandle = open(filename, 'w')
-            fileHandle.write("# Format: simulation_atom_id mmp_file_atom_id")
-
             
+            header1 = "# Format: simulation_atom_id mmp_file_atom_id\n"
+                # format uses -1 for missing atom errors (should never happen)
+            fileHandle.write(header1)
+
+            header2 = "# (%d atoms used, %d atoms in all)\n" % \
+                      ( len(used_atoms), len(all_atoms) )
+            fileHandle.write(header2)
+
+            # compute the data
+            data = {}
+            for key, used_atom_id in used_atoms.iteritems():
+                all_atoms_id = all_atoms.get(key, -1)
+                if all_atoms_id == -1:
+                    print "error: atom %r is in used_atoms (id %r) " \
+                          "but not all_atoms" % (key, used_atom_id)
+                    # todo: if this ever happens, also print
+                    # a red summary message to history
+                data[used_atom_id] = all_atoms_id
+                continue
+            items = data.items()
+            items.sort()
+
+            # write the data
+            for used_atom_id, all_atoms_id in items:
+                fileHandle.write("%s %s\n" % (used_atom_id, all_atoms_id))
+
+            fileHandle.write("# end\n")
             fileHandle.close()
             
         except:
-            env.history.message(orangemsg(self.cmdname + ": Failed to write the simulation atom id to mmp file atom id map."))
-        
+            msg = self.cmdname + ": Failed to write [%s] " \
+                  "(the simulation atom id to mmp file atom id map file)." % \
+                  filename
+            env.history.message(redmsg(msg))
+        return
 
     pass # end of class SimRunner
 

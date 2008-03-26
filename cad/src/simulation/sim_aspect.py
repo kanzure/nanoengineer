@@ -167,7 +167,7 @@ class sim_aspect:
         return number of singlets to be entirely left out of the sim input file
         """
         return 0 # for now
-    def writemmpfile(self, filename):
+    def writemmpfile(self, filename, **mapping_options):
         #bruce 050404 (for most details).
         # Imitates some of Part.writemmpfile aka files_mmp_writing.writemmpfile_part.
         #e refile into files_mmp so the mmp format code is in the same place? maybe just some of it.
@@ -181,7 +181,9 @@ class sim_aspect:
         from files.mmp.files_mmp_writing import writemmp_mapping
         assy = self.part.assy
         fp = open(filename, "w")
-        mapping = writemmp_mapping(assy, min = True)
+        mapping_options['min'] = True # pass min = True
+        mapping = writemmp_mapping(assy, **mapping_options)
+        assert mapping.min
         assert mapping.sim
             #e rename min option? (for minimize; implies sim as well;
             #   affects mapping attrnames in chem.py atom.writemmp)
