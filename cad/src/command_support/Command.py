@@ -174,12 +174,19 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         """
         return False
 
-    def autodelete_empty_groups(self, topnode): #bruce 080305
+    def autodelete_empty_groups(self, topnode):
         """
         Kill all empty groups under topnode
         (which may or may not be a group)
         for which group.autodelete_when_empty is true
+        and group.temporarily_prevent_autodelete_when_empty is false
         and self.keep_empty_group(group) returns False.
+
+        But set group.temporarily_prevent_autodelete_when_empty
+        on all empty groups under topnode for which
+        group.autodelete_when_empty is true
+        and self.keep_empty_group(group) returns True.
+        
         Do this bottom-up, so killing inner empty groups
         (if it makes their containing groups empty)
         subjects their containing groups to this test.
@@ -187,15 +194,32 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         @note: called by master_model_updater, after the dna updater.
 
         @note: overridden in nullCommand to do nothing. Not normally
-               overridden otherwise, but can be.
+               overridden otherwise, but can be, provided the
+               flag group.temporarily_prevent_autodelete_when_empty
+               is both honored and set in the same way (otherwise,
+               Undo bugs like bug 2705 will result).
         """
+        #bruce 080305; revised 080326 as part of fixing bug 2705
+        # (to set and honor temporarily_prevent_autodelete_when_empty)
         if not topnode.is_group():
             return
         for member in topnode.members[:]:
             self.autodelete_empty_groups(member)
-        if not topnode.members and topnode.autodelete_when_empty and \
-           not self.keep_empty_group(topnode):
-            topnode.kill()
+        if (not topnode.members and
+            topnode.autodelete_when_empty and
+            not topnode.temporarily_prevent_autodelete_when_empty
+           ):
+            if not self.keep_empty_group(topnode):
+                topnode.kill()
+            else:
+                topnode.temporarily_prevent_autodelete_when_empty = True
+                # Note: not doing this would cause bug 2705 or similar
+                # if undo got back to this state during a command
+                # whose keep_empty_group no longer returned True
+                # for topnode, since then, topnode would get deleted,
+                # and subsequent redos would be modifying incorrect state,
+                # e.g. adding children to topnode and assuming it remains alive.
+            pass
         return
     
     pass # end of class anyCommand

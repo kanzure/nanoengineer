@@ -25,7 +25,7 @@ from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Log            import redmsg, quote_html
 
 import foundation.env as env
-from foundation.state_constants import S_CHILDREN
+from foundation.state_constants import S_CHILDREN, S_DATA
 
 from commands.GroupProperties.GroupProp import GroupProp
 
@@ -47,6 +47,9 @@ class Group(NodeWithAtomContents):
     Group is used as both a concrete and abstract class.
     (I.e. it's instantiated directly, but also has subclasses.)
     """
+
+    # default values of per-subclass constants
+    
     featurename = "" # (redundant with Node)
         # It's intentional that we don't provide this for Group itself, so a selected Group in the MT
         # doesn't bother you by offering wiki help on Group. Maybe we'll leave it off of Chunk as well...
@@ -60,11 +63,7 @@ class Group(NodeWithAtomContents):
         # if desired.) The current command's keep_empty_group method
         # will then get to decide, assuming that command doesn't override its
         # autodelete_empty_groups method. [bruce 080305]
-
-    _s_attr_members = S_CHILDREN # this declares group.members for Undo
-        # note: group.members are informally called its "kids",
-        # but need not be identical to the output of group.MT_kids(),
-        # which gives the list of nodes to show as its children in the Model Tree.
+        # See also temporarily_prevent_autodelete_when_empty, below.
 
     _mmp_group_classifications = () # this should be extended in some subclasses...
         # This should be a tuple of classifications that appear in
@@ -73,7 +72,23 @@ class Group(NodeWithAtomContents):
         # old code reading new mmp files.
         # [bruce 080115]
 
+    # instance variable default values and/or undoable state declarations
+    # (note that copyable_attrs also declares undoable state, for Nodes)
 
+    _s_attr_members = S_CHILDREN # this declares group.members for Undo
+        # note: group.members are informally called its "kids",
+        # but need not be identical to the output of group.MT_kids(),
+        # which gives the list of nodes to show as its children in the Model Tree.
+
+    temporarily_prevent_autodelete_when_empty = False
+        # For explanation, see comments in default implem of
+        # Command.autodelete_empty_groups method.
+        # [bruce 080326, part of fixing logic bug 2705]
+
+    _s_attr_temporarily_prevent_autodelete_when_empty = S_DATA
+
+    # ==
+    
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before _superclass.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
@@ -320,6 +335,7 @@ class Group(NodeWithAtomContents):
         self.__cmfuncs = []
         # self should no longer be used; enforce this
         self.members = 333 # not a sequence
+        self.temporarily_prevent_autodelete_when_empty = False #bruce 080326 precaution, probably not needed
         self.node_icon = "<bug if this is called>"
         for mem in new.members:
             mem.dad = new
@@ -528,6 +544,12 @@ class Group(NodeWithAtomContents):
                 print_compact_stack( "atom_debug: fyi: delmember finds obj not in members list: ") #k does this ever happen?
             return
         obj.dad = None # bruce 050205 new feature
+        if not self.members:
+            # part of fix for logic bug 2705 [bruce 080326]
+            if self.temporarily_prevent_autodelete_when_empty:
+                del self.temporarily_prevent_autodelete_when_empty
+                    # restore class-default state (must be False)
+            pass
         self.changed_members() # must be done *after* they change
         return
 
@@ -541,6 +563,7 @@ class Group(NodeWithAtomContents):
         res = self.members
         self.members = []
         for obj in res:
+            self.temporarily_prevent_autodelete_when_empty = False #bruce 080326 precaution
             if obj.dad is not self: # error, debug-reported but ignored
                 if debug_flags.atom_debug:
                     print_compact_stack( "atom_debug: fyi: steal_members finds obj.dad is not self: ") #k does this ever happen?
