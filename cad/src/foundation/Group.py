@@ -1048,12 +1048,7 @@ class Group(NodeWithAtomContents):
         # if we decide this depends on the tree widget or on somet for thing about it,
         # we'll have to pass in some args... don't do that unless/until we need to.
 
-        #If there are no MT_kids (subnodes visible in MT under this group) then
-        #don't make this node 'openable'. This makes sure that expand/ collapse
-        #pixmap next to the node is not shown for Group with 0 MT_kids
-        #Examples of such groups include empty groups, DnaStrand Groups,
-        #DnaSegments etc -- Ninad 2008-03-15
-        return len(self.MT_kids()) != 0
+        return True
 
     def make_modeltree_context_menu(self):
         """

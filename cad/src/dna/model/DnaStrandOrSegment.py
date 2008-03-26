@@ -111,6 +111,22 @@ class DnaStrandOrSegment(Group):
         [overrides Node/Group method]
         """
         return self._show_all_kids_for_debug() # normally False
+    
+    def openable(self): # overrides Node.openable()
+        """
+        whether tree widgets should permit the user to open/close their view of this node
+        """
+        # if we decide this depends on the tree widget or on somet for thing about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
+
+        #If there are no MT_kids (subnodes visible in MT under this group) then
+        #don't make this node 'openable'. This makes sure that expand/ collapse
+        #pixmap next to the node is not shown for this type of Group with 0 
+        #MT_kids
+        #Examples of such groups include empty groups, DnaStrand Groups,
+        #DnaSegments etc -- Ninad 2008-03-15
+        return len(self.MT_kids()) != 0
+    
 
     def _raw_MT_kids(self, display_prefs = {}):
         """
