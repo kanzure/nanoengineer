@@ -1,0 +1,5 @@
+[autorun]
+shellexecute=flashindex.html
+ICON=NE1.ico
+ACTION=See whats available on this drive
+Label=Nanorex
