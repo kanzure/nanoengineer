@@ -4003,18 +4003,19 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         #bruce 080319 revised, mainly to support undo/copy
         """
-        Set the Dna base name. This is only valid for PAM atoms in the list
+        Set the Dna base letter. This is only valid for PAM atoms in the list
         Atom.VALID_ELEMENTS_FOR_DNABASENAME, i.e. strand sugar atoms,
         presently defined as ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3').
         
-        @param dnaBaseName: The DNA base name. This is usually a single letter,
-                            but it can be more (though whether all code supports
-                            that is not reviewed). Only letters are valid
-                            (but this is not enforced here).
+        @param dnaBaseName: The DNA base letter. This must be "" or one letter
+                            (this requirement is only partially enforced here).
         @type  dnaBaseName: str
         
-        @raise: AssertionError, if self is not a strand sugar atom.
+        @raise: AssertionError, if self is not a strand sugar atom or if we
+                notice the value is not permitted.
         """
+        assert type(dnaBaseName) == type("") #bruce 080326
+        
         assert self.element.symbol in self.VALID_ELEMENTS_FOR_DNABASENAME, \
             "Can only assign dnaBaseNames to PAM strand sugar atoms. " \
             "Attempting to assign dnaBaseName %r to %r of element %r." \
@@ -4022,6 +4023,13 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         if dnaBaseName == 'X':
             dnaBaseName = ""
+
+        assert len(dnaBaseName) <= 1, \
+               "dnaBaseName must be empty or a single letter, not %r" % \
+               (dnaBaseName,) #bruce 080326
+
+        # todo: check that it's a letter
+        # maybe: canonicalize the case; if not, make sure it doesn't matter
 
         if self._dnaBaseName != dnaBaseName:
             self._dnaBaseName = dnaBaseName
@@ -4067,6 +4075,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             if not baseNameString:
                 baseNameString = 'X' # unassigned base
             pass
+
+        if len(baseNameString) > 1:
+            #bruce 080326 precaution, should never happen
+            baseNameString = ""
         
         return baseNameString
     
