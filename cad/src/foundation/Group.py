@@ -437,10 +437,12 @@ class Group(NodeWithAtomContents):
                 print_compact_stack(msg)
             newchild.dad = None
         if newchild.is_ascendant(self):
-            #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
-            if debug_flags.atom_debug:
+            #bruce 050205 adding this for safety (should prevent DND-move cycles
+            # as a last resort, tho might lose moved nodes)
+            #bruce 080325 removing atom_debug condition
+            if 1 or debug_flags.atom_debug:
                 # this msg covers newchild is self too since that's a length-1 cycle
-                print "atom_debug: addchild refusing to form a cycle, " \
+                print "\nBUG: addchild refusing to form a cycle, " \
                       "doing nothing; this indicates a bug in the caller:", self, newchild
             return
         if newchild.dad:
@@ -498,7 +500,7 @@ class Group(NodeWithAtomContents):
         else:
             self.members.append(newchild) # Add newchild to the bottom, i.e. end (default case)
         newchild.dad = self
-        newchild.changed_dad() # note: this picks newchild if newchild.dad is picked
+        newchild.changed_dad() # note: this picks newchild if newchild.dad is picked, and sometimes calls inherit_part
         newchild.dad.changed_members() # must be done *after* they change and *after* changed_dad has made them acceptable for new dad
         # Note: if we moved newchild from one place to another in self,
         # changed_members is called twice, once after deletion and once after
