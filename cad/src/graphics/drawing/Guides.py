@@ -36,7 +36,9 @@ from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
 from OpenGL.GL import glRectf
 from OpenGL.GL import GL_PROJECTION
 
-from PyQt4.Qt import QFont, QString, QColor
+from OpenGL.GLU import gluUnProject # piotr 080326
+
+from PyQt4.Qt import QFont, QFontMetrics, QString, QColor
 from widgets.widget_helpers import RGBf_to_QColor
 
 from geometry.VQT import V
@@ -240,7 +242,9 @@ def getRulerDrawingParameters(width, height, aspect,
     
     if ruler_position == _lower_left:
         ruler_origin = V(0.0, 0.0, 0.0)
-        units_text_origin = V(3.0, 5.0, 0.0)
+        #units_text_origin = V(3.0, 5.0, 0.0)
+        # piotr 080326: moved the text origin to the cell center
+        units_text_origin = ruler_origin + V(hr_thickness/2,vr_thickness/2,0.0)
         
         ruler_start_pt = ruler_origin \
                        + V(vr_thickness, hr_thickness, 0.0)
@@ -284,9 +288,11 @@ def getRulerDrawingParameters(width, height, aspect,
         hr_thickness *= -1 # Note: Thickness is a negative value.
         
         ruler_origin = V(0.0, height, 0.0)
-        units_text_origin = ruler_origin \
-                          + V(3.0, hr_thickness + 4.0, 0.0)
-        
+        #units_text_origin = ruler_origin \
+        #                  + V(3.0, hr_thickness + 4.0, 0.0)
+        # piotr 080326: moved the text origin to the cell center
+        units_text_origin = ruler_origin + V(vr_thickness/2,hr_thickness/2,0.0)
+
         ruler_start_pt = ruler_origin \
                        + V(vr_thickness, hr_thickness, 0.0)
         
@@ -323,8 +329,10 @@ def getRulerDrawingParameters(width, height, aspect,
     elif ruler_position == _lower_right:
         ruler_origin = V(width, 0.0, 0.0)
         vr_thickness *= -1 # Note: Thickness is a negative value.
-        units_text_origin = ruler_origin + V(vr_thickness + 3.0, 2.0, 0.0)
-        
+        #units_text_origin = ruler_origin + V(vr_thickness + 3.0, 2.0, 0.0)
+        # piotr 080326: moved the text origin to the cell center
+        units_text_origin = ruler_origin + V(vr_thickness/2,hr_thickness/2,0.0)
+
         ruler_start_pt = ruler_origin \
                        + V(vr_thickness, hr_thickness, 0.0)
         
@@ -363,10 +371,12 @@ def getRulerDrawingParameters(width, height, aspect,
         ruler_origin = V(width, height, 0.0)
         vr_thickness *= -1 # Note: Thickness is a negative value.
         hr_thickness *= -1 # Note: Thickness is a negative value.
-        units_text_origin = ruler_origin + V(vr_thickness * 0.8, 
-                                             hr_thickness * 0.8, 
-                                             0.0)
-        
+        #units_text_origin = ruler_origin + V(vr_thickness * 0.8, 
+        #                                     hr_thickness * 0.8, 
+        #                                     0.0)
+        # piotr 080326: moved the text origin to the cell center
+        units_text_origin = ruler_origin + V(hr_thickness/2,vr_thickness/2,0.0)
+
         ruler_start_pt = ruler_origin \
                        + V(vr_thickness, hr_thickness, 0.0)
         
@@ -402,8 +412,8 @@ def getRulerDrawingParameters(width, height, aspect,
     else:
         msg = "bug: Illegal ruler position value (must be 0-3). Current "\
             "value is %d. Ignoring." % ruler_position
-        print_compact_stack(msg)
-    
+        print_compact_stack(msg)    
+        
     return (draw_ticks_and_text,
             units_text, 
             units_format,
@@ -475,6 +485,7 @@ class Guides(object):
     - Allow user to control ruler thickness, ruler font size, tick mark color,
       etc via user preferences. (nice to have)
     - Center unit text in origin square (using QFontMetrics class to do this).
+      (fixed by piotr 080326)
     
     @param glpane: the 3D graphics area.
     @type  glpane: L{GLPane)
@@ -498,6 +509,7 @@ class Guides(object):
     else:
         rulerFontPointSize = 7
     rulerFont = QFont( QString("Helvetica"), rulerFontPointSize)
+    rulerFontMetrics = QFontMetrics(rulerFont) # piotr 080326
     
     def __init__(self, glpane):
         """
@@ -611,7 +623,8 @@ class Guides(object):
         self.glpane.qglColor(RGBf_to_QColor(text_color))
         
         # Draw unit of measurement in corner (A or nm).
-        self.drawText(units_text, units_text_origin)
+        # piotr 080326: replaced drawText with drawCenteredText
+        self.drawCenteredText(units_text, units_text_origin)
         
         # Kludge alert. Finish drawing ruler edge(s) if we will not be
         # drawing the ruler tick marks and text (only happens when the user
@@ -744,4 +757,28 @@ class Guides(object):
 
         self.glpane.renderText(origin[0], origin[1], origin[2], \
                           QString(text), self.rulerFont)
-        return 
+        return
+
+    def drawCenteredText(self, text, origin):
+        """
+        Draws ruler text centered, so text center == origin.
+        """       
+        
+        # added by piotr 080326
+
+        if not text:
+            return
+
+        fm = self.rulerFontMetrics
+        
+        # get the text dimensions in world coordinates 
+        x0, y0, z0 = gluUnProject(0,0,0)
+        x1, y1, z1 = gluUnProject(fm.width(text),fm.ascent(),0)
+
+        # compute a new origin relative to the old one
+        new_origin = origin - 0.5 * V(x1-x0, y1-y0, z1-z0)
+        
+        # render the text
+        self.glpane.renderText(new_origin[0], new_origin[1], new_origin[2], \
+                          QString(text), self.rulerFont)
+        return    
