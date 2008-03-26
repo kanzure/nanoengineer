@@ -119,6 +119,7 @@ from utilities import debug_flags
 from utilities.debug import print_compact_traceback
 
 from utilities.constants import get_dispName_for_writemmp
+from utilities.constants import PAM_MODELS
 
 # ==
 
@@ -150,7 +151,15 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.sim = options.get('sim', False) # simpler file just for the simulator?
         self.min = options.get('min', False) # even more simple, just for minimize?
         self.add_atomids_to_dict = options.get('add_atomids_to_dict', None)
-        self.save_as_pam = options.get('save_as_pam', "") # by default, do no conversion either way
+        self.convert_to_pam = options.get('convert_to_pam') or ""
+            # which PAM model to convert chunks to when saving,
+            # or any false value for not converting them.
+            # By default, do no conversion either way.
+            # For convenient debug prints, self.convert_to_pam is always a string.
+        assert not self.convert_to_pam or self.convert_to_pam in PAM_MODELS
+        self.honor_save_as_pam = not not options.get('honor_save_as_pam')
+            # Whether to let chunk.save_as_pam override self.convert_to_pam
+            # when set (to a value in PAM_MODELS). By default, don't honor it.
         if self.min:
             self.sim = True
         self.for_undo = options.get('for_undo', False)
@@ -372,8 +381,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
 
 # ==
 
-# bruce 050322 revised to use mapping; 050325 split, removed assy.alist set
-def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with writemmpfile_part
+def writemmpfile_assy(assy, filename, addshelf = True, **mapping_options):
     """
     Write everything in this assy (chunks, jigs, Groups,
     for both tree and shelf unless addshelf = False)
@@ -382,10 +390,10 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     Should properly save entire file regardless of current part
     and without changing current part.
     """
-    #bruce 050325 renamed this from writemmp
-    # to avoid confusion with Node.writemmp.
-    # Also, there's now an assy method which calls it
-    # and a sister function for Parts which has a Part method.
+    #e maybe: should merge with writemmpfile_part
+
+    # Note: only called by Assembly.writemmpfile as of long before 080326.
+    # See also writemmpfile_part, called by Part.writemmpfile.
     
     ##Huaicai 1/27/05, save the last view before mmp file saving
     #bruce 050419 revised to save into glpane's current part
@@ -395,7 +403,8 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     
     fp = open(filename, "w")
 
-    mapping = writemmp_mapping(assy) ###e should pass sim or min options when used that way...
+    mapping = writemmp_mapping(assy, **mapping_options)
+        ###e should pass sim or min options when used that way...
     mapping.set_fp(fp)
 
     try:

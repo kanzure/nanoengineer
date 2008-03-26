@@ -1,11 +1,13 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaLadderRailChunk.py - 
+DnaLadderRailChunk.py - Chunk subclasses for axis and strand rails of a DnaLadder
 
 @author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
+
+from dna.model.pam_conversion import DnaLadderRailChunk_writemmp_mapping_memo
 
 from model.chunk import Chunk
 
@@ -43,6 +45,8 @@ _superclass = Chunk
 
 class DnaLadderRailChunk(Chunk):
     """
+    Abstract class for our two concrete Chunk subclasses
+    for the axis and strand rails of a DnaLadder.
     """
 
     # initial values of instance variables:
@@ -653,6 +657,52 @@ class DnaLadderRailChunk(Chunk):
         [abstract method of DnaLadderRailChunk]
         """
         assert 0, "subclass must implement"
+
+    _f_writemmp_mapping_memo_class = DnaLadderRailChunk_writemmp_mapping_memo
+        ### FIX - probably needs to be subclass specific
+
+    def _f_make_writemmp_mapping_memo(self, mapping): #@@@ CALL ME from writemmp_mapping.get_memo_object_for
+        """
+        #doc
+        """
+        return self._f_writemmp_mapping_memo_class(mapping, self)
+    
+    def save_as_what_PAM_model(self, mapping): #bruce 080326 @@@ CALL ME
+        """
+        Return None or an element of PAM_MODELS
+        which specifies into what PAM model, if any,
+        self should be converted, when saving it
+        as controlled by mapping.
+
+        @param mapping: an instance of writemmp_mapping controlling the save.
+        """
+        res = self._f_requested_pam_model_for_save(mapping)
+        
+        if not res:
+            # optimize a simple case (though not the usual case);
+            # only correct since self.ladder will return None
+            # for its analogous decision if any of its chunks do.
+            return None
+        
+        # memoize the rest in mapping, not for speed but to
+        # prevent repeated error messages for same self and mapping
+        # (and to enforce constant behavior as bug precaution)
+
+        memo = mapping.get_memo_object_for(self) # IMPLEM in class writemmp_mapping
+
+        return memo._f_save_as_what_PAM_model()
+    
+    def _f_requested_pam_model_for_save(self, mapping):
+        """
+        Return whatever the mapping and self options are asking for
+        (without checking whether it's doable).
+        """
+        #k some attr names unverified
+        if mapping.honor_save_as_pam:
+            res = self.save_as_pam
+        else:
+            res = mapping.convert_to_pam
+        return res
         
     pass # end of class DnaLadderRailChunk
 
@@ -814,6 +864,24 @@ class DnaStrandChunk(DnaLadderRailChunk):
         del mapping
         return 0
 
+    def _Pl_atoms_to_interleave(self, mapping):
+        """
+        [private helper for mmp write methods]
+        Assuming (not checked) that this chunk should be saved in PAM5
+        (and allowing it to presently be in either PAM3 or PAM3+5 or PAM5),
+        return a list of Pl atoms to interleave before/between/after our
+        baseatoms. (Not necessarily in the right positions in 3d space,
+         or properly bonded to our baseatoms.)
+        Length is always 1 more than len(baseatoms).
+        First and last entries might be None if those Pl atoms should belong
+        to different chunks or should not exist.
+        The Pl atoms returned exist as Atom objects, but might be in self,
+        or killed, or perhaps some of each. Don't alter this.
+        It's ok to memoize data in mapping (index by self, private to self
+        and/or self.ladder) which depends on our current state and can be
+        used when writing every chunk in self.ladder.
+        """
+        
     pass # end of class DnaStrandChunk
 
 def make_or_reuse_DnaStrandChunk(assy, chain, ladder):

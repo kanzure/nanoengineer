@@ -1518,8 +1518,10 @@ class assembly( StateMixin, Assembly_API):
             return "<Assembly of file %r" % self.filename + " (id = %r, _debug_name = %r)>" % (id(self), self._debug_name) #bruce 050429
         return "<Assembly of " + self.filename + ">"
 
-    def writemmpfile(self, filename):
-        writemmpfile_assy( self, filename, addshelf = True)
+    def writemmpfile(self, filename, **options): #bruce 080326 revised
+        _options = dict(addshelf = True)
+        _options.update(options)
+        writemmpfile_assy( self, filename, **_options)
         
     def get_cwd(self):
         """

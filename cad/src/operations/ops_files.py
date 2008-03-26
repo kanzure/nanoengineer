@@ -1149,9 +1149,21 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         copy those files to the new Part Files directory (i.e. '<safile> Files').
         """
         dir, fil, extjunk = _fileparse(safile)
+
+        from dna.updater.dna_updater_prefs import pref_mmp_save_convert_to_PAM5
+        from utilities.constants import MODEL_PAM5
+
+        # determine options for writemmpfile
+        options = dict()
+        if pref_mmp_save_convert_to_PAM5(): # maybe WRONG, see whether calls differ in this! ##### @@@@@@ [bruce 080326]
+            options.update(dict(convert_to_pam = MODEL_PAM5,
+                                honor_save_as_pam = True))
+            pass
+
+        tmpname = "" # in case of exceptions
         try:
             tmpname = os.path.join(dir, '~' + fil + '.m~')
-            self.assy.writemmpfile(tmpname)
+            self.assy.writemmpfile(tmpname, **options)
         except:
             #bruce 050419 revised printed error message
             print_compact_traceback( "Problem writing file [%s]: " % safile )
@@ -1187,17 +1199,21 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.saved_main_file(safile, fil)
 
-            if brag: env.history.message( "MMP file saved: [ " + os.path.normpath(self.assy.filename) + " ]" )
+            if brag:
+                env.history.message( "MMP file saved: [ " + os.path.normpath(self.assy.filename) + " ]" )
             # bruce 060704 moved this before copying part files,
             # which will now ask for permission before removing files,
             # and will start and end with a history message if it does anything.
             # wware 060802 - if successful, we may choose not to brag, e.g. during a
             # step of exporting a non-native file format
 
-            # If it exists, copy the Part Files directory of the original part (oldPartFilesDir) to the new name (i.e. "<safile> Files")
+            # If it exists, copy the Part Files directory of the original part
+            # (oldPartFilesDir) to the new name (i.e. "<safile> Files")
             if oldPartFilesDir: #bruce 060704 revised this code
-                errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703. [only copies them if they exist]
-                    #bruce 060704 will modify that function, e.g. to make it print a history message when it starts copying.
+                errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir)
+                    # Mark 060703. [only copies them if they exist]
+                    #bruce 060704 will modify that function, e.g. to make it print
+                    # a history message when it starts copying.
                 if errorcode:
                     env.history.message( orangemsg("Problem copying part files: " + errortext ))
                 else:
