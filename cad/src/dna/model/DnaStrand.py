@@ -78,9 +78,39 @@ class DnaStrand(DnaStrandOrSegment):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
+        
+    def isEmpty(self):
+        """
+        Returns True if there are no strand chunks as its members 
+        @see: DnaGroup.getStrands where this test is used. 
+        """
+        if len(self.getStrandChunks()) == 0:
+            return True
                         
     def getStrandChunks(self): 
-        pass
+        """
+        Return a list of all strand chuns
+        """
+        strandChunkList = []
+        for m in self.members:
+            if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
+                strandChunkList.append(m)
+        
+        #@TODO: when pre dna data model code is deprecated, check if the following 
+        #looks correct. I think the following is NOT right. Because 
+        #a DnaStrand group can encompass many ladders correct? -- Ninad 2008-03-26
+        ##if 0:
+            ##strandChunk = None
+            
+            ##for m in self.members:
+                ##if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
+                    ##strandChunk = m
+                    ##break
+            ##if strandChunk is not None:
+                ##ladder = strandChunk.ladder
+                ##strandChunkList = ladder.strand_chunks()
+            
+        return strandChunkList
     
     def _get_commandNames_honoring_highlightPolicy(self):
         """

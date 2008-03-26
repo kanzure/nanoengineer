@@ -216,7 +216,7 @@ class DnaGroup(Group):
         strandList = []
         
         def filterStrands(node):
-            if isinstance(node, self.assy.DnaStrand):
+            if isinstance(node, self.assy.DnaStrand) and not node.isEmpty():
                 strandList.append(node)            
             elif isinstance(node, self.assy.Chunk) and node.isStrandChunk():
                 if node.parent_node_of_class(self.assy.DnaStrand) is None:
@@ -275,7 +275,6 @@ class DnaGroup(Group):
             return False
         
         
-    
     def getSelectedStrands(self):
         """
         Returns a list of selected strands of the DnaGroup        
