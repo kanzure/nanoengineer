@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Tue Mar 25 20:35:25 2008
+# Created: Wed Mar 26 13:05:10 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -3276,7 +3276,7 @@ class Ui_UserPrefsDialog(object):
         self.arrowsOnBackBones_checkBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Show arrows on back bones", None, QtGui.QApplication.UnicodeUTF8))
         self.arrowsOnThreePrimeEnds_checkBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Show arrows on 3\' ends", None, QtGui.QApplication.UnicodeUTF8))
         self.arrowsOnFivePrimeEnds_checkBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Show arrows on 5\' ends", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaDisplayMinorGrooveErrorGroupBox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Display Minor Grove Error Indicators", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaDisplayMinorGrooveErrorGroupBox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Display Minor Groove Error Indicators", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaMinorGrooveRestoreFactoryDefaultsPushButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Restore Factory Defaults", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaMinGrooveAngleSpinBox.setSuffix(QtGui.QApplication.translate("UserPrefsDialog", " degrees", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaMaxGrooveAngleSpinBox.setSuffix(QtGui.QApplication.translate("UserPrefsDialog", " degrees", None, QtGui.QApplication.UnicodeUTF8))

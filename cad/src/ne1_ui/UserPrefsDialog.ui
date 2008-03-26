@@ -2562,7 +2562,7 @@
          <item>
           <widget class="QGroupBox" name="dnaDisplayMinorGrooveErrorGroupBox" >
            <property name="title" >
-            <string>Display Minor Grove Error Indicators</string>
+            <string>Display Minor Groove Error Indicators</string>
            </property>
            <property name="checkable" >
             <bool>true</bool>
