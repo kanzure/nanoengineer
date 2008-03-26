@@ -35,6 +35,8 @@ from dna.model.Dna_Constants import getDuplexBasesPerTurn
 from simulation.sim_commandruns import adjustSinglet
 
 from model.elements import PeriodicTable
+from model.Line import Line
+
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from dna.model.Dna_Constants import basesDict, dnaDict
@@ -51,7 +53,6 @@ from geometry.VQT import V, Q, norm, cross
 from geometry.VQT import  vlen
 from Numeric import dot
 
-ENABLE_DEBUG_PRINTS = False
 
 class Dna:
     """
@@ -148,38 +149,22 @@ class Dna:
                                              numberOfBasePairsToSubtract)
             return
         
-        if ENABLE_DEBUG_PRINTS:        
-            print "*** number of base pairs = ", numberOfBasePairs
-            print "*** basesPerTurn =" , basesPerTurn
-            print "*** duplexRise =", duplexRise
 
         self._create_raw_duplex(group, 
                                 numberOfBasePairs, 
                                 basesPerTurn, 
                                 duplexRise )      
         
-        DEBUG_ORIENTATION = True
-
+       
         # Orient the duplex.
         
         #Correct one to use
         self._orient(self.baseList, ladderEndAxisAtom.posn(), endPoint2)
 
-        if not DEBUG_ORIENTATION:
-            if ENABLE_DEBUG_PRINTS:
-                print "*** _NOT_ debugging final orientation code. Returning after basic orientation"
-            return
-        else:
-            if ENABLE_DEBUG_PRINTS:
-                print "***DEBUGGING FINAL ORIENTATION"
-                print "#############################\n"
 
         ladder = ladderEndAxisAtom.molecule.ladder                        
         endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(ladderEndAxisAtom)
         
-        if ENABLE_DEBUG_PRINTS:
-            print "***endBaseAtomList", endBaseAtomList
-            print "***endPoint1 = %s, \n endPoint2 = %s"%(endPoint1, endPoint2)
 
         if endBaseAtomList and len(endBaseAtomList) > 2:
 
@@ -191,114 +176,71 @@ class Dna:
             #one in dna data model. Do it before calling self._orient_for_modify
             self.assy.update_parts()
 
-            #earlier implementation for _orient_for_modify_ORIGINAL20080320
-            ##self._orient_for_modify(self.chunkList, endPoint1, endPoint2)
-
             self._orient_for_modify(endPoint1, endPoint2)
 
-            FUSE_DEBUG = 1
-            
-            if FUSE_DEBUG:
-                new_ladder = self.axis_atom_end1.molecule.ladder     
-                #REFACTOR: Reset the dnaBaseNames of the atoms to 'X' 
-                #replacing the original dnaBaseNames 'a' or 'b'. Do not do it 
-                #inside self._postProcess because that method is also used by
-                #self.make that calls self._create_atomLists_for_regrouping
-                #after calling self._postProcess
-                for m in new_ladder.all_chunks():
-                    for atm in m.atoms.values():
-                        if atm.element.symbol in ('Ss3') and atm.getDnaBaseName() in ('a','b'):
-                            atm.setDnaBaseName('X')
-                                
-                new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
-                endBaseAtomList_generated_duplex  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
+            new_ladder = self.axis_atom_end1.molecule.ladder     
+            #REFACTOR: Reset the dnaBaseNames of the atoms to 'X' 
+            #replacing the original dnaBaseNames 'a' or 'b'. Do not do it 
+            #inside self._postProcess because that method is also used by
+            #self.make that calls self._create_atomLists_for_regrouping
+            #after calling self._postProcess
+            for m in new_ladder.all_chunks():
+                for atm in m.atoms.values():
+                    if atm.element.symbol in ('Ss3') and atm.getDnaBaseName() in ('a','b'):
+                        atm.setDnaBaseName('X')
+                            
+            new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
+            endBaseAtomList_generated_duplex  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
 
-                #strandA atom should be first in the list
-                if self.strandA_atom_end1 in endBaseAtomList_generated_duplex and \
-                   self.strandA_atom_end1 != endBaseAtomList_generated_duplex[0]:
-                    endBaseAtomList_generated_duplex.reverse()
+            #strandA atom should be first in the list
+            if self.strandA_atom_end1 in endBaseAtomList_generated_duplex and \
+               self.strandA_atom_end1 != endBaseAtomList_generated_duplex[0]:
+                endBaseAtomList_generated_duplex.reverse()
 
+            #Get the set of base atoms next to the 'new_endBaseAtomList' 
+            #This will become our new end base atoms (as we will be deleting
+            #the first set of new_endBaseAtomList                
+            new_endBaseAtomList = []
+            for atm in endBaseAtomList_generated_duplex:
+                rail = atm.molecule.get_ladder_rail()                        
+                baseindex = rail.baseatoms.index(atm)
 
-                #Get the set of base atoms next to the 'new_endBaseAtomList' 
-                #This will become our new end base atoms (as we will be deleting
-                #the first set of new_endBaseAtomList                
-                new_endBaseAtomList = []
-                if ENABLE_DEBUG_PRINTS:
-                    print "###################################################"
-                for atm in endBaseAtomList_generated_duplex:
-                    rail = atm.molecule.get_ladder_rail()
-                    if ENABLE_DEBUG_PRINTS:
-                        print "***atm =", atm
-                        print "***atm.next_base_atom_in_bond_direction 1", atm.next_atom_in_bond_direction(1)
-                        print "***atm.next_base_atom_in_bond_direction 1", atm.next_atom_in_bond_direction(-1)
-                        ##print "***atm.molecule.atoms =", atm.molecule.atoms.values()
-                        ##print "***atm.molecule.wholechain ", atm.molecule.wholechain.end_baseatoms()
-                        print "***rail.baseatoms, ", rail.baseatoms
-                        print "***rail.neighbor_baseatoms =", rail.neighbor_baseatoms
-                        
-                    baseindex = rail.baseatoms.index(atm)
+                next_atm = None
+                if len(rail.baseatoms) == 1:
+                    for bond_direction in (1, -1):
+                        next_atm = atm.next_atom_in_bond_direction(bond_direction)
+                else:                        
+                    if new_ladder_end == 0:
+                        #@@@BUG 2008-03-21. Handle special case when len(rail.baseatoms == 1)
+                        next_atm = rail.baseatoms[1]
+                    elif new_ladder_end == 1:
+                        next_atm = rail.baseatoms[-2]
 
-                    next_atm = None
-                    if len(rail.baseatoms) == 1:
-                        for bond_direction in (1, -1):
-                            next_atm = atm.next_atom_in_bond_direction(bond_direction)
-                    else:                        
-                        if new_ladder_end == 0:
-                            #@@@BUG 2008-03-21. Handle special case when len(rail.baseatoms == 1)
-                            next_atm = rail.baseatoms[1]
-                        elif new_ladder_end == 1:
-                            next_atm = rail.baseatoms[-2]
+                assert next_atm is not None                        
+                new_endBaseAtomList.append(next_atm)
 
-                    assert next_atm is not None                        
-                    new_endBaseAtomList.append(next_atm)
+            #@@REVIEW This doesn't invalidate the ladder. We just delete 
+            #all the atoms and then the dna updater runs. 
+            for atm in endBaseAtomList_generated_duplex:
+                atm.kill()   
 
-                #@@REVIEW This doesn't invalidate the ladder. We just delete 
-                #all the atoms and then the dna updater runs. 
-                for atm in endBaseAtomList_generated_duplex:
-                    atm.kill()   
+            #update dna again
+            self.assy.update_parts()
 
-                #update dna again
-                self.assy.update_parts()
+            self.axis_atom_end1 = None
 
-                
-                self.axis_atom_end1 = None
+            chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
+                new_endBaseAtomList[0].molecule]
 
-                chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
-                    new_endBaseAtomList[0].molecule]
-                
-                if ENABLE_DEBUG_PRINTS:
-                    print "***new_endBaseAtomList for fusing ", new_endBaseAtomList
-                    print "***for fusing, chunkList1 = ", chunkList1
+            chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
+                          new_endBaseAtomList[1].molecule]
 
-                chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
-                              new_endBaseAtomList[1].molecule]
+            chunkList3 = [endBaseAtomList[2].molecule, 
+                          new_endBaseAtomList[2].molecule]
 
-                chunkList3 = [endBaseAtomList[2].molecule, 
-                              new_endBaseAtomList[2].molecule]
-
-                self.fuseBasePairChunks(chunkList1)
-                self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
-                self.fuseBasePairChunks(chunkList3)
-
-            #Delete the first base in the baselist -- OLD implementation
-            #when self._orient_for_modify_ORIGINAL20008... is used
-            if 0:
-                chunkToRemove = self.baseList[0]
-                self.baseList.remove(chunkToRemove)
-                chunkToRemove.kill()
-
-
-                chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
-                              self.baseList[0]]                
-                chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
-                              self.baseList[0]]
-
-                chunkList3 = [endBaseAtomList[2].molecule, self.baseList[0]]
-
-
-                self.fuseBasePairChunks(chunkList1)
-                self.fuseBasePairChunks(chunkList2, fuseTolerance = 2.0)
-                self.fuseBasePairChunks(chunkList3)
+            self.fuseBasePairChunks(chunkList1)
+            self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
+            self.fuseBasePairChunks(chunkList3)
 
 
         self.assy.update_parts()
@@ -1228,7 +1170,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
                     self.strandA_atom_end1 = atm
 
     def _orient_for_modify(self, end1, end2):    
-        from model.Line import Line
+        
 
         original_ladder = self._original_structure_lastBaseAtom_axis.molecule.ladder
         original_ladder_end = original_ladder.get_ladder_end(self._original_structure_lastBaseAtom_axis)
@@ -1244,10 +1186,6 @@ class B_Dna_PAM3(B_Dna_PAM5):
         chunkListForRotation = new_ladder.all_chunks()
 
         endBaseAtomList  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
-
-        #DETERMINE NEW STRAND A ATOM
-        if ENABLE_DEBUG_PRINTS:
-            print "~~~~~~~~~~#DETERMINE NEW STRAND A ATOM~~~~"
         
         endStrandbaseAtoms = (endBaseAtomList[0], endBaseAtomList[2])        
 
@@ -1256,10 +1194,6 @@ class B_Dna_PAM3(B_Dna_PAM5):
             rail = atm.molecule.get_ladder_rail()
 
             bond_direction = rail.bond_direction()
-            
-            if ENABLE_DEBUG_PRINTS:
-                print "***strand atm = %s, rail.bond_direction =%s "%(atm,bond_direction)
-                print "***rail_bond_direction_of_strandA_of_original_duplex = ", rail_bond_direction_of_strandA_of_original_duplex
 
             if new_ladder_end == original_ladder_end:                
                 if bond_direction != rail_bond_direction_of_strandA_of_original_duplex:
@@ -1268,12 +1202,6 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 if bond_direction == rail_bond_direction_of_strandA_of_original_duplex:
                     self.strandA_atom_end1 = atm 
                     
-        if ENABLE_DEBUG_PRINTS:
-            print "***chunkListForRotation =", chunkListForRotation   
-            print "***self.strandA_atom_end1 =", self.strandA_atom_end1
-
-        #if endBaseAtomList and len(endBaseAtomList) > 2:        
-            #self.strandA_atom_end1 = endBaseAtomList[0]
 
         axis_strand_vector = (self.strandA_atom_end1.posn() - \
                               self.axis_atom_end1.posn())
@@ -1318,71 +1246,12 @@ class B_Dna_PAM3(B_Dna_PAM5):
         q_new = Q(axis_strand_vector, vectorAlongLadderStep)
 
         if dot(axis_strand_vector, cross(vectorAlongLadderStep, b)) < 0:
-            ##print "***dot(axis_strand_vector, self.assy.o.lineOfSight) < 0 "
             q_new2 = Q(b, -q_new.angle)
         else:     
             q_new2 = Q(b, q_new.angle) 
 
 
         self.assy.rotateSpecifiedMovables(q_new2, chunkListForRotation, end1)
-
-    def _orient_for_modify_ORIGINAL20080320(self, baseList, end1, end2):    
-        from model.Line import Line
-
-        b = norm(end2 - end1)
-
-        axis_strand_vector = (self.strandA_atom_end1.posn() - \
-                              self.axis_atom_end1.posn())
-
-
-        vectorAlongLadderStep =  self._original_structure_lastBaseAtom_strand1.posn() - \
-                              self._original_structure_lastBaseAtom_axis.posn()
-
-        unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-
-        self.final_pos_strand_end_atom = \
-            self.axis_atom_end1.posn() + \
-            vlen(axis_strand_vector)*unitVectorAlongLadderStep
-
-        expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
-
-        if 1:
-            pointList1 = (self.strandA_atom_end1.posn() ,
-                          self.axis_atom_end1.posn())
-            line1 = Line(self.assy.w, pointList = pointList1)
-
-            pointList2 = (self._original_structure_lastBaseAtom_strand1.posn(),
-                          self._original_structure_lastBaseAtom_axis.posn())
-            line2 = Line(self.assy.w, pointList = pointList2)
-
-            pointList3 = (self.final_pos_strand_end_atom, self.axis_atom_end1.posn())
-            line3 = Line(self.assy.w, pointList = pointList3)
-
-            pointList4 = (end1, end2)
-            line4 = Line(self.assy.w, pointList = pointList4)
-
-            print "***Line1 vector before orientation"
-            print "***Line2 orientation of the last duplex"
-            print "***Line3 expected orientation of new duplex"
-            print "***Line4 end1  to end2"
-
-        ##q_new = Q(axis_strand_vector, expected_vec)
-
-        q_new = Q(axis_strand_vector, vectorAlongLadderStep)
-
-
-        ##if dot(axis_strand_vector, self.assy.o.lineOfSight) < 0:
-        if dot(axis_strand_vector, cross(vectorAlongLadderStep, b)) < 0:
-            print "***dot(axis_strand_vector, self.assy.o.lineOfSight) < 0 but still you are setting it +q_new.angle"
-            q_new2 = Q(b, -q_new.angle)
-        else:     
-            q_new2 = Q(b, q_new.angle) 
-
-        q_new2 = Q(b, q_new.angle)  
-        
-        
-        self.assy.rotateSpecifiedMovables(q_new2, baseList, end1)
-
 
     def _orient_to_position_first_strandA_base_in_axis_plane(self, baseList, end1, end2):
         """
