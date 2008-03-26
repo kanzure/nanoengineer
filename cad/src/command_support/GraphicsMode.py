@@ -99,6 +99,8 @@ class nullGraphicsMode(GraphicsMode_API):
         pass
     def bareMotion(self, e):
         pass
+    def drawTags(self, *args, **kws): #bruce 080325
+        pass
 
     pass # end of class nullGraphicsMode
 
@@ -350,7 +352,7 @@ class basicGraphicsMode(GraphicsMode_API):
             self.o.assy.checkpicked(always_print = 0)
         return
     
-    def drawTags(self, tagPositions = (), tagColor = yellow):
+    def drawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
         """
         Public method that accepts requests to draw tags at the given 
         tagPositions.

@@ -805,6 +805,9 @@ def register_instancelike_class( class1 ):
         setInstanceLikeClasses(instancelike_classes)
     return
 
+def is_instancelike_class( class1 ): #bruce 080325
+    return known_type_scanners.get(class1, None) is scan_InstanceType
+
 # ==
 
 def copy_Numeric_array(obj):
@@ -1742,8 +1745,8 @@ class obj_classifier:
                 #bruce 060315: decided to fix scan_val.
                 ##k Once this is tested, should this check depend on atom_debug?
                 # Maybe in classify_instance? (Maybe already there?) ###@@@
-                if type(obj1) is not InstanceType: ## in ( types.ListType, types.DictType ):
-                    print "debug: bug? scan_children hit obj at %#x of type %r" % (id(obj1), type(obj1)) ####@@@@
+                if not is_instancelike_class(type(obj1)): #bruce 080325 revised
+                    print "debug: bug: scan_children hit obj at %#x of type %r" % (id(obj1), type(obj1))
             clas = classify_instance(obj1)
             if clas.obj_is_data(obj1):
                 data_objs[id(obj1)] = obj1

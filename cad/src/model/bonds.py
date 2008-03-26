@@ -406,7 +406,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
             if want_dir != - dir2:
                 a2.fix_open_bond_directions(s2, - want_dir)
 
-            if debug_flags.atom_debug and (dir1 or dir2 or want_dir_a1 or want_dir_a2 or want_dir):
+            if 0 and debug_flags.atom_debug and (dir1 or dir2 or want_dir_a1 or want_dir_a2 or want_dir):
                 print "bond at open bonds with directions, %r and %r, => %r" % (s1 and s1.bonds[0], s2 and s2.bonds[0], want_dir)
 
         pass

@@ -157,7 +157,8 @@ def assy_become_state(self, stateplace, archive):
     """
     #bruce 060117 kluge for non-modular undo;
     # should be redesigned to be more sensible
-    assert isinstance(stateplace, StatePlace) ###k 060407
+    assert isinstance(stateplace, StatePlace), \
+           "should be a StatePlace: %r" % (stateplace,)
     
     if debug_change_counters:
         print "assy_become_state begin, chg ctrs =", \
