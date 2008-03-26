@@ -550,7 +550,7 @@ class DnaDuplex_EditCommand(EditCommand):
             self.mouseClickPoints = []
             self.graphicsMode.resetVariables()
             
-            msg  = redmsg("Cannot to preview/insert a DNA duplex with less than 2 base pairs.")
+            msg  = redmsg("Cannot preview/insert a DNA duplex with less than 2 base pairs.")
             self.propMgr.updateMessage(msg)
                 
             self.dna = None # Fixes bug 2530. Mark 2007-09-02
@@ -571,8 +571,6 @@ class DnaDuplex_EditCommand(EditCommand):
             endPoint2 = endPoint1 + \
                       self.win.glpane.right * \
                       getDuplexLength('B-DNA', numberOfBases)
-
-        
 
         if dnaForm == 'B-DNA':
             if dnaModel == 'PAM-3':

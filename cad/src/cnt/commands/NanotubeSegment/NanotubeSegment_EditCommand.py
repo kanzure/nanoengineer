@@ -418,7 +418,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
 
         if numberOfCells < 1:
-            msg = redmsg("Cannot to preview/insert a CNT with 0 cells.")
+            msg = redmsg("Cannot preview/insert a CNT with 0 cells.")
             self.propMgr.updateMessage(msg)
             self.cnt = None # Fixes bug 2530. Mark 2007-09-02
             return None

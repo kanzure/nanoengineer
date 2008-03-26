@@ -451,7 +451,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
 
         if numberOfBases < 1:
-            msg = redmsg("Cannot to preview/insert a DNA duplex with 0 bases.")
+            msg = redmsg("Cannot preview/insert a DNA duplex with 0 bases.")
             self.propMgr.updateMessage(msg)
             self.dna = None # Fixes bug 2530. Mark 2007-09-02
             return None
@@ -638,7 +638,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
         
                 
-        ladderEndAxisAtom = self._get_axisEndAtom_at_resize_end()
+        ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
         
         if numberOfBasePairsToAddOrRemove != 0:   
             
@@ -887,7 +887,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 self.dna = B_Dna_PAM3()
                 
                 numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()  
-                ladderEndAxisAtom = self._get_axisEndAtom_at_resize_end()
+                ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
                 
                 self.dna.modify(self.struct, 
                                 ladderEndAxisAtom,
@@ -928,7 +928,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.updateHandlePositions()
         self.glpane.gl_update()
         
-    def _get_axisEndAtom_at_resize_end(self):
+    def get_axisEndAtom_at_resize_end(self):
         ladderEndAxisAtom = None
         if self.grabbedHandle is not None:
             ladderEndAxisAtom = self.struct.getAxisEndAtomAtPosition(self.grabbedHandle.origin)
