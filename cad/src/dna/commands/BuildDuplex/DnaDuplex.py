@@ -107,20 +107,19 @@ class Dna:
         """  
         self.assy               =  group.assy         
         assy                    =  group.assy
-        #Make sure to clear self.baseList each time self.make() is called
+        #Make sure to clear self.baseList each time self.modify() is called
         self.baseList           =  []
 
         self.setNumberOfBasePairs(abs(numberOfBasePairs))
         self.setBaseRise(duplexRise)
-        #See a note in DnaSegment_EditCommand._createStructure(). Should 
+        
+        #@TODO: See a note in DnaSegment_EditCommand._createStructure(). Should 
         #the parentGroup object <group> be assigned properties such as
         #duplexRise, basesPerTurn in this method itself? to be decided 
-        #once dna data model is fully functional (and when this method is 
-        #revised) -- Ninad 2008-03-05
         self.setBasesPerTurn(basesPerTurn)
 
         #End axis atom at end1. i.e. the first mouse click point from which 
-        #user started drawing the dna duplex (rubberband line). This is initially
+        #user started resizing the dna duplex (rubberband line). This is initially
         #set to None. When we start creating the duplex and read in the first 
         #mmp file:  MiddleBasePair.mmp, we assign the appropriate atom to this 
         #variable. See self._determine_axis_and_strandA_endAtoms_at_end_1()
@@ -130,10 +129,18 @@ class Dna:
         #The vector between self.axis_atom_end1 and self.strandA_atom_end1 
         #is used to determine the final orientation of the created duplex. 
         #that aligns this vector such that it is parallel to the screen. 
-        #see self._orient_to_position_first_strandA_base_in_axis_plane() for more details.
+        #see self._orient_to_position_first_strandA_base_in_axis_plane() for 
+        #more details.
         self.strandA_atom_end1 = None
-
+        
+        
+        #The end strand base-atom of the original structure (segment) being 
+        #resized. This and the corresponding axis end atom ot the original 
+        #structure will be used to orient the new bases we will create and fuse
+        #to the original structure. 
         self._original_structure_lastBaseAtom_strand1 = None
+        
+        #The axis end base atom of the original structure (at the resize end)
         self._original_structure_lastBaseAtom_axis = None
         
         #Do a safety check. If number of base pairs to add or subtract is 0, 
@@ -142,6 +149,9 @@ class Dna:
             print "Duplex not created. The number of base pairs are unchanged"
             return
         
+        #If the number of base pairs supplied by the caller are negative, it 
+        #means the caller wants to delete those from the original structure
+        #(duplex). 
         if numberOfBasePairs < 0:
             numberOfBasePairsToSubtract = abs(numberOfBasePairs)
             self._subtract_bases_from_duplex(group, 
@@ -149,7 +159,9 @@ class Dna:
                                              numberOfBasePairsToSubtract)
             return
         
-
+        #Create a raw duplex first in Z direction. Using reference mmp basefiles
+        #Later we will reorient this duplex and then fuse it with the original
+        #duplex (which is being resized)
         self._create_raw_duplex(group, 
                                 numberOfBasePairs, 
                                 basesPerTurn, 
@@ -158,14 +170,27 @@ class Dna:
        
         # Orient the duplex.
         
-        #Correct one to use
+        #Do the basic orientation so that axes of the newly created raw duplex
+        #aligns with the original duplex
         self._orient(self.baseList, ladderEndAxisAtom.posn(), endPoint2)
-
-
-        ladder = ladderEndAxisAtom.molecule.ladder                        
-        endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(ladderEndAxisAtom)
         
-
+        #Now determine the the strand1-end and axis-endAtoms at the resize 
+        #end of the *original structure*. We will use this information 
+        #for final orientation of the new duplex and also for fusing the new 
+        #duplex with the original one. 
+        
+        #find out dna ladder to which the end axis atom of the original duplex
+        #belongs to
+        ladder = ladderEndAxisAtom.molecule.ladder 
+        
+        #list of end base atoms of the original duplex, at the resize end.
+        #This list includes the axis end atom and strand end base atoms 
+        #(so for a double stranded dna, this will return 3 atoms whereas
+        #for a single stranded dna, it will return 2 atoms
+        endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(ladderEndAxisAtom)        
+        
+        #As of 2008-03-26, we support onlu double stranded dna case
+        #So endBaseAtomList should have atleast 3 atoms to proceed further. 
         if endBaseAtomList and len(endBaseAtomList) > 2:
 
             self._original_structure_lastBaseAtom_strand1 = endBaseAtomList[0]
@@ -174,11 +199,22 @@ class Dna:
 
             #Run full dna update so that the newly created duplex represents
             #one in dna data model. Do it before calling self._orient_for_modify
+            #The dna updater run will help us use dna model features such as
+            #dna ladder, rail. These will be used in final orientation 
+            #of the new duplex and later fusing it with the original duplex
+            #REVIEW: Wheather dna updater should be run without 
+            #calling assy.update_parts... i.e. only running a local update 
+            #than the whole on -- Ninad 2008-03-26
             self.assy.update_parts()
-
+            
+            #Do the final orientation of the new duplex. i.e rotate the new 
+            #duplex around its own axis such that its then fusable with the
+            #original duplex.
             self._orient_for_modify(endPoint1, endPoint2)
-
+            
+            #new_ladder is the dna ladder of the newly generated duplex.
             new_ladder = self.axis_atom_end1.molecule.ladder     
+            
             #REFACTOR: Reset the dnaBaseNames of the atoms to 'X' 
             #replacing the original dnaBaseNames 'a' or 'b'. Do not do it 
             #inside self._postProcess because that method is also used by
@@ -188,18 +224,35 @@ class Dna:
                 for atm in m.atoms.values():
                     if atm.element.symbol in ('Ss3') and atm.getDnaBaseName() in ('a','b'):
                         atm.setDnaBaseName('X')
-                            
+            
+            #Find out the 'end' of the new ladder i.e. whether it is end0 or 
+            #end1, that contains the first end axis base atom of the new duplex
+            #i.e. atom self.axis_atom_end1)
             new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
-            endBaseAtomList_generated_duplex  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
+            
+            #Find out three the end base atoms list of the new duplex 
+            
+            endBaseAtomList_generated_duplex = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
 
-            #strandA atom should be first in the list
+            #strandA atom should be first in the list. If it is not, 
+            #make sure that this list includes end atoms in this order: 
+            #[strand1, axis, strand2] 
             if self.strandA_atom_end1 in endBaseAtomList_generated_duplex and \
                self.strandA_atom_end1 != endBaseAtomList_generated_duplex[0]:
                 endBaseAtomList_generated_duplex.reverse()
+                
+            
+            #Note that after orienting the duplex the first set of end base atoms 
+            #in endBaseAtomList_generated_duplex will be killed. Why? because 
+            #the corrsponding atoms are already present on the original duplex
+            #We just used this new set for proper orientation. 
 
-            #Get the set of base atoms next to the 'new_endBaseAtomList' 
-            #This will become our new end base atoms (as we will be deleting
-            #the first set of new_endBaseAtomList                
+            
+            #As we will be deleting the first set of 
+            #endBaseAtomList_generated_duplex, et a set of base atoms connected 
+            #to) the end base atoms in endBaseAtomList_generated_duplex. This 
+            #will become our new end base atoms 
+            
             new_endBaseAtomList = []
             for atm in endBaseAtomList_generated_duplex:
                 rail = atm.molecule.get_ladder_rail()                        
@@ -224,19 +277,23 @@ class Dna:
             for atm in endBaseAtomList_generated_duplex:
                 atm.kill()   
 
-            #update dna again
+            #Run dna updater again
             self.assy.update_parts()
 
             self.axis_atom_end1 = None
+            
+            #FUSE new duplex with the original duplex
+            chunkList1 = \
+                       [ new_endBaseAtomList[0].molecule, 
+                         self._original_structure_lastBaseAtom_strand1.molecule]
 
-            chunkList1 = [self._original_structure_lastBaseAtom_strand1.molecule,
-                new_endBaseAtomList[0].molecule]
+            chunkList2 = \
+                       [ new_endBaseAtomList[1].molecule,
+                          self._original_structure_lastBaseAtom_axis.molecule]
 
-            chunkList2 = [self._original_structure_lastBaseAtom_axis.molecule,
-                          new_endBaseAtomList[1].molecule]
-
-            chunkList3 = [endBaseAtomList[2].molecule, 
-                          new_endBaseAtomList[2].molecule]
+            chunkList3 = \
+                       [new_endBaseAtomList[2].molecule,
+                        endBaseAtomList[2].molecule]
 
             self.fuseBasePairChunks(chunkList1)
             self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
@@ -251,11 +308,15 @@ class Dna:
                                     ladderEndAxisAtom, 
                                     numberOfBasePairsToSubtract): 
         """
-        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-25. Will be cleaned 
+        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-26. Will be cleaned 
         up. 
         
-        THIS IS BUGGY.
+        THIS IS BUGGY 
         """
+        #TODO: See bug 2712
+        #Use of wholechain.yield_rail_index_direction_counter
+        #needs to be worked out. Looks like it reaches 
+        #"#print "*** this direction doesn't work -- no atomB!"
         
         ladder = ladderEndAxisAtom.molecule.ladder
         
@@ -269,7 +330,8 @@ class Dna:
         #So, only loop until it reaches 1 
         #NOTE: The following destructively modifies numberOfBasePairsToSubtract
         #as there is no use of this variable later. 
-        while numberOfBasePairsToSubtract > 1:
+        while numberOfBasePairsToSubtract > 1:       
+            
             rail = atm.molecule.get_ladder_rail()                
             baseindex = rail.baseatoms.index(atm)
             
@@ -302,7 +364,7 @@ class Dna:
                 assert (railA, indexA, directionA) == (item_rail, item_baseIndex, item_direction)
                 atomB = None
                 if iter < 2:
-                    # this direction doesn't work -- no atomB!
+                    #print "*** this direction doesn't work -- no atomB!"
                     pass
                 else:
                     # this direction works iff we found the right atom
@@ -315,6 +377,7 @@ class Dna:
                     for strand_atom in strand_neighbors:
                         if strand_atom not in atomsScheduledForDeletion:
                             atomsScheduledForDeletion.append(strand_atom)
+                    break
                     
             numberOfBasePairsToSubtract = numberOfBasePairsToSubtract - 1
             
