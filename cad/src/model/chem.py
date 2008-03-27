@@ -66,6 +66,8 @@ from model.elements import Singlet
 from model.elements import Hydrogen
 from model.elements import PeriodicTable
 
+from model.atomtypes import AtomType #bruce 080327
+
 from model.bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
 import model.global_model_changedicts as global_model_changedicts
@@ -599,22 +601,31 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  from bonds" behavior is still needed in some cases, and is best asked for by leaving it unset,
         #  but that is done by a special method or init arg ###doc, since it should no longer be what this init
         #  method normally does. BTW the docstring erroneously claimed we were already setting default atomtype.]
-        atype = None
-        try:
-            self.element = sym.element
-                # permit sym to be another atom or an atomtype object -- anything that has .element
-            #e could assert self.element is now an Elem, but don't bother -- if not, we'll find out soon enough
-        except:
+
+        #bruce 080327 revised this to not use try/except routinely
+        # (possible optimization, and for clarity)
+        
+        atype = None # might be changed during following if/else chain
+
+        if type(sym) == type(""):
             # this is normal, since sym is usually an element symbol like 'C'
             self.element = PeriodicTable.getElement(sym)
+        elif isinstance(sym, Atom):
+            self.element = sym.element
+            atype = sym.atomtype
+        elif isinstance(sym, AtomType):
+            self.element = sym.element
+            atype = sym
         else:
-            # sym was an atom or atomtype; use its atomtype for this atom as well (in a klugy way, sorry)
-            try:
-                atype = sym.atomtype # works if sym was an atom
-            except:
-                atype = sym
+            assert 0, "can't initialize Atom.element from %r" % (sym,)
+        
+        #e could assert self.element is now an Elem, but don't bother -- if not, we'll find out soon enough
+        
+        if atype is not None:
             assert atype.element is self.element # trivial in one of these cases, should improve #e
-        # this atomtype (or the default one, if atype is None) will be stored at the end of this init method.
+        
+        # this atomtype atype (or the default one, if atype is None)
+        # will be stored at the end of this init method.
         
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by various private methods in Atom or Chunk, indicating
@@ -2152,7 +2163,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """
-        [compatible with Node.writemmp, though we're not a subclass of Node]
+        Write the mmp atom record for self,
+        the bond records for whatever bonds have then had both atoms
+        written (internal and external bonds are treated identically),
+        and any bond_direction records needed for the bonds we wrote.
+
+        Let mapping options influence what is written for any of those
+        records.
+
+        @param mapping: an instance of class writemmp_mapping. Can't be None.
+        
+        @note: compatible with Node.writemmp, though we're not a subclass of Node
+
+        @see: Fake_Pl.writemmp
         """
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
@@ -2175,8 +2198,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         xyz = posn * 1000
             # note, xyz has floats, rounded below (watch out for this
             # if it's used to make a hash) [bruce 050404 comment]
-        print_fields = (num_str, eltnum,
-           int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
+        xyz = [int(coord + 0.5) for coord in xyz]
+            #bruce 080327 add 0.5 to improve rounding accuracy
+        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         # mark 2007-08-16: write dnaBaseName info record.
         dnaBaseName = self.getDnaBaseName()
@@ -2200,6 +2224,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if atype is not None and atype is not self.element.atomtypes[0]:
             mapping.write( "info atom atomtype = %s\n" % atype.name )
         # write only the bonds which have now had both atoms written
+        # (including internal and external bonds, not treated differently)
         #bruce 050502: write higher-valence bonds using their new mmp records,
         # one line per type of bond (only if we need to write any bonds of that type)
         bldict = {} # maps valence to list of 0 or more atom-encodings for bonds of that valence we need to write

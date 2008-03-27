@@ -766,12 +766,18 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.alist = 333 # not a valid Python sequence
         alist = []
         def func_alist(nn):
-            "run this exactly once on all molecules (or other nodes) in this part, in tree order"
+            """
+            run this exactly once on all molecules (or other nodes) in this part, in tree order
+            """
             if isinstance(nn, Chunk):
                 alist.extend(nn.atoms_in_mmp_file_order())
                     ### REVIEW for PAM3+5: do we need to pass a mapping to
                     # atoms_in_mmp_file_order so it will include conversion atoms?
-                    # [bruce 080321 question]
+                    # If so, does caller need to pass it in, to determine conversion options?
+                    # If so, do we replace the pseudo-invalidation of this list with
+                    # a get method for it, or with passing the option to the mapping
+                    # to tell it to collect the atoms actually written? (guess: the latter)
+                    # [bruce 080321/080327 questions]
             return # from func_alist only
         self.topnode.apply2all( func_alist)
         self.alist = alist
@@ -785,7 +791,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.selmols = 333 # not a valid Python sequence
         res = []
         def func_selmols(nn):
-            "run this exactly once on all molecules (or other nodes) in this part (in any order)"
+            """
+            run this exactly once on all molecules (or other nodes) in this part (in any order)
+            """
             if isinstance(nn, Chunk) and nn.picked:
                 res.append(nn)
             return # from func_selmols only

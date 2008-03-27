@@ -10,12 +10,19 @@ pam_conversion.py -- help dna model objects convert between PAM models
 from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from utilities.constants import PAM_MODELS
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
+
+from utilities.constants import diDEFAULT
+
+from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
 
 import foundation.env as env
 from utilities.Log import orangemsg, redmsg
 
 from model.elements import Pl5
+
+from geometry.VQT import V
 
 # ==
 
@@ -40,6 +47,8 @@ class DnaLadderRailChunk_writemmp_mapping_memo(writemmp_mapping_memo):
     convert_pam_enabled = False
 
     _ladder_memo = None
+
+    _save_as_pam = None
     
     def __init__(self, mapping, chunk):
         # immediately memoize some settings which need to be constant
@@ -61,13 +70,15 @@ class DnaLadderRailChunk_writemmp_mapping_memo(writemmp_mapping_memo):
         else:
             self.convert_pam_enabled = True
         if self.convert_pam_enabled:
+            # Note: this only means conversion is possible -- we don't yet know
+            # if it's requested by options on this mapping and chunk.
+            # The ladder memo will decide that.
             self._ladder_memo = mapping.get_memo_for(self.ladder)
+            self._save_as_pam = self._ladder_memo._f_save_as_what_PAM_model()
         return
     
     def _f_save_as_what_PAM_model(self):
-        if not self.convert_pam_enabled:
-            return None
-        return self._ladder_memo._f_save_as_what_PAM_model()
+        return self._save_as_pam
 
     pass
 
@@ -88,43 +99,67 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
     def _compute_number_of_conversion_atoms(self):
         # Our conversion atoms are whatever Pl atoms we are going to write
         # which are not in self.chunk.atoms
+        if self._save_as_pam == MODEL_PAM3:
+            return 0
         chunk = self.chunk
         res = 0
-        for Pl in self.Pl_atoms: # in order, possible Nones at end
+        for Pl in self.Pl_atoms: # in order, possible Nones at end (or in middle when not converting to PAM5)
             if Pl is not None:
                 # not sure this is correct: if Pl.molecule is not self.chunk:
                 if Pl.key not in chunk.atoms: # method for that? _Pl_alive?
                     res += 1
         return res
 
-    def _compute_Pl_atoms(self): # need to know strand direction, based on where we are in ladder ###
-        baseatoms = self.chunk.get_baseatoms()
-        assert 0, 'nim' ###### REMEMBER TO CARE ABOUT what pam model to convert to if any! if xx == MODEL_PAM5 -= in callers??
+    def _compute_Pl_atoms(self): 
+        if self._save_as_pam == MODEL_PAM3:
+            return None # or if this fails, [None] * (length+1)
 
-    def _compute_one_Pl_atom(self, i1, i2): # optim: pass a1 and a2 instead??
+        # find out strand direction, based on where we are in ladder
+        chunk = self.chunk
+        ladder = chunk.ladder
+        rail = chunk.get_ladder_rail()
+        assert rail in ladder.strand_rails
+        if rail is ladder.strand_rails[0]:
+            direction = LADDER_STRAND1_BOND_DIRECTION
+        else:
+            direction = - LADDER_STRAND1_BOND_DIRECTION
+        
+        baseatoms = rail.baseatoms
+
+        # note: we never look at Pls cached on neighbor_baseatoms
+        # since any such Pl would belong in a neighbor chunk, not ours
+        
+        if direction == Pl_STICKY_BOND_DIRECTION:
+            # Pls want to stick to the right within baseatoms;
+            # pass baseatom pairs in current order
+            pairs = zip( [None] + baseatoms, baseatoms + [None] )
+        else:
+            # Pls want to stick to the left; pass reversed pairs
+            # (but no need to reverse the result)
+            pairs = zip( baseatoms + [None], [None] + baseatoms )
+
+        res = [self._compute_one_Pl_atom(a1, a2) for (a1, a2) in pairs]
+
+        return res
+
+    def _compute_one_Pl_atom(self, a1, a2):
         """
         Find or make the live or cached/nonlive Pl atom
-        which binds, or should bind, baseatoms[i1] to baseatoms[i2],
-        where bond direction going from i1 to i2 agrees with
+        which binds, or should bind, adjacent baseatoms a1 and a2,
+        where bond direction going from a1 to a2 agrees with
         Pl_STICKY_BOND_DIRECTION.
-        One of those indices (i1, i2) might be out of range,
+        
+        One of those atoms might be passed as None,
         indicating we want a Pl at the end, bound to only one baseatom,
         or None if there should be no such Pl atom.
+
+        @param a1: a baseatom or None
+        @param a2: an adjacent baseatom or None
         """
         chunk = self.chunk
-        baseatoms = chunk.baseatoms
-        # If both atoms (at i1, i2) are real, we store that Pl with a2
-        # (the atom at i2) (since that is in the right direction from it,
-        #  namely Pl_STICKY_BOND_DIRECTION).
-        if 0 <= i2 < len(baseatoms):
-            a2 = baseatoms[i2]
-        else:
-            a2 = None # or get it from neighbor_baseatom?
-                # no, that Pl would belong in a neighbor chunk
-        if 0 <= i1 < len(baseatoms):
-            a1 = baseatoms[i1]
-        else:
-            a1 = None
+        # If both atoms are real (not None), we store that Pl with a2,
+        # since that is in the right direction from it,
+        # namely Pl_STICKY_BOND_DIRECTION.
         assert a2 is not None or a1 is not None
         # first return the Pl if it's live (bonded to a2 or a1)
         if a2 is not None:
@@ -153,16 +188,22 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
                     if candidate.molecule is chunk: # no error if not, unlike a2 case
                         return candidate
             pass
+
         # now find or make a non-live Pl to return, iff conversion options desire this.
-        assert 0, "do they?"
+        if self._save_as_pam != MODEL_PAM5:
+            return None
+        
         ### REVIEW: is this also a good time to compute (and store in it?) its position?
         # guess yes, since we have a1 and a2 handy and know their bond directions.
         # Note that this only runs once per writemmp, but the position is fixed then
         # so that's fine. We don't cache it between those since it's so likely to
         # become invalid, so not worth tracking that.
         if a2 is not None:
-            res = a2._f_get_nonlive_pam3plus5_Pl( - Pl_STICKY_BOND_DIRECTION) # IMPLEM
-            assert res is None or res.element is Pl5
+            res = a2._f_get_fake_Pl( - Pl_STICKY_BOND_DIRECTION) # IMPLEM; can find cached, or make
+                # Note: res is not an Atom, and not part of undoable state.
+                # It can act like an Atom in a few ways we use here --
+                # most importantly, having a fixed .key not overlapping a real atom .key.
+            assert res is None or isinstance(res, Fake_Pl)
             return res # might be None
         else:
             return None #???
@@ -172,7 +213,7 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
         pass # end of def _compute_one_Pl_atom (not reached)
     
     pass # end of class DnaStrandChunk_writemmp_mapping_memo
-
+ 
 # ==
 
 # helpers for DnaLadder
@@ -209,8 +250,66 @@ class DnaLadder_writemmp_mapping_memo(writemmp_mapping_memo):
 
     pass
 
+# ==
+
 # TODO: (remember single strand domains tho -- what kind of chunks are they?)
 
+# ==
+
+class Fake_Pl(object): #bruce 080327
+    """
+    not an Atom! but acts like one in a few ways --
+    especially, has an atom.key allocated from the same pool
+    as real Atoms do.
+    """
+    ## element = Pl5 # probably not needed
+
+    ## display = diDEFAULT # probably not needed now,
+        # though someday we might try to preserve this info
+        # across PAM5 <-> PAM3+5 conversion
+
+    def __init__(self):
+        from model.chem import atKey # bad: helps cause import cycle with chem ###FIX
+        self.key = atKey.next()
+
+    def posn(self):
+        return V(0,0,0) # STUB
+    
+    def writemmp(self, mapping):
+        """
+        Write a real mmp atom record for self (not a real atom),
+        and whatever makes sense to write for a fake Pl atom
+        out of the other mmp records written for a real atom:
+        the bond records for whatever bonds have then had both atoms
+        written (internal and external bonds are treated identically),
+        and any bond_direction records needed for the bonds we wrote.
+
+        Let mapping options influence what is written for any of those
+        records.
+
+        @param mapping: an instance of class writemmp_mapping. Can't be None.
+        
+        @note: compatible with Atom.writemmp and Node.writemmp,
+               though we're not a subclass of Atom or Node.
+        """
+        # WARNING: has common code with Atom.writemmp
+        num_str = mapping.encode_next_atom(self)
+        ## display = self.display
+        display = diDEFAULT
+        disp = mapping.dispname(display) # note: affected by mapping.sim flag
+        posn = self.posn() # might be revised below
+        ## element = self.element
+        element = Pl5
+        eltnum = element.eltnum
+        xyz = posn * 1000
+            # note, xyz has floats, rounded below (watch out for this
+            # if it's used to make a hash) [bruce 050404 comment]
+        xyz = [int(coord + 0.5) for coord in xyz]
+            #bruce 080327 add 0.5 to improve rounding accuracy
+        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
+        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+        mapping.write("# bug: writing bonds of that fake_Pl is nim\n")
+    pass
 
 # end
 

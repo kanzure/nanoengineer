@@ -614,9 +614,29 @@ class DnaLadderRailChunk(Chunk):
     def atoms_in_mmp_file_order(self, mapping = None): #bruce 080321
         """
         [overrides Chunk method]
+
+        @note: the objects returned can be of class Atom or
+               (if mapping is provided, and permits) class Fake_Pl.
         """
+        # basic idea: first write some of the atoms in a definite order,
+        # including both real atoms and (if self and mapping options permit)
+        # optional "conversion atoms" (fake Pl atomlike objects created just
+        # for write operations that convert to PAM5); then write the
+        # remaining atoms (all real) in the same order as the superclass
+        # would have.
+
+        if mapping is None:
+            # We need a real mapping, in order to produce and use a
+            # memo object, even though we'll make no conversion atoms,
+            # since (if this happens to be a PAM5 chunk) we use the memo
+            # to interleave the Pl atoms into the best order for writing
+            # (one that permits an upcoming mmp format optimization).
+            from files.mmp.files_mmp_writing import writemmp_mapping
+                # might be import cycle, might be a problem if done at toplevel
+            mapping = writemmpfile_mapping()
+        
         initial_atoms = self.indexed_atoms_in_order(mapping = mapping)
-            # (implem is per-subclass)
+            # (implem is per-subclass; should be fast for repeated calls ###CHECK)
             
         # the initial_atoms need to be written in a definite order,
         # and (nim, elsewhere) we might also need to know their mmp encodings
@@ -628,26 +648,33 @@ class DnaLadderRailChunk(Chunk):
                           self.number_of_conversion_atoms(mapping)
 
         if len(initial_atoms) == number_of_atoms:
-            # optimization; might often be true for DnaAxisChunk,
+            # optimization; might often be true for DnaAxisChunk
+            # (when no open bonds are present),
             # and for DnaStrandChunk when not doing PAM3 -> PAM5 conversion
             return initial_atoms
         
-        all_atoms = _superclass.atoms_in_mmp_file_order(self, mapping)
-            # preserve this "standard order" for non-initial atoms
+        all_real_atoms = _superclass.atoms_in_mmp_file_order(self, mapping)
+            # preserve this "standard order" for non-initial atoms (all are real).
 
-        if len(all_atoms) != number_of_atoms:
-            print "\n*** BUG: wrong number of conversion atoms in %r, %d + %d != %d" % \
-                  (self, len(self.atoms), self.number_of_conversion_atoms(mapping), len(all_atoms))
+        assert len(all_real_atoms) == len(self.atoms)
+            # maybe not needed; assumes superclass contributes no conversion atoms
+
+##        if len(all_atoms) != number_of_atoms:
+##            print "\n*** BUG: wrong number of conversion atoms in %r, %d + %d != %d" % \
+##                  (self, len(self.atoms), self.number_of_conversion_atoms(mapping), len(all_atoms))
+##            print " more info:"
+##            print "self.atoms.values()", self.atoms.values()
+##            print "initial_atoms", initial_atoms
+##            print "all_atoms", all_atoms
         
         dict1 = {} # helps return each atom exactly once
         for atom in initial_atoms:
             dict1[atom.key] = atom #e could optim: do directly from list of keys
         res = list(initial_atoms) # extended below
-        for atom in all_atoms: # in this order
+        for atom in all_real_atoms: # in this order
             if not dict1.has_key(atom.key):
                 res.append(atom)
-        assert len(res) == len(all_atoms)
-            # if this ever fails, see if initial_atoms has atoms not in all_atoms
+        assert len(res) == number_of_atoms
         return res
 
     def indexed_atoms_in_order(self, mapping): #bruce 080321
@@ -684,7 +711,7 @@ class DnaLadderRailChunk(Chunk):
         # note: same code in some other classes that implement this method
         return self._class_for_writemmp_mapping_memo(mapping, self)
     
-    def save_as_what_PAM_model(self, mapping): #bruce 080326 @@@@@ CALL ME
+    def save_as_what_PAM_model(self, mapping): #bruce 080326
         """
         Return None or an element of PAM_MODELS
         which specifies into what PAM model, if any,
@@ -693,21 +720,26 @@ class DnaLadderRailChunk(Chunk):
 
         @param mapping: an instance of writemmp_mapping controlling the save.
         """
-        res = self._f_requested_pam_model_for_save(mapping)
-        
-        if not res:
-            # optimize a simple case (though not the usual case);
-            # only correct since self.ladder will return None
-            # for its analogous decision if any of its chunks do.
-            return None
-        
-        # memoize the rest in mapping, not for speed but to
-        # prevent repeated error messages for same self and mapping
-        # (and to enforce constant behavior as bug precaution)
+        assert mapping
+        def doit():
+            res = self._f_requested_pam_model_for_save(mapping)
+            
+            if not res:
+                # optimize a simple case (though not the usual case);
+                # only correct since self.ladder will return None
+                # for its analogous decision if any of its chunks do.
+                return None
+            
+            # memoize the rest in mapping, not for speed but to
+            # prevent repeated error messages for same self and mapping
+            # (and to enforce constant behavior as bug precaution)
 
-        memo = mapping.get_memo_for(self)
+            memo = mapping.get_memo_for(self)
 
-        return memo._f_save_as_what_PAM_model()
+            return memo._f_save_as_what_PAM_model()
+        res = doit()
+##        print "save_as_what_PAM_model(%r,...) -> %r" % (self, res)
+        return res
     
     def _f_requested_pam_model_for_save(self, mapping):
         """
@@ -716,12 +748,15 @@ class DnaLadderRailChunk(Chunk):
         For no conversion, return None. For conversion to a PAM model,
         return an element of PAM_MODELS.
         """
-        #k some attr names unverified
+##        print " mapping.options are", mapping.options
+##        print " also self.save_as_pam is", self.save_as_pam
         if mapping.honor_save_as_pam:
-            res = self.save_as_pam
+            res = self.save_as_pam or mapping.convert_to_pam
         else:
             res = mapping.convert_to_pam
-        return res and res or None
+        if not res:
+            res = None
+        return res
         
     pass # end of class DnaLadderRailChunk
 
@@ -769,6 +804,7 @@ class DnaAxisChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
+        del mapping
         return self.get_baseatoms()
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
@@ -879,8 +915,9 @@ class DnaStrandChunk(DnaLadderRailChunk):
         #  TODO: worry about undo of those atoms, etc;
         #  we cache them on their preferred Ss neighbor atoms)
         Pl_atoms = self._Pl_atoms_to_interleave(mapping)
-            # len(baseatoms) + 1 atoms, can be None at the ends
-            # (or can be None as a temporary kluge SAFETY STUB)
+            # len(baseatoms) + 1 atoms, can be None at the ends,
+            # or in the middle when not converting to PAM5
+            # (or can be None to indicate no Pl atoms -- rare)
         if Pl_atoms is None:
             return baseatoms
         assert len(Pl_atoms) == len(baseatoms) + 1
@@ -900,13 +937,16 @@ class DnaStrandChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
-        # SAFETY STUB: only do it if conversion is requested, for now.
-        if not self.save_as_what_PAM_model(mapping) == MODEL_PAM5:
-            return 0 # WRONG, eventually ##### @@@@@
+        if self.save_as_what_PAM_model(mapping) != MODEL_PAM5:
+            # optimization (conversion atoms are not needed
+            # except when converting to PAM5).
+            return 0
 
+        assert mapping # otherwise, save_as_what_PAM_model should return None
+        
         # Our conversion atoms are whatever Pl atoms we are going to write
-        # which are not in self.atoms. For efficiency and simplicity
-        # we'll cache the answer in our chunk memo.
+        # which are not in self.atoms (internally they are Fake_Pl objects).
+        # For efficiency and simplicity we'll cache the answer in our chunk memo.
         memo = mapping.get_memo_for(self)
         return memo._f_number_of_conversion_atoms()
 
@@ -922,19 +962,20 @@ class DnaStrandChunk(DnaLadderRailChunk):
 
         Length is always 1 more than len(baseatoms).
         First and last entries might be None if those Pl atoms should belong
-        to different chunks or should not exist.
+        to different chunks or should not exist. Middle entries might be None
+        if we're not converting to PAM5 and no real Pl atoms are present there,
+        or if we're converting to PAM3 (maybe nim).
 
-        The Pl atoms returned exist as Atom objects, but might be in self,
-        or killed, or perhaps some of each. Don't alter this.
+        The Pl atoms returned exist as Atom or Fake_Pl objects, but might be in self,
+        or killed(??), or perhaps some of each. Don't alter this.
 
         It's ok to memoize data in mapping (index by self, private to self
         and/or self.ladder) which depends on our current state and can be
         used when writing every chunk in self.ladder.
         """
-        # SAFETY STUB: only do it if conversion is requested, for now.
-        if not self.save_as_what_PAM_model(mapping) == MODEL_PAM5:
-            return None # WRONG, eventually ##### @@@@@
-        
+        # note: we must proceed even if not converting to PAM5 here,
+        # since we interleave even real Pl atoms.
+        assert mapping # needed for the memo... too hard to let it be None here
         memo = mapping.get_memo_for(self)
         return memo.Pl_atoms
     

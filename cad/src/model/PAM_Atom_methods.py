@@ -11,7 +11,7 @@ in which these methods had been written
 
 TODO:
 
-fix the import cycle with chem.py due to _changed_otherwise_Atoms
+fix the import cycle with chem.py due to _changed_otherwise_Atoms and atKey
 
 REVIEW whether any of these methods are sometimes called on non-PAM atoms,
 always doing nothing or returning a null value, e.g. getDnaBaseName.
@@ -34,6 +34,10 @@ from model.bond_constants import DIRBOND_NONE
 from model.bond_constants import DIRBOND_ERROR
 
 from utilities import debug_flags
+
+##from geometry.VQT import V
+
+##from foundation.state_constants import S_CHILDREN
 
 VALID_ELEMENTS_FOR_DNABASENAME = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
     # TODO: use a boolean element attribute instead.
@@ -85,7 +89,11 @@ class PAM_Atom_methods:
     ## _dnaBaseName = "" #bruce 080319 revised
 
     ## _dnaStrandId_for_generators -- set when first demanded, or can be explicitly set
-    ## using setDnaStrandId_for_generators(). 
+    ## using setDnaStrandId_for_generators().
+
+    _fake_Pls = None # see comments where used
+
+    # not: _s_attr__nonlive_Pls = S_CHILDREN
 
     # == methods for either strand or axis PAM atoms
 
@@ -781,6 +789,63 @@ class PAM_Atom_methods:
             pass
         return atom1
 
+    def _f_get_fake_Pl(self, direction): #bruce 080327
+        """
+        [friend method for PAM3+5 -> PAM5 conversion code]
+
+        Find or make, and return, a cached fake Pl5 atom
+        with a properly allocated and unchanging atom.key,
+        to be used in the PAM5 form of self if self does not
+        have a real Pl atom in the given bond_direction.
+
+        The atom we return might be used only for mmp writing
+        of a converted form, without making any changes in the model,
+        or it might become a live atom and get used in the model.
+        To make it a live atom, special methods must be called [nim]
+        which remove it from being able to be returned by this method.
+
+        If self does have a real such Pl atom, the atom we
+        might otherwise return might still exist, but this
+        method won't be called to ask for it. It may or may
+        not detect that case. If it detects it, it will
+        treat it as an error. However, it's not an error for
+        the cached atom to survive during the time a live Pl
+        atom takes it place, and to be reused if that live
+        Pl atom ever dies. OTOH, the cached Pl atom might have
+        formerly been a live Pl atom in the same place
+        (i.e. bonded to self in the given bond_direction),
+        killed when self was converted to PAM3.
+
+        The 3d position (atom.posn()) of the returned atom
+        is arbitrary, and can be changed by the caller for its
+        own purposes. Absent structure changes to self, the
+        identity, key, and 3d position of the returned atom
+        won't be changed between calls of this method
+        by the code that implements the service of which this
+        method is part of the interface.
+        """
+        fake_Pls = self._fake_Pls # None, or a 2-element list
+            # Note: this list is NOT part of the undoable state, nor are the
+            # fake atoms within it.
+            #
+            # REVIEW: should these have anything to do with storing Pl-posn "+5" data?
+            # is that data in the undoable state? I think it is, and these are not,
+            # so they probably don't help store it.
+            
+        if not fake_Pls:
+            fake_Pls = self._fake_Pls = [None, None]
+        assert direction in (1, -1)
+        index = (direction == 1) # arbitrary ### clean up dup code when we have some
+        Pl = fake_Pls[index]
+        from dna.model.pam_conversion import Fake_Pl # import cycle??? guess no...
+        if Pl is None:
+            Pl = fake_Pls[index] = Fake_Pl()
+                ## not: self.__class__(Pl5, V(0,0,0))
+        # obs cmt: maybe: let Pl be live, and if so, verify its bonding with self??
+        assert isinstance(Pl, Fake_Pl)
+        # nonsense: ## assert Pl.killed() # for now
+        return Pl
+    
     # == end of PAM strand atom methods
     
     # == PAM axis atom methods

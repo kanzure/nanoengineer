@@ -2340,8 +2340,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # with no atoms created or destroyed and no chunks reordered, thus
         # making previously-saved movies more likely to retain their validity.
         # (Due to the .dpb format not storing its own info about atom identity.)
+        #bruce 080327 update:
+        # Note: these "atoms" can be of class Atom or class Fake_Pl. 
         for atm in self.atoms_in_mmp_file_order(mapping):
             atm.writemmp(mapping)
+                # note: this writes internal and/or external bonds,
+                # after their 2nd atom is written. It also writes
+                # bond_directions records as needed for those bonds.
         self.writemmp_info_chunk_after_atoms(mapping)
         return
 

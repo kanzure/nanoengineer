@@ -100,16 +100,16 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                       "formula which is much less globally unique than " \
                       "before. (Before this, it probably had at least a" \
                       "rare bug due to that nonuniqueness.)" #bruce 080229
-            atKey = 'stub' # NIM
-            self.key = atKey.next() # FIX: Undefined variable 'atKey'.
-                # This atKey should be distinct from the one in chem.py, i think
+            bdkey = 'stub' # NIM
+            self.key = bdkey.next() # FIX: Undefined variable 'bdkey'.
+                # This bdkey should be distinct from the atKey in chem.py, i think
                 # (and thus needs a different name, and no import of chem).
                 # But first I need to see how it's used...
                 # maybe the (experimental) C code assumes all atom & bond keys
                 # are distinct in a single namespace.
                 # If so, we should make a single global key allocator in env.
                 # [but note that this is not a bond key, it's a BondDict key]
-                # [bruce 071107/080223 comment]
+                # [bruce 071107/080223 comment; renamed atKey -> bdkey, 080327]
             return
         pass
     print "Using atombase.pyx in bonds.py"

@@ -74,6 +74,7 @@ from dna.model.dna_model_constants import LADDER_ENDS
 from dna.model.dna_model_constants import LADDER_END0
 from dna.model.dna_model_constants import LADDER_END1
 from dna.model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
+from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
 
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
@@ -568,8 +569,10 @@ class DnaLadder(object):
         # but bottom-to-top on the left.)
 
         strand1 = self.strand_rails[0]
-        assert strand1.bond_direction() == 1, "wrong bond direction %r in strand1 of %r" % (strand1.bond_direction, self)
-            ### TODO: replace 1 with named constant, which already exists
+        assert 1 == LADDER_STRAND1_BOND_DIRECTION # since it's probably also hardcoded implicitly
+        assert strand1.bond_direction() == LADDER_STRAND1_BOND_DIRECTION, \
+               "wrong bond direction %r in strand1 of %r" % \
+               (strand1.bond_direction, self)
         end_atom = strand1.end_baseatoms()[end]
         assert not end_atom._dna_updater__error # otherwise we should not get this far with it
         assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
