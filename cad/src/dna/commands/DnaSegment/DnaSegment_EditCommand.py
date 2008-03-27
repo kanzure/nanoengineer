@@ -136,17 +136,22 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
-
+    #The minimum 'stopper'length used for resize handles
+    #@see: self._update_resizeHandle_stopper_length for details. 
+    _resizeHandle_stopper_length = State(Width, -100000)
+    
     rotationHandleBasePoint1 = State( Point, ORIGIN)
     rotationHandleBasePoint2 = State( Point, ORIGIN)
 
-    #See self._determine_hresize_handle_radius where this gets changed. 
+    #See self._update_resizeHandle_radius where this gets changed. 
     #also see DnaSegment_ResizeHandle to see how its implemented. 
     handleSphereRadius1 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
     handleSphereRadius2 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
 
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
+    
+  
     #@TODO: modify the 'State params for rotation_distance 
     rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
     rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
@@ -161,7 +166,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             fixedEndOfStructure = handlePoint2,
             direction = norm_Expr(handlePoint1 - handlePoint2),
             sphereRadius = handleSphereRadius1, 
-                               
+            range = (_resizeHandle_stopper_length, 10000)                               
                            ))
 
     rightHandle = Instance( 
@@ -171,7 +176,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             origin = handlePoint2,
             fixedEndOfStructure = handlePoint1,
             direction = norm_Expr(handlePoint2 - handlePoint1),
-            sphereRadius = handleSphereRadius2
+            sphereRadius = handleSphereRadius2,
+            range = (_resizeHandle_stopper_length, 10000)
                            ))
 
     rotationHandle1 = Instance(         
@@ -345,13 +351,17 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     def updateHandlePositions(self):
         """
-        Update handle positions
+        Update handle positions and also update the resize handle radii and
+        their 'stopper' lengths. 
+        @see: self._update_resizeHandle_radius()
+        @see: self._update_resizeHandle_stopper_length()        
         """        
 
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
-        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE        
+        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE      
+        
 
-        self._determine_resize_handle_radius()
+        self._update_resizeHandle_radius()
         
         handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
 
@@ -360,13 +370,18 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             # (that condition is bugfix for deleted axis segment, bruce 080213)
 
             self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2
-
+            
+            #Update the 'stopper'  length where the resize handle being dragged 
+            #should stop. See self._update_resizeHandle_stopper_length()
+            #for more details
+            self._update_resizeHandle_stopper_length()
+            
+            
             if DEBUG_ROTATION_HANDLES:
                 self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
                 self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
                 #Following computes the base points for rotation handles. 
                 #to be revised -- Ninad 2008-02-13
-
                 unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
 
                 v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
@@ -374,7 +389,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
 
-    def _determine_resize_handle_radius(self):
+    def _update_resizeHandle_radius(self):
         """
         Finds out the sphere radius to use for the resize handles, based on 
         atom /chunk or glpane display (whichever decides the display of the end 
@@ -391,6 +406,31 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         if atm2 is not None: 
             self.handleSphereRadius2 =  max(1.005*atm2.drawing_radius(), 
                                            1.005*HANDLE_RADIUS_DEFAULT_VALUE)
+            
+    def _update_resizeHandle_stopper_length(self):
+        """
+        Update the limiting length at which the resize handle being dragged
+        should 'stop'  without proceeding further in the drag direction. 
+        The segment resize handle stops when you are dragging it towards the 
+        other resizeend and the distance between the two ends reaches two 
+        duplexes. 
+        
+        The self._resizeHandle_stopper_length computed in this method is 
+        used as a lower limit of the 'range' option provided in declaration
+        of resize handle objects (see class definition for the details)
+        @see: self.updateHandlePositions()
+        """
+        
+        total_length = vlen(self.handlePoint1 - self.handlePoint2)        
+        duplexRise = self.struct.getDuplexRise() 
+        
+        #Length of the duplex for 2 base pairs
+        two_bases_length = getDuplexLength('B-DNA', 
+                                               2, 
+                                               duplexRise = duplexRise)
+                
+        self._resizeHandle_stopper_length = - total_length + two_bases_length
+      
 
     def _createPropMgrObject(self):
         """
