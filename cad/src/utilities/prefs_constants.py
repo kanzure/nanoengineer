@@ -530,8 +530,8 @@ prefs_table = (
     
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
-    ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  90),
-    ('', 'int', dnaMaxMinorGrooveAngle_prefs_key, 155),
+    ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]
+    ('', 'int', dnaMaxMinorGrooveAngle_prefs_key, 150), # ditto
     ('', 'color', dnaMinorGrooveErrorIndicatorColor_prefs_key, orange),
     
     # Only used in "Break Strands" PM.
