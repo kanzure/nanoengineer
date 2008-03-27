@@ -28,8 +28,8 @@ namespace Nanorex {
 /* CLASS: NanorexMMPImportExport */
 class NanorexMMPImportExport : public QObject, public NXDataImportExportPlugin
 {
-    Q_OBJECT
-    Q_INTERFACES(Nanorex::NXDataImportExportPlugin)
+	Q_OBJECT;
+	Q_INTERFACES(Nanorex::NXDataImportExportPlugin);
         
 public:
         
@@ -46,31 +46,49 @@ public:
                                   const std::string& theFilename,
                                   int frameSetId, int frameIndex);
 
+	string const& getRequiredVersion(void) const { return requiredVersion; }
+	string const getPreferredVersion(void) const { return preferredVersion; }
+	
+	double const& getTemperature(void) const { return kelvinTemperature; }
+	
+	
 private:
     
-    // Ragel + parser state variables
-    int cs, stack[1000], top;
+	string inputFilename;
+	
+	// extracted data that can be queried later
+	string requiredVersion;
+	string preferredVersion;
+	double kelvinTemperature;
+	
+    // scratch variables to write parsed values to
+	OBMol *molPtr;
+	OBAtom *atomPtr;
+	// NXAtomData::RenderStyleID atomStyleID;
+	string atomStyle;
+	string defaultAtomStyle; // as specified by group, mol settings
+	OBBond *bondPtr;
+	NXMoleculeSet *molSetPtr;
+	map<int,OBAtom*> foundAtomList;
+	vector<OBAtom*> targetAtomList;
+	string stringval1, stringval2;
+	vector<string> tokens; // strings extracted from a line
+	
+    // molecule-set 'stack' to help with recursive 'group' specification
+	std::stack<NXMoleculeSet*> molSetPtrStack;
+	std::stack<string> defaultAtomStyleStack; // track with recursion into groups
+
+	// Ragel + parser state variables
+    int cs, top, act;
     int intval, atomicNum, atomID, bond_order;
     int x, y, z;
     int line;
-    
+	int stackSize;
+	std::vector<int> stack;
+	
     // Ragel pointers to input stream
-    RagelIstreamPtr p, pe, eof;
+    RagelIstreamPtr p, pe, eof, ts, te;
     
-    string filename;
-    
-    // scratch variables to write parsed values to
-    OBMol *molPtr;
-    OBAtom *atomPtr;
-    NXAtomData::RenderStyleID atomStyleID;
-    OBBond *bondPtr;
-    NXMoleculeSet *molSetPtr;
-    map<int,OBAtom*> foundAtomList;
-    vector<OBAtom*> targetAtomList;
-    string stringval, stringval2;
-    
-    // molecule-set 'stack' to help with recursive 'group' specification
-    std::stack<NXMoleculeSet*> molSetPtrStack;
     
     void reset(void);
     bool readMMP(istream& instream, NXMoleculeSet *rootMoleculeSetPtr);
@@ -80,6 +98,10 @@ private:
     
     void applyAtomType(string const& keyStr, string const& valueStr);
     
+	// helper functions
+	void newAtom(int id, int x, int y, int z, string const& style);
+	void newBond(string const& type, int targetAtomId);
+	
     // Static data and function members
     
     static int const NUM_BOND_TYPES = 6;
@@ -92,8 +114,8 @@ private:
     static void PrintMolecule(ostream& o, OBMol *const molPtr);
     
     static int GetAtomID(OBAtom *atomPtr);
-    static char const *const GetAtomRenderStyleName(OBAtom *const atomPtr);
-
+	// static char const *const GetAtomRenderStyleName(OBAtom *const atomPtr);
+	static string const& GetAtomRenderStyleCode(OBAtom *const atomPtr);
 
     static void populateCommandResult(NXCommandResult* result,
                                       const string& message);
