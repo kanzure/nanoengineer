@@ -45,6 +45,7 @@ from model.Line import Line
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from dna.model.Dna_Constants import basesDict, dnaDict
+from dna.model.dna_model_constants import LADDER_END0, LADDER_END1
 
 basepath_ok, basepath = find_plugin_dir("DNA")
 if not basepath_ok:
@@ -157,10 +158,10 @@ class Dna:
         #means the caller wants to delete those from the original structure
         #(duplex). 
         if numberOfBasePairs < 0:
-            numberOfBasePairsToSubtract = abs(numberOfBasePairs)
-            self._subtract_bases_from_duplex(group, 
+            numberOfBasePairsToRemove = abs(numberOfBasePairs)
+            self._remove_bases_from_duplex(group, 
                                              ladderEndAxisAtom,
-                                             numberOfBasePairsToSubtract)
+                                             numberOfBasePairsToRemove)
             return
         
         #Create a raw duplex first in Z direction. Using reference mmp basefiles
@@ -325,21 +326,30 @@ class Dna:
         self.assy.update_parts()
         
     
-    def _subtract_bases_from_duplex(self,
+    def _remove_bases_from_duplex(self,
                                     group, 
                                     ladderEndAxisAtom, 
-                                    numberOfBasePairsToSubtract): 
+                                    numberOfBasePairsToRemove): 
         """
-        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-26. Will be cleaned 
-        up. 
+        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-27. Will be cleaned 
+        up further. 
         
-        THIS IS BUGGY 
+        Remove the spcified number of base pairs from the duplex. 
+        
+        @param group: The DnaGroup which contains this duplex
+        @type group: DnaGroup
+        
+        @param ladderEndAxisAtom: The end axis base atom at a DnaLadder end of 
+        the duplex. This end base atom is used as a starting base atom while 
+        determining which base atoms to remove. 
+        @type ladderEndAxisAtom: Atom
+        
+        @param numberOfBasePairsToRemove: The total number of base paris to 
+        remove from the duplex. 
+        @type numberOfBasePairsToRemove: int
+        
         """
-        #TODO: See bug 2712
-        #Use of wholechain.yield_rail_index_direction_counter
-        #needs to be worked out. Looks like it reaches 
-        #"#print "*** this direction doesn't work -- no atomB!"
-        
+                
         ladder = ladderEndAxisAtom.molecule.ladder
         
         atomsScheduledForDeletion = []
@@ -347,68 +357,94 @@ class Dna:
         atm = ladderEndAxisAtom    
         atomsScheduledForDeletion.extend(atm.strand_neighbors())
         
+        #Fix for bug 2712 --
+        #Determine the ladder end. Based on the ladder end, we will decide which
+        #direction to proceed in ,to find the next base atom. (e.g. it its 
+        #ladderend 0, we will proceed towards ladder end 1. and vice versa)
+        #This direction is used by WholeChain.yield_rail_index_direction_counter
+        #which is a pythongenerator object. (we pass 'pos' tuple argument which 
+        #includes this direction. It is important to properly determine this 
+        #direction. Otherwise the generator will not yeild all the base atoms we
+        #desire. Wrong direction will result in bugs like 2712. 
+        #[ -- Ninad 2008-03-27 comment.] 
+
+        
+        #NOTE: Wholechain.yield_rail_index_direction_counter needs documentation
+        #I am not sure how 'countby' option is used there. Should we 
+        #pass countby = direction_to_find_next_atom? It doesn't matter in our 
+        #case because we never use that value and it doesn't affect other 
+        #values in  yield_rail_index_direction_counter AFAIK-- Ninad 2008-03-27
+        
+        ladderEnd = ladder.get_ladder_end(ladderEndAxisAtom)
+        #We don't need to recompute the above direction in the while loop below
+        if ladderEnd == LADDER_END0:
+            direction_to_find_next_atom = 1
+        else:
+            direction_to_find_next_atom = -1
+
         #We have already considered the first set of atoms to delete (i.e.
         #the end strand atoms appended to atomsScheduledForDeletion above. 
-        #So, only loop until it reaches 1 
-        #NOTE: The following destructively modifies numberOfBasePairsToSubtract
+        #So, only loop until it reaches 1.
+        #NOTE: The following destructively modifies numberOfBasePairsToRemove
         #as there is no use of this variable later. 
-        while numberOfBasePairsToSubtract > 1:       
-            
+        
+        while numberOfBasePairsToRemove > 1:  
             rail = atm.molecule.get_ladder_rail()                
-            baseindex = rail.baseatoms.index(atm)
+            baseindex = rail.baseatoms.index(atm)      
             
-            #Following copies some code from DnaMarker.py
-            try_these = [
-                            (rail, baseindex, 1),
-                            (rail, baseindex, -1),
-                         ]
-            for item_rail, item_baseIndex, item_direction in try_these:
-                pos = item_rail, item_baseIndex, item_direction
-                pos_generator = atm.molecule.wholechain.yield_rail_index_direction_counter(
-                            pos
-                         )
-                
-                iter = 0
-                pos_counter_A = pos_counter_B = None
-                for pos_counter in pos_generator:
-                    iter += 1
-                    if iter == 1:
-                        # should always happen
-                        pos_counter_A = pos_counter
-                    elif iter == 2:
-                        # won't happen if we start at the end we scan towards
-                        pos_counter_B = pos_counter
-                        break
-                    continue
-                del pos_generator
-                assert iter in (1, 2)
-                railA, indexA, directionA, counter_junk = pos_counter_A
-                assert (railA, indexA, directionA) == (item_rail, item_baseIndex, item_direction)
-                atomB = None
-                if iter < 2:
-                    #print "*** this direction doesn't work -- no atomB!"
-                    pass
-                else:
-                    # this direction works iff we found the right atom
-                    railB, indexB, directionB, counter_junk = pos_counter_B
-                    atomB = railB.baseatoms[indexB]
-                    
-                if atomB is not None:
-                    atm = atomB
-                    strand_neighbors = atomB.strand_neighbors()
-                    for strand_atom in strand_neighbors:
-                        if strand_atom not in atomsScheduledForDeletion:
-                            atomsScheduledForDeletion.append(strand_atom)
+            #Following copies some code from DnaMarker.py           
+            pos = (rail, baseindex, direction_to_find_next_atom)
+            #pos_generator is a python generator object. 
+            pos_generator = atm.molecule.wholechain.yield_rail_index_direction_counter(
+                        pos  )
+                            
+            iter = 0
+            pos_counter_A = pos_counter_B = None
+            for pos_counter in pos_generator:
+                iter += 1
+                if iter == 1:
+                    # should always happen
+                    pos_counter_A = pos_counter
+                elif iter == 2:
+                    # won't happen if we start at the end we scan towards
+                    pos_counter_B = pos_counter
                     break
-                    
-            numberOfBasePairsToSubtract = numberOfBasePairsToSubtract - 1
-            
+                continue
+            del pos_generator
+            assert iter in (1, 2)
+            railA, indexA, directionA, counter_junk = pos_counter_A
+            assert (railA, indexA, directionA) == (rail, 
+                                                   baseindex, 
+                                                   direction_to_find_next_atom)
+            atomB = None
+            if iter < 2:
+                #print "*** this direction doesn't work -- no atomB!"
+                pass
+            else:
+                # this direction works iff we found the right atom
+                railB, indexB, directionB, counter_junk = pos_counter_B
+                atomB = railB.baseatoms[indexB]
+                
+            if atomB is not None:
+                atm = atomB
+                strand_neighbors = atomB.strand_neighbors()
+                for strand_atom in strand_neighbors:
+                    if strand_atom not in atomsScheduledForDeletion:
+                        atomsScheduledForDeletion.append(strand_atom)
+                                    
+            numberOfBasePairsToRemove = numberOfBasePairsToRemove - 1
+        
+        #Now kill all the atoms. Note: its not necessary to kill the axis atoms
+        #because those will be killed automatically in the next dna updater
+        #run when it finds them without any connected Strand atoms
+        #REVIEW: Is it okay to do above? Apparantly causes no bugs. - Ninad 
         for atm in atomsScheduledForDeletion:
             if atm:
                 try:
                     atm.kill()
                 except:
-                    print_compact_traceback("bug in deleting atom while resizing the segment")
+                    print_compact_traceback("bug in deleting atom while "\
+                                            "resizing the segment")
             
          
     def make(self, 
