@@ -58,6 +58,8 @@ from dna.model.DnaLadderRailChunk import make_or_reuse_DnaStrandChunk
     # note: if these imports are an issue, they could be moved
     # to a controller class, since they are needed only by remake_chunks method
 
+from dna.model.pam_conversion import DnaLadder_writemmp_mapping_memo
+
 from utilities import debug_flags
 
 def _DEBUG_LADDER_FINISH_AND_MERGE():
@@ -134,13 +136,24 @@ class DnaLadder(object):
         # on error, should be set to a short string (suitable for tooltip)
         # without instance-specific data (i.e. one of a small fixed set of
         # possible strings, so also suitable as part of a summary_format string)
-    
+
+    _class_for_writemmp_mapping_memo = DnaLadder_writemmp_mapping_memo
+        # subclass can override if needed (presumably with a subclass of this value)
+        ### REVIEW: what about for single strands? (our subclass) @@@@@@
+
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
         self.strand_rails = []
         assert self.assy is not None, "%r.__init__: assy is None" % self
-        
+
+    def _f_make_writemmp_mapping_memo(self, mapping):
+        """
+        [friend method for class writemmp_mapping.get_memo_for(self)]
+        """
+        # note: same code in some other classes that implement this method
+        return self._class_for_writemmp_mapping_memo(mapping, self)
+
     def baselength(self):
         return len(self.axis_rail)
     

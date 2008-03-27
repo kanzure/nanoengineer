@@ -113,6 +113,8 @@ from utilities.constants import orange
 from utilities.constants import ErrorPickedColor
 from utilities.constants import PickedColor
 
+from utilities.constants import Pl_STICKY_BOND_DIRECTION
+
 from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
 from utilities.GlobalPreferences import dna_updater_is_enabled
@@ -4530,11 +4532,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         to a dna-related subclass of Atom).
         """
         assert self.element is Pl5
-        Pl_STICKY_BOND_DIRECTION = 1 ### @@@@ JUST A GUESS -- 1 or -1;
-            # direction from Pl to the Ss it wants to stay with when it can
-            # (consistent with which strand-ends get Pls in the PAM5 generator
-            #  as of 080312, but I don't know if that means it's correct)
-            #e refile into a dna constants file when we refile this method
         for candidate in ( # these might be None, or conceivably a non-Ss atom
             self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
             self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)

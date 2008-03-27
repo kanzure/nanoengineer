@@ -134,13 +134,13 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     in future this will be able to write forward refs for jigs and save
     the unwritten jigs they refer to until they're written at the end.
     """
-    
     fp = None
 
     def __init__(self, assy, **options):
         """
         #doc; assy is used for some side effects (hopefully that can be cleaned up).
         """
+        self._memos = {}
         self.assy = assy
         self.atnums = atnums = {}
         atnums['NUM'] = 0 # kluge from old code, kept for now
@@ -213,6 +213,19 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             except:
                 print_compact_traceback("exception writing to mmp file, ignored: ")
         self.fp.close()
+        self.destroy() #k ok to do this this soon?
+        return
+
+    def destroy(self): #bruce 080326; NEEDS TESTING or analysis for each use of this class that uses self._memos
+        """
+        Remove all cyclic refs in self and in objects it owns,
+        assuming self needn't continue to be used but might be destroyed again.
+        """
+        memos = self._memos
+        self._memos = {}
+        for memo in memos.itervalues():
+            memo.destroy() # need exception protection?
+        #e more?
         return
     
     def write_header(self):
@@ -376,7 +389,24 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     def write_node(self, node):
         node.writemmp(self)
         return
-    
+
+    # ==
+
+    def get_memo_for(self, obj): #bruce 080326
+        """
+        #doc
+        """
+        try:
+            res = self._memos[id(obj)]
+        except KeyError:
+            res = self._make_memo_for(obj)
+            self._memos[id(obj)] = res
+        return res
+
+    def _make_memo_for(self, obj): #bruce 080326
+        # maybe: need exception protection?
+        return obj._f_make_writemmp_mapping_memo(self)
+        
     pass # end of class writemmp_mapping
 
 # ==

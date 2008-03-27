@@ -327,6 +327,15 @@ MODEL_PAM5 = 'PAM5'
 
 PAM_MODELS = (MODEL_PAM3, MODEL_PAM5)
 
+# Dna constants presently needed outside of dna package.
+# After sufficient refactoring, these could be moved inside it.
+
+Pl_STICKY_BOND_DIRECTION = 1 # should be 1 or -1;
+    # the bond direction from Pl to the Ss it wants to stay with when possible.
+    # (This value (1) is consistent with which strand-ends get Pls
+    #  in the PAM5 generator as of 080312, and with other evidence #doc)
+    # [bruce 080118/080326] #e rename?
+
 # ==
 
 def filesplit(pathname):

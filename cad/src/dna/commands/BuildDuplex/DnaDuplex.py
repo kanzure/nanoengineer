@@ -26,11 +26,16 @@ from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
+
 from utilities.constants import gensym, darkred, blue, orange, olive
 from utilities.constants import diBALL, diTUBES
+from utilities.constants import MODEL_PAM5
+
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
+
+from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
 from simulation.sim_commandruns import adjustSinglet
 
@@ -856,30 +861,34 @@ class Dna:
         #  this has been done without this comment being updated.]
 
         if _strandA_list:
-            strandAChunk = \
-                         self.assy.makeChunkFromAtomList(
-                             _strandA_list,
-                             name = gensym("Strand"),
-                             group = dnaGroup,
-                             color = darkred)
+            strandAChunk = self._makeChunkFromAtomList(
+                            _strandA_list,
+                            name = gensym("Strand"),
+                            group = dnaGroup,
+                            color = darkred)
         if _strandB_list:
-            strandBChunk = \
-                         self.assy.makeChunkFromAtomList(
-                             _strandB_list,
-                             name = gensym("Strand"),
-                             group = dnaGroup,
-                             color = blue)
+            strandBChunk = self._makeChunkFromAtomList(
+                            _strandB_list,
+                            name = gensym("Strand"),
+                            group = dnaGroup,
+                            color = blue)
         if _axis_list:
-            axisChunk = \
-                      self.assy.makeChunkFromAtomList(
-                          _axis_list,
-                          name = "Axis",
-                          group = dnaGroup,
-                          color = env.prefs[dnaDefaultSegmentColor_prefs_key])
-
-
-
+            axisChunk = self._makeChunkFromAtomList(
+                            _axis_list,
+                            name = "Axis",
+                            group = dnaGroup,
+                            color = env.prefs[dnaDefaultSegmentColor_prefs_key])
         return
+
+    def _makeChunkFromAtomList(self, atomList, **options):
+        #bruce 080326 split this out, revised it for PAM3+5 (partway)
+        chunk = self.assy.makeChunkFromAtomList( atomList, **options)
+        ### todo: in some cases, set chunk.display_as_pam = MODEL_PAM5
+        # initial stub: always do that (when making PAM5 dna),
+        # but only if edit pref would otherwise immediately convert it to PAM3
+        if self.model == "PAM5" and pref_dna_updater_convert_to_PAM3plus5():
+            chunk.display_as_pam = MODEL_PAM5
+        return chunk
 
     def getBaseRise( self ):
         """

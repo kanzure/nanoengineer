@@ -39,6 +39,11 @@ def convert_from_PAM5( changed_atoms): # might be misnamed, if it turns out it d
     pam5_atoms = [] #k needed? not yet used, might not be useful until we have ladders... ###
     
     for atom in changed_atoms.itervalues():
+        chunk = atom.molecule
+        if chunk is None or atom.key not in chunk.atoms:
+            continue # don't touch nonlive atoms
+        if chunk.display_as_pam == MODEL_PAM5:
+            continue # this atom doesn't want to be converted
         if atom.element is Pl5:
             _convert_Pl5(atom) # and save others to convert later?? see _save_Pl_info ...
         else:

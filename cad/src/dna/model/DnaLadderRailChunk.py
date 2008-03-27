@@ -8,6 +8,7 @@ DnaLadderRailChunk.py - Chunk subclasses for axis and strand rails of a DnaLadde
 """
 
 from dna.model.pam_conversion import DnaLadderRailChunk_writemmp_mapping_memo
+from dna.model.pam_conversion import DnaStrandChunk_writemmp_mapping_memo
 
 from model.chunk import Chunk
 
@@ -18,6 +19,7 @@ from utilities.constants import gensym
 from utilities.constants import black
 from utilities.constants import ave_colors
 from utilities.constants import diDEFAULT
+from utilities.constants import MODEL_PAM5
 
 from utilities import debug_flags
 
@@ -558,8 +560,11 @@ class DnaLadderRailChunk(Chunk):
         for rail in self.ladder.all_rails():
             if rail.baseatoms[0].molecule is self:
                 return rail
-        assert 0 # might happen if used during dna updater run
-        
+        assert 0, "failed" # might happen if used during dna updater run
+
+    def get_baseatoms(self):
+        return self.get_ladder_rail().baseatoms
+    
     # == graphics methods
     
     def modify_color_for_error(self, color):
@@ -591,8 +596,7 @@ class DnaLadderRailChunk(Chunk):
                 # WARNING: Anything smaller than 9 pt on Mac OS X results in 
                 # un-rendered text.
             out = glpane.out * 3 # bug: 3 is too large
-            rail = self.get_ladder_rail()
-            baseatoms = rail.baseatoms
+            baseatoms = self.get_baseatoms()
             for atom, i in zip(baseatoms, range(len(baseatoms))):
                 baseLetter = atom.getDnaBaseName() # "" for axis
                 if baseLetter == 'X':
@@ -649,25 +653,38 @@ class DnaLadderRailChunk(Chunk):
     def indexed_atoms_in_order(self, mapping): #bruce 080321
         """
         [abstract method of DnaLadderRailChunk]
+
+        Return the atoms of self which need to be written in order
+        of base index or interleaved between those atoms.
+        This may or may not include all writable atoms of self,
+        which consist of self.atoms plus possible "conversion atoms"
+        (extra atoms due to pam conversion, written but not placed
+        into self.atoms).
         """
         assert 0, "subclass must implement"
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
         [abstract method of DnaLadderRailChunk]
+
+        How many atoms are written to a file, when controlled by mapping,
+        which are not in self.atoms? (Note: self.atoms may or may not
+        contain more atoms than self.baseatoms. Being a conversion atom
+        and being not in self.baseatoms are independent properties.)
         """
         assert 0, "subclass must implement"
 
-    _f_writemmp_mapping_memo_class = DnaLadderRailChunk_writemmp_mapping_memo
-        ### FIX - probably needs to be subclass specific
+    _class_for_writemmp_mapping_memo = DnaLadderRailChunk_writemmp_mapping_memo
+        # subclass can override if needed (presumably with a subclass of this value)
 
-    def _f_make_writemmp_mapping_memo(self, mapping): #@@@ CALL ME from writemmp_mapping.get_memo_object_for
+    def _f_make_writemmp_mapping_memo(self, mapping):
         """
-        #doc
+        [friend method for class writemmp_mapping.get_memo_for(self)]
         """
-        return self._f_writemmp_mapping_memo_class(mapping, self)
+        # note: same code in some other classes that implement this method
+        return self._class_for_writemmp_mapping_memo(mapping, self)
     
-    def save_as_what_PAM_model(self, mapping): #bruce 080326 @@@ CALL ME
+    def save_as_what_PAM_model(self, mapping): #bruce 080326 @@@@@ CALL ME
         """
         Return None or an element of PAM_MODELS
         which specifies into what PAM model, if any,
@@ -688,7 +705,7 @@ class DnaLadderRailChunk(Chunk):
         # prevent repeated error messages for same self and mapping
         # (and to enforce constant behavior as bug precaution)
 
-        memo = mapping.get_memo_object_for(self) # IMPLEM in class writemmp_mapping
+        memo = mapping.get_memo_for(self)
 
         return memo._f_save_as_what_PAM_model()
     
@@ -696,13 +713,15 @@ class DnaLadderRailChunk(Chunk):
         """
         Return whatever the mapping and self options are asking for
         (without checking whether it's doable).
+        For no conversion, return None. For conversion to a PAM model,
+        return an element of PAM_MODELS.
         """
         #k some attr names unverified
         if mapping.honor_save_as_pam:
             res = self.save_as_pam
         else:
             res = mapping.convert_to_pam
-        return res
+        return res and res or None
         
     pass # end of class DnaLadderRailChunk
 
@@ -750,7 +769,7 @@ class DnaAxisChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
-        return self.get_ladder_rail().baseatoms
+        return self.get_baseatoms()
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
@@ -779,6 +798,9 @@ class DnaStrandChunk(DnaLadderRailChunk):
     updater to make one, is not yet decided. Likewise, whether self.draw is
     normally called is not yet decided.)
     """
+    _class_for_writemmp_mapping_memo = DnaStrandChunk_writemmp_mapping_memo
+    # overrides superclass version (with a subclass of it)
+
     def isAxisChunk(self):
         """
         This should always return False. It directly returns False ... bypassing
@@ -847,41 +869,75 @@ class DnaStrandChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
-        atoms = self.get_ladder_rail().baseatoms
-        ##### TODO for PAM3+5:
+        baseatoms = self.get_baseatoms()
+        # for PAM3+5:
         # now interleave between these (or before/after for end Pl atom)
-        # the real and/or converted Pl atoms
-        # (note: we might want to retain the conversion atoms so they have constant keys;
-        #  worry about undo, etc; if we do retain them, do it in order to make interleaving efficient;
-        #  might not be worth it to retain them, or might work better if retained on each Ss atom ###likely)
-        return atoms
+        # the real and/or converted Pl atoms.
+        # (Always do this, even if no conversion is active,
+        #  so that real Pl atoms get into this list.)
+        # (note: we cache the conversion atoms so they have constant keys;
+        #  TODO: worry about undo of those atoms, etc;
+        #  we cache them on their preferred Ss neighbor atoms)
+        Pl_atoms = self._Pl_atoms_to_interleave(mapping)
+            # len(baseatoms) + 1 atoms, can be None at the ends
+            # (or can be None as a temporary kluge SAFETY STUB)
+        if Pl_atoms is None:
+            return baseatoms
+        assert len(Pl_atoms) == len(baseatoms) + 1
+        def interleave(seq1, seq2):
+            #e refile (py seq util)
+            assert len(seq1) >= len(seq2)
+            for i in range(len(seq1)):
+                yield seq1[i]
+                if i < len(seq2):
+                    yield seq2[i]
+                continue
+            return            
+        interleaved = interleave(Pl_atoms, baseatoms)
+        return [atom for atom in interleaved if atom is not None]
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
         [implements abstract method of DnaLadderRailChunk]
         """
-        ### STUB, needs to change when conversion atoms can be included by self.indexed_atoms_in_order
-        del mapping
-        return 0
+        # SAFETY STUB: only do it if conversion is requested, for now.
+        if not self.save_as_what_PAM_model(mapping) == MODEL_PAM5:
+            return 0 # WRONG, eventually ##### @@@@@
+
+        # Our conversion atoms are whatever Pl atoms we are going to write
+        # which are not in self.atoms. For efficiency and simplicity
+        # we'll cache the answer in our chunk memo.
+        memo = mapping.get_memo_for(self)
+        return memo._f_number_of_conversion_atoms()
 
     def _Pl_atoms_to_interleave(self, mapping):
         """
         [private helper for mmp write methods]
+        
         Assuming (not checked) that this chunk should be saved in PAM5
         (and allowing it to presently be in either PAM3 or PAM3+5 or PAM5),
         return a list of Pl atoms to interleave before/between/after our
         baseatoms. (Not necessarily in the right positions in 3d space,
-         or properly bonded to our baseatoms.)
+         or properly bonded to our baseatoms, or atoms actually in self.atoms.)
+
         Length is always 1 more than len(baseatoms).
         First and last entries might be None if those Pl atoms should belong
         to different chunks or should not exist.
+
         The Pl atoms returned exist as Atom objects, but might be in self,
         or killed, or perhaps some of each. Don't alter this.
+
         It's ok to memoize data in mapping (index by self, private to self
         and/or self.ladder) which depends on our current state and can be
         used when writing every chunk in self.ladder.
         """
+        # SAFETY STUB: only do it if conversion is requested, for now.
+        if not self.save_as_what_PAM_model(mapping) == MODEL_PAM5:
+            return None # WRONG, eventually ##### @@@@@
         
+        memo = mapping.get_memo_for(self)
+        return memo.Pl_atoms
+    
     pass # end of class DnaStrandChunk
 
 def make_or_reuse_DnaStrandChunk(assy, chain, ladder):
