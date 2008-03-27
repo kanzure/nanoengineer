@@ -90,7 +90,6 @@ class Dna:
     baseList = []
 
     strandA_atom_end1 = None
-    strandB_atom_end1 = None
 
     def modify(self,
                group,
@@ -294,6 +293,24 @@ class Dna:
             chunkList3 = \
                        [new_endBaseAtomList[2].molecule,
                         endBaseAtomList[2].molecule]
+            
+            #Set the chunk color and chunk display of the new duplex such that
+            #it matches with the original duplex chunk color and display
+            #Actually, fusing the chunks should have taken care of this, but 
+            #for some unknown reasons, its not happening. May be because 
+            #chunks are not 'merged'?  ... Setting display and color for new 
+            #duplex chunk is explicitely done below. Fixes bug 2711            
+            for chunkPair in (chunkList1, chunkList2, chunkList3):
+                display = chunkPair[1].display
+                color   = chunkPair[1].color
+                chunkPair[0].setDisplay(display)
+                if color:
+                    chunkPair[0].setcolor(color)
+                
+            
+            
+                
+            
 
             self.fuseBasePairChunks(chunkList1)
             self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
@@ -1124,7 +1141,6 @@ class B_Dna_PAM3(B_Dna_PAM5):
     model = "PAM3"
 
     strandA_atom_end1 = None
-    strandB_atom_end1 = None
 
     def _strandAinfo(self, index):
         """
