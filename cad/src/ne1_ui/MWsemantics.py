@@ -1793,9 +1793,8 @@ class MWsemantics(QMainWindow,
         """
         
         #Create Header
-        headerString = '#Dna Sequence created on: '
+        headerString = '#NanoEngineer-1 DNA Order Form created on: '
         timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
-        
         
         if self.assy.filename:
             mmpFileName = "[" + os.path.normpath(self.assy.filename) + "]"
@@ -1817,10 +1816,9 @@ class MWsemantics(QMainWindow,
         f = open(fileName,'w')             
         # Write header
         f.write(headerString)
-        f.write("Sequence name,Sequence,Scale,Notes\n")
+        f.write("Name,Sequence,Notes\n") # Per IDT's Excel format.
         f.write(dnaSequence)
-            
-
+        
     def createDnaSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
