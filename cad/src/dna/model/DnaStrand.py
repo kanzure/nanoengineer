@@ -134,7 +134,7 @@ class DnaStrand(DnaStrandOrSegment):
         @see: self.get_strand_end_base_atoms()
         """
         endbaseAtoms = self.get_strand_end_base_atoms()        
-        return endbaseAtoms[0]  
+        return endbaseAtoms[1]  
     
     def get_five_prime_end_base_atom(self):
         """
@@ -143,7 +143,7 @@ class DnaStrand(DnaStrandOrSegment):
         @see: self.get_strand_end_base_atoms()
         """
         endbaseAtoms = self.get_strand_end_base_atoms()        
-        return endbaseAtoms[1] 
+        return endbaseAtoms[0] 
                         
     def getStrandChunks(self): 
         """
