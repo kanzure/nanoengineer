@@ -41,8 +41,8 @@ class DnaStrand(DnaStrandOrSegment):
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('DnaStrand',)    
     
-    iconPath = "modeltree/Strand.png"
-    hide_iconPath = "modeltree/Strand-hide.png"
+    iconPath = "ui/modeltree/Strand.png"
+    hide_iconPath = "ui/modeltree/Strand-hide.png"
     
     autodelete_when_empty = True
         # (but only if current command permits that for this class --
@@ -86,6 +86,64 @@ class DnaStrand(DnaStrandOrSegment):
         """
         if len(self.getStrandChunks()) == 0:
             return True
+    
+    def get_strand_end_base_atoms(self):
+        """
+        Returns a tuple containing the end base atoms of a strand in the 
+        following order : (5' end base atom, 3' end base atom). If any or both
+        of these doesn't exist it returns 'None' in place of that non existent
+        atom
+        """
+        member = None
+        for member in self.members:
+            if isinstance(member, DnaStrandChunk):
+                break
+        if not isinstance(member, DnaStrandChunk):
+            # no DnaStrandChunk members (should not happen)
+            return (None, None)
+        
+        end_baseatoms = member.wholechain.end_baseatoms()
+        
+        if not end_baseatoms:
+            # ring
+            return (None, None)
+        
+        three_prime_end_base_atom = None
+        five_prime_end_base_atom = None
+        for atm in end_baseatoms:
+            if atm is not None:
+                rail = atm.molecule.get_ladder_rail()
+                bond_direction = rail.bond_direction()        
+                next_strand_atom = atm.strand_next_baseatom(bond_direction)
+                previous_strand_atom = atm.strand_next_baseatom(-bond_direction)
+                
+                if next_strand_atom is None and previous_strand_atom:
+                    three_prime_end_base_atom = atm
+                elif previous_strand_atom is None and next_strand_atom:
+                    five_prime_end_base_atom = atm
+                #What should be done in a case if 'atm' has no next or previous base
+                #atoms?  - Ninad 2008-03-27
+        
+        # chain
+        return (five_prime_end_base_atom, three_prime_end_base_atom)
+    
+    def get_three_prime_end_base_atom(self):
+        """
+        Returns the three prime end base atom of this strand. If one doesn't
+        exist, returns None 
+        @see: self.get_strand_end_base_atoms()
+        """
+        endbaseAtoms = self.get_strand_end_base_atoms()        
+        return endbaseAtoms[0]  
+    
+    def get_five_prime_end_base_atom(self):
+        """
+        Returns the five prime end base atom of this strand. If one doesn't
+        exist, returns None 
+        @see: self.get_strand_end_base_atoms()
+        """
+        endbaseAtoms = self.get_strand_end_base_atoms()        
+        return endbaseAtoms[1] 
                         
     def getStrandChunks(self): 
         """
