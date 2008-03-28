@@ -40,21 +40,21 @@ class DnaStrand(DnaStrandOrSegment):
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('DnaStrand',)    
-    
+
     iconPath = "ui/modeltree/Strand.png"
     hide_iconPath = "ui/modeltree/Strand-hide.png"
-    
+
     autodelete_when_empty = True
         # (but only if current command permits that for this class --
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
-    
+
     #Define highlighting policy for this object (whether it should responf to 
     #highlighting). It returns True by default. For some commands it might 
     #be switched off (usually by the user but can be done internally as well)
     #see self.getHighlightPolicy() for details
     _highlightPolicy = True
-    
+
     def edit(self):
         """
         Edit this DnaSegment. 
@@ -63,22 +63,22 @@ class DnaStrand(DnaStrandOrSegment):
         commandSequencer = self.assy.w.commandSequencer
         if commandSequencer.currentCommand.commandName != "DNA_STRAND":
             commandSequencer.userEnterTemporaryCommand('DNA_STRAND')
-            
+
         assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
         commandSequencer.currentCommand.editStructure(self)
-        
+
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
         @see: Group.all_content_is_hidden() 
         """
         del display_prefs # unused
-        
+
         if self.all_content_is_hidden():    
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
-        
+
     def isEmpty(self):
         """
         Returns True if there are no strand chunks as its members 
@@ -86,7 +86,7 @@ class DnaStrand(DnaStrandOrSegment):
         """
         if len(self.getStrandChunks()) == 0:
             return True
-    
+
     def get_strand_end_base_atoms(self):
         """
         Returns a tuple containing the end base atoms of a strand in the 
@@ -101,32 +101,34 @@ class DnaStrand(DnaStrandOrSegment):
         if not isinstance(member, DnaStrandChunk):
             # no DnaStrandChunk members (should not happen)
             return (None, None)
-        
+
         end_baseatoms = member.wholechain.end_baseatoms()
-        
+
         if not end_baseatoms:
             # ring
             return (None, None)
-        
+
         three_prime_end_base_atom = None
         five_prime_end_base_atom = None
         for atm in end_baseatoms:
             if atm is not None:
                 rail = atm.molecule.get_ladder_rail()
-                bond_direction = rail.bond_direction()        
+                bond_direction = 1 
+                    # absoulute bond direction here (1 == 5'->3') 
+                    # instead of rail.bond_direction(), piotr 0803278 
                 next_strand_atom = atm.strand_next_baseatom(bond_direction)
                 previous_strand_atom = atm.strand_next_baseatom(-bond_direction)
-                
+
                 if next_strand_atom is None and previous_strand_atom:
                     three_prime_end_base_atom = atm
-                elif previous_strand_atom is None and next_strand_atom:
+                if previous_strand_atom is None and next_strand_atom:
                     five_prime_end_base_atom = atm
                 #What should be done in a case if 'atm' has no next or previous base
                 #atoms?  - Ninad 2008-03-27
-        
+
         # chain
         return (five_prime_end_base_atom, three_prime_end_base_atom)
-    
+
     def get_three_prime_end_base_atom(self):
         """
         Returns the three prime end base atom of this strand. If one doesn't
@@ -135,7 +137,7 @@ class DnaStrand(DnaStrandOrSegment):
         """
         endbaseAtoms = self.get_strand_end_base_atoms()        
         return endbaseAtoms[1]  
-    
+
     def get_five_prime_end_base_atom(self):
         """
         Returns the five prime end base atom of this strand. If one doesn't
@@ -144,7 +146,7 @@ class DnaStrand(DnaStrandOrSegment):
         """
         endbaseAtoms = self.get_strand_end_base_atoms()        
         return endbaseAtoms[0] 
-                        
+
     def getStrandChunks(self): 
         """
         Return a list of all strand chuns
@@ -153,13 +155,13 @@ class DnaStrand(DnaStrandOrSegment):
         for m in self.members:
             if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
                 strandChunkList.append(m)
-        
+
         #@TODO: when pre dna data model code is deprecated, check if the following 
         #looks correct. I think the following is NOT right. Because 
         #a DnaStrand group can encompass many ladders correct? -- Ninad 2008-03-26
         ##if 0:
             ##strandChunk = None
-            
+
             ##for m in self.members:
                 ##if isinstance(m, self.assy.Chunk) and m.isStrandChunk():
                     ##strandChunk = m
@@ -167,9 +169,9 @@ class DnaStrand(DnaStrandOrSegment):
             ##if strandChunk is not None:
                 ##ladder = strandChunk.ladder
                 ##strandChunkList = ladder.strand_chunks()
-            
+
         return strandChunkList
-    
+
     def _get_commandNames_honoring_highlightPolicy(self):
         """
         Return a tuple containing the command names that honor the 
@@ -179,9 +181,9 @@ class DnaStrand(DnaStrandOrSegment):
         commandNames_that_honor_highlightPolicy = ('BUILD_DNA', 
                                                    'DNA_STRAND', 
                                                    'DNA_SEGMENT')
-        
+
         return commandNames_that_honor_highlightPolicy 
-    
+
     def setHighlightPolicy(self, highlight = True):
         """
         Set the highlighting flag that decides whether to highlight 'self' when 
@@ -189,7 +191,7 @@ class DnaStrand(DnaStrandOrSegment):
         that helps enabling or disabling highlighting while in a particular 
         command. Note that NE1 honors this property of the object overriding the 
         'hover_highligiting_enabled' flag of the current command/ Graphics mode
-        
+
         Example: While in BuildDna_EditCommand and some of its its subcommands, 
                  the user may wish to switch off highlighting for a particular
                  DNA strand as it gets in the way. (example the huge scaffold 
@@ -219,7 +221,7 @@ class DnaStrand(DnaStrandOrSegment):
         #Also note that this state is not saved to the mmp file. (we can do that
         #if we decide to make it a general API method) -- Ninad 2008-03-14
         self._highlightPolicy = highlight            
-        
+
     def getHighlightPolicy(self):
         """
         Returns the highlighting state of the object. Note that it doesn't 
@@ -233,10 +235,10 @@ class DnaStrand(DnaStrandOrSegment):
             highlighting_wanted = self._highlightPolicy
         else:
             highlighting_wanted = True
-            
+
         return highlighting_wanted
-    
-        
+
+
     def draw_highlighted(self, glpane, color):
         """
         Draw the strand and axis chunks as highlighted. (Calls the related 
@@ -249,18 +251,18 @@ class DnaStrand(DnaStrandOrSegment):
         @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
         """            
         highlighting_wanted = self.getHighlightPolicy()
-            
+
         if highlighting_wanted:
             #Does DnaStrand group has any member other than DnastrandChunks?
             for c in self.members: 
                 if isinstance(c, DnaStrandChunk):
                     c.draw_highlighted(glpane, color)            
-    
+
     def getStrandSequence(self):
         """
         Returns the strand sequence for the DnaStrandChunks within this
         DnaStrand group.
-        
+
         @return: strand Sequence string
         @rtype: str
         """
@@ -284,15 +286,15 @@ class DnaStrand(DnaStrandOrSegment):
         #       this DnaStrand Group. For a short time, we will pass the whole 
         #       atom list. Will definitely be revised and refactored within the
         #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
-        
+
         sequenceString = ''     
         rawAtomList = []
         for c in self.members:
             if isinstance(c, DnaStrandChunk):
                 rawAtomList.extend(c.atoms.itervalues())
-        
+
         #see a to do comment about rawAtom list above
-        
+
         sequenceString = ''  
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
             baseName = str(atm.getDnaBaseName())
@@ -307,10 +309,10 @@ class DnaStrand(DnaStrandOrSegment):
                 if atm.element.symbol != 'X':                    
                     baseName = 'X'
                     sequenceString = sequenceString + baseName
-                    
+
         return sequenceString
-        
-    
+
+
     def setStrandSequence(self, sequenceString):
         """
         Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
@@ -320,17 +322,17 @@ class DnaStrand(DnaStrandOrSegment):
         @type sequenceString: str
         """      
         #TO BE REVISED SEE A TODO COMMENT AT THE TOP
-        
+
         sequenceString = str(sequenceString)
         #Remove whitespaces and tabs from the sequence string
         sequenceString = re.sub(r'\s', '', sequenceString)
-        
+
         rawAtomList = []
         for c in self.members:
             if isinstance(c, DnaStrandChunk):
                 rawAtomList.extend(c.atoms.itervalues())
-                
-       
+
+
         #May be we set this beginning with an atom marked by the 
         #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
         # [yes, see my longer reply comment above -- Bruce 080117]
@@ -338,7 +340,7 @@ class DnaStrand(DnaStrandOrSegment):
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
             if not atm.is_singlet():
                 atomList.append(atm)
-        
+
         for atm in atomList:   
             atomIndex = atomList.index(atm)
             if atomIndex > (len(sequenceString) - 1):
@@ -347,9 +349,9 @@ class DnaStrand(DnaStrandOrSegment):
                 baseName = 'X'
             else:
                 baseName = sequenceString[atomIndex]
-                
+
             atm.setDnaBaseName(baseName)
-            
+
             #Also assign the baseNames for the PAM atoms on the complementary 
             #('mate') strand.
             strandAtomMate = atm.get_strand_atom_mate()
@@ -375,27 +377,27 @@ class DnaStrand(DnaStrandOrSegment):
                                 prev_cc = cc
                                 if cc.get_dispdef() == diDNACYLINDER:
                                     cc.inval_display_list()
-                
+
     def get_strand_atoms_in_bond_direction(self, inputAtomList): 
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
-        
+
         @note: this is a stub and we can modify it so that
         it can accept other direction i.e. 3' to 5' , as an argument.
-        
+
         BUG: ? : This also includes the bondpoints (X)  .. I think this is 
         from the atomlist returned by bond_chains.grow_directional_bond_chain.
         The caller -- self.getStrandSequence uses atom.getDnaBaseName to
         retrieve the DnaBase name info out of atom. So this bug introduces 
         no harm (as dnaBaseNames are not assigned for bondpoints).
-        
+
         [I think at most one atom at each end can be a bondpoint,
          so we could revise this code to remove them before returning.
          bruce 080205]
 
         @warning: for a ring, this uses an arbitrary start atom in self
                   (so it is not yet useful in that case). ### VERIFY
-        
+
         @warning: this only works for PAM3 chunks (not PAM5).
 
         @note: this would return all atoms from an entire strand (chain or ring)
@@ -405,26 +407,26 @@ class DnaStrand(DnaStrandOrSegment):
         """ 
         startAtom = None
         atomList = []
-        
+
         #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
         # and not a bondpoint)
         for atm in inputAtomList:
             if atm.element.symbol == 'Ss3':
                 startAtom = atm
                 break        
-        
+
         if startAtom is None:
             print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
             return []
-        
+
         #Build one list in each direction, detecting a ring too 
-        
+
         #ringQ decides whether the first returned list forms a ring. 
         #This needs a better name in bond_chains.grow_directional_bond_chain
         ringQ = False        
         atomList_direction_1 = []
         atomList_direction_2 = []     
-                   
+
         b = None  
         bond_direction = 0
         for bnd in startAtom.directional_bonds():
@@ -435,10 +437,10 @@ class DnaStrand(DnaStrandOrSegment):
                     b = bnd
                     bond_direction = direction
                     break
-                                    
+
         if b is None or bond_direction == 0:
             return []         
-                           
+
         #Find out the list of new atoms and bonds in the direction 
         #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
         #(i.e. bond_direction = -1 OR the reverse direction 
@@ -446,14 +448,14 @@ class DnaStrand(DnaStrandOrSegment):
         #(things that will decide which list (atomList_direction_1 or 
         #atomList_direction_2) should  be prepended in atomList so that it has 
         #atoms ordered from 5' to 3' end. 
-        
+
         # 'atomList_direction_1' does NOT include 'startAtom'.
         # See a detailed explanation below on how atomList_direction_a will be 
         # used, based on bond_direction
         ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
-        
+
         del listb # don't need list of bonds
-        
+
         if ringQ:
             # The 'ringQ' returns True So its it's a 'ring'.
             #First add 'startAtom' (as its not included in atomList_direction_1)
@@ -464,7 +466,7 @@ class DnaStrand(DnaStrandOrSegment):
             #Its not a ring. Now we need to make sure to include atoms in the 
             #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
             #the directional bond chain in the opposite direction. 
-            
+
             other_atom = b.other(startAtom)
             if not other_atom.is_singlet():  
                 ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
@@ -473,21 +475,21 @@ class DnaStrand(DnaStrandOrSegment):
                 #See a detailed explanation below on how 
                 #atomList_direction_2 will be used based on 'bond_direction'
                 atomList_direction_2.insert(0, other_atom)
-   
+
             atomList = [] # not needed but just to be on a safer side.
-        
+
             if bond_direction == 1:
                 # 'bond_direction' is the direction *away from* startAtom and 
                 # along the bond 'b' declared above. . 
-                
+
                 # This can be represented by the following sketch --
                 # (3'end) <--1 <-- 2 <-- 3 <-- 4 <-- (5' end)
-                
+
                 # Let startAtom be '2' and bond 'b' be directional bond between 
                 # 1 and 2. In this case, the direction of bond *away* from 
                 # '2' and along 2  = bond direction of bond 'b' and thus 
                 # atoms traversed along bond_direction = 1 lead us to 3' end. 
-                
+
                 # Now, 'atomList_direction_1'  is computed by 'growing' (expanding)
                 # a bond chain  in the direction that goes from bond b 
                 # *towards* startAtom. That is, in this case it is the opposite 
@@ -498,7 +500,7 @@ class DnaStrand(DnaStrandOrSegment):
                 #reverse atomList_direction_1 , then append startAtom to the 
                 #atomList (as its not included in atomList_direction_1) and then 
                 #extend atoms from atomList_direction_2. 
-                
+
                 #What is atomList_direction_2 ?  It is the list of atoms 
                 #obtained by growing bond chain from bond b, in the direction of 
                 #atom 1 (atom 1 is the 'other atom' of the bond) . In this case 
@@ -511,21 +513,21 @@ class DnaStrand(DnaStrandOrSegment):
                 atomList.extend(atomList_direction_1)
                 atomList.append(startAtom)
                 atomList.extend(atomList_direction_2)                
-                
+
             else:     
                 #See a detailed explanation above. 
                 #Here, bond_direction == -1. 
-                
+
                 # This can be represented by the following sketch --
                 # (5'end) --> 1 --> 2 --> 3 --> 4 --> (3' end)
-                
+
                 #bond b is the bond betweern atoms 1 and 2. 
                 #startAtom remains the same ..i.e. atom 2. 
-                
+
                 #As you can notice from the sketch, the bond_direction is 
                 #direction *away* from 2, along bond b and it leads us to 
                 # 5' end. 
-                
+
                 #based on how atomList_direction_2 (explained earlier), it now 
                 #includes atoms begining at 1 and ending at 5' end. So 
                 #we must reverse atomList_direction_2 now to arrange them 
@@ -534,7 +536,7 @@ class DnaStrand(DnaStrandOrSegment):
                 atomList.extend(atomList_direction_2)
                 atomList.append(startAtom)
                 atomList.extend(atomList_direction_1)
-        
+
         #TODO: could zap first and/or last element if they are bondpoints 
         #[bruce 080205 comment]        
         return atomList   
