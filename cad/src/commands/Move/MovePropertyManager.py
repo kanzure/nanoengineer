@@ -120,7 +120,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         groupbox button is clicked. See also activate_translateGroupBox 
         method.
         """
-        self.updateMessage()
+        
         self.toggle_translateGroupBox()
 
         if not self.w.toolsMoveMoleculeAction.isChecked():
@@ -146,6 +146,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             self.changeMoveOption(buttonToCheck)
             
             self.parentMode.graphicsMode.update_cursor()
+            self.updateMessage()
             
 
     def activate_rotateGroupBox_using_groupButton(self):
@@ -155,13 +156,13 @@ class MovePropertyManager(Ui_MovePropertyManager):
         last time. (if applicable). This method is called only when rotate 
         groupbox button is clicked. See also activate_rotateGroupBox method. 
         """
-        self.updateMessage()
+        
         self.toggle_rotateGroupBox()
 
         if not self.w.rotateComponentsAction.isChecked():            
             self.w.rotateComponentsAction.setChecked(True)   
             self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
-
+            
             # Update the title and icon.
             self.setHeaderIcon(self.rotateIconPath)
             self.setHeaderTitle(self.rotateTitle)
@@ -183,6 +184,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             self.changeRotateOption(buttonToCheck)
             
             self.parentMode.graphicsMode.update_cursor()
+            self.updateMessage()
            
     def activate_translateGroupBox(self):
         """
@@ -193,7 +195,6 @@ class MovePropertyManager(Ui_MovePropertyManager):
         see also: activate_translateGroupBox_using_groupButton
         """
 
-        self.updateMessage()
         
         self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
 
@@ -221,6 +222,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.changeMoveOption(buttonToCheck)
         
         self.parentMode.graphicsMode.update_cursor()
+        self.updateMessage()
        
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -230,9 +232,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
         @see: L{self.activate_rotateGroupBox_using_groupButton}
         """
         
-        self.updateMessage()
+        
         self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
-
+                
         #Update the icon and the title. 
         self.setHeaderIcon(self.rotateIconPath)
         self.setHeaderTitle(self.rotateTitle)
@@ -253,6 +255,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.changeRotateOption(buttonToCheck)
         
         self.parentMode.graphicsMode.update_cursor()
+        self.updateMessage()
+        
       
     def deactivate_rotateGroupBox(self):
         """ Hide the items in the groupbox, Also 
