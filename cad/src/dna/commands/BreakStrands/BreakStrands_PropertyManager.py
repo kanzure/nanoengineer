@@ -70,8 +70,7 @@ class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                 pmWhatsThisButton)
         
         
-        msg = "<b>Break Strands:</b>"\
-            "<br>To break a strand, click on a strand bond"
+        msg = "Click on a strand's backbone bond to break a strand."
         self.updateMessage(msg)
         
     def ok_btn_clicked(self):

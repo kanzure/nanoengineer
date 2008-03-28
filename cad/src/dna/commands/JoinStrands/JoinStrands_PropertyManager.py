@@ -70,11 +70,12 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
             leftMouseButtonString = 'mouse button'
         else:
             leftMouseButtonString = 'left mouse button'
-                
-        msg = ("<b>Join Strands:</b>"\
-            "<br> Move cursor over a 3' end, hold down the %s and release it " \
-            "when the cursor is over a 5' end") %(leftMouseButtonString)
         
+        # Note: 
+        msg = ("To join two strands, highlight a 3' arrowhead of one "\
+               "strand, hold down the %s and then release it when the cursor "\
+               "is over the 5' end of a different strand.") % \
+            (leftMouseButtonString)
         
         self.updateMessage(msg)
         
