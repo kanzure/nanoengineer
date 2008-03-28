@@ -31,7 +31,7 @@ def setupUi(win):
     win.simulationMenu.addAction(win.jigsAnchorAction)
     win.simulationMenu.addAction(win.jigsStatAction)
     win.simulationMenu.addAction(win.jigsThermoAction)
-    win.simulationMenu.addSeparator()
+    
     win.simulationMenu.addAction(win.simNanoHiveAction)
     
     #NOTE: The GAMESS and ESPImage options are intentionally disabled
