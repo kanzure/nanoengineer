@@ -560,15 +560,36 @@ class DnaCylinderChunks(ChunkDisplayMode):
             x2, y2, z2 = gluUnProject(0, textheight, 0)
             return (V(x1-x0, y1-y0, z1-z0),V(x2-x0, y2-y0, z2-z0))
 
-        def get_screen_postion_of_strand_atom(strand_atom):
-            # for a strand atom, find its on-screen position
-            strand_chunk = strand_atom.molecule
+        def get_screen_position_of_strand_atom(strand_atom):
+            """
+            For a given strand atom, find its on-screen position.
+            """
             axis_atom = strand_atom.axis_neighbor()
-            a_neighbors = axis_atom.strand_neighbors()
-            dvec = axis_atom.posn()-a_neighbors[0].posn()
-            ovec = norm(cross(dvec,glpane.out))
-            return axis_atom.posn() - axis_atom.molecule.center + 7.0*ovec
+            if axis_atom:
+                mol = axis_atom.molecule
+                axis_atoms = mol.ladder.axis_rail.baseatoms
+                n_bases = len(axis_atoms)
+                pos = axis_atoms.index(axis_atom)
+                atom0 = axis_atom
+                if pos<n_bases-1:
+                    atom1 = axis_atoms[pos+1]
+                    dpos = atom1.posn()-atom0.posn()
+                else:
+                    atom1 = axis_atoms[pos-1]
+                    atom2 = axis_atoms[pos]
+                    dpos = atom2.posn()-atom1.posn()                           
+                last_dpos = dpos
+                dvec = norm(cross(dpos,glpane.out))
+                pos0 = axis_atom.posn()#-mol.center
+                pos1 = pos0+7.0*dvec
+                pos2 = pos0-7.0*dvec
+                if mol.ladder.strand_rails[0].baseatoms[pos]==strand_atom:
+                    return pos1
+                elif mol.ladder.strand_rails[1].baseatoms[pos]==strand_atom:
+                    return pos2
 
+            return None
+        
         from utilities.constants import lightgreen
         from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
         from widgets.widget_helpers import RGBf_to_QColor
@@ -864,8 +885,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     glBegin(GL_LINES)
 
                     if pos>0:
+                        glColor3f(s_atom0.molecule.color[0],
+                                  s_atom0.molecule.color[1],
+                                  s_atom0.molecule.color[2])
                         glVertex3f(last_pos3[0],last_pos3[1],last_pos3[2])
                         glVertex3f(pos3[0],pos3[1],pos3[2])
+                        glColor3f(s_atom1.molecule.color[0],
+                                  s_atom1.molecule.color[1],
+                                  s_atom1.molecule.color[2])
                         glVertex3f(pos4[0],pos4[1],pos4[2])
                         glVertex3f(last_pos4[0],last_pos4[1],last_pos4[2])
 
@@ -886,6 +913,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         strand = strand_chunk.parent_node_of_class(
                             strand_chunk.assy.DnaStrand)
                         if strand_atom==strand.get_three_prime_end_base_atom():
+                            glColor3f(strand_atom.molecule.color[0],
+                                      strand_atom.molecule.color[1],
+                                      strand_atom.molecule.color[2])
                             a_neighbors = atom.axis_neighbors()
                             dvec = atom.posn()-a_neighbors[0].posn()
                             ovec = norm(cross(dvec,glpane.out))
@@ -923,35 +953,20 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             drawFilledCircle(strand_chunk.color, pos0, 0.5, glpane.out)
                     s *= -1 # next strand            
                 """
-                """
+                
                 axis_atoms = chunk.ladder.axis_rail.baseatoms
-
+                """
                 neighbors = endatoms[0].strand_neighbors()
                 for strand_atom in neighbors:
                     strand_chunk = strand_atom.molecule
                     for atom in strand_chunk.atoms.itervalues():
-                        axis_atom = atom.axis_neighbor()
-                        pos = axis_atoms.index(axis_atom)
-                        atom0 = chunk.ladder.axis_rail.baseatoms[pos]
-                        if pos<n_bases-1:
-                            atom1 = chunk.ladder.axis_rail.baseatoms[pos+1]
-                            dpos = atom1.posn()-atom0.posn()
-                        else:
-                            atom1 = chunk.ladder.axis_rail.baseatoms[pos-1]
-                            atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                            dpos = atom2.posn()-atom1.posn()                           
-                        last_dpos = dpos
-                        dvec = norm(cross(dpos,glpane.out))
-                        pos0 = atom0.posn()-chunk.center
-                        # print "dvec = ", dvec
-                        s_atom0 = chunk.ladder.strand_rails[0].baseatoms[pos]
-                        s_atom1 = chunk.ladder.strand_rails[1].baseatoms[pos]
-                        pos3 = pos0+7.0*dvec
-                        pos4 = pos0-7.0*dvec
-                        drawFilledCircle(s_atom0.molecule.color, pos3, 0.5, glpane.out)
-                        drawFilledCircle(s_atom1.molecule.color, pos4, 0.5, glpane.out)
-                 """       
-
+                        if atom:
+                            pos = get_screen_position_of_strand_atom(atom)
+                            if pos:
+                                drawFilledCircle(atom.molecule.color, pos, 0.5, glpane.out)
+                """
+                
+                
                 glBegin(GL_LINES)
                 # draw external bonds
                 neighbors = endatoms[0].strand_neighbors()
@@ -960,25 +975,17 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     for bond in strand_chunk.externs:
                         if bond.atom1.molecule.dad==bond.atom2.molecule.dad: # same group
                             if bond.atom1.molecule!=bond.atom2.molecule: # but different chunks
-
-                                axis_atom = bond.atom1.axis_neighbor()
-                                a_neighbors = axis_atom.axis_neighbors()
-                                dvec = axis_atom.posn()-a_neighbors[0].posn()
-                                ovec = norm(cross(dvec,glpane.out))
-                                pos0 = axis_atom.posn() - axis_atom.molecule.center + 7.0*ovec                                        
-
-                                axis_atom = bond.atom2.axis_neighbor()
-                                a_neighbors = axis_atom.axis_neighbors()
-                                dvec = axis_atom.posn()-a_neighbors[0].posn()
-                                ovec = norm(cross(dvec,glpane.out))
-                                pos1 = axis_atom.posn() - axis_atom.molecule.center - 7.0*ovec
-
-                                pos0 = bond.atom1.posn()-chunk.center
-                                pos1 = bond.atom2.posn()-chunk.center
-
-                                #glVertex3f(pos0[0], pos0[1], pos0[2])
-                                #glVertex3f(pos1[0], pos1[1], pos1[2])
-
+                                pos0 = get_screen_position_of_strand_atom(bond.atom1)
+                                pos1 = get_screen_position_of_strand_atom(bond.atom2)
+                                if pos0 and pos1:
+                                    pos0 -= chunk.center
+                                    pos1 -= chunk.center
+                                    glColor3f(bond.atom1.molecule.color[0],
+                                              bond.atom1.molecule.color[1],
+                                              bond.atom1.molecule.color[2])
+                                    glVertex3f(pos0[0], pos0[1], pos0[2])
+                                    glVertex3f(pos1[0], pos1[1], pos1[2])
+                                
                 glEnd() # end line drawing
 
                 # line width should be restored to initial value
