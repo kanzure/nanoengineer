@@ -29,7 +29,8 @@ from exprs.__Symbols__ import _self
 from exprs.Exprs import call_Expr
 from exprs.Exprs import norm_Expr
 from widgets.prefs_widgets import ObjAttr_StateRef
-from exprs.ExprsConstants import Width, Point
+from exprs.ExprsConstants import Width, Point, ORIGIN
+from exprs.ExprsConstants import Vector
 
 from model.chunk import Chunk
 from model.chem import Atom
@@ -83,12 +84,15 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     #definition
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)    
-    axisEnd1 = State( Point, ORIGIN)
+    handleDirection1 = State(Vector, ORIGIN)
+    handleDirection2 = State(Vector, ORIGIN)
     axisEnd2 = State( Point, ORIGIN)
     #TODO: 'cylinderWidth attr used for resize handles -- needs to be renamed 
     #along with 'height_ref attr in exprs.DraggableHandle_AlongLine
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
+    
+    
 
     #Resize Handles for Strand. See self.updateHandlePositions()
     leftHandle = Instance(         
@@ -97,7 +101,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = handlePoint1,
             fixedEndOfStructure = handlePoint2,
-            direction = norm_Expr(axisEnd1 - axisEnd2)
+            direction = handleDirection1
         ))
 
     rightHandle = Instance( 
@@ -106,7 +110,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
             origin = handlePoint2,
             fixedEndOfStructure = handlePoint1,
-            direction = norm_Expr(axisEnd2 - axisEnd1)
+            direction = handleDirection2
         ))
 
 
@@ -323,46 +327,60 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         Update handle positions
         """
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
-        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE    
-
-        if self.struct is not None and \
-           self.struct.dad is self._parentDnaSegment:
-
-            #axis end atom positions
-            axisEnd1, axisEnd2 = \
-                    self._parentDnaSegment.getAxisEndPoints()
-
-            if axisEnd1 is not None and axisEnd2 is not None:
-                # note: this condition was an attempt to fix traceback
-                # when dna udpater is on. It didn't fix it, and is not necessary
-                # for the real fix to work (default values of ORIGIN in the
-                # State declarations). But it seems like a good idea anyway
-                # so I will leave it in place. [bruce 080216]
-
-                self.axisEnd1, self.axisEnd2 = axisEnd1, axisEnd2
-
-                #List of *positions* of strand atoms connected to the axis end atoms.
-                strandEndPoints = self._parentDnaSegment.getStrandEndPointsFor(self.struct)
-
-                if len(strandEndPoints) != 2:
-                    print_compact_stack("BUG in drawing handles: dna segment "\
-                                        "probably doesn't have exactly two end"\
-                                        " axis atoms: "
-                                    )
-                    return
-
-                #Now comput the handle base positions. for Strand resize handles, 
-                #the base position will lie midway between the axis end atom 
-                #and corresponding strand end atom of the strand. 
-                strandEnd1 = strandEndPoints[0]
-                strandEnd2 = strandEndPoints[1]
-                if strandEnd1 is not None:
-                    v1 = strandEnd1 - self.axisEnd1
-                    self.handlePoint1 = self.axisEnd1 + norm(v1)*vlen(v1)/2.0
-                if strandEnd2 is not None:
-                    v2 = strandEnd2 - self.axisEnd2
-                    self.handlePoint2 = self.axisEnd2 + norm(v2)*vlen(v2)/2.0
-
+        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE 
+        
+        self.handlePoint1 = None
+        self.handlePoint2 = None
+        self.handleDirection1 = ORIGIN
+        self.handleDirection2 = ORIGIN
+        
+        strandEndBaseAtom1, strandEndBaseAtom2 = self.struct.get_strand_end_base_atoms()
+        
+        if strandEndBaseAtom1 is not None:
+            axisAtom1 = strandEndBaseAtom1.axis_neighbor()
+            if axisAtom1 is not None:
+                self.handleDirection1 = self._get_handle_direction(axisAtom1, 
+                                                                   strandEndBaseAtom1)
+                v1 = strandEndBaseAtom1.posn() - axisAtom1.posn()
+                self.handlePoint1 = axisAtom1.posn() + v1/2.0
+                
+        if strandEndBaseAtom2 is not None:
+            axisAtom2 = strandEndBaseAtom2.axis_neighbor()
+            if axisAtom2 is not None:
+                self.handleDirection2 = self._get_handle_direction(axisAtom2, 
+                                                                   strandEndBaseAtom2)
+                v2 = strandEndBaseAtom2.posn() - axisAtom2.posn()
+                self.handlePoint2 = axisAtom2.posn() + v2/2.0
+  
+           
+        ##if strandEnd1 is not None:
+            ##v1 = strandEnd1 - self.axisEnd1
+            ##self.handlePoint1 = self.axisEnd1 + norm(v1)*vlen(v1)/2.0
+        ##if strandEnd2 is not None:
+            ##v2 = strandEnd2 - self.axisEnd2
+            ##self.handlePoint2 = self.axisEnd2 + norm(v2)*vlen(v2)/2.0
+            
+    def _get_handle_direction(self, axisAtom, strandAtom):
+        """
+        Get the handle direction.
+        """
+        
+        handle_direction = None
+        
+        strand_rail = strandAtom.molecule.get_ladder_rail() 
+        
+        for bond_direction in (1, -1):
+            next_strand_atom = strandAtom.strand_next_baseatom(bond_direction)
+            if next_strand_atom:
+                break
+        
+        if next_strand_atom:
+            next_axis_atom = next_strand_atom.axis_neighbor()
+            if next_axis_atom:
+                handle_direction = norm(axisAtom.posn() - next_axis_atom.posn())
+                
+        return handle_direction
+     
 
     def modifyStructure(self):
         """
