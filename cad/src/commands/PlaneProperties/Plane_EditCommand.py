@@ -41,6 +41,13 @@ class Plane_EditCommand(EditCommand):
     #See Command.anyCommand for details about the following flags
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
+        # When <command_should_resume_prevMode> and <command_has_its_own_gui>
+        # are both set to True (like here), want_confirmation_corner_type()
+        # will determine that the confirmation corner should include the
+        # Transient-Done image, which is sometimes OK and sometimes not OK.
+        # This is what bug 2701 is about (assigned to me). I will talk to Ninad
+        # and Bruce about fixing this (after Rattlesnake). 
+        # --Mark 2008-03-24
     
     commandName = 'REFERENCE_PLANE'
     featurename = "Reference Plane"
