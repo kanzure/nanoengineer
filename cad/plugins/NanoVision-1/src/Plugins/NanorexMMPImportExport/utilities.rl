@@ -6,6 +6,7 @@
 #     int intVal, intVal2;
 #     std::string stringVal, stringVal2;
 #     int x, y, z;
+#     int lineNum; // initialize to 1
 #
 # Define the following (inline) function
 #     void stripTrailingWhiteSpaces(std::string& s) {
@@ -20,15 +21,18 @@
 #
     machine utilities;
 
-    NEWLINE = '\n';
+	NEWLINE = '\n' @ {++lineNum;} ;
     EOF = 0xff ;
     nonNEWLINE = any - ('\n' | 0xff);
-    
+	SPACE_TAB = (' ' | '\t');
+	nonNEWLINEspace = (space - '\n');
+	WHITESPACE = (nonNEWLINEspace | NEWLINE);
+	
     IGNORED_LINE = nonNEWLINE*   NEWLINE;
     
     # Possible ways a line can end - with or without an inline comment
     # - also serves to catch whole blank or comment lines
-    EOL = space* ('#' nonNEWLINE**)?   NEWLINE;
+    EOL = nonNEWLINEspace** ('#' nonNEWLINE**)?   NEWLINE;
     
     whole_number = digit digit**
 		>to{intVal=fc-'0';}
@@ -55,31 +59,40 @@
         ${stringVal = stringVal + fc; }
     ;
     
-    
+	char_string2 = ('_' | alnum) (alnum | [_\-])**
+		>to{/*stringVal.clear();*/ stringVal2 = fc; }
+		${stringVal2 = stringVal2 + fc; }
+	;
+	
     # Character string with spaces in between
     # - must be at least 1 character long, and must end in a non-whitespace char
-	# KNOWN ISSUE: the string identified includes trailing spaces
     char_string_with_space_pattern =
-		('_' | alnum)  (((space-'\n') | [_\-] | alnum)** ('_' | alnum))?;
+		('_' | alnum)  ((nonNEWLINEspace | [_\-] | alnum)** ('_' | alnum))?
+		>{ charStringWithSpaceStart = p-1; }
+		@{ charStringWithSpaceStop = p; }
+	;
+		
     
     
     # Default assignment of identified character-string-with-spaces pattern
-	# KNOWN ISSUE: the string identified includes trailing spaces
 	char_string_with_space = char_string_with_space_pattern
-        >to{stringVal.clear();}
-        ${stringVal = stringVal + fc; }
-		% { /*stripTrailingWhiteSpaces(stringVal);*/ }
+#>to{stringVal.clear();}
+#${stringVal = stringVal + fc; }
+		% { stringVal.resize(charStringWithSpaceStop - charStringWithSpaceStart + 1);
+			std::copy(charStringWithSpaceStart, charStringWithSpaceStop+1, stringVal.begin());
+		}
 	;
     
     
     # Alternate assignment of identified character-string-with-spaces pattern
     # - useful in a binary expression
-	# KNOWN ISSUE: the string identified includes trailing spaces
 	char_string_with_space2 = char_string_with_space_pattern
-        >to{stringVal2.clear();}
-        ${stringVal2 = stringVal2 + fc; }
-		% { /*stripTrailingWhiteSpaces(stringVal2);*/ } 
-    ;
+#>to{stringVal2.clear();}
+#${stringVal2 = stringVal2 + fc; }
+		% { stringVal2.resize(charStringWithSpaceStop - charStringWithSpaceStart + 1);
+			std::copy(charStringWithSpaceStart, charStringWithSpaceStop+1, stringVal2.begin());
+		}
+	;
     
 }%%
 

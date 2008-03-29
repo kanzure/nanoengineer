@@ -27,13 +27,13 @@
 	;
 	
 	atomic_num =
-		'(' space* whole_number space* ')'
+		'(' nonNEWLINEspace* whole_number nonNEWLINEspace* ')'
 		% { atomicNum = intVal; /*cerr << "atomId = " << atomId << endl;*/}
 	;
 	
-	xcoord = space*  integer  space*  %{x = intVal; };
-	ycoord = space*  integer  space*  %{y = intVal; };
-	zcoord = space*  integer  space*  %{z = intVal; };
+	xcoord = nonNEWLINEspace*  integer  nonNEWLINEspace*  %{x = intVal; };
+	ycoord = nonNEWLINEspace*  integer  nonNEWLINEspace*  %{y = intVal; };
+	zcoord = nonNEWLINEspace*  integer  nonNEWLINEspace*  %{z = intVal; };
 	
 	
 	atom_coords =
@@ -50,26 +50,30 @@
 	
 	
 	action newAtomAction {
-		stripTrailingWhiteSpaces(atomStyle); 
+		// stripTrailingWhiteSpaces(atomStyle); 
 		newAtom(atomId, atomicNum, x, y, z, atomStyle);
+		// cerr << "p = " << p << endl;
 	}
 	
-	atom_decl_line = space*
-		'atom'  space+
-		atom_id  space+
-		atomic_num  space+
+	atom_decl_line =
+		'atom'  nonNEWLINEspace+
+		atom_id  nonNEWLINEspace+
+		atomic_num  nonNEWLINEspace+
 		atom_coords
-		(space+ atom_style)?
+		(nonNEWLINEspace+ atom_style)?
 		EOL
-		@ newAtomAction;
+		@ newAtomAction
+		;
 	
 	
 	action newBondAction {
 		newBond(stringVal, intVal);
 	}
 	
-	bond_line = space*
-		'bond' char_string (space+ whole_number % newBondAction )+
+	bond_line =
+		'bond'
+		[123acg] @ { stringVal = fc; }
+		(nonNEWLINEspace+ whole_number % newBondAction )+
 		EOL;
 	
 	
@@ -77,21 +81,21 @@
 		newBondDirection(intVal, intVal2);
 	}
 	
-	bond_direction_line = space*
-		'bond_direction' space+ whole_number space+ whole_number2
+	bond_direction_line =
+		'bond_direction' nonNEWLINEspace+ whole_number nonNEWLINEspace+ whole_number2
 		EOL
 		@ newBondDirectionAction;
 	
 	action newInfoAtomAction {
-		stripTrailingWhiteSpaces(stringVal);
-		stripTrailingWhiteSpaces(stringVal2);
+		// stripTrailingWhiteSpaces(stringVal);
+		// stripTrailingWhiteSpaces(stringVal2);
 		newAtomInfo(stringVal, stringVal2);
 	}
 	
-	info_atom_line = space*
-		'info' space+ 'atom'
-		space+ char_string_with_space space+ '='
-		space+ char_string_with_space2
+	info_atom_line =
+		'info' nonNEWLINEspace+ 'atom'
+		nonNEWLINEspace+   char_string_with_space   nonNEWLINEspace* '='
+		nonNEWLINEspace*   char_string_with_space2
 		EOL
 		@ newInfoAtomAction
 		;
@@ -99,9 +103,9 @@
 	atom_attrib_line =
 		(bond_line  |  bond_direction_line  |  info_atom_line);
 	
-	atom_stmt =
-		atom_decl_line
-		atom_attrib_line*
-		;
+#atom_stmt =
+#		atom_decl_line
+#		(EOL | atom_attrib_line)*
+#		;
 	
 }%%

@@ -5,6 +5,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <vector>
+#include <stack>
 #include <string>
 
 
@@ -12,11 +13,14 @@
 class NanorexMMPImportExportTest: public CPPUNIT_NS::TestFixture {
 	
 	CPPUNIT_TEST_SUITE(NanorexMMPImportExportTest);
-	CPPUNIT_TEST(atomLineTest);
-	CPPUNIT_TEST(bondLineTest);
-	CPPUNIT_TEST(bondDirectionTest);
-	CPPUNIT_TEST(infoAtomTest);
-	CPPUNIT_TEST(atomStmtTest);
+// 	CPPUNIT_TEST(atomLineTest);
+// 	CPPUNIT_TEST(bondLineTest);
+// 	CPPUNIT_TEST(bondDirectionTest);
+// 	CPPUNIT_TEST(infoAtomTest);
+// 	// CPPUNIT_TEST(atomStmtTest);
+// 	CPPUNIT_TEST(multipleAtomStmtTest);
+//	CPPUNIT_TEST(molLineTest);
+	CPPUNIT_TEST(groupLineTest);
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -25,6 +29,8 @@ private:
 		int x, y, z;
 		Position(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
 		~Position() {}
+		bool operator == (Position const& p)
+		{ return x==p.x && y==p.y && z==p.z; }
 	};
 	
 	struct AtomTestInfo {
@@ -48,10 +54,10 @@ public:
 	void bondLineTest(void);
 	void bondDirectionTest(void);
 	void infoAtomTest(void);
-	
-	/// @todo
 	void atomStmtTest(void);
-	
+	void multipleAtomStmtTest(void);
+	void molLineTest(void);
+	void groupLineTest(void);
 	
 private:
 	
@@ -61,6 +67,9 @@ private:
 	std::string stringVal, stringVal2;
 	int atomId, atomicNum;
 	std::string atomStyle;
+	char const *charStringWithSpaceStart, *charStringWithSpaceStop;
+	
+	int lineNum;	
 	
 	// variables used in atom_decl_line tests
 	std::vector<int> atomIds, atomicNums;
@@ -74,23 +83,30 @@ private:
 	// variables used in bond_direction tests
 	int bondDirectionStartId, bondDirectionStopId;
 	
-	// variables used in info_atom tests
-	// std::vector<std::string> infoAtomKeys, infoAtomValues;
+	// variables used in mol_decl_line tests
+	std::string currentMolName, currentMolStyle;
 	
-	// variables used in atom_stmt test
+	// variables used in group tests
+	std::vector<std::string> groupNameStack;
+	std::string currentGroupName, currentGroupStyle;
 	
 	
 	// -- helper members --
 	
+	void reset(void);
+	
 	void atomLineTestSetUp(std::vector<std::string>& testStrings,
 	                       std::vector<AtomTestInfo>& answers);
 	void atomLineTestHelper(char const *const testInput);
-	void atomLineTestTearDown(void);
 	
 	void bondLineTestHelper(char const *const testInput);
 	void bondDirectionTestHelper(char const *const testInput);
 	void infoAtomTestHelper(char const *const testInput);
 	void atomStmtTestHelper(char const *const testInput);
+	void multipleAtomStmtTestHelper(char const *const testInput);
+	void molLineTestHelper(char const *const testInput);
+	void groupLineTestHelper(char const *const testInput);
+	
 	
 	void newAtom(int atomId, int atomicNum,
 	             int x, int y, int z,
@@ -98,7 +114,16 @@ private:
 	void newBond(std::string const& bondType, int targetAtomId);
 	void newBondDirection(int atomId1, int atomId2);
 	void newAtomInfo(std::string const& key, std::string const& value);
+	void newMolecule(std::string const& name, std::string const& style);
+	void newViewDataGroup(void);
+	void endViewDataGroup(void);
+	void newMolStructGroup(std::string const& name, std::string const& style);
+	void endMolStructGroup(std::string const& name);
+	void endGroup(std::string const& name);
+	void newClipboardGroup(void);
+	void endClipboardGroup(void);
 	
+#if 0
 	void stripTrailingWhiteSpaces(std::string& s) {
 		// std::cerr << "s = '" << s << "', s[end] = " << *s.rbegin()
 		// 	<< " (int) " << int(*s.rbegin());
@@ -111,7 +136,7 @@ private:
 		s.resize((int)s.size()-num_ws);
 		// std::cerr << ",  @end  s = '" << s << "'" << std::endl;
 	}
-	
+#endif
 	
 };
 

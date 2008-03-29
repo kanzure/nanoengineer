@@ -56,63 +56,11 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 	
 # ----- molecule -----
 	
-	mol_decl_line = space*
-		'mol'  space+
-		'('  space*  charStringWithSpace  space* ')'
-		(space+ charStringWithSpace2)?
-		EOL+;
-	
-	mol_stmt =
-		mol_decl_line
-		atom_stmt*
-		;
+	include molecule "molecule.rl";
 	
 # ----- group -----
 	
-	group_view_data_stmt_begin_line = space*
-		'group' space+ '(' space* 'View' space+ 'Data' space* ')'   EOL+;
-	
-	group_view_data_stmt_end_line = space*
-		'egroup' space+ '(' space* 'View' space+ 'Data' space* ')'  EOL+;
-	
-	group_view_data_stmt = space*
-		group_view_data_stmt_begin_line
-		IGNORED_LINE* :>
-		group_view_data_stmt_end_line
-		;
-	
-	end1_line = space* 'end1' space* EOL+;
-	
-	group_clipboard_stmt_begin = space*
-		'group' space+ '(' space* 'Clipboard' space* ')' space* EOL+;
-	
-	group_clipboard_stmt_end = space*
-		'egroup' space+ '(' space* 'Clipboard' space* ')' space* EOL+;
-	
-	group_clipboard_stmt =
-		group_clipboard_stmt_begin
-		IGNORED_LINE* :>
-		group_clipboard_stmt_end
-		;
-	
-	
-	info_opengroup_line = space*
-		'info' space+ 'opengroup'
-		(space+  charStringWithSpace  space* '=' space* charStringWithSpace2)+
-		EOL;
-	
-	group_mol_struct_stmt_begin_line = space*
-		'group' space+
-		'('  space*  charStringWithSpace  space*  ')'
-		(space+ charStringWithSpace2)?
-		EOL;
-	
-	
-	group_mol_struct_stmt_end_line = space*
-		'egroup'
-		( space* '('  space*  charStringWithSpace  space*  ')' )?
-		EOL;
-	
+	include group "group.rl";
 	
 #	group_mol_struct_stmt_body = 
 #		(   info_opengroup_line   |
