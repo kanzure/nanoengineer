@@ -20,7 +20,7 @@ from graphics.drawing.drawer import drawPoint
 
 from geometry.VQT import norm, vlen, V, cross
 
-def drawCntLadder(endCenter1,  
+def drawNanotubeLadder(endCenter1,  
                   endCenter2,
                   cntRise, 
                   glpaneScale,

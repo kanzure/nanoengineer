@@ -41,9 +41,8 @@ from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyM
 from utilities.constants import gensym
 
 from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength
-from cnt.model.Nanotube_Constants import getCntRise, getCntLength
 
-from cnt.temporary_commands.NanotubeLineMode import CntLine_GM
+from cnt.temporary_commands.NanotubeLineMode import NtLine_GM
 
 
 class InsertCnt_EditCommand(EditCommand):
@@ -73,9 +72,9 @@ class InsertCnt_EditCommand(EditCommand):
     create_name_from_prefix  =  True 
 
     #Graphics Mode set to CntLine graphics mode
-    GraphicsMode_class = CntLine_GM
+    GraphicsMode_class = NtLine_GM
 
-    #required by CntLine_GM
+    #required by NtLine_GM
     mouseClickPoints = []
     #This is the callback method that the previous command 
     #(which is InsertCnt_Editcommand as of 2008-01-11) provides. When user exits
@@ -97,8 +96,8 @@ class InsertCnt_EditCommand(EditCommand):
         EditCommand.__init__(self, commandSequencer)        
 
         #_fallbackNanotubeGroup stores the NanotubeSegments created while in 
-        #this command. This temporary cntGroup is created IF AND ONLY IF 
-        #InsertCnt_EditCommand is unable to access the cntGroup object of the 
+        #this command. This temporary ntGroup is created IF AND ONLY IF 
+        #InsertCnt_EditCommand is unable to access the ntGroup object of the 
         #parent InsertCnt_EditCommand. (so if this group gets created, it should
         #be considered as a bug. While exiting the command the list of segments 
         #of this group is given to the InsertCnt_EditCommand where they get 
@@ -111,7 +110,7 @@ class InsertCnt_EditCommand(EditCommand):
         #Maintain a list of segments created while this command was running. 
         #Note that the segments , when created will be added directly to the 
         # self._parentNanotubeGroup (or self._fallbackNanotubeGroup if there is a bug) 
-        # But self._parentNanotubeGroup (which must be = the cntGroup of 
+        # But self._parentNanotubeGroup (which must be = the ntGroup of 
         # InsertCnt_EditCommand.) may already contain NanotubeSegments (added earlier)
         # so, we can not use group.steal_members() in case user cancels the 
         #structure creation (segment addition). 
@@ -152,7 +151,7 @@ class InsertCnt_EditCommand(EditCommand):
         EditCommand.init_gui(self)        
 
 
-        if isinstance(self.graphicsMode, CntLine_GM):
+        if isinstance(self.graphicsMode, NtLine_GM):
             self._setParamsForCntLineGraphicsMode()
             self.mouseClickPoints = []
 
@@ -167,7 +166,7 @@ class InsertCnt_EditCommand(EditCommand):
             
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
-            #new implementation (which uses the cntGroup object of 
+            #new implementation (which uses the ntGroup object of 
             #InsertCnt_EditCommand is still being tested) -- Ninad 2008-02-24
 
             #Following won't be necessary after Command Toolbar is 
@@ -201,7 +200,7 @@ class InsertCnt_EditCommand(EditCommand):
         """                    
         EditCommand.restore_gui(self)
 
-        if isinstance(self.graphicsMode, CntLine_GM):
+        if isinstance(self.graphicsMode, NtLine_GM):
             self.mouseClickPoints = []
 
         self.graphicsMode.resetVariables()   
@@ -277,9 +276,9 @@ class InsertCnt_EditCommand(EditCommand):
         self.win.assy.part.ensure_toplevel_group()
         self.propMgr.endPoint1 = self.mouseClickPoints[0]
         self.propMgr.endPoint2 = self.mouseClickPoints[1]
-        cntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
+        ntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
 
-        #@numberOfCells = getNumberOfCellsFromCntLength(cntLength)
+        #@numberOfCells = getNumberOfCellsFromCntLength(ntLength)
         #@self.propMgr.numberOfCellsSpinBox.setValue(numberOfCells)
 
         self.preview_or_finalize_structure(previewing = True)
@@ -301,7 +300,7 @@ class InsertCnt_EditCommand(EditCommand):
                 ##segment.unpick()
 
 
-        #Now append this cntSegment  to self._segmentList 
+        #Now append this ntSegment  to self._segmentList 
         self._segmentList.append(self.struct)
 
         #clear the mouseClickPoints list
@@ -311,7 +310,7 @@ class InsertCnt_EditCommand(EditCommand):
 
     def _createPropMgrObject(self):
         """
-        Creates a property manager  object (that defines UI things) for this 
+        Creates a property manager object (that defines UI things) for this 
         editCommand. 
         """
         assert not self.propMgr
@@ -377,7 +376,7 @@ class InsertCnt_EditCommand(EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Cnt, Nanotube etc) . .
         See more comments in the method.
-        @see: a note in self._createSegment() about use of cntSegment.setProps 
+        @see: a note in self._createSegment() about use of ntSegment.setProps 
         """    
         assert self.struct
         # parameters have changed, update existing structure
@@ -416,7 +415,6 @@ class InsertCnt_EditCommand(EditCommand):
         deletes all the segments created while this command was running
         @see: B{EditCommand.cancelStructure}
         """
-
         EditCommand.cancelStructure(self)
         self._removeSegments()
 
@@ -428,15 +426,13 @@ class InsertCnt_EditCommand(EditCommand):
         This deletes all the segments created while this command was running
         @see: L{self.cancelStructure}
         """
-
         segmentList = []
 
         if self._parentNanotubeGroup is not None:
             segmentList = self._segmentList
         elif self._fallbackNanotubeGroup is not None:
             segmentList = self._fallbackNanotubeGroup.get_segments()
-            
-
+        
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 
             #side.
@@ -447,8 +443,7 @@ class InsertCnt_EditCommand(EditCommand):
         if self._fallbackNanotubeGroup is not None:
             self._fallbackNanotubeGroup.kill()
             self._fallbackNanotubeGroup = None
-            
-
+        
         self._segmentList = []	
         self.win.win_update()
 
@@ -460,13 +455,10 @@ class InsertCnt_EditCommand(EditCommand):
         @rtype: L{Group}  
         @note: This needs to return a CNT object once that model is implemented        
         """
-
         # No error checking here; do all error checking in _gatherParameters().
         params = self._gatherParameters()
-
         
-        cnt = Cnt()
-        self.cnt  =  cnt  # needed for done msg
+        
 
         # self.name needed for done message
         if self.create_name_from_prefix:
@@ -495,23 +487,25 @@ class InsertCnt_EditCommand(EditCommand):
             if self._fallbackNanotubeGroup is None:
                 self._createFallbackNanotubeGroup()
 
-            cntGroup = self._fallbackNanotubeGroup
+            ntGroup = self._fallbackNanotubeGroup
         else:
-            cntGroup = self._parentNanotubeGroup
+            ntGroup = self._parentNanotubeGroup
 
-        cntSegment = NanotubeSegment(self.name, 
-                                     self.win.assy,
-                                     cntGroup,
-                                     editCommand = self  )
+        ntSegment = NanotubeSegment(self.name, 
+                                    self.win.assy,
+                                    ntGroup,
+                                    editCommand = self)
         try:
-            # Make the nanotube. <cntGroup> will contain one chunk:
+            # Make the nanotube. <ntGroup> will contain one chunk:
             #  - Axis (Segment)
             position = V(0.0, 0.0, 0.0)
-            cntChunk = cnt.build(self.name, self.win.assy, params, position)
+            cnt = Cnt()
+            self.cnt  =  cnt  # needed for done msg
+            ntChunk = cnt.build(self.name, self.win.assy, params, position)
             
-            cntSegment.addchild(cntChunk)
+            ntSegment.addchild(ntChunk)
 
-            #set some properties such as cntRise and number of cells per turn
+            #set some properties such as ntRise and number of cells per turn
             #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
             #This works with or without cnt_updater. Now the question is 
@@ -525,16 +519,16 @@ class InsertCnt_EditCommand(EditCommand):
             #structure (such as cnt) without actually recreating the whole 
             #structure, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.
-            #@props = (cntRise, cellsPerTurn)
+            #@props = (ntRise, cellsPerTurn)
 
-            #@cntSegment.setProps(props)
+            #@ntSegment.setProps(props)
 
-            return cntSegment
+            return ntSegment
 
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
-            self._segmentList.remove(cntSegment)
-            cntSegment.kill_with_contents()
+            self._segmentList.remove(ntSegment)
+            ntSegment.kill_with_contents()
             raise PluginBug("Internal error while trying to create Nanotube.")
 
     def provideParamsForTemporaryMode(self, temporaryModeName):
@@ -549,14 +543,14 @@ class InsertCnt_EditCommand(EditCommand):
         assert temporaryModeName == 'CNT_LINE_MODE'
 
         mouseClickLimit = None
-        cntRise =  self.getCntRise()
+        ntRise =  self.ntChirality.ntRise()
 
         callback_cursorText = self.getCursorTextForTemporaryMode
         callback_snapEnabled = self.isRubberbandLineSnapEnabled
-        callback_rubberbandLineDisplay = self.getDisplayStyleForRubberbandLine
+        callback_rubberbandLineDisplay = self.getDisplayStyleForNtRubberbandLine
         
         return (mouseClickLimit, 
-                cntRise, 
+                ntRise, 
                 callback_cursorText, 
                 callback_snapEnabled, 
                 callback_rubberbandLineDisplay )
@@ -566,68 +560,47 @@ class InsertCnt_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
-        cntLength = vlen(endPoint2 - endPoint1)
-        text = '%5.3f A' % cntLength
+        ntLength = vlen(endPoint2 - endPoint1)
+        text = '%5.3f A' % ntLength
         return text 
 
     def isRubberbandLineSnapEnabled(self):
         """
         This returns True or False based on the checkbox state in the PM.
 
-        This is used as a callback method in CntLine mode (CntLine_GM)
-        @see: CntLine_GM.snapLineEndPoint where the boolean value returned from
+        This is used as a callback method in CntLine mode (NtLine_GM)
+        @see: NtLine_GM.snapLineEndPoint where the boolean value returned from
               this method is used
         @return: Checked state of the linesnapCheckBox in the PM
         @rtype: boolean
         """
         return self.propMgr.lineSnapCheckBox.isChecked()
 
-    def getDisplayStyleForRubberbandLine(self):
+    def getDisplayStyleForNtRubberbandLine(self):
         """
-        This is used as a callback method in CntLine mode . 
+        This is used as a callback method in ntLine mode. 
         @return: The current display style for the rubberband line. 
         @rtype: string
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
-        return self.propMgr.cntRubberBandLineDisplayComboBox.currentText()
-
-    def getCntRise(self):
-        """
-        This is used as a callback method in CntLine mode. 
-        @return: The current nanotube rise. 
-        @rtype: float
-        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
-        """
-        return self.propMgr.cntRiseDoubleSpinBox.value()
+        return self.propMgr.ntRubberBandLineDisplayComboBox.currentText()
     
-    def getCntDiameter(self):
-        """
-        This is used as a callback method in CntLine mode. 
-        @return: The current nanotube diameter. 
-        @rtype: float
-        @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
-        """
-        return self.propMgr.cntChirality.getRadius() * 2.0
-
-
-    #Things needed for CntLine_GraphicsMode (CntLine_GM)======================
+    #Things needed for CntLine_GraphicsMode (NtLine_GM)======================
 
     def _setParamsForCntLineGraphicsMode(self):
         """
-        Needed for CntLine_GraphicsMode (CntLine_GM). The method names need to
+        Needed for CntLine_GraphicsMode (NtLine_GM). The method names need to
         be revised (e.g. callback_xxx. The prefix callback_ was for the earlier 
         implementation of CntLine mode where it just used to supply some 
         parameters to the previous mode using the callbacks from the 
         previousmode. 
         """
         self.mouseClickLimit = None
-        self.cntType = self.propMgr.typeComboBox.currentText()
-        self.n = self.propMgr.chiralityNSpinBox.value()
-        self.m = self.propMgr.chiralityMSpinBox.value()
-        self.cntRise = getCntRise(self.cntType, self.n, self.m)
-        self.cntDiameter = self.propMgr.cntChirality.getRadius() * 2.0
-        print "cntDiameter=", self.cntDiameter
-        #self.cellsPerTurn = self.propMgr.cellsPerTurnDoubleSpinBox.value()
+        self.ntChirality = self.propMgr.ntChirality
+        self.ntType = self.ntChirality.getType()
+        self.n, self.m = self.ntChirality.getChirality()
+        self.ntRise = self.ntChirality.getRise()
+        self.ntDiameter = self.ntChirality.getDiameter()
         self.jigList = self.win.assy.getSelectedJigs()
 
         self.callbackMethodForCursorTextString = \
@@ -636,6 +609,6 @@ class InsertCnt_EditCommand(EditCommand):
         self.callbackForSnapEnabled = self.isRubberbandLineSnapEnabled
 
         self.callback_rubberbandLineDisplay = \
-            self.getDisplayStyleForRubberbandLine
+            self.getDisplayStyleForNtRubberbandLine
         
-        self.cntDiameter = self.propMgr.cntChirality.getRadius() * 2.0
+        self.ntDiameter = self.propMgr.ntChirality.getRadius() * 2.0

@@ -63,7 +63,7 @@ class Nanotube:
         Build a nanotube from the parameters in the Property Manger dialog.
         """
         
-        members, n, m, bond_length, endings, \
+        ntChirality, ntType, n, m, bond_length, endings, \
                zdist, xydist, twist, bend, \
                numwalls, spacing, \
                endPoint1, endPoint2 = params
@@ -77,7 +77,9 @@ class Nanotube:
             # If it's a multi-wall tube, only print the "Creating" message once.
             if length > 100.0:
                 env.history.message("This may take a moment...")
-        self.chirality = Chirality(n, m, bond_length)
+        self.chirality = Chirality(n, m, 
+                                   type = ntType, 
+                                   bond_length = bond_length)
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
@@ -89,7 +91,7 @@ class Nanotube:
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(mol, length + 4 * self.chirality.maxlen, members != 0)
+        self.chirality.populate(mol, length + 4 * self.chirality.maxlen, ntType)
 
         # Apply twist and distortions. Bends probably would come
         # after this point because they change the direction for the
@@ -179,7 +181,7 @@ class Nanotube:
 
         if numwalls > 1:
             n += int(spacing * 3 + 0.5)  # empirical tinkering            
-            params = (members, n, m, bond_length, endings, \
+            params = (ntType, n, m, bond_length, endings, \
                       zdist, xydist, twist, bend, \
                       numwalls - 1, spacing, \
                       endPoint1, endPoint2)
@@ -255,7 +257,7 @@ class Cnt(Nanotube):
     """
     type = "Carbon"
     
-class BNNT(Cnt):
+class Bnnt(Nanotube):
     """
     Boron Nitride nanotube (BNNT).
     """

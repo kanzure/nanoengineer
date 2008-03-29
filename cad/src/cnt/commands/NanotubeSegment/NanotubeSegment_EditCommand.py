@@ -686,21 +686,21 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     #the same command' now you do the dragging, a cnt rubber band line is drawn 
     #and upon left up, it again enters the default graphics mode. This poses 
     #some challenges -- may be we need to save the event and explicitely 
-    #call the CntLine_GM.leftDown, passing this event as an argument. 
+    #call the NtLine_GM.leftDown, passing this event as an argument. 
     #Other issues include -- We need to specify certain attrs/ methods on the 
     #NanotubeSegment_EditCommand so that NanotubeLineMode_GM works. In general, 
-    #for this to work , we need to refactor CntLine_GM at some point 
+    #for this to work , we need to refactor NtLine_GM at some point 
     #(it was originally designed to work as a temporary mode which returns to 
     #the previous mode after certain mouse clicks.) -- Ninad 2008-02-01
 
-    ##Following is needed by CntLine_GM -- Declare it in class definition
-    ##when using CntLine_GM
+    ##Following is needed by NtLine_GM -- Declare it in class definition
+    ##when using NtLine_GM
     ##mouseClickPoints = []
 
     def EXPERIMENTALswitchGraphicsModeTo(self, newGraphicsMode = 'DEFAULT'):
         """
        EXPERIMENTALswitchGraphicsModeTo -- Not called anywhere. While
-       testing feasibility of using CntLine_GM, rename this method to 
+       testing feasibility of using NtLine_GM, rename this method to 
        witchGraphicsModeTo and make other modifications as necessary.
 
        Switch graphics mode of self to the one specified 
@@ -731,7 +731,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     def EXPERIMENTAL_create_GraphicsMode(self):
         """
         EXPERIMENTAL_create_GraphicsMode -- Not called anywhere. While
-        testing feasibility of using CntLine_GM, rename this method to 
+        testing feasibility of using NtLine_GM, rename this method to 
         _create_GraphicsMode and make other modifications as necessary.
         """
         GM_class = self.GraphicsMode_class
@@ -749,11 +749,11 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
     def EXPERIMENTAL_setParamsForCntLineGraphicsMode(self):
         """
-        Things needed for CntLine_GraphicsMode (CntLine_GM)==================
+        Things needed for CntLine_GraphicsMode (NtLine_GM)==================
         EXPERIMENTAL -- call this method in self.init_gui() while experimenting 
-        use of CntLine_GM. (or better refactor CntLine_GM for a general use)
+        use of NtLine_GM. (or better refactor NtLine_GM for a general use)
         Rename it as "_setParamsForCntLineGraphicsMode"
-        Needed for CntLine_GraphicsMode (CntLine_GM). The method names need to
+        Needed for CntLine_GraphicsMode (NtLine_GM). The method names need to
         be revised (e.g. callback_xxx. The prefix callback_ was for the earlier 
         implementation of CntLine mode where it just used to supply some 
         parameters to the previous mode using the callbacks from the 
@@ -768,12 +768,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         self.callbackForSnapEnabled = self.EXPERIMENTALisRubberbandLineSnapEnabled
 
         self.callback_rubberbandLineDisplay = \
-            self.EXPERIMENTALgetDisplayStyleForRubberbandLine
+            self.EXPERIMENTALgetDisplayStyleForNtRubberbandLine
 
     def EXPERIMENTALgetCursorTextForTemporaryMode(self, endPoint1, endPoint2):
         """
         EXPERIMENTAL method. rename it to getCursorTextForTemporaryMode while 
-        trying out CntLine_GM
+        trying out NtLine_GM
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
@@ -789,10 +789,10 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         return ""
 
-    def EXPERIMENTALgetDisplayStyleForRubberbandLine(self):
+    def EXPERIMENTALgetDisplayStyleForNtRubberbandLine(self):
         """
-        EXPERIMENTAL: rename it to: getDisplayStyleForRubberbandLine while 
-        experimenting CntLine_GM
+        EXPERIMENTAL: rename it to: getDisplayStyleForNtRubberbandLine while 
+        experimenting NtLine_GM
         This is used as a callback method in CntLine mode . 
         @return: The current display style for the rubberband line. 
         @rtype: string
@@ -803,7 +803,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     def EXPERIMENTALprovideParamsForTemporaryMode(self, temporaryModeName):
         """
         EXPERIMENTAL: rename it to: provideParamsForTemporaryMode while 
-        experimenting CntLine_GM. Also change the calls to various methods 
+        experimenting NtLine_GM. Also change the calls to various methods 
         in this method (e.g. allback_snapEnabled = 
         self.EXPERIMENTALisRubberbandLineSnapEnabled etc)
         NOTE: This needs to be a general API method. There are situations when 
@@ -822,7 +822,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         callback_cursorText = self.EXPERIMENTALgetCursorTextForTemporaryMode
         callback_snapEnabled = self.EXPERIMENTALisRubberbandLineSnapEnabled
-        callback_rubberbandLineDisplay = self.EXPERIMENTALgetDisplayStyleForRubberbandLine
+        callback_rubberbandLineDisplay = self.EXPERIMENTALgetDisplayStyleForNtRubberbandLine
         return (mouseClickLimit, 
                 cntRise, 
                 callback_cursorText, 

@@ -342,7 +342,7 @@ packageMapping_for_files = {
     "DnaStrand_ResizeHandle"           : "graphics_drawable|dna/commands/DnaStrand",
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
-    "drawCntLadder"                    : "graphics_drawing",
+    "drawNanotubeLadder"               : "graphics_drawing",
     "drawDnaRibbons"                   : "graphics_drawing",
     "drawDnaLadder"                    : "graphics_drawing",
     "drawer"                           : "graphics_drawing",

@@ -38,10 +38,10 @@ from PyQt4.Qt import QMouseEvent
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-from cnt.temporary_commands.NanotubeLineMode import CntLine_GM
+from cnt.temporary_commands.NanotubeLineMode import NtLine_GM
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
-from graphics.drawing.drawCntLadder import drawCntLadder
+from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
 import foundation.env as env
 
@@ -491,7 +491,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #but what if two strand chunks and axis chunk are rendered 
             #in different display styles? since situation may vary, lets 
             #use self.glpane.displayMode for rubberbandline displayMode
-            drawCntLadder(self.command.grabbedHandle.fixedEndOfStructure,
+            drawNanotubeLadder(self.command.grabbedHandle.fixedEndOfStructure,
                           self.command.grabbedHandle.currentPosition, 
                           self.command.cntRise,
                           self.glpane.scale,
@@ -527,9 +527,9 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             self.command.updateHandlePositions()
             
 
-class NanotubeSegment_DragHandles_GraphicsMode(CntLine_GM):
+class NanotubeSegment_DragHandles_GraphicsMode(NtLine_GM):
     """
-    EXPERIMENTAL class to use CntLine_GM functionality while dragging a handle
+    EXPERIMENTAL class to use NtLine_GM functionality while dragging a handle
     See a comment in class NanotubeSegment_EditCommand, just above the method
     'EXPERIMENTALswitchGraphicsModeTo'
     """
@@ -538,15 +538,14 @@ class NanotubeSegment_DragHandles_GraphicsMode(CntLine_GM):
     
     def Enter_GraphicsMode(self):
         self.endPoint1 = self.command.aHandle.origin
-        CntLine_GM.Enter_GraphicsMode(self)
+        NtLine_GM.Enter_GraphicsMode(self)
    
     def Draw(self):
         """
         Draw
         """        
-        CntLine_GM.Draw(self)
+        NtLine_GM.Draw(self)
         self._drawHandles()
-
 
     def _drawHandles(self):
         """

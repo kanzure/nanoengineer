@@ -11,13 +11,13 @@ TODO:
 
 from temporary_commands.LineMode import LineMode
 
-from graphics.drawing.drawCntLadder import drawCntLadder
+from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
 from utilities.constants import gray, black, darkred, blue, white
 
 # == GraphicsMode part
 
-class CntLine_GM( LineMode.GraphicsMode_class ):
+class NtLine_GM( LineMode.GraphicsMode_class ):
     """
     Custom GraphicsMode for use as a component of NanotubeLineMode.
     @see: L{NanotubeLineMode} for more comments. 
@@ -74,60 +74,31 @@ class CntLine_GM( LineMode.GraphicsMode_class ):
       
     def Draw(self):
         """
-        Draw the CNT rubberband line (a ladder representation)
+        Draw the Nanotube rubberband line (a ladder representation)
         """
-        #The rubberband line display needs to be a user preference.
-        #Example: There could be 3 radio buttons in the duplex PM that allows 
-        #you to draw the rubberband line as a simple line, a line with points 
-        #that indicate duplexrise, a dna ladder with arrow heads. Drawing it as 
-        #a ladder with arrow heads for the beams is the current implementation 
-        # -Ninad 2007-10-30
-        
-        
         LineMode.GraphicsMode_class.Draw(self)        
         if self.endPoint2 is not None and \
            self.endPoint1 is not None: 
             
-            #Draw the chain. 
+            # Draw the ladder. 
+            drawNanotubeLadder(self.endPoint1,
+                          self.endPoint2, 
+                          self.command.ntChirality.getRise(),
+                          self.glpane.scale,
+                          self.glpane.lineOfSight,
+                          ladderWidth = self.command.ntChirality.getDiameter(),
+                          beamThickness = 4.0,
+                          beam1Color = gray,
+                          beam2Color = gray,
+                          stepColor = black ) 
             
-            if self.command.callback_rubberbandLineDisplay() == 'Ladder':
-                #Note there needs to be a radio button to switch on the 
-                # rubberband ladder display for a dna line. At the moment it is 
-                # disabled and is superseded by the ribbons ruberband display. 
-                drawCntLadder(self.endPoint1,
-                              self.endPoint2, 
-                              self.command.getCntRise(),
-                              self.glpane.scale,
-                              self.glpane.lineOfSight,
-                              ladderWidth = self.command.getCntDiameter(),
-                              beamThickness = 4.0,
-                              beam1Color = gray,
-                              beam2Color = gray,
-                              stepColor = black )
-            elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
-                #Default dna rubberband line display style       
-                drawCntRibbons(self.endPoint1,
-                               self.endPoint2, 
-                               self.command.basesPerTurn,
-                               self.command.cntRise,
-                               self.glpane.scale,
-                               self.glpane.lineOfSight,
-                               self.glpane.displayMode,
-                               ribbonThickness = 4.0,
-                               ribbon1Color = darkred,
-                               ribbon2Color = blue,
-                               stepColor = black )   
-            else:
-                pass
-            
-            #Draw the text next to the cursor that gives info about 
-            #number of base pairs etc
+            # Draw the text next to the cursor that gives info about 
+            # number of base pairs etc
             if self.command:
                 self.text = self.command.callbackMethodForCursorTextString(
                     self.endPoint1, 
                     self.endPoint2)
                 self.glpane.renderTextNearCursor(self.text)
-        
 
 # == Command part
 class NanotubeLineMode(LineMode): 
@@ -167,7 +138,7 @@ class NanotubeLineMode(LineMode):
         #  for more info and how to fix. [bruce 071227])
     
             
-    GraphicsMode_class = CntLine_GM
+    GraphicsMode_class = NtLine_GM
         
     def setParams(self, params):
         assert len(params) == 5

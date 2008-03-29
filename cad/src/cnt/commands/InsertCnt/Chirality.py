@@ -3,7 +3,7 @@
 Chirality.py
 
 @author: Will
-@version: $Id:$
+@version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 @see U{B{Nanotube Builder}<http://www.nanoengineer-1.net/mediawiki/index.php?title=Nanotube_generator_dialog>}
@@ -34,18 +34,30 @@ from model.bond_constants import atoms_are_bonded
 
 from utilities.Log import orangemsg, greenmsg ##, redmsg
 
+from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
+ntTypes = ["Carbon", "Boron Nitride"]
+ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 sqrt3 = 3 ** 0.5
 
 class Chirality:
 
-    def __init__(self, n, m, bond_length):
+    def __init__(self, n = 5, m = 5, type = "Carbon", bond_length = None):
+        """
+        Constructor. Creates an instance of Chirality, which contains the
+        parameters and helper methods for a nanotube.
+        """
         self.n = n
         self.m = m
-        self.bond_length = bond_length
+        assert type in ntTypes
+        self.type = type
+        if bond_length:
+            self.bond_length = bond_length
+        else:
+            self.bond_length = ntBondLengths[ntTypes.index(type)]
         self.update()
         
-    def update(self, n = None, m = None, bond_length = None):
+    def update(self, n = None, m = None, type = "Carbon", bond_length = None):
         """
         Updates all the chirality attrs based on new n, m and/or bond_length
         values.
@@ -62,6 +74,8 @@ class Chirality:
             self.bond_length = bond_length
         else:
             bond_length = self.bond_length
+            
+        self.setRise() #@ Not correctly implemented yet. See comments in method.
         
         self.maxlen = maxlen = 1.2 * bond_length
         self.maxlensq = maxlen**2
@@ -119,13 +133,88 @@ class Chirality:
         z3 = y2
         return (x3, y3, z3)
     
+    def getChirality(self):
+        """
+        Returns the n,m chirality of self.
+        
+        @return: n, m
+        @rtype:  int, int
+        """
+        return (self.n, self.m)
+    
+    def getType(self):
+        """
+        Return the type of nanotube.
+        
+        @return: the type of nanotube.
+        @rtype:  string
+        """
+        return self.type
+    
     def getRadius(self):
         """
         Returns the radius of the nanotube.
+        
+        @return: The radius in Angstroms.
+        @rtype: float
         """
         return self.R
+    
+    def getDiameter(self):
+        """
+        Returns the diameter of the nanotube.
+        
+        @return: The diameter in Angstroms.
+        @rtype: float
+        """
+        return self.R * 2.0
+    
+    def getBondLength(self):
+        """
+        Returns the bond length between atoms in the nanotube.
+        
+        @return: The bond length in Angstroms.
+        @rtype: float
+        """
+        return self.bond_length
+    
+    def setRise(self): #@ See Python get/set attr builtin methods.
+        """
+        Sets the rise. This needs to be called anytime a parameter of self
+        changes.
+        """
+        # Need formula to compute rise.
+        # I'm sure this is doable, but I need to research it further to learn
+        # how to compute rise from these params. --Mark 2008-03-12
+        self.rise = 2.5 # default
+        if self.m == 0:
+            self.rise = 2.146
+        if self.m == 5:
+            self.rise = 2.457
+            
+    def getRise(self):
+        """
+        Returns the nanotube U{rise}.
 
-    def populate(self, mol, length, bn_members = False):
+        @return: The rise in Angstroms.
+        @rtype: float
+        """
+        return self.rise
+    
+    def getLength(self, numberOfCells):
+        """
+        Returns the nanotube length (in Angstroms) given the number of cells.
+        
+        @param numberOfCells: The number of cells in the nanotube.
+        @type  numberOfCells: int
+        
+        @return: The length of the nanotube in Angstroms.
+        @rtype: float
+        """
+        assert numberOfCells >= 0
+        return self.rise * (numberOfCells - 1)
+
+    def populate(self, mol, length, ntType = "Carbon"):
 
         def add(element, x, y, z, atomtype='sp2'):
             atm = Atom(element, V(x, y, z), mol)
@@ -144,17 +233,17 @@ class Chirality:
             mlast.append(mmax)
             for m in range(mmin, mmax+1):
                 x, y, z = self.xyz(n, m)
-                if bn_members:
-                    atm = add("B", x, y, z)
+                if ntType == "Carbon":
+                    atm = add("C", x, y, z) # CNT
                 else:
-                    atm = add("C", x, y, z)
+                    atm = add("B", x, y, z) # BNNT
                 evenAtomDict[(n,m)] = atm
                 bondDict[atm] = [(n,m)]
                 x, y, z = self.xyz(n + 1.0 / 3, m + 1.0 / 3 )
-                if bn_members:
-                    atm = add("N", x, y, z, 'sp3')
+                if ntType == "Carbon":
+                    atm = add("C", x, y, z) # CNT
                 else:
-                    atm = add("C", x, y, z)
+                    atm = add("N", x, y, z, 'sp3') # BNNT
                 oddAtomDict[(n,m)] = atm
                 bondDict[atm] = [(n + 1, m), (n, m + 1)]
 
@@ -196,10 +285,10 @@ class Chirality:
                     try:
                         atm2 = dict2[(n2, m2)]
                         if not atoms_are_bonded(atm, atm2):
-                            if bn_members:
-                                bond_atoms(atm, atm2, V_SINGLE)
+                            if ntType == "Carbon":
+                                bond_atoms(atm, atm2, V_GRAPHITE) # CNT
                             else:
-                                bond_atoms(atm, atm2, V_GRAPHITE)
+                                bond_atoms(atm, atm2, V_SINGLE) # BNNT
                     except KeyError:
                         pass
 
@@ -347,7 +436,7 @@ def addEndcap(mol, length, radius, bondlength):
         """
         
         length, n, m, bond_length, zdist, xydist, \
-                twist, bend, members, endings, numwalls, spacing = params
+                twist, bend, ntType, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
         if not createPrinted:
@@ -366,7 +455,7 @@ def addEndcap(mol, length, radius, bondlength):
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(mol, length + 4 * self.chirality.maxlen, members != 0)
+        self.chirality.populate(mol, length + 4 * self.chirality.maxlen, ntType)
 
         # Apply twist and distortions. Bends probably would come
         # after this point because they change the direction for the
@@ -457,7 +546,7 @@ def addEndcap(mol, length, radius, bondlength):
         if numwalls > 1:
             n += int(spacing * 3 + 0.5)  # empirical tinkering
             params = (length, n, m, bond_length, zdist, xydist,
-                      twist, bend, members, endings, numwalls-1, spacing)
+                      twist, bend, ntType, endings, numwalls-1, spacing)
             self.build_struct(name, params, position, mol=mol, createPrinted=True)
 
         return mol
