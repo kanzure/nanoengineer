@@ -1,8 +1,8 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-InsertCnt_EditCommand.py
-InsertCnt_EditCommand that provides an editCommand object for 
-generating a carbon nanotube (CNT).  This command should be invoked only from 
+InsertNanotube_EditCommand.py
+InsertNanotube_EditCommand that provides an editCommand object for 
+generating a nanotube (CNT or BNNT).  This command should be invoked only from 
 CntProperties_EditCommand
 
 @author: Mark Sims, Ninad Sathaye
@@ -33,10 +33,10 @@ from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
-from cnt.commands.InsertCnt.Nanotube import Cnt
+from cnt.commands.InsertNanotube.Nanotube import Cnt
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
-from cnt.commands.InsertCnt.InsertCnt_PropertyManager import InsertCnt_PropertyManager
+from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
 
 from utilities.constants import gensym
 
@@ -45,23 +45,23 @@ from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength
 from cnt.temporary_commands.NanotubeLineMode import NtLine_GM
 
 
-class InsertCnt_EditCommand(EditCommand):
+class InsertNanotube_EditCommand(EditCommand):
     """
-    InsertCnt_EditCommand that provides an editCommand object for 
+    InsertNanotube_EditCommand that provides an editCommand object for 
     generating carbon or boron nitride nanotube. 
 
-    This command should be invoked only from InsertCnt_EditCommand 
+    This command should be invoked only from InsertNanotube_EditCommand 
 
     User can create as many nanotubes as he/she needs just by specifying 
     two end points for each nanotube. This uses NanotubeLineMode_GM  class as its
     GraphicsMode 
     """
-    cmd              =  greenmsg("Insert CNT: ")
-    sponsor_keyword  =  'CNT'
-    prefix           =  'Cnt'   # used for gensym
-    cmdname          = "Insert CNT"
-    commandName      = 'INSERT_CNT'
-    featurename      = 'Insert CNT'
+    cmd              =  greenmsg("Insert Nanotube: ")
+    sponsor_keyword  =  'Nanotube'
+    prefix           =  'Nanotube'   # used for gensym
+    cmdname          = "Insert Nanotube"
+    commandName      = 'INSERT_NANOTUBE'
+    featurename      = 'Insert Nanotube'
 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
@@ -77,41 +77,41 @@ class InsertCnt_EditCommand(EditCommand):
     #required by NtLine_GM
     mouseClickPoints = []
     #This is the callback method that the previous command 
-    #(which is InsertCnt_Editcommand as of 2008-01-11) provides. When user exits
-    #this command and returns back to the previous one (InsertCnt_EditCommand),
+    #(which is InsertNanotube_Editcommand as of 2008-01-11) provides. When user exits
+    #this command and returns back to the previous one (InsertNanotube_EditCommand),
     #it calls this method and provides a list of segments created while this 
     #command was  running. (the segments are stored within a temporary cnt group
     #see self._fallbackNanotubeGroup
     callback_addSegments  = None
 
-    #This is set to InsertCnt_EditCommand.flyoutToolbar (as of 2008-01-14, 
+    #This is set to InsertNanotube_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
 
     def __init__(self, commandSequencer, struct = None):
         """
-        Constructor for InsertCnt_EditCommand
+        Constructor for InsertNanotube_EditCommand
         """
 
         EditCommand.__init__(self, commandSequencer)        
 
         #_fallbackNanotubeGroup stores the NanotubeSegments created while in 
         #this command. This temporary ntGroup is created IF AND ONLY IF 
-        #InsertCnt_EditCommand is unable to access the ntGroup object of the 
-        #parent InsertCnt_EditCommand. (so if this group gets created, it should
+        #InsertNanotube_EditCommand is unable to access the ntGroup object of the 
+        #parent InsertNanotube_EditCommand. (so if this group gets created, it should
         #be considered as a bug. While exiting the command the list of segments 
-        #of this group is given to the InsertCnt_EditCommand where they get 
+        #of this group is given to the InsertNanotube_EditCommand where they get 
         #their new parent. @see self.restore_gui
         self._fallbackNanotubeGroup = None
 
-        #_parentNanotubeGroup is the cntgroup of InsertCnt_EditCommand 
+        #_parentNanotubeGroup is the cntgroup of InsertNanotube_EditCommand 
         self._parentNanotubeGroup = None
 
         #Maintain a list of segments created while this command was running. 
         #Note that the segments , when created will be added directly to the 
         # self._parentNanotubeGroup (or self._fallbackNanotubeGroup if there is a bug) 
         # But self._parentNanotubeGroup (which must be = the ntGroup of 
-        # InsertCnt_EditCommand.) may already contain NanotubeSegments (added earlier)
+        # InsertNanotube_EditCommand.) may already contain NanotubeSegments (added earlier)
         # so, we can not use group.steal_members() in case user cancels the 
         #structure creation (segment addition). 
         self._segmentList = []
@@ -124,9 +124,9 @@ class InsertCnt_EditCommand(EditCommand):
         created while in this command will be added as members. 
         While exiting this command, these segments will be added first taken 
         away from the temporary group and then added to the NanotubeGroup of
-        InsertCnt_EditCommand 
+        InsertNanotube_EditCommand 
         @see: self.restore_gui
-        @see: InsertCnt_EditCommand.callback_addSegments()
+        @see: InsertNanotube_EditCommand.callback_addSegments()
         """
         if self._fallbackNanotubeGroup is None:
             self.win.assy.part.ensure_toplevel_group()
@@ -167,7 +167,7 @@ class InsertCnt_EditCommand(EditCommand):
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
             #new implementation (which uses the ntGroup object of 
-            #InsertCnt_EditCommand is still being tested) -- Ninad 2008-02-24
+            #InsertNanotube_EditCommand is still being tested) -- Ninad 2008-02-24
 
             #Following won't be necessary after Command Toolbar is 
             #properly integrated into the Command/CommandSequencer API
@@ -235,7 +235,7 @@ class InsertCnt_EditCommand(EditCommand):
         
         if not bool_keep: 
             #Don't delete any CntSegements or NanotubeGroups at all while 
-            #in InsertCnt_EditCommand. 
+            #in InsertNanotube_EditCommand. 
             #Reason: See BreakStrand_Command.keep_empty_group. In addition to 
             #this, this command can create multiple NanotubeSegments Although those 
             #won't be empty, it doesn't hurt in waiting for this temporary 
@@ -314,7 +314,7 @@ class InsertCnt_EditCommand(EditCommand):
         editCommand. 
         """
         assert not self.propMgr
-        propMgr = InsertCnt_PropertyManager(self.win, self)
+        propMgr = InsertNanotube_PropertyManager(self.win, self)
         return propMgr
 
 
@@ -346,7 +346,7 @@ class InsertCnt_EditCommand(EditCommand):
         #Or it should compute the number of base pairs each time instead of 
         #relying on the corresponding value in the PM. The latter is not 
         #advisable if we support modifying the number of base pairs from the 
-        #PM (and hitting preview) while in InsertCnt command. 
+        #PM (and hitting preview) while in InsertNanotube command. 
         #In the mean time, I think this solution will always work. 
         if len(self.mouseClickPoints) == 1:
             return
@@ -481,9 +481,9 @@ class InsertCnt_EditCommand(EditCommand):
         self.win.assy.part.ensure_toplevel_group()
 
         if self._parentNanotubeGroup is None:
-            print_compact_stack("bug: Parent NanotubeGroup in InsertCnt_EditCommand"\
+            print_compact_stack("bug: Parent NanotubeGroup in InsertNanotube_EditCommand"\
                                 "is None. This means the previous command "\
-                                "was not 'InsertCnt_EditCommand' Ignoring for now")
+                                "was not 'InsertNanotube_EditCommand' Ignoring for now")
             if self._fallbackNanotubeGroup is None:
                 self._createFallbackNanotubeGroup()
 

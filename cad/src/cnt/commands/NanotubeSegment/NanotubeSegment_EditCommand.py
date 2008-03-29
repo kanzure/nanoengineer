@@ -41,7 +41,7 @@ from utilities.Log  import redmsg
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm
 
-from cnt.commands.InsertCnt.Nanotube import Cnt
+from cnt.commands.InsertNanotube.Nanotube import Cnt
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
@@ -181,7 +181,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
     def __init__(self, commandSequencer, struct = None):
         """
-        Constructor for InsertCnt_EditCommand
+        Constructor for InsertNanotube_EditCommand
         """
 
         glpane = commandSequencer

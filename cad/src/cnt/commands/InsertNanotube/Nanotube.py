@@ -26,7 +26,7 @@ from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
-from cnt.commands.InsertCnt.Chirality import Chirality
+from cnt.commands.InsertNanotube.Chirality import Chirality
 from model.chunk import Chunk
 from model.elements import PeriodicTable
 

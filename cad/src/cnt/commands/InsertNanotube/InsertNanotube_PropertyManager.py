@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-InsertCnt_PropertyManager.py
+InsertNanotube_PropertyManager.py
 
 @author: Mark Sims
 @version: $Id$
@@ -15,7 +15,7 @@ __author__ = "Mark"
 import foundation.env as env
 
 from cnt.model.Nanotube_Constants import getCntRise, getCntLength
-from cnt.commands.InsertCnt.Chirality import Chirality
+from cnt.commands.InsertNanotube.Chirality import Chirality
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
 
@@ -45,11 +45,11 @@ from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 
-#@from gui.WhatsThisText_for_PropertyManagers import whatsThis_InsertCnt_PropertyManager
+#@from gui.WhatsThisText_for_PropertyManagers import whatsThis_InsertNanotube_PropertyManager
 
-class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
-    The InsertCnt_PropertyManager class provides a Property Manager 
+    The InsertNanotube_PropertyManager class provides a Property Manager 
     for the B{Build > Nanotube > CNT} command.
 
     @ivar title: The title that appears in the property manager header.
@@ -64,9 +64,9 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Insert CNT"
+    title         =  "Insert Nanotube"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/InsertCnt.png"
+    iconPath      =  "ui/actions/Tools/Build Structures/InsertNanotube.png"
 
     def __init__( self, win, editCommand ):
         """
@@ -201,7 +201,7 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     def _addGroupBoxes( self ):
         """
-        Add the Insert CNT Property Manager group boxes.
+        Add the Insert Nanotube Property Manager group boxes.
         """        
        
         self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
@@ -435,7 +435,7 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in the Insert CNT Property Manager.  
+        Tool Tip text for widgets in the Insert Nanotube Property Manager.  
         """
         pass
     
@@ -466,7 +466,7 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @return: A tuple containing the nanotube parameters.
         @rtype: tuple
         
-        @see: L{InsertCnt_EditCommand._gatherParameters} where this is used 
+        @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used 
         """
         
         ntType = str(self.ntTypeComboBox.currentText())
@@ -578,6 +578,6 @@ class InsertCnt_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         What's This text for widgets in this Property Manager.  
         """
-        #@whatsThis_InsertCnt_PropertyManager(self)
+        #@whatsThis_InsertNanotube_PropertyManager(self)
         return 
 

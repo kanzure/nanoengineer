@@ -336,9 +336,9 @@ class MWsemantics(QMainWindow,
                       non_debug = True,
                       prefs_key = "A10 devel/Nanotube generator"):
             # New "Build > CNT", experimental. --Mark 2008-03-10
-            from cnt.commands.InsertCnt.InsertCnt_EditCommand import InsertCnt_EditCommand
-            self.InsertCntEditCommand = InsertCnt_EditCommand(self.glpane)	
-            self.nanotubecntl = self.InsertCntEditCommand
+            from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
+            self.InsertNanotubeEditCommand = InsertNanotube_EditCommand(self.glpane)	
+            self.nanotubecntl = self.InsertNanotubeEditCommand
             
         else:
             from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
@@ -1563,14 +1563,14 @@ class MWsemantics(QMainWindow,
             
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
-            if currentCommand.commandName != "INSERT_CNT":
+            if currentCommand.commandName != "INSERT_NANOTUBE":
                 commandSequencer.userEnterTemporaryCommand(
-                    'INSERT_CNT')
-                assert commandSequencer.currentCommand.commandName == 'INSERT_CNT'
+                    'INSERT_NANOTUBE')
+                assert commandSequencer.currentCommand.commandName == 'INSERT_NANOTUBE'
                 commandSequencer.currentCommand.runCommand()
             else:        
                 currentCommand = self.commandSequencer.currentCommand
-                if currentCommand.commandName == 'INSERT_CNT':
+                if currentCommand.commandName == 'INSERT_NANOTUBE':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
         else:
             if isChecked:

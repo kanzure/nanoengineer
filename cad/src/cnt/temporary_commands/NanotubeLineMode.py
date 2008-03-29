@@ -21,7 +21,7 @@ class NtLine_GM( LineMode.GraphicsMode_class ):
     """
     Custom GraphicsMode for use as a component of NanotubeLineMode.
     @see: L{NanotubeLineMode} for more comments. 
-    @see: InsertCnt_EditCommand where this is used as a GraphicsMode class.
+    @see: InsertNanotube_EditCommand where this is used as a GraphicsMode class.
           The default command part in this file is a Default class
           implementation  of self.command (see class NanotubeLineMode)          
     """    
@@ -47,7 +47,7 @@ class NtLine_GM( LineMode.GraphicsMode_class ):
                                 
                 self.command.createStructure()
                 #DISABLED AS OF 2008-01-11. (Implementation changed --
-                #See InsertCnt_EditCommand.createStructure for new 
+                #See InsertNanotube_EditCommand.createStructure for new 
                 #implementaion)
                 ##self.command.callback_addSegments()
                 
@@ -115,8 +115,8 @@ class NanotubeLineMode(LineMode):
     @see: L{LineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs.
-    @see: InsertCnt_EditCommand.provideParamsForTemporaryMode
-    @see: InsertCnt_EditCommand.getCursorTextForTemporaryMode
+    @see: InsertNanotube_EditCommand.provideParamsForTemporaryMode
+    @see: InsertNanotube_EditCommand.getCursorTextForTemporaryMode
     
     NOTE: [2008-01-11]
     The default NanotubeLineMode (command) part is not used as of 2008-01-11
@@ -125,7 +125,7 @@ class NanotubeLineMode(LineMode):
     part. (The old implementation of generating Cnt using endpoints of a 
     line used this default command class (NanotubeLineMode). so the method in this
     class  such as self.createStructure does nothing . 
-    @see: InsertCnt_EditCommand where the GraphicsMode class of this command is 
+    @see: InsertNanotube_EditCommand where the GraphicsMode class of this command is 
           used
         
     """

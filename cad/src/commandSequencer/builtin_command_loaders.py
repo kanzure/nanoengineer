@@ -53,7 +53,7 @@ from dna.commands.BuildDna.BuildDna_EditCommand import BuildDna_EditCommand
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
 from dna.commands.DnaStrand.DnaStrand_EditCommand import DnaStrand_EditCommand
 from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
-from cnt.commands.InsertCnt.InsertCnt_EditCommand import InsertCnt_EditCommand
+from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
 from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSegment_EditCommand
 from commands.Move.Move_Command import Move_Command
 from commands.Rotate.RotateChunks_Command import RotateChunks_Command
@@ -100,7 +100,7 @@ def preloaded_command_classes():
         DnaSegment_EditCommand, 
         DnaStrand_EditCommand,
         BuildNanotube_EditCommand,
-        InsertCnt_EditCommand,
+        InsertNanotube_EditCommand,
         NanotubeSegment_EditCommand, 
         RotateChunks_Command,
         TranslateChunks_Command, 

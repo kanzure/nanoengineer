@@ -410,7 +410,7 @@ class BuildNanotube_EditCommand(EditCommand):
         """
         params = None
 
-        if temporaryModeName == 'INSERT_CNT':
+        if temporaryModeName == 'INSERT_NANOTUBE':
             #Pass the self.struct to the CntDuplex_EdiCommand
             #This deprecates use of self.callback_addSegments (in which 
             #segments created while in CntDuplex command are added after 

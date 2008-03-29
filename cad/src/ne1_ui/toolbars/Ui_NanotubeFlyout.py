@@ -27,7 +27,7 @@ _theNanotubeFlyout = None
 #NOTE: global methods setupUi, activateNanotubeFlyout are not called as of 2007-12-19
 #Use methods like NanotubeFlyout.activateFlyoutToolbar instead. 
 #Command toolbar needs to be integrated with the commandSequencer. 
-#See InsertCntLine_EditCommand.init_gui for an example. (still experimental)
+#See InsertNanotubeLine_EditCommand.init_gui for an example. (still experimental)
 
 def setupUi(mainWindow):
     """
@@ -80,15 +80,15 @@ class NanotubeFlyout:
         
         self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
         self.subControlActionGroup.setExclusive(False)   
-        self.subControlActionGroup.addAction(self.buildCntLineAction)
+        self.subControlActionGroup.addAction(self.insertNanotubeAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
-        subControlAreaActionList.append(self.exitCntAction)
+        subControlAreaActionList.append(self.exitNanotubeAction)
         separator = QtGui.QAction(self.parentWidget)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
-        subControlAreaActionList.append(self.buildCntLineAction)        
+        subControlAreaActionList.append(self.insertNanotubeAction)        
 
         allActionsList.extend(subControlAreaActionList)
 
@@ -104,20 +104,20 @@ class NanotubeFlyout:
         return params
 
     def _createActions(self, parentWidget):
-        self.exitCntAction = QtGui.QWidgetAction(parentWidget)
-        self.exitCntAction.setText("Exit CNT")
-        self.exitCntAction.setIcon(
+        self.exitNanotubeAction = QtGui.QWidgetAction(parentWidget)
+        self.exitNanotubeAction.setText("Exit NT")
+        self.exitNanotubeAction.setIcon(
             geticon("ui/actions/Toolbars/Smart/Exit.png"))
-        self.exitCntAction.setCheckable(True)
+        self.exitNanotubeAction.setCheckable(True)
         
-        self.buildCntLineAction = QtGui.QWidgetAction(parentWidget)
-        self.buildCntLineAction.setText("Insert CNT")
-        self.buildCntLineAction.setCheckable(True)        
-        self.buildCntLineAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/InsertCnt.png"))
+        self.insertNanotubeAction = QtGui.QWidgetAction(parentWidget)
+        self.insertNanotubeAction.setText("Insert NT")
+        self.insertNanotubeAction.setCheckable(True)        
+        self.insertNanotubeAction.setIcon(
+            geticon("ui/actions/Tools/Build Structures/InsertNanotube.png"))
 
         # Add tooltips
-        self.buildCntLineAction.setToolTip("Carbon Nanotube")
+        self.insertNanotubeAction.setToolTip("Carbon Nanotube")
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -134,13 +134,13 @@ class NanotubeFlyout:
         else:
             change_connect = self.win.disconnect 
             
-        change_connect(self.exitCntAction, 
+        change_connect(self.exitNanotubeAction, 
                        SIGNAL("triggered(bool)"),
                        self.activateExitCnt)
         
-        change_connect(self.buildCntLineAction, 
+        change_connect(self.insertNanotubeAction, 
                              SIGNAL("triggered(bool)"),
-                             self.activateInsertCntLine_EditCommand)
+                             self.activateInsertNanotubeLine_EditCommand)
     
     def activateFlyoutToolbar(self):
         """
@@ -164,7 +164,7 @@ class NanotubeFlyout:
                                                      self)
         #self.win.commandToolbar._setControlButtonMenu_in_flyoutToolbar(
                     #self.cmdButtonGroup.checkedId())
-        self.exitCntAction.setChecked(True)
+        self.exitNanotubeAction.setChecked(True)
         self.connect_or_disconnect_signals(True)
     
     def deActivateFlyoutToolbar(self):
@@ -189,7 +189,7 @@ class NanotubeFlyout:
         Uncheck most of the actions. Basically it 
         unchecks all the actions EXCEPT the ExitCntAction
         @see: self.deActivateFlyoutToolbar()
-        @see: InsertCnt_EditCommand.resume_gui()
+        @see: InsertNanotube_EditCommand.resume_gui()
         """
         
         #Uncheck all the actions in the flyout toolbar (subcontrol area)
@@ -208,7 +208,7 @@ class NanotubeFlyout:
             if not isChecked:
                 self.parentWidget.ok_btn_clicked()
         
-    def activateInsertCntLine_EditCommand(self, isChecked):
+    def activateInsertNanotubeLine_EditCommand(self, isChecked):
         """
         Slot for (Insert) B{Nanotube} action.
         """
@@ -222,7 +222,7 @@ class NanotubeFlyout:
         #slot method!
         #Otherwise we would have needed to block the signal when action is 
         #emitted ..example we would have called something like :
-        #'if self._block_buildCntLineAction_event: return' at the beginning of
+        #'if self._block_insertNanotubeAction_event: return' at the beginning of
         #this method. Why we didn't use QAction group -- We need these actions
         #to be
         # a) exclusive as well as
@@ -233,7 +233,7 @@ class NanotubeFlyout:
         #Uncheck all the actions except the dna duplex action
         #in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
-            if action is not self.buildCntLineAction and action.isChecked():
+            if action is not self.insertNanotubeAction and action.isChecked():
                 action.setChecked(False)
         
                 
