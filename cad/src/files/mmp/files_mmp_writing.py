@@ -12,107 +12,21 @@ History:
 
 bruce 080304 split this out of files_mmp.py.
 
+bruce 080328 split mmpformat_versions.py out of this file.
+
 Note:
 
 A lot of mmp writing code is defined in other files,
 notably (but not only) for the classes Chunk, Atom, and Jig.
 
-===
+For notes about mmp file format version strings,
+including when to change them and a list of all that have existed,
+see other files in this package.
 
-Notes by bruce 050217 about mmp file format version strings:
-
-Specific mmp format versions used so far:
-
-[developers: maintain this list!]
-
-<no mmpformat record> -- before 050130 (shortly before Alpha-1 released)
-
-  (though the format had several versions before then,
-   not all upward-compatible)
-
-'050130' -- the mmpformat record, using this format-version "050130",
-were introduced just before Alpha-1 release, at or shortly after
-the format was changed so that two (rather than one) NamedView (Csys) records
-were stored, one for Home View and one for Last View
-
-'050130 required; 050217 optional' -- introduced by bruce on 050217,
-when the info record was added, for info chunk hotspot.
-(The optional part needs incrementing whenever more kinds of info records
-are interpretable, at least once per "release".)
-
-'050130 required; 050421 optional' -- bruce, adding new info records,
-namely "info leaf hidden" and "info opengroup open";
-and adding "per-part views" in the initial data group,
-whose names are HomeView%d and LastView%d. All these changes are
-backward-compatible -- old code will ignore the new records.
-
-'050130 required; 050422 optional' -- bruce, adding forward_ref,
-info leaf forwarded, and info leaf disabled.
-
-'050502 required' -- bruce, now writing bond2, bond3, bonda, bondg
-for higher-valence bonds appearing in the model (if any). (The code
-that actually writes these is not in this file.)
-
-Actually, "required" is conservative -- these are only "required" if
-higher-valence bonds are present in the model being written.
-
-Unfortunately, we don't yet have any way to say that to old code reading the file.
-(This would require declaring these new bond records in the file, using a "declare"
-record known by older reading-code, and telling it (as part of the declaration,
-something formal that meant) "if you see these new record types and don't understand
-them, then you miss some essential bond info of the kind carried by bond1 which you
-do understand". In other words, "error if you see bond2 (etc), don't understand it,
-but do understand (and care about) bond1".)
-
-'050502 required; 050505 optional' -- bruce, adding "info chunk color".
-
-'050502 required; 050511 optional' -- bruce, adding "info atom atomtype".
-
-Strictly speaking, these are required in the sense that the atoms in the file
-will seem to have the wrong number of bonds if these are not understood. But since
-the file would still be usable to old code, and no altered file would be better
-for old code, we call these new records optional.
-
-'050502 required; 050618 preferred' -- bruce, adding url-encoding of '(', ')',
-and '%' in node names (so ')' is legal in them, fixing part of bug 474).
-I'm calling it optional, since old code could read new files with only the
-harmless cosmetic issue of the users seeing the encoded node-names.
-
-I also decided that "preferred" is more understandable than "optional".
-Nothing yet uses that word (except the user who sees this format in the
-Part Properties dialog), so no harm is caused by changing it.
-
-'050502 required; 050701 preferred' -- bruce, adding gamess jig and info gamess records.
-
-'050502 required; 050706 preferred' -- bruce, increased precision of Linear Motor force & stiffness
-
-'050920 required' -- bruce, save carbomeric bonds as their own bond type bondc, not bonda as before
-
-'050920 required; 051102 preferred' -- bruce, adding "info leaf enable_in_minimize"
-
-'050920 required; 051103 preferred' -- this value existed for some time; unknown whether the prior one actually existed or not
-
-'050920 required; 060421 preferred' -- bruce, adding "info leaf dampers_enabled"
-
-'050920 required; 060522 preferred' -- bruce, adding "comment" and "info leaf commentline <encoding>" [will be in Alpha8]
-
-'050920 required; 070415 preferred' -- bruce, adding "bond_direction" record
-
-'050920 required; 080115 preferred' -- bruce, adding group classifications DnaGroup, DnaSegment, DnaStrand, Block
-
-'050920 required; 080321 preferred' -- bruce, adding info chunk display_as_pam, save_as_pam
-
-===
-
-General notes about when and how to change the mmp format version:
-see a separate file, files_mmp_format_version.txt,
-which may be in the same directory as this source file.
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080321 preferred'
-    # this semi-formally indicates required & ideal reader versions...
-    # for notes about when/how to revise this, see general notes referred to
-    # at end of module docstring.
+from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE
+from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES # temporary definition
 
 from utilities import debug_flags
 
@@ -160,6 +74,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.honor_save_as_pam = not not options.get('honor_save_as_pam')
             # Whether to let chunk.save_as_pam override self.convert_to_pam
             # when set (to a value in PAM_MODELS). By default, don't honor it.
+        self.write_bonds_compactly = options.get('write_bonds_compactly') or False
         if self.min:
             self.sim = True
         self.for_undo = options.get('for_undo', False)
@@ -234,9 +149,21 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         # Mark 050130
         # [see also the general notes and history of the mmpformat,
         # in a comment or docstring near the top of this file -- bruce 050217]
-        assy.mmpformat = MMP_FORMAT_VERSION_TO_WRITE
-            #bruce 050322 comment: this side effect is questionable when self.sim or self.min is True
-        self.fp.write("mmpformat %s\n" % assy.mmpformat)
+        from utilities.GlobalPreferences import debug_pref_write_new_display_names
+        if self.write_bonds_compactly or debug_pref_write_new_display_names():
+            # soon, this constant will become the usual one, I hope
+            mmpformat = MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
+        else:
+            # this case is needed as long as some readers don't yet support
+            # this incompatible change.
+            mmpformat = MMP_FORMAT_VERSION_TO_WRITE
+        if not (self.sim or self.min):
+            #bruce 050322 comment: this side effect is questionable when
+            # self.sim or self.min is True.
+            #bruce 080328: don't do it then (since it's possible we might soon
+            # write a different version of this record then).
+            assy.mmpformat = mmpformat
+        self.fp.write("mmpformat %s\n" % mmpformat)
         
         if self.min:
             self.fp.write("# mmp file written by Adjust or Minimize; can't be read before Alpha5\n")
@@ -287,6 +214,13 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         else:
             return None
         pass
+
+    def encode_atom_written(self, atom): # bruce 080328
+        """
+        Like encode_atom, but require that atom has already been written
+        (KeyError exception if not).
+        """
+        return str(self.atnums[atom.key])
     
     def dispname(self, display):
         """

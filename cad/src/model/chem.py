@@ -402,7 +402,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (note that Nodes also have .picked, with the same meaning, but atoms
         #  are not Nodes)
     display = diDEFAULT # rarely changed for atoms
-    _dnaBaseName = "" #bruce 080319 revised this
+    _dnaBaseName = "" #bruce 080319 revised this; WARNING: accessed directly in DnaLadderRailChunk
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
@@ -2161,7 +2161,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     # == file input/output methods (ideally to be refactored out of this class)
     
-    def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
+    def writemmp(self, mapping, dont_write_bonds_for_these_atoms = ()):
         """
         Write the mmp atom record for self,
         the bond records for whatever bonds have then had both atoms
@@ -2172,8 +2172,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         records.
 
         @param mapping: an instance of class writemmp_mapping. Can't be None.
-        
-        @note: compatible with Node.writemmp, though we're not a subclass of Node
+
+        @param dont_write_bonds_for_these_atoms: a dictionary (only keys matter)
+                                                 or sequence of atom.keys;
+                                                 we will not write any bonds
+                                                 whose atoms' keys are both in
+                                                 that dictionary or sequence,
+                                                 nor any dnaBaseName for those
+                                                 atoms, nor (KLUGE) any rung
+                                                 bonds for those atoms.
+                                                 
+        @note: compatible with Node.writemmp, though we're not a subclass of
+               Node, except for additional optional args.
 
         @see: Fake_Pl.writemmp
         """
@@ -2202,12 +2212,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 080327 add 0.5 to improve rounding accuracy
         print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
-        # mark 2007-08-16: write dnaBaseName info record.
-        dnaBaseName = self.getDnaBaseName()
-        if dnaBaseName and dnaBaseName != 'X':
-            #bruce 080319 optimization -- never write this when it's 'X',
-            # since it's assumed to be 'X' when not present (for valid atoms).
-            mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
+        if self.key not in dont_write_bonds_for_these_atoms:
+            # write dnaBaseName info record [mark 2007-08-16]
+            # but not for atoms whose bonds will be written compactly,
+            # since the dnaBaseName is too, for them [bruce 080328]
+            dnaBaseName = self.getDnaBaseName()
+            if dnaBaseName and dnaBaseName != 'X':
+                #bruce 080319 optimization -- never write this when it's 'X',
+                # since it's assumed to be 'X' when not present (for valid atoms).
+                mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
         # Note: maybe we should disable this *except* for Pe atoms
         # (hoping Mark's comment was right), so it stops happening for files
@@ -2232,6 +2245,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         bonds_with_direction = []
         for b in self.bonds:
             oa = b.other(self)
+            if self.key in dont_write_bonds_for_these_atoms and (
+               oa.key in dont_write_bonds_for_these_atoms or
+               b.is_rung_bond()):
+                # Note: checking oa.key is fine, but b.is_rung_bond is a KLUGE:
+                # we know all current subclasses that pass nonempty
+                # dont_write_bonds_for_these_atoms also take care of writing
+                # rung bonds themselves. This is not presently a bug, but needs
+                # to be cleaned up, for clarity and before any other chunk
+                # subclasses besides DnaLadderRailChunk make use of this feature.
+                # [bruce 080328]
+                continue
             #bruce 050322 revised this:
             oa_code = mapping.encode_atom(oa) # None, or true and prints as "atom number string"
             if oa_code:

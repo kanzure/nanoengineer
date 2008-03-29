@@ -201,12 +201,20 @@ dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
 _new_dispNames = ["def", "Invisible", "CPK", "Lines", "BallAndStick", "Tubes"]
     #bruce 080324 re bug 2662; permit for reading, but don't write them yet
 
-def get_dispName_for_writemmp(display): #bruce 080324
+def get_dispName_for_writemmp(display): #bruce 080324, revised 080328
     """
     Turn a display-style code integer (e.g. diDEFAULT; as stored in Atom.display
     or Chunk.display) into a display-style code string as used in the current
     writing format for mmp files.
     """
+    if 1:
+        # temporary import cycle. Should be ok, and will be removed soon.
+        # Might need to be a relative import to work, so use one.
+        # Surely needs to be a runtime import, and only run in this function.
+        # [bruce 080328]
+        from GlobalPreferences import debug_pref_write_new_display_names
+        if debug_pref_write_new_display_names():
+            return _new_dispNames[display]
     return dispNames[display]
 
 def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 080324
@@ -234,14 +242,18 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 
         pass
     else:
         return _return(res)
-
-    try:
-        res = _new_dispNames.index(dispname)
-    except ValueError:
-        # not found, in 2nd array (new names, which are aliases for old ones)
-        pass
-    else:
-        return _return(res)
+    
+    from GlobalPreferences import debug_pref_read_new_display_names
+        # see comment for similar import -- temporary [bruce 080328]
+    
+    if debug_pref_read_new_display_names():
+        try:
+            res = _new_dispNames.index(dispname)
+        except ValueError:
+            # not found, in 2nd array (new names, which are aliases for old ones)
+            pass
+        else:
+            return _return(res)
 
     return defaultValue # from interpret_dispName
 

@@ -21,6 +21,8 @@ from utilities.constants import ave_colors
 from utilities.constants import diDEFAULT
 from utilities.constants import MODEL_PAM5
 
+from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
+
 from utilities import debug_flags
 
 def _DEBUG_REUSE_CHUNKS():
@@ -564,6 +566,27 @@ class DnaLadderRailChunk(Chunk):
 
     def get_baseatoms(self):
         return self.get_ladder_rail().baseatoms
+
+    def strand_direction(self): #bruce 080328
+        """
+        Return the bond_direction along this strand, relative to the
+        internal base indices (i.e. to the order of
+        self.get_ladder_rail().baseatoms), assuming it's been
+        canonicalized by our DnaLadder and has no errors.
+
+        @raise: AssertionError if our ladder is not valid and error-free.
+        """
+        ladder = self.ladder
+        assert ladder and not ladder.error and ladder.valid, \
+               "%r.ladder = %r not valid and error-free" % \
+               (self, ladder)
+        rail = self.get_ladder_rail()
+        assert rail in ladder.strand_rails
+        if rail is ladder.strand_rails[0]:
+            direction = LADDER_STRAND1_BOND_DIRECTION
+        else:
+            direction = - LADDER_STRAND1_BOND_DIRECTION
+        return direction
     
     # == graphics methods
     
@@ -689,6 +712,55 @@ class DnaLadderRailChunk(Chunk):
         into self.atoms).
         """
         assert 0, "subclass must implement"
+
+    def write_bonds_compactly_for_these_atoms(self, mapping): #bruce 080328
+        """
+        [overrides superclass method]
+        """
+        if not mapping.write_bonds_compactly:
+            return {}
+        if not self.ladder or self.ladder.error or not self.ladder.valid:
+            return {} # self.strand_direction might be wrong
+        atoms = self.indexed_atoms_in_order(mapping)
+        return dict([(atom.key, atom) for atom in atoms])
+
+    def write_bonds_compactly(self, mapping): #bruce 080328
+        """
+        [overrides superclass method]
+        """
+        # write the new bond_chain and/or directional_bond_chain records --
+        # subclass must decide which one.
+        assert 0, "subclass must implement"
+
+    def _compute_atom_range_for_write_bonds_compactly(self, mapping): #bruce 080328
+        """
+        [private helper for subclass write_bonds_compactly methods]
+        """
+        atoms = self.indexed_atoms_in_order(mapping)
+        assert atoms
+        if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
+            codes = [mapping.encode_atom_written(atom) for atom in atoms]
+            for i in range(len(codes)):
+                # it might be an int or a string version of an int
+                assert int(codes[i]) > 0
+                if i:
+                    assert int(codes[i]) == 1 + int(codes[i-1])
+                continue
+            pass
+        res = mapping.encode_atom_written(atoms[0]), \
+              mapping.encode_atom_written(atoms[-1]) # ok if same atom, can happen
+        # print "fyi, compact bond atom range for %r is %r" % (self, res)
+        return res
+
+    def _f_compute_baseatom_range(self, mapping): #bruce 080328
+        """
+        [friend method for mapping.get_memo_for(self.ladder),
+         an object of class DnaLadder_writemmp_mapping_memo]
+        """
+        atoms = self.get_baseatoms()
+        res = mapping.encode_atom_written(atoms[0]), \
+              mapping.encode_atom_written(atoms[-1]) # ok if same atom, can happen
+        return res
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
@@ -813,6 +885,36 @@ class DnaAxisChunk(DnaLadderRailChunk):
         """
         del mapping
         return 0
+        
+    def write_bonds_compactly(self, mapping): #bruce 080328
+        """
+        [overrides superclass method]
+        """
+        # LOGIC BUG (fixable without revising mmp reading code):
+        # we may have excluded more bonds from Atom.writemmp
+        # than we ultimately write here, if the end atoms of
+        # our rail are bonded together, or if there are other (illegal)
+        # bonds between atoms in it besides the along-rail bonds.
+        # (Applies to both axis and strand implems.)
+        # To fix, just look for those bonds and write them directly,
+        # or, be more specific about which bonds to exclude
+        # (e.g. pass a set of atom pairs; maybe harder when fake_Pls are involved).
+        # Not urgent, since rare and doesn't affect mmp reading code or mmpformat version.
+        # I don't think the same issue affects the dna_rung_bonds record, but review.
+        # [bruce 080328]
+        
+        # write the new bond_chain record
+        code_start, code_end = \
+            self._compute_atom_range_for_write_bonds_compactly(mapping)
+        record = "bond_chain %s %s\n" % (code_start, code_end)
+        mapping.write(record)
+        # write compact rung bonds to previously-written strand chunks
+        ladder_memo = mapping.get_memo_for(self.ladder) 
+        for chunk in ladder_memo.wrote_strand_chunks:
+            ladder_memo.write_rung_bonds(chunk, self)
+        # make sure not-yet-written strand chunks can do the same with us
+        ladder_memo.advise_wrote_axis_chunk(self)
+        return
 
     pass
 
@@ -905,6 +1007,10 @@ class DnaStrandChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
+        # TODO: optimization: also include bondpoints at the end.
+        # This can be done later without altering mmp reading code.
+        # It's not urgent.
+        # TODO: optimization: cache this in mapping.get_memo_for(self).
         baseatoms = self.get_baseatoms()
         # for PAM3+5:
         # now interleave between these (or before/after for end Pl atom)
@@ -978,6 +1084,54 @@ class DnaStrandChunk(DnaLadderRailChunk):
         assert mapping # needed for the memo... too hard to let it be None here
         memo = mapping.get_memo_for(self)
         return memo.Pl_atoms
+        
+    def write_bonds_compactly(self, mapping): #bruce 080328
+        """
+        Note: this also writes all dnaBaseName (sequence) info for our atoms.
+        
+        [overrides superclass method]
+        """
+        # write the new directional_bond_chain record
+        code_start, code_end = \
+            self._compute_atom_range_for_write_bonds_compactly(mapping)
+            # todo: override that to assert the bond directions are as expected?
+        bond_direction = self.strand_direction()
+        sequence = self._short_sequence_string() # might be ""
+        if sequence:
+            record = "directional_bond_chain %s %s %d %s\n" % \
+                     (code_start, code_end, bond_direction, sequence)
+        else:
+            # avoid trailing space, though our own parser wouldn't care about it
+            record = "directional_bond_chain %s %s %d\n" % \
+                     (code_start, code_end, bond_direction)
+        mapping.write(record)
+        # write compact rung bonds to previously-written axis chunk, if any
+        ladder_memo = mapping.get_memo_for(self.ladder) 
+        for chunk in ladder_memo.wrote_axis_chunks:
+            ladder_memo.write_rung_bonds(chunk, self)
+        # make sure not-yet-written axis chunk (if any) can do the same with us
+        ladder_memo.advise_wrote_strand_chunk(self)
+        return
+
+    def _short_sequence_string(self):
+        """
+        [private helper for write_bonds_compactly]
+
+        Return the dnaBaseNames (letters) of our base atoms,
+        as a single string,
+        in the same order as they appear in indexed_atoms_in_order,
+        leaving off trailing X's.
+        (If all sequence is unassigned == 'X', return "".)
+        """
+        baseatoms = self.get_baseatoms()
+        n = len(baseatoms)
+        while n and not baseatoms[n-1]._dnaBaseName:
+            # KLUGE, optimization: access private attr ### TODO: make it a friend attr
+            # (this inlines atom.getDnaBaseName() != 'X')
+            n -= 1
+        if not n:
+            return "" # common optimization
+        return "".join([atom.getDnaBaseName() for atom in baseatoms[:n]])
     
     pass # end of class DnaStrandChunk
 

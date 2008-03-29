@@ -10,7 +10,7 @@ See also: files_mmp_writing.py, files_mmp_registration.py
 
 History:
 
-bruce 050414 pulled this out of fileIO.py rev. 1.97
+bruce 050414 pulled this out of fileIO.py, cvs rev. 1.97
 (of which it was the major part),
 since I am splitting that into separate modules for each file format.
 
@@ -18,6 +18,7 @@ bruce 080304 split out the mmp writing part into its own file,
 files_mmp_writing.py. That also contains the definition of
 MMP_FORMAT_VERSION_TO_WRITE and the history of its values
 and refers to the documentation for when to change it.
+[Later that stuff was moved to mmpformat_versions.py.]
 
 bruce 080304 split out the registration code, to avoid import cycles,
 since anything should be able to import that, but the main reading code
@@ -43,8 +44,9 @@ from analysis.ESP.ESPImage import ESPImage
 from model.jigs_measurements import MeasureAngle
 from model.jigs_measurements import MeasureDihedral
 from geometry.VQT import V, Q, A
-from utilities.Log import redmsg, quote_html
+from utilities.Log import redmsg, orangemsg, quote_html
 from model.elements import PeriodicTable
+from model.elements import Pl5
 from model.bonds import bond_atoms
 from model.chunk import Chunk
 from foundation.Utility import Node
@@ -68,6 +70,7 @@ from model.bond_constants import V_CARBOMERIC
 from model.Plane import Plane
 
 from files.mmp.files_mmp_registration import find_registered_parser_class
+from files.mmp.mmpformat_versions import parse_mmpformat, mmp_date_newer
 
 # the following imports and the assignment they're used in
 # should be replaced by some registration scheme
@@ -216,6 +219,26 @@ mdihedralpat = re.compile("mdihedral " + nameRgbFontnameFontsize +
                           _oneAtompat + _oneAtompat + _oneAtompat + _oneAtompat)
 
 # == reading mmp files
+
+_MMP_FORMAT_VERSION_WE_CAN_READ = '050920 required; 080321 preferred'
+    # ideally, this should be identical to MMP_FORMAT_VERSION_TO_WRITE,
+    # but sometimes it can temporarily differ (in either direction),
+    # so we don't use the same constant.
+    #
+    # Note: this value is based on all the code that contributes to mmp reading,
+    # not only the code in this file. That includes methods on model objects
+    # for parsing info records, and registered mmp record parsers.
+    # [bruce 080328 new feature and comment]
+
+def _mmp_format_version_we_can_read(): # bruce 080328 (should it be a method?)
+    from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
+    from utilities.GlobalPreferences import debug_pref_read_new_display_names
+    
+    if debug_pref_read_bonds_compactly() and debug_pref_read_new_display_names():
+        res = '080328 required'
+    else:
+        res = _MMP_FORMAT_VERSION_WE_CAN_READ
+    return res
 
 class _readmmp_state:
     """
@@ -594,6 +617,102 @@ class _readmmp_state:
             bond.set_bond_direction_from(atom1, 1)
         return
 
+    def _read_bond_chain(self, card): #bruce 080328
+        from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
+        if not debug_pref_read_bonds_compactly():
+            summary_format = "Error: input file contains [N] bond_chain record(s) we can't read"
+            env.history.deferred_summary_message( redmsg(summary_format))
+            return
+        fields = card.strip().split()[1:]
+        assert len(fields) >= 2 # beginning and ending atom code
+            # (ignore extra fields for upwards compatibility)
+        # note: following code is similar in two methods
+        atoms_in_range = self.atoms_in_range(fields[0], fields[1])
+        if len(atoms_in_range) > 1: # not sure if this test is required for correctness
+            for atom1, atom2 in zip( atoms_in_range[:-1], atoms_in_range[1:] ):
+                bond_atoms( atom1, atom2, V_SINGLE, no_corrections = True)
+            pass
+        return
+
+    def _read_directional_bond_chain(self, card): #bruce 080328
+        from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
+        if not debug_pref_read_bonds_compactly():
+            summary_format = "Error: input file contains [N] directional_bond_chain record(s) we can't read"
+            env.history.deferred_summary_message( redmsg(summary_format))
+            return
+        fields = card.strip().split()[1:]
+        assert len(fields) >= 3 # beginning and ending atom code, and bond direction
+            # (ignore extra fields for upwards compatibility;
+            #  optional 4th field might be sequence info [nim], default 'X')
+        # note: following code is similar in two methods
+        atoms_in_range = self.atoms_in_range(fields[0], fields[1])
+        bond_dir = int(fields[2])
+        assert bond_dir in (1, -1)
+        if len(atoms_in_range) > 1: # not sure if this test is required for correctness
+            for atom1, atom2 in zip( atoms_in_range[:-1], atoms_in_range[1:] ):
+                bond = bond_atoms( atom1, atom2, V_SINGLE, no_corrections = True)
+                bond.set_bond_direction_from(atom1, bond_dir)
+            pass
+        if len(fields) >= 4:
+            # store optional dna base sequence info
+            # (allowed to be shorter than needed, but not longer;
+            #  X or missing letter is not stored, so it won't override
+            #  an earlier per-atom info record specifying the dnaBaseName)
+            sequence = fields[3]
+            assert sequence.isalpha()
+            pointer = 0 # to next unused character within sequence
+            for atom in atoms_in_range:
+                if pointer >= len(sequence):
+                    break
+                if atom.element.role == 'strand' and not atom.element is Pl5:
+                    # atom is a strand_sugar
+                    letter = sequence[pointer]
+                    pointer += 1
+                    if letter != 'X':
+                        atom.setDnaBaseName(letter)
+                continue
+            if pointer < len(sequence):
+                assert 0, "extra sequence info: only %d of %d chars were assigned from %r" % \
+                       (pointer, len(sequence), card)
+            pass    
+        return
+
+    def _read_dna_rung_bonds(self, card): #bruce 080328
+        from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
+        if not debug_pref_read_bonds_compactly():
+            summary_format = "Error: input file contains [N] dna_rung_bonds record(s) we can't read"
+            env.history.deferred_summary_message( redmsg(summary_format))
+            return
+        fields = card.strip().split()[1:]
+        assert len(fields) >= 4 # beginning and ending atom codes, for chunk1 and chunk2
+            # (ignore extra fields for upwards compatibility)
+        atoms_in_range1 = self.atoms_in_range(fields[0], fields[1])
+        atoms_in_range2 = self.atoms_in_range(fields[2], fields[3])
+        def ok(atom):
+            assert isinstance(atom, Atom)
+            return atom.element.role == 'axis' or \
+                   (atom.element.role == 'strand' and not atom.element is Pl5)
+        atoms1 = filter(ok, atoms_in_range1)
+        atoms2 = filter(ok, atoms_in_range2)
+        assert len(atoms1) == len(atoms2), \
+               "qualifying atom counts %d and %d don't match in %r" % \
+               (len(atoms1), len(atoms2), card)
+        for atom1, atom2 in zip(atoms1, atoms2):
+            bond_atoms( atom1, atom2, V_SINGLE, no_corrections = True)
+        return
+
+    def atoms_in_range(self, start, end): #bruce 080328
+        """
+        Return all the atoms whose atomcodes in self are between start and end,
+        inclusive. Start and end can be equal, meaning return one atom.
+        """
+        start = int(start)
+        end = int(end)
+        assert 1 <= start <= end
+        res = [self.ndix[code] for code in range(start, end+1)]
+            # that will fail if any atom in that range wasn't yet read
+        return res
+    
     # == jig reading methods.
 
     # Note that there are at least three different ways various jigs handle
@@ -1057,14 +1176,48 @@ class _readmmp_state:
         
     def _read_kelvin(self, card): # kelvin -- Temperature in Kelvin (simulation parameter)
         if not self.isInsert: # Skip this record if inserting
-            m = re.match("kelvin (\d+)",card)
+            m = re.match("kelvin (\d+)", card)
             n = int(m.group(1))
             self.assy.temperature = n
             
     def _read_mmpformat(self, card): # mmpformat -- MMP File Format. Mark 050130
-        if not self.isInsert: # Skip this record if inserting
-            m = re.match("mmpformat (.*)",card)
-            self.assy.mmpformat = m.group(1)
+        # revised by bruce 080328
+        m = re.match("mmpformat (.*)", card)
+        mmpformat = m.group(1)
+        if not self.isInsert: # Skip this side effect if inserting
+            self.assy.mmpformat = mmpformat
+        # warn if format might be too new, or if we can't understand
+        # mmpformat record at all [new feature, bruce 080328]
+        okjunk, can_read_required, can_read_preferred = parse_mmpformat( _mmp_format_version_we_can_read() )
+        assert okjunk
+        msg = ""
+        wrapper = None
+        try:
+            ok, required, preferred = parse_mmpformat(mmpformat)
+        except:
+            print_compact_traceback("exception or syntax error while parsing [%s]: " % card.strip())
+            msg = "Error: bug or syntax error in mmpformat record, file corrupt or too new: [%s]" % \
+                      quote_html(card.strip())
+            wrapper = redmsg
+        else:
+            if not ok:
+                msg = "Warning: can't parse mmpformat record, file might be too new: [%s]" % \
+                      quote_html(card.strip())
+                wrapper = redmsg # intentional, not a typo: a red "Warning"
+            elif mmp_date_newer(required, can_read_required):
+                msg = "Warning: mmpformat requires newer reading code; essential data might be unreadable: [%s]" % \
+                      quote_html(card.strip())
+                wrapper = redmsg
+            elif mmp_date_newer(preferred, can_read_preferred):
+                msg = "Note: mmpformat prefers newer reading code for some data: [%s]" % \
+                      quote_html(card.strip())
+                wrapper = orangemsg
+            pass
+        if wrapper:
+            msg = wrapper(msg)
+        if msg:
+            env.history.message(msg)
+        return
 
     def _read_end1(self, card): # end1 -- End of main tree
         pass
@@ -1268,7 +1421,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
             try:
                 meth( name, val, interp )
             except:
-                print_compact_traceback("internal error in %r interpreting %r, ignored: " % (thing,card) )
+                print_compact_traceback("internal error in %r interpreting %r, ignored: " % (thing, card) )
     elif debug_flags.atom_debug:
         print "atom_debug: fyi: no object found for \"info %s\"; ignoring info record (not an error)" % (type,)
     return

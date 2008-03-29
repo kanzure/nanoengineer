@@ -2239,6 +2239,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             pass
         pass
 
+    # == methods related to mmp format (reading or writing)
+
     def readmmp_info_chunk_setitem( self, key, val, interp ): #bruce 050217, renamed 050421
         """
         This is called when reading an mmp file, for each "info chunk" record.
@@ -2283,7 +2285,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             if debug_flags.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
         return
-
+    
     def atoms_in_mmp_file_order(self, mapping = None):
         """
         Return a list of our atoms, in the same order as they would be written
@@ -2341,12 +2343,21 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # making previously-saved movies more likely to retain their validity.
         # (Due to the .dpb format not storing its own info about atom identity.)
         #bruce 080327 update:
-        # Note: these "atoms" can be of class Atom or class Fake_Pl. 
+        # Note: these "atoms" can be of class Atom or class Fake_Pl.
+        #bruce 080328: for some of the atoms, let subclasses write all
+        # their bonds separately, in a more compact form.
+        compact_bond_atoms = \
+            self.write_bonds_compactly_for_these_atoms(mapping)
         for atm in self.atoms_in_mmp_file_order(mapping):
-            atm.writemmp(mapping)
+            atm.writemmp(mapping,
+                         dont_write_bonds_for_these_atoms = compact_bond_atoms)
                 # note: this writes internal and/or external bonds,
-                # after their 2nd atom is written. It also writes
-                # bond_directions records as needed for those bonds.
+                # after their 2nd atom is written, unless both their
+                # atoms are in compact_bond_atoms. It also writes
+                # bond_directions records as needed for the bonds
+                # it writes.
+        if compact_bond_atoms: # (this test is required)
+            self.write_bonds_compactly(mapping)
         self.writemmp_info_chunk_after_atoms(mapping)
         return
 
@@ -2370,6 +2381,20 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # not normally set, even when PAM3+5 is in use
             mapping.write("info chunk save_as_pam = %s\n" % self.save_as_pam)
         return
+
+    def write_bonds_compactly_for_these_atoms(self, mapping): #bruce 080328
+        """
+        If self plans to write some of its atoms' bonds compactly
+        when self.write_bonds_compactly is called
+        (possibly based on options in mapping),
+        then return a dictionary of atom.key  -> atom for those
+        atoms. Otherwise return {}.
+
+        [subclasses that can do this should override this method
+         and write_bonds_compactly in corresponding ways.]
+        """
+        del mapping
+        return {}
     
     def writemmp_info_chunk_after_atoms(self, mapping): #bruce 080321 split this out
         """
@@ -2395,6 +2420,24 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             b = int(self.color[2]*255 + 0.5)
             mapping.write("info chunk color = %d %d %d\n" % (r, g, b))
         return
+
+    def write_bonds_compactly(self, mapping): #bruce 080328
+        """
+        If self returned (or would return) some atoms from
+        self.write_bonds_compactly_for_these_atoms(mapping),
+        then write all bonds between atoms in that set
+        into mapping in a compact form.
+
+        @note: this should only be called if self did, or would,
+               return a nonempty set of atoms from that method,
+               self.write_bonds_compactly_for_these_atoms(mapping).
+        
+        [subclasses that can do this should override this method
+         and write_bonds_compactly_for_these_atoms in corresponding ways.]
+        """
+        assert 0, "subclasses which need this must override it"
+
+    # ==
     
     def writepov(self, file, disp):
         """

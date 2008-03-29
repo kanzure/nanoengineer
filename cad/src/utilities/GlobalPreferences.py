@@ -141,4 +141,58 @@ def _debug_pref_use_dna_updater(): #bruce 080320 moved this here from master_mod
 def dna_updater_is_enabled(): #bruce 080320
     return _debug_pref_use_dna_updater()
 
+# ==
+
+def debug_pref_write_bonds_compactly(): #bruce 080328
+    # note: reading code for this was made active in same commit, 080328.
+    # note: this could be used for non-dna single bond chains too,
+    #  so the function name, preks_key, and associated abstract methods
+    #  needn't contain the term "dna", though the menu text is clearer
+    #  by containing it.
+    res = debug_pref("mmp format: write dna bonds compactly?",
+                     Choice_boolean_False,
+                         # we will change this to True as soon as all developers
+                         # have the necessary reading code
+                     non_debug = True,
+                     prefs_key = "A10/mmp format: write bonds compactly? "
+                    )
+    return res
+
+def debug_pref_read_bonds_compactly(): #bruce 080328
+    res = debug_pref("mmp format: read dna bonds compactly?",
+                     Choice_boolean_True, # use False to simulate old reading code for testing
+                     non_debug = True, # temporary
+                     prefs_key = True # temporary
+                    )
+    return res
+
+# exercise them, to put them in the menu
+debug_pref_write_bonds_compactly()
+debug_pref_read_bonds_compactly()
+
+# ==
+
+def debug_pref_write_new_display_names(): #bruce 080328
+    # note: reading code for this was made active a few days before 080328
+    res = debug_pref("mmp format: write new display names?",
+                         # we will change this to True as soon as all developers
+                         # have the necessary reading code
+                     Choice_boolean_False,
+                     non_debug = True,
+                     prefs_key = "A10/mmp format: write new display names? "
+                    )
+    return res
+
+def debug_pref_read_new_display_names(): #bruce 080328
+    res = debug_pref("mmp format: read new display names?",
+                     Choice_boolean_True, # use False to simulate old reading code for testing
+                     non_debug = True, # temporary
+                     prefs_key = True # temporary
+                    )
+    return res
+
+# exercise them, to put them in the menu
+debug_pref_write_new_display_names()
+debug_pref_read_new_display_names()
+
 # end

@@ -15,8 +15,6 @@ from utilities.constants import Pl_STICKY_BOND_DIRECTION
 
 from utilities.constants import diDEFAULT
 
-from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
-
 import foundation.env as env
 from utilities.Log import orangemsg, redmsg
 
@@ -116,15 +114,8 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
 
         # find out strand direction, based on where we are in ladder
         chunk = self.chunk
-        ladder = chunk.ladder
-        rail = chunk.get_ladder_rail()
-        assert rail in ladder.strand_rails
-        if rail is ladder.strand_rails[0]:
-            direction = LADDER_STRAND1_BOND_DIRECTION
-        else:
-            direction = - LADDER_STRAND1_BOND_DIRECTION
-        
-        baseatoms = rail.baseatoms
+        baseatoms = chunk.get_baseatoms()
+        direction = chunk.strand_direction()
 
         # note: we never look at Pls cached on neighbor_baseatoms
         # since any such Pl would belong in a neighbor chunk, not ours
@@ -226,6 +217,8 @@ class DnaLadder_writemmp_mapping_memo(writemmp_mapping_memo):
         assert dna_updater_is_enabled()
         self.ladder = ladder
         self.save_as_pam = self._compute_save_as_pam()
+        self.wrote_axis_chunks = [] # public attrs
+        self.wrote_strand_chunks = []
         return
     
     def _f_save_as_what_PAM_model(self):
@@ -248,6 +241,35 @@ class DnaLadder_writemmp_mapping_memo(writemmp_mapping_memo):
         assert common_answer
         return common_answer
 
+    def advise_wrote_axis_chunk(self, chunk): # 080328
+        """
+        Record the fact that we finished writing the given axis chunk
+        during the mmp save controlled by self.mapping.
+        """
+        self.wrote_axis_chunks.append(chunk)
+        return
+
+    def advise_wrote_strand_chunk(self, chunk): # 080328
+        """
+        Record the fact that we finished writing the given strand chunk
+        during the mmp save controlled by self.mapping.
+        """
+        self.wrote_strand_chunks.append(chunk)
+        return
+
+    def write_rung_bonds(self, chunk1, chunk2): # 080328
+        """
+        Assuming the two given chunks of our ladder have just been
+        written via self.mapping, and their rung bonds have not,
+        write those compactly.
+        """
+        mapping = self.mapping
+        s1, e1 = chunk1._f_compute_baseatom_range(mapping)
+        s2, e2 = chunk2._f_compute_baseatom_range(mapping)
+        record = "dna_rung_bonds %s %s %s %s\n" % (s1, e1, s2, e2)
+        mapping.write(record)
+        return
+    
     pass
 
 # ==

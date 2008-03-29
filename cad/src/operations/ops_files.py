@@ -1152,6 +1152,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         from dna.updater.dna_updater_prefs import pref_mmp_save_convert_to_PAM5
         from utilities.constants import MODEL_PAM5
+        # temporary, so ok to leave local for now:
+        from utilities.GlobalPreferences import debug_pref_write_bonds_compactly
+        from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
 
         # determine options for writemmpfile
         options = dict()
@@ -1159,7 +1162,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             options.update(dict(convert_to_pam = MODEL_PAM5,
                                 honor_save_as_pam = True))
             pass
-
+        if debug_pref_write_bonds_compactly(): # bruce 080328
+            # temporary warning
+            env.history.message( orangemsg( "Warning: writing mmp file with experimental bond_chain records"))
+            if not debug_pref_read_bonds_compactly():
+                env.history.message( orangemsg( "Warning: your bond_chain reading code is presently turned off"))
+            options.update(dict(write_bonds_compactly = True))
+            pass
+        
         tmpname = "" # in case of exceptions
         try:
             tmpname = os.path.join(dir, '~' + fil + '.m~')
