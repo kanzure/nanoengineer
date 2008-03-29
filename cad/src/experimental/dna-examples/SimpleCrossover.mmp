@@ -1,0 +1,455 @@
+mmpformat 050920 required; 080321 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (32.238364) (-17.044982, 4.005185, -0.000000) (1.000000)
+egroup (View Data)
+group (Untitled)
+info opengroup open = True
+group (Dna 1) DnaGroup
+info opengroup open = False
+group (Segment 1) DnaSegment
+info opengroup open = False
+mol (DnaAxisChunk3) def
+atom 1 (300) (18634, 5828, 0) def
+atom 2 (300) (21814, 5828, 0) def
+bond1 1
+atom 3 (300) (24994, 5828, 0) def
+bond1 2
+atom 4 (300) (28174, 5828, 0) def
+bond1 3
+atom 5 (300) (31354, 5828, 0) def
+bond1 4
+atom 6 (300) (34534, 5828, 0) def
+bond1 5
+atom 7 (300) (37714, 5828, 0) def
+bond1 6
+atom 8 (300) (40894, 5828, 0) def
+bond1 7
+atom 9 (300) (44074, 5828, 0) def
+bond1 8
+atom 10 (300) (47254, 5828, 0) def
+bond1 9
+atom 11 (300) (50434, 5828, 0) def
+bond1 10
+atom 12 (0) (51284, 6220, -1766) def
+bond1 11
+info chunk color = 128 128 128
+forward_ref (2988072364) # DnaSegmentMarker (DnaMarker-1)
+mol (DnaAxisChunk1) def
+atom 13 (300) (15454, 5828, 0) def
+bond1 1
+atom 14 (300) (12274, 5828, 0) def
+bond1 13
+atom 15 (300) (9094, 5828, 0) def
+bond1 14
+atom 16 (300) (5914, 5828, 0) def
+bond1 15
+atom 17 (300) (2734, 5828, 0) def
+bond1 16
+atom 18 (300) (-445, 5828, 0) def
+bond1 17
+atom 19 (300) (-3625, 5828, 0) def
+bond1 18
+atom 20 (300) (-6805, 5828, 0) def
+bond1 19
+atom 21 (300) (-9985, 5828, 0) def
+bond1 20
+atom 22 (300) (-13165, 5828, 0) def
+bond1 21
+atom 23 (300) (-16345, 5828, 0) def
+bond1 22
+atom 24 (0) (-17196, 5106, -1659) def
+bond1 23
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker-1) (127, 127, 127) 23 22
+info leaf forwarded = 2988072364
+egroup (Segment 1)
+group (DnaStrand1) DnaStrand
+info opengroup open = True
+forward_ref (2988072524) # DnaStrandMarker (DnaMarker-2)
+mol (DnaStrandChunk10) def
+atom 25 (301) (15454, -102, 6361) def
+bond1 13
+atom 26 (301) (12274, 4769, 8632) def
+bond1 14 25
+bond_direction 25 26
+atom 27 (301) (9094, 10045, 7606) def
+bond1 15 26
+bond_direction 26 27
+atom 28 (301) (5914, 13711, 3675) def
+bond1 16 27
+bond_direction 27 28
+atom 29 (301) (2734, 14365, -1659) def
+bond1 17 28
+bond_direction 28 29
+atom 30 (301) (-445, 11759, -6360) def
+bond1 18 29
+bond_direction 29 30
+atom 31 (301) (-3625, 6887, -8631) def
+bond1 19 30
+bond_direction 30 31
+atom 32 (301) (-6805, 1611, -7605) def
+bond1 20 31
+bond_direction 31 32
+atom 33 (301) (-9985, -2053, -3674) def
+bond1 21 32
+bond_direction 32 33
+atom 34 (301) (-13165, -2708, 1660) def
+bond1 22 33
+bond_direction 33 34
+atom 35 (301) (-16345, -102, 6361) def
+bond1 23 34
+bond_direction 34 35
+atom 36 (0) (-17562, 1622, 7524) def
+bond1 35
+bond_direction 35 36
+info chunk color = 153 0 51
+DnaStrandMarker (DnaMarker-2) (127, 127, 127) 35 34
+info leaf forwarded = 2988072524
+mol (DnaStrandChunk3) def
+atom 37 (301) (-16342, -5140, 0) def
+atom 38 (301) (-13162, -6801, 5112) def
+bond1 37
+bond_direction 37 38
+atom 39 (301) (-9982, -11150, 8271) def
+bond1 38
+bond_direction 38 39
+atom 40 (301) (-6802, -16525, 8271) def
+bond1 39
+bond_direction 39 40
+atom 41 (301) (-3622, -20873, 5112) def
+bond1 40
+bond_direction 40 41
+atom 42 (301) (-442, -22534, 0) def
+bond1 41
+bond_direction 41 42
+atom 43 (301) (2737, -20873, -5111) def
+bond1 42
+bond_direction 42 43
+atom 44 (301) (5917, -16525, -8270) def
+bond1 43
+bond_direction 43 44
+atom 45 (301) (9097, -11150, -8270) def
+bond1 44
+bond_direction 44 45
+atom 46 (301) (12277, -6801, -5111) def
+bond1 45
+bond_direction 45 46
+atom 47 (301) (15457, -5140, 0) def
+bond1 46 25
+bond_direction 46 47
+bond_direction 47 25
+atom 48 (0) (-17558, -5466, -2054) def
+bond1 37
+bond_direction 48 37
+info chunk color = 153 0 51
+egroup (DnaStrand1)
+group (DnaStrand2) DnaStrand
+info opengroup open = True
+mol (DnaStrandChunk5) def
+atom 49 (301) (18634, 12864, 5112) def
+bond1 1
+atom 50 (301) (21814, 8516, 8271) def
+bond1 2 49
+bond_direction 49 50
+atom 51 (301) (24994, 3141, 8271) def
+bond1 3 50
+bond_direction 50 51
+atom 52 (301) (28174, -1207, 5112) def
+bond1 4 51
+bond_direction 51 52
+atom 53 (301) (31354, -2868, 0) def
+bond1 5 52
+bond_direction 52 53
+atom 54 (301) (34534, -1207, -5111) def
+bond1 6 53
+bond_direction 53 54
+atom 55 (301) (37714, 3141, -8270) def
+bond1 7 54
+bond_direction 54 55
+atom 56 (301) (40894, 8516, -8270) def
+bond1 8 55
+bond_direction 55 56
+atom 57 (301) (44074, 12864, -5111) def
+bond1 9 56
+bond_direction 56 57
+atom 58 (301) (47254, 14525, 0) def
+bond1 10 57
+bond_direction 57 58
+atom 59 (301) (50434, 12864, 5112) def
+bond1 11 58
+bond_direction 58 59
+atom 60 (0) (51649, 11393, 6583) def
+bond1 59
+bond_direction 59 60
+info chunk color = 153 0 51
+forward_ref (2988072684) # DnaStrandMarker (DnaMarker-3)
+mol (DnaStrandChunk1) def
+atom 61 (301) (15454, 14525, 0) def
+bond1 13 49
+bond_direction 61 49
+atom 62 (301) (12274, 12864, -5111) def
+bond1 14 61
+bond_direction 62 61
+atom 63 (301) (9094, 8516, -8270) def
+bond1 15 62
+bond_direction 63 62
+atom 64 (301) (5914, 3141, -8270) def
+bond1 16 63
+bond_direction 64 63
+atom 65 (301) (2734, -1207, -5111) def
+bond1 17 64
+bond_direction 65 64
+atom 66 (301) (-445, -2868, 0) def
+bond1 18 65
+bond_direction 66 65
+atom 67 (301) (-3625, -1207, 5112) def
+bond1 19 66
+bond_direction 67 66
+atom 68 (301) (-6805, 3141, 8271) def
+bond1 20 67
+bond_direction 68 67
+atom 69 (301) (-9985, 8516, 8271) def
+bond1 21 68
+bond_direction 69 68
+atom 70 (301) (-13165, 12864, 5112) def
+bond1 22 69
+bond_direction 70 69
+atom 71 (301) (-16345, 14525, 0) def
+bond1 23 70
+bond_direction 71 70
+atom 72 (0) (-17561, 14199, -2054) def
+bond1 71
+bond_direction 72 71
+info chunk color = 153 0 51
+DnaStrandMarker (DnaMarker-3) (127, 127, 127) 71 70
+info leaf forwarded = 2988072684
+egroup (DnaStrand2)
+group (Segment 2) DnaSegment
+info opengroup open = False
+mol (DnaAxisChunk4) def
+atom 73 (300) (18637, -13837, 0) def
+atom 74 (300) (21817, -13837, 0) def
+bond1 73
+atom 75 (300) (24997, -13837, 0) def
+bond1 74
+atom 76 (300) (28177, -13837, 0) def
+bond1 75
+atom 77 (300) (31357, -13837, 0) def
+bond1 76
+atom 78 (300) (34537, -13837, 0) def
+bond1 77
+atom 79 (300) (37717, -13837, 0) def
+bond1 78
+atom 80 (300) (40897, -13837, 0) def
+bond1 79
+atom 81 (300) (44077, -13837, 0) def
+bond1 80
+atom 82 (300) (47257, -13837, 0) def
+bond1 81
+atom 83 (300) (50437, -13837, 0) def
+bond1 82
+atom 84 (0) (51287, -13446, -1766) def
+bond1 83
+info chunk color = 128 128 128
+forward_ref (2988293036) # DnaSegmentMarker (DnaMarker-4)
+mol (DnaAxisChunk2) def
+atom 85 (300) (-16342, -13837, 0) def
+bond1 37
+atom 86 (300) (-13162, -13837, 0) def
+bond1 38 85
+atom 87 (300) (-9982, -13837, 0) def
+bond1 39 86
+atom 88 (300) (-6802, -13837, 0) def
+bond1 40 87
+atom 89 (300) (-3622, -13837, 0) def
+bond1 41 88
+atom 90 (300) (-442, -13837, 0) def
+bond1 42 89
+atom 91 (300) (2737, -13837, 0) def
+bond1 43 90
+atom 92 (300) (5917, -13837, 0) def
+bond1 44 91
+atom 93 (300) (9097, -13837, 0) def
+bond1 45 92
+atom 94 (300) (12277, -13837, 0) def
+bond1 46 93
+atom 95 (300) (15457, -13837, 0) def
+bond1 47 94 73
+atom 96 (0) (-17192, -14559, -1659) def
+bond1 85
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker-4) (127, 127, 127) 85 86
+info leaf forwarded = 2988293036
+egroup (Segment 2)
+group (DnaStrand3) DnaStrand
+info opengroup open = True
+mol (DnaStrandChunk7) def
+atom 97 (301) (18637, -22375, 1660) def
+bond1 73
+atom 98 (301) (21817, -21720, -3674) def
+bond1 74 97
+bond_direction 98 97
+atom 99 (301) (24997, -18054, -7605) def
+bond1 75 98
+bond_direction 99 98
+atom 100 (301) (28177, -12778, -8631) def
+bond1 76 99
+bond_direction 100 99
+atom 101 (301) (31357, -7906, -6360) def
+bond1 77 100
+bond_direction 101 100
+atom 102 (301) (34537, -5300, -1659) def
+bond1 78 101
+bond_direction 102 101
+atom 103 (301) (37717, -5955, 3675) def
+bond1 79 102
+bond_direction 103 102
+atom 104 (301) (40897, -9621, 7606) def
+bond1 80 103
+bond_direction 104 103
+atom 105 (301) (44077, -14897, 8632) def
+bond1 81 104
+bond_direction 105 104
+atom 106 (301) (47257, -19768, 6361) def
+bond1 82 105
+bond_direction 106 105
+atom 107 (301) (50437, -22375, 1660) def
+bond1 83 106
+bond_direction 107 106
+atom 108 (0) (51652, -22447, -419) def
+bond1 107
+bond_direction 108 107
+info chunk color = 0 0 153
+forward_ref (2988293196) # DnaStrandMarker (DnaMarker-5)
+mol (DnaStrandChunk4) def
+atom 109 (301) (-16342, -19768, 6361) def
+bond1 85
+atom 110 (301) (-13162, -22375, 1660) def
+bond1 86 109
+bond_direction 110 109
+atom 111 (301) (-9982, -21720, -3674) def
+bond1 87 110
+bond_direction 111 110
+atom 112 (301) (-6802, -18054, -7605) def
+bond1 88 111
+bond_direction 112 111
+atom 113 (301) (-3622, -12778, -8631) def
+bond1 89 112
+bond_direction 113 112
+atom 114 (301) (-442, -7906, -6360) def
+bond1 90 113
+bond_direction 114 113
+atom 115 (301) (2737, -5300, -1659) def
+bond1 91 114
+bond_direction 115 114
+atom 116 (301) (5917, -5955, 3675) def
+bond1 92 115
+bond_direction 116 115
+atom 117 (301) (9097, -9621, 7606) def
+bond1 93 116
+bond_direction 117 116
+atom 118 (301) (12277, -14897, 8632) def
+bond1 94 117
+bond_direction 118 117
+atom 119 (301) (15457, -19768, 6361) def
+bond1 95 118 97
+bond_direction 119 118
+bond_direction 97 119
+atom 120 (0) (-17558, -18044, 7524) def
+bond1 109
+bond_direction 109 120
+info chunk color = 0 0 153
+DnaStrandMarker (DnaMarker-5) (127, 127, 127) 109 110
+info leaf forwarded = 2988293196
+egroup (DnaStrand3)
+group (DnaStrand5) DnaStrand
+info opengroup open = True
+forward_ref (170660492) # DnaStrandMarker (DnaMarker-7)
+mol (DnaStrandChunk9) def
+atom 121 (301) (18637, -6801, 5112) def
+bond1 73
+atom 122 (301) (21817, -11150, 8271) def
+bond1 74 121
+bond_direction 121 122
+atom 123 (301) (24997, -16525, 8271) def
+bond1 75 122
+bond_direction 122 123
+atom 124 (301) (28177, -20873, 5112) def
+bond1 76 123
+bond_direction 123 124
+atom 125 (301) (31357, -22534, 0) def
+bond1 77 124
+bond_direction 124 125
+atom 126 (301) (34537, -20873, -5111) def
+bond1 78 125
+bond_direction 125 126
+atom 127 (301) (37717, -16525, -8270) def
+bond1 79 126
+bond_direction 126 127
+atom 128 (301) (40897, -11150, -8270) def
+bond1 80 127
+bond_direction 127 128
+atom 129 (301) (44077, -6801, -5111) def
+bond1 81 128
+bond_direction 128 129
+atom 130 (301) (47257, -5140, 0) def
+bond1 82 129
+bond_direction 129 130
+atom 131 (301) (50437, -6801, 5112) def
+bond1 83 130
+bond_direction 130 131
+atom 132 (0) (51653, -8273, 6583) def
+bond1 131
+bond_direction 131 132
+info chunk color = 0 0 153
+mol (DnaStrandChunk2) def
+atom 133 (301) (18634, -2708, 1660) def
+bond1 1 121
+bond_direction 133 121
+atom 134 (301) (21814, -2053, -3674) def
+bond1 2 133
+bond_direction 134 133
+atom 135 (301) (24994, 1611, -7605) def
+bond1 3 134
+bond_direction 135 134
+atom 136 (301) (28174, 6887, -8631) def
+bond1 4 135
+bond_direction 136 135
+atom 137 (301) (31354, 11759, -6360) def
+bond1 5 136
+bond_direction 137 136
+atom 138 (301) (34534, 14365, -1659) def
+bond1 6 137
+bond_direction 138 137
+atom 139 (301) (37714, 13711, 3675) def
+bond1 7 138
+bond_direction 139 138
+atom 140 (301) (40894, 10045, 7606) def
+bond1 8 139
+bond_direction 140 139
+atom 141 (301) (44074, 4769, 8632) def
+bond1 9 140
+bond_direction 141 140
+atom 142 (301) (47254, -102, 6361) def
+bond1 10 141
+bond_direction 142 141
+atom 143 (301) (50434, -2708, 1660) def
+bond1 11 142
+bond_direction 143 142
+atom 144 (0) (51649, -2781, -419) def
+bond1 143
+bond_direction 144 143
+info chunk color = 0 0 153
+DnaStrandMarker (DnaMarker-7) (127, 127, 127) 133 134
+info leaf forwarded = 170660492
+egroup (DnaStrand5)
+egroup (Dna 1)
+egroup (Untitled)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Untitled
