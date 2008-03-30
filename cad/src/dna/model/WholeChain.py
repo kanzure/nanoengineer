@@ -288,6 +288,17 @@ class WholeChain(object):
         assert len(res) in (0, 2), "impossible set of %r.end_baseatoms(): %r" % \
                (self, res)
         return res
+    
+    def get_all_baseatoms(self):
+        """
+        Returns a list of all base atoms within the whole chain. 
+        The atoms are IN ARBITRARY ORDER because self.rails() returns the rails
+        in arbitrary order.
+        """
+        baseAtomList = []
+        for rail in self.rails:
+            baseAtomList.extend(rail.baseatoms)
+        return baseAtomList
         
     def __repr__(self):
         classname = self.__class__.__name__.split('.')[-1]
