@@ -189,7 +189,14 @@ def imagename_to_pixmap(imagename): #bruce 050108
     try:
         return _pixmaps[imagename]
     except KeyError:
-        pixmappath = os.path.join( _iconprefix, UI_SUBDIRECTORY_COMPONENT,
+        if imagename[:3] == "ui/":
+            #If the imagename includes  "ui/" at the beginning, 
+            #remove it because we will prepend imagename with 
+            #UI_SUBDIRECTORY_COMPONENT
+            imagename = imagename[3:]          
+        
+        pixmappath = os.path.join( _iconprefix, 
+                                   UI_SUBDIRECTORY_COMPONENT,
                                    imagename)
         if not os.path.exists(pixmappath):
             print 'pixmap does not exist; using null pixmap: ' + pixmappath
