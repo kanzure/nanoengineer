@@ -68,6 +68,9 @@ class DnaSegment(DnaStrandOrSegment):
         # (but only if current command permits that for this class --
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
+        
+    iconPath = "ui/modeltree/DnaSegment.png"
+    hide_iconPath = "ui/modeltree/DnaSegment-hide.png"
     
     def __init__(self, name, assy, dad, members = (), editCommand = None):
         
@@ -554,12 +557,12 @@ class DnaSegment(DnaStrandOrSegment):
                 
         return False
     
-    def node_icon(self, display_prefs):
-        open = display_prefs.get('open', False)
-        if open:
-            return imagename_to_pixmap("modeltree/DnaSegment.png")
-        else:
-            return imagename_to_pixmap("modeltree/DnaSegment.png")
+    def node_icon(self, display_prefs):        
+        del display_prefs # unused
         
+        if self.all_content_is_hidden():    
+            return imagename_to_pixmap( self.hide_iconPath)
+        else:
+            return imagename_to_pixmap( self.iconPath)        
                 
 # end
