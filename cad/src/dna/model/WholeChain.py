@@ -296,7 +296,7 @@ class WholeChain(object):
         in arbitrary order.
         """
         baseAtomList = []
-        for rail in self.rails:
+        for rail in self.rails():
             baseAtomList.extend(rail.baseatoms)
         return baseAtomList
         
