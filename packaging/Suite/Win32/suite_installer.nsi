@@ -5,7 +5,7 @@
 ; HM NIS Edit Wizard helper defines
 ; NE1 Defines
 !define PRODUCT_NAME "NanoEngineer-1 Suite"
-!define PRODUCT_VERSION "1.0.0b5"
+!define PRODUCT_VERSION "1.0.0"
 !define PRODUCT_NICKNAME "(Alpha 10)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
@@ -15,7 +15,7 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
 ;QMX Defines
-!define PRODUCT_QMX_VERSION "0.5.0b1"
+!define PRODUCT_QMX_VERSION "0.5.0"
 !define PRODUCT_QMX_NAME "QuteMolX"
 !define PRODUCT_QMX_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_QMX_WEB_SITE "http://www.nanoengineer-1.com/QuteMolX/"
@@ -24,8 +24,8 @@
 !define PRODUCT_QMX_UNINST_ROOT_KEY "HKLM"
 
 ;GMX Defines
-!define PRODUCT_GMX_VERSION "3.3.2b1"
-!define PRODUCT_GMX_NAME "GROMACS_HDF5"
+!define PRODUCT_GMX_VERSION "3.3.2"
+!define PRODUCT_GMX_NAME "GROMACS+HDF5"
 !define PRODUCT_GMX_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_GMX_WEB_SITE "http://www.nanorex.com"
 !define PRODUCT_GMX_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_GMX_VERSION}"
@@ -33,7 +33,7 @@
 !define PRODUCT_GMX_UNINST_ROOT_KEY "HKLM"
 
 ;NV1 Defines
-!define PRODUCT_NV1_VERSION "0.1.0a1"
+!define PRODUCT_NV1_VERSION "0.1.0"
 !define PRODUCT_NV1_NAME "NanoVision-1 ${PRODUCT_NV1_VERSION}"
 !define PRODUCT_NV1_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_NV1_WEB_SITE "http://www.nanorex.com"
@@ -67,7 +67,7 @@ InstType "Full"
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE "..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
+!insertmacro MUI_PAGE_LICENSE "..\..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
 ;!insertmacro MUI_INSTALLOPTIONS_DISPLAY "iofile.ini"
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
@@ -76,8 +76,8 @@ InstType "Full"
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\program\main.exe"
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ReadMe.html"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program\main.exe"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -89,7 +89,7 @@ InstType "Full"
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
-OutFile "..\..\cad\src\build\NanoEngineer-1_${PRODUCT_VERSION}.exe"
+OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
 ;InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1_${PRODUCT_VERSION}"
 InstallDir "$PROGRAMFILES\Nanorex"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -104,7 +104,7 @@ Section "NanoEngineer-1" SECNE1
   SectionIn 1 2
   SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}"
   SetOverwrite try
-  File /r "..\..\cad\src\dist\*"
+  File /r "..\..\..\cad\src\dist\*"
   
   ; hack
   SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program"
@@ -169,7 +169,7 @@ Section "NanoVision-1 Base" NV1_BASE
   SetOverwrite  on
   File "\NV1_Install\ReadMe.html"
   File "\NV1_Install\License.txt"
-  SetOutPath "$APPDATA\Nanorex\NanoVision-1"
+  SetOutPath "$APPDATA\Nanorex"
   File "\NV1_Install\NanoVision-1.ini"
   Push "$INSTDIR\NanoVision-1\lib"
   Push "\"
@@ -177,8 +177,8 @@ Section "NanoVision-1 Base" NV1_BASE
   Call StrRep
   Pop "$R0" ;result
   !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
-;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe -k qutemol_enabled -v True"'
-;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe -k qutemol_path -v $INSTDIR\QuteMolX\QuteMolX.exe"
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_enabled -v True'
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_path -v "$INSTDIR\NanoVision-1\bin\NV1.exe"'
   SetOutPath "$INSTDIR"
 SectionEnd
 
@@ -284,10 +284,10 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\partlib"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\Licenses"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}-${PRODUCT_NV1_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}.url"
-  WriteIniStr "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}-${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX\Website.lnk" "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}.url"
+  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url"
+  WriteIniStr "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"
+  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX\Website.lnk" "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url"
 SectionEnd
 
 Section -Post
@@ -328,7 +328,7 @@ Section Uninstall
   Delete "$DESKTOP\NanoVision-1.lnk"
   Delete "$DESKTOP\QuteMolX.lnk"
 
-  RMDir /r "$SMPROGRAMS\NanoEngineer-1 ${PRODUCT_VERSION}"
+  RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
   RMDir /r "$SMPROGRAMS\Nanorex"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
