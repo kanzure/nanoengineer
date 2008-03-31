@@ -201,10 +201,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     is_movable = True #mark 060120 [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
 
     # Undoable/copyable attrs: (no need for _s_attr decls since copyable_attrs provides them)
-    
+
     # self.display overrides global display (GLPane.display)
     # but is overriden by atom value if not default
-    
+
     display = diDEFAULT
 
     # this overrides atom colors if set
@@ -215,7 +215,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     # note: if we implement self.user_specified_center as user-settable,
     # it also needs to be moved/rotated with the mol, like a datum point
     # rigidly attached to the mol (or like an atom)
-    
+
     user_specified_center = None # never changed for now, so not in copyable_attrs
 
     # PAM3+5 attributes (these only affect PAM atoms in self, if any):
@@ -237,11 +237,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     #   convert.
     #
     # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent ladder merge when different
-    
+
     display_as_pam = "" # PAM model to use for displaying and editing PAM atoms in self (not set means use user pref)
 
     save_as_pam = "" # PAM model to use for saving self (not normally set; not set means use save-op params)
-    
+
     copyable_attrs = _superclass.copyable_attrs + ('display', 'color',
                                                    'display_as_pam', 'save_as_pam')
         # this extends the tuple from Node
@@ -385,7 +385,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
 
         # self.displist is allocated on demand by _get_displist [bruce 070523]
-        
+
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
         self.glname = env.alloc_my_glselect_name(self) 
@@ -419,7 +419,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         if command is None:
             return 
-        
+
         if command.commandName == 'SELECTMOLS':
             dnaGroup = self.getDnaGroup()
             if dnaGroup is not None:
@@ -429,7 +429,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                         dnaGroup.edit) 
                 contextMenuList.append(item)
             return
-                     
+
 
         if command.commandName in ['BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND']:
             if self.isStrandChunk():
@@ -797,7 +797,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         return self.parent_node_of_class(self.assy.DnaGroup)
 
-        
+
 
     #END of Dna-Strand-or-Axis chunk specific code ========================
 
@@ -1193,7 +1193,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #  method _f_invalidate_atom_lists_and_maybe_deallocate_displist);
         # I'm not 100% sure that's ok, but I can't see a problem in the method
         # and I didn't find a bug in testing. [bruce 060409]
-        
+
         self.havelist = 0
         self.haveradii = 0
 
@@ -1236,7 +1236,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         optimizing this if it's exactly known on any node-subtrees.
 
         @see: Atom.setDisplay, Atom.revise_atom_content
-        
+
         [Overrides superclass method. Subclasses whose atoms are stored differently
          may need to override this further.]
         """
@@ -1652,6 +1652,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         if self.hidden:
             return
 
+        # early frustum clipping test # piotr 080331
+        if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
+            return
+
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
             # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
         ##e bruce 041109: can't we figure it out from mol.dad?
@@ -1690,7 +1694,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             #  since we're outside the begin/end for that, and that's good, since we include this in havelist
             #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
             #  displaying a different Part. [bruce 060215])
-        
+
         #This is needed for chunk highlighting
         glPushName(self.glname)
 
@@ -1802,7 +1806,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # piotr 080320
             if hd:
                 hd._drawchunk_realtime(glpane, self)
-                
+
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                    "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
@@ -1814,7 +1818,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             print_compact_traceback("exception in Chunk.draw, continuing: ")
 
         glPopMatrix()
-        
+
         glPopName()
 
         # draw external bonds.
@@ -1827,7 +1831,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # [bruce 050513 comment]
         if self.externs:
             self._draw_external_bonds(glpane, disp, drawLevel)
-        
+
         return # from Chunk.draw()
 
     def _draw_external_bonds(self, glpane, disp, drawLevel): #bruce 080215 split this out, added debug_pref
@@ -1894,7 +1898,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     bond.draw(glpane, disp, bondcolor, drawLevel)
             ColorSorter.finish() # grantham 20051205
         return # from _draw_external_bonds
-        
+
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
 ##        "[private submethod of self.draw]"
 ##        if self.picked:
@@ -1938,7 +1942,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         else:
             self.standard_draw_atoms(glpane, disp0)
         return
-    
+
     def highlight_color_for_modkeys(self, modkeys):
         """
         This is used to return a highlight color for the chunk highlighting. 
@@ -1955,9 +1959,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #chunk! To fix this, we need to make chunk a highlightable object. 
         #This is done by making sure that the chunk gets a glselect name and 
         #by defining this API method - Ninad 2008-03-13
-        
+
         return yellow
-    
+
 
     def draw_highlighted(self, glpane, color):
         """
@@ -1972,7 +1976,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
 
         """
-        
+
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
         #(Chunk.draw_highlighted on 2008-02-26
@@ -1991,7 +1995,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # turn off to test effect of this optimization;
             # when testing is done, hardcode this as True
             # [bruce 080217]
-            
+
             # [note, bruce 080314: this optimization got much less effective
             #  after this code was turned into a Chunk method, since it no
             #  longer prevents external bonds from being drawn twice,
@@ -2038,7 +2042,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 #the color sorter and use displist debug pref are enabled. 
                 # --Ninad 2008-03-13
                 return
-            
+
             for atom in self.atoms.itervalues():
                 # draw atom and its (not yet drawn) bonds
                 atom.draw_in_abs_coords(glpane, 
@@ -2077,7 +2081,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         if self.picked and not (allow_color_sorting and use_color_sorted_dls):
             #bruce disable this case when using use_color_sorted_dls
             # since they provide a better way (fixes "stuck green" bug.)
-            
+
             #ninad070405 Following draws the chunk as a colored selection 
             #(if selected)
             #bruce 080210 possible appearance change:
@@ -2285,7 +2289,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             if debug_flags.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
         return
-    
+
     def atoms_in_mmp_file_order(self, mapping = None):
         """
         Return a list of our atoms, in the same order as they would be written
@@ -2293,13 +2297,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         (which is the same order in which they occurred in one,
          *if* they were just read from one, at least for this class's
          implem of this method).
-        
+
         We know it's the same order as they'd be written, since self.writemmp()
         calls this method. (Subclasses are permitted to override this method
          in order to revise the order. This can help optimize mmp writing and
          reading. It does have effects in the code when the atoms are read,
          but these are usually unimportant.)
-        
+
         We know it's the same order they were just read in (if they were just
         read), since it's the order of atom.key, which is assigned successive
         values (guaranteed to sort in order) as atoms are read from the file
@@ -2311,7 +2315,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                         their order) due to conversions requested by the
                         mapping, e.g. PAM3 -> PAM5.
         @type mapping: an instance of class writemmp_mapping, or None.
-        
+
         [subclasses can override this, as described above]
         """
         #bruce 050228; revised docstring and added mapping arg, 080321
@@ -2347,7 +2351,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #bruce 080328: for some of the atoms, let subclasses write all
         # their bonds separately, in a more compact form.
         compact_bond_atoms = \
-            self.write_bonds_compactly_for_these_atoms(mapping)
+                           self.write_bonds_compactly_for_these_atoms(mapping)
         for atm in self.atoms_in_mmp_file_order(mapping):
             atm.writemmp(mapping,
                          dont_write_bonds_for_these_atoms = compact_bond_atoms)
@@ -2395,7 +2399,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         del mapping
         return {}
-    
+
     def writemmp_info_chunk_after_atoms(self, mapping): #bruce 080321 split this out
         """
         Write whatever info chunk records should be written after our atoms
@@ -2431,14 +2435,14 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         @note: this should only be called if self did, or would,
                return a nonempty set of atoms from that method,
                self.write_bonds_compactly_for_these_atoms(mapping).
-        
+
         [subclasses that can do this should override this method
          and write_bonds_compactly_for_these_atoms in corresponding ways.]
         """
         assert 0, "subclasses which need this must override it"
 
     # ==
-    
+
     def writepov(self, file, disp):
         """
         Draw self (if visible) into an open povray file
@@ -2733,7 +2737,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         self.haveradii = 0
         self.changed()
         return
-    
+
     def show_invisible_atoms(self):
         """
         Resets the display mode for each invisible (diINVISIBLE) atom 
@@ -2873,7 +2877,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
-            
+
         if not self.picked:
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
@@ -2909,7 +2913,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             else:
                 self.havelist = 0
             pass
-        
+
         return
 
     def unpick(self):
@@ -3287,7 +3291,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         [private method to help the public copy methods, all of which
          start with this except the deprecated mol.copy]
-        
+
         Copy this chunk's name (w/o change), properties, etc,
         but not any of its atoms
         (caller will presumably copy some or all of them separately).
@@ -3442,7 +3446,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             self.set_hotspot( hotspot, silently_fix_if_invalid = True) # this checks everything before setting it; if invalid, silent noop
 
     # == 
-    
+
     def copy(self, dad = None, offset = V(0,0,0), cauterize = 1): #bruce 080314
         """
         Public method. DEPRECATED, see code comments for details.
@@ -3452,7 +3456,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         if not env.seen_before(cs):
             print cs
         return self.copy_single_chunk( dad, offset, cauterize)
-    
+
     def copy_single_chunk(self, dad = None, offset = V(0,0,0), cauterize = 1):
         """
         Public method. DEPRECATED, see code comments for details.
@@ -3501,7 +3505,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # for details. [bruce 070412/070525 comment]
         #
         #bruce 060308 major rewrite, and no longer permit args to vary from defaults
-        
+
         assert cauterize == 1
         assert same_vals( offset, V(0,0,0) )
         assert dad is None
@@ -3512,7 +3516,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # bruce 041116: note: callers seem to be mainly in model tree copy ops
         # and in depositMode.
         # [where do they call addmol? why did extrude's copies break on 041116?]
-        
+
         from model.bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         pairlis = []
         ndix = {}

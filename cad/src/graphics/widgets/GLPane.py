@@ -110,6 +110,9 @@ from OpenGL.GL import glRasterPos3f
 from OpenGL.GL import GL_CURRENT_RASTER_POSITION_VALID
 from OpenGL.GL import glGetBooleanv
 from OpenGL.GL import glDrawPixels
+from OpenGL.GL import glGetFloatv
+from OpenGL.GL import GL_PROJECTION_MATRIX
+from OpenGL.GL import GL_MODELVIEW_MATRIX
 
 from OpenGL.GLU import gluUnProject, gluPickMatrix
 
@@ -372,7 +375,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     assy = None #bruce 080314
-    
+
     def __init__(self, assy, parent = None, name = None, win = None):
 
         shareWidget = None
@@ -445,7 +448,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
-        
+
         # Selection lock state of the mouse for this glpane.
         # See selectionLock() in the ops_select_Mixin class for details.
         self.mouse_selection_lock_enabled = False
@@ -493,7 +496,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
 
         self.cursorMotionlessStartTime = time.time() #bruce 070110 fix bug when debug_pref turns off glpane timer from startup
-        
+
 
         ###### User Preference initialization ##############################
 
@@ -531,7 +534,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 
         self.dynamicToolTip = DynamicTip(self)
-        
+
         # Guides include rulers and soon, grid lines. Mark 2008-02-24.
         self.guides = Guides(self) 
 
@@ -587,9 +590,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                    "</p>"
 
         self.setWhatsThis(glpaneText)
-    
+
     # ==
-    
+
     def renderTextNearCursor(self, textString, offset = 5):
         """
         Renders text near the cursor position, on the top right side of the
@@ -601,18 +604,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @param offset: The offset that will be added to x and y values of the 
                        cursor position to get the base position of the text 
                        to be rendered. 
-        
+
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor
         """
         if not textString:
             return 
-        
+
         pos = self.cursor().pos()  
         # x, y coordinates need to be in window coordinate system. 
         # See QGLWidget.mapToGlobal for more details.
         pos = self.mapFromGlobal(pos)
-        
+
         # Important to turn off the lighting. Otherwise the text color would 
         # be dull and may also become even more light if some other object 
         # is rendered as a transparent object. Example in DNA Line mode, when the
@@ -620,12 +623,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # the text rendering as well (if GL_Lighting is not disabled)
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
-              
+
         # Note: It is necessary to set the font color, otherwise it may change!
         self.qglColor(QColor(0, 0, 0))
         x = pos.x() + offset
         y = pos.y() - offset
-        
+
         # Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x,
                         y,
@@ -634,7 +637,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.qglClearColor(QColor(0, 0, 0))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
-    
+
     def _getFontForTextNearCursor(self):
         """
         Returns the font for text near the cursor. 
@@ -815,7 +818,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # logically I'd prefer to move this to just after set_part, but right now
             # I have no time to fully analyze whether set_part might depend on
             # this having been done, so I won't move it down for now. [bruce 080314]
-            
+
         self.set_part( mainpart)
 
 
@@ -975,7 +978,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def snapToNamedView(self, namedView):
         """
         Snap to the destination view L{namedView}.
-        
+
         @param namedView: The view to snap to.
         @type  namedView: L{NamedView}
         """
@@ -987,10 +990,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def animateToNamedView(self, namedView, animate = True):
         """
         Animate to the destination view I{namedView}.
-        
+
         @param namedView: The view to snap to.
         @type  namedView: L{NamedView}
-        
+
         @param animate: If True, animate between views. If False, snap to
                         I{namedView}. If the user pref "Animate between views"
                         is unchecked, then this argument is ignored. 
@@ -1046,7 +1049,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         # Caller could easily pass these args in the wrong order.  Let's typecheck them.
         typecheckViewArgs(q2, s2, p2, z2)
-        
+
         # Precaution. Don't animate if we're currently animating.
         if self.is_animating:
             return
@@ -1180,11 +1183,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def setCursor(self, cursor = None):
         """
         Sets the cursor for the glpane.
-        
+
         This method is also responsible for adding special symbols to the 
         cursor that should be persistent as cursors change (i.e. the selection
         lock symbol).
-        
+
         @param cursor: The cursor. If cursor is None, reset the cursor to the
                        most resent version without the selection lock symbol.
         @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>}
@@ -2053,12 +2056,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # this has to be moved to GlobalPreferences (this debug_pref is
         # also called in chunk.py) piotr 080325
         if debug_pref("GLPane: suppress external bonds when dragging?",
-               Choice_boolean_False,
-               non_debug = True,
-               prefs_key = True
-               ):
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True
+                      ):
             self.gl_update()
-    
+
         self.checkpoint_after_drag(event) #bruce 060126 moved this later, to fix bug 1384, and split it out, for clarity
         return
 
@@ -2176,12 +2179,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # in a way that makes it likely that changing this will cause bugs.
         res = debug_pref("GLPane: timer interval",
                          Choice([100, 0, 5000, None]),
-                             # NOTE: the default value defined here (100)
-                             # determines the usual timer behavior,
-                             # not just debug pref behavior.
+                         # NOTE: the default value defined here (100)
+                         # determines the usual timer behavior,
+                         # not just debug pref behavior.
                          ## non_debug = True,
                          prefs_key = "A10 devel/glpane timer interval"
-                        )
+                     )
         if res is not None and type(res) is not type(1):
             # support prefs values stored by future versions (or by a brief bug workaround which stored "None")
             res = None
@@ -2384,7 +2387,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
-        
+
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
         if self.currentCommand.commandName == 'COOKIE':
             self.win.statusBar().dispbarLabel.setEnabled(False)
@@ -2392,7 +2395,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         else:
             self.win.statusBar().dispbarLabel.setEnabled(True)
             self.win.statusBar().globalDisplayStylesComboBox.setEnabled(True)
-        
+
         self.win.statusBar().globalDisplayStylesComboBox.setDisplayStyle(disp)
         # Note: we don't need to call changeapp on all chunks with no individual
         # display style set, because their draw methods compare self.displayMode
@@ -2445,7 +2448,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if more_info:
             return farQ, point, wX, wY, depth, farZ
         return farQ, point
-    
+
     def dragstart_using_plane_depth(self, event, plane, more_info = False):
         """
         NOT USED YET,  DOESNT WORK, intended first use in LineMode.leftDown
@@ -2464,11 +2467,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:
             intersection =  ptonline(planePoint, linePoint, lineVector)
-            
+
         point = intersection
-        
+
         return point
-        
+
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
         """
@@ -2603,7 +2606,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         [overrides GLPane_minimal method]
         """
         return self.assy.assy_valid
-        
+
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """
         [PRIVATE METHOD -- call gl_update instead!]
@@ -2628,7 +2631,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         env.after_op() #bruce 050908; moved a bit lower, 080117
             # [disabled in changes.py, sometime before 060323;
             #  probably obs as of 060323; see this date below]
-        
+
         # SOMEDAY: it might be good to set standard GL state, e.g. matrixmode,
         # before checking self.redrawGL here, in order to mitigate bugs in other
         # code (re bug 727), but only if the current mode gets to redefine what
@@ -3080,6 +3083,73 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     vdist = property(get_vdist)
 
+    def _compute_frustum_planes(self):
+        """
+        Compute six planes to be used for frustum culling.
+        """
+        # get current projection and modelview matrices 
+        pmat = glGetFloatv(GL_PROJECTION_MATRIX);
+        mmat = glGetFloatv(GL_MODELVIEW_MATRIX);
+
+        # allocate a clip matrix float[4,4]
+        cmat = [None] * 4
+        for i in range(0,4):
+            cmat[i] = [0.0] * 4
+
+        # compute a composite transforamtion matrix 
+        # matrix multiplication: should be using Matrix.multiply here?        
+        # cmat = mmat * pmat^T         
+        for i in range(0,4):
+            for j in range (0,4):
+                cmat[i][j] = (mmat[i][0] * pmat[0][j] + 
+                              mmat[i][1] * pmat[1][j] + 
+                              mmat[i][2] * pmat[2][j] + 
+                              mmat[i][3] * pmat[3][j])
+
+        # allocate frustum planes
+        self.fplanes = [None] * 6
+        for p in range(0,6):
+            self.fplanes[p] = [0.0] * 4
+
+        # subtract and add the composite matrix rows to get the plane equations
+        for p in range(0,2):
+            for i in range(0,4):
+                self.fplanes[2*p][i] = cmat[i][3] - cmat[i][p]
+                self.fplanes[2*p+1][i] = cmat[i][3] + cmat[i][p]
+
+        # normalize the plane normals
+        for p in range(0,6):
+            n = math.sqrt(float(self.fplanes[p][0] * self.fplanes[p][0] +
+                                self.fplanes[p][1] * self.fplanes[p][1] +
+                                self.fplanes[p][2] * self.fplanes[p][2]))
+            if n>1e-8:
+                self.fplanes[p][0] /= n
+                self.fplanes[p][1] /= n
+                self.fplanes[p][2] /= n
+                self.fplanes[p][3] /= n
+
+    def is_sphere_visible(self, center, radius):
+        """
+        Performs a simple frustum culling test against a spherical object
+        in model space coordinates. Assumes that the frustum planes 
+        are allocated, i.e. glpane._compute_frustum_planes was alread called. 
+        """
+        if debug_pref("Enable frustum culling?", 
+                      Choice_boolean_False, prefs_key = True):          
+            # there is some overhead calling the debug_pref
+            for p in range(0,6): # go through all frustum planes
+                # calculate a distance to the frustum plane 'p'
+                # the sign corresponds to the plane normal direction
+                dist =  (self.fplanes[p][0]*center[0] + 
+                         self.fplanes[p][1]*center[1] + 
+                         self.fplanes[p][2]*center[2] + 
+                         self.fplanes[p][3])
+                # sphere outside of the plane - exit
+                if dist < -radius:
+                    return False
+
+        return True
+
     def standard_repaint_0(self):
 
         # do something (what?) so prefs changes do gl_update when needed [bruce 051126]
@@ -3094,7 +3164,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
-        
+
         # "Blue Sky" is the only gradient bg supported.
         if self.backgroundGradient:
             glMatrixMode(GL_PROJECTION)
@@ -3106,7 +3176,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # when we'll call drawFullWindow, if we first cleared depth buffer (or got
             # drawFullWindow to ignore it and effectively clear it by writing its own
             # depths into it everywhere, if that's possible). [bruce 070913 comment]
-        
+
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
         selobj, hicolor = self.validate_selobj_and_hicolor()
@@ -3150,6 +3220,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
         # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
+
+        # compute frustum planes required for frustum culling - piotr 080331
+        self._compute_frustum_planes()
 
         # draw according to mode
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
@@ -3195,7 +3268,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(self.aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
-                
+
         #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
         # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
         # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
@@ -3225,19 +3298,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # draw various overlays
 
         self.drawing_phase = 'overlay'
-        
+
         # Draw ruler(s) if "View > Rulers" is checked.
         if env.prefs[displayRulers_prefs_key]:
             if (self.ortho or env.prefs[showRulersInPerspectiveView_prefs_key]):
                 self.guides.draw()
-        
+
         # draw the confirmation corner
         try:
             glMatrixMode(GL_MODELVIEW) #k needed?
             self.graphicsMode.draw_overlay() #bruce 070405 (misnamed)
         except:
             print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
-        
+
         self.drawing_phase = '?'
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]

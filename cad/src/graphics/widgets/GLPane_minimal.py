@@ -58,11 +58,11 @@ DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
     # changed by setDepthRange_setup_from_debug_pref
 
 DEPTH_TWEAK_CHOICE = \
-    Choice( [0,1,3,10,
-             100,200,300,400,500,600,700,800,900,1000,
-             2000,3000,4000,5000,
-             10000, 100000, 10**6, 10**7, 10**8],
-            defaultValue = DEPTH_TWEAK_VALUE )
+                   Choice( [0,1,3,10,
+                            100,200,300,400,500,600,700,800,900,1000,
+                            2000,3000,4000,5000,
+                            10000, 100000, 10**6, 10**7, 10**8],
+                            defaultValue = DEPTH_TWEAK_VALUE )
 
 class GLPane_minimal(QGLWidget, object): #bruce 070914
     """
@@ -83,9 +83,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
     # (as of bruce 080220), but we can't define a default value or property
     # for that here, since some subclasses define it in each way
     # (and we'd have to know which way to define a default value correctly).
-    
+
     # default values of instance variables:
-    
+
     glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
 
     shareWidget = None
@@ -100,7 +100,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         """
         If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
         """
-        
+
         if shareWidget:
             self.shareWidget = shareWidget #bruce 051212
             glformat = shareWidget.format()
@@ -120,7 +120,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
         # Current view attributes (sometimes saved in or loaded from
         #  the currently displayed part or its mmp file):
-        
+
         # rotation
         self.quat = Q(1, 0, 0, 0)
 
@@ -136,9 +136,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         self.trackball = Trackball(10,10)
 
         self._functions_to_call_when_gl_context_is_current = []
-        
+
         return
-    
+
     def _setup_display_lists(self): # bruce 071030
         """
         This needs to be called during __init__ if a new display list context
@@ -164,6 +164,15 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         at the beginning and return immediately if it's false.
         """
         return False
+
+    # ==
+
+    def is_sphere_visible(self, center, radius):
+        """
+        Frustum culling test. Subclasses should overwrite it
+        to disable drawing objects outside of the view frustum.
+        """
+        return True
 
     # ==
 
@@ -205,7 +214,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         return
 
     # ==
-    
+
     def should_draw_valence_errors(self):
         """
         Return a boolean to indicate whether valence error
@@ -217,11 +226,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         return False
 
     # ==
-    
+
     def setDepthRange_setup_from_debug_pref(self):
         global DEPTH_TWEAK
         DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
-                      debug_pref("GLPane: depth tweak", DEPTH_TWEAK_CHOICE)
+                    debug_pref("GLPane: depth tweak", DEPTH_TWEAK_CHOICE)
         return
 
     def setDepthRange_Normal(self):
@@ -233,7 +242,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         return
 
     # ==
-    
+
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
         """
         Return the current view in this glpane (which we assume is showing
@@ -247,7 +256,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         # WARNING: not reviewed for use in subclasses which don't
         # have and draw a .assy attribute, though by passing assy into this method,
         # we remove any obvious bug from that. [bruce 080220 comment]
-        
+
         oldc = assy.all_change_counters()
 
         namedView = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
