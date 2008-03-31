@@ -34,7 +34,7 @@ def setupUi(win, toolbarArea):
         win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
     else:
         # Original "Build > Nanotube"
-        win.buildStructuresToolBar.addAction(win.insertNanotubeAction)
+        win.buildStructuresToolBar.addAction(win.nanotubeGeneratorAction)
     
     win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
     win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)

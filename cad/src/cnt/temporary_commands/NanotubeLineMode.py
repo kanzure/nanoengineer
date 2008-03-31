@@ -17,7 +17,7 @@ from utilities.constants import gray, black, darkred, blue, white
 
 # == GraphicsMode part
 
-class NtLine_GM( LineMode.GraphicsMode_class ):
+class NanotubeLine_GM( LineMode.GraphicsMode_class ):
     """
     Custom GraphicsMode for use as a component of NanotubeLineMode.
     @see: L{NanotubeLineMode} for more comments. 
@@ -83,10 +83,10 @@ class NtLine_GM( LineMode.GraphicsMode_class ):
             # Draw the ladder. 
             drawNanotubeLadder(self.endPoint1,
                           self.endPoint2, 
-                          self.command.ntChirality.getRise(),
+                          self.command.nanotube.getRise(),
                           self.glpane.scale,
                           self.glpane.lineOfSight,
-                          ladderWidth = self.command.ntChirality.getDiameter(),
+                          ladderWidth = self.command.nanotube.getDiameter(),
                           beamThickness = 4.0,
                           beam1Color = gray,
                           beam2Color = gray,
@@ -138,7 +138,7 @@ class NanotubeLineMode(LineMode):
         #  for more info and how to fix. [bruce 071227])
     
             
-    GraphicsMode_class = NtLine_GM
+    GraphicsMode_class = NanotubeLine_GM
         
     def setParams(self, params):
         assert len(params) == 5

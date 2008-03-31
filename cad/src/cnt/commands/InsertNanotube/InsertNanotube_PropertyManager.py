@@ -14,8 +14,7 @@ __author__ = "Mark"
 
 import foundation.env as env
 
-from cnt.model.Nanotube_Constants import getCntRise, getCntLength
-from cnt.commands.InsertNanotube.Chirality import Chirality
+from cnt.commands.InsertNanotube.Nanotube import Nanotube
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
 
@@ -75,12 +74,13 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.endPoint1 = None
         self.endPoint2 = None
         
-        self.ntChirality = Chirality() # Returns a 5x5 CNT (default).
-        self.n, self.m = self.ntChirality.getChirality()
-        self._ntType  = self.ntChirality.getType()
-        self._bond_length = self.ntChirality.getBondLength()
-        self._ntRise   = self.ntChirality.getRise()
-        self._ntLength = self.ntChirality.getLength(numberOfCells = 0)
+        self.nanotube = Nanotube(n = 5, m = 5, type = "Carbon") # A 5x5 CNT.
+        
+        if 1: # place in method.
+            self.n, self.m = self.nanotube.getChirality()
+            self._ntType  = self.nanotube.getType()
+            self._bond_length = self.nanotube.getBondLength()
+            self._ntRise   = self.nanotube.getRise()
     
         EditCommand_PM.__init__( self, 
                                  win,
@@ -104,15 +104,10 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-         
-                
+        
         change_connect( self.ntTypeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self._ntTypeComboBoxChanged )
-        
-        #change_connect( self.ntRiseDoubleSpinBox,
-        #              SIGNAL("valueChanged(double)"),
-        #              self.ntRiseChanged )
         
         change_connect(self.chiralityNSpinBox,
                        SIGNAL("valueChanged(int)"),
@@ -122,9 +117,14 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                        SIGNAL("valueChanged(int)"),
                        self._chiralityFixup)
         
+        change_connect(self.endingsComboBox,
+                       SIGNAL("currentIndexChanged(const QString&)"),
+                       self._endingsComboBoxChanged )
+        
+        # This spin box is currently hidden.
         change_connect(self.bondLengthDoubleSpinBox,
                        SIGNAL("valueChanged(double)"),
-                       self.bondLengthChanged)
+                       self._bondLengthChanged)
   
     def ok_btn_clicked(self):
         """
@@ -145,7 +145,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
     def _update_widgets_in_PM_before_show(self):
         """
-        Update various widgets  in this Property manager.
+        Update various widgets in this Property manager.
         Overrides MotorPropertyManager._update_widgets_in_PM_before_show. 
         The various  widgets , (e.g. spinboxes) will get values from the 
         structure for which this propMgr is constructed for 
@@ -157,12 +157,11 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         pass     
         
     def getFlyoutActionList(self): 
-        """ returns custom actionlist that will be used in a specific mode 
+        """ 
+        Returns custom actionlist that will be used in a specific mode 
 	or editing a feature etc Example: while in movie mode, 
-	the _createFlyoutToolBar method calls
-	this """	
-
-
+	the _createFlyoutToolBar method calls this.
+	"""
         #'allActionsList' returns all actions in the flyout toolbar 
         #including the subcontrolArea actions
         allActionsList = []
@@ -294,26 +293,35 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.ntLengthLineEdit.hide()
         
         # Nanotube Radius
-        self.ntRadiusLineEdit  =  \
+        self.ntDiameterLineEdit  =  \
             PM_LineEdit( pmGroupBox,
-                         label         =  "Nanotube Radius: ",
+                         label         =  "Nanotube Diameter: ",
                          setAsDefault  =  False)
 
-        self.ntRadiusLineEdit.setDisabled(True)
-        self.updateNtRadius()
+        self.ntDiameterLineEdit.setDisabled(True)
+        self.updateNanotubeDiameter()
                 
         self.chiralityNSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (n) :", 
                         value        = self.n, 
+                        minimum      =  2,
+                        maximum      =  100,
                         setAsDefault = True )
         
         self.chiralityMSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (m) :", 
-                        value        = self.m, 
+                        value        = self.m,
+                        minimum      =  0,
+                        maximum      =  100,
                         setAsDefault = True )
-                
+        
+        # How about having user prefs for CNT and BNNT bond lengths?
+        # I'm guessing that if the user wants to set these values, they will
+        # do it once and would like those bond length values persist forever.
+        # Need to discuss with others to determine if this spinbox comes out.
+        # --Mark 2008-03-29
         self.bondLengthDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label        = "Bond Length :", 
@@ -438,26 +446,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Tool Tip text for widgets in the Insert Nanotube Property Manager.  
         """
         pass
-    
-    def ntRiseChanged( self, rise ): 
-        """
-        Slot for the B{Rise} spinbox.
-        """
-        #@ Consider moving this code into chiralityFixup(). --Mark
-        self.editCommand.ntRise = rise
-        self._ntRise = rise
-        return
-    
-    def bondLengthChanged(self, bondLength):
-        """
-        Slot for the B{Bond Length} spinbox.
-        """
-        #@ Consider moving this code into chiralityFixup(). --Mark
-        #@self.editCommand.ntRise = rise
-        self._bond_length = bondLength
-        self.updateNtRadius()
-        return
-    
+        
     def getParameters(self):
         """
         Return the parameters from this property manager to be used to create
@@ -468,22 +457,6 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used 
         """
-        
-        ntType = str(self.ntTypeComboBox.currentText())
-        n = self.chiralityNSpinBox.value()
-        m = self.chiralityMSpinBox.value()
-        _bond_length = self.bondLengthDoubleSpinBox.value()
-        
-        zdist = self.zDistortionDoubleSpinBox.value()
-        xydist = self.xyDistortionDoubleSpinBox.value()
-        mwnt_spacing = self.mwntSpacingDoubleSpinBox.value()
-
-        twist = pi * self.twistSpinBox.value() / 180.0
-        bend = pi * self.bendSpinBox.value() / 180.0
-        endings = self.endingsComboBox.currentText()
-        if endings == "Capped" and not debug_flags.atom_debug:
-            raise Exception('Nanotube endcaps not implemented yet.')
-        numwalls = self.mwntCountSpinBox.value()
         
         # First endpoint (origin) of nanotube
         x1 = self.x1SpinBox.value()
@@ -499,12 +472,9 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint1 = V(x1, y1, z1)
         if not self.endPoint2:
             self.endPoint2 = V(x2, y2, z2)
-        
-        return (self.ntChirality, ntType, n, m, _bond_length, endings,
-                zdist, xydist, twist, bend, 
-                numwalls, mwnt_spacing,
-                self.endPoint1, self.endPoint2)
-    
+         
+        return (self.nanotube, self.endPoint1, self.endPoint2)
+
     def _ntTypeComboBoxChanged( self, inIndex ):
         """
         Slot for the Type combobox. It is called whenever the
@@ -522,57 +492,58 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
         
+    def _bondLengthChanged(self, bondLength):
+        """
+        Slot for the B{Bond Length} spinbox.
+        """
+        # Consider moving this code into chiralityFixup(). --Mark
+        self._bond_length = bondLength
+        self.updateNanotubeDiameter()
+        return
+    
     def _chiralityFixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.
-        This gets called each time a user types anything into a widget or 
-        changes a spinbox.
+        This gets called whenever the user changes the n, m chirality values.
         
         @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None  
-        """
-                
-        if not hasattr(self, 'n'):
-            print_compact_traceback("Bug: no attr 'n' ") # mark 2007-05-24
-            return
+        """        
+        self.nanotube.setChirality(self.chiralityNSpinBox.value(), 
+                                   self.chiralityMSpinBox.value())
+        self.n, self.m = self.nanotube.getChirality()
         
-        n_previous = int(self.n)
-        m_previous = int(self.m)
-        n = self.chiralityNSpinBox.value()
-        m = self.chiralityMSpinBox.value()
-        # Two restrictions to maintain
-        # n >= 2
-        # 0 <= m <= n
-        if n < 2:
-            n = 2
-        if m != self.m:
-            # The user changed m. If m became larger than n, make n bigger.
-            if m > n:
-                n = m
-        elif n != self.n:
-            # The user changed n. If n became smaller than m, make m smaller.
-            if m > n:
-                m = n
+        self.connect_or_disconnect_signals(isConnect = False)
+        self.chiralityNSpinBox.setValue(self.n)
+        self.chiralityMSpinBox.setValue(self.m)
+        self.connect_or_disconnect_signals(isConnect = True)
         
-        self.n = n
-        self.m = m
-        
-        self.chiralityNSpinBox.setValue(n)
-        self.chiralityMSpinBox.setValue(m)
-        self.ntRiseDoubleSpinBox.setValue(getCntRise(self._ntType, n, m))
-        self.updateNtRadius()
+        self.updateNanotubeDiameter()
     
-    def updateNtRadius(self):
+    def updateNanotubeDiameter(self):
         """
-        Update the nanotube Radius lineEdit widget.
+        Update the nanotube Diameter lineEdit widget.
         """
-        self.ntChirality.update(self.n, self.m, 
-                                 self._ntType, 
-                                 self._bond_length)
-        radiusText = "%-7.4f Angstroms" %  (self.ntChirality.getRadius())
-        self.ntRadiusLineEdit.setText(radiusText)
+        self.nanotube.update(self.n, self.m, 
+                             self._ntType, 
+                             self._bond_length)
+        diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
+        self.ntDiameterLineEdit.setText(diameterText)
+        
+        # ntRiseDoubleSpinBox is currently hidden.
+        self.ntRiseDoubleSpinBox.setValue(self.nanotube.getRise())
+        
+    def _endingsComboBoxChanged(self, endings):
+        """
+        Slot for the B{Ending} combobox.
+        
+        @param endings: The option's text.
+        @type  endings: string
+        """
+        self.nanotube.setEndings(str(endings))
+        return
         
     def _addWhatsThisText(self):
         """

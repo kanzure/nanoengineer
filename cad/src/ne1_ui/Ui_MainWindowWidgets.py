@@ -558,10 +558,10 @@ def setupUi(win):
         geticon("ui/actions/Tools/Build Structures/Graphene"))
     win.insertGrapheneAction.setObjectName("insertGrapheneAction")
 
-    win.insertNanotubeAction = QtGui.QWidgetAction(MainWindow)
-    win.insertNanotubeAction.setIcon(
+    win.nanotubeGeneratorAction = QtGui.QWidgetAction(MainWindow)
+    win.nanotubeGeneratorAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Nanotube"))
-    win.insertNanotubeAction.setObjectName("insertNanotubeAction")
+    win.nanotubeGeneratorAction.setObjectName("nanotubeGeneratorAction")
 
     win.buildNanotubeAction = QtGui.QWidgetAction(MainWindow)
     win.buildNanotubeAction.setIcon(
@@ -1500,14 +1500,14 @@ def retranslateUi(win):
         "Build Crystal",
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.insertNanotubeAction.setIconText(QtGui.QApplication.translate(
+    win.nanotubeGeneratorAction.setIconText(QtGui.QApplication.translate(
         "MainWindow",
         "Nanotube",
         None, 
         QtGui.QApplication.UnicodeUTF8))
-    win.insertNanotubeAction.setToolTip(QtGui.QApplication.translate(
+    win.nanotubeGeneratorAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Build Nanotube", 
+        "Nanotube Generator (old)", 
         None,
         QtGui.QApplication.UnicodeUTF8))
     win.insertGrapheneAction.setIconText(QtGui.QApplication.translate(

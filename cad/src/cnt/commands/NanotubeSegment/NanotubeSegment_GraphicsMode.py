@@ -38,7 +38,7 @@ from PyQt4.Qt import QMouseEvent
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-from cnt.temporary_commands.NanotubeLineMode import NtLine_GM
+from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
@@ -527,9 +527,9 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             self.command.updateHandlePositions()
             
 
-class NanotubeSegment_DragHandles_GraphicsMode(NtLine_GM):
+class NanotubeSegment_DragHandles_GraphicsMode(NanotubeLine_GM):
     """
-    EXPERIMENTAL class to use NtLine_GM functionality while dragging a handle
+    EXPERIMENTAL class to use NanotubeLine_GM functionality while dragging a handle
     See a comment in class NanotubeSegment_EditCommand, just above the method
     'EXPERIMENTALswitchGraphicsModeTo'
     """
@@ -538,13 +538,13 @@ class NanotubeSegment_DragHandles_GraphicsMode(NtLine_GM):
     
     def Enter_GraphicsMode(self):
         self.endPoint1 = self.command.aHandle.origin
-        NtLine_GM.Enter_GraphicsMode(self)
+        NanotubeLine_GM.Enter_GraphicsMode(self)
    
     def Draw(self):
         """
         Draw
         """        
-        NtLine_GM.Draw(self)
+        NanotubeLine_GM.Draw(self)
         self._drawHandles()
 
     def _drawHandles(self):

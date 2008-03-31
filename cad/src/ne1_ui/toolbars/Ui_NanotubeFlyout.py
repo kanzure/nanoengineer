@@ -117,7 +117,7 @@ class NanotubeFlyout:
             geticon("ui/actions/Tools/Build Structures/InsertNanotube.png"))
 
         # Add tooltips
-        self.insertNanotubeAction.setToolTip("Carbon Nanotube")
+        self.insertNanotubeAction.setToolTip("Insert Nanotube")
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -213,7 +213,7 @@ class NanotubeFlyout:
         Slot for (Insert) B{Nanotube} action.
         """
             
-        self.win.insertCnt(isChecked)
+        self.win.insertNanotube(isChecked)
         
         #IMPORTANT: 
         #For a QAction, the method 
@@ -235,6 +235,3 @@ class NanotubeFlyout:
         for action in self.subControlActionGroup.actions():
             if action is not self.insertNanotubeAction and action.isChecked():
                 action.setChecked(False)
-        
-                
-        

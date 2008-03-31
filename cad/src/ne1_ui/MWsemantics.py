@@ -338,7 +338,8 @@ class MWsemantics(QMainWindow,
             # New "Build > CNT", experimental. --Mark 2008-03-10
             from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
             self.InsertNanotubeEditCommand = InsertNanotube_EditCommand(self.glpane)	
-            self.nanotubecntl = self.InsertNanotubeEditCommand
+            self.nanotubecntl = self.InsertNanotubeEditCommand 
+                # Needed for sponsoredList
             
         else:
             from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
@@ -1518,7 +1519,7 @@ class MWsemantics(QMainWindow,
         self.ensureInCommand('SELECTMOLS')
         self.graphenecntl.show()
 
-    def insertNanotube(self):
+    def generateNanotube(self):
         self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
         
@@ -1527,7 +1528,7 @@ class MWsemantics(QMainWindow,
     def activateNanotubeTool(self):
         """
         Enter Build Nanotube. 
-        @see:B{self.insertCnt}
+        @see:B{self.insertNanotube}
         @see: B{ops_select_Mixin.getSelectedNanotubeGroups}
         @see: B{cnt_model.NanotubeGroup.edit}
         """
@@ -1547,13 +1548,13 @@ class MWsemantics(QMainWindow,
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_NANOTUBE'          
             self.commandSequencer.currentCommand.runCommand()
             
-    def insertCnt(self, isChecked = False):
+    def insertNanotube(self, isChecked = False):
         """
-        @param isChecked: If Nanotube button in the Cnt Flyout toolbar is 
+        @param isChecked: If Nanotube button in the Nanotube Flyout toolbar is 
                           checked, enter NanotubeLineMode. (provided you are 
-                          using the new CntEditCommand command. 
+                          using the new InsertNanotube_EditCommand command. 
         @type  isChecked: boolean
-        @see: B{Ui_NanotubeFlyout.activateCnt_EditCommand}
+        @see: B{Ui_NanotubeFlyout.activateInsertNanotubeLine_EditCommand}
         """
         #  New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 

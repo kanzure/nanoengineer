@@ -3,7 +3,7 @@
 InsertNanotube_EditCommand.py
 InsertNanotube_EditCommand that provides an editCommand object for 
 generating a nanotube (CNT or BNNT).  This command should be invoked only from 
-CntProperties_EditCommand
+NanotubeProperties_EditCommand
 
 @author: Mark Sims, Ninad Sathaye
 @version: $Id$
@@ -33,7 +33,6 @@ from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq, vlen
-from cnt.commands.InsertNanotube.Nanotube import Cnt
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
@@ -42,7 +41,7 @@ from utilities.constants import gensym
 
 from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength
 
-from cnt.temporary_commands.NanotubeLineMode import NtLine_GM
+from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 
 
 class InsertNanotube_EditCommand(EditCommand):
@@ -72,9 +71,9 @@ class InsertNanotube_EditCommand(EditCommand):
     create_name_from_prefix  =  True 
 
     #Graphics Mode set to CntLine graphics mode
-    GraphicsMode_class = NtLine_GM
+    GraphicsMode_class = NanotubeLine_GM
 
-    #required by NtLine_GM
+    #required by NanotubeLine_GM
     mouseClickPoints = []
     #This is the callback method that the previous command 
     #(which is InsertNanotube_Editcommand as of 2008-01-11) provides. When user exits
@@ -151,7 +150,7 @@ class InsertNanotube_EditCommand(EditCommand):
         EditCommand.init_gui(self)        
 
 
-        if isinstance(self.graphicsMode, NtLine_GM):
+        if isinstance(self.graphicsMode, NanotubeLine_GM):
             self._setParamsForCntLineGraphicsMode()
             self.mouseClickPoints = []
 
@@ -176,14 +175,14 @@ class InsertNanotube_EditCommand(EditCommand):
                 #Need a better way to deal with changing state of the 
                 #corresponding action in the flyout toolbar. To be revised 
                 #during command toolbar cleanup 
-                self.flyoutToolbar.insertCntAction.setChecked(True)
+                self.flyoutToolbar.insertNanotubeAction.setChecked(True)
             except AttributeError:
                 self.flyoutToolbar = None
 
 
             if self.flyoutToolbar:
-                if not self.flyoutToolbar.insertCntAction.isChecked():
-                    self.flyoutToolbar.insertCntAction.setChecked(True)
+                if not self.flyoutToolbar.insertNanotubeAction.isChecked():
+                    self.flyoutToolbar.insertNanotubeAction.setChecked(True)
         else:
             #Should this be an assertion? Should we always kill _parentNanotubeGroup
             #if its not None? ..not a good idea. Lets just make it to None. 
@@ -200,13 +199,13 @@ class InsertNanotube_EditCommand(EditCommand):
         """                    
         EditCommand.restore_gui(self)
 
-        if isinstance(self.graphicsMode, NtLine_GM):
+        if isinstance(self.graphicsMode, NanotubeLine_GM):
             self.mouseClickPoints = []
 
         self.graphicsMode.resetVariables()   
 
         if self.flyoutToolbar:
-            self.flyoutToolbar.insertCntAction.setChecked(False)
+            self.flyoutToolbar.insertNanotubeAction.setChecked(False)
 
         self._parentNanotubeGroup = None 
         self._fallbackNanotubeGroup = None
@@ -458,8 +457,6 @@ class InsertNanotube_EditCommand(EditCommand):
         # No error checking here; do all error checking in _gatherParameters().
         params = self._gatherParameters()
         
-        
-
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
@@ -498,10 +495,12 @@ class InsertNanotube_EditCommand(EditCommand):
         try:
             # Make the nanotube. <ntGroup> will contain one chunk:
             #  - Axis (Segment)
-            position = V(0.0, 0.0, 0.0)
-            cnt = Cnt()
-            self.cnt  =  cnt  # needed for done msg
-            ntChunk = cnt.build(self.name, self.win.assy, params, position)
+            position = V(0.0, 0.0, 0.0) #@
+            #@cnt = Cnt()
+            nt, endPoint1, endPoint2 = params
+            
+            self.nt  =  nt  # needed for done msg #@
+            ntChunk = nt.build(self.name, self.win.assy, endPoint1, endPoint2, position)
             
             ntSegment.addchild(ntChunk)
 
@@ -510,7 +509,7 @@ class InsertNanotube_EditCommand(EditCommand):
             #it can be retrieved while editing this object. 
             #This works with or without cnt_updater. Now the question is 
             #should these props be assigned to the NanotubeSegment in 
-            #insertCnt.make() itself ? This needs to be answered while modifying
+            #insertNanotube.make() itself ? This needs to be answered while modifying
             #make() method to fit in the cnt data model. --Ninad 2008-03-05
             
             #WARNING 2008-03-05: Since self._modifyStructure calls 
@@ -543,7 +542,7 @@ class InsertNanotube_EditCommand(EditCommand):
         assert temporaryModeName == 'CNT_LINE_MODE'
 
         mouseClickLimit = None
-        ntRise =  self.ntChirality.ntRise()
+        ntRise =  self.nanotube.ntRise()
 
         callback_cursorText = self.getCursorTextForTemporaryMode
         callback_snapEnabled = self.isRubberbandLineSnapEnabled
@@ -568,8 +567,8 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         This returns True or False based on the checkbox state in the PM.
 
-        This is used as a callback method in CntLine mode (NtLine_GM)
-        @see: NtLine_GM.snapLineEndPoint where the boolean value returned from
+        This is used as a callback method in CntLine mode (NanotubeLine_GM)
+        @see: NanotubeLine_GM.snapLineEndPoint where the boolean value returned from
               this method is used
         @return: Checked state of the linesnapCheckBox in the PM
         @rtype: boolean
@@ -585,22 +584,23 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         return self.propMgr.ntRubberBandLineDisplayComboBox.currentText()
     
-    #Things needed for CntLine_GraphicsMode (NtLine_GM)======================
+    # Things needed for CntLine_GraphicsMode (NanotubeLine_GM) ======================
 
     def _setParamsForCntLineGraphicsMode(self):
         """
-        Needed for CntLine_GraphicsMode (NtLine_GM). The method names need to
+        Needed for CntLine_GraphicsMode (NanotubeLine_GM). The method names need to
         be revised (e.g. callback_xxx. The prefix callback_ was for the earlier 
         implementation of CntLine mode where it just used to supply some 
         parameters to the previous mode using the callbacks from the 
         previousmode. 
         """
         self.mouseClickLimit = None
-        self.ntChirality = self.propMgr.ntChirality
-        self.ntType = self.ntChirality.getType()
-        self.n, self.m = self.ntChirality.getChirality()
-        self.ntRise = self.ntChirality.getRise()
-        self.ntDiameter = self.ntChirality.getDiameter()
+        self.nanotube = self.propMgr.nanotube
+        self.ntType = self.nanotube.getType()
+        self.n, self.m = self.nanotube.getChirality()
+        self.ntRise = self.nanotube.getRise()
+        self.ntDiameter = self.nanotube.getDiameter()
+
         self.jigList = self.win.assy.getSelectedJigs()
 
         self.callbackMethodForCursorTextString = \
@@ -610,5 +610,3 @@ class InsertNanotube_EditCommand(EditCommand):
 
         self.callback_rubberbandLineDisplay = \
             self.getDisplayStyleForNtRubberbandLine
-        
-        self.ntDiameter = self.propMgr.ntChirality.getRadius() * 2.0

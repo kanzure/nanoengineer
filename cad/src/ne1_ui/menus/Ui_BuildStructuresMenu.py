@@ -27,7 +27,7 @@ def setupUi(win):
         win.buildStructuresMenu.addAction(win.buildNanotubeAction) 
     else:
         # Original "Build > Nanotube"
-        win.buildStructuresMenu.addAction(win.insertNanotubeAction)
+        win.buildStructuresMenu.addAction(win.nanotubeGeneratorAction)
     
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
