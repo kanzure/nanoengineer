@@ -35,6 +35,8 @@ from prefs_constants import gromacs_enabled_prefs_key
 from prefs_constants import gromacs_path_prefs_key
 from prefs_constants import cpp_enabled_prefs_key
 from prefs_constants import cpp_path_prefs_key
+from prefs_constants import nv1_enabled_prefs_key
+from prefs_constants import nv1_path_prefs_key
 
 def parseopts(optslist):
     global keyset,valueset,exitset
@@ -70,6 +72,8 @@ prefkeys["gromacs_enabled"]=gromacs_enabled_prefs_key
 prefkeys["gromacs_path"]=gromacs_path_prefs_key
 prefkeys["cpp_enabled"]=cpp_enabled_prefs_key
 prefkeys["cpp_path"]=cpp_path_prefs_key
+prefkeys["nv1_enabled"]=nv1_enabled_prefs_key
+prefkeys["nv1_path"]=nv1_path_prefs_key
 
 #determining if everything needed from the command line is there.
 keyset=valueset=""

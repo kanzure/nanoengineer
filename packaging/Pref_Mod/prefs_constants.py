@@ -213,6 +213,8 @@ gromacs_path_prefs_key = 'A10/GROMACS Path'
 gromacs_enabled_prefs_key = 'A10/GROMACS Enabled'
 cpp_path_prefs_key = 'A10/cpp Path'
 cpp_enabled_prefs_key = 'A10/cpp Enabled'
+nv1_path_prefs_key = 'A10/NanoVision-1 Path'
+nv1_enabled_prefs_key = 'A10/NanoVision-1 Enabled'
 
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
