@@ -3239,6 +3239,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self._setup_projection()
 
+        # Compute frustum planes required for frustum culling - piotr 080331
+        # Moved it right after _setup_projection is called (piotr 080331)
+        # The _setup_projection use gluPickMatrix to modify the projection 
+        # matrix in GL_SELECT mode. Thus, the projection matrix should be
+        # set up properly at this point.
+        
+        self._compute_frustum_planes()
+
         # In the glselect_wanted case, we now know (in glselect_dict) which objects draw any pixels at the mouse position,
         # but not which one is in front (the near/far info from GL_SELECT has too wide a range to tell us that).
         # So we have to get them to tell us their depth at that point (as it was last actually drawn)
@@ -3261,9 +3269,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # otherwise don't change prior selobj -- we have a separate system to set it back to None when needed
         # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
-
-        # compute frustum planes required for frustum culling - piotr 080331
-        self._compute_frustum_planes()
 
         # draw according to mode
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]

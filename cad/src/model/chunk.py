@@ -1649,15 +1649,19 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         If the Chunk itself is selected, draw its bounding box as a
         wireframe; selected atoms are drawn specially by atom.draw.
         """
+        
+        # piotr 080331 moved this assignment before visibility 
+        # and frustum culling tests 
+        self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
+            # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
+
         if self.hidden:
             return
 
         # early frustum clipping test # piotr 080331
         if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
             return
-
-        self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
-            # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
+            
         ##e bruce 041109: can't we figure it out from mol.dad?
         # (in getattr or in a special method)
         #bruce 050804: this is now also used in self.changeapp(),
