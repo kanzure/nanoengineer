@@ -391,21 +391,11 @@ class Nanotube:
                     except KeyError:
                         pass
                     
-    def build(self, name, assy, endPoint1, endPoint2, position, 
-              mol = None, 
-              createPrinted = False):
+    def build(self, name, assy, position, mol = None, createPrinted = False):
         """
         Build a nanotube from the parameters in the Property Manger dialog.
         """
-        #endings, \
-        #   zdist, xydist, twist, bend, \
-        #   numwalls, spacing, \
-        #   endPoint1, endPoint2 = params
-        
-        #type = self.getType()
-        #n, m = self.getChirality()
-        #bond_length = self.getBondLength()
-
+        endPoint1, endPoint2 = self.getEndPoints()
         cntAxis = endPoint2 - endPoint1
         length = vlen(cntAxis)
                 

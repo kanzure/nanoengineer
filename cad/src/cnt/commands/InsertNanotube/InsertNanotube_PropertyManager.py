@@ -446,18 +446,15 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Tool Tip text for widgets in the Insert Nanotube Property Manager.  
         """
         pass
-        
-    def getParameters(self):
+    
+    def _setEndPoints(self):
         """
-        Return the parameters from this property manager to be used to create
-        the nanotube. 
+        Set the two endpoints of the nanotube using the values from the
+        X, Y, Z coordinate spinboxes in the property manager.
         
-        @return: A tuple containing the nanotube parameters.
-        @rtype: tuple
-        
-        @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used 
+        @note: The group box containing the 2 sets of XYZ spin boxes are
+        currently hidden.
         """
-        
         # First endpoint (origin) of nanotube
         x1 = self.x1SpinBox.value()
         y1 = self.y1SpinBox.value()
@@ -472,8 +469,22 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint1 = V(x1, y1, z1)
         if not self.endPoint2:
             self.endPoint2 = V(x2, y2, z2)
-         
-        return (self.nanotube, self.endPoint1, self.endPoint2)
+            
+        self.nanotube.setEndPoints(self.endPoint1, self.endPoint2)
+        
+    def getParameters(self):
+        """
+        Return the parameters from this property manager to be used to create
+        the nanotube. 
+        
+        @return: A nanotube instance with its attrs set to the current 
+                 parameters in the property manager.
+        @rtype: L{Nanotube}
+        
+        @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used 
+        """
+        self._setEndPoints()
+        return (self.nanotube)
 
     def _ntTypeComboBoxChanged( self, inIndex ):
         """

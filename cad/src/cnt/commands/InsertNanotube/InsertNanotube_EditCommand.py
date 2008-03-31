@@ -358,11 +358,7 @@ class InsertNanotube_EditCommand(EditCommand):
         Return the parameters from the property manager UI.
 
         @return: All the parameters (get those from the property manager):
-                 - numberOfCells
-                 - cntType
-                 - cellsPerTurn
-                 - endPoint1
-                 - endPoint2
+                 - nanotube
         @rtype:  tuple
         """        
 
@@ -454,8 +450,6 @@ class InsertNanotube_EditCommand(EditCommand):
         @rtype: L{Group}  
         @note: This needs to return a CNT object once that model is implemented        
         """
-        # No error checking here; do all error checking in _gatherParameters().
-        params = self._gatherParameters()
         
         # self.name needed for done message
         if self.create_name_from_prefix:
@@ -471,8 +465,8 @@ class InsertNanotube_EditCommand(EditCommand):
 
         # Create the model tree group node. 
         # Make sure that the 'topnode'  of this part is a Group (under which the
-        # Cnt group will be placed), if the topnode is not a group, make it a
-        # a 'Group' (applicable to Clipboard parts).See part.py
+        # Nanotube group will be placed), if the topnode is not a group, make it
+        # a 'Group' (applicable to Clipboard parts). See part.py
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
@@ -495,12 +489,11 @@ class InsertNanotube_EditCommand(EditCommand):
         try:
             # Make the nanotube. <ntGroup> will contain one chunk:
             #  - Axis (Segment)
-            position = V(0.0, 0.0, 0.0) #@
-            #@cnt = Cnt()
-            nt, endPoint1, endPoint2 = params
-            
-            self.nt  =  nt  # needed for done msg #@
-            ntChunk = nt.build(self.name, self.win.assy, endPoint1, endPoint2, position)
+            # No error checking here; do all error checking in _gatherParameters().
+            nanotube = self._gatherParameters()
+            position = V(0.0, 0.0, 0.0)
+            self.nanotube  =  nanotube  # needed for done msg #@
+            ntChunk = nanotube.build(self.name, self.win.assy, position)
             
             ntSegment.addchild(ntChunk)
 
