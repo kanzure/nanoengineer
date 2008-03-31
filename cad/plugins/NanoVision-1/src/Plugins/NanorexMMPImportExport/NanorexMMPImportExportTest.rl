@@ -2,6 +2,7 @@
 
 #include "NanorexMMPImportExportTest.h"
 #include <sstream>
+#include <cfloat>
 
 using namespace std;
 
@@ -22,6 +23,40 @@ void NanorexMMPImportExportTest::tearDown(void)
 }
 
 
+void NanorexMMPImportExportTest::reset(void)
+{
+	atomIds.clear();
+	atomicNums.clear();
+	atomLocs.clear();
+	atomStyles.clear();
+	atomProps.clear();
+	bonds.clear();
+	lineNum = 1;
+	
+	atomCount = 0;
+	molCount = 0;
+	groupCount = 0;
+	egroupCount = 0;
+	
+	infoAtomCount = 0;
+	infoChunkCount = 0;
+	infoOpenGroupCount = 0;
+	
+	bond1Count = 0;
+	bond2Count = 0;
+	bond3Count = 0;
+	bondaCount = 0;
+	bondcCount = 0;
+	bondgCount = 0;
+}
+
+
+void NanorexMMPImportExportTest::syntaxError(string const& errorMessage)
+{
+	cerr << lineNum << ": Syntax Error : " << errorMessage << endl;
+}
+
+
 void
 NanorexMMPImportExportTest::atomLineTestSetUp(vector<string>& testStrings,
                                               vector<AtomTestInfo>& answers)
@@ -33,6 +68,14 @@ NanorexMMPImportExportTest::atomLineTestSetUp(vector<string>& testStrings,
 	answers.push_back(AtomTestInfo(12, 10, 1, 2, 3, "def"));
 
 	testStrings.push_back("atom    6   (99 ) ( 15632,-2,     -63  ) bas  \n");
+	answers.push_back(AtomTestInfo(6, 99, 15632, -2, -63, "bas"));
+
+	testStrings.push_back("atom 12  (10) (1,2,3) def  "
+	                      "# this one's got a comment \n");
+	answers.push_back(AtomTestInfo(12, 10, 1, 2, 3, "def"));
+	
+	testStrings.push_back("atom    6   (99 ) ( 15632,-2,     -63  ) bas"
+	                      "# comment where the '#' touches the style\n");
 	answers.push_back(AtomTestInfo(6, 99, 15632, -2, -63, "bas"));
 }
 
@@ -54,18 +97,10 @@ void NanorexMMPImportExportTest::atomLineTest(void)
 		// cerr << "style comparison: " << currentAtomStyle << " =?= " << answers[i].style << endl; 
 		CPPUNIT_ASSERT(atomStyles.back() == answers[i].style);
 	}
-}
-
-
-void NanorexMMPImportExportTest::reset(void)
-{
-	atomIds.clear();
-	atomicNums.clear();
-	atomLocs.clear();
-	atomStyles.clear();
-	atomProps.clear();
-	bonds.clear();
-	lineNum = 1;
+	CPPUNIT_ASSERT(atomIds.size() == testStrings.size());
+	CPPUNIT_ASSERT(atomicNums.size() == testStrings.size());
+	CPPUNIT_ASSERT(atomLocs.size() == testStrings.size());
+	CPPUNIT_ASSERT(atomStyles.size() == testStrings.size());
 }
 
 
@@ -105,7 +140,8 @@ void NanorexMMPImportExportTest::newAtom(int atomId, int atomicNum,
                                          int x, int y, int z,
                                          std::string const& atomStyle)
 {
-	cerr << lineNum << ": atom (" << atomId << ") ("
+	++atomCount;
+	cerr << lineNum << ": atom " << atomId << " (" << atomicNum << ") ("
 		<< x << ',' << y << ',' << z << ") " << atomStyle << endl;
 	atomIds.push_back(atomId);
 	atomicNums.push_back(atomicNum);
@@ -129,7 +165,7 @@ void NanorexMMPImportExportTest::bondLineTest(void)
 	testInput = "bonda 1\n";
 	bondLineTestHelper(testInput);
 	CPPUNIT_ASSERT(bonds.back()["a"][0] == 1);
-
+	
 	testInput = "bondc 32    65535  \n";
 	bondLineTestHelper(testInput);
 	CPPUNIT_ASSERT(bonds.back()["c"][0] == 32);
@@ -160,7 +196,7 @@ void NanorexMMPImportExportTest::bondLineTestHelper(char const *const testInput)
 	char const *pe  = p + strlen(p);
 	char const *eof = NULL;
 	int cs;
-
+	
 	%% machine bond_line_test;
 	%% write data;
 	%% write init;
@@ -171,6 +207,19 @@ void NanorexMMPImportExportTest::bondLineTestHelper(char const *const testInput)
 void NanorexMMPImportExportTest::newBond(std::string const& bondType,
                                          int targetAtomId)
 {
+	if(bondType == "1")
+		++bond1Count;
+	else if(bondType == "2")
+		++bond2Count;
+	else if(bondType == "3")
+		++bond3Count;
+	else if(bondType == "a")
+		++bondaCount;
+	else if(bondType == "c")
+		++bondcCount;
+	else if(bondType == "g")
+		++bondgCount;
+	
 	cerr << lineNum << ": bond" << bondType << " " << targetAtomId << endl;
 	// currentBondType = bondType;
 	// targetAtomIds.push_back(targetAtomId);
@@ -226,7 +275,7 @@ NanorexMMPImportExportTest::bondDirectionTestHelper(char const *const testInput)
 
 void NanorexMMPImportExportTest::newBondDirection(int atomId1, int atomId2)
 {
-	cerr << "newBondDirection: bond_direction " << atomId1 << " " << atomId2 << endl;
+	cerr << lineNum << ": bond_direction " << atomId1 << " " << atomId2 << endl;
 	bondDirectionStartId = atomId1;
 	bondDirectionStopId = atomId2;
 }
@@ -296,6 +345,7 @@ void NanorexMMPImportExportTest::infoAtomTestHelper(char const *const testInput)
 void NanorexMMPImportExportTest::newAtomInfo(std::string const& key,
                                              std::string const& value)
 {
+	++infoAtomCount;
 	// string key1 = key;
 	// stripTrailingWhiteSpaces(key1);
 	// string value1 = value;
@@ -344,9 +394,9 @@ void NanorexMMPImportExportTest::atomStmtTest(void)
 	include utilities "utilities.rl";
 	include atom "atom.rl";
 	
-main := space** atom_decl_line
+main := WHITESPACE* atom_decl_line
 		// %{newAtom(atomId, atomicNum, x, y, z, atomStyle);}
-		(space** atom_attrib_line)*
+		(WHITESPACE*  (atom_decl_line | atom_attrib_line))*
 		$lerr { CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "atom_stmt_test state machine");
@@ -481,31 +531,31 @@ atom_stmt := |*
 		EOL* nonNEWLINEspace* atom_decl_line => 
 	{ // cerr << "atom_decl_line, p = " << p << endl;
 		// newAtom(atomId, atomicNum, x, y, z, atomStyle);
-			};
-		EOL* nonNEWLINEspace* bond_line =>
+	};
+	EOL* nonNEWLINEspace* bond_line =>
 	{ // cerr << "bond_line, p = " << p << endl;
 		// newBond(stringVal, intVal);
-			};
-		EOL* nonNEWLINEspace* bond_direction_line =>
+	};
+	EOL* nonNEWLINEspace* bond_direction_line =>
 	{ // cerr << "bond_direction_line, p = " << p << endl;
 		// newBondDirection(intVal, intVal2);
-			};
-		EOL* nonNEWLINEspace* info_atom_line =>
+	};
+	EOL* nonNEWLINEspace* info_atom_line =>
 	{ // cerr << "info_atom_line, p = " << p << endl;
 		// newAtomInfo(stringVal, stringVal2);
-			};
-		EOL* nonNEWLINEspace* 0 => {fret;};
+	};
+	EOL* nonNEWLINEspace* 0 => {fret;};
 	*|;
 	
 main := (WHITESPACE** atom_decl_line
          @ { //newAtom(atomId, atomicNum, x, y, z, atomStyle);
 			// cerr << "calling, p = " << p << endl;
-			fcall atom_stmt;})*
+	         fcall atom_stmt;})*
 		$lerr { CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "multiple_atom_stmt_test state machine");
-	
-};
+			
+		};
 	
 }%%
 
@@ -546,7 +596,7 @@ void NanorexMMPImportExportTest::molLineTest(void)
 	CPPUNIT_ASSERT(currentMolName == "Nanorex2");
 	CPPUNIT_ASSERT(currentMolStyle ==
 	               "style with   lotsa         spaces\tand \t\ttabs");
-
+	
 	// mol names with spaces
 	testInput = "mol ( name with spaces and\ttabs\t) style\t3 \n";
 	molLineTestHelper(testInput);
@@ -592,8 +642,19 @@ void NanorexMMPImportExportTest::molLineTestHelper(char const *const testInput)
 void
 NanorexMMPImportExportTest::newMolecule(string const& name, string const& style)
 {
+	++molCount;
 	currentMolName = name;
 	currentMolStyle = style;
+}
+
+
+void
+NanorexMMPImportExportTest::newChunkInfo(string const& key,
+                                         string const& value)
+{
+	++infoChunkCount;
+	cerr << lineNum << ": info chunk " << key << " = " << value << endl;
+	/// @todo
 }
 
 
@@ -674,11 +735,11 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 # ***** Ragel: group lines test machine *****
 	
 	machine group_lines_test;
-	include utilities "utilities.rl";
+#include utilities "utilities.rl";
 	include group "group.rl";
 	
-group_scanner :=
-	|*
+mini_group_scanner :=
+		|*
 		WHITESPACE* egroup_line;
 	WHITESPACE* group_view_data_stmt_begin_line @(group,2) => {/*cerr << "view_data begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/};
 	WHITESPACE* group_clipboard_stmt_begin_line @(group,2) => {/*cerr << "clipboard begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/};
@@ -691,18 +752,8 @@ group_scanner :=
 	WHITESPACE* IGNORED_LINE => {/*cerr << "Ignored line, p = " << p << endl;*/};
 	*|;
 	
-main := any* >{ /*cerr << "scanner call: p = " << p << endl;*/ fhold; fcall group_scanner; };
+main := any* >{ /*cerr << "scanner call: p = " << p << endl;*/ fhold; fcall mini_group_scanner; };
 	
-#main := WHITESPACE**
-#		(group_mol_struct_stmt_begin_line |
-#		 group_mol_struct_stmt_end_line )
-#		$lerr { cerr << "Error encountered in "
-#				"group_lines_test state machine" << endl;
-#		};
-	
-#( group_view_data_stmt_begin_line $(group,2) |
-#		  group_clipboard_stmt_begin_line $(group,2) |
-#		  group_mol_struct_stmt_begin_line $(group,1) );
 }%%
 
 
@@ -724,81 +775,34 @@ NanorexMMPImportExportTest::groupLineTestHelper(char const *const testInput)
 
 void NanorexMMPImportExportTest::newViewDataGroup(void)
 {
+	++groupCount;
 	cerr << lineNum << ": group (View Data)" << endl;
 	currentGroupName = "View Data";
 	groupNameStack.push_back(currentGroupName);
 }
 
-
+#if 0
 void NanorexMMPImportExportTest::endViewDataGroup(void)
 {
 	cerr << lineNum << ": endgroup (View Data)" << endl;
 	currentGroupName = groupNameStack.back();
 	groupNameStack.pop_back();
 }
-
+#endif
 
 void
 NanorexMMPImportExportTest::newMolStructGroup(std::string const& name,
                                               std::string const& style)
 {
-// 	istringstream nameStream(name);
-// 	string token1(""), token2("");
-// 	nameStream >> token1 >> token2;
-// 	if(token1 == "View" && token2 == "Data")
-// 		newViewDataGroup();
-// 	
-// 	else if(token1 == "Clipboard" && token2 == "")
-// 		newClipboardGroup();
-// 	
-// 	else {
-		cerr << lineNum << ": group (" << name << ") " << style << endl;
-		currentGroupName = name;
-		groupNameStack.push_back(currentGroupName);
-		currentGroupStyle = style;
-	// }
-}
-
-
-void NanorexMMPImportExportTest::endMolStructGroup(std::string const& name)
-{
-	// comparing for errors should be done by parser application
-	// here we are only testing to see if the tokens are being recognized
-// 	istringstream nameStream(name);
-// 	string token1(""), token2("");
-// 	nameStream >> token1 >> token2;
-// 	if(token1 == "View" && token2 == "Data")
-// 		endViewDataGroup();
-// 	
-// 	else if(token1 == "Clipboard" && token2 == "")
-// 		endClipboardGroup();
-// 	
-// 	else {
-		cerr << lineNum << ": endgroup (" << name << ")  "
-			<< "[stack-top = " << groupNameStack.back() << ']' << endl;
-		currentGroupName = groupNameStack.back();
-		groupNameStack.pop_back();
-	//	}
-}
-
-
-void NanorexMMPImportExportTest::newClipboardGroup(void)
-{
-	cerr << lineNum << ": group (Clipboard)" << endl;
-	currentGroupName = "Clipboard";
+	++groupCount;
+	cerr << lineNum << ": group (" << name << ") " << style << endl;
+	currentGroupName = name;
 	groupNameStack.push_back(currentGroupName);
+	currentGroupStyle = style;
 }
 
-
-void NanorexMMPImportExportTest::endClipboardGroup(void)
-{
-	cerr << lineNum << ": endgroup (Clipboard)" << endl;
-	currentGroupName = groupNameStack.back();
-	groupNameStack.pop_back();
-}
-
-
-void NanorexMMPImportExportTest::endGroup(string const& name)
+#if 0
+void NanorexMMPImportExportTest::endMolStructGroup(std::string const& name)
 {
 	// comparing for errors should be done by parser application
 	// here we are only testing to see if the tokens are being recognized
@@ -807,3 +811,481 @@ void NanorexMMPImportExportTest::endGroup(string const& name)
 	currentGroupName = groupNameStack.back();
 	groupNameStack.pop_back();
 }
+#endif
+
+void NanorexMMPImportExportTest::newClipboardGroup(void)
+{
+	++groupCount;
+	cerr << lineNum << ": group (Clipboard)" << endl;
+	currentGroupName = "Clipboard";
+	groupNameStack.push_back(currentGroupName);
+}
+
+
+#if 0
+void NanorexMMPImportExportTest::endClipboardGroup(void)
+{
+	cerr << lineNum << ": endgroup (Clipboard)" << endl;
+	currentGroupName = groupNameStack.back();
+	groupNameStack.pop_back();
+}
+#endif
+
+
+void NanorexMMPImportExportTest::endGroup(string const& name)
+{
+	++egroupCount;
+	// comparing for errors should be done by parser application
+	// here we are only testing to see if the tokens are being recognized
+	cerr << lineNum << ": endgroup (" << name << ")  "
+		<< "[stack-top = " << groupNameStack.back() << ']' << endl;
+	currentGroupName = groupNameStack.back();
+	groupNameStack.pop_back();
+}
+
+
+void
+NanorexMMPImportExportTest::newOpenGroupInfo(string const& key,
+                                             string const& value)
+{
+	++infoOpenGroupCount;
+	cerr << lineNum << ": info opengroup " << key << " = " << value << endl;
+	/// @todo
+}
+
+
+void NanorexMMPImportExportTest::end1(void)
+{
+	cerr << lineNum << ": end1" << endl;
+}
+
+
+void NanorexMMPImportExportTest::uncheckedParseTest(void)
+{
+	char const *testInput = NULL;
+	
+	reset();
+	
+	testInput =
+		"group (View Data)\n"
+		"csys <coordinate-system-info>\n"
+		"egroup (View\tData) # comment to make life tough \n"
+		"group (nitrogen compounds)\n"
+		"mol (ammonia) no molecule style \n"
+		"atom 1 (1) (1,1,1) def\n"
+		"atom 2 (7) (0,0,0) bas\n"
+		"bond1 1\n"
+		"atom 3 (1) (1,1,-1) cpk\n"
+		"bond1 2\n"
+		"atom 4 (1) (-1,1,1) lin\n"
+		"bond1 2\n"
+		"egroup\n"
+		"  end1  \n"
+		"group (Clipboard)  \n"
+		"<clipboard statements to be ignored>\n"
+		"<more statements to be ignored>\n"
+		"egroup\n"
+		"end  \n"
+		" <this line should be ignored>"
+		;
+	
+	uncheckedParseTestHelper(testInput);
+	CPPUNIT_ASSERT(groupNameStack.size() == 0);
+	CPPUNIT_ASSERT(currentMolName == "ammonia");
+	CPPUNIT_ASSERT(currentMolStyle == "no molecule style");
+}
+
+
+%%{
+	machine unchecked_parse_test;
+	include group "group.rl";
+	
+main := WHITESPACE*
+		group_view_data_stmt_begin_line
+			@ { /*cerr << "*p=" << *p << endl;*/ fhold; fcall group_scanner; }
+		WHITESPACE*
+		group_mol_struct_stmt_begin_line
+			@ { fhold; fcall group_scanner; }
+		WHITESPACE*
+		end1_line
+		WHITESPACE*
+		group_clipboard_stmt_begin_line
+			@ { fhold; fcall group_scanner; }
+		any*
+		;
+}%%
+
+
+void
+NanorexMMPImportExportTest::uncheckedParseTestHelper(char const *const testInput)
+{
+	char const *p   = testInput;
+	char const *pe  = p + strlen(p);
+	char const *eof = 0;
+	char const *ts, *te;
+	int cs, stack[128], top, act;
+	
+	%% machine unchecked_parse_test;
+	%% write data;
+	%% write init;
+	%% write exec;
+}
+
+
+/// Test the checked pattern matchers to see if local error actions introduced
+/// interfere with the regular functioning
+void NanorexMMPImportExportTest::checkedParseTest(void)
+{
+	char const *testInput = NULL;
+	
+	reset();
+	
+	testInput =
+		"group (View Data)\n"
+		"#csys <coordinate-system-info>\n"
+		"egroup (View\tData) # comment to make life tough \n"
+		"group (nitrogen compounds)\n"
+		"mol (ammonia) no molecule style \n"
+		"atom 1 (1) (1,1,1) def\n"
+		"atom 2 (7) (0,0,0) bas\n"
+		"bond1 1\n"
+		"atom 3 (1) (1,1,-1) cpk\n"
+		"bond1 2\n"
+		"atom 4 (1) (-1,1,1) lin\n"
+		"bond1 2\n"
+		"egroup\n"
+		"  end1  \n"
+		"group (Clipboard)  \n"
+		"<clipboard statements to be ignored>\n"
+		"<more statements to be ignored>\n"
+		"egroup\n"
+		"end  \n"
+		" <this line should be ignored>"
+		;
+	
+	checkedParseTestHelper(testInput);
+	CPPUNIT_ASSERT(groupNameStack.size() == 0);
+	CPPUNIT_ASSERT(currentMolName == "ammonia");
+	CPPUNIT_ASSERT(currentMolStyle == "no molecule style");
+}
+
+
+%%{
+	machine checked_parse_test;
+	include checked_group "checked_group.rl";
+	
+main := WHITESPACE**
+		checked_group_view_data_stmt_begin_line
+		@ { cerr << "*p=" << *p << endl;
+			fhold;
+			fcall checked_group_scanner;
+		}
+		WHITESPACE**
+		checked_group_mol_struct_stmt_begin_line
+		@ { fhold; fcall checked_group_scanner; }
+		WHITESPACE**
+		checked_end1_line
+		WHITESPACE**
+		checked_group_clipboard_stmt_begin_line
+		@ { fhold; fcall checked_group_scanner; }
+	any*
+		;
+}%%
+
+
+void
+NanorexMMPImportExportTest::checkedParseTestHelper(char const *const testInput)
+{
+	char const *p   = testInput;
+	char const *pe  = p + strlen(p);
+	char const *eof = 0;
+	char const *ts, *te;
+	int cs, stack[128], top, act;
+	
+	%% machine checked_parse_test;
+	%% write data;
+	%% write init;
+	%% write exec;
+}
+
+
+void
+NanorexMMPImportExportTest::
+checkCounts(int atomCountRef, int molCountRef,
+            int groupCountRef, int egroupCountRef,
+            int bond1CountRef, int bond2CountRef, int bond3CountRef,
+            int bondaCountRef, int bondcCountRef, int bondgCountRef,
+            int infoAtomCountRef, int infoChunkCountRef,
+            int infoOpenGroupCountRef)
+{
+	CPPUNIT_ASSERT(atomCount == atomCountRef);
+	CPPUNIT_ASSERT(molCount == molCountRef);
+	CPPUNIT_ASSERT(groupCount == groupCountRef);
+	CPPUNIT_ASSERT(egroupCount == egroupCountRef);
+	CPPUNIT_ASSERT(bond1Count == bond1CountRef);
+	CPPUNIT_ASSERT(bond2Count == bond2CountRef);
+	CPPUNIT_ASSERT(bond3Count == bond3CountRef);
+	CPPUNIT_ASSERT(bondaCount == bondaCountRef);
+	CPPUNIT_ASSERT(bondcCount == bondcCountRef);
+	CPPUNIT_ASSERT(bondgCount == bondgCountRef);
+	CPPUNIT_ASSERT(infoAtomCount == infoAtomCountRef);
+	CPPUNIT_ASSERT(infoChunkCount == infoChunkCountRef);
+	CPPUNIT_ASSERT(infoOpenGroupCount == infoOpenGroupCountRef);
+}
+
+
+void NanorexMMPImportExportTest::charBufParseTest(void)
+{
+	charBufParseTestVanillin();
+}
+
+
+%%{
+	machine parse_tester;
+	include group "group.rl";
+	
+	mmpformat_line =
+		'mmpformat'  nonNEWLINEspace+
+		digit{6} nonNEWLINEspace+
+		'required' nonNEWLINEspace*
+		(   ';' nonNEWLINEspace+
+		    digit{6} nonNEWLINEspace+
+		    'preferred'
+		)?
+		nonNEWLINEspace*
+		EOL;
+	
+	kelvin_line =
+		'kelvin'
+		nonNEWLINEspace+
+		whole_number % { kelvinTemp = intVal; }
+		nonNEWLINEspace*
+		EOL;
+	
+	end_line = 'end' nonNEWLINEspace+;
+	
+	
+main := WHITESPACE*
+		mmpformat_line
+		WHITESPACE*
+		( kelvin_line
+		  WHITESPACE*
+		)?
+		group_view_data_stmt_begin_line
+		@ { /*cerr << "*p=" << *p << endl;*/ fhold; fcall group_scanner; }
+		WHITESPACE*
+		group_mol_struct_stmt_begin_line
+		@ { fhold; fcall group_scanner; }
+		WHITESPACE*
+		end1_line
+		WHITESPACE*
+		group_clipboard_stmt_begin_line
+		@ { fhold; fcall group_scanner; }
+		WHITESPACE*
+		end_line
+		any*
+		;
+	
+}%%
+
+
+void NanorexMMPImportExportTest::charBufParseTestVanillin(void)
+{
+	char const *testInput =
+		"mmpformat 050502 required; 050706 preferred\n"
+		"kelvin 300\n"
+		"group (View Data)\n"
+		"info opengroup open = True\n"
+		"csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)\n"
+		"csys (LastView) (0.593283, -0.047584, -0.587604, 0.548154) (5.950136) (2.701500, 2.159000, -0.854500) (1.000000)\n"
+		"egroup (View Data)\n"
+		"group (vanillin)\n"
+		"info opengroup open = True\n"
+		"mol (vanillin) def\n"
+		"atom 1 (6) (-1533, -113, -98) def\n"
+		"info atom atomtype = sp2\n"
+		"atom 2 (6) (-2142, -1287, -548) def\n"
+		"info atom atomtype = sp2\n"
+		"bonda 1\n"
+		"atom 3 (6) (-2600, -2232, 373) def\n"
+		"info atom atomtype = sp2\n"
+		"bonda 2\n"
+		"atom 4 (6) (-2448, -2004, 1742) def\n"
+		"info atom atomtype = sp2\n"
+		"bonda 3\n"
+		"atom 5 (6) (-1839, -830, 2191) def\n"
+		"info atom atomtype = sp2\n"
+		"bonda 4\n"
+		"atom 6 (6) (-1382, 116, 1271) def\n"
+		"info atom atomtype = sp2\n"
+		"bonda 5 1\n"
+		"atom 7 (1) (-1176, 625, -817) def\n"
+		"bond1 1\n"
+		"atom 8 (8) (-2304, -1532, -2019) def\n"
+		"bond1 2\n"
+		"atom 9 (8) (-3253, -3493, -110) def\n"
+		"bond1 3\n"
+		"atom 10 (1) (-2806, -2742, 2460) def\n"
+		"bond1 4\n"
+		"atom 11 (6) (-1673, -578, 3702) def\n"
+		"info atom atomtype = sp2\n"
+		"bond1 5\n"
+		"atom 12 (1) (-907, 1032, 1622) def\n"
+		"bond1 6\n"
+		"atom 13 (8) (-1099, 529, 4125) def\n"
+		"info atom atomtype = sp2\n"
+		"bond2 11\n"
+		"atom 14 (1) (-1960, -821, -2711) def\n"
+		"bond1 8\n"
+		"atom 15 (6) (-3745, -4509, 878) def\n"
+		"bond1 9\n"
+		"atom 16 (1) (-2029, -1316, 4420) def\n"
+		"bond1 11\n"
+		"atom 17 (1) (-4496, -4053, 1524) def\n"
+		"bond1 15\n"
+		"atom 18 (1) (-2910, -4860, 1484) def\n"
+		"bond1 15\n"
+		"atom 19 (1) (-4187, -5350, 345) def\n"
+		"bond1 15\n"
+		"egroup (vanillin)\n"
+		"end1\n"
+		"group (Clipboard)\n"
+		"info opengroup open = False\n"
+		"egroup (Clipboard)\n"
+		"end molecular machine part vanillin"
+		;
+	
+	charBufParseTestHelper(testInput);
+	CPPUNIT_ASSERT(groupNameStack.size()==0);
+	CPPUNIT_ASSERT(kelvinTemp == 300);
+	checkCounts(19, 1, 3, 3,
+	            12, 1, 0, 6, 0, 0,
+	            8, 0, 3);
+}
+
+void
+NanorexMMPImportExportTest::charBufParseTestHelper(char const *const testInput)
+{
+	char const *p   = testInput;
+	char const *pe  = p + strlen(p);
+	char const *eof = 0;
+	char const *ts, *te;
+	int cs, stack[1024], top, act;
+	
+	%% machine parse_tester;
+	%% write data;
+	%% write init;
+	%% write exec;
+}
+
+
+void NanorexMMPImportExportTest::fileParseTest(void)
+{
+// 	fileParseTestH2O();
+// 	fileParseTestHOOH();
+// 	fileParseTestChlorophyll();
+// 	fileParseTestVanillin();
+	fileParseTestNanocar();
+}
+
+
+
+void NanorexMMPImportExportTest::fileParseTestH2O(void)
+{
+	ifstream infile("H2O.mmp", ios::in);
+	if(infile) {
+		reset();
+		RagelIstreamPtr testInput(infile);
+		RagelIstreamPtr testInputEnd(infile, 0, ios::end);
+		fileParseTestHelper(testInput, testInputEnd);
+		CPPUNIT_ASSERT(groupNameStack.empty());
+		checkCounts(3, 1, 3, 3,
+		            2, 0, 0, 0, 0, 0,
+		            0, 0, 3);
+	}
+}
+
+
+void NanorexMMPImportExportTest::fileParseTestHOOH(void)
+{
+	ifstream infile("hydrogen_peroxide.mmp", ios::in);
+	if(infile) {
+		reset();
+		RagelIstreamPtr testInput(infile);
+		RagelIstreamPtr testInputEnd(infile, 0, ios::end);
+		fileParseTestHelper(testInput, testInputEnd);
+		CPPUNIT_ASSERT(groupNameStack.empty());
+		checkCounts(4, 1, 3, 3,
+		            3, 0, 0, 0, 0, 0,
+		            0, 0, 3);
+	}
+}
+
+
+void NanorexMMPImportExportTest::fileParseTestChlorophyll(void)
+{
+	ifstream infile("chlorophyll.mmp", ios::in);
+	if(infile) {
+		reset();
+		RagelIstreamPtr testInput(infile, 0, ios::beg);
+		RagelIstreamPtr testInputEnd(infile, 0, ios::end);
+		fileParseTestHelper(testInput, testInputEnd);
+		CPPUNIT_ASSERT(groupNameStack.empty());
+		checkCounts(133, 1, 3, 3,
+		            141, 0, 0, 0, 0, 0,
+		            0, 0, 3);
+	}
+}
+
+
+void NanorexMMPImportExportTest::fileParseTestVanillin(void)
+{
+	ifstream infile("vanillin.mmp", ios::in);
+	if(infile) {
+		reset();
+		RagelIstreamPtr testInput(infile, 0, ios::beg);
+		RagelIstreamPtr testInputEnd(infile, 0, ios::end);
+		fileParseTestHelper(testInput, testInputEnd);
+		CPPUNIT_ASSERT(groupNameStack.size()==0);
+		CPPUNIT_ASSERT(kelvinTemp == 300);
+		checkCounts(19, 1, 3, 3,
+		            12, 1, 0, 6, 0, 0,
+		            8, 0, 3);
+	}
+}
+
+
+void NanorexMMPImportExportTest::fileParseTestNanocar(void)
+{
+	ifstream infile("nanocar.mmp", ios::in);
+	if(infile) {
+		reset();
+		RagelIstreamPtr testInput(infile, 0, ios::beg);
+		RagelIstreamPtr testInputEnd(infile, 0, ios::end);
+		fileParseTestHelper(testInput, testInputEnd);
+		CPPUNIT_ASSERT(groupNameStack.size()==0);
+		CPPUNIT_ASSERT(kelvinTemp == 300);
+		checkCounts(462, 9, 3, 3,
+		            111, 0, 16, 72, 0, 425,
+		            394, 3, 3);
+	}
+}
+
+
+void
+NanorexMMPImportExportTest::
+fileParseTestHelper(RagelIstreamPtr& p, RagelIstreamPtr& pe)
+{
+	RagelIstreamPtr eof(p);
+	RagelIstreamPtr ts, te;
+	int cs, stack[1024], top, act;
+	RagelIstreamPtr charStringWithSpaceStart, charStringWithSpaceStop;
+	RagelIstreamPtr lineStart;
+	
+	%% machine parse_tester;
+	%% write data;
+	%% write init;
+	%% write exec;
+}
+
+

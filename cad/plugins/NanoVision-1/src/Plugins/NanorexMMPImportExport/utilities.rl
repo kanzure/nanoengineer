@@ -28,11 +28,13 @@
 	nonNEWLINEspace = (space - '\n');
 	WHITESPACE = (nonNEWLINEspace | NEWLINE);
 	
-    IGNORED_LINE = nonNEWLINE*   NEWLINE;
-    
+	BLANK_LINE = nonNEWLINEspace* NEWLINE;
+	IGNORED_LINE = nonNEWLINE*   NEWLINE;
+	COMMENT_LINE = '#'  nonNEWLINE**  NEWLINE;
+	
     # Possible ways a line can end - with or without an inline comment
     # - also serves to catch whole blank or comment lines
-    EOL = nonNEWLINEspace** ('#' nonNEWLINE**)?   NEWLINE;
+    EOL = ('#' nonNEWLINE**)?   NEWLINE;
     
     whole_number = digit digit**
 		>to{intVal=fc-'0';}
@@ -48,18 +50,18 @@
     
     
     real_number = [+\-]? digit digit** ( '.' digit** ([eE] [+\-]? digit digit**)? )?
-        >{stringVal.clear(); stringVal = stringVal + fc; doubleVal = HUGE_VAL;}
+        >{stringVal.clear(); stringVal = stringVal + fc; doubleVal = DBL_MAX;}
         ${stringVal = stringVal + fc;}
         %{doubleVal = atof(stringVal.c_str());}
     ;
     
     
-    char_string = ('_' | alnum) (alnum | [_\-])**
+    char_string = ('_' | alnum) (alnum | [_.\-])**
 		>to{/*stringVal.clear();*/ stringVal = fc; }
         ${stringVal = stringVal + fc; }
     ;
     
-	char_string2 = ('_' | alnum) (alnum | [_\-])**
+	char_string2 = ('_' | alnum) (alnum | [_.\-])**
 		>to{/*stringVal.clear();*/ stringVal2 = fc; }
 		${stringVal2 = stringVal2 + fc; }
 	;
@@ -67,7 +69,7 @@
     # Character string with spaces in between
     # - must be at least 1 character long, and must end in a non-whitespace char
     char_string_with_space_pattern =
-		('_' | alnum)  ((nonNEWLINEspace | [_\-] | alnum)** ('_' | alnum))?
+		('_' | alnum)  ((nonNEWLINEspace | [_.\-] | alnum)** ('_' | alnum))?
 		>{ charStringWithSpaceStart = p-1; }
 		@{ charStringWithSpaceStop = p; }
 	;

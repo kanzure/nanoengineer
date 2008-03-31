@@ -7,7 +7,9 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include "iterator.h"
 
+#include "ragelistreamptr.h"
 
 /* CLASS: NanorexMMPImportExportTest */
 class NanorexMMPImportExportTest: public CPPUNIT_NS::TestFixture {
@@ -17,10 +19,14 @@ class NanorexMMPImportExportTest: public CPPUNIT_NS::TestFixture {
 // 	CPPUNIT_TEST(bondLineTest);
 // 	CPPUNIT_TEST(bondDirectionTest);
 // 	CPPUNIT_TEST(infoAtomTest);
-// 	// CPPUNIT_TEST(atomStmtTest);
+// // 	CPPUNIT_TEST(atomStmtTest);
 // 	CPPUNIT_TEST(multipleAtomStmtTest);
-//	CPPUNIT_TEST(molLineTest);
-	CPPUNIT_TEST(groupLineTest);
+// 	CPPUNIT_TEST(molLineTest);
+// 	CPPUNIT_TEST(groupLineTest);
+// 	CPPUNIT_TEST(uncheckedParseTest);
+	// CPPUNIT_TEST(checkedParseTest);
+// 	CPPUNIT_TEST(charBufParseTest);
+	CPPUNIT_TEST(fileParseTest);
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -58,17 +64,21 @@ public:
 	void multipleAtomStmtTest(void);
 	void molLineTest(void);
 	void groupLineTest(void);
+	void uncheckedParseTest(void);
+	void checkedParseTest(void);
+	void fileParseTest(void);
 	
 private:
 	
 	// scratch variables to hold values extracted by parser
 	int intVal, intVal2;
 	int x, y, z;
+	double doubleVal;
 	std::string stringVal, stringVal2;
 	int atomId, atomicNum;
 	std::string atomStyle;
 	char const *charStringWithSpaceStart, *charStringWithSpaceStop;
-	
+	char const *lineStart;
 	int lineNum;	
 	
 	// variables used in atom_decl_line tests
@@ -90,10 +100,15 @@ private:
 	std::vector<std::string> groupNameStack;
 	std::string currentGroupName, currentGroupStyle;
 	
+	double kelvinTemp;
+	int atomCount, molCount, groupCount, egroupCount;
+	int infoAtomCount, infoChunkCount, infoOpenGroupCount;
+	int bond1Count, bond2Count, bond3Count, bondaCount, bondcCount, bondgCount;
 	
 	// -- helper members --
 	
 	void reset(void);
+	void syntaxError(std::string const& errorMessage);
 	
 	void atomLineTestSetUp(std::vector<std::string>& testStrings,
 	                       std::vector<AtomTestInfo>& answers);
@@ -106,22 +121,50 @@ private:
 	void multipleAtomStmtTestHelper(char const *const testInput);
 	void molLineTestHelper(char const *const testInput);
 	void groupLineTestHelper(char const *const testInput);
+	void uncheckedParseTestHelper(char const *const testInput);
+	void checkedParseTestHelper(char const *const testInput);
 	
+	void charBufParseTest(void);
+	void charBufParseTestVanillin(void);
+	void charBufParseTestHelper(char const *const testInput);
+	
+	void fileParseTestH2O(void);
+	void fileParseTestHOOH(void);
+	void fileParseTestChlorophyll(void);
+	void fileParseTestVanillin(void);
+	void fileParseTestNanocar(void);
+	void fileParseTestHelper(RagelIstreamPtr& p, RagelIstreamPtr& pe);
 	
 	void newAtom(int atomId, int atomicNum,
 	             int x, int y, int z,
 	             std::string const& atomStyle);
+	void newAtomInfo(std::string const& key, std::string const& value);
+	
 	void newBond(std::string const& bondType, int targetAtomId);
 	void newBondDirection(int atomId1, int atomId2);
-	void newAtomInfo(std::string const& key, std::string const& value);
+	
 	void newMolecule(std::string const& name, std::string const& style);
+	void newChunkInfo(std::string const& key, std::string const& value);
+	
 	void newViewDataGroup(void);
-	void endViewDataGroup(void);
 	void newMolStructGroup(std::string const& name, std::string const& style);
-	void endMolStructGroup(std::string const& name);
-	void endGroup(std::string const& name);
 	void newClipboardGroup(void);
-	void endClipboardGroup(void);
+	void endGroup(std::string const& name);
+	void newOpenGroupInfo(std::string const& key, std::string const& value);
+	
+	void end1(void);
+	
+	void checkCounts(int atomCountRef, int molCountRef,
+	                 int groupCountRef, int egroupCountRef,
+	                 int bond1CountRef, int bond2CountRef, int bond3CountRef,
+	                 int bondaCountRef, int bondcCountRef, int bondgCountRef,
+	                 int infoAtomCountRef, int infoChunkCountRef,
+	                 int infoOpenGroupCountRef);
+		
+	
+	// void endViewDataGroup(void);
+	// void endMolStructGroup(std::string const& name);
+	// void endClipboardGroup(void);
 	
 #if 0
 	void stripTrailingWhiteSpaces(std::string& s) {

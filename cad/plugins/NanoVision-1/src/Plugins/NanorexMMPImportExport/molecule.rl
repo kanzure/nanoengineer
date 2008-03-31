@@ -6,11 +6,13 @@
 	machine molecule;
 	
 	mol_decl_line = WHITESPACE**
-		'mol'  nonNEWLINEspace+
+		'mol'  >{lineStart=p;}
+		nonNEWLINEspace+
+			>to { stringVal2.clear(); /* 'style' string optional */ }
 		'('  nonNEWLINEspace*  char_string_with_space  nonNEWLINEspace* ')'
 		(nonNEWLINEspace+ char_string_with_space2)?
+		nonNEWLINEspace*
 		EOL
-		>to { stringVal2.clear(); /* in case there is no 'style' string'*/ }
 		@ {
 			if(stringVal2 == "")
 				stringVal2 = "def";
@@ -18,10 +20,19 @@
 		}
 		;
 	
-	
-#	mol_stmt =
-#		mol_decl_line
-#		atom_stmt*
-#		;
-	
+	info_chunk_line =
+		'info'   >{lineStart=p;}
+		nonNEWLINEspace+
+		'chunk'
+		nonNEWLINEspace+
+		char_string_with_space
+		nonNEWLINEspace*
+		'='
+		nonNEWLINEspace*
+		char_string_with_space2
+		nonNEWLINEspace*
+		EOL
+		@ { newChunkInfo(stringVal, stringVal2); }
+		;
+
 }%%

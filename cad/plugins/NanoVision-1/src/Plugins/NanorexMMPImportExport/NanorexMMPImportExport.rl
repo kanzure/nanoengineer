@@ -35,21 +35,6 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 # ----- utility patterns -----
 	include utilities "utilities.rl";
 	
-# ----- header -----
-	# e.g.:     mmpformat 050920 required [; 050930 preferred]
-	mmpformat_stmt = space*
-		'mmpformat'  space+
-		digit{6} space+
-		'required' space* 
-		(   ';' space+
-		    digit{6} space+
-		    'preferred'
-		)?
-		EOL+
-		;
-	
-	kelvin_line = space*  real_number  EOL+;
-	
 # ----- atom -----
 	
 	include atom "atom.rl";
@@ -61,65 +46,41 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 # ----- group -----
 	
 	include group "group.rl";
-	
-#	group_mol_struct_stmt_body = 
-#		(   info_opengroup_line   |
-#		    mol_stmt              |
-#		    group_mol_struct_stmt
-#		)*
-#		;
-	
-#	group_mol_struct_stmt :=
-#		group_mol_struct_stmt_begin_line
-#		(   info_opengroup_line   |
-#		    mol_stmt              |
-#		    group_mol_struct_stmt
-#		)*
-#		group_mol_struct_stmt_end_line
-#		;
-	
-	action infoOpenGroupAction {
-		infoOpenGroup
-	}
-	
-	action newMoleculeAction {
-		/// @todo
-	}
-	
-	action newGroupAction {
-		newGroup(stringval, stringval2);
-		fcall group_mol_struct_stmt_scanner;
-	}
-	
-	action endGroupAction {
-		endGroup(stringval);
-		fret;
-	}
-	
-	group_mol_struct_stmt_scanner := |*
-		info_opengroup_line => infoOpenGroupAction;
-		mol_decl_line => newMoleculeAction;
-		atom_decl_line => newAtomAction;
-		bond_line => newBondAction;
-		bond_direction_line => newBondDirectionAction;
-		egroup_line => endGroupAction;
-		group_decl_line => newGroupAction;
-		# skip blank and comment lines by providing no actions
+		
+# ----- header -----
+# e.g.:     mmpformat 050920 required [; 050930 preferred]
+	mmpformat_line =
+		'mmpformat'  nonNEWLINEspace+
+		digit{6} nonNEWLINEspace+
+		'required' nonNEWLINEspace*
+		(   ';' nonNEWLINEspace+
+		    digit{6} nonNEWLINEspace+
+		    'preferred'
+		)?
 		EOL;
-	*|;
+	
+	kelvin_line =
+		'kelvin'
+		nonNEWLINEspace+
+		real_number
+		EOL;
+	
+	end_line = 'end' nonNEWLINEspace+ nonNEWLINE* :> EOL;
+	
 	
 # ----- main parser machine -----
 	
-end_line = space* 'end' any* EOL+;
-	
-	
-main := mmpformat_stmt
-		kelvin_line?
-		(group_view_data_stmt  $ 5)?
-		( group_mol_struct_stmt_begin_line %{ fcall group_mol_struct_stmt_scanner; } )
-		( end1_line    group_clipboard_stmt)?
-		end_line
-		IGNORED_LINE*
+main := WHITESPACE*		mmpformat_line
+		WHITESPACE* 	(kelvin_line WHITESPACE*)?
+		group_view_data_stmt_begin_line  % { fcall group_scanner; }
+		WHITESPACE*
+		group_mol_struct_stmt_begin_line % { fcall group_scanner; }
+		WHITESPACE*
+		end1_line
+		WHITESPACE*
+		group_clipboard_stmt_begin_line  % { fcall group_scanner; }
+		WHITESPACE*     end_line
+		any*
 		;
 	
 # dynamic stack re-sizing
@@ -170,7 +131,7 @@ NanorexMMPImportExport::~NanorexMMPImportExport()
 /* FUNCTION: reset */
 void NanorexMMPImportExport::reset(void)
 {
-	line = 0;
+	lineNum = 0;
 	atomPtr = NULL;
 	bondPtr = NULL;
 	foundAtomList.clear();
@@ -206,7 +167,7 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 		success = false;
 	}
 	else {
-		filename = theFilename;
+		inputFilename = theFilename;
 		success = readMMP(mmpfile, rootMoleculeSetPtr);
 	}
 	

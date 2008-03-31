@@ -61,46 +61,63 @@ private:
 	string preferredVersion;
 	double kelvinTemperature;
 	
-    // scratch variables to write parsed values to
-	OBMol *molPtr;
-	OBAtom *atomPtr;
-	// NXAtomData::RenderStyleID atomStyleID;
+	int lineNum;
+	
+	// scratch variables to write parsed values to
+	OBMol *molPtr; // current molecule
+	OBAtom *atomPtr; // current atom
+	OBBond *bondPtr; // current bond
+	NXMoleculeSet *molSetPtr; // current molecule-set
+	
+	int atomicNum, atomId, bond_order;
 	string atomStyle;
-	string defaultAtomStyle; // as specified by group, mol settings
-	OBBond *bondPtr;
-	NXMoleculeSet *molSetPtr;
+	// string defaultAtomStyle; // as specified by group, mol settings
 	map<int,OBAtom*> foundAtomList;
 	vector<OBAtom*> targetAtomList;
-	string stringval1, stringval2;
-	vector<string> tokens; // strings extracted from a line
-	
+	string stringVal, stringVal2;
+	int intVal, intVal2;
+	double doubleVal;
     // molecule-set 'stack' to help with recursive 'group' specification
 	std::stack<NXMoleculeSet*> molSetPtrStack;
 	std::stack<string> defaultAtomStyleStack; // track with recursion into groups
 
 	// Ragel + parser state variables
     int cs, top, act;
-    int intval, atomicNum, atomID, bond_order;
     int x, y, z;
-    int line;
-	int stackSize;
+    int stackSize;
 	std::vector<int> stack;
 	
     // Ragel pointers to input stream
     RagelIstreamPtr p, pe, eof, ts, te;
+	RagelIstreamPtr charStringWithSpaceStart, charStringWithSpaceStop;
     
-    
-    void reset(void);
+    // helper functions
+	
+	void reset(void);
     bool readMMP(istream& instream, NXMoleculeSet *rootMoleculeSetPtr);
-    void createNewMolecule(void);
-    void createNewMoleculeSet(void);
-    void closeMoleculeSet(void);
+	// void createNewMolecule(void);
+	// void createNewMoleculeSet(void);
+	// void closeMoleculeSet(void);
     
-    void applyAtomType(string const& keyStr, string const& valueStr);
+	// void applyAtomType(string const& keyStr, string const& valueStr);
     
-	// helper functions
-	void newAtom(int id, int x, int y, int z, string const& style);
+	
+	// "slots" called for matched patterns
+	
+	void newAtom(int id, int atomicNum, int x, int y, int z,
+	             string const& style);
 	void newBond(string const& type, int targetAtomId);
+	void newMolecule();
+	void newViewDataGroup();
+	void newMolStructGroup(std::string const& name, std::string const& style);
+	void newClipboardGroup();
+	void endGroup(std::string const& groupName);
+	
+	void newAtomInfo(std::string const& key, std::string const& value);
+	void newOpenGroupInfo(std::string const& key, std::string const& value);
+	void newChunkInfo(std::string const& key, std::string const& value);
+	
+	void end1();
 	
     // Static data and function members
     
@@ -120,9 +137,8 @@ private:
     static void populateCommandResult(NXCommandResult* result,
                                       const string& message);
     
+	friend class NanorexMMPImportExportTest;
 };
-
-
 
 
 } // namespace Nanorex
