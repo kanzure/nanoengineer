@@ -3241,10 +3241,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # Compute frustum planes required for frustum culling - piotr 080331
         # Moved it right after _setup_projection is called (piotr 080331)
-        # The _setup_projection use gluPickMatrix to modify the projection 
-        # matrix in GL_SELECT mode. Thus, the projection matrix should be
-        # set up properly at this point.
-        
+        # Note that this method is also called by "do_glselect_if_wanted".
+        # The second call will re-compute the frustum planes according to 
+        # the current projection matrix.
         self._compute_frustum_planes()
 
         # In the glselect_wanted case, we now know (in glselect_dict) which objects draw any pixels at the mouse position,
@@ -3406,6 +3405,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.current_glselect = (wX, wY, 3, 3) #bruce 050615 for use by nodes which want to set up their own projection matrix
             self._setup_projection( glselect = self.current_glselect ) # option makes it use gluPickMatrix
                 # replace 3, 3 with 1, 1? 5, 5? not sure whether this will matter... in principle should have no effect except speed
+            self._compute_frustum_planes() 
+                # piotr 080331 - the frustum planes have to be setup after the 
+                # projection matrix is setup. I'm not sure if there may
+                # be any side effects - see the comment below about
+                # possible optimization.
             glSelectBuffer(self.glselectBufferSize)
             glRenderMode(GL_SELECT)
             glInitNames()
@@ -3422,6 +3426,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state
+            self._frustum_planes_available = False # piotr 080331 
+                # just to be safe and not use the frustum planes computed for 
+                # the pick matrix
             self.drawing_phase = '?'
             self.current_glselect = False
             ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form

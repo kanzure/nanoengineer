@@ -1985,6 +1985,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
         #(Chunk.draw_highlighted on 2008-02-26
 
+        # Early frustum clipping test. piotr 080331
+        if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
+            return
+            
         # Note: bool_fullBondLength represent whether full bond length is to be
         # drawn. It is used only in select Chunks mode while highlighting the 
         # whole chunk and when the atom display is Tubes display -- ninad 070214
