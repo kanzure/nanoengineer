@@ -341,9 +341,10 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #Reset the flag that decides whether to draw the handles. This flag is
         #set during left dragging, when no handle is 'grabbed'. See the 
         #class definition for more details about this flag.
-        if self.command and self.command.handles:
+        if self.command and self.command.handles:         
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
+            
         
         #IMPLEMENTATION CHANGE 2008-03-05. 
         #Due to an implementation change, user is not allowed to 
@@ -483,7 +484,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         """
-        if self._handleDrawingRequested:
+        if self._handleDrawingRequested and \
+           self.command.handles_have_valid_centers:
             self._drawHandles()     
         _superclass.Draw(self)
               
@@ -504,16 +506,10 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 handleType = 'RESIZE_HANDLE'
         
         
-        if handleType and handleType == 'RESIZE_HANDLE':            
-            # We have no easy way to get the original "bases per turn" value
-            # that was used to create this segment, so we will use
-            # the current "bases per turn" user pref value. This is really 
-            # useful (and a kludge) workaround for doing origami design work
-            # since we (Tom and I) often need to resize DNA origami segments.
-            # I spoke with Bruce about this and we agree that this will be 
-            # much easier to fix once the DNA updater/data model is 
-            # implemented (soon), so let's wait until then. Mark 2008-02-10.
-            basesPerTurn = env.prefs[bdnaBasesPerTurn_prefs_key]
+        if handleType and handleType == 'RESIZE_HANDLE': 
+                                    
+            basesPerTurn = self.command.struct.getBasesPerTurn()
+            duplexRise = self.command.struct.getDuplexRise()
             
             #Note: The displayStyle argument for the rubberband line should 
             #really be obtained from self.command.struct. But the struct 
@@ -525,7 +521,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
                            self.command.grabbedHandle.currentPosition,
                            basesPerTurn,
-                           self.command.duplexRise,
+                           duplexRise,
                            self.glpane.scale,
                            self.glpane.lineOfSight,
                            self.glpane.displayMode,
@@ -538,47 +534,11 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if self.command:
                 text = self.command.getCursorText()
                 self.glpane.renderTextNearCursor(text, offset = 30)
-        else:
+        else: 
             #No handle is grabbed. But may be the structure changed 
             #(e.g. while dragging it ) and as a result, the endPoint positions 
             #are modified. So we must update the handle positions because 
             #during left drag (when handle is not dragged) we skip the 
             #handle drawing code and computation to update the handle positions
+            #TODO: see bug 2729 for planned optimization
             self.command.updateHandlePositions()
-            
-
-class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
-    """
-    EXPERIMENTAL class to use DnaLine_GM functionality while dragging a handle
-    See a comment in class DnaSegment_EditCommand, just above the method
-    'EXPERIMENTALswitchGraphicsModeTo'
-    """
-
-    cursor_over_when_LMB_pressed = ''
-    
-    def Enter_GraphicsMode(self):
-        self.endPoint1 = self.command.aHandle.origin
-        DnaLine_GM.Enter_GraphicsMode(self)
-   
-    def Draw(self):
-        """
-        Draw
-        """        
-        DnaLine_GM.Draw(self)
-        self._drawHandles()
-
-
-    def _drawHandles(self):
-        """
-        draw handles
-        """    
-        if self.command and self.command.struct:
-            if isinstance(self.command.struct, DnaSegment):
-                for handle in self.command.handles:
-                    handle.draw()
-    
-    def leftUp(self, event):
-        """
-        Method to be called during leftUp mouse event
-        """
-        self.command.preview_or_finalize_structure(previewing = True)
