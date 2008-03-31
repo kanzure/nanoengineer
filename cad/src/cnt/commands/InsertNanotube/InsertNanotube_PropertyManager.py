@@ -14,7 +14,7 @@ __author__ = "Mark"
 
 import foundation.env as env
 
-from cnt.commands.InsertNanotube.Nanotube import Nanotube
+from cnt.model.Nanotube import Nanotube
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
 

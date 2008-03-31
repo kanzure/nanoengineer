@@ -41,7 +41,7 @@ from utilities.Log  import redmsg
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm
 
-from cnt.commands.InsertNanotube.Nanotube import Nanotube
+from cnt.model.Nanotube import Nanotube
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
