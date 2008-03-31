@@ -35,7 +35,6 @@ fixed after dna_data model is fully implemented
 
 """
 from command_support.EditCommand       import EditCommand 
-from command_support.GraphicsMode_API  import GraphicsMode_API
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from geometry.VQT import V, Veq, vlen
@@ -70,7 +69,6 @@ from dna.model.Dna_Constants            import getNumberOfBasePairsFromDuplexLen
 from dna.model.Dna_Constants            import getDuplexLength
 
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
-from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3_SingleStrand
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
