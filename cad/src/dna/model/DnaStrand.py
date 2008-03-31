@@ -120,11 +120,15 @@ class DnaStrand(DnaStrandOrSegment):
                 previous_strand_atom = atm.strand_next_baseatom(-bond_direction)
 
                 if next_strand_atom is None and previous_strand_atom:
-                    three_prime_end_base_atom = atm
+                    three_prime_end_base_atom = atm         
                 if previous_strand_atom is None and next_strand_atom:
                     five_prime_end_base_atom = atm
-                #What should be done in a case if 'atm' has no next or previous base
-                #atoms?  - Ninad 2008-03-27
+                
+                if next_strand_atom is None and previous_strand_atom is None:
+                    #We have a case where the current strand atom has no
+                    #strand atoms bonded. So simply return it twice.
+                    five_prime_end_base_atom = atm
+                    three_prime_end_base_atom = atm 
 
         # chain
         return (five_prime_end_base_atom, three_prime_end_base_atom)
@@ -147,6 +151,100 @@ class DnaStrand(DnaStrandOrSegment):
         endbaseAtoms = self.get_strand_end_base_atoms()        
         return endbaseAtoms[0] 
 
+    
+    def get_DnaSegment_with_content_atom(self, strand_atom):
+        """
+        Returns a DnaSegment which is has the given strand atom as its 
+        'logical content' .
+        """
+        segment = None
+        if strand_atom:
+            axis_atom = strand_atom.axis_neighbor()
+            if axis_atom:
+                segment = axis_atom.molecule.parent_node_of_class(
+                    self.assy.DnaSegment)
+        return segment
+    
+    def get_DnaSegment_axisEndAtom_connected_to(self, strand_atom):
+        """
+        Returns end axis atom of a DnaSegment connected to the given 
+        strand base atom. Returns None if the axis atom is not an 'end' atom
+        of a wholechain         
+        """
+        axisEndAtom = None
+        #Safety check. strand_atom could be None
+        if strand_atom:
+            axis_atom = strand_atom.axis_neighbor()
+            axis_rail = axis_atom.molecule.get_ladder_rail()
+            if axis_atom in axis_rail.wholechain_end_baseatoms():
+                axisEndAtom = axis_atom
+            
+        #Alternative implementation
+        ##dnaSegment = self.get_DnaSegment_with_content_atom(strand_atom)
+        ##axisEndAtom1, axisEndAtom2 = dnaSegment.getAxisEndAtoms()
+        
+        return axisEndAtom
+    
+    
+    def getDnaSegment_at_three_prime_end(self): 
+        """
+        Returns DnaSegment at the three prime end. i.e. the stand end base atom
+        (at the three prime end) is a 'logical content' of the DnaSegment
+        logical content means that the atom.molecule is not a direct member
+        of DnaSegment group, but is connected to an axis atom whose chunk
+        is a member of that DnaSegment. 
+        """
+        dnaSegment = None
+        atom = self.get_three_prime_end_base_atom()
+        if atom:
+            dnaSegment = self.get_DnaSegment_with_content_atom(atom)
+            
+        return dnaSegment
+    
+    def getDnaSegment_at_five_prime_end(self):
+        """
+        Returns DnaSegment at the five prime end. i.e. the stand end base atom
+        (at the three prime end) is a 'logical content' of the DnaSegment
+        """
+        dnaSegment = None
+        atom = self.get_five_prime_end_base_atom()
+        if atom:
+            dnaSegment = self.get_DnaSegment_with_content_atom(atom)
+            
+        return dnaSegment     
+    
+    def getStrandEndAtomAtPosition(self, position):
+        """
+        Returns an end baseatom of this strand at the specified position. 
+        Returns None if no atom center is found at <position>
+        @param position: The point at which the caller needs to find the 
+                         strand end baseatom. 
+        @type position: B{A}
+        """
+        strandEndAtom = None
+        endAtom1, endAtom2 = self.get_strand_end_base_atoms()    
+        for atm in (endAtom1, endAtom2):
+            if atm is not None and same_vals(position,  atm.posn()):
+                strandEndAtom = atm
+                break
+        return strandEndAtom
+    
+    def getNumberOfBases(self):
+        """
+        Returns the total number of baseatoms of this DnaStrand. 
+        """
+        member = None
+        numberOfBases = None
+        for member in self.members:
+            if isinstance(member, DnaStrandChunk):
+                break
+        if member:
+            strand_wholechain = member.wholechain
+            numberOfBases = len(strand_wholechain.get_all_baseatoms())
+        
+        return numberOfBases
+    
+                        
     def getStrandChunks(self): 
         """
         Return a list of all strand chuns
