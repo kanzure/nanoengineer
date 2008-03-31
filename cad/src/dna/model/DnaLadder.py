@@ -491,20 +491,32 @@ class DnaLadder(object):
         strand1Atom = None
         axisAtom =  endBaseAtomList [1]
         strand2Atom = None
-        for atm in end_strand_base_atoms:            
-            temp_strand = atm.molecule        
-            rail = temp_strand.get_ladder_rail()
-            #rail goes from left to right. (increasing chain index order)                
-            
-            if rail.bond_direction() == 1:
-                strand1Atom = atm
-            elif rail.bond_direction() == -1:
-                strand2Atom = atm
+        for atm in end_strand_base_atoms:     
+            if atm is not None:
+                temp_strand = atm.molecule        
+                rail = temp_strand.get_ladder_rail()
+                #rail goes from left to right. (increasing chain index order)                
+                
+                if rail.bond_direction() == 1:
+                    strand1Atom = atm
+                elif rail.bond_direction() == -1:
+                    strand2Atom = atm
      
         endBaseAtomList = [strand1Atom, axisAtom, strand2Atom]
         
         return endBaseAtomList                
-            
+     
+    def is_ladder_end_baseatom(self, baseAtom):
+        """
+        Returns true if the given atom is an end base atom of a ladder (either
+        at ladder end0 or ladder end1)
+        """
+        for ladderEnd in LADDER_ENDS:
+            if endBaseAtom in self.ladder_end_atoms(ladderEnd):
+                return True
+        
+        return False
+    
 
     # == ladder-merge methods
     
