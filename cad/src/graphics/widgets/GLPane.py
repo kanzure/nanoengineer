@@ -447,7 +447,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.ortho = 0
 
         # Current coordinates of the mouse.
-        self.MousePos = V(0,0)
+        self.MousePos = V(0, 0)
 
         # Selection lock state of the mouse for this glpane.
         # See selectionLock() in the ops_select_Mixin class for details.
@@ -946,7 +946,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         aspect = self.aspect
         if aspect < 1.0:
             scale /= aspect
-        pov = V(0,0,0) 
+        pov = V(0, 0, 0) 
         if fast:
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
@@ -1396,7 +1396,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         else:
             prefix = "warning"
         str = str[0].upper() + str[1:] # capitalize the sentence
-        msg = "%s: %s" % (prefix,str,)
+        msg = "%s: %s" % (prefix, str,)
         ###e add a timestamp prefix, at least for the printed one
 
         # always print it so there's a semi-permanent record they can refer to
@@ -1417,17 +1417,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     # relative to the screen
     def __getattr__(self, name): # in class GLPane
         if name == 'lineOfSight':
-            return self.quat.unrot(V(0,0,-1))
+            return self.quat.unrot(V(0, 0, -1))
         elif name == 'right':
-            return self.quat.unrot(V(1,0,0))
+            return self.quat.unrot(V(1, 0, 0))
         elif name == 'left':
-            return self.quat.unrot(V(-1,0,0))
+            return self.quat.unrot(V(-1, 0, 0))
         elif name == 'up':
-            return self.quat.unrot(V(0,1,0))
+            return self.quat.unrot(V(0, 1, 0))
         elif name == 'down':
-            return self.quat.unrot(V(0,-1,0))
+            return self.quat.unrot(V(0, -1, 0))
         elif name == 'out':
-            return self.quat.unrot(V(0,0,1))
+            return self.quat.unrot(V(0, 0, 1))
         else:
             raise AttributeError, 'GLPane has no "%s"' % name
 
@@ -2332,7 +2332,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         Return the location of the eyeball in model coordinates.
         """
-        return self.quat.unrot(V(0,0,self.vdist)) - self.pov # note: self.vdist is (usually??) 6 * self.scale
+        return self.quat.unrot(V(0, 0, self.vdist)) - self.pov # note: self.vdist is (usually??) 6 * self.scale
         ##k need to review whether this is correct for tall aspect ratio GLPane
 
     def SaveMouse(self, event):
@@ -2361,7 +2361,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         q1 = self.quat
         a = 1.1
         what = 0
-        for q2,n in qlist:
+        for q2, n in qlist:
             a2 = vlen((q2-q1).axis)
             if a2 < a:
                 a = a2
@@ -2619,6 +2619,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
 
+        self._frustum_planes_available = False
+
         if not self.initialised:
             return
 
@@ -2739,6 +2741,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self._restore_modelview_stack_depth()
 
+        self._use_frustum_culling = \
+                debug_pref("GLPane: enable frustum culling?",
+                    Choice_boolean_False,
+                    non_debug = True,
+                    prefs_key = True )
+            # there is some overhead calling the debug_pref,
+            # and we want the same answer used throughout
+            # one call of paintGL
+        assert not self._frustum_planes_available
+
         # fog_test_enable debug_pref can be removed if fog is implemented fully
         # (added by bradg 20060224)
         fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False)
@@ -2850,10 +2862,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                     # by the PyOpenGL I'm using. [bruce iMac G5 070626]
 
                 if not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID):
-                    # This was happening when we used x,y = exact 0,
+                    # This was happening when we used x, y = exact 0,
                     # and was causing the image to not get drawn sometimes (when mousewheel zoom was used).
                     # It can still happen for extreme values of mousewheel zoom (close to the ones
-                    # which cause OpenGL exceptions), mostly only when pos = (0,0) but not entirely.
+                    # which cause OpenGL exceptions), mostly only when pos = (0, 0) but not entirely.
                     # Sometimes the actual drawing positions can get messed up then, too.
                     # This doesn't matter much, but indicates that reiniting the matrices would be
                     # a better solution if we could be sure the projection stack depth was sufficient
@@ -3083,24 +3095,36 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     vdist = property(get_vdist)
 
-    def _compute_frustum_planes(self):
+    def _compute_frustum_planes(self): # Piotr 080331
         """
-        Compute six planes to be used for frustum culling.
-        """
-        # get current projection and modelview matrices 
-        pmat = glGetFloatv(GL_PROJECTION_MATRIX);
-        mmat = glGetFloatv(GL_MODELVIEW_MATRIX);
+        Compute six planes to be used for frustum culling
+        (if the use of that feature is enabled).
 
-        # allocate a clip matrix float[4,4]
+        @note: this must only be called when the matrices are set up
+               to do drawing in absolute model space coordinates.
+               Callers which later change those matrices should review
+               whether they need to set self._frustum_planes_available = False
+               when they change them, to avoid erroneous culling.
+        """
+        if not self._use_frustum_culling:
+            # [bruce 080331]
+            assert not self._frustum_planes_available
+            return
+        
+        # get current projection and modelview matrices 
+        pmat = glGetFloatv(GL_PROJECTION_MATRIX)
+        mmat = glGetFloatv(GL_MODELVIEW_MATRIX)
+
+        # allocate a clip matrix float[4, 4]
         cmat = [None] * 4
-        for i in range(0,4):
+        for i in range(0, 4):
             cmat[i] = [0.0] * 4
 
-        # compute a composite transforamtion matrix 
+        # compute a composite transformation matrix 
         # matrix multiplication: should be using Matrix.multiply here?        
         # cmat = mmat * pmat^T         
-        for i in range(0,4):
-            for j in range (0,4):
+        for i in range(0, 4):
+            for j in range (0, 4):
                 cmat[i][j] = (mmat[i][0] * pmat[0][j] + 
                               mmat[i][1] * pmat[1][j] + 
                               mmat[i][2] * pmat[2][j] + 
@@ -3108,45 +3132,62 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # allocate frustum planes
         self.fplanes = [None] * 6
-        for p in range(0,6):
+        for p in range(0, 6):
             self.fplanes[p] = [0.0] * 4
 
         # subtract and add the composite matrix rows to get the plane equations
-        for p in range(0,2):
-            for i in range(0,4):
+        for p in range(0, 2):
+            for i in range(0, 4):
                 self.fplanes[2*p][i] = cmat[i][3] - cmat[i][p]
                 self.fplanes[2*p+1][i] = cmat[i][3] + cmat[i][p]
 
         # normalize the plane normals
-        for p in range(0,6):
+        for p in range(0, 6):
             n = math.sqrt(float(self.fplanes[p][0] * self.fplanes[p][0] +
                                 self.fplanes[p][1] * self.fplanes[p][1] +
                                 self.fplanes[p][2] * self.fplanes[p][2]))
-            if n>1e-8:
+            if n > 1e-8:
                 self.fplanes[p][0] /= n
                 self.fplanes[p][1] /= n
                 self.fplanes[p][2] /= n
                 self.fplanes[p][3] /= n
 
-    def is_sphere_visible(self, center, radius):
+        # cause self.is_sphere_visible() to use these planes
+        self._frustum_planes_available = True # [bruce 080331]
+
+        return
+
+    def is_sphere_visible(self, center, radius): # Piotr 080331
         """
-        Performs a simple frustum culling test against a spherical object
-        in model space coordinates. Assumes that the frustum planes 
-        are allocated, i.e. glpane._compute_frustum_planes was alread called. 
+        Perform a simple frustum culling test against a spherical object
+        in absolute model space coordinates. Assume that the frustum planes 
+        are allocated, i.e. glpane._compute_frustum_planes was already called.
+        (If it wasn't, the test will always succeed.)
+
+        @warning: this will give incorrect results unless the current
+                  GL matrices are in the same state as when _compute_frustum_planes
+                  was last called (i.e. in absolute model space coordinates).
         """
-        if debug_pref("Enable frustum culling?", 
-                      Choice_boolean_False, prefs_key = True):          
-            # there is some overhead calling the debug_pref
-            for p in range(0,6): # go through all frustum planes
+        if self._frustum_planes_available:
+            for p in range(0, 6): # go through all frustum planes
                 # calculate a distance to the frustum plane 'p'
                 # the sign corresponds to the plane normal direction
-                dist =  (self.fplanes[p][0]*center[0] + 
-                         self.fplanes[p][1]*center[1] + 
-                         self.fplanes[p][2]*center[2] + 
+                dist =  (self.fplanes[p][0] * center[0] + 
+                         self.fplanes[p][1] * center[1] + 
+                         self.fplanes[p][2] * center[2] + 
                          self.fplanes[p][3])
                 # sphere outside of the plane - exit
-                if dist < -radius:
+                if dist < - radius:
                     return False
+                continue
+            # At this point, the sphere might still be outside
+            # of the box (e.g. if it is bigger than the box and a
+            # box corner is close to the sphere and points towards it),
+            # but this is an acceptable approximation for now
+            # (since false positives are safe, and this will not affect
+            #  most chunks in typical uses where this is a speedup.)
+            # [bruce 080331 comment]
+            pass
 
         return True
 
@@ -3275,9 +3316,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]:
-                drawer.drawOriginAsSmallAxis(self.scale, (0.0,0.0,0.0), dashEnabled = True)
+                drawer.drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
             else:
-                drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes = True, dashEnabled = True)
+                drawer.drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
         # draw some test images related to the confirmation corner
 
@@ -3290,7 +3331,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
 
         if ccdp1:
-            self.draw_conf_corner_bg_image((0,0))
+            self.draw_conf_corner_bg_image((0, 0))
 
         if ccdp2:
             self.draw_conf_corner_bg_image()
@@ -3348,18 +3389,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # in at least three other places (search for glRenderMode to find them). This is bad; common code
             # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
             # that should be fixed too. [bruce 060721 comment]
-            wX, wY, self.targetdepth = self.glselect_wanted # wX,wY is the point to do the hit-test at
+            wX, wY, self.targetdepth = self.glselect_wanted # wX, wY is the point to do the hit-test at
                 # targetdepth is the depth buffer value to look for at that point, during ordinary drawing phase
                 # (could also be used to set up clipping planes to further restrict hit-test, but this isn't yet done)
                 # (Warning: targetdepth could in theory be out of date, if more events come between bareMotion
                 #  and the one caused by its gl_update, whose paintGL is what's running now, and if those events
                 #  move what's drawn. Maybe that could happen with mousewheel events or (someday) with keypresses
                 #  having a graphical effect. Ideally we'd count intentional redraws, and disable this picking in that case.)
-            self.wX, self.wY = wX,wY
+            self.wX, self.wY = wX, wY
             self.glselect_wanted = 0
-            self.current_glselect = (wX,wY,3,3) #bruce 050615 for use by nodes which want to set up their own projection matrix
+            self.current_glselect = (wX, wY, 3, 3) #bruce 050615 for use by nodes which want to set up their own projection matrix
             self._setup_projection( glselect = self.current_glselect ) # option makes it use gluPickMatrix
-                # replace 3,3 with 1,1? 5,5? not sure whether this will matter... in principle should have no effect except speed
+                # replace 3, 3 with 1, 1? 5, 5? not sure whether this will matter... in principle should have no effect except speed
             glSelectBuffer(self.glselectBufferSize)
             glRenderMode(GL_SELECT)
             glInitNames()
@@ -3390,9 +3431,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glFlush()
             hit_records = list(glRenderMode(GL_RENDER))
             ## print "%d hits" % len(hit_records)
-            for (near,far,names) in hit_records: # see example code, renderpass.py
-                ## print "hit record: near,far,names:",near,far,names
-                    # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+            for (near, far, names) in hit_records: # see example code, renderpass.py
+                ## print "hit record: near, far, names:", near, far, names
+                    # e.g. hit record: near, far, names: 1439181696 1453030144 (1638426L,)
                     # which proves that near/far are too far apart to give actual depth,
                     # in spite of the 1-pixel drawing window (presumably they're vertices
                     # taken from unclipped primitives, not clipped ones).
@@ -3479,7 +3520,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if not highlight_into_depth:
             glDepthMask(GL_FALSE) # turn off depth writing (but not depth test)
         if not highlight_into_color:
-            glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) # don't draw color pixels
 
         # Note: stencil buffer was cleared earlier in this paintGL call.
         glStencilFunc(GL_ALWAYS, 1, 1)
@@ -3581,7 +3622,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # (If some mode with special drawing code wants to join this system, it should be refactored
         #  to store special nodes in the model which can be drawn in the standard way.)
         glMatrixMode(GL_MODELVIEW)
-        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # optimization -- don't draw color pixels (depth is all we need)
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) # optimization -- don't draw color pixels (depth is all we need)
         newpicked = None # in case of errors, and to record found object
         # here we should sort the objs to check the ones we most want first (esp selobj)...
         #bruce 050702 try sorting this, see if it helps pick bonds rather than invis selatoms -- it seems to help.
@@ -3636,7 +3677,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         ##e should check depth here to make sure it's near enough but not too near
         # (if too near, it means objects moved, and we should cancel this pick)
         glClear(GL_DEPTH_BUFFER_BIT) # prevent those predraws from messing up the subsequent main draws
-        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
         self.glselect_dict.clear() #k needed? even if not, seems safer this way.
             # do this now to avoid confusing the main draw methods,
             # in case they check this dict to decide whether they're
@@ -3757,10 +3798,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         vdist = self.vdist
 
         if glselect:
-            x,y,w,h = glselect
+            x, y, w, h = glselect
             gluPickMatrix(
-                x,y,
-                w,h,
+                x, y,
+                w, h,
                 glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
             )
 
