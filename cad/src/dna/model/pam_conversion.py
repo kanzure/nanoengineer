@@ -290,14 +290,25 @@ class Fake_Pl(object): #bruce 080327
         # though someday we might try to preserve this info
         # across PAM5 <-> PAM3+5 conversion
 
-    def __init__(self):
+    owning_Ss_atom = None # not yet used
+    bond_direction = 0 # not yet used (direction of self from that atom)
+        # usually (or always?) this is (- Pl_STICKY_BOND_DIRECTION)
+    
+    def __init__(self, owning_Ss_atom, bond_direction):
         from model.chem import atKey # bad: helps cause import cycle with chem ###FIX
         self.key = atKey.next()
+        self.owning_Ss_atom = owning_Ss_atom
+            # reference cycle -- either destroy self when atom is destroyed,
+            # or just store owning_Ss_atom.key or so
+        self.bond_direction = bond_direction
+        return
 
-    def posn(self):
-        return V(0,0,0) # STUB
+    def posn(self): # stub - average posn of Ss neighbors (plus offset in case only one!)
+        from utilities.constants import average_value # seems to work here
+        res = average_value( [n.posn() for n in self.neighbors()], V(0, 0, 0) )
+        return res + V(0, 2, 0) # offset (kluge, wrong)
     
-    def writemmp(self, mapping):
+    def writemmp(self, mapping, dont_write_bonds_for_these_atoms = ()):
         """
         Write a real mmp atom record for self (not a real atom),
         and whatever makes sense to write for a fake Pl atom
@@ -319,19 +330,53 @@ class Fake_Pl(object): #bruce 080327
         ## display = self.display
         display = diDEFAULT
         disp = mapping.dispname(display) # note: affected by mapping.sim flag
-        posn = self.posn() # might be revised below
+        posn = self.posn()
         ## element = self.element
         element = Pl5
         eltnum = element.eltnum
         xyz = posn * 1000
-            # note, xyz has floats, rounded below (watch out for this
+            # note, xyz has floats, rounded to ints below (watch out for this
             # if it's used to make a hash) [bruce 050404 comment]
         xyz = [int(coord + 0.5) for coord in xyz]
             #bruce 080327 add 0.5 to improve rounding accuracy
         print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
-        mapping.write("# bug: writing bonds of that fake_Pl is nim\n")
-    pass
+        if mapping.write_bonds_compactly:
+            # no need to worry about how to write bonds, in this case!
+            # it's done implicitly, just by writing self between its neighbor Ss atoms.
+            # (to make this work fully, we need to include the strand-end bondpoints...
+            #  and add a special case for a fake_Pl that bridges two chunks.
+            #  ###### NONTRIVIAL -- we might not even have written the other chunk yet...)
+            pass
+        else:
+            mapping.write("# bug: writing fake_Pl bonds is nim, when not \n")
+                # TODO: summary redmsg, so I don't forget this is nim...
+            # todo: use dont_write_bonds_for_these_atoms,
+            # and self._neighbor_atoms, but note they might not be written out yet...
+            # we might just assume we know which ones were written or not,
+            # and write the atom and bond records in one big loop in the caller...
+            # e.g. have our chunk copy & modify the atom writemmp loop and write
+            # the between-atom bonds itself (like using the directional_bond_chain
+            #  record, but spelling it out itself).
+            # (Would things be easiest if we made fake Ss atoms too,
+            #  or (similarly) just did an actual conversion (all new atoms) before writing?
+            #  The issue is, avoiding lots of overhead (and undo issues) from making new Atoms.)
+        return
+
+    def _neighbor_atoms(self): # needed?
+        a1 = self.owning_Ss_atom
+        a2 = a1.next_atom_in_bond_direction(self.bond_direction) # might be None
+        assert a2 is not self
+        res = [a1, a2]
+        if self.bond_direction < 0:
+            res.reverse() #k good? better to compare to +/- Pl_STICKY_BOND_DIRECTION??
+        print "_neighbor_atoms -> ", res #######
+        return res
+
+    def neighbors(self):
+        return filter(None, self._neighbor_atoms())
+    
+    pass # end of class
 
 # end
 
