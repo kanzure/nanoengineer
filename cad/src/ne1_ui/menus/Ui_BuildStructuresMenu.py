@@ -34,11 +34,6 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.insertAtomAction)
     win.buildStructuresMenu.addAction(win.insertPeptideAction) # piotr 080304
     
-    #Disabling Ui_DnaFlyout -- It is initialized by the DNA_DUPLEX command 
-    #instead.  Command Toolbar code to be revised and 
-    #integrated with the commandSequencer -- Ninad 2007-12-19.
-    ##Ui_DnaFlyout.setupUi(MainWindow)
-    
 def retranslateUi(win):
     """
     Sets text related attributes for the "Build Structures" submenu, 
