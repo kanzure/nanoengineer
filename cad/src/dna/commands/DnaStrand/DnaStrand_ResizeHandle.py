@@ -36,6 +36,7 @@ from utilities.constants import yellow, purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
+from exprs.ExprsConstants import StateRef
 
 class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     """
@@ -47,20 +48,38 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     #(given as an optional argument to 'Sphere')
     handleColor = State( Color, purple)
     
+    #The state ref that determines the radius (of the sphere) of this handle. 
+    #See DnaStrand_EditCommand._determine_resize_handle_radius() for more 
+    #details
+    sphereRadius = Option(StateRef, 1.2)
+    
+    
     #Appearance of the handle. (note that it uses all the code from exprs module
     # and needs more documentation there). 
     #See exprs.Rect.Sphere for definition of a drawable 'Sphere' object.
     
     appearance = Overlay(
-            Sphere(1.2, handleColor, center = ORIGIN + _self.direction*3*DX), 
-            Cylinder((ORIGIN, ORIGIN + _self.direction*2*DX), 0.5 ,handleColor))
+            Sphere(_self.sphereRadius, 
+                   handleColor, 
+                   center = ORIGIN + _self.direction*3.0*_self.sphereRadius),
+                   
+            Cylinder((ORIGIN, 
+                      ORIGIN + _self.direction*2.2*_self.sphereRadius),
+                      0.5 ,
+                      handleColor))
     
     #Handle appearance when highlighted   
     appearance_highlighted = Option(
         Drawable,
         Overlay(
-            Sphere(1.2, yellow, center = ORIGIN + _self.direction*3*DX),
-            Cylinder((ORIGIN,  ORIGIN + _self.direction*2*DX), 0.5 , yellow)),
+            Sphere(_self.sphereRadius, 
+                   yellow, 
+                   center = ORIGIN + _self.direction*3.0*_self.sphereRadius),
+                   
+            Cylinder((ORIGIN,  
+                      ORIGIN + _self.direction*2.2*_self.sphereRadius),
+                     0.5 , 
+                     yellow)),
             doc = "handle appearance when highlighted")
      
 
@@ -91,6 +110,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
                                  V(0, 0, 0))
     
     
+    hasValidCenter = Option(bool, True)
        
     def on_press(self):  
         """
@@ -113,8 +133,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         Method called while dragging this handle .
         @see: B{DragHandle_API}
         """
-        #Does nothing at the moment. 
-        pass
+        self.command.update_numberOfBases()
     
     def on_release(self):
         """
