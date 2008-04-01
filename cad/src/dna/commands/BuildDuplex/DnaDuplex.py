@@ -35,7 +35,7 @@ from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
 
-from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
+##from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
 from simulation.sim_commandruns import adjustSinglet
 
@@ -921,8 +921,9 @@ class Dna:
         chunk = self.assy.makeChunkFromAtomList( atomList, **options)
         ### todo: in some cases, set chunk.display_as_pam = MODEL_PAM5
         # initial stub: always do that (when making PAM5 dna),
-        # but only if edit pref would otherwise immediately convert it to PAM3
-        if self.model == "PAM5" and pref_dna_updater_convert_to_PAM3plus5():
+        # but only if edit pref would otherwise immediately convert it to PAM3.
+        #update, bruce 080401: always do it, regardless of that edit pref.
+        if self.model == "PAM5": ##  and pref_dna_updater_convert_to_PAM3plus5():
             chunk.display_as_pam = MODEL_PAM5
         return chunk
 

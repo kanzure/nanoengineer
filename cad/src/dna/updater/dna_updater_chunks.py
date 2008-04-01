@@ -24,6 +24,9 @@ from dna.updater.dna_updater_find_chains import find_axis_and_strand_chains_or_r
 from dna.updater.dna_updater_ladders import dissolve_or_fragment_invalid_ladders
 from dna.updater.dna_updater_ladders import make_new_ladders, merge_and_split_ladders
 
+from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
+
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 # ==
 
@@ -168,6 +171,50 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_ladder_baseatoms( new_axis_ladders + new_singlestrand_ladders)
+
+    # convert pam model of ladders that want to be converted
+    # (assume all old ladders that want this were invalidated
+    #  and therefore got remade above; do this before merging
+    #  in case conversion errors are confined to smaller ladders
+    #  that way, maybe for other reasons) [bruce 080401 new feature]
+
+    default_pam = pref_dna_updater_convert_to_PAM3plus5() and MODEL_PAM3 or None
+        # None means "whatever you already are", i.e. do no conversion.
+        # There is not yet a way to say "display everything in PAM5".
+        # We will probably need either that, or "convert selection to PAM5",
+        # or both. As of 080401 we only have "convert one ladder to PAM5" (unfinished).
+    
+    number_converted = 0
+    number_failed = 0
+    for ladder in new_axis_ladders + new_singlestrand_ladders:
+        wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
+        didit = wanted and succeeded 
+        failed = wanted and not succeeded
+        number_converted += not not didit
+        number_failed += not not failed
+        continue
+
+    # Note: if ladders were converted, their chains are still ok,
+    # since those only store baseatoms (for strand and axis),
+    # and those transmuted and moved but didn't change identity.
+    # So the ladders also don't change identity, and remain valid
+    # unless they had conversion errors. If not valid, they are ok
+    # in those lists since this was already possible in other ways
+    # (I think). (All this needs test and review.)
+    #
+    # But lots of atoms got changed in lots of ways (transmute, move,
+    # rebond, create Pl, kill Pl). Ignore all that.
+    # (review: any changes to ignore if conversion wanted and failed?)
+
+    msg = "from converting %d ladders" % number_converted
+    if number_failed:
+        msg += " (%d desired conversions failed)" % number_failed
+        # msg is just for debug, nevermind calling fix_plurals
+    
+    if number_converted:
+        ignore_new_changes(msg, changes_ok = True)
+    else:
+        ignore_new_changes(msg, changes_ok = False)
 
     # merge axis ladders (ladders with an axis, and 1 or 2 strands)
     

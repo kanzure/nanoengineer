@@ -49,6 +49,19 @@ A ladder will be fully visible to copy and undo (i.e. it will
 contain undoable state), but will not be stored in the mmp file.
 """
 
+from Numeric import dot
+from geometry.VQT import cross
+
+from model.elements import Pl5
+
+from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS
+
+from utilities.Log import orangemsg, redmsg, quote_html
+
+from utilities import debug_flags
+
+import foundation.env as env
+
 from model.bond_constants import atoms_are_bonded
 
 from dna.model.DnaChain import merged_chain
@@ -59,8 +72,6 @@ from dna.model.DnaLadderRailChunk import make_or_reuse_DnaStrandChunk
     # to a controller class, since they are needed only by remake_chunks method
 
 from dna.model.pam_conversion import DnaLadder_writemmp_mapping_memo
-
-from utilities import debug_flags
 
 def _DEBUG_LADDER_FINISH_AND_MERGE():
     return debug_flags.DEBUG_DNA_UPDATER_VERBOSE # for now
@@ -79,14 +90,6 @@ from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
 from dna.updater.dna_updater_prefs import pref_per_ladder_colors
-
-from utilities.Log import orangemsg, redmsg ##, quote_html
-import foundation.env as env
-
-from Numeric import dot
-from geometry.VQT import cross
-
-from model.elements import Pl5
 
 
 # ==
@@ -343,6 +346,12 @@ class DnaLadder(object):
                 # (as there would be otherwise, since same error would show up in the merged ladder)
         return
 
+    def set_error(self, error_string): #bruce 080401 REVIEW: use this above?
+        """
+        """
+        self.error = error_string # REVIEW: more? relation to valid?
+        return
+    
     def _duplex_geometric_checks(self):
         """
         Set (or append to) self.error, if self has any duplex geometric errors.
@@ -608,7 +617,12 @@ class DnaLadder(object):
         if len(self) + len(other) > MAX_LADDER_LENGTH:
             return None
         # Now a merge is possible and allowed, if all ladder-ends are bonded
-        # in either orientation.
+        # in either orientation of other, AND if the ladders are compatible
+        # for merging in attributes which we don't wish to mix (e.g. chunk.display_as_pam).
+        # In checking those attrs, note that the atoms are still in their old chunks.
+
+        if not self.compatible_for_merge_with(other):
+            return None
 
         # optim: reject early if ladders have different numbers of rails --
         # enable this optim once i verify it works without it: @@
@@ -643,15 +657,31 @@ class DnaLadder(object):
             if still_ok:
                 # success
                 if debug_flags.DEBUG_DNA_UPDATER:
-                    # end_atom and next_atom are bonded, so if we succeeded
-                    # then they ought to be in the same positions in these lists:
+                    # end_atom and next_atom are bonded (perhaps via Pl),
+                    # so if we succeeded then they ought to be in the same
+                    # positions in these lists:
                     assert next_atom in other_end_atoms
                     assert self_end_atoms.index(end_atom) == other_end_atoms.index(next_atom)
                 merge_info = (end, other_end)
                 other_ladder_and_merge_info = other, merge_info
                 return other_ladder_and_merge_info
         return None
-    
+
+    def compatible_for_merge_with(self, other): #bruce 080401
+        our_atom = self.arbitrary_baseatom()
+        other_atom = other.arbitrary_baseatom()
+        return PAM_atoms_allowed_in_same_ladder( our_atom, other_atom)
+        # note: above doesn't reject Pl5 bonded to Ss3...
+        # review whether anything else will catch that.
+        # Guess: yes, the ladder-forming code will catch it
+        # (not sure what it would do with Ss3-Pl-Ss3, though -- REVIEW).
+        # But note that Ss3-Pl-Ss5 is allowed, at the bond between a PAM3 ad PAM5 chunk.
+        # (In which case the Pl should prefer to stay in the same chunk
+        #  as the Ss5 atom, not the Ss3 atom -- this is now implemented in Pl_preferred_Ss_neighbor.)
+
+    def arbitrary_baseatom(self): #bruce 080401
+        return self.strand_rails[0].baseatoms[0] # override if bare axis rail is allowed
+
     def ladder_end_atoms(self, end, reverse = False):
         """
         Return a list of our 3 rail-end atoms at the specified end,
@@ -853,6 +883,13 @@ class DnaLadder(object):
             return [None, self.axis_rail, None] # not sure this will work in callers
         pass
 
+    def pam_model(self): #bruce 080401
+        """
+        Return an element of PAM_MODELS (presently MODEL_PAM3 or MODEL_PAM5)
+        which indicates the PAM model of all atoms in self.
+        """
+        return self.strand_rails[0].baseatoms[0].element.pam
+
     # ==
     
     def remake_chunks(self):
@@ -1001,6 +1038,101 @@ class DnaLadder(object):
         for chunk in self.all_chunks():
             chunk.kill()
 
+    # ==
+
+    def conversion_menu_spec(self, selobj): #bruce 080401
+        """
+        Return a menu_spec list of context menu entries specific to selobj being
+        a PAM atom whose ladder is self, or None.
+
+        (Other kinds of selobj might be permitted later.)
+        """
+        res = []
+        if self.pam_model() == MODEL_PAM3: # todo: fix_plurals
+            res.append( ("Convert %d basepairs to PAM5" % len(self),
+                         self.cmd_convert_to_pam5) )
+        elif self.pam_model() == MODEL_PAM5:
+            res.append( ("Convert %d basepairs to PAM3" % len(self),
+                         self.cmd_convert_to_pam3) )
+        # TODO:
+        # later, add conversions between types of ladders (duplex, free strand, sticky end)
+        # and for subsections of a ladder (base pairs of selected atoms?)
+        return res
+
+    def cmd_convert_to_pam5(self):
+        """
+        Command to convert all of self to PAM5.
+        """
+        self._cmd_convert_to_pam(MODEL_PAM5)
+
+    def cmd_convert_to_pam3(self):
+        """
+        Command to convert all of self to PAM3.
+        """
+        self._cmd_convert_to_pam(MODEL_PAM3)
+
+    # todo: also a command to "convert to default PAM display" which sets chunk.display_as_pam = None
+    # (what to call it?)
+    # (or just make the one that corresponds to that, do that, if it's pam3 at least??)
+    
+    def _cmd_convert_to_pam(self, which_model):
+        """
+        Command to convert all of self to one of the PAM_MODELS.
+        """
+        env.history.graymsg(quote_html("Debug fyi: Convert %r to %s" % (self, which_model))) #####
+        for chunk in self.all_chunks():
+            chunk.display_as_pam = which_model
+            chunk.changed() # calls assy.changed(); might be needed
+        self.invalidate()
+            # this tells dna updater to remake self from scratch;
+            # it will notice display_as_pam differing from element.pam of the
+            # atoms, and do the actual conversion [mostly nim as of 080401 430pm]
+        ### BUG: the above, alone, doesn't cause dna updater to actually run.
+        # KLUGE WORKAROUND:
+        self.arbitrary_baseatom()._changed_structure()
+        return
+
+    def _f_convert_pam_if_desired(self, default_pam_model): #bruce 080401
+        """
+        [friend method for dna updater]
+
+        If self's atoms desire it, try to convert self to a different pam model for display.
+        On any conversion error, report to history (summary message),
+        mark self with an error, and don't convert anything in self.
+        On success, only report to history if debug_prefs desire this.
+
+        @return: a pair of booleans: (conversion_wanted, conversion_succeeded).
+        """
+        want = self.arbitrary_baseatom().molecule.display_as_pam
+        if not want:
+            want = default_pam_model # might be None, which means, whatever you already are
+        have = self.pam_model()
+        if want == have or want is None:
+            # no conversion needed
+            return False, False
+        assert want in PAM_MODELS
+        succeeded = self._convert_to_pam(want)
+        if not succeeded:
+            summary_format = "Error: PAM conversion failed for [N] DnaLadder(s)"
+            env.history.deferred_summary_message( redmsg( summary_format))
+        return True, succeeded
+
+    def _convert_to_pam(self, pam_model): #bruce 080401
+        """
+        [private helper for _f_convert_pam_if_desired; other calls might be added]
+        
+        Assume self is not already in pam_model but wants to be.
+        If conversion can succeed, then do it by
+        destructively modifying self's atoms, but preserve their identity
+        (except for Pl) and the identity of self, and return True.
+        If not, set an error in self and return False
+        (but emit no messages).
+        """
+        ###### STUB (but correct if this should always fail, i think):
+        print "_convert_to_pam(%r, %r) is NIM" % (self, pam_model) ###
+        self.set_error("_convert_to_pam is NIM") 
+        return False # simulate failure
+        
     pass # end of class DnaLadder
 
 # ==
@@ -1153,6 +1285,45 @@ def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile
         if Pl in set2 and Pl.element is Pl5:
             return True
     return False
+
+def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401  # has known bugs, see comment
+    """
+    Are the given PAM atoms allowed in the same DnaLadder,
+    during either formation or merging of ladders?
+    If not, this might be for any reason we want, including cosmetic
+    (e.g. chunk colors differ), but if different atoms in one base pair
+    use different criteria, problems might ensue if the dna updater does not
+    explicitly handle that somehow when forming ladders (since currently
+    it requires all atoms in one full or partial basepair to be in one ladder).
+    """
+    # BUG: the following will be wrong, if the atoms in one full or partial
+    # basepair disagree about this data. To fix, find the basepair here
+    # (if too big, mark atoms as error, use default results), and combine
+    # the properties to make a joint effective property on each atom,
+    # before comparing. Not trivial to do that efficiently. Ignoring this
+    # for now, though it means some operation bugs could lead to updater
+    # exceptions. (And correct operations must change these properties
+    # in sync across base pairs.) It may even mean the user can cause those
+    # errors by piecing together base pairs from different DnaLadders using
+    # direct bond formation. (Maybe make rung-bond-former detect and fix those?)
+    # Review: how to treat atoms with dna_updater_errors?
+    def doit():
+        assert a1.element.pam
+        assert a2.element.pam
+        if a1.element.pam != a2.element.pam:
+            return False
+        chunk1 = a1.molecule
+        chunk2 = a2.molecule
+        # assume atoms not killed, so these are real chunks
+        if chunk1.display_as_pam != chunk2.display_as_pam:
+            return False
+        if chunk1.save_as_pam != chunk2.save_as_pam:
+            return False
+        return True
+    res = doit()
+    if not res:
+        print "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r" % (a1, a2, res) #######
+    return res
 
 # ==
 

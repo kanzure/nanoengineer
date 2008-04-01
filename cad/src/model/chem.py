@@ -878,6 +878,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Add self-specific context menu items to <menu_spec> list when self is the selobj,
         in modes that support it (e.g. depositMode and selectMode and subclasses).
         """
+        if self.element.pam:
+            #bruce 080401
+            pam_atom_entries = self._pam_atom_cmenu_entries()
+            if pam_atom_entries:
+                menu_spec.extend(pam_atom_entries)
+            pass
         transmute_entries = self._transmuteContextMenuEntries # non-updater version
         if dna_updater_is_enabled():
             # bruce 080320: use only entries not involving deprecated PAM elements

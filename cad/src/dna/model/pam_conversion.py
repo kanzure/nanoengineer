@@ -343,13 +343,14 @@ class Fake_Pl(object): #bruce 080327
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
         if mapping.write_bonds_compactly:
             # no need to worry about how to write bonds, in this case!
-            # it's done implicitly, just by writing self between its neighbor Ss atoms.
+            # it's done implicitly, just by writing self between its neighbor Ss atoms,
+            # due to the directional_bond_chain mmp record.
             # (to make this work fully, we need to include the strand-end bondpoints...
             #  and add a special case for a fake_Pl that bridges two chunks.
             #  ###### NONTRIVIAL -- we might not even have written the other chunk yet...)
             pass
         else:
-            mapping.write("# bug: writing fake_Pl bonds is nim, when not \n")
+            mapping.write("# bug: writing fake_Pl bonds is nim, when not using directional_bond_chain mmp record\n")
                 # TODO: summary redmsg, so I don't forget this is nim...
             # todo: use dont_write_bonds_for_these_atoms,
             # and self._neighbor_atoms, but note they might not be written out yet...

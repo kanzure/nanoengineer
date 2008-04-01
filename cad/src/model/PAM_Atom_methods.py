@@ -26,7 +26,7 @@ from model.elements import Pl5
 
 from utilities.debug import print_compact_stack
 
-from utilities.constants import Pl_STICKY_BOND_DIRECTION
+from utilities.constants import Pl_STICKY_BOND_DIRECTION, MODEL_PAM5
 
 from model.bond_constants import DIRBOND_CHAIN_MIDDLE
 from model.bond_constants import DIRBOND_CHAIN_END
@@ -146,6 +146,24 @@ class PAM_Atom_methods:
         res = res.replace('\n', newline) # probably only needed in then clause
         return res
 
+    def _pam_atom_cmenu_entries(self): #bruce 080401
+        """
+        Return a menu_spec list of context menu entries specific to self being
+        a PAM atom, or None.
+        """
+        assert self.element.pam
+        ladder = self.molecule.ladder
+        res = []
+        if ladder: # in case dna updater failed or is not enabled
+            conversion_menu_spec = ladder.conversion_menu_spec(self) # IMPLEM in DnaLadder
+            if conversion_menu_spec:
+                if res: # never happens yet
+                    res.append(None)
+                res.extend(conversion_menu_spec)
+            # more?
+            pass
+        return res
+    
     # == end of methods for either strand or axis PAM atoms
     
     # == PAM strand atom methods (some are more specific than that,
@@ -668,7 +686,7 @@ class PAM_Atom_methods:
         # (if we do, revise docstring)
         return None
 
-    def Pl_preferred_Ss_neighbor(self): # bruce 080118
+    def Pl_preferred_Ss_neighbor(self): # bruce 080118, revised 080401
         """
         For self a Pl atom (PAM5), return the Ss neighbor
         it prefers to be grouped with (e.g. in the same chunk,
@@ -682,16 +700,27 @@ class PAM_Atom_methods:
         to a dna-related subclass of Atom).
         """
         assert self.element is Pl5
-        for candidate in ( # these might be None, or conceivably a non-Ss atom
+        candidates = [
+            # note: these might be None, or conceivably a non-Ss atom
             self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
             self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
-         ):
-            if candidate is not None and candidate.element.symbol.startswith("Ss"): # KLUGE, matches Ss3 or Ss5
-                # note: this cond excludes X (good), Pl (bug if happens, but good).
-                # it excludes Sj and Hp (bad), but is only used from dna updater
-                # so that won't be an issue. Non-kluge variant would test for
-                # "a strand base atom".
-                return candidate
+         ]
+        candidates = [c
+                      for c in candidates
+                      if c is not None and \
+                        c.element.symbol.startswith("Ss")
+                          # KLUGE, matches Ss3 or Ss5
+                      ]
+            # note: this cond excludes X (good), Pl (bug if happens, but good).
+            # It also excludes Sj and Hp (bad), but is only used from dna updater
+            # so that won't be an issue. Non-kluge variant would test for
+            # "a strand base atom".
+        candidates_PAM5 = [c for c in candidates if c.element.pam == MODEL_PAM5]
+            # Try these first, so we prefer Ss5 over Ss3 if both are present,
+            # regardless of bond direction. [bruce 080401]
+        for candidate in candidates_PAM5 + candidates:
+            # all necessary tests were done above
+            return candidate
         print "bug: Pl with no Ss: %r" % self
             # only a true statement (that this is a bug) when dna updater
             # is enabled, but that's ok since we're only used then

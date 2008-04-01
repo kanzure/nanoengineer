@@ -16,6 +16,8 @@ from dna.model.AtomChainOrRing import AtomChain, AtomRing
 from dna.model.DnaChain import AxisChain, StrandChain
 from dna.model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
 
+from dna.model.DnaLadder import PAM_atoms_allowed_in_same_ladder
+
 from utilities.debug import print_compact_stack
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
@@ -52,11 +54,30 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         return chain_or_ring.iteratoms()
             # note: it's essential to include Pl atoms in this value,
             # for sake of find_chain_or_ring's dict.pop.
+    __first_ok_atom = None
+    def atom_ok(self, atom):
+        """
+        [implements abstract_bond_chain_analyzer subclass API method]
+        """
+        #bruce 080401, wrap subclass atom_ok_by_itself methods
+        # (renamed to permit wrapping them),
+        # so we can check all atoms allowed in same DnaLadder
+        if not self.atom_ok_by_itself(atom):
+            return False
+        # REVIEW/TEST: does this get called on the very first atom?
+        # (In other words, on all atoms we end up including?)
+        # REVIEW/TEST: when this rejects an atom, does that cause any trouble
+        # in starting with that atom (or including it) when finding another
+        # chain?
+        if self.__first_ok_atom is None:
+            self.__first_ok_atom = atom
+            return True
+        return PAM_atoms_allowed_in_same_ladder( self.__first_ok_atom, atom )
     pass
     
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = AxisChain
-    def atom_ok(self, atom):
+    def atom_ok_by_itself(self, atom):
         if not atom.molecule:
             # I've seen this after Undo, presumably since it's buggy [080122]
             # (To repeat: make a duplex, delete some atoms, Undo, Redo.
@@ -72,7 +93,7 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
 
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = StrandChain
-    def atom_ok(self, atom):
+    def atom_ok_by_itself(self, atom):
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
         # the atom list it stores.
