@@ -32,7 +32,13 @@ class Block(Group):
     # This should be a tuple of classifications that appear in
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
     # See comment in class Group for more info. [bruce 080115]
-    _mmp_group_classifications = ('Block',)
+    #
+    #update: bruce 080331 removed this (to affect writemmp),
+    # since Block is deprecated. Should not matter, since there is
+    # now no known way to create a Block (not counting subclasses).
+    # (And the only known way before now was to hand-edit an mmp file.)
+    #
+    ## _mmp_group_classifications = ('Block',)
 
     def is_block(self):
         """
