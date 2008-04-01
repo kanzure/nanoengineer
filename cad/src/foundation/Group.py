@@ -1092,6 +1092,9 @@ class Group(NodeWithAtomContents):
         @see: self.make_modeltree_context_menu()
         @see: self.openable()
         """
+        # REVIEW: should _raw_MT_kids exist in the Group subclass API?
+        # I suspect it is not needed in the API, just internally by a
+        # few specific subclasses. [bruce 080331 comment]
         return list(self.members)
 
     def edit(self):
