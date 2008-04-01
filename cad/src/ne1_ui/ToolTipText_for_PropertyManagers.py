@@ -223,7 +223,7 @@ def ToolTip_SequenceEditor(propMgr):
 
     propMgr.replacePushButton.setToolTip("Replace")
 
-    propMgr.sequenceTextEdit_mate.setToolTip("Mate")
+    propMgr.sequenceTextEdit_mate.setToolTip("Mate Sequence")
 
 def ToolTip_MovePropertyManager(propMgr):
     """
