@@ -462,10 +462,13 @@ class Node( StateMixin):
         """
         return False # for a leaf node
 
-    def is_block(self): #bruce 080107 ### NIM: may not yet be honored in the ModelTree
+    def is_block(self): #bruce 080107
         """
         Is self a Block, i.e. a kind of Group whose kids should not be shown
         in the Model Tree unless they are Blocks?
+
+        @warning: this method and its uses have not been reviewed since
+                  class Block was deprecated (shortly before 080331).
 
         [This is meant to be overridden only in Block, a subclass of Group,
          and thereby in its subclasses, such as DnaGroup.]

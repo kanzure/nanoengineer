@@ -40,15 +40,6 @@ class DnaSegment(DnaStrandOrSegment):
     DnaSegmentMarkers, including exactly one controlling marker.
     These occur in undefined order (??). Note that its DnaStrand
     atoms are not inside it; they are easily found from the DnaAxisChunks.
-
-    [Note: we might decide to put the DnaStrandChunks inside the
-     DnaSegment whose axis they attach to, instead; for more info,
-     see docstring of class DnaStrand. bruce comment 080111]
-
-    Note that this object will never show up directly in the Model Tree
-    once the DNA Data Model is fully implemented, since it will always
-    occur inside a DnaGroup (and since it's not a Block).
-    [WRONG as of before 080318 -- behavior has been revised]
     """
 
     # This should be a tuple of classifications that appear in

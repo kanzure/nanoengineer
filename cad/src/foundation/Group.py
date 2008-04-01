@@ -1,7 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Group.py -- Class (or superclass) for all non-leaf nodes in the
-internal model tree of Nodes. (See also class Block.)
+internal model tree of Nodes.
 
 @author: Josh
 @version: $Id$
@@ -925,15 +925,15 @@ class Group(NodeWithAtomContents):
         #doc; overrides Node method
         """
         #bruce 050526, revised 080314
-        # Note: the subclasses of Group include Block (and its subclasses
-        # DnaGroup, DnaStrand, DnaSegment), which are effectively new kinds
-        # of model objects, and PartGroup and ClipboardShelfGroup, which
+        # Note: the subclasses of Group include Block (deprecated),
+        # DnaGroup, DnaStrand and DnaSegment (which are effectively new kinds
+        # of model objects), and PartGroup and ClipboardShelfGroup (which
         # are needed in special places/roles in the MT to give them special
-        # behavior. The special-MT-place subclasses probably need to be copied
-        # as ordinary Groups, whereas the Block-related classes need to be
+        # behavior). The special-MT-place subclasses probably need to be copied
+        # as ordinary Groups, whereas the Dna-related classes need to be
         # copied as instances of the same subclass. To support this distinction
         # (new feature and likely bugfix), I'll introduce a method to return
-        # the class to use for making copies. [bruce 080314]
+        # the class to use for making copies. [bruce 080314, comment revised 080331]
         class_for_copies = self._class_for_copies(mapping)
         new = class_for_copies(self.name, mapping.assy, None)
         self.copy_copyable_attrs_to(new)
@@ -1030,7 +1030,7 @@ class Group(NodeWithAtomContents):
 
     def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 renamed from kids to MT_kids, revised semantics
         """
-        [Overrides Node.MT_kids(); is overridden in our subclass Block]
+        [Overrides Node.MT_kids(); is overridden in some subclasses]
 
         Return the ordered list of our kids which should be displayed in a model
         tree widget which is using (for this node itself) the given display prefs.
@@ -1190,8 +1190,9 @@ class Group(NodeWithAtomContents):
         ))
         # someday: we might optimize by skipping info opengroup open if it has
         # the default value, but it's hard to find out what that is reliably
-        # for the variou special cases. It's not yet known if it will be
-        # meaningful for Block, so we write it even then. [bruce 080115 comment]
+        # for the various special cases. It's not yet known if it will be
+        # meaningful for all subclasses, so we write it for all of them for now.
+        # [bruce 080115 comment, revised 080331]
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False"))
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.

@@ -1,13 +1,14 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Block.py - ... 
+Block.py - ... DEPRECATED CLASS (as of shortly before 080331)
 
 @author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: this is likely to not always be Dna-specific, and accordingly
-might be moved into a more general package.
+might be moved into a more general package. (Except now that it's
+deprecated, there is no point in that.)
 """
 
 from foundation.Group import Group
@@ -16,14 +17,16 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 class Block(Group):
     """
+    DEPRECATED CLASS (as of shortly before 080331). DO NOT USE IN NEW CODE.
+    
     Model object which represents a user-visible grouping of nodes inside a
     DnaGroup (or similar object, if we have any).
 
     Most child nodes of a DnaGroup are not visible in the MT, but its Blocks
     are visible there (though their contents are not, except for their
-    sub-Blocks).
+    sub-Blocks). [this statement is partly obsolete]
 
-    See also: DnaGroup, which inherits Block.
+    @see: DnaGroup, which [used to] inherit Block.
     """
 
     # This should be a tuple of classifications that appear in

@@ -23,7 +23,8 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     Make sure that PAM chunks and jigs are inside the correct
     Groups of the correct structure and classes, according to
-    the DNA Data Model. These Groups include Blocks, DnaSegments,
+    the DNA Data Model. These Groups include Groups (which someday
+    might be called Blocks in this context), DnaSegments,
     DnaStrands, and DnaGroups. Move nodes or create new groups
     of these kinds, as needed.
 
@@ -113,6 +114,8 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     # Clean up old_groups:
     #
+    # [update 080331: comment needs revision, since Block has been deprecated]
+    # 
     # For any group we moved anything out of (or are about to delete something
     # from now), we assume it is either a DnaSegment or DnaStrand that we moved
     # a chunk or marker out of, or a Block that we delete all the contents of,

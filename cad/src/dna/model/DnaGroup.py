@@ -25,28 +25,20 @@ class DnaGroup(Group):
     Model object which packages together some Dna Segments, Dna Strands,
     and other objects needed to represent all their PAM atoms and markers.
 
-    The contents are not directly visible to the user in the model tree,
-    except for Blocks (fyi, this behavior comes from our Block superclass,
-    which is a kind of Group).
-    
-    But internally, most of the contents are Nodes which can be stored
-    in mmp files, copied, and undo-scanned in the usual ways.
-
     Specific kinds of Group member contents include:
-    - DnaStrands (optionally inside Blocks)
+    - DnaStrands (optionally inside Groups)
     - DnaSegments (ditto)
-    - Blocks (a kind of Group)
-    - DnaMarkers (a kind of Jig, probably always inside an owning
+    - Groups (someday might be called Blocks when they occur in this context;
+       note that class Block is deprecated and should not be used for these)
+    - DnaMarkers (a kind of Jig, always inside an owning
       DnaStrand or DnaSegment)
     - specialized chunks for holding PAM atoms:
-      - DnaAxisChunk (undecided whether these will live inside DnaSegments
-        they belong to, but probably they will)
-      - DnaStrandChunk (undecided whether these will live inside their
-        DnaStrands, but probably they will)
+      - DnaAxisChunk (these live inside the DnaSegments they belong to)
+      - DnaStrandChunk (these live inside their DnaStrands)
 
     As other attributes:
     - whatever other properties the user needs to assign, which are not
-      covered by the member nodes or superclass attributes.
+      covered by the member nodes or superclass attributes. [nim?]
     """
     
     # The iconPath specifies path(string) of an icon that represents the 
@@ -60,7 +52,8 @@ class DnaGroup(Group):
     _mmp_group_classifications = ('DnaGroup',)
     
     # Open/closed state of the Dna Group in the Model Tree --
-    # default closed. Note: this is ignored by the Model Tree code
+    # default closed.
+    # OBSOLETE COMMENT: Note: this is ignored by the Model Tree code
     # (since we inherit from Block), but whether it affects any other code
     # (e.g. a PM display widget) is not yet decided.
     open = False
@@ -90,7 +83,7 @@ class DnaGroup(Group):
         
         Make and return a new DnaStrand or DnaSegment
         (ask marker what class to use)
-        inside self (review: inside some Block in self?),
+        inside self (review: inside some Group inside self?),
         perhaps making use of info in controlling_marker
         to help decide how to initialize some of its attributes.
         

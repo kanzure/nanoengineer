@@ -917,7 +917,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     addnode = addmol #bruce 060604/080318; should make addnode the fundamental one, and clean up above comments
 
-    def ensure_toplevel_group(self): #bruce 080115 revised so Block doesn't count; 080318 revised again
+    def ensure_toplevel_group(self): #bruce 080318 revised so unopenables like DnaStrand don't count
         """
         Make sure this Part's toplevel node is a Group (of a kind which
          does not mind having arbitrary new members added to it),

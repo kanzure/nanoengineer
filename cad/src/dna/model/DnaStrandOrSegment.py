@@ -26,49 +26,47 @@ class DnaStrandOrSegment(Group):
         strand's or segment's base indexing, and whether/how it survives if its
         chains of PAM atoms are broken or merged with other strands or segments
 
-      - (maybe) this DnaStrands's DnaStrandChunks, or this DnaSegment's
+      - this DnaStrands's DnaStrandChunks, or this DnaSegment's
         DnaAxisChunks (see docstrings of DnaStrand/DnaSegment for details)
 
     - As other attributes:
 
-      - (probably) a chain of DnaAtomChainOrRings
+      - (probably) a WholeChain, which has a chain of DnaAtomChainOrRings (sp?)
         which together comprise all the PAM atoms in this strand, or all
         the PAM atoms in the axis of this segment. From these,
         related objects like DnaLadders and connected DnaSegments/DnaStrands
-        can be found. (But we may instead have, or also have and mainly use,
-        a chain of the chunks that normally contain these same atoms.
-        The reason we might need both is that the atom-based chain,
-        independent of chunks, can help the dna updater reconstruct
-        the chunks after a change by old code which didn't do that itself.
+        can be found. This is used to help the dna updater reconstruct
+        the PAM atom chunks after a change by old code which didn't do that itself.
     
       - whatever other properties the user needs to assign, which are not
         covered by the member nodes or superclass attributes. However,
         some of these might be stored on the controlling DnaMarker,
         so that if we are merged with another strand or segment, and later separated
         again, that marker can again control the properties of a new strand
-        or segment (as it
-        will in any case control its base indexing).
+        or segment (as it will in any case control its base indexing).
     """
 
-    def permits_ungrouping(self): #bruce 080207 in Block, copied to DnaStrandOrSegment 080318
+    def permits_ungrouping(self): 
         """
         Should the user interface permit users to dissolve this Group
         using self.ungroup?
         [overridden from Group]
         """
+        #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
         return self._show_all_kids_for_debug() # normally False
             # note: modelTree should modify menu text for Ungroup to say "(unsupported)",
             # but this is broken as of before 080318 since it uses a self.is_block() test.
 
-    def _show_all_kids_for_debug(self): #bruce 080207 in Block, copied to DnaStrandOrSegment 080318
+    def _show_all_kids_for_debug(self):
+         #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
         classname_short = self.__class__.__name__.split('.')[-1]
         debug_pref_name = "Model Tree: show content of %s?" % classname_short
             # typical examples (for text searches to find them here):
-            # Model Tree: show content of DnaGroup?
-            # Model Tree: show content of Block?
+            # Model Tree: show content of DnaStrand?
+            # Model Tree: show content of DnaSegment?
         return debug_pref( debug_pref_name, Choice_boolean_False )
 
-    def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment [bruce 080319]
+    def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
 
@@ -80,6 +78,7 @@ class DnaStrandOrSegment(Group):
 
         [overrides Group method]
         """
+        #bruce 080319
         # someday, reject if superclass would reject -- so far, it never does
         del opts
         assy = self.assy
@@ -88,7 +87,7 @@ class DnaStrandOrSegment(Group):
               pre_updaters and isinstance( node, assy.Chunk)
         return res
     
-    def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in DnaStrandOrSegment [bruce 080319]
+    def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in DnaStrandOrSegment
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
         
@@ -98,8 +97,9 @@ class DnaStrandOrSegment(Group):
 
         @rtype: boolean
 
-        [overrides Group method]        
+        [overrides Group method]   
         """
+        #bruce 080319
         del opts, pre_updaters
         return not self.members
 

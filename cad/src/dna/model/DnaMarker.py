@@ -472,7 +472,7 @@ class DnaMarker( ChainAtomMarker):
                 # it will be discarded. To avoid this, newly read old mmp files
                 # should get preprocessed separately (as discussed also in
                 # update_DNA_groups).
-        # now make a strand or segment in that DnaGroup (review: in a certain Block?)
+        # now make a strand or segment in that DnaGroup (review: in a certain subGroup?)
         strand_or_segment = dnaGroup.make_DnaStrandOrSegment_for_marker(self)
         strand_or_segment.move_into_your_members(self)
             # this is necessary for the following assignment to make sense
