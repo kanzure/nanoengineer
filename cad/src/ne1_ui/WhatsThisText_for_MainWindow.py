@@ -922,6 +922,21 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.buildDnaAction.setWhatsThis(buildDnaActionText )
 
+
+   # Build Peptide
+   
+    buildPeptideActionText = \
+        "<u><b>Build Peptide</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/Tools/Build Structures/Peptide.png\"><br> "\
+        "Displays peptide property manager where peptides can be created from"\
+        " a list of amino acids, click the Preview button "\
+        "located at the top of the Property Manager :<br> "\
+        "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+        "</p>"
+
+    win.insertPeptideAction.setWhatsThis(buildPeptideActionText )
+    
     # POV-Ray Scene
 
     insertPovraySceneActionText = \
