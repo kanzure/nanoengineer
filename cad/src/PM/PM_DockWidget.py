@@ -66,7 +66,6 @@ class PM_DockWidget(QDockWidget):
                                     QPalette.Window,
                                     pmGrpBoxColor))
 
-       
         self.parentWidget.addDockWidget(Qt.BottomDockWidgetArea, self)
         
         #Define layout
@@ -88,12 +87,38 @@ class PM_DockWidget(QDockWidget):
                          
         #self.parentWidget.addPmWidget(self)
         self._loadWidgets()
+        
+        try:
+            self._addWhatsThisText()
+        except:
+            print_compact_traceback("Error loading whatsthis text for this " \
+                                    "property manager dock widget.")
+        
+        try:
+            self._addToolTipText()
+        except:
+            print_compact_traceback("Error loading tool tip text for this " \
+                                    "property manager dock widget.")
     
     def _loadWidgets(self):
         """
         Subclasses should override this method. Default implementation does 
         nothing. 
         @see: DnaSequenceEditor._loadWidgets 
+        """
+        pass
+    
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for self and child widgets. 
+        Subclasses should override this method. 
+        """
+        pass
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for self and child widgets. 
+        Subclasses should override this method. 
         """
         pass
     
