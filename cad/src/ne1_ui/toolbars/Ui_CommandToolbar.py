@@ -61,6 +61,11 @@ from commandToolbar.CommandToolbar_Constants import cmdTbarCntrlAreaBtnColor
 from commandToolbar.CommandToolbar_Constants import cmdTbarSubCntrlAreaBtnColor
 from commandToolbar.CommandToolbar_Constants import cmdTbarCmdAreaBtnColor
 
+from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarBuildButton
+from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarToolsButton
+from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarMoveButton
+from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarSimulationButton
+
 from PM.PM_Colors import getPalette
 
 #debug flag for bug 2633 (in Qt4.3 all control area buttons collapse into a 
@@ -187,6 +192,8 @@ class Ui_CommandToolbar( QWidget ):
             if str(btn.objectName()) == 'Build':
                 btn.setMenu(self.win.buildStructuresMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Build Commands")
+                whatsThisTextForCommandToolbarBuildButton(btn)
             if str(btn.objectName()) == 'Tools':
                 #fyi: cmd stands for 'command toolbar' - ninad070406
                 self.win.cmdToolsMenu = QtGui.QMenu(self.win)
@@ -199,6 +206,8 @@ class Ui_CommandToolbar( QWidget ):
                 self.win.cmdToolsMenu.addAction(self.win.modifyStretchAction)
                 btn.setMenu(self.win.cmdToolsMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Tools")
+                whatsThisTextForCommandToolbarToolsButton(btn)
             if str(btn.objectName()) == 'Move':
                 self.win.moveMenu = QtGui.QMenu(self.win)
                 self.win.moveMenu.addAction(self.win.toolsMoveMoleculeAction)
@@ -210,12 +219,17 @@ class Ui_CommandToolbar( QWidget ):
                 ##    self.win.modifyCenterCommonAxisAction)
                 btn.setMenu(self.win.moveMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Move Commands")
+                whatsThisTextForCommandToolbarMoveButton(btn)
             if str(btn.objectName()) == 'Dimension':
                 btn.setMenu(self.win.dimensionsMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Dimensioning Commands")
             if str(btn.objectName()) == 'Simulation':
                 btn.setMenu(self.win.simulationMenu)
-                btn.setPopupMode(QToolButton.MenuButtonPopup)   
+                btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Simulation Commands")
+                whatsThisTextForCommandToolbarSimulationButton(btn)
                 
         #ninad 070125 Following creates Toolbuttons for flyout toolbars and
         #sets proper QWidget actions to them 

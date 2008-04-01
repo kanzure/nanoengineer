@@ -6,17 +6,63 @@ This file provides functions for setting the "What's This" text
 for widgets (typically QActions) in the Command Toolbar.
 
 @author: Mark
-@version:$Id:$
+@version:$Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 # Try to keep this list in order (by appearance in Command Toolbar). --Mark
 
+# Command Toolbar Menus (i.e. Build, Tools, Move and Simulation ######
+
+def whatsThisTextForCommandToolbarBuildButton(button):
+    """
+    "What's This" text for the Build button (menu).
+    """
+    button.setWhatsThis(
+        """<b>Build</b>
+        <p>
+        whats this text for the Build button (menu).
+        </p>""")
+    return
+
+def whatsThisTextForCommandToolbarToolsButton(button):
+    """
+    "What's This" text for the Tools button (menu).
+    """
+    button.setWhatsThis(
+        """<b>Tools</b>
+        <p>
+        whats this text for the Tools button (menu).
+        </p>""")
+    return
+
+def whatsThisTextForCommandToolbarMoveButton(button):
+    """
+    "What's This" text for the Move button (menu).
+    """
+    button.setWhatsThis(
+        """<b>Move</b>
+        <p>
+        whats this text for the Move button (menu).
+        </p>""")
+    return
+
+def whatsThisTextForCommandToolbarSimulationButton(button):
+    """
+    "What's This" text for the Simulation button (menu).
+    """
+    button.setWhatsThis(
+        """<b>Simulation</b>
+        <p>
+        whats this text for Simulation button (menu).
+        </p>""")
+    return
+
 # Build command toolbars ####################
 
 def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     """
-    "ToolTip" text for widgets in the Build Atoms Command Toolbar.
+    "What's This" text for widgets in the Build Atoms Command Toolbar.
     
     @note: This is a placeholder function. Currenly, all the tooltip text is 
            defined in BuildAtoms_Command.py.
@@ -25,7 +71,7 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
 
 def whatsThisTextForDnaCommandToolbar(commandToolbar):
     """
-    "ToolTip" text for the Build DNA Command Toolbar
+    "What's This" text for the Build DNA Command Toolbar
     """
     commandToolbar.exitDnaAction.setWhatsThis(
         """<b>Exit DNA</b>
@@ -66,7 +112,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
 
 def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     """
-    "ToolTip" text for widgets in the Build Nanotube Command Toolbar.
+    "What's This" text for widgets in the Build Nanotube Command Toolbar.
     """
     commandToolbar.exitNanotubeAction.setWhatsThis(
         """<b>Exit Nanotube</b>
@@ -91,12 +137,12 @@ def whatsThisTextForCrystalCommandToolbar(commandToolbar):
 
 def whatsThisTextForMoveCommandToolbar(commandToolbar):
     """
-    "ToolTip" text for widgets in the Move Command Toolbar.
+    "What's This" text for widgets in the Move Command Toolbar.
     """
     return
 
 def whatsThisTextForMovieCommandToolbar(commandToolbar):
     """
-    "ToolTip" text for widgets in the Movie Command Toolbar.
+    "What's This" text for widgets in the Movie Command Toolbar.
     """
     return
