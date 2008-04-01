@@ -44,13 +44,7 @@ class NanotubeSegment(CntStrandOrSegment):
     _mmp_group_classifications = ('NanotubeSegment',)
     
     _cntRise = None
-    _cellsPerTurn = None
-        # TODO: undo or copy code for those attrs,
-        # and updating them when the underlying structure changes.
-        # But maybe that won't be needed, if they are replaced
-        # by computing them from the atom geometry as needed.
-        # [bruce 080227 comment]
-        
+
     autodelete_when_empty = True
         # (but only if current command permits that for this class --
         #  see comment near Group.autodelete_when_empty for more info,
@@ -59,7 +53,6 @@ class NanotubeSegment(CntStrandOrSegment):
     def __init__(self, name, assy, dad, members = (), editCommand = None):
         
         self._cntRise = getCntRise()  #Default value.
-        self._cellsPerTurn = 10 #Default value
         
         CntStrandOrSegment.__init__(self, 
                                     name, 
@@ -334,15 +327,7 @@ class NanotubeSegment(CntStrandOrSegment):
     
     def setCntRise(self, cntRise):
         if cntRise:
-            self._cntRise = cntRise   
-    
-    def getBasesPerTurn(self):
-        return self._cellsPerTurn
-            
-    def setBasesPerTurn(self, cellsPerTurn):
-        if cellsPerTurn:
-            self._cellsPerTurn = cellsPerTurn
-                   
+            self._cntRise = cntRise
     
     def _computeCntRise(self):
         """
