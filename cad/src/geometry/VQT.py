@@ -22,7 +22,11 @@ from foundation.state_utils import DataMixin
 
 import Numeric 
 
-DEBUG_QUATS = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
+DEBUG_QUATS = True
+    #bruce 050518; I'll leave this turned on in the main sources for awhile
+    #bruce 080401 update: good to leave this on for now, but turn it off soon
+    # as an optimization -- no problems turned up so far, but the upcoming
+    # PAM3+5 code is about to use it a lot more.
 
 intType = type(2)
 floType = type(2.0)
@@ -151,35 +155,58 @@ def orthodist(p1, v1, p2):
     return (dist, wid)
 
 #bruce 050518 added these:
-X_AXIS = V(1,0,0)
-Y_AXIS = V(0,1,0)
-Z_AXIS = V(0,0,1)
+X_AXIS = V(1, 0, 0)
+Y_AXIS = V(0, 1, 0)
+Z_AXIS = V(0, 0, 1)
 
 # ==
 
-class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 050518
+class Q(DataMixin):
     """
+    Quaternion class. Many constructor forms:
+    
     Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and cos(theta/2) = W
     (e.g. Q(1,0,0,0) is no rotation [used a lot])
     [Warning: the python argument names are not in the same order as in
      the usage-form above! This is not a bug, just possibly confusing.]
     
-    Q(x, y, z) where x, y, and z are three orthonormal vectors
-    is the quaternion that rotates the standard axes into that
-    reference frame [this was first used, and first made correct, by bruce 050518]
-    (the frame has to be right handed, or there's no quaternion that can do it!)
+    Q(x, y, z), where x, y, and z are three orthonormal vectors describing a
+    right-handed coordinate frame, is the quaternion that rotates the standard
+    axes into that reference frame (the frame has to be right handed, or there's
+    no quaternion that can do it!)
     
     Q(V(x,y,z), theta) is what you probably want [axis vector and angle]. [used widely]
     
     Q(vector, vector) gives the quat that rotates between them [used widely]
-    [bruce 050518 asks: which such quat? presumably the one that does the least rotation in all]
+    [which such quat? presumably the one that does the least rotation in all]
     
-    [undocumented until 050518: Q(number) gives Q(1,0,0,0) [perhaps never used, not sure];
-     Q(quat) gives a copy of that quat [used fairly often];
-     Q([W,x,y,z]) (for any sequence type) gives the same quat as Q(W, x, y, z)
-     [used for parsing csys records, maybe in other places].]
+    [remaining forms were undocumented until 050518:]
+
+    Q(number) gives Q(1,0,0,0) [perhaps never used, not sure]
+    
+    Q(quat) gives a copy of that quat [used fairly often]
+    
+    Q([W,x,y,z]) (for any sequence type) gives the same quat as Q(W, x, y, z)
+     [used for parsing csys records, maybe in other places].
+
+    @warning: These quaternion objects use "+" for multiply and
+              "*" for exponentiation, relative to "textbook" quaternions.
+              This is not a bug, but might cause confusion if not understood,
+              especially when making use of external reference info about
+              quaternions.
     """
+    # History:
+    # class by Josh.
+    # bruce 050518 revised and extended docstring, revised some comments,
+    # and fixed some bugs:
+    # - added first use of constructor form "Q(x, y, z) where x, y, and z are
+    #   three orthonormal vectors", and bugfixed it (it had never worked before)
+    # - other fixes listed below
+    # a few other bugfixes since then, and new features for copy_val
+    # manoj fixed a typo in the docstring, sin -> cos
+    # bruce 080401 revised docstring, added warning about 'use "+" for multiply'
+    #  (issue was pointed out long ago by wware)
     counter = 50 # initial value of instance variable
         # [bruce 050518 moved it here, fixing bug in which it sometimes didn't get inited]
     def __init__(self, x, y = None, z = None, w = None):
@@ -188,7 +215,7 @@ class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 0505
             #  and no checking (of types or values) or normalization is done,
             #  and that these arg names don't correspond to their meanings,
             #  which are W,x,y,z (as documented) rather than x,y,z,w.]
-            self.vec = V(x,y,z,w)
+            self.vec = V(x, y, z, w)
         
         elif z is not None: # three axis vectors
             # Just use first two
@@ -248,8 +275,8 @@ class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 0505
                 # x, y are very close, or very close to opposite, or one of them is zero
                 if dotxy < 0:
                     # close to opposite; treat as actually opposite (same as pre-050730 code)
-                    ax1 = cross(x, V(1,0,0))
-                    ax2 = cross(x, V(0,1,0))
+                    ax1 = cross(x, V(1, 0, 0))
+                    ax2 = cross(x, V(0, 1, 0))
                     if vlen(ax1)>vlen(ax2):
                         self.vec = norm(V(0, ax1[0],ax1[1],ax1[2]))
                     else:
@@ -487,7 +514,7 @@ class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 0505
             s = ((1.0 - w**2)**0.5) / length
             self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
         else:
-            self.vec = V(1,0,0,0)
+            self.vec = V(1, 0, 0, 0)
         return self
 
     def unrot(self, v):
@@ -517,7 +544,7 @@ def twistor(axis, pt1, pt2): #bruce 050724 revised code (should not change the r
     return Q(axis, theta)
 
 def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
-    q = Q(axis, V(0,0,1))
+    q = Q(axis, V(0, 0, 1))
     pt1 = q.rot(pt1)
     pt2 = q.rot(pt2)
     a1 = math.atan2(pt1[1],pt1[0])
@@ -637,12 +664,12 @@ def check_quats_near(q1, q2, msg=""): #bruce, circa 040924
 
 if __name__ == '__main__':
     print "tests started"
-    q1 = Q(1,0,0,0)
+    q1 = Q(1, 0, 0, 0)
     print q1, `q1`
     q2 = Q(V(0.6, 0.8, 0), 1)
     print q2, `q2`
     assert not (q1 == q2), "different quats equal!" # this bug was fixed on 070227
-    assert q1 != V(0,0,0) # this did print_compact_traceback after that was fixed; now that's fixed too
+    assert q1 != V(0, 0, 0) # this did print_compact_traceback after that was fixed; now that's fixed too
     # can't work yet: assert q2 * 2 == 2 * q2
     print "tests done"
     
