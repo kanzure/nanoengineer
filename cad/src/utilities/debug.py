@@ -685,4 +685,49 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
             module.__redraw_counter_when_reloaded__ = 'never again'
     return
 
+
+DO_PROFILE = False
+
+_profile_function = None
+_profile_args = None
+_profile_keywordArgs = None
+_profile_output_file = 'profile.output'
+
+def _run_profile():
+    _profile_function(*_profile_args, **_profile_keywordArgs)
+
+def profile(func, *args, **keywordArgs):
+    """
+    Profile a function call, if profiling is enabled.  Change a normal
+    function call f(a, b, c=3) into profile(f, a, b, c=3), and f will
+    be profiled.  A method call can also be profiled: o.f(a) becomes
+    profile(o.f, a).
+
+    Profiling is enabled by setting DO_PROFILE = True in
+    utilities.debug.  Otherwise, the function is called without
+    profiling.
+
+    Fancier schemes, like profiling the Nth call of a function could
+    be implemented here, if desired.
+    """
+    global _profile_function
+    global _profile_args
+    global _profile_keywordArgs
+    
+    _profile_function = func
+    _profile_args = args
+    _profile_keywordArgs = keywordArgs
+    
+    if (DO_PROFILE):
+        import cProfile
+        print "Capturing profile..."
+        cProfile.run('from utilities.debug import _run_profile; _run_profile()', _profile_output_file)
+        print "...end of profile capture"
+    else:
+        _run_profile()
+
+    _profile_function = None
+    _profile_args = None
+    _profile_keywordArgs = None
+
 # end
