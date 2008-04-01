@@ -51,11 +51,8 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         """
         PM_DockWidget.__init__(self, parentWidget, title = self._title)
         
-        self.setFixedHeight(90)        
-        self._addWhatsThisText()
+        self.setFixedHeight(90)
         
-       
-    
     def _loadWidgets(self):
         """
         Overrides PM.PM_DockWidget._loadWidgets. Loads the widget in this
