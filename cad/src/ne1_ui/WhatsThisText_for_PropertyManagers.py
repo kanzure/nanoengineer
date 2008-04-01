@@ -53,7 +53,7 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
     propMgr.duplexLengthLineEdit.setWhatsThis(
         """<b>Duplex Length</b>
         <p>
-        Displays the length of the DNA duplex in Angstroms
+        Displays the length of the DNA duplex in angstroms
         </p>""")
     
     propMgr.dnaRubberBandLineDisplayComboBox.setWhatsThis(
@@ -177,6 +177,108 @@ def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
         <p>
         Specify the spacing between nanotubes in angstroms.
         </p>""")
+    
+def whatsThis_InsertNanotube_PropertyManager(propMgr):
+    """
+    "Whats This" text for widgets in the Nanotube Property Manager.
+    """
+    
+    propMgr.ntTypeComboBox.setWhatsThis(
+        """<b>Type</b>
+        <p>
+        Specifies the type of nanotube to insert.</p>
+        <p>
+        Selecting <b>Carbon</b> creates a carbon nanotube (CNT) made 
+        entirely of carbon atoms.
+        <p>
+        Selecting <b>Boron Nitride</b> creates a boron nitride nanotube (BNNT) 
+        made of boron and nitrogen atoms.
+        </p>""")
+    
+    propMgr.ntDiameterLineEdit.setWhatsThis(
+        """<b>Diameter</b>
+        <p>
+        Displays the diameter of the nanotube in angstroms.
+        </p>""")
+    
+    propMgr.chiralityNSpinBox.setWhatsThis(
+        """<b>Chirality (n)</b>
+        <p>
+        Specifies <i>n</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation 
+        R = na1 + ma2 .
+        </p>""")
+    
+    propMgr.chiralityMSpinBox.setWhatsThis(
+        """<b>Chirality (m)</b>
+        <p>
+        Specifies <i>m</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation 
+        R = na1 + ma2 .
+        </p>""")
+            
+    propMgr.endingsComboBox.setWhatsThis(
+        """<b>Endings</b>
+        <p>
+        Specify how to deal with bondpoints on the two ends of the nanotube.</p>
+        <p>
+        Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>
+        <p>
+        Selecting <b>Hydrogen</b> terminates the bondpoints using hydrogen 
+        atoms.</p>
+        <p>
+        Selecting <b>Nitrogen</b> transmutes atoms with bondpoints into
+        nitrogen atoms.
+        </p>""")
+    
+    propMgr.bondLengthDoubleSpinBox.setWhatsThis(
+        """<b>Bond Length</b>
+        <p>
+        Specify the bond length between neighboring atoms in angstroms.</p>""")
+    
+    propMgr.twistSpinBox.setWhatsThis(
+        """<b>Twist</b>
+        <p>
+        Introduces a twist along the length of the nanotube specified in 
+        degrees/angstrom.
+        </p>""")
+    
+    propMgr.zDistortionDoubleSpinBox.setWhatsThis(
+        """<b>Z-distortion</b>
+        <p>
+        Distorts the bond length between atoms along the length of the
+        nanotube by this amount in angstroms.
+        </p>""")
+    
+    propMgr.bendSpinBox.setWhatsThis(
+        """<b>Bend</b>
+        <p>
+        Bend the nanotube by the specified number of degrees.
+        </p>""")
+    
+    propMgr.xyDistortionDoubleSpinBox.setWhatsThis(
+        """<b>XY-distortion</b>
+        <p>
+        Distorts the tube's cross-section so that the width in the X direction
+        is this many angstroms greater than the width in the Y direction. 
+        Some distortion of bond lengths results.
+        </p>""")
+    
+    propMgr.mwntCountSpinBox.setWhatsThis(
+        """<b>Number of Nanotubes</b>
+        <p>
+        Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes
+        (MWNT) consist of many concentric tubes wrapped one inside another.</p>
+        <p>
+        The specified chirality applies only to the innermost nanotube. 
+        The others, being larger, will have larger chiralities.
+        </p>""")
+    
+    propMgr.mwntSpacingDoubleSpinBox.setWhatsThis(
+        """<b>Wall Spacing</b>
+        <p>
+        Specify the spacing between nanotubes in angstroms.
+        </p>""")
 
 def whatsThis_GrapheneGeneratorPropertyManager(propMgr):
     """
@@ -186,19 +288,19 @@ def whatsThis_GrapheneGeneratorPropertyManager(propMgr):
     propMgr.heightField.setWhatsThis(
         """<b>Height</b>
         <p>
-        The height (up to 50 Angstroms) of the graphite sheet in angstroms.
+        The height (up to 50 angstroms) of the graphite sheet in angstroms.
         </p>""")
     
     propMgr.widthField.setWhatsThis(
         """<b>Width</b>
         <p>
-        The width (up to 50 Angstroms) of the graphene sheet in angstroms.
+        The width (up to 50 angstroms) of the graphene sheet in angstroms.
         </p>""")
     
     propMgr.bondLengthField.setWhatsThis(
         """<b>Bond length</b>
         <p>
-        You can change the bond lengths (1.0-3.0 Angstroms) in the
+        You can change the bond lengths (1.0-3.0 angstroms) in the
         graphene sheet. We believe the default value is accurate for sp
         <sup>2</sup>-hybridized carbons.
         </p>""")
@@ -754,7 +856,7 @@ def whatsThis_CookiePropertyManager(propMgr):
     propMgr.layerThicknessLineEdit.setWhatsThis(
         "<b>Thickness</b>"\
         "<p>"\
-        "Thickness of layer in Angstroms is displayed"\
+        "Thickness of layer in angstroms is displayed"\
         "</p>")
     
     propMgr.gridLineCheckBox.setWhatsThis(
@@ -936,13 +1038,13 @@ def whatsThis_PlanePropertyManager(propMgr):
     propMgr.heightDblSpinBox.setWhatsThis(
         """<b>Height</b>
         <p>
-        The height of the Plane in angstroms. (up to 200 Angstroms)
+        The height of the Plane in angstroms. (up to 200 angstroms)
         </p>""")
     
     propMgr.widthDblSpinBox.setWhatsThis(
         """<b>Width</b>
         <p>
-        The width of the Plane in angstroms. (up to 200 Angstroms)
+        The width of the Plane in angstroms. (up to 200 angstroms)
         </p>""")
     
 def whatsThis_QuteMolPropertyManager(propMgr):

@@ -44,7 +44,7 @@ from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 
-#@from gui.WhatsThisText_for_PropertyManagers import whatsThis_InsertNanotube_PropertyManager
+from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertNanotube_PropertyManager
 
 class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -522,9 +522,12 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None  
         """        
-        self.nanotube.setChirality(self.chiralityNSpinBox.value(), 
-                                   self.chiralityMSpinBox.value())
-        self.n, self.m = self.nanotube.getChirality()
+        self.n, self.m = \
+            self.nanotube.setChirality(
+                self.chiralityNSpinBox.value(), 
+                self.chiralityMSpinBox.value())
+        
+        #self.n, self.m = self.nanotube.getChirality()
         
         self.connect_or_disconnect_signals(isConnect = False)
         self.chiralityNSpinBox.setValue(self.n)
@@ -560,6 +563,6 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         What's This text for widgets in this Property Manager.  
         """
-        #@whatsThis_InsertNanotube_PropertyManager(self)
+        whatsThis_InsertNanotube_PropertyManager(self)
         return 
 

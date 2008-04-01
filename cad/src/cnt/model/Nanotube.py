@@ -173,6 +173,11 @@ class Nanotube:
         
         @param m: chiral integer I{m}
         @type  m: int
+        
+        @return: The chiral integers n, m.
+        @rtype:  tuple of two ints (n, m).
+        
+        @warning: n and/or m may be changed to maintain the restrictions.
         """        
         if n < 2:
             n = 2
@@ -186,7 +191,8 @@ class Nanotube:
                 m = n
         self.n = n
         self.m = m
-        return
+        
+        return self.getChirality()
     
     def getChirality(self):
         """
