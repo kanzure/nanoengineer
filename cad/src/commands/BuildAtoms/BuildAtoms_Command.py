@@ -21,6 +21,9 @@ TODO: [as of 2008-01-04]
 - Flyout toolbar related code needs to go in a file like Ui_BuildAtomsFlyout. 
   This will also need further cleanup to be done during the Command Toolbar 
   code cleanup 
+- For all qactions on the flyout toolbar:
+  - move what's this text declarations to whatsThisForAtomsCommandToolbar()
+  - move tooltip text declarations to toolTipsForAtomsCommandToolbar()
 - Do we need to make change bond and delete bond as separate commands? 
   Not needed immediately but worth doing this in future. 
 - Items mentioned in Build_GraphicsMode.py 

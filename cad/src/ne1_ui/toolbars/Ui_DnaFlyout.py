@@ -42,7 +42,6 @@ def activateDnaFlyout(mainWindow):
     mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildDnaAction, 
                                                    _theDnaFlyout)
 
-    
 class DnaFlyout:    
     def __init__(self, mainWindow, parentWidget):
         """
@@ -57,14 +56,13 @@ class DnaFlyout:
                              object belong to. This needs to be revised.
                              
         """
-    
-        
         self.parentWidget = parentWidget
         self.win = mainWindow
         self._isActive = False
         self._createActions(self.parentWidget)
-        
-
+        self._addWhatsThisText()
+        self._addToolTipText()
+    
     def getFlyoutActionList(self):
         """
         Returns a tuple that contains lists of actions used to create
@@ -141,13 +139,22 @@ class DnaFlyout:
         self.orderDnaAction.setText("Order DNA")
         self.orderDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/Order_DNA.png"))
-
-        # Add tooltips
-        self.dnaDuplexAction.setToolTip("Duplex")
-        self.breakStrandAction.setToolTip("Break Strands")
-        self.joinStrandsAction.setToolTip("Join Strands")
-        self.dnaOrigamiAction.setToolTip("Origami")
-        self.orderDnaAction.setToolTip("Order DNA")
+        
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForDnaCommandToolbar
+        whatsThisTextForDnaCommandToolbar(self)
+        return
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForDnaCommandToolbar
+        toolTipTextForDnaCommandToolbar(self)
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -337,7 +344,3 @@ class DnaFlyout:
         @see: MWSemantics.orderDna
         """
         self.win.orderDna()
-        
-        
-                
-        

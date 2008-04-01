@@ -58,14 +58,13 @@ class NanotubeFlyout:
                              object belong to. This needs to be revised.
                              
         """
-    
-        
         self.parentWidget = parentWidget
         self.win = mainWindow
         self._isActive = False
         self._createActions(self.parentWidget)
-        
-
+        self._addWhatsThisText()
+        self._addToolTipText()
+    
     def getFlyoutActionList(self):
         """
         Returns a tuple that contains lists of actions used to create
@@ -116,8 +115,21 @@ class NanotubeFlyout:
         self.insertNanotubeAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/InsertNanotube.png"))
 
-        # Add tooltips
-        self.insertNanotubeAction.setToolTip("Insert Nanotube")
+    def _addWhatsThisText(self):
+        """
+        Add 'What's This' help text for all actions on toolbar. 
+        """
+        from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForNanotubeCommandToolbar
+        whatsThisTextForNanotubeCommandToolbar(self)
+        return
+    
+    def _addToolTipText(self):
+        """
+        Add 'Tool tip' help text for all actions on toolbar. 
+        """
+        from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForNanotubeCommandToolbar
+        toolTipTextForNanotubeCommandToolbar(self)
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
