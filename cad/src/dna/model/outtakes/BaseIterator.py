@@ -34,7 +34,7 @@ class BaseIterator(object):
         @param ladder: the DnaLadder our current base atom is on
         @type ladder: DnaLadder
 
-        @param whichrail: which rail in the ladder (as a "rail index"(doc)) our current base atom is on
+        @param whichrail: which rail in the ladder (as a "rail index"(#doc)) our current base atom is on
         @type whichrail: ### (depends on strand or axis; or might cause us to choose proper subclass)
 
         @param whichbase: index of our current base atom within the rail
@@ -53,7 +53,7 @@ class BaseIterator(object):
 
         @see: check_init_args
         """
-        self._rail = self.ladder.get_rail_by_index(self.whichrail) # IMPLEM get_rail_by_index
+        self._rail = self.ladder.get_rail_by_index(self.whichrail) # IMPLEM get_rail_by_index (and #doc the rail index convention)
         assert self._rail
         ## assert isinstance(self._rail, self._rail_class) # IMPLEM self._rail_class (strandQ affects it)
         pass # nim @@@
