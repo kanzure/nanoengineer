@@ -1,0 +1,110 @@
+
+// from files_mmp.py
+
+
+mmp-input: 
+           | mmpformat-stmt  end-stmt
+           | mmpformat-stmt  compound-stmt-list  end-stmt
+
+mmpformat-stmt :   mmpformat-reqd-stmt '\n'
+                 | mmpformat-reqd-stmt  mmpformat-pref-stmt '\n'
+
+mmpformat-reqd-stmt : 'mmpformat' [0-9]{6} 'required'
+
+mmpformat-pref-stmt : ';' [0-9]{6} 'preferred'
+
+compound-stmt-list :
+                     | compound-stmt  compound-stmt-list
+
+compound-stmt:
+               | kelvin-stmt
+               | group-block
+               | end1-stmt
+
+kelvin-stmt: 'kelvin' real-number '\n'
+
+group-block: group-begin-stmt
+             group-stmt-list
+             group-end-stmt
+
+group-begin-stmt: 'group' '(' string-identifier ')' '\n'
+
+group-end-stmt: 'egroup' '(' string-identifier ')' '\n'
+
+group-stmt-list:  
+                 | group-stmt  group-stmt-list
+
+group-stmt:  
+            | info-opengroup-stmt
+            | csys-stmt
+            | mol-stmt
+            | atom-bond-stmt
+            | info-stmt
+
+mol-stmt : 'mol' '(' string-identifier ')' mol-style  '\n'  atoms-bonds-stmt-list
+
+mol-style : **TODO**
+
+atoms-bonds-stmt-list :   atom-bond-stmt
+                        | atom-bond-stmt  atoms-bonds-stmt-list
+
+atom-bond-stmt :  atom-stmt  bond-stmt-list
+
+atom-stmt: 'atom' id '(' atomic-num ')' coords atom-style-stmt '\n'
+
+atom-style-stmt : 
+
+bond-stmt-list :
+                 | bond-stmt  bond-stmt-list
+
+bond-stmt:   bond1-stmt
+           | bond2-stmt
+           | bond3-stmt
+           | bonda-stmt
+           | bondg-stmt
+           | bondc-stmt
+
+bond1-stmt : 'bond1' id-list '\n'
+bond2-stmt : 'bond2' id-list '\n'
+bond3-stmt : 'bond3' id-list '\n'
+bonda-stmt : 'bonda' id-list '\n'
+bondg-stmt : 'bondg' id-list '\n'
+bondc-stmt : 'bondc' id-list '\n'
+
+coords: '(' integer ',' integer ',' integer ')'
+
+info-stmt :   info-chunk-stmt
+            | info-opengroup-stmt
+            | info-leaf-stmt
+            | info-atom-stmt
+            | info-gamess-stmt
+            | info-espimage-stmt
+            | info-povrayscene-stmt
+
+info-atom-stmt : 'info' 'atom' atom-property-value-list '\n'
+
+atom-property-value-list :   atom-property-value-key
+                           | atom-property-value-key  atom-property-value-list
+
+
+atom-property-value-key : atom-property-name '=' atom-property-value
+
+atom-property-name : **TODO**
+
+atom-property-value : **TODO**
+
+end-stmt : 'end'  string-list  '\n'
+
+string-identifier : string
+
+string-list : 
+              | string string-list
+
+string : identifier | identifier [\s]+ string
+
+identifier: [A-Za-z_][\w]*
+id-list : id | id-list id
+id: integer
+atomic-num: integer
+integer: [0-9]+
+real-nunber : [-]?[0-9]*.[0-9]([eE][+-]?[0-9]+)?

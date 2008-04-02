@@ -40,13 +40,14 @@
 	;
 	
 	checked_group_mol_struct_stmt_begin_line =
-		'group'   > {lineStart=p;}   % { stringVal2.clear(); }
+		'group'   > {lineStart=p;}
+# -- no style -- % { stringVal2.clear(); }
 		nonNEWLINEspace*
 		'('  nonNEWLINEspace*  checked_group_name  nonNEWLINEspace*  ')'
-		(nonNEWLINEspace+ checked_group_style)?
+# -- no style -- (nonNEWLINEspace+ checked_group_style)?
 		nonNEWLINEspace*
 		EOL
-		@ { newMolStructGroup(stringVal, stringVal2); }
+		@ { newMolStructGroup(stringVal/*, stringVal2*/); }
 	;
 	
 	

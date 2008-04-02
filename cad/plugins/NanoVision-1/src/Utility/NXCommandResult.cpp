@@ -15,7 +15,7 @@ NXCommandResult::NXCommandResult() {
 /** Sets the result code for this result. */
 void NXCommandResult::setResult(int resultId) { this->resultId = resultId; }
 /** Returns the result code for this result. */
-int NXCommandResult::getResult() { return resultId; }
+int NXCommandResult::getResult() const { return resultId; }
 
 /** Sets the vector of additional explanatory data for this result. */
 void NXCommandResult::setParamVector(std::vector<QString> const& paramVector) {

@@ -5,10 +5,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+// class NXSceneGraphTest;
+
 #include "Nanorex/Interface/NXSceneGraph.h"
 
-using namespace Nanorex;
+// using namespace Nanorex;
 
+namespace Nanorex {
 
 /* CLASS: NXSGApplyTesterNode */
 /**
@@ -37,6 +40,7 @@ public:
 };
 
 
+#if 0
 /* CLASS: NXSGDeleteTesterNode */
 /**
  * Overrides the deleteRecursive() method to count number of delete-s instead
@@ -52,6 +56,8 @@ public:
 private:
     static int numDeletes;
 };
+#endif
+
 
 /* CLASS: NXSceneGraphTest */
 /**
@@ -63,7 +69,7 @@ class NXSceneGraphTest: public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(refCountTest);
     CPPUNIT_TEST(childManipTest);
     CPPUNIT_TEST(applyTest);
-    CPPUNIT_TEST(deleteRecursiveTest);
+	// CPPUNIT_TEST(deleteRecursiveTest);
     CPPUNIT_TEST(isLeafTest);
     CPPUNIT_TEST_SUITE_END();
     
@@ -79,11 +85,13 @@ public:
     void refCountTest();
     void childManipTest();
     void applyTest();
-    void deleteRecursiveTest();
+	// void deleteRecursiveTest();
     void isLeafTest();
     
 private:
     NXSGNode *nodes[7];
 };
+
+} // namespace Nanorex
 
 #endif // NX_SCENEGRAPHTEST_H

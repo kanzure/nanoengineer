@@ -52,7 +52,7 @@ Vector NXOpenGLCamera::eye(void) const
 /// Records the mouse-position at the start of drag for trackball rotation
 void NXOpenGLCamera::rotateStart(int x, int y)
 {
-    // cerr << "dragStart @(" << x << ',' << y << ')' << endl;
+    cerr << "dragStart @(" << x << ',' << y << ')' << endl;
     oldMouseX = x;
     oldMouseY = y;
     oldViewingQuaternion = viewingQuaternion;
@@ -68,7 +68,7 @@ void NXOpenGLCamera::rotate(int x, int y)
     real newx = 2.0 * real(x) / real(viewport.width()) - 1.0;
     real newy = 1.0 - 2.0 * real(y) / real(viewport.height());
     
-    // cerr << "drag @(" << newx << ',' << newy << ')' << endl;
+    cerr << "drag @(" << newx << ',' << newy << ')' << endl;
     
     Vector4 dragRotationQuat;
     trackball(dragRotationQuat, newx, newy, oldx, oldy);
@@ -80,7 +80,7 @@ void NXOpenGLCamera::rotate(int x, int y)
 /// Marks the end of mouse-dragging for rotation
 void NXOpenGLCamera::rotateStop(int x, int y)
 {
-    // cerr << "dragStop @(" << x << ',' << y << ')' << endl;
+    cerr << "dragStop @(" << x << ',' << y << ')' << endl;
 }
 
 

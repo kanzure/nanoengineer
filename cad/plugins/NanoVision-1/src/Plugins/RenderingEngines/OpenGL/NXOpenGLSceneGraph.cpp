@@ -4,14 +4,15 @@
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
 #include "GLT/glt_error.h"
 #include <sstream>
+#include <cassert>
 
 using namespace std;
-
-namespace Nanorex {
+using namespace Nanorex;
 
 // static data
 GLint NXSGOpenGLNode::_s_maxModelViewStackDepth;
 
+// .............................................................................
 
 // OpenGL Scenegraph context - only one per application
 bool NXSGOpenGLNode::InitializeContext(void)
@@ -30,6 +31,7 @@ bool NXSGOpenGLNode::InitializeContext(void)
     return success;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLNode::initializeContext(void)
 {
@@ -39,6 +41,7 @@ bool NXSGOpenGLNode::initializeContext(void)
     return ok;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLNode::cleanupContext(void)
 {
@@ -46,6 +49,7 @@ bool NXSGOpenGLNode::cleanupContext(void)
     return baseClassContextCleanedUp;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLNode::addChild(NXSGNode *const /*child*/)
 {
@@ -54,16 +58,18 @@ bool NXSGOpenGLNode::addChild(NXSGNode *const /*child*/)
     return false;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLNode::addChild(NXSGOpenGLNode *const child)
 {
-    bool included = NXSGNode::addChild(static_cast<NXSGNode*>(child));
+    bool included = NXSGNode::addChild(child);
     if(included) {
         child->newParentModelViewStackDepth(modelViewStackDepth);
     }
     return included;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLNode::newParentModelViewStackDepth(int parentMVStackDepth)
 {
@@ -73,12 +79,14 @@ bool NXSGOpenGLNode::newParentModelViewStackDepth(int parentMVStackDepth)
         modelViewStackDepth = parentMVStackDepth;
         ChildrenList::iterator childIter;
         for(childIter = children.begin();
-            childIter != children.end() && success;
+            (childIter != children.end()) && success;
             ++childIter)
         {
             // children are guaranteed to be OpenGL scenegraph nodes
+	        NXSGNode *childNode = *childIter;
             NXSGOpenGLNode *openGLChildNode =
-                dynamic_cast<NXSGOpenGLNode*>(*childIter);
+                dynamic_cast<NXSGOpenGLNode*>(childNode);
+	        assert(openGLChildNode != NULL);
             success =
                 openGLChildNode->newParentModelViewStackDepth(modelViewStackDepth);
         }
@@ -87,6 +95,7 @@ bool NXSGOpenGLNode::newParentModelViewStackDepth(int parentMVStackDepth)
     return success;
 }
 
+// .............................................................................
 
 /// Each model-view transform will push itself onto the matrix stack before
 /// calling its children. Therefore it requires one more slot in the stack than
@@ -125,6 +134,7 @@ NXSGOpenGLModelViewTransform::newParentModelViewStackDepth(int parentMVStackDept
     return success;
 }
 
+// .............................................................................
 
 /// Pushes the modelview matrix before applying the subscenegraph and
 /// restores it afterwards
@@ -161,6 +171,7 @@ bool NXSGOpenGLModelViewTransform::applyRecursive(void) const throw()
     return childrenOK;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLTranslate::apply(void) const throw ()
 {
@@ -175,6 +186,7 @@ bool NXSGOpenGLTranslate::apply(void) const throw ()
 }
 
 
+// .............................................................................
 
 bool NXSGOpenGLRotate::apply(void) const throw ()
 {
@@ -188,6 +200,7 @@ bool NXSGOpenGLRotate::apply(void) const throw ()
     return ok;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLScale::apply(void) const throw ()
 {
@@ -201,6 +214,7 @@ bool NXSGOpenGLScale::apply(void) const throw ()
     return ok;
 }
 
+// .............................................................................
 
 NXSGOpenGLRenderable::NXSGOpenGLRenderable() throw (NXException)
 {
@@ -210,6 +224,7 @@ NXSGOpenGLRenderable::NXSGOpenGLRenderable() throw (NXException)
         throw NXException("Error calling glGenLists");
 }
 
+// .............................................................................
 
 NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
 {
@@ -219,6 +234,7 @@ NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
         throw NXException("Error calling glDeleteLists");
 }
 
+// .............................................................................
 
 bool NXSGOpenGLRenderable::beginRender(void) const throw ()
 {
@@ -234,6 +250,7 @@ bool NXSGOpenGLRenderable::beginRender(void) const throw ()
     return true;
 }
 
+// .............................................................................
 
 bool NXSGOpenGLRenderable::endRender(void) const throw ()
 {
@@ -249,6 +266,8 @@ bool NXSGOpenGLRenderable::endRender(void) const throw ()
     return true;
 }
 
+// .............................................................................
+
 #if 0
 NXSGOpenGLMaterial& NXSGOpenGLMaterial::operator = (NXOpenGLMaterial const& mat) throw ()
 {
@@ -262,6 +281,8 @@ NXSGOpenGLMaterial& NXSGOpenGLMaterial::operator = (NXOpenGLMaterial const& mat)
     return *this;
 }
 #endif
+
+// .............................................................................
 
 bool NXSGOpenGLMaterial::apply(void) const throw ()
 {
@@ -289,4 +310,79 @@ bool NXSGOpenGLMaterial::apply(void) const throw ()
 }
 
 
-} // Nanorex
+// .............................................................................
+
+#ifdef NX_DEBUG
+string const NXSGOpenGLNode::getName() const
+{
+    ostringstream strm;
+    strm << "OGLNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLTransform::getName() const
+{
+    ostringstream strm;
+    strm << "OGLTfNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLModelViewTransform::getName() const
+{
+    ostringstream strm;
+    strm << "OGLMVNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLTranslate::getName() const
+{
+    ostringstream strm;
+    strm << "OGLTraNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLRotate::getName() const
+{
+    ostringstream strm;
+    strm << "OGLRotNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLScale::getName() const
+{
+    ostringstream strm;
+    strm << "OGLScaNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLRenderable::getName() const
+{
+    ostringstream strm;
+    strm << "OGLRendNode_" << id;
+    return strm.str();
+}
+
+// .............................................................................
+
+string const NXSGOpenGLMaterial::getName() const
+{
+    ostringstream strm;
+    strm << "OGLMatNode_" << id;
+    return strm.str();
+}
+
+
+#endif
+

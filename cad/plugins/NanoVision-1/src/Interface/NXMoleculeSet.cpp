@@ -9,19 +9,23 @@ unsigned int NXMoleculeSet::NextMoleculeIndex = 0;
 
 
 /* CONSTRUCTOR */
-NXMoleculeSet::NXMoleculeSet() {
+NXMoleculeSet::NXMoleculeSet(bool const& deleteOnDestruct)
+	: deleteInDestructor(deleteOnDestruct)
+{
 }
 
 
 /* DESTRUCTOR */
 NXMoleculeSet::~NXMoleculeSet() {
-    OBMolIterator molIter;
-    for(molIter = moleculesBegin(); molIter != moleculesEnd(); ++molIter)
-        delete *molIter;
-    
-    NXMoleculeSetIterator molSetIter;
-    for(molSetIter = childrenBegin(); molSetIter != childrenEnd(); ++molSetIter)
-        delete *molSetIter;
+	if(deleteInDestructor) {
+		OBMolIterator molIter;
+		for(molIter = moleculesBegin(); molIter != moleculesEnd(); ++molIter)
+			delete *molIter;
+		
+		NXMoleculeSetIterator molSetIter;
+		for(molSetIter = childrenBegin(); molSetIter != childrenEnd(); ++molSetIter)
+			delete *molSetIter;
+	}
 }
 
 

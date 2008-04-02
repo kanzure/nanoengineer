@@ -30,7 +30,7 @@ public:
         : resultId(resId), paramVector(prmVector) { }
     ~NXCommandResult() {}
     void setResult(int resultId);
-    int getResult();
+    int getResult() const;
     void setParamVector(std::vector<QString> const& paramVector);
     const std::vector<QString>& getParamVector() const;
     

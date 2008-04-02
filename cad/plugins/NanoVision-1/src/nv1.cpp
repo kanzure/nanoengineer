@@ -4,17 +4,20 @@
 
 
 /* CONSTRUCTOR */
-nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
+nv1::nv1(NXEntityManager* entityManager,
+         NXGraphicsManager* graphicsManager,
+         LogHandlerWidget* logHandlerWidget)
 : QMainWindow() {
     this->entityManager = entityManager;
-    
+	this->graphicsManager = graphicsManager;
+	
     setWindowIcon(QPixmap(":/Icons/eye-icon.png"));
     setWindowTitle(tr("NanoVision-1"));
     
     mainWindowTabs = new MainWindowTabWidget(this);
     setCentralWidget(mainWindowTabs);	
     
-    resultsWindow = new ResultsWindow(entityManager, this);
+    resultsWindow = new ResultsWindow(entityManager, graphicsManager, this);
     mainWindowTabs->vboxLayout->removeWidget(mainWindowTabs->widget);
     delete mainWindowTabs->widget;
     mainWindowTabs->vboxLayout->addWidget(resultsWindow);

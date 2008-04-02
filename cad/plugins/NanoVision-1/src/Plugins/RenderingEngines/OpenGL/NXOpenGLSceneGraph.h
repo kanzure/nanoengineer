@@ -19,8 +19,6 @@
 #include "NXOpenGLMaterial.h"
 
 
-namespace Nanorex {
-
 /* CLASS: NXSGOpenGLNode */
 /**
  * Base-class for all OpenGL scenegraph nodes. Helps to maintain debug checks
@@ -28,7 +26,7 @@ namespace Nanorex {
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLNode : public NXSGNode {
+class NXSGOpenGLNode : public Nanorex::NXSGNode {
 public:
     NXSGOpenGLNode() : modelViewStackDepth(0) {}
     ~NXSGOpenGLNode() {}
@@ -55,6 +53,10 @@ public:
     
     static GLint const& GetMaxModelViewStackDepth(void)
     { return _s_maxModelViewStackDepth; }
+    
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
     
 protected:
     /// Maximum model-view stack depth in reaching this node from root
@@ -86,6 +88,11 @@ class NXSGOpenGLTransform : public NXSGOpenGLNode {
 public:
     NXSGOpenGLTransform() throw () {}
     ~NXSGOpenGLTransform() throw () {};
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
+    
+    
 };
 
 
@@ -109,6 +116,10 @@ public:
     /// Re-implement base-class method because this class increments
     /// model-view stack-depth
     bool newParentModelViewStackDepth(int parentMVStackDepth);
+    
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
 };
 
 
@@ -126,6 +137,11 @@ public:
         : x(the_x), y(the_y), z(the_z) {}
     ~NXSGOpenGLTranslate() throw () {}
     bool apply(void) const throw ();
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
+    
+    
 private:
     GLdouble x, y, z;
 };
@@ -147,6 +163,11 @@ public:
         : angle(the_angle), x(the_x), y(the_y), z(the_z) {}
     ~NXSGOpenGLRotate() throw () {}
     bool apply(void) const throw ();
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
+    
+    
 private:
     GLdouble angle, x, y, z;
 };
@@ -166,6 +187,11 @@ public:
         : x(the_x), y(the_y), z(the_z)  {}
     ~NXSGOpenGLScale() throw () {}
     bool apply(void) const throw ();
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
+    
+    
 private:
     GLdouble x, y, z;
 };
@@ -205,9 +231,9 @@ private:
 class NXSGOpenGLRenderable : public NXSGOpenGLNode {
     
 public:
-    NXSGOpenGLRenderable() throw (NXException);
+	NXSGOpenGLRenderable() throw (Nanorex::NXException);
     
-    ~NXSGOpenGLRenderable() throw (NXException);
+	~NXSGOpenGLRenderable() throw (Nanorex::NXException);
     
     bool apply(void) const throw () {glCallList(display_list_id); return true;}
     
@@ -220,7 +246,9 @@ public:
     
 #ifdef NX_DEBUG
     GLuint getDisplayListID(void) const { return display_list_id; }
+    std::string const getName(void) const;
 #endif
+    
     
 protected:
     GLuint display_list_id;
@@ -236,8 +264,12 @@ public:
     /// Copy assignment from GL-material
     // NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();
     bool apply(void) const throw ();
+#ifdef NX_DEBUG
+    std::string const getName(void) const;
+#endif
+    
+    
 };
 
-} // Nanorex
 
 #endif // NX_SCENEGRAPH_OPENGL_H

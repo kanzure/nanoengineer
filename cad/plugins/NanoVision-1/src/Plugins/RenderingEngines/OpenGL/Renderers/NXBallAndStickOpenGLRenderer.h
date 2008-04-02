@@ -14,10 +14,6 @@ extern "C" {
 }
 
 #include "../NXOpenGLRendererPlugin.h"
-#include "Nanorex/Interface/NXAtomRenderData.h"
-#include "Nanorex/Interface/NXBondRenderData.h"
-
-namespace Nanorex {
 
 
 /* CLASS: BallAndStickOpenGLRenderer */
@@ -25,47 +21,65 @@ namespace Nanorex {
  * Renders atoms and bonds using balls and sticks
  */
 class NXBallAndStickOpenGLRenderer : public NXOpenGLRendererPlugin {
+	Q_OBJECT;
+	Q_INTERFACES(NXOpenGLRendererPlugin);
+	
 public:
-    NXBallAndStickOpenGLRenderer() {}
-    virtual ~NXBallAndStickOpenGLRenderer() {}
+	NXBallAndStickOpenGLRenderer(Nanorex::NXRenderingEngine *parent = NULL);
+	virtual ~NXBallAndStickOpenGLRenderer();
 
-    NXCommandResult* initialize(void);
-    NXCommandResult* cleanup(void);
+	Nanorex::NXCommandResult const *const initialize(void);
+	Nanorex::NXCommandResult const *const cleanup(void);
     
-    /// Call plugin to render the atom display list and return the scenegraph node.
+	Nanorex::NXRendererPlugin* newInstance(Nanorex::NXRenderingEngine *) const;
+	
+    /// Call plugin to render the atom display list and return the scenegraph node. Returns NULL upon failure.
     /// Must set commandResult to indicate success or failure
-    NXSGOpenGLNode* renderAtom(NXAtomRenderData const&);
+	NXSGOpenGLNode* renderAtom(Nanorex::NXAtomData const&);
     
-    /// Call plugin to render the atom display list and return the scenegraph node.
+    /// Call plugin to render the atom display list and return the scenegraph node. Returns NULL upon failure.
     /// Must set commandResult to indicate success or failure
-    NXSGOpenGLNode* renderBond(NXBondRenderData const&);
+	NXSGOpenGLNode* renderBond(Nanorex::NXBondData const&);
     
-    
-protected:
-    static double const BOND_WIDTH;
-    static int const MAX_BONDS = 6;
-    static NXSGOpenGLNode *_s_canonicalBondNode[MAX_BONDS];
     
 private:
-    // the following add the eponymous static pointers above as children so that
-    // each initialized instance of NXBallAndStickOpenGLRenderer increments
-    // their reference count by 1. So the canonical bond nodes have a min
-    // scenegraph count of at least 1 till the last instance is destroyed
-    // after which these nodes will be cleaned up
-    NXSGNode canonicalBondNodeGuard[MAX_BONDS];
+    static double const BOND_WIDTH;
+    static int const MAX_BONDS = 6;
+	
+	// The 'guard' scenegraph objects ensure that each scenegraph element has
+	// a ref-count of at least one if all scenegraphs using these nodes are
+	// constructed properly. This is to ensure that these nodes are available
+	// even after a previously constructed scenegraph is deleted. Without these
+	// guards, these nodes would be deleted by the last parent node when their
+	// reference count becomes zero.
+	
+	// sphere nodes, for atoms
+	NXSGOpenGLRenderable *canonicalSphereNode;
+	Nanorex::NXSGNode canonicalSphereNodeGuard;
+	
+	// cylinder nodes, for bonds
+	NXSGOpenGLRenderable *canonicalCylinderNode;
+	Nanorex::NXSGNode canonicalCylinderNodeGuard;
+	
+	// bonds
+	NXSGOpenGLNode *canonicalBondNode[MAX_BONDS];
+	Nanorex::NXSGNode canonicalBondNodeGuard[MAX_BONDS];
     
-    static bool InitializeCanonicalBondNodes(void);
-    static void InitializeCanonicalSingleBondNode(void);
-    static void InitializeCanonicalDoubleBondNode(void);
-    static void InitializeCanonicalTripleBondNode(void);
-    static void InitializeCanonicalAromaticBondNode(void);
-    static void InitializeCanonicalCarbomericBondNode(void);
-    static void InitializeCanonicalGraphiticBondNode(void);
+	// initialization helpers
+	bool initializeCanonicalGeometryNodes(void);
+	bool initializeCanonicalSphereNode(void);
+	void drawOpenGLCanonicalSphere(void);
+	bool initializeCanonicalCylinderNode(void);
+	void drawOpenGLCanonicalCylinder(void);
+    bool initializeCanonicalBondNodes(void);
+    bool initializeCanonicalSingleBondNode(void);
+    bool initializeCanonicalDoubleBondNode(void);
+    bool initializeCanonicalTripleBondNode(void);
+    bool initializeCanonicalAromaticBondNode(void);
+    bool initializeCanonicalCarbomericBondNode(void);
+    bool initializeCanonicalGraphiticBondNode(void);
     
     friend class NXBallAndStickOpenGLRendererTest;
 };
-
-
-} // Nanorex
 
 #endif // NX_BALLANDSTICKOPENGLRENDERER_H

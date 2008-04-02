@@ -5,6 +5,7 @@
 
 //#include <map>
 #include <vector>
+#include <string>
 //#include "Nanorex/Interface/NXOpenGLMaterial.h"
 
 
@@ -15,20 +16,24 @@ namespace Nanorex {
  * Information for rendering atoms
  */
 class NXAtomRenderData {
-    /// @todo shouldn't explicitly depend on OpenGL because various engines use it
+
 private:
     typedef unsigned int uint;
     
 public:
     NXAtomRenderData(uint const& the_atomicNum);
-                     // NXOpenGLMaterial const& defCol = NXOpenGLMaterial(),
-                     // void const *const suppData = NULL);
     ~NXAtomRenderData() {}
     
     uint const& getAtomicNum(void) const { return atomicNum; }
     
-    // NXOpenGLMaterial const& getDefaultMaterial(void) const { return defaultMaterial; }
-    
+	void setRenderStyleCode(std::string const& code) {
+		renderStyleCode = code;
+	}
+	
+	std::string const& getRenderStyleCode(void) const {
+		return renderStyleCode;
+	}
+	
     std::vector<void const*> const& getSupplementalData(void) const
     { return supplementalData; }
     
@@ -40,7 +45,7 @@ public:
     
 protected:
     uint atomicNum;
-    // NXOpenGLMaterial defaultMaterial;
+	std::string renderStyleCode;
     std::vector<void const*> supplementalData;
 };
 

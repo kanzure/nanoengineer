@@ -10,6 +10,8 @@
 #include "NXRendererPlugin.h"
 
 #include <QObject>
+#include <QDir>
+#include <QFileInfo>
 
 #include <map>
 #include <vector>
@@ -34,18 +36,25 @@ public:
 	
 	/// Discover rendering engine based on user-prefs and concomitant
 	/// renderer-plugins
-	void loadPlugins(NXProperties *const properties);
+	bool loadPlugins(NXProperties *const properties);
 	
 	/// List of all styles supported
 	std::vector<std::string> getRenderStyles(void);
 		
 	NXRenderingEngine* getRenderingEngine(void);
 	
+	/// Pointer to renderer-plugin instance that handles the given style, NULL
+	/// if style-renderer combination was not registered
 	NXRendererPlugin* getRenderer(std::string const& renderStyleCode) const;
 	
 	std::string getRenderStyleName(std::string const& renderStyleCode);
 	
-	NXRendererPlugin* getDefaultRenderer(void);
+	NXRendererPlugin* getDefaultRenderer(void) { return defaultRenderer; }
+	
+	/// Create a new rendering-engine instance initialized in the context of
+	/// the supplied parent widget, complete with renderer-plugins initialized
+	/// in its context
+	NXRenderingEngine *newGraphicsInstance(QWidget *parent);
 	
 private:
 	
@@ -60,7 +69,8 @@ private:
 	/// Map between render-style codes and plugins
 	/// E.g.: "bas" <---> (NXRendererPlugin*) nxBallAndStickOpenGLRendererInstance
 	RenderStyleRendererPluginTable renderStyleRendererPluginTable;
-	NXRendererPlugin *defaultPlugin;
+	
+	NXRendererPlugin *defaultRenderer;
 	
 	/// Map between render-style codes and proper display names
 	/// E.g.: "bas" <---> "Ball and Stick"
@@ -70,8 +80,22 @@ private:
 	/// providing the code
 	StringMap renderStyleFileNameTable;
 	
-	void loadRenderingEngine(NXProperties *const props);
-	void loadRendererPlugins(NXProperties *const props);
+	void reset(void);
+	
+	bool loadRenderingEngine(NXProperties *const props);
+	bool loadRendererPlugins(NXProperties *const props);
+	
+	template<typename PluginType>
+		bool findAndLoadPlugin(string const& baseName, string const& path,
+		                       string const& pluginsSearchPath,
+		                       PluginType **pluginStore, QDir *cleanPath,
+		                       string *absPath);
+	
+	bool loadPlugin(NXRenderingEngine **pluginStore, QFileInfo const& fileInfo);
+	bool loadPlugin(NXRendererPlugin **pluginStore, QFileInfo const& fileInfo);
+	
+	void detectDefaultRenderer(NXProperties *const props);
+	void printDiagnosticLogs(void);
 };
 
 } // namespace Nanorex

@@ -11,8 +11,15 @@ NXDataStoreInfo::NXDataStoreInfo()
     : _isSimulationResults(false),
     _isSingleStructure(false),
     _inputParameters(NULL),
-    _resultsSummary(NULL)
+    _resultsSummary(NULL),
+	_clipboardStructure(NULL)
 {
+}
+
+
+NXDataStoreInfo::~NXDataStoreInfo()
+{
+	reset(); // will also release owned resources, like clipboard data
 }
 
 
@@ -30,6 +37,8 @@ void NXDataStoreInfo::reset(void)
     if(_inputParameters != NULL) delete _inputParameters;
     if(_resultsSummary != NULL) delete _resultsSummary;
     _inputParameters = _resultsSummary = NULL;
+	if(_clipboardStructure != NULL) delete _clipboardStructure;
+	_clipboardStructure = NULL;
 }
 
 

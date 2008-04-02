@@ -7,19 +7,14 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
- ../../../Utility/NXPointTest.cpp
+ ../../../Utility/NXPointTest.cpp \
+ ../../../Interface/NXSceneGraphTest.cpp \
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp
 
 TEMPLATE = app
 
 TARGET = CppUnit
 
-LIBS += -L../../../../lib \
- -L$(OPENBABEL_LIBPATH) \
- -L$(HDF5_SIMRESULTS_INCPATH) \
- -lNanorexInterface \
- -lNanorexUtility \
- -lcppunit \
- -lopenbabel
 
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH) \
@@ -36,19 +31,15 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Interface/NXNumbersTest.h \
 ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
- ../../../Utility/NXPointTest.h \
- ../../../Interface/NXSceneGraphTest.h
+ ../../../Interface/NXSceneGraphTest.h \
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.h
 
-TARGETDEPS += ../../../../lib/libNanorexUtility.so \
-../../../../lib/libNanorexInterface.so
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin
 
-CONFIG -= release
-
-CONFIG += debug \
+CONFIG += debug_and_release \
 stl
 
 # This tell qmake to not create a Mac bundle for this application.
@@ -58,4 +49,25 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
+
+
+TARGETDEPS += ../../../../lib/libNanorexInterface.so \
+  ../../../../lib/libNanorexUtility.so
+
+QT -= gui
+
+
+DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.rl \
+ ../../../Plugins/NanorexMMPImportExport/molecule.rl \
+ ../../../Plugins/NanorexMMPImportExport/atom.rl \
+ ../../../Plugins/NanorexMMPImportExport/utilities.rl \
+ ../../../Plugins/NanorexMMPImportExport/group.rl 
+
+LIBS += -L../../../../lib \
+  -lNanorexInterface \
+  -lNanorexUtility \
+  -L$(OPENBABEL_LIBPATH) \
+  -L$(HDF5_SIMRESULTS_INCPATH) \
+  -lcppunit \
+  -lopenbabel
 

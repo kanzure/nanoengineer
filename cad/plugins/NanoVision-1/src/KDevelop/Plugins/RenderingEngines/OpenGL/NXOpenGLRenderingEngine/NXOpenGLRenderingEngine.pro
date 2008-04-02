@@ -3,13 +3,15 @@ TEMPLATE = lib
 CONFIG += stl \
  opengl \
  dll \
- debug_and_release
-# plugin
-win32: CONFIG -= dll
-win32: CONFIG += staticlib
+ debug_and_release \
+ rtti \
+ plugin
 
-HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
- ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
+win32 : CONFIG -= dll
+win32 : CONFIG += staticlib
+
+HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomData.h \
+ ../../../../../../include/Nanorex/Interface/NXBondData.h \
  ../../../../../../include/Nanorex/Interface/NXEntityManager.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRendererPlugin.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h \
@@ -21,7 +23,7 @@ HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLCamera.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLCamera_sm.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/trackball.h \
- ../../../../../Plugins/RenderingEngines/OpenGL/statemap.h 
+ ../../../../../Plugins/RenderingEngines/OpenGL/statemap.h
 
 QT += opengl
 
@@ -32,20 +34,9 @@ INCLUDEPATH += ../../../../../../include \
  $(HDF5_SIMRESULTS_INCPATH) \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL
 
-LIBS += -L$(OPENBABEL_LIBPATH) \
- -L../../../../../../lib \
- -lNanorexInterface \
- -lNXOpenGLSceneGraph \
- -lNanorexUtility \
- -lGLT \
- -lopenbabel
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
 
-TARGETDEPS += ../../../../../../lib/libNanorexUtility.so \
-../../../../../../lib/libNanorexInterface.so \
-../../../../../../lib/libNXOpenGLSceneGraph.a \
- ../../../../../../lib/libGLT.a 
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
@@ -67,4 +58,18 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 # unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 # macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 
+
+TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a \
+  ../../../../../../lib/libGLT.a \
+  ../../../../../../lib/libNanorexInterface.so \
+  ../../../../../../lib/libNanorexUtility.so
+
+
+LIBS += -L../../../../../../lib \
+  -lNanorexUtility \
+  -lNanorexInterface \
+  ../../../../../../lib/libGLT.a \
+  ../../../../../../lib/libNXOpenGLSceneGraph.a \
+  -L$(OPENBABEL_LIBPATH) \
+  -lopenbabel
 

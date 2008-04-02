@@ -3,29 +3,61 @@
 #ifndef STRUCTUREGRAPHICSWINDOW_H
 #define STRUCTUREGRAPHICSWINDOW_H
 
-// #include <Nanorex/Interface/NXRenderingEngine.h>
 #include "Nanorex/Interface/NXEntityManager.h"
-#include "Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h"
+#include "Nanorex/Interface/NXGraphicsManager.h"
+#include <Nanorex/Interface/NXRenderingEngine.h>
+
 using namespace Nanorex;
 
 #include "DataWindow.h"
 
 /* CLASS: StructureGraphicsWindow */
-class StructureGraphicsWindow
-: public DataWindow,
-  public NXOpenGLRenderingEngine
+class StructureGraphicsWindow : public DataWindow
 {
     Q_OBJECT;
     
 public:
-    StructureGraphicsWindow(QWidget *parent=0);
+    StructureGraphicsWindow(QWidget *parent,
+                            NXGraphicsManager *gm);
     ~StructureGraphicsWindow();
     
-    void setEntityManager(NXEntityManager *theEntityManager)
-    { entityManager = theEntityManager; }
-    
+	NXCommandResult const *const setMoleculeSet(NXMoleculeSet *theMolSetPtr);
+	
+	// Mouse-event handlers
+// 	void mousePressEvent(QMouseEvent *mouseEvent);
+// 	void mouseReleaseEvent(QMouseEvent *mouseEvent);
+// 	void mouseMoveEvent(QMouseEvent *mouseEvent);
+	
+	
 private:
-    NXEntityManager *entityManager;
+	NXGraphicsManager *graphicsManager;
+	NXMoleculeSet *molSetPtr;
+	NXRenderingEngine *renderingEngine;
 };
+
+#if 0
+#include "Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h"
+
+inline void StructureGraphicsWindow::mousePressEvent(QMouseEvent *mouseEvent)
+{
+	NXOpenGLRenderingEngine *openglRenderingEngine =
+		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
+	openglRenderingEngine->mousePressEvent(mouseEvent);
+}
+
+inline void StructureGraphicsWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+	NXOpenGLRenderingEngine *openglRenderingEngine =
+		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
+	openglRenderingEngine->mouseMoveEvent(mouseEvent);
+}
+
+inline void StructureGraphicsWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
+{
+	NXOpenGLRenderingEngine *openglRenderingEngine =
+		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
+	openglRenderingEngine->mouseReleaseEvent(mouseEvent);
+}
+#endif
 
 #endif // STRUCTUREGRAPHICSWINDOW_H

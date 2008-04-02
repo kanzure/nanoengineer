@@ -31,13 +31,13 @@
 
 	group_mol_struct_stmt_begin_line =
 		'group'
-		% { stringVal2.clear(); }
+# -- no style -- % { stringVal2.clear(); }
 		nonNEWLINEspace*
 		'('  nonNEWLINEspace*  char_string_with_space  nonNEWLINEspace*  ')'
-		(nonNEWLINEspace+ char_string_with_space2)?
+# - no style -- (nonNEWLINEspace+ char_string_with_space2)?
 		nonNEWLINEspace*
 		EOL
-		@ { newMolStructGroup(stringVal, stringVal2); }
+		@ { newMolStructGroup(stringVal/*, stringVal2*/); }
 	;
 	
 	end1_line =
@@ -88,8 +88,7 @@ group_scanner :=
 		#WHITESPACE* group_mol_struct_stmt_begin_line @(group,1);
 		WHITESPACE* group_mol_struct_stmt_begin_line;
 		WHITESPACE* info_opengroup_line;
-		WHITESPACE* egroup_line =>
-			{ cerr << lineNum << ": returning from group" << endl; fret; };
+		WHITESPACE* egroup_line => {fret;} ;
 		WHITESPACE* mol_decl_line;
 		WHITESPACE* info_chunk_line;
 		WHITESPACE* atom_decl_line;
@@ -100,9 +99,9 @@ group_scanner :=
 		# skip blank and comment lines by providing no actions
 		COMMENT_LINE;
 		WHITESPACE* IGNORED_LINE =>
-			{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+			{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			};
 	*|;
 	

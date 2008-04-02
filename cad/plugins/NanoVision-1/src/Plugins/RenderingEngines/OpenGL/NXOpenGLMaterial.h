@@ -3,8 +3,6 @@
 #ifndef NX_OPENGLMATERIAL_H
 #define NX_OPENGLMATERIAL_H
 
-namespace Nanorex {
-
 /* CLASS: NXOpenGLMaterial */
 /**
  * Lightweight OpenGL material information for use in class NXAtomRenderData
@@ -41,6 +39,5 @@ struct NXOpenGLMaterial {
     bool valid(void) const { return !invalid(); }
 };
 
-} // Nanorex
 
 #endif // NX_OPENGLMATERIAL_H

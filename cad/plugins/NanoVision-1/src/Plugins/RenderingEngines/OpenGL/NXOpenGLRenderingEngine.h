@@ -7,7 +7,7 @@
 #include <list>
 #include <vector>
 
-#include <QtGui>
+// #include <QtGui>
 #include <QtOpenGL>
 
 #include "glt_light.h"
@@ -16,131 +16,156 @@
 #include "glt_vector3.h"
 #include "glt_project.h"
 #include "glt_viewport.h"
+#include "glt_bbox.h"
 
-#include "Nanorex/Interface/NXRenderingEngine.h"
+#include <Nanorex/Interface/NXRenderingEngine.h>
+#include <Nanorex/Interface/NXMoleculeSet.h>
 #include "Nanorex/Utility/NXRGBColor.h"
 #include "NXOpenGLSceneGraph.h"
 #include "NXOpenGLRendererPlugin.h"
 #include "NXOpenGLCamera.h"
 
-#include <openbabel/mol.h>
-
-
-namespace Nanorex
-{
-
-// fwd decls from NV-1
-class NXMoleculeSet;
 
 /* CLASS: NXOpenGLRenderingEngine */
 /**
-  *  Renders the molecule set using plain OpenGL
+  *  Renders the molecule set using plain OpenGL. Can be instantiate for
+  *  display of molecules or molecule-sets using the template parameter.
+  *
+  * \internal This class delegates the actual task of creating scenegraphs
+  *  and rendering it to an OpenGL context to the NXOpenGLRenderingEngine_delegate
+  *  class. The task of the template parameter is to filter what can be
+  *  displayed through this window and much of the rendering part is independent
+  *  so maintaining a template-less delegate is better code reuse.
   *
   * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
   */
-class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine
+class NXOpenGLRenderingEngine :
+	public QGLWidget,
+	public Nanorex::NXRenderingEngine
 {
     Q_OBJECT;
+	Q_INTERFACES(Nanorex::NXRenderingEngine);
+
 public:
     
     
-    NXOpenGLRenderingEngine ( QWidget *parent = 0 );
+    NXOpenGLRenderingEngine(QWidget *parent = 0);
     
     virtual ~NXOpenGLRenderingEngine();
     
-            // override base-class virtual methods
+    // override base-class virtual methods
     
-    NXRenderingEngine::EngineID getID ( void ) const
-    { return NXRenderingEngine::OPENGL; }
+	// RenderingEngineID getID(void) const { return OPENGL; }
     
-    bool initializePlugins(void);
-    
-    bool cleanupPlugins(void);
-    
-    void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet );
-    void setMolecule ( OpenBabel::OBMol *mol );
-    
+	QWidget* asQWidget(void) {
+		QGLWidget *asQGLWidget = static_cast<QGLWidget*>(this);
+		return static_cast<QWidget*>(asQGLWidget);
+	}
+	
+	bool initializePlugins(void);
+	
+	bool cleanupPlugins(void);
+	
+	NXRenderingEngine* newInstance(QWidget *parent=0) const;
+	
+	bool isRendererCompatible(QObject *plugin) const;
+	
+	void setCurrentFrame(int frameIdx);
+	
+	Nanorex::NXRendererPlugin* renderer_cast(QObject *plugin) const;
+	
     // Mouse-event handlers
-    void mousePressEvent(QMouseEvent *mouseEvent);
-    void mouseReleaseEvent(QMouseEvent *mouseEvent);
-    void mouseMoveEvent(QMouseEvent *mouseEvent);
-    
-    bool setRenderer(NXOpenGLRendererPlugin *const plugin);
+	void mousePressEvent(QMouseEvent *mouseEvent);
+	void mouseReleaseEvent(QMouseEvent *mouseEvent);
+	void mouseMoveEvent(QMouseEvent *mouseEvent);
     
 private:
     
-    typedef unsigned int uint;
+	typedef unsigned int uint;
     
-    NXOpenGLCamera camera;
+	NXOpenGLCamera camera;
     
-    NXMoleculeSet *rootMoleculeSet;
-    OpenBabel::OBMol *mol;
-    bool isSingleMolecule;
-    NXSGOpenGLNode *rootSceneGraphNode;
-    
-/*    typedef std::list<NXOpenGLRendererPlugin*> PluginList;
-    PluginList pluginList;
-    PluginList::iterator currentPluginIter;*/
-    
-    NXOpenGLRendererPlugin *renderer;
-    bool rendererInitialized;
+	// bool pluginsInitialized;
     
     // OpenGL settings
-    std::vector<GltLight> lights;
-    GltLightModel lightModel;
+	std::vector<GltLight> lights;
+	GltLightModel lightModel;
     
     // bool isOrthographicProjection;
     // GltOrtho orthographicProjection;
     // GltFrustum perspectiveProjection;
     // GltViewport viewport;
     
-    std::map<uint, NXRGBColor> elementColorMap;
+	std::map<uint, Nanorex::NXRGBColor> elementColorMap;
     NXOpenGLMaterial defaultAtomMaterial;
     NXOpenGLMaterial defaultBondMaterial;
-    
-    NXCommandResult commandResult;
-    static void SetResult(NXCommandResult cmdResult,
-                          int errCode, std::string const& errMsg);
-    
-    
-    
-    NXSGOpenGLNode* createSceneGraph ( NXMoleculeSet *const molSetPtr );
-    
-    NXSGOpenGLNode* createSceneGraph ( OpenBabel::OBMol *const molPtr );
-    
-    NXSGOpenGLNode* createSceneGraph ( OpenBabel::OBMol *const molPtr,
-                                       OpenBabel::OBAtom *const atomPtr,
-                                       std::set<OpenBabel::OBAtom*>& renderedAtoms,
-                                       Vector const& zAxis );
-    
-    void deleteSceneGraph ( void )
-    {
-        if ( rootSceneGraphNode != ( NXSGOpenGLNode* ) NULL ) {
-            delete rootSceneGraphNode;
-            rootSceneGraphNode = ( NXSGOpenGLNode* ) NULL;
-        }
-    }
+        
+	NXSGOpenGLNode*
+		createOpenGLSceneGraph(Nanorex::NXMoleculeSet *const molSetPtr);
+	
+	NXSGOpenGLNode*
+		createOpenGLSceneGraph(OpenBabel::OBMol *const molPtr);
+	
+	NXSGOpenGLNode*
+		createOpenGLSceneGraph(OpenBabel::OBMol *const molPtr,
+		                       OpenBabel::OBAtom *const atomPtr,
+		                       std::set<OpenBabel::OBAtom*>& renderedAtoms,
+		                       Vector const& zAxis);
+	
+    // Implement inherited pure-virtual methods
+	Nanorex::NXSGNode*
+		createSceneGraph (Nanorex::NXMoleculeSet *const molSetPtr);
+	
+	// NXSGNode* createSceneGraph (OpenBabel::OBMol *const molPtr);
     
     // QGLWidget methods to be overriden
-    void initializeGL(void);
-    void resizeGL(int width, int height);
-    void paintGL(void);
+	void initializeGL(void);
+	void resizeGL(int width, int height);
+	void paintGL(void);
     
     /// Reset the view based on the atom-bond distribution in the molecule-set
     void resetView (void);
     
-    bool initializeElementColorMap(void);
-    void initializeDefaultMaterials(void);
-    void setupDefaultLights(void);
-    void drawSkyBlueBackground(void);
-    
-    static BoundingBox GetMoleculeSetBoundingBox(NXMoleculeSet *const molSetPtr);
-    static BoundingBox GetMoleculeBoundingBox(OpenBabel::OBMol *molPtr);
-    
+	bool initializeElementColorMap(void);
+	void initializeDefaultMaterials(void);
+	void setupDefaultLights(void);
+	void drawSkyBlueBackground(void);
+	void drawCompass(void);
+	
+	// static methods
+	BoundingBox GetBoundingBox(Nanorex::NXMoleculeSet *const molSetPtr);
+	BoundingBox GetBoundingBox(OpenBabel::OBMol *const molPtr);
 };
 
 
-} // Nanorex
+inline
+Nanorex::NXRenderingEngine*
+NXOpenGLRenderingEngine::newInstance(QWidget *parent) const
+{
+	NXOpenGLRenderingEngine *openGLRenderingEngineInstance =
+		new NXOpenGLRenderingEngine(parent);
+	return
+		static_cast<Nanorex::NXRenderingEngine*>(openGLRenderingEngineInstance);
+}
 
+
+inline
+Nanorex::NXRendererPlugin*
+NXOpenGLRenderingEngine::renderer_cast(QObject *plugin) const
+{
+	NXOpenGLRendererPlugin *rendererPlugin =
+		qobject_cast<NXOpenGLRendererPlugin*>(plugin);
+	return
+		static_cast<Nanorex::NXRendererPlugin*>(rendererPlugin);
+}
+
+
+inline void NXOpenGLRenderingEngine::setCurrentFrame(int frameIdx)
+{
+	if(frameIdx < (int)frames.size()) {
+		currentFrameIndex = frameIdx;
+		resetView();
+	}
+}
 
 #endif // NX_OPENGLRENDERINGENGINE_H

@@ -29,7 +29,7 @@ typedef std::list<OBMol*>::iterator OBMolIterator;
  */
 class NXMoleculeSet {
 public:
-    NXMoleculeSet();
+    NXMoleculeSet(bool const& deleteOnDestruct = true);
     ~NXMoleculeSet();
     
     void addChild(NXMoleculeSet* child) { children.push_back(child); }
@@ -41,6 +41,7 @@ public:
     // Molecules
     //
     OBMol* newMolecule();
+	void addMolecule(OBMol* mol) { molecules.push_back(mol); }
     OBMolIterator moleculesBegin() { return molecules.begin(); }
     OBMolIterator moleculesEnd() { return molecules.end(); }
     NXABMInt moleculeCount() { return molecules.size(); }
@@ -56,7 +57,7 @@ public:
     
 private:
     static unsigned int NextMoleculeIndex;
-    
+	bool const deleteInDestructor;
     std::list<NXMoleculeSet*> children;
     std::list<OBMol*> molecules;
     

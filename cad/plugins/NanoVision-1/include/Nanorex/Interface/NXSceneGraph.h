@@ -4,10 +4,12 @@
 #define NX_SCENEGRAPH_H
 
 #include <list>
+#include <string>
+#include <iostream>
+#include <cassert>
 #include <Nanorex/Utility/NXCommandResult.h>
 
 // SceneGraph abstraction to bridge platforms
-
 
 namespace Nanorex {
 
@@ -18,6 +20,9 @@ namespace Nanorex {
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGNode {
+	
+	friend class NXSceneGraphTest;
+	
 public:
     typedef std::list<NXSGNode*> ChildrenList;
     
@@ -25,7 +30,7 @@ public:
     virtual ~NXSGNode();
 
     /// Initialize the scenegraph context, if any
-    virtual bool initializeContext(void);
+	virtual bool initializeContext(void) { return true; }
     
     /// Cleanup the scenegraph context, if any
     virtual bool cleanupContext(void) { return true; }
@@ -57,10 +62,16 @@ public:
     bool isLeaf(void) const throw() { return (children.size()==0); }
     
 #ifdef NX_DEBUG
-    void reset(void) { removeAllChildren(); ref_count=0; }
+	/// Non-destructively remove all children and set ref-count to zero
+	void reset(void);
     
-    /// @todo write scenegraph structure in GraphViz format
-    // virtual void writeDotGraph(std::ostream&) const;
+    /// Get a name for the node
+    virtual std::string const getName(void) const;
+    
+    /// write scenegraph structure in GraphViz format
+    void writeDotGraph(std::ostream& o) const;
+	
+	static void ResetIdSource(void) { idSource = 0; }
 #endif
         
     /// Last error in the context
@@ -70,19 +81,24 @@ private:
     int ref_count;
     int incrementRefCount(void) throw() { ++ref_count; return ref_count; }
     int decrementRefCount(void) throw()
-    { if(ref_count > 0) --ref_count; return ref_count; }
+	{ --ref_count; return ref_count; }
     
     void removeChildWithoutCheck(NXSGNode *const child);
     
 protected:
-    
     ChildrenList children;
     
+#ifdef NX_DEBUG
+	int id;
+	static int idSource;
+#endif
+	
     /// Most recent error - to be set by failing node
     /// All calling nodes propagate boolean result back up to root
     static NXCommandResult _s_commandResult;
     
     static void SetError(int errCode, char const *const errMsg);
+	static void ClearResult(void);
     
 };
 

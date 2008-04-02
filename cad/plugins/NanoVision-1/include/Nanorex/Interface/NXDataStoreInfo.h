@@ -4,10 +4,10 @@
 #define NX_DATASTOREINFO_H
 
 #include <map>
-#include <vector>
 #include <string>
 using namespace std;
 
+#include "Nanorex/Interface/NXMoleculeSet.h"
 #include "Nanorex/Utility/NXProperties.h"
 
 namespace Nanorex {
@@ -22,7 +22,7 @@ namespace Nanorex {
 class NXDataStoreInfo {
 	public:
 		NXDataStoreInfo();
-		
+		~NXDataStoreInfo();
 		//
 		// Single structures
 		//
@@ -71,7 +71,15 @@ class NXDataStoreInfo {
 		void setHandle(int frameSetId, void* handle);
 		void* getHandle(int frameSetId);
     
-    void reset(void);
+	//
+	// Clipboard
+	//
+	
+		bool hasClipboardStructure(void) const;
+		NXMoleculeSet *const getClipboardStructure(void) const;
+		void setClipboardStructure(NXMoleculeSet *const molSetPtr);
+	
+		void reset(void);
 		
 	private:
 		bool _isSimulationResults, _isSingleStructure;
@@ -94,7 +102,35 @@ class NXDataStoreInfo {
 		
 		// Maps frame set id to its store-complete status
 		map<int, bool> _storeIsComplete;
+	
+		NXMoleculeSet* _clipboardStructure;
 };
+
+
+/* FUNCTION: hasClipboardStructures */
+inline
+	bool NXDataStoreInfo::hasClipboardStructure(void) const
+{
+	return (_clipboardStructure != NULL);
+}
+
+
+/* FUNCTION: getClipboardStructures */
+inline
+NXMoleculeSet *const NXDataStoreInfo::getClipboardStructure(void) const
+{
+	return _clipboardStructure;
+}
+
+
+/* FUNCTION: addClipboardStructure */
+inline
+void NXDataStoreInfo::setClipboardStructure(NXMoleculeSet*const molSetPtr)
+{
+	_clipboardStructure = molSetPtr;
+}
+
+
 
 
 } // Nanorex::

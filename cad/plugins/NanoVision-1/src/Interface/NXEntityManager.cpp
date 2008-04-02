@@ -103,6 +103,8 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 		if (fileExists) {
 			QPluginLoader loader(absPluginLibrary);
 			pluginObject = loader.instance();
+			msg = "Loaded Data Import/Export plugin: " + pluginLibrary;
+			NXLOG_INFO("NXEntityManager", msg);
 			
 		} else {
 			msg =

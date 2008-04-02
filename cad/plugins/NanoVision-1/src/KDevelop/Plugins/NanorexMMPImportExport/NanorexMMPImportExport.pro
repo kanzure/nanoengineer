@@ -2,23 +2,22 @@ TEMPLATE = lib
 
 CONFIG += dll \
 plugin \
-debug_and_release \
- stl
+stl \
+ debug_and_release
 
 
 SOURCES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.cpp
 
-DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.rl
+DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.rl \
+ ../../../Plugins/NanorexMMPImportExport/atom.rl \
+ ../../../Plugins/NanorexMMPImportExport/utilities.rl \
+ ../../../Plugins/NanorexMMPImportExport/group.rl \
+ ../../../Plugins/NanorexMMPImportExport/molecule.rl
 
 HEADERS += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.h \
-../../../Plugins/NanorexMMPImportExport/ragelistreamptr.h
+ ../../../Plugins/NanorexMMPImportExport/RagelIstreamPtr.h
 QT -= gui
 
-LIBS += -L../../../../lib \
- -lNanorexInterface \
- -lNanorexUtility \
- -L$(OPENBABEL_LIBPATH) \
- -lopenbabel
 
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
@@ -34,4 +33,10 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
+
+LIBS += -L../../../../lib \
+  -lNanorexUtility \
+  -lNanorexInterface \
+  -L$(OPENBABEL_LIBPATH) \
+  -lopenbabel
 

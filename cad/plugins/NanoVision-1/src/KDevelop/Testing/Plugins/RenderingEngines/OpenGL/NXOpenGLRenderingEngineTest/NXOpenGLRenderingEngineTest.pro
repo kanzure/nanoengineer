@@ -2,9 +2,10 @@ TEMPLATE = app
 
 CONFIG -= release
 
-CONFIG += debug_and_release \
-stl \
-opengl 
+CONFIG += stl \
+opengl \
+ debug_and_release \
+ rtti
 QT += opengl
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
@@ -18,22 +19,24 @@ INCLUDEPATH += ../../../../../../../include \
  ../../../../../../../src/Plugins/RenderingEngines/OpenGL
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngineTest.cpp
 
-LIBS += -lopenbabel \
- -L../../../../../../../lib \
- -lNXBallAndStickOpenGLRenderer \
- -lNXOpenGLRendererPlugin \
- -lNXOpenGLRenderingEngine \
- -lNXOpenGLSceneGraph \
- -lGLT \
- -lNanorexInterface \
- -lNanorexUtility
 
 DESTDIR = ../../../../../../../bin
 
 TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
-../../../../../../../lib/libNXOpenGLRendererPlugin.so \
-../../../../../../../lib/libNXOpenGLRenderingEngine.so \
-../../../../../../../lib/libNXOpenGLSceneGraph.a \
-../../../../../../../lib/libGLT.a \
-../../../../../../../lib/libNanorexInterface.so \
-../../../../../../../lib/libNanorexUtility.so
+  ../../../../../../../lib/libNXOpenGLRenderingEngine.so \
+  ../../../../../../../lib/libNXOpenGLSceneGraph.a \
+  ../../../../../../../lib/libGLT.a \
+  ../../../../../../../lib/libNanorexInterface.so \
+  ../../../../../../../lib/libNanorexUtility.so
+
+
+
+LIBS += -L../../../../../../../lib \
+  -lNanorexUtility \
+  -lNanorexInterface \
+  -lNXOpenGLRenderingEngine \
+  -lNXBallAndStickOpenGLRenderer \
+  -lopenbabel \
+  -lNXOpenGLSceneGraph \
+  -lGLT
+

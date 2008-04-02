@@ -5,25 +5,38 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExport.h"
+#include <Nanorex/Interface/NXAtomData.h>
+#include <Nanorex/Utility/NXUtility.h>
 #include <QFileInfo>
 
 #define VERBOSE
 
 #if defined(VERBOSE)
-#define CDEBUG(x) DEBUG_MSG(filename, line, x)
+
+#if 0
+#define CDEBUG(s) DEBUG_MSG(inputFilename, lineNum, s)
 inline void DEBUG_MSG(string const& filename, int line, string const& s)
 {
-	ostringstream msg;
-	msg << line << ": " << s;
-	NXLOG_INFO(filename, msg.str());
+	NXLOG_DEBUG(filename, NXUtility::itos(line)+": "+s);
 /*    Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance();
     if (logger != 0)
         logger->log(Nanorex::NXLogLevel_Info, filename, msg.str());*/
 }
-#else
-#define CDEBUG(x)
 #endif
 
+#define CERR(s) { cerr << inputFilename << ": " << NXUtility::itos(lineNum) \
+<< ": " << s << endl; }
+// #define CDEBUG(s) NXLOG_DEBUG(inputFilename, NXUtility::itos(lineNum)+": "+s)
+#define CDEBUG(s) { cerr << inputFilename << ": " << NXUtility::itos(lineNum) \
+<< ": " << s << endl; }
+#define CLOG(s) NXLOG_INFO(inputFilename, NXUtility::itos(lineNum)+": "+s)
+
+#else
+#define CDEBUG(s)
+#define CLOG(s)
+#endif
+
+#define CSEVERE(s) NXLOG_SEVERE(inputFilename, NXUtility::itos(lineNum)+": "+s)
 
 
 
@@ -32,23 +45,9 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 	
 	machine mmp_parser;
 	
-# ----- utility patterns -----
-	include utilities "utilities.rl";
-	
-# ----- atom -----
-	
-	include atom "atom.rl";
-	
-# ----- molecule -----
-	
-	include molecule "molecule.rl";
-	
-# ----- group -----
-	
 	include group "group.rl";
 		
-# ----- header -----
-# e.g.:     mmpformat 050920 required [; 050930 preferred]
+	
 	mmpformat_line =
 		'mmpformat'  nonNEWLINEspace+
 		digit{6} nonNEWLINEspace+
@@ -57,29 +56,37 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 		    digit{6} nonNEWLINEspace+
 		    'preferred'
 		)?
+		nonNEWLINEspace*
 		EOL;
 	
 	kelvin_line =
 		'kelvin'
 		nonNEWLINEspace+
-		real_number
+		whole_number % { kelvinTemp = intVal; }
+		nonNEWLINEspace*
 		EOL;
 	
-	end_line = 'end' nonNEWLINEspace+ nonNEWLINE* :> EOL;
+	end_line = 'end' nonNEWLINEspace+;
 	
 	
-# ----- main parser machine -----
-	
-main := WHITESPACE*		mmpformat_line
-		WHITESPACE* 	(kelvin_line WHITESPACE*)?
-		group_view_data_stmt_begin_line  % { fcall group_scanner; }
+main := WHITESPACE*
+		mmpformat_line
 		WHITESPACE*
-		group_mol_struct_stmt_begin_line % { fcall group_scanner; }
+		( kelvin_line
+		  WHITESPACE*
+		)?
+		group_view_data_stmt_begin_line
+			@ { fhold; fcall group_scanner; }
+		WHITESPACE*
+		group_mol_struct_stmt_begin_line
+			@ { fhold; fcall group_scanner; }
 		WHITESPACE*
 		end1_line
 		WHITESPACE*
-		group_clipboard_stmt_begin_line  % { fcall group_scanner; }
-		WHITESPACE*     end_line
+		group_clipboard_stmt_begin_line
+			@ { fhold; fcall group_scanner; }
+		WHITESPACE*
+		end_line
 		any*
 		;
 	
@@ -96,10 +103,13 @@ prepush {
 
 %% # Ragel FSM data
 
+
+// static data from Ragel
+
 %% write data;
 
 
-// static data
+// static data from class NanorexMMPImportExport
 
 char const NanorexMMPImportExport::_s_bondOrderString[NUM_BOND_TYPES] = {
 	'1', '2', '3', 'a', 'g', 'c'
@@ -131,15 +141,30 @@ NanorexMMPImportExport::~NanorexMMPImportExport()
 /* FUNCTION: reset */
 void NanorexMMPImportExport::reset(void)
 {
+	inputFilename.clear();
+	dataStoreInfo = (NXDataStoreInfo*) NULL;
+	
 	lineNum = 0;
+	insideViewDataGroup = false;
+	insideClipboardGroup = false;
+	
 	atomPtr = NULL;
 	bondPtr = NULL;
 	foundAtomList.clear();
 	targetAtomList.clear();
 	molPtr = NULL;
 	molSetPtr = NULL;
-	while(!molSetPtrStack.empty()) molSetPtrStack.pop();
+	molSetPtrStack.clear();
+	molStyle = "def";
+	
+	clipboardGroup = NULL;
+	
+	// defaultAtomStyle = "def";
+	// defaultAtomStyleStack.clear();
+	
+	// ragel stack
 	stackSize = 2;
+	stack.clear();
 	stack.resize(stackSize, 0);
 	
     // initialize the ragel engine
@@ -151,11 +176,13 @@ void NanorexMMPImportExport::reset(void)
 NXCommandResult*
 NanorexMMPImportExport::
 importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
-               NXDataStoreInfo *dataStoreInfo,
+               NXDataStoreInfo *dsInfo,
                const std::string& theFilename,
                int /*frameSetId*/, int /*frameIndex*/)
 {
+	reset();
 	bool success = true;
+		
 	NXCommandResult *result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
 	
@@ -168,6 +195,7 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 	}
 	else {
 		inputFilename = theFilename;
+		dataStoreInfo = dsInfo;
 		success = readMMP(mmpfile, rootMoleculeSetPtr);
 	}
 	
@@ -184,13 +212,12 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 bool NanorexMMPImportExport::readMMP(istream& instream,
                                      NXMoleculeSet *rootMoleculeSetPtr)
 {
-	reset();
-	
 	p = RagelIstreamPtr(instream);
 	pe = RagelIstreamPtr(instream, 0, ios::end);
 	eof = pe;
 	
-	molSetPtr = rootMoleculeSetPtr;
+	this->rootMoleculeSetPtr = rootMoleculeSetPtr;
+	molSetPtr = NULL;
 	// molSetPtrStack.push(molSetPtr);
 	
     /// @todo handle first 'group' statement and molSetPtrStack initialization
@@ -208,54 +235,303 @@ bool NanorexMMPImportExport::readMMP(istream& instream,
 }
 
 
-/* FUNCTION: createNewMoleculeSet */
-void NanorexMMPImportExport::createNewMoleculeSet(void)
+/* FUNCTION newAtom */
+void NanorexMMPImportExport::newAtom(int id, int atomicNum, int x, int y, int z,
+                                     string const& style)
 {
-	if(molSetPtr != NULL) {
-		NXMoleculeSet *newMolSetPtr = new NXMoleculeSet;
-		newMolSetPtr->setTitle(stringval);
-		molSetPtr->addChild(newMolSetPtr);
-		molSetPtrStack.push(newMolSetPtr);
-		molSetPtr = newMolSetPtr;
+	if(molPtr == NULL) {
+		CSEVERE("No parent molecule for atom");
+		return;
 	}
+	
+	// error if id was previously specified
+	map<int,OBAtom*>::const_iterator atomExistsQuery =
+		foundAtomList.find(id);
+	if(atomExistsQuery != foundAtomList.end()) {
+		NXLOG_SEVERE("NanorexMMPImportExport",
+		             "Atom-id " + NXUtility::itos(id) + " is repeated");
+		return;
+	}
+	
+	
+	atomPtr = molPtr->NewAtom();
+	NXAtomData *atomDataPtr = new NXAtomData(atomicNum);
+	atomDataPtr->setIdx(id);
+	atomDataPtr->setRenderStyleCode(style);
+	atomPtr->SetData(atomDataPtr); // atomic number
+	
+	foundAtomList[id] = atomPtr;
+	
+	double const LENGTH_SCALE = 1.0e-13;
+	atomPtr->SetVector(double(x) * LENGTH_SCALE,
+	                   double(y) * LENGTH_SCALE,
+	                   double(z) * LENGTH_SCALE);
+	bondPtr = NULL;	
+	
+	CDEBUG("atom " + NXUtility::itos(atomId) + " (" + NXUtility::itos(atomicNum)
+	       + ") (" + NXUtility::itos(x) + ',' + NXUtility::itos(y) + ',' +
+	       NXUtility::itos(z) + ") " + atomStyle);
 }
 
 
-/* FUNCTION: closeMoleculeSet */
-void NanorexMMPImportExport::closeMoleculeSet(void)
+/* FUNCTION: newAtomInfo*/
+void NanorexMMPImportExport::newAtomInfo(string const& key,
+                                         string const& value)
 {
-	molSetPtrStack.pop();
-	molSetPtr = (molSetPtrStack.size() == 0) ? NULL : molSetPtrStack.top();
-}
-
-
-/* FUNCTION: createNewMolecule */
-inline void NanorexMMPImportExport::createNewMolecule(void)
-{ 
-	atomPtr = NULL;
-	bondPtr = NULL;
-	molPtr = NULL;
-	molPtr = molSetPtr->newMolecule();
-}
-
-
-/* FUNCTION: applyAtomType */
-void NanorexMMPImportExport::applyAtomType(string const& keyStr,
-                                           string const& valueStr)
-{
-	if(molPtr != NULL && atomPtr != NULL) {
-		if(keyStr == "atomtype") { // hybridization info
-			if(valueStr == "sp") atomPtr->SetHyb(1);
-			else if(valueStr == "sp2") atomPtr->SetHyb(2);
-			else if(valueStr == "sp2_g") atomPtr->SetHyb(2);
-			else if(valueStr == "sp3") atomPtr->SetHyb(3);
-			else if(valueStr == "sp3d") atomPtr->SetHyb(3);
+	if(insideViewDataGroup)
+		return;
+	
+	if(atomPtr != NULL) {
+		if(key == "atomtype") { // hybridization info
+			if(value == "sp") atomPtr->SetHyb(1);
+			else if(value == "sp2") atomPtr->SetHyb(2);
+			else if(value == "sp2_g") atomPtr->SetHyb(2);
+			else if(value == "sp3") atomPtr->SetHyb(3);
+			else if(value == "sp3d") atomPtr->SetHyb(3);
             // else ignore
 		}
 	}
+	
+	CDEBUG("info atom '" + key + "' = '" + value + "'");
 }
 
 
+/* FUNCTION: newBond */
+void NanorexMMPImportExport::newBond(string const& bondType, int targetAtomId)
+{
+	if(insideViewDataGroup)
+		return;
+	
+	assert(molPtr != NULL && atomPtr != NULL);
+	
+	map<int,OBAtom*>::iterator targetAtomExistsQuery =
+		foundAtomList.find(targetAtomId);
+	
+	if(targetAtomExistsQuery == foundAtomList.end()) {
+		CSEVERE("**ERROR** attempting to bond to non-existent atomID "
+		       + NXUtility::itos(targetAtomId));
+	}
+	else {
+		OBAtom *const targetAtomPtr = targetAtomExistsQuery->second;
+		// guard against duplicates
+		// also a hack to protect against Ragel's duplicate parsing
+		// when encountering a blank line
+		if(molPtr->GetBond(atomPtr, targetAtomPtr) == NULL) {
+			// bond was not previously encountered, include
+			CDEBUG("bonding atom #" + NXUtility::itos(atomPtr->GetIdx()) +
+			       " to atom #" + NXUtility::itos(targetAtomPtr->GetIdx()));
+			bondPtr = molPtr->NewBond();
+			bondOrder = GetBondOrderFromType(bondType);
+			bondPtr->SetBondOrder(bondOrder);
+			bondPtr->SetBegin(atomPtr);
+			bondPtr->SetEnd(targetAtomPtr);
+			atomPtr->AddBond(bondPtr);
+			targetAtomPtr->AddBond(bondPtr);
+			CDEBUG("bond" + bondType + " " + NXUtility::itos(targetAtomId));
+		}
+		else {
+			CSEVERE("bond to atom #" + NXUtility::itos(targetAtomId) +
+			       " already exists");
+		}
+	}
+	
+}
+
+
+/* FUNCTION: GetBondOrderFromType */
+int NanorexMMPImportExport::GetBondOrderFromType(string const& type)
+{
+	if(type == "1")
+		return 1;
+	else if(type == "2")
+	        return 2;
+	else if(type == "3")
+		return 3;
+	else if(type == "a")
+		return 4;
+	else if(type == "c")
+		return 5;
+	else if (type == "g")
+		return 6;
+	else {
+		return -1;
+	}
+}
+
+
+/* FUNCTION: newBondDirection */
+void NanorexMMPImportExport::newBondDirection(int atomId1, int atomId2)
+{
+	assert(false);
+}
+
+
+/* FUNCTION: newMolecule */
+void
+NanorexMMPImportExport::newMolecule(string const& name, string const& style)
+{
+	if(insideViewDataGroup)
+		return;
+	
+	atomPtr = NULL;
+	bondPtr = NULL;
+	molPtr = molSetPtr->newMolecule();
+	molPtr->SetTitle(name.c_str());
+	if(style == "")
+		molStyle = "def";
+	else
+		molStyle = style;
+	CDEBUG("mol (" + name + ") " + style);
+}
+
+
+/* FUNCTION: newViewDataGroup */
+void NanorexMMPImportExport::newViewDataGroup(void)
+{
+	insideViewDataGroup = true;
+	CDEBUG("[special] group (View Data)");
+}
+
+
+/* FUNCTION: newMolStructGroup */
+void NanorexMMPImportExport::newMolStructGroup(string const& name)
+{
+// 	if(insideClipboardGroup && molSetPtr == NULL) {
+// 		// no active top-level group
+// 		molSetPtr = new NXMoleculeSet;
+// 		molSetPtr->setTitle(name);
+// 		// dataStoreInfo->addClipboardStructure(molSetPtr);
+// 	}
+	
+	// if in "View Data" group, ignore
+	
+	// if(molSetPtr != NULL) {
+	/*else*/ if(!insideViewDataGroup) {
+		// if in principal molecule-set group or active clipboard group
+		
+		if(molSetPtr == NULL) {
+			// must be inside principal structure group
+			assert(!insideClipboardGroup);
+			molSetPtr = rootMoleculeSetPtr;
+		}
+// 		else if(!insideClipboardGroup && molSetPtr == NULL) {
+// 			// entering principal structure group
+// 			// all changes should go to supplied pointer
+// 			molSetPtr = rootMoleculeSetPtr;
+// 		}
+		else {
+			// If not at top-level inside principal structure group or
+			// clipboard group, allocate new structure
+			NXMoleculeSet *newMolSetPtr = new NXMoleculeSet;
+			molSetPtr->addChild(newMolSetPtr);
+			molSetPtrStack.push_back(molSetPtr);
+			molSetPtr = newMolSetPtr;
+		}
+		molSetPtr->setTitle(name);
+	}
+	
+	// ++molStructGroupLevel;
+	
+	CDEBUG("group (" + name + ")");
+}
+
+
+/* FUNCTION: newClipboardGroup */
+void NanorexMMPImportExport::newClipboardGroup(void)
+{
+	assert(molSetPtr == NULL);
+	assert(molSetPtrStack.size() == 0);
+	
+	if(!insideClipboardGroup && clipboardGroup == (NXMoleculeSet*) NULL) {
+		clipboardGroup = new NXMoleculeSet;
+		clipboardGroup->setTitle("Clipboard");
+		molSetPtr = clipboardGroup;
+		insideClipboardGroup = true;
+		dataStoreInfo->setClipboardStructure(clipboardGroup);
+		CDEBUG("[special] group (Clipboard)");
+	}
+	else {
+		CSEVERE("Redefinition of 'Clipboard' group");
+	}
+}
+
+
+/* FUNCTION: endGroup */
+void NanorexMMPImportExport::endGroup(string const& name)
+{
+	// Must ensure that molSetPtr = NULL between top-level structure groups
+	// Top-level structure groups are defined as the principal structure group
+	// that occurs between the "View Data" and the "Clipboard" groups in the MMP
+	// file, and those from various top-level 'group' statements in the
+	// "Clipboard" group
+	
+	string groupName;
+	if(insideViewDataGroup)
+		groupName = "View Data";
+	else if(insideClipboardGroup)
+		groupName = (molSetPtr == NULL) ? "Clipboard" : molSetPtr->getTitle();
+	else
+		groupName = molSetPtr->getTitle();
+	
+	
+	if(name != groupName) {
+		NXLOG_WARNING("NanorexMMPImportExport",
+		              "egroup (" + name + ") attempting to close "
+		              "group (" + groupName + ')');
+	}
+	
+
+	if(insideViewDataGroup) {
+		insideViewDataGroup = false;
+		molSetPtr = NULL;
+	}
+	else {
+		// non top-level structure groups in clipboard or in the
+		// principal structure group
+		if(molSetPtrStack.size() == 0)  {
+			molSetPtr = NULL;
+			if(insideClipboardGroup)
+				insideClipboardGroup = false;
+		}
+		else {
+			molSetPtr = molSetPtrStack.back();
+			molSetPtrStack.pop_back();
+		}
+	}
+	
+	CDEBUG("egroup (" + groupName + ')');
+}
+
+
+/* FUNCTION: newOpenGroupInfo */
+void NanorexMMPImportExport::newOpenGroupInfo(std::string const& key,
+                                              std::string const& value)
+{
+	/// @todo
+	CDEBUG("info opengroup " + key + " = " + value);
+}
+
+
+/* FUNCTION: newChunkInfo */
+void
+NanorexMMPImportExport::newChunkInfo(std::string const& key,
+                                     std::string const& value)
+{
+	CDEBUG("info chunk " + key + " = " + value);
+	
+	if(insideViewDataGroup)
+		return;
+
+	/// @todo
+}
+
+
+/* FUNCTION: end1 */
+void NanorexMMPImportExport::end1(void)
+{
+	/// @todo
+	CDEBUG("end1");
+}
 
 
 /* FUNCTION: exportToFile */
@@ -288,8 +564,8 @@ exportToFile(NXMoleculeSet *molSetPtr,
 int NanorexMMPImportExport::GetAtomID(OBAtom *atomPtr)
 {
 	NXAtomData *atomIDData = 
-		static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
-	int atomID = atomIDData->GetIdx();
+		dynamic_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
+	int atomID = atomIDData->getIdx();
 	return atomID;
 }
 
@@ -300,8 +576,8 @@ string const&
 NanorexMMPImportExport::GetAtomRenderStyleCode(OBAtom *const atomPtr)
 {
 	NXAtomData *atomDataPtr =
-		static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
-	string const& atomStyle = atomDataPtr->GetRenderStyleCode();
+		dynamic_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
+	string const& atomStyle = atomDataPtr->getRenderStyleCode();
 	return atomStyle;
 }
 

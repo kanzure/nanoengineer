@@ -10,12 +10,12 @@
 #endif
 
 #include "Nanorex/Interface/NXRendererPlugin.h"
-#include "Nanorex/Interface/NXAtomRenderData.h"
-#include "Nanorex/Interface/NXBondRenderData.h"
+#include "Nanorex/Interface/NXAtomData.h"
+#include "Nanorex/Interface/NXBondData.h"
+#include "Nanorex/Utility/NXCommandResult.h"
 #include "NXOpenGLSceneGraph.h"
 
-namespace Nanorex {
-
+class NXOpenGLRenderingEngine;
 
 /* CLASS: NXOpenGLRendererPlugin */
 /**
@@ -23,53 +23,42 @@ namespace Nanorex {
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXOpenGLRendererPlugin : public NXRendererPlugin {
+class NXOpenGLRendererPlugin
+: public QObject, public Nanorex::NXRendererPlugin
+{
+	Q_OBJECT;
+	Q_INTERFACES(Nanorex::NXRendererPlugin);
+	
 public:
 
-    NXOpenGLRendererPlugin() {}
-    virtual ~NXOpenGLRendererPlugin() { cleanup(); }
+	NXOpenGLRendererPlugin(Nanorex::NXRenderingEngine *parent = NULL);
+	virtual ~NXOpenGLRendererPlugin() {}
     
-    NXCommandResult* initialize(void);
-    NXCommandResult* cleanup(void);
-
-    /// Call plugin to render the atom display list and return the scenegraph node.
-    /// Must set commandResult to indicate success or failure
-    virtual NXSGOpenGLNode* renderAtom(NXAtomRenderData const&) { return NULL; }
+	/// Derived classes must implement.
+    /// Call to render the atom display list and return the scenegraph node.
+	/// Must set commandResult to indicate success or failure.
+	virtual NXSGOpenGLNode* renderAtom(Nanorex::NXAtomData const&) = 0;
     
-    /// Call plugin to render the bond display list and return the scenegraph node.
-    /// Must set commandResult to indicate success or failure
-    virtual NXSGOpenGLNode* renderBond(NXBondRenderData const&) { return NULL; }
-    
-    NXCommandResult const& getCommandResult(void) const { return commandResult; }
-    
-protected:
-    
-    /// Initialize canonical sphere scenegraph node for atoms
-    /// Returns NULL if unsuccessful
-    // static NXSGOpenGLRenderable *const GetCanonicalSphereNode(void);
-    
-    /// Initialize canonical cylinder scenegraph node for bonds
-    /// Returns NULL if unsuccessful
-    // static NXSGOpenGLRenderable *const GetCanonicalCylinderNode(void);
-    
-    NXCommandResult commandResult;
-    static NXCommandResult _s_commandResult;
-    static void SetError(NXCommandResult& cmdResult, char const *const errMsg);
-    static void SetWarning(NXCommandResult& cmResult, char const *const warnMsg);
-    
-    static NXSGOpenGLRenderable *_s_canonicalSphereNode;
-    static NXSGOpenGLRenderable *_s_canonicalCylinderNode;
-    
-private:
-    NXSGNode canonicalSphereNodeGuard;
-    static void InitializeCanonicalSphereNode(void);
-    static void DrawOpenGLCanonicalSphere(void);
-    
-    NXSGNode canonicalCylinderNodeGuard;
-    static void InitializeCanonicalCylinderNode(void);
-    static void DrawOpenGLCanonicalCylinder(void);
+	/// Derived classes must implement.
+    /// Call to render the bond display list and return the scenegraph node.
+    /// Must set commandResult to indicate success or failure.
+	virtual NXSGOpenGLNode* renderBond(Nanorex::NXBondData const&) = 0;
 };
 
-} // Nanorex
+// .............................................................................
+
+/* CONSTRUCTOR */
+inline
+NXOpenGLRendererPlugin::
+NXOpenGLRendererPlugin(Nanorex::NXRenderingEngine *parentEngine)
+: QObject(),
+Nanorex::NXRendererPlugin(parentEngine)
+{
+}
+
+
+Q_DECLARE_INTERFACE(NXOpenGLRendererPlugin,
+                    "com.Nanorex.Plugins.RenderingEngines.OpenGL."
+                    "NXOpenGLRendererPlugin/0.1.0")
 
 #endif // NX_OPENGLRENDERERPLUGIN_H

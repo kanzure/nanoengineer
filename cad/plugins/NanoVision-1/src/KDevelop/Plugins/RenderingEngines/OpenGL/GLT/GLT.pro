@@ -1,10 +1,11 @@
 
 CONFIG -= qt \
-thread
+thread \
+ release
 
-CONFIG += debug_and_release \
-opengl \
-staticlib
+CONFIG += opengl \
+staticlib \
+ debug_and_release
 
 QT -= core \
 gui

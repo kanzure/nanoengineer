@@ -1,6 +1,7 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "Nanorex/Interface/NXMoleculeSet.h"
+#include "Nanorex/Interface/NXAtomData.h"
 #include "NXOpenGLRenderingEngine.h"
 #include "Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.h"
 
@@ -11,6 +12,8 @@
 
 using namespace Nanorex;
 using namespace std;
+
+NXAtomData basRenderData(0);
 
 void makeSF6(OBMol *molPtr);
 void makeCO2(OBMol *molPtr);
@@ -24,8 +27,9 @@ void makeC2H6(OBMol *molPtr);
 
 void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet);
 void translateMolecule(OBMol *molPtr, vector3 const& delta);
+void setRenderStyleBAS(OBMol *molPtr);
 
-double const SCALE = 3.0;
+double const SCALE = 1.0e-9;
 
 void bond(OBMol *molPtr, OBAtom *atom1Ptr, OBAtom *atom2Ptr, int bondOrder)
 {
@@ -54,9 +58,11 @@ int main(int argc, char *argv[])
         = new NXOpenGLRenderingEngine(&mainWindow);
     mainWindow.setCentralWidget(renderingEngine);
     NXBallAndStickOpenGLRenderer *renderer =
-        new NXBallAndStickOpenGLRenderer;
-    renderingEngine->setRenderer(renderer);
-    
+		new NXBallAndStickOpenGLRenderer(renderingEngine);
+    renderingEngine->setRenderer("bas", renderer);
+	renderingEngine->initializePlugins();
+	
+	basRenderData.setRenderStyleCode("bas");
     NXMoleculeSet theMoleculeSet;
     // OBMol *molPtr = theMoleculeSet.newMolecule();
     // makeC2H6(molPtr);
@@ -64,8 +70,11 @@ int main(int argc, char *argv[])
     
     mainWindow.resize(1000, 600);
     mainWindow.show();
-    renderingEngine->setRootMoleculeSet(&theMoleculeSet);
-    return app.exec();
+	renderingEngine->clearFrames();
+    renderingEngine->addFrame(&theMoleculeSet);
+	renderingEngine->setCurrentFrame(0);
+    int result = app.exec();
+	return result;
 }
 
 
@@ -73,33 +82,39 @@ void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet)
 {
     OBMol *SF6 = theMoleculeSet.newMolecule();
     makeSF6(SF6);
-    
+	setRenderStyleBAS(SF6);
+	
     NXMoleculeSet *triatomics = new NXMoleculeSet;
     theMoleculeSet.addChild(triatomics);
-    
+	
     OBMol *CO2 = triatomics->newMolecule();
     makeCO2(CO2);
     translateMolecule(CO2, vector3(SCALE*3.0, SCALE*3.0, SCALE*3.0));
-    
+	setRenderStyleBAS(CO2);
+	
     OBMol *H2O = triatomics->newMolecule();
     makeH2O(H2O);
     translateMolecule(H2O, vector3(SCALE*3.0, SCALE*3.0, SCALE*-3.0));
-    
+	setRenderStyleBAS(H2O);
+	
     OBMol *NO2 = triatomics->newMolecule();
     makeNO2(NO2);
     translateMolecule(NO2, vector3(SCALE*3.0, SCALE*-3.0, SCALE*3.0));
-    
+	setRenderStyleBAS(NO2);
+	
     NXMoleculeSet *pyramidal = new NXMoleculeSet;
     theMoleculeSet.addChild(pyramidal);
     
     OBMol *NH3 = pyramidal->newMolecule();
     makeNH3(NH3);
     translateMolecule(NH3, vector3(SCALE*3.0, SCALE*-3.0, SCALE*-3.0));
-    
+	setRenderStyleBAS(NH3);
+	
     OBMol *CH4 = pyramidal->newMolecule();
     makeCH4(CH4);
     translateMolecule(CH4, vector3(SCALE*-3.0, SCALE*3.0, SCALE*3.0));
-    
+	setRenderStyleBAS(CH4);
+	
     NXMoleculeSet *hydrocarbons = new NXMoleculeSet;
     // ok, don't think too much ... this is only a test
     triatomics->addChild(hydrocarbons);
@@ -107,14 +122,17 @@ void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet)
     OBMol *C2H2 = hydrocarbons->newMolecule();
     makeC2H2(C2H2);
     translateMolecule(C2H2, vector3(SCALE*-3.0, SCALE*3.0, SCALE*-3.0));
-    
+	setRenderStyleBAS(C2H2);
+	
     OBMol *C2H4 = hydrocarbons->newMolecule();
     makeC2H4(C2H4);
     translateMolecule(C2H4, vector3(SCALE*-3.0, SCALE*-3.0, SCALE*3.0));
-    
+	setRenderStyleBAS(C2H4);
+	
     OBMol *C2H6 = hydrocarbons->newMolecule();
     makeC2H6(C2H6);
     translateMolecule(C2H6, vector3(SCALE*-3.0, SCALE*-3.0, SCALE*-3.0));
+	setRenderStyleBAS(C2H6);
 }
 
 
@@ -130,6 +148,20 @@ void translateMolecule(OBMol *molPtr, vector3 const& delta)
         atomPos += delta;
         atomPtr->SetVector(atomPos);
     }
+}
+
+
+void setRenderStyleBAS(OBMol *molPtr)
+{
+	OBAtomIterator atomIter;
+	OBAtom *atomPtr = NULL;
+	for(atomPtr = molPtr->BeginAtom(atomIter);
+	    atomPtr != NULL;
+	    atomPtr = molPtr->NextAtom(atomIter))
+	{
+		NXAtomData *atomDataPtr = new NXAtomData(basRenderData);
+		atomPtr->SetData(atomDataPtr);
+	}
 }
 
 

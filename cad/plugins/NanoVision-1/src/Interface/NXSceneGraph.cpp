@@ -3,6 +3,8 @@
 #include <Nanorex/Interface/NXSceneGraph.h>
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
 #include <algorithm>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -10,10 +12,25 @@ namespace Nanorex {
 
 // static data
 NXCommandResult NXSGNode::_s_commandResult;
+#ifdef NX_DEBUG
+int NXSGNode::idSource(0);
+#endif
 
-NXSGNode::NXSGNode() throw() : ref_count(0), children() {}
+NXSGNode::NXSGNode() throw() :
+    ref_count(0), children()
+#ifdef NX_DEBUG
+	,id(idSource++)
+#endif
+{
+}
 	
-NXSGNode::~NXSGNode() { removeAllChildren(); }
+NXSGNode::~NXSGNode()
+{
+#ifdef NX_DEBUG
+	// cerr << "Deleting " << getName() << endl;
+#endif
+	removeAllChildren(); 
+}
 
 
 void NXSGNode::SetError(int errCode, char const *const errMsg)
@@ -25,25 +42,25 @@ void NXSGNode::SetError(int errCode, char const *const errMsg)
 }
 
 
-
-bool NXSGNode::initializeContext(void)
+void NXSGNode::ClearResult(void)
 {
-    _s_commandResult.setResult((int) NX_CMD_SUCCESS);
-    return true;
+	_s_commandResult.setResult(NX_CMD_SUCCESS);
+	_s_commandResult.setParamVector(vector<QString>());
 }
 
 
 bool NXSGNode::addChild(NXSGNode *const child)
 {
+	ClearResult();
     if(child == NULL) return false; // prevent seg-faults early
-    child->incrementRefCount();
     try { children.push_back(child); }
     catch(...) {
         SetError((int) NX_INTERNAL_ERROR,
                  "Failed to add scenegraph child");
         return false;
     }
-    return true;
+	child->incrementRefCount();
+	return true;
 }
 
 
@@ -62,32 +79,36 @@ inline void NXSGNode::removeChildWithoutCheck(NXSGNode *childPtr)
 
 bool NXSGNode::removeChild(NXSGNode *const child)
 {
-    ChildrenList::iterator childLoc = std::find(children.begin(),
-                                                children.end(),
-                                                child);
-    if(childLoc != children.end()) {
-        removeChildWithoutCheck(*childLoc);
-        children.erase(childLoc);
-        return true;
-    }
-    else return false;
+	ClearResult();
+	ChildrenList::iterator childLoc = std::find(children.begin(),
+	                                            children.end(),
+	                                            child);
+	if(childLoc != children.end()) {
+		removeChildWithoutCheck(*childLoc);
+		children.erase(childLoc);
+		return true;
+	}
+	else {
+		SetError((int) NX_INTERNAL_ERROR, "Cannot remove non-child node");
+		return false;
+	}
 }
 
 
 void NXSGNode::removeAllChildren(void)
 {
-    {
-        ChildrenList::iterator childIter;
-        for(childIter = children.begin();
-            childIter != children.end();
-            ++childIter)
-        {
-            NXSGNode *const childPtr = *childIter;
-            removeChildWithoutCheck(childPtr);
-        }
-        children.clear();
-    }
+	ClearResult();
+	ChildrenList::iterator childIter;
+	for(childIter = children.begin();
+	    childIter != children.end();
+	    ++childIter)
+	{
+		NXSGNode *const childPtr = *childIter;
+		removeChildWithoutCheck(childPtr);
+	}
+	children.clear();
 }
+
 
 bool NXSGNode::applyRecursive(void) const
 {
@@ -99,10 +120,42 @@ bool NXSGNode::applyRecursive(void) const
         childIter != children.end() && ok;
         ++childIter)
     {
-        ok = (*childIter)->applyRecursive();
+	    NXSGNode *childNode = *childIter;
+        ok = childNode->applyRecursive();
     }
     return ok;
 }
 
+
+#ifdef NX_DEBUG
+void NXSGNode::reset(void)
+{
+	ChildrenList::iterator childIter;
+	for(childIter=children.begin(); childIter!=children.end(); ++childIter)
+		(*childIter)->decrementRefCount();
+	children.clear();
+	ref_count = 0;
+}
+
+string const NXSGNode::getName() const
+{
+	ostringstream strm;
+    strm << "Node_" << id;
+    return strm.str();
+}
+
+void NXSGNode::writeDotGraph(ostream& o) const
+{
+	ChildrenList::const_iterator childIter;
+    for(childIter = children.begin(); childIter != children.end(); ++childIter) {
+        (*childIter)->writeDotGraph(o);
+    }
+    o << '\n' << getName() << endl;
+    
+    for(childIter = children.begin(); childIter != children.end(); ++childIter) {
+        o << getName() << " -> " << (*childIter)->getName() << endl;
+    }
+}
+#endif
 
 } // Nanorex

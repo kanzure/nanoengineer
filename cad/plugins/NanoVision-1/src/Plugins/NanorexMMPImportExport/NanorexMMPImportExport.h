@@ -11,13 +11,13 @@
 #include <Nanorex/Interface/NXAtomData.h>
 #include <Nanorex/Interface/NXMoleculeSet.h>
 
-#include "ragelistreamptr.h"
+#include "RagelIstreamPtr.h"
 #include <fstream>
 #include <vector>
 #include <sstream>
 #include <set>
 #include <map>
-#include <stack>
+// #include <stack>
 
 using namespace std;
 using namespace Nanorex;
@@ -49,37 +49,52 @@ public:
 	string const& getRequiredVersion(void) const { return requiredVersion; }
 	string const getPreferredVersion(void) const { return preferredVersion; }
 	
-	double const& getTemperature(void) const { return kelvinTemperature; }
+	double const& getTemperature(void) const { return kelvinTemp; }
 	
 	
 private:
     
 	string inputFilename;
+	NXDataStoreInfo *dataStoreInfo;
 	
 	// extracted data that can be queried later
 	string requiredVersion;
 	string preferredVersion;
-	double kelvinTemperature;
+	double kelvinTemp;
 	
+	// state variables
 	int lineNum;
 	
-	// scratch variables to write parsed values to
-	OBMol *molPtr; // current molecule
-	OBAtom *atomPtr; // current atom
-	OBBond *bondPtr; // current bond
-	NXMoleculeSet *molSetPtr; // current molecule-set
+// scratch variables to write parsed values to
+	OBMol *molPtr;   ///< current molecule
+	OBAtom *atomPtr; ///< current atom
+	OBBond *bondPtr; ///< current bond
+
+	NXMoleculeSet *molSetPtr;
+	///< current molecule-set. This is initialized by the input in
+	///< importFromFile() which points to the molecule-structure of interest
+	///< to the user. When inside the Clipboard group, this is NULL at the top
+	///< level in between groups. Each top-level node will have to be allocated
+	///< and assigned to this.
 	
-	int atomicNum, atomId, bond_order;
+	bool insideViewDataGroup;
+	NXMoleculeSet *clipboardGroup;
+	bool insideClipboardGroup;
+		
+
+	int atomicNum, atomId, bondOrder;
 	string atomStyle;
-	// string defaultAtomStyle; // as specified by group, mol settings
 	map<int,OBAtom*> foundAtomList;
 	vector<OBAtom*> targetAtomList;
 	string stringVal, stringVal2;
 	int intVal, intVal2;
 	double doubleVal;
     // molecule-set 'stack' to help with recursive 'group' specification
-	std::stack<NXMoleculeSet*> molSetPtrStack;
-	std::stack<string> defaultAtomStyleStack; // track with recursion into groups
+	NXMoleculeSet *rootMoleculeSetPtr;
+	std::vector<NXMoleculeSet*> molSetPtrStack;
+	std::string molStyle;
+	// int molStructGroupLevel; ///< level in recursive specification
+	// std::vector<std::string> defaultAtomStyleStack; // track with recursion into groups
 
 	// Ragel + parser state variables
     int cs, top, act;
@@ -90,7 +105,8 @@ private:
     // Ragel pointers to input stream
     RagelIstreamPtr p, pe, eof, ts, te;
 	RagelIstreamPtr charStringWithSpaceStart, charStringWithSpaceStop;
-    
+	RagelIstreamPtr lineStart;
+	
     // helper functions
 	
 	void reset(void);
@@ -107,9 +123,11 @@ private:
 	void newAtom(int id, int atomicNum, int x, int y, int z,
 	             string const& style);
 	void newBond(string const& type, int targetAtomId);
-	void newMolecule();
+	void newBondDirection(int atomId1, int atomId2);
+	void newMolecule(string const& name, string const& style);
 	void newViewDataGroup();
-	void newMolStructGroup(std::string const& name, std::string const& style);
+	void newMolStructGroup(std::string const& name);
+	void endMolStructGroup(std::string const& name);
 	void newClipboardGroup();
 	void endGroup(std::string const& groupName);
 	
@@ -130,7 +148,8 @@ private:
                                  NXMoleculeSet *const molSetPtr);
     static void PrintMolecule(ostream& o, OBMol *const molPtr);
     
-    static int GetAtomID(OBAtom *atomPtr);
+	static int GetBondOrderFromType(string const& type);
+	static int GetAtomID(OBAtom *atomPtr);
 	// static char const *const GetAtomRenderStyleName(OBAtom *const atomPtr);
 	static string const& GetAtomRenderStyleCode(OBAtom *const atomPtr);
 

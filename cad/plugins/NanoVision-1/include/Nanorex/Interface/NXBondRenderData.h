@@ -14,7 +14,6 @@ namespace Nanorex {
  * Information for rendering bonds
  */
 class NXBondRenderData {
-    /// @todo shouldn't explicitly depend on OpenGL because various engines use it
 public:
     NXBondRenderData(int const& the_order,
                      double const& the_length);

@@ -7,24 +7,8 @@ opengl \
 
 QT += opengl
 
-INCLUDEPATH += ../../../../../../../../include \
-../../../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
-../../../../../../../../src/Plugins/RenderingEngines/OpenGL/Renderers
 
-LIBS += -L../../../../../../../../lib \
- -lNXOpenGLSceneGraph \
- -lGLT \
- -lNXOpenGLRendererPlugin \
- -lNXBallAndStickOpenGLRenderer \
- -lNanorexInterface \
- -lNanorexUtility
 
-TARGETDEPS += ../../../../../../../../lib/libNXOpenGLSceneGraph.a \
- ../../../../../../../../lib/libGLT.a \
- ../../../../../../../../lib/libNXOpenGLRendererPlugin.so \
- ../../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
- ../../../../../../../../lib/libNanorexInterface.so \
- ../../../../../../../../lib/libNanorexUtility.so
 SOURCES += ../../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRendererTest.cpp
 
 HEADERS += ../../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRendererTest.h
@@ -36,4 +20,21 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 
 
 DESTDIR = ../../../../../../../../bin
+
+INCLUDEPATH += $(OPENBABEL_INCPATH) \
+  ../../../../../../../../include \
+  ../../../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
+  ../../../../../../../../src/Plugins/RenderingEngines/OpenGL/Renderers
+
+TARGETDEPS += ../../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
+  ../../../../../../../../lib/libNXOpenGLSceneGraph.a \
+  ../../../../../../../../lib/libGLT.a \
+  ../../../../../../../../lib/libNanorexInterface.so \
+  ../../../../../../../../lib/libNanorexUtility.so
+LIBS += -L../../../../../../../../lib \
+  -lNXBallAndStickOpenGLRenderer \
+  -lNanorexInterface \
+  -lNanorexUtility \
+  -lNXOpenGLSceneGraph \
+  -lGLT
 

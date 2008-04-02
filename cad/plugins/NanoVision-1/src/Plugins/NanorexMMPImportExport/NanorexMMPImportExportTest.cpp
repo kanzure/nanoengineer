@@ -2,15 +2,23 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExportTest.h"
+#include "Nanorex/Utility/NXUtility.h"
 #include <sstream>
 #include <cfloat>
 
+using namespace Nanorex;
 using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(NanorexMMPImportExportTest);
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NanorexMMPImportExportTest,
                                       "NanorexMMPImportExportTestSuite");
 
+#if defined(VERBOSE)
+#define CERR(s) \
+{ cerr << (NXUtility::itos(lineNum) + ": ") << s << endl; }
+#else
+#define CERR(S)
+#endif
 
 // -- member functions --
 
@@ -105,7 +113,7 @@ void NanorexMMPImportExportTest::atomLineTest(void)
 }
 
 
-#line 120 "NanorexMMPImportExportTest.rl"
+#line 128 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -118,9 +126,9 @@ void NanorexMMPImportExportTest::atomLineTestHelper(char const *const testInput)
 	
 	// cerr << "atomLineTestHelper (debug): *(pe-1) = (int) " << (int) *(pe-1) << endl;
 	
-	#line 133 "NanorexMMPImportExportTest.rl"
+	#line 141 "NanorexMMPImportExportTest.rl"
 	
-#line 124 "NanorexMMPImportExportTest.cpp"
+#line 132 "NanorexMMPImportExportTest.cpp"
 static const char _atom_decl_line_test_actions[] = {
 	0, 1, 1, 1, 2, 1, 3, 1, 
 	4, 1, 5, 1, 7, 1, 8, 1, 
@@ -279,15 +287,15 @@ static const int atom_decl_line_test_error = 0;
 
 static const int atom_decl_line_test_en_main = 1;
 
-#line 134 "NanorexMMPImportExportTest.rl"
+#line 142 "NanorexMMPImportExportTest.rl"
 	
-#line 285 "NanorexMMPImportExportTest.cpp"
+#line 293 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = atom_decl_line_test_start;
 	}
-#line 135 "NanorexMMPImportExportTest.rl"
+#line 143 "NanorexMMPImportExportTest.rl"
 	
-#line 291 "NanorexMMPImportExportTest.cpp"
+#line 299 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -418,13 +426,13 @@ _match:
 	{ newAtom(atomId, atomicNum, x, y, z, atomStyle); }
 	break;
 	case 14:
-#line 115 "NanorexMMPImportExportTest.rl"
+#line 123 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in atom_decl_line_test"
 		                               " state machine");
 		}
 	break;
-#line 428 "NanorexMMPImportExportTest.cpp"
+#line 436 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -437,7 +445,7 @@ _again:
 #line 40 "NanorexMMPImportExportTest.rl"
 	{intVal=(*p)-'0';}
 	break;
-#line 441 "NanorexMMPImportExportTest.cpp"
+#line 449 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -448,7 +456,7 @@ _again:
 	_test_eof: {}
 	_out: {}
 	}
-#line 136 "NanorexMMPImportExportTest.rl"
+#line 144 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -457,8 +465,9 @@ void NanorexMMPImportExportTest::newAtom(int atomId, int atomicNum,
                                          std::string const& atomStyle)
 {
 	++atomCount;
-	cerr << lineNum << ": atom " << atomId << " (" << atomicNum << ") ("
-		<< x << ',' << y << ',' << z << ") " << atomStyle << endl;
+	CERR("atom " + NXUtility::itos(atomId) + " (" + NXUtility::itos(atomicNum)
+	     + ") (" + NXUtility::itos(x) + ',' + NXUtility::itos(y) + ',' +
+	     NXUtility::itos(z) + ") " + atomStyle);
 	atomIds.push_back(atomId);
 	atomicNums.push_back(atomicNum);
 	atomLocs.push_back(Position(x,y,z));
@@ -491,7 +500,7 @@ void NanorexMMPImportExportTest::bondLineTest(void)
 }
 
 
-#line 190 "NanorexMMPImportExportTest.rl"
+#line 199 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -502,9 +511,9 @@ void NanorexMMPImportExportTest::bondLineTestHelper(char const *const testInput)
 	char const *eof = NULL;
 	int cs;
 	
-	#line 201 "NanorexMMPImportExportTest.rl"
+	#line 210 "NanorexMMPImportExportTest.rl"
 	
-#line 508 "NanorexMMPImportExportTest.cpp"
+#line 517 "NanorexMMPImportExportTest.cpp"
 static const char _bond_line_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 2, 3, 0
@@ -575,15 +584,15 @@ static const int bond_line_test_error = 0;
 
 static const int bond_line_test_en_main = 1;
 
-#line 202 "NanorexMMPImportExportTest.rl"
+#line 211 "NanorexMMPImportExportTest.rl"
 	
-#line 581 "NanorexMMPImportExportTest.cpp"
+#line 590 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = bond_line_test_start;
 	}
-#line 203 "NanorexMMPImportExportTest.rl"
+#line 212 "NanorexMMPImportExportTest.rl"
 	
-#line 587 "NanorexMMPImportExportTest.cpp"
+#line 596 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -676,13 +685,13 @@ _match:
 	{ stringVal = *p; }
 	break;
 	case 5:
-#line 185 "NanorexMMPImportExportTest.rl"
+#line 194 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in bond_line_test "
 		                               "state machine");
 		}
 	break;
-#line 686 "NanorexMMPImportExportTest.cpp"
+#line 695 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -695,7 +704,7 @@ _again:
 #line 40 "NanorexMMPImportExportTest.rl"
 	{intVal=(*p)-'0';}
 	break;
-#line 699 "NanorexMMPImportExportTest.cpp"
+#line 708 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -711,20 +720,20 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 5:
-#line 185 "NanorexMMPImportExportTest.rl"
+#line 194 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in bond_line_test "
 		                               "state machine");
 		}
 	break;
-#line 721 "NanorexMMPImportExportTest.cpp"
+#line 730 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 204 "NanorexMMPImportExportTest.rl"
+#line 213 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -744,7 +753,7 @@ void NanorexMMPImportExportTest::newBond(std::string const& bondType,
 	else if(bondType == "g")
 		++bondgCount;
 	
-	cerr << lineNum << ": bond" << bondType << " " << targetAtomId << endl;
+	CERR("bond" + bondType + " " + NXUtility::itos(targetAtomId));
 	// currentBondType = bondType;
 	// targetAtomIds.push_back(targetAtomId);
 	bonds.back()[bondType].push_back(targetAtomId);
@@ -767,7 +776,7 @@ void NanorexMMPImportExportTest::bondDirectionTest(void)
 }
 
 
-#line 258 "NanorexMMPImportExportTest.rl"
+#line 267 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -779,9 +788,9 @@ NanorexMMPImportExportTest::bondDirectionTestHelper(char const *const testInput)
 	char const *eof = 0;
 	int cs;
 	
-	#line 270 "NanorexMMPImportExportTest.rl"
+	#line 279 "NanorexMMPImportExportTest.rl"
 	
-#line 785 "NanorexMMPImportExportTest.cpp"
+#line 794 "NanorexMMPImportExportTest.cpp"
 static const char _bond_direction_line_test_actions[] = {
 	0, 1, 1, 1, 2, 1, 3, 1, 
 	4, 1, 6, 2, 0, 5
@@ -874,15 +883,15 @@ static const int bond_direction_line_test_error = 0;
 
 static const int bond_direction_line_test_en_main = 1;
 
-#line 271 "NanorexMMPImportExportTest.rl"
+#line 280 "NanorexMMPImportExportTest.rl"
 	
-#line 880 "NanorexMMPImportExportTest.cpp"
+#line 889 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = bond_direction_line_test_start;
 	}
-#line 272 "NanorexMMPImportExportTest.rl"
+#line 281 "NanorexMMPImportExportTest.rl"
 	
-#line 886 "NanorexMMPImportExportTest.cpp"
+#line 895 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -975,13 +984,13 @@ _match:
 	}
 	break;
 	case 6:
-#line 253 "NanorexMMPImportExportTest.rl"
+#line 262 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "bond_direction_line_test state machine");
 		}
 	break;
-#line 985 "NanorexMMPImportExportTest.cpp"
+#line 994 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -998,7 +1007,7 @@ _again:
 #line 45 "NanorexMMPImportExportTest.rl"
 	{intVal2=(*p)-'0';}
 	break;
-#line 1002 "NanorexMMPImportExportTest.cpp"
+#line 1011 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -1014,26 +1023,27 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 6:
-#line 253 "NanorexMMPImportExportTest.rl"
+#line 262 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "bond_direction_line_test state machine");
 		}
 	break;
-#line 1024 "NanorexMMPImportExportTest.cpp"
+#line 1033 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 273 "NanorexMMPImportExportTest.rl"
+#line 282 "NanorexMMPImportExportTest.rl"
 }
 
 
 void NanorexMMPImportExportTest::newBondDirection(int atomId1, int atomId2)
 {
-	cerr << lineNum << ": bond_direction " << atomId1 << " " << atomId2 << endl;
+	CERR("bond_direction " + NXUtility::itos(atomId1) + " " +
+	     NXUtility::itos(atomId2));
 	bondDirectionStartId = atomId1;
 	bondDirectionStopId = atomId2;
 }
@@ -1070,7 +1080,7 @@ void NanorexMMPImportExportTest::infoAtomTest(void)
 }
 
 
-#line 328 "NanorexMMPImportExportTest.rl"
+#line 338 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -1081,9 +1091,9 @@ void NanorexMMPImportExportTest::infoAtomTestHelper(char const *const testInput)
 	char const *eof = NULL;
 	int cs;
 	
-	#line 339 "NanorexMMPImportExportTest.rl"
+	#line 349 "NanorexMMPImportExportTest.rl"
 	
-#line 1087 "NanorexMMPImportExportTest.cpp"
+#line 1097 "NanorexMMPImportExportTest.cpp"
 static const char _info_atom_line_test_actions[] = {
 	0, 1, 1, 1, 2, 1, 3, 1, 
 	4, 1, 6, 2, 0, 5, 2, 1, 
@@ -1186,15 +1196,15 @@ static const int info_atom_line_test_error = 0;
 
 static const int info_atom_line_test_en_main = 1;
 
-#line 340 "NanorexMMPImportExportTest.rl"
+#line 350 "NanorexMMPImportExportTest.rl"
 	
-#line 1192 "NanorexMMPImportExportTest.cpp"
+#line 1202 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = info_atom_line_test_start;
 	}
-#line 341 "NanorexMMPImportExportTest.rl"
+#line 351 "NanorexMMPImportExportTest.rl"
 	
-#line 1198 "NanorexMMPImportExportTest.cpp"
+#line 1208 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -1301,13 +1311,13 @@ _match:
 	}
 	break;
 	case 6:
-#line 323 "NanorexMMPImportExportTest.rl"
+#line 333 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "info_atom_line_test state machine");
 		}
 	break;
-#line 1311 "NanorexMMPImportExportTest.cpp"
+#line 1321 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -1324,20 +1334,20 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 6:
-#line 323 "NanorexMMPImportExportTest.rl"
+#line 333 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "info_atom_line_test state machine");
 		}
 	break;
-#line 1334 "NanorexMMPImportExportTest.cpp"
+#line 1344 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 342 "NanorexMMPImportExportTest.rl"
+#line 352 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -1349,7 +1359,7 @@ void NanorexMMPImportExportTest::newAtomInfo(std::string const& key,
 	// stripTrailingWhiteSpaces(key1);
 	// string value1 = value;
 	// stripTrailingWhiteSpaces(value1);
-	cerr << lineNum << ": info atom '" << key << "' = '" << value << "'" << endl;
+	CERR("info atom '" + key + "' = '" + value + "'");
 	// infoAtomKeys.push_back(key);
 	// infoAtomValues.push_back(value);
 	atomProps.back().insert(make_pair(key, value));
@@ -1387,7 +1397,7 @@ void NanorexMMPImportExportTest::atomStmtTest(void)
 }
 
 
-#line 405 "NanorexMMPImportExportTest.rl"
+#line 415 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -1398,9 +1408,9 @@ void NanorexMMPImportExportTest::atomStmtTestHelper(char const *const testInput)
 	char const *eof = 0;
 	int cs;
 	
-	#line 416 "NanorexMMPImportExportTest.rl"
+	#line 426 "NanorexMMPImportExportTest.rl"
 	
-#line 1404 "NanorexMMPImportExportTest.cpp"
+#line 1414 "NanorexMMPImportExportTest.cpp"
 static const char _atom_stmt_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -1808,15 +1818,15 @@ static const int atom_stmt_test_error = 0;
 
 static const int atom_stmt_test_en_main = 1;
 
-#line 417 "NanorexMMPImportExportTest.rl"
+#line 427 "NanorexMMPImportExportTest.rl"
 	
-#line 1814 "NanorexMMPImportExportTest.cpp"
+#line 1824 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = atom_stmt_test_start;
 	}
-#line 418 "NanorexMMPImportExportTest.rl"
+#line 428 "NanorexMMPImportExportTest.rl"
 	
-#line 1820 "NanorexMMPImportExportTest.cpp"
+#line 1830 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -1981,17 +1991,17 @@ _match:
 	}
 	break;
 	case 21:
-#line 398 "NanorexMMPImportExportTest.rl"
+#line 408 "NanorexMMPImportExportTest.rl"
 	{newAtom(atomId, atomicNum, x, y, z, atomStyle);}
 	break;
 	case 22:
-#line 400 "NanorexMMPImportExportTest.rl"
+#line 410 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "atom_stmt_test state machine");
 		}
 	break;
-#line 1995 "NanorexMMPImportExportTest.cpp"
+#line 2005 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -2008,7 +2018,7 @@ _again:
 #line 45 "NanorexMMPImportExportTest.rl"
 	{intVal2=(*p)-'0';}
 	break;
-#line 2012 "NanorexMMPImportExportTest.cpp"
+#line 2022 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -2024,24 +2034,24 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 21:
-#line 398 "NanorexMMPImportExportTest.rl"
+#line 408 "NanorexMMPImportExportTest.rl"
 	{newAtom(atomId, atomicNum, x, y, z, atomStyle);}
 	break;
 	case 22:
-#line 400 "NanorexMMPImportExportTest.rl"
+#line 410 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "atom_stmt_test state machine");
 		}
 	break;
-#line 2038 "NanorexMMPImportExportTest.cpp"
+#line 2048 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 419 "NanorexMMPImportExportTest.rl"
+#line 429 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -2109,11 +2119,12 @@ void NanorexMMPImportExportTest::multipleAtomStmtTest(void)
 		"bondg \t1 22 333\n"
 		"\n"
 		"bondc 33   2 \n"
-		"\n";
-	// "atom 555 (555) (555,555,555)  style555\n";
+		"\n"
+		;
 	
 	multipleAtomStmtTestHelper(testInput);
 	
+	// include contribs from previous test - data structures haven't been cleared
 	CPPUNIT_ASSERT(atomIds.size() == 4);
 	CPPUNIT_ASSERT(atomicNums.size() == 4);
 	CPPUNIT_ASSERT(atomLocs.size() == 4);
@@ -2146,7 +2157,7 @@ void NanorexMMPImportExportTest::multipleAtomStmtTest(void)
 }
 
 
-#line 560 "NanorexMMPImportExportTest.rl"
+#line 559 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -2162,9 +2173,9 @@ multipleAtomStmtTestHelper(char const *const testInput)
 	char const *ts, *te;
 	int top, act, stack[1024];
 	
-	#line 576 "NanorexMMPImportExportTest.rl"
+	#line 575 "NanorexMMPImportExportTest.rl"
 	
-#line 2168 "NanorexMMPImportExportTest.cpp"
+#line 2179 "NanorexMMPImportExportTest.cpp"
 static const char _multiple_atom_stmt_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -2203,8 +2214,7 @@ static const short _multiple_atom_stmt_test_key_offsets[] = {
 	610, 614, 620, 626, 632, 639, 644, 646, 
 	653, 659, 660, 661, 662, 666, 671, 672, 
 	673, 674, 678, 689, 703, 717, 730, 744, 
-	755, 769, 783, 785, 798, 812, 821, 823, 
-	828
+	755, 769, 783, 785, 798, 812, 817
 };
 
 static const char _multiple_atom_stmt_test_trans_keys[] = {
@@ -2242,8 +2252,8 @@ static const char _multiple_atom_stmt_test_trans_keys[] = {
 	57, 48, 57, 9, 32, 44, 11, 13, 
 	48, 57, 9, 32, 44, 11, 13, 48, 
 	57, 9, 32, 41, 11, 13, 48, 57, 
-	9, 32, 11, 13, 48, 57, 0, 9, 
-	32, 97, 98, 105, 11, 13, 116, 111, 
+	9, 32, 11, 13, 48, 57, 0, 10, 
+	32, 97, 98, 105, 9, 13, 116, 111, 
 	109, 9, 32, 11, 13, 9, 32, 11, 
 	13, 48, 57, 9, 32, 11, 13, 48, 
 	57, 9, 32, 40, 11, 13, 9, 32, 
@@ -2309,10 +2319,9 @@ static const char _multiple_atom_stmt_test_trans_keys[] = {
 	10, 9, 32, 95, 11, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, 10, 32, 
 	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, 0, 10, 32, 35, 
-	97, 98, 105, 9, 13, -1, 10, 10, 
-	32, 97, 9, 13, 0, 10, 32, 35, 
-	97, 98, 105, 9, 13, 0
+	65, 90, 97, 122, 10, 32, 97, 9, 
+	13, 0, 10, 32, 97, 98, 105, 9, 
+	13, 0
 };
 
 static const char _multiple_atom_stmt_test_single_lengths[] = {
@@ -2333,8 +2342,7 @@ static const char _multiple_atom_stmt_test_single_lengths[] = {
 	2, 2, 2, 2, 3, 3, 2, 3, 
 	2, 1, 1, 1, 2, 3, 1, 1, 
 	1, 2, 3, 4, 4, 3, 4, 3, 
-	4, 4, 2, 3, 4, 7, 2, 3, 
-	7
+	4, 4, 2, 3, 4, 3, 6
 };
 
 static const char _multiple_atom_stmt_test_range_lengths[] = {
@@ -2355,8 +2363,7 @@ static const char _multiple_atom_stmt_test_range_lengths[] = {
 	1, 2, 2, 2, 2, 1, 0, 2, 
 	2, 0, 0, 0, 1, 1, 0, 0, 
 	0, 1, 4, 5, 5, 5, 5, 4, 
-	5, 5, 0, 5, 5, 1, 0, 1, 
-	1
+	5, 5, 0, 5, 5, 1, 1
 };
 
 static const short _multiple_atom_stmt_test_index_offsets[] = {
@@ -2377,8 +2384,7 @@ static const short _multiple_atom_stmt_test_index_offsets[] = {
 	547, 551, 556, 561, 566, 572, 577, 580, 
 	586, 591, 593, 595, 597, 601, 606, 608, 
 	610, 612, 616, 624, 634, 644, 653, 663, 
-	671, 681, 691, 694, 703, 713, 722, 725, 
-	730
+	671, 681, 691, 694, 703, 713, 718
 };
 
 static const unsigned char _multiple_atom_stmt_test_indicies[] = {
@@ -2412,69 +2418,67 @@ static const unsigned char _multiple_atom_stmt_test_indicies[] = {
 	0, 63, 0, 64, 64, 65, 64, 66, 
 	0, 64, 64, 65, 64, 66, 0, 14, 
 	14, 15, 14, 16, 0, 9, 9, 9, 
-	10, 0, 67, 69, 69, 70, 71, 72, 
-	69, 68, 73, 68, 74, 68, 75, 68, 
-	76, 76, 76, 68, 76, 76, 76, 77, 
-	68, 78, 78, 78, 79, 68, 80, 80, 
-	81, 80, 68, 81, 81, 81, 82, 68, 
-	83, 83, 84, 83, 85, 68, 83, 83, 
-	84, 83, 68, 86, 86, 86, 68, 87, 
-	87, 88, 87, 68, 88, 88, 89, 90, 
-	88, 91, 68, 91, 68, 92, 92, 93, 
-	92, 94, 68, 92, 92, 93, 92, 68, 
-	95, 95, 96, 97, 95, 98, 68, 98, 
-	68, 99, 99, 100, 99, 101, 68, 99, 
-	99, 100, 99, 68, 102, 102, 103, 104, 
-	102, 105, 68, 105, 68, 106, 106, 107, 
-	106, 108, 68, 106, 106, 107, 106, 68, 
-	110, 109, 111, 109, 68, 110, 109, 111, 
-	112, 109, 112, 112, 112, 68, 68, 110, 
-	111, 114, 113, 115, 117, 113, 116, 117, 
-	117, 117, 68, 110, 118, 111, 120, 118, 
-	119, 120, 120, 120, 68, 119, 119, 120, 
-	119, 119, 120, 120, 120, 68, 122, 121, 
-	123, 120, 121, 119, 120, 120, 120, 68, 
-	106, 106, 107, 106, 108, 68, 124, 68, 
-	125, 125, 126, 125, 127, 68, 125, 125, 
-	126, 125, 127, 68, 99, 99, 100, 99, 
-	101, 68, 128, 68, 129, 129, 130, 129, 
-	131, 68, 129, 129, 130, 129, 131, 68, 
-	92, 92, 93, 92, 94, 68, 132, 68, 
-	133, 133, 134, 133, 135, 68, 133, 133, 
-	134, 133, 135, 68, 83, 83, 84, 83, 
-	85, 68, 78, 78, 78, 79, 68, 136, 
-	68, 137, 68, 138, 68, 140, 139, 139, 
-	139, 139, 68, 141, 141, 141, 68, 141, 
-	141, 141, 142, 68, 144, 143, 145, 143, 
-	146, 68, 148, 147, 149, 147, 142, 68, 
-	68, 148, 149, 144, 143, 145, 143, 146, 
-	68, 150, 68, 151, 68, 152, 68, 153, 
-	68, 154, 68, 155, 68, 156, 68, 157, 
-	68, 158, 68, 159, 159, 159, 68, 159, 
-	159, 159, 160, 68, 161, 161, 161, 162, 
-	68, 161, 161, 161, 163, 68, 165, 164, 
-	166, 164, 167, 68, 165, 164, 166, 164, 
-	68, 68, 165, 166, 165, 164, 166, 164, 
-	167, 68, 161, 161, 161, 162, 68, 168, 
-	68, 169, 68, 170, 68, 171, 171, 171, 
-	68, 171, 171, 172, 171, 68, 173, 68, 
-	174, 68, 175, 68, 176, 176, 176, 68, 
-	176, 176, 177, 176, 177, 177, 177, 68, 
-	178, 178, 181, 180, 178, 179, 180, 180, 
-	180, 68, 182, 182, 185, 184, 182, 183, 
-	184, 184, 184, 68, 183, 183, 184, 183, 
-	183, 184, 184, 184, 68, 186, 186, 187, 
-	184, 186, 183, 184, 184, 184, 68, 185, 
-	185, 188, 185, 188, 188, 188, 68, 190, 
-	189, 191, 193, 189, 192, 193, 193, 193, 
-	68, 195, 194, 196, 198, 194, 197, 198, 
-	198, 198, 68, 68, 195, 196, 197, 197, 
-	198, 197, 197, 198, 198, 198, 68, 200, 
-	199, 201, 198, 199, 197, 198, 198, 198, 
-	68, 67, 202, 69, 203, 70, 71, 72, 
-	69, 68, 68, 202, 203, 2, 1, 3, 
-	1, 0, 67, 202, 69, 203, 70, 71, 
-	72, 69, 68, 0
+	10, 0, 67, 70, 69, 71, 72, 73, 
+	69, 68, 74, 68, 75, 68, 76, 68, 
+	77, 77, 77, 68, 77, 77, 77, 78, 
+	68, 79, 79, 79, 80, 68, 81, 81, 
+	82, 81, 68, 82, 82, 82, 83, 68, 
+	84, 84, 85, 84, 86, 68, 84, 84, 
+	85, 84, 68, 87, 87, 87, 68, 88, 
+	88, 89, 88, 68, 89, 89, 90, 91, 
+	89, 92, 68, 92, 68, 93, 93, 94, 
+	93, 95, 68, 93, 93, 94, 93, 68, 
+	96, 96, 97, 98, 96, 99, 68, 99, 
+	68, 100, 100, 101, 100, 102, 68, 100, 
+	100, 101, 100, 68, 103, 103, 104, 105, 
+	103, 106, 68, 106, 68, 107, 107, 108, 
+	107, 109, 68, 107, 107, 108, 107, 68, 
+	111, 110, 112, 110, 68, 111, 110, 112, 
+	113, 110, 113, 113, 113, 68, 68, 111, 
+	112, 115, 114, 116, 118, 114, 117, 118, 
+	118, 118, 68, 111, 119, 112, 121, 119, 
+	120, 121, 121, 121, 68, 120, 120, 121, 
+	120, 120, 121, 121, 121, 68, 123, 122, 
+	124, 121, 122, 120, 121, 121, 121, 68, 
+	107, 107, 108, 107, 109, 68, 125, 68, 
+	126, 126, 127, 126, 128, 68, 126, 126, 
+	127, 126, 128, 68, 100, 100, 101, 100, 
+	102, 68, 129, 68, 130, 130, 131, 130, 
+	132, 68, 130, 130, 131, 130, 132, 68, 
+	93, 93, 94, 93, 95, 68, 133, 68, 
+	134, 134, 135, 134, 136, 68, 134, 134, 
+	135, 134, 136, 68, 84, 84, 85, 84, 
+	86, 68, 79, 79, 79, 80, 68, 137, 
+	68, 138, 68, 139, 68, 141, 140, 140, 
+	140, 140, 68, 142, 142, 142, 68, 142, 
+	142, 142, 143, 68, 145, 144, 146, 144, 
+	147, 68, 149, 148, 150, 148, 143, 68, 
+	68, 149, 150, 145, 144, 146, 144, 147, 
+	68, 151, 68, 152, 68, 153, 68, 154, 
+	68, 155, 68, 156, 68, 157, 68, 158, 
+	68, 159, 68, 160, 160, 160, 68, 160, 
+	160, 160, 161, 68, 162, 162, 162, 163, 
+	68, 162, 162, 162, 164, 68, 166, 165, 
+	167, 165, 168, 68, 166, 165, 167, 165, 
+	68, 68, 166, 167, 166, 165, 167, 165, 
+	168, 68, 162, 162, 162, 163, 68, 169, 
+	68, 170, 68, 171, 68, 172, 172, 172, 
+	68, 172, 172, 173, 172, 68, 174, 68, 
+	175, 68, 176, 68, 177, 177, 177, 68, 
+	177, 177, 178, 177, 178, 178, 178, 68, 
+	179, 179, 182, 181, 179, 180, 181, 181, 
+	181, 68, 183, 183, 186, 185, 183, 184, 
+	185, 185, 185, 68, 184, 184, 185, 184, 
+	184, 185, 185, 185, 68, 187, 187, 188, 
+	185, 187, 184, 185, 185, 185, 68, 186, 
+	186, 189, 186, 189, 189, 189, 68, 191, 
+	190, 192, 194, 190, 193, 194, 194, 194, 
+	68, 196, 195, 197, 199, 195, 198, 199, 
+	199, 199, 68, 68, 196, 197, 198, 198, 
+	199, 198, 198, 199, 199, 199, 68, 201, 
+	200, 202, 199, 200, 198, 199, 199, 199, 
+	68, 2, 1, 3, 1, 0, 67, 70, 
+	69, 71, 72, 73, 69, 68, 0
 };
 
 static const unsigned char _multiple_atom_stmt_test_trans_targs_wi[] = {
@@ -2483,27 +2487,27 @@ static const unsigned char _multiple_atom_stmt_test_trans_targs_wi[] = {
 	45, 13, 13, 14, 15, 42, 16, 17, 
 	18, 41, 18, 19, 38, 20, 21, 22, 
 	37, 22, 23, 34, 24, 25, 26, 33, 
-	27, 143, 28, 29, 30, 143, 28, 31, 
-	32, 30, 31, 32, 30, 143, 28, 35, 
+	27, 141, 28, 29, 30, 141, 28, 31, 
+	32, 30, 31, 32, 30, 141, 28, 35, 
 	25, 26, 36, 39, 21, 22, 40, 43, 
-	17, 18, 44, 144, 0, 47, 48, 93, 
-	121, 49, 50, 51, 52, 53, 54, 92, 
-	54, 55, 56, 57, 58, 91, 59, 59, 
-	60, 61, 88, 62, 63, 64, 87, 64, 
-	65, 84, 66, 67, 68, 83, 68, 69, 
-	80, 70, 71, 72, 79, 73, 144, 74, 
-	75, 76, 144, 74, 77, 78, 76, 77, 
-	78, 76, 144, 74, 81, 71, 72, 82, 
-	85, 67, 68, 86, 89, 63, 64, 90, 
-	94, 95, 96, 97, 103, 98, 99, 100, 
-	144, 101, 102, 100, 144, 101, 104, 105, 
-	106, 107, 108, 109, 110, 111, 112, 113, 
-	114, 115, 120, 116, 117, 144, 118, 119, 
-	122, 123, 124, 125, 126, 127, 128, 129, 
-	130, 131, 132, 133, 134, 135, 132, 133, 
-	134, 135, 132, 135, 136, 137, 144, 138, 
-	139, 140, 137, 144, 138, 139, 140, 137, 
-	144, 138, 141, 142
+	17, 18, 44, 142, 0, 47, 47, 48, 
+	93, 121, 49, 50, 51, 52, 53, 54, 
+	92, 54, 55, 56, 57, 58, 91, 59, 
+	59, 60, 61, 88, 62, 63, 64, 87, 
+	64, 65, 84, 66, 67, 68, 83, 68, 
+	69, 80, 70, 71, 72, 79, 73, 142, 
+	74, 75, 76, 142, 74, 77, 78, 76, 
+	77, 78, 76, 142, 74, 81, 71, 72, 
+	82, 85, 67, 68, 86, 89, 63, 64, 
+	90, 94, 95, 96, 97, 103, 98, 99, 
+	100, 142, 101, 102, 100, 142, 101, 104, 
+	105, 106, 107, 108, 109, 110, 111, 112, 
+	113, 114, 115, 120, 116, 117, 142, 118, 
+	119, 122, 123, 124, 125, 126, 127, 128, 
+	129, 130, 131, 132, 133, 134, 135, 132, 
+	133, 134, 135, 132, 135, 136, 137, 142, 
+	138, 139, 140, 137, 142, 138, 139, 140, 
+	137, 142, 138
 };
 
 static const char _multiple_atom_stmt_test_trans_actions_wi[] = {
@@ -2515,24 +2519,24 @@ static const char _multiple_atom_stmt_test_trans_actions_wi[] = {
 	0, 67, 0, 0, 83, 114, 83, 13, 
 	55, 0, 0, 15, 64, 102, 64, 0, 
 	11, 52, 5, 0, 11, 49, 5, 0, 
-	11, 46, 5, 41, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 21, 5, 
-	0, 0, 0, 0, 0, 5, 23, 0, 
-	0, 0, 0, 0, 0, 25, 5, 0, 
-	0, 0, 0, 0, 27, 5, 0, 0, 
-	0, 0, 0, 29, 5, 0, 71, 0, 
-	0, 83, 121, 83, 13, 55, 0, 0, 
-	15, 64, 108, 64, 0, 11, 52, 5, 
-	0, 11, 49, 5, 0, 11, 46, 5, 
-	0, 0, 0, 33, 0, 0, 0, 31, 
-	87, 31, 5, 0, 43, 0, 0, 0, 
+	11, 46, 5, 41, 0, 0, 1, 0, 
+	0, 0, 0, 0, 0, 0, 0, 21, 
+	5, 0, 0, 0, 0, 0, 5, 23, 
+	0, 0, 0, 0, 0, 0, 25, 5, 
+	0, 0, 0, 0, 0, 27, 5, 0, 
+	0, 0, 0, 0, 29, 5, 0, 71, 
+	0, 0, 83, 121, 83, 13, 55, 0, 
+	0, 15, 64, 108, 64, 0, 11, 52, 
+	5, 0, 11, 49, 5, 0, 11, 46, 
+	5, 0, 0, 0, 33, 0, 0, 0, 
+	31, 87, 31, 5, 0, 43, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 5, 0, 0, 75, 0, 9, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 58, 13, 55, 58, 0, 0, 
-	15, 0, 17, 17, 0, 61, 96, 61, 
-	13, 55, 0, 79, 0, 0, 15, 19, 
-	91, 19, 1, 0
+	0, 0, 0, 5, 0, 0, 75, 0, 
+	9, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 58, 13, 55, 58, 0, 
+	0, 15, 0, 17, 17, 0, 61, 96, 
+	61, 13, 55, 0, 79, 0, 0, 15, 
+	19, 91, 19
 };
 
 static const char _multiple_atom_stmt_test_to_state_actions[] = {
@@ -2553,8 +2557,7 @@ static const char _multiple_atom_stmt_test_to_state_actions[] = {
 	0, 0, 3, 0, 7, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 37, 
-	37
+	0, 0, 0, 0, 0, 37, 37
 };
 
 static const char _multiple_atom_stmt_test_from_state_actions[] = {
@@ -2575,8 +2578,7 @@ static const char _multiple_atom_stmt_test_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	39
+	0, 0, 0, 0, 0, 0, 39
 };
 
 static const char _multiple_atom_stmt_test_eof_actions[] = {
@@ -2597,20 +2599,19 @@ static const char _multiple_atom_stmt_test_eof_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0
+	0, 0, 0, 0, 0, 0, 0
 };
 
-static const int multiple_atom_stmt_test_start = 143;
-static const int multiple_atom_stmt_test_first_final = 143;
+static const int multiple_atom_stmt_test_start = 141;
+static const int multiple_atom_stmt_test_first_final = 141;
 static const int multiple_atom_stmt_test_error = 0;
 
-static const int multiple_atom_stmt_test_en_atom_stmt = 144;
-static const int multiple_atom_stmt_test_en_main = 143;
+static const int multiple_atom_stmt_test_en_atom_stmt = 142;
+static const int multiple_atom_stmt_test_en_main = 141;
 
-#line 577 "NanorexMMPImportExportTest.rl"
+#line 576 "NanorexMMPImportExportTest.rl"
 	
-#line 2614 "NanorexMMPImportExportTest.cpp"
+#line 2615 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = multiple_atom_stmt_test_start;
 	top = 0;
@@ -2618,9 +2619,9 @@ static const int multiple_atom_stmt_test_en_main = 143;
 	te = 0;
 	act = 0;
 	}
-#line 578 "NanorexMMPImportExportTest.rl"
+#line 577 "NanorexMMPImportExportTest.rl"
 	
-#line 2624 "NanorexMMPImportExportTest.cpp"
+#line 2625 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -2641,7 +2642,7 @@ _resume:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 2645 "NanorexMMPImportExportTest.cpp"
+#line 2646 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -2797,13 +2798,13 @@ _match:
 	}
 	break;
 	case 21:
-#line 551 "NanorexMMPImportExportTest.rl"
+#line 550 "NanorexMMPImportExportTest.rl"
 	{ //newAtom(atomId, atomicNum, x, y, z, atomStyle);
 			// cerr << "calling, p = " << p << endl;
-	         {stack[top++] = cs; cs = 144; goto _again;}}
+	         {stack[top++] = cs; cs = 142; goto _again;}}
 	break;
 	case 22:
-#line 554 "NanorexMMPImportExportTest.rl"
+#line 553 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "multiple_atom_stmt_test state machine");
@@ -2811,34 +2812,26 @@ _match:
 		}
 	break;
 	case 25:
-#line 532 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ // cerr << "atom_decl_line, p = " << p << endl;
-		// newAtom(atomId, atomicNum, x, y, z, atomStyle);
-	}}
+#line 542 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
 	break;
 	case 26:
-#line 536 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ // cerr << "bond_line, p = " << p << endl;
-		// newBond(stringVal, intVal);
-	}}
+#line 543 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
 	break;
 	case 27:
-#line 540 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ // cerr << "bond_direction_line, p = " << p << endl;
-		// newBondDirection(intVal, intVal2);
-	}}
+#line 544 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
 	break;
 	case 28:
-#line 544 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ // cerr << "info_atom_line, p = " << p << endl;
-		// newAtomInfo(stringVal, stringVal2);
-	}}
+#line 545 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
 	break;
 	case 29:
-#line 547 "NanorexMMPImportExportTest.rl"
+#line 546 "NanorexMMPImportExportTest.rl"
 	{te = p+1;{{cs = stack[--top]; goto _again;}}}
 	break;
-#line 2842 "NanorexMMPImportExportTest.cpp"
+#line 2835 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -2859,7 +2852,7 @@ _again:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-#line 2863 "NanorexMMPImportExportTest.cpp"
+#line 2856 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -2875,21 +2868,21 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 22:
-#line 554 "NanorexMMPImportExportTest.rl"
+#line 553 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "multiple_atom_stmt_test state machine");
 			
 		}
 	break;
-#line 2886 "NanorexMMPImportExportTest.cpp"
+#line 2879 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 579 "NanorexMMPImportExportTest.rl"
+#line 578 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -2926,7 +2919,7 @@ void NanorexMMPImportExportTest::molLineTest(void)
 }
 
 
-#line 625 "NanorexMMPImportExportTest.rl"
+#line 624 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -2937,9 +2930,9 @@ void NanorexMMPImportExportTest::molLineTestHelper(char const *const testInput)
 	char const *eof = 0;
 	int cs;
 	
-	#line 636 "NanorexMMPImportExportTest.rl"
+	#line 635 "NanorexMMPImportExportTest.rl"
 	
-#line 2943 "NanorexMMPImportExportTest.cpp"
+#line 2936 "NanorexMMPImportExportTest.cpp"
 static const char _mol_decl_line_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -3048,15 +3041,15 @@ static const int mol_decl_line_test_error = 0;
 
 static const int mol_decl_line_test_en_main = 1;
 
-#line 637 "NanorexMMPImportExportTest.rl"
+#line 636 "NanorexMMPImportExportTest.rl"
 	
-#line 3054 "NanorexMMPImportExportTest.cpp"
+#line 3047 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = mol_decl_line_test_start;
 	}
-#line 638 "NanorexMMPImportExportTest.rl"
+#line 637 "NanorexMMPImportExportTest.rl"
 	
-#line 3060 "NanorexMMPImportExportTest.cpp"
+#line 3053 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -3167,13 +3160,13 @@ _match:
 		}
 	break;
 	case 8:
-#line 621 "NanorexMMPImportExportTest.rl"
+#line 620 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "multiple_atom_stmt_test state machine");
 		}
 	break;
-#line 3177 "NanorexMMPImportExportTest.cpp"
+#line 3170 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -3186,7 +3179,7 @@ _again:
 #line 11 "NanorexMMPImportExportTest.rl"
 	{ stringVal2.clear(); /* 'style' string optional */ }
 	break;
-#line 3190 "NanorexMMPImportExportTest.cpp"
+#line 3183 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -3202,20 +3195,20 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 8:
-#line 621 "NanorexMMPImportExportTest.rl"
+#line 620 "NanorexMMPImportExportTest.rl"
 	{ CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
 		                               "multiple_atom_stmt_test state machine");
 		}
 	break;
-#line 3212 "NanorexMMPImportExportTest.cpp"
+#line 3205 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 639 "NanorexMMPImportExportTest.rl"
+#line 638 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -3233,7 +3226,7 @@ NanorexMMPImportExportTest::newChunkInfo(string const& key,
                                          string const& value)
 {
 	++infoChunkCount;
-	cerr << lineNum << ": info chunk " << key << " = " << value << endl;
+	CERR("info chunk " << key << " = " << value);
 	/// @todo
 }
 
@@ -3247,22 +3240,22 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 	char const *testInput = NULL;
 	
 	// #if 0
-	testInput = "group (FirstGroup) FirstGroupStyle\n";
+	testInput = "group (FirstGroup) #FirstGroupStyle\n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 1);
 	CPPUNIT_ASSERT(groupNameStack.back() == "FirstGroup");
-	CPPUNIT_ASSERT(currentGroupStyle == "FirstGroupStyle");
+	// CPPUNIT_ASSERT(currentGroupStyle == "FirstGroupStyle");
 	
-	testInput = "group ( Group name with spaces   ) Group s\ttyle with spaces \n";
+	testInput = "group ( Group name with spaces   ) \n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 2);
 	CPPUNIT_ASSERT(groupNameStack.back() == "Group name with spaces");
-	CPPUNIT_ASSERT(currentGroupStyle == "Group s\ttyle with spaces");
+	// CPPUNIT_ASSERT(currentGroupStyle == "Group s\ttyle with spaces");
 	
 	testInput = "group ( Group that has a name but no style)   \n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 3);
-	CPPUNIT_ASSERT(groupNameStack.back() == "Group that has a name but no style");
+	// CPPUNIT_ASSERT(groupNameStack.back() == "Group that has a name but no style");
 	// #endif
 	
 	testInput = "group   \t  (View \t  Data\t)\n";
@@ -3294,11 +3287,11 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 	lineNum = 0;
 	testInput =
 		"group (group 1)\n"
-		"group (group 1_1) def\n"
+		"group (group 1_1) #def\n"
 		"egroup (group 1_1)\n"
-		"group (amines) amineStyle\n"
+		"group (amines)\n"
 		"group (histamines) def\n"
-		"group ( histhistamines\t) \tdef\t\n"
+		"group ( histhistamines\t) \t#def\t\n"
 		"egroup\n"
 		"group (histhistamines siblings)\n"
 		"egroup (histhistamines siblings)\n"
@@ -3311,7 +3304,7 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 }
 
 
-#line 757 "NanorexMMPImportExportTest.rl"
+#line 756 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -3324,42 +3317,39 @@ NanorexMMPImportExportTest::groupLineTestHelper(char const *const testInput)
 	char const *ts, *te;
 	int cs, stack[128], top, act;
 	
-	#line 770 "NanorexMMPImportExportTest.rl"
+	#line 769 "NanorexMMPImportExportTest.rl"
 	
-#line 3330 "NanorexMMPImportExportTest.cpp"
+#line 3323 "NanorexMMPImportExportTest.cpp"
 static const char _group_lines_test_actions[] = {
 	0, 1, 1, 1, 2, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
 	8, 1, 9, 1, 10, 1, 11, 1, 
 	12, 1, 13, 1, 14, 1, 17, 1, 
-	18, 1, 21, 1, 22, 1, 28, 1, 
-	30, 1, 32, 1, 33, 1, 37, 1, 
-	38, 1, 40, 1, 54, 1, 55, 1, 
-	62, 1, 63, 2, 0, 50, 2, 0, 
-	52, 2, 0, 53, 2, 0, 61, 2, 
+	18, 1, 21, 1, 22, 1, 26, 1, 
+	29, 1, 31, 1, 32, 1, 36, 1, 
+	37, 1, 39, 1, 53, 1, 54, 1, 
+	61, 1, 62, 2, 0, 49, 2, 0, 
+	51, 2, 0, 52, 2, 0, 60, 2, 
 	5, 12, 2, 5, 13, 2, 5, 14, 
 	2, 6, 7, 2, 6, 8, 2, 6, 
-	9, 2, 8, 15, 2, 26, 28, 2, 
-	35, 24, 2, 38, 39, 3, 0, 16, 
-	48, 3, 0, 19, 51, 3, 0, 20, 
-	49, 3, 0, 23, 46, 3, 0, 25, 
-	47, 3, 0, 27, 58, 3, 0, 29, 
-	43, 3, 0, 29, 60, 3, 0, 31, 
-	59, 3, 0, 34, 45, 3, 0, 34, 
-	57, 3, 0, 36, 44, 3, 6, 8, 
-	15, 3, 17, 0, 50, 3, 41, 0, 
-	42, 3, 41, 0, 56, 4, 9, 0, 
-	20, 49, 4, 9, 0, 23, 46, 4, 
-	9, 0, 25, 47, 4, 9, 0, 29, 
-	43, 4, 9, 0, 29, 60, 4, 9, 
-	0, 36, 44, 4, 33, 0, 34, 45, 
-	4, 33, 0, 34, 57, 5, 6, 9, 
-	0, 20, 49, 5, 6, 9, 0, 23, 
-	46, 5, 6, 9, 0, 25, 47, 5, 
-	6, 9, 0, 29, 43, 5, 6, 9, 
-	0, 29, 60, 5, 6, 9, 0, 36, 
-	44, 5, 8, 15, 0, 16, 48, 6, 
-	6, 8, 15, 0, 16, 48
+	9, 2, 8, 15, 2, 34, 24, 2, 
+	37, 38, 3, 0, 16, 47, 3, 0, 
+	19, 50, 3, 0, 20, 48, 3, 0, 
+	23, 45, 3, 0, 25, 46, 3, 0, 
+	27, 57, 3, 0, 28, 42, 3, 0, 
+	28, 59, 3, 0, 30, 58, 3, 0, 
+	33, 44, 3, 0, 33, 56, 3, 0, 
+	35, 43, 3, 6, 8, 15, 3, 17, 
+	0, 49, 3, 40, 0, 41, 3, 40, 
+	0, 55, 4, 9, 0, 20, 48, 4, 
+	9, 0, 23, 45, 4, 9, 0, 25, 
+	46, 4, 9, 0, 35, 43, 4, 32, 
+	0, 33, 44, 4, 32, 0, 33, 56, 
+	5, 6, 9, 0, 20, 48, 5, 6, 
+	9, 0, 23, 45, 5, 6, 9, 0, 
+	25, 46, 5, 6, 9, 0, 35, 43, 
+	5, 8, 15, 0, 16, 47, 6, 6, 
+	8, 15, 0, 16, 47
 };
 
 static const short _group_lines_test_key_offsets[] = {
@@ -3375,25 +3365,24 @@ static const short _group_lines_test_key_offsets[] = {
 	455, 461, 463, 471, 478, 481, 484, 487, 
 	490, 493, 500, 507, 509, 522, 534, 549, 
 	564, 570, 584, 599, 602, 605, 608, 611, 
-	617, 623, 635, 650, 665, 671, 684, 686, 
-	701, 716, 730, 745, 759, 774, 777, 780, 
-	783, 788, 796, 799, 802, 805, 810, 822, 
-	837, 852, 866, 881, 893, 908, 923, 925, 
-	939, 954, 957, 960, 963, 966, 971, 983, 
-	998, 1013, 1027, 1042, 1054, 1069, 1084, 1086, 
-	1100, 1115, 1118, 1121, 1124, 1127, 1130, 1133, 
-	1136, 1139, 1144, 1156, 1171, 1186, 1200, 1215, 
-	1227, 1242, 1257, 1259, 1273, 1288, 1291, 1294, 
-	1299, 1305, 1317, 1332, 1347, 1353, 1366, 1368, 
-	1383, 1398, 1412, 1427, 1441, 1456, 1458, 1460, 
-	1467, 1470, 1473, 1476, 1479, 1482, 1489, 1496, 
-	1498, 1511, 1523, 1538, 1553, 1559, 1573, 1588, 
-	1591, 1594, 1597, 1600, 1606, 1612, 1626, 1641, 
-	1656, 1662, 1675, 1677, 1692, 1707, 1721, 1736, 
-	1750, 1765, 1781, 1797, 1813, 1829, 1845, 1861, 
-	1877, 1893, 1908, 1923, 1929, 1942, 1944, 1960, 
-	1976, 1992, 2007, 2023, 2039, 2055, 2071, 2086, 
-	2101, 2107, 2109, 2109, 2109, 2121, 2132, 2139
+	617, 629, 644, 659, 665, 667, 681, 696, 
+	699, 702, 705, 710, 718, 721, 724, 727, 
+	732, 744, 759, 774, 788, 803, 815, 830, 
+	845, 847, 861, 876, 879, 882, 885, 888, 
+	893, 905, 920, 935, 949, 964, 976, 991, 
+	1006, 1008, 1022, 1037, 1040, 1043, 1046, 1049, 
+	1052, 1055, 1058, 1061, 1066, 1078, 1093, 1108, 
+	1122, 1137, 1149, 1164, 1179, 1181, 1195, 1210, 
+	1213, 1216, 1221, 1227, 1239, 1254, 1269, 1275, 
+	1288, 1290, 1305, 1320, 1334, 1349, 1363, 1378, 
+	1380, 1382, 1389, 1392, 1395, 1398, 1401, 1404, 
+	1411, 1418, 1420, 1433, 1445, 1460, 1475, 1481, 
+	1495, 1510, 1513, 1516, 1519, 1522, 1528, 1534, 
+	1548, 1563, 1578, 1584, 1586, 1600, 1615, 1631, 
+	1647, 1663, 1679, 1695, 1711, 1727, 1743, 1758, 
+	1773, 1779, 1781, 1797, 1813, 1829, 1844, 1860, 
+	1876, 1892, 1908, 1923, 1938, 1944, 1946, 1946, 
+	1946, 1958, 1969, 1976
 };
 
 static const char _group_lines_test_trans_keys[] = {
@@ -3474,30 +3463,62 @@ static const char _group_lines_test_trans_keys[] = {
 	46, 48, 57, 65, 90, 97, 122, -1, 
 	10, 114, -1, 10, 111, -1, 10, 117, 
 	-1, 10, 112, -1, 10, 32, 40, 9, 
-	13, -1, 10, 32, 40, 9, 13, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 41, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
+	13, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	41, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 9, 
+	13, -1, 10, -1, 10, 32, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 9, 13, -1, 
-	10, 32, 35, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, -1, 10, 
+	122, -1, 10, 32, 41, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 110, -1, 10, 102, -1, 10, 
+	111, -1, 10, 32, 9, 13, -1, 10, 
+	32, 97, 99, 111, 9, 13, -1, 10, 
+	116, -1, 10, 111, -1, 10, 109, -1, 
+	10, 32, 9, 13, -1, 10, 32, 95, 
+	9, 13, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 61, 95, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 61, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 61, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
+	13, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 35, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
 	32, 35, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, -1, 
+	10, 32, 95, 9, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
 	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 45, 
+	65, 90, 97, 122, -1, 10, 104, -1, 
+	10, 117, -1, 10, 110, -1, 10, 107, 
+	-1, 10, 32, 9, 13, -1, 10, 32, 
+	95, 9, 13, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 61, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 61, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 9, 13, 45, 46, 
+	10, 32, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 95, 
+	9, 13, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 35, 95, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 35, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	110, -1, 10, 102, -1, 10, 111, -1, 
-	10, 32, 9, 13, -1, 10, 32, 97, 
-	99, 111, 9, 13, -1, 10, 116, -1, 
-	10, 111, -1, 10, 109, -1, 10, 32, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 112, 
+	-1, 10, 101, -1, 10, 110, -1, 10, 
+	103, -1, 10, 114, -1, 10, 111, -1, 
+	10, 117, -1, 10, 112, -1, 10, 32, 
 	9, 13, -1, 10, 32, 95, 9, 13, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
 	32, 61, 95, 9, 13, 45, 46, 48, 
@@ -3516,156 +3537,103 @@ static const char _group_lines_test_trans_keys[] = {
 	95, 9, 13, 45, 46, 48, 57, 65, 
 	90, 97, 122, -1, 10, 32, 35, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 104, -1, 10, 117, 
-	-1, 10, 110, -1, 10, 107, -1, 10, 
-	32, 9, 13, -1, 10, 32, 95, 9, 
+	97, 122, -1, 10, 111, -1, 10, 108, 
+	-1, 10, 32, 9, 13, -1, 10, 32, 
+	40, 9, 13, -1, 10, 32, 95, 9, 
 	13, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 61, 95, 9, 13, 45, 46, 
+	10, 32, 41, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 61, 95, 9, 13, 45, 46, 48, 
+	32, 41, 95, 9, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 95, 9, 13, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 112, -1, 10, 
-	101, -1, 10, 110, -1, 10, 103, -1, 
-	10, 114, -1, 10, 111, -1, 10, 117, 
-	-1, 10, 112, -1, 10, 32, 9, 13, 
-	-1, 10, 32, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 61, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 111, -1, 10, 108, -1, 10, 
-	32, 9, 13, -1, 10, 32, 40, 9, 
-	13, -1, 10, 32, 95, 9, 13, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 41, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 9, 
-	13, -1, 10, 32, 35, 95, 9, 13, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	-1, 10, 32, 35, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 41, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, -1, 10, -1, 10, 32, 101, 
-	103, 9, 13, -1, 10, 103, -1, 10, 
-	114, -1, 10, 111, -1, 10, 117, -1, 
-	10, 112, -1, 10, 32, 35, 40, 9, 
-	13, -1, 10, 32, 35, 40, 9, 13, 
-	-1, 10, -1, 10, 32, 41, 95, 9, 
-	13, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 41, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 9, 13, -1, 
-	10, 32, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 114, -1, 
-	10, 111, -1, 10, 117, -1, 10, 112, 
-	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 67, 
-	86, 95, 9, 13, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 41, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 9, 13, -1, 10, 
-	32, 35, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, -1, 10, 32, 
-	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 95, 9, 
+	35, 9, 13, -1, 10, 32, 35, 95, 
+	9, 13, 48, 57, 65, 90, 97, 122, 
+	-1, 10, -1, 10, 32, 35, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
 	122, -1, 10, 32, 35, 95, 9, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 41, 95, 9, 13, 45, 46, 48, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 108, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 105, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 112, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 98, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 111, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 97, 9, 13, 45, 46, 48, 
-	57, 65, 90, 98, 122, -1, 10, 32, 
-	41, 95, 114, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 100, 9, 13, 45, 46, 48, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, -1, 10, -1, 10, 
+	32, 101, 103, 9, 13, -1, 10, 103, 
+	-1, 10, 114, -1, 10, 111, -1, 10, 
+	117, -1, 10, 112, -1, 10, 32, 35, 
+	40, 9, 13, -1, 10, 32, 35, 40, 
+	9, 13, -1, 10, -1, 10, 32, 41, 
+	95, 9, 13, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 95, 9, 13, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
 	41, 95, 9, 13, 45, 46, 48, 57, 
 	65, 90, 97, 122, -1, 10, 32, 41, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
 	90, 97, 122, -1, 10, 32, 35, 9, 
-	13, -1, 10, 32, 35, 95, 9, 13, 
+	13, -1, 10, 32, 95, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 41, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	-1, 10, 32, 41, 95, 105, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 101, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 119, 9, 13, 
+	114, -1, 10, 111, -1, 10, 117, -1, 
+	10, 112, -1, 10, 32, 40, 9, 13, 
+	-1, 10, 32, 40, 9, 13, -1, 10, 
+	32, 67, 86, 95, 9, 13, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 35, 9, 13, 
+	-1, 10, -1, 10, 32, 95, 9, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 41, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 68, 95, 9, 13, 45, 
+	10, 32, 41, 95, 108, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 41, 95, 105, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 41, 95, 112, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 41, 95, 98, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 41, 95, 111, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
 	10, 32, 41, 95, 97, 9, 13, 45, 
 	46, 48, 57, 65, 90, 98, 122, -1, 
-	10, 32, 41, 95, 116, 9, 13, 45, 
+	10, 32, 41, 95, 114, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 97, 9, 13, 45, 
-	46, 48, 57, 65, 90, 98, 122, -1, 
+	10, 32, 41, 95, 100, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
 	10, 32, 41, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
 	32, 41, 95, 9, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
 	35, 9, 13, -1, 10, -1, 10, 32, 
-	35, 97, 98, 101, 103, 105, 109, 9, 
-	13, -1, 10, 32, 97, 98, 101, 103, 
-	105, 109, 9, 13, -1, 10, 32, 101, 
-	103, 9, 13, -1, 10, 32, 101, 103, 
-	9, 13, 0
+	41, 95, 105, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	41, 95, 101, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	41, 95, 119, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	41, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	68, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	95, 97, 9, 13, 45, 46, 48, 57, 
+	65, 90, 98, 122, -1, 10, 32, 41, 
+	95, 116, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	95, 97, 9, 13, 45, 46, 48, 57, 
+	65, 90, 98, 122, -1, 10, 32, 41, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 35, 9, 13, 
+	-1, 10, -1, 10, 32, 35, 97, 98, 
+	101, 103, 105, 109, 9, 13, -1, 10, 
+	32, 97, 98, 101, 103, 105, 109, 9, 
+	13, -1, 10, 32, 101, 103, 9, 13, 
+	-1, 10, 32, 101, 103, 9, 13, 0
 };
 
 static const char _group_lines_test_single_lengths[] = {
@@ -3681,25 +3649,24 @@ static const char _group_lines_test_single_lengths[] = {
 	4, 2, 4, 3, 3, 3, 3, 3, 
 	3, 5, 5, 2, 5, 4, 5, 5, 
 	4, 4, 5, 3, 3, 3, 3, 4, 
-	4, 4, 5, 5, 4, 5, 2, 5, 
-	5, 4, 5, 4, 5, 3, 3, 3, 
-	3, 6, 3, 3, 3, 3, 4, 5, 
-	5, 4, 5, 4, 5, 5, 2, 4, 
-	5, 3, 3, 3, 3, 3, 4, 5, 
-	5, 4, 5, 4, 5, 5, 2, 4, 
-	5, 3, 3, 3, 3, 3, 3, 3, 
-	3, 3, 4, 5, 5, 4, 5, 4, 
-	5, 5, 2, 4, 5, 3, 3, 3, 
-	4, 4, 5, 5, 4, 5, 2, 5, 
-	5, 4, 5, 4, 5, 2, 2, 5, 
-	3, 3, 3, 3, 3, 5, 5, 2, 
-	5, 4, 5, 5, 4, 4, 5, 3, 
-	3, 3, 3, 4, 4, 6, 5, 5, 
-	4, 5, 2, 5, 5, 4, 5, 4, 
-	5, 6, 6, 6, 6, 6, 6, 6, 
-	6, 5, 5, 4, 5, 2, 6, 6, 
-	6, 5, 6, 6, 6, 6, 5, 5, 
-	4, 2, 0, 0, 10, 9, 5, 5
+	4, 5, 5, 4, 2, 4, 5, 3, 
+	3, 3, 3, 6, 3, 3, 3, 3, 
+	4, 5, 5, 4, 5, 4, 5, 5, 
+	2, 4, 5, 3, 3, 3, 3, 3, 
+	4, 5, 5, 4, 5, 4, 5, 5, 
+	2, 4, 5, 3, 3, 3, 3, 3, 
+	3, 3, 3, 3, 4, 5, 5, 4, 
+	5, 4, 5, 5, 2, 4, 5, 3, 
+	3, 3, 4, 4, 5, 5, 4, 5, 
+	2, 5, 5, 4, 5, 4, 5, 2, 
+	2, 5, 3, 3, 3, 3, 3, 5, 
+	5, 2, 5, 4, 5, 5, 4, 4, 
+	5, 3, 3, 3, 3, 4, 4, 6, 
+	5, 5, 4, 2, 4, 5, 6, 6, 
+	6, 6, 6, 6, 6, 6, 5, 5, 
+	4, 2, 6, 6, 6, 5, 6, 6, 
+	6, 6, 5, 5, 4, 2, 0, 0, 
+	10, 9, 5, 5
 };
 
 static const char _group_lines_test_range_lengths[] = {
@@ -3715,25 +3682,24 @@ static const char _group_lines_test_range_lengths[] = {
 	1, 0, 2, 2, 0, 0, 0, 0, 
 	0, 1, 1, 0, 4, 4, 5, 5, 
 	1, 5, 5, 0, 0, 0, 0, 1, 
-	1, 4, 5, 5, 1, 4, 0, 5, 
-	5, 5, 5, 5, 5, 0, 0, 0, 
-	1, 1, 0, 0, 0, 1, 4, 5, 
-	5, 5, 5, 4, 5, 5, 0, 5, 
-	5, 0, 0, 0, 0, 1, 4, 5, 
-	5, 5, 5, 4, 5, 5, 0, 5, 
-	5, 0, 0, 0, 0, 0, 0, 0, 
-	0, 1, 4, 5, 5, 5, 5, 4, 
-	5, 5, 0, 5, 5, 0, 0, 1, 
-	1, 4, 5, 5, 1, 4, 0, 5, 
-	5, 5, 5, 5, 5, 0, 0, 1, 
-	0, 0, 0, 0, 0, 1, 1, 0, 
-	4, 4, 5, 5, 1, 5, 5, 0, 
-	0, 0, 0, 1, 1, 4, 5, 5, 
-	1, 4, 0, 5, 5, 5, 5, 5, 
+	4, 5, 5, 1, 0, 5, 5, 0, 
+	0, 0, 1, 1, 0, 0, 0, 1, 
+	4, 5, 5, 5, 5, 4, 5, 5, 
+	0, 5, 5, 0, 0, 0, 0, 1, 
+	4, 5, 5, 5, 5, 4, 5, 5, 
+	0, 5, 5, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 4, 5, 5, 5, 
+	5, 4, 5, 5, 0, 5, 5, 0, 
+	0, 1, 1, 4, 5, 5, 1, 4, 
+	0, 5, 5, 5, 5, 5, 5, 0, 
+	0, 1, 0, 0, 0, 0, 0, 1, 
+	1, 0, 4, 4, 5, 5, 1, 5, 
+	5, 0, 0, 0, 0, 1, 1, 4, 
+	5, 5, 1, 0, 5, 5, 5, 5, 
 	5, 5, 5, 5, 5, 5, 5, 5, 
-	5, 5, 5, 1, 4, 0, 5, 5, 
-	5, 5, 5, 5, 5, 5, 5, 5, 
-	1, 0, 0, 0, 1, 1, 1, 1
+	1, 0, 5, 5, 5, 5, 5, 5, 
+	5, 5, 5, 5, 1, 0, 0, 0, 
+	1, 1, 1, 1
 };
 
 static const short _group_lines_test_index_offsets[] = {
@@ -3749,260 +3715,244 @@ static const short _group_lines_test_index_offsets[] = {
 	425, 431, 434, 441, 447, 451, 455, 459, 
 	463, 467, 474, 481, 484, 494, 503, 514, 
 	525, 531, 541, 552, 556, 560, 564, 568, 
-	574, 580, 589, 600, 611, 617, 627, 630, 
-	641, 652, 662, 673, 683, 694, 698, 702, 
-	706, 711, 719, 723, 727, 731, 736, 745, 
-	756, 767, 777, 788, 797, 808, 819, 822, 
-	832, 843, 847, 851, 855, 859, 864, 873, 
-	884, 895, 905, 916, 925, 936, 947, 950, 
-	960, 971, 975, 979, 983, 987, 991, 995, 
-	999, 1003, 1008, 1017, 1028, 1039, 1049, 1060, 
-	1069, 1080, 1091, 1094, 1104, 1115, 1119, 1123, 
-	1128, 1134, 1143, 1154, 1165, 1171, 1181, 1184, 
-	1195, 1206, 1216, 1227, 1237, 1248, 1251, 1254, 
-	1261, 1265, 1269, 1273, 1277, 1281, 1288, 1295, 
-	1298, 1308, 1317, 1328, 1339, 1345, 1355, 1366, 
-	1370, 1374, 1378, 1382, 1388, 1394, 1405, 1416, 
-	1427, 1433, 1443, 1446, 1457, 1468, 1478, 1489, 
-	1499, 1510, 1522, 1534, 1546, 1558, 1570, 1582, 
-	1594, 1606, 1617, 1628, 1634, 1644, 1647, 1659, 
-	1671, 1683, 1694, 1706, 1718, 1730, 1742, 1753, 
-	1764, 1770, 1773, 1774, 1775, 1787, 1798, 1805
+	574, 583, 594, 605, 611, 614, 624, 635, 
+	639, 643, 647, 652, 660, 664, 668, 672, 
+	677, 686, 697, 708, 718, 729, 738, 749, 
+	760, 763, 773, 784, 788, 792, 796, 800, 
+	805, 814, 825, 836, 846, 857, 866, 877, 
+	888, 891, 901, 912, 916, 920, 924, 928, 
+	932, 936, 940, 944, 949, 958, 969, 980, 
+	990, 1001, 1010, 1021, 1032, 1035, 1045, 1056, 
+	1060, 1064, 1069, 1075, 1084, 1095, 1106, 1112, 
+	1122, 1125, 1136, 1147, 1157, 1168, 1178, 1189, 
+	1192, 1195, 1202, 1206, 1210, 1214, 1218, 1222, 
+	1229, 1236, 1239, 1249, 1258, 1269, 1280, 1286, 
+	1296, 1307, 1311, 1315, 1319, 1323, 1329, 1335, 
+	1346, 1357, 1368, 1374, 1377, 1387, 1398, 1410, 
+	1422, 1434, 1446, 1458, 1470, 1482, 1494, 1505, 
+	1516, 1522, 1525, 1537, 1549, 1561, 1572, 1584, 
+	1596, 1608, 1620, 1631, 1642, 1648, 1651, 1652, 
+	1653, 1665, 1676, 1683
 };
 
 static const unsigned char _group_lines_test_trans_targs_wi[] = {
-	244, 244, 1, 244, 245, 2, 3, 48, 
-	76, 91, 109, 165, 2, 1, 244, 244, 
-	4, 1, 244, 244, 5, 1, 244, 244, 
-	6, 1, 244, 244, 7, 7, 1, 244, 
-	244, 7, 7, 8, 1, 244, 244, 9, 
-	9, 47, 1, 244, 244, 9, 10, 9, 
-	1, 244, 244, 10, 10, 11, 1, 244, 
-	244, 12, 13, 12, 46, 1, 244, 244, 
-	12, 13, 12, 1, 244, 244, 14, 14, 
-	1, 244, 244, 14, 15, 14, 1, 244, 
-	244, 15, 16, 43, 15, 17, 1, 244, 
-	244, 17, 1, 244, 244, 18, 19, 18, 
-	42, 1, 244, 244, 18, 19, 18, 1, 
-	244, 244, 19, 20, 39, 19, 21, 1, 
-	244, 244, 21, 1, 244, 244, 22, 23, 
-	22, 38, 1, 244, 244, 22, 23, 22, 
-	1, 244, 244, 23, 24, 35, 23, 25, 
-	1, 244, 244, 25, 1, 244, 244, 26, 
-	27, 26, 34, 1, 244, 244, 26, 27, 
-	26, 1, 244, 244, 28, 29, 28, 1, 
-	244, 244, 28, 29, 30, 28, 30, 30, 
-	30, 1, 244, 244, 29, 244, 244, 31, 
+	232, 232, 1, 232, 233, 2, 3, 48, 
+	76, 91, 103, 159, 2, 1, 232, 232, 
+	4, 1, 232, 232, 5, 1, 232, 232, 
+	6, 1, 232, 232, 7, 7, 1, 232, 
+	232, 7, 7, 8, 1, 232, 232, 9, 
+	9, 47, 1, 232, 232, 9, 10, 9, 
+	1, 232, 232, 10, 10, 11, 1, 232, 
+	232, 12, 13, 12, 46, 1, 232, 232, 
+	12, 13, 12, 1, 232, 232, 14, 14, 
+	1, 232, 232, 14, 15, 14, 1, 232, 
+	232, 15, 16, 43, 15, 17, 1, 232, 
+	232, 17, 1, 232, 232, 18, 19, 18, 
+	42, 1, 232, 232, 18, 19, 18, 1, 
+	232, 232, 19, 20, 39, 19, 21, 1, 
+	232, 232, 21, 1, 232, 232, 22, 23, 
+	22, 38, 1, 232, 232, 22, 23, 22, 
+	1, 232, 232, 23, 24, 35, 23, 25, 
+	1, 232, 232, 25, 1, 232, 232, 26, 
+	27, 26, 34, 1, 232, 232, 26, 27, 
+	26, 1, 232, 232, 28, 29, 28, 1, 
+	232, 232, 28, 29, 30, 28, 30, 30, 
+	30, 1, 232, 232, 29, 232, 232, 31, 
 	29, 33, 31, 32, 33, 33, 33, 1, 
-	244, 244, 31, 29, 33, 31, 32, 33, 
-	33, 33, 1, 244, 244, 32, 33, 32, 
-	32, 33, 33, 33, 1, 244, 244, 31, 
+	232, 232, 31, 29, 33, 31, 32, 33, 
+	33, 33, 1, 232, 232, 32, 33, 32, 
+	32, 33, 33, 33, 1, 232, 232, 31, 
 	29, 33, 31, 32, 33, 33, 33, 1, 
-	244, 244, 26, 27, 26, 34, 1, 244, 
-	244, 36, 1, 244, 244, 26, 27, 26, 
-	37, 1, 244, 244, 26, 27, 26, 37, 
-	1, 244, 244, 22, 23, 22, 38, 1, 
-	244, 244, 40, 1, 244, 244, 22, 23, 
-	22, 41, 1, 244, 244, 22, 23, 22, 
-	41, 1, 244, 244, 18, 19, 18, 42, 
-	1, 244, 244, 44, 1, 244, 244, 18, 
-	19, 18, 45, 1, 244, 244, 18, 19, 
-	18, 45, 1, 244, 244, 12, 13, 12, 
-	46, 1, 244, 244, 9, 9, 47, 1, 
-	244, 244, 49, 1, 244, 244, 50, 1, 
-	244, 244, 51, 1, 244, 244, 58, 52, 
-	52, 52, 52, 1, 244, 244, 53, 53, 
-	1, 244, 244, 53, 53, 54, 1, 244, 
-	244, 55, 56, 55, 57, 1, 244, 244, 
-	55, 56, 55, 54, 1, 244, 244, 56, 
-	244, 244, 55, 56, 55, 57, 1, 244, 
-	244, 59, 1, 244, 244, 60, 1, 244, 
-	244, 61, 1, 244, 244, 62, 1, 244, 
-	244, 63, 1, 244, 244, 64, 1, 244, 
-	244, 65, 1, 244, 244, 66, 1, 244, 
-	244, 67, 1, 244, 244, 68, 68, 1, 
-	244, 244, 68, 68, 69, 1, 244, 244, 
-	70, 70, 75, 1, 244, 244, 70, 70, 
-	71, 1, 244, 244, 72, 73, 72, 74, 
-	1, 244, 244, 72, 73, 72, 1, 244, 
-	244, 73, 244, 244, 72, 73, 72, 74, 
-	1, 244, 244, 70, 70, 75, 1, 244, 
-	244, 77, 1, 244, 244, 78, 1, 244, 
-	244, 79, 1, 244, 244, 80, 1, 244, 
-	244, 81, 1, 244, 244, 82, 83, 84, 
-	82, 1, 244, 244, 82, 83, 84, 82, 
-	1, 244, 244, 83, 244, 244, 85, 88, 
-	86, 85, 86, 86, 86, 1, 244, 244, 
-	85, 86, 85, 86, 86, 86, 1, 244, 
-	244, 87, 88, 90, 87, 89, 90, 90, 
-	90, 1, 244, 244, 87, 88, 90, 87, 
-	89, 90, 90, 90, 1, 244, 244, 88, 
-	83, 88, 1, 244, 244, 89, 90, 89, 
-	89, 90, 90, 90, 1, 244, 244, 87, 
+	232, 232, 26, 27, 26, 34, 1, 232, 
+	232, 36, 1, 232, 232, 26, 27, 26, 
+	37, 1, 232, 232, 26, 27, 26, 37, 
+	1, 232, 232, 22, 23, 22, 38, 1, 
+	232, 232, 40, 1, 232, 232, 22, 23, 
+	22, 41, 1, 232, 232, 22, 23, 22, 
+	41, 1, 232, 232, 18, 19, 18, 42, 
+	1, 232, 232, 44, 1, 232, 232, 18, 
+	19, 18, 45, 1, 232, 232, 18, 19, 
+	18, 45, 1, 232, 232, 12, 13, 12, 
+	46, 1, 232, 232, 9, 9, 47, 1, 
+	232, 232, 49, 1, 232, 232, 50, 1, 
+	232, 232, 51, 1, 232, 232, 58, 52, 
+	52, 52, 52, 1, 232, 232, 53, 53, 
+	1, 232, 232, 53, 53, 54, 1, 232, 
+	232, 55, 56, 55, 57, 1, 232, 232, 
+	55, 56, 55, 54, 1, 232, 232, 56, 
+	232, 232, 55, 56, 55, 57, 1, 232, 
+	232, 59, 1, 232, 232, 60, 1, 232, 
+	232, 61, 1, 232, 232, 62, 1, 232, 
+	232, 63, 1, 232, 232, 64, 1, 232, 
+	232, 65, 1, 232, 232, 66, 1, 232, 
+	232, 67, 1, 232, 232, 68, 68, 1, 
+	232, 232, 68, 68, 69, 1, 232, 232, 
+	70, 70, 75, 1, 232, 232, 70, 70, 
+	71, 1, 232, 232, 72, 73, 72, 74, 
+	1, 232, 232, 72, 73, 72, 1, 232, 
+	232, 73, 232, 232, 72, 73, 72, 74, 
+	1, 232, 232, 70, 70, 75, 1, 232, 
+	232, 77, 1, 232, 232, 78, 1, 232, 
+	232, 79, 1, 232, 232, 80, 1, 232, 
+	232, 81, 1, 232, 232, 82, 83, 84, 
+	82, 1, 232, 232, 82, 83, 84, 82, 
+	1, 232, 232, 83, 232, 232, 85, 88, 
+	86, 85, 86, 86, 86, 1, 232, 232, 
+	85, 86, 85, 86, 86, 86, 1, 232, 
+	232, 87, 88, 90, 87, 89, 90, 90, 
+	90, 1, 232, 232, 87, 88, 90, 87, 
+	89, 90, 90, 90, 1, 232, 232, 88, 
+	83, 88, 1, 232, 232, 89, 90, 89, 
+	89, 90, 90, 90, 1, 232, 232, 87, 
 	88, 90, 87, 89, 90, 90, 90, 1, 
-	244, 244, 92, 1, 244, 244, 93, 1, 
-	244, 244, 94, 1, 244, 244, 95, 1, 
-	244, 244, 96, 97, 96, 1, 244, 244, 
-	96, 97, 96, 1, 244, 244, 97, 98, 
-	97, 98, 98, 98, 1, 244, 244, 99, 
-	100, 108, 99, 107, 108, 108, 108, 1, 
-	244, 244, 99, 100, 108, 99, 107, 108, 
-	108, 108, 1, 244, 244, 101, 102, 101, 
-	1, 244, 244, 101, 102, 103, 101, 103, 
-	103, 103, 1, 244, 244, 102, 244, 244, 
-	104, 102, 106, 104, 105, 106, 106, 106, 
-	1, 244, 244, 104, 102, 106, 104, 105, 
-	106, 106, 106, 1, 244, 244, 105, 106, 
-	105, 105, 106, 106, 106, 1, 244, 244, 
-	104, 102, 106, 104, 105, 106, 106, 106, 
-	1, 244, 244, 107, 108, 107, 107, 108, 
-	108, 108, 1, 244, 244, 99, 100, 108, 
-	99, 107, 108, 108, 108, 1, 244, 244, 
-	110, 1, 244, 244, 111, 1, 244, 244, 
-	112, 1, 244, 244, 113, 113, 1, 244, 
-	244, 113, 114, 129, 145, 113, 1, 244, 
-	244, 115, 1, 244, 244, 116, 1, 244, 
-	244, 117, 1, 244, 244, 118, 118, 1, 
-	244, 244, 118, 119, 118, 119, 119, 119, 
-	1, 244, 244, 120, 123, 122, 120, 121, 
-	122, 122, 122, 1, 244, 244, 120, 123, 
-	122, 120, 121, 122, 122, 122, 1, 244, 
-	244, 121, 122, 121, 121, 122, 122, 122, 
-	1, 244, 244, 120, 123, 122, 120, 121, 
-	122, 122, 122, 1, 244, 244, 123, 124, 
-	123, 124, 124, 124, 1, 244, 244, 125, 
-	126, 128, 125, 127, 128, 128, 128, 1, 
-	244, 244, 125, 126, 128, 125, 127, 128, 
-	128, 128, 1, 244, 244, 126, 244, 244, 
-	127, 128, 127, 127, 128, 128, 128, 1, 
-	244, 244, 125, 126, 128, 125, 127, 128, 
-	128, 128, 1, 244, 244, 130, 1, 244, 
-	244, 131, 1, 244, 244, 132, 1, 244, 
-	244, 133, 1, 244, 244, 134, 134, 1, 
-	244, 244, 134, 135, 134, 135, 135, 135, 
-	1, 244, 244, 136, 139, 138, 136, 137, 
-	138, 138, 138, 1, 244, 244, 136, 139, 
-	138, 136, 137, 138, 138, 138, 1, 244, 
-	244, 137, 138, 137, 137, 138, 138, 138, 
-	1, 244, 244, 136, 139, 138, 136, 137, 
-	138, 138, 138, 1, 244, 244, 139, 140, 
-	139, 140, 140, 140, 1, 244, 244, 141, 
-	142, 144, 141, 143, 144, 144, 144, 1, 
-	244, 244, 141, 142, 144, 141, 143, 144, 
-	144, 144, 1, 244, 244, 142, 244, 244, 
-	143, 144, 143, 143, 144, 144, 144, 1, 
-	244, 244, 141, 142, 144, 141, 143, 144, 
-	144, 144, 1, 244, 244, 146, 1, 244, 
-	244, 147, 1, 244, 244, 148, 1, 244, 
-	244, 149, 1, 244, 244, 150, 1, 244, 
-	244, 151, 1, 244, 244, 152, 1, 244, 
-	244, 153, 1, 244, 244, 154, 154, 1, 
-	244, 244, 154, 155, 154, 155, 155, 155, 
-	1, 244, 244, 156, 159, 158, 156, 157, 
-	158, 158, 158, 1, 244, 244, 156, 159, 
-	158, 156, 157, 158, 158, 158, 1, 244, 
-	244, 157, 158, 157, 157, 158, 158, 158, 
-	1, 244, 244, 156, 159, 158, 156, 157, 
-	158, 158, 158, 1, 244, 244, 159, 160, 
-	159, 160, 160, 160, 1, 244, 244, 161, 
-	162, 164, 161, 163, 164, 164, 164, 1, 
-	244, 244, 161, 162, 164, 161, 163, 164, 
-	164, 164, 1, 244, 244, 162, 244, 244, 
-	163, 164, 163, 163, 164, 164, 164, 1, 
-	244, 244, 161, 162, 164, 161, 163, 164, 
-	164, 164, 1, 244, 244, 166, 1, 244, 
-	244, 167, 1, 244, 244, 168, 168, 1, 
-	244, 244, 168, 169, 168, 1, 244, 244, 
-	169, 170, 169, 170, 170, 170, 1, 244, 
-	244, 171, 172, 180, 171, 179, 180, 180, 
-	180, 1, 244, 244, 171, 172, 180, 171, 
-	179, 180, 180, 180, 1, 244, 244, 173, 
-	174, 173, 1, 244, 244, 173, 174, 175, 
-	173, 175, 175, 175, 1, 244, 244, 174, 
-	244, 244, 176, 174, 178, 176, 177, 178, 
-	178, 178, 1, 244, 244, 176, 174, 178, 
-	176, 177, 178, 178, 178, 1, 244, 244, 
-	177, 178, 177, 177, 178, 178, 178, 1, 
-	244, 244, 176, 174, 178, 176, 177, 178, 
-	178, 178, 1, 244, 244, 179, 180, 179, 
-	179, 180, 180, 180, 1, 244, 244, 171, 
-	172, 180, 171, 179, 180, 180, 180, 1, 
-	0, 244, 181, 246, 246, 182, 246, 247, 
-	183, 184, 199, 183, 182, 246, 246, 185, 
-	182, 246, 246, 186, 182, 246, 246, 187, 
-	182, 246, 246, 188, 182, 246, 246, 189, 
-	182, 246, 246, 190, 191, 192, 190, 182, 
-	246, 246, 190, 191, 192, 190, 182, 246, 
-	246, 191, 246, 246, 193, 196, 194, 193, 
-	194, 194, 194, 182, 246, 246, 193, 194, 
-	193, 194, 194, 194, 182, 246, 246, 195, 
-	196, 198, 195, 197, 198, 198, 198, 182, 
-	246, 246, 195, 196, 198, 195, 197, 198, 
-	198, 198, 182, 246, 246, 196, 191, 196, 
-	182, 246, 246, 197, 198, 197, 197, 198, 
-	198, 198, 182, 246, 246, 195, 196, 198, 
-	195, 197, 198, 198, 198, 182, 246, 246, 
-	200, 182, 246, 246, 201, 182, 246, 246, 
-	202, 182, 246, 246, 203, 182, 246, 246, 
-	204, 205, 204, 182, 246, 246, 204, 205, 
-	204, 182, 246, 246, 205, 217, 230, 206, 
-	205, 206, 206, 206, 182, 246, 246, 207, 
-	208, 216, 207, 215, 216, 216, 216, 182, 
-	246, 246, 207, 208, 216, 207, 215, 216, 
-	216, 216, 182, 246, 246, 209, 210, 209, 
-	182, 246, 246, 209, 210, 211, 209, 211, 
-	211, 211, 182, 246, 246, 210, 246, 246, 
-	212, 210, 214, 212, 213, 214, 214, 214, 
-	182, 246, 246, 212, 210, 214, 212, 213, 
-	214, 214, 214, 182, 246, 246, 213, 214, 
-	213, 213, 214, 214, 214, 182, 246, 246, 
-	212, 210, 214, 212, 213, 214, 214, 214, 
-	182, 246, 246, 215, 216, 215, 215, 216, 
-	216, 216, 182, 246, 246, 207, 208, 216, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	207, 208, 216, 218, 207, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 219, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	207, 208, 216, 220, 207, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 221, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	207, 208, 216, 222, 207, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 223, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	207, 208, 216, 224, 207, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 225, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	226, 227, 216, 226, 215, 216, 216, 216, 
-	182, 246, 246, 226, 227, 216, 226, 215, 
-	216, 216, 216, 182, 246, 246, 228, 229, 
-	228, 182, 246, 246, 228, 229, 211, 228, 
-	211, 211, 211, 182, 246, 246, 229, 246, 
-	246, 207, 208, 216, 231, 207, 215, 216, 
-	216, 216, 182, 246, 246, 207, 208, 216, 
-	232, 207, 215, 216, 216, 216, 182, 246, 
-	246, 207, 208, 216, 233, 207, 215, 216, 
-	216, 216, 182, 246, 246, 234, 208, 216, 
-	234, 215, 216, 216, 216, 182, 246, 246, 
-	234, 208, 235, 216, 234, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 236, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	207, 208, 216, 237, 207, 215, 216, 216, 
-	216, 182, 246, 246, 207, 208, 216, 238, 
-	207, 215, 216, 216, 216, 182, 246, 246, 
-	239, 240, 216, 239, 215, 216, 216, 216, 
-	182, 246, 246, 239, 240, 216, 239, 215, 
-	216, 216, 216, 182, 246, 246, 209, 241, 
-	209, 182, 246, 246, 241, 243, 243, 0, 
-	245, 2, 181, 3, 48, 76, 91, 109, 
-	165, 2, 1, 244, 245, 2, 3, 48, 
-	76, 91, 109, 165, 2, 1, 0, 247, 
-	183, 184, 199, 183, 182, 246, 247, 183, 
-	184, 199, 183, 182, 0
+	232, 232, 92, 1, 232, 232, 93, 1, 
+	232, 232, 94, 1, 232, 232, 95, 1, 
+	232, 232, 95, 96, 95, 1, 232, 232, 
+	96, 97, 96, 97, 97, 97, 1, 232, 
+	232, 98, 99, 102, 98, 101, 102, 102, 
+	102, 1, 232, 232, 98, 99, 102, 98, 
+	101, 102, 102, 102, 1, 232, 232, 99, 
+	100, 99, 1, 232, 232, 100, 232, 232, 
+	101, 102, 101, 101, 102, 102, 102, 1, 
+	232, 232, 98, 99, 102, 98, 101, 102, 
+	102, 102, 1, 232, 232, 104, 1, 232, 
+	232, 105, 1, 232, 232, 106, 1, 232, 
+	232, 107, 107, 1, 232, 232, 107, 108, 
+	123, 139, 107, 1, 232, 232, 109, 1, 
+	232, 232, 110, 1, 232, 232, 111, 1, 
+	232, 232, 112, 112, 1, 232, 232, 112, 
+	113, 112, 113, 113, 113, 1, 232, 232, 
+	114, 117, 116, 114, 115, 116, 116, 116, 
+	1, 232, 232, 114, 117, 116, 114, 115, 
+	116, 116, 116, 1, 232, 232, 115, 116, 
+	115, 115, 116, 116, 116, 1, 232, 232, 
+	114, 117, 116, 114, 115, 116, 116, 116, 
+	1, 232, 232, 117, 118, 117, 118, 118, 
+	118, 1, 232, 232, 119, 120, 122, 119, 
+	121, 122, 122, 122, 1, 232, 232, 119, 
+	120, 122, 119, 121, 122, 122, 122, 1, 
+	232, 232, 120, 232, 232, 121, 122, 121, 
+	121, 122, 122, 122, 1, 232, 232, 119, 
+	120, 122, 119, 121, 122, 122, 122, 1, 
+	232, 232, 124, 1, 232, 232, 125, 1, 
+	232, 232, 126, 1, 232, 232, 127, 1, 
+	232, 232, 128, 128, 1, 232, 232, 128, 
+	129, 128, 129, 129, 129, 1, 232, 232, 
+	130, 133, 132, 130, 131, 132, 132, 132, 
+	1, 232, 232, 130, 133, 132, 130, 131, 
+	132, 132, 132, 1, 232, 232, 131, 132, 
+	131, 131, 132, 132, 132, 1, 232, 232, 
+	130, 133, 132, 130, 131, 132, 132, 132, 
+	1, 232, 232, 133, 134, 133, 134, 134, 
+	134, 1, 232, 232, 135, 136, 138, 135, 
+	137, 138, 138, 138, 1, 232, 232, 135, 
+	136, 138, 135, 137, 138, 138, 138, 1, 
+	232, 232, 136, 232, 232, 137, 138, 137, 
+	137, 138, 138, 138, 1, 232, 232, 135, 
+	136, 138, 135, 137, 138, 138, 138, 1, 
+	232, 232, 140, 1, 232, 232, 141, 1, 
+	232, 232, 142, 1, 232, 232, 143, 1, 
+	232, 232, 144, 1, 232, 232, 145, 1, 
+	232, 232, 146, 1, 232, 232, 147, 1, 
+	232, 232, 148, 148, 1, 232, 232, 148, 
+	149, 148, 149, 149, 149, 1, 232, 232, 
+	150, 153, 152, 150, 151, 152, 152, 152, 
+	1, 232, 232, 150, 153, 152, 150, 151, 
+	152, 152, 152, 1, 232, 232, 151, 152, 
+	151, 151, 152, 152, 152, 1, 232, 232, 
+	150, 153, 152, 150, 151, 152, 152, 152, 
+	1, 232, 232, 153, 154, 153, 154, 154, 
+	154, 1, 232, 232, 155, 156, 158, 155, 
+	157, 158, 158, 158, 1, 232, 232, 155, 
+	156, 158, 155, 157, 158, 158, 158, 1, 
+	232, 232, 156, 232, 232, 157, 158, 157, 
+	157, 158, 158, 158, 1, 232, 232, 155, 
+	156, 158, 155, 157, 158, 158, 158, 1, 
+	232, 232, 160, 1, 232, 232, 161, 1, 
+	232, 232, 162, 162, 1, 232, 232, 162, 
+	163, 162, 1, 232, 232, 163, 164, 163, 
+	164, 164, 164, 1, 232, 232, 165, 166, 
+	174, 165, 173, 174, 174, 174, 1, 232, 
+	232, 165, 166, 174, 165, 173, 174, 174, 
+	174, 1, 232, 232, 167, 168, 167, 1, 
+	232, 232, 167, 168, 169, 167, 169, 169, 
+	169, 1, 232, 232, 168, 232, 232, 170, 
+	168, 172, 170, 171, 172, 172, 172, 1, 
+	232, 232, 170, 168, 172, 170, 171, 172, 
+	172, 172, 1, 232, 232, 171, 172, 171, 
+	171, 172, 172, 172, 1, 232, 232, 170, 
+	168, 172, 170, 171, 172, 172, 172, 1, 
+	232, 232, 173, 174, 173, 173, 174, 174, 
+	174, 1, 232, 232, 165, 166, 174, 165, 
+	173, 174, 174, 174, 1, 0, 232, 175, 
+	234, 234, 176, 234, 235, 177, 178, 193, 
+	177, 176, 234, 234, 179, 176, 234, 234, 
+	180, 176, 234, 234, 181, 176, 234, 234, 
+	182, 176, 234, 234, 183, 176, 234, 234, 
+	184, 185, 186, 184, 176, 234, 234, 184, 
+	185, 186, 184, 176, 234, 234, 185, 234, 
+	234, 187, 190, 188, 187, 188, 188, 188, 
+	176, 234, 234, 187, 188, 187, 188, 188, 
+	188, 176, 234, 234, 189, 190, 192, 189, 
+	191, 192, 192, 192, 176, 234, 234, 189, 
+	190, 192, 189, 191, 192, 192, 192, 176, 
+	234, 234, 190, 185, 190, 176, 234, 234, 
+	191, 192, 191, 191, 192, 192, 192, 176, 
+	234, 234, 189, 190, 192, 189, 191, 192, 
+	192, 192, 176, 234, 234, 194, 176, 234, 
+	234, 195, 176, 234, 234, 196, 176, 234, 
+	234, 197, 176, 234, 234, 198, 199, 198, 
+	176, 234, 234, 198, 199, 198, 176, 234, 
+	234, 199, 206, 218, 200, 199, 200, 200, 
+	200, 176, 234, 234, 201, 202, 205, 201, 
+	204, 205, 205, 205, 176, 234, 234, 201, 
+	202, 205, 201, 204, 205, 205, 205, 176, 
+	234, 234, 202, 203, 202, 176, 234, 234, 
+	203, 234, 234, 204, 205, 204, 204, 205, 
+	205, 205, 176, 234, 234, 201, 202, 205, 
+	201, 204, 205, 205, 205, 176, 234, 234, 
+	201, 202, 205, 207, 201, 204, 205, 205, 
+	205, 176, 234, 234, 201, 202, 205, 208, 
+	201, 204, 205, 205, 205, 176, 234, 234, 
+	201, 202, 205, 209, 201, 204, 205, 205, 
+	205, 176, 234, 234, 201, 202, 205, 210, 
+	201, 204, 205, 205, 205, 176, 234, 234, 
+	201, 202, 205, 211, 201, 204, 205, 205, 
+	205, 176, 234, 234, 201, 202, 205, 212, 
+	201, 204, 205, 205, 205, 176, 234, 234, 
+	201, 202, 205, 213, 201, 204, 205, 205, 
+	205, 176, 234, 234, 201, 202, 205, 214, 
+	201, 204, 205, 205, 205, 176, 234, 234, 
+	215, 216, 205, 215, 204, 205, 205, 205, 
+	176, 234, 234, 215, 216, 205, 215, 204, 
+	205, 205, 205, 176, 234, 234, 216, 217, 
+	216, 176, 234, 234, 217, 234, 234, 201, 
+	202, 205, 219, 201, 204, 205, 205, 205, 
+	176, 234, 234, 201, 202, 205, 220, 201, 
+	204, 205, 205, 205, 176, 234, 234, 201, 
+	202, 205, 221, 201, 204, 205, 205, 205, 
+	176, 234, 234, 222, 202, 205, 222, 204, 
+	205, 205, 205, 176, 234, 234, 222, 202, 
+	223, 205, 222, 204, 205, 205, 205, 176, 
+	234, 234, 201, 202, 205, 224, 201, 204, 
+	205, 205, 205, 176, 234, 234, 201, 202, 
+	205, 225, 201, 204, 205, 205, 205, 176, 
+	234, 234, 201, 202, 205, 226, 201, 204, 
+	205, 205, 205, 176, 234, 234, 227, 228, 
+	205, 227, 204, 205, 205, 205, 176, 234, 
+	234, 227, 228, 205, 227, 204, 205, 205, 
+	205, 176, 234, 234, 202, 229, 202, 176, 
+	234, 234, 229, 231, 231, 0, 233, 2, 
+	175, 3, 48, 76, 91, 103, 159, 2, 
+	1, 232, 233, 2, 3, 48, 76, 91, 
+	103, 159, 2, 1, 0, 235, 177, 178, 
+	193, 177, 176, 234, 235, 177, 178, 193, 
+	177, 176, 0
 };
 
 static const unsigned char _group_lines_test_trans_actions_wi[] = {
-	53, 65, 0, 53, 157, 0, 0, 0, 
-	41, 0, 95, 33, 0, 0, 53, 65, 
+	53, 65, 0, 53, 154, 0, 0, 0, 
+	41, 0, 92, 33, 0, 0, 53, 65, 
 	0, 0, 53, 65, 0, 0, 53, 65, 
 	0, 0, 53, 65, 0, 0, 0, 53, 
 	65, 0, 0, 0, 0, 53, 65, 19, 
@@ -4020,13 +3970,13 @@ static const unsigned char _group_lines_test_trans_actions_wi[] = {
 	0, 53, 65, 0, 0, 0, 0, 0, 
 	0, 53, 65, 0, 0, 53, 65, 0, 
 	27, 0, 3, 0, 53, 65, 0, 27, 
-	0, 0, 53, 101, 0, 0, 0, 0, 
-	53, 101, 0, 0, 0, 0, 0, 0, 
-	0, 0, 53, 101, 0, 53, 247, 149, 
-	149, 80, 149, 11, 80, 80, 80, 0, 
-	53, 101, 0, 0, 13, 0, 0, 13, 
+	0, 0, 53, 98, 0, 0, 0, 0, 
+	53, 98, 0, 0, 0, 0, 0, 0, 
+	0, 0, 53, 98, 0, 53, 222, 146, 
+	146, 80, 146, 11, 80, 80, 80, 0, 
+	53, 98, 0, 0, 13, 0, 0, 13, 
 	13, 13, 0, 53, 65, 0, 13, 0, 
-	0, 13, 13, 13, 0, 53, 241, 89, 
+	0, 13, 13, 13, 0, 53, 216, 89, 
 	89, 13, 89, 0, 13, 13, 13, 0, 
 	53, 65, 0, 27, 0, 3, 0, 53, 
 	65, 0, 0, 53, 65, 9, 77, 9, 
@@ -4043,9 +3993,9 @@ static const unsigned char _group_lines_test_trans_actions_wi[] = {
 	53, 65, 0, 0, 53, 65, 0, 31, 
 	31, 31, 31, 0, 53, 65, 0, 0, 
 	0, 53, 65, 0, 0, 0, 0, 53, 
-	153, 29, 29, 29, 3, 0, 53, 59, 
+	150, 29, 29, 29, 3, 0, 53, 59, 
 	0, 0, 0, 0, 0, 53, 59, 0, 
-	53, 153, 29, 29, 29, 3, 0, 53, 
+	53, 150, 29, 29, 29, 3, 0, 53, 
 	65, 0, 0, 53, 65, 0, 0, 53, 
 	65, 0, 0, 53, 65, 0, 0, 53, 
 	65, 0, 0, 53, 65, 0, 0, 53, 
@@ -4053,140 +4003,126 @@ static const unsigned char _group_lines_test_trans_actions_wi[] = {
 	65, 0, 0, 53, 65, 0, 0, 0, 
 	53, 65, 0, 0, 0, 0, 53, 65, 
 	0, 0, 3, 0, 53, 65, 0, 0, 
-	0, 0, 53, 105, 0, 0, 0, 7, 
-	0, 53, 105, 0, 0, 0, 0, 53, 
-	105, 0, 53, 105, 0, 0, 0, 7, 
+	0, 0, 53, 102, 0, 0, 0, 7, 
+	0, 53, 102, 0, 0, 0, 0, 53, 
+	102, 0, 53, 102, 0, 0, 0, 7, 
 	0, 53, 65, 0, 0, 3, 0, 53, 
 	65, 0, 0, 53, 65, 0, 0, 53, 
 	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 195, 43, 43, 43, 
-	43, 0, 53, 137, 0, 0, 0, 0, 
-	0, 53, 137, 0, 53, 65, 0, 0, 
+	65, 0, 0, 53, 182, 43, 43, 43, 
+	43, 0, 53, 134, 0, 0, 0, 0, 
+	0, 53, 134, 0, 53, 65, 0, 0, 
 	0, 0, 0, 0, 0, 0, 53, 65, 
 	0, 0, 0, 0, 0, 0, 0, 53, 
 	65, 83, 83, 80, 83, 11, 80, 80, 
 	80, 0, 53, 65, 0, 0, 13, 0, 
-	0, 13, 13, 13, 0, 53, 137, 0, 
+	0, 13, 13, 13, 0, 53, 134, 0, 
 	0, 0, 0, 53, 65, 0, 13, 0, 
 	0, 13, 13, 13, 0, 53, 65, 15, 
 	15, 13, 15, 0, 13, 13, 13, 0, 
 	53, 65, 0, 0, 53, 65, 0, 0, 
 	53, 65, 0, 0, 53, 65, 0, 0, 
-	53, 65, 37, 37, 37, 0, 53, 65, 
-	0, 0, 0, 0, 53, 65, 0, 0, 
-	0, 0, 0, 0, 0, 53, 65, 83, 
-	83, 80, 83, 11, 80, 80, 80, 0, 
-	53, 65, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 53, 125, 0, 0, 0, 
-	0, 53, 125, 0, 0, 0, 0, 0, 
-	0, 0, 0, 53, 125, 0, 53, 223, 
-	86, 86, 80, 86, 11, 80, 80, 80, 
-	0, 53, 125, 0, 0, 13, 0, 0, 
-	13, 13, 13, 0, 53, 65, 0, 13, 
-	0, 0, 13, 13, 13, 0, 53, 180, 
-	17, 17, 13, 17, 0, 13, 13, 13, 
-	0, 53, 65, 0, 13, 0, 0, 13, 
-	13, 13, 0, 53, 65, 15, 15, 13, 
-	15, 0, 13, 13, 13, 0, 53, 65, 
-	0, 0, 53, 65, 0, 0, 53, 65, 
-	0, 0, 53, 65, 0, 0, 0, 53, 
-	65, 0, 0, 0, 0, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 0, 
-	53, 65, 0, 0, 0, 0, 0, 0, 
-	0, 53, 65, 83, 83, 80, 83, 11, 
-	80, 80, 80, 0, 53, 65, 0, 0, 
-	13, 0, 0, 13, 13, 13, 0, 53, 
-	65, 0, 13, 0, 0, 13, 13, 13, 
-	0, 53, 65, 15, 15, 13, 15, 0, 
-	13, 13, 13, 0, 53, 65, 0, 0, 
-	0, 0, 0, 0, 0, 53, 205, 86, 
-	86, 80, 86, 11, 80, 80, 80, 0, 
-	53, 109, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 53, 109, 0, 53, 65, 
-	0, 13, 0, 0, 13, 13, 13, 0, 
-	53, 165, 17, 17, 13, 17, 0, 13, 
-	13, 13, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 0, 
-	53, 65, 0, 0, 0, 0, 0, 0, 
-	0, 53, 65, 83, 83, 80, 83, 11, 
-	80, 80, 80, 0, 53, 65, 0, 0, 
-	13, 0, 0, 13, 13, 13, 0, 53, 
-	65, 0, 13, 0, 0, 13, 13, 13, 
-	0, 53, 65, 15, 15, 13, 15, 0, 
-	13, 13, 13, 0, 53, 65, 0, 0, 
-	0, 0, 0, 0, 0, 53, 217, 86, 
-	86, 80, 86, 11, 80, 80, 80, 0, 
-	53, 117, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 53, 117, 0, 53, 65, 
-	0, 13, 0, 0, 13, 13, 13, 0, 
-	53, 175, 17, 17, 13, 17, 0, 13, 
-	13, 13, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 0, 
-	53, 65, 0, 0, 0, 0, 0, 0, 
-	0, 53, 65, 83, 83, 80, 83, 11, 
-	80, 80, 80, 0, 53, 65, 0, 0, 
-	13, 0, 0, 13, 13, 13, 0, 53, 
-	65, 0, 13, 0, 0, 13, 13, 13, 
-	0, 53, 65, 15, 15, 13, 15, 0, 
-	13, 13, 13, 0, 53, 65, 0, 0, 
-	0, 0, 0, 0, 0, 53, 235, 86, 
-	86, 80, 86, 11, 80, 80, 80, 0, 
-	53, 145, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 53, 145, 0, 53, 65, 
-	0, 13, 0, 0, 13, 13, 13, 0, 
-	53, 190, 17, 17, 13, 17, 0, 13, 
-	13, 13, 0, 53, 65, 0, 0, 53, 
-	65, 0, 0, 53, 65, 0, 0, 0, 
 	53, 65, 0, 0, 0, 0, 53, 65, 
 	0, 0, 0, 0, 0, 0, 0, 53, 
 	65, 83, 83, 80, 83, 11, 80, 80, 
 	80, 0, 53, 65, 0, 0, 13, 0, 
-	0, 13, 13, 13, 0, 53, 113, 0, 
-	0, 0, 0, 53, 113, 0, 0, 0, 
-	0, 0, 0, 0, 0, 53, 113, 0, 
-	53, 211, 86, 86, 80, 86, 11, 80, 
-	80, 80, 0, 53, 113, 0, 0, 13, 
-	0, 0, 13, 13, 13, 0, 53, 65, 
+	0, 13, 13, 13, 0, 53, 122, 0, 
+	0, 0, 0, 53, 122, 0, 53, 65, 
 	0, 13, 0, 0, 13, 13, 13, 0, 
-	53, 170, 17, 17, 13, 17, 0, 13, 
+	53, 65, 15, 15, 13, 15, 0, 13, 
+	13, 13, 0, 53, 65, 0, 0, 53, 
+	65, 0, 0, 53, 65, 0, 0, 53, 
+	65, 0, 0, 0, 53, 65, 0, 0, 
+	0, 0, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 0, 53, 65, 0, 
+	0, 0, 0, 0, 0, 0, 53, 65, 
+	83, 83, 80, 83, 11, 80, 80, 80, 
+	0, 53, 65, 0, 0, 13, 0, 0, 
+	13, 13, 13, 0, 53, 65, 0, 13, 
+	0, 0, 13, 13, 13, 0, 53, 65, 
+	15, 15, 13, 15, 0, 13, 13, 13, 
+	0, 53, 65, 0, 0, 0, 0, 0, 
+	0, 0, 53, 192, 86, 86, 80, 86, 
+	11, 80, 80, 80, 0, 53, 106, 0, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	53, 106, 0, 53, 65, 0, 13, 0, 
+	0, 13, 13, 13, 0, 53, 162, 17, 
+	17, 13, 17, 0, 13, 13, 13, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 0, 53, 65, 0, 
+	0, 0, 0, 0, 0, 0, 53, 65, 
+	83, 83, 80, 83, 11, 80, 80, 80, 
+	0, 53, 65, 0, 0, 13, 0, 0, 
+	13, 13, 13, 0, 53, 65, 0, 13, 
+	0, 0, 13, 13, 13, 0, 53, 65, 
+	15, 15, 13, 15, 0, 13, 13, 13, 
+	0, 53, 65, 0, 0, 0, 0, 0, 
+	0, 0, 53, 204, 86, 86, 80, 86, 
+	11, 80, 80, 80, 0, 53, 114, 0, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	53, 114, 0, 53, 65, 0, 13, 0, 
+	0, 13, 13, 13, 0, 53, 172, 17, 
+	17, 13, 17, 0, 13, 13, 13, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 0, 53, 65, 0, 
+	0, 0, 0, 0, 0, 0, 53, 65, 
+	83, 83, 80, 83, 11, 80, 80, 80, 
+	0, 53, 65, 0, 0, 13, 0, 0, 
+	13, 13, 13, 0, 53, 65, 0, 13, 
+	0, 0, 13, 13, 13, 0, 53, 65, 
+	15, 15, 13, 15, 0, 13, 13, 13, 
+	0, 53, 65, 0, 0, 0, 0, 0, 
+	0, 0, 53, 210, 86, 86, 80, 86, 
+	11, 80, 80, 80, 0, 53, 142, 0, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	53, 142, 0, 53, 65, 0, 13, 0, 
+	0, 13, 13, 13, 0, 53, 177, 17, 
+	17, 13, 17, 0, 13, 13, 13, 0, 
+	53, 65, 0, 0, 53, 65, 0, 0, 
+	53, 65, 0, 0, 0, 53, 65, 0, 
+	0, 0, 0, 53, 65, 0, 0, 0, 
+	0, 0, 0, 0, 53, 65, 83, 83, 
+	80, 83, 11, 80, 80, 80, 0, 53, 
+	65, 0, 0, 13, 0, 0, 13, 13, 
+	13, 0, 53, 110, 0, 0, 0, 0, 
+	53, 110, 0, 0, 0, 0, 0, 0, 
+	0, 0, 53, 110, 0, 53, 198, 86, 
+	86, 80, 86, 11, 80, 80, 80, 0, 
+	53, 110, 0, 0, 13, 0, 0, 13, 
 	13, 13, 0, 53, 65, 0, 13, 0, 
-	0, 13, 13, 13, 0, 53, 65, 15, 
-	15, 13, 15, 0, 13, 13, 13, 0, 
-	0, 62, 0, 57, 68, 0, 57, 161, 
-	0, 41, 39, 0, 0, 57, 68, 0, 
-	0, 57, 68, 0, 0, 57, 68, 0, 
-	0, 57, 68, 0, 0, 57, 68, 0, 
-	0, 57, 200, 43, 43, 43, 43, 0, 
-	57, 141, 0, 0, 0, 0, 0, 57, 
-	141, 0, 57, 68, 0, 0, 0, 0, 
-	0, 0, 0, 0, 57, 68, 0, 0, 
-	0, 0, 0, 0, 0, 57, 68, 83, 
-	83, 80, 83, 11, 80, 80, 80, 0, 
-	57, 68, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 57, 141, 0, 0, 0, 
-	0, 57, 68, 0, 13, 0, 0, 13, 
-	13, 13, 0, 57, 68, 15, 15, 13, 
-	15, 0, 13, 13, 13, 0, 57, 68, 
+	0, 13, 13, 13, 0, 53, 167, 17, 
+	17, 13, 17, 0, 13, 13, 13, 0, 
+	53, 65, 0, 13, 0, 0, 13, 13, 
+	13, 0, 53, 65, 15, 15, 13, 15, 
+	0, 13, 13, 13, 0, 0, 62, 0, 
+	57, 68, 0, 57, 158, 0, 41, 39, 
 	0, 0, 57, 68, 0, 0, 57, 68, 
 	0, 0, 57, 68, 0, 0, 57, 68, 
-	92, 92, 92, 0, 57, 68, 0, 0, 
-	0, 0, 57, 68, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 57, 68, 83, 
-	83, 80, 83, 11, 80, 80, 80, 0, 
-	57, 68, 0, 0, 13, 0, 0, 13, 
-	13, 13, 0, 57, 129, 0, 0, 0, 
-	0, 57, 129, 0, 0, 0, 0, 0, 
-	0, 0, 0, 57, 129, 0, 57, 229, 
-	86, 86, 80, 86, 11, 80, 80, 80, 
-	0, 57, 129, 0, 0, 13, 0, 0, 
-	13, 13, 13, 0, 57, 68, 0, 13, 
-	0, 0, 13, 13, 13, 0, 57, 185, 
-	17, 17, 13, 17, 0, 13, 13, 13, 
+	0, 0, 57, 68, 0, 0, 57, 187, 
+	43, 43, 43, 43, 0, 57, 138, 0, 
+	0, 0, 0, 0, 57, 138, 0, 57, 
+	68, 0, 0, 0, 0, 0, 0, 0, 
+	0, 57, 68, 0, 0, 0, 0, 0, 
+	0, 0, 57, 68, 83, 83, 80, 83, 
+	11, 80, 80, 80, 0, 57, 68, 0, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	57, 138, 0, 0, 0, 0, 57, 68, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	57, 68, 15, 15, 13, 15, 0, 13, 
+	13, 13, 0, 57, 68, 0, 0, 57, 
+	68, 0, 0, 57, 68, 0, 0, 57, 
+	68, 0, 0, 57, 68, 37, 37, 37, 
+	0, 57, 68, 0, 0, 0, 0, 57, 
+	68, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 57, 68, 83, 83, 80, 83, 
+	11, 80, 80, 80, 0, 57, 68, 0, 
+	0, 13, 0, 0, 13, 13, 13, 0, 
+	57, 126, 0, 0, 0, 0, 57, 126, 
 	0, 57, 68, 0, 13, 0, 0, 13, 
 	13, 13, 0, 57, 68, 15, 15, 13, 
 	15, 0, 13, 13, 13, 0, 57, 68, 
@@ -4204,30 +4140,29 @@ static const unsigned char _group_lines_test_trans_actions_wi[] = {
 	15, 0, 13, 13, 13, 0, 57, 68, 
 	15, 15, 13, 15, 0, 13, 13, 13, 
 	0, 57, 68, 0, 0, 13, 0, 0, 
-	13, 13, 13, 0, 57, 133, 0, 0, 
-	0, 0, 57, 133, 0, 0, 0, 0, 
-	0, 0, 0, 0, 57, 133, 0, 57, 
-	68, 83, 83, 80, 80, 83, 11, 80, 
-	80, 80, 0, 57, 68, 15, 15, 13, 
+	13, 13, 13, 0, 57, 130, 0, 0, 
+	0, 0, 57, 130, 0, 57, 68, 83, 
+	83, 80, 80, 83, 11, 80, 80, 80, 
+	0, 57, 68, 15, 15, 13, 13, 15, 
+	0, 13, 13, 13, 0, 57, 68, 15, 
+	15, 13, 13, 15, 0, 13, 13, 13, 
+	0, 57, 68, 15, 15, 13, 15, 0, 
+	13, 13, 13, 0, 57, 68, 0, 0, 
+	13, 13, 0, 0, 13, 13, 13, 0, 
+	57, 68, 15, 15, 13, 13, 15, 0, 
+	13, 13, 13, 0, 57, 68, 15, 15, 
+	13, 13, 15, 0, 13, 13, 13, 0, 
+	57, 68, 15, 15, 13, 13, 15, 0, 
+	13, 13, 13, 0, 57, 68, 15, 15, 
 	13, 15, 0, 13, 13, 13, 0, 57, 
-	68, 15, 15, 13, 13, 15, 0, 13, 
-	13, 13, 0, 57, 68, 15, 15, 13, 
-	15, 0, 13, 13, 13, 0, 57, 68, 
-	0, 0, 13, 13, 0, 0, 13, 13, 
-	13, 0, 57, 68, 15, 15, 13, 13, 
-	15, 0, 13, 13, 13, 0, 57, 68, 
-	15, 15, 13, 13, 15, 0, 13, 13, 
-	13, 0, 57, 68, 15, 15, 13, 13, 
-	15, 0, 13, 13, 13, 0, 57, 68, 
-	15, 15, 13, 15, 0, 13, 13, 13, 
-	0, 57, 68, 0, 0, 13, 0, 0, 
-	13, 13, 13, 0, 57, 121, 0, 0, 
-	0, 0, 57, 121, 0, 45, 0, 0, 
-	157, 0, 0, 0, 0, 41, 0, 95, 
-	33, 0, 0, 51, 157, 0, 0, 0, 
-	41, 0, 95, 33, 0, 0, 0, 161, 
-	0, 41, 39, 0, 0, 55, 161, 0, 
-	41, 39, 0, 0, 0
+	68, 0, 0, 13, 0, 0, 13, 13, 
+	13, 0, 57, 118, 0, 0, 0, 0, 
+	57, 118, 0, 45, 0, 0, 154, 0, 
+	0, 0, 0, 41, 0, 92, 33, 0, 
+	0, 51, 154, 0, 0, 0, 41, 0, 
+	92, 33, 0, 0, 0, 158, 0, 41, 
+	39, 0, 0, 55, 158, 0, 41, 39, 
+	0, 0, 0
 };
 
 static const unsigned char _group_lines_test_to_state_actions[] = {
@@ -4251,7 +4186,7 @@ static const unsigned char _group_lines_test_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 35, 
+	0, 35, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -4259,9 +4194,8 @@ static const unsigned char _group_lines_test_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 47, 47, 98, 0, 98, 0
+	0, 0, 0, 0, 0, 0, 47, 47, 
+	95, 0, 95, 0
 };
 
 static const unsigned char _group_lines_test_from_state_actions[] = {
@@ -4294,8 +4228,7 @@ static const unsigned char _group_lines_test_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 49, 0, 49, 0
+	49, 0, 49, 0
 };
 
 static const unsigned char _group_lines_test_eof_actions[] = {
@@ -4327,9 +4260,8 @@ static const unsigned char _group_lines_test_eof_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 45, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 45, 0, 
+	0, 0, 0, 0
 };
 
 static const short _group_lines_test_eof_trans[] = {
@@ -4354,29 +4286,28 @@ static const short _group_lines_test_eof_trans[] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 0, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 299, 299, 299, 299, 299, 299, 
-	299, 299, 0, 0, 0, 399, 0, 400
+	1, 1, 1, 1, 1, 1, 1, 0, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 283, 283, 
+	283, 283, 283, 283, 283, 283, 0, 0, 
+	0, 369, 0, 370
 };
 
-static const int group_lines_test_start = 242;
-static const int group_lines_test_first_final = 242;
+static const int group_lines_test_start = 230;
+static const int group_lines_test_first_final = 230;
 static const int group_lines_test_error = 0;
 
-static const int group_lines_test_en_group_scanner = 244;
-static const int group_lines_test_en_mini_group_scanner = 246;
-static const int group_lines_test_en_main = 242;
+static const int group_lines_test_en_group_scanner = 232;
+static const int group_lines_test_en_mini_group_scanner = 234;
+static const int group_lines_test_en_main = 230;
 
-#line 771 "NanorexMMPImportExportTest.rl"
+#line 770 "NanorexMMPImportExportTest.rl"
 	
-#line 4380 "NanorexMMPImportExportTest.cpp"
+#line 4311 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = group_lines_test_start;
 	top = 0;
@@ -4384,9 +4315,9 @@ static const int group_lines_test_en_main = 242;
 	te = 0;
 	act = 0;
 	}
-#line 772 "NanorexMMPImportExportTest.rl"
+#line 771 "NanorexMMPImportExportTest.rl"
 	
-#line 4390 "NanorexMMPImportExportTest.cpp"
+#line 4321 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -4403,11 +4334,11 @@ _resume:
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
-	case 40:
+	case 39:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 4411 "NanorexMMPImportExportTest.cpp"
+#line 4342 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -4591,64 +4522,64 @@ _eof_trans:
 	{ newViewDataGroup(); }
 	break;
 	case 28:
-#line 34 "NanorexMMPImportExportTest.rl"
-	{ stringVal2.clear(); }
+#line 40 "NanorexMMPImportExportTest.rl"
+	{ newMolStructGroup(stringVal/*, stringVal2*/); }
 	break;
 	case 29:
-#line 40 "NanorexMMPImportExportTest.rl"
-	{ newMolStructGroup(stringVal, stringVal2); }
-	break;
-	case 30:
 #line 51 "NanorexMMPImportExportTest.rl"
 	{ lineStart = p; }
 	break;
-	case 31:
+	case 30:
 #line 56 "NanorexMMPImportExportTest.rl"
 	{ newClipboardGroup(); }
 	break;
-	case 32:
+	case 31:
 #line 60 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 33:
+	case 32:
 #line 61 "NanorexMMPImportExportTest.rl"
 	{ stringVal.clear(); }
 	break;
-	case 34:
+	case 33:
 #line 67 "NanorexMMPImportExportTest.rl"
 	{ endGroup(stringVal); }
 	break;
-	case 35:
+	case 34:
 #line 71 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 36:
+	case 35:
 #line 81 "NanorexMMPImportExportTest.rl"
 	{ newOpenGroupInfo(stringVal, stringVal2); }
 	break;
-	case 37:
-#line 755 "NanorexMMPImportExportTest.rl"
-	{ /*cerr << "scanner call: p = " << p << endl;*/ p--; {stack[top++] = cs; cs = 246; goto _again;} }
+	case 36:
+#line 754 "NanorexMMPImportExportTest.rl"
+	{ /*cerr << "scanner call: p = " << p << endl;*/ p--; {stack[top++] = cs; cs = 234; goto _again;} }
 	break;
-	case 41:
+	case 40:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 42:
-#line 103 "NanorexMMPImportExportTest.rl"
+	case 41:
+#line 102 "NanorexMMPImportExportTest.rl"
 	{act = 11;}
 	break;
-	case 43:
+	case 42:
 #line 89 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 44:
+	case 43:
 #line 90 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
+	case 44:
+#line 91 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{{cs = stack[--top]; goto _again;}}}
+	break;
 	case 45:
 #line 92 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
+	{te = p+1;}
 	break;
 	case 46:
 #line 93 "NanorexMMPImportExportTest.rl"
@@ -4671,72 +4602,68 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 51:
-#line 98 "NanorexMMPImportExportTest.rl"
+#line 100 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
 	case 52:
-#line 101 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
+			}}
 	break;
 	case 53:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p;p--;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}}
 	break;
 	case 54:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p;p--;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
-			}}
-	break;
-	case 55:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{	switch( act ) {
 	case 0:
 	{{cs = 0; goto _again;}}
 	break;
 	case 11:
-	{{p = ((te))-1;}	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+	{{p = ((te))-1;} cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}
 	break;
 	default: break;
 	}
 	}
 	break;
-	case 56:
-#line 752 "NanorexMMPImportExportTest.rl"
+	case 55:
+#line 751 "NanorexMMPImportExportTest.rl"
 	{act = 16;}
+	break;
+	case 56:
+#line 742 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
 	break;
 	case 57:
 #line 743 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
+	{te = p+1;{/*cerr << "view_data begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/}}
 	break;
 	case 58:
 #line 744 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{/*cerr << "view_data begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/}}
+	{te = p+1;{/*cerr << "clipboard begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/}}
 	break;
 	case 59:
 #line 745 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{/*cerr << "clipboard begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/}}
-	break;
-	case 60:
-#line 746 "NanorexMMPImportExportTest.rl"
 	{te = p+1;{/*cerr << "mol_struct begin, p = '" << p << "' [" << strlen(p) << ']' << endl;*/}}
 	break;
-	case 61:
-#line 752 "NanorexMMPImportExportTest.rl"
+	case 60:
+#line 751 "NanorexMMPImportExportTest.rl"
 	{te = p+1;{/*cerr << "Ignored line, p = " << p << endl;*/}}
 	break;
-	case 62:
-#line 752 "NanorexMMPImportExportTest.rl"
+	case 61:
+#line 751 "NanorexMMPImportExportTest.rl"
 	{te = p;p--;{/*cerr << "Ignored line, p = " << p << endl;*/}}
 	break;
-	case 63:
+	case 62:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{	switch( act ) {
 	case 0:
@@ -4749,7 +4676,7 @@ _eof_trans:
 	}
 	}
 	break;
-#line 4753 "NanorexMMPImportExportTest.cpp"
+#line 4680 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -4770,15 +4697,15 @@ _again:
 #line 11 "NanorexMMPImportExportTest.rl"
 	{ stringVal2.clear(); /* 'style' string optional */ }
 	break;
-	case 38:
+	case 37:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-	case 39:
+	case 38:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{act = 0;}
 	break;
-#line 4782 "NanorexMMPImportExportTest.cpp"
+#line 4709 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -4797,25 +4724,25 @@ _again:
 	unsigned int __nacts = (unsigned int) *__acts++;
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
-	case 37:
-#line 755 "NanorexMMPImportExportTest.rl"
-	{ /*cerr << "scanner call: p = " << p << endl;*/ p--; {stack[top++] = cs; cs = 246; goto _again;} }
+	case 36:
+#line 754 "NanorexMMPImportExportTest.rl"
+	{ /*cerr << "scanner call: p = " << p << endl;*/ p--; {stack[top++] = cs; cs = 234; goto _again;} }
 	break;
-#line 4805 "NanorexMMPImportExportTest.cpp"
+#line 4732 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 773 "NanorexMMPImportExportTest.rl"
+#line 772 "NanorexMMPImportExportTest.rl"
 }
 
 
 void NanorexMMPImportExportTest::newViewDataGroup(void)
 {
 	++groupCount;
-	cerr << lineNum << ": group (View Data)" << endl;
+	CERR("group (View Data)");
 	currentGroupName = "View Data";
 	groupNameStack.push_back(currentGroupName);
 }
@@ -4830,14 +4757,12 @@ void NanorexMMPImportExportTest::endViewDataGroup(void)
 #endif
 
 void
-NanorexMMPImportExportTest::newMolStructGroup(std::string const& name,
-                                              std::string const& style)
+NanorexMMPImportExportTest::newMolStructGroup(std::string const& name)
 {
 	++groupCount;
-	cerr << lineNum << ": group (" << name << ") " << style << endl;
+	CERR("group (" + name + ") ");
 	currentGroupName = name;
 	groupNameStack.push_back(currentGroupName);
-	currentGroupStyle = style;
 }
 
 #if 0
@@ -4855,7 +4780,7 @@ void NanorexMMPImportExportTest::endMolStructGroup(std::string const& name)
 void NanorexMMPImportExportTest::newClipboardGroup(void)
 {
 	++groupCount;
-	cerr << lineNum << ": group (Clipboard)" << endl;
+	CERR("group (Clipboard)");
 	currentGroupName = "Clipboard";
 	groupNameStack.push_back(currentGroupName);
 }
@@ -4876,8 +4801,8 @@ void NanorexMMPImportExportTest::endGroup(string const& name)
 	++egroupCount;
 	// comparing for errors should be done by parser application
 	// here we are only testing to see if the tokens are being recognized
-	cerr << lineNum << ": endgroup (" << name << ")  "
-		<< "[stack-top = " << groupNameStack.back() << ']' << endl;
+	CERR("egroup (" + name + ")  " + "[stack-top = " + groupNameStack.back()
+	     + ']');
 	currentGroupName = groupNameStack.back();
 	groupNameStack.pop_back();
 }
@@ -4888,14 +4813,14 @@ NanorexMMPImportExportTest::newOpenGroupInfo(string const& key,
                                              string const& value)
 {
 	++infoOpenGroupCount;
-	cerr << lineNum << ": info opengroup " << key << " = " << value << endl;
+	CERR("info opengroup " + key + " = " + value);
 	/// @todo
 }
 
 
 void NanorexMMPImportExportTest::end1(void)
 {
-	cerr << lineNum << ": end1" << endl;
+	CERR("end1");
 }
 
 
@@ -4935,7 +4860,7 @@ void NanorexMMPImportExportTest::uncheckedParseTest(void)
 }
 
 
-#line 916 "NanorexMMPImportExportTest.rl"
+#line 913 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -4948,74 +4873,70 @@ NanorexMMPImportExportTest::uncheckedParseTestHelper(char const *const testInput
 	char const *ts, *te;
 	int cs, stack[128], top, act;
 	
-	#line 929 "NanorexMMPImportExportTest.rl"
+	#line 926 "NanorexMMPImportExportTest.rl"
 	
-#line 4954 "NanorexMMPImportExportTest.cpp"
+#line 4879 "NanorexMMPImportExportTest.cpp"
 static const char _unchecked_parse_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
 	7, 1, 8, 1, 9, 1, 10, 1, 
 	11, 1, 12, 1, 13, 1, 14, 1, 
 	17, 1, 18, 1, 21, 1, 22, 1, 
-	26, 1, 28, 1, 31, 1, 33, 1, 
-	34, 1, 41, 1, 43, 1, 57, 1, 
-	58, 2, 0, 30, 2, 0, 53, 2, 
-	0, 55, 2, 0, 56, 2, 5, 12, 
-	2, 5, 13, 2, 5, 14, 2, 6, 
-	7, 2, 6, 8, 2, 6, 9, 2, 
-	8, 15, 2, 36, 24, 2, 41, 42, 
-	3, 0, 16, 51, 3, 0, 19, 54, 
-	3, 0, 20, 52, 3, 0, 23, 49, 
-	3, 0, 25, 50, 3, 0, 27, 38, 
-	3, 0, 29, 39, 3, 0, 29, 46, 
-	3, 0, 32, 40, 3, 0, 35, 48, 
-	3, 0, 37, 47, 3, 6, 8, 15, 
-	3, 17, 0, 53, 3, 44, 0, 45, 
-	4, 9, 0, 20, 52, 4, 9, 0, 
-	23, 49, 4, 9, 0, 25, 50, 4, 
-	9, 0, 29, 39, 4, 9, 0, 29, 
-	46, 4, 9, 0, 37, 47, 4, 34, 
-	0, 35, 48, 5, 6, 9, 0, 20, 
-	52, 5, 6, 9, 0, 23, 49, 5, 
-	6, 9, 0, 25, 50, 5, 6, 9, 
-	0, 29, 39, 5, 6, 9, 0, 29, 
-	46, 5, 6, 9, 0, 37, 47, 5, 
-	8, 15, 0, 16, 51, 6, 6, 8, 
-	15, 0, 16, 51
+	26, 1, 30, 1, 32, 1, 33, 1, 
+	40, 1, 42, 1, 56, 1, 57, 2, 
+	0, 29, 2, 0, 52, 2, 0, 54, 
+	2, 0, 55, 2, 5, 12, 2, 5, 
+	13, 2, 5, 14, 2, 6, 7, 2, 
+	6, 8, 2, 6, 9, 2, 8, 15, 
+	2, 35, 24, 2, 40, 41, 3, 0, 
+	16, 50, 3, 0, 19, 53, 3, 0, 
+	20, 51, 3, 0, 23, 48, 3, 0, 
+	25, 49, 3, 0, 27, 37, 3, 0, 
+	28, 38, 3, 0, 28, 45, 3, 0, 
+	31, 39, 3, 0, 34, 47, 3, 0, 
+	36, 46, 3, 6, 8, 15, 3, 17, 
+	0, 52, 3, 43, 0, 44, 4, 9, 
+	0, 20, 51, 4, 9, 0, 23, 48, 
+	4, 9, 0, 25, 49, 4, 9, 0, 
+	36, 46, 4, 33, 0, 34, 47, 5, 
+	6, 9, 0, 20, 51, 5, 6, 9, 
+	0, 23, 48, 5, 6, 9, 0, 25, 
+	49, 5, 6, 9, 0, 36, 46, 5, 
+	8, 15, 0, 16, 50, 6, 6, 8, 
+	15, 0, 16, 50
 };
 
 static const short _unchecked_parse_test_key_offsets[] = {
 	0, 0, 5, 6, 7, 8, 9, 14, 
 	19, 24, 25, 26, 27, 31, 36, 37, 
 	38, 39, 44, 46, 51, 52, 53, 54, 
-	55, 60, 65, 76, 90, 104, 109, 121, 
-	126, 127, 128, 129, 134, 139, 140, 141, 
-	142, 143, 148, 153, 154, 155, 156, 157, 
-	158, 159, 160, 161, 166, 171, 173, 175, 
-	177, 191, 205, 218, 232, 245, 259, 261, 
-	263, 274, 277, 280, 283, 288, 295, 302, 
-	308, 315, 323, 329, 334, 340, 349, 353, 
-	361, 367, 376, 380, 388, 394, 403, 407, 
-	415, 421, 427, 440, 442, 457, 472, 486, 
-	501, 509, 513, 521, 529, 537, 541, 549, 
-	557, 565, 569, 577, 585, 593, 600, 603, 
-	606, 609, 617, 622, 629, 637, 645, 647, 
-	655, 658, 661, 664, 667, 670, 673, 676, 
-	679, 682, 687, 694, 701, 708, 716, 722, 
-	724, 732, 739, 742, 745, 748, 751, 754, 
-	761, 768, 770, 783, 795, 810, 825, 831, 
-	845, 860, 863, 866, 869, 872, 878, 884, 
-	896, 911, 926, 932, 945, 947, 962, 977, 
-	991, 1006, 1020, 1035, 1038, 1041, 1044, 1049, 
-	1057, 1060, 1063, 1066, 1071, 1083, 1098, 1113, 
-	1127, 1142, 1154, 1169, 1184, 1186, 1200, 1215, 
-	1218, 1221, 1224, 1227, 1232, 1244, 1259, 1274, 
-	1288, 1303, 1315, 1330, 1345, 1347, 1361, 1376, 
-	1379, 1382, 1385, 1388, 1391, 1394, 1397, 1400, 
-	1405, 1417, 1432, 1447, 1461, 1476, 1488, 1503, 
-	1518, 1520, 1534, 1549, 1552, 1555, 1560, 1566, 
-	1578, 1593, 1608, 1614, 1627, 1629, 1644, 1659, 
-	1673, 1688, 1702, 1717, 1719, 1719, 1731
+	55, 60, 71, 85, 99, 104, 109, 110, 
+	111, 112, 117, 122, 123, 124, 125, 126, 
+	131, 136, 137, 138, 139, 140, 141, 142, 
+	143, 144, 149, 154, 156, 158, 160, 173, 
+	187, 189, 191, 202, 205, 208, 211, 216, 
+	223, 230, 236, 243, 251, 257, 262, 268, 
+	277, 281, 289, 295, 304, 308, 316, 322, 
+	331, 335, 343, 349, 355, 368, 370, 385, 
+	400, 414, 429, 437, 441, 449, 457, 465, 
+	469, 477, 485, 493, 497, 505, 513, 521, 
+	528, 531, 534, 537, 545, 550, 557, 565, 
+	573, 575, 583, 586, 589, 592, 595, 598, 
+	601, 604, 607, 610, 615, 622, 629, 636, 
+	644, 650, 652, 660, 667, 670, 673, 676, 
+	679, 682, 689, 696, 698, 711, 723, 738, 
+	753, 759, 773, 788, 791, 794, 797, 800, 
+	806, 818, 833, 848, 854, 856, 870, 885, 
+	888, 891, 894, 899, 907, 910, 913, 916, 
+	921, 933, 948, 963, 977, 992, 1004, 1019, 
+	1034, 1036, 1050, 1065, 1068, 1071, 1074, 1077, 
+	1082, 1094, 1109, 1124, 1138, 1153, 1165, 1180, 
+	1195, 1197, 1211, 1226, 1229, 1232, 1235, 1238, 
+	1241, 1244, 1247, 1250, 1255, 1267, 1282, 1297, 
+	1311, 1326, 1338, 1353, 1368, 1370, 1384, 1399, 
+	1402, 1405, 1410, 1416, 1428, 1443, 1458, 1464, 
+	1477, 1479, 1494, 1509, 1523, 1538, 1552, 1567, 
+	1569, 1569, 1581
 };
 
 static const char _unchecked_parse_test_trans_keys[] = {
@@ -5026,28 +4947,19 @@ static const char _unchecked_parse_test_trans_keys[] = {
 	32, 68, 11, 13, 97, 116, 97, 9, 
 	32, 41, 11, 13, 10, 35, 10, 32, 
 	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 40, 11, 
-	13, 9, 32, 95, 11, 13, 48, 57, 
-	65, 90, 97, 122, 9, 32, 41, 95, 
-	11, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 9, 32, 41, 95, 11, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	10, 32, 35, 9, 13, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, 10, 32, 101, 9, 13, 110, 100, 
-	49, 10, 32, 35, 9, 13, 10, 32, 
-	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 67, 11, 
-	13, 108, 105, 112, 98, 111, 97, 114, 
-	100, 9, 32, 41, 11, 13, 10, 32, 
-	35, 9, 13, -1, 10, -1, 10, -1, 
-	10, 10, 32, 35, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, 10, 
-	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, 9, 32, 95, 
-	11, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
+	32, 40, 11, 13, 9, 32, 95, 11, 
+	13, 48, 57, 65, 90, 97, 122, 9, 
+	32, 41, 95, 11, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, 9, 32, 41, 
+	95, 11, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, 10, 32, 35, 9, 13, 
+	10, 32, 101, 9, 13, 110, 100, 49, 
+	10, 32, 35, 9, 13, 10, 32, 103, 
+	9, 13, 114, 111, 117, 112, 9, 32, 
+	40, 11, 13, 9, 32, 67, 11, 13, 
+	108, 105, 112, 98, 111, 97, 114, 100, 
+	9, 32, 41, 11, 13, 10, 32, 35, 
+	9, 13, -1, 10, -1, 10, -1, 10, 
 	9, 32, 95, 11, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, 9, 32, 41, 
 	95, 11, 13, 45, 46, 48, 57, 65, 
@@ -5129,30 +5041,62 @@ static const char _unchecked_parse_test_trans_keys[] = {
 	65, 90, 97, 122, -1, 10, 114, -1, 
 	10, 111, -1, 10, 117, -1, 10, 112, 
 	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 9, 13, 45, 46, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 41, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 41, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 35, 9, 13, -1, 10, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 9, 13, -1, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 35, 95, 
+	32, 41, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 110, 
+	-1, 10, 102, -1, 10, 111, -1, 10, 
+	32, 9, 13, -1, 10, 32, 97, 99, 
+	111, 9, 13, -1, 10, 116, -1, 10, 
+	111, -1, 10, 109, -1, 10, 32, 9, 
+	13, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 61, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 61, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 95, 9, 13, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, -1, 10, 32, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 35, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
+	122, -1, 10, 104, -1, 10, 117, -1, 
+	10, 110, -1, 10, 107, -1, 10, 32, 
+	9, 13, -1, 10, 32, 95, 9, 13, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 41, 
+	32, 61, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 61, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	35, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 110, -1, 10, 
-	102, -1, 10, 111, -1, 10, 32, 9, 
-	13, -1, 10, 32, 97, 99, 111, 9, 
-	13, -1, 10, 116, -1, 10, 111, -1, 
-	10, 109, -1, 10, 32, 9, 13, -1, 
+	90, 97, 122, -1, 10, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 112, -1, 10, 101, 
+	-1, 10, 110, -1, 10, 103, -1, 10, 
+	114, -1, 10, 111, -1, 10, 117, -1, 
+	10, 112, -1, 10, 32, 9, 13, -1, 
 	10, 32, 95, 9, 13, 48, 57, 65, 
 	90, 97, 122, -1, 10, 32, 61, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
@@ -5171,174 +5115,130 @@ static const char _unchecked_parse_test_trans_keys[] = {
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 35, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 104, -1, 10, 117, -1, 10, 110, 
-	-1, 10, 107, -1, 10, 32, 9, 13, 
+	10, 111, -1, 10, 108, -1, 10, 32, 
+	9, 13, -1, 10, 32, 40, 9, 13, 
 	-1, 10, 32, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 61, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 35, 9, 13, 
+	-1, 10, 32, 35, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, -1, 
+	10, 32, 35, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 95, 9, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
+	-1, 10, 32, 41, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 112, -1, 10, 101, -1, 10, 
-	110, -1, 10, 103, -1, 10, 114, -1, 
-	10, 111, -1, 10, 117, -1, 10, 112, 
-	-1, 10, 32, 9, 13, -1, 10, 32, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 61, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	61, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 111, 
-	-1, 10, 108, -1, 10, 32, 9, 13, 
-	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 95, 9, 13, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 41, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 9, 13, -1, 10, 
-	32, 35, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, -1, 10, 32, 
-	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 41, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, -1, 
-	10, 32, 35, 97, 98, 101, 103, 105, 
-	109, 9, 13, -1, 10, 32, 97, 98, 
-	101, 103, 105, 109, 9, 13, 0
+	10, -1, 10, 32, 35, 97, 98, 101, 
+	103, 105, 109, 9, 13, -1, 10, 32, 
+	97, 98, 101, 103, 105, 109, 9, 13, 
+	0
 };
 
 static const char _unchecked_parse_test_single_lengths[] = {
 	0, 3, 1, 1, 1, 1, 3, 3, 
 	3, 1, 1, 1, 2, 3, 1, 1, 
 	1, 3, 2, 3, 1, 1, 1, 1, 
-	3, 3, 3, 4, 4, 3, 4, 3, 
-	1, 1, 1, 3, 3, 1, 1, 1, 
-	1, 3, 3, 1, 1, 1, 1, 1, 
-	1, 1, 1, 3, 3, 2, 2, 2, 
-	4, 4, 3, 4, 3, 4, 2, 2, 
-	9, 3, 3, 3, 3, 3, 3, 4, 
-	3, 4, 4, 3, 4, 5, 2, 4, 
-	4, 5, 2, 4, 4, 5, 2, 4, 
-	4, 4, 5, 2, 5, 5, 4, 5, 
-	4, 2, 4, 4, 4, 2, 4, 4, 
-	4, 2, 4, 4, 4, 3, 3, 3, 
-	3, 6, 3, 3, 4, 4, 2, 4, 
-	3, 3, 3, 3, 3, 3, 3, 3, 
-	3, 3, 3, 3, 3, 4, 4, 2, 
-	4, 3, 3, 3, 3, 3, 3, 5, 
-	5, 2, 5, 4, 5, 5, 4, 4, 
-	5, 3, 3, 3, 3, 4, 4, 4, 
-	5, 5, 4, 5, 2, 5, 5, 4, 
-	5, 4, 5, 3, 3, 3, 3, 6, 
-	3, 3, 3, 3, 4, 5, 5, 4, 
-	5, 4, 5, 5, 2, 4, 5, 3, 
-	3, 3, 3, 3, 4, 5, 5, 4, 
-	5, 4, 5, 5, 2, 4, 5, 3, 
-	3, 3, 3, 3, 3, 3, 3, 3, 
+	3, 3, 4, 4, 3, 3, 1, 1, 
+	1, 3, 3, 1, 1, 1, 1, 3, 
+	3, 1, 1, 1, 1, 1, 1, 1, 
+	1, 3, 3, 2, 2, 2, 3, 4, 
+	2, 2, 9, 3, 3, 3, 3, 3, 
+	3, 4, 3, 4, 4, 3, 4, 5, 
+	2, 4, 4, 5, 2, 4, 4, 5, 
+	2, 4, 4, 4, 5, 2, 5, 5, 
+	4, 5, 4, 2, 4, 4, 4, 2, 
+	4, 4, 4, 2, 4, 4, 4, 3, 
+	3, 3, 3, 6, 3, 3, 4, 4, 
+	2, 4, 3, 3, 3, 3, 3, 3, 
+	3, 3, 3, 3, 3, 3, 3, 4, 
+	4, 2, 4, 3, 3, 3, 3, 3, 
+	3, 5, 5, 2, 5, 4, 5, 5, 
+	4, 4, 5, 3, 3, 3, 3, 4, 
+	4, 5, 5, 4, 2, 4, 5, 3, 
+	3, 3, 3, 6, 3, 3, 3, 3, 
 	4, 5, 5, 4, 5, 4, 5, 5, 
-	2, 4, 5, 3, 3, 3, 4, 4, 
-	5, 5, 4, 5, 2, 5, 5, 4, 
-	5, 4, 5, 2, 0, 10, 9
+	2, 4, 5, 3, 3, 3, 3, 3, 
+	4, 5, 5, 4, 5, 4, 5, 5, 
+	2, 4, 5, 3, 3, 3, 3, 3, 
+	3, 3, 3, 3, 4, 5, 5, 4, 
+	5, 4, 5, 5, 2, 4, 5, 3, 
+	3, 3, 4, 4, 5, 5, 4, 5, 
+	2, 5, 5, 4, 5, 4, 5, 2, 
+	0, 10, 9
 };
 
 static const char _unchecked_parse_test_range_lengths[] = {
 	0, 1, 0, 0, 0, 0, 1, 1, 
 	1, 0, 0, 0, 1, 1, 0, 0, 
 	0, 1, 0, 1, 0, 0, 0, 0, 
-	1, 1, 4, 5, 5, 1, 4, 1, 
-	0, 0, 0, 1, 1, 0, 0, 0, 
-	0, 1, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 1, 0, 0, 0, 
-	5, 5, 5, 5, 5, 5, 0, 0, 
-	1, 0, 0, 0, 1, 2, 2, 1, 
-	2, 2, 1, 1, 1, 2, 1, 2, 
+	1, 4, 5, 5, 1, 1, 0, 0, 
+	0, 1, 1, 0, 0, 0, 0, 1, 
+	1, 0, 0, 0, 0, 0, 0, 0, 
+	0, 1, 1, 0, 0, 0, 5, 5, 
+	0, 0, 1, 0, 0, 0, 1, 2, 
+	2, 1, 2, 2, 1, 1, 1, 2, 
 	1, 2, 1, 2, 1, 2, 1, 2, 
-	1, 1, 4, 0, 5, 5, 5, 5, 
-	2, 1, 2, 2, 2, 1, 2, 2, 
-	2, 1, 2, 2, 2, 2, 0, 0, 
-	0, 1, 1, 2, 2, 2, 0, 2, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 1, 2, 2, 2, 2, 1, 0, 
-	2, 2, 0, 0, 0, 0, 0, 1, 
-	1, 0, 4, 4, 5, 5, 1, 5, 
-	5, 0, 0, 0, 0, 1, 1, 4, 
-	5, 5, 1, 4, 0, 5, 5, 5, 
-	5, 5, 5, 0, 0, 0, 1, 1, 
-	0, 0, 0, 1, 4, 5, 5, 5, 
-	5, 4, 5, 5, 0, 5, 5, 0, 
-	0, 0, 0, 1, 4, 5, 5, 5, 
-	5, 4, 5, 5, 0, 5, 5, 0, 
-	0, 0, 0, 0, 0, 0, 0, 1, 
+	1, 2, 1, 1, 4, 0, 5, 5, 
+	5, 5, 2, 1, 2, 2, 2, 1, 
+	2, 2, 2, 1, 2, 2, 2, 2, 
+	0, 0, 0, 1, 1, 2, 2, 2, 
+	0, 2, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 2, 2, 2, 2, 
+	1, 0, 2, 2, 0, 0, 0, 0, 
+	0, 1, 1, 0, 4, 4, 5, 5, 
+	1, 5, 5, 0, 0, 0, 0, 1, 
+	4, 5, 5, 1, 0, 5, 5, 0, 
+	0, 0, 1, 1, 0, 0, 0, 1, 
 	4, 5, 5, 5, 5, 4, 5, 5, 
-	0, 5, 5, 0, 0, 1, 1, 4, 
-	5, 5, 1, 4, 0, 5, 5, 5, 
-	5, 5, 5, 0, 0, 1, 1
+	0, 5, 5, 0, 0, 0, 0, 1, 
+	4, 5, 5, 5, 5, 4, 5, 5, 
+	0, 5, 5, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 4, 5, 5, 5, 
+	5, 4, 5, 5, 0, 5, 5, 0, 
+	0, 1, 1, 4, 5, 5, 1, 4, 
+	0, 5, 5, 5, 5, 5, 5, 0, 
+	0, 1, 1
 };
 
 static const short _unchecked_parse_test_index_offsets[] = {
 	0, 0, 5, 7, 9, 11, 13, 18, 
 	23, 28, 30, 32, 34, 38, 43, 45, 
 	47, 49, 54, 57, 62, 64, 66, 68, 
-	70, 75, 80, 88, 98, 108, 113, 122, 
-	127, 129, 131, 133, 138, 143, 145, 147, 
-	149, 151, 156, 161, 163, 165, 167, 169, 
-	171, 173, 175, 177, 182, 187, 190, 193, 
-	196, 206, 216, 225, 235, 244, 254, 257, 
-	260, 271, 275, 279, 283, 288, 294, 300, 
-	306, 312, 319, 325, 330, 336, 344, 348, 
-	355, 361, 369, 373, 380, 386, 394, 398, 
-	405, 411, 417, 427, 430, 441, 452, 462, 
-	473, 480, 484, 491, 498, 505, 509, 516, 
-	523, 530, 534, 541, 548, 555, 561, 565, 
-	569, 573, 581, 586, 592, 599, 606, 609, 
-	616, 620, 624, 628, 632, 636, 640, 644, 
-	648, 652, 657, 663, 669, 675, 682, 688, 
-	691, 698, 704, 708, 712, 716, 720, 724, 
-	731, 738, 741, 751, 760, 771, 782, 788, 
-	798, 809, 813, 817, 821, 825, 831, 837, 
-	846, 857, 868, 874, 884, 887, 898, 909, 
-	919, 930, 940, 951, 955, 959, 963, 968, 
-	976, 980, 984, 988, 993, 1002, 1013, 1024, 
-	1034, 1045, 1054, 1065, 1076, 1079, 1089, 1100, 
-	1104, 1108, 1112, 1116, 1121, 1130, 1141, 1152, 
-	1162, 1173, 1182, 1193, 1204, 1207, 1217, 1228, 
-	1232, 1236, 1240, 1244, 1248, 1252, 1256, 1260, 
-	1265, 1274, 1285, 1296, 1306, 1317, 1326, 1337, 
-	1348, 1351, 1361, 1372, 1376, 1380, 1385, 1391, 
-	1400, 1411, 1422, 1428, 1438, 1441, 1452, 1463, 
-	1473, 1484, 1494, 1505, 1508, 1509, 1521
+	70, 75, 83, 93, 103, 108, 113, 115, 
+	117, 119, 124, 129, 131, 133, 135, 137, 
+	142, 147, 149, 151, 153, 155, 157, 159, 
+	161, 163, 168, 173, 176, 179, 182, 191, 
+	201, 204, 207, 218, 222, 226, 230, 235, 
+	241, 247, 253, 259, 266, 272, 277, 283, 
+	291, 295, 302, 308, 316, 320, 327, 333, 
+	341, 345, 352, 358, 364, 374, 377, 388, 
+	399, 409, 420, 427, 431, 438, 445, 452, 
+	456, 463, 470, 477, 481, 488, 495, 502, 
+	508, 512, 516, 520, 528, 533, 539, 546, 
+	553, 556, 563, 567, 571, 575, 579, 583, 
+	587, 591, 595, 599, 604, 610, 616, 622, 
+	629, 635, 638, 645, 651, 655, 659, 663, 
+	667, 671, 678, 685, 688, 698, 707, 718, 
+	729, 735, 745, 756, 760, 764, 768, 772, 
+	778, 787, 798, 809, 815, 818, 828, 839, 
+	843, 847, 851, 856, 864, 868, 872, 876, 
+	881, 890, 901, 912, 922, 933, 942, 953, 
+	964, 967, 977, 988, 992, 996, 1000, 1004, 
+	1009, 1018, 1029, 1040, 1050, 1061, 1070, 1081, 
+	1092, 1095, 1105, 1116, 1120, 1124, 1128, 1132, 
+	1136, 1140, 1144, 1148, 1153, 1162, 1173, 1184, 
+	1194, 1205, 1214, 1225, 1236, 1239, 1249, 1260, 
+	1264, 1268, 1273, 1279, 1288, 1299, 1310, 1316, 
+	1326, 1329, 1340, 1351, 1361, 1372, 1382, 1393, 
+	1396, 1397, 1409
 };
 
 static const unsigned char _unchecked_parse_test_trans_targs_wi[] = {
@@ -5348,192 +5248,178 @@ static const unsigned char _unchecked_parse_test_trans_targs_wi[] = {
 	8, 9, 8, 0, 10, 0, 11, 0, 
 	12, 0, 13, 13, 13, 0, 13, 13, 
 	14, 13, 0, 15, 0, 16, 0, 17, 
-	0, 17, 17, 18, 17, 0, 19, 62, 
+	0, 17, 17, 18, 17, 0, 19, 56, 
 	0, 19, 19, 20, 19, 0, 21, 0, 
-	22, 0, 23, 0, 24, 0, 25, 25, 
-	26, 25, 0, 25, 25, 26, 25, 0, 
-	26, 26, 27, 26, 27, 27, 27, 0, 
-	28, 28, 29, 61, 28, 60, 61, 61, 
-	61, 0, 28, 28, 29, 61, 28, 60, 
-	61, 61, 61, 0, 31, 30, 55, 30, 
-	0, 31, 30, 55, 56, 30, 56, 56, 
-	56, 0, 31, 31, 32, 31, 0, 33, 
-	0, 34, 0, 35, 0, 36, 35, 54, 
-	35, 0, 36, 36, 37, 36, 0, 38, 
-	0, 39, 0, 40, 0, 41, 0, 41, 
-	41, 42, 41, 0, 42, 42, 43, 42, 
-	0, 44, 0, 45, 0, 46, 0, 47, 
-	0, 48, 0, 49, 0, 50, 0, 51, 
-	0, 51, 51, 52, 51, 0, 244, 52, 
-	53, 52, 0, 0, 244, 53, 0, 36, 
-	54, 0, 31, 55, 31, 57, 55, 59, 
-	57, 58, 59, 59, 59, 0, 31, 57, 
-	55, 59, 57, 58, 59, 59, 59, 0, 
-	58, 58, 59, 58, 58, 59, 59, 59, 
-	0, 31, 57, 55, 59, 57, 58, 59, 
-	59, 59, 0, 60, 60, 61, 60, 60, 
-	61, 61, 61, 0, 28, 28, 29, 61, 
-	28, 60, 61, 61, 61, 0, 0, 19, 
-	62, 245, 245, 63, 245, 246, 64, 65, 
-	110, 138, 153, 171, 227, 64, 63, 245, 
-	245, 66, 63, 245, 245, 67, 63, 245, 
-	245, 68, 63, 245, 245, 69, 69, 63, 
-	245, 245, 69, 69, 70, 63, 245, 245, 
-	71, 71, 109, 63, 245, 245, 71, 72, 
-	71, 63, 245, 245, 72, 72, 73, 63, 
-	245, 245, 74, 75, 74, 108, 63, 245, 
-	245, 74, 75, 74, 63, 245, 245, 76, 
-	76, 63, 245, 245, 76, 77, 76, 63, 
-	245, 245, 77, 78, 105, 77, 79, 63, 
-	245, 245, 79, 63, 245, 245, 80, 81, 
-	80, 104, 63, 245, 245, 80, 81, 80, 
-	63, 245, 245, 81, 82, 101, 81, 83, 
-	63, 245, 245, 83, 63, 245, 245, 84, 
-	85, 84, 100, 63, 245, 245, 84, 85, 
-	84, 63, 245, 245, 85, 86, 97, 85, 
-	87, 63, 245, 245, 87, 63, 245, 245, 
-	88, 89, 88, 96, 63, 245, 245, 88, 
-	89, 88, 63, 245, 245, 90, 91, 90, 
-	63, 245, 245, 90, 91, 92, 90, 92, 
-	92, 92, 63, 245, 245, 91, 245, 245, 
-	93, 91, 95, 93, 94, 95, 95, 95, 
-	63, 245, 245, 93, 91, 95, 93, 94, 
-	95, 95, 95, 63, 245, 245, 94, 95, 
-	94, 94, 95, 95, 95, 63, 245, 245, 
-	93, 91, 95, 93, 94, 95, 95, 95, 
-	63, 245, 245, 88, 89, 88, 96, 63, 
-	245, 245, 98, 63, 245, 245, 88, 89, 
-	88, 99, 63, 245, 245, 88, 89, 88, 
-	99, 63, 245, 245, 84, 85, 84, 100, 
-	63, 245, 245, 102, 63, 245, 245, 84, 
-	85, 84, 103, 63, 245, 245, 84, 85, 
-	84, 103, 63, 245, 245, 80, 81, 80, 
-	104, 63, 245, 245, 106, 63, 245, 245, 
-	80, 81, 80, 107, 63, 245, 245, 80, 
-	81, 80, 107, 63, 245, 245, 74, 75, 
-	74, 108, 63, 245, 245, 71, 71, 109, 
-	63, 245, 245, 111, 63, 245, 245, 112, 
-	63, 245, 245, 113, 63, 245, 245, 120, 
-	114, 114, 114, 114, 63, 245, 245, 115, 
-	115, 63, 245, 245, 115, 115, 116, 63, 
-	245, 245, 117, 118, 117, 119, 63, 245, 
-	245, 117, 118, 117, 116, 63, 245, 245, 
-	118, 245, 245, 117, 118, 117, 119, 63, 
-	245, 245, 121, 63, 245, 245, 122, 63, 
-	245, 245, 123, 63, 245, 245, 124, 63, 
-	245, 245, 125, 63, 245, 245, 126, 63, 
-	245, 245, 127, 63, 245, 245, 128, 63, 
-	245, 245, 129, 63, 245, 245, 130, 130, 
-	63, 245, 245, 130, 130, 131, 63, 245, 
-	245, 132, 132, 137, 63, 245, 245, 132, 
-	132, 133, 63, 245, 245, 134, 135, 134, 
-	136, 63, 245, 245, 134, 135, 134, 63, 
-	245, 245, 135, 245, 245, 134, 135, 134, 
-	136, 63, 245, 245, 132, 132, 137, 63, 
-	245, 245, 139, 63, 245, 245, 140, 63, 
-	245, 245, 141, 63, 245, 245, 142, 63, 
-	245, 245, 143, 63, 245, 245, 144, 145, 
-	146, 144, 63, 245, 245, 144, 145, 146, 
-	144, 63, 245, 245, 145, 245, 245, 147, 
-	150, 148, 147, 148, 148, 148, 63, 245, 
-	245, 147, 148, 147, 148, 148, 148, 63, 
-	245, 245, 149, 150, 152, 149, 151, 152, 
-	152, 152, 63, 245, 245, 149, 150, 152, 
-	149, 151, 152, 152, 152, 63, 245, 245, 
-	150, 145, 150, 63, 245, 245, 151, 152, 
-	151, 151, 152, 152, 152, 63, 245, 245, 
-	149, 150, 152, 149, 151, 152, 152, 152, 
-	63, 245, 245, 154, 63, 245, 245, 155, 
-	63, 245, 245, 156, 63, 245, 245, 157, 
-	63, 245, 245, 158, 159, 158, 63, 245, 
-	245, 158, 159, 158, 63, 245, 245, 159, 
-	160, 159, 160, 160, 160, 63, 245, 245, 
-	161, 162, 170, 161, 169, 170, 170, 170, 
-	63, 245, 245, 161, 162, 170, 161, 169, 
-	170, 170, 170, 63, 245, 245, 163, 164, 
-	163, 63, 245, 245, 163, 164, 165, 163, 
-	165, 165, 165, 63, 245, 245, 164, 245, 
-	245, 166, 164, 168, 166, 167, 168, 168, 
-	168, 63, 245, 245, 166, 164, 168, 166, 
-	167, 168, 168, 168, 63, 245, 245, 167, 
-	168, 167, 167, 168, 168, 168, 63, 245, 
-	245, 166, 164, 168, 166, 167, 168, 168, 
-	168, 63, 245, 245, 169, 170, 169, 169, 
-	170, 170, 170, 63, 245, 245, 161, 162, 
-	170, 161, 169, 170, 170, 170, 63, 245, 
-	245, 172, 63, 245, 245, 173, 63, 245, 
-	245, 174, 63, 245, 245, 175, 175, 63, 
-	245, 245, 175, 176, 191, 207, 175, 63, 
-	245, 245, 177, 63, 245, 245, 178, 63, 
-	245, 245, 179, 63, 245, 245, 180, 180, 
-	63, 245, 245, 180, 181, 180, 181, 181, 
-	181, 63, 245, 245, 182, 185, 184, 182, 
-	183, 184, 184, 184, 63, 245, 245, 182, 
-	185, 184, 182, 183, 184, 184, 184, 63, 
-	245, 245, 183, 184, 183, 183, 184, 184, 
-	184, 63, 245, 245, 182, 185, 184, 182, 
-	183, 184, 184, 184, 63, 245, 245, 185, 
-	186, 185, 186, 186, 186, 63, 245, 245, 
-	187, 188, 190, 187, 189, 190, 190, 190, 
-	63, 245, 245, 187, 188, 190, 187, 189, 
-	190, 190, 190, 63, 245, 245, 188, 245, 
-	245, 189, 190, 189, 189, 190, 190, 190, 
-	63, 245, 245, 187, 188, 190, 187, 189, 
-	190, 190, 190, 63, 245, 245, 192, 63, 
-	245, 245, 193, 63, 245, 245, 194, 63, 
-	245, 245, 195, 63, 245, 245, 196, 196, 
-	63, 245, 245, 196, 197, 196, 197, 197, 
-	197, 63, 245, 245, 198, 201, 200, 198, 
-	199, 200, 200, 200, 63, 245, 245, 198, 
-	201, 200, 198, 199, 200, 200, 200, 63, 
-	245, 245, 199, 200, 199, 199, 200, 200, 
-	200, 63, 245, 245, 198, 201, 200, 198, 
-	199, 200, 200, 200, 63, 245, 245, 201, 
-	202, 201, 202, 202, 202, 63, 245, 245, 
-	203, 204, 206, 203, 205, 206, 206, 206, 
-	63, 245, 245, 203, 204, 206, 203, 205, 
-	206, 206, 206, 63, 245, 245, 204, 245, 
-	245, 205, 206, 205, 205, 206, 206, 206, 
-	63, 245, 245, 203, 204, 206, 203, 205, 
-	206, 206, 206, 63, 245, 245, 208, 63, 
-	245, 245, 209, 63, 245, 245, 210, 63, 
-	245, 245, 211, 63, 245, 245, 212, 63, 
-	245, 245, 213, 63, 245, 245, 214, 63, 
-	245, 245, 215, 63, 245, 245, 216, 216, 
-	63, 245, 245, 216, 217, 216, 217, 217, 
-	217, 63, 245, 245, 218, 221, 220, 218, 
-	219, 220, 220, 220, 63, 245, 245, 218, 
-	221, 220, 218, 219, 220, 220, 220, 63, 
-	245, 245, 219, 220, 219, 219, 220, 220, 
-	220, 63, 245, 245, 218, 221, 220, 218, 
-	219, 220, 220, 220, 63, 245, 245, 221, 
-	222, 221, 222, 222, 222, 63, 245, 245, 
-	223, 224, 226, 223, 225, 226, 226, 226, 
-	63, 245, 245, 223, 224, 226, 223, 225, 
-	226, 226, 226, 63, 245, 245, 224, 245, 
-	245, 225, 226, 225, 225, 226, 226, 226, 
-	63, 245, 245, 223, 224, 226, 223, 225, 
-	226, 226, 226, 63, 245, 245, 228, 63, 
-	245, 245, 229, 63, 245, 245, 230, 230, 
-	63, 245, 245, 230, 231, 230, 63, 245, 
-	245, 231, 232, 231, 232, 232, 232, 63, 
-	245, 245, 233, 234, 242, 233, 241, 242, 
-	242, 242, 63, 245, 245, 233, 234, 242, 
-	233, 241, 242, 242, 242, 63, 245, 245, 
-	235, 236, 235, 63, 245, 245, 235, 236, 
-	237, 235, 237, 237, 237, 63, 245, 245, 
-	236, 245, 245, 238, 236, 240, 238, 239, 
-	240, 240, 240, 63, 245, 245, 238, 236, 
-	240, 238, 239, 240, 240, 240, 63, 245, 
-	245, 239, 240, 239, 239, 240, 240, 240, 
-	63, 245, 245, 238, 236, 240, 238, 239, 
-	240, 240, 240, 63, 245, 245, 241, 242, 
-	241, 241, 242, 242, 242, 63, 245, 245, 
-	233, 234, 242, 233, 241, 242, 242, 242, 
-	63, 0, 245, 243, 244, 0, 246, 64, 
-	243, 65, 110, 138, 153, 171, 227, 64, 
-	63, 245, 246, 64, 65, 110, 138, 153, 
-	171, 227, 64, 63, 0
+	22, 0, 23, 0, 24, 0, 24, 24, 
+	25, 24, 0, 25, 25, 26, 25, 26, 
+	26, 26, 0, 27, 27, 28, 55, 27, 
+	54, 55, 55, 55, 0, 27, 27, 28, 
+	55, 27, 54, 55, 55, 55, 0, 29, 
+	28, 53, 28, 0, 29, 29, 30, 29, 
+	0, 31, 0, 32, 0, 33, 0, 34, 
+	33, 52, 33, 0, 34, 34, 35, 34, 
+	0, 36, 0, 37, 0, 38, 0, 39, 
+	0, 39, 39, 40, 39, 0, 40, 40, 
+	41, 40, 0, 42, 0, 43, 0, 44, 
+	0, 45, 0, 46, 0, 47, 0, 48, 
+	0, 49, 0, 49, 49, 50, 49, 0, 
+	232, 50, 51, 50, 0, 0, 232, 51, 
+	0, 34, 52, 0, 29, 53, 54, 54, 
+	55, 54, 54, 55, 55, 55, 0, 27, 
+	27, 28, 55, 27, 54, 55, 55, 55, 
+	0, 0, 19, 56, 233, 233, 57, 233, 
+	234, 58, 59, 104, 132, 147, 159, 215, 
+	58, 57, 233, 233, 60, 57, 233, 233, 
+	61, 57, 233, 233, 62, 57, 233, 233, 
+	63, 63, 57, 233, 233, 63, 63, 64, 
+	57, 233, 233, 65, 65, 103, 57, 233, 
+	233, 65, 66, 65, 57, 233, 233, 66, 
+	66, 67, 57, 233, 233, 68, 69, 68, 
+	102, 57, 233, 233, 68, 69, 68, 57, 
+	233, 233, 70, 70, 57, 233, 233, 70, 
+	71, 70, 57, 233, 233, 71, 72, 99, 
+	71, 73, 57, 233, 233, 73, 57, 233, 
+	233, 74, 75, 74, 98, 57, 233, 233, 
+	74, 75, 74, 57, 233, 233, 75, 76, 
+	95, 75, 77, 57, 233, 233, 77, 57, 
+	233, 233, 78, 79, 78, 94, 57, 233, 
+	233, 78, 79, 78, 57, 233, 233, 79, 
+	80, 91, 79, 81, 57, 233, 233, 81, 
+	57, 233, 233, 82, 83, 82, 90, 57, 
+	233, 233, 82, 83, 82, 57, 233, 233, 
+	84, 85, 84, 57, 233, 233, 84, 85, 
+	86, 84, 86, 86, 86, 57, 233, 233, 
+	85, 233, 233, 87, 85, 89, 87, 88, 
+	89, 89, 89, 57, 233, 233, 87, 85, 
+	89, 87, 88, 89, 89, 89, 57, 233, 
+	233, 88, 89, 88, 88, 89, 89, 89, 
+	57, 233, 233, 87, 85, 89, 87, 88, 
+	89, 89, 89, 57, 233, 233, 82, 83, 
+	82, 90, 57, 233, 233, 92, 57, 233, 
+	233, 82, 83, 82, 93, 57, 233, 233, 
+	82, 83, 82, 93, 57, 233, 233, 78, 
+	79, 78, 94, 57, 233, 233, 96, 57, 
+	233, 233, 78, 79, 78, 97, 57, 233, 
+	233, 78, 79, 78, 97, 57, 233, 233, 
+	74, 75, 74, 98, 57, 233, 233, 100, 
+	57, 233, 233, 74, 75, 74, 101, 57, 
+	233, 233, 74, 75, 74, 101, 57, 233, 
+	233, 68, 69, 68, 102, 57, 233, 233, 
+	65, 65, 103, 57, 233, 233, 105, 57, 
+	233, 233, 106, 57, 233, 233, 107, 57, 
+	233, 233, 114, 108, 108, 108, 108, 57, 
+	233, 233, 109, 109, 57, 233, 233, 109, 
+	109, 110, 57, 233, 233, 111, 112, 111, 
+	113, 57, 233, 233, 111, 112, 111, 110, 
+	57, 233, 233, 112, 233, 233, 111, 112, 
+	111, 113, 57, 233, 233, 115, 57, 233, 
+	233, 116, 57, 233, 233, 117, 57, 233, 
+	233, 118, 57, 233, 233, 119, 57, 233, 
+	233, 120, 57, 233, 233, 121, 57, 233, 
+	233, 122, 57, 233, 233, 123, 57, 233, 
+	233, 124, 124, 57, 233, 233, 124, 124, 
+	125, 57, 233, 233, 126, 126, 131, 57, 
+	233, 233, 126, 126, 127, 57, 233, 233, 
+	128, 129, 128, 130, 57, 233, 233, 128, 
+	129, 128, 57, 233, 233, 129, 233, 233, 
+	128, 129, 128, 130, 57, 233, 233, 126, 
+	126, 131, 57, 233, 233, 133, 57, 233, 
+	233, 134, 57, 233, 233, 135, 57, 233, 
+	233, 136, 57, 233, 233, 137, 57, 233, 
+	233, 138, 139, 140, 138, 57, 233, 233, 
+	138, 139, 140, 138, 57, 233, 233, 139, 
+	233, 233, 141, 144, 142, 141, 142, 142, 
+	142, 57, 233, 233, 141, 142, 141, 142, 
+	142, 142, 57, 233, 233, 143, 144, 146, 
+	143, 145, 146, 146, 146, 57, 233, 233, 
+	143, 144, 146, 143, 145, 146, 146, 146, 
+	57, 233, 233, 144, 139, 144, 57, 233, 
+	233, 145, 146, 145, 145, 146, 146, 146, 
+	57, 233, 233, 143, 144, 146, 143, 145, 
+	146, 146, 146, 57, 233, 233, 148, 57, 
+	233, 233, 149, 57, 233, 233, 150, 57, 
+	233, 233, 151, 57, 233, 233, 151, 152, 
+	151, 57, 233, 233, 152, 153, 152, 153, 
+	153, 153, 57, 233, 233, 154, 155, 158, 
+	154, 157, 158, 158, 158, 57, 233, 233, 
+	154, 155, 158, 154, 157, 158, 158, 158, 
+	57, 233, 233, 155, 156, 155, 57, 233, 
+	233, 156, 233, 233, 157, 158, 157, 157, 
+	158, 158, 158, 57, 233, 233, 154, 155, 
+	158, 154, 157, 158, 158, 158, 57, 233, 
+	233, 160, 57, 233, 233, 161, 57, 233, 
+	233, 162, 57, 233, 233, 163, 163, 57, 
+	233, 233, 163, 164, 179, 195, 163, 57, 
+	233, 233, 165, 57, 233, 233, 166, 57, 
+	233, 233, 167, 57, 233, 233, 168, 168, 
+	57, 233, 233, 168, 169, 168, 169, 169, 
+	169, 57, 233, 233, 170, 173, 172, 170, 
+	171, 172, 172, 172, 57, 233, 233, 170, 
+	173, 172, 170, 171, 172, 172, 172, 57, 
+	233, 233, 171, 172, 171, 171, 172, 172, 
+	172, 57, 233, 233, 170, 173, 172, 170, 
+	171, 172, 172, 172, 57, 233, 233, 173, 
+	174, 173, 174, 174, 174, 57, 233, 233, 
+	175, 176, 178, 175, 177, 178, 178, 178, 
+	57, 233, 233, 175, 176, 178, 175, 177, 
+	178, 178, 178, 57, 233, 233, 176, 233, 
+	233, 177, 178, 177, 177, 178, 178, 178, 
+	57, 233, 233, 175, 176, 178, 175, 177, 
+	178, 178, 178, 57, 233, 233, 180, 57, 
+	233, 233, 181, 57, 233, 233, 182, 57, 
+	233, 233, 183, 57, 233, 233, 184, 184, 
+	57, 233, 233, 184, 185, 184, 185, 185, 
+	185, 57, 233, 233, 186, 189, 188, 186, 
+	187, 188, 188, 188, 57, 233, 233, 186, 
+	189, 188, 186, 187, 188, 188, 188, 57, 
+	233, 233, 187, 188, 187, 187, 188, 188, 
+	188, 57, 233, 233, 186, 189, 188, 186, 
+	187, 188, 188, 188, 57, 233, 233, 189, 
+	190, 189, 190, 190, 190, 57, 233, 233, 
+	191, 192, 194, 191, 193, 194, 194, 194, 
+	57, 233, 233, 191, 192, 194, 191, 193, 
+	194, 194, 194, 57, 233, 233, 192, 233, 
+	233, 193, 194, 193, 193, 194, 194, 194, 
+	57, 233, 233, 191, 192, 194, 191, 193, 
+	194, 194, 194, 57, 233, 233, 196, 57, 
+	233, 233, 197, 57, 233, 233, 198, 57, 
+	233, 233, 199, 57, 233, 233, 200, 57, 
+	233, 233, 201, 57, 233, 233, 202, 57, 
+	233, 233, 203, 57, 233, 233, 204, 204, 
+	57, 233, 233, 204, 205, 204, 205, 205, 
+	205, 57, 233, 233, 206, 209, 208, 206, 
+	207, 208, 208, 208, 57, 233, 233, 206, 
+	209, 208, 206, 207, 208, 208, 208, 57, 
+	233, 233, 207, 208, 207, 207, 208, 208, 
+	208, 57, 233, 233, 206, 209, 208, 206, 
+	207, 208, 208, 208, 57, 233, 233, 209, 
+	210, 209, 210, 210, 210, 57, 233, 233, 
+	211, 212, 214, 211, 213, 214, 214, 214, 
+	57, 233, 233, 211, 212, 214, 211, 213, 
+	214, 214, 214, 57, 233, 233, 212, 233, 
+	233, 213, 214, 213, 213, 214, 214, 214, 
+	57, 233, 233, 211, 212, 214, 211, 213, 
+	214, 214, 214, 57, 233, 233, 216, 57, 
+	233, 233, 217, 57, 233, 233, 218, 218, 
+	57, 233, 233, 218, 219, 218, 57, 233, 
+	233, 219, 220, 219, 220, 220, 220, 57, 
+	233, 233, 221, 222, 230, 221, 229, 230, 
+	230, 230, 57, 233, 233, 221, 222, 230, 
+	221, 229, 230, 230, 230, 57, 233, 233, 
+	223, 224, 223, 57, 233, 233, 223, 224, 
+	225, 223, 225, 225, 225, 57, 233, 233, 
+	224, 233, 233, 226, 224, 228, 226, 227, 
+	228, 228, 228, 57, 233, 233, 226, 224, 
+	228, 226, 227, 228, 228, 228, 57, 233, 
+	233, 227, 228, 227, 227, 228, 228, 228, 
+	57, 233, 233, 226, 224, 228, 226, 227, 
+	228, 228, 228, 57, 233, 233, 229, 230, 
+	229, 229, 230, 230, 230, 57, 233, 233, 
+	221, 222, 230, 221, 229, 230, 230, 230, 
+	57, 0, 233, 231, 232, 0, 234, 58, 
+	231, 59, 104, 132, 147, 159, 215, 58, 
+	57, 233, 234, 58, 59, 104, 132, 147, 
+	159, 215, 58, 57, 0
 };
 
 static const unsigned char _unchecked_parse_test_trans_actions_wi[] = {
@@ -5543,216 +5429,197 @@ static const unsigned char _unchecked_parse_test_trans_actions_wi[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 116, 0, 
+	0, 0, 0, 0, 0, 0, 114, 0, 
 	0, 1, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 41, 41, 
-	41, 41, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	81, 81, 81, 78, 81, 13, 78, 78, 
-	78, 0, 0, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 120, 0, 0, 0, 
-	0, 120, 0, 0, 0, 0, 0, 0, 
-	0, 0, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 57, 0, 0, 
-	0, 0, 1, 0, 43, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 128, 0, 
-	0, 0, 0, 0, 128, 0, 0, 57, 
-	0, 0, 120, 0, 205, 84, 84, 78, 
-	84, 13, 78, 78, 78, 0, 120, 0, 
-	0, 15, 0, 0, 15, 15, 15, 0, 
-	0, 0, 15, 0, 0, 15, 15, 15, 
-	0, 167, 19, 19, 15, 19, 0, 15, 
-	15, 15, 0, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 17, 17, 17, 15, 
-	17, 0, 15, 15, 15, 0, 0, 116, 
-	0, 55, 66, 0, 55, 148, 0, 0, 
-	0, 45, 0, 90, 35, 0, 0, 55, 
-	66, 0, 0, 55, 66, 0, 0, 55, 
-	66, 0, 0, 55, 66, 0, 0, 0, 
-	55, 66, 0, 0, 0, 0, 55, 66, 
-	21, 21, 5, 0, 55, 66, 0, 0, 
-	0, 0, 55, 66, 0, 0, 0, 0, 
-	55, 66, 0, 0, 0, 5, 0, 55, 
-	66, 0, 0, 0, 0, 55, 66, 23, 
-	23, 0, 55, 66, 0, 0, 0, 0, 
-	55, 66, 0, 0, 0, 0, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 25, 
-	0, 5, 0, 55, 66, 0, 25, 0, 
-	0, 55, 66, 0, 0, 0, 0, 0, 
-	0, 55, 66, 0, 0, 55, 66, 0, 
-	27, 0, 5, 0, 55, 66, 0, 27, 
-	0, 0, 55, 66, 0, 0, 0, 0, 
-	0, 0, 55, 66, 0, 0, 55, 66, 
-	0, 29, 0, 5, 0, 55, 66, 0, 
-	29, 0, 0, 55, 96, 0, 0, 0, 
-	0, 55, 96, 0, 0, 0, 0, 0, 
-	0, 0, 0, 55, 96, 0, 55, 229, 
-	140, 140, 78, 140, 13, 78, 78, 78, 
-	0, 55, 96, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 66, 0, 15, 
-	0, 0, 15, 15, 15, 0, 55, 223, 
-	87, 87, 15, 87, 0, 15, 15, 15, 
-	0, 55, 66, 0, 29, 0, 5, 0, 
-	55, 66, 0, 0, 55, 66, 11, 75, 
-	11, 5, 0, 55, 66, 11, 75, 11, 
-	5, 0, 55, 66, 0, 27, 0, 5, 
-	0, 55, 66, 0, 0, 55, 66, 11, 
-	72, 11, 5, 0, 55, 66, 11, 72, 
-	11, 5, 0, 55, 66, 0, 25, 0, 
-	5, 0, 55, 66, 0, 0, 55, 66, 
-	11, 69, 11, 5, 0, 55, 66, 11, 
-	69, 11, 5, 0, 55, 66, 0, 0, 
-	0, 5, 0, 55, 66, 21, 21, 5, 
-	0, 55, 66, 0, 0, 55, 66, 0, 
-	0, 55, 66, 0, 0, 55, 66, 0, 
-	33, 33, 33, 33, 0, 55, 66, 0, 
-	0, 0, 55, 66, 0, 0, 0, 0, 
-	55, 144, 31, 31, 31, 5, 0, 55, 
-	60, 0, 0, 0, 0, 0, 55, 60, 
-	0, 55, 144, 31, 31, 31, 5, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	0, 55, 66, 0, 0, 0, 0, 55, 
-	66, 0, 0, 5, 0, 55, 66, 0, 
-	0, 0, 0, 55, 100, 0, 0, 0, 
-	9, 0, 55, 100, 0, 0, 0, 0, 
-	55, 100, 0, 55, 100, 0, 0, 0, 
-	9, 0, 55, 66, 0, 0, 5, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 182, 47, 47, 
-	47, 47, 0, 55, 132, 0, 0, 0, 
-	0, 0, 55, 132, 0, 55, 66, 0, 
+	0, 0, 0, 79, 79, 79, 76, 79, 
+	13, 76, 76, 76, 0, 0, 0, 0, 
+	15, 0, 0, 15, 15, 15, 0, 118, 
+	0, 0, 0, 0, 1, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 55, 
-	66, 0, 0, 0, 0, 0, 0, 0, 
-	55, 66, 81, 81, 78, 81, 13, 78, 
-	78, 78, 0, 55, 66, 0, 0, 15, 
-	0, 0, 15, 15, 15, 0, 55, 132, 
-	0, 0, 0, 0, 55, 66, 0, 15, 
-	0, 0, 15, 15, 15, 0, 55, 66, 
+	0, 0, 0, 0, 1, 0, 41, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	126, 0, 0, 0, 0, 0, 126, 0, 
+	0, 55, 0, 0, 118, 0, 0, 0, 
+	15, 0, 0, 15, 15, 15, 0, 17, 
 	17, 17, 15, 17, 0, 15, 15, 15, 
-	0, 55, 66, 0, 0, 55, 66, 0, 
-	0, 55, 66, 0, 0, 55, 66, 0, 
-	0, 55, 66, 41, 41, 41, 0, 55, 
-	66, 0, 0, 0, 0, 55, 66, 0, 
-	0, 0, 0, 0, 0, 0, 55, 66, 
-	81, 81, 78, 81, 13, 78, 78, 78, 
-	0, 55, 66, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 124, 0, 0, 
-	0, 0, 55, 124, 0, 0, 0, 0, 
-	0, 0, 0, 0, 55, 124, 0, 55, 
-	211, 84, 84, 78, 84, 13, 78, 78, 
-	78, 0, 55, 124, 0, 0, 15, 0, 
-	0, 15, 15, 15, 0, 55, 66, 0, 
-	15, 0, 0, 15, 15, 15, 0, 55, 
-	172, 19, 19, 15, 19, 0, 15, 15, 
-	15, 0, 55, 66, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 66, 17, 17, 
-	15, 17, 0, 15, 15, 15, 0, 55, 
-	66, 0, 0, 55, 66, 0, 0, 55, 
-	66, 0, 0, 55, 66, 0, 0, 0, 
-	55, 66, 0, 0, 0, 0, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	0, 55, 66, 0, 0, 0, 0, 0, 
-	0, 0, 55, 66, 81, 81, 78, 81, 
-	13, 78, 78, 78, 0, 55, 66, 0, 
+	0, 0, 114, 0, 53, 64, 0, 53, 
+	146, 0, 0, 0, 43, 0, 88, 35, 
+	0, 0, 53, 64, 0, 0, 53, 64, 
+	0, 0, 53, 64, 0, 0, 53, 64, 
+	0, 0, 0, 53, 64, 0, 0, 0, 
+	0, 53, 64, 21, 21, 5, 0, 53, 
+	64, 0, 0, 0, 0, 53, 64, 0, 
+	0, 0, 0, 53, 64, 0, 0, 0, 
+	5, 0, 53, 64, 0, 0, 0, 0, 
+	53, 64, 23, 23, 0, 53, 64, 0, 
+	0, 0, 0, 53, 64, 0, 0, 0, 
+	0, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 25, 0, 5, 0, 53, 64, 
+	0, 25, 0, 0, 53, 64, 0, 0, 
+	0, 0, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 27, 0, 5, 0, 53, 
+	64, 0, 27, 0, 0, 53, 64, 0, 
+	0, 0, 0, 0, 0, 53, 64, 0, 
+	0, 53, 64, 0, 29, 0, 5, 0, 
+	53, 64, 0, 29, 0, 0, 53, 94, 
+	0, 0, 0, 0, 53, 94, 0, 0, 
+	0, 0, 0, 0, 0, 0, 53, 94, 
+	0, 53, 205, 138, 138, 76, 138, 13, 
+	76, 76, 76, 0, 53, 94, 0, 0, 
+	15, 0, 0, 15, 15, 15, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 199, 85, 85, 15, 85, 0, 
+	15, 15, 15, 0, 53, 64, 0, 29, 
+	0, 5, 0, 53, 64, 0, 0, 53, 
+	64, 11, 73, 11, 5, 0, 53, 64, 
+	11, 73, 11, 5, 0, 53, 64, 0, 
+	27, 0, 5, 0, 53, 64, 0, 0, 
+	53, 64, 11, 70, 11, 5, 0, 53, 
+	64, 11, 70, 11, 5, 0, 53, 64, 
+	0, 25, 0, 5, 0, 53, 64, 0, 
+	0, 53, 64, 11, 67, 11, 5, 0, 
+	53, 64, 11, 67, 11, 5, 0, 53, 
+	64, 0, 0, 0, 5, 0, 53, 64, 
+	21, 21, 5, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 33, 33, 33, 33, 0, 
+	53, 64, 0, 0, 0, 53, 64, 0, 
+	0, 0, 0, 53, 142, 31, 31, 31, 
+	5, 0, 53, 58, 0, 0, 0, 0, 
+	0, 53, 58, 0, 53, 142, 31, 31, 
+	31, 5, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 0, 53, 64, 0, 0, 
+	0, 0, 53, 64, 0, 0, 5, 0, 
+	53, 64, 0, 0, 0, 0, 53, 98, 
+	0, 0, 0, 9, 0, 53, 98, 0, 
+	0, 0, 0, 53, 98, 0, 53, 98, 
+	0, 0, 0, 9, 0, 53, 64, 0, 
+	0, 5, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	170, 45, 45, 45, 45, 0, 53, 130, 
+	0, 0, 0, 0, 0, 53, 130, 0, 
+	53, 64, 0, 0, 0, 0, 0, 0, 
+	0, 0, 53, 64, 0, 0, 0, 0, 
+	0, 0, 0, 53, 64, 79, 79, 76, 
+	79, 13, 76, 76, 76, 0, 53, 64, 
+	0, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 130, 0, 0, 0, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 64, 17, 17, 15, 17, 0, 
+	15, 15, 15, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	0, 0, 53, 64, 0, 0, 0, 0, 
+	0, 0, 0, 53, 64, 79, 79, 76, 
+	79, 13, 76, 76, 76, 0, 53, 64, 
+	0, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 122, 0, 0, 0, 0, 53, 
+	122, 0, 53, 64, 0, 15, 0, 0, 
+	15, 15, 15, 0, 53, 64, 17, 17, 
+	15, 17, 0, 15, 15, 15, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 53, 
+	64, 0, 0, 53, 64, 0, 0, 0, 
+	53, 64, 0, 0, 0, 0, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	0, 53, 64, 0, 0, 0, 0, 0, 
+	0, 0, 53, 64, 79, 79, 76, 79, 
+	13, 76, 76, 76, 0, 53, 64, 0, 
 	0, 15, 0, 0, 15, 15, 15, 0, 
-	55, 66, 0, 15, 0, 0, 15, 15, 
-	15, 0, 55, 66, 17, 17, 15, 17, 
-	0, 15, 15, 15, 0, 55, 66, 0, 
-	0, 0, 0, 0, 0, 0, 55, 187, 
-	84, 84, 78, 84, 13, 78, 78, 78, 
-	0, 55, 104, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 104, 0, 55, 
-	66, 0, 15, 0, 0, 15, 15, 15, 
-	0, 55, 152, 19, 19, 15, 19, 0, 
-	15, 15, 15, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	0, 55, 66, 0, 0, 0, 0, 0, 
-	0, 0, 55, 66, 81, 81, 78, 81, 
-	13, 78, 78, 78, 0, 55, 66, 0, 
+	53, 64, 0, 15, 0, 0, 15, 15, 
+	15, 0, 53, 64, 17, 17, 15, 17, 
+	0, 15, 15, 15, 0, 53, 64, 0, 
+	0, 0, 0, 0, 0, 0, 53, 175, 
+	82, 82, 76, 82, 13, 76, 76, 76, 
+	0, 53, 102, 0, 0, 15, 0, 0, 
+	15, 15, 15, 0, 53, 102, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 150, 19, 19, 15, 19, 0, 
+	15, 15, 15, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	0, 53, 64, 0, 0, 0, 0, 0, 
+	0, 0, 53, 64, 79, 79, 76, 79, 
+	13, 76, 76, 76, 0, 53, 64, 0, 
 	0, 15, 0, 0, 15, 15, 15, 0, 
-	55, 66, 0, 15, 0, 0, 15, 15, 
-	15, 0, 55, 66, 17, 17, 15, 17, 
-	0, 15, 15, 15, 0, 55, 66, 0, 
-	0, 0, 0, 0, 0, 0, 55, 199, 
-	84, 84, 78, 84, 13, 78, 78, 78, 
-	0, 55, 112, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 112, 0, 55, 
-	66, 0, 15, 0, 0, 15, 15, 15, 
-	0, 55, 162, 19, 19, 15, 19, 0, 
-	15, 15, 15, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	0, 55, 66, 0, 0, 0, 0, 0, 
-	0, 0, 55, 66, 81, 81, 78, 81, 
-	13, 78, 78, 78, 0, 55, 66, 0, 
+	53, 64, 0, 15, 0, 0, 15, 15, 
+	15, 0, 53, 64, 17, 17, 15, 17, 
+	0, 15, 15, 15, 0, 53, 64, 0, 
+	0, 0, 0, 0, 0, 0, 53, 187, 
+	82, 82, 76, 82, 13, 76, 76, 76, 
+	0, 53, 110, 0, 0, 15, 0, 0, 
+	15, 15, 15, 0, 53, 110, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 160, 19, 19, 15, 19, 0, 
+	15, 15, 15, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	0, 53, 64, 0, 0, 0, 0, 0, 
+	0, 0, 53, 64, 79, 79, 76, 79, 
+	13, 76, 76, 76, 0, 53, 64, 0, 
 	0, 15, 0, 0, 15, 15, 15, 0, 
-	55, 66, 0, 15, 0, 0, 15, 15, 
-	15, 0, 55, 66, 17, 17, 15, 17, 
-	0, 15, 15, 15, 0, 55, 66, 0, 
-	0, 0, 0, 0, 0, 0, 55, 217, 
-	84, 84, 78, 84, 13, 78, 78, 78, 
-	0, 55, 136, 0, 0, 15, 0, 0, 
-	15, 15, 15, 0, 55, 136, 0, 55, 
-	66, 0, 15, 0, 0, 15, 15, 15, 
-	0, 55, 177, 19, 19, 15, 19, 0, 
-	15, 15, 15, 0, 55, 66, 0, 0, 
-	55, 66, 0, 0, 55, 66, 0, 0, 
-	0, 55, 66, 0, 0, 0, 0, 55, 
-	66, 0, 0, 0, 0, 0, 0, 0, 
-	55, 66, 81, 81, 78, 81, 13, 78, 
-	78, 78, 0, 55, 66, 0, 0, 15, 
-	0, 0, 15, 15, 15, 0, 55, 108, 
-	0, 0, 0, 0, 55, 108, 0, 0, 
-	0, 0, 0, 0, 0, 0, 55, 108, 
-	0, 55, 193, 84, 84, 78, 84, 13, 
-	78, 78, 78, 0, 55, 108, 0, 0, 
-	15, 0, 0, 15, 15, 15, 0, 55, 
-	66, 0, 15, 0, 0, 15, 15, 15, 
-	0, 55, 157, 19, 19, 15, 19, 0, 
-	15, 15, 15, 0, 55, 66, 0, 15, 
-	0, 0, 15, 15, 15, 0, 55, 66, 
+	53, 64, 0, 15, 0, 0, 15, 15, 
+	15, 0, 53, 64, 17, 17, 15, 17, 
+	0, 15, 15, 15, 0, 53, 64, 0, 
+	0, 0, 0, 0, 0, 0, 53, 193, 
+	82, 82, 76, 82, 13, 76, 76, 76, 
+	0, 53, 134, 0, 0, 15, 0, 0, 
+	15, 15, 15, 0, 53, 134, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 165, 19, 19, 15, 19, 0, 
+	15, 15, 15, 0, 53, 64, 0, 0, 
+	53, 64, 0, 0, 53, 64, 0, 0, 
+	0, 53, 64, 0, 0, 0, 0, 53, 
+	64, 0, 0, 0, 0, 0, 0, 0, 
+	53, 64, 79, 79, 76, 79, 13, 76, 
+	76, 76, 0, 53, 64, 0, 0, 15, 
+	0, 0, 15, 15, 15, 0, 53, 106, 
+	0, 0, 0, 0, 53, 106, 0, 0, 
+	0, 0, 0, 0, 0, 0, 53, 106, 
+	0, 53, 181, 82, 82, 76, 82, 13, 
+	76, 76, 76, 0, 53, 106, 0, 0, 
+	15, 0, 0, 15, 15, 15, 0, 53, 
+	64, 0, 15, 0, 0, 15, 15, 15, 
+	0, 53, 155, 19, 19, 15, 19, 0, 
+	15, 15, 15, 0, 53, 64, 0, 15, 
+	0, 0, 15, 15, 15, 0, 53, 64, 
 	17, 17, 15, 17, 0, 15, 15, 15, 
-	0, 0, 63, 0, 0, 0, 148, 0, 
-	0, 0, 0, 45, 0, 90, 35, 0, 
-	0, 53, 148, 0, 0, 0, 45, 0, 
-	90, 35, 0, 0, 0
+	0, 0, 61, 0, 0, 0, 146, 0, 
+	0, 0, 0, 43, 0, 88, 35, 0, 
+	0, 51, 146, 0, 0, 0, 43, 0, 
+	88, 35, 0, 0, 0
 };
 
 static const unsigned char _unchecked_parse_test_to_state_actions[] = {
-	0, 49, 0, 0, 0, 0, 0, 0, 
+	0, 47, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 49, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 49, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 47, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 47, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 3, 0, 
-	0, 3, 0, 0, 0, 0, 0, 3, 
-	0, 0, 0, 3, 0, 0, 0, 3, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 3, 0, 0, 0, 3, 0, 
-	0, 0, 3, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	3, 0, 0, 3, 0, 0, 0, 0, 
+	0, 3, 0, 0, 0, 3, 0, 0, 
+	0, 3, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 3, 0, 0, 0, 
+	3, 0, 0, 0, 3, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 3, 0, 7, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 3, 0, 7, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -5760,9 +5627,13 @@ static const unsigned char _unchecked_parse_test_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 37, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 49, 93, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 37, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	47, 91, 0
 };
 
 static const unsigned char _unchecked_parse_test_from_state_actions[] = {
@@ -5795,8 +5666,7 @@ static const unsigned char _unchecked_parse_test_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 51, 0
+	0, 49, 0
 };
 
 static const short _unchecked_parse_test_eof_trans[] = {
@@ -5807,42 +5677,41 @@ static const short _unchecked_parse_test_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 90, 90, 90, 90, 90, 
-	90, 90, 90, 0, 0, 0, 388
+	0, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 74, 
+	74, 74, 74, 74, 74, 74, 74, 0, 
+	0, 0, 356
 };
 
 static const int unchecked_parse_test_start = 1;
-static const int unchecked_parse_test_first_final = 244;
+static const int unchecked_parse_test_first_final = 232;
 static const int unchecked_parse_test_error = 0;
 
-static const int unchecked_parse_test_en_group_scanner = 245;
+static const int unchecked_parse_test_en_group_scanner = 233;
 static const int unchecked_parse_test_en_main = 1;
 
-#line 930 "NanorexMMPImportExportTest.rl"
+#line 927 "NanorexMMPImportExportTest.rl"
 	
-#line 5846 "NanorexMMPImportExportTest.cpp"
+#line 5715 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = unchecked_parse_test_start;
 	top = 0;
@@ -5850,9 +5719,9 @@ static const int unchecked_parse_test_en_main = 1;
 	te = 0;
 	act = 0;
 	}
-#line 931 "NanorexMMPImportExportTest.rl"
+#line 928 "NanorexMMPImportExportTest.rl"
 	
-#line 5856 "NanorexMMPImportExportTest.cpp"
+#line 5725 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -5869,11 +5738,11 @@ _resume:
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
-	case 43:
+	case 42:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 5877 "NanorexMMPImportExportTest.cpp"
+#line 5746 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -6057,76 +5926,76 @@ _eof_trans:
 	{ newViewDataGroup(); }
 	break;
 	case 28:
-#line 34 "NanorexMMPImportExportTest.rl"
-	{ stringVal2.clear(); }
+#line 40 "NanorexMMPImportExportTest.rl"
+	{ newMolStructGroup(stringVal/*, stringVal2*/); }
 	break;
 	case 29:
-#line 40 "NanorexMMPImportExportTest.rl"
-	{ newMolStructGroup(stringVal, stringVal2); }
-	break;
-	case 30:
 #line 47 "NanorexMMPImportExportTest.rl"
 	{ end1(); }
 	break;
-	case 31:
+	case 30:
 #line 51 "NanorexMMPImportExportTest.rl"
 	{ lineStart = p; }
 	break;
-	case 32:
+	case 31:
 #line 56 "NanorexMMPImportExportTest.rl"
 	{ newClipboardGroup(); }
 	break;
-	case 33:
+	case 32:
 #line 60 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 34:
+	case 33:
 #line 61 "NanorexMMPImportExportTest.rl"
 	{ stringVal.clear(); }
 	break;
-	case 35:
+	case 34:
 #line 67 "NanorexMMPImportExportTest.rl"
 	{ endGroup(stringVal); }
 	break;
-	case 36:
+	case 35:
 #line 71 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 37:
+	case 36:
 #line 81 "NanorexMMPImportExportTest.rl"
 	{ newOpenGroupInfo(stringVal, stringVal2); }
 	break;
+	case 37:
+#line 902 "NanorexMMPImportExportTest.rl"
+	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 233; goto _again;} }
+	break;
 	case 38:
 #line 905 "NanorexMMPImportExportTest.rl"
-	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 245; goto _again;} }
+	{ p--; {stack[top++] = cs; cs = 233; goto _again;} }
 	break;
 	case 39:
-#line 908 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 245; goto _again;} }
+#line 910 "NanorexMMPImportExportTest.rl"
+	{ p--; {stack[top++] = cs; cs = 233; goto _again;} }
 	break;
-	case 40:
-#line 913 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 245; goto _again;} }
-	break;
-	case 44:
+	case 43:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 45:
-#line 103 "NanorexMMPImportExportTest.rl"
+	case 44:
+#line 102 "NanorexMMPImportExportTest.rl"
 	{act = 11;}
 	break;
-	case 46:
+	case 45:
 #line 89 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 47:
+	case 46:
 #line 90 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
+	case 47:
+#line 91 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{{cs = stack[--top]; goto _again;}}}
+	break;
 	case 48:
 #line 92 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
+	{te = p+1;}
 	break;
 	case 49:
 #line 93 "NanorexMMPImportExportTest.rl"
@@ -6149,44 +6018,40 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 54:
-#line 98 "NanorexMMPImportExportTest.rl"
+#line 100 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
 	case 55:
-#line 101 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
+			}}
 	break;
 	case 56:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p;p--;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}}
 	break;
 	case 57:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p;p--;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
-			}}
-	break;
-	case 58:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{	switch( act ) {
 	case 0:
 	{{cs = 0; goto _again;}}
 	break;
 	case 11:
-	{{p = ((te))-1;}	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+	{{p = ((te))-1;} cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}
 	break;
 	default: break;
 	}
 	}
 	break;
-#line 6190 "NanorexMMPImportExportTest.cpp"
+#line 6055 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -6207,15 +6072,15 @@ _again:
 #line 11 "NanorexMMPImportExportTest.rl"
 	{ stringVal2.clear(); /* 'style' string optional */ }
 	break;
-	case 41:
+	case 40:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-	case 42:
+	case 41:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{act = 0;}
 	break;
-#line 6219 "NanorexMMPImportExportTest.cpp"
+#line 6084 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -6234,7 +6099,7 @@ _again:
 
 	_out: {}
 	}
-#line 932 "NanorexMMPImportExportTest.rl"
+#line 929 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -6276,7 +6141,7 @@ void NanorexMMPImportExportTest::checkedParseTest(void)
 }
 
 
-#line 993 "NanorexMMPImportExportTest.rl"
+#line 990 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -6289,9 +6154,9 @@ NanorexMMPImportExportTest::checkedParseTestHelper(char const *const testInput)
 	char const *ts, *te;
 	int cs, stack[128], top, act;
 	
-	#line 1006 "NanorexMMPImportExportTest.rl"
+	#line 1003 "NanorexMMPImportExportTest.rl"
 	
-#line 6295 "NanorexMMPImportExportTest.cpp"
+#line 6160 "NanorexMMPImportExportTest.cpp"
 static const char _checked_parse_test_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -6303,118 +6168,110 @@ static const char _checked_parse_test_actions[] = {
 	35, 1, 36, 1, 37, 1, 38, 1, 
 	39, 1, 41, 1, 42, 1, 44, 1, 
 	46, 1, 48, 1, 49, 1, 50, 1, 
-	51, 1, 52, 1, 54, 1, 56, 1, 
-	57, 1, 59, 1, 60, 1, 61, 1, 
-	63, 1, 64, 1, 70, 1, 71, 1, 
-	84, 1, 85, 2, 0, 55, 2, 0, 
-	80, 2, 0, 82, 2, 0, 83, 2, 
-	5, 12, 2, 5, 13, 2, 5, 14, 
-	2, 6, 7, 2, 6, 8, 2, 6, 
-	9, 2, 8, 21, 2, 8, 41, 2, 
-	9, 42, 2, 18, 85, 2, 19, 85, 
-	2, 20, 85, 2, 22, 85, 2, 26, 
-	85, 2, 27, 85, 2, 28, 29, 2, 
-	30, 85, 2, 31, 85, 2, 33, 34, 
-	2, 33, 85, 2, 34, 35, 2, 35, 
-	85, 2, 36, 85, 2, 37, 85, 2, 
-	41, 44, 2, 41, 85, 2, 42, 85, 
-	2, 44, 42, 2, 44, 85, 2, 49, 
-	85, 2, 50, 85, 2, 63, 85, 2, 
-	64, 85, 2, 72, 0, 3, 0, 16, 
-	81, 3, 0, 17, 79, 3, 0, 24, 
-	78, 3, 0, 40, 76, 3, 0, 45, 
-	77, 3, 0, 47, 67, 3, 0, 53, 
-	68, 3, 0, 53, 73, 3, 0, 58, 
-	69, 3, 0, 62, 75, 3, 0, 66, 
-	74, 3, 6, 8, 21, 3, 6, 8, 
-	41, 3, 6, 9, 42, 3, 15, 0, 
-	80, 3, 18, 0, 83, 3, 19, 0, 
-	83, 3, 20, 0, 83, 3, 22, 0, 
-	83, 3, 26, 0, 83, 3, 27, 0, 
-	80, 3, 27, 0, 83, 3, 30, 0, 
-	83, 3, 31, 0, 83, 3, 33, 0, 
-	83, 3, 33, 34, 85, 3, 34, 35, 
-	85, 3, 35, 0, 83, 3, 36, 0, 
-	83, 3, 37, 0, 83, 3, 41, 0, 
-	83, 3, 41, 44, 85, 3, 42, 0, 
-	83, 3, 44, 42, 85, 3, 49, 0, 
-	83, 3, 50, 0, 83, 3, 63, 0, 
-	83, 3, 64, 0, 83, 3, 65, 43, 
-	32, 4, 9, 0, 17, 79, 4, 9, 
-	0, 40, 76, 4, 9, 0, 53, 68, 
-	4, 9, 0, 53, 73, 4, 9, 0, 
-	66, 74, 4, 22, 0, 24, 78, 4, 
-	33, 34, 0, 83, 4, 34, 35, 0, 
-	83, 4, 37, 0, 40, 76, 4, 41, 
-	44, 0, 83, 4, 42, 0, 45, 77, 
-	4, 44, 42, 0, 83, 4, 50, 0, 
-	53, 68, 4, 50, 0, 53, 73, 4, 
-	61, 0, 62, 75, 4, 64, 0, 66, 
-	74, 5, 6, 9, 0, 17, 79, 5, 
-	6, 9, 0, 40, 76, 5, 6, 9, 
-	0, 53, 68, 5, 6, 9, 0, 53, 
-	73, 5, 6, 9, 0, 66, 74, 5, 
-	8, 21, 0, 24, 78, 5, 9, 42, 
-	0, 45, 77, 6, 6, 8, 21, 0, 
-	24, 78, 6, 6, 9, 42, 0, 45, 
-	77
+	52, 1, 54, 1, 55, 1, 57, 1, 
+	58, 1, 59, 1, 61, 1, 62, 1, 
+	68, 1, 69, 1, 82, 1, 83, 2, 
+	0, 53, 2, 0, 78, 2, 0, 80, 
+	2, 0, 81, 2, 5, 12, 2, 5, 
+	13, 2, 5, 14, 2, 6, 7, 2, 
+	6, 8, 2, 6, 9, 2, 8, 21, 
+	2, 8, 41, 2, 9, 42, 2, 18, 
+	83, 2, 19, 83, 2, 20, 83, 2, 
+	22, 83, 2, 26, 83, 2, 27, 83, 
+	2, 28, 29, 2, 30, 83, 2, 31, 
+	83, 2, 33, 34, 2, 33, 83, 2, 
+	34, 35, 2, 35, 83, 2, 36, 83, 
+	2, 37, 83, 2, 41, 44, 2, 41, 
+	83, 2, 42, 83, 2, 44, 42, 2, 
+	44, 83, 2, 49, 83, 2, 61, 83, 
+	2, 62, 83, 2, 70, 0, 3, 0, 
+	16, 79, 3, 0, 17, 77, 3, 0, 
+	24, 76, 3, 0, 40, 74, 3, 0, 
+	45, 75, 3, 0, 47, 65, 3, 0, 
+	51, 66, 3, 0, 51, 71, 3, 0, 
+	56, 67, 3, 0, 60, 73, 3, 0, 
+	64, 72, 3, 6, 8, 21, 3, 6, 
+	8, 41, 3, 6, 9, 42, 3, 15, 
+	0, 78, 3, 18, 0, 81, 3, 19, 
+	0, 81, 3, 20, 0, 81, 3, 22, 
+	0, 81, 3, 26, 0, 81, 3, 27, 
+	0, 78, 3, 27, 0, 81, 3, 30, 
+	0, 81, 3, 31, 0, 81, 3, 33, 
+	0, 81, 3, 33, 34, 83, 3, 34, 
+	35, 83, 3, 35, 0, 81, 3, 36, 
+	0, 81, 3, 37, 0, 81, 3, 41, 
+	0, 81, 3, 41, 44, 83, 3, 42, 
+	0, 81, 3, 44, 42, 83, 3, 49, 
+	0, 81, 3, 61, 0, 81, 3, 62, 
+	0, 81, 3, 63, 43, 32, 4, 9, 
+	0, 17, 77, 4, 9, 0, 40, 74, 
+	4, 9, 0, 64, 72, 4, 22, 0, 
+	24, 76, 4, 33, 34, 0, 81, 4, 
+	34, 35, 0, 81, 4, 37, 0, 40, 
+	74, 4, 41, 44, 0, 81, 4, 42, 
+	0, 45, 75, 4, 44, 42, 0, 81, 
+	4, 59, 0, 60, 73, 4, 62, 0, 
+	64, 72, 5, 6, 9, 0, 17, 77, 
+	5, 6, 9, 0, 40, 74, 5, 6, 
+	9, 0, 64, 72, 5, 8, 21, 0, 
+	24, 76, 5, 9, 42, 0, 45, 75, 
+	6, 6, 8, 21, 0, 24, 76, 6, 
+	6, 9, 42, 0, 45, 75
 };
 
 static const short _checked_parse_test_key_offsets[] = {
 	0, 0, 5, 6, 7, 8, 9, 14, 
 	19, 20, 21, 22, 26, 31, 32, 33, 
 	34, 39, 41, 46, 47, 48, 49, 50, 
-	55, 60, 71, 85, 99, 104, 116, 121, 
-	122, 123, 124, 129, 134, 135, 136, 137, 
-	138, 139, 144, 149, 150, 151, 152, 153, 
-	154, 155, 156, 157, 162, 164, 166, 168, 
-	170, 184, 198, 211, 225, 238, 252, 254, 
-	256, 268, 279, 281, 282, 283, 284, 288, 
-	294, 300, 305, 311, 318, 323, 327, 332, 
-	340, 342, 349, 354, 362, 364, 371, 376, 
-	384, 386, 393, 398, 403, 415, 417, 431, 
-	445, 458, 472, 479, 481, 488, 495, 502, 
-	504, 511, 518, 525, 527, 534, 541, 548, 
-	554, 555, 556, 557, 563, 567, 573, 580, 
-	587, 589, 596, 597, 598, 599, 600, 601, 
-	602, 603, 604, 605, 609, 615, 621, 627, 
-	634, 639, 641, 648, 654, 655, 656, 657, 
-	658, 659, 665, 671, 673, 685, 696, 710, 
-	724, 729, 742, 756, 757, 758, 759, 760, 
-	765, 770, 781, 795, 809, 814, 826, 828, 
-	842, 856, 869, 883, 896, 910, 911, 912, 
-	913, 917, 924, 925, 926, 927, 931, 942, 
-	956, 970, 983, 997, 1008, 1019, 1033, 1047, 
-	1049, 1062, 1076, 1077, 1078, 1079, 1080, 1084, 
-	1095, 1109, 1123, 1136, 1150, 1161, 1172, 1186, 
-	1200, 1202, 1215, 1229, 1230, 1231, 1232, 1233, 
-	1234, 1235, 1236, 1237, 1241, 1252, 1266, 1280, 
-	1293, 1307, 1318, 1332, 1346, 1348, 1361, 1375, 
-	1376, 1377, 1381, 1386, 1397, 1411, 1425, 1430, 
-	1442, 1444, 1458, 1472, 1485, 1499, 1512, 1526, 
-	1528, 1531, 1534, 1537, 1542, 1549, 1556, 1562, 
-	1569, 1577, 1583, 1588, 1594, 1603, 1607, 1615, 
-	1621, 1630, 1634, 1642, 1648, 1657, 1661, 1669, 
-	1675, 1681, 1694, 1696, 1711, 1726, 1740, 1755, 
-	1763, 1767, 1775, 1783, 1791, 1795, 1803, 1811, 
-	1819, 1823, 1831, 1839, 1847, 1854, 1857, 1860, 
-	1863, 1871, 1876, 1883, 1891, 1899, 1901, 1909, 
-	1912, 1915, 1918, 1921, 1924, 1927, 1930, 1933, 
-	1936, 1941, 1948, 1955, 1962, 1970, 1976, 1978, 
-	1986, 1993, 1996, 1999, 2002, 2005, 2008, 2015, 
-	2022, 2024, 2037, 2049, 2064, 2079, 2085, 2099, 
-	2114, 2117, 2120, 2123, 2126, 2132, 2138, 2150, 
-	2165, 2180, 2186, 2199, 2201, 2216, 2231, 2245, 
-	2260, 2274, 2289, 2292, 2295, 2298, 2303, 2311, 
-	2314, 2317, 2320, 2325, 2337, 2352, 2367, 2381, 
-	2396, 2408, 2420, 2435, 2450, 2452, 2466, 2481, 
-	2484, 2487, 2490, 2493, 2498, 2510, 2525, 2540, 
-	2554, 2569, 2581, 2593, 2608, 2623, 2625, 2639, 
-	2654, 2657, 2660, 2663, 2666, 2669, 2672, 2675, 
-	2678, 2683, 2695, 2710, 2725, 2739, 2754, 2766, 
-	2781, 2796, 2798, 2812, 2827, 2830, 2833, 2838, 
-	2844, 2856, 2871, 2886, 2892, 2905, 2907, 2922, 
-	2937, 2951, 2966, 2980, 2995, 2995, 3007
+	55, 66, 80, 94, 99, 104, 105, 106, 
+	107, 112, 117, 118, 119, 120, 121, 122, 
+	127, 132, 133, 134, 135, 136, 137, 138, 
+	139, 140, 145, 147, 149, 151, 153, 166, 
+	180, 182, 184, 196, 207, 209, 210, 211, 
+	212, 216, 222, 228, 233, 239, 246, 251, 
+	255, 260, 268, 270, 277, 282, 290, 292, 
+	299, 304, 312, 314, 321, 326, 331, 343, 
+	345, 359, 373, 386, 400, 407, 409, 416, 
+	423, 430, 432, 439, 446, 453, 455, 462, 
+	469, 476, 482, 483, 484, 485, 491, 495, 
+	501, 508, 515, 517, 524, 525, 526, 527, 
+	528, 529, 530, 531, 532, 533, 537, 543, 
+	549, 555, 562, 567, 569, 576, 582, 583, 
+	584, 585, 586, 587, 593, 599, 601, 613, 
+	624, 638, 652, 657, 670, 684, 685, 686, 
+	687, 688, 693, 704, 718, 732, 737, 739, 
+	752, 766, 767, 768, 769, 773, 780, 781, 
+	782, 783, 787, 798, 812, 826, 839, 853, 
+	864, 875, 889, 903, 905, 918, 932, 933, 
+	934, 935, 936, 940, 951, 965, 979, 992, 
+	1006, 1017, 1028, 1042, 1056, 1058, 1071, 1085, 
+	1086, 1087, 1088, 1089, 1090, 1091, 1092, 1093, 
+	1097, 1108, 1122, 1136, 1149, 1163, 1174, 1188, 
+	1202, 1204, 1217, 1231, 1232, 1233, 1237, 1242, 
+	1253, 1267, 1281, 1286, 1298, 1300, 1314, 1328, 
+	1341, 1355, 1368, 1382, 1384, 1387, 1390, 1393, 
+	1398, 1405, 1412, 1418, 1425, 1433, 1439, 1444, 
+	1450, 1459, 1463, 1471, 1477, 1486, 1490, 1498, 
+	1504, 1513, 1517, 1525, 1531, 1537, 1550, 1552, 
+	1567, 1582, 1596, 1611, 1619, 1623, 1631, 1639, 
+	1647, 1651, 1659, 1667, 1675, 1679, 1687, 1695, 
+	1703, 1710, 1713, 1716, 1719, 1727, 1732, 1739, 
+	1747, 1755, 1757, 1765, 1768, 1771, 1774, 1777, 
+	1780, 1783, 1786, 1789, 1792, 1797, 1804, 1811, 
+	1818, 1826, 1832, 1834, 1842, 1849, 1852, 1855, 
+	1858, 1861, 1864, 1871, 1878, 1880, 1893, 1905, 
+	1920, 1935, 1941, 1955, 1970, 1973, 1976, 1979, 
+	1982, 1988, 2000, 2015, 2030, 2036, 2038, 2052, 
+	2067, 2070, 2073, 2076, 2081, 2089, 2092, 2095, 
+	2098, 2103, 2115, 2130, 2145, 2159, 2174, 2186, 
+	2198, 2213, 2228, 2230, 2244, 2259, 2262, 2265, 
+	2268, 2271, 2276, 2288, 2303, 2318, 2332, 2347, 
+	2359, 2371, 2386, 2401, 2403, 2417, 2432, 2435, 
+	2438, 2441, 2444, 2447, 2450, 2453, 2456, 2461, 
+	2473, 2488, 2503, 2517, 2532, 2544, 2559, 2574, 
+	2576, 2590, 2605, 2608, 2611, 2616, 2622, 2634, 
+	2649, 2664, 2670, 2683, 2685, 2700, 2715, 2729, 
+	2744, 2758, 2773, 2773, 2785
 };
 
 static const char _checked_parse_test_trans_keys[] = {
@@ -6425,28 +6282,19 @@ static const char _checked_parse_test_trans_keys[] = {
 	116, 97, 9, 32, 41, 11, 13, 10, 
 	35, 10, 32, 103, 9, 13, 114, 111, 
 	117, 112, 9, 32, 40, 11, 13, 9, 
-	32, 40, 11, 13, 9, 32, 95, 11, 
-	13, 48, 57, 65, 90, 97, 122, 9, 
-	32, 41, 95, 11, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, 9, 32, 41, 
-	95, 11, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 10, 32, 35, 9, 13, 
-	10, 32, 35, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, 10, 32, 101, 9, 
-	13, 110, 100, 49, 10, 32, 35, 9, 
-	13, 10, 32, 101, 9, 13, 103, 114, 
-	111, 117, 112, 9, 32, 40, 11, 13, 
-	9, 32, 67, 11, 13, 108, 105, 112, 
-	98, 111, 97, 114, 100, 9, 32, 41, 
-	11, 13, 10, 35, -1, 10, -1, 10, 
-	-1, 10, 10, 32, 35, 95, 9, 13, 
+	32, 95, 11, 13, 48, 57, 65, 90, 
+	97, 122, 9, 32, 41, 95, 11, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, 9, 32, 
-	95, 11, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, 9, 32, 95, 11, 13, 45, 46, 
+	9, 32, 41, 95, 11, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, 10, 32, 
+	35, 9, 13, 10, 32, 101, 9, 13, 
+	110, 100, 49, 10, 32, 35, 9, 13, 
+	10, 32, 101, 9, 13, 103, 114, 111, 
+	117, 112, 9, 32, 40, 11, 13, 9, 
+	32, 67, 11, 13, 108, 105, 112, 98, 
+	111, 97, 114, 100, 9, 32, 41, 11, 
+	13, 10, 35, -1, 10, -1, 10, -1, 
+	10, 9, 32, 95, 11, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, 9, 32, 
 	41, 95, 11, 13, 45, 46, 48, 57, 
 	65, 90, 97, 122, -1, 10, -1, 10, 
@@ -6513,22 +6361,13 @@ static const char _checked_parse_test_trans_keys[] = {
 	48, 57, 65, 90, 97, 122, 9, 32, 
 	41, 95, 11, 13, 45, 46, 48, 57, 
 	65, 90, 97, 122, 114, 111, 117, 112, 
-	9, 32, 40, 11, 13, 9, 32, 40, 
-	11, 13, 9, 32, 95, 11, 13, 48, 
-	57, 65, 90, 97, 122, 9, 32, 41, 
-	95, 11, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 9, 32, 41, 95, 11, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, 10, 32, 35, 9, 13, 10, 32, 
-	35, 95, 9, 13, 48, 57, 65, 90, 
-	97, 122, -1, 10, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	9, 32, 95, 11, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 9, 32, 95, 11, 13, 
+	9, 32, 40, 11, 13, 9, 32, 95, 
+	11, 13, 48, 57, 65, 90, 97, 122, 
+	9, 32, 41, 95, 11, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, 9, 32, 
+	41, 95, 11, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, 10, 32, 35, 9, 
+	13, -1, 10, 9, 32, 95, 11, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	9, 32, 41, 95, 11, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, 110, 102, 
@@ -6684,30 +6523,65 @@ static const char _checked_parse_test_trans_keys[] = {
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 114, -1, 10, 111, 
 	-1, 10, 117, -1, 10, 112, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 40, 
-	9, 13, -1, 10, 32, 95, 9, 13, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 41, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	41, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	9, 13, -1, 10, 32, 35, 95, 9, 
-	13, 48, 57, 65, 90, 97, 122, -1, 
-	10, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 95, 9, 13, 45, 
+	32, 40, 9, 13, -1, 10, 32, 95, 
+	9, 13, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 41, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 45, 46, 48, 
+	10, 32, 41, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 9, 13, -1, 10, -1, 10, 
+	32, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 110, -1, 10, 
+	102, -1, 10, 111, -1, 10, 32, 9, 
+	13, -1, 10, 32, 97, 99, 111, 9, 
+	13, -1, 10, 116, -1, 10, 111, -1, 
+	10, 109, -1, 10, 32, 9, 13, -1, 
+	10, 32, 95, 9, 13, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 61, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 61, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 95, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 61, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 95, 9, 13, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
 	57, 65, 90, 97, 122, -1, 10, 32, 
 	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
+	65, 90, 97, 122, -1, 10, -1, 10, 
+	32, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 104, -1, 10, 
+	117, -1, 10, 110, -1, 10, 107, -1, 
+	10, 32, 9, 13, -1, 10, 32, 95, 
+	9, 13, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 61, 95, 9, 13, 45, 
+	46, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 61, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 61, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
+	13, 48, 57, 65, 90, 97, 122, -1, 
+	10, 32, 95, 9, 13, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
+	97, 122, -1, 10, 32, 35, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 110, -1, 10, 102, -1, 
-	10, 111, -1, 10, 32, 9, 13, -1, 
-	10, 32, 97, 99, 111, 9, 13, -1, 
-	10, 116, -1, 10, 111, -1, 10, 109, 
+	122, -1, 10, -1, 10, 32, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 35, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 112, -1, 10, 101, -1, 10, 
+	110, -1, 10, 103, -1, 10, 114, -1, 
+	10, 111, -1, 10, 117, -1, 10, 112, 
 	-1, 10, 32, 9, 13, -1, 10, 32, 
 	95, 9, 13, 48, 57, 65, 90, 97, 
 	122, -1, 10, 32, 61, 95, 9, 13, 
@@ -6719,254 +6593,203 @@ static const char _checked_parse_test_trans_keys[] = {
 	61, 95, 9, 13, 45, 46, 48, 57, 
 	65, 90, 97, 122, -1, 10, 32, 95, 
 	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, -1, 10, 32, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 104, -1, 10, 117, -1, 
-	10, 110, -1, 10, 107, -1, 10, 32, 
-	9, 13, -1, 10, 32, 95, 9, 13, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 61, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	61, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 61, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 35, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, -1, 10, 32, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
 	10, 32, 35, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	112, -1, 10, 101, -1, 10, 110, -1, 
-	10, 103, -1, 10, 114, -1, 10, 111, 
-	-1, 10, 117, -1, 10, 112, -1, 10, 
-	32, 9, 13, -1, 10, 32, 95, 9, 
-	13, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 61, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 61, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 95, 9, 13, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
 	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
+	57, 65, 90, 97, 122, -1, 10, 111, 
+	-1, 10, 108, -1, 10, 32, 9, 13, 
+	-1, 10, 32, 40, 9, 13, -1, 10, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 41, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 41, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 35, 9, 13, -1, 10, 
+	32, 35, 95, 9, 13, 48, 57, 65, 
+	90, 97, 122, -1, 10, -1, 10, 32, 
 	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
 	65, 90, 97, 122, -1, 10, 32, 35, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 111, -1, 10, 
-	108, -1, 10, 32, 9, 13, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 9, 13, -1, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
+	122, -1, 10, 32, 35, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 41, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 97, 
-	98, 101, 103, 105, 109, 9, 13, 10, 
-	32, 35, 97, 98, 101, 103, 105, 109, 
-	9, 13, 0
+	32, 41, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	35, 97, 98, 101, 103, 105, 109, 9, 
+	13, 10, 32, 35, 97, 98, 101, 103, 
+	105, 109, 9, 13, 0
 };
 
 static const char _checked_parse_test_single_lengths[] = {
 	0, 3, 1, 1, 1, 1, 3, 3, 
 	1, 1, 1, 2, 3, 1, 1, 1, 
 	3, 2, 3, 1, 1, 1, 1, 3, 
-	3, 3, 4, 4, 3, 4, 3, 1, 
-	1, 1, 3, 3, 1, 1, 1, 1, 
-	1, 3, 3, 1, 1, 1, 1, 1, 
-	1, 1, 1, 3, 2, 2, 2, 2, 
-	4, 4, 3, 4, 3, 4, 2, 2, 
-	10, 9, 2, 1, 1, 1, 2, 2, 
-	2, 3, 2, 3, 3, 2, 3, 4, 
-	0, 3, 3, 4, 0, 3, 3, 4, 
-	0, 3, 3, 3, 4, 2, 4, 4, 
-	3, 4, 3, 0, 3, 3, 3, 0, 
-	3, 3, 3, 0, 3, 3, 3, 2, 
-	1, 1, 1, 4, 2, 2, 3, 3, 
-	2, 3, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 2, 2, 2, 2, 3, 
-	3, 2, 3, 2, 1, 1, 1, 1, 
-	1, 4, 4, 2, 4, 3, 4, 4, 
-	3, 3, 4, 1, 1, 1, 1, 3, 
-	3, 3, 4, 4, 3, 4, 2, 4, 
-	4, 3, 4, 3, 4, 1, 1, 1, 
-	2, 5, 1, 1, 1, 2, 3, 4, 
-	4, 3, 4, 3, 3, 4, 4, 2, 
-	3, 4, 1, 1, 1, 1, 2, 3, 
-	4, 4, 3, 4, 3, 3, 4, 4, 
-	2, 3, 4, 1, 1, 1, 1, 1, 
-	1, 1, 1, 2, 3, 4, 4, 3, 
-	4, 3, 4, 4, 2, 3, 4, 1, 
-	1, 2, 3, 3, 4, 4, 3, 4, 
-	2, 4, 4, 3, 4, 3, 4, 2, 
-	3, 3, 3, 3, 3, 3, 4, 3, 
-	4, 4, 3, 4, 5, 2, 4, 4, 
+	3, 4, 4, 3, 3, 1, 1, 1, 
+	3, 3, 1, 1, 1, 1, 1, 3, 
+	3, 1, 1, 1, 1, 1, 1, 1, 
+	1, 3, 2, 2, 2, 2, 3, 4, 
+	2, 2, 10, 9, 2, 1, 1, 1, 
+	2, 2, 2, 3, 2, 3, 3, 2, 
+	3, 4, 0, 3, 3, 4, 0, 3, 
+	3, 4, 0, 3, 3, 3, 4, 2, 
+	4, 4, 3, 4, 3, 0, 3, 3, 
+	3, 0, 3, 3, 3, 0, 3, 3, 
+	3, 2, 1, 1, 1, 4, 2, 2, 
+	3, 3, 2, 3, 1, 1, 1, 1, 
+	1, 1, 1, 1, 1, 2, 2, 2, 
+	2, 3, 3, 2, 3, 2, 1, 1, 
+	1, 1, 1, 4, 4, 2, 4, 3, 
+	4, 4, 3, 3, 4, 1, 1, 1, 
+	1, 3, 3, 4, 4, 3, 2, 3, 
+	4, 1, 1, 1, 2, 5, 1, 1, 
+	1, 2, 3, 4, 4, 3, 4, 3, 
+	3, 4, 4, 2, 3, 4, 1, 1, 
+	1, 1, 2, 3, 4, 4, 3, 4, 
+	3, 3, 4, 4, 2, 3, 4, 1, 
+	1, 1, 1, 1, 1, 1, 1, 2, 
+	3, 4, 4, 3, 4, 3, 4, 4, 
+	2, 3, 4, 1, 1, 2, 3, 3, 
+	4, 4, 3, 4, 2, 4, 4, 3, 
+	4, 3, 4, 2, 3, 3, 3, 3, 
+	3, 3, 4, 3, 4, 4, 3, 4, 
 	5, 2, 4, 4, 5, 2, 4, 4, 
-	4, 5, 2, 5, 5, 4, 5, 4, 
+	5, 2, 4, 4, 4, 5, 2, 5, 
+	5, 4, 5, 4, 2, 4, 4, 4, 
 	2, 4, 4, 4, 2, 4, 4, 4, 
-	2, 4, 4, 4, 3, 3, 3, 3, 
-	6, 3, 3, 4, 4, 2, 4, 3, 
+	3, 3, 3, 3, 6, 3, 3, 4, 
+	4, 2, 4, 3, 3, 3, 3, 3, 
 	3, 3, 3, 3, 3, 3, 3, 3, 
-	3, 3, 3, 3, 4, 4, 2, 4, 
-	3, 3, 3, 3, 3, 3, 5, 5, 
-	2, 5, 4, 5, 5, 4, 4, 5, 
-	3, 3, 3, 3, 4, 4, 4, 5, 
+	4, 4, 2, 4, 3, 3, 3, 3, 
+	3, 3, 5, 5, 2, 5, 4, 5, 
+	5, 4, 4, 5, 3, 3, 3, 3, 
+	4, 4, 5, 5, 4, 2, 4, 5, 
+	3, 3, 3, 3, 6, 3, 3, 3, 
+	3, 4, 5, 5, 4, 5, 4, 4, 
+	5, 5, 2, 4, 5, 3, 3, 3, 
+	3, 3, 4, 5, 5, 4, 5, 4, 
+	4, 5, 5, 2, 4, 5, 3, 3, 
+	3, 3, 3, 3, 3, 3, 3, 4, 
+	5, 5, 4, 5, 4, 5, 5, 2, 
+	4, 5, 3, 3, 3, 4, 4, 5, 
 	5, 4, 5, 2, 5, 5, 4, 5, 
-	4, 5, 3, 3, 3, 3, 6, 3, 
-	3, 3, 3, 4, 5, 5, 4, 5, 
-	4, 4, 5, 5, 2, 4, 5, 3, 
-	3, 3, 3, 3, 4, 5, 5, 4, 
-	5, 4, 4, 5, 5, 2, 4, 5, 
-	3, 3, 3, 3, 3, 3, 3, 3, 
-	3, 4, 5, 5, 4, 5, 4, 5, 
-	5, 2, 4, 5, 3, 3, 3, 4, 
-	4, 5, 5, 4, 5, 2, 5, 5, 
-	4, 5, 4, 5, 0, 10, 9
+	4, 5, 0, 10, 9
 };
 
 static const char _checked_parse_test_range_lengths[] = {
 	0, 1, 0, 0, 0, 0, 1, 1, 
 	0, 0, 0, 1, 1, 0, 0, 0, 
 	1, 0, 1, 0, 0, 0, 0, 1, 
-	1, 4, 5, 5, 1, 4, 1, 0, 
+	4, 5, 5, 1, 1, 0, 0, 0, 
+	1, 1, 0, 0, 0, 0, 0, 1, 
+	1, 0, 0, 0, 0, 0, 0, 0, 
+	0, 1, 0, 0, 0, 0, 5, 5, 
 	0, 0, 1, 1, 0, 0, 0, 0, 
-	0, 1, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 0, 0, 0, 0, 
-	5, 5, 5, 5, 5, 5, 0, 0, 
-	1, 1, 0, 0, 0, 0, 1, 2, 
-	2, 1, 2, 2, 1, 1, 1, 2, 
+	1, 2, 2, 1, 2, 2, 1, 1, 
 	1, 2, 1, 2, 1, 2, 1, 2, 
-	1, 2, 1, 1, 4, 0, 5, 5, 
-	5, 5, 2, 1, 2, 2, 2, 1, 
-	2, 2, 2, 1, 2, 2, 2, 2, 
-	0, 0, 0, 1, 1, 2, 2, 2, 
-	0, 2, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 2, 2, 2, 2, 
-	1, 0, 2, 2, 0, 0, 0, 0, 
-	0, 1, 1, 0, 4, 4, 5, 5, 
-	1, 5, 5, 0, 0, 0, 0, 1, 
-	1, 4, 5, 5, 1, 4, 0, 5, 
-	5, 5, 5, 5, 5, 0, 0, 0, 
-	1, 1, 0, 0, 0, 1, 4, 5, 
-	5, 5, 5, 4, 4, 5, 5, 0, 
-	5, 5, 0, 0, 0, 0, 1, 4, 
-	5, 5, 5, 5, 4, 4, 5, 5, 
-	0, 5, 5, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 4, 5, 5, 5, 
-	5, 4, 5, 5, 0, 5, 5, 0, 
-	0, 1, 1, 4, 5, 5, 1, 4, 
-	0, 5, 5, 5, 5, 5, 5, 0, 
-	0, 0, 0, 1, 2, 2, 1, 2, 
-	2, 1, 1, 1, 2, 1, 2, 1, 
-	2, 1, 2, 1, 2, 1, 2, 1, 
-	1, 4, 0, 5, 5, 5, 5, 2, 
-	1, 2, 2, 2, 1, 2, 2, 2, 
-	1, 2, 2, 2, 2, 0, 0, 0, 
-	1, 1, 2, 2, 2, 0, 2, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	1, 2, 2, 2, 2, 1, 0, 2, 
-	2, 0, 0, 0, 0, 0, 1, 1, 
-	0, 4, 4, 5, 5, 1, 5, 5, 
-	0, 0, 0, 0, 1, 1, 4, 5, 
-	5, 1, 4, 0, 5, 5, 5, 5, 
-	5, 5, 0, 0, 0, 1, 1, 0, 
+	1, 2, 1, 2, 1, 1, 4, 0, 
+	5, 5, 5, 5, 2, 1, 2, 2, 
+	2, 1, 2, 2, 2, 1, 2, 2, 
+	2, 2, 0, 0, 0, 1, 1, 2, 
+	2, 2, 0, 2, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 1, 2, 2, 
+	2, 2, 1, 0, 2, 2, 0, 0, 
+	0, 0, 0, 1, 1, 0, 4, 4, 
+	5, 5, 1, 5, 5, 0, 0, 0, 
+	0, 1, 4, 5, 5, 1, 0, 5, 
+	5, 0, 0, 0, 1, 1, 0, 0, 
+	0, 1, 4, 5, 5, 5, 5, 4, 
+	4, 5, 5, 0, 5, 5, 0, 0, 
 	0, 0, 1, 4, 5, 5, 5, 5, 
 	4, 4, 5, 5, 0, 5, 5, 0, 
-	0, 0, 0, 1, 4, 5, 5, 5, 
-	5, 4, 4, 5, 5, 0, 5, 5, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	1, 4, 5, 5, 5, 5, 4, 5, 
-	5, 0, 5, 5, 0, 0, 1, 1, 
-	4, 5, 5, 1, 4, 0, 5, 5, 
-	5, 5, 5, 5, 0, 1, 1
+	0, 0, 0, 0, 0, 0, 0, 1, 
+	4, 5, 5, 5, 5, 4, 5, 5, 
+	0, 5, 5, 0, 0, 1, 1, 4, 
+	5, 5, 1, 4, 0, 5, 5, 5, 
+	5, 5, 5, 0, 0, 0, 0, 1, 
+	2, 2, 1, 2, 2, 1, 1, 1, 
+	2, 1, 2, 1, 2, 1, 2, 1, 
+	2, 1, 2, 1, 1, 4, 0, 5, 
+	5, 5, 5, 2, 1, 2, 2, 2, 
+	1, 2, 2, 2, 1, 2, 2, 2, 
+	2, 0, 0, 0, 1, 1, 2, 2, 
+	2, 0, 2, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 1, 2, 2, 2, 
+	2, 1, 0, 2, 2, 0, 0, 0, 
+	0, 0, 1, 1, 0, 4, 4, 5, 
+	5, 1, 5, 5, 0, 0, 0, 0, 
+	1, 4, 5, 5, 1, 0, 5, 5, 
+	0, 0, 0, 1, 1, 0, 0, 0, 
+	1, 4, 5, 5, 5, 5, 4, 4, 
+	5, 5, 0, 5, 5, 0, 0, 0, 
+	0, 1, 4, 5, 5, 5, 5, 4, 
+	4, 5, 5, 0, 5, 5, 0, 0, 
+	0, 0, 0, 0, 0, 0, 1, 4, 
+	5, 5, 5, 5, 4, 5, 5, 0, 
+	5, 5, 0, 0, 1, 1, 4, 5, 
+	5, 1, 4, 0, 5, 5, 5, 5, 
+	5, 5, 0, 1, 1
 };
 
 static const short _checked_parse_test_index_offsets[] = {
 	0, 0, 5, 7, 9, 11, 13, 18, 
 	23, 25, 27, 29, 33, 38, 40, 42, 
 	44, 49, 52, 57, 59, 61, 63, 65, 
-	70, 75, 83, 93, 103, 108, 117, 122, 
-	124, 126, 128, 133, 138, 140, 142, 144, 
-	146, 148, 153, 158, 160, 162, 164, 166, 
-	168, 170, 172, 174, 179, 182, 185, 188, 
-	191, 201, 211, 220, 230, 239, 249, 252, 
-	255, 267, 278, 281, 283, 285, 287, 291, 
-	296, 301, 306, 311, 317, 322, 326, 331, 
-	338, 340, 346, 351, 358, 360, 366, 371, 
-	378, 380, 386, 391, 396, 405, 408, 418, 
-	428, 437, 447, 453, 455, 461, 467, 473, 
-	475, 481, 487, 493, 495, 501, 507, 513, 
-	518, 520, 522, 524, 530, 534, 539, 545, 
-	551, 554, 560, 562, 564, 566, 568, 570, 
-	572, 574, 576, 578, 582, 587, 592, 597, 
-	603, 608, 611, 617, 622, 624, 626, 628, 
-	630, 632, 638, 644, 647, 656, 664, 674, 
-	684, 689, 698, 708, 710, 712, 714, 716, 
-	721, 726, 734, 744, 754, 759, 768, 771, 
-	781, 791, 800, 810, 819, 829, 831, 833, 
-	835, 839, 846, 848, 850, 852, 856, 864, 
-	874, 884, 893, 903, 911, 919, 929, 939, 
-	942, 951, 961, 963, 965, 967, 969, 973, 
-	981, 991, 1001, 1010, 1020, 1028, 1036, 1046, 
-	1056, 1059, 1068, 1078, 1080, 1082, 1084, 1086, 
-	1088, 1090, 1092, 1094, 1098, 1106, 1116, 1126, 
-	1135, 1145, 1153, 1163, 1173, 1176, 1185, 1195, 
-	1197, 1199, 1203, 1208, 1216, 1226, 1236, 1241, 
-	1250, 1253, 1263, 1273, 1282, 1292, 1301, 1311, 
-	1314, 1318, 1322, 1326, 1331, 1337, 1343, 1349, 
-	1355, 1362, 1368, 1373, 1379, 1387, 1391, 1398, 
-	1404, 1412, 1416, 1423, 1429, 1437, 1441, 1448, 
-	1454, 1460, 1470, 1473, 1484, 1495, 1505, 1516, 
-	1523, 1527, 1534, 1541, 1548, 1552, 1559, 1566, 
-	1573, 1577, 1584, 1591, 1598, 1604, 1608, 1612, 
-	1616, 1624, 1629, 1635, 1642, 1649, 1652, 1659, 
-	1663, 1667, 1671, 1675, 1679, 1683, 1687, 1691, 
-	1695, 1700, 1706, 1712, 1718, 1725, 1731, 1734, 
-	1741, 1747, 1751, 1755, 1759, 1763, 1767, 1774, 
-	1781, 1784, 1794, 1803, 1814, 1825, 1831, 1841, 
-	1852, 1856, 1860, 1864, 1868, 1874, 1880, 1889, 
-	1900, 1911, 1917, 1927, 1930, 1941, 1952, 1962, 
-	1973, 1983, 1994, 1998, 2002, 2006, 2011, 2019, 
-	2023, 2027, 2031, 2036, 2045, 2056, 2067, 2077, 
-	2088, 2097, 2106, 2117, 2128, 2131, 2141, 2152, 
-	2156, 2160, 2164, 2168, 2173, 2182, 2193, 2204, 
-	2214, 2225, 2234, 2243, 2254, 2265, 2268, 2278, 
-	2289, 2293, 2297, 2301, 2305, 2309, 2313, 2317, 
-	2321, 2326, 2335, 2346, 2357, 2367, 2378, 2387, 
-	2398, 2409, 2412, 2422, 2433, 2437, 2441, 2446, 
-	2452, 2461, 2472, 2483, 2489, 2499, 2502, 2513, 
-	2524, 2534, 2545, 2555, 2566, 2567, 2579
+	70, 78, 88, 98, 103, 108, 110, 112, 
+	114, 119, 124, 126, 128, 130, 132, 134, 
+	139, 144, 146, 148, 150, 152, 154, 156, 
+	158, 160, 165, 168, 171, 174, 177, 186, 
+	196, 199, 202, 214, 225, 228, 230, 232, 
+	234, 238, 243, 248, 253, 258, 264, 269, 
+	273, 278, 285, 287, 293, 298, 305, 307, 
+	313, 318, 325, 327, 333, 338, 343, 352, 
+	355, 365, 375, 384, 394, 400, 402, 408, 
+	414, 420, 422, 428, 434, 440, 442, 448, 
+	454, 460, 465, 467, 469, 471, 477, 481, 
+	486, 492, 498, 501, 507, 509, 511, 513, 
+	515, 517, 519, 521, 523, 525, 529, 534, 
+	539, 544, 550, 555, 558, 564, 569, 571, 
+	573, 575, 577, 579, 585, 591, 594, 603, 
+	611, 621, 631, 636, 645, 655, 657, 659, 
+	661, 663, 668, 676, 686, 696, 701, 704, 
+	713, 723, 725, 727, 729, 733, 740, 742, 
+	744, 746, 750, 758, 768, 778, 787, 797, 
+	805, 813, 823, 833, 836, 845, 855, 857, 
+	859, 861, 863, 867, 875, 885, 895, 904, 
+	914, 922, 930, 940, 950, 953, 962, 972, 
+	974, 976, 978, 980, 982, 984, 986, 988, 
+	992, 1000, 1010, 1020, 1029, 1039, 1047, 1057, 
+	1067, 1070, 1079, 1089, 1091, 1093, 1097, 1102, 
+	1110, 1120, 1130, 1135, 1144, 1147, 1157, 1167, 
+	1176, 1186, 1195, 1205, 1208, 1212, 1216, 1220, 
+	1225, 1231, 1237, 1243, 1249, 1256, 1262, 1267, 
+	1273, 1281, 1285, 1292, 1298, 1306, 1310, 1317, 
+	1323, 1331, 1335, 1342, 1348, 1354, 1364, 1367, 
+	1378, 1389, 1399, 1410, 1417, 1421, 1428, 1435, 
+	1442, 1446, 1453, 1460, 1467, 1471, 1478, 1485, 
+	1492, 1498, 1502, 1506, 1510, 1518, 1523, 1529, 
+	1536, 1543, 1546, 1553, 1557, 1561, 1565, 1569, 
+	1573, 1577, 1581, 1585, 1589, 1594, 1600, 1606, 
+	1612, 1619, 1625, 1628, 1635, 1641, 1645, 1649, 
+	1653, 1657, 1661, 1668, 1675, 1678, 1688, 1697, 
+	1708, 1719, 1725, 1735, 1746, 1750, 1754, 1758, 
+	1762, 1768, 1777, 1788, 1799, 1805, 1808, 1818, 
+	1829, 1833, 1837, 1841, 1846, 1854, 1858, 1862, 
+	1866, 1871, 1880, 1891, 1902, 1912, 1923, 1932, 
+	1941, 1952, 1963, 1966, 1976, 1987, 1991, 1995, 
+	1999, 2003, 2008, 2017, 2028, 2039, 2049, 2060, 
+	2069, 2078, 2089, 2100, 2103, 2113, 2124, 2128, 
+	2132, 2136, 2140, 2144, 2148, 2152, 2156, 2161, 
+	2170, 2181, 2192, 2202, 2213, 2222, 2233, 2244, 
+	2247, 2257, 2268, 2272, 2276, 2281, 2287, 2296, 
+	2307, 2318, 2324, 2334, 2337, 2348, 2359, 2369, 
+	2380, 2390, 2401, 2402, 2414
 };
 
 static const short _checked_parse_test_indicies[] = {
@@ -6978,573 +6801,536 @@ static const short _checked_parse_test_indicies[] = {
 	16, 1, 17, 1, 17, 17, 18, 17, 
 	1, 20, 21, 19, 23, 22, 24, 22, 
 	1, 25, 1, 26, 1, 27, 1, 28, 
-	1, 29, 29, 30, 29, 1, 31, 31, 
-	32, 31, 1, 34, 34, 35, 34, 35, 
-	35, 35, 33, 36, 36, 37, 39, 36, 
-	38, 39, 39, 39, 1, 40, 40, 41, 
-	43, 40, 42, 43, 43, 43, 33, 45, 
-	44, 46, 44, 1, 49, 48, 50, 51, 
-	48, 51, 51, 51, 47, 53, 52, 54, 
-	52, 1, 55, 1, 56, 1, 57, 1, 
-	59, 57, 60, 57, 58, 62, 61, 63, 
-	61, 1, 64, 1, 65, 1, 66, 1, 
-	67, 1, 68, 1, 68, 68, 69, 68, 
-	1, 69, 69, 70, 69, 1, 71, 1, 
-	72, 1, 73, 1, 74, 1, 75, 1, 
-	76, 1, 77, 1, 78, 1, 78, 78, 
-	79, 78, 1, 81, 82, 80, 80, 81, 
-	82, 58, 59, 60, 1, 45, 46, 84, 
-	83, 85, 87, 83, 86, 87, 87, 87, 
-	1, 49, 88, 50, 90, 88, 89, 90, 
-	90, 90, 47, 89, 89, 90, 89, 89, 
-	90, 90, 90, 47, 92, 91, 93, 90, 
-	91, 89, 90, 90, 90, 1, 42, 42, 
-	43, 42, 42, 43, 43, 43, 33, 94, 
-	94, 95, 43, 94, 42, 43, 43, 43, 
-	1, 19, 20, 21, 1, 97, 96, 1, 
-	99, 98, 100, 101, 102, 103, 104, 105, 
-	106, 98, 96, 109, 108, 110, 111, 112, 
-	113, 114, 115, 116, 108, 107, 107, 117, 
-	110, 118, 107, 119, 107, 120, 107, 121, 
-	121, 121, 107, 123, 123, 123, 124, 122, 
-	125, 125, 125, 126, 107, 128, 128, 129, 
-	128, 127, 129, 129, 129, 130, 127, 131, 
-	131, 132, 131, 133, 127, 131, 131, 132, 
-	131, 127, 134, 134, 134, 107, 135, 135, 
-	136, 135, 107, 136, 136, 137, 138, 136, 
-	139, 107, 139, 107, 140, 140, 141, 140, 
-	142, 107, 140, 140, 141, 140, 107, 143, 
-	143, 144, 145, 143, 146, 107, 146, 107, 
-	147, 147, 148, 147, 149, 107, 147, 147, 
-	148, 147, 107, 150, 150, 151, 152, 150, 
-	153, 107, 153, 107, 155, 155, 156, 155, 
-	157, 154, 155, 155, 156, 155, 154, 159, 
-	158, 160, 158, 107, 163, 162, 164, 165, 
-	162, 165, 165, 165, 161, 107, 159, 160, 
-	167, 166, 168, 170, 166, 169, 170, 170, 
-	170, 107, 163, 171, 164, 173, 171, 172, 
-	173, 173, 173, 161, 172, 172, 173, 172, 
-	172, 173, 173, 173, 161, 175, 174, 176, 
-	173, 174, 172, 173, 173, 173, 107, 155, 
-	155, 156, 155, 157, 154, 177, 107, 178, 
-	178, 179, 178, 180, 154, 178, 178, 179, 
-	178, 180, 154, 147, 147, 148, 147, 149, 
-	107, 181, 107, 182, 182, 183, 182, 184, 
-	107, 182, 182, 183, 182, 184, 107, 140, 
-	140, 141, 140, 142, 107, 185, 107, 186, 
-	186, 187, 186, 188, 107, 186, 186, 187, 
-	186, 188, 107, 131, 131, 132, 131, 133, 
-	127, 125, 125, 125, 126, 107, 189, 107, 
-	190, 107, 191, 107, 194, 193, 193, 193, 
-	193, 192, 195, 195, 195, 107, 197, 197, 
-	197, 198, 196, 200, 199, 201, 199, 202, 
-	107, 204, 203, 205, 203, 198, 196, 107, 
-	207, 206, 200, 199, 201, 199, 202, 107, 
-	208, 107, 209, 107, 210, 107, 211, 107, 
-	212, 107, 213, 107, 214, 107, 215, 107, 
-	216, 107, 217, 217, 217, 107, 217, 217, 
-	217, 219, 218, 220, 220, 220, 221, 218, 
-	220, 220, 220, 223, 222, 225, 224, 226, 
-	224, 227, 222, 225, 224, 226, 224, 107, 
-	107, 225, 226, 225, 224, 226, 224, 227, 
-	222, 220, 220, 220, 221, 218, 228, 107, 
-	229, 107, 230, 107, 231, 107, 232, 107, 
-	234, 233, 235, 236, 233, 107, 238, 237, 
-	239, 240, 237, 107, 107, 238, 239, 242, 
-	242, 243, 244, 242, 244, 244, 244, 241, 
-	242, 242, 244, 242, 244, 244, 244, 241, 
-	245, 245, 246, 248, 245, 247, 248, 248, 
-	248, 107, 249, 249, 243, 251, 249, 250, 
-	251, 251, 251, 241, 238, 252, 239, 252, 
-	107, 250, 250, 251, 250, 250, 251, 251, 
-	251, 241, 253, 253, 254, 251, 253, 250, 
-	251, 251, 251, 107, 255, 107, 256, 107, 
-	257, 107, 258, 107, 259, 259, 260, 259, 
-	107, 261, 261, 262, 261, 107, 263, 263, 
-	264, 263, 264, 264, 264, 241, 265, 265, 
-	266, 268, 265, 267, 268, 268, 268, 107, 
-	269, 269, 270, 272, 269, 271, 272, 272, 
-	272, 241, 274, 273, 275, 273, 107, 278, 
-	277, 279, 280, 277, 280, 280, 280, 276, 
-	107, 274, 275, 282, 281, 283, 285, 281, 
-	284, 285, 285, 285, 107, 278, 286, 279, 
-	288, 286, 287, 288, 288, 288, 276, 287, 
-	287, 288, 287, 287, 288, 288, 288, 276, 
-	290, 289, 291, 288, 289, 287, 288, 288, 
-	288, 107, 271, 271, 272, 271, 271, 272, 
-	272, 272, 241, 292, 292, 293, 272, 292, 
-	271, 272, 272, 272, 107, 294, 107, 295, 
-	107, 296, 107, 297, 297, 297, 107, 297, 
-	297, 298, 299, 300, 297, 107, 301, 107, 
-	302, 107, 303, 107, 304, 304, 304, 107, 
-	304, 304, 306, 304, 306, 306, 306, 305, 
-	308, 308, 311, 310, 308, 309, 310, 310, 
-	310, 307, 312, 312, 315, 314, 312, 313, 
-	314, 314, 314, 307, 313, 313, 314, 313, 
-	313, 314, 314, 314, 305, 316, 316, 317, 
-	314, 316, 313, 314, 314, 314, 307, 319, 
-	319, 320, 319, 320, 320, 320, 318, 319, 
-	319, 320, 319, 320, 320, 320, 321, 323, 
-	322, 324, 326, 322, 325, 326, 326, 326, 
-	321, 328, 327, 329, 331, 327, 330, 331, 
-	331, 331, 321, 107, 328, 329, 330, 330, 
-	331, 330, 330, 331, 331, 331, 321, 333, 
-	332, 334, 331, 332, 330, 331, 331, 331, 
-	321, 335, 107, 336, 107, 337, 107, 338, 
-	107, 339, 339, 339, 107, 341, 341, 342, 
-	341, 342, 342, 342, 340, 345, 345, 348, 
-	347, 345, 346, 347, 347, 347, 344, 349, 
-	349, 352, 351, 349, 350, 351, 351, 351, 
-	344, 350, 350, 351, 350, 350, 351, 351, 
-	351, 340, 353, 353, 354, 351, 353, 350, 
-	351, 351, 351, 344, 356, 356, 357, 356, 
-	357, 357, 357, 355, 356, 356, 357, 356, 
-	357, 357, 357, 358, 360, 359, 361, 363, 
-	359, 362, 363, 363, 363, 358, 365, 364, 
-	366, 368, 364, 367, 368, 368, 368, 358, 
-	107, 370, 369, 367, 367, 368, 367, 367, 
-	368, 368, 368, 358, 372, 371, 373, 368, 
-	371, 367, 368, 368, 368, 358, 374, 107, 
-	375, 107, 376, 107, 377, 107, 378, 107, 
-	379, 107, 380, 107, 381, 107, 382, 382, 
-	382, 107, 384, 384, 385, 384, 385, 385, 
-	385, 383, 386, 386, 389, 388, 386, 387, 
-	388, 388, 388, 107, 390, 390, 393, 392, 
-	390, 391, 392, 392, 392, 383, 391, 391, 
-	392, 391, 391, 392, 392, 392, 383, 394, 
-	394, 395, 392, 394, 391, 392, 392, 392, 
-	107, 397, 397, 398, 397, 398, 398, 398, 
-	396, 400, 399, 401, 403, 399, 402, 403, 
-	403, 403, 107, 405, 404, 406, 408, 404, 
-	407, 408, 408, 408, 396, 107, 410, 409, 
-	407, 407, 408, 407, 407, 408, 408, 408, 
-	396, 412, 411, 413, 408, 411, 407, 408, 
-	408, 408, 107, 414, 107, 415, 107, 416, 
-	416, 416, 107, 417, 417, 418, 417, 107, 
-	418, 418, 419, 418, 419, 419, 419, 107, 
-	421, 421, 422, 424, 421, 423, 424, 424, 
-	424, 420, 425, 425, 426, 428, 425, 427, 
-	428, 428, 428, 420, 430, 429, 431, 429, 
-	107, 434, 433, 435, 436, 433, 436, 436, 
-	436, 432, 107, 430, 431, 438, 437, 439, 
-	441, 437, 440, 441, 441, 441, 107, 434, 
-	442, 435, 444, 442, 443, 444, 444, 444, 
-	432, 443, 443, 444, 443, 443, 444, 444, 
-	444, 432, 446, 445, 447, 444, 445, 443, 
-	444, 444, 444, 107, 427, 427, 428, 427, 
-	427, 428, 428, 428, 107, 448, 448, 449, 
-	428, 448, 427, 428, 428, 428, 420, 1, 
-	117, 100, 1, 97, 450, 96, 1, 97, 
-	451, 96, 1, 97, 452, 96, 1, 97, 
-	453, 453, 96, 455, 457, 456, 456, 458, 
-	454, 1, 97, 459, 459, 460, 96, 462, 
-	464, 463, 465, 463, 461, 462, 464, 465, 
-	465, 466, 461, 462, 464, 467, 468, 467, 
-	469, 461, 462, 464, 467, 468, 467, 461, 
-	1, 97, 470, 470, 96, 1, 97, 471, 
-	472, 471, 96, 1, 97, 472, 473, 474, 
-	472, 475, 96, 1, 97, 475, 96, 1, 
-	97, 476, 477, 476, 478, 96, 1, 97, 
-	476, 477, 476, 96, 1, 97, 479, 480, 
-	481, 479, 482, 96, 1, 97, 482, 96, 
-	1, 97, 483, 484, 483, 485, 96, 1, 
-	97, 483, 484, 483, 96, 1, 97, 486, 
-	487, 488, 486, 489, 96, 1, 97, 489, 
-	96, 491, 493, 492, 494, 492, 495, 490, 
-	491, 493, 492, 494, 492, 490, 1, 159, 
-	496, 497, 496, 96, 499, 163, 500, 501, 
-	502, 500, 502, 502, 502, 498, 1, 159, 
-	497, 1, 167, 503, 504, 506, 503, 505, 
-	506, 506, 506, 96, 499, 163, 507, 501, 
-	509, 507, 508, 509, 509, 509, 498, 499, 
-	510, 508, 509, 508, 508, 509, 509, 509, 
-	498, 1, 175, 511, 512, 509, 511, 508, 
-	509, 509, 509, 96, 491, 493, 492, 494, 
-	492, 495, 490, 1, 97, 513, 96, 491, 
-	493, 514, 515, 514, 516, 490, 491, 493, 
-	514, 515, 514, 516, 490, 1, 97, 483, 
-	484, 483, 485, 96, 1, 97, 517, 96, 
-	1, 97, 518, 519, 518, 520, 96, 1, 
-	97, 518, 519, 518, 520, 96, 1, 97, 
-	476, 477, 476, 478, 96, 1, 97, 521, 
-	96, 1, 97, 522, 523, 522, 524, 96, 
-	1, 97, 522, 523, 522, 524, 96, 462, 
-	464, 467, 468, 467, 469, 461, 1, 97, 
-	459, 459, 460, 96, 1, 97, 525, 96, 
-	1, 97, 526, 96, 1, 97, 527, 96, 
-	529, 530, 532, 531, 531, 531, 531, 528, 
-	1, 97, 533, 533, 96, 535, 537, 536, 
-	536, 538, 534, 1, 200, 539, 540, 539, 
-	541, 96, 535, 204, 542, 543, 542, 538, 
-	534, 1, 207, 544, 1, 200, 539, 540, 
-	539, 541, 96, 1, 97, 545, 96, 1, 
-	97, 546, 96, 1, 97, 547, 96, 1, 
-	97, 548, 96, 1, 97, 549, 96, 1, 
-	97, 550, 96, 1, 97, 551, 96, 1, 
-	97, 552, 96, 1, 97, 553, 96, 1, 
-	97, 554, 554, 96, 556, 557, 554, 554, 
-	558, 555, 556, 557, 559, 559, 560, 555, 
-	562, 563, 559, 559, 564, 561, 562, 225, 
-	565, 566, 565, 567, 561, 1, 225, 565, 
-	566, 565, 96, 1, 225, 566, 562, 225, 
-	565, 566, 565, 567, 561, 556, 557, 559, 
-	559, 560, 555, 1, 97, 568, 96, 1, 
-	97, 569, 96, 1, 97, 570, 96, 1, 
-	97, 571, 96, 1, 97, 572, 96, 1, 
-	234, 573, 574, 575, 573, 96, 1, 238, 
-	576, 577, 578, 576, 96, 1, 238, 577, 
-	33, 581, 580, 582, 583, 580, 583, 583, 
-	583, 579, 33, 581, 580, 583, 580, 583, 
-	583, 583, 579, 1, 97, 584, 585, 587, 
-	584, 586, 587, 587, 587, 96, 33, 581, 
-	588, 582, 590, 588, 589, 590, 590, 590, 
-	579, 1, 238, 591, 577, 591, 96, 33, 
-	581, 589, 590, 589, 589, 590, 590, 590, 
-	579, 1, 97, 592, 593, 590, 592, 589, 
-	590, 590, 590, 96, 1, 97, 594, 96, 
-	1, 97, 595, 96, 1, 97, 596, 96, 
-	1, 97, 597, 96, 1, 97, 598, 599, 
-	598, 96, 1, 97, 600, 601, 600, 96, 
-	33, 581, 602, 603, 602, 603, 603, 603, 
-	579, 1, 97, 604, 605, 607, 604, 606, 
-	607, 607, 607, 96, 33, 581, 608, 609, 
-	611, 608, 610, 611, 611, 611, 579, 1, 
-	274, 612, 613, 612, 96, 47, 278, 615, 
-	616, 617, 615, 617, 617, 617, 614, 1, 
-	274, 613, 1, 282, 618, 619, 621, 618, 
-	620, 621, 621, 621, 96, 47, 278, 622, 
-	616, 624, 622, 623, 624, 624, 624, 614, 
-	47, 625, 623, 624, 623, 623, 624, 624, 
-	624, 614, 1, 290, 626, 627, 624, 626, 
-	623, 624, 624, 624, 96, 33, 581, 610, 
-	611, 610, 610, 611, 611, 611, 579, 1, 
-	97, 628, 629, 611, 628, 610, 611, 611, 
-	611, 96, 1, 97, 630, 96, 1, 97, 
-	631, 96, 1, 97, 632, 96, 1, 97, 
-	633, 633, 96, 1, 97, 633, 634, 635, 
-	636, 633, 96, 1, 97, 637, 96, 1, 
-	97, 638, 96, 1, 97, 639, 96, 1, 
-	97, 640, 640, 96, 642, 643, 640, 644, 
-	640, 644, 644, 644, 641, 646, 648, 647, 
-	651, 650, 647, 649, 650, 650, 650, 645, 
-	646, 648, 652, 655, 654, 652, 653, 654, 
-	654, 654, 645, 642, 643, 653, 654, 653, 
-	653, 654, 654, 654, 641, 646, 648, 656, 
-	657, 654, 656, 653, 654, 654, 654, 645, 
-	659, 661, 660, 662, 660, 662, 662, 662, 
-	658, 664, 665, 660, 662, 660, 662, 662, 
-	662, 663, 664, 323, 666, 667, 669, 666, 
-	668, 669, 669, 669, 663, 664, 328, 670, 
-	671, 673, 670, 672, 673, 673, 673, 663, 
-	1, 328, 671, 664, 665, 672, 673, 672, 
-	672, 673, 673, 673, 663, 664, 333, 674, 
-	675, 673, 674, 672, 673, 673, 673, 663, 
-	1, 97, 676, 96, 1, 97, 677, 96, 
-	1, 97, 678, 96, 1, 97, 679, 96, 
-	1, 97, 680, 680, 96, 682, 684, 683, 
-	685, 683, 685, 685, 685, 681, 687, 689, 
-	688, 692, 691, 688, 690, 691, 691, 691, 
-	686, 687, 689, 693, 696, 695, 693, 694, 
-	695, 695, 695, 686, 682, 684, 694, 695, 
-	694, 694, 695, 695, 695, 681, 687, 689, 
-	697, 698, 695, 697, 694, 695, 695, 695, 
-	686, 700, 702, 701, 703, 701, 703, 703, 
-	703, 699, 705, 706, 701, 703, 701, 703, 
-	703, 703, 704, 705, 360, 707, 708, 710, 
-	707, 709, 710, 710, 710, 704, 705, 365, 
-	711, 712, 714, 711, 713, 714, 714, 714, 
-	704, 1, 370, 715, 705, 706, 713, 714, 
-	713, 713, 714, 714, 714, 704, 705, 372, 
-	716, 717, 714, 716, 713, 714, 714, 714, 
-	704, 1, 97, 718, 96, 1, 97, 719, 
-	96, 1, 97, 720, 96, 1, 97, 721, 
-	96, 1, 97, 722, 96, 1, 97, 723, 
-	96, 1, 97, 724, 96, 1, 97, 725, 
-	96, 1, 97, 726, 726, 96, 728, 730, 
-	729, 731, 729, 731, 731, 731, 727, 1, 
-	97, 732, 735, 734, 732, 733, 734, 734, 
-	734, 96, 728, 730, 736, 739, 738, 736, 
-	737, 738, 738, 738, 727, 728, 730, 737, 
-	738, 737, 737, 738, 738, 738, 727, 1, 
-	97, 740, 741, 738, 740, 737, 738, 738, 
-	738, 96, 743, 745, 744, 746, 744, 746, 
-	746, 746, 742, 1, 400, 747, 748, 750, 
-	747, 749, 750, 750, 750, 96, 743, 405, 
-	751, 752, 754, 751, 753, 754, 754, 754, 
-	742, 1, 410, 755, 743, 745, 753, 754, 
-	753, 753, 754, 754, 754, 742, 1, 412, 
-	756, 757, 754, 756, 753, 754, 754, 754, 
-	96, 1, 97, 758, 96, 1, 97, 759, 
-	96, 1, 97, 760, 760, 96, 1, 97, 
-	761, 762, 761, 96, 1, 97, 762, 763, 
-	762, 763, 763, 763, 96, 765, 767, 766, 
-	768, 770, 766, 769, 770, 770, 770, 764, 
-	765, 767, 771, 772, 774, 771, 773, 774, 
-	774, 774, 764, 1, 430, 775, 776, 775, 
-	96, 778, 434, 779, 780, 781, 779, 781, 
-	781, 781, 777, 1, 430, 776, 1, 438, 
-	782, 783, 785, 782, 784, 785, 785, 785, 
-	96, 778, 434, 786, 780, 788, 786, 787, 
-	788, 788, 788, 777, 778, 789, 787, 788, 
-	787, 787, 788, 788, 788, 777, 1, 446, 
-	790, 791, 788, 790, 787, 788, 788, 788, 
-	96, 1, 97, 773, 774, 773, 773, 774, 
-	774, 774, 96, 765, 767, 792, 793, 774, 
-	792, 773, 774, 774, 774, 764, 794, 1, 
-	99, 98, 100, 101, 102, 103, 104, 105, 
-	106, 98, 96, 109, 108, 110, 111, 112, 
-	113, 114, 115, 116, 108, 795, 0
+	1, 28, 28, 29, 28, 1, 31, 31, 
+	32, 31, 32, 32, 32, 30, 33, 33, 
+	34, 36, 33, 35, 36, 36, 36, 1, 
+	37, 37, 38, 40, 37, 39, 40, 40, 
+	40, 30, 42, 41, 43, 41, 1, 45, 
+	44, 46, 44, 1, 47, 1, 48, 1, 
+	49, 1, 51, 49, 52, 49, 50, 54, 
+	53, 55, 53, 1, 56, 1, 57, 1, 
+	58, 1, 59, 1, 60, 1, 60, 60, 
+	61, 60, 1, 61, 61, 62, 61, 1, 
+	63, 1, 64, 1, 65, 1, 66, 1, 
+	67, 1, 68, 1, 69, 1, 70, 1, 
+	70, 70, 71, 70, 1, 73, 74, 72, 
+	72, 73, 74, 50, 51, 52, 1, 42, 
+	43, 39, 39, 40, 39, 39, 40, 40, 
+	40, 30, 75, 75, 76, 40, 75, 39, 
+	40, 40, 40, 1, 19, 20, 21, 1, 
+	78, 77, 1, 80, 79, 81, 82, 83, 
+	84, 85, 86, 87, 79, 77, 90, 89, 
+	91, 92, 93, 94, 95, 96, 97, 89, 
+	88, 88, 98, 91, 99, 88, 100, 88, 
+	101, 88, 102, 102, 102, 88, 104, 104, 
+	104, 105, 103, 106, 106, 106, 107, 88, 
+	109, 109, 110, 109, 108, 110, 110, 110, 
+	111, 108, 112, 112, 113, 112, 114, 108, 
+	112, 112, 113, 112, 108, 115, 115, 115, 
+	88, 116, 116, 117, 116, 88, 117, 117, 
+	118, 119, 117, 120, 88, 120, 88, 121, 
+	121, 122, 121, 123, 88, 121, 121, 122, 
+	121, 88, 124, 124, 125, 126, 124, 127, 
+	88, 127, 88, 128, 128, 129, 128, 130, 
+	88, 128, 128, 129, 128, 88, 131, 131, 
+	132, 133, 131, 134, 88, 134, 88, 136, 
+	136, 137, 136, 138, 135, 136, 136, 137, 
+	136, 135, 140, 139, 141, 139, 88, 144, 
+	143, 145, 146, 143, 146, 146, 146, 142, 
+	88, 140, 141, 148, 147, 149, 151, 147, 
+	150, 151, 151, 151, 88, 144, 152, 145, 
+	154, 152, 153, 154, 154, 154, 142, 153, 
+	153, 154, 153, 153, 154, 154, 154, 142, 
+	156, 155, 157, 154, 155, 153, 154, 154, 
+	154, 88, 136, 136, 137, 136, 138, 135, 
+	158, 88, 159, 159, 160, 159, 161, 135, 
+	159, 159, 160, 159, 161, 135, 128, 128, 
+	129, 128, 130, 88, 162, 88, 163, 163, 
+	164, 163, 165, 88, 163, 163, 164, 163, 
+	165, 88, 121, 121, 122, 121, 123, 88, 
+	166, 88, 167, 167, 168, 167, 169, 88, 
+	167, 167, 168, 167, 169, 88, 112, 112, 
+	113, 112, 114, 108, 106, 106, 106, 107, 
+	88, 170, 88, 171, 88, 172, 88, 175, 
+	174, 174, 174, 174, 173, 176, 176, 176, 
+	88, 178, 178, 178, 179, 177, 181, 180, 
+	182, 180, 183, 88, 185, 184, 186, 184, 
+	179, 177, 88, 188, 187, 181, 180, 182, 
+	180, 183, 88, 189, 88, 190, 88, 191, 
+	88, 192, 88, 193, 88, 194, 88, 195, 
+	88, 196, 88, 197, 88, 198, 198, 198, 
+	88, 198, 198, 198, 200, 199, 201, 201, 
+	201, 202, 199, 201, 201, 201, 204, 203, 
+	206, 205, 207, 205, 208, 203, 206, 205, 
+	207, 205, 88, 88, 206, 207, 206, 205, 
+	207, 205, 208, 203, 201, 201, 201, 202, 
+	199, 209, 88, 210, 88, 211, 88, 212, 
+	88, 213, 88, 215, 214, 216, 217, 214, 
+	88, 219, 218, 220, 221, 218, 88, 88, 
+	219, 220, 223, 223, 224, 225, 223, 225, 
+	225, 225, 222, 223, 223, 225, 223, 225, 
+	225, 225, 222, 226, 226, 227, 229, 226, 
+	228, 229, 229, 229, 88, 230, 230, 224, 
+	232, 230, 231, 232, 232, 232, 222, 219, 
+	233, 220, 233, 88, 231, 231, 232, 231, 
+	231, 232, 232, 232, 222, 234, 234, 235, 
+	232, 234, 231, 232, 232, 232, 88, 236, 
+	88, 237, 88, 238, 88, 239, 88, 239, 
+	239, 240, 239, 88, 241, 241, 242, 241, 
+	242, 242, 242, 222, 243, 243, 244, 246, 
+	243, 245, 246, 246, 246, 88, 247, 247, 
+	248, 250, 247, 249, 250, 250, 250, 222, 
+	252, 251, 253, 251, 88, 88, 252, 253, 
+	249, 249, 250, 249, 249, 250, 250, 250, 
+	222, 254, 254, 255, 250, 254, 249, 250, 
+	250, 250, 88, 256, 88, 257, 88, 258, 
+	88, 259, 259, 259, 88, 259, 259, 260, 
+	261, 262, 259, 88, 263, 88, 264, 88, 
+	265, 88, 266, 266, 266, 88, 266, 266, 
+	268, 266, 268, 268, 268, 267, 270, 270, 
+	273, 272, 270, 271, 272, 272, 272, 269, 
+	274, 274, 277, 276, 274, 275, 276, 276, 
+	276, 269, 275, 275, 276, 275, 275, 276, 
+	276, 276, 267, 278, 278, 279, 276, 278, 
+	275, 276, 276, 276, 269, 281, 281, 282, 
+	281, 282, 282, 282, 280, 281, 281, 282, 
+	281, 282, 282, 282, 283, 285, 284, 286, 
+	288, 284, 287, 288, 288, 288, 283, 290, 
+	289, 291, 293, 289, 292, 293, 293, 293, 
+	283, 88, 290, 291, 292, 292, 293, 292, 
+	292, 293, 293, 293, 283, 295, 294, 296, 
+	293, 294, 292, 293, 293, 293, 283, 297, 
+	88, 298, 88, 299, 88, 300, 88, 301, 
+	301, 301, 88, 303, 303, 304, 303, 304, 
+	304, 304, 302, 307, 307, 310, 309, 307, 
+	308, 309, 309, 309, 306, 311, 311, 314, 
+	313, 311, 312, 313, 313, 313, 306, 312, 
+	312, 313, 312, 312, 313, 313, 313, 302, 
+	315, 315, 316, 313, 315, 312, 313, 313, 
+	313, 306, 318, 318, 319, 318, 319, 319, 
+	319, 317, 318, 318, 319, 318, 319, 319, 
+	319, 320, 322, 321, 323, 325, 321, 324, 
+	325, 325, 325, 320, 327, 326, 328, 330, 
+	326, 329, 330, 330, 330, 320, 88, 332, 
+	331, 329, 329, 330, 329, 329, 330, 330, 
+	330, 320, 334, 333, 335, 330, 333, 329, 
+	330, 330, 330, 320, 336, 88, 337, 88, 
+	338, 88, 339, 88, 340, 88, 341, 88, 
+	342, 88, 343, 88, 344, 344, 344, 88, 
+	346, 346, 347, 346, 347, 347, 347, 345, 
+	348, 348, 351, 350, 348, 349, 350, 350, 
+	350, 88, 352, 352, 355, 354, 352, 353, 
+	354, 354, 354, 345, 353, 353, 354, 353, 
+	353, 354, 354, 354, 345, 356, 356, 357, 
+	354, 356, 353, 354, 354, 354, 88, 359, 
+	359, 360, 359, 360, 360, 360, 358, 362, 
+	361, 363, 365, 361, 364, 365, 365, 365, 
+	88, 367, 366, 368, 370, 366, 369, 370, 
+	370, 370, 358, 88, 372, 371, 369, 369, 
+	370, 369, 369, 370, 370, 370, 358, 374, 
+	373, 375, 370, 373, 369, 370, 370, 370, 
+	88, 376, 88, 377, 88, 378, 378, 378, 
+	88, 379, 379, 380, 379, 88, 380, 380, 
+	381, 380, 381, 381, 381, 88, 383, 383, 
+	384, 386, 383, 385, 386, 386, 386, 382, 
+	387, 387, 388, 390, 387, 389, 390, 390, 
+	390, 382, 392, 391, 393, 391, 88, 396, 
+	395, 397, 398, 395, 398, 398, 398, 394, 
+	88, 392, 393, 400, 399, 401, 403, 399, 
+	402, 403, 403, 403, 88, 396, 404, 397, 
+	406, 404, 405, 406, 406, 406, 394, 405, 
+	405, 406, 405, 405, 406, 406, 406, 394, 
+	408, 407, 409, 406, 407, 405, 406, 406, 
+	406, 88, 389, 389, 390, 389, 389, 390, 
+	390, 390, 88, 410, 410, 411, 390, 410, 
+	389, 390, 390, 390, 382, 1, 98, 81, 
+	1, 78, 412, 77, 1, 78, 413, 77, 
+	1, 78, 414, 77, 1, 78, 415, 415, 
+	77, 417, 419, 418, 418, 420, 416, 1, 
+	78, 421, 421, 422, 77, 424, 426, 425, 
+	427, 425, 423, 424, 426, 427, 427, 428, 
+	423, 424, 426, 429, 430, 429, 431, 423, 
+	424, 426, 429, 430, 429, 423, 1, 78, 
+	432, 432, 77, 1, 78, 433, 434, 433, 
+	77, 1, 78, 434, 435, 436, 434, 437, 
+	77, 1, 78, 437, 77, 1, 78, 438, 
+	439, 438, 440, 77, 1, 78, 438, 439, 
+	438, 77, 1, 78, 441, 442, 443, 441, 
+	444, 77, 1, 78, 444, 77, 1, 78, 
+	445, 446, 445, 447, 77, 1, 78, 445, 
+	446, 445, 77, 1, 78, 448, 449, 450, 
+	448, 451, 77, 1, 78, 451, 77, 453, 
+	455, 454, 456, 454, 457, 452, 453, 455, 
+	454, 456, 454, 452, 1, 140, 458, 459, 
+	458, 77, 461, 144, 462, 463, 464, 462, 
+	464, 464, 464, 460, 1, 140, 459, 1, 
+	148, 465, 466, 468, 465, 467, 468, 468, 
+	468, 77, 461, 144, 469, 463, 471, 469, 
+	470, 471, 471, 471, 460, 461, 472, 470, 
+	471, 470, 470, 471, 471, 471, 460, 1, 
+	156, 473, 474, 471, 473, 470, 471, 471, 
+	471, 77, 453, 455, 454, 456, 454, 457, 
+	452, 1, 78, 475, 77, 453, 455, 476, 
+	477, 476, 478, 452, 453, 455, 476, 477, 
+	476, 478, 452, 1, 78, 445, 446, 445, 
+	447, 77, 1, 78, 479, 77, 1, 78, 
+	480, 481, 480, 482, 77, 1, 78, 480, 
+	481, 480, 482, 77, 1, 78, 438, 439, 
+	438, 440, 77, 1, 78, 483, 77, 1, 
+	78, 484, 485, 484, 486, 77, 1, 78, 
+	484, 485, 484, 486, 77, 424, 426, 429, 
+	430, 429, 431, 423, 1, 78, 421, 421, 
+	422, 77, 1, 78, 487, 77, 1, 78, 
+	488, 77, 1, 78, 489, 77, 491, 492, 
+	494, 493, 493, 493, 493, 490, 1, 78, 
+	495, 495, 77, 497, 499, 498, 498, 500, 
+	496, 1, 181, 501, 502, 501, 503, 77, 
+	497, 185, 504, 505, 504, 500, 496, 1, 
+	188, 506, 1, 181, 501, 502, 501, 503, 
+	77, 1, 78, 507, 77, 1, 78, 508, 
+	77, 1, 78, 509, 77, 1, 78, 510, 
+	77, 1, 78, 511, 77, 1, 78, 512, 
+	77, 1, 78, 513, 77, 1, 78, 514, 
+	77, 1, 78, 515, 77, 1, 78, 516, 
+	516, 77, 518, 519, 516, 516, 520, 517, 
+	518, 519, 521, 521, 522, 517, 524, 525, 
+	521, 521, 526, 523, 524, 206, 527, 528, 
+	527, 529, 523, 1, 206, 527, 528, 527, 
+	77, 1, 206, 528, 524, 206, 527, 528, 
+	527, 529, 523, 518, 519, 521, 521, 522, 
+	517, 1, 78, 530, 77, 1, 78, 531, 
+	77, 1, 78, 532, 77, 1, 78, 533, 
+	77, 1, 78, 534, 77, 1, 215, 535, 
+	536, 537, 535, 77, 1, 219, 538, 539, 
+	540, 538, 77, 1, 219, 539, 30, 543, 
+	542, 544, 545, 542, 545, 545, 545, 541, 
+	30, 543, 542, 545, 542, 545, 545, 545, 
+	541, 1, 78, 546, 547, 549, 546, 548, 
+	549, 549, 549, 77, 30, 543, 550, 544, 
+	552, 550, 551, 552, 552, 552, 541, 1, 
+	219, 553, 539, 553, 77, 30, 543, 551, 
+	552, 551, 551, 552, 552, 552, 541, 1, 
+	78, 554, 555, 552, 554, 551, 552, 552, 
+	552, 77, 1, 78, 556, 77, 1, 78, 
+	557, 77, 1, 78, 558, 77, 1, 78, 
+	559, 77, 1, 78, 559, 560, 559, 77, 
+	30, 543, 561, 562, 561, 562, 562, 562, 
+	541, 1, 78, 563, 564, 566, 563, 565, 
+	566, 566, 566, 77, 30, 543, 567, 568, 
+	570, 567, 569, 570, 570, 570, 541, 1, 
+	252, 571, 572, 571, 77, 1, 252, 572, 
+	30, 543, 569, 570, 569, 569, 570, 570, 
+	570, 541, 1, 78, 573, 574, 570, 573, 
+	569, 570, 570, 570, 77, 1, 78, 575, 
+	77, 1, 78, 576, 77, 1, 78, 577, 
+	77, 1, 78, 578, 578, 77, 1, 78, 
+	578, 579, 580, 581, 578, 77, 1, 78, 
+	582, 77, 1, 78, 583, 77, 1, 78, 
+	584, 77, 1, 78, 585, 585, 77, 587, 
+	588, 585, 589, 585, 589, 589, 589, 586, 
+	591, 593, 592, 596, 595, 592, 594, 595, 
+	595, 595, 590, 591, 593, 597, 600, 599, 
+	597, 598, 599, 599, 599, 590, 587, 588, 
+	598, 599, 598, 598, 599, 599, 599, 586, 
+	591, 593, 601, 602, 599, 601, 598, 599, 
+	599, 599, 590, 604, 606, 605, 607, 605, 
+	607, 607, 607, 603, 609, 610, 605, 607, 
+	605, 607, 607, 607, 608, 609, 285, 611, 
+	612, 614, 611, 613, 614, 614, 614, 608, 
+	609, 290, 615, 616, 618, 615, 617, 618, 
+	618, 618, 608, 1, 290, 616, 609, 610, 
+	617, 618, 617, 617, 618, 618, 618, 608, 
+	609, 295, 619, 620, 618, 619, 617, 618, 
+	618, 618, 608, 1, 78, 621, 77, 1, 
+	78, 622, 77, 1, 78, 623, 77, 1, 
+	78, 624, 77, 1, 78, 625, 625, 77, 
+	627, 629, 628, 630, 628, 630, 630, 630, 
+	626, 632, 634, 633, 637, 636, 633, 635, 
+	636, 636, 636, 631, 632, 634, 638, 641, 
+	640, 638, 639, 640, 640, 640, 631, 627, 
+	629, 639, 640, 639, 639, 640, 640, 640, 
+	626, 632, 634, 642, 643, 640, 642, 639, 
+	640, 640, 640, 631, 645, 647, 646, 648, 
+	646, 648, 648, 648, 644, 650, 651, 646, 
+	648, 646, 648, 648, 648, 649, 650, 322, 
+	652, 653, 655, 652, 654, 655, 655, 655, 
+	649, 650, 327, 656, 657, 659, 656, 658, 
+	659, 659, 659, 649, 1, 332, 660, 650, 
+	651, 658, 659, 658, 658, 659, 659, 659, 
+	649, 650, 334, 661, 662, 659, 661, 658, 
+	659, 659, 659, 649, 1, 78, 663, 77, 
+	1, 78, 664, 77, 1, 78, 665, 77, 
+	1, 78, 666, 77, 1, 78, 667, 77, 
+	1, 78, 668, 77, 1, 78, 669, 77, 
+	1, 78, 670, 77, 1, 78, 671, 671, 
+	77, 673, 675, 674, 676, 674, 676, 676, 
+	676, 672, 1, 78, 677, 680, 679, 677, 
+	678, 679, 679, 679, 77, 673, 675, 681, 
+	684, 683, 681, 682, 683, 683, 683, 672, 
+	673, 675, 682, 683, 682, 682, 683, 683, 
+	683, 672, 1, 78, 685, 686, 683, 685, 
+	682, 683, 683, 683, 77, 688, 690, 689, 
+	691, 689, 691, 691, 691, 687, 1, 362, 
+	692, 693, 695, 692, 694, 695, 695, 695, 
+	77, 688, 367, 696, 697, 699, 696, 698, 
+	699, 699, 699, 687, 1, 372, 700, 688, 
+	690, 698, 699, 698, 698, 699, 699, 699, 
+	687, 1, 374, 701, 702, 699, 701, 698, 
+	699, 699, 699, 77, 1, 78, 703, 77, 
+	1, 78, 704, 77, 1, 78, 705, 705, 
+	77, 1, 78, 706, 707, 706, 77, 1, 
+	78, 707, 708, 707, 708, 708, 708, 77, 
+	710, 712, 711, 713, 715, 711, 714, 715, 
+	715, 715, 709, 710, 712, 716, 717, 719, 
+	716, 718, 719, 719, 719, 709, 1, 392, 
+	720, 721, 720, 77, 723, 396, 724, 725, 
+	726, 724, 726, 726, 726, 722, 1, 392, 
+	721, 1, 400, 727, 728, 730, 727, 729, 
+	730, 730, 730, 77, 723, 396, 731, 725, 
+	733, 731, 732, 733, 733, 733, 722, 723, 
+	734, 732, 733, 732, 732, 733, 733, 733, 
+	722, 1, 408, 735, 736, 733, 735, 732, 
+	733, 733, 733, 77, 1, 78, 718, 719, 
+	718, 718, 719, 719, 719, 77, 710, 712, 
+	737, 738, 719, 737, 718, 719, 719, 719, 
+	709, 739, 1, 80, 79, 81, 82, 83, 
+	84, 85, 86, 87, 79, 77, 90, 89, 
+	91, 92, 93, 94, 95, 96, 97, 89, 
+	740, 0
 };
 
 static const short _checked_parse_test_trans_targs_wi[] = {
 	1, 0, 1, 2, 3, 4, 5, 6, 
 	7, 8, 9, 10, 11, 12, 13, 14, 
-	15, 16, 17, 0, 18, 62, 18, 18, 
-	19, 20, 21, 22, 23, 24, 25, 24, 
-	25, 0, 25, 26, 27, 28, 60, 61, 
-	27, 28, 60, 61, 29, 30, 55, 0, 
-	29, 30, 55, 56, 30, 30, 31, 32, 
-	33, 34, 0, 35, 54, 35, 35, 36, 
-	37, 38, 39, 40, 41, 42, 43, 44, 
-	45, 46, 47, 48, 49, 50, 51, 52, 
-	0, 428, 53, 57, 30, 55, 58, 59, 
-	57, 58, 59, 57, 30, 55, 27, 28, 
-	63, 429, 64, 430, 247, 248, 293, 321, 
-	336, 354, 412, 429, 65, 65, 66, 67, 
-	112, 140, 155, 173, 231, 429, 68, 69, 
-	70, 71, 429, 71, 72, 73, 111, 429, 
-	73, 74, 75, 76, 77, 110, 78, 78, 
-	79, 80, 107, 81, 82, 83, 106, 83, 
-	84, 103, 85, 86, 87, 102, 87, 88, 
-	99, 89, 429, 90, 91, 98, 92, 429, 
-	93, 429, 92, 429, 93, 94, 95, 429, 
-	93, 96, 97, 95, 96, 97, 95, 429, 
-	93, 100, 90, 91, 101, 104, 86, 87, 
-	105, 108, 82, 83, 109, 113, 114, 115, 
-	429, 116, 122, 117, 429, 117, 118, 119, 
-	429, 120, 121, 119, 429, 120, 120, 429, 
-	123, 124, 125, 126, 127, 128, 129, 130, 
-	131, 132, 429, 133, 134, 139, 429, 135, 
-	136, 429, 137, 138, 141, 142, 143, 144, 
-	145, 146, 429, 147, 148, 146, 429, 147, 
-	148, 429, 149, 152, 150, 151, 152, 153, 
-	154, 151, 153, 154, 152, 151, 152, 156, 
-	157, 158, 159, 160, 161, 160, 161, 161, 
-	162, 163, 164, 171, 172, 163, 164, 171, 
-	172, 165, 429, 166, 429, 165, 429, 166, 
-	167, 168, 429, 166, 169, 170, 168, 169, 
-	170, 168, 429, 166, 163, 164, 174, 175, 
-	176, 177, 178, 194, 211, 179, 180, 181, 
-	182, 429, 183, 429, 184, 185, 186, 187, 
-	184, 185, 186, 187, 184, 187, 429, 188, 
-	189, 429, 190, 429, 191, 192, 193, 190, 
-	429, 191, 192, 193, 190, 429, 191, 195, 
-	196, 197, 198, 199, 429, 199, 200, 429, 
-	429, 201, 202, 203, 204, 201, 202, 203, 
-	204, 201, 204, 429, 205, 206, 429, 207, 
-	429, 208, 209, 210, 207, 429, 208, 209, 
-	210, 208, 429, 207, 429, 208, 212, 213, 
-	214, 215, 216, 217, 218, 219, 220, 429, 
-	220, 221, 222, 223, 224, 225, 222, 223, 
-	224, 225, 222, 225, 429, 225, 226, 227, 
-	429, 228, 229, 230, 227, 429, 228, 229, 
-	230, 228, 429, 227, 429, 228, 232, 233, 
-	234, 234, 235, 236, 429, 237, 238, 245, 
-	246, 237, 238, 245, 246, 239, 429, 240, 
-	429, 239, 429, 240, 241, 242, 429, 240, 
-	243, 244, 242, 243, 244, 242, 429, 240, 
-	237, 238, 249, 250, 251, 252, 63, 0, 
-	252, 429, 253, 254, 292, 63, 0, 254, 
-	429, 255, 256, 257, 258, 291, 259, 259, 
-	260, 261, 288, 262, 263, 264, 287, 264, 
-	265, 284, 266, 267, 268, 283, 268, 269, 
-	280, 270, 63, 0, 271, 429, 272, 279, 
-	273, 274, 63, 0, 273, 274, 275, 276, 
-	274, 277, 278, 276, 277, 278, 429, 276, 
-	274, 281, 271, 272, 282, 285, 267, 268, 
-	286, 289, 263, 264, 290, 294, 295, 296, 
-	63, 0, 429, 297, 303, 298, 63, 0, 
-	298, 429, 299, 300, 301, 302, 300, 301, 
-	301, 304, 305, 306, 307, 308, 309, 310, 
-	311, 312, 313, 63, 0, 429, 314, 315, 
-	320, 63, 0, 429, 316, 317, 318, 319, 
-	322, 323, 324, 325, 326, 327, 328, 329, 
-	327, 328, 329, 63, 330, 429, 333, 331, 
-	332, 333, 334, 335, 332, 334, 335, 333, 
-	332, 333, 337, 338, 339, 340, 341, 342, 
-	341, 342, 342, 343, 344, 345, 352, 353, 
-	344, 345, 352, 353, 346, 347, 63, 346, 
-	347, 348, 349, 347, 350, 351, 349, 350, 
-	351, 429, 349, 347, 344, 345, 355, 356, 
-	357, 358, 359, 375, 392, 360, 361, 362, 
-	363, 63, 0, 429, 364, 63, 0, 365, 
-	429, 366, 367, 368, 365, 366, 367, 368, 
-	365, 368, 63, 0, 369, 429, 370, 63, 
-	0, 429, 371, 372, 373, 374, 371, 372, 
-	373, 374, 371, 372, 376, 377, 378, 379, 
-	380, 63, 0, 380, 429, 381, 63, 0, 
-	382, 429, 383, 384, 385, 382, 383, 384, 
-	385, 382, 385, 63, 0, 386, 429, 387, 
-	63, 0, 429, 388, 389, 390, 391, 388, 
-	389, 390, 391, 389, 388, 389, 393, 394, 
-	395, 396, 397, 398, 399, 400, 401, 63, 
-	0, 401, 429, 402, 403, 404, 405, 406, 
-	403, 404, 405, 406, 403, 406, 63, 0, 
-	406, 429, 407, 408, 409, 410, 411, 408, 
-	409, 410, 411, 409, 408, 409, 413, 414, 
-	415, 415, 416, 417, 63, 0, 418, 429, 
-	419, 426, 427, 418, 419, 426, 427, 420, 
-	421, 63, 0, 420, 421, 422, 423, 421, 
-	424, 425, 423, 424, 425, 429, 423, 421, 
-	418, 419, 428, 429
+	15, 16, 17, 0, 18, 56, 18, 18, 
+	19, 20, 21, 22, 23, 24, 0, 24, 
+	25, 26, 27, 54, 55, 26, 27, 54, 
+	55, 27, 28, 53, 28, 28, 29, 30, 
+	31, 32, 0, 33, 52, 33, 33, 34, 
+	35, 36, 37, 38, 39, 40, 41, 42, 
+	43, 44, 45, 46, 47, 48, 49, 50, 
+	0, 410, 51, 26, 27, 57, 411, 58, 
+	412, 235, 236, 281, 309, 324, 336, 394, 
+	411, 59, 59, 60, 61, 106, 134, 149, 
+	161, 219, 411, 62, 63, 64, 65, 411, 
+	65, 66, 67, 105, 411, 67, 68, 69, 
+	70, 71, 104, 72, 72, 73, 74, 101, 
+	75, 76, 77, 100, 77, 78, 97, 79, 
+	80, 81, 96, 81, 82, 93, 83, 411, 
+	84, 85, 92, 86, 411, 87, 411, 86, 
+	411, 87, 88, 89, 411, 87, 90, 91, 
+	89, 90, 91, 89, 411, 87, 94, 84, 
+	85, 95, 98, 80, 81, 99, 102, 76, 
+	77, 103, 107, 108, 109, 411, 110, 116, 
+	111, 411, 111, 112, 113, 411, 114, 115, 
+	113, 411, 114, 114, 411, 117, 118, 119, 
+	120, 121, 122, 123, 124, 125, 126, 411, 
+	127, 128, 133, 411, 129, 130, 411, 131, 
+	132, 135, 136, 137, 138, 139, 140, 411, 
+	141, 142, 140, 411, 141, 142, 411, 143, 
+	146, 144, 145, 146, 147, 148, 145, 147, 
+	148, 146, 145, 146, 150, 151, 152, 153, 
+	154, 154, 155, 156, 157, 159, 160, 156, 
+	157, 159, 160, 157, 411, 158, 156, 157, 
+	162, 163, 164, 165, 166, 182, 199, 167, 
+	168, 169, 170, 411, 171, 411, 172, 173, 
+	174, 175, 172, 173, 174, 175, 172, 175, 
+	411, 176, 177, 411, 178, 411, 179, 180, 
+	181, 178, 411, 179, 180, 181, 178, 411, 
+	179, 183, 184, 185, 186, 187, 411, 187, 
+	188, 411, 411, 189, 190, 191, 192, 189, 
+	190, 191, 192, 189, 192, 411, 193, 194, 
+	411, 195, 411, 196, 197, 198, 195, 411, 
+	196, 197, 198, 196, 411, 195, 411, 196, 
+	200, 201, 202, 203, 204, 205, 206, 207, 
+	208, 411, 208, 209, 210, 211, 212, 213, 
+	210, 211, 212, 213, 210, 213, 411, 213, 
+	214, 215, 411, 216, 217, 218, 215, 411, 
+	216, 217, 218, 216, 411, 215, 411, 216, 
+	220, 221, 222, 222, 223, 224, 411, 225, 
+	226, 233, 234, 225, 226, 233, 234, 227, 
+	411, 228, 411, 227, 411, 228, 229, 230, 
+	411, 228, 231, 232, 230, 231, 232, 230, 
+	411, 228, 225, 226, 237, 238, 239, 240, 
+	57, 0, 240, 411, 241, 242, 280, 57, 
+	0, 242, 411, 243, 244, 245, 246, 279, 
+	247, 247, 248, 249, 276, 250, 251, 252, 
+	275, 252, 253, 272, 254, 255, 256, 271, 
+	256, 257, 268, 258, 57, 0, 259, 411, 
+	260, 267, 261, 262, 57, 0, 261, 262, 
+	263, 264, 262, 265, 266, 264, 265, 266, 
+	411, 264, 262, 269, 259, 260, 270, 273, 
+	255, 256, 274, 277, 251, 252, 278, 282, 
+	283, 284, 57, 0, 411, 285, 291, 286, 
+	57, 0, 286, 411, 287, 288, 289, 290, 
+	288, 289, 289, 292, 293, 294, 295, 296, 
+	297, 298, 299, 300, 301, 57, 0, 411, 
+	302, 303, 308, 57, 0, 411, 304, 305, 
+	306, 307, 310, 311, 312, 313, 314, 315, 
+	316, 317, 315, 316, 317, 57, 318, 411, 
+	321, 319, 320, 321, 322, 323, 320, 322, 
+	323, 321, 320, 321, 325, 326, 327, 328, 
+	329, 329, 330, 331, 332, 334, 335, 331, 
+	332, 334, 335, 332, 333, 331, 332, 337, 
+	338, 339, 340, 341, 357, 374, 342, 343, 
+	344, 345, 57, 0, 411, 346, 57, 0, 
+	347, 411, 348, 349, 350, 347, 348, 349, 
+	350, 347, 350, 57, 0, 351, 411, 352, 
+	57, 0, 411, 353, 354, 355, 356, 353, 
+	354, 355, 356, 353, 354, 358, 359, 360, 
+	361, 362, 57, 0, 362, 411, 363, 57, 
+	0, 364, 411, 365, 366, 367, 364, 365, 
+	366, 367, 364, 367, 57, 0, 368, 411, 
+	369, 57, 0, 411, 370, 371, 372, 373, 
+	370, 371, 372, 373, 371, 370, 371, 375, 
+	376, 377, 378, 379, 380, 381, 382, 383, 
+	57, 0, 383, 411, 384, 385, 386, 387, 
+	388, 385, 386, 387, 388, 385, 388, 57, 
+	0, 388, 411, 389, 390, 391, 392, 393, 
+	390, 391, 392, 393, 391, 390, 391, 395, 
+	396, 397, 397, 398, 399, 57, 0, 400, 
+	411, 401, 408, 409, 400, 401, 408, 409, 
+	402, 403, 57, 0, 402, 403, 404, 405, 
+	403, 406, 407, 405, 406, 407, 411, 405, 
+	403, 400, 401, 410, 411
 };
 
 static const short _checked_parse_test_trans_actions_wi[] = {
 	0, 0, 1, 71, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 73, 241, 0, 0, 1, 
-	79, 0, 0, 0, 0, 81, 81, 0, 
-	0, 75, 75, 0, 131, 131, 13, 128, 
-	0, 75, 0, 15, 0, 245, 0, 77, 
-	77, 437, 77, 0, 0, 1, 83, 0, 
-	0, 0, 85, 107, 0, 0, 1, 87, 
+	0, 0, 0, 73, 234, 0, 0, 1, 
+	77, 0, 0, 0, 0, 0, 75, 75, 
+	0, 127, 127, 13, 124, 0, 75, 0, 
+	15, 0, 238, 0, 0, 1, 79, 0, 
+	0, 0, 81, 103, 0, 0, 1, 83, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	89, 253, 0, 134, 469, 134, 13, 128, 
-	0, 0, 15, 19, 387, 19, 17, 17, 
-	0, 116, 0, 218, 0, 41, 164, 91, 
-	79, 373, 61, 105, 0, 1, 0, 41, 
-	164, 91, 79, 373, 61, 113, 0, 0, 
-	0, 0, 146, 33, 0, 21, 5, 149, 
-	35, 0, 0, 0, 0, 5, 23, 0, 
-	0, 0, 0, 0, 0, 25, 5, 0, 
-	0, 0, 0, 0, 27, 5, 0, 0, 
-	0, 0, 152, 0, 29, 5, 0, 229, 
-	0, 155, 39, 402, 39, 0, 265, 499, 
-	265, 13, 128, 0, 0, 15, 137, 487, 
-	137, 0, 11, 125, 5, 0, 11, 122, 
-	5, 0, 11, 119, 5, 0, 0, 0, 
-	158, 43, 45, 0, 161, 47, 0, 31, 
-	277, 31, 5, 47, 301, 47, 0, 110, 
+	85, 246, 0, 17, 17, 0, 112, 0, 
+	211, 0, 41, 160, 87, 77, 362, 61, 
+	101, 0, 1, 0, 41, 160, 87, 77, 
+	362, 61, 109, 0, 0, 0, 0, 142, 
+	33, 0, 21, 5, 145, 35, 0, 0, 
+	0, 0, 5, 23, 0, 0, 0, 0, 
+	0, 0, 25, 5, 0, 0, 0, 0, 
+	0, 27, 5, 0, 0, 0, 0, 148, 
+	0, 29, 5, 0, 222, 0, 151, 39, 
+	381, 39, 0, 258, 456, 258, 13, 124, 
+	0, 0, 15, 133, 444, 133, 0, 11, 
+	121, 5, 0, 11, 118, 5, 0, 11, 
+	115, 5, 0, 0, 0, 154, 43, 45, 
+	0, 157, 47, 0, 31, 270, 31, 5, 
+	47, 294, 47, 0, 106, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 163, 
+	0, 0, 5, 166, 0, 0, 214, 0, 
+	9, 0, 0, 0, 0, 0, 89, 416, 
+	89, 89, 0, 250, 0, 0, 202, 75, 
+	75, 0, 127, 127, 13, 124, 0, 0, 
+	15, 0, 17, 17, 0, 0, 0, 0, 
+	0, 75, 0, 127, 127, 13, 124, 0, 
+	75, 0, 15, 0, 242, 0, 17, 17, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 167, 0, 0, 5, 170, 0, 
-	0, 221, 0, 9, 0, 0, 0, 0, 
-	0, 93, 447, 93, 93, 0, 257, 0, 
-	0, 206, 75, 75, 0, 131, 131, 13, 
-	128, 0, 0, 15, 0, 17, 17, 0, 
-	0, 0, 0, 81, 81, 0, 0, 75, 
-	0, 131, 131, 13, 128, 0, 75, 0, 
-	15, 0, 249, 0, 209, 77, 442, 77, 
-	0, 134, 475, 134, 13, 128, 0, 0, 
-	15, 19, 392, 19, 17, 17, 0, 0, 
+	0, 0, 0, 172, 0, 314, 127, 13, 
+	124, 127, 0, 0, 15, 0, 17, 17, 
+	318, 0, 0, 178, 130, 426, 130, 13, 
+	124, 0, 218, 0, 0, 15, 19, 366, 
+	19, 0, 0, 0, 0, 0, 190, 65, 
+	0, 199, 338, 127, 13, 124, 262, 0, 
+	0, 15, 65, 17, 136, 346, 67, 0, 
+	193, 130, 463, 266, 13, 124, 0, 406, 
+	67, 0, 15, 0, 230, 19, 450, 139, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 176, 0, 321, 131, 13, 128, 131, 
-	0, 0, 15, 0, 17, 17, 325, 0, 
-	0, 182, 134, 457, 134, 13, 128, 0, 
-	225, 0, 0, 15, 19, 377, 19, 0, 
-	0, 0, 0, 0, 194, 65, 0, 203, 
-	345, 131, 13, 128, 269, 0, 0, 15, 
-	65, 17, 140, 353, 67, 0, 197, 134, 
-	506, 273, 13, 128, 0, 427, 67, 0, 
-	15, 0, 237, 19, 493, 143, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 212, 
-	95, 0, 131, 13, 128, 131, 0, 0, 
-	15, 95, 17, 17, 215, 97, 0, 134, 
-	481, 134, 13, 128, 0, 452, 97, 0, 
-	15, 0, 261, 19, 397, 19, 0, 0, 
-	63, 0, 0, 0, 185, 131, 131, 13, 
-	128, 0, 0, 0, 15, 0, 233, 0, 
-	188, 59, 417, 59, 0, 134, 463, 134, 
-	13, 128, 0, 0, 15, 19, 382, 19, 
-	17, 17, 0, 0, 0, 0, 33, 33, 
-	33, 281, 0, 21, 5, 35, 35, 35, 
-	285, 0, 0, 0, 0, 5, 23, 0, 
-	0, 0, 0, 0, 0, 25, 5, 0, 
-	0, 0, 0, 0, 27, 5, 0, 0, 
-	0, 0, 37, 37, 0, 289, 29, 5, 
-	0, 0, 39, 39, 39, 39, 0, 265, 
-	265, 13, 128, 0, 0, 15, 293, 137, 
-	137, 0, 11, 125, 5, 0, 11, 122, 
-	5, 0, 11, 119, 5, 0, 0, 0, 
-	45, 45, 297, 43, 45, 0, 47, 47, 
-	47, 305, 0, 31, 31, 5, 47, 47, 
+	0, 205, 91, 0, 127, 13, 124, 127, 
+	0, 0, 15, 91, 17, 17, 208, 93, 
+	0, 130, 438, 130, 13, 124, 0, 421, 
+	93, 0, 15, 0, 254, 19, 376, 19, 
+	0, 0, 63, 0, 0, 0, 181, 127, 
+	127, 13, 124, 0, 0, 0, 15, 0, 
+	226, 0, 184, 59, 396, 59, 0, 130, 
+	432, 130, 13, 124, 0, 0, 15, 19, 
+	371, 19, 17, 17, 0, 0, 0, 0, 
+	33, 33, 33, 274, 0, 21, 5, 35, 
+	35, 35, 278, 0, 0, 0, 0, 5, 
+	23, 0, 0, 0, 0, 0, 0, 25, 
+	5, 0, 0, 0, 0, 0, 27, 5, 
+	0, 0, 0, 0, 37, 37, 0, 282, 
+	29, 5, 0, 0, 39, 39, 39, 39, 
+	0, 258, 258, 13, 124, 0, 0, 15, 
+	286, 133, 133, 0, 11, 121, 5, 0, 
+	11, 118, 5, 0, 11, 115, 5, 0, 
+	0, 0, 45, 45, 290, 43, 45, 0, 
+	47, 47, 47, 298, 0, 31, 31, 5, 
+	47, 47, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 49, 49, 302, 
+	0, 0, 5, 51, 51, 306, 0, 0, 
+	0, 9, 0, 0, 0, 0, 0, 89, 
+	89, 89, 0, 0, 0, 75, 75, 350, 
+	75, 0, 127, 127, 13, 124, 0, 0, 
+	15, 0, 17, 17, 0, 0, 0, 0, 
+	0, 75, 0, 127, 127, 13, 124, 0, 
+	75, 0, 15, 0, 0, 17, 17, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 49, 49, 309, 0, 0, 
-	5, 51, 51, 313, 0, 0, 0, 9, 
-	0, 0, 0, 0, 0, 93, 93, 93, 
-	0, 0, 0, 75, 75, 357, 75, 0, 
-	131, 131, 13, 128, 0, 0, 15, 0, 
-	17, 17, 0, 0, 0, 0, 81, 81, 
-	0, 0, 75, 0, 131, 131, 13, 128, 
-	0, 75, 0, 15, 0, 0, 77, 77, 
-	77, 0, 134, 134, 13, 128, 0, 0, 
-	15, 361, 19, 19, 17, 17, 0, 0, 
+	0, 0, 53, 53, 310, 0, 169, 169, 
+	127, 386, 13, 124, 127, 0, 0, 15, 
+	0, 17, 17, 175, 175, 0, 391, 0, 
+	55, 55, 322, 130, 130, 13, 124, 0, 
+	0, 0, 15, 19, 19, 0, 0, 0, 
+	0, 0, 65, 65, 65, 334, 0, 187, 
+	187, 127, 401, 13, 124, 262, 0, 0, 
+	15, 65, 17, 136, 196, 196, 67, 411, 
+	0, 67, 67, 342, 130, 266, 13, 124, 
+	0, 67, 0, 15, 0, 19, 139, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 53, 53, 317, 0, 173, 173, 131, 
-	407, 13, 128, 131, 0, 0, 15, 0, 
-	17, 17, 179, 179, 0, 412, 0, 55, 
-	55, 329, 134, 134, 13, 128, 0, 0, 
-	0, 15, 19, 19, 0, 0, 0, 0, 
-	0, 65, 65, 65, 341, 0, 191, 191, 
-	131, 422, 13, 128, 269, 0, 0, 15, 
-	65, 17, 140, 200, 200, 67, 432, 0, 
-	67, 67, 349, 134, 273, 13, 128, 0, 
-	67, 0, 15, 0, 19, 143, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 95, 
-	95, 95, 365, 0, 131, 13, 128, 131, 
-	0, 0, 15, 95, 17, 17, 97, 97, 
-	97, 369, 0, 134, 134, 13, 128, 0, 
-	97, 0, 15, 0, 19, 19, 0, 0, 
-	63, 0, 0, 0, 57, 57, 131, 333, 
-	131, 13, 128, 0, 0, 0, 15, 0, 
-	0, 59, 59, 59, 59, 0, 134, 134, 
-	13, 128, 0, 0, 15, 337, 19, 19, 
-	17, 17, 0, 103
+	91, 91, 91, 354, 0, 127, 13, 124, 
+	127, 0, 0, 15, 91, 17, 17, 93, 
+	93, 93, 358, 0, 130, 130, 13, 124, 
+	0, 93, 0, 15, 0, 19, 19, 0, 
+	0, 63, 0, 0, 0, 57, 57, 127, 
+	326, 127, 13, 124, 0, 0, 0, 15, 
+	0, 0, 59, 59, 59, 59, 0, 130, 
+	130, 13, 124, 0, 0, 15, 330, 19, 
+	19, 17, 17, 0, 99
 };
 
 static const short _checked_parse_test_to_state_actions[] = {
-	0, 99, 0, 0, 0, 0, 0, 0, 
+	0, 95, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 99, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 99, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 95, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 95, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	3, 0, 0, 3, 0, 0, 0, 0, 
-	0, 3, 0, 0, 0, 3, 0, 0, 
-	0, 3, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 3, 0, 0, 0, 
-	3, 0, 0, 0, 3, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 3, 0, 0, 3, 0, 0, 
+	0, 0, 0, 3, 0, 0, 0, 3, 
+	0, 0, 0, 3, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 3, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 3, 0, 7, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 3, 0, 0, 
-	3, 0, 0, 0, 0, 0, 3, 0, 
 	0, 0, 3, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	3, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 3, 
+	0, 7, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 3, 0, 0, 3, 0, 0, 0, 
+	0, 0, 3, 0, 0, 0, 3, 0, 
+	0, 0, 3, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 3, 0, 0, 
 	0, 3, 0, 0, 0, 3, 0, 0, 
-	0, 3, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 3, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 3, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 3, 0, 7, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 3, 0, 
+	7, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -7556,7 +7342,8 @@ static const short _checked_parse_test_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 99, 99, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 95, 95, 0
 };
 
 static const short _checked_parse_test_from_state_actions[] = {
@@ -7611,22 +7398,18 @@ static const short _checked_parse_test_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 101, 0
+	0, 0, 0, 97, 0
 };
 
 static const short _checked_parse_test_eof_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 73, 0, 0, 0, 0, 0, 0, 
-	0, 75, 0, 75, 0, 77, 0, 0, 
-	0, 0, 85, 0, 0, 0, 0, 0, 
+	75, 0, 75, 0, 0, 0, 0, 0, 
+	81, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 89, 89, 85, 0, 
-	0, 77, 77, 0, 75, 0, 73, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 85, 85, 81, 0, 75, 0, 
+	73, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -7648,29 +7431,29 @@ static const short _checked_parse_test_eof_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 33, 0, 35, 35, 
-	35, 35, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 37, 37, 
-	0, 39, 0, 0, 39, 39, 0, 37, 
-	0, 37, 37, 0, 0, 0, 0, 0, 
-	0, 0, 0, 35, 0, 0, 0, 0, 
-	45, 0, 47, 0, 47, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 49, 49, 51, 51, 0, 0, 51, 
-	49, 0, 0, 0, 0, 0, 0, 0, 
-	0, 75, 75, 0, 75, 0, 75, 0, 
-	0, 0, 0, 0, 0, 0, 75, 0, 
-	75, 0, 77, 0, 0, 77, 77, 0, 
-	75, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 53, 173, 173, 53, 173, 
-	179, 55, 55, 55, 0, 55, 55, 0, 
-	0, 0, 0, 0, 65, 69, 191, 65, 
-	69, 200, 67, 0, 67, 0, 67, 0, 
+	33, 0, 35, 35, 35, 35, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 95, 0, 95, 95, 0, 97, 0, 
-	97, 0, 97, 0, 0, 0, 0, 0, 
-	0, 57, 57, 0, 59, 0, 0, 59, 
-	59, 0, 0, 57, 0, 0, 0
+	0, 0, 37, 37, 0, 39, 0, 0, 
+	39, 39, 0, 37, 0, 37, 37, 0, 
+	0, 0, 0, 0, 0, 0, 0, 35, 
+	0, 0, 0, 0, 45, 0, 47, 0, 
+	47, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 49, 49, 51, 
+	51, 0, 0, 51, 49, 0, 0, 0, 
+	0, 0, 0, 0, 0, 75, 75, 0, 
+	75, 0, 75, 0, 0, 0, 0, 0, 
+	0, 75, 0, 75, 0, 0, 75, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 53, 169, 169, 53, 169, 175, 55, 
+	55, 55, 0, 55, 55, 0, 0, 0, 
+	0, 0, 65, 69, 187, 65, 69, 196, 
+	67, 0, 67, 0, 67, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 91, 
+	0, 91, 91, 0, 93, 0, 93, 0, 
+	93, 0, 0, 0, 0, 0, 0, 57, 
+	57, 0, 59, 0, 0, 59, 59, 0, 
+	0, 57, 0, 0, 0
 };
 
 static const short _checked_parse_test_eof_trans[] = {
@@ -7681,31 +7464,29 @@ static const short _checked_parse_test_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 108, 108, 108, 108, 108, 108, 123, 
-	108, 128, 128, 128, 128, 108, 108, 108, 
-	108, 108, 108, 108, 108, 108, 108, 108, 
-	108, 155, 155, 108, 162, 108, 108, 162, 
-	162, 108, 155, 108, 155, 155, 108, 108, 
-	108, 108, 108, 108, 108, 108, 128, 108, 
-	108, 108, 108, 193, 108, 197, 108, 197, 
-	108, 108, 108, 108, 108, 108, 108, 108, 
-	108, 108, 108, 108, 219, 219, 223, 223, 
-	108, 108, 223, 219, 108, 108, 108, 108, 
-	108, 108, 108, 108, 242, 242, 108, 242, 
-	108, 242, 108, 108, 108, 108, 108, 108, 
-	108, 242, 108, 242, 108, 277, 108, 108, 
-	277, 277, 108, 242, 108, 108, 108, 108, 
-	108, 108, 108, 108, 108, 108, 306, 308, 
-	308, 306, 308, 319, 322, 322, 322, 108, 
-	322, 322, 108, 108, 108, 108, 108, 341, 
-	344, 345, 341, 344, 356, 359, 108, 359, 
-	108, 359, 108, 108, 108, 108, 108, 108, 
-	108, 108, 108, 108, 384, 108, 384, 384, 
-	108, 397, 108, 397, 108, 397, 108, 108, 
-	108, 108, 108, 108, 421, 421, 108, 433, 
-	108, 108, 433, 433, 108, 108, 421, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 89, 89, 89, 89, 89, 
+	89, 104, 89, 109, 109, 109, 109, 89, 
+	89, 89, 89, 89, 89, 89, 89, 89, 
+	89, 89, 89, 136, 136, 89, 143, 89, 
+	89, 143, 143, 89, 136, 89, 136, 136, 
+	89, 89, 89, 89, 89, 89, 89, 89, 
+	109, 89, 89, 89, 89, 174, 89, 178, 
+	89, 178, 89, 89, 89, 89, 89, 89, 
+	89, 89, 89, 89, 89, 89, 200, 200, 
+	204, 204, 89, 89, 204, 200, 89, 89, 
+	89, 89, 89, 89, 89, 89, 223, 223, 
+	89, 223, 89, 223, 89, 89, 89, 89, 
+	89, 89, 223, 89, 223, 89, 89, 223, 
+	89, 89, 89, 89, 89, 89, 89, 89, 
+	89, 89, 268, 270, 270, 268, 270, 281, 
+	284, 284, 284, 89, 284, 284, 89, 89, 
+	89, 89, 89, 303, 306, 307, 303, 306, 
+	318, 321, 89, 321, 89, 321, 89, 89, 
+	89, 89, 89, 89, 89, 89, 89, 89, 
+	346, 89, 346, 346, 89, 359, 89, 359, 
+	89, 359, 89, 89, 89, 89, 89, 89, 
+	383, 383, 89, 395, 89, 89, 395, 395, 
+	89, 89, 383, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -7727,19 +7508,19 @@ static const short _checked_parse_test_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 796
+	0, 0, 0, 0, 741
 };
 
 static const int checked_parse_test_start = 1;
-static const int checked_parse_test_first_final = 428;
+static const int checked_parse_test_first_final = 410;
 static const int checked_parse_test_error = 0;
 
-static const int checked_parse_test_en_checked_group_scanner = 429;
+static const int checked_parse_test_en_checked_group_scanner = 411;
 static const int checked_parse_test_en_main = 1;
 
-#line 1007 "NanorexMMPImportExportTest.rl"
+#line 1004 "NanorexMMPImportExportTest.rl"
 	
-#line 7743 "NanorexMMPImportExportTest.cpp"
+#line 7524 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = checked_parse_test_start;
 	top = 0;
@@ -7747,9 +7528,9 @@ static const int checked_parse_test_en_main = 1;
 	te = 0;
 	act = 0;
 	}
-#line 1008 "NanorexMMPImportExportTest.rl"
+#line 1005 "NanorexMMPImportExportTest.rl"
 	
-#line 7753 "NanorexMMPImportExportTest.cpp"
+#line 7534 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -7766,11 +7547,11 @@ _resume:
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
-	case 71:
+	case 69:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 7774 "NanorexMMPImportExportTest.cpp"
+#line 7555 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -8047,154 +7828,146 @@ _eof_trans:
 	{ syntaxError("Badly formed group-name"); }
 	break;
 	case 50:
-#line 39 "NanorexMMPImportExportTest.rl"
-	{ syntaxError("Badly formed group-style"); }
+#line 43 "NanorexMMPImportExportTest.rl"
+	{lineStart=p;}
 	break;
 	case 51:
-#line 43 "NanorexMMPImportExportTest.rl"
-	{lineStart=p;}
+#line 50 "NanorexMMPImportExportTest.rl"
+	{ newMolStructGroup(stringVal/*, stringVal2*/); }
 	break;
 	case 52:
-#line 43 "NanorexMMPImportExportTest.rl"
-	{ stringVal2.clear(); }
-	break;
-	case 53:
-#line 49 "NanorexMMPImportExportTest.rl"
-	{ newMolStructGroup(stringVal, stringVal2); }
-	break;
-	case 54:
-#line 54 "NanorexMMPImportExportTest.rl"
+#line 55 "NanorexMMPImportExportTest.rl"
 	{lineStart = p;}
 	break;
-	case 55:
-#line 57 "NanorexMMPImportExportTest.rl"
+	case 53:
+#line 58 "NanorexMMPImportExportTest.rl"
 	{ end1(); }
 	break;
-	case 56:
-#line 58 "NanorexMMPImportExportTest.rl"
+	case 54:
+#line 59 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'end1' statement"); }
 	break;
-	case 57:
-#line 62 "NanorexMMPImportExportTest.rl"
+	case 55:
+#line 63 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 58:
-#line 66 "NanorexMMPImportExportTest.rl"
+	case 56:
+#line 67 "NanorexMMPImportExportTest.rl"
 	{ newClipboardGroup(); }
 	break;
-	case 59:
-#line 67 "NanorexMMPImportExportTest.rl"
+	case 57:
+#line 68 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Expecting the 'group (Clipboard)' statement"); }
 	break;
-	case 60:
-#line 72 "NanorexMMPImportExportTest.rl"
+	case 58:
+#line 73 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 61:
-#line 72 "NanorexMMPImportExportTest.rl"
+	case 59:
+#line 73 "NanorexMMPImportExportTest.rl"
 	{ stringVal.clear(); }
 	break;
-	case 62:
-#line 78 "NanorexMMPImportExportTest.rl"
+	case 60:
+#line 79 "NanorexMMPImportExportTest.rl"
 	{ endGroup(stringVal); }
 	break;
-	case 63:
-#line 83 "NanorexMMPImportExportTest.rl"
+	case 61:
+#line 84 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'info opengroup' key"); }
 	break;
-	case 64:
-#line 88 "NanorexMMPImportExportTest.rl"
+	case 62:
+#line 89 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'info opengroup' value"); }
 	break;
-	case 65:
-#line 92 "NanorexMMPImportExportTest.rl"
+	case 63:
+#line 93 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 66:
-#line 103 "NanorexMMPImportExportTest.rl"
+	case 64:
+#line 104 "NanorexMMPImportExportTest.rl"
 	{ newOpenGroupInfo(stringVal, stringVal2); }
 	break;
-	case 67:
-#line 979 "NanorexMMPImportExportTest.rl"
+	case 65:
+#line 976 "NanorexMMPImportExportTest.rl"
 	{ cerr << "*p=" << *p << endl;
 			p--;
-			{stack[top++] = cs; cs = 429; goto _again;}
+			{stack[top++] = cs; cs = 411; goto _again;}
 		}
 	break;
-	case 68:
-#line 985 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 429; goto _again;} }
+	case 66:
+#line 982 "NanorexMMPImportExportTest.rl"
+	{ p--; {stack[top++] = cs; cs = 411; goto _again;} }
 	break;
-	case 69:
-#line 990 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 429; goto _again;} }
+	case 67:
+#line 987 "NanorexMMPImportExportTest.rl"
+	{ p--; {stack[top++] = cs; cs = 411; goto _again;} }
 	break;
-	case 72:
+	case 70:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 73:
-#line 109 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
-	break;
-	case 74:
+	case 71:
 #line 110 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 75:
-#line 112 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
-	break;
-	case 76:
-#line 113 "NanorexMMPImportExportTest.rl"
+	case 72:
+#line 111 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 77:
+	case 73:
+#line 113 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
+	break;
+	case 74:
 #line 114 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 78:
+	case 75:
 #line 115 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 79:
+	case 76:
 #line 116 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 80:
+	case 77:
 #line 117 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 81:
+	case 78:
 #line 118 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 82:
-#line 121 "NanorexMMPImportExportTest.rl"
+	case 79:
+#line 119 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 83:
-#line 123 "NanorexMMPImportExportTest.rl"
+	case 80:
+#line 122 "NanorexMMPImportExportTest.rl"
+	{te = p+1;}
+	break;
+	case 81:
+#line 124 "NanorexMMPImportExportTest.rl"
 	{te = p+1;{   cerr << lineNum << ": Error : ";
 					std::copy(ts, te, std::ostream_iterator<char>(cerr));
 					cerr << endl;
 				}}
 	break;
-	case 84:
-#line 123 "NanorexMMPImportExportTest.rl"
+	case 82:
+#line 124 "NanorexMMPImportExportTest.rl"
 	{te = p;p--;{   cerr << lineNum << ": Error : ";
 					std::copy(ts, te, std::ostream_iterator<char>(cerr));
 					cerr << endl;
 				}}
 	break;
-	case 85:
-#line 123 "NanorexMMPImportExportTest.rl"
+	case 83:
+#line 124 "NanorexMMPImportExportTest.rl"
 	{{p = ((te))-1;}{   cerr << lineNum << ": Error : ";
 					std::copy(ts, te, std::ostream_iterator<char>(cerr));
 					cerr << endl;
 				}}
 	break;
-#line 8198 "NanorexMMPImportExportTest.cpp"
+#line 7971 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -8211,11 +7984,11 @@ _again:
 #line 45 "NanorexMMPImportExportTest.rl"
 	{intVal2=(*p)-'0';}
 	break;
-	case 70:
+	case 68:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-#line 8219 "NanorexMMPImportExportTest.cpp"
+#line 7992 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -8306,34 +8079,30 @@ _again:
 #line 34 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed group-name"); }
 	break;
-	case 50:
-#line 39 "NanorexMMPImportExportTest.rl"
-	{ syntaxError("Badly formed group-style"); }
-	break;
-	case 56:
-#line 58 "NanorexMMPImportExportTest.rl"
+	case 54:
+#line 59 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'end1' statement"); }
 	break;
-	case 59:
-#line 67 "NanorexMMPImportExportTest.rl"
+	case 57:
+#line 68 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Expecting the 'group (Clipboard)' statement"); }
 	break;
-	case 63:
-#line 83 "NanorexMMPImportExportTest.rl"
+	case 61:
+#line 84 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'info opengroup' key"); }
 	break;
-	case 64:
-#line 88 "NanorexMMPImportExportTest.rl"
+	case 62:
+#line 89 "NanorexMMPImportExportTest.rl"
 	{ syntaxError("Badly formed 'info opengroup' value"); }
 	break;
-#line 8330 "NanorexMMPImportExportTest.cpp"
+#line 8099 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 1009 "NanorexMMPImportExportTest.rl"
+#line 1006 "NanorexMMPImportExportTest.rl"
 }
 
 
@@ -8368,7 +8137,7 @@ void NanorexMMPImportExportTest::charBufParseTest(void)
 }
 
 
-#line 1089 "NanorexMMPImportExportTest.rl"
+#line 1086 "NanorexMMPImportExportTest.rl"
 
 
 
@@ -8455,41 +8224,38 @@ NanorexMMPImportExportTest::charBufParseTestHelper(char const *const testInput)
 	char const *ts, *te;
 	int cs, stack[1024], top, act;
 	
-	#line 1176 "NanorexMMPImportExportTest.rl"
+	#line 1173 "NanorexMMPImportExportTest.rl"
 	
-#line 8461 "NanorexMMPImportExportTest.cpp"
+#line 8230 "NanorexMMPImportExportTest.cpp"
 static const char _parse_tester_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
 	7, 1, 8, 1, 9, 1, 10, 1, 
 	11, 1, 12, 1, 13, 1, 14, 1, 
 	17, 1, 18, 1, 21, 1, 22, 1, 
-	26, 1, 28, 1, 31, 1, 33, 1, 
-	34, 1, 38, 1, 42, 1, 44, 1, 
-	58, 1, 59, 2, 0, 30, 2, 0, 
-	54, 2, 0, 56, 2, 0, 57, 2, 
-	5, 12, 2, 5, 13, 2, 5, 14, 
-	2, 6, 7, 2, 6, 8, 2, 6, 
-	9, 2, 8, 15, 2, 36, 24, 2, 
-	38, 0, 2, 42, 43, 3, 0, 16, 
-	52, 3, 0, 19, 55, 3, 0, 20, 
-	53, 3, 0, 23, 50, 3, 0, 25, 
-	51, 3, 0, 27, 39, 3, 0, 29, 
-	40, 3, 0, 29, 47, 3, 0, 32, 
-	41, 3, 0, 35, 49, 3, 0, 37, 
-	48, 3, 6, 8, 15, 3, 17, 0, 
-	54, 3, 45, 0, 46, 4, 9, 0, 
-	20, 53, 4, 9, 0, 23, 50, 4, 
-	9, 0, 25, 51, 4, 9, 0, 29, 
-	40, 4, 9, 0, 29, 47, 4, 9, 
-	0, 37, 48, 4, 34, 0, 35, 49, 
-	5, 6, 9, 0, 20, 53, 5, 6, 
-	9, 0, 23, 50, 5, 6, 9, 0, 
-	25, 51, 5, 6, 9, 0, 29, 40, 
-	5, 6, 9, 0, 29, 47, 5, 6, 
-	9, 0, 37, 48, 5, 8, 15, 0, 
-	16, 52, 6, 6, 8, 15, 0, 16, 
-	52
+	26, 1, 30, 1, 32, 1, 33, 1, 
+	37, 1, 41, 1, 43, 1, 57, 1, 
+	58, 2, 0, 29, 2, 0, 53, 2, 
+	0, 55, 2, 0, 56, 2, 5, 12, 
+	2, 5, 13, 2, 5, 14, 2, 6, 
+	7, 2, 6, 8, 2, 6, 9, 2, 
+	8, 15, 2, 35, 24, 2, 37, 0, 
+	2, 41, 42, 3, 0, 16, 51, 3, 
+	0, 19, 54, 3, 0, 20, 52, 3, 
+	0, 23, 49, 3, 0, 25, 50, 3, 
+	0, 27, 38, 3, 0, 28, 39, 3, 
+	0, 28, 46, 3, 0, 31, 40, 3, 
+	0, 34, 48, 3, 0, 36, 47, 3, 
+	6, 8, 15, 3, 17, 0, 53, 3, 
+	44, 0, 45, 4, 9, 0, 20, 52, 
+	4, 9, 0, 23, 49, 4, 9, 0, 
+	25, 50, 4, 9, 0, 36, 47, 4, 
+	33, 0, 34, 48, 5, 6, 9, 0, 
+	20, 52, 5, 6, 9, 0, 23, 49, 
+	5, 6, 9, 0, 25, 50, 5, 6, 
+	9, 0, 36, 47, 5, 8, 15, 0, 
+	16, 51, 6, 6, 8, 15, 0, 16, 
+	51
 };
 
 static const short _parse_tester_key_offsets[] = {
@@ -8499,39 +8265,37 @@ static const short _parse_tester_key_offsets[] = {
 	47, 48, 49, 55, 61, 62, 63, 64, 
 	65, 70, 75, 80, 81, 82, 83, 87, 
 	92, 93, 94, 95, 100, 102, 107, 108, 
-	109, 110, 111, 116, 121, 132, 146, 160, 
-	165, 177, 182, 183, 184, 185, 190, 195, 
-	196, 197, 198, 199, 204, 209, 210, 211, 
-	212, 213, 214, 215, 216, 217, 222, 227, 
-	232, 233, 234, 238, 240, 242, 244, 258, 
-	272, 285, 299, 312, 326, 328, 329, 330, 
-	331, 332, 333, 337, 343, 350, 355, 360, 
-	362, 369, 371, 375, 381, 383, 385, 387, 
-	389, 391, 395, 400, 401, 402, 403, 404, 
-	405, 406, 407, 408, 413, 415, 426, 429, 
-	432, 435, 440, 447, 454, 460, 467, 475, 
-	481, 486, 492, 501, 505, 513, 519, 528, 
-	532, 540, 546, 555, 559, 567, 573, 579, 
-	592, 594, 609, 624, 638, 653, 661, 665, 
-	673, 681, 689, 693, 701, 709, 717, 721, 
-	729, 737, 745, 752, 755, 758, 761, 769, 
-	774, 781, 789, 797, 799, 807, 810, 813, 
-	816, 819, 822, 825, 828, 831, 834, 839, 
-	846, 853, 860, 868, 874, 876, 884, 891, 
-	894, 897, 900, 903, 906, 913, 920, 922, 
-	935, 947, 962, 977, 983, 997, 1012, 1015, 
-	1018, 1021, 1024, 1030, 1036, 1048, 1063, 1078, 
-	1084, 1097, 1099, 1114, 1129, 1143, 1158, 1172, 
-	1187, 1190, 1193, 1196, 1201, 1209, 1212, 1215, 
-	1218, 1223, 1235, 1250, 1265, 1279, 1294, 1306, 
-	1321, 1336, 1338, 1352, 1367, 1370, 1373, 1376, 
-	1379, 1384, 1396, 1411, 1426, 1440, 1455, 1467, 
-	1482, 1497, 1499, 1513, 1528, 1531, 1534, 1537, 
-	1540, 1543, 1546, 1549, 1552, 1557, 1569, 1584, 
-	1599, 1613, 1628, 1640, 1655, 1670, 1672, 1686, 
-	1701, 1704, 1707, 1712, 1718, 1730, 1745, 1760, 
-	1766, 1779, 1781, 1796, 1811, 1825, 1840, 1854, 
-	1869, 1871, 1871, 1883
+	109, 110, 111, 116, 127, 141, 155, 160, 
+	165, 166, 167, 168, 173, 178, 179, 180, 
+	181, 182, 187, 192, 193, 194, 195, 196, 
+	197, 198, 199, 200, 205, 210, 215, 216, 
+	217, 221, 223, 225, 227, 240, 254, 256, 
+	257, 258, 259, 260, 261, 265, 271, 278, 
+	283, 288, 290, 297, 299, 303, 309, 311, 
+	313, 315, 317, 319, 323, 328, 329, 330, 
+	331, 332, 333, 334, 335, 336, 341, 343, 
+	354, 357, 360, 363, 368, 375, 382, 388, 
+	395, 403, 409, 414, 420, 429, 433, 441, 
+	447, 456, 460, 468, 474, 483, 487, 495, 
+	501, 507, 520, 522, 537, 552, 566, 581, 
+	589, 593, 601, 609, 617, 621, 629, 637, 
+	645, 649, 657, 665, 673, 680, 683, 686, 
+	689, 697, 702, 709, 717, 725, 727, 735, 
+	738, 741, 744, 747, 750, 753, 756, 759, 
+	762, 767, 774, 781, 788, 796, 802, 804, 
+	812, 819, 822, 825, 828, 831, 834, 841, 
+	848, 850, 863, 875, 890, 905, 911, 925, 
+	940, 943, 946, 949, 952, 958, 970, 985, 
+	1000, 1006, 1008, 1022, 1037, 1040, 1043, 1046, 
+	1051, 1059, 1062, 1065, 1068, 1073, 1085, 1100, 
+	1115, 1129, 1144, 1156, 1171, 1186, 1188, 1202, 
+	1217, 1220, 1223, 1226, 1229, 1234, 1246, 1261, 
+	1276, 1290, 1305, 1317, 1332, 1347, 1349, 1363, 
+	1378, 1381, 1384, 1387, 1390, 1393, 1396, 1399, 
+	1402, 1407, 1419, 1434, 1449, 1463, 1478, 1490, 
+	1505, 1520, 1522, 1536, 1551, 1554, 1557, 1562, 
+	1568, 1580, 1595, 1610, 1616, 1629, 1631, 1646, 
+	1661, 1675, 1690, 1704, 1719, 1721, 1721, 1733
 };
 
 static const char _parse_tester_trans_keys[] = {
@@ -8549,30 +8313,21 @@ static const char _parse_tester_trans_keys[] = {
 	32, 68, 11, 13, 97, 116, 97, 9, 
 	32, 41, 11, 13, 10, 35, 10, 32, 
 	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 40, 11, 
-	13, 9, 32, 95, 11, 13, 48, 57, 
-	65, 90, 97, 122, 9, 32, 41, 95, 
-	11, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 9, 32, 41, 95, 11, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	10, 32, 35, 9, 13, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, 10, 32, 101, 9, 13, 110, 100, 
-	49, 10, 32, 35, 9, 13, 10, 32, 
-	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 67, 11, 
-	13, 108, 105, 112, 98, 111, 97, 114, 
-	100, 9, 32, 41, 11, 13, 10, 32, 
-	35, 9, 13, 10, 32, 101, 9, 13, 
-	110, 100, 9, 32, 11, 13, -1, 10, 
-	-1, 10, -1, 10, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	9, 32, 95, 11, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 9, 32, 95, 11, 13, 
+	32, 40, 11, 13, 9, 32, 95, 11, 
+	13, 48, 57, 65, 90, 97, 122, 9, 
+	32, 41, 95, 11, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, 9, 32, 41, 
+	95, 11, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, 10, 32, 35, 9, 13, 
+	10, 32, 101, 9, 13, 110, 100, 49, 
+	10, 32, 35, 9, 13, 10, 32, 103, 
+	9, 13, 114, 111, 117, 112, 9, 32, 
+	40, 11, 13, 9, 32, 67, 11, 13, 
+	108, 105, 112, 98, 111, 97, 114, 100, 
+	9, 32, 41, 11, 13, 10, 32, 35, 
+	9, 13, 10, 32, 101, 9, 13, 110, 
+	100, 9, 32, 11, 13, -1, 10, -1, 
+	10, -1, 10, 9, 32, 95, 11, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	9, 32, 41, 95, 11, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
@@ -8664,30 +8419,62 @@ static const char _parse_tester_trans_keys[] = {
 	65, 90, 97, 122, -1, 10, 114, -1, 
 	10, 111, -1, 10, 117, -1, 10, 112, 
 	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 9, 13, 45, 46, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 41, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 41, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 35, 9, 13, -1, 10, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 9, 13, -1, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 35, 95, 
+	32, 41, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 110, 
+	-1, 10, 102, -1, 10, 111, -1, 10, 
+	32, 9, 13, -1, 10, 32, 97, 99, 
+	111, 9, 13, -1, 10, 116, -1, 10, 
+	111, -1, 10, 109, -1, 10, 32, 9, 
+	13, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 61, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 61, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 95, 9, 13, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, -1, 10, 32, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 35, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
+	122, -1, 10, 104, -1, 10, 117, -1, 
+	10, 110, -1, 10, 107, -1, 10, 32, 
+	9, 13, -1, 10, 32, 95, 9, 13, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 41, 
+	32, 61, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 61, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	35, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 110, -1, 10, 
-	102, -1, 10, 111, -1, 10, 32, 9, 
-	13, -1, 10, 32, 97, 99, 111, 9, 
-	13, -1, 10, 116, -1, 10, 111, -1, 
-	10, 109, -1, 10, 32, 9, 13, -1, 
+	90, 97, 122, -1, 10, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 112, -1, 10, 101, 
+	-1, 10, 110, -1, 10, 103, -1, 10, 
+	114, -1, 10, 111, -1, 10, 117, -1, 
+	10, 112, -1, 10, 32, 9, 13, -1, 
 	10, 32, 95, 9, 13, 48, 57, 65, 
 	90, 97, 122, -1, 10, 32, 61, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
@@ -8706,72 +8493,31 @@ static const char _parse_tester_trans_keys[] = {
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 35, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 104, -1, 10, 117, -1, 10, 110, 
-	-1, 10, 107, -1, 10, 32, 9, 13, 
+	10, 111, -1, 10, 108, -1, 10, 32, 
+	9, 13, -1, 10, 32, 40, 9, 13, 
 	-1, 10, 32, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 61, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 35, 9, 13, 
+	-1, 10, 32, 35, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, -1, 
+	10, 32, 35, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 95, 9, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
+	-1, 10, 32, 41, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 112, -1, 10, 101, -1, 10, 
-	110, -1, 10, 103, -1, 10, 114, -1, 
-	10, 111, -1, 10, 117, -1, 10, 112, 
-	-1, 10, 32, 9, 13, -1, 10, 32, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 61, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	61, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 111, 
-	-1, 10, 108, -1, 10, 32, 9, 13, 
-	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 95, 9, 13, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 41, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 9, 13, -1, 10, 
-	32, 35, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, -1, 10, 32, 
-	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 41, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, -1, 
-	10, 32, 35, 97, 98, 101, 103, 105, 
-	109, 9, 13, -1, 10, 32, 97, 98, 
-	101, 103, 105, 109, 9, 13, 0
+	10, -1, 10, 32, 35, 97, 98, 101, 
+	103, 105, 109, 9, 13, -1, 10, 32, 
+	97, 98, 101, 103, 105, 109, 9, 13, 
+	0
 };
 
 static const char _parse_tester_single_lengths[] = {
@@ -8781,39 +8527,37 @@ static const char _parse_tester_single_lengths[] = {
 	1, 1, 4, 4, 1, 1, 1, 1, 
 	3, 3, 3, 1, 1, 1, 2, 3, 
 	1, 1, 1, 3, 2, 3, 1, 1, 
-	1, 1, 3, 3, 3, 4, 4, 3, 
-	4, 3, 1, 1, 1, 3, 3, 1, 
+	1, 1, 3, 3, 4, 4, 3, 3, 
 	1, 1, 1, 3, 3, 1, 1, 1, 
-	1, 1, 1, 1, 1, 3, 3, 3, 
-	1, 1, 2, 2, 2, 2, 4, 4, 
-	3, 4, 3, 4, 2, 1, 1, 1, 
-	1, 1, 2, 2, 3, 3, 3, 2, 
-	3, 2, 2, 2, 0, 0, 0, 0, 
-	0, 2, 3, 1, 1, 1, 1, 1, 
-	1, 1, 1, 3, 2, 9, 3, 3, 
-	3, 3, 3, 3, 4, 3, 4, 4, 
-	3, 4, 5, 2, 4, 4, 5, 2, 
-	4, 4, 5, 2, 4, 4, 4, 5, 
-	2, 5, 5, 4, 5, 4, 2, 4, 
-	4, 4, 2, 4, 4, 4, 2, 4, 
-	4, 4, 3, 3, 3, 3, 6, 3, 
-	3, 4, 4, 2, 4, 3, 3, 3, 
+	1, 3, 3, 1, 1, 1, 1, 1, 
+	1, 1, 1, 3, 3, 3, 1, 1, 
+	2, 2, 2, 2, 3, 4, 2, 1, 
+	1, 1, 1, 1, 2, 2, 3, 3, 
+	3, 2, 3, 2, 2, 2, 0, 0, 
+	0, 0, 0, 2, 3, 1, 1, 1, 
+	1, 1, 1, 1, 1, 3, 2, 9, 
+	3, 3, 3, 3, 3, 3, 4, 3, 
+	4, 4, 3, 4, 5, 2, 4, 4, 
+	5, 2, 4, 4, 5, 2, 4, 4, 
+	4, 5, 2, 5, 5, 4, 5, 4, 
+	2, 4, 4, 4, 2, 4, 4, 4, 
+	2, 4, 4, 4, 3, 3, 3, 3, 
+	6, 3, 3, 4, 4, 2, 4, 3, 
 	3, 3, 3, 3, 3, 3, 3, 3, 
-	3, 3, 4, 4, 2, 4, 3, 3, 
-	3, 3, 3, 3, 5, 5, 2, 5, 
-	4, 5, 5, 4, 4, 5, 3, 3, 
-	3, 3, 4, 4, 4, 5, 5, 4, 
-	5, 2, 5, 5, 4, 5, 4, 5, 
-	3, 3, 3, 3, 6, 3, 3, 3, 
-	3, 4, 5, 5, 4, 5, 4, 5, 
-	5, 2, 4, 5, 3, 3, 3, 3, 
-	3, 4, 5, 5, 4, 5, 4, 5, 
-	5, 2, 4, 5, 3, 3, 3, 3, 
+	3, 3, 3, 3, 4, 4, 2, 4, 
+	3, 3, 3, 3, 3, 3, 5, 5, 
+	2, 5, 4, 5, 5, 4, 4, 5, 
+	3, 3, 3, 3, 4, 4, 5, 5, 
+	4, 2, 4, 5, 3, 3, 3, 3, 
+	6, 3, 3, 3, 3, 4, 5, 5, 
+	4, 5, 4, 5, 5, 2, 4, 5, 
 	3, 3, 3, 3, 3, 4, 5, 5, 
 	4, 5, 4, 5, 5, 2, 4, 5, 
-	3, 3, 3, 4, 4, 5, 5, 4, 
-	5, 2, 5, 5, 4, 5, 4, 5, 
-	2, 0, 10, 9
+	3, 3, 3, 3, 3, 3, 3, 3, 
+	3, 4, 5, 5, 4, 5, 4, 5, 
+	5, 2, 4, 5, 3, 3, 3, 4, 
+	4, 5, 5, 4, 5, 2, 5, 5, 
+	4, 5, 4, 5, 2, 0, 10, 9
 };
 
 static const char _parse_tester_range_lengths[] = {
@@ -8823,39 +8567,37 @@ static const char _parse_tester_range_lengths[] = {
 	0, 0, 1, 1, 0, 0, 0, 0, 
 	1, 1, 1, 0, 0, 0, 1, 1, 
 	0, 0, 0, 1, 0, 1, 0, 0, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 1, 0, 0, 0, 1, 1, 0, 
+	0, 0, 1, 4, 5, 5, 1, 1, 
 	0, 0, 0, 1, 1, 0, 0, 0, 
-	0, 0, 0, 0, 0, 1, 1, 1, 
-	0, 0, 1, 0, 0, 0, 5, 5, 
-	5, 5, 5, 5, 0, 0, 0, 0, 
-	0, 0, 1, 2, 2, 1, 1, 0, 
-	2, 0, 1, 2, 1, 1, 1, 1, 
-	1, 1, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 0, 1, 0, 0, 
-	0, 1, 2, 2, 1, 2, 2, 1, 
-	1, 1, 2, 1, 2, 1, 2, 1, 
-	2, 1, 2, 1, 2, 1, 1, 4, 
-	0, 5, 5, 5, 5, 2, 1, 2, 
-	2, 2, 1, 2, 2, 2, 1, 2, 
-	2, 2, 2, 0, 0, 0, 1, 1, 
-	2, 2, 2, 0, 2, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 1, 2, 
-	2, 2, 2, 1, 0, 2, 2, 0, 
-	0, 0, 0, 0, 1, 1, 0, 4, 
-	4, 5, 5, 1, 5, 5, 0, 0, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 0, 5, 5, 5, 5, 5, 5, 
-	0, 0, 0, 1, 1, 0, 0, 0, 
-	1, 4, 5, 5, 5, 5, 4, 5, 
-	5, 0, 5, 5, 0, 0, 0, 0, 
-	1, 4, 5, 5, 5, 5, 4, 5, 
-	5, 0, 5, 5, 0, 0, 0, 0, 
+	0, 1, 1, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 1, 1, 0, 0, 
+	1, 0, 0, 0, 5, 5, 0, 0, 
+	0, 0, 0, 0, 1, 2, 2, 1, 
+	1, 0, 2, 0, 1, 2, 1, 1, 
+	1, 1, 1, 1, 1, 0, 0, 0, 
+	0, 0, 0, 0, 0, 1, 0, 1, 
+	0, 0, 0, 1, 2, 2, 1, 2, 
+	2, 1, 1, 1, 2, 1, 2, 1, 
+	2, 1, 2, 1, 2, 1, 2, 1, 
+	1, 4, 0, 5, 5, 5, 5, 2, 
+	1, 2, 2, 2, 1, 2, 2, 2, 
+	1, 2, 2, 2, 2, 0, 0, 0, 
+	1, 1, 2, 2, 2, 0, 2, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	1, 2, 2, 2, 2, 1, 0, 2, 
+	2, 0, 0, 0, 0, 0, 1, 1, 
+	0, 4, 4, 5, 5, 1, 5, 5, 
+	0, 0, 0, 0, 1, 4, 5, 5, 
+	1, 0, 5, 5, 0, 0, 0, 1, 
+	1, 0, 0, 0, 1, 4, 5, 5, 
+	5, 5, 4, 5, 5, 0, 5, 5, 
 	0, 0, 0, 0, 1, 4, 5, 5, 
 	5, 5, 4, 5, 5, 0, 5, 5, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 0, 5, 5, 5, 5, 5, 5, 
-	0, 0, 1, 1
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	1, 4, 5, 5, 5, 5, 4, 5, 
+	5, 0, 5, 5, 0, 0, 1, 1, 
+	4, 5, 5, 1, 4, 0, 5, 5, 
+	5, 5, 5, 5, 0, 0, 1, 1
 };
 
 static const short _parse_tester_index_offsets[] = {
@@ -8865,39 +8607,37 @@ static const short _parse_tester_index_offsets[] = {
 	59, 61, 63, 69, 75, 77, 79, 81, 
 	83, 88, 93, 98, 100, 102, 104, 108, 
 	113, 115, 117, 119, 124, 127, 132, 134, 
-	136, 138, 140, 145, 150, 158, 168, 178, 
-	183, 192, 197, 199, 201, 203, 208, 213, 
-	215, 217, 219, 221, 226, 231, 233, 235, 
-	237, 239, 241, 243, 245, 247, 252, 257, 
-	262, 264, 266, 270, 273, 276, 279, 289, 
-	299, 308, 318, 327, 337, 340, 342, 344, 
-	346, 348, 350, 354, 359, 365, 370, 375, 
-	378, 384, 387, 391, 396, 398, 400, 402, 
-	404, 406, 410, 415, 417, 419, 421, 423, 
-	425, 427, 429, 431, 436, 439, 450, 454, 
-	458, 462, 467, 473, 479, 485, 491, 498, 
-	504, 509, 515, 523, 527, 534, 540, 548, 
-	552, 559, 565, 573, 577, 584, 590, 596, 
-	606, 609, 620, 631, 641, 652, 659, 663, 
-	670, 677, 684, 688, 695, 702, 709, 713, 
-	720, 727, 734, 740, 744, 748, 752, 760, 
-	765, 771, 778, 785, 788, 795, 799, 803, 
-	807, 811, 815, 819, 823, 827, 831, 836, 
-	842, 848, 854, 861, 867, 870, 877, 883, 
-	887, 891, 895, 899, 903, 910, 917, 920, 
-	930, 939, 950, 961, 967, 977, 988, 992, 
-	996, 1000, 1004, 1010, 1016, 1025, 1036, 1047, 
-	1053, 1063, 1066, 1077, 1088, 1098, 1109, 1119, 
-	1130, 1134, 1138, 1142, 1147, 1155, 1159, 1163, 
-	1167, 1172, 1181, 1192, 1203, 1213, 1224, 1233, 
-	1244, 1255, 1258, 1268, 1279, 1283, 1287, 1291, 
-	1295, 1300, 1309, 1320, 1331, 1341, 1352, 1361, 
-	1372, 1383, 1386, 1396, 1407, 1411, 1415, 1419, 
-	1423, 1427, 1431, 1435, 1439, 1444, 1453, 1464, 
-	1475, 1485, 1496, 1505, 1516, 1527, 1530, 1540, 
-	1551, 1555, 1559, 1564, 1570, 1579, 1590, 1601, 
-	1607, 1617, 1620, 1631, 1642, 1652, 1663, 1673, 
-	1684, 1687, 1688, 1700
+	136, 138, 140, 145, 153, 163, 173, 178, 
+	183, 185, 187, 189, 194, 199, 201, 203, 
+	205, 207, 212, 217, 219, 221, 223, 225, 
+	227, 229, 231, 233, 238, 243, 248, 250, 
+	252, 256, 259, 262, 265, 274, 284, 287, 
+	289, 291, 293, 295, 297, 301, 306, 312, 
+	317, 322, 325, 331, 334, 338, 343, 345, 
+	347, 349, 351, 353, 357, 362, 364, 366, 
+	368, 370, 372, 374, 376, 378, 383, 386, 
+	397, 401, 405, 409, 414, 420, 426, 432, 
+	438, 445, 451, 456, 462, 470, 474, 481, 
+	487, 495, 499, 506, 512, 520, 524, 531, 
+	537, 543, 553, 556, 567, 578, 588, 599, 
+	606, 610, 617, 624, 631, 635, 642, 649, 
+	656, 660, 667, 674, 681, 687, 691, 695, 
+	699, 707, 712, 718, 725, 732, 735, 742, 
+	746, 750, 754, 758, 762, 766, 770, 774, 
+	778, 783, 789, 795, 801, 808, 814, 817, 
+	824, 830, 834, 838, 842, 846, 850, 857, 
+	864, 867, 877, 886, 897, 908, 914, 924, 
+	935, 939, 943, 947, 951, 957, 966, 977, 
+	988, 994, 997, 1007, 1018, 1022, 1026, 1030, 
+	1035, 1043, 1047, 1051, 1055, 1060, 1069, 1080, 
+	1091, 1101, 1112, 1121, 1132, 1143, 1146, 1156, 
+	1167, 1171, 1175, 1179, 1183, 1188, 1197, 1208, 
+	1219, 1229, 1240, 1249, 1260, 1271, 1274, 1284, 
+	1295, 1299, 1303, 1307, 1311, 1315, 1319, 1323, 
+	1327, 1332, 1341, 1352, 1363, 1373, 1384, 1393, 
+	1404, 1415, 1418, 1428, 1439, 1443, 1447, 1452, 
+	1458, 1467, 1478, 1489, 1495, 1505, 1508, 1519, 
+	1530, 1540, 1551, 1561, 1572, 1575, 1576, 1588
 };
 
 static const short _parse_tester_indicies[] = {
@@ -8918,263 +8658,245 @@ static const short _parse_tester_indicies[] = {
 	1, 48, 1, 49, 1, 50, 1, 50, 
 	50, 51, 50, 1, 52, 53, 1, 55, 
 	54, 56, 54, 1, 57, 1, 58, 1, 
-	59, 1, 60, 1, 61, 61, 62, 61, 
-	1, 63, 63, 64, 63, 1, 64, 64, 
-	65, 64, 65, 65, 65, 1, 66, 66, 
-	67, 69, 66, 68, 69, 69, 69, 1, 
-	70, 70, 71, 73, 70, 72, 73, 73, 
-	73, 1, 75, 74, 76, 74, 1, 75, 
-	74, 76, 77, 74, 77, 77, 77, 1, 
-	79, 78, 80, 78, 1, 81, 1, 82, 
-	1, 83, 1, 84, 83, 85, 83, 1, 
-	87, 86, 88, 86, 1, 89, 1, 90, 
-	1, 91, 1, 92, 1, 92, 92, 93, 
-	92, 1, 93, 93, 94, 93, 1, 95, 
-	1, 96, 1, 97, 1, 98, 1, 99, 
-	1, 100, 1, 101, 1, 102, 1, 102, 
-	102, 103, 102, 1, 104, 103, 105, 103, 
-	1, 107, 106, 108, 106, 1, 109, 1, 
-	110, 1, 111, 111, 111, 1, 1, 104, 
-	105, 1, 84, 85, 1, 75, 76, 113, 
-	112, 114, 116, 112, 115, 116, 116, 116, 
-	1, 75, 117, 76, 119, 117, 118, 119, 
-	119, 119, 1, 118, 118, 119, 118, 118, 
-	119, 119, 119, 1, 121, 120, 122, 119, 
-	120, 118, 119, 119, 119, 1, 72, 72, 
-	73, 72, 72, 73, 73, 73, 1, 123, 
-	123, 124, 73, 123, 72, 73, 73, 73, 
-	1, 1, 52, 53, 125, 1, 126, 1, 
-	127, 1, 128, 1, 129, 1, 130, 130, 
-	130, 1, 130, 130, 130, 131, 1, 133, 
-	132, 134, 132, 135, 1, 137, 136, 138, 
-	136, 1, 137, 139, 32, 139, 1, 1, 
-	137, 138, 133, 132, 134, 132, 135, 1, 
-	1, 28, 29, 140, 140, 140, 1, 140, 
-	140, 140, 141, 1, 142, 1, 143, 1, 
-	144, 1, 145, 1, 146, 1, 147, 147, 
-	147, 1, 147, 147, 148, 147, 1, 149, 
-	1, 150, 1, 151, 1, 152, 1, 153, 
-	1, 154, 1, 155, 1, 156, 1, 28, 
-	156, 29, 156, 1, 157, 159, 158, 157, 
-	161, 160, 162, 163, 164, 165, 166, 167, 
-	160, 158, 157, 159, 168, 158, 157, 159, 
-	169, 158, 157, 159, 170, 158, 157, 159, 
-	171, 171, 158, 157, 159, 171, 171, 172, 
-	158, 157, 159, 173, 173, 174, 158, 157, 
-	159, 175, 176, 175, 158, 157, 159, 176, 
-	176, 177, 158, 157, 159, 178, 179, 178, 
-	180, 158, 157, 159, 178, 179, 178, 158, 
-	157, 159, 181, 181, 158, 157, 159, 182, 
-	183, 182, 158, 157, 159, 183, 184, 185, 
-	183, 186, 158, 157, 159, 186, 158, 157, 
-	159, 187, 188, 187, 189, 158, 157, 159, 
-	187, 188, 187, 158, 157, 159, 190, 191, 
-	192, 190, 193, 158, 157, 159, 193, 158, 
-	157, 159, 194, 195, 194, 196, 158, 157, 
-	159, 194, 195, 194, 158, 157, 159, 197, 
-	198, 199, 197, 200, 158, 157, 159, 200, 
-	158, 157, 159, 201, 202, 201, 203, 158, 
-	157, 159, 201, 202, 201, 158, 157, 205, 
-	204, 206, 204, 158, 157, 205, 204, 206, 
-	207, 204, 207, 207, 207, 158, 157, 205, 
-	206, 157, 209, 208, 210, 212, 208, 211, 
-	212, 212, 212, 158, 157, 205, 213, 206, 
-	215, 213, 214, 215, 215, 215, 158, 157, 
-	159, 214, 215, 214, 214, 215, 215, 215, 
-	158, 157, 217, 216, 218, 215, 216, 214, 
-	215, 215, 215, 158, 157, 159, 201, 202, 
-	201, 203, 158, 157, 159, 219, 158, 157, 
-	159, 220, 221, 220, 222, 158, 157, 159, 
-	220, 221, 220, 222, 158, 157, 159, 194, 
-	195, 194, 196, 158, 157, 159, 223, 158, 
-	157, 159, 224, 225, 224, 226, 158, 157, 
-	159, 224, 225, 224, 226, 158, 157, 159, 
-	187, 188, 187, 189, 158, 157, 159, 227, 
-	158, 157, 159, 228, 229, 228, 230, 158, 
-	157, 159, 228, 229, 228, 230, 158, 157, 
-	159, 178, 179, 178, 180, 158, 157, 159, 
-	173, 173, 174, 158, 157, 159, 231, 158, 
-	157, 159, 232, 158, 157, 159, 233, 158, 
-	157, 159, 235, 234, 234, 234, 234, 158, 
-	157, 159, 236, 236, 158, 157, 159, 236, 
-	236, 237, 158, 157, 239, 238, 240, 238, 
-	241, 158, 157, 243, 242, 244, 242, 237, 
-	158, 157, 243, 244, 157, 239, 238, 240, 
-	238, 241, 158, 157, 159, 245, 158, 157, 
-	159, 246, 158, 157, 159, 247, 158, 157, 
-	159, 248, 158, 157, 159, 249, 158, 157, 
-	159, 250, 158, 157, 159, 251, 158, 157, 
-	159, 252, 158, 157, 159, 253, 158, 157, 
-	159, 254, 254, 158, 157, 159, 254, 254, 
-	255, 158, 157, 159, 256, 256, 257, 158, 
-	157, 159, 256, 256, 258, 158, 157, 260, 
-	259, 261, 259, 262, 158, 157, 260, 259, 
-	261, 259, 158, 157, 260, 261, 157, 260, 
-	259, 261, 259, 262, 158, 157, 159, 256, 
-	256, 257, 158, 157, 159, 263, 158, 157, 
-	159, 264, 158, 157, 159, 265, 158, 157, 
-	159, 266, 158, 157, 159, 267, 158, 157, 
-	269, 268, 270, 271, 268, 158, 157, 273, 
-	272, 274, 275, 272, 158, 157, 273, 274, 
-	157, 159, 276, 277, 278, 276, 278, 278, 
-	278, 158, 157, 159, 276, 278, 276, 278, 
-	278, 278, 158, 157, 159, 279, 280, 282, 
-	279, 281, 282, 282, 282, 158, 157, 159, 
-	283, 277, 285, 283, 284, 285, 285, 285, 
-	158, 157, 273, 277, 274, 277, 158, 157, 
-	159, 284, 285, 284, 284, 285, 285, 285, 
-	158, 157, 159, 286, 287, 285, 286, 284, 
-	285, 285, 285, 158, 157, 159, 288, 158, 
-	157, 159, 289, 158, 157, 159, 290, 158, 
-	157, 159, 291, 158, 157, 159, 292, 293, 
-	292, 158, 157, 159, 294, 295, 294, 158, 
-	157, 159, 295, 296, 295, 296, 296, 296, 
-	158, 157, 159, 297, 298, 300, 297, 299, 
-	300, 300, 300, 158, 157, 159, 301, 302, 
-	304, 301, 303, 304, 304, 304, 158, 157, 
-	306, 305, 307, 305, 158, 157, 306, 305, 
-	307, 308, 305, 308, 308, 308, 158, 157, 
-	306, 307, 157, 310, 309, 311, 313, 309, 
-	312, 313, 313, 313, 158, 157, 306, 314, 
-	307, 316, 314, 315, 316, 316, 316, 158, 
-	157, 159, 315, 316, 315, 315, 316, 316, 
-	316, 158, 157, 318, 317, 319, 316, 317, 
-	315, 316, 316, 316, 158, 157, 159, 303, 
-	304, 303, 303, 304, 304, 304, 158, 157, 
-	159, 320, 321, 304, 320, 303, 304, 304, 
-	304, 158, 157, 159, 322, 158, 157, 159, 
-	323, 158, 157, 159, 324, 158, 157, 159, 
-	325, 325, 158, 157, 159, 325, 326, 327, 
-	328, 325, 158, 157, 159, 329, 158, 157, 
-	159, 330, 158, 157, 159, 331, 158, 157, 
-	159, 332, 332, 158, 157, 159, 332, 333, 
-	332, 333, 333, 333, 158, 157, 159, 334, 
-	337, 336, 334, 335, 336, 336, 336, 158, 
-	157, 159, 338, 341, 340, 338, 339, 340, 
-	340, 340, 158, 157, 159, 339, 340, 339, 
-	339, 340, 340, 340, 158, 157, 159, 342, 
-	343, 340, 342, 339, 340, 340, 340, 158, 
-	157, 159, 341, 344, 341, 344, 344, 344, 
-	158, 157, 346, 345, 347, 349, 345, 348, 
-	349, 349, 349, 158, 157, 351, 350, 352, 
-	354, 350, 353, 354, 354, 354, 158, 157, 
-	351, 352, 157, 159, 353, 354, 353, 353, 
-	354, 354, 354, 158, 157, 356, 355, 357, 
-	354, 355, 353, 354, 354, 354, 158, 157, 
-	159, 358, 158, 157, 159, 359, 158, 157, 
-	159, 360, 158, 157, 159, 361, 158, 157, 
-	159, 362, 362, 158, 157, 159, 362, 363, 
-	362, 363, 363, 363, 158, 157, 159, 364, 
-	367, 366, 364, 365, 366, 366, 366, 158, 
-	157, 159, 368, 371, 370, 368, 369, 370, 
-	370, 370, 158, 157, 159, 369, 370, 369, 
-	369, 370, 370, 370, 158, 157, 159, 372, 
-	373, 370, 372, 369, 370, 370, 370, 158, 
-	157, 159, 371, 374, 371, 374, 374, 374, 
-	158, 157, 376, 375, 377, 379, 375, 378, 
-	379, 379, 379, 158, 157, 381, 380, 382, 
-	384, 380, 383, 384, 384, 384, 158, 157, 
-	381, 382, 157, 159, 383, 384, 383, 383, 
-	384, 384, 384, 158, 157, 386, 385, 387, 
-	384, 385, 383, 384, 384, 384, 158, 157, 
-	159, 388, 158, 157, 159, 389, 158, 157, 
-	159, 390, 158, 157, 159, 391, 158, 157, 
-	159, 392, 158, 157, 159, 393, 158, 157, 
-	159, 394, 158, 157, 159, 395, 158, 157, 
-	159, 396, 396, 158, 157, 159, 396, 397, 
-	396, 397, 397, 397, 158, 157, 159, 398, 
-	401, 400, 398, 399, 400, 400, 400, 158, 
-	157, 159, 402, 405, 404, 402, 403, 404, 
-	404, 404, 158, 157, 159, 403, 404, 403, 
-	403, 404, 404, 404, 158, 157, 159, 406, 
-	407, 404, 406, 403, 404, 404, 404, 158, 
-	157, 159, 405, 408, 405, 408, 408, 408, 
-	158, 157, 410, 409, 411, 413, 409, 412, 
-	413, 413, 413, 158, 157, 415, 414, 416, 
-	418, 414, 417, 418, 418, 418, 158, 157, 
-	415, 416, 157, 159, 417, 418, 417, 417, 
-	418, 418, 418, 158, 157, 420, 419, 421, 
-	418, 419, 417, 418, 418, 418, 158, 157, 
-	159, 422, 158, 157, 159, 423, 158, 157, 
-	159, 424, 424, 158, 157, 159, 424, 425, 
-	424, 158, 157, 159, 425, 426, 425, 426, 
-	426, 426, 158, 157, 159, 427, 428, 430, 
-	427, 429, 430, 430, 430, 158, 157, 159, 
-	431, 432, 434, 431, 433, 434, 434, 434, 
-	158, 157, 436, 435, 437, 435, 158, 157, 
-	436, 435, 437, 438, 435, 438, 438, 438, 
-	158, 157, 436, 437, 157, 440, 439, 441, 
-	443, 439, 442, 443, 443, 443, 158, 157, 
-	436, 444, 437, 446, 444, 445, 446, 446, 
-	446, 158, 157, 159, 445, 446, 445, 445, 
-	446, 446, 446, 158, 157, 448, 447, 449, 
-	446, 447, 445, 446, 446, 446, 158, 157, 
-	159, 433, 434, 433, 433, 434, 434, 434, 
-	158, 157, 159, 450, 451, 434, 450, 433, 
-	434, 434, 434, 158, 1, 453, 452, 111, 
-	1, 161, 160, 452, 162, 163, 164, 165, 
-	166, 167, 160, 158, 454, 161, 160, 162, 
-	163, 164, 165, 166, 167, 160, 158, 0
+	59, 1, 60, 1, 60, 60, 61, 60, 
+	1, 61, 61, 62, 61, 62, 62, 62, 
+	1, 63, 63, 64, 66, 63, 65, 66, 
+	66, 66, 1, 67, 67, 68, 70, 67, 
+	69, 70, 70, 70, 1, 71, 68, 72, 
+	68, 1, 74, 73, 75, 73, 1, 76, 
+	1, 77, 1, 78, 1, 79, 78, 80, 
+	78, 1, 82, 81, 83, 81, 1, 84, 
+	1, 85, 1, 86, 1, 87, 1, 87, 
+	87, 88, 87, 1, 88, 88, 89, 88, 
+	1, 90, 1, 91, 1, 92, 1, 93, 
+	1, 94, 1, 95, 1, 96, 1, 97, 
+	1, 97, 97, 98, 97, 1, 99, 98, 
+	100, 98, 1, 102, 101, 103, 101, 1, 
+	104, 1, 105, 1, 106, 106, 106, 1, 
+	1, 99, 100, 1, 79, 80, 1, 71, 
+	72, 69, 69, 70, 69, 69, 70, 70, 
+	70, 1, 107, 107, 108, 70, 107, 69, 
+	70, 70, 70, 1, 1, 52, 53, 109, 
+	1, 110, 1, 111, 1, 112, 1, 113, 
+	1, 114, 114, 114, 1, 114, 114, 114, 
+	115, 1, 117, 116, 118, 116, 119, 1, 
+	121, 120, 122, 120, 1, 121, 123, 32, 
+	123, 1, 1, 121, 122, 117, 116, 118, 
+	116, 119, 1, 1, 28, 29, 124, 124, 
+	124, 1, 124, 124, 124, 125, 1, 126, 
+	1, 127, 1, 128, 1, 129, 1, 130, 
+	1, 131, 131, 131, 1, 131, 131, 132, 
+	131, 1, 133, 1, 134, 1, 135, 1, 
+	136, 1, 137, 1, 138, 1, 139, 1, 
+	140, 1, 28, 140, 29, 140, 1, 141, 
+	143, 142, 141, 145, 144, 146, 147, 148, 
+	149, 150, 151, 144, 142, 141, 143, 152, 
+	142, 141, 143, 153, 142, 141, 143, 154, 
+	142, 141, 143, 155, 155, 142, 141, 143, 
+	155, 155, 156, 142, 141, 143, 157, 157, 
+	158, 142, 141, 143, 159, 160, 159, 142, 
+	141, 143, 160, 160, 161, 142, 141, 143, 
+	162, 163, 162, 164, 142, 141, 143, 162, 
+	163, 162, 142, 141, 143, 165, 165, 142, 
+	141, 143, 166, 167, 166, 142, 141, 143, 
+	167, 168, 169, 167, 170, 142, 141, 143, 
+	170, 142, 141, 143, 171, 172, 171, 173, 
+	142, 141, 143, 171, 172, 171, 142, 141, 
+	143, 174, 175, 176, 174, 177, 142, 141, 
+	143, 177, 142, 141, 143, 178, 179, 178, 
+	180, 142, 141, 143, 178, 179, 178, 142, 
+	141, 143, 181, 182, 183, 181, 184, 142, 
+	141, 143, 184, 142, 141, 143, 185, 186, 
+	185, 187, 142, 141, 143, 185, 186, 185, 
+	142, 141, 189, 188, 190, 188, 142, 141, 
+	189, 188, 190, 191, 188, 191, 191, 191, 
+	142, 141, 189, 190, 141, 193, 192, 194, 
+	196, 192, 195, 196, 196, 196, 142, 141, 
+	189, 197, 190, 199, 197, 198, 199, 199, 
+	199, 142, 141, 143, 198, 199, 198, 198, 
+	199, 199, 199, 142, 141, 201, 200, 202, 
+	199, 200, 198, 199, 199, 199, 142, 141, 
+	143, 185, 186, 185, 187, 142, 141, 143, 
+	203, 142, 141, 143, 204, 205, 204, 206, 
+	142, 141, 143, 204, 205, 204, 206, 142, 
+	141, 143, 178, 179, 178, 180, 142, 141, 
+	143, 207, 142, 141, 143, 208, 209, 208, 
+	210, 142, 141, 143, 208, 209, 208, 210, 
+	142, 141, 143, 171, 172, 171, 173, 142, 
+	141, 143, 211, 142, 141, 143, 212, 213, 
+	212, 214, 142, 141, 143, 212, 213, 212, 
+	214, 142, 141, 143, 162, 163, 162, 164, 
+	142, 141, 143, 157, 157, 158, 142, 141, 
+	143, 215, 142, 141, 143, 216, 142, 141, 
+	143, 217, 142, 141, 143, 219, 218, 218, 
+	218, 218, 142, 141, 143, 220, 220, 142, 
+	141, 143, 220, 220, 221, 142, 141, 223, 
+	222, 224, 222, 225, 142, 141, 227, 226, 
+	228, 226, 221, 142, 141, 227, 228, 141, 
+	223, 222, 224, 222, 225, 142, 141, 143, 
+	229, 142, 141, 143, 230, 142, 141, 143, 
+	231, 142, 141, 143, 232, 142, 141, 143, 
+	233, 142, 141, 143, 234, 142, 141, 143, 
+	235, 142, 141, 143, 236, 142, 141, 143, 
+	237, 142, 141, 143, 238, 238, 142, 141, 
+	143, 238, 238, 239, 142, 141, 143, 240, 
+	240, 241, 142, 141, 143, 240, 240, 242, 
+	142, 141, 244, 243, 245, 243, 246, 142, 
+	141, 244, 243, 245, 243, 142, 141, 244, 
+	245, 141, 244, 243, 245, 243, 246, 142, 
+	141, 143, 240, 240, 241, 142, 141, 143, 
+	247, 142, 141, 143, 248, 142, 141, 143, 
+	249, 142, 141, 143, 250, 142, 141, 143, 
+	251, 142, 141, 253, 252, 254, 255, 252, 
+	142, 141, 257, 256, 258, 259, 256, 142, 
+	141, 257, 258, 141, 143, 260, 261, 262, 
+	260, 262, 262, 262, 142, 141, 143, 260, 
+	262, 260, 262, 262, 262, 142, 141, 143, 
+	263, 264, 266, 263, 265, 266, 266, 266, 
+	142, 141, 143, 267, 261, 269, 267, 268, 
+	269, 269, 269, 142, 141, 257, 261, 258, 
+	261, 142, 141, 143, 268, 269, 268, 268, 
+	269, 269, 269, 142, 141, 143, 270, 271, 
+	269, 270, 268, 269, 269, 269, 142, 141, 
+	143, 272, 142, 141, 143, 273, 142, 141, 
+	143, 274, 142, 141, 143, 275, 142, 141, 
+	143, 275, 276, 275, 142, 141, 143, 276, 
+	277, 276, 277, 277, 277, 142, 141, 143, 
+	278, 279, 281, 278, 280, 281, 281, 281, 
+	142, 141, 143, 282, 283, 285, 282, 284, 
+	285, 285, 285, 142, 141, 286, 283, 287, 
+	283, 142, 141, 286, 287, 141, 143, 284, 
+	285, 284, 284, 285, 285, 285, 142, 141, 
+	143, 288, 289, 285, 288, 284, 285, 285, 
+	285, 142, 141, 143, 290, 142, 141, 143, 
+	291, 142, 141, 143, 292, 142, 141, 143, 
+	293, 293, 142, 141, 143, 293, 294, 295, 
+	296, 293, 142, 141, 143, 297, 142, 141, 
+	143, 298, 142, 141, 143, 299, 142, 141, 
+	143, 300, 300, 142, 141, 143, 300, 301, 
+	300, 301, 301, 301, 142, 141, 143, 302, 
+	305, 304, 302, 303, 304, 304, 304, 142, 
+	141, 143, 306, 309, 308, 306, 307, 308, 
+	308, 308, 142, 141, 143, 307, 308, 307, 
+	307, 308, 308, 308, 142, 141, 143, 310, 
+	311, 308, 310, 307, 308, 308, 308, 142, 
+	141, 143, 309, 312, 309, 312, 312, 312, 
+	142, 141, 314, 313, 315, 317, 313, 316, 
+	317, 317, 317, 142, 141, 319, 318, 320, 
+	322, 318, 321, 322, 322, 322, 142, 141, 
+	319, 320, 141, 143, 321, 322, 321, 321, 
+	322, 322, 322, 142, 141, 324, 323, 325, 
+	322, 323, 321, 322, 322, 322, 142, 141, 
+	143, 326, 142, 141, 143, 327, 142, 141, 
+	143, 328, 142, 141, 143, 329, 142, 141, 
+	143, 330, 330, 142, 141, 143, 330, 331, 
+	330, 331, 331, 331, 142, 141, 143, 332, 
+	335, 334, 332, 333, 334, 334, 334, 142, 
+	141, 143, 336, 339, 338, 336, 337, 338, 
+	338, 338, 142, 141, 143, 337, 338, 337, 
+	337, 338, 338, 338, 142, 141, 143, 340, 
+	341, 338, 340, 337, 338, 338, 338, 142, 
+	141, 143, 339, 342, 339, 342, 342, 342, 
+	142, 141, 344, 343, 345, 347, 343, 346, 
+	347, 347, 347, 142, 141, 349, 348, 350, 
+	352, 348, 351, 352, 352, 352, 142, 141, 
+	349, 350, 141, 143, 351, 352, 351, 351, 
+	352, 352, 352, 142, 141, 354, 353, 355, 
+	352, 353, 351, 352, 352, 352, 142, 141, 
+	143, 356, 142, 141, 143, 357, 142, 141, 
+	143, 358, 142, 141, 143, 359, 142, 141, 
+	143, 360, 142, 141, 143, 361, 142, 141, 
+	143, 362, 142, 141, 143, 363, 142, 141, 
+	143, 364, 364, 142, 141, 143, 364, 365, 
+	364, 365, 365, 365, 142, 141, 143, 366, 
+	369, 368, 366, 367, 368, 368, 368, 142, 
+	141, 143, 370, 373, 372, 370, 371, 372, 
+	372, 372, 142, 141, 143, 371, 372, 371, 
+	371, 372, 372, 372, 142, 141, 143, 374, 
+	375, 372, 374, 371, 372, 372, 372, 142, 
+	141, 143, 373, 376, 373, 376, 376, 376, 
+	142, 141, 378, 377, 379, 381, 377, 380, 
+	381, 381, 381, 142, 141, 383, 382, 384, 
+	386, 382, 385, 386, 386, 386, 142, 141, 
+	383, 384, 141, 143, 385, 386, 385, 385, 
+	386, 386, 386, 142, 141, 388, 387, 389, 
+	386, 387, 385, 386, 386, 386, 142, 141, 
+	143, 390, 142, 141, 143, 391, 142, 141, 
+	143, 392, 392, 142, 141, 143, 392, 393, 
+	392, 142, 141, 143, 393, 394, 393, 394, 
+	394, 394, 142, 141, 143, 395, 396, 398, 
+	395, 397, 398, 398, 398, 142, 141, 143, 
+	399, 400, 402, 399, 401, 402, 402, 402, 
+	142, 141, 404, 403, 405, 403, 142, 141, 
+	404, 403, 405, 406, 403, 406, 406, 406, 
+	142, 141, 404, 405, 141, 408, 407, 409, 
+	411, 407, 410, 411, 411, 411, 142, 141, 
+	404, 412, 405, 414, 412, 413, 414, 414, 
+	414, 142, 141, 143, 413, 414, 413, 413, 
+	414, 414, 414, 142, 141, 416, 415, 417, 
+	414, 415, 413, 414, 414, 414, 142, 141, 
+	143, 401, 402, 401, 401, 402, 402, 402, 
+	142, 141, 143, 418, 419, 402, 418, 401, 
+	402, 402, 402, 142, 1, 421, 420, 106, 
+	1, 145, 144, 420, 146, 147, 148, 149, 
+	150, 151, 144, 142, 422, 145, 144, 146, 
+	147, 148, 149, 150, 151, 144, 142, 0
 };
 
 static const short _parse_tester_trans_targs_wi[] = {
 	1, 0, 1, 2, 3, 4, 5, 6, 
 	7, 8, 9, 10, 11, 12, 13, 14, 
 	15, 16, 17, 18, 19, 20, 21, 22, 
-	23, 24, 25, 26, 27, 105, 106, 27, 
-	28, 93, 29, 30, 31, 32, 33, 34, 
+	23, 24, 25, 26, 27, 99, 100, 27, 
+	28, 87, 29, 30, 31, 32, 33, 34, 
 	33, 34, 35, 36, 37, 38, 39, 40, 
-	41, 42, 43, 44, 45, 92, 45, 45, 
-	46, 47, 48, 49, 50, 51, 52, 51, 
-	52, 53, 54, 55, 90, 91, 54, 55, 
-	90, 91, 56, 57, 85, 86, 57, 57, 
-	58, 59, 60, 61, 62, 84, 62, 62, 
-	63, 64, 65, 66, 67, 68, 69, 70, 
-	71, 72, 73, 74, 75, 76, 77, 78, 
-	79, 83, 79, 79, 80, 81, 82, 305, 
-	87, 57, 85, 88, 89, 87, 88, 89, 
-	87, 57, 85, 54, 55, 94, 95, 96, 
-	97, 98, 99, 100, 101, 102, 103, 104, 
-	101, 102, 103, 102, 107, 108, 109, 110, 
-	111, 112, 113, 114, 115, 116, 117, 118, 
-	119, 120, 121, 122, 123, 306, 124, 306, 
-	125, 307, 126, 171, 199, 214, 232, 288, 
-	127, 128, 129, 130, 131, 132, 170, 132, 
-	133, 134, 135, 136, 169, 137, 137, 138, 
-	139, 166, 140, 141, 142, 165, 142, 143, 
-	162, 144, 145, 146, 161, 146, 147, 158, 
-	148, 149, 150, 157, 151, 306, 152, 153, 
-	154, 306, 152, 155, 156, 154, 155, 156, 
-	154, 306, 152, 159, 149, 150, 160, 163, 
-	145, 146, 164, 167, 141, 142, 168, 172, 
-	173, 174, 175, 181, 176, 177, 178, 306, 
-	179, 180, 178, 306, 179, 182, 183, 184, 
-	185, 186, 187, 188, 189, 190, 191, 192, 
-	193, 198, 194, 195, 306, 196, 197, 200, 
-	201, 202, 203, 204, 205, 306, 206, 207, 
-	205, 306, 206, 207, 208, 211, 209, 210, 
-	211, 212, 213, 210, 212, 213, 210, 211, 
-	215, 216, 217, 218, 219, 220, 219, 220, 
-	221, 222, 223, 230, 231, 222, 223, 230, 
-	231, 224, 306, 225, 226, 227, 306, 225, 
-	228, 229, 227, 228, 229, 227, 306, 225, 
-	222, 223, 233, 234, 235, 236, 237, 252, 
-	268, 238, 239, 240, 241, 242, 243, 244, 
-	245, 246, 243, 244, 245, 246, 243, 246, 
-	247, 248, 306, 249, 250, 251, 248, 306, 
-	249, 250, 251, 248, 306, 249, 253, 254, 
-	255, 256, 257, 258, 259, 260, 261, 262, 
-	259, 260, 261, 262, 259, 262, 263, 264, 
-	306, 265, 266, 267, 264, 306, 265, 266, 
-	267, 264, 306, 265, 269, 270, 271, 272, 
-	273, 274, 275, 276, 277, 278, 279, 280, 
-	281, 282, 279, 280, 281, 282, 279, 282, 
-	283, 284, 306, 285, 286, 287, 284, 306, 
-	285, 286, 287, 284, 306, 285, 289, 290, 
-	291, 292, 293, 294, 295, 302, 303, 294, 
-	295, 302, 303, 296, 306, 297, 298, 299, 
-	306, 297, 300, 301, 299, 300, 301, 299, 
-	306, 297, 294, 295, 304, 306, 306
+	41, 42, 43, 44, 45, 86, 45, 45, 
+	46, 47, 48, 49, 50, 51, 52, 53, 
+	54, 84, 85, 53, 54, 84, 85, 55, 
+	83, 55, 55, 56, 57, 58, 59, 60, 
+	82, 60, 60, 61, 62, 63, 64, 65, 
+	66, 67, 68, 69, 70, 71, 72, 73, 
+	74, 75, 76, 77, 81, 77, 77, 78, 
+	79, 80, 293, 53, 54, 88, 89, 90, 
+	91, 92, 93, 94, 95, 96, 97, 98, 
+	95, 96, 97, 96, 101, 102, 103, 104, 
+	105, 106, 107, 108, 109, 110, 111, 112, 
+	113, 114, 115, 116, 117, 294, 118, 294, 
+	119, 295, 120, 165, 193, 208, 220, 276, 
+	121, 122, 123, 124, 125, 126, 164, 126, 
+	127, 128, 129, 130, 163, 131, 131, 132, 
+	133, 160, 134, 135, 136, 159, 136, 137, 
+	156, 138, 139, 140, 155, 140, 141, 152, 
+	142, 143, 144, 151, 145, 294, 146, 147, 
+	148, 294, 146, 149, 150, 148, 149, 150, 
+	148, 294, 146, 153, 143, 144, 154, 157, 
+	139, 140, 158, 161, 135, 136, 162, 166, 
+	167, 168, 169, 175, 170, 171, 172, 294, 
+	173, 174, 172, 294, 173, 176, 177, 178, 
+	179, 180, 181, 182, 183, 184, 185, 186, 
+	187, 192, 188, 189, 294, 190, 191, 194, 
+	195, 196, 197, 198, 199, 294, 200, 201, 
+	199, 294, 200, 201, 202, 205, 203, 204, 
+	205, 206, 207, 204, 206, 207, 204, 205, 
+	209, 210, 211, 212, 213, 214, 215, 216, 
+	218, 219, 215, 216, 218, 219, 294, 217, 
+	215, 216, 221, 222, 223, 224, 225, 240, 
+	256, 226, 227, 228, 229, 230, 231, 232, 
+	233, 234, 231, 232, 233, 234, 231, 234, 
+	235, 236, 294, 237, 238, 239, 236, 294, 
+	237, 238, 239, 236, 294, 237, 241, 242, 
+	243, 244, 245, 246, 247, 248, 249, 250, 
+	247, 248, 249, 250, 247, 250, 251, 252, 
+	294, 253, 254, 255, 252, 294, 253, 254, 
+	255, 252, 294, 253, 257, 258, 259, 260, 
+	261, 262, 263, 264, 265, 266, 267, 268, 
+	269, 270, 267, 268, 269, 270, 267, 270, 
+	271, 272, 294, 273, 274, 275, 272, 294, 
+	273, 274, 275, 272, 294, 273, 277, 278, 
+	279, 280, 281, 282, 283, 290, 291, 282, 
+	283, 290, 291, 284, 294, 285, 286, 287, 
+	294, 285, 288, 289, 287, 288, 289, 287, 
+	294, 285, 282, 283, 292, 294, 294
 };
 
 static const unsigned char _parse_tester_trans_actions_wi[] = {
@@ -9184,88 +8906,80 @@ static const unsigned char _parse_tester_trans_actions_wi[] = {
 	0, 0, 0, 0, 1, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 39, 39, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 121, 0, 0, 1, 
-	0, 0, 0, 0, 0, 41, 41, 0, 
-	0, 0, 83, 83, 13, 80, 0, 0, 
-	0, 15, 0, 125, 0, 0, 0, 1, 
-	0, 0, 0, 0, 59, 0, 0, 1, 
-	43, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 119, 0, 0, 1, 
+	0, 0, 0, 0, 0, 0, 0, 81, 
+	81, 13, 78, 0, 0, 0, 15, 123, 
+	0, 0, 1, 0, 0, 0, 0, 57, 
+	0, 0, 1, 41, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	133, 0, 0, 1, 0, 0, 0, 0, 
-	86, 210, 86, 13, 80, 0, 0, 15, 
-	19, 172, 19, 17, 17, 0, 0, 0, 
-	0, 0, 0, 0, 49, 95, 49, 5, 
+	0, 0, 0, 131, 0, 0, 1, 0, 
+	0, 0, 0, 17, 17, 0, 0, 0, 
+	0, 0, 0, 0, 47, 93, 47, 5, 
 	0, 1, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 57, 0, 68, 
-	0, 153, 0, 0, 45, 0, 92, 35, 
+	0, 0, 0, 0, 0, 55, 0, 66, 
+	0, 151, 0, 0, 43, 0, 90, 35, 
 	0, 0, 0, 0, 0, 21, 5, 0, 
 	0, 0, 0, 0, 5, 23, 0, 0, 
 	0, 0, 0, 0, 25, 5, 0, 0, 
 	0, 0, 0, 27, 5, 0, 0, 0, 
-	0, 0, 29, 5, 0, 101, 0, 0, 
-	145, 234, 145, 13, 80, 0, 0, 15, 
-	89, 228, 89, 0, 11, 77, 5, 0, 
-	11, 74, 5, 0, 11, 71, 5, 0, 
-	0, 0, 33, 0, 0, 0, 31, 149, 
-	31, 5, 0, 62, 0, 0, 0, 0, 
+	0, 0, 29, 5, 0, 99, 0, 0, 
+	143, 210, 143, 13, 78, 0, 0, 15, 
+	87, 204, 87, 0, 11, 75, 5, 0, 
+	11, 72, 5, 0, 11, 69, 5, 0, 
+	0, 0, 33, 0, 0, 0, 31, 147, 
+	31, 5, 0, 60, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 5, 0, 0, 105, 0, 9, 0, 
-	0, 0, 0, 0, 47, 187, 47, 47, 
-	0, 137, 0, 0, 0, 0, 0, 83, 
-	83, 13, 80, 0, 0, 15, 17, 17, 
-	0, 0, 0, 0, 41, 41, 0, 0, 
-	0, 83, 83, 13, 80, 0, 0, 0, 
-	15, 0, 129, 0, 0, 86, 216, 86, 
-	13, 80, 0, 0, 15, 19, 177, 19, 
+	0, 5, 0, 0, 103, 0, 9, 0, 
+	0, 0, 0, 0, 45, 175, 45, 45, 
+	0, 135, 0, 0, 0, 0, 0, 81, 
+	81, 13, 78, 0, 0, 15, 17, 17, 
+	0, 0, 0, 0, 0, 0, 81, 81, 
+	13, 78, 0, 0, 0, 15, 127, 0, 
 	17, 17, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 83, 13, 
-	80, 83, 0, 0, 15, 0, 17, 17, 
-	0, 86, 192, 86, 13, 80, 0, 109, 
-	0, 0, 15, 19, 157, 19, 0, 0, 
-	0, 0, 0, 0, 83, 13, 80, 83, 
-	0, 0, 15, 0, 17, 17, 0, 86, 
-	204, 86, 13, 80, 0, 117, 0, 0, 
-	15, 19, 167, 19, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 83, 13, 
-	80, 83, 0, 0, 15, 0, 17, 17, 
-	0, 86, 222, 86, 13, 80, 0, 141, 
-	0, 0, 15, 19, 182, 19, 0, 0, 
-	0, 0, 0, 83, 83, 13, 80, 0, 
-	0, 0, 15, 0, 113, 0, 0, 86, 
-	198, 86, 13, 80, 0, 0, 15, 19, 
-	162, 19, 17, 17, 0, 65, 55
+	0, 0, 0, 0, 0, 0, 81, 13, 
+	78, 81, 0, 0, 15, 0, 17, 17, 
+	0, 84, 180, 84, 13, 78, 0, 107, 
+	0, 0, 15, 19, 155, 19, 0, 0, 
+	0, 0, 0, 0, 81, 13, 78, 81, 
+	0, 0, 15, 0, 17, 17, 0, 84, 
+	192, 84, 13, 78, 0, 115, 0, 0, 
+	15, 19, 165, 19, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 81, 13, 
+	78, 81, 0, 0, 15, 0, 17, 17, 
+	0, 84, 198, 84, 13, 78, 0, 139, 
+	0, 0, 15, 19, 170, 19, 0, 0, 
+	0, 0, 0, 81, 81, 13, 78, 0, 
+	0, 0, 15, 0, 111, 0, 0, 84, 
+	186, 84, 13, 78, 0, 0, 15, 19, 
+	160, 19, 17, 17, 0, 63, 53
 };
 
 static const unsigned char _parse_tester_to_state_actions[] = {
-	0, 51, 0, 0, 0, 0, 0, 0, 
+	0, 49, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 51, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 51, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 51, 
+	0, 0, 0, 0, 0, 49, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 49, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 3, 0, 0, 0, 
+	0, 0, 0, 0, 0, 49, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 3, 0, 0, 3, 0, 
-	0, 0, 0, 0, 3, 0, 0, 0, 
-	3, 0, 0, 0, 3, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 3, 
-	0, 0, 0, 3, 0, 0, 0, 3, 
+	0, 0, 0, 0, 0, 3, 0, 0, 
+	3, 0, 0, 0, 0, 0, 3, 0, 
+	0, 0, 3, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 3, 0, 0, 0, 3, 0, 0, 
 	0, 3, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 3, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	3, 0, 7, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 3, 0, 7, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -9274,9 +8988,11 @@ static const unsigned char _parse_tester_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 37, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 98, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 37, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 96, 0
 };
 
 static const unsigned char _parse_tester_from_state_actions[] = {
@@ -9316,9 +9032,7 @@ static const unsigned char _parse_tester_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 53, 0
+	0, 0, 0, 0, 0, 0, 51, 0
 };
 
 static const short _parse_tester_eof_trans[] = {
@@ -9336,43 +9050,41 @@ static const short _parse_tester_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	0, 0, 0, 455
+	0, 0, 0, 0, 0, 0, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 0, 0, 0, 423
 };
 
 static const int parse_tester_start = 1;
-static const int parse_tester_first_final = 305;
+static const int parse_tester_first_final = 293;
 static const int parse_tester_error = 0;
 
-static const int parse_tester_en_group_scanner = 306;
+static const int parse_tester_en_group_scanner = 294;
 static const int parse_tester_en_main = 1;
 
-#line 1177 "NanorexMMPImportExportTest.rl"
+#line 1174 "NanorexMMPImportExportTest.rl"
 	
-#line 9376 "NanorexMMPImportExportTest.cpp"
+#line 9088 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = parse_tester_start;
 	top = 0;
@@ -9380,9 +9092,9 @@ static const int parse_tester_en_main = 1;
 	te = 0;
 	act = 0;
 	}
-#line 1178 "NanorexMMPImportExportTest.rl"
+#line 1175 "NanorexMMPImportExportTest.rl"
 	
-#line 9386 "NanorexMMPImportExportTest.cpp"
+#line 9098 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -9399,11 +9111,11 @@ _resume:
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
-	case 44:
+	case 43:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 9407 "NanorexMMPImportExportTest.cpp"
+#line 9119 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -9588,80 +9300,80 @@ _eof_trans:
 	{ newViewDataGroup(); }
 	break;
 	case 28:
-#line 34 "NanorexMMPImportExportTest.rl"
-	{ stringVal2.clear(); }
+#line 40 "NanorexMMPImportExportTest.rl"
+	{ newMolStructGroup(stringVal/*, stringVal2*/); }
 	break;
 	case 29:
-#line 40 "NanorexMMPImportExportTest.rl"
-	{ newMolStructGroup(stringVal, stringVal2); }
-	break;
-	case 30:
 #line 47 "NanorexMMPImportExportTest.rl"
 	{ end1(); }
 	break;
-	case 31:
+	case 30:
 #line 51 "NanorexMMPImportExportTest.rl"
 	{ lineStart = p; }
 	break;
-	case 32:
+	case 31:
 #line 56 "NanorexMMPImportExportTest.rl"
 	{ newClipboardGroup(); }
 	break;
-	case 33:
+	case 32:
 #line 60 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 34:
+	case 33:
 #line 61 "NanorexMMPImportExportTest.rl"
 	{ stringVal.clear(); }
 	break;
-	case 35:
+	case 34:
 #line 67 "NanorexMMPImportExportTest.rl"
 	{ endGroup(stringVal); }
 	break;
-	case 36:
+	case 35:
 #line 71 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 37:
+	case 36:
 #line 81 "NanorexMMPImportExportTest.rl"
 	{ newOpenGroupInfo(stringVal, stringVal2); }
 	break;
-	case 38:
-#line 1061 "NanorexMMPImportExportTest.rl"
+	case 37:
+#line 1058 "NanorexMMPImportExportTest.rl"
 	{ kelvinTemp = intVal; }
+	break;
+	case 38:
+#line 1072 "NanorexMMPImportExportTest.rl"
+	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
 	case 39:
 #line 1075 "NanorexMMPImportExportTest.rl"
-	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 306; goto _again;} }
+	{ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
 	case 40:
-#line 1078 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 306; goto _again;} }
+#line 1080 "NanorexMMPImportExportTest.rl"
+	{ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
-	case 41:
-#line 1083 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 306; goto _again;} }
-	break;
-	case 45:
+	case 44:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 46:
-#line 103 "NanorexMMPImportExportTest.rl"
+	case 45:
+#line 102 "NanorexMMPImportExportTest.rl"
 	{act = 11;}
 	break;
-	case 47:
+	case 46:
 #line 89 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 48:
+	case 47:
 #line 90 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
+	case 48:
+#line 91 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{{cs = stack[--top]; goto _again;}}}
+	break;
 	case 49:
 #line 92 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
+	{te = p+1;}
 	break;
 	case 50:
 #line 93 "NanorexMMPImportExportTest.rl"
@@ -9684,44 +9396,40 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 55:
-#line 98 "NanorexMMPImportExportTest.rl"
+#line 100 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
 	case 56:
-#line 101 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
+			}}
 	break;
 	case 57:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p;p--;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}}
 	break;
 	case 58:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p;p--;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
-			}}
-	break;
-	case 59:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{	switch( act ) {
 	case 0:
 	{{cs = 0; goto _again;}}
 	break;
 	case 11:
-	{{p = ((te))-1;}	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+	{{p = ((te))-1;} cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}
 	break;
 	default: break;
 	}
 	}
 	break;
-#line 9725 "NanorexMMPImportExportTest.cpp"
+#line 9433 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -9742,15 +9450,15 @@ _again:
 #line 11 "NanorexMMPImportExportTest.rl"
 	{ stringVal2.clear(); /* 'style' string optional */ }
 	break;
-	case 42:
+	case 41:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-	case 43:
+	case 42:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{act = 0;}
 	break;
-#line 9754 "NanorexMMPImportExportTest.cpp"
+#line 9462 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -9769,16 +9477,16 @@ _again:
 
 	_out: {}
 	}
-#line 1179 "NanorexMMPImportExportTest.rl"
+#line 1176 "NanorexMMPImportExportTest.rl"
 }
 
 
 void NanorexMMPImportExportTest::fileParseTest(void)
 {
-// 	fileParseTestH2O();
-// 	fileParseTestHOOH();
-// 	fileParseTestChlorophyll();
-// 	fileParseTestVanillin();
+	fileParseTestH2O();
+	fileParseTestHOOH();
+	fileParseTestChlorophyll();
+	fileParseTestVanillin();
 	fileParseTestNanocar();
 }
 
@@ -9876,41 +9584,38 @@ fileParseTestHelper(RagelIstreamPtr& p, RagelIstreamPtr& pe)
 	RagelIstreamPtr charStringWithSpaceStart, charStringWithSpaceStop;
 	RagelIstreamPtr lineStart;
 	
-	#line 1286 "NanorexMMPImportExportTest.rl"
+	#line 1283 "NanorexMMPImportExportTest.rl"
 	
-#line 9882 "NanorexMMPImportExportTest.cpp"
+#line 9590 "NanorexMMPImportExportTest.cpp"
 static const char _parse_tester_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
 	7, 1, 8, 1, 9, 1, 10, 1, 
 	11, 1, 12, 1, 13, 1, 14, 1, 
 	17, 1, 18, 1, 21, 1, 22, 1, 
-	26, 1, 28, 1, 31, 1, 33, 1, 
-	34, 1, 38, 1, 42, 1, 44, 1, 
-	58, 1, 59, 2, 0, 30, 2, 0, 
-	54, 2, 0, 56, 2, 0, 57, 2, 
-	5, 12, 2, 5, 13, 2, 5, 14, 
-	2, 6, 7, 2, 6, 8, 2, 6, 
-	9, 2, 8, 15, 2, 36, 24, 2, 
-	38, 0, 2, 42, 43, 3, 0, 16, 
-	52, 3, 0, 19, 55, 3, 0, 20, 
-	53, 3, 0, 23, 50, 3, 0, 25, 
-	51, 3, 0, 27, 39, 3, 0, 29, 
-	40, 3, 0, 29, 47, 3, 0, 32, 
-	41, 3, 0, 35, 49, 3, 0, 37, 
-	48, 3, 6, 8, 15, 3, 17, 0, 
-	54, 3, 45, 0, 46, 4, 9, 0, 
-	20, 53, 4, 9, 0, 23, 50, 4, 
-	9, 0, 25, 51, 4, 9, 0, 29, 
-	40, 4, 9, 0, 29, 47, 4, 9, 
-	0, 37, 48, 4, 34, 0, 35, 49, 
-	5, 6, 9, 0, 20, 53, 5, 6, 
-	9, 0, 23, 50, 5, 6, 9, 0, 
-	25, 51, 5, 6, 9, 0, 29, 40, 
-	5, 6, 9, 0, 29, 47, 5, 6, 
-	9, 0, 37, 48, 5, 8, 15, 0, 
-	16, 52, 6, 6, 8, 15, 0, 16, 
-	52
+	26, 1, 30, 1, 32, 1, 33, 1, 
+	37, 1, 41, 1, 43, 1, 57, 1, 
+	58, 2, 0, 29, 2, 0, 53, 2, 
+	0, 55, 2, 0, 56, 2, 5, 12, 
+	2, 5, 13, 2, 5, 14, 2, 6, 
+	7, 2, 6, 8, 2, 6, 9, 2, 
+	8, 15, 2, 35, 24, 2, 37, 0, 
+	2, 41, 42, 3, 0, 16, 51, 3, 
+	0, 19, 54, 3, 0, 20, 52, 3, 
+	0, 23, 49, 3, 0, 25, 50, 3, 
+	0, 27, 38, 3, 0, 28, 39, 3, 
+	0, 28, 46, 3, 0, 31, 40, 3, 
+	0, 34, 48, 3, 0, 36, 47, 3, 
+	6, 8, 15, 3, 17, 0, 53, 3, 
+	44, 0, 45, 4, 9, 0, 20, 52, 
+	4, 9, 0, 23, 49, 4, 9, 0, 
+	25, 50, 4, 9, 0, 36, 47, 4, 
+	33, 0, 34, 48, 5, 6, 9, 0, 
+	20, 52, 5, 6, 9, 0, 23, 49, 
+	5, 6, 9, 0, 25, 50, 5, 6, 
+	9, 0, 36, 47, 5, 8, 15, 0, 
+	16, 51, 6, 6, 8, 15, 0, 16, 
+	51
 };
 
 static const short _parse_tester_key_offsets[] = {
@@ -9920,39 +9625,37 @@ static const short _parse_tester_key_offsets[] = {
 	47, 48, 49, 55, 61, 62, 63, 64, 
 	65, 70, 75, 80, 81, 82, 83, 87, 
 	92, 93, 94, 95, 100, 102, 107, 108, 
-	109, 110, 111, 116, 121, 132, 146, 160, 
-	165, 177, 182, 183, 184, 185, 190, 195, 
-	196, 197, 198, 199, 204, 209, 210, 211, 
-	212, 213, 214, 215, 216, 217, 222, 227, 
-	232, 233, 234, 238, 240, 242, 244, 258, 
-	272, 285, 299, 312, 326, 328, 329, 330, 
-	331, 332, 333, 337, 343, 350, 355, 360, 
-	362, 369, 371, 375, 381, 383, 385, 387, 
-	389, 391, 395, 400, 401, 402, 403, 404, 
-	405, 406, 407, 408, 413, 415, 426, 429, 
-	432, 435, 440, 447, 454, 460, 467, 475, 
-	481, 486, 492, 501, 505, 513, 519, 528, 
-	532, 540, 546, 555, 559, 567, 573, 579, 
-	592, 594, 609, 624, 638, 653, 661, 665, 
-	673, 681, 689, 693, 701, 709, 717, 721, 
-	729, 737, 745, 752, 755, 758, 761, 769, 
-	774, 781, 789, 797, 799, 807, 810, 813, 
-	816, 819, 822, 825, 828, 831, 834, 839, 
-	846, 853, 860, 868, 874, 876, 884, 891, 
-	894, 897, 900, 903, 906, 913, 920, 922, 
-	935, 947, 962, 977, 983, 997, 1012, 1015, 
-	1018, 1021, 1024, 1030, 1036, 1048, 1063, 1078, 
-	1084, 1097, 1099, 1114, 1129, 1143, 1158, 1172, 
-	1187, 1190, 1193, 1196, 1201, 1209, 1212, 1215, 
-	1218, 1223, 1235, 1250, 1265, 1279, 1294, 1306, 
-	1321, 1336, 1338, 1352, 1367, 1370, 1373, 1376, 
-	1379, 1384, 1396, 1411, 1426, 1440, 1455, 1467, 
-	1482, 1497, 1499, 1513, 1528, 1531, 1534, 1537, 
-	1540, 1543, 1546, 1549, 1552, 1557, 1569, 1584, 
-	1599, 1613, 1628, 1640, 1655, 1670, 1672, 1686, 
-	1701, 1704, 1707, 1712, 1718, 1730, 1745, 1760, 
-	1766, 1779, 1781, 1796, 1811, 1825, 1840, 1854, 
-	1869, 1871, 1871, 1883
+	109, 110, 111, 116, 127, 141, 155, 160, 
+	165, 166, 167, 168, 173, 178, 179, 180, 
+	181, 182, 187, 192, 193, 194, 195, 196, 
+	197, 198, 199, 200, 205, 210, 215, 216, 
+	217, 221, 223, 225, 227, 240, 254, 256, 
+	257, 258, 259, 260, 261, 265, 271, 278, 
+	283, 288, 290, 297, 299, 303, 309, 311, 
+	313, 315, 317, 319, 323, 328, 329, 330, 
+	331, 332, 333, 334, 335, 336, 341, 343, 
+	354, 357, 360, 363, 368, 375, 382, 388, 
+	395, 403, 409, 414, 420, 429, 433, 441, 
+	447, 456, 460, 468, 474, 483, 487, 495, 
+	501, 507, 520, 522, 537, 552, 566, 581, 
+	589, 593, 601, 609, 617, 621, 629, 637, 
+	645, 649, 657, 665, 673, 680, 683, 686, 
+	689, 697, 702, 709, 717, 725, 727, 735, 
+	738, 741, 744, 747, 750, 753, 756, 759, 
+	762, 767, 774, 781, 788, 796, 802, 804, 
+	812, 819, 822, 825, 828, 831, 834, 841, 
+	848, 850, 863, 875, 890, 905, 911, 925, 
+	940, 943, 946, 949, 952, 958, 970, 985, 
+	1000, 1006, 1008, 1022, 1037, 1040, 1043, 1046, 
+	1051, 1059, 1062, 1065, 1068, 1073, 1085, 1100, 
+	1115, 1129, 1144, 1156, 1171, 1186, 1188, 1202, 
+	1217, 1220, 1223, 1226, 1229, 1234, 1246, 1261, 
+	1276, 1290, 1305, 1317, 1332, 1347, 1349, 1363, 
+	1378, 1381, 1384, 1387, 1390, 1393, 1396, 1399, 
+	1402, 1407, 1419, 1434, 1449, 1463, 1478, 1490, 
+	1505, 1520, 1522, 1536, 1551, 1554, 1557, 1562, 
+	1568, 1580, 1595, 1610, 1616, 1629, 1631, 1646, 
+	1661, 1675, 1690, 1704, 1719, 1721, 1721, 1733
 };
 
 static const char _parse_tester_trans_keys[] = {
@@ -9970,30 +9673,21 @@ static const char _parse_tester_trans_keys[] = {
 	32, 68, 11, 13, 97, 116, 97, 9, 
 	32, 41, 11, 13, 10, 35, 10, 32, 
 	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 40, 11, 
-	13, 9, 32, 95, 11, 13, 48, 57, 
-	65, 90, 97, 122, 9, 32, 41, 95, 
-	11, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 9, 32, 41, 95, 11, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	10, 32, 35, 9, 13, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, 10, 32, 101, 9, 13, 110, 100, 
-	49, 10, 32, 35, 9, 13, 10, 32, 
-	103, 9, 13, 114, 111, 117, 112, 9, 
-	32, 40, 11, 13, 9, 32, 67, 11, 
-	13, 108, 105, 112, 98, 111, 97, 114, 
-	100, 9, 32, 41, 11, 13, 10, 32, 
-	35, 9, 13, 10, 32, 101, 9, 13, 
-	110, 100, 9, 32, 11, 13, -1, 10, 
-	-1, 10, -1, 10, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	9, 32, 95, 11, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, 9, 32, 95, 11, 13, 
+	32, 40, 11, 13, 9, 32, 95, 11, 
+	13, 48, 57, 65, 90, 97, 122, 9, 
+	32, 41, 95, 11, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, 9, 32, 41, 
+	95, 11, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, 10, 32, 35, 9, 13, 
+	10, 32, 101, 9, 13, 110, 100, 49, 
+	10, 32, 35, 9, 13, 10, 32, 103, 
+	9, 13, 114, 111, 117, 112, 9, 32, 
+	40, 11, 13, 9, 32, 67, 11, 13, 
+	108, 105, 112, 98, 111, 97, 114, 100, 
+	9, 32, 41, 11, 13, 10, 32, 35, 
+	9, 13, 10, 32, 101, 9, 13, 110, 
+	100, 9, 32, 11, 13, -1, 10, -1, 
+	10, -1, 10, 9, 32, 95, 11, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	9, 32, 41, 95, 11, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
@@ -10085,30 +9779,62 @@ static const char _parse_tester_trans_keys[] = {
 	65, 90, 97, 122, -1, 10, 114, -1, 
 	10, 111, -1, 10, 117, -1, 10, 112, 
 	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 40, 9, 13, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 41, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 41, 95, 9, 13, 45, 46, 
+	32, 95, 9, 13, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 41, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 41, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 35, 9, 13, -1, 10, 
+	-1, 10, 32, 95, 9, 13, 45, 46, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 9, 13, -1, 10, 32, 35, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 35, 95, 
+	32, 41, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 110, 
+	-1, 10, 102, -1, 10, 111, -1, 10, 
+	32, 9, 13, -1, 10, 32, 97, 99, 
+	111, 9, 13, -1, 10, 116, -1, 10, 
+	111, -1, 10, 109, -1, 10, 32, 9, 
+	13, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 61, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 61, 95, 9, 13, 
+	45, 46, 48, 57, 65, 90, 97, 122, 
+	-1, 10, 32, 95, 9, 13, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, -1, 10, 32, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 35, 95, 9, 
 	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
+	122, -1, 10, 104, -1, 10, 117, -1, 
+	10, 110, -1, 10, 107, -1, 10, 32, 
+	9, 13, -1, 10, 32, 95, 9, 13, 
 	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 41, 
+	32, 61, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	61, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 61, 95, 9, 
+	13, 45, 46, 48, 57, 65, 90, 97, 
+	122, -1, 10, 32, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	35, 95, 9, 13, 45, 46, 48, 57, 
+	65, 90, 97, 122, -1, 10, 32, 35, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 110, -1, 10, 
-	102, -1, 10, 111, -1, 10, 32, 9, 
-	13, -1, 10, 32, 97, 99, 111, 9, 
-	13, -1, 10, 116, -1, 10, 111, -1, 
-	10, 109, -1, 10, 32, 9, 13, -1, 
+	90, 97, 122, -1, 10, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 112, -1, 10, 101, 
+	-1, 10, 110, -1, 10, 103, -1, 10, 
+	114, -1, 10, 111, -1, 10, 117, -1, 
+	10, 112, -1, 10, 32, 9, 13, -1, 
 	10, 32, 95, 9, 13, 48, 57, 65, 
 	90, 97, 122, -1, 10, 32, 61, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
@@ -10127,72 +9853,31 @@ static const char _parse_tester_trans_keys[] = {
 	45, 46, 48, 57, 65, 90, 97, 122, 
 	-1, 10, 32, 35, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 104, -1, 10, 117, -1, 10, 110, 
-	-1, 10, 107, -1, 10, 32, 9, 13, 
+	10, 111, -1, 10, 108, -1, 10, 32, 
+	9, 13, -1, 10, 32, 40, 9, 13, 
 	-1, 10, 32, 95, 9, 13, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 61, 
+	65, 90, 97, 122, -1, 10, 32, 41, 
 	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 61, 95, 
+	90, 97, 122, -1, 10, 32, 41, 95, 
+	9, 13, 45, 46, 48, 57, 65, 90, 
+	97, 122, -1, 10, 32, 35, 9, 13, 
+	-1, 10, 32, 35, 95, 9, 13, 48, 
+	57, 65, 90, 97, 122, -1, 10, -1, 
+	10, 32, 35, 95, 9, 13, 45, 46, 
+	48, 57, 65, 90, 97, 122, -1, 10, 
+	32, 35, 95, 9, 13, 45, 46, 48, 
+	57, 65, 90, 97, 122, -1, 10, 32, 
+	95, 9, 13, 45, 46, 48, 57, 65, 
+	90, 97, 122, -1, 10, 32, 35, 95, 
 	9, 13, 45, 46, 48, 57, 65, 90, 
 	97, 122, -1, 10, 32, 95, 9, 13, 
 	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
+	-1, 10, 32, 41, 95, 9, 13, 45, 
 	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 35, 95, 
-	9, 13, 45, 46, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 35, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 112, -1, 10, 101, -1, 10, 
-	110, -1, 10, 103, -1, 10, 114, -1, 
-	10, 111, -1, 10, 117, -1, 10, 112, 
-	-1, 10, 32, 9, 13, -1, 10, 32, 
-	95, 9, 13, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 61, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 61, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 32, 
-	61, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 95, 
-	9, 13, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 95, 9, 13, 45, 
-	46, 48, 57, 65, 90, 97, 122, -1, 
-	10, 32, 35, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 35, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, 111, 
-	-1, 10, 108, -1, 10, 32, 9, 13, 
-	-1, 10, 32, 40, 9, 13, -1, 10, 
-	32, 95, 9, 13, 48, 57, 65, 90, 
-	97, 122, -1, 10, 32, 41, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 41, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 35, 9, 13, -1, 10, 
-	32, 35, 95, 9, 13, 48, 57, 65, 
-	90, 97, 122, -1, 10, -1, 10, 32, 
-	35, 95, 9, 13, 45, 46, 48, 57, 
-	65, 90, 97, 122, -1, 10, 32, 35, 
-	95, 9, 13, 45, 46, 48, 57, 65, 
-	90, 97, 122, -1, 10, 32, 95, 9, 
-	13, 45, 46, 48, 57, 65, 90, 97, 
-	122, -1, 10, 32, 35, 95, 9, 13, 
-	45, 46, 48, 57, 65, 90, 97, 122, 
-	-1, 10, 32, 95, 9, 13, 45, 46, 
-	48, 57, 65, 90, 97, 122, -1, 10, 
-	32, 41, 95, 9, 13, 45, 46, 48, 
-	57, 65, 90, 97, 122, -1, 10, -1, 
-	10, 32, 35, 97, 98, 101, 103, 105, 
-	109, 9, 13, -1, 10, 32, 97, 98, 
-	101, 103, 105, 109, 9, 13, 0
+	10, -1, 10, 32, 35, 97, 98, 101, 
+	103, 105, 109, 9, 13, -1, 10, 32, 
+	97, 98, 101, 103, 105, 109, 9, 13, 
+	0
 };
 
 static const char _parse_tester_single_lengths[] = {
@@ -10202,39 +9887,37 @@ static const char _parse_tester_single_lengths[] = {
 	1, 1, 4, 4, 1, 1, 1, 1, 
 	3, 3, 3, 1, 1, 1, 2, 3, 
 	1, 1, 1, 3, 2, 3, 1, 1, 
-	1, 1, 3, 3, 3, 4, 4, 3, 
-	4, 3, 1, 1, 1, 3, 3, 1, 
+	1, 1, 3, 3, 4, 4, 3, 3, 
 	1, 1, 1, 3, 3, 1, 1, 1, 
-	1, 1, 1, 1, 1, 3, 3, 3, 
-	1, 1, 2, 2, 2, 2, 4, 4, 
-	3, 4, 3, 4, 2, 1, 1, 1, 
-	1, 1, 2, 2, 3, 3, 3, 2, 
-	3, 2, 2, 2, 0, 0, 0, 0, 
-	0, 2, 3, 1, 1, 1, 1, 1, 
-	1, 1, 1, 3, 2, 9, 3, 3, 
-	3, 3, 3, 3, 4, 3, 4, 4, 
-	3, 4, 5, 2, 4, 4, 5, 2, 
-	4, 4, 5, 2, 4, 4, 4, 5, 
-	2, 5, 5, 4, 5, 4, 2, 4, 
-	4, 4, 2, 4, 4, 4, 2, 4, 
-	4, 4, 3, 3, 3, 3, 6, 3, 
-	3, 4, 4, 2, 4, 3, 3, 3, 
+	1, 3, 3, 1, 1, 1, 1, 1, 
+	1, 1, 1, 3, 3, 3, 1, 1, 
+	2, 2, 2, 2, 3, 4, 2, 1, 
+	1, 1, 1, 1, 2, 2, 3, 3, 
+	3, 2, 3, 2, 2, 2, 0, 0, 
+	0, 0, 0, 2, 3, 1, 1, 1, 
+	1, 1, 1, 1, 1, 3, 2, 9, 
+	3, 3, 3, 3, 3, 3, 4, 3, 
+	4, 4, 3, 4, 5, 2, 4, 4, 
+	5, 2, 4, 4, 5, 2, 4, 4, 
+	4, 5, 2, 5, 5, 4, 5, 4, 
+	2, 4, 4, 4, 2, 4, 4, 4, 
+	2, 4, 4, 4, 3, 3, 3, 3, 
+	6, 3, 3, 4, 4, 2, 4, 3, 
 	3, 3, 3, 3, 3, 3, 3, 3, 
-	3, 3, 4, 4, 2, 4, 3, 3, 
-	3, 3, 3, 3, 5, 5, 2, 5, 
-	4, 5, 5, 4, 4, 5, 3, 3, 
-	3, 3, 4, 4, 4, 5, 5, 4, 
-	5, 2, 5, 5, 4, 5, 4, 5, 
-	3, 3, 3, 3, 6, 3, 3, 3, 
-	3, 4, 5, 5, 4, 5, 4, 5, 
-	5, 2, 4, 5, 3, 3, 3, 3, 
-	3, 4, 5, 5, 4, 5, 4, 5, 
-	5, 2, 4, 5, 3, 3, 3, 3, 
+	3, 3, 3, 3, 4, 4, 2, 4, 
+	3, 3, 3, 3, 3, 3, 5, 5, 
+	2, 5, 4, 5, 5, 4, 4, 5, 
+	3, 3, 3, 3, 4, 4, 5, 5, 
+	4, 2, 4, 5, 3, 3, 3, 3, 
+	6, 3, 3, 3, 3, 4, 5, 5, 
+	4, 5, 4, 5, 5, 2, 4, 5, 
 	3, 3, 3, 3, 3, 4, 5, 5, 
 	4, 5, 4, 5, 5, 2, 4, 5, 
-	3, 3, 3, 4, 4, 5, 5, 4, 
-	5, 2, 5, 5, 4, 5, 4, 5, 
-	2, 0, 10, 9
+	3, 3, 3, 3, 3, 3, 3, 3, 
+	3, 4, 5, 5, 4, 5, 4, 5, 
+	5, 2, 4, 5, 3, 3, 3, 4, 
+	4, 5, 5, 4, 5, 2, 5, 5, 
+	4, 5, 4, 5, 2, 0, 10, 9
 };
 
 static const char _parse_tester_range_lengths[] = {
@@ -10244,39 +9927,37 @@ static const char _parse_tester_range_lengths[] = {
 	0, 0, 1, 1, 0, 0, 0, 0, 
 	1, 1, 1, 0, 0, 0, 1, 1, 
 	0, 0, 0, 1, 0, 1, 0, 0, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 1, 0, 0, 0, 1, 1, 0, 
+	0, 0, 1, 4, 5, 5, 1, 1, 
 	0, 0, 0, 1, 1, 0, 0, 0, 
-	0, 0, 0, 0, 0, 1, 1, 1, 
-	0, 0, 1, 0, 0, 0, 5, 5, 
-	5, 5, 5, 5, 0, 0, 0, 0, 
-	0, 0, 1, 2, 2, 1, 1, 0, 
-	2, 0, 1, 2, 1, 1, 1, 1, 
-	1, 1, 1, 0, 0, 0, 0, 0, 
-	0, 0, 0, 1, 0, 1, 0, 0, 
-	0, 1, 2, 2, 1, 2, 2, 1, 
-	1, 1, 2, 1, 2, 1, 2, 1, 
-	2, 1, 2, 1, 2, 1, 1, 4, 
-	0, 5, 5, 5, 5, 2, 1, 2, 
-	2, 2, 1, 2, 2, 2, 1, 2, 
-	2, 2, 2, 0, 0, 0, 1, 1, 
-	2, 2, 2, 0, 2, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 1, 2, 
-	2, 2, 2, 1, 0, 2, 2, 0, 
-	0, 0, 0, 0, 1, 1, 0, 4, 
-	4, 5, 5, 1, 5, 5, 0, 0, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 0, 5, 5, 5, 5, 5, 5, 
-	0, 0, 0, 1, 1, 0, 0, 0, 
-	1, 4, 5, 5, 5, 5, 4, 5, 
-	5, 0, 5, 5, 0, 0, 0, 0, 
-	1, 4, 5, 5, 5, 5, 4, 5, 
-	5, 0, 5, 5, 0, 0, 0, 0, 
+	0, 1, 1, 0, 0, 0, 0, 0, 
+	0, 0, 0, 1, 1, 1, 0, 0, 
+	1, 0, 0, 0, 5, 5, 0, 0, 
+	0, 0, 0, 0, 1, 2, 2, 1, 
+	1, 0, 2, 0, 1, 2, 1, 1, 
+	1, 1, 1, 1, 1, 0, 0, 0, 
+	0, 0, 0, 0, 0, 1, 0, 1, 
+	0, 0, 0, 1, 2, 2, 1, 2, 
+	2, 1, 1, 1, 2, 1, 2, 1, 
+	2, 1, 2, 1, 2, 1, 2, 1, 
+	1, 4, 0, 5, 5, 5, 5, 2, 
+	1, 2, 2, 2, 1, 2, 2, 2, 
+	1, 2, 2, 2, 2, 0, 0, 0, 
+	1, 1, 2, 2, 2, 0, 2, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	1, 2, 2, 2, 2, 1, 0, 2, 
+	2, 0, 0, 0, 0, 0, 1, 1, 
+	0, 4, 4, 5, 5, 1, 5, 5, 
+	0, 0, 0, 0, 1, 4, 5, 5, 
+	1, 0, 5, 5, 0, 0, 0, 1, 
+	1, 0, 0, 0, 1, 4, 5, 5, 
+	5, 5, 4, 5, 5, 0, 5, 5, 
 	0, 0, 0, 0, 1, 4, 5, 5, 
 	5, 5, 4, 5, 5, 0, 5, 5, 
-	0, 0, 1, 1, 4, 5, 5, 1, 
-	4, 0, 5, 5, 5, 5, 5, 5, 
-	0, 0, 1, 1
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	1, 4, 5, 5, 5, 5, 4, 5, 
+	5, 0, 5, 5, 0, 0, 1, 1, 
+	4, 5, 5, 1, 4, 0, 5, 5, 
+	5, 5, 5, 5, 0, 0, 1, 1
 };
 
 static const short _parse_tester_index_offsets[] = {
@@ -10286,39 +9967,37 @@ static const short _parse_tester_index_offsets[] = {
 	59, 61, 63, 69, 75, 77, 79, 81, 
 	83, 88, 93, 98, 100, 102, 104, 108, 
 	113, 115, 117, 119, 124, 127, 132, 134, 
-	136, 138, 140, 145, 150, 158, 168, 178, 
-	183, 192, 197, 199, 201, 203, 208, 213, 
-	215, 217, 219, 221, 226, 231, 233, 235, 
-	237, 239, 241, 243, 245, 247, 252, 257, 
-	262, 264, 266, 270, 273, 276, 279, 289, 
-	299, 308, 318, 327, 337, 340, 342, 344, 
-	346, 348, 350, 354, 359, 365, 370, 375, 
-	378, 384, 387, 391, 396, 398, 400, 402, 
-	404, 406, 410, 415, 417, 419, 421, 423, 
-	425, 427, 429, 431, 436, 439, 450, 454, 
-	458, 462, 467, 473, 479, 485, 491, 498, 
-	504, 509, 515, 523, 527, 534, 540, 548, 
-	552, 559, 565, 573, 577, 584, 590, 596, 
-	606, 609, 620, 631, 641, 652, 659, 663, 
-	670, 677, 684, 688, 695, 702, 709, 713, 
-	720, 727, 734, 740, 744, 748, 752, 760, 
-	765, 771, 778, 785, 788, 795, 799, 803, 
-	807, 811, 815, 819, 823, 827, 831, 836, 
-	842, 848, 854, 861, 867, 870, 877, 883, 
-	887, 891, 895, 899, 903, 910, 917, 920, 
-	930, 939, 950, 961, 967, 977, 988, 992, 
-	996, 1000, 1004, 1010, 1016, 1025, 1036, 1047, 
-	1053, 1063, 1066, 1077, 1088, 1098, 1109, 1119, 
-	1130, 1134, 1138, 1142, 1147, 1155, 1159, 1163, 
-	1167, 1172, 1181, 1192, 1203, 1213, 1224, 1233, 
-	1244, 1255, 1258, 1268, 1279, 1283, 1287, 1291, 
-	1295, 1300, 1309, 1320, 1331, 1341, 1352, 1361, 
-	1372, 1383, 1386, 1396, 1407, 1411, 1415, 1419, 
-	1423, 1427, 1431, 1435, 1439, 1444, 1453, 1464, 
-	1475, 1485, 1496, 1505, 1516, 1527, 1530, 1540, 
-	1551, 1555, 1559, 1564, 1570, 1579, 1590, 1601, 
-	1607, 1617, 1620, 1631, 1642, 1652, 1663, 1673, 
-	1684, 1687, 1688, 1700
+	136, 138, 140, 145, 153, 163, 173, 178, 
+	183, 185, 187, 189, 194, 199, 201, 203, 
+	205, 207, 212, 217, 219, 221, 223, 225, 
+	227, 229, 231, 233, 238, 243, 248, 250, 
+	252, 256, 259, 262, 265, 274, 284, 287, 
+	289, 291, 293, 295, 297, 301, 306, 312, 
+	317, 322, 325, 331, 334, 338, 343, 345, 
+	347, 349, 351, 353, 357, 362, 364, 366, 
+	368, 370, 372, 374, 376, 378, 383, 386, 
+	397, 401, 405, 409, 414, 420, 426, 432, 
+	438, 445, 451, 456, 462, 470, 474, 481, 
+	487, 495, 499, 506, 512, 520, 524, 531, 
+	537, 543, 553, 556, 567, 578, 588, 599, 
+	606, 610, 617, 624, 631, 635, 642, 649, 
+	656, 660, 667, 674, 681, 687, 691, 695, 
+	699, 707, 712, 718, 725, 732, 735, 742, 
+	746, 750, 754, 758, 762, 766, 770, 774, 
+	778, 783, 789, 795, 801, 808, 814, 817, 
+	824, 830, 834, 838, 842, 846, 850, 857, 
+	864, 867, 877, 886, 897, 908, 914, 924, 
+	935, 939, 943, 947, 951, 957, 966, 977, 
+	988, 994, 997, 1007, 1018, 1022, 1026, 1030, 
+	1035, 1043, 1047, 1051, 1055, 1060, 1069, 1080, 
+	1091, 1101, 1112, 1121, 1132, 1143, 1146, 1156, 
+	1167, 1171, 1175, 1179, 1183, 1188, 1197, 1208, 
+	1219, 1229, 1240, 1249, 1260, 1271, 1274, 1284, 
+	1295, 1299, 1303, 1307, 1311, 1315, 1319, 1323, 
+	1327, 1332, 1341, 1352, 1363, 1373, 1384, 1393, 
+	1404, 1415, 1418, 1428, 1439, 1443, 1447, 1452, 
+	1458, 1467, 1478, 1489, 1495, 1505, 1508, 1519, 
+	1530, 1540, 1551, 1561, 1572, 1575, 1576, 1588
 };
 
 static const short _parse_tester_indicies[] = {
@@ -10339,263 +10018,245 @@ static const short _parse_tester_indicies[] = {
 	1, 48, 1, 49, 1, 50, 1, 50, 
 	50, 51, 50, 1, 52, 53, 1, 55, 
 	54, 56, 54, 1, 57, 1, 58, 1, 
-	59, 1, 60, 1, 61, 61, 62, 61, 
-	1, 63, 63, 64, 63, 1, 64, 64, 
-	65, 64, 65, 65, 65, 1, 66, 66, 
-	67, 69, 66, 68, 69, 69, 69, 1, 
-	70, 70, 71, 73, 70, 72, 73, 73, 
-	73, 1, 75, 74, 76, 74, 1, 75, 
-	74, 76, 77, 74, 77, 77, 77, 1, 
-	79, 78, 80, 78, 1, 81, 1, 82, 
-	1, 83, 1, 84, 83, 85, 83, 1, 
-	87, 86, 88, 86, 1, 89, 1, 90, 
-	1, 91, 1, 92, 1, 92, 92, 93, 
-	92, 1, 93, 93, 94, 93, 1, 95, 
-	1, 96, 1, 97, 1, 98, 1, 99, 
-	1, 100, 1, 101, 1, 102, 1, 102, 
-	102, 103, 102, 1, 104, 103, 105, 103, 
-	1, 107, 106, 108, 106, 1, 109, 1, 
-	110, 1, 111, 111, 111, 1, 1, 104, 
-	105, 1, 84, 85, 1, 75, 76, 113, 
-	112, 114, 116, 112, 115, 116, 116, 116, 
-	1, 75, 117, 76, 119, 117, 118, 119, 
-	119, 119, 1, 118, 118, 119, 118, 118, 
-	119, 119, 119, 1, 121, 120, 122, 119, 
-	120, 118, 119, 119, 119, 1, 72, 72, 
-	73, 72, 72, 73, 73, 73, 1, 123, 
-	123, 124, 73, 123, 72, 73, 73, 73, 
-	1, 1, 52, 53, 125, 1, 126, 1, 
-	127, 1, 128, 1, 129, 1, 130, 130, 
-	130, 1, 130, 130, 130, 131, 1, 133, 
-	132, 134, 132, 135, 1, 137, 136, 138, 
-	136, 1, 137, 139, 32, 139, 1, 1, 
-	137, 138, 133, 132, 134, 132, 135, 1, 
-	1, 28, 29, 140, 140, 140, 1, 140, 
-	140, 140, 141, 1, 142, 1, 143, 1, 
-	144, 1, 145, 1, 146, 1, 147, 147, 
-	147, 1, 147, 147, 148, 147, 1, 149, 
-	1, 150, 1, 151, 1, 152, 1, 153, 
-	1, 154, 1, 155, 1, 156, 1, 28, 
-	156, 29, 156, 1, 157, 159, 158, 157, 
-	161, 160, 162, 163, 164, 165, 166, 167, 
-	160, 158, 157, 159, 168, 158, 157, 159, 
-	169, 158, 157, 159, 170, 158, 157, 159, 
-	171, 171, 158, 157, 159, 171, 171, 172, 
-	158, 157, 159, 173, 173, 174, 158, 157, 
-	159, 175, 176, 175, 158, 157, 159, 176, 
-	176, 177, 158, 157, 159, 178, 179, 178, 
-	180, 158, 157, 159, 178, 179, 178, 158, 
-	157, 159, 181, 181, 158, 157, 159, 182, 
-	183, 182, 158, 157, 159, 183, 184, 185, 
-	183, 186, 158, 157, 159, 186, 158, 157, 
-	159, 187, 188, 187, 189, 158, 157, 159, 
-	187, 188, 187, 158, 157, 159, 190, 191, 
-	192, 190, 193, 158, 157, 159, 193, 158, 
-	157, 159, 194, 195, 194, 196, 158, 157, 
-	159, 194, 195, 194, 158, 157, 159, 197, 
-	198, 199, 197, 200, 158, 157, 159, 200, 
-	158, 157, 159, 201, 202, 201, 203, 158, 
-	157, 159, 201, 202, 201, 158, 157, 205, 
-	204, 206, 204, 158, 157, 205, 204, 206, 
-	207, 204, 207, 207, 207, 158, 157, 205, 
-	206, 157, 209, 208, 210, 212, 208, 211, 
-	212, 212, 212, 158, 157, 205, 213, 206, 
-	215, 213, 214, 215, 215, 215, 158, 157, 
-	159, 214, 215, 214, 214, 215, 215, 215, 
-	158, 157, 217, 216, 218, 215, 216, 214, 
-	215, 215, 215, 158, 157, 159, 201, 202, 
-	201, 203, 158, 157, 159, 219, 158, 157, 
-	159, 220, 221, 220, 222, 158, 157, 159, 
-	220, 221, 220, 222, 158, 157, 159, 194, 
-	195, 194, 196, 158, 157, 159, 223, 158, 
-	157, 159, 224, 225, 224, 226, 158, 157, 
-	159, 224, 225, 224, 226, 158, 157, 159, 
-	187, 188, 187, 189, 158, 157, 159, 227, 
-	158, 157, 159, 228, 229, 228, 230, 158, 
-	157, 159, 228, 229, 228, 230, 158, 157, 
-	159, 178, 179, 178, 180, 158, 157, 159, 
-	173, 173, 174, 158, 157, 159, 231, 158, 
-	157, 159, 232, 158, 157, 159, 233, 158, 
-	157, 159, 235, 234, 234, 234, 234, 158, 
-	157, 159, 236, 236, 158, 157, 159, 236, 
-	236, 237, 158, 157, 239, 238, 240, 238, 
-	241, 158, 157, 243, 242, 244, 242, 237, 
-	158, 157, 243, 244, 157, 239, 238, 240, 
-	238, 241, 158, 157, 159, 245, 158, 157, 
-	159, 246, 158, 157, 159, 247, 158, 157, 
-	159, 248, 158, 157, 159, 249, 158, 157, 
-	159, 250, 158, 157, 159, 251, 158, 157, 
-	159, 252, 158, 157, 159, 253, 158, 157, 
-	159, 254, 254, 158, 157, 159, 254, 254, 
-	255, 158, 157, 159, 256, 256, 257, 158, 
-	157, 159, 256, 256, 258, 158, 157, 260, 
-	259, 261, 259, 262, 158, 157, 260, 259, 
-	261, 259, 158, 157, 260, 261, 157, 260, 
-	259, 261, 259, 262, 158, 157, 159, 256, 
-	256, 257, 158, 157, 159, 263, 158, 157, 
-	159, 264, 158, 157, 159, 265, 158, 157, 
-	159, 266, 158, 157, 159, 267, 158, 157, 
-	269, 268, 270, 271, 268, 158, 157, 273, 
-	272, 274, 275, 272, 158, 157, 273, 274, 
-	157, 159, 276, 277, 278, 276, 278, 278, 
-	278, 158, 157, 159, 276, 278, 276, 278, 
-	278, 278, 158, 157, 159, 279, 280, 282, 
-	279, 281, 282, 282, 282, 158, 157, 159, 
-	283, 277, 285, 283, 284, 285, 285, 285, 
-	158, 157, 273, 277, 274, 277, 158, 157, 
-	159, 284, 285, 284, 284, 285, 285, 285, 
-	158, 157, 159, 286, 287, 285, 286, 284, 
-	285, 285, 285, 158, 157, 159, 288, 158, 
-	157, 159, 289, 158, 157, 159, 290, 158, 
-	157, 159, 291, 158, 157, 159, 292, 293, 
-	292, 158, 157, 159, 294, 295, 294, 158, 
-	157, 159, 295, 296, 295, 296, 296, 296, 
-	158, 157, 159, 297, 298, 300, 297, 299, 
-	300, 300, 300, 158, 157, 159, 301, 302, 
-	304, 301, 303, 304, 304, 304, 158, 157, 
-	306, 305, 307, 305, 158, 157, 306, 305, 
-	307, 308, 305, 308, 308, 308, 158, 157, 
-	306, 307, 157, 310, 309, 311, 313, 309, 
-	312, 313, 313, 313, 158, 157, 306, 314, 
-	307, 316, 314, 315, 316, 316, 316, 158, 
-	157, 159, 315, 316, 315, 315, 316, 316, 
-	316, 158, 157, 318, 317, 319, 316, 317, 
-	315, 316, 316, 316, 158, 157, 159, 303, 
-	304, 303, 303, 304, 304, 304, 158, 157, 
-	159, 320, 321, 304, 320, 303, 304, 304, 
-	304, 158, 157, 159, 322, 158, 157, 159, 
-	323, 158, 157, 159, 324, 158, 157, 159, 
-	325, 325, 158, 157, 159, 325, 326, 327, 
-	328, 325, 158, 157, 159, 329, 158, 157, 
-	159, 330, 158, 157, 159, 331, 158, 157, 
-	159, 332, 332, 158, 157, 159, 332, 333, 
-	332, 333, 333, 333, 158, 157, 159, 334, 
-	337, 336, 334, 335, 336, 336, 336, 158, 
-	157, 159, 338, 341, 340, 338, 339, 340, 
-	340, 340, 158, 157, 159, 339, 340, 339, 
-	339, 340, 340, 340, 158, 157, 159, 342, 
-	343, 340, 342, 339, 340, 340, 340, 158, 
-	157, 159, 341, 344, 341, 344, 344, 344, 
-	158, 157, 346, 345, 347, 349, 345, 348, 
-	349, 349, 349, 158, 157, 351, 350, 352, 
-	354, 350, 353, 354, 354, 354, 158, 157, 
-	351, 352, 157, 159, 353, 354, 353, 353, 
-	354, 354, 354, 158, 157, 356, 355, 357, 
-	354, 355, 353, 354, 354, 354, 158, 157, 
-	159, 358, 158, 157, 159, 359, 158, 157, 
-	159, 360, 158, 157, 159, 361, 158, 157, 
-	159, 362, 362, 158, 157, 159, 362, 363, 
-	362, 363, 363, 363, 158, 157, 159, 364, 
-	367, 366, 364, 365, 366, 366, 366, 158, 
-	157, 159, 368, 371, 370, 368, 369, 370, 
-	370, 370, 158, 157, 159, 369, 370, 369, 
-	369, 370, 370, 370, 158, 157, 159, 372, 
-	373, 370, 372, 369, 370, 370, 370, 158, 
-	157, 159, 371, 374, 371, 374, 374, 374, 
-	158, 157, 376, 375, 377, 379, 375, 378, 
-	379, 379, 379, 158, 157, 381, 380, 382, 
-	384, 380, 383, 384, 384, 384, 158, 157, 
-	381, 382, 157, 159, 383, 384, 383, 383, 
-	384, 384, 384, 158, 157, 386, 385, 387, 
-	384, 385, 383, 384, 384, 384, 158, 157, 
-	159, 388, 158, 157, 159, 389, 158, 157, 
-	159, 390, 158, 157, 159, 391, 158, 157, 
-	159, 392, 158, 157, 159, 393, 158, 157, 
-	159, 394, 158, 157, 159, 395, 158, 157, 
-	159, 396, 396, 158, 157, 159, 396, 397, 
-	396, 397, 397, 397, 158, 157, 159, 398, 
-	401, 400, 398, 399, 400, 400, 400, 158, 
-	157, 159, 402, 405, 404, 402, 403, 404, 
-	404, 404, 158, 157, 159, 403, 404, 403, 
-	403, 404, 404, 404, 158, 157, 159, 406, 
-	407, 404, 406, 403, 404, 404, 404, 158, 
-	157, 159, 405, 408, 405, 408, 408, 408, 
-	158, 157, 410, 409, 411, 413, 409, 412, 
-	413, 413, 413, 158, 157, 415, 414, 416, 
-	418, 414, 417, 418, 418, 418, 158, 157, 
-	415, 416, 157, 159, 417, 418, 417, 417, 
-	418, 418, 418, 158, 157, 420, 419, 421, 
-	418, 419, 417, 418, 418, 418, 158, 157, 
-	159, 422, 158, 157, 159, 423, 158, 157, 
-	159, 424, 424, 158, 157, 159, 424, 425, 
-	424, 158, 157, 159, 425, 426, 425, 426, 
-	426, 426, 158, 157, 159, 427, 428, 430, 
-	427, 429, 430, 430, 430, 158, 157, 159, 
-	431, 432, 434, 431, 433, 434, 434, 434, 
-	158, 157, 436, 435, 437, 435, 158, 157, 
-	436, 435, 437, 438, 435, 438, 438, 438, 
-	158, 157, 436, 437, 157, 440, 439, 441, 
-	443, 439, 442, 443, 443, 443, 158, 157, 
-	436, 444, 437, 446, 444, 445, 446, 446, 
-	446, 158, 157, 159, 445, 446, 445, 445, 
-	446, 446, 446, 158, 157, 448, 447, 449, 
-	446, 447, 445, 446, 446, 446, 158, 157, 
-	159, 433, 434, 433, 433, 434, 434, 434, 
-	158, 157, 159, 450, 451, 434, 450, 433, 
-	434, 434, 434, 158, 1, 453, 452, 111, 
-	1, 161, 160, 452, 162, 163, 164, 165, 
-	166, 167, 160, 158, 454, 161, 160, 162, 
-	163, 164, 165, 166, 167, 160, 158, 0
+	59, 1, 60, 1, 60, 60, 61, 60, 
+	1, 61, 61, 62, 61, 62, 62, 62, 
+	1, 63, 63, 64, 66, 63, 65, 66, 
+	66, 66, 1, 67, 67, 68, 70, 67, 
+	69, 70, 70, 70, 1, 71, 68, 72, 
+	68, 1, 74, 73, 75, 73, 1, 76, 
+	1, 77, 1, 78, 1, 79, 78, 80, 
+	78, 1, 82, 81, 83, 81, 1, 84, 
+	1, 85, 1, 86, 1, 87, 1, 87, 
+	87, 88, 87, 1, 88, 88, 89, 88, 
+	1, 90, 1, 91, 1, 92, 1, 93, 
+	1, 94, 1, 95, 1, 96, 1, 97, 
+	1, 97, 97, 98, 97, 1, 99, 98, 
+	100, 98, 1, 102, 101, 103, 101, 1, 
+	104, 1, 105, 1, 106, 106, 106, 1, 
+	1, 99, 100, 1, 79, 80, 1, 71, 
+	72, 69, 69, 70, 69, 69, 70, 70, 
+	70, 1, 107, 107, 108, 70, 107, 69, 
+	70, 70, 70, 1, 1, 52, 53, 109, 
+	1, 110, 1, 111, 1, 112, 1, 113, 
+	1, 114, 114, 114, 1, 114, 114, 114, 
+	115, 1, 117, 116, 118, 116, 119, 1, 
+	121, 120, 122, 120, 1, 121, 123, 32, 
+	123, 1, 1, 121, 122, 117, 116, 118, 
+	116, 119, 1, 1, 28, 29, 124, 124, 
+	124, 1, 124, 124, 124, 125, 1, 126, 
+	1, 127, 1, 128, 1, 129, 1, 130, 
+	1, 131, 131, 131, 1, 131, 131, 132, 
+	131, 1, 133, 1, 134, 1, 135, 1, 
+	136, 1, 137, 1, 138, 1, 139, 1, 
+	140, 1, 28, 140, 29, 140, 1, 141, 
+	143, 142, 141, 145, 144, 146, 147, 148, 
+	149, 150, 151, 144, 142, 141, 143, 152, 
+	142, 141, 143, 153, 142, 141, 143, 154, 
+	142, 141, 143, 155, 155, 142, 141, 143, 
+	155, 155, 156, 142, 141, 143, 157, 157, 
+	158, 142, 141, 143, 159, 160, 159, 142, 
+	141, 143, 160, 160, 161, 142, 141, 143, 
+	162, 163, 162, 164, 142, 141, 143, 162, 
+	163, 162, 142, 141, 143, 165, 165, 142, 
+	141, 143, 166, 167, 166, 142, 141, 143, 
+	167, 168, 169, 167, 170, 142, 141, 143, 
+	170, 142, 141, 143, 171, 172, 171, 173, 
+	142, 141, 143, 171, 172, 171, 142, 141, 
+	143, 174, 175, 176, 174, 177, 142, 141, 
+	143, 177, 142, 141, 143, 178, 179, 178, 
+	180, 142, 141, 143, 178, 179, 178, 142, 
+	141, 143, 181, 182, 183, 181, 184, 142, 
+	141, 143, 184, 142, 141, 143, 185, 186, 
+	185, 187, 142, 141, 143, 185, 186, 185, 
+	142, 141, 189, 188, 190, 188, 142, 141, 
+	189, 188, 190, 191, 188, 191, 191, 191, 
+	142, 141, 189, 190, 141, 193, 192, 194, 
+	196, 192, 195, 196, 196, 196, 142, 141, 
+	189, 197, 190, 199, 197, 198, 199, 199, 
+	199, 142, 141, 143, 198, 199, 198, 198, 
+	199, 199, 199, 142, 141, 201, 200, 202, 
+	199, 200, 198, 199, 199, 199, 142, 141, 
+	143, 185, 186, 185, 187, 142, 141, 143, 
+	203, 142, 141, 143, 204, 205, 204, 206, 
+	142, 141, 143, 204, 205, 204, 206, 142, 
+	141, 143, 178, 179, 178, 180, 142, 141, 
+	143, 207, 142, 141, 143, 208, 209, 208, 
+	210, 142, 141, 143, 208, 209, 208, 210, 
+	142, 141, 143, 171, 172, 171, 173, 142, 
+	141, 143, 211, 142, 141, 143, 212, 213, 
+	212, 214, 142, 141, 143, 212, 213, 212, 
+	214, 142, 141, 143, 162, 163, 162, 164, 
+	142, 141, 143, 157, 157, 158, 142, 141, 
+	143, 215, 142, 141, 143, 216, 142, 141, 
+	143, 217, 142, 141, 143, 219, 218, 218, 
+	218, 218, 142, 141, 143, 220, 220, 142, 
+	141, 143, 220, 220, 221, 142, 141, 223, 
+	222, 224, 222, 225, 142, 141, 227, 226, 
+	228, 226, 221, 142, 141, 227, 228, 141, 
+	223, 222, 224, 222, 225, 142, 141, 143, 
+	229, 142, 141, 143, 230, 142, 141, 143, 
+	231, 142, 141, 143, 232, 142, 141, 143, 
+	233, 142, 141, 143, 234, 142, 141, 143, 
+	235, 142, 141, 143, 236, 142, 141, 143, 
+	237, 142, 141, 143, 238, 238, 142, 141, 
+	143, 238, 238, 239, 142, 141, 143, 240, 
+	240, 241, 142, 141, 143, 240, 240, 242, 
+	142, 141, 244, 243, 245, 243, 246, 142, 
+	141, 244, 243, 245, 243, 142, 141, 244, 
+	245, 141, 244, 243, 245, 243, 246, 142, 
+	141, 143, 240, 240, 241, 142, 141, 143, 
+	247, 142, 141, 143, 248, 142, 141, 143, 
+	249, 142, 141, 143, 250, 142, 141, 143, 
+	251, 142, 141, 253, 252, 254, 255, 252, 
+	142, 141, 257, 256, 258, 259, 256, 142, 
+	141, 257, 258, 141, 143, 260, 261, 262, 
+	260, 262, 262, 262, 142, 141, 143, 260, 
+	262, 260, 262, 262, 262, 142, 141, 143, 
+	263, 264, 266, 263, 265, 266, 266, 266, 
+	142, 141, 143, 267, 261, 269, 267, 268, 
+	269, 269, 269, 142, 141, 257, 261, 258, 
+	261, 142, 141, 143, 268, 269, 268, 268, 
+	269, 269, 269, 142, 141, 143, 270, 271, 
+	269, 270, 268, 269, 269, 269, 142, 141, 
+	143, 272, 142, 141, 143, 273, 142, 141, 
+	143, 274, 142, 141, 143, 275, 142, 141, 
+	143, 275, 276, 275, 142, 141, 143, 276, 
+	277, 276, 277, 277, 277, 142, 141, 143, 
+	278, 279, 281, 278, 280, 281, 281, 281, 
+	142, 141, 143, 282, 283, 285, 282, 284, 
+	285, 285, 285, 142, 141, 286, 283, 287, 
+	283, 142, 141, 286, 287, 141, 143, 284, 
+	285, 284, 284, 285, 285, 285, 142, 141, 
+	143, 288, 289, 285, 288, 284, 285, 285, 
+	285, 142, 141, 143, 290, 142, 141, 143, 
+	291, 142, 141, 143, 292, 142, 141, 143, 
+	293, 293, 142, 141, 143, 293, 294, 295, 
+	296, 293, 142, 141, 143, 297, 142, 141, 
+	143, 298, 142, 141, 143, 299, 142, 141, 
+	143, 300, 300, 142, 141, 143, 300, 301, 
+	300, 301, 301, 301, 142, 141, 143, 302, 
+	305, 304, 302, 303, 304, 304, 304, 142, 
+	141, 143, 306, 309, 308, 306, 307, 308, 
+	308, 308, 142, 141, 143, 307, 308, 307, 
+	307, 308, 308, 308, 142, 141, 143, 310, 
+	311, 308, 310, 307, 308, 308, 308, 142, 
+	141, 143, 309, 312, 309, 312, 312, 312, 
+	142, 141, 314, 313, 315, 317, 313, 316, 
+	317, 317, 317, 142, 141, 319, 318, 320, 
+	322, 318, 321, 322, 322, 322, 142, 141, 
+	319, 320, 141, 143, 321, 322, 321, 321, 
+	322, 322, 322, 142, 141, 324, 323, 325, 
+	322, 323, 321, 322, 322, 322, 142, 141, 
+	143, 326, 142, 141, 143, 327, 142, 141, 
+	143, 328, 142, 141, 143, 329, 142, 141, 
+	143, 330, 330, 142, 141, 143, 330, 331, 
+	330, 331, 331, 331, 142, 141, 143, 332, 
+	335, 334, 332, 333, 334, 334, 334, 142, 
+	141, 143, 336, 339, 338, 336, 337, 338, 
+	338, 338, 142, 141, 143, 337, 338, 337, 
+	337, 338, 338, 338, 142, 141, 143, 340, 
+	341, 338, 340, 337, 338, 338, 338, 142, 
+	141, 143, 339, 342, 339, 342, 342, 342, 
+	142, 141, 344, 343, 345, 347, 343, 346, 
+	347, 347, 347, 142, 141, 349, 348, 350, 
+	352, 348, 351, 352, 352, 352, 142, 141, 
+	349, 350, 141, 143, 351, 352, 351, 351, 
+	352, 352, 352, 142, 141, 354, 353, 355, 
+	352, 353, 351, 352, 352, 352, 142, 141, 
+	143, 356, 142, 141, 143, 357, 142, 141, 
+	143, 358, 142, 141, 143, 359, 142, 141, 
+	143, 360, 142, 141, 143, 361, 142, 141, 
+	143, 362, 142, 141, 143, 363, 142, 141, 
+	143, 364, 364, 142, 141, 143, 364, 365, 
+	364, 365, 365, 365, 142, 141, 143, 366, 
+	369, 368, 366, 367, 368, 368, 368, 142, 
+	141, 143, 370, 373, 372, 370, 371, 372, 
+	372, 372, 142, 141, 143, 371, 372, 371, 
+	371, 372, 372, 372, 142, 141, 143, 374, 
+	375, 372, 374, 371, 372, 372, 372, 142, 
+	141, 143, 373, 376, 373, 376, 376, 376, 
+	142, 141, 378, 377, 379, 381, 377, 380, 
+	381, 381, 381, 142, 141, 383, 382, 384, 
+	386, 382, 385, 386, 386, 386, 142, 141, 
+	383, 384, 141, 143, 385, 386, 385, 385, 
+	386, 386, 386, 142, 141, 388, 387, 389, 
+	386, 387, 385, 386, 386, 386, 142, 141, 
+	143, 390, 142, 141, 143, 391, 142, 141, 
+	143, 392, 392, 142, 141, 143, 392, 393, 
+	392, 142, 141, 143, 393, 394, 393, 394, 
+	394, 394, 142, 141, 143, 395, 396, 398, 
+	395, 397, 398, 398, 398, 142, 141, 143, 
+	399, 400, 402, 399, 401, 402, 402, 402, 
+	142, 141, 404, 403, 405, 403, 142, 141, 
+	404, 403, 405, 406, 403, 406, 406, 406, 
+	142, 141, 404, 405, 141, 408, 407, 409, 
+	411, 407, 410, 411, 411, 411, 142, 141, 
+	404, 412, 405, 414, 412, 413, 414, 414, 
+	414, 142, 141, 143, 413, 414, 413, 413, 
+	414, 414, 414, 142, 141, 416, 415, 417, 
+	414, 415, 413, 414, 414, 414, 142, 141, 
+	143, 401, 402, 401, 401, 402, 402, 402, 
+	142, 141, 143, 418, 419, 402, 418, 401, 
+	402, 402, 402, 142, 1, 421, 420, 106, 
+	1, 145, 144, 420, 146, 147, 148, 149, 
+	150, 151, 144, 142, 422, 145, 144, 146, 
+	147, 148, 149, 150, 151, 144, 142, 0
 };
 
 static const short _parse_tester_trans_targs_wi[] = {
 	1, 0, 1, 2, 3, 4, 5, 6, 
 	7, 8, 9, 10, 11, 12, 13, 14, 
 	15, 16, 17, 18, 19, 20, 21, 22, 
-	23, 24, 25, 26, 27, 105, 106, 27, 
-	28, 93, 29, 30, 31, 32, 33, 34, 
+	23, 24, 25, 26, 27, 99, 100, 27, 
+	28, 87, 29, 30, 31, 32, 33, 34, 
 	33, 34, 35, 36, 37, 38, 39, 40, 
-	41, 42, 43, 44, 45, 92, 45, 45, 
-	46, 47, 48, 49, 50, 51, 52, 51, 
-	52, 53, 54, 55, 90, 91, 54, 55, 
-	90, 91, 56, 57, 85, 86, 57, 57, 
-	58, 59, 60, 61, 62, 84, 62, 62, 
-	63, 64, 65, 66, 67, 68, 69, 70, 
-	71, 72, 73, 74, 75, 76, 77, 78, 
-	79, 83, 79, 79, 80, 81, 82, 305, 
-	87, 57, 85, 88, 89, 87, 88, 89, 
-	87, 57, 85, 54, 55, 94, 95, 96, 
-	97, 98, 99, 100, 101, 102, 103, 104, 
-	101, 102, 103, 102, 107, 108, 109, 110, 
-	111, 112, 113, 114, 115, 116, 117, 118, 
-	119, 120, 121, 122, 123, 306, 124, 306, 
-	125, 307, 126, 171, 199, 214, 232, 288, 
-	127, 128, 129, 130, 131, 132, 170, 132, 
-	133, 134, 135, 136, 169, 137, 137, 138, 
-	139, 166, 140, 141, 142, 165, 142, 143, 
-	162, 144, 145, 146, 161, 146, 147, 158, 
-	148, 149, 150, 157, 151, 306, 152, 153, 
-	154, 306, 152, 155, 156, 154, 155, 156, 
-	154, 306, 152, 159, 149, 150, 160, 163, 
-	145, 146, 164, 167, 141, 142, 168, 172, 
-	173, 174, 175, 181, 176, 177, 178, 306, 
-	179, 180, 178, 306, 179, 182, 183, 184, 
-	185, 186, 187, 188, 189, 190, 191, 192, 
-	193, 198, 194, 195, 306, 196, 197, 200, 
-	201, 202, 203, 204, 205, 306, 206, 207, 
-	205, 306, 206, 207, 208, 211, 209, 210, 
-	211, 212, 213, 210, 212, 213, 210, 211, 
-	215, 216, 217, 218, 219, 220, 219, 220, 
-	221, 222, 223, 230, 231, 222, 223, 230, 
-	231, 224, 306, 225, 226, 227, 306, 225, 
-	228, 229, 227, 228, 229, 227, 306, 225, 
-	222, 223, 233, 234, 235, 236, 237, 252, 
-	268, 238, 239, 240, 241, 242, 243, 244, 
-	245, 246, 243, 244, 245, 246, 243, 246, 
-	247, 248, 306, 249, 250, 251, 248, 306, 
-	249, 250, 251, 248, 306, 249, 253, 254, 
-	255, 256, 257, 258, 259, 260, 261, 262, 
-	259, 260, 261, 262, 259, 262, 263, 264, 
-	306, 265, 266, 267, 264, 306, 265, 266, 
-	267, 264, 306, 265, 269, 270, 271, 272, 
-	273, 274, 275, 276, 277, 278, 279, 280, 
-	281, 282, 279, 280, 281, 282, 279, 282, 
-	283, 284, 306, 285, 286, 287, 284, 306, 
-	285, 286, 287, 284, 306, 285, 289, 290, 
-	291, 292, 293, 294, 295, 302, 303, 294, 
-	295, 302, 303, 296, 306, 297, 298, 299, 
-	306, 297, 300, 301, 299, 300, 301, 299, 
-	306, 297, 294, 295, 304, 306, 306
+	41, 42, 43, 44, 45, 86, 45, 45, 
+	46, 47, 48, 49, 50, 51, 52, 53, 
+	54, 84, 85, 53, 54, 84, 85, 55, 
+	83, 55, 55, 56, 57, 58, 59, 60, 
+	82, 60, 60, 61, 62, 63, 64, 65, 
+	66, 67, 68, 69, 70, 71, 72, 73, 
+	74, 75, 76, 77, 81, 77, 77, 78, 
+	79, 80, 293, 53, 54, 88, 89, 90, 
+	91, 92, 93, 94, 95, 96, 97, 98, 
+	95, 96, 97, 96, 101, 102, 103, 104, 
+	105, 106, 107, 108, 109, 110, 111, 112, 
+	113, 114, 115, 116, 117, 294, 118, 294, 
+	119, 295, 120, 165, 193, 208, 220, 276, 
+	121, 122, 123, 124, 125, 126, 164, 126, 
+	127, 128, 129, 130, 163, 131, 131, 132, 
+	133, 160, 134, 135, 136, 159, 136, 137, 
+	156, 138, 139, 140, 155, 140, 141, 152, 
+	142, 143, 144, 151, 145, 294, 146, 147, 
+	148, 294, 146, 149, 150, 148, 149, 150, 
+	148, 294, 146, 153, 143, 144, 154, 157, 
+	139, 140, 158, 161, 135, 136, 162, 166, 
+	167, 168, 169, 175, 170, 171, 172, 294, 
+	173, 174, 172, 294, 173, 176, 177, 178, 
+	179, 180, 181, 182, 183, 184, 185, 186, 
+	187, 192, 188, 189, 294, 190, 191, 194, 
+	195, 196, 197, 198, 199, 294, 200, 201, 
+	199, 294, 200, 201, 202, 205, 203, 204, 
+	205, 206, 207, 204, 206, 207, 204, 205, 
+	209, 210, 211, 212, 213, 214, 215, 216, 
+	218, 219, 215, 216, 218, 219, 294, 217, 
+	215, 216, 221, 222, 223, 224, 225, 240, 
+	256, 226, 227, 228, 229, 230, 231, 232, 
+	233, 234, 231, 232, 233, 234, 231, 234, 
+	235, 236, 294, 237, 238, 239, 236, 294, 
+	237, 238, 239, 236, 294, 237, 241, 242, 
+	243, 244, 245, 246, 247, 248, 249, 250, 
+	247, 248, 249, 250, 247, 250, 251, 252, 
+	294, 253, 254, 255, 252, 294, 253, 254, 
+	255, 252, 294, 253, 257, 258, 259, 260, 
+	261, 262, 263, 264, 265, 266, 267, 268, 
+	269, 270, 267, 268, 269, 270, 267, 270, 
+	271, 272, 294, 273, 274, 275, 272, 294, 
+	273, 274, 275, 272, 294, 273, 277, 278, 
+	279, 280, 281, 282, 283, 290, 291, 282, 
+	283, 290, 291, 284, 294, 285, 286, 287, 
+	294, 285, 288, 289, 287, 288, 289, 287, 
+	294, 285, 282, 283, 292, 294, 294
 };
 
 static const unsigned char _parse_tester_trans_actions_wi[] = {
@@ -10605,88 +10266,80 @@ static const unsigned char _parse_tester_trans_actions_wi[] = {
 	0, 0, 0, 0, 1, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 39, 39, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 121, 0, 0, 1, 
-	0, 0, 0, 0, 0, 41, 41, 0, 
-	0, 0, 83, 83, 13, 80, 0, 0, 
-	0, 15, 0, 125, 0, 0, 0, 1, 
-	0, 0, 0, 0, 59, 0, 0, 1, 
-	43, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 119, 0, 0, 1, 
+	0, 0, 0, 0, 0, 0, 0, 81, 
+	81, 13, 78, 0, 0, 0, 15, 123, 
+	0, 0, 1, 0, 0, 0, 0, 57, 
+	0, 0, 1, 41, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	133, 0, 0, 1, 0, 0, 0, 0, 
-	86, 210, 86, 13, 80, 0, 0, 15, 
-	19, 172, 19, 17, 17, 0, 0, 0, 
-	0, 0, 0, 0, 49, 95, 49, 5, 
+	0, 0, 0, 131, 0, 0, 1, 0, 
+	0, 0, 0, 17, 17, 0, 0, 0, 
+	0, 0, 0, 0, 47, 93, 47, 5, 
 	0, 1, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 57, 0, 68, 
-	0, 153, 0, 0, 45, 0, 92, 35, 
+	0, 0, 0, 0, 0, 55, 0, 66, 
+	0, 151, 0, 0, 43, 0, 90, 35, 
 	0, 0, 0, 0, 0, 21, 5, 0, 
 	0, 0, 0, 0, 5, 23, 0, 0, 
 	0, 0, 0, 0, 25, 5, 0, 0, 
 	0, 0, 0, 27, 5, 0, 0, 0, 
-	0, 0, 29, 5, 0, 101, 0, 0, 
-	145, 234, 145, 13, 80, 0, 0, 15, 
-	89, 228, 89, 0, 11, 77, 5, 0, 
-	11, 74, 5, 0, 11, 71, 5, 0, 
-	0, 0, 33, 0, 0, 0, 31, 149, 
-	31, 5, 0, 62, 0, 0, 0, 0, 
+	0, 0, 29, 5, 0, 99, 0, 0, 
+	143, 210, 143, 13, 78, 0, 0, 15, 
+	87, 204, 87, 0, 11, 75, 5, 0, 
+	11, 72, 5, 0, 11, 69, 5, 0, 
+	0, 0, 33, 0, 0, 0, 31, 147, 
+	31, 5, 0, 60, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 5, 0, 0, 105, 0, 9, 0, 
-	0, 0, 0, 0, 47, 187, 47, 47, 
-	0, 137, 0, 0, 0, 0, 0, 83, 
-	83, 13, 80, 0, 0, 15, 17, 17, 
-	0, 0, 0, 0, 41, 41, 0, 0, 
-	0, 83, 83, 13, 80, 0, 0, 0, 
-	15, 0, 129, 0, 0, 86, 216, 86, 
-	13, 80, 0, 0, 15, 19, 177, 19, 
+	0, 5, 0, 0, 103, 0, 9, 0, 
+	0, 0, 0, 0, 45, 175, 45, 45, 
+	0, 135, 0, 0, 0, 0, 0, 81, 
+	81, 13, 78, 0, 0, 15, 17, 17, 
+	0, 0, 0, 0, 0, 0, 81, 81, 
+	13, 78, 0, 0, 0, 15, 127, 0, 
 	17, 17, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 83, 13, 
-	80, 83, 0, 0, 15, 0, 17, 17, 
-	0, 86, 192, 86, 13, 80, 0, 109, 
-	0, 0, 15, 19, 157, 19, 0, 0, 
-	0, 0, 0, 0, 83, 13, 80, 83, 
-	0, 0, 15, 0, 17, 17, 0, 86, 
-	204, 86, 13, 80, 0, 117, 0, 0, 
-	15, 19, 167, 19, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 83, 13, 
-	80, 83, 0, 0, 15, 0, 17, 17, 
-	0, 86, 222, 86, 13, 80, 0, 141, 
-	0, 0, 15, 19, 182, 19, 0, 0, 
-	0, 0, 0, 83, 83, 13, 80, 0, 
-	0, 0, 15, 0, 113, 0, 0, 86, 
-	198, 86, 13, 80, 0, 0, 15, 19, 
-	162, 19, 17, 17, 0, 65, 55
+	0, 0, 0, 0, 0, 0, 81, 13, 
+	78, 81, 0, 0, 15, 0, 17, 17, 
+	0, 84, 180, 84, 13, 78, 0, 107, 
+	0, 0, 15, 19, 155, 19, 0, 0, 
+	0, 0, 0, 0, 81, 13, 78, 81, 
+	0, 0, 15, 0, 17, 17, 0, 84, 
+	192, 84, 13, 78, 0, 115, 0, 0, 
+	15, 19, 165, 19, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 81, 13, 
+	78, 81, 0, 0, 15, 0, 17, 17, 
+	0, 84, 198, 84, 13, 78, 0, 139, 
+	0, 0, 15, 19, 170, 19, 0, 0, 
+	0, 0, 0, 81, 81, 13, 78, 0, 
+	0, 0, 15, 0, 111, 0, 0, 84, 
+	186, 84, 13, 78, 0, 0, 15, 19, 
+	160, 19, 17, 17, 0, 63, 53
 };
 
 static const unsigned char _parse_tester_to_state_actions[] = {
-	0, 51, 0, 0, 0, 0, 0, 0, 
+	0, 49, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 51, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 51, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 51, 
+	0, 0, 0, 0, 0, 49, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 49, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 3, 0, 0, 0, 
+	0, 0, 0, 0, 0, 49, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 3, 0, 0, 3, 0, 
-	0, 0, 0, 0, 3, 0, 0, 0, 
-	3, 0, 0, 0, 3, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 3, 
-	0, 0, 0, 3, 0, 0, 0, 3, 
+	0, 0, 0, 0, 0, 3, 0, 0, 
+	3, 0, 0, 0, 0, 0, 3, 0, 
+	0, 0, 3, 0, 0, 0, 3, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 3, 0, 0, 0, 3, 0, 0, 
 	0, 3, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 3, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	3, 0, 7, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 3, 0, 7, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
@@ -10695,9 +10348,11 @@ static const unsigned char _parse_tester_to_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 37, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 98, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 37, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 96, 0
 };
 
 static const unsigned char _parse_tester_from_state_actions[] = {
@@ -10737,9 +10392,7 @@ static const unsigned char _parse_tester_from_state_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 53, 0
+	0, 0, 0, 0, 0, 0, 51, 0
 };
 
 static const short _parse_tester_eof_trans[] = {
@@ -10757,43 +10410,41 @@ static const short _parse_tester_eof_trans[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	158, 158, 158, 158, 158, 158, 158, 158, 
-	0, 0, 0, 455
+	0, 0, 0, 0, 0, 0, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 142, 142, 142, 142, 
+	142, 142, 142, 142, 0, 0, 0, 423
 };
 
 static const int parse_tester_start = 1;
-static const int parse_tester_first_final = 305;
+static const int parse_tester_first_final = 293;
 static const int parse_tester_error = 0;
 
-static const int parse_tester_en_group_scanner = 306;
+static const int parse_tester_en_group_scanner = 294;
 static const int parse_tester_en_main = 1;
 
-#line 1287 "NanorexMMPImportExportTest.rl"
+#line 1284 "NanorexMMPImportExportTest.rl"
 	
-#line 10797 "NanorexMMPImportExportTest.cpp"
+#line 10448 "NanorexMMPImportExportTest.cpp"
 	{
 	cs = parse_tester_start;
 	top = 0;
@@ -10801,9 +10452,9 @@ static const int parse_tester_en_main = 1;
 	te = 0;
 	act = 0;
 	}
-#line 1288 "NanorexMMPImportExportTest.rl"
+#line 1285 "NanorexMMPImportExportTest.rl"
 	
-#line 10807 "NanorexMMPImportExportTest.cpp"
+#line 10458 "NanorexMMPImportExportTest.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -10820,11 +10471,11 @@ _resume:
 	_nacts = (unsigned int) *_acts++;
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
-	case 44:
+	case 43:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = p;}
 	break;
-#line 10828 "NanorexMMPImportExportTest.cpp"
+#line 10479 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -11009,80 +10660,80 @@ _eof_trans:
 	{ newViewDataGroup(); }
 	break;
 	case 28:
-#line 34 "NanorexMMPImportExportTest.rl"
-	{ stringVal2.clear(); }
+#line 40 "NanorexMMPImportExportTest.rl"
+	{ newMolStructGroup(stringVal/*, stringVal2*/); }
 	break;
 	case 29:
-#line 40 "NanorexMMPImportExportTest.rl"
-	{ newMolStructGroup(stringVal, stringVal2); }
-	break;
-	case 30:
 #line 47 "NanorexMMPImportExportTest.rl"
 	{ end1(); }
 	break;
-	case 31:
+	case 30:
 #line 51 "NanorexMMPImportExportTest.rl"
 	{ lineStart = p; }
 	break;
-	case 32:
+	case 31:
 #line 56 "NanorexMMPImportExportTest.rl"
 	{ newClipboardGroup(); }
 	break;
-	case 33:
+	case 32:
 #line 60 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 34:
+	case 33:
 #line 61 "NanorexMMPImportExportTest.rl"
 	{ stringVal.clear(); }
 	break;
-	case 35:
+	case 34:
 #line 67 "NanorexMMPImportExportTest.rl"
 	{ endGroup(stringVal); }
 	break;
-	case 36:
+	case 35:
 #line 71 "NanorexMMPImportExportTest.rl"
 	{lineStart=p;}
 	break;
-	case 37:
+	case 36:
 #line 81 "NanorexMMPImportExportTest.rl"
 	{ newOpenGroupInfo(stringVal, stringVal2); }
 	break;
-	case 38:
-#line 1061 "NanorexMMPImportExportTest.rl"
+	case 37:
+#line 1058 "NanorexMMPImportExportTest.rl"
 	{ kelvinTemp = intVal; }
+	break;
+	case 38:
+#line 1072 "NanorexMMPImportExportTest.rl"
+	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
 	case 39:
 #line 1075 "NanorexMMPImportExportTest.rl"
-	{ /*cerr << "*p=" << *p << endl;*/ p--; {stack[top++] = cs; cs = 306; goto _again;} }
+	{ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
 	case 40:
-#line 1078 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 306; goto _again;} }
+#line 1080 "NanorexMMPImportExportTest.rl"
+	{ p--; {stack[top++] = cs; cs = 294; goto _again;} }
 	break;
-	case 41:
-#line 1083 "NanorexMMPImportExportTest.rl"
-	{ p--; {stack[top++] = cs; cs = 306; goto _again;} }
-	break;
-	case 45:
+	case 44:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 46:
-#line 103 "NanorexMMPImportExportTest.rl"
+	case 45:
+#line 102 "NanorexMMPImportExportTest.rl"
 	{act = 11;}
 	break;
-	case 47:
+	case 46:
 #line 89 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
-	case 48:
+	case 47:
 #line 90 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
+	case 48:
+#line 91 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{{cs = stack[--top]; goto _again;}}}
+	break;
 	case 49:
 #line 92 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{ cerr << lineNum << ": returning from group" << endl; {cs = stack[--top]; goto _again;} }}
+	{te = p+1;}
 	break;
 	case 50:
 #line 93 "NanorexMMPImportExportTest.rl"
@@ -11105,44 +10756,40 @@ _eof_trans:
 	{te = p+1;}
 	break;
 	case 55:
-#line 98 "NanorexMMPImportExportTest.rl"
+#line 100 "NanorexMMPImportExportTest.rl"
 	{te = p+1;}
 	break;
 	case 56:
-#line 101 "NanorexMMPImportExportTest.rl"
-	{te = p+1;}
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p+1;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
+			}}
 	break;
 	case 57:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p+1;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+#line 102 "NanorexMMPImportExportTest.rl"
+	{te = p;p--;{ cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}}
 	break;
 	case 58:
-#line 103 "NanorexMMPImportExportTest.rl"
-	{te = p;p--;{	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
-			}}
-	break;
-	case 59:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{	switch( act ) {
 	case 0:
 	{{cs = 0; goto _again;}}
 	break;
 	case 11:
-	{{p = ((te))-1;}	cerr << lineNum << ": Error : ";
-				std::copy(ts, te, std::ostream_iterator<char>(cerr));
-				cerr << endl;
+	{{p = ((te))-1;} cerr << lineNum << ": Syntax error or unsupported statement:\n\t";
+			  std::copy(ts, te, std::ostream_iterator<char>(cerr));
+			  cerr << endl;
 			}
 	break;
 	default: break;
 	}
 	}
 	break;
-#line 11146 "NanorexMMPImportExportTest.cpp"
+#line 10793 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -11163,15 +10810,15 @@ _again:
 #line 11 "NanorexMMPImportExportTest.rl"
 	{ stringVal2.clear(); /* 'style' string optional */ }
 	break;
-	case 42:
+	case 41:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{ts = 0;}
 	break;
-	case 43:
+	case 42:
 #line 1 "NanorexMMPImportExportTest.rl"
 	{act = 0;}
 	break;
-#line 11175 "NanorexMMPImportExportTest.cpp"
+#line 10822 "NanorexMMPImportExportTest.cpp"
 		}
 	}
 
@@ -11190,7 +10837,7 @@ _again:
 
 	_out: {}
 	}
-#line 1289 "NanorexMMPImportExportTest.rl"
+#line 1286 "NanorexMMPImportExportTest.rl"
 }
 
 

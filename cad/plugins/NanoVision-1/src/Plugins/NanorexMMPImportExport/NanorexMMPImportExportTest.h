@@ -9,23 +9,23 @@
 #include <string>
 #include "iterator.h"
 
-#include "ragelistreamptr.h"
+#include "RagelIstreamPtr.h"
 
 /* CLASS: NanorexMMPImportExportTest */
 class NanorexMMPImportExportTest: public CPPUNIT_NS::TestFixture {
 	
 	CPPUNIT_TEST_SUITE(NanorexMMPImportExportTest);
-// 	CPPUNIT_TEST(atomLineTest);
-// 	CPPUNIT_TEST(bondLineTest);
-// 	CPPUNIT_TEST(bondDirectionTest);
-// 	CPPUNIT_TEST(infoAtomTest);
-// // 	CPPUNIT_TEST(atomStmtTest);
-// 	CPPUNIT_TEST(multipleAtomStmtTest);
-// 	CPPUNIT_TEST(molLineTest);
-// 	CPPUNIT_TEST(groupLineTest);
-// 	CPPUNIT_TEST(uncheckedParseTest);
-	// CPPUNIT_TEST(checkedParseTest);
-// 	CPPUNIT_TEST(charBufParseTest);
+	CPPUNIT_TEST(atomLineTest);
+	CPPUNIT_TEST(bondLineTest);
+	CPPUNIT_TEST(bondDirectionTest);
+	CPPUNIT_TEST(infoAtomTest);
+	// CPPUNIT_TEST(atomStmtTest);
+	CPPUNIT_TEST(multipleAtomStmtTest);
+	CPPUNIT_TEST(molLineTest);
+	CPPUNIT_TEST(groupLineTest);
+	CPPUNIT_TEST(uncheckedParseTest);
+	CPPUNIT_TEST(checkedParseTest);
+	CPPUNIT_TEST(charBufParseTest);
 	CPPUNIT_TEST(fileParseTest);
 	CPPUNIT_TEST_SUITE_END();
 	
@@ -147,7 +147,7 @@ private:
 	void newChunkInfo(std::string const& key, std::string const& value);
 	
 	void newViewDataGroup(void);
-	void newMolStructGroup(std::string const& name, std::string const& style);
+	void newMolStructGroup(std::string const& name);
 	void newClipboardGroup(void);
 	void endGroup(std::string const& name);
 	void newOpenGroupInfo(std::string const& key, std::string const& value);

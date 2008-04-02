@@ -6,16 +6,6 @@ opengl \
 
 QT += opengl
 
-LIBS +=  -L$(OPENBABEL_LIBPATH) \
- -L../../../lib \
- -lNXBallAndStickOpenGLRenderer \
- -lNXOpenGLRendererPlugin \
- -lNXOpenGLRenderingEngine \
- -lNXOpenGLSceneGraph \
- -lGLT \
- -lNanorexInterface \
- -lNanorexUtility \
- -lopenbabel
 
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
@@ -81,7 +71,7 @@ TARGET = nv1
 DESTDIR = ../../../bin
 
 # This tells qmake to not create a Mac bundle for this application.
-CONFIG -= app_bundle 
+CONFIG -= app_bundle
 
 #macx : TARGETDEPS ~= s/.so/.dylib/g
 
@@ -90,13 +80,24 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
+
+
+LIBS += -L../../../lib \
+  -lNanorexUtility \
+  -lNanorexInterface \
+  -lNXOpenGLRenderingEngine \
+  -lNXBallAndStickOpenGLRenderer \
+  -L$(OPENBABEL_LIBPATH) \
+  -lNXOpenGLSceneGraph \
+  -lGLT \
+  -lopenbabel
+
 TARGETDEPS += ../../../lib/libNXBallAndStickOpenGLRenderer.so \
-../../../lib/libNXOpenGLRendererPlugin.so \
-../../../lib/libNXOpenGLRenderingEngine.so \
-../../../lib/libNXOpenGLSceneGraph.a \
-../../../lib/libGLT.a \
-../../../lib/libNanorexInterface.so \
-../../../lib/libNanorexUtility.so
-macx :    TARGETDEPS ~= s/.so/.dylib/g
-win32 :    TARGETDEPS ~= s/.so/.a/g
+  ../../../lib/libNXOpenGLRenderingEngine.so \
+  ../../../lib/libNXOpenGLSceneGraph.a \
+  ../../../lib/libGLT.a \
+  ../../../lib/libNanorexInterface.so \
+  ../../../lib/libNanorexUtility.so
 

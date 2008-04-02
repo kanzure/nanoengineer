@@ -14,6 +14,7 @@ using namespace std;
 
 #include "Nanorex/Utility/NXCommandLine.h"
 #include "Nanorex/Interface/NXEntityManager.h"
+#include "Nanorex/Interface/NXGraphicsManager.h"
 using namespace Nanorex;
 
 #include "AboutBox.h"
@@ -31,7 +32,9 @@ class nv1 : public QMainWindow {
 	Q_OBJECT
 
 public:
-	nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget);
+	nv1(NXEntityManager* entityManager,
+	    NXGraphicsManager *graphicsManager,
+	    LogHandlerWidget* logHandlerWidget);
 	~nv1();
 	
 	void processCommandLine(int argc, char *argv[]);
@@ -63,6 +66,7 @@ private slots:
 
 private:
 	NXEntityManager* entityManager;
+	NXGraphicsManager *graphicsManager;
 	
 	QToolBar* fileToolBar;
 	QToolBar* jobsToolBar;

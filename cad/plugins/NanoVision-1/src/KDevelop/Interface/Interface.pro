@@ -1,8 +1,4 @@
 
-LIBS += -L$(OPENBABEL_LIBPATH) \
- -L../../../lib \
- -lNanorexUtility \
- -lopenbabel
 
 HEADERS += \
 ../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
@@ -13,14 +9,11 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXMoleculeSet.h \
  ../../../include/Nanorex/Interface/NXNanoVisionResultCodes.h \
  ../../../include/Nanorex/Interface/NXNumbers.h \
- ../../../include/Nanorex/Interface/NXAtomRenderData.h \
- ../../../include/Nanorex/Interface/NXBondRenderData.h \
- ../../../include/Nanorex/Interface/NXTrackball.h \
  ../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../include/Nanorex/Interface/NXRenderingEngine.h \
  ../../../include/Nanorex/Interface/NXAtomData.h \
- ../../../include/Nanorex/Interface/NXSceneGraph.h
-
+ ../../../include/Nanorex/Interface/NXSceneGraph.h \
+ ../../../include/Nanorex/Interface/NXBondData.h
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
  ../../../src \
@@ -34,13 +27,10 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXMoleculeData.cpp \
  ../../Interface/NXMoleculeSet.cpp \
  ../../Interface/NXNumbers.cpp \
- ../../Interface/NXAtomRenderData.cpp \
- ../../Interface/NXBondRenderData.cpp \
  ../../Interface/NXNanoVisionResultCodes.cpp \
  ../../Interface/NXSceneGraph.cpp \
  ../../Interface/NXRenderingEngine.cpp \
  ../../Interface/NXAtomData.cpp
-
 TEMPLATE = lib
 
 CONFIG += stl \
@@ -58,4 +48,14 @@ macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
 QT -= gui
+
+LIBS += -L../../../lib \
+  -lNanorexUtility \
+  -L$(OPENBABEL_LIBPATH) \
+  -lopenbabel
+
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+  -g \
+  -O0 \
+  -fno-inline
 

@@ -17,6 +17,7 @@
 #include <QApplication>
 
 #include "Nanorex/Interface/NXEntityManager.h"
+#include "Nanorex/Interface/NXGraphicsManager.h"
 using namespace Nanorex;
 
 #include "ui_ResultsWindow.h"
@@ -30,22 +31,25 @@ using namespace Nanorex;
 
 /* CLASS: ResultsWindow */
 class ResultsWindow : public QWidget, private Ui_ResultsWindow {
-	Q_OBJECT
+	Q_OBJECT;
 	
-	public:
-		QWorkspace* workspace;
-		QSignalMapper* windowMapper;
-		NXEntityManager* entityManager;
-				
-		ResultsWindow(NXEntityManager* entityManager, QWidget* parent = 0);
-		~ResultsWindow();
+public:
+	QWorkspace* workspace;
+	QSignalMapper* windowMapper;
+	NXEntityManager* entityManager;
+	NXGraphicsManager* graphicsManager;
 	
-		bool loadFile(const QString &fileName);
-		bool closeFile(void);
-		
-		QString userFriendlyCurrentFile();
-		QString currentFile() { return curFile; }
-		DataWindow* activeDataWindow();
+	ResultsWindow(NXEntityManager* entityManager,
+	              NXGraphicsManager* graphicsManager,
+	              QWidget* parent = 0);
+	~ResultsWindow();
+	
+	bool loadFile(const QString &fileName);
+	bool closeFile(void);
+	
+	QString userFriendlyCurrentFile();
+	QString currentFile() { return curFile; }
+	DataWindow* activeDataWindow();
 	
 	private slots:
 		void resultsTreeItemDoubleClicked(QTreeWidgetItem* treeWidgetItem,
@@ -82,23 +86,23 @@ class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 
 /* CLASS: DataWindowTreeItem */
 class DataWindowTreeItem : public QObject, public QTreeWidgetItem {
-
-	Q_OBJECT
 	
-	public:
-		DataWindowTreeItem(ResultsWindow* resultsWindow,
-						   QTreeWidget* treeWidget);
-		DataWindowTreeItem(ResultsWindow* resultsWindow,
-						   QTreeWidgetItem* treeWidgetItem);
-		virtual ~DataWindowTreeItem();
-		
-		virtual void showWindow() = 0;
-		
-	public slots:
-		virtual void refresh();
-		
-	protected:
-		ResultsWindow* resultsWindow;
+	Q_OBJECT;
+	
+public:
+	DataWindowTreeItem(ResultsWindow* resultsWindow,
+	                   QTreeWidget* treeWidget);
+	DataWindowTreeItem(ResultsWindow* resultsWindow,
+	                   QTreeWidgetItem* treeWidgetItem);
+	virtual ~DataWindowTreeItem();
+	
+	virtual void showWindow() = 0;
+	
+public slots:
+	virtual void refresh();
+	
+protected:
+	ResultsWindow* resultsWindow;
 };
 
 
@@ -119,67 +123,66 @@ class InputParametersTreeItem : public DataWindowTreeItem {
 
 /* CLASS: ResultsSummaryTreeItem */
 class ResultsSummaryTreeItem : public QWidget, public DataWindowTreeItem {
-
-	Q_OBJECT
 	
-	public:
-		ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
-							   QTreeWidgetItem* treeWidgetItem);
-		~ResultsSummaryTreeItem();
-		
-		void showWindow();
-		void setTrajectoryId(int trajectoryId) {
-			this->trajectoryId = trajectoryId;
-		}
-		
-	public slots:
-		void refresh();
-		
-	private:
-		int trajectoryId;
-		ResultsSummaryWindow* resultsSummaryWindow;
-		
-		QIcon resultsSummaryIcon;
-		QIcon resultsSummaryIcon2;
+	Q_OBJECT;
+	
+public:
+	ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
+	                       QTreeWidgetItem* treeWidgetItem);
+	~ResultsSummaryTreeItem();
+	
+	void showWindow();
+	void setTrajectoryId(int trajectoryId) {
+		this->trajectoryId = trajectoryId;
+	}
+	
+public slots:
+	void refresh();
+	
+private:
+	int trajectoryId;
+	ResultsSummaryWindow* resultsSummaryWindow;
+	
+	QIcon resultsSummaryIcon;
+	QIcon resultsSummaryIcon2;
 };
 
 
 /* CLASS: StructureGraphicsTreeItem */
 class StructureGraphicsTreeItem : public DataWindowTreeItem {
-    
+	
 public:
-    StructureGraphicsTreeItem(NXMoleculeSet *molSetPtr,
-                               ResultsWindow* resultsWindow,
-                               QTreeWidgetItem* treeWidgetItem);
-    StructureGraphicsTreeItem(OBMol *molPtr,
-                            ResultsWindow *resultsWindow,
-                            QTreeWidgetItem *treeWidgetItem);
-    ~StructureGraphicsTreeItem();
-    
-    void showWindow();
-    
+	StructureGraphicsTreeItem(NXMoleculeSet *theMolSetPtr,
+	                          ResultsWindow* resultsWindow,
+	                          QTreeWidgetItem* treeWidgetItem);
+	StructureGraphicsTreeItem(OBMol *theMolPtr,
+	                          ResultsWindow* resultsWindow,
+	                          QTreeWidgetItem* treeWidgetItem);
+	~StructureGraphicsTreeItem();
+	
+	void showWindow();
+	
 private:
-    NXMoleculeSet *molSetPtr;
-    OBMol *molPtr;
-    bool isSingleMolecule;
-    StructureGraphicsWindow* structureWindow;
+	NXMoleculeSet *molSetPtr;
+	bool const deleteOnDestruct;
+	StructureGraphicsWindow* structureWindow;
 };
 
 
 /* CLASS: TrajectoryGraphicsTreeItem */
 class TrajectoryGraphicsTreeItem : public DataWindowTreeItem {
-
-	public:
-		TrajectoryGraphicsTreeItem(const string& trajectoryName,
-								   ResultsWindow* resultsWindow,
-								   QTreeWidgetItem* treeWidgetItem);
-		~TrajectoryGraphicsTreeItem();
-		
-		void showWindow();
-		
-	private:
-		string trajectoryName;
-		TrajectoryGraphicsWindow* trajWindow;
+	
+public:
+	TrajectoryGraphicsTreeItem(const string& trajectoryName,
+	                           ResultsWindow* resultsWindow,
+	                           QTreeWidgetItem* treeWidgetItem);
+	~TrajectoryGraphicsTreeItem();
+	
+	void showWindow();
+	
+private:
+	string trajectoryName;
+	TrajectoryGraphicsWindow* trajWindow;
 };
 
 

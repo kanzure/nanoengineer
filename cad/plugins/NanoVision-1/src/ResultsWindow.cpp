@@ -7,32 +7,36 @@
 #include "Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.h"
 
 /* CONSTRUCTOR */
-ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
+ResultsWindow::ResultsWindow(NXEntityManager* entityManager,
+                             NXGraphicsManager* graphicsManager,
+                             QWidget* parent)
 : QWidget(parent), Ui_ResultsWindow(),
-    workspace(NULL),		windowMapper(NULL),
-    entityManager(NULL),	curFile(),     resultsTree(NULL),
-	resultsTreeIcon(		tr(":/Icons/results_tree.png")),
-	nh5FileIcon(			tr(":/Icons/nh5_file.png")),
-    mmpFileIcon(			tr(":/Icons/nanoENGINEER-1.ico")),
-    atomIcon(				tr(":/Icons/atom.png")),
-    atomSetIcon(			tr(":/Icons/atom_set.png")),
-    inputParametersIcon(	tr(":/Icons/input_parameters.png")),
-    inputFilesIcon(			tr(":/Icons/input_files.png")),
-    inputFileIcon(			tr(":/Icons/input_file.png")),
-    resultsIcon(			tr(":/Icons/results.png")),
-    resultsTrajectoriesIcon(tr(":/Icons/trajectories.png"))
+workspace(NULL),		windowMapper(NULL),
+entityManager(NULL),	graphicsManager(NULL),
+curFile(),     resultsTree(NULL),
+resultsTreeIcon(		tr(":/Icons/results_tree.png")),
+nh5FileIcon(			tr(":/Icons/nh5_file.png")),
+mmpFileIcon(			tr(":/Icons/nanoENGINEER-1.ico")),
+atomIcon(				tr(":/Icons/atom.png")),
+atomSetIcon(			tr(":/Icons/atom_set.png")),
+inputParametersIcon(	tr(":/Icons/input_parameters.png")),
+inputFilesIcon(			tr(":/Icons/input_files.png")),
+inputFileIcon(			tr(":/Icons/input_file.png")),
+resultsIcon(			tr(":/Icons/results.png")),
+resultsTrajectoriesIcon(tr(":/Icons/trajectories.png"))
 {
-    this->entityManager = entityManager;
-    
-    setupUi(this);
-    
-    workspace = new QWorkspace();
-    connect(workspace, SIGNAL(windowActivated(QWidget *)),
-            parent, SLOT(updateMenus()));
-    windowMapper = new QSignalMapper(this);
-    connect(windowMapper, SIGNAL(mapped(QWidget *)),
-            workspace, SLOT(setActiveWindow(QWidget *)));
-    
+	this->entityManager = entityManager;
+	this->graphicsManager = graphicsManager;
+	
+	setupUi(this);
+	
+	workspace = new QWorkspace();
+	connect(workspace, SIGNAL(windowActivated(QWidget *)),
+	        parent, SLOT(updateMenus()));
+	windowMapper = new QSignalMapper(this);
+	connect(windowMapper, SIGNAL(mapped(QWidget *)),
+	        workspace, SLOT(setActiveWindow(QWidget *)));
+	
     // Create empty results-tree
     resultsTree = new QTreeWidget(tabWidget);
     resultsTree->setHeaderLabel(tr(""));
@@ -46,90 +50,90 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 
 /* DESTRUCTOR */
 ResultsWindow::~ResultsWindow() {
-    workspace->closeAllWindows();
-    closeFile();
-    if (activeDataWindow()) {
-        ; // Can't delete?
-    }
+	workspace->closeAllWindows();
+	closeFile();
+	if (activeDataWindow()) {
+		; // Can't delete?
+	}
 }
 
 
 /* FUNCTION: closeFile */
 bool ResultsWindow::closeFile(void)
 {
-    QWidget *tab1Widget = tabWidget->widget(0);
-    resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
-    resultsTree->clear();
-    resultsTree->setHeaderLabel(tr(""));
-    entityManager->reset();
-    NXLOG_INFO("ResultsWindow", string("closed ") + qPrintable(curFile));
-    return true;
+	QWidget *tab1Widget = tabWidget->widget(0);
+	resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
+	resultsTree->clear();
+	resultsTree->setHeaderLabel(tr(""));
+	entityManager->reset();
+	NXLOG_INFO("ResultsWindow", string("closed ") + qPrintable(curFile));
+	return true;
 }
 
 
 /* FUNCTION: loadFile */
 bool ResultsWindow::loadFile(const QString &fileName) {
-    
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    
+	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	
     // Read file
-    NXCommandResult* commandResult =
-        entityManager->importFromFile(qPrintable(fileName));
-    
-    QApplication::restoreOverrideCursor();
-    
-    bool success = true;
-    if (commandResult->getResult() != NX_CMD_SUCCESS) {
-        QFileInfo fileInfo(fileName);
-        QString message =
-            tr("Unable to open file: %1").arg(fileInfo.fileName());
-        ErrorDialog errorDialog(message, commandResult);
-        errorDialog.exec();
-        success = false;
-        
-    } else {
-        setCurrentFile(fileName);
-        
+	NXCommandResult* commandResult =
+		entityManager->importFromFile(qPrintable(fileName));
+	
+	QApplication::restoreOverrideCursor();
+	
+	bool success = true;
+	if (commandResult->getResult() != NX_CMD_SUCCESS) {
+		QFileInfo fileInfo(fileName);
+		QString message =
+			tr("Unable to open file: %1").arg(fileInfo.fileName());
+		ErrorDialog errorDialog(message, commandResult);
+		errorDialog.exec();
+		success = false;
+		
+	} else {
+		setCurrentFile(fileName);
+		
         // Populate results tree
-        setupResultsTree();
-
-        QString message = tr("File loaded: %1").arg(fileName);
-        NXLOG_INFO("ResultsWindow", qPrintable(message));
-    }
-    delete commandResult;
-    return success;
+		setupResultsTree();
+		
+		QString message = tr("File loaded: %1").arg(fileName);
+		NXLOG_INFO("ResultsWindow", qPrintable(message));
+	}
+	delete commandResult;
+	return success;
 }
 
 
 /* FUNCTION: setupResultsTree */
 void ResultsWindow::setupResultsTree(void)
 {
-    NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+	NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
     // MMP or OpenBabel file import
-    if (dataStoreInfo->isSingleStructure()) {
-        setupSingleStructureTree();
-    }
+	if (dataStoreInfo->isSingleStructure()) {
+		setupSingleStructureTree();
+	}
     // Simulation results import
-    else if (dataStoreInfo->isSimulationResults()) {
-        setupSimulationResultsTree();
-    }
+	else if (dataStoreInfo->isSimulationResults()) {
+		setupSimulationResultsTree();
+	}
 	
 	resultsTree->resizeColumnToContents(0);
 	
 	connect(resultsTree,
-			SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
-			this,
-			SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));
+	        SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+	        this,
+	        SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));
 }
 
 
 /* FUNCTION: isMMPFile */
 bool ResultsWindow::isMMPFile(string const& filename)
 {
-    QFileInfo fileInfo(filename.c_str());
-    bool result =
-        (fileInfo.suffix().compare(tr("mmp"), Qt::CaseInsensitive) == 0);
-    return result;
+	QFileInfo fileInfo(filename.c_str());
+	bool result =
+		(fileInfo.suffix().compare(tr("mmp"), Qt::CaseInsensitive) == 0);
+	return result;
 }
 
 
@@ -148,12 +152,12 @@ void ResultsWindow::setupSimulationResultsTree(void)
 	resultsTree->addTopLevelItem(rootNode);
     
     // input parameters
-    NXProperties *inputParameters = dataStoreInfo->getInputParameters();
-    if (inputParameters != NULL) {
-        DataWindowTreeItem* inputParametersItem =
+	NXProperties *inputParameters = dataStoreInfo->getInputParameters();
+	if (inputParameters != NULL) {
+		DataWindowTreeItem* inputParametersItem =
 			new InputParametersTreeItem(this, rootNode);
-        inputParametersItem->setIcon(0, inputParametersIcon);
-        inputParametersItem->setText(0, tr("Input parameters"));
+		inputParametersItem->setIcon(0, inputParametersIcon);
+		inputParametersItem->setText(0, tr("Input parameters"));
 		inputParametersItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
     
@@ -177,17 +181,17 @@ void ResultsWindow::setupSimulationResultsTree(void)
 				(0, strippedName(QString(inputFileNameIter->c_str())));
 			inputFileItem->setFlags(Qt::ItemIsEnabled);
             // inputFilesItem->addChild(inputFileItem);
-            
-            if(isMMPFile(*inputFileNameIter)) {
-                int mmpFileFrameSetId = 
-                    dataStoreInfo->getInputStructureId(*inputFileNameIter);
+			
+			if(isMMPFile(*inputFileNameIter)) {
+				int mmpFileFrameSetId = 
+					dataStoreInfo->getInputStructureId(*inputFileNameIter);
 				if (mmpFileFrameSetId > -1) {
 					NXMoleculeSet *rootMoleculeSet = 
-                    	entityManager->getRootMoleculeSet(mmpFileFrameSetId, 0);
-						setupMoleculeSetResultsSubtree(rootMoleculeSet,
-													   inputFileItem);
+						entityManager->getRootMoleculeSet(mmpFileFrameSetId, 0);
+					setupMoleculeSetResultsSubtree(rootMoleculeSet,
+					                               inputFileItem);
 				} else {
-					// TODO: handle this
+                    // TODO: handle this
 				}
             }
 
@@ -195,10 +199,10 @@ void ResultsWindow::setupSimulationResultsTree(void)
     }
     
     // Results
-    
-    NXProperties *resultsSummary = dataStoreInfo->getResultsSummary();
-    vector<string> trajectoryNames = dataStoreInfo->getTrajectoryNames();
-    
+	
+	NXProperties *resultsSummary = dataStoreInfo->getResultsSummary();
+	vector<string> trajectoryNames = dataStoreInfo->getTrajectoryNames();
+	
     // don't create if no children
     if (resultsSummary == NULL && trajectoryNames.size()==0) return;
     
@@ -209,18 +213,18 @@ void ResultsWindow::setupSimulationResultsTree(void)
 	resultsItem->setExpanded(true);
     
     // Results -> Summary
-    DataWindowTreeItem* resultsSummaryItem = NULL;
-    if (resultsSummary != NULL) {
-        resultsSummaryItem = new ResultsSummaryTreeItem(this, resultsItem);
-        resultsSummaryItem->setText(0, tr("Summary"));
+	DataWindowTreeItem* resultsSummaryItem = NULL;
+	if (resultsSummary != NULL) {
+		resultsSummaryItem = new ResultsSummaryTreeItem(this, resultsItem);
+		resultsSummaryItem->setText(0, tr("Summary"));
 		resultsSummaryItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    }
-    
+	}
+	
     // Results -> Trajectories
-    if (trajectoryNames.size() > 0) {
-        QTreeWidgetItem *trajectoryItem = new QTreeWidgetItem(resultsItem);
-        trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
-        trajectoryItem->setText(0, tr("Trajectories"));
+	if (trajectoryNames.size() > 0) {
+		QTreeWidgetItem *trajectoryItem = new QTreeWidgetItem(resultsItem);
+		trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
+		trajectoryItem->setText(0, tr("Trajectories"));
 		trajectoryItem->setFlags(Qt::ItemIsEnabled);
 		trajectoryItem->setExpanded(true);
         
@@ -236,29 +240,29 @@ void ResultsWindow::setupSimulationResultsTree(void)
             trajectoryNameItem->setIcon(0, resultsTrajectoriesIcon);
             trajectoryNameItem->setText(0, QString(trajectoryNameIter->c_str()));
 			trajectoryNameItem->setFlags(Qt::ItemIsSelectable |
-										 Qt::ItemIsEnabled);
+			                             Qt::ItemIsEnabled);
             // trajectoryItem->addChild(trajectoryNameItem);
 			
-			// Show some graphics right away
+            // Show some graphics right away
 			if (trajectoryNameIter == trajectoryNames.begin())
 				trajectoryNameItem->showWindow();
-
-			// Signal the results summary window once the data store is
-			// complete so it can refresh itself
+			
+            // Signal the results summary window once the data store is
+            // complete so it can refresh itself
 			int trajectoryId =
 				dataStoreInfo->getTrajectoryId(*trajectoryNameIter);
 			if ((resultsSummaryItem != NULL) &&
-				(!dataStoreInfo->storeIsComplete(trajectoryId))) {
-				QObject::connect(entityManager,
-								 SIGNAL(dataStoreComplete()),
-								 resultsSummaryItem,
-								 SLOT(refresh()));
-				((ResultsSummaryTreeItem*)resultsSummaryItem)
-					->setTrajectoryId(trajectoryId);
-				resultsSummaryItem->refresh();
-			}
-        }
-    }
+			    (!dataStoreInfo->storeIsComplete(trajectoryId))) {
+				    QObject::connect(entityManager,
+				                     SIGNAL(dataStoreComplete()),
+				                     resultsSummaryItem,
+				                     SLOT(refresh()));
+				    ((ResultsSummaryTreeItem*)resultsSummaryItem)
+					    ->setTrajectoryId(trajectoryId);
+				    resultsSummaryItem->refresh();
+			    }
+		}
+	}
 }
 
 #if 0
@@ -271,7 +275,7 @@ setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem)
     int frameSetID = dataStoreInfo->getSingleStructureId();
     NXMoleculeSet *rootMoleculeSet = 
         entityManager->getRootMoleculeSet(frameSetID, 0);
-    
+
     setupMoleculeSetResultsSubtree_helper(rootMoleculeSet, mmpFileItem);
 }
 #endif
@@ -287,22 +291,21 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
     molSetItem->setIcon(0, atomSetIcon);
     molSetItem->setText(0, (molSetPtr->getTitle()).c_str());
     molSetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    
 /*    QObject::connect((QTreeWidget*) molSetItem,
                      SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
                      this,
                      SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));*/
-    
-    OBMolIterator molIter;
-    for(molIter = molSetPtr->moleculesBegin();
-        molIter != molSetPtr->moleculesEnd();
-        ++molIter)
-    {
-        OBMol *molPtr = *molIter;
-        QTreeWidgetItem *molItem =
-            new StructureGraphicsTreeItem(molPtr, this, molSetItem);
-        molItem->setIcon(0,atomIcon);
-        molItem->setText(0, tr(molPtr->GetTitle()));
+	
+	OBMolIterator molIter;
+	for(molIter = molSetPtr->moleculesBegin();
+	    molIter != molSetPtr->moleculesEnd();
+	    ++molIter)
+	{
+		OBMol *molPtr = *molIter;
+		QTreeWidgetItem *molItem =
+			new StructureGraphicsTreeItem(molPtr, this, molSetItem);
+		molItem->setIcon(0,atomIcon);
+		molItem->setText(0, tr(molPtr->GetTitle()));
 		molItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
     
@@ -319,9 +322,9 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
         char const *const childMolSetTitle =
             (childMolSetPtr->getTitle()).c_str();
         childMolSetNode->setText(0, tr(childMolSetTitle));
-		childMolSetNode->setFlags(Qt::ItemIsEnabled);*/
-        setupMoleculeSetResultsSubtree(childMolSetPtr, molSetItem);
-    }
+        childMolSetNode->setFlags(Qt::ItemIsEnabled);*/
+		setupMoleculeSetResultsSubtree(childMolSetPtr, molSetItem);
+	}
 }
 
 
@@ -348,7 +351,15 @@ void ResultsWindow::setupSingleStructureTree(void)
         int frameSetID = dataStoreInfo->getSingleStructureId();
         NXMoleculeSet *rootMoleculeSet = 
             entityManager->getRootMoleculeSet(frameSetID, 0);
+	    assert(rootMoleculeSet != 0);
         setupMoleculeSetResultsSubtree(rootMoleculeSet, fileItem);
+    
+	    if(dataStoreInfo->hasClipboardStructure()) {
+		    NXMoleculeSet *clipboardGroup =
+			    dataStoreInfo->getClipboardStructure();
+		    assert(clipboardGroup != NULL);
+		    setupMoleculeSetResultsSubtree(clipboardGroup, fileItem);
+	    }
     }
 }
 
@@ -370,26 +381,26 @@ QString ResultsWindow::userFriendlyCurrentFile() {
 
 /* FUNCTION: setCurrentFile */
 void ResultsWindow::setCurrentFile(const QString &fileName) {
-    curFile = QFileInfo(fileName).absoluteFilePath();
-    setWindowTitle(userFriendlyCurrentFile() + "[*]");
+	curFile = QFileInfo(fileName).absoluteFilePath();
+	setWindowTitle(userFriendlyCurrentFile() + "[*]");
 }
 
 
 /* FUNCTION: strippedName */
 QString ResultsWindow::strippedName(const QString &fullFileName) {
-    return QFileInfo(fullFileName).fileName();
+	return QFileInfo(fullFileName).fileName();
 }
 
 
 /* FUNCTION: activeDataWindow */
 DataWindow* ResultsWindow::activeDataWindow() {
-    return qobject_cast<DataWindow *>(workspace->activeWindow());
+	return qobject_cast<DataWindow *>(workspace->activeWindow());
 }
 
 
 /* FUNCTION: resultsTreeItemDoubleClicked */
 void ResultsWindow::resultsTreeItemDoubleClicked(QTreeWidgetItem* treeItem,
-												 int /*column*/) {
+                                                 int /*column*/) {
 	if ((treeItem != NULL) && (treeItem->flags() & Qt::ItemIsSelectable))
 		((DataWindowTreeItem*)treeItem)->showWindow();
 }
@@ -400,13 +411,13 @@ void ResultsWindow::resultsTreeItemDoubleClicked(QTreeWidgetItem* treeItem,
 
 /* CONSTRUCTORS */
 DataWindowTreeItem::DataWindowTreeItem(ResultsWindow* resultsWindow,
-									   QTreeWidget* treeWidget)
-		: QTreeWidgetItem(treeWidget) {
+                                       QTreeWidget* treeWidget)
+: QTreeWidgetItem(treeWidget) {
 	this->resultsWindow = resultsWindow;
 }
 DataWindowTreeItem::DataWindowTreeItem(ResultsWindow* resultsWindow,
-									   QTreeWidgetItem* treeWidgetItem)
-		: QTreeWidgetItem(treeWidgetItem) {
+                                       QTreeWidgetItem* treeWidgetItem)
+: QTreeWidgetItem(treeWidgetItem) {
 	this->resultsWindow = resultsWindow;
 }
 
@@ -445,7 +456,7 @@ void InputParametersTreeItem::showWindow() {
 			resultsWindow->entityManager->getDataStoreInfo();
 		inputParametersWindow =
 			new InputParametersWindow(resultsWindow->userFriendlyCurrentFile(),
-									  dataStoreInfo->getInputParameters());
+			                          dataStoreInfo->getInputParameters());
 	}
 	inputParametersWindow->show();
 }
@@ -456,11 +467,11 @@ void InputParametersTreeItem::showWindow() {
 
 /* CONSTRUCTOR */
 ResultsSummaryTreeItem::ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
-											   QTreeWidgetItem* treeWidgetItem)
-		: DataWindowTreeItem(resultsWindow, treeWidgetItem),
-    resultsSummaryIcon(tr(":/Icons/results_summary.png")),
-    resultsSummaryIcon2(tr(":/Icons/results_summary2.png")) {
-
+                                               QTreeWidgetItem* treeWidgetItem)
+: DataWindowTreeItem(resultsWindow, treeWidgetItem),
+resultsSummaryIcon(tr(":/Icons/results_summary.png")),
+resultsSummaryIcon2(tr(":/Icons/results_summary2.png")) {
+	
 	trajectoryId = -1;
 	resultsSummaryWindow = NULL;
 	setIcon(0, resultsSummaryIcon);
@@ -481,7 +492,7 @@ void ResultsSummaryTreeItem::showWindow() {
 			resultsWindow->entityManager->getDataStoreInfo();
 		resultsSummaryWindow =
 			new ResultsSummaryWindow(resultsWindow->userFriendlyCurrentFile(),
-									 dataStoreInfo);
+			                         dataStoreInfo);
 	}
 	resultsSummaryWindow->show();
 }
@@ -491,10 +502,10 @@ void ResultsSummaryTreeItem::showWindow() {
 void ResultsSummaryTreeItem::refresh() {
 	if (resultsSummaryWindow != NULL)
 		resultsSummaryWindow->refresh();
-
+	
 	if ((trajectoryId != -1) &&
-		!resultsWindow->entityManager->getDataStoreInfo()
-			->storeIsComplete(trajectoryId))
+	    !resultsWindow->entityManager->getDataStoreInfo()
+	    ->storeIsComplete(trajectoryId))
 		setIcon(0, resultsSummaryIcon2);
 	else
 		setIcon(0, resultsSummaryIcon);
@@ -505,13 +516,12 @@ void ResultsSummaryTreeItem::refresh() {
 
 /* CONSTRUCTOR */
 StructureGraphicsTreeItem::StructureGraphicsTreeItem
-(NXMoleculeSet *_molSetPtr,
+(NXMoleculeSet* theMolSetPtr,
  ResultsWindow* resultsWindow,
  QTreeWidgetItem* treeWidgetItem)
 : DataWindowTreeItem(resultsWindow, treeWidgetItem),
-molSetPtr(_molSetPtr),
-molPtr(NULL),
-isSingleMolecule(false),
+molSetPtr(theMolSetPtr),
+deleteOnDestruct(false),
 structureWindow(NULL)
 {
 }
@@ -519,42 +529,54 @@ structureWindow(NULL)
 
 /* CONSTRUCTOR */
 StructureGraphicsTreeItem::StructureGraphicsTreeItem
-(OBMol *_mol,
+(OBMol* theMolPtr,
  ResultsWindow* resultsWindow,
  QTreeWidgetItem* treeWidgetItem)
 : DataWindowTreeItem(resultsWindow, treeWidgetItem),
 molSetPtr(NULL),
-molPtr(_mol),
-isSingleMolecule(true),
+deleteOnDestruct(true),
 structureWindow(NULL)
 {
+	// Encapsulate molecule in a non-destructive molecule-set
+	molSetPtr = new NXMoleculeSet(false);
+	molSetPtr->addMolecule(theMolPtr);
 }
 
 
 /* DESTRUCTOR */
 StructureGraphicsTreeItem::~StructureGraphicsTreeItem() {
-    if (structureWindow != NULL)
-        delete structureWindow;
+	if(deleteOnDestruct)
+		delete molSetPtr;
+	if (structureWindow != NULL)
+		delete structureWindow;
 }
 
 
 /* FUNCTION: showWindow */
 void StructureGraphicsTreeItem::showWindow() {
-    if (structureWindow == NULL) {
-        NXEntityManager* entityManager = resultsWindow->entityManager;
-        // NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
-        // int structureId = dataStoreInfo->getStructureId(structureName);
-        structureWindow = new StructureGraphicsWindow();
-        assert(structureWindow != NULL);
-        structureWindow->setRenderer(new NXBallAndStickOpenGLRenderer);
-        if(isSingleMolecule)
-            structureWindow->setMolecule(molPtr);
-        else
-            structureWindow->setRootMoleculeSet(molSetPtr);
-        structureWindow->setEntityManager(entityManager);
-        resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
-    }
-    structureWindow->NXOpenGLRenderingEngine::show();
+	if (structureWindow == NULL) {
+		structureWindow =
+			new StructureGraphicsWindow(NULL,
+			                            resultsWindow->graphicsManager);
+		assert(structureWindow != NULL);
+		
+		NXCommandResult const *const addMolSetFrameResult =
+			structureWindow->setMoleculeSet(molSetPtr);
+		
+		if(addMolSetFrameResult->getResult() != (int) NX_CMD_SUCCESS) {
+			ostringstream logMsgStream;
+			logMsgStream << "Molecule(set) couldn't be drawn";
+			vector<QString> const& msgs =
+				addMolSetFrameResult->getParamVector();
+			vector<QString>::const_iterator msgIter;
+			for(msgIter = msgs.begin(); msgIter != msgs.end(); ++msgIter) {
+				logMsgStream << ": " << qPrintable(*msgIter);
+			}
+			NXLOG_SEVERE("StructureGraphicsWindow", logMsgStream.str());
+		}
+		resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
+	}
+	structureWindow->show();
 }
 
 
@@ -563,13 +585,14 @@ void StructureGraphicsTreeItem::showWindow() {
 
 
 /* CONSTRUCTOR */
-TrajectoryGraphicsTreeItem::TrajectoryGraphicsTreeItem
-		(const string& trajectoryName,
-		 ResultsWindow* resultsWindow,
-		 QTreeWidgetItem* treeWidgetItem)
-		: DataWindowTreeItem(resultsWindow, treeWidgetItem) {
-	trajWindow = NULL;
-	this->trajectoryName = trajectoryName;
+TrajectoryGraphicsTreeItem::
+TrajectoryGraphicsTreeItem(const string& trajName,
+                           ResultsWindow* resultsWindow,
+                           QTreeWidgetItem* treeWidgetItem)
+: DataWindowTreeItem(resultsWindow, treeWidgetItem),
+trajectoryName(trajName),
+trajWindow(NULL)
+{
 }
 
 
@@ -585,15 +608,19 @@ void TrajectoryGraphicsTreeItem::showWindow() {
 	if (trajWindow == NULL) {
 		NXEntityManager* entityManager = resultsWindow->entityManager;
 		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+		NXGraphicsManager* graphicsManager = resultsWindow->graphicsManager;
 		int trajId = dataStoreInfo->getTrajectoryId(trajectoryName);
-		trajWindow = new TrajectoryGraphicsWindow();
-		trajWindow->setEntityManager(entityManager);
+		trajWindow =
+			new TrajectoryGraphicsWindow((QWidget*)0,
+			                             entityManager,
+			                             graphicsManager);
+		trajWindow->setFrameSetId(trajId);
 		resultsWindow->workspace->addWindow(trajWindow);
 		if (!dataStoreInfo->storeIsComplete(trajId)) {
 			QObject::connect(entityManager,
-							 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
-							 trajWindow,
-							 SLOT(newFrame(int, int, NXMoleculeSet*)));
+			                 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
+			                 trajWindow,
+			                 SLOT(newFrame(int, int, NXMoleculeSet*)));
 		}
 	}
 	trajWindow->show();

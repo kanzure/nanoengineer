@@ -1,15 +1,23 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExportTest.h"
+#include "Nanorex/Utility/NXUtility.h"
 #include <sstream>
 #include <cfloat>
 
+using namespace Nanorex;
 using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(NanorexMMPImportExportTest);
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NanorexMMPImportExportTest,
                                       "NanorexMMPImportExportTestSuite");
 
+#if defined(VERBOSE)
+#define CERR(s) \
+{ cerr << (NXUtility::itos(lineNum) + ": ") << s << endl; }
+#else
+#define CERR(S)
+#endif
 
 // -- member functions --
 
@@ -141,8 +149,9 @@ void NanorexMMPImportExportTest::newAtom(int atomId, int atomicNum,
                                          std::string const& atomStyle)
 {
 	++atomCount;
-	cerr << lineNum << ": atom " << atomId << " (" << atomicNum << ") ("
-		<< x << ',' << y << ',' << z << ") " << atomStyle << endl;
+	CERR("atom " + NXUtility::itos(atomId) + " (" + NXUtility::itos(atomicNum)
+	     + ") (" + NXUtility::itos(x) + ',' + NXUtility::itos(y) + ',' +
+	     NXUtility::itos(z) + ") " + atomStyle);
 	atomIds.push_back(atomId);
 	atomicNums.push_back(atomicNum);
 	atomLocs.push_back(Position(x,y,z));
@@ -220,7 +229,7 @@ void NanorexMMPImportExportTest::newBond(std::string const& bondType,
 	else if(bondType == "g")
 		++bondgCount;
 	
-	cerr << lineNum << ": bond" << bondType << " " << targetAtomId << endl;
+	CERR("bond" + bondType + " " + NXUtility::itos(targetAtomId));
 	// currentBondType = bondType;
 	// targetAtomIds.push_back(targetAtomId);
 	bonds.back()[bondType].push_back(targetAtomId);
@@ -275,7 +284,8 @@ NanorexMMPImportExportTest::bondDirectionTestHelper(char const *const testInput)
 
 void NanorexMMPImportExportTest::newBondDirection(int atomId1, int atomId2)
 {
-	cerr << lineNum << ": bond_direction " << atomId1 << " " << atomId2 << endl;
+	CERR("bond_direction " + NXUtility::itos(atomId1) + " " +
+	     NXUtility::itos(atomId2));
 	bondDirectionStartId = atomId1;
 	bondDirectionStopId = atomId2;
 }
@@ -350,7 +360,7 @@ void NanorexMMPImportExportTest::newAtomInfo(std::string const& key,
 	// stripTrailingWhiteSpaces(key1);
 	// string value1 = value;
 	// stripTrailingWhiteSpaces(value1);
-	cerr << lineNum << ": info atom '" << key << "' = '" << value << "'" << endl;
+	CERR("info atom '" + key + "' = '" + value + "'");
 	// infoAtomKeys.push_back(key);
 	// infoAtomValues.push_back(value);
 	atomProps.back().insert(make_pair(key, value));
@@ -483,11 +493,12 @@ void NanorexMMPImportExportTest::multipleAtomStmtTest(void)
 		"bondg \t1 22 333\n"
 		"\n"
 		"bondc 33   2 \n"
-		"\n";
-	// "atom 555 (555) (555,555,555)  style555\n";
+		"\n"
+		;
 	
 	multipleAtomStmtTestHelper(testInput);
 	
+	// include contribs from previous test - data structures haven't been cleared
 	CPPUNIT_ASSERT(atomIds.size() == 4);
 	CPPUNIT_ASSERT(atomicNums.size() == 4);
 	CPPUNIT_ASSERT(atomLocs.size() == 4);
@@ -528,23 +539,11 @@ void NanorexMMPImportExportTest::multipleAtomStmtTest(void)
 	
 atom_stmt := |*
 #EOL => { cerr << "EOL, p = " << p << endl; };
-		EOL* nonNEWLINEspace* atom_decl_line => 
-	{ // cerr << "atom_decl_line, p = " << p << endl;
-		// newAtom(atomId, atomicNum, x, y, z, atomStyle);
-	};
-	EOL* nonNEWLINEspace* bond_line =>
-	{ // cerr << "bond_line, p = " << p << endl;
-		// newBond(stringVal, intVal);
-	};
-	EOL* nonNEWLINEspace* bond_direction_line =>
-	{ // cerr << "bond_direction_line, p = " << p << endl;
-		// newBondDirection(intVal, intVal2);
-	};
-	EOL* nonNEWLINEspace* info_atom_line =>
-	{ // cerr << "info_atom_line, p = " << p << endl;
-		// newAtomInfo(stringVal, stringVal2);
-	};
-	EOL* nonNEWLINEspace* 0 => {fret;};
+		WHITESPACE* atom_decl_line;
+		WHITESPACE* bond_line;
+		WHITESPACE* bond_direction_line;
+		WHITESPACE* info_atom_line;
+		WHITESPACE* 0 => {fret;};
 	*|;
 	
 main := (WHITESPACE** atom_decl_line
@@ -645,6 +644,7 @@ NanorexMMPImportExportTest::newMolecule(string const& name, string const& style)
 	++molCount;
 	currentMolName = name;
 	currentMolStyle = style;
+	CERR("mol (" + name + ") " + style);
 }
 
 
@@ -653,7 +653,7 @@ NanorexMMPImportExportTest::newChunkInfo(string const& key,
                                          string const& value)
 {
 	++infoChunkCount;
-	cerr << lineNum << ": info chunk " << key << " = " << value << endl;
+	CERR("info chunk " << key << " = " << value);
 	/// @todo
 }
 
@@ -667,22 +667,22 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 	char const *testInput = NULL;
 	
 	// #if 0
-	testInput = "group (FirstGroup) FirstGroupStyle\n";
+	testInput = "group (FirstGroup) #FirstGroupStyle\n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 1);
 	CPPUNIT_ASSERT(groupNameStack.back() == "FirstGroup");
-	CPPUNIT_ASSERT(currentGroupStyle == "FirstGroupStyle");
+	// CPPUNIT_ASSERT(currentGroupStyle == "FirstGroupStyle");
 	
-	testInput = "group ( Group name with spaces   ) Group s\ttyle with spaces \n";
+	testInput = "group ( Group name with spaces   ) \n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 2);
 	CPPUNIT_ASSERT(groupNameStack.back() == "Group name with spaces");
-	CPPUNIT_ASSERT(currentGroupStyle == "Group s\ttyle with spaces");
+	// CPPUNIT_ASSERT(currentGroupStyle == "Group s\ttyle with spaces");
 	
 	testInput = "group ( Group that has a name but no style)   \n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 3);
-	CPPUNIT_ASSERT(groupNameStack.back() == "Group that has a name but no style");
+	// CPPUNIT_ASSERT(groupNameStack.back() == "Group that has a name but no style");
 	// #endif
 	
 	testInput = "group   \t  (View \t  Data\t)\n";
@@ -714,11 +714,11 @@ void NanorexMMPImportExportTest::groupLineTest(void)
 	lineNum = 0;
 	testInput =
 		"group (group 1)\n"
-		"group (group 1_1) def\n"
+		"group (group 1_1) #def\n"
 		"egroup (group 1_1)\n"
-		"group (amines) amineStyle\n"
+		"group (amines)\n"
 		"group (histamines) def\n"
-		"group ( histhistamines\t) \tdef\t\n"
+		"group ( histhistamines\t) \t#def\t\n"
 		"egroup\n"
 		"group (histhistamines siblings)\n"
 		"egroup (histhistamines siblings)\n"
@@ -776,7 +776,7 @@ NanorexMMPImportExportTest::groupLineTestHelper(char const *const testInput)
 void NanorexMMPImportExportTest::newViewDataGroup(void)
 {
 	++groupCount;
-	cerr << lineNum << ": group (View Data)" << endl;
+	CERR("group (View Data)");
 	currentGroupName = "View Data";
 	groupNameStack.push_back(currentGroupName);
 }
@@ -791,14 +791,12 @@ void NanorexMMPImportExportTest::endViewDataGroup(void)
 #endif
 
 void
-NanorexMMPImportExportTest::newMolStructGroup(std::string const& name,
-                                              std::string const& style)
+NanorexMMPImportExportTest::newMolStructGroup(std::string const& name)
 {
 	++groupCount;
-	cerr << lineNum << ": group (" << name << ") " << style << endl;
+	CERR("group (" + name + ") ");
 	currentGroupName = name;
 	groupNameStack.push_back(currentGroupName);
-	currentGroupStyle = style;
 }
 
 #if 0
@@ -816,7 +814,7 @@ void NanorexMMPImportExportTest::endMolStructGroup(std::string const& name)
 void NanorexMMPImportExportTest::newClipboardGroup(void)
 {
 	++groupCount;
-	cerr << lineNum << ": group (Clipboard)" << endl;
+	CERR("group (Clipboard)");
 	currentGroupName = "Clipboard";
 	groupNameStack.push_back(currentGroupName);
 }
@@ -837,8 +835,8 @@ void NanorexMMPImportExportTest::endGroup(string const& name)
 	++egroupCount;
 	// comparing for errors should be done by parser application
 	// here we are only testing to see if the tokens are being recognized
-	cerr << lineNum << ": endgroup (" << name << ")  "
-		<< "[stack-top = " << groupNameStack.back() << ']' << endl;
+	CERR("egroup (" + name + ")  " + "[stack-top = " + groupNameStack.back()
+	     + ']');
 	currentGroupName = groupNameStack.back();
 	groupNameStack.pop_back();
 }
@@ -849,14 +847,14 @@ NanorexMMPImportExportTest::newOpenGroupInfo(string const& key,
                                              string const& value)
 {
 	++infoOpenGroupCount;
-	cerr << lineNum << ": info opengroup " << key << " = " << value << endl;
+	CERR("info opengroup " + key + " = " + value);
 	/// @todo
 }
 
 
 void NanorexMMPImportExportTest::end1(void)
 {
-	cerr << lineNum << ": end1" << endl;
+	CERR("end1");
 }
 
 
@@ -1181,10 +1179,10 @@ NanorexMMPImportExportTest::charBufParseTestHelper(char const *const testInput)
 
 void NanorexMMPImportExportTest::fileParseTest(void)
 {
-// 	fileParseTestH2O();
-// 	fileParseTestHOOH();
-// 	fileParseTestChlorophyll();
-// 	fileParseTestVanillin();
+	fileParseTestH2O();
+	fileParseTestHOOH();
+	fileParseTestChlorophyll();
+	fileParseTestVanillin();
 	fileParseTestNanocar();
 }
 

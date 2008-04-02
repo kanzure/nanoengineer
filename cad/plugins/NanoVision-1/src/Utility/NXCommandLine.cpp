@@ -19,10 +19,10 @@
    you must not claim that you wrote the original software. 
    If you use this software in a product, an acknowledgment 
    in the product documentation would be appreciated but is not required.
-   
+
      2. Altered source versions must be plainly marked as such, 
    and must not be misrepresented as being the original software.
-   
+
      3. This notice may not be removed or altered from any source 
    distribution.
 
@@ -39,7 +39,7 @@ namespace Nanorex {
 
 /* FUNCTION: SplitLine */
 int NXCommandLine::SplitLine(const char *line) {
-
+	
 	// Build atom array
 	std::string atom = "";
 	int index;
@@ -49,14 +49,14 @@ int NXCommandLine::SplitLine(const char *line) {
 	for (index = 0; index < lineLength; index++) {
 		if (line[index] == '"') {
 			inQuotedString = !inQuotedString;
-
+			
 		} else if (line[index] != ' ') {
 			atom += line[index];
-
+			
 		} else { // handle space
 			if (inQuotedString) {
 				atom += line[index];
-
+				
 			} else {
 				inQuotedString = false;
 				if (atom != "") {
@@ -69,7 +69,7 @@ int NXCommandLine::SplitLine(const char *line) {
 	if ((lineLength > 0) && (atom != "")) {
 		atomArray.push_back(atom);
 	}
-
+	
 	// Build char* array
 	int arrayLength = atomArray.size();
 	char** argv = new char*[arrayLength];
@@ -78,16 +78,16 @@ int NXCommandLine::SplitLine(const char *line) {
 		buffer = strcpy(buffer, atomArray[index].c_str());
 		argv[index] = buffer;
 	}
-
+	
 	int switchCount = 0;
 	if (arrayLength != 0)
 		switchCount = SplitLine(arrayLength, argv);
-
+	
 	// Free memory
 	for (index = 0; index < arrayLength; index++)
 		delete argv[index];
 	delete argv;
-
+	
 	return switchCount;
 }
 
@@ -101,72 +101,72 @@ int NXCommandLine::SplitLine(const char *line) {
 ------------------------------------------------------*/
 int NXCommandLine::SplitLine(int argc, char **argv)
 {
-   clear();
-
-   StringType curParam; // current argv[x]
-
+	clear();
+	
+	StringType curParam; // current argv[x]
+	
    // skip the exe name (start with i = 1)
-   for (int i = 1; i < argc; i++)
-   {
+	for (int i = 1; i < argc; i++)
+	{
       // if it's a switch, start a new CCmdLine
-      if (IsSwitch(argv[i]))
-      {
-         curParam = argv[i];
-
-         StringType arg;
-
+		if (IsSwitch(argv[i]))
+		{
+			curParam = argv[i];
+			
+			StringType arg;
+			
          // look at next input string to see if it's a switch or an argument
-         if (i + 1 < argc)
-         {
-            if (!IsSwitch(argv[i + 1]))
-            {
+			if (i + 1 < argc)
+			{
+				if (!IsSwitch(argv[i + 1]))
+				{
                // it's an argument, not a switch
-               arg = argv[i + 1];
-
+					arg = argv[i + 1];
+					
                // skip to next
-               i++;
-            }
-            else
-            {
-               arg = "";
-            }
-         }
-
+					i++;
+				}
+				else
+				{
+					arg = "";
+				}
+			}
+			
          // add it
-         CCmdParam cmd;
-
+			CCmdParam cmd;
+			
          // only add non-empty args
-         if (arg != "")
-         {
-            cmd.m_strings.push_back(arg);
-         }
-
+			if (arg != "")
+			{
+				cmd.m_strings.push_back(arg);
+			}
+			
          // add the CCmdParam to 'this'
-         std::pair<NXCommandLine::iterator, bool> res =
-		 	insert(NXCommandLine::value_type(curParam, cmd));
-
-      }
-      else
-      {
+			std::pair<NXCommandLine::iterator, bool> res =
+				insert(NXCommandLine::value_type(curParam, cmd));
+			
+		}
+		else
+		{
          // it's not a new switch, so it must be more stuff for the last switch
-
+			
          // ...let's add it
- 	      NXCommandLine::iterator theIterator;
-
+			NXCommandLine::iterator theIterator;
+			
          // get an iterator for the current param
-         theIterator = find(curParam);
-	      if (theIterator!=end())
-         {
-            (*theIterator).second.m_strings.push_back(argv[i]);
-         }
-         else
-         {
+			theIterator = find(curParam);
+			if (theIterator!=end())
+			{
+				(*theIterator).second.m_strings.push_back(argv[i]);
+			}
+			else
+			{
             // ??
-         }
-      }
-   }
-
-   return size();
+			}
+		}
+	}
+	
+	return size();
 }
 
 /*------------------------------------------------------
@@ -182,28 +182,28 @@ int NXCommandLine::SplitLine(int argc, char **argv)
 
 bool NXCommandLine::IsSwitch(const char *pParam)
 {
-   if (pParam==NULL)
-      return false;
-
+	if (pParam==NULL)
+		return false;
+	
    // switches must non-empty
    // must have at least one character after the '-'
-   int len = strlen(pParam);
-   if (len <= 1)
-   {
-      return false;
-   }
-
+	int len = strlen(pParam);
+	if (len <= 1)
+	{
+		return false;
+	}
+	
    // switches always start with '-'
-   if (pParam[0]=='-')
-   {
+	if (pParam[0]=='-')
+	{
       // allow negative numbers as arguments.
       // ie., don't count them as switches
-      return (!isdigit(pParam[1]));
-   }
-   else
-   {
-      return false;
-   }
+		return (!isdigit(pParam[1]));
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /*------------------------------------------------------
@@ -235,7 +235,7 @@ bool NXCommandLine::HasSwitch(const char *pSwitch)
    provide.
 
    example :
-  
+
    command line is : app.exe -a p1 p2 p3 -b p4 -c -d p5
 
    call                                      return
@@ -249,20 +249,20 @@ bool NXCommandLine::HasSwitch(const char *pSwitch)
 
 StringType NXCommandLine::GetSafeArgument(const char *pSwitch, int iIdx, const char *pDefault)
 {
-   StringType sRet;
-   
-   if (pDefault!=NULL)
-      sRet = pDefault;
-
-   try
-   {
-      sRet = GetArgument(pSwitch, iIdx);
-   }
-   catch (...)
-   {
-   }
-
-   return sRet;
+	StringType sRet;
+	
+	if (pDefault!=NULL)
+		sRet = pDefault;
+	
+	try
+	{
+		sRet = GetArgument(pSwitch, iIdx);
+	}
+	catch (...)
+	{
+	}
+	
+	return sRet;
 }
 
 /*------------------------------------------------------
@@ -273,7 +273,7 @@ StringType NXCommandLine::GetSafeArgument(const char *pSwitch, int iIdx, const c
    of (int)0, if the parameter at index iIdx is not found.
 
    example :
-  
+
    command line is : app.exe -a p1 p2 p3 -b p4 -c -d p5
 
    call                             return
@@ -285,23 +285,23 @@ StringType NXCommandLine::GetSafeArgument(const char *pSwitch, int iIdx, const c
 
 StringType NXCommandLine::GetArgument(const char *pSwitch, int iIdx)
 {
-   if (HasSwitch(pSwitch))
-   {
-	   NXCommandLine::iterator theIterator;
-
-      theIterator = find(pSwitch);
-	   if (theIterator!=end())
-      {
-         if ((*theIterator).second.m_strings.size() > iIdx)
-         {
-            return (*theIterator).second.m_strings[iIdx];
-         }
-      }
-   }
-
-   throw (int)0;
-
-   return "";
+	if (HasSwitch(pSwitch))
+	{
+		NXCommandLine::iterator theIterator;
+		
+		theIterator = find(pSwitch);
+		if (theIterator!=end())
+		{
+			if ((int)(*theIterator).second.m_strings.size() > iIdx)
+			{
+				return (*theIterator).second.m_strings[iIdx];
+			}
+		}
+	}
+	
+	throw (int)0;
+	
+	return "";
 }
 
 /*------------------------------------------------------
@@ -315,20 +315,20 @@ StringType NXCommandLine::GetArgument(const char *pSwitch, int iIdx)
 
 int NXCommandLine::GetArgumentCount(const char *pSwitch)
 {
-   int iArgumentCount = -1;
-
-   if (HasSwitch(pSwitch))
-   {
-	   NXCommandLine::iterator theIterator;
-
-      theIterator = find(pSwitch);
-	   if (theIterator!=end())
-      {
-         iArgumentCount = (*theIterator).second.m_strings.size();
-      }
-   }
-
-   return iArgumentCount;
+	int iArgumentCount = -1;
+	
+	if (HasSwitch(pSwitch))
+	{
+		NXCommandLine::iterator theIterator;
+		
+		theIterator = find(pSwitch);
+		if (theIterator!=end())
+		{
+			iArgumentCount = (*theIterator).second.m_strings.size();
+		}
+	}
+	
+	return iArgumentCount;
 }
 
 } // nanohive::
