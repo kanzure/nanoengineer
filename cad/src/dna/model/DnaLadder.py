@@ -72,7 +72,7 @@ from dna.model.DnaLadderRailChunk import make_or_reuse_DnaStrandChunk
     # note: if these imports are an issue, they could be moved
     # to a controller class, since they are needed only by remake_chunks method
 
-from dna.model.pam_conversion import DnaLadder_writemmp_mapping_memo
+from dna.model.pam_conversion_mmp import DnaLadder_writemmp_mapping_memo
 
 def _DEBUG_LADDER_FINISH_AND_MERGE():
     return debug_flags.DEBUG_DNA_UPDATER_VERBOSE # for now

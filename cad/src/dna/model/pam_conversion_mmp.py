@@ -1,6 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-pam_conversion.py -- help dna model objects convert between PAM models
+pam_conversion_mmp.py -- help dna model objects convert between PAM models during writemmp
 
 @author: Bruce
 @version: $Id$
@@ -24,8 +24,7 @@ from geometry.VQT import V
 
 # ==
 
-# refile with class writemmp_mapping
-
+# TODO: refile this with class writemmp_mapping:
 class writemmp_mapping_memo(object):
     mapping = None
     def __init__(self, mapping):

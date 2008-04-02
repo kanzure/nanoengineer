@@ -7,8 +7,8 @@ DnaLadderRailChunk.py - Chunk subclasses for axis and strand rails of a DnaLadde
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna.model.pam_conversion import DnaLadderRailChunk_writemmp_mapping_memo
-from dna.model.pam_conversion import DnaStrandChunk_writemmp_mapping_memo
+from dna.model.pam_conversion_mmp import DnaLadderRailChunk_writemmp_mapping_memo
+from dna.model.pam_conversion_mmp import DnaStrandChunk_writemmp_mapping_memo
 
 from model.chunk import Chunk
 

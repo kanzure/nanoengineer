@@ -866,7 +866,7 @@ class PAM_Atom_methods:
         assert direction in (1, -1)
         index = (direction == 1) # arbitrary ### clean up dup code when we have some
         Pl = fake_Pls[index]
-        from dna.model.pam_conversion import Fake_Pl # import cycle??? guess no...
+        from dna.model.pam_conversion_mmp import Fake_Pl # import cycle??? guess no...
         if Pl is None:
             Pl = fake_Pls[index] = Fake_Pl(self, direction)
                 ## not: self.__class__(Pl5, V(0,0,0))
