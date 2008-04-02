@@ -189,8 +189,8 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
         # so that's fine. We don't cache it between those since it's so likely to
         # become invalid, so not worth tracking that.
         if a2 is not None:
-            res = a2._f_get_fake_Pl( - Pl_STICKY_BOND_DIRECTION) # IMPLEM; can find cached, or make
-                # Note: res is not an Atom, and not part of undoable state.
+            res = a2._f_get_fake_Pl( - Pl_STICKY_BOND_DIRECTION)
+                # Note: res is not an Atom, and is not part of undoable state.
                 # It can act like an Atom in a few ways we use here --
                 # most importantly, having a fixed .key not overlapping a real atom .key.
             assert res is None or isinstance(res, Fake_Pl)
@@ -303,6 +303,7 @@ class Fake_Pl(object): #bruce 080327
         return
 
     def posn(self): # stub - average posn of Ss neighbors (plus offset in case only one!)
+        print "should use Pl_pos_from_neighbor_PAM3plus5_data for %r" % self #####
         from utilities.constants import average_value # seems to work here
         res = average_value( [n.posn() for n in self.neighbors()], V(0, 0, 0) )
         return res + V(0, 2, 0) # offset (kluge, wrong)

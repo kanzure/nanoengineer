@@ -11,18 +11,32 @@ Reference and explanation for PAM3+5 conversion formulas:
 http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordinates
 """
 
-from geometry.VQT import Q, V, norm, vlen, cross
+from geometry.VQT import Q, V, norm, vlen, cross, X_AXIS, Y_AXIS, Z_AXIS
+
+# PAM3+5 conversion constants (in Angstroms)
+#
+# for explanation, see:
+#
+# http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordinates
+
+######## NOT YET FINAL VALUES ########
+
+X_APRIME = 2.695 # x_a' (where _ means subscript)
+
+X_SPRIME = -0.772 # x_s'
+Y_SPRIME = -0.889 # y_s'
+
+# Note: these are approximate numbers (from Eric M)
+# based on what the current PAM3 and PAM5 generators are producing:
+#
+# x_a' =  2.695
+# x_s' = -0.772
+# y_s' = -0.889
+# x_g  =  8.657
+# y_m  =  6.198
 
 
-# PAM3+5 conversion constants
-# explanation: http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordinates
 
-# STUBS FOR ACTUAL VALUES
-
-X_APRIME = 1.0 # x_a' (where _ means subscript)
-
-X_SPRIME = 1.0 
-Y_SPRIME = 1.0
 
 SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0)
 
@@ -41,7 +55,7 @@ SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0)
 def baseframe_from_pam5_data(ss1, gv, ss2):
     """
     Given the positions of the Ss5-Gv5-Ss5 atoms in a PAM5 basepair,
-    return the first Ss5's baseframe as a tuple of
+    return the first Ss5's baseframe (and y_m) as a tuple of
     (origin, rel_to_abs_quat, y_m).
 
     @note: this is correct even if gv is actually an Ax5 position.
@@ -75,7 +89,7 @@ def baseframe_from_pam5_data(ss1, gv, ss2):
 def baseframe_from_pam3_data(ss1, ax, ss2):
     """
     Given the positions of the Ss3-Ax3-Ss3 atoms in a PAM3 basepair,
-    return the first Ss3's baseframe as a tuple of
+    return the first Ss3's baseframe (and y_m) as a tuple of
     (origin, rel_to_abs_quat, y_m).
     """
     yprime_vector = ss2 - ss1
@@ -100,18 +114,84 @@ def baseframe_from_pam3_data(ss1, ax, ss2):
 
     origin = Ss5_d_abspos
 
-    # y_m ??
+    # y_m = (|S'_u - S'_d| / 2) + y_s'
+    y_m = yprime_length / 2.0 + Y_SPRIME
 
     return ( origin, rel_to_abs_quat, y_m )
 
 # ==
 
+def other_baseframe_data( origin, rel_to_abs_quat, y_m): # bruce 080402
+    """
+    Given baseframe data for one base in a base pair,
+    compute it and return it for the other one.
+    """
+    # todo: optim: if this shows up in profiles, it can be optimized
+    # in various ways, or most simply, we can compute and return both
+    # baseframes at once from the baseframe_maker functions above,
+    # which already know these direction vectors.
+    #
+    # note: if this needs debugging, turn most of it into a helper function
+    # and assert that doing it twice gets values close to starting values.
+    direction_x = rel_to_abs_quat.rot(X_AXIS) 
+    direction_y = rel_to_abs_quat.rot(Y_AXIS)
+    direction_z = rel_to_abs_quat.rot(Z_AXIS)
+        # todo: optim: extract these more directly from the quat
+    other_origin = origin + 2 * y_m * direction_y #k
+    other_quat = Q( direction_x, - direction_y, - direction_z)
+    return ( other_origin, other_quat, y_m)
+
+# ==
+
 def baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos):
+    """
+    Using the baseframe specified by origin and rel_to_abs_quat,
+    transform the baseframe-relative position relpos
+    to an absolute position.
+    """
     # optimization: use 2 args, not a baseframe class with 2 attrs
     return origin + rel_to_abs_quat.rot( relpos )
 
 def baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos):
+    """
+    Using the baseframe specified by origin and rel_to_abs_quat,
+    transform the absolute position abspos
+    to a baseframe-relative position.
+    """
     # optimization: use 2 args, not a baseframe class with 2 attrs
     return rel_to_abs_quat.unrot( abspos - origin )
+
+# ==
+
+def default_Pl_relative_position(direction):
+    """
+    """
+    print "stub for default_Pl_relative_position"
+    return V(X_SPRIME, Y_SPRIME, - direction) #### STUB  --  @@@@ FIX (use direction to choose one of two different values)
+
+# ==
+
+def get_duplex_baseframes( baseframe_maker, data ): # @@@ CALL ME, mayb from DnaLadder
+    """
+    Given a list of three lists of positions (for the 3 rails
+    of a duplex DnaLadder, in the order strand1, axis, strand2),
+    and one of the baseframe_maker functions baseframe_from_pam3_data
+    or baseframe_from_pam5_data, construct and return a list of baseframes
+    for the strand sugars in the first rail, strand1.
+
+    @raise: various exceptions are possible if the data is degenerate
+            (e.g. if any minor groove angle is 0 or 180 degrees, or if
+            any atoms overlap within one basepair, or if these are almost
+            the case).
+
+    @warning: no sanity checks are done, beyond whatever is done inside
+              baseframe_maker.
+    """
+    # This could be optimized, either by using Numeric to reproduce
+    # the calculations in the baseframe_makers on entire arrays in parallel,
+    # or (probably better) by recoding this and everything it calls above
+    # into C and/or Pyrex. We'll see if it shows up in a profile.
+    r1, r2, r3 = data
+    return [baseframe_maker(a1,a2,a3) for (a1,a2,a3) in zip(r1,r2,r3)]
 
 # end

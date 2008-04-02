@@ -35,6 +35,14 @@ from model.bond_constants import DIRBOND_ERROR
 
 from utilities import debug_flags
 
+from dna.model.pam3plus5_math import baseframe_abs_to_rel
+from dna.model.pam3plus5_math import baseframe_rel_to_abs
+from dna.model.pam3plus5_math import default_Pl_relative_position
+    # import cycle? unlikely, that module won't need much.
+    # (could fold this into a ladder method if desired)
+
+from dna.model.pam3plus5_ops import Pl_pos_from_neighbor_PAM3plus5_data
+
 ##from geometry.VQT import V
 
 ##from foundation.state_constants import S_CHILDREN
@@ -155,7 +163,7 @@ class PAM_Atom_methods:
         ladder = self.molecule.ladder
         res = []
         if ladder: # in case dna updater failed or is not enabled
-            conversion_menu_spec = ladder.conversion_menu_spec(self) # IMPLEM in DnaLadder
+            conversion_menu_spec = ladder.conversion_menu_spec(self)
             if conversion_menu_spec:
                 if res: # never happens yet
                     res.append(None)
@@ -165,10 +173,146 @@ class PAM_Atom_methods:
         return res
     
     # == end of methods for either strand or axis PAM atoms
+
+    # == PAM Pl atom methods
+
+    # default values of instance variables
+    
+    _f_Pl_posn_is_definitive = True # friend attribute for temporary use by PAM3plus5 code on Pl atoms
+    
+    def Pl_preferred_Ss_neighbor(self): # bruce 080118, revised 080401
+        """
+        For self a Pl atom (PAM5), return the Ss neighbor
+        it prefers to be grouped with (e.g. in the same chunk,
+        or when one of its bonds is broken) if it has a choice.
+
+        (If it has no Ss atom, print bug warning and return None.)
+
+        @warning: the bond direction constant hardcoded into this method
+        is an ARBITRARY GUESS as of 080118. Also it ought to be defined
+        in some dna-related constants file (once this method is moved
+        to a dna-related subclass of Atom).
+        """
+        assert self.element is Pl5
+        candidates = [
+            # note: these might be None, or conceivably a non-Ss atom
+            self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
+            self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
+         ]
+        candidates = [c
+                      for c in candidates
+                      if c is not None and \
+                        c.element.symbol.startswith("Ss")
+                          # KLUGE, matches Ss3 or Ss5
+                      ]
+            # note: this cond excludes X (good), Pl (bug if happens, but good).
+            # It also excludes Sj and Hp (bad), but is only used from dna updater
+            # so that won't be an issue. Non-kluge variant would test for
+            # "a strand base atom".
+        candidates_PAM5 = [c for c in candidates if c.element.pam == MODEL_PAM5]
+            # Try these first, so we prefer Ss5 over Ss3 if both are present,
+            # regardless of bond direction. [bruce 080401]
+        for candidate in candidates_PAM5 + candidates:
+            # all necessary tests were done above
+            return candidate
+        print "bug: Pl with no Ss: %r" % self
+            # only a true statement (that this is a bug) when dna updater
+            # is enabled, but that's ok since we're only used then
+        return None
+
+    def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402 # @@@@ UNFINISHED; CALL ME
+        """
+        [friend method for dna updater]
+
+        Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
+        in the same or different DnaLadders,
+        and that self has proper directional bonds,
+        and that self's current position is meaningless or out of date
+        (and should be ignored).
+
+        Set self's position using the "PAM3plus5 Pl-position data" (if any)
+        stored on its neighbors, and remove that data from its neighbors.
+        (If that data is not present, use reasonable defaults.)
+
+        (Note that the analogous method on class Fake_Pl would *not*
+         remove that data from its neighbors.)
+
+        Assume that self's neighbors' DnaLadders have up-to-date stored
+        PAM basepair baseframe data to help do the necessary coordinate
+        conversions. (This might not be checked. Using out of date data
+        would cause hard-to-notice bugs.)
+
+        No effect on other "PAM3plus5 data" (if any) on those neighbors
+        (e.g. Gv-position data).
+        """
+        assert not self._f_Pl_posn_is_definitive
+
+        # note: the following function is also called by class Fake_Pl
+
+        abspos = Pl_pos_from_neighbor_PAM3plus5_data(
+                    self.bond_directions_to_neighbors(),
+                    remove_data_from_neighbors = True
+                 )
+        
+        print "_f_Pl_set_position_from_Ss3plus5_data(%r) will set %r on %r, now at %r" % (abspos, self, self.posn()) #######
+
+        self.setposn(abspos)
+        
+        del self._f_Pl_posn_is_definitive
+            # like doing self._f_Pl_posn_is_definitive = True,
+            # but expose class default value to save RAM
+        return
+
+    def _f_Pl_store_position_into_Ss3plus5_data(self): #bruce 080402 # @@@@ CALL ME
+        """
+        [friend method for dna updater]
+
+        Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
+        in the same or different DnaLadders,
+        and that self has proper directional bonds,
+        and that self's current position is definitive
+        (i.e. that any "PAM3plus5 Pl-position data" on self's
+         neighbors should be ignored, and can be entirely replaced).
+
+        Set the "PAM3plus5 Pl-position data" on self's Ss3 or Ss5
+        neighbors to correspond to self's current position.
+        (This means that self will soon be killed, with its neighbors
+         rebonded, and transmuted to Ss3 if necessary, but all that is
+         up to the caller.)
+
+        Assume that self's neighbors' DnaLadders have up-to-date stored
+        PAM basepair baseframe data to help do the necessary coordinate
+        conversions. (This might not be checked. Using out of date data
+        would cause hard-to-notice bugs.)
+
+        No effect on other "PAM3plus5 data" (if any) on those neighbors
+        (e.g. Gv-position data).
+        """
+        assert self._f_Pl_posn_is_definitive
+
+        # note: unlike with _f_Pl_set_position_from_Ss3plus5_data,
+        # this method has no analogous method used during writemmp-only
+        # PAM conversion -- either we're saving as PAM5 (moving data
+        # onto Pl, not off of it), or as pure PAM3 (no Pl data at all).
+        # PAM3+5 itself has no mmp format.
+
+        pos = self.posn()
+        for direction_to, ss in self.bond_directions_to_neighbors():
+            if ss.element.role == 'strand':
+                # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
+                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos)
+            continue
+
+        self._f_Pl_posn_is_definitive = False
+        return
+        
+    # == end of PAM Pl atom methods
     
     # == PAM strand atom methods (some are more specific than that,
-    # e.g. not on Pl or only on Pl)
-    
+    # e.g. not on Pl or only on Pl, but these are not yet divided up
+    # except that some methods or attrs have Pl or Ss in their names,
+    # and some of those have been moved into the Pl atom methods section above)
+
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         #bruce 080319 revised, mainly to support undo/copy
         """
@@ -686,45 +830,18 @@ class PAM_Atom_methods:
         # (if we do, revise docstring)
         return None
 
-    def Pl_preferred_Ss_neighbor(self): # bruce 080118, revised 080401
+    def bond_directions_to_neighbors(self): #bruce 080402
         """
-        For self a Pl atom (PAM5), return the Ss neighbor
-        it prefers to be grouped with (e.g. in the same chunk,
-        or when one of its bonds is broken) if it has a choice.
-
-        (If it has no Ss atom, print bug warning and return None.)
-
-        @warning: the bond direction constant hardcoded into this method
-        is an ARBITRARY GUESS as of 080118. Also it ought to be defined
-        in some dna-related constants file (once this method is moved
-        to a dna-related subclass of Atom).
+        @return: a list of pairs (bond direction to neighbor, neighbor)
+                 for all neighbor atoms to which our bonds are directional
+                 (including bondpoints, strand sugar atoms, or Pl atoms).
         """
-        assert self.element is Pl5
-        candidates = [
-            # note: these might be None, or conceivably a non-Ss atom
-            self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
-            self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
-         ]
-        candidates = [c
-                      for c in candidates
-                      if c is not None and \
-                        c.element.symbol.startswith("Ss")
-                          # KLUGE, matches Ss3 or Ss5
-                      ]
-            # note: this cond excludes X (good), Pl (bug if happens, but good).
-            # It also excludes Sj and Hp (bad), but is only used from dna updater
-            # so that won't be an issue. Non-kluge variant would test for
-            # "a strand base atom".
-        candidates_PAM5 = [c for c in candidates if c.element.pam == MODEL_PAM5]
-            # Try these first, so we prefer Ss5 over Ss3 if both are present,
-            # regardless of bond direction. [bruce 080401]
-        for candidate in candidates_PAM5 + candidates:
-            # all necessary tests were done above
-            return candidate
-        print "bug: Pl with no Ss: %r" % self
-            # only a true statement (that this is a bug) when dna updater
-            # is enabled, but that's ok since we're only used then
-        return None
+        res = []
+        for bond in self.bonds:
+            dir = bond.bond_direction_from(self)
+            if dir:
+                res.append( (dir, bond.other(self)) )
+        return res
     
     def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
         """
@@ -822,6 +939,10 @@ class PAM_Atom_methods:
         """
         [friend method for PAM3+5 -> PAM5 conversion code]
 
+        Assume self is a PAM3 or PAM5 strand sugar atom
+        (either PAM model is possible, at least transiently,
+         during PAM3+5 conversion).
+        
         Find or make, and return, a cached fake Pl5 atom
         with a properly allocated and unchanging atom.key,
         to be used in the PAM5 form of self if self does not
@@ -864,16 +985,104 @@ class PAM_Atom_methods:
         if not fake_Pls:
             fake_Pls = self._fake_Pls = [None, None]
         assert direction in (1, -1)
-        index = (direction == 1) # arbitrary ### clean up dup code when we have some
-        Pl = fake_Pls[index]
+        direction_index = (direction == 1) # arbitrary map from direction to [0,1] ### clean up dup code when we have some
+        Pl = fake_Pls[direction_index]
         from dna.model.pam_conversion_mmp import Fake_Pl # import cycle??? guess no...
         if Pl is None:
-            Pl = fake_Pls[index] = Fake_Pl(self, direction)
+            Pl = fake_Pls[direction_index] = Fake_Pl(self, direction)
                 ## not: self.__class__(Pl5, V(0,0,0))
         # obs cmt: maybe: let Pl be live, and if so, verify its bonding with self??
         assert isinstance(Pl, Fake_Pl)
         # nonsense: ## assert Pl.killed() # for now
         return Pl
+
+    _PAM3plus5_Pl_data = None
+    
+    def _f_store_PAM3plus5_Pl_abs_position(self, direction, abspos): #bruce 080402
+        """
+        [friend method for PAM3plus5 code, called from dna updater]
+
+        If self is a PAM3 or PAM5 strand sugar atom,
+        store "PAM3+5 Pl-position data" on self,
+        for a hypothetical (or actual) Pl in the given bond direction from self,
+        at absolute position abspos, converting this to a relative position
+        using the baseframe info corresponding to self stored in
+        self's DnaLadder, which must exist and be up to date
+        (assumed, not checked).
+
+        @warning: slow for non-end atoms of very long ladders, due to a
+                  linear search for self within the ladder. Could be optimized
+                  by passing an index hint if necessary.
+
+        @note: this method might be inlined, when called by Pls between
+               basepairs in the same DnaLadder, since much of it could be
+               optimized in a loop over basepairs in order (in that case).
+        """
+        assert direction in (1, -1)
+        if not self.element.symbol.startswith('Ss'): # kluge? needs to match Ss3 and Ss5, and not Pl
+            # not necessarily an error
+            print "fyi: _f_store_PAM3plus5_Pl_abs_position is a noop for %r" % self
+                # remove when works if routine; leave in if never seen, to notice bugs;
+                # current caller tries not to call in this case, so this should not happen
+            return
+        ladder = self.molecule.ladder
+        assert ladder
+        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+            # TODO: pass index hint to optimize?
+        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) ##### @@@@@ TODO: ensure up to date
+            # implem note: if we only store top baseframes, this will derive bottom ones on the fly
+        relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
+        if not self._PAM3plus5_Pl_data:
+            self._PAM3plus5_Pl_data = [None, None]
+        direction_index = (direction == 1)
+        self._PAM3plus5_Pl_data[direction_index] = relpos
+        print "fyi, on %r for direction %r stored relpos %r" % (self, direction, relpos) ####
+            ##### use these prints to get constants for default_Pl_relative_position @@@@
+        return 
+
+    def _f_recommend_PAM3plus5_Pl_abs_position(self,
+                    direction,
+                    remove_data = False,
+                    make_up_position_if_necessary = True ): #bruce 080402
+        """
+        #doc; return None or a position
+        """
+        data = None
+        if self._PAM3plus5_Pl_data:
+            direction_index = (direction == 1)
+            data = self._PAM3plus5_Pl_data[direction_index] # might be None
+            if remove_data:
+                self._PAM3plus5_Pl_data[direction_index] = None
+                # don't bother removing the [None, None] list itself
+                # (optim: should we remove it to conserve RAM??)
+        # data is None or a relative Pl position
+        if data is None:
+            if make_up_position_if_necessary:
+                return self._make_up_Pl_abs_position(direction)
+                    #k @@@@ can this be None? can self be non-Ss? can self be PAM5?
+                    # can this make use of more info than the "baseframe"? is it ever called when that's not there?
+                # don't store it, even if not remove_data
+                # (note: save and reload file *will* effectively store it)
+            else:
+                return None
+        else:
+            relpos = data
+            ladder = self.molecule.ladder
+            assert ladder
+            whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+            origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
+            return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+        pass # end of _f_recommend_PAM3plus5_Pl_abs_position
+
+    def _make_up_Pl_abs_position(self, direction): #bruce 080402
+        """
+        """
+        relpos = default_Pl_relative_position(direction)
+        ladder = self.molecule.ladder
+        assert ladder
+        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) # todo: factor this out, used in 3 places
+        return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
     
     # == end of PAM strand atom methods
     

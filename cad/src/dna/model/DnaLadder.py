@@ -92,6 +92,7 @@ from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
 from dna.updater.dna_updater_prefs import pref_per_ladder_colors
 
+from dna.model.pam3plus5_math import other_baseframe_data
 
 # ==
 
@@ -464,13 +465,19 @@ class DnaLadder(object):
         # DnaLadderRailChunk.delatom, so changed atoms inval their
         # entire ladders
         self.set_valid(False)
-        
-    def get_ladder_end(self, endBaseAtom):
+
+    # ==
+    
+    def get_ladder_end(self, endBaseAtom): # by Ninad
         """
-        Returns the end (0 or 1)of the ladder at the given end base atom
-        @param endBaseAtom: One of the end atoms of the ladder. If this can't be
-        found in the ladder end atoms, it returns None
+        Return the end (as a value in LADDER_ENDS) of the ladder self
+        which has the given end base atom, or None if the given atom
+        is not one of self's end_atoms. (If self has length 1, either
+        end might be returned.)
         
+        @param endBaseAtom: One of the end atoms of the ladder (or any
+                            other value, for which we will return None,
+                            though passing a non-Atom is an error).
         """
         for ladderEnd in LADDER_ENDS:
             if endBaseAtom in self.ladder_end_atoms(ladderEnd):
@@ -478,10 +485,13 @@ class DnaLadder(object):
         
         return None
     
-    def get_endBaseAtoms_containing_atom(self, baseAtom):
+    def get_endBaseAtoms_containing_atom(self, baseAtom): # by Ninad
         """
-        Returns a list of end Base atoms that contain <baseAtom> (including that
-        atom. 
+        Returns a list of end base atoms that contain <baseAtom> (including that
+        atom.
+
+        @see: other methods that return these atoms, sometimes in reverse order
+              depending on which end they are from, e.g. ladder_end_atoms.
         """
         endBaseAtomList = []
         sortedEndBaseAtomList = []
@@ -495,22 +505,22 @@ class DnaLadder(object):
         else:
             #@TODO: single stranded dna. Need to figure out if it has 
             #strand1 or strand2 as its strand.
+            # [always strand1, it guarantees this. --bruce]
             pass
-        
         
         strand1Atom = None
         axisAtom =  endBaseAtomList [1]
         strand2Atom = None
-        for atm in end_strand_base_atoms:     
-            if atm is not None:
-                temp_strand = atm.molecule        
+        for atom in end_strand_base_atoms:     
+            if atom is not None:
+                temp_strand = atom.molecule        
                 rail = temp_strand.get_ladder_rail()
                 #rail goes from left to right. (increasing chain index order)                
                 
                 if rail.bond_direction() == 1:
-                    strand1Atom = atm
+                    strand1Atom = atom
                 elif rail.bond_direction() == -1:
-                    strand2Atom = atm
+                    strand2Atom = atom
      
         endBaseAtomList = [strand1Atom, axisAtom, strand2Atom]
         
@@ -526,8 +536,82 @@ class DnaLadder(object):
                 return True
         
         return False
-    
 
+    def whichrail_and_index_of_baseatom(self, baseatom): # bruce 080402
+        """
+        Given one of self's baseatoms, possibly on any rail at any baseindex,
+        determine where it is among all self's baseatoms,
+        and return this in the form described below. Error if baseatom
+        is not found. basetom.element.role may be used to narrow down
+        which rails of self to examine.
+
+        @warning: slow for non-end atoms of very long ladders, due to a
+                  linear search for self within the ladder. Could be optimized
+                  by passing an index hint if necessary. Current code is
+                  optimized for baseatom being an end-atom, or a strand atom.
+
+        @return: (whichrail, index), where whichrail is in LADDER_RAIL_INDICES
+                 [i.e. 0, 1, or 2, maybe not yet formally defined]
+                 and index is from 0 to len(self) - 1, such that
+                 self.rail_at_index(whichrail).baseatoms[index] is baseatom.        
+        """
+        # TODO: pass index hint to optimize?
+        look_at_rails = self.rail_indices_and_rails(baseatom)
+        for index in range(-1, len(self) - 1):
+            # ends first (indices -1 and (if long enough) 0)
+            for whichrail, rail in look_at_rails:
+                if baseatom is rail.baseatoms[index]:
+                    # found it
+                    if index < 0:
+                        index += len(self)
+                    assert self.rail_at_index(whichrail).baseatoms[index] is baseatom # slow, remove when works ###
+                    return whichrail, index
+        assert 0, "can't find %r in %r, looking at %r" % \
+                  (baseatom, self, look_at_rails)
+        pass
+
+    def rail_indices_and_rails(self, baseatom): # bruce 080402
+        """
+        #doc
+
+        @see: LADDER_RAIL_INDICES
+        """
+        del baseatom # todo: optim: use .element.role to filter rails
+        # note: to optim some callers, return strand rails first
+        res = []
+        for i in range(len(self.strand_rails)):
+            # assert i < 2
+            res.append( (i * 2, self.strand_rails[i]) )
+        if self.axis_rail is not None:
+            res.append( (1, self.axis_rail) )
+        return res
+
+    def rail_at_index(self, whichrail): # bruce 080402
+        """
+        #doc
+
+        @note: call only on a value of whichrail that is known to
+               correspond to a rail present in self,
+               e.g. a value which was returned from a method in self,
+               e.g. rail_indices_and_rails or whichrail_and_index_of_baseatom.
+
+        @see: LADDER_RAIL_INDICES
+        """
+        if whichrail == 1:
+            return self.axis_rail
+        return self.strand_rails[whichrail / 2]
+
+    def _f_baseframe_data_at(self, whichrail, index): # bruce 080402 # refile within class?
+        """
+        #doc
+        """
+        baseframe_data = self._baseframe_data ### IMPLEM
+        if whichrail == 0:
+            return baseframe_data[index]
+        assert whichrail == 2
+        return other_baseframe_data( baseframe_data[index] )
+            # maybe: store this too (precomputed), as an optim
+        
     # == ladder-merge methods
     
     def can_merge(self):
@@ -869,6 +953,7 @@ class DnaLadder(object):
         """
         Return a list of all our rails (axis and 1 or 2 strands), in top to bottom order,
         using None for missing rails.
+        
         [implem is subclass-specific]
         """
         if len(self.strand_rails) == 2:
@@ -881,7 +966,8 @@ class DnaLadder(object):
             if not self.error:
                 self.error = "late-detected wrong number of strands, %d" % len(self.strand_rails)
                 print "\n***BUG: %r: %s" % (self, self.error)
-            return [None, self.axis_rail, None] # not sure this will work in callers
+            return [None, self.axis_rail, None] # not sure this will work in callers;
+                # note: this works even if self.axis_rail is None due to bugs
         pass
 
     def pam_model(self): #bruce 080401
@@ -1119,6 +1205,20 @@ class DnaLadder(object):
         On any conversion error, report to history (summary message),
         mark self with an error, and don't convert anything in self.
         On success, only report to history if debug_prefs desire this.
+        Return success-related flags.
+
+        @note: if conversion is wanted and succeeded, it is unfinished
+               regarding bridging Pl atoms between two strand-rail-ends
+               (usually of this and another ladder, but possibly between
+                two strand-rail-ends of this ladder). If any such atoms
+               will ultimately be needed on self, they are present, but
+               some atoms may be present which need to be killed; and
+               the position of live Pl atoms, and the related +5 data
+               on Ss3 atoms next to Pl atoms which need to be killed,
+               may not yet be fully updated. So, after all ladders have
+               been asked to convert, the caller needs to iterate over
+               them again to find bridging Pls to fix, and fix those.
+               [###doc the methods for this]
 
         @return: a pair of booleans: (conversion_wanted, conversion_succeeded).
         """
@@ -1224,6 +1324,7 @@ class DnaSingleStrandDomain(DnaLadder):
         """
         Return a list of all our rails (1 strand), in top to bottom order,
         using None for missing rails (so length of return value is 3).
+        
         [implem is subclass-specific]
         """
         return [self.strand_rails[0], None, None]

@@ -209,7 +209,7 @@ class DnaChain(object):
         and assertfail and/or print a debug warning if not.
         """
         ## assert self.strandQ
-        assert self.baseatoms
+        assert self.baseatoms, "%r has no baseatoms" % self
         if not self.strandQ:
             return
         assert self._bond_direction
