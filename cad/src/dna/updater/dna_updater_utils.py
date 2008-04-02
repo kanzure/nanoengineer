@@ -33,9 +33,10 @@ def replace_atom_class( atom, newclass, *atomdicts): #e refile?
     @param newclass: any subclass of Atom.
     @type newclass: class
 
-    @param atomdicts: zero or more dicts which map atm.key to atm
-                      and in which atom should be replaced with
-                      newatom if necessary.
+    @param atomdicts: zero or more dicts which map atom.key to atom
+                      (for any atom, not just the one passed)
+                      and in which atom (the one passed)
+                      should be replaced with newatom if necessary.
     @type atomdicts:  zero or more dictionaries.
     
     @return: None. (If newatom is needed, caller should get it
