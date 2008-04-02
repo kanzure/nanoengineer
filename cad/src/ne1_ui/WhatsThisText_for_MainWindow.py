@@ -239,9 +239,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
     editUndoText = \
         "<u><b>Undo</b></u>     (Ctrl + Z) "\
         "<p>"\
-        "<img source=\"ui/actions/Undo.png\"><br> "\
+        "<img source=\"ui/actions/Edit/Undo.png\"><br> "\
         "Reverses the last edit or command which changed structure "\
-        "or selection. <br><font color=\"#808080\">"\
+        "or selection. "\
         "</p>" 
     #bruce 060317 revised this text to reflect 
     #what it does in A7; 060320 added 1421-not-fixed warning
