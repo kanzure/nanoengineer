@@ -55,6 +55,7 @@ from geometry.VQT import cross
 from model.elements import Pl5
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS
+from utilities.constants import noop
 
 from utilities.Log import orangemsg, redmsg, quote_html
 
@@ -951,7 +952,7 @@ class DnaLadder(object):
                 # this pulls in all atoms belonging to rail
                 # (including certain kinds of attached atoms);
                 # it also may copy in certain kinds of info
-                # from their old chunk (e.g. hidden state?)
+                # from their old chunk (e.g. its .hidden state?)
             if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                 print "%r.remake_chunks made %r" % (self, chunk)
             chunk.color = old_chunk.color # works, at least if a color was set
@@ -960,6 +961,9 @@ class DnaLadder(object):
             # also works: part.addnode(chunk), which includes its own ensure_toplevel_group
             if ladder_color is not None:
                 chunk.color = ladder_color
+            if self.error:
+                #bruce 080401 kluge, not yet fully correct, explained in _f_convert_pam_if_desired
+                chunk.display_as_pam = None
             group.addchild(chunk)
             # todo: if you don't want this location for the added node chunk,
             # just call chunk.moveto when you're done,
@@ -1048,11 +1052,26 @@ class DnaLadder(object):
         (Other kinds of selobj might be permitted later.)
         """
         res = []
+        if len(self.strand_rails) == 2:
+            what = "basepair"
+        else:
+            what = "base"
+        if self.error or not self.valid:
+            # (this prevents reoffering a failed pam conversion
+            #  until you modify the ladder atoms enough for the
+            #  dna updater to remake the ladder)
+            # Report status of the ladder, if it's not ok.
+            if self.error:
+                text = "%s (%d %ss)" % (self.error, len(self), what)
+            else:
+                text = "invalid ladder (%d %ss)" % (len(self), what)
+            res.append( (text, noop, 'disabled') )
+            return res
         if self.pam_model() == MODEL_PAM3: # todo: fix_plurals
-            res.append( ("Convert %d basepairs to PAM5" % len(self),
+            res.append( ("Convert %d %ss to PAM5" % (len(self), what),
                          self.cmd_convert_to_pam5) )
         elif self.pam_model() == MODEL_PAM5:
-            res.append( ("Convert %d basepairs to PAM3" % len(self),
+            res.append( ("Convert %d %ss to PAM3" % (len(self), what),
                          self.cmd_convert_to_pam3) )
         # TODO:
         # later, add conversions between types of ladders (duplex, free strand, sticky end)
@@ -1115,6 +1134,17 @@ class DnaLadder(object):
         if not succeeded:
             summary_format = "Error: PAM conversion failed for [N] DnaLadder(s)"
             env.history.deferred_summary_message( redmsg( summary_format))
+            # Now change the chunk options so they don't keep trying to reconvert...
+            # this is hard, since self's chunks haven't yet been remade,
+            # so each atom might have different chunks and might share them with
+            # other ladders. Not sure what the best solution is... it's good if
+            # changing the ladder lets user try again, but nothing "automatically"
+            # tries again. Maybe wait and revise chunk options after ladder chunks
+            # are remade? For any error, or just a PAM error? I think any error.
+            # Ok, do that right in DnaLadder.remake_chunks. But what do we change
+            # them to? "nothing" is probably best, even though in some cases that
+            # means we'll retry a conversion. Maybe an ideal fix needs to know,
+            # per chunk, the last succeeding pam as well as the last desired one?
         return True, succeeded
 
     def _convert_to_pam(self, pam_model): #bruce 080401
@@ -1128,10 +1158,13 @@ class DnaLadder(object):
         If not, set an error in self and return False
         (but emit no messages).
         """
-        ###### STUB (but correct if this should always fail, i think):
-        print "_convert_to_pam(%r, %r) is NIM" % (self, pam_model) ###
-        self.set_error("_convert_to_pam is NIM") 
-        return False # simulate failure
+        if 'safety stub':
+            ###### STUB (but correct if this should always fail, i think):
+            print "_convert_to_pam(%r, %r) is NIM" % (self, pam_model) ###
+            self.set_error("_convert_to_pam is NIM") # bug: doesn't prevent command from being offered again, even if ladder unmodified
+            return False # simulate failure
+
+        
         
     pass # end of class DnaLadder
 
