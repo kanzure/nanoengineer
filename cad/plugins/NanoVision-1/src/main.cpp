@@ -4,6 +4,9 @@
 
 #include "main.h"
 
+static NXEntityManager* createEntityManager(QSettings *const settings);
+static NXGraphicsManager* createGraphicsManager(QSettings *const settings);
+
 
 /* FUNCTION: main */
 int main(int argc, char *argv[]) {
@@ -69,24 +72,12 @@ int main(int argc, char *argv[]) {
 	// Initialize entity manager and load import/export plugins
 	//splash->showMessage("Loading entity manager...");
 	//splash->repaint();
-	NXProperties* properties = new NXProperties();
 	
-	QString pluginsSearchPath =
-		settings->value("Miscellaneous/PluginsSearchPath").toString();
-	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
-	settings->beginGroup("NXEntityManager");
-	QStringList keys = settings->allKeys();
-	QStringList::const_iterator iter;
-	for (iter = keys.constBegin(); iter != keys.constEnd(); iter++)
-		properties->setProperty(qPrintable(*iter),
-								qPrintable(settings->value(*iter).toString()));
-	settings->endGroup();
-	NXEntityManager* entityManager = new NXEntityManager();
-	entityManager->loadDataImportExportPlugins(properties);
-	delete properties;
+	NXEntityManager *entityManager = createEntityManager(settings);
+	NXGraphicsManager *graphicsManager = createGraphicsManager(settings);
 	
 	// Create main window
-	nv1* mainWindow = new nv1(entityManager, logHandlerWidget);
+	nv1* mainWindow = new nv1(entityManager, graphicsManager, logHandlerWidget);
 	mainWindow->show();
 	//splash->repaint();
 	
@@ -99,6 +90,50 @@ int main(int argc, char *argv[]) {
 	NXLOG_DEBUG("main", "QApplication::exec() returned.");
 	delete app;
 	return appReturn;
+}
+
+
+NXEntityManager* createEntityManager(QSettings *const settings)
+{
+	NXProperties* properties = new NXProperties();
+	
+	QString pluginsSearchPath =
+		settings->value("Miscellaneous/PluginsSearchPath").toString();
+	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
+	settings->beginGroup("NXEntityManager");
+	QStringList keys = settings->allKeys();
+	QStringList::const_iterator iter;
+	for (iter = keys.constBegin(); iter != keys.constEnd(); iter++)
+		properties->setProperty(qPrintable(*iter),
+		                        qPrintable(settings->value(*iter).toString()));
+	settings->endGroup();
+	NXEntityManager* entityManager = new NXEntityManager();
+	entityManager->loadDataImportExportPlugins(properties);
+	delete properties;
+	
+	return entityManager;
+}
+
+
+NXGraphicsManager* createGraphicsManager(QSettings *const settings)
+{
+	NXProperties *properties = new NXProperties();
+	
+	QString pluginsSearchPath =
+		settings->value("Miscellaneous/PluginsSearchPath").toString();
+	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
+	settings->beginGroup("NXGraphicsManager");
+	QStringList keys = settings->allKeys();
+	QStringList::const_iterator iter;
+	for (iter = keys.constBegin(); iter != keys.constEnd(); iter++)
+		properties->setProperty(qPrintable(*iter),
+		                        qPrintable(settings->value(*iter).toString()));
+	settings->endGroup();
+	NXGraphicsManager *graphicsManager = new NXGraphicsManager();
+	graphicsManager->loadPlugins(properties);
+	delete properties;
+	
+	return graphicsManager;
 }
 
 

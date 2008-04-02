@@ -40,7 +40,9 @@ void NXSGDeleteTesterNode::deleteRecursive(void)
 
 void NXSceneGraphTest::setUp(void)
 {
+#ifdef NX_DEBUG
 	NXSGNode::ResetIdSource();
+#endif
     for(int i=0; i<6; ++i)
         nodes[i] = new NXSGApplyTesterNode;
     nodes[6] = new NXSGApplyBlockerNode;
@@ -59,8 +61,8 @@ void NXSceneGraphTest::tearDown(void)
 
 void NXSceneGraphTest::reset(void)
 {
-    for(int i=0; i<7; ++i)
-        nodes[i]->reset();
+//     for(int i=0; i<7; ++i)
+//         nodes[i]->reset();
 }
 
 void NXSceneGraphTest::makeTree(NXSGNode* nodes[7])
