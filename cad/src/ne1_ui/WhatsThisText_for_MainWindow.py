@@ -721,7 +721,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     viewRotate180ActionText = \
         "<u><b>Rotate View 180</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/View/Rotate_View_180.png.png\"><br> "\
+        "<img source=\"ui/actions/View/Rotate_View_180.png\"><br> "\
         "Rotates the view 180 degrees."\
         "</p>"
 
