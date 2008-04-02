@@ -311,6 +311,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
 
         self.exitMoveAction = QtGui.QWidgetAction(self.w)
         self.exitMoveAction.setText("Exit Move")
+        self.exitMoveAction.setWhatsThis("Exits Move Mode")
         self.exitMoveAction.setCheckable(True)
         self.exitMoveAction.setChecked(True)
         self.exitMoveAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))

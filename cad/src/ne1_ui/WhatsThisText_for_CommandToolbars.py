@@ -21,18 +21,20 @@ def whatsThisTextForCommandToolbarBuildButton(button):
     button.setWhatsThis(
         """<b>Build</b>
         <p>
-        whats this text for the Build button (menu).
+         Drop down menu for switching between NanoEngineer-1 build modes. 
+         Clicking the Build button will add these modes to the Command Explorer
         </p>""")
     return
 
 def whatsThisTextForCommandToolbarToolsButton(button):
     """
-    "What's This" text for the Tools button (menu).
+    Menu of Build tools.
     """
     button.setWhatsThis(
         """<b>Tools</b>
         <p>
-        whats this text for the Tools button (menu).
+        This is a drop down Tool menu. Clicking on the Tool button will add
+        these tools to the Command Explorer.
         </p>""")
     return
 
@@ -43,7 +45,8 @@ def whatsThisTextForCommandToolbarMoveButton(button):
     button.setWhatsThis(
         """<b>Move</b>
         <p>
-        whats this text for the Move button (menu).
+       This is a drop down menu of Move commands. Clicking on the Move button
+       will add these commands to the Command Explorer.
         </p>""")
     return
 
@@ -54,7 +57,10 @@ def whatsThisTextForCommandToolbarSimulationButton(button):
     button.setWhatsThis(
         """<b>Simulation</b>
         <p>
-        whats this text for Simulation button (menu).
+        This is a drop down menu containing Simulation modes (Run Dynamics
+        and Play Movie). The menu also contains the associated simulation jigs.
+        Clicking on the Simulation button will add these items to the Command
+        Explorer
         </p>""")
     return
 
@@ -89,23 +95,27 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.breakStrandAction.setWhatsThis(
         """<b>Break Strands</b>
         <p>
-        whats this text here
+        Enters Break Strand Mode where left clicking on a bond between DNA
+        pseudo-atoms breaks the bond. 
         </p>""")
     commandToolbar.joinStrandsAction.setWhatsThis(
         """<b>Join Strands</b>
         <p>
-        whats this text here
+        Enters Join Strand Mode where strands may be joined by dragging and 
+        dropping strand arrow heads on to their strand conjugate i.e. 3' on to
+        5' and vice versa. 
         </p>""")
     commandToolbar.dnaOrigamiAction.setWhatsThis(
         """<b>Origami</b>
         <p>
-        whats this text here
+        Enters DNA Origami mode- currently not implemented 
         </p>""")
     
     commandToolbar.orderDnaAction.setWhatsThis(
         """<b>Order DNA</b>
         <p>
-        whats this text here
+        Produces a text file containing the DNA strands and their assigned base
+        pair sequences for the all strands in the <b>selected</b> node. 
         </p>""")
         
     return
@@ -123,7 +133,7 @@ def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
     commandToolbar.insertNanotubeAction.setWhatsThis(
         """<b>Insert Nanotube</b>
         <p>
-        whats this text here
+        Displays the Insert Nanotube Property Manager
         </p>""")
     return
 
