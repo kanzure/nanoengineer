@@ -234,7 +234,7 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 
             # note: the initial res > diTUBES is an optimization kluge
             return defaultValue
         return res
-    
+
     try:
         res = dispNames.index(dispname)
     except ValueError:
@@ -242,10 +242,10 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): #bruce 
         pass
     else:
         return _return(res)
-    
+
     from GlobalPreferences import debug_pref_read_new_display_names
         # see comment for similar import -- temporary [bruce 080328]
-    
+
     if debug_pref_read_new_display_names():
         try:
             res = _new_dispNames.index(dispname)
@@ -265,6 +265,22 @@ properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
+
+# piotr 080402 added the following three constants
+
+# The estimated maximum sphere radius in any display style.
+# The maximum VdW atom radius is 5.0 A
+# It can be increased by 25% in User Preferences.
+# Highlighing increases this radius by 0.2A
+# Total = 5.0A * 1.25 + 0.2A = 6.2A 
+MAX_ATOM_SPHERE_RADIUS = 6.2
+
+# Margin value for boudning box (used in BoundingBox.py)
+BBOX_MARGIN = 1.8
+
+# The minimal bounding sphere radius for a single atom of VdW radius = 0.0
+# calculated as follows: BB_MIN_RADIUS = sqrt(3 * (BBOX_MARGIN) ^ 2)
+BBOX_MIN_RADIUS = 3.118
 
 def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
     """
@@ -321,7 +337,7 @@ for _disp in range(len(dispNames)):
         _content_for_disp = AC_INVISIBLE 
     else:
         _content_for_disp = \
-        (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
+                          (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
         # this uses bits 1 through len(dispNames) - 1, plus bit 0 for "any of those"
     ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)
 
@@ -376,10 +392,10 @@ def remove_prefix(str1, prefix):
 
     @param str1: a string that may or may not start with prefix.
     @type str1: string
-    
+
     @param prefix: a string to remove if it occurs at the beginning of str1.
     @type prefix: string
-    
+
     @return: a string, equal to str1 with prefix removed, or to str1.
     """
     if str1.startswith(prefix):
@@ -453,7 +469,7 @@ lightblue = ave_colors(0.03, white, blue)
 #Better call it brownish yellow or greenish brown?? lets just call it brown 
 #(or suggest better name by looking at it. ) - ninad 20070615
 brown = ave_colors(0.5, black, yellow) 
-                         
+
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 
 PickedColor = (0.0, 0.0, 1.0)

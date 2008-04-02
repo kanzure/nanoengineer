@@ -38,12 +38,12 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     for using the "Pyrex atoms" C/Pyrex code to optimize classes Atom and Bond?
     """
     global _pyrex_atoms_failed, _pyrex_atoms_succeeded, _pyrex_atoms_unwanted_this_session
-    
+
     if _pyrex_atoms_failed or _pyrex_atoms_unwanted_this_session:
         return False
     if _pyrex_atoms_succeeded:
         return True
-    
+
     res = debug_pref("Enable pyrex atoms in next session?",
                      Choice_boolean_False,
                      non_debug = True, # revised this option and menu text (thus prefs key), bruce 080221
@@ -52,9 +52,9 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     # uncomment the following line to temporarily override the above debug_pref,
     # e.g. to recover from trying it out and having it abort NE1 on startup
     # (hypothetical error, not known to happen):
-    
+
     ## res = False # do not commit with this line active
-    
+
     if res:
         # make sure it works, before telling caller to use it
         try:
@@ -80,11 +80,11 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
 
     if not res:
         _pyrex_atoms_unwanted_this_session = True # might be because it failed
-    
+
     assert _pyrex_atoms_failed or _pyrex_atoms_succeeded or _pyrex_atoms_unwanted_this_session
         # be sure we make up our mind whether to use them only once per session
         # (so debug pref change does not take effect until we rerun NE1)
-    
+
     return res
 
 def _test_atombase():
@@ -135,7 +135,7 @@ def _debug_pref_use_dna_updater(): #bruce 080320 moved this here from master_mod
                      Choice_boolean_True, #bruce 080317 False -> True
                      non_debug = True,
                      prefs_key = "A10/DNA: enable dna updater?" #bruce 080317 changed prefs_key
-                    )
+                 )
     return res
 
 def dna_updater_is_enabled(): #bruce 080320
@@ -151,11 +151,11 @@ def debug_pref_write_bonds_compactly(): #bruce 080328
     #  by containing it.
     res = debug_pref("mmp format: write dna bonds compactly?",
                      Choice_boolean_False,
-                         # we will change this to True as soon as all developers
-                         # have the necessary reading code
+                     # we will change this to True as soon as all developers
+                     # have the necessary reading code
                      non_debug = True,
                      prefs_key = "A10/mmp format: write bonds compactly? "
-                    )
+                 )
     return res
 
 def debug_pref_read_bonds_compactly(): #bruce 080328
@@ -163,7 +163,7 @@ def debug_pref_read_bonds_compactly(): #bruce 080328
                      Choice_boolean_True, # use False to simulate old reading code for testing
                      non_debug = True, # temporary
                      prefs_key = True # temporary
-                    )
+                 )
     return res
 
 # exercise them, to put them in the menu
@@ -175,12 +175,12 @@ debug_pref_read_bonds_compactly()
 def debug_pref_write_new_display_names(): #bruce 080328
     # note: reading code for this was made active a few days before 080328
     res = debug_pref("mmp format: write new display names?",
-                         # we will change this to True as soon as all developers
-                         # have the necessary reading code
+                     # we will change this to True as soon as all developers
+                     # have the necessary reading code
                      Choice_boolean_False,
                      non_debug = True,
                      prefs_key = "A10/mmp format: write new display names? "
-                    )
+                 )
     return res
 
 def debug_pref_read_new_display_names(): #bruce 080328
@@ -188,11 +188,24 @@ def debug_pref_read_new_display_names(): #bruce 080328
                      Choice_boolean_True, # use False to simulate old reading code for testing
                      non_debug = True, # temporary
                      prefs_key = True # temporary
-                    )
+                 )
     return res
 
 # exercise them, to put them in the menu
 debug_pref_write_new_display_names()
 debug_pref_read_new_display_names()
+
+# ==
+
+def use_frustum_culling(): #piotr 080401
+    """
+    If enabled, perform frustum culling in GLPane.
+    """
+    res = debug_pref("GLPane: enable frustum culling?",
+                     Choice_boolean_True,
+                     non_debug = True, 
+                     prefs_key = "A10/GLPane: enable frustum culling?") 
+
+    return res
 
 # end

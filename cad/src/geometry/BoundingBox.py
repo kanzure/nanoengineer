@@ -26,6 +26,9 @@ from Numeric import maximum, minimum, dot
 from geometry.VQT import V, A, cat
 from utilities.constants import black
 
+# piotr 080402 moved this to constants, default value = 1.8A 
+from utilities.constants import BBOX_MARGIN
+
 class BBox:
     """
     implement a bounding box in 3-space
@@ -58,13 +61,13 @@ class BBox:
         elif point1:
             # list of points: could be 2d or 3d?  +/- 1.8 to make the bounding 
             #box enclose the vDw ball of an atom?
-            self.data = V(maximum.reduce(point1) + 1.8, 
-                          minimum.reduce(point1) - 1.8)
+            self.data = V(maximum.reduce(point1) + BBOX_MARGIN, 
+                          minimum.reduce(point1) - BBOX_MARGIN)
         else:
             # a null bbox
             self.data = None
-    
-            
+
+
     def add(self, point):
         vl = cat(self.data, point)
         self.data = V(maximum.reduce(vl), minimum.reduce(vl))
@@ -94,7 +97,7 @@ class BBox:
         """
         Return the maximum distance from self's geometric center
         to any point in self (i.e. the corner-center distance).
-        
+
         Note: This is the radius of self's bounding sphere,
         which is as large as, and usually larger than, the
         bounding sphere of self's contents.
@@ -105,6 +108,7 @@ class BBox:
         """
         if not self.data: return 10.0
         #x=1.2*maximum.reduce(subtract.reduce(self.data))
+
         dd = 0.5*subtract.reduce(self.data)
             # dd = halfwidths in each dimension (x,y,z)
         x = sqrt(dd[0]*dd[0] + dd[1]*dd[1] + dd[2]*dd[2])

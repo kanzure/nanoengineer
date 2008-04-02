@@ -177,12 +177,15 @@ from utilities.constants import GL_FAR_Z
 from utilities.constants import bluesky
 from utilities.constants import white
 from utilities.constants import MULTIPANE_GUI
+from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
+from utilities.constants import BBOX_MIN_RADIUS
 
 from utilities.debug_prefs import Choice
 from utilities.debug_prefs import Choice_boolean_False
 from utilities.debug_prefs import debug_pref
 
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
+from utilities.GlobalPreferences import use_frustum_culling
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 
@@ -2741,14 +2744,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self._restore_modelview_stack_depth()
 
-        self._use_frustum_culling = \
-                debug_pref("GLPane: enable frustum culling?",
-                    Choice_boolean_False,
-                    non_debug = True,
-                    prefs_key = True )
+        self._use_frustum_culling = use_frustum_culling()
             # there is some overhead calling the debug_pref,
             # and we want the same answer used throughout
             # one call of paintGL
+            # piotr 080402: uses GlobalPreferences
         assert not self._frustum_planes_available
 
         # fog_test_enable debug_pref can be removed if fog is implemented fully
@@ -3110,7 +3110,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # [bruce 080331]
             assert not self._frustum_planes_available
             return
-        
+
         # get current projection and modelview matrices 
         pmat = glGetFloatv(GL_PROJECTION_MATRIX)
         mmat = glGetFloatv(GL_MODELVIEW_MATRIX)
@@ -3168,6 +3168,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                   GL matrices are in the same state as when _compute_frustum_planes
                   was last called (i.e. in absolute model space coordinates).
         """
+
+        ### uncomment the following line for the bounding sphere debugg
+        ### drawer.drawwiresphere(white, center, radius + 3.1, 1)
+
         if self._frustum_planes_available:
             for p in range(0, 6): # go through all frustum planes
                 # calculate a distance to the frustum plane 'p'
@@ -3177,7 +3181,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                          self.fplanes[p][2] * center[2] + 
                          self.fplanes[p][3])
                 # sphere outside of the plane - exit
-                if dist < - radius:
+                # piotr 080402: Add a correction for the true maximum
+                # DNA CPK atom radius.
+                # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
+                # = MAX_ATOM_SPHERE_RADIUS
+                # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
+                # = 3.11 A, so the difference = approx. 3.1 A
+                # The '0.5' is another 'fuzzy' safety margin, added here just 
+                # to be sure that all objects are within the sphere.
+                if dist < - (radius + (MAX_ATOM_SPHERE_RADIUS 
+                                       - BBOX_MIN_RADIUS) + 0.5):
                     return False
                 continue
             # At this point, the sphere might still be outside
@@ -3188,6 +3201,45 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             #  most chunks in typical uses where this is a speedup.)
             # [bruce 080331 comment]
             pass
+
+        return True
+
+    def is_lozenge_visible(self, pos1, pos2, radius): # piotr 080402
+        """
+        Perform a simple frustum culling test against a "lozenge" object
+        in absolute model space coordinates. The lozenge is a cylinder
+        with two hemispherical caps. Assume that the frustum planes 
+        are allocated, i.e. glpane._compute_frustum_planes was already called.
+        (If it wasn't, the test will always succeed.)
+
+        Currently, this is only a stub and it currently it calls 
+        glpane.is_sphere_visible. The radius parameter is used only if it 
+        exceeds the distance between the ends of the cylinder.
+
+        @warning: this will give incorrect results unless the current
+                  GL matrices are in the same state as when _compute_frustum_planes
+                  was last called (i.e. in absolute model space coordinates).
+
+        """
+
+        if self._frustum_planes_available:
+            center = 0.5*(pos1+pos2)
+            # Note: piotr 080402
+            # The 1.8 is a default maximum atom radius as used by BBox.
+            # The is_sphere_visible adds a correction for the true maximum
+            # atom radius. So, the 3.11 value used here should be replaced
+            # by a true maximum radius value when the is_sphere_visible
+            # method is not used anymore. BoundingBox class uses a constant
+            # 1.8 A to extend the bounding box, corresponding to a 
+            # radius = sqrt(3*(1.8)^2) = 3.11 A (BBOX_MIN_RADIUS)
+            sphere_radius = 0.5*vlen(pos2-pos1) + BBOX_MIN_RADIUS
+            if radius > sphere_radius:
+                sphere_radius = radius
+            res = self.is_sphere_visible(center, sphere_radius)
+
+            # Read Bruce's comment in glpane.is_sphere_visible
+            # It applies here, as well.
+            return res 
 
         return True
 

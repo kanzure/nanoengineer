@@ -167,11 +167,19 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
     # ==
 
-    def is_sphere_visible(self, center, radius):
+    def is_sphere_visible(self, center, radius): # piotr 080331
         """
         Frustum culling test. Subclasses should override it
         to disable drawing objects outside of the view frustum.
-        (piotr 080331)
+        """
+        return True
+
+    # ==
+
+    def is_lozenge_visible(self, pos1, pos2, radius): # piotr 080402
+        """
+        Frustum culling test for lozenge-shaped objects. Subclasses should 
+        override it to disable drawing objects outside of the view frustum.
         """
         return True
 

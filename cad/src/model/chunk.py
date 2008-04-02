@@ -127,6 +127,9 @@ from utilities.constants import noop
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
+#piotr 080402
+from utilities.GlobalPreferences import use_frustum_culling 
+
 from model.elements import PeriodicTable
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
@@ -1649,7 +1652,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         If the Chunk itself is selected, draw its bounding box as a
         wireframe; selected atoms are drawn specially by atom.draw.
         """
-        
+
         # piotr 080331 moved this assignment before visibility 
         # and frustum culling tests 
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
@@ -1658,10 +1661,12 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         if self.hidden:
             return
 
-        # early frustum clipping test # piotr 080331
-        if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
-            return
-            
+        # Frustum culling test # piotr 080331
+        # piotr 080401: Do not return yet, because external bonds 
+        # may be still drawn.
+        is_chunk_visible = glpane.is_sphere_visible(self.bbox.center(), 
+                                                    self.bbox.scale())
+
         ##e bruce 041109: can't we figure it out from mol.dad?
         # (in getattr or in a special method)
         #bruce 050804: this is now also used in self.changeapp(),
@@ -1699,131 +1704,160 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             #  instead, which avoids some unneeded redrawing, e.g. if pref changed and changed back while
             #  displaying a different Part. [bruce 060215])
 
-        #This is needed for chunk highlighting
-        glPushName(self.glname)
+        disp = self.get_dispdef(glpane) 
+            # piotr 080401: Moved it here, because disp is required by 
+            # _draw_external_bonds.
 
-        # put it in its place
-        glPushMatrix()
+        if is_chunk_visible:
+            # piotr 080401: If the chunk is culled, skip drawing, but still draw 
+            # external bonds (unless a separate debug pref is set.) 
+            # The frustum culling test is now performed individually for every
+            # external bond. 
 
-        try: #bruce 041119: do our glPopMatrix no matter what
-            # (note: as of 050609, this is an inlined version of part of self.pushMatrix())
-            origin = self.basecenter
-            glTranslatef(origin[0], origin[1], origin[2])
-            q = self.quat
-            glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
+            #This is needed for chunk highlighting
+            glPushName(self.glname)
 
-            disp = self.get_dispdef(glpane)
+            # put it in its place
+            glPushMatrix()
 
-##            delegate_selection_wireframe = False
-            delegate_draw_atoms = False
-            delegate_draw_chunk = False
-            hd = None
-            if 1:
-                #bruce 060608 look for a display mode handler for this chunk
-                # (whether it's a whole-chunk mode, or one we'll pass to the atoms as we draw them (nim)).
-                hd = get_display_mode_handler(disp)
-                # see if it's a chunk-only handler. If so, we don't draw atoms or chunk selection wireframe ourselves
-                # (we delegate those tasks to it).
-                if hd:
-                    chunk_only = hd.chunk_only
-##                    delegate_selection_wireframe = chunk_only
-                    delegate_draw_atoms = chunk_only
-                    delegate_draw_chunk = chunk_only #e maybe later, we'll let hd tell us each of these, based on the chunk state.
-                pass
+            try: #bruce 041119: do our glPopMatrix no matter what
+                # (note: as of 050609, this is an inlined version of part of self.pushMatrix())
+                origin = self.basecenter
+                glTranslatef(origin[0], origin[1], origin[2])
+                q = self.quat
+                glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
 
-            #bruce 060608 moved drawing of selection wireframe from here to after the new increment of _havelist_inval_counter
-            # (and split it into a new submethod), even though it's done outside of the display list.
-            # This was necessary for _drawchunk_selection_frame's use of memoized data to work.            
-            ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
+                # Moved to above - piotr 080401
+                # But what if there is an exception in self.get_dispdef ?
+                # disp = self.get_dispdef(glpane)
 
-            # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
-
-            # [bruce 050415 changed value of self.havelist when it's not 0,
-            #  from 1 to (disp,),
-            #  to fix bug 452 item 15 (no havelist inval for non-current parts
-            #  when global default display mode is changed); this will incidentally
-            #  optimize some related behaviors by avoiding some needless havelist invals,
-            #  now that we've also removed the now-unneeded changeapp of all mols upon
-            #  global dispdef change (in GLPane.setDisplay).]
-            # [bruce 050419 also including something for element radius and color prefs,
-            #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
-
-            eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
-            matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
-            #bruce 060215 adding drawLevel to havelist
-            if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
-                self.displist.draw_dl()
-            else:
+    ##            delegate_selection_wireframe = False
+                delegate_draw_atoms = False
+                delegate_draw_chunk = False
+                hd = None
                 if 1:
-                    #bruce 060608: record info to help per-chunk display modes
-                    # figure out whether they need to invalidate their memo data.
-                    if not self.havelist:
-                        # only count when it was set to 0 externally, not just when it doesn't match and we reset it below.
-                        # (Note: current code will also increment this every frame, when wantlist is false.
-                        #  I'm not sure what to do about that. Could we set it here to False rather than 0, so we can tell?? ##e)
-                        self._havelist_inval_counter += 1
-                    ##e in future we might also record eltprefs, matprefs, drawLevel (since they're stored in .havelist)
-                self.havelist = 0 #bruce 051209: this is now needed
-                try:
-                    wantlist = not env.mainwindow().movie_is_playing #bruce 051209
-                except:
-                    print_compact_traceback("exception (a bug) ignored: ")
-                    wantlist = True
-                if wantlist:
-                    ##print "Regenerating display list for %s" % self.name
-                    match_checking_code = self.begin_tracking_usage()
-                    #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
-                    #russ 080225: displist side effect allocates a ColorSortedDisplayList.
-                    #russ 080305: Chunk may already be selected, tell the CSDL.
-                    ColorSorter.start(self.displist, self.picked) # grantham 20051205
+                    #bruce 060608 look for a display mode handler for this chunk
+                    # (whether it's a whole-chunk mode, or one we'll pass to the atoms as we draw them (nim)).
+                    hd = get_display_mode_handler(disp)
+                    # see if it's a chunk-only handler. If so, we don't draw atoms or chunk selection wireframe ourselves
+                    # (we delegate those tasks to it).
+                    if hd:
+                        chunk_only = hd.chunk_only
+    ##                    delegate_selection_wireframe = chunk_only
+                        delegate_draw_atoms = chunk_only
+                        delegate_draw_chunk = chunk_only #e maybe later, we'll let hd tell us each of these, based on the chunk state.
+                    pass
 
-                # bruce 041028 -- protect against exceptions while making display
-                # list, or OpenGL will be left in an unusable state (due to the lack
-                # of a matching glEndList) in which any subsequent glNewList is an
-                # invalid operation. (Also done in shape.py; not needed in drawer.py.)
-                try:
-                    self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
-                except:
-                    print_compact_traceback("exception in Chunk.draw_displist ignored: ")
+                #bruce 060608 moved drawing of selection wireframe from here to after the new increment of _havelist_inval_counter
+                # (and split it into a new submethod), even though it's done outside of the display list.
+                # This was necessary for _drawchunk_selection_frame's use of memoized data to work.            
+                ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
 
-                if wantlist:
-                    ColorSorter.finish() # grantham 20051205
-                    #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
+                # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
 
-                    self.end_tracking_usage( match_checking_code, self.inval_display_list )
-                    # This is the only place where havelist is set to anything true;
-                    # the value it's set to must match the value it's compared with, above.
-                    # [bruce 050415 revised what it's set to/compared with; details above]
-                    self.havelist = (disp, eltprefs, matprefs, drawLevel)
-                    assert self.havelist, (
-                        "bug: havelist must be set to a true value here, not %r"
-                        % (self.havelist,))
-                    # always set the self.havelist flag, even if exception happened,
-                    # so it doesn't keep happening with every redraw of this Chunk.
-                    #e (in future it might be safer to remake the display list to contain
-                    # only a known-safe thing, like a bbox and an indicator of the bug.)
-                pass
+                # [bruce 050415 changed value of self.havelist when it's not 0,
+                #  from 1 to (disp,),
+                #  to fix bug 452 item 15 (no havelist inval for non-current parts
+                #  when global default display mode is changed); this will incidentally
+                #  optimize some related behaviors by avoiding some needless havelist invals,
+                #  now that we've also removed the now-unneeded changeapp of all mols upon
+                #  global dispdef change (in GLPane.setDisplay).]
+                # [bruce 050419 also including something for element radius and color prefs,
+                #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
 
-            #@@ninad 070219 disabling the following--
-            #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
+                eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
+                matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
+                #bruce 060215 adding drawLevel to havelist
+                if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
+                    self.displist.draw_dl()
+                else:
+                    if 1:
+                        #bruce 060608: record info to help per-chunk display modes
+                        # figure out whether they need to invalidate their memo data.
+                        if not self.havelist:
+                            # only count when it was set to 0 externally, not just when it doesn't match and we reset it below.
+                            # (Note: current code will also increment this every frame, when wantlist is false.
+                            #  I'm not sure what to do about that. Could we set it here to False rather than 0, so we can tell?? ##e)
+                            self._havelist_inval_counter += 1
+                        ##e in future we might also record eltprefs, matprefs, drawLevel (since they're stored in .havelist)
+                    self.havelist = 0 #bruce 051209: this is now needed
+                    try:
+                        wantlist = not env.mainwindow().movie_is_playing #bruce 051209
+                    except:
+                        print_compact_traceback("exception (a bug) ignored: ")
+                        wantlist = True
+                    if wantlist:
+                        ##print "Regenerating display list for %s" % self.name
+                        match_checking_code = self.begin_tracking_usage()
+                        #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
+                        #russ 080225: displist side effect allocates a ColorSortedDisplayList.
+                        #russ 080305: Chunk may already be selected, tell the CSDL.
+                        ColorSorter.start(self.displist, self.picked) # grantham 20051205
 
-            # piotr 080320
-            if hd:
-                hd._drawchunk_realtime(glpane, self)
+                    # bruce 041028 -- protect against exceptions while making display
+                    # list, or OpenGL will be left in an unusable state (due to the lack
+                    # of a matching glEndList) in which any subsequent glNewList is an
+                    # invalid operation. (Also done in shape.py; not needed in drawer.py.)
+                    try:
+                        self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
+                    except:
+                        print_compact_traceback("exception in Chunk.draw_displist ignored: ")
 
-            assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
-                   "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
-                # (we use `x` == `y` since x == y doesn't work well for these data types)
+                    if wantlist:
+                        ColorSorter.finish() # grantham 20051205
+                        #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
 
-            if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
-                self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+                        self.end_tracking_usage( match_checking_code, self.inval_display_list )
+                        # This is the only place where havelist is set to anything true;
+                        # the value it's set to must match the value it's compared with, above.
+                        # [bruce 050415 revised what it's set to/compared with; details above]
+                        self.havelist = (disp, eltprefs, matprefs, drawLevel)
+                        assert self.havelist, (
+                            "bug: havelist must be set to a true value here, not %r"
+                            % (self.havelist,))
+                        # always set the self.havelist flag, even if exception happened,
+                        # so it doesn't keep happening with every redraw of this Chunk.
+                        #e (in future it might be safer to remake the display list to contain
+                        # only a known-safe thing, like a bbox and an indicator of the bug.)
+                    pass
 
-        except:
-            print_compact_traceback("exception in Chunk.draw, continuing: ")
+                #@@ninad 070219 disabling the following--
+                #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
 
-        glPopMatrix()
+                # piotr 080320
+                if hd:
+                    hd._drawchunk_realtime(glpane, self)
 
-        glPopName()
+                assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
+                       "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
+                    # (we use `x` == `y` since x == y doesn't work well for these data types)
+
+                if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
+                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+
+            except:
+                print_compact_traceback("exception in Chunk.draw, continuing: ")
+
+            glPopMatrix()
+
+            glPopName()
+
+        draw_external_bonds = True # piotr 080401
+            # Added for the additional test - the external bonds could be still
+            # visible even if the chunk is culled.
+
+        # For extra performance, the user may skip drawing external bonds
+        # entirely if the frustum culling is enabled. This may have some side
+        # effects: problems in highlighting external bonds or missing 
+        # external bonds if both chunks are culled. piotr 080402
+        if debug_pref("GLPane: skip all external bonds for culled chunks",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True): 
+            # the debug pref has to be checked first
+            if not is_chunk_visible: # the chunk is culled piotr 080401
+                # so don't draw external bonds at all
+                draw_external_bonds = False
 
         # draw external bonds.
 
@@ -1833,18 +1867,23 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        if self.externs:
-            self._draw_external_bonds(glpane, disp, drawLevel)
+        if self.externs and draw_external_bonds:
+            self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
 
         return # from Chunk.draw()
 
-    def _draw_external_bonds(self, glpane, disp, drawLevel): #bruce 080215 split this out, added debug_pref
+    def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible=True): #bruce 080215 split this out, added debug_pref
         # piotr 080320: if this debug_pref is set, the external bonds 
         # are hidden whenever mouse is dragged. this speeds up interactive 
         # manipulation of DNA segments by a factor of 3-4x in tube 
         # or balls-and-sticks display styles.
         # this extends the prevoius condition to suppress the external
         # bonds during animation.
+        # piotr 080401: Added the 'is_chunk_visible' parameter default to True
+        # to indicate if the chunk is culled or not. Assume that if the chunk
+        # is not culled, we have to draw the external bonds anyway. 
+        # Otherwise, there is a significant performance hit for frustum
+        # testing the visible bonds. 
         in_drag = False
         if hasattr(glpane, "in_drag"): 
             in_drag = glpane.in_drag
@@ -1860,6 +1899,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                            non_debug = True,
                            prefs_key = True
                            )):
+            # check if frustum culling is enabled 
+            frustum_culling = use_frustum_culling()
+
             bondcolor = self.drawing_color()
             ColorSorter.start(None) # grantham 20051205 #russ 080225: Added arg.
 
@@ -1899,6 +1941,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     # Tree order). How to fix this is the subject of a current design
                     # discussion. [bruce 070928 comment]
                     repeated_bonds_dict[id(bond)] = bond
+                    if frustum_culling and not is_chunk_visible:
+                        # bond frustum culling test piotr 080401
+                        if not glpane.is_lozenge_visible(
+                            bond.atom1.posn(), bond.atom2.posn(), 2.0):
+                            # The radius is currently not used. It should be
+                            # replaced by a proper maximum bond radius
+                            # when the is_lozenge_visible method is fully
+                            # implemented. piotr 080401
+                            continue # skip the bond drawing if culled
                     bond.draw(glpane, disp, bondcolor, drawLevel)
             ColorSorter.finish() # grantham 20051205
         return # from _draw_external_bonds
@@ -1986,9 +2037,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #(Chunk.draw_highlighted on 2008-02-26
 
         # Early frustum clipping test. piotr 080331
+        # Could it cause any trouble by not drawing the external bonds?
         if not glpane.is_sphere_visible(self.bbox.center(), self.bbox.scale()):
             return
-            
+
         # Note: bool_fullBondLength represent whether full bond length is to be
         # drawn. It is used only in select Chunks mode while highlighting the 
         # whole chunk and when the atom display is Tubes display -- ninad 070214
