@@ -87,17 +87,18 @@ win32 : TARGETDEPS ~= s/.so/.a/g
 LIBS += -L../../../lib \
   -lNanorexUtility \
   -lNanorexInterface \
-  -lNXOpenGLRenderingEngine \
-  -lNXBallAndStickOpenGLRenderer \
   -L$(OPENBABEL_LIBPATH) \
   -lNXOpenGLSceneGraph \
   -lGLT \
   -lopenbabel
+# -lNXOpenGLRenderingEngine \
+# -lNXBallAndStickOpenGLRenderer \
 
-TARGETDEPS += ../../../lib/libNXBallAndStickOpenGLRenderer.so \
-  ../../../lib/libNXOpenGLRenderingEngine.so \
+TARGETDEPS += \
   ../../../lib/libNXOpenGLSceneGraph.a \
   ../../../lib/libGLT.a \
   ../../../lib/libNanorexInterface.so \
   ../../../lib/libNanorexUtility.so
+#  ../../../lib/libNXBallAndStickOpenGLRenderer.so \
+#  ../../../lib/libNXOpenGLRenderingEngine.so 
 
