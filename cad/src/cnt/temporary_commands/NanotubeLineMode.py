@@ -131,8 +131,8 @@ class NanotubeLineMode(LineMode):
     """
     
     # class constants    
-    commandName = 'CNT_LINE_MODE'    
-    featurename = "CNT Line Mode"
+    commandName = 'NANOTUBE_LINE_MODE'    
+    featurename = "Nanotube Line Mode"
         # (This featurename is sometimes user-visible,
         #  but is probably not useful. See comments in LineMode
         #  for more info and how to fix. [bruce 071227])

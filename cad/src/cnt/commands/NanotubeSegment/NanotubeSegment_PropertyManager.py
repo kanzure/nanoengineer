@@ -20,7 +20,6 @@ from PM.PM_Constants     import pmCancelButton
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
-from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength, getCntLength
 
 from geometry.VQT import V, vlen
 
@@ -41,7 +40,7 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Cnt Segment Properties"
+    title         =  "Nanotube Properties"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
@@ -57,18 +56,14 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         
+        # Initialized here. Their values will be set in
+        # _update_widgets_in_PM_before_show()
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
-                
-        self._numberOfCells = 0 
-        self._type = 'Carbon'
-        self.cntRise = 2.00
-        self.cellsPerTurn = 0
         
         EditCommand_PM.__init__( self, 
                                     win,
                                     editCommand)
-
 
         DebugMenuMixin._init1( self )
 
@@ -88,16 +83,7 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-         
-                
-        change_connect( self.numberOfCellsSpinBox,
-                      SIGNAL("valueChanged(int)"),
-                      self.numberOfCellsChanged )
         
-        change_connect( self.cntRiseDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.cntRiseChanged )
-    
     def show(self):
         """
         Show this property manager. Overrides EditCommand_PM.show()
@@ -111,7 +97,6 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             name = self.editCommand.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)
-            
     
     def close(self):
         """
@@ -136,30 +121,16 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         - See also the routines GraphicsMode.setParams or object.setProps
         ..better to name them all in one style?  
         """
-        #Set the cnt rise and cells per turn spinbox values. 
-        cntRise, cellsPerTurn = params 
-        if cntRise:
-            self.cntRiseDoubleSpinBox.setValue(cntRise)
-        #if cellsPerTurn:
-        #    self.cellsPerTurnDoubleSpinBox.setValue(cellsPerTurn)
-        
+        self.nanotube = params #@ BUG
         
     def getParameters(self):
         """
+        Get the parameters that the edit command will use to determine if
+        any have changed. If any have, then the nanotube will be modified.
         """
-        numberOfCells = self.numberOfCellsSpinBox.value()
-        dnaForm  = 'B-DNA'
-        cellsPerTurn = self.cellsPerTurn
-        cntRise = self.cntRise
-        dnaModel = 'PAM-3'
-      
-        return (numberOfCells, 
-                dnaForm,
-                dnaModel,
-                cellsPerTurn,
-                cntRise,
-                self.endPoint1, 
-                self.endPoint2)
+        return (self.n, self.m, 
+                self.type, 
+                self.endPoint1, self.endPoint2)
     
     def _update_widgets_in_PM_before_show(self):
         """
@@ -170,44 +141,17 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         """
         if self.editCommand is not None and self.editCommand.hasValidStructure():
-        
-            self.endPoint1, self.endPoint2 = self.editCommand.struct.getAxisEndPoints()
-                           
-            cntLength = vlen(self.endPoint1 - self.endPoint2)
-        
-            numberOfCells = getNumberOfCellsFromCntLength(cntLength) 
-            
-            self.numberOfCellsSpinBox.setValue(numberOfCells) 
-            #Set the number of cells field. Note that 
-            #_update_widgets_in_PM_before_show is called in self.show, before
-            #you connect the signals. So, for the 'first show' we will need to 
-            #manually set the value of the cnt length in that field. 
-            #But later, whan a different NanotubeSegment is clicked, (while still in 
-            #NanotubeSegment_EditCommand, the propMgr will already be connected 
-            #so the call below in that case is redundant (but harmless)
-            self.numberOfCellsChanged(numberOfCells)
-    
-    def numberOfCellsChanged( self, numberOfCells ):
-        """
-        Slot for the B{Number of Cells} spinbox.
-        """
-        # Update the Cnt Length lineEdit widget.
-        text = str(getCntLength(self._type, numberOfCells)) \
-             + " Angstroms"
-        self.cntLengthLineEdit.setText(text)
-        return
-    
-    def cellsPerTurnChanged( self, cellsPerTurn ):
-        """
-        Slot for the B{Cells per turn} spinbox.
-        """
-        self.cellsPerTurn = cellsPerTurn
-        
-    def cntRiseChanged( self, rise ):
-        """
-        Slot for the B{Rise} spinbox.
-        """
-        self.cntRise = rise
+            self.n, self.m = self.editCommand.struct.nanotube.getChirality()
+            self.type = self.editCommand.struct.nanotube.getType()
+            self.endPoint1, self.endPoint2 = self.editCommand.struct.nanotube.getEndPoints()
+            # Note that _update_widgets_in_PM_before_show() is called in 
+            # self.show, before you connect the signals. So, for the 
+            # 'first show' we will need to manually set the value of any
+            # widgets that need updated. But later, when a different 
+            # NanotubeSegment is clicked, (while still in 
+            # NanotubeSegment_EditCommand, the propMgr will already be connected 
+            # so any calls in that case is redundant.
+            self.updateLength()
         
     def _addGroupBoxes( self ):
         """
@@ -226,34 +170,15 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          label         =  "Segment name:",
                          text          =  "",
                          setAsDefault  =  False)
-                                                   
-        # Number of cells
-        self.numberOfCellsSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of Cells:", 
-                        value         =  self._numberOfCells,
-                        setAsDefault  =  False,
-                        minimum       =  0,
-                        maximum       =  10000 )
-        
-        self.cntRiseDoubleSpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Rise:",
-                              value         =  self.cntRise,
-                              setAsDefault  =  True,
-                              minimum       =  2.0,
-                              maximum       =  4.0,
-                              decimals      =  3,
-                              singleStep    =  0.01 )
-
-        # Cnt Length
-        self.cntLengthLineEdit  =  \
+    
+        # Nanotube Length
+        self.ntLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
                          label         =  "Length: ",
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 
-        self.cntLengthLineEdit.setDisabled(True)  
+        self.ntLengthLineEdit.setDisabled(True)  
     
     def _addWhatsThisText(self):
         """
@@ -266,5 +191,14 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Add Tooltip text
         """
         pass
+    
+    def updateLength( self ):
+        """
+        Update the nanotube Length lineEdit widget.
+        """
+        nanotubeLength = vlen(self.endPoint1 - self.endPoint2)
+        text = "%-7.4f Angstroms" % (nanotubeLength)
+        self.ntLengthLineEdit.setText(text)
+        return
     
         

@@ -58,9 +58,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Nanotube Properties"
+    title         =  "Nanotube Group"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
+    iconPath      =  "ui/actions/Tools/Build Structures/NanotubeGroup.png"
 
     def __init__( self, win, editCommand ):
         """
@@ -257,7 +257,6 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand:
             self.editCommand.cancelStructure()            
         self.win.toolsCancel()
-        
     
     def close(self):
         """

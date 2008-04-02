@@ -50,11 +50,16 @@ if not basepath_ok:
 
 class Nanotube:
     """
-    Nanotube base class.
+    Nanotube class. Supports both Carbon Nanotubes (CNTs) or Boron Nitride
+    Nanotubes (BNNT).
     """
+    n = 5
+    m = 5
+    type = "Carbon"
     endPoint1 = None
     endPoint2 = None
     endings = "None" # "None", "Hydrogen" or "Nitrogen". "Capped" NIY.
+    
     zdist  = 0.0 # Angstroms
     xydist = 0.0 # Angstroms
     twist  = 0   # Degrees/Angstrom
@@ -62,47 +67,30 @@ class Nanotube:
     numwalls = 1 # Single
     spacing  = 2.46 # Spacing b/w MWNT in Angstroms 
     
-    def __init__(self, n = 5, m = 5, type = "Carbon", bond_length = None):
+    def __init__(self):
         """
-        Constructor. Creates an instance of Nanotube, which contains the
-        parameters and helper methods for a nanotube.
-        """
-        self.n = n
-        self.m = m
-        assert type in ntTypes
-        self.type = type
-        if bond_length:
-            self.bond_length = bond_length
-        else:
-            self.bond_length = ntBondLengths[ntTypes.index(type)]
-        self.update()
+        Constructor. Creates an instance of a Nanotube.
         
-    def update(self, n = None, m = None, type = None, bond_length = None):
+        By default, the nanotube is a 5x5 Carbon Nanotube. Use the set methods
+        to change the nanotube's chirality and type (i.e. Boron Nitride). 
         """
-        Updates all the chirality attrs based on new n, m, type and/or
-        bond_length values.
-        """
-        if n:
-            self.n = n
-        else:
-            n = self.n
-        if m:
-            self.m = m
-        else:
-            m = self.m
-            
-        if type:
-            assert type in ntTypes
-            self.type = type
-        else:
-            type = self.type
+        self.setBondLength()
+        self._computeRise() # Assigns default rise value.
+        self._update()
         
-        if bond_length:
-            self.bond_length = bond_length
-        else:
-            bond_length = self.bond_length
-            
-        self.setRise() #@ Not correctly implemented yet. See comments in method.
+    def _update(self):
+        """
+        Private method.
+        
+        Updates all chirality parameters whenever the following attrs are
+        changed via their set methods: 
+        - n, m, 
+        - type 
+        - bond_length
+        """
+        n, m = self.getChirality()
+        type = self.getType()
+        bond_length = self.getBondLength()
         
         self.maxlen = maxlen = 1.2 * bond_length
         self.maxlensq = maxlen**2
@@ -192,6 +180,8 @@ class Nanotube:
         self.n = n
         self.m = m
         
+        self._update()
+        
         return self.getChirality()
     
     def getChirality(self):
@@ -202,6 +192,38 @@ class Nanotube:
         @rtype:  int, int
         """
         return (self.n, self.m)
+    
+    def getChiralityN(self):
+        """
+        Returns the n chirality of self.
+        
+        @return: n
+        @rtype:  int
+        """
+        return self.n
+    
+    def getChiralityM(self):
+        """
+        Returns the m chirality of self.
+        
+        @return: m
+        @rtype:  int
+        """
+        return self.m
+    
+    def setType(self, type):
+        """
+        Sets the type of nanotube.
+        
+        @param type: the type of nanotube, either "Carbon" or "Boron Nitride"
+        @type  type: string
+        
+        @warning: This resets the bond length based on type.
+        """
+        assert type in ntTypes
+        self.type = type
+        self.setBondLength() # Calls _update().
+        return
     
     def getType(self):
         """
@@ -230,15 +252,20 @@ class Nanotube:
         """
         return self.R * 2.0
     
-    def setBondLength(self, bond_length):
+    def setBondLength(self, bond_length = None):
         """
         Sets the I{bond length} between two neighboring atoms in self.
         
-        @param bond_length: The bond length in Angstroms.
+        @param bond_length: The bond length in Angstroms. If None, it will be
+                            assigned a default value based on the current 
+                            nanotube type.
         @type  bond_length: float
         """
-        self.bond_length
-        self.update(bond_length = bond_length)
+        if bond_length:
+            self.bond_length = bond_length
+        else:
+            self.bond_length = ntBondLengths[ntTypes.index(self.type)]
+        self._update()
         return 
     
     def getBondLength(self):
@@ -280,11 +307,19 @@ class Nanotube:
     def getEndPoints(self):
         return (self.endPoint1, self.endPoint2)
     
-    def setRise(self): #@ See Python get/set attr builtin methods.
+    def _computeRise(self): #@ See Python get/set attr builtin methods.
         """
+        Private method.
+        
         Sets the rise. This needs to be called anytime a parameter of self
         changes.
+        
+        This is primarlity used for determining the distance between ladder 
+        rungs when drawing the nanotube ladder, during interactive drawing.
+
+        @attention: The computed rise is a hack. Feel free to fix.
         """
+        
         # Need formula to compute rise.
         # I'm sure this is doable, but I need to research it further to learn
         # how to compute rise from these params. --Mark 2008-03-12
@@ -297,13 +332,16 @@ class Nanotube:
     def getRise(self):
         """
         Returns the nanotube U{rise}.
+        
+        This is primarlity used for determining the distance between ladder 
+        rungs when drawing the nanotube ladder, during interactive drawing.
 
         @return: The rise in Angstroms.
         @rtype: float
         """
         return self.rise
     
-    def getLength(self, numberOfCells):
+    def getLengthFromNumberOfCells(self, numberOfCells):
         """
         Returns the nanotube length (in Angstroms) given the number of cells.
         
@@ -315,6 +353,13 @@ class Nanotube:
         """
         assert numberOfCells >= 0
         return self.rise * (numberOfCells - 1)
+    
+    def getLength(self):
+        """
+        Returns the length of the nanotube.
+        """
+        endPoint1, endPoint2 = self.getEndPoints()
+        return vlen(endPoint1 - endPoint2)
 
     def populate(self, mol, length):
         """

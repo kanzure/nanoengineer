@@ -40,10 +40,6 @@ from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
-from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
-
-ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
-
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertNanotube_PropertyManager
 
 class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -74,13 +70,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.endPoint1 = None
         self.endPoint2 = None
         
-        self.nanotube = Nanotube(n = 5, m = 5, type = "Carbon") # A 5x5 CNT.
-        
-        if 1: # place in method.
-            self.n, self.m = self.nanotube.getChirality()
-            self._ntType  = self.nanotube.getType()
-            self._bond_length = self.nanotube.getBondLength()
-            self._ntRise   = self.nanotube.getRise()
+        self.nanotube = Nanotube() # A 5x5 CNT.
     
         EditCommand_PM.__init__( self, 
                                  win,
@@ -106,7 +96,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.disconnect 
         
         change_connect( self.ntTypeComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
+                      SIGNAL("currentIndexChanged(const QString&)"),
                       self._ntTypeComboBoxChanged )
         
         change_connect(self.chiralityNSpinBox,
@@ -273,7 +263,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.ntRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
-                              value         =  self._ntRise,
+                              value         =  self.nanotube.getRise(),
                               setAsDefault  =  True,
                               minimum       =  2.0,
                               maximum       =  4.0,
@@ -304,7 +294,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.chiralityNSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (n) :", 
-                        value        = self.n, 
+                        value        = self.nanotube.getChiralityN(), 
                         minimum      =  2,
                         maximum      =  100,
                         setAsDefault = True )
@@ -312,7 +302,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.chiralityMSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label        = "Chirality (m) :", 
-                        value        = self.m,
+                        value        = self.nanotube.getChiralityM(),
                         minimum      =  0,
                         maximum      =  100,
                         setAsDefault = True )
@@ -325,7 +315,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.bondLengthDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label        = "Bond Length :", 
-                              value        = CC_GRAPHITIC_BONDLENGTH, 
+                              value        = self.nanotube.getBondLength(), 
                               setAsDefault = True,
                               minimum      = 1.0, 
                               maximum      = 3.0, 
@@ -333,7 +323,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                               decimals     = 3, 
                               suffix       = " Angstroms" )
         
-        self.bondLengthDoubleSpinBox.hide()
+        #self.bondLengthDoubleSpinBox.hide()
         
         endingChoices = ["None", "Hydrogen", "Nitrogen"]
         
@@ -486,7 +476,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._setEndPoints()
         return (self.nanotube)
 
-    def _ntTypeComboBoxChanged( self, inIndex ):
+    def _ntTypeComboBoxChanged( self, type ):
         """
         Slot for the Type combobox. It is called whenever the
         Type choice is changed.
@@ -494,21 +484,16 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @param inIndex: The new index.
         @type  inIndex: int
         """
-        type  =  self.ntTypeComboBox.currentText()
-
-        if type not in ("Carbon", "Boron Nitride"):
-            msg = redmsg("ntTypeComboBoxChanged(): \
-                         Error - unknown nanotube type. Index = "+ inIndex)
-            env.history.message(msg)
-        
-        self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
+        self.nanotube.setType(str(type))
+        print "Bond Length =", self.nanotube.getBondLength()
+        self.bondLengthDoubleSpinBox.setValue(self.nanotube.getBondLength())
+        #self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
         
     def _bondLengthChanged(self, bondLength):
         """
         Slot for the B{Bond Length} spinbox.
         """
-        # Consider moving this code into chiralityFixup(). --Mark
-        self._bond_length = bondLength
+        self.nanotube.setBondLength(bondLength)
         self.updateNanotubeDiameter()
         return
     
@@ -522,16 +507,14 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None  
         """        
-        self.n, self.m = \
-            self.nanotube.setChirality(
-                self.chiralityNSpinBox.value(), 
-                self.chiralityMSpinBox.value())
+        _n, _m = self.nanotube.setChirality(self.chiralityNSpinBox.value(), 
+                                            self.chiralityMSpinBox.value())
         
         #self.n, self.m = self.nanotube.getChirality()
         
         self.connect_or_disconnect_signals(isConnect = False)
-        self.chiralityNSpinBox.setValue(self.n)
-        self.chiralityMSpinBox.setValue(self.m)
+        self.chiralityNSpinBox.setValue(_n)
+        self.chiralityMSpinBox.setValue(_m)
         self.connect_or_disconnect_signals(isConnect = True)
         
         self.updateNanotubeDiameter()
@@ -540,9 +523,6 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Update the nanotube Diameter lineEdit widget.
         """
-        self.nanotube.update(self.n, self.m, 
-                             self._ntType, 
-                             self._bond_length)
         diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
         self.ntDiameterLineEdit.setText(diameterText)
         

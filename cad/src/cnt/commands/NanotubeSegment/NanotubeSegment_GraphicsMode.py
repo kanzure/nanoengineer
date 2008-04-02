@@ -47,7 +47,7 @@ import foundation.env as env
 
 import math
 from geometry.VQT import V, norm, A, Q, vlen
-from utilities.constants import darkred, blue, black
+from utilities.constants import gray, black, darkred
 from utilities.debug import print_compact_traceback
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
@@ -219,12 +219,12 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
 
     def leftADown(self, event):
         """
-        Method called during mouse left down . It sets some parameters 
+        Method called during mouse left down. It sets some parameters 
         necessary for rotating the structure around its own axis (during 
-        a left drag to follow) In graphics modes such as 
+        a left drag to follow). In graphics modes such as 
         RotateChunks_GraphicsMode, rotating entities around their own axis is 
-        acheived by holding down 'A' key and then left dragging , thats why the 
-        method is named as 'leftADrag'  (A= Axis) 
+        acheived by holding down 'A' key and then left dragging, thats why the 
+        method is named as 'leftADrag' (A= Axis).
         """
         ma = V(0, 0, 0)
         if self.command and self.command.struct:
@@ -252,8 +252,6 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         Method called during Left up event. 
         """
-             
-                
         _superclass.leftUp(self, event)  
         
         self.update_selobj(event)
@@ -361,7 +359,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                        self.o.MousePos[1] - event.pos().y())
 
         a =  dot(self.Zmat, deltaMouse)
-        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)       
+        dx, dy =  a * V(self.o.scale / (h * 0.5), 2 * math.pi / w)       
 
         movables = []
         rotateAboutAxis = False
@@ -381,25 +379,18 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #segment and all its members are chunks only. Also note that 
             #movables are NOT the 'selected' objects here. 
             movables = self.command.struct.members
-            if isinstance(self.o.selobj, Atom) and \
-               self.o.selobj.element.role == 'axis':                
+            if isinstance(self.o.selobj, Atom):                
                 translateAlongAxis = True
                 rotateAboutAxis = False
-                freeDragWholeStructure = False
-            elif isinstance(self.o.selobj, Atom) and \
-                 self.o.selobj.element.role == 'strand':
-                translateAlongAxis = False
-                rotateAboutAxis = True
                 freeDragWholeStructure = False
             elif isinstance(self.o.selobj, Bond):
                 translateAlongAxis = False
                 rotateAboutAxis = False
                 freeDragWholeStructure = True
         
-
         if translateAlongAxis:
             for mol in movables:
-                mol.move(dx*resAxis)
+                mol.move(dx * resAxis)
 
         if rotateAboutAxis:
             #Don't include the axis chunk in the list of movables. 
@@ -419,7 +410,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             ##for chunk in new_movables:
                 ##if chunk.isAxisChunk():
                     ##new_movables.remove(chunk)
-            self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
+            self.o.assy.rotateSpecifiedMovables(Q(resAxis, -dy), 
                                                 movables = movables) 
         
         if freeDragWholeStructure:
@@ -428,6 +419,16 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 offset = point - self.movingPoint
                 self.o.assy.translateSpecifiedMovables(offset, movables = movables)
                 self.movingPoint = point
+                
+                endPt1, endPt2 = self.command.struct.nanotube.getEndPoints()
+                endPt1 += offset
+                endPt2 += offset
+                
+                print "leftDrag(): endPt1=", endPt1
+                print "leftDrag(): endPt2=", endPt2
+                
+                self.command.struct.nanotube.setEndPoints(endPt1, endPt2)
+                
             except:
                 #may be self.movingPoint is not defined in leftDown? 
                 #(e.g. _superclass.leftDown doesn't get called or as a bug? )
@@ -472,47 +473,25 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             else:
                 handleType = 'RESIZE_HANDLE'
         
+        # self.command.struct is (temporarily?) None after a nanotube segment
+        # has been resized. This causes a trackback. This seems to fix it.
+        # --Mark 2008-04-01
+        if not self.command.struct:
+            return
         
-        if handleType and handleType == 'RESIZE_HANDLE':            
-            # We have no easy way to get the original "bases per turn" value
-            # that was used to create this segment, so we will use
-            # the current "bases per turn" user pref value. This is really 
-            # useful (and a kludge) workaround for doing origami design work
-            # since we (Tom and I) often need to resize DNA origami segments.
-            # I spoke with Bruce about this and we agree that this will be 
-            # much easier to fix once the DNA updater/data model is 
-            # implemented (soon), so let's wait until then. Mark 2008-02-10.
-            #@basesPerTurn = env.prefs[bdnaBasesPerTurn_prefs_key]
+        if handleType and handleType == 'RESIZE_HANDLE':
             
-            #Note: The displayStyle argument for the rubberband line should 
-            #really be obtained from self.command.struct. But the struct 
-            #is a NanotubeSegment (a Group) and doesn't have attr 'display'
-            #Should we then obtain this information from one of its strandChunks?
-            #but what if two strand chunks and axis chunk are rendered 
-            #in different display styles? since situation may vary, lets 
             #use self.glpane.displayMode for rubberbandline displayMode
             drawNanotubeLadder(self.command.grabbedHandle.fixedEndOfStructure,
                           self.command.grabbedHandle.currentPosition, 
-                          self.command.cntRise,
+                          self.command.struct.nanotube.getRise(),
                           self.glpane.scale,
                           self.glpane.lineOfSight,
+                          ladderWidth = self.command.struct.nanotube.getDiameter(),
                           beamThickness = 4.0,
                           beam1Color = gray,
                           beam2Color = gray,
                           stepColor = black )
-            """
-            drawCntRibbons(self.command.grabbedHandle.fixedEndOfStructure,
-                           self.command.grabbedHandle.currentPosition,
-                           basesPerTurn,
-                           self.command.cntRise,
-                           self.glpane.scale,
-                           self.glpane.lineOfSight,
-                           self.glpane.displayMode,
-                           ribbonThickness = 4.0,
-                           ribbon1Color = darkred,
-                           ribbon2Color = blue,
-                           stepColor = black )
-                           """
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             if self.command:

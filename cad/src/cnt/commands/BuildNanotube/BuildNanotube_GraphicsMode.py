@@ -31,11 +31,10 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
         _superclass.chunkLeftUp(self, aChunk, event)
         
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
-            if aChunk.picked:
-                if aChunk.isAxisChunk():   
-                    segmentGroup = aChunk.parent_node_of_class(NanotubeSegment)
-                    if segmentGroup is not None:                    
-                        segmentGroup.edit()
+            if aChunk.picked: 
+                segmentGroup = aChunk.parent_node_of_class(NanotubeSegment)
+                if segmentGroup is not None:                    
+                    segmentGroup.edit()
                 
     def _is_cntGroup_highlighting_enabled(self):
         """

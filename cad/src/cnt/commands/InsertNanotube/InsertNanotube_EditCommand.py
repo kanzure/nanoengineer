@@ -39,8 +39,6 @@ from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNan
 
 from utilities.constants import gensym
 
-from cnt.model.Nanotube_Constants import getNumberOfCellsFromCntLength
-
 from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 
 
@@ -277,9 +275,6 @@ class InsertNanotube_EditCommand(EditCommand):
         self.propMgr.endPoint2 = self.mouseClickPoints[1]
         ntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
 
-        #@numberOfCells = getNumberOfCellsFromCntLength(ntLength)
-        #@self.propMgr.numberOfCellsSpinBox.setValue(numberOfCells)
-
         self.preview_or_finalize_structure(previewing = True)
 
         #Unpick the cnt segments (while this command was still 
@@ -357,9 +352,8 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         Return the parameters from the property manager UI.
 
-        @return: All the parameters (get those from the property manager):
-                 - nanotube
-        @rtype:  tuple
+        @return: The nanotube, which contains all the attrs.
+        @rtype:  Nanotube
         """        
 
         return self.propMgr.getParameters()       
@@ -497,23 +491,22 @@ class InsertNanotube_EditCommand(EditCommand):
             
             ntSegment.addchild(ntChunk)
 
-            #set some properties such as ntRise and number of cells per turn
+            #set some properties such as ntRise and its two endpoints.
             #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
-            #This works with or without cnt_updater. Now the question is 
-            #should these props be assigned to the NanotubeSegment in 
-            #insertNanotube.make() itself ? This needs to be answered while modifying
-            #make() method to fit in the cnt data model. --Ninad 2008-03-05
             
             #WARNING 2008-03-05: Since self._modifyStructure calls 
             #self._createStructure() (which in turn calls self._createSegment() 
             #in this case) If in the near future, we actually permit modifying a
-            #structure (such as cnt) without actually recreating the whole 
-            #structure, then the following properties must be set in 
+            #structure (such as a nanotube) without actually recreating the  
+            #entire structure, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.
-            #@props = (ntRise, cellsPerTurn)
-
-            #@ntSegment.setProps(props)
+            #props = (nanotube.getRise(), nanotube.endPoint1, nanotube.endPoint2) #@ - use getEndPoints()?
+            props =(nanotube.getChirality(),
+                    nanotube.getType(),
+                    nanotube.getEndPoints())
+            
+            ntSegment.setProps(props)
 
             return ntSegment
 
@@ -532,7 +525,7 @@ class InsertNanotube_EditCommand(EditCommand):
 	@see: B{NanotubeLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
         """
-        assert temporaryModeName == 'CNT_LINE_MODE'
+        assert temporaryModeName == 'NANOTUBE_LINE_MODE'
 
         mouseClickLimit = None
         ntRise =  self.nanotube.ntRise()
