@@ -115,7 +115,7 @@ class NanotubeSegment(Group):
         @see: InsertNanotube_EditCommand.createStructure which calls this method. 
         @see: self.getProps, NanotubeSegment_EditCommand.editStructure        
         """        
-        _chirality, _type, _endPoints = props
+        _chirality, _type, _endings, _endPoints = props
         
         _n, _m = _chirality
         _endPoint1, _endPoint2 = _endPoints
@@ -124,6 +124,7 @@ class NanotubeSegment(Group):
         self.nanotube = Nanotube()
         self.nanotube.setChirality(_n, _m)
         self.nanotube.setType(_type)
+        self.nanotube.setEndings(_endings)
         self.nanotube.setEndPoints(_endPoint1, _endPoint2)
         
     def getProps(self):

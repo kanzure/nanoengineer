@@ -504,6 +504,7 @@ class InsertNanotube_EditCommand(EditCommand):
             #props = (nanotube.getRise(), nanotube.endPoint1, nanotube.endPoint2) #@ - use getEndPoints()?
             props =(nanotube.getChirality(),
                     nanotube.getType(),
+                    nanotube.getEndings(),
                     nanotube.getEndPoints())
             
             ntSegment.setProps(props)

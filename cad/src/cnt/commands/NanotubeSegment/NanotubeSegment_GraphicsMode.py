@@ -18,6 +18,7 @@ While in this command, user can
 
 History:
 Created 2008-03-10 from copy of DnaSegment_GraphicsMode.py
+Recreated 2008-04-02 from copy of DnaSegment_GraphicsMode.py
 
 TODO: as of 2008-02-01: (original list from DnaSegment_GraphicsMode.py)
 - This graphics mode uses some duplicated code from Move_GraphicsMode 
@@ -35,10 +36,10 @@ modes so this should be refactored then.
 """
 from Numeric import dot
 from PyQt4.Qt import QMouseEvent
+
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
@@ -58,7 +59,6 @@ from model.bonds import Bond
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2
 
-
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND
 
 _superclass = BuildNanotube_GraphicsMode
@@ -77,9 +77,31 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     #of handle positions each time the mouse moves 
     #@see self.leftUp , self.leftDrag, seld.Draw for more details
     _handleDrawingRequested = True
+    
+    #Some left drag variables used to drag the whole segment along axis or 
+    #rotate the segment around its own axis of for free drag translation 
+    _movablesForLeftDrag = []
+    
+    #The common center is the center about which the list of movables (the segment
+    #contents are rotated. 
+    #@see: self.leftADown where this is set. 
+    #@see: self.leftDrag where it is used. 
+    _commonCenterForRotation = None 
+    _axis_for_constrained_motion = None
+    
+    #Flags that decide the type of left drag. 
+    #@see: self.leftADown where it is set and self.leftDrag where these are used
+    _translateAlongAxis = False
+    _rotateAboutAxis = False
+    _freeDragWholeStructure = False
 
-    cursor_over_when_LMB_pressed = ''        
-
+    cursor_over_when_LMB_pressed = ''  
+    
+    def Enter_GraphicsMode(self):
+        _superclass.Enter_GraphicsMode(self)
+        #Precaution
+        self.clear_leftA_variables()
+    
     def bareMotion(self, event):
         """
         @see: self.update_cursor_for_no_MB
@@ -89,8 +111,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #When the cursor is over a specifit atom, we need to display 
         #a different icon. (e.g. when over a strand atom, it should display 
         # rotate cursor)    
-        self.update_cursor()            
-    
+        self.update_cursor()
 
     def update_cursor_for_no_MB(self):
         """
@@ -124,10 +145,10 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def chunkLeftDown(self, aChunk, event):
         if 0:
             if self.command and self.command.hasValidStructure():
-                cntGroup = aChunk.getNanotubeGroup()
+                nanotubeGroup = aChunk.getNanotubeGroup()
                 
-                if cntGroup is not None:
-                    if cntGroup is self.command.struct.getNanotubeGroup():
+                if nanotubeGroup is not None:
+                    if nanotubeGroup is self.command.struct.getNanotubeGroup():
                         if aChunk.isStrandChunk():
                             aChunk.pick()
                             pass
@@ -144,29 +165,28 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:        
             if aChunk.picked:
-                if aChunk.isAxisChunk():   
-                    segmentGroup = aChunk.parent_node_of_class(self.o.assy.NanotubeSegment)
-                    if segmentGroup is not None:                    
-                        segmentGroup.edit()
+                aChunk.edit()
 
     def leftDown(self, event):
         """
         """
         self.reset_drag_vars()
+        
+        self.clear_leftA_variables()
                        
         obj = self.get_obj_under_cursor(event)
 
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
-            
+       
         #@see dn_model.NanotubeSegment.isAncestorOf. 
         #It checks whether the object under the 
         #cursor (which is glpane.selobj) is contained within the NanotubeSegment
         #currently being edited
         #Example: If the object is an Atom, it checks whether the 
-        #atoms is a part of the cnt segment. *being edited*
+        #atoms is a part of the dna segment. *being edited*
         #(i.e. self.comman.struct). If its not (e.g. its an atom of another 
-        #cnt segment, then the this method returns . (leftDrag on structures
+        #dna segment, then the this method returns . (leftDrag on structures
         #NOT being edited won't do anything-- a desirable effect)    
         if self.command and hasattr(self.command.struct, 'isAncestorOf'):
             if not self.command.struct.isAncestorOf(obj):
@@ -198,7 +218,14 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #Subclasses should override one of the following method if they need 
         #to do additional things to prepare for dragging. 
         self._leftDown_preparation_for_dragging(event)
-
+        
+    def clear_leftA_variables(self):
+        self._movablesForLeftDrag = []
+        self._commonCenterForRotation = None
+        self._axis_for_constrained_motion = None
+        _translateAlongAxis = False
+        _rotateAboutAxis = False
+        _freeDragWholeStructure = False
 
     def _leftDown_preparation_for_dragging(self, event):
         """ 
@@ -216,22 +243,33 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
         self.leftADown(event)
         
-
+        
     def leftADown(self, event):
         """
-        Method called during mouse left down. It sets some parameters 
+        Method called during mouse left down . It sets some parameters 
         necessary for rotating the structure around its own axis (during 
-        a left drag to follow). In graphics modes such as 
+        a left drag to follow) In graphics modes such as 
         RotateChunks_GraphicsMode, rotating entities around their own axis is 
-        acheived by holding down 'A' key and then left dragging, thats why the 
-        method is named as 'leftADrag' (A= Axis).
+        acheived by holding down 'A' key and then left dragging , thats why the 
+        method is named as 'leftADrag'  (A= Axis) 
         """
         ma = V(0, 0, 0)
+        
         if self.command and self.command.struct:
             ma = self.command.struct.getAxisVector()
-
+        
+        self._axis_for_constrained_motion = self.command.struct.getAxisVector()
+        
+        #@see: NanotubeSegment.get_all_content_chunks() for details about 
+        #what it returns. See also NanotubeSegment.isAncestorOf() which 
+        #is called in self.leftDown to determine whether the NanotubeSegment 
+        #user is editing is an ancestor of the selobj. (it also considers
+        #'logical contents' while determining whether it is an ancestor.
+        #-- Ninad 2008-03-11
+        self._movablesForLeftDrag = self.command.struct.get_all_content_chunks()
 
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+        
         self.Zmat = A([ma,[-ma[1],ma[0]]])
 
         obj = self.get_obj_under_cursor(event)
@@ -242,18 +280,44 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #selected object. So make sure to let self.leftAError method sets
             #proper flag so that left-A drag won't be done in this case.
             return
-
-        ##self.doObjectSpecificLeftDown(obj, event)
+         
+        if isinstance(obj, Atom):                
+            self._translateAlongAxis = True
+            self._rotateAboutAxis = False
+            self._freeDragWholeStructure = False
+        elif 0: #@@@ isinstance(obj, Atom): # Rotate about axis not supported.
+            self._translateAlongAxis = False
+            self._rotateAboutAxis = True
+            self._freeDragWholeStructure = False
+            #The self._commonCenterForrotation is a point on segment axis
+            #about which the whole segment will be rotated. Specifying this
+            #as a common center  for rotation fixes bug 2578. We determine this
+            #by selecting the center of the axis atom that is connected 
+            #(bonded) to the strand atom being left dragged. Using this as a 
+            #common center instead of the avaraging the center of the segment 
+            #axis atoms has an advantage. We compute the rotation offset 'dy'
+            #with reference to the strand atom being dragged, so it seems more 
+            #appropriate to use the nearest axis center for segment rotation 
+            #about axis. But what happens if the axis is not straigt but is 
+            #curved? Should we select the averaged center of all axis atoms? 
+            #..that may not be right. Or should we take _average center_ of 
+            #a the following axis atoms --strand atoms axis_neighbors and 
+            #axis atom centers directly connected to this axis atom. 
+            #  -- Ninad 2008-03-25
+            self._commonCenterForRotation = obj.axis_neighbor().posn()
+        elif isinstance(obj, Bond):
+            self._translateAlongAxis = False
+            self._rotateAboutAxis = False
+            self._freeDragWholeStructure = True
+                
         self.o.SaveMouse(event)
         self.dragdist = 0.0
-
 
     def leftUp(self, event):
         """
         Method called during Left up event. 
-        """
-        _superclass.leftUp(self, event)  
-        
+        """                
+        _superclass.leftUp(self, event)          
         self.update_selobj(event)
         self.update_cursor()
         self.o.gl_update()
@@ -261,7 +325,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #Reset the flag that decides whether to draw the handles. This flag is
         #set during left dragging, when no handle is 'grabbed'. See the 
         #class definition for more details about this flag.
-        if self.command and self.command.handles:
+        if self.command and self.command.handles:         
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
         
@@ -350,7 +414,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if self.command.grabbedHandle is None:
                 self._handleDrawingRequested = False
         
-        #Copies AND modifies some code from move_GraphicsMode for doing 
+        #Copies AND modifies some code from Move_GraphicsMode for doing 
         #leftDrag translation or rotation. 
                
         w = self.o.width + 0.0
@@ -359,68 +423,28 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                        self.o.MousePos[1] - event.pos().y())
 
         a =  dot(self.Zmat, deltaMouse)
-        dx, dy =  a * V(self.o.scale / (h * 0.5), 2 * math.pi / w)       
-
-        movables = []
-        rotateAboutAxis = False
-        translateAlongAxis = False
-        freeDragWholeStructure = False # If true, the whole segment will be 
-                                       #free dragged
-        
-        #Refactoring / optimization TODO: May be we should set these flags in 
-        #leftDown (rather in self._leftDown_preparation_for_dragging)
-        #by defining a method such as self._setLeftDragsFlags and retieve 
-        #those in leftDrag (rather than computing them here everytime. 
-        #Same goes for movable list. -- Ninad 2008-02-12
-        if self.command and self.command.struct:
-            #Resultant axis is the axis of the segment itself. 
-            resAxis = self.command.struct.getAxisVector()
-            #May be we should use is_movable test below? But we know its a cnt
-            #segment and all its members are chunks only. Also note that 
-            #movables are NOT the 'selected' objects here. 
-            movables = self.command.struct.members
-            if isinstance(self.o.selobj, Atom):                
-                translateAlongAxis = True
-                rotateAboutAxis = False
-                freeDragWholeStructure = False
-            elif isinstance(self.o.selobj, Bond):
-                translateAlongAxis = False
-                rotateAboutAxis = False
-                freeDragWholeStructure = True
+        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
         
         offset = None
-        
-        if translateAlongAxis:
-            offset = dx * resAxis
-            for mol in movables:
+
+        if self._translateAlongAxis:
+            offset = dx * self._axis_for_constrained_motion
+            for mol in self._movablesForLeftDrag:
                 mol.move(offset)
 
-        if rotateAboutAxis:
-            #Don't include the axis chunk in the list of movables. 
-            #Fixes (or works around) a bug due to which the axis chunk 
-            #displaces from its original position while rotating about that axis.
-            #The bug might be in the computation of common center in 
-            #ops_motion.rotateSpecifiedMovables or it could be some weired effect
-            # in chunk center computation ..because of which the common center
-            #of chunks is slightly off the axis. Considering only strand chunks 
-            # (and not axisChunk) is a workaround for this bug. Actual bug 
-            #might be harder to fix not sure. -- Ninad 2008-02-12
-            
-            #UPDATE 2008-02-13
-            #Disabled temporarily to see if this fixes a recently introduced 
-            #bug :strands don't rotate about segment's axis:
-            ##new_movables = list(movables)
-            ##for chunk in new_movables:
-                ##if chunk.isAxisChunk():
-                    ##new_movables.remove(chunk)
-            self.o.assy.rotateSpecifiedMovables(Q(resAxis, -dy), 
-                                                movables = movables) 
+        if self._rotateAboutAxis:
+            rotation_quat = Q(self._axis_for_constrained_motion, -dy)
+            self.o.assy.rotateSpecifiedMovables(
+                rotation_quat, 
+                movables = self._movablesForLeftDrag,
+                commonCenter = self._commonCenterForRotation ) 
         
-        if freeDragWholeStructure:
+        if self._freeDragWholeStructure:
             try:
                 point = self.dragto( self.movingPoint, event) 
                 offset = point - self.movingPoint
-                self.o.assy.translateSpecifiedMovables(offset, movables = movables)
+                self.o.assy.translateSpecifiedMovables(offset,
+                                                       movables = self._movablesForLeftDrag)
                 self.movingPoint = point
             except:
                 #may be self.movingPoint is not defined in leftDown? 
@@ -432,7 +456,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             endPt1 += offset
             endPt2 += offset
             self.command.struct.nanotube.setEndPoints(endPt1, endPt2)
-                
+            
         self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
         
         self.o.SaveMouse(event)
@@ -451,7 +475,8 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         """
-        if self._handleDrawingRequested:
+        if self._handleDrawingRequested and \
+           self.command.handles_have_valid_centers:
             self._drawHandles()     
         _superclass.Draw(self)
               
@@ -495,46 +520,11 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if self.command:
                 text = self.command.getCursorText()
                 self.glpane.renderTextNearCursor(text, offset = 30)
-        else:
+        else: 
             #No handle is grabbed. But may be the structure changed 
             #(e.g. while dragging it ) and as a result, the endPoint positions 
             #are modified. So we must update the handle positions because 
             #during left drag (when handle is not dragged) we skip the 
             #handle drawing code and computation to update the handle positions
+            #TODO: see bug 2729 for planned optimization
             self.command.updateHandlePositions()
-            
-
-class NanotubeSegment_DragHandles_GraphicsMode(NanotubeLine_GM):
-    """
-    EXPERIMENTAL class to use NanotubeLine_GM functionality while dragging a handle
-    See a comment in class NanotubeSegment_EditCommand, just above the method
-    'EXPERIMENTALswitchGraphicsModeTo'
-    """
-
-    cursor_over_when_LMB_pressed = ''
-    
-    def Enter_GraphicsMode(self):
-        self.endPoint1 = self.command.aHandle.origin
-        NanotubeLine_GM.Enter_GraphicsMode(self)
-   
-    def Draw(self):
-        """
-        Draw
-        """        
-        NanotubeLine_GM.Draw(self)
-        self._drawHandles()
-
-    def _drawHandles(self):
-        """
-        draw handles
-        """    
-        if self.command and self.command.struct:
-            if isinstance(self.command.struct, NanotubeSegment):
-                for handle in self.command.handles:
-                    handle.draw()
-    
-    def leftUp(self, event):
-        """
-        Method to be called during leftUp mouse event
-        """
-        self.command.preview_or_finalize_structure(previewing = True)

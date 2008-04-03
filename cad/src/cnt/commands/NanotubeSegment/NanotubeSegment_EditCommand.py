@@ -345,10 +345,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         
         self._update_resizeHandle_radius()
         
-        # BUG: this method gets called after free dragging the nanotube
-        # around, and getEndPoints() provides updated endPoint coords,
-        # but the handles do not get drawn at the new handlePoint positions.
-        # Need Ninad to help to fix this. --Mark 2008-04-02 
         handlePoint1, handlePoint2 = self.struct.nanotube.getEndPoints()
         
         if 0: # Debug prints
@@ -466,13 +462,14 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             #  - Strand2
             #  - Axis
             
-            n, m, type, endPoint1, endPoint2 = self._gatherParameters()
+            n, m, type, endings, endPoint1, endPoint2 = self._gatherParameters()
             
             from cnt.model.Nanotube import Nanotube
             self.nanotube = Nanotube()
             nanotube  =  self.nanotube
             nanotube.setChirality(n, m)
             nanotube.setType(type)
+            nanotube.setEndings(endings)
             nanotube.setEndPoints(endPoint1, endPoint2)
             position = V(0.0, 0.0, 0.0)
             ntChunk = nanotube.build(self.name, self.win.assy, position)
@@ -494,6 +491,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             #self._modifyStructure as well. Needs more thought.
             props =(nanotube.getChirality(),
                     nanotube.getType(),
+                    nanotube.getEndings(),
                     nanotube.getEndPoints())
             
             ntSegment.setProps(props)

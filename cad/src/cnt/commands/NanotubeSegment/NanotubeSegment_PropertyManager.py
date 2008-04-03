@@ -129,7 +129,8 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         any have changed. If any have, then the nanotube will be modified.
         """
         return (self.n, self.m, 
-                self.type, 
+                self.type,
+                self.endings,
                 self.endPoint1, self.endPoint2)
     
     def _update_widgets_in_PM_before_show(self):
@@ -143,6 +144,7 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None and self.editCommand.hasValidStructure():
             self.n, self.m = self.editCommand.struct.nanotube.getChirality()
             self.type = self.editCommand.struct.nanotube.getType()
+            self.endings = self.editCommand.struct.nanotube.getEndings()
             self.endPoint1, self.endPoint2 = self.editCommand.struct.nanotube.getEndPoints()
             # Note that _update_widgets_in_PM_before_show() is called in 
             # self.show, before you connect the signals. So, for the 
