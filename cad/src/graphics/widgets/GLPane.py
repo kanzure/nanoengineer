@@ -177,8 +177,6 @@ from utilities.constants import GL_FAR_Z
 from utilities.constants import bluesky
 from utilities.constants import white
 from utilities.constants import MULTIPANE_GUI
-from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
-from utilities.constants import BBOX_MIN_RADIUS
 
 from utilities.debug_prefs import Choice
 from utilities.debug_prefs import Choice_boolean_False
@@ -3111,32 +3109,32 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             assert not self._frustum_planes_available
             return
 
-        # get current projection and modelview matrices 
+        # Get current projection and modelview matrices 
         pmat = glGetFloatv(GL_PROJECTION_MATRIX)
         mmat = glGetFloatv(GL_MODELVIEW_MATRIX)
 
-        # allocate a clip matrix float[4, 4]
+        # Allocate a composite matrix float[4, 4]
         cmat = [None] * 4
         for i in range(0, 4):
             cmat[i] = [0.0] * 4
 
-        # compute a composite transformation matrix 
-        # matrix multiplication: should be using Matrix.multiply here?        
-        # cmat = mmat * pmat^T         
-        for i in range(0, 4):
+        # Compute a composite transformation matrix. 
+        # cmat = mmat * pmat         
+        for i in range(0, 4):            
             for j in range (0, 4):
                 cmat[i][j] = (mmat[i][0] * pmat[0][j] + 
                               mmat[i][1] * pmat[1][j] + 
                               mmat[i][2] * pmat[2][j] + 
                               mmat[i][3] * pmat[3][j])
 
-        # allocate frustum planes
+        # Allocate six frustum planes
         self.fplanes = [None] * 6
         for p in range(0, 6):
             self.fplanes[p] = [0.0] * 4
 
         # subtract and add the composite matrix rows to get the plane equations
-        for p in range(0, 2):
+        # piotr 080403 - I will add a detailed explanation here.
+        for p in range(0, 3):
             for i in range(0, 4):
                 self.fplanes[2*p][i] = cmat[i][3] - cmat[i][p]
                 self.fplanes[2*p+1][i] = cmat[i][3] + cmat[i][p]
@@ -3168,9 +3166,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                   GL matrices are in the same state as when _compute_frustum_planes
                   was last called (i.e. in absolute model space coordinates).
         """
-
         ### uncomment the following line for the bounding sphere debugg
-        ### drawer.drawwiresphere(white, center, radius + 3.1, 1)
+        ### drawer.drawwiresphere(white, center, radius, 2)
 
         if self._frustum_planes_available:
             for p in range(0, 6): # go through all frustum planes
@@ -3181,16 +3178,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                          self.fplanes[p][2] * center[2] + 
                          self.fplanes[p][3])
                 # sphere outside of the plane - exit
-                # piotr 080402: Add a correction for the true maximum
-                # DNA CPK atom radius.
-                # Maximum VdW atom radius in PAM3/5 = 5.0 * 1.25 + 0.2 = 6.2
-                # = MAX_ATOM_SPHERE_RADIUS
-                # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
-                # = 3.11 A, so the difference = approx. 3.1 A
-                # The '0.5' is another 'fuzzy' safety margin, added here just 
-                # to be sure that all objects are within the sphere.
-                if dist < - (radius + (MAX_ATOM_SPHERE_RADIUS 
-                                       - BBOX_MIN_RADIUS) + 0.5):
+                if dist < -radius:
                     return False
                 continue
             # At this point, the sphere might still be outside
@@ -3224,19 +3212,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if self._frustum_planes_available:
             center = 0.5*(pos1+pos2)
-            # Note: piotr 080402
-            # The 1.8 is a default maximum atom radius as used by BBox.
-            # The is_sphere_visible adds a correction for the true maximum
-            # atom radius. So, the 3.11 value used here should be replaced
-            # by a true maximum radius value when the is_sphere_visible
-            # method is not used anymore. BoundingBox class uses a constant
-            # 1.8 A to extend the bounding box, corresponding to a 
-            # radius = sqrt(3*(1.8)^2) = 3.11 A (BBOX_MIN_RADIUS)
-            sphere_radius = 0.5*vlen(pos2-pos1) + BBOX_MIN_RADIUS
-            if radius > sphere_radius:
-                sphere_radius = radius
+            sphere_radius = 0.5*vlen(pos2-pos1) + radius
             res = self.is_sphere_visible(center, sphere_radius)
-
             # Read Bruce's comment in glpane.is_sphere_visible
             # It applies here, as well.
             return res 
