@@ -71,7 +71,12 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #structure while modifyin it.  See DnaSegment_EditCommand.modifyStructure 
     #and self.on_release for details.
     fixedEndOfStructure = Option(Point, V(0, 0, 0))
-            
+    
+    #If this is false, the 'highlightable' object i.e. this handle 
+    #won't be drawn. See DraggableHandle.py for the declararion of 
+    #the delegate(that defines a Highlightable) We define a If_Exprs to check 
+    #whether to draw the highlightable object. 
+    should_draw = State(bool, True) 
     
     appearance = Overlay(
         Sphere(_self.sphereRadius, 
@@ -121,7 +126,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
         """
         Method called while dragging this handle .
         @see: B{DragHandle_API}
-        """
+        """            
         #Does nothing at the moment. 
         pass
     
@@ -139,4 +144,27 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
             #Clear the grabbed handle attribute (the handle is no longer 
             #grabbed)
             self.command.grabbedHandle = None
+            
+    def hasValidParamsForDrawing(self):
+        """
+        Returns True if the handles origin and direction are not 'None'. 
+        
+        @see: DnaSesgment_GraphicsMode._draw_handles() where the caller
+              uses this to decide whether this handle can be drawn without 
+              a problem. 
+        """
+        #NOTE: Better to do it in the drawing code of this class? 
+        #But it uses a delegate to draw stuff (see class Highlightable)
+        #May be we should pass this method to that delegate as an optional 
+        #argument -- Ninad 2008-04-02
+        
+        #NOTES: See also:
+        #delegate in class DraggableHandle defined as --
+        #delegate = If_Exprs(_self.should_draw, Highlightable(....))
+        if self.origin is None:
+            self.should_draw = False
+        else:
+            self.should_draw = True
+        
+        return self.should_draw
 

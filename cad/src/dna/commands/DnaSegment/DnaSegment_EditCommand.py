@@ -213,10 +213,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.handles = []        
         self.grabbedHandle = None
         
-        #This flag determines whether there was a problem updating handle 
-        #positions. This flag is used in graphicsMose.Draw method to 
-        #determine wheather to draw handles. 
-        self.handles_have_valid_centers = True
         
         #Initialize DEBUG preference
         pref_dna_segment_resize_without_recreating_duplex()
@@ -353,7 +349,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         Update handle positions and also update the resize handle radii and
         their 'stopper' lengths. 
         @see: self._update_resizeHandle_radius()
-        @see: self._update_resizeHandle_stopper_length()        
+        @see: self._update_resizeHandle_stopper_length()     
+        @see: DnaSegment_GraphicsMode._drawHandles()
         """  
         #TODO: Call this method less often by implementing model_changed
         #see bug 2729 for a planned optimization
@@ -367,8 +364,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         if handlePoint1 is not None and handlePoint2 is not None:
             # (that condition is bugfix for deleted axis segment, bruce 080213)
-            
-            self.handles_have_valid_centers = True
+ 
             self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2            
             
             #Update the 'stopper'  length where the resize handle being dragged 
@@ -387,8 +383,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
-        else:
-            self.handles_have_valid_centers = False
             
 
     def _update_resizeHandle_radius(self):
@@ -971,7 +965,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                                                                  original_dulex_length, 
                                                                  duplexRise = duplexRise
                                                              )
-        
         
         numberOfBasesToAddOrRemove = new_numberOfBasePairs - original_numberOfBasePairs 
         

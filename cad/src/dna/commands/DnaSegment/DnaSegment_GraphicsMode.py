@@ -36,15 +36,9 @@ modes so this should be refactored then.
 from Numeric import dot
 from PyQt4.Qt import QMouseEvent
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
-from dna.model.DnaSegment import DnaSegment
-
-from dna.temporary_commands.DnaLineMode import DnaLine_GM
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
-
-import foundation.env as env
-from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
 
 import math
 from geometry.VQT import V, norm, A, Q, vlen
@@ -484,9 +478,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         """
-        if self._handleDrawingRequested and \
-           self.command.handles_have_valid_centers:
-            self._drawHandles()     
+        if self._handleDrawingRequested:
+            self._drawHandles() 
         _superclass.Draw(self)
               
     def _drawHandles(self):
@@ -495,7 +488,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """    
         if self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:
-                handle.draw()
+                if handle.hasValidParamsForDrawing():
+                    handle.draw()
         
         handleType = ''
         if self.command.grabbedHandle is not None:
@@ -529,6 +523,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                            ribbon1Color = darkred,
                            ribbon2Color = blue,
                            stepColor = black )
+          
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             if self.command:
@@ -540,5 +535,5 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #are modified. So we must update the handle positions because 
             #during left drag (when handle is not dragged) we skip the 
             #handle drawing code and computation to update the handle positions
-            #TODO: see bug 2729 for planned optimization
+            #TODO: see bug 2729 for planned optimization. 
             self.command.updateHandlePositions()
