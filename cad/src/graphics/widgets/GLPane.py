@@ -3696,12 +3696,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         for obj in objects:
             if obj is self.selobj:
                 order = 0
-            elif obj.__class__ is Bond:
+            elif isinstance(obj, Bond):
+                #bruce 080402 precaution: don't say obj.__class__ is Bond,
+                # in case obj has no __class__
                 order = 1
             else:
                 order = 2
             order = (order, id(obj))
-                #bruce 080402 work around bug in Bond.__eq__ for bonds not on the same atom
+                #bruce 080402 work around bug in Bond.__eq__ for bonds not on
+                # the same atom; later on 080402 I fixed that bug, but I'll
+                # leave this for safety in case of __eq__ bugs on other kinds
+                # of selobjs (e.g. dependence on other.__class__)
             items.append( (order, obj) )
         items.sort()
         report_failures = debug_pref("GLPane: preDraw_glselect_dict: report failures?", Choice_boolean_False, prefs_key = True)
