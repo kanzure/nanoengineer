@@ -3700,7 +3700,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 order = 1
             else:
                 order = 2
-            items.append((order, obj))
+            order = (order, id(obj))
+                #bruce 080402 work around bug in Bond.__eq__ for bonds not on the same atom
+            items.append( (order, obj) )
         items.sort()
         report_failures = debug_pref("GLPane: preDraw_glselect_dict: report failures?", Choice_boolean_False, prefs_key = True)
         if debug_pref("GLPane: check_target_depth debug prints?", Choice_boolean_False, prefs_key = True):
