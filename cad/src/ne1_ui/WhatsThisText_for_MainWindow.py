@@ -409,7 +409,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     editDeleteText =  \
         "<u><b>Delete</b></u>     (DEL) "\
         "<p>"\
-        "<img source=\"ui/actions/Delete.png\"><br> "\
+        "<img source=\"ui/actions/Edit/Delete.png\"><br> "\
         "Deletes the selected object(s).  "\
         "For this Alpha release, deleted objects may "\
         "be permanently lost, or they might be recoverable "\
