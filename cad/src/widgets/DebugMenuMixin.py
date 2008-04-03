@@ -86,7 +86,7 @@ class DebugMenuMixin:
     #e generalize so the debug menu can be customized? not sure it's needed.
 
     ## debug_menu = None # needed for use before _init1 or if that fails
-    
+
     def _init1(self, win = None):
         # figure out this mixin's idea of main window
         if not win:
@@ -115,7 +115,7 @@ class DebugMenuMixin:
         """
         from widgets.menu_helpers import makemenu_helper
         return makemenu_helper(self, menu_spec, menu)
-    
+
     def debug_menu_items(self):
         """
         #doc; as of 050416 this will be called every time the debug menu needs to be put up,
@@ -131,7 +131,7 @@ class DebugMenuMixin:
             res.extend( [
                 ('load window layout', self._debug_load_window_layout ),
                 ('save window layout', self._debug_save_window_layout ),
-                    #bruce 050117 prototype "save window layout" here; when it works, move it elsewhere
+                #bruce 050117 prototype "save window layout" here; when it works, move it elsewhere
             ] )
         if debug.exec_allowed():
             #bruce 041217 made this item conditional on whether it will work
@@ -158,7 +158,7 @@ class DebugMenuMixin:
         if 1: #bruce 050823
             some = registered_commands_menuspec( self)
             res.extend(some)
-        
+
         res.extend( [
             ('choose font', self._debug_choose_font),
         ] )
@@ -171,7 +171,13 @@ class DebugMenuMixin:
             res.extend( [
                 ('print object counts', self._debug_print_object_counts),
             ] )
-        
+
+
+        if 1: #piotr 080311: simple graphics benchmark
+            res.extend( [
+                ('measure graphics performance', self._debug_do_benchmark),
+            ] )
+
         if debug_flags.atom_debug: # since it's a dangerous command
             res.extend( [
                 ('debug._widget = this widget', self._debug_set_widget),
@@ -201,14 +207,14 @@ class DebugMenuMixin:
         from utilities.Log import _graymsg
         msglater = "" # things to print all in one line
         for clasname, modulename in (
-                ('Atom', 'chem'),
-                 ('Bond', 'bonds'),
-                 # ('Node', 'Utility'), # Node or Jig is useless here, we need the specific subclasses!
-                 ('Chunk', 'chunk'),
-                 ## ('PiBondSpChain', 'pi_bond_sp_chain'), # no module pi_bond_sp_chain -- due to lazy load or atom-debug reload??
-                 ('Group', 'Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
-                 ('Part', 'part'),
-                 ('Assembly', 'assembly')):
+            ('Atom', 'chem'),
+            ('Bond', 'bonds'),
+            # ('Node', 'Utility'), # Node or Jig is useless here, we need the specific subclasses!
+            ('Chunk', 'chunk'),
+            ## ('PiBondSpChain', 'pi_bond_sp_chain'), # no module pi_bond_sp_chain -- due to lazy load or atom-debug reload??
+            ('Group', 'Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
+            ('Part', 'part'),
+            ('Assembly', 'assembly')):
             # should also have a command to look for other classes with high refcounts
             if sys.modules.has_key(modulename):
                 module = sys.modules[modulename]
@@ -230,7 +236,7 @@ class DebugMenuMixin:
         if msglater:
             env.history.message( _graymsg( msglater))
         return
-    
+
     def _debug_choose_font(self): #bruce 050304 experiment; works; could use toString/fromString to store it in prefs...
         oldfont = self.font()
         newfont, ok = QFontDialog.getFont(oldfont)
@@ -245,13 +251,13 @@ class DebugMenuMixin:
             except:
                 print_compact_traceback("new font.toString() failed: ")
         return
-    
+
     def _debug_enable_atom_debug(self):
         debug_flags.atom_debug = 1
-    
+
     def _debug_disable_atom_debug(self):
         debug_flags.atom_debug = 0
-    
+
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0): #bruce 040916
         """
         [the main public method for subclasses]
@@ -280,7 +286,7 @@ class DebugMenuMixin:
             except:
                 after = "<no stateAfter>" # needed for Wheel events, at least
             print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
-            
+
         # It seems, from doc and experiments, that event.state() is
         # from just before the event (e.g. a button press or release,
         # or move), and event.stateAfter() is from just after it, so
@@ -313,11 +319,28 @@ class DebugMenuMixin:
     def _debug_set_widget(self): #bruce 050604
         debug._widget = self
         print "set debug._widget to",self
-    
+
     def _debug_destroy_self(self): #bruce 050604
         #e should get user confirmation
         ## self.destroy() ###k this doesn't seem to work. check method name.
         self.deleteLater()
+
+    def _draw_hundred_frames(self):
+        # redraw 100 frames, piotr 080403
+        for i in range(0, 100):
+            self.win.glpane.paintGL()
+
+    def _debug_do_benchmark(self):
+        # simple bechmark, piotr 080311
+        from time import clock
+        from utilities.debug import profile
+        print "benchmarking... please wait"
+        win = self._debug_win
+        self.win.resize(1024,768) # resize the window to a constant size
+        tm0 = clock()
+        profile(self._hundred_frames, self, None)
+        tm1 = clock()
+        print "benchmark done. fps = ", 100.0/(tm1-tm0)
 
     def debug_menu_source_name(self): #bruce 050112
         """
@@ -349,7 +372,7 @@ class DebugMenuMixin:
     def _debug_timepycode(self): #bruce 051117
         debug_timing_test_pycode_from_a_dialog( )
         return
-        
+
     pass # end of class DebugMenuMixin
 
 ##########################################################
@@ -380,7 +403,7 @@ _sim_param_table = [
     # ("Dx", FLOAT),
     # ("Dmass", FLOAT),
     # ("Temperature", FLOAT),
-    ]
+]
 
 sim_param_values = {
     "debug_flags": 0,
@@ -397,7 +420,7 @@ sim_param_values = {
     # "Dx": 1.0e-12,
     # "Dmass": 1.0e-27,
     # "Temperature": 300.0,
-    }
+}
 
 class SimParameterDialog(QDialog):
 
