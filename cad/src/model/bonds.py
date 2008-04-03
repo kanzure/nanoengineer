@@ -593,6 +593,8 @@ _Bond_global_dicts = [_changed_Bonds]
 
 class Bond(BondBase, StateMixin, Selobj_API):
     """
+    @warning: this docstring is partly obsolete.
+    
     A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds
@@ -1264,9 +1266,10 @@ class Bond(BondBase, StateMixin, Selobj_API):
         at2._changed_structure()
         assert at1 is not at2
 
-        # this version helps atombase.c not to fail when atom keys
+        # This version helps atombase.c not to fail when atom keys
         # exceed 32768, but is only unique for bonds attached to the
-        # same atom.
+        # same atom. Within __eq__, it can only be considered a hash.
+        # WARNING: as of 080402, __eq__ assumes this is the formula.
         self.bond_key = at1.key + at2.key
 
         #self.bond_key = 65536 * min(at1.key, at2.key) + max(at1.key, at2.key)
@@ -1277,9 +1280,6 @@ class Bond(BondBase, StateMixin, Selobj_API):
             # this only being unique for bonds attached to a single
             # atom.
         
-##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since bond_key is not truly unique)
-##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.bond_key] = self #e dict should be stored in assy (or so) instead
-##            ###@@@ not key, use other attr name for that, obj.glname or glselect_name or so...
         #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
         # or bonding to chunks not yet added to any Part (but not warning about internal
         # bonds, since mol.copy makes those before a copied chunk is added to any Part).
@@ -1290,13 +1290,13 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # It might turn out this happens a lot (and is not a bug), if callers make a
         # new chunk, bond to it, and only then add it into the tree of Nodes.
         if debug_flags.atom_debug and at1.molecule is not at2.molecule:
-            if (at1.molecule.assy is None) or (at2.molecule.assy is None): #bruce 050519 fixed 'is not' -> 'is' (recent typo, i presume)
-                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
-            elif (at1.molecule.part is None) or (at2.molecule.part is None): #bruce 050519 fixed 'is not' -> 'is'
+            if (at1.molecule.assy is None) or (at2.molecule.assy is None):
+                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r: " % (at1,at2))
+            elif (at1.molecule.part is None) or (at2.molecule.part is None):
                 if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
-                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
+                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r: " % (at1,at2))
             elif at1.molecule.part is not at2.molecule.part:
-                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
+                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r: " % (at1,at2))
 
         if self._direction and not self.is_directional(): #bruce 070415
             self.clear_bond_direction()
@@ -1672,70 +1672,80 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 print "rebond bug (%r): new.bonds.count(self) == %r" % (self, new.bonds.count(self))
         return
 
-    ####@@@@ bruce 050513 comment: should seriously consider removing these __eq__/__ne__ methods
-    # and revising bond_atoms accordingly (as an optim). One use of them is probably in a .count method in another file.
+    # ==
+
+    #bruce 080402 revised __eq__ and removed clearly obsolete portions of the
+    # following comments [not sure whether remaining ones are also obs]:
     #
-    #bruce 051018 comment: I think this __eq__ might have bugs, once enough atoms have been defined (not nec. all at once)
-    # to overflow the constant 65536 used to compute self.bond_key! For example, if the atkeys are (2,3) or (1,65536+3) we'll
-    # think the bonds are equal! OTOH, does this matter unless the bonds share an atom? But even if it only matters then,
-    # it might hurt us if the shared atom is min in one bond and max in the other... I didn't yet find an example, nor prove
-    # there isn't one. Surely the whole thing should be removed unless it can be made clearly correct... #####@@@@@
-    # Would it be just as good, and provably ok (given the assumption that only bonds on the same atom are compared),
-    # if the key was just the sum of the atom keys?? I think so!
+    #bruce 050513 comment: we should seriously consider removing these
+    # __eq__/__ne__ methods and revising bond_atoms accordingly (as an optim).
+    # One use of them is probably in a .count method in another file.
     #
-    #bruce 060209 comment: these now override different defs in UndoStateMixin. This is wrong in theory (since the undo system
-    # assumes those defs will be used), but I can't yet think of bugs it will cause, and it's probably also still necessary
-    # due to how the atom-bonding code works. Wait, I bet the debug print in here would print if it could ever make a difference,
-    # which means, I could probably take them out... ok, I'll try that soon, but not exactly now. #######@@@@@@@
+    #bruce 060209 comment: these now override different defs in UndoStateMixin.
+    # This is wrong in theory (since the undo system assumes those defs will be
+    # used), but I can't yet think of bugs it will cause, and it's probably also
+    # still necessary due to how the atom-bonding code works. Wait, I bet the
+    # debug print in here would print if it could ever make a difference, which
+    # means, I could probably take them out... ok, I'll try that soon, but not
+    # exactly now.
     
-    def __eq__(self, ob):
-        if not isinstance(ob, Bond): return False
-        if (self is not ob) and ob.bond_key == self.bond_key:
-            # This seems to never happen, so let's find out if anyone ever sees it (by printing stack even when not atom_debug).
-            # It could happen in two ways: a true bug (keys same but atoms different),
-            # or an intentional use of the deprecated feature of two Bonds with same atoms comparing equal.
-            # If it indeed never happens (or if it does and we fix that), then I'll remove or reimplement __eq__
-            # to just return "self is ob". ####@@@@ [bruce 051018]
-            # [as of bruce 060406, i never saw this, but today's changes to undo could bring it on,
-            #  so i'll leave it in (msg and implem) for A7.]
-            # update, bruce 070601: this does sometimes happen, for unknown reasons, but probably repeatably.
-            # At least one bug report (eg bug 2401) mentions it. It has no known harmful effects (and by now I forget whether
-            # it's predicted to have any -- the comment above suggests it's not, it just means a certain optimization
-            # in __eq__ would be an illegal change). When it does happen it may not be an error (but this is not yet
-            # known) -- it may involve some comparison by undo of old and new bonds between the same atoms
-            # (a speculation; but the tracebacks seem to always mention undo, and the atoms in the bonds seem to be the same).
-            # So -- I'll print a much worse message if the atoms differ, and if not only print it when ATOM_DEBUG.
-            if (self.atom1 is ob.atom1 and self.atom2 is ob.atom2) or \
-               (self.atom1 is ob.atom2 and self.atom2 is ob.atom1):
-                # atoms same -- probably not a bug at all
-                if debug_flags.atom_debug:
-                    print_compact_stack( "debug: fyi: different bond objects (on same atoms) equal: %r == %r: " % (self,ob) )
-            else:
-                # different atoms -- VERY bad (not known to ever happen, but I tested this error-reporting code anyway)
-                msg = "BUG: different bond objects, between different atoms, compare equal: %r == %r" % (self,ob)
-                print_compact_stack(msg + ": ")
-                env.history.message(redmsg(quote_html(msg)))
-        else:
-            if 0 and debug_flags.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
-                #bruce 070601 comment: I suspect this happens when asking "bond in atom.bonds" when making a new bond.
-                print_compact_stack( "atom_debug: deprecated Bond.__eq__ was called on %r and %r: " % (self,ob) )
-        return ob.bond_key == self.bond_key
+    def __eq__(self, obj):
+        """
+        Are self and obj Bonds between the same pair of atoms?
+        (If so, return True, without comparing anything else, like .v6.)
+        """
+        #bruce 080402 revised this to remove false positives
+        # for bonds not on the same atom.
+        #
+        # Note: known calls of this method include:
+        # - items.sort() in glpane where items includes selobj candidates
+        #   (before a bugfix earlier on 080402 to work around the bug
+        #    being fixed now)
+        # - I suspect this happens when asking "bond in atom.bonds"
+        #   when making a new bond [bruce 070601 comment].
+        #   That use used to depend on our same-atoms-means-equal behavior.
+        #   I don't know if it still does.
+        if self is obj:
+            return True
+        if not isinstance(obj, Bond):
+            return False
+        if obj.bond_key != self.bond_key:
+            return False
+        # bond_key hashes the atoms by summing their .keys;
+        # self and obj are now known to be equal iff they have either atom
+        # in common. In fact, it's a bit stronger, since equal bond_keys
+        # means they have both atoms or neither atom in common,
+        # so the following is correct:
+        res = self.atom1 is obj.atom1 or self.atom1 is obj.atom2
+        if res and debug_flags.atom_debug:
+            # This is a use of the deprecated feature of two Bonds with the
+            # same atoms comparing equal. This is not known to happen
+            # as of 080402, but it's not necessarily a bug. If we could be sure
+            # it never happened (or was never needed), we could redefine
+            # __eq__ to always return (self is obj). Older related info
+            # (not sure if obs): bruce 070601: this does sometimes happen,
+            # for unknown reasons, but probably repeatably. At least one bug
+            # report (eg bug 2401) mentions it. It has no known harmful effects
+            # (and by now I forget whether it's predicted to have any -- some
+            # older comments suggest it's not, it just means a certain optim-
+            # ization in __eq__ would be an illegal change). When it does happen
+            # it may not be an error (but this is not yet known) -- it may
+            # involve some comparison by undo of old and new bonds between the
+            # same atoms (a speculation; but the tracebacks seem to always
+            # mention undo, and the atoms in the bonds seem to be the same).
+            msg = "debug: fyi: different bond objects (on same atoms) equal: " \
+                  "%r == %r: " % (self, obj)
+            print_compact_stack( msg )
+        return res
+    
+    def __ne__(self, obj):
+        # bruce 041028 -- python doc advises defining __ne__ whenever you
+        # define __eq__; on 060228 i confirmed this is needed by test
+        # (otherwise != doesn't call __eq__)
+        return not self.__eq__(obj)
 
-    def __ne__(self, ob):
-        # bruce 041028 -- python doc advises defining __ne__ whenever you define __eq__;
-        # on 060228 i confirmed this is needed by test (otherwise != doesn't call __eq__)
-        return not self.__eq__(ob)
-
-##    def _check_assertions(self, whocalls = ""): #bruce for DEBUG_070602; WARNING: slow even when all is ok; only for debugging
-##        if whocalls:
-##            prefix = "bug (%s)" % whocalls
-##        else:
-##            prefix = "bug"
-##        for atom in (self.atom1, self.atom2):
-##            if self not in atom.bonds:
-##                print "%s: %r not in %r.bonds" % (prefix, self, atom)
-##        return
-        
+    # ==
+    
     def draw(self, glpane, dispdef, col, level,
              highlighted = False,
              bool_fullBondLength = False ):
