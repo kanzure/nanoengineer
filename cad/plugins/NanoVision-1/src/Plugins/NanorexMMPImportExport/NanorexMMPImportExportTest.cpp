@@ -33,6 +33,10 @@ void NanorexMMPImportExportTest::tearDown(void)
 
 void NanorexMMPImportExportTest::atomHTest(void)
 {
+	NanorexMMPImportExport importer;
+	NXDataStoreInfo dataStoreInfo;
+	NXMoleculeSet molSet;
+	
 	string const testInput =
 		"mmpformat 050502 required; 050706 preferred\n"
 		"kelvin 300\n"
@@ -54,8 +58,6 @@ void NanorexMMPImportExportTest::atomHTest(void)
 		"end\n"
 		;
 	istringstream testInputStream(testInput);
-	NXDataStoreInfo dataStoreInfo;
-	NXMoleculeSet molSet;
 	importer.dataStoreInfo = &dataStoreInfo;
 	importer.readMMP(testInputStream, &molSet);
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
@@ -67,4 +69,123 @@ void NanorexMMPImportExportTest::atomHTest(void)
 	NXMoleculeSet *clipboardGroup = dataStoreInfo.getClipboardStructure();
 	CPPUNIT_ASSERT(clipboardGroup->childCount() == 0);
 	CPPUNIT_ASSERT(clipboardGroup->moleculeCount() == 0);
+}
+
+
+void NanorexMMPImportExportTest::HTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo, "H.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	OBMol *HMol = *molSet.moleculesBegin();
+	CPPUNIT_ASSERT(HMol->NumAtoms() == 1);
+	CPPUNIT_ASSERT(HMol->NumBonds() == 0);
+}
+
+
+void NanorexMMPImportExportTest::H2OTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo, "H2O.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	OBMol *H2OMol = *molSet.moleculesBegin();
+	CPPUNIT_ASSERT(H2OMol->NumAtoms() == 3);
+	CPPUNIT_ASSERT(H2OMol->NumBonds() == 2);
+}
+
+
+void NanorexMMPImportExportTest::H2O2Test(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "hydrogen_peroxide.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	OBMol *H2O2Mol = *molSet.moleculesBegin();
+	CPPUNIT_ASSERT(H2O2Mol->NumAtoms() == 4);
+	CPPUNIT_ASSERT(H2O2Mol->NumBonds() == 3);
+}
+
+
+void NanorexMMPImportExportTest::chlorophyllTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo, "chlorophyll.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	OBMol *chlorophyllMol = *molSet.moleculesBegin();
+	CPPUNIT_ASSERT(chlorophyllMol->NumAtoms() == 133);
+	CPPUNIT_ASSERT(chlorophyllMol->NumBonds() == 141);
+}
+
+
+void NanorexMMPImportExportTest::vanillinTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo, "vanillin.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	OBMol *vanillinMol = *molSet.moleculesBegin();
+	CPPUNIT_ASSERT(vanillinMol->NumAtoms() == 19);
+	CPPUNIT_ASSERT(vanillinMol->NumBonds() == 19);
+}
+
+
+void NanorexMMPImportExportTest::nanocarTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo, "nanocar.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 5);
+	OBMolIterator nanocarMolIter = molSet.moleculesBegin();
+	OBMol *chassisMol = *nanocarMolIter;
+	CPPUNIT_ASSERT(chassisMol->NumAtoms() == 100);
+	CPPUNIT_ASSERT(chassisMol->NumBonds() == 107);
+	++nanocarMolIter;
+	OBMol *wheel1Mol= *nanocarMolIter;
+	CPPUNIT_ASSERT(wheel1Mol->NumAtoms() == 61);
+	CPPUNIT_ASSERT(wheel1Mol->NumBonds() == 92);
+	++nanocarMolIter;
+	OBMol *wheel2Mol= *nanocarMolIter;
+	CPPUNIT_ASSERT(wheel2Mol->NumAtoms() == 61);
+	CPPUNIT_ASSERT(wheel2Mol->NumBonds() == 92);
+	++nanocarMolIter;
+	OBMol *wheel3Mol= *nanocarMolIter;
+	CPPUNIT_ASSERT(wheel3Mol->NumAtoms() == 61);
+	CPPUNIT_ASSERT(wheel3Mol->NumBonds() == 92);
+	++nanocarMolIter;
+	OBMol *wheel4Mol= *nanocarMolIter;
+	CPPUNIT_ASSERT(wheel4Mol->NumAtoms() == 61);
+	CPPUNIT_ASSERT(wheel4Mol->NumBonds() == 92);
+	
+	CPPUNIT_ASSERT(dataStoreInfo.hasClipboardStructure());
+	NXMoleculeSet *clipboardGroup = dataStoreInfo.getClipboardStructure();
+	CPPUNIT_ASSERT(clipboardGroup->moleculeCount() == 4);
+	CPPUNIT_ASSERT(clipboardGroup->childCount() == 0);
 }
