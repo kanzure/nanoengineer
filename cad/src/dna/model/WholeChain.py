@@ -227,13 +227,22 @@ class WholeChain(object):
 
     def __nonzero__(self):
         return True # needed for safety & efficiency, now that we have __len__! @@@@  TODO: same in other things with __len__; __eq__ too?
+
+    destroyed = False #bruce 080403
     
     def destroy(self): # 080120 7pm untested
-        # note: can be called from chunk._undo_update from one of our chunks;
-        # try to make it ok to call this multiple times
+        # note: this can be called from chunk._undo_update from one
+        # of our chunks; it needs to be ok to call it multiple times.
+        # I fixed a bug in that in two ways (either one is enough,
+        # each is a precaution if the other is present):
+        # a destroyed flag, and reset _all_markers to {} not ().
+        # [bruce 080403]
+        if self.destroyed:
+            return
+        self.destroyed = True # do this now, in case of exception or recursion
         for marker in self.all_markers():
             marker.forget_wholechain(self)
-        self._all_markers = ()
+        self._all_markers = {}
         self._controlling_marker = None
         self._strand_or_segment = None # review: need to tell it to forget us, too? @@@
         for rail in self.rails():
