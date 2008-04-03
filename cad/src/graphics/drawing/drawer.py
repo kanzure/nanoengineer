@@ -45,9 +45,13 @@ import Numeric
 from Numeric import sin, cos, sqrt, pi
 degreesPerRadian = 180.0 / pi
 
+from OpenGL.raw import GL           # The current graphics context.
+from OpenGL.arrays import ArrayDatatype as ADT
+
 from OpenGL.GL import GL_AMBIENT
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
 from OpenGL.GL import glAreTexturesResident
+from OpenGL.GL import GL_ARRAY_BUFFER_ARB
 from OpenGL.GL import GL_BACK
 from OpenGL.GL import glBegin
 from OpenGL.GL import glBindTexture
@@ -62,6 +66,7 @@ from OpenGL.GL import GL_COMPILE
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import GL_CONSTANT_ATTENUATION
 from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glDeleteTextures
 from OpenGL.GL import glDepthMask
 from OpenGL.GL import GL_DEPTH_TEST
@@ -70,6 +75,10 @@ from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
 from OpenGL.GL import glDrawArrays
 from OpenGL.GL import glDrawElements
+from OpenGL.GL import glDrawElementsub
+from OpenGL.GL import glDrawElementsui
+from OpenGL.GL import glDrawElementsus
+from OpenGL.GL import GL_ELEMENT_ARRAY_BUFFER_ARB
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
 from OpenGL.GL import glEnd
@@ -110,10 +119,14 @@ from OpenGL.GL import glMaterialfv
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import glNewList
-from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glNormal3fv
+from OpenGL.GL import glNormalPointer
+from OpenGL.GL import glNormalPointerf
 from OpenGL.GL import GL_NORMAL_ARRAY
 from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
+from OpenGL.GL import glPointSize
+from OpenGL.GL import GL_POINTS
+from OpenGL.GL import GL_POINT_SMOOTH
 from OpenGL.GL import GL_POLYGON
 from OpenGL.GL import glPolygonMode
 from OpenGL.GL import glPopMatrix
@@ -140,6 +153,7 @@ from OpenGL.GL import GL_TRIANGLES
 from OpenGL.GL import GL_TRIANGLE_STRIP
 from OpenGL.GL import GL_TRUE
 from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import GL_UNSIGNED_SHORT
 from OpenGL.GL import GL_VENDOR
 from OpenGL.GL import GL_VERSION
 from OpenGL.GL import glVertex
@@ -148,12 +162,9 @@ from OpenGL.GL import glVertex3f
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
-from OpenGL.GL import glPointSize
-from OpenGL.GL import GL_POINTS
-from OpenGL.GL import GL_POINT_SMOOTH
+from OpenGL.GL import glVertexPointerf
+
 from OpenGL.GLU import gluBuild2DMipmaps
-
-
 
 try:
     from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
@@ -207,6 +218,7 @@ from utilities.prefs_constants import material_specular_shininess_prefs_key
 from utilities.prefs_constants import material_specular_finish_prefs_key
 from utilities.prefs_constants import material_specular_brightness_prefs_key
 
+from utilities.debug_prefs import Choice
 import utilities.debug as debug # for debug.print_compact_traceback
 
 # this can't be done at toplevel due to a recursive import issue.
@@ -215,7 +227,6 @@ import utilities.debug as debug # for debug.print_compact_traceback
 
 import utilities.EndUser as EndUser
 
-from graphics.drawing.buffers import VertexBuffer
 import numpy
 
 # ==
@@ -231,6 +242,9 @@ use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
 #russ 080320: Added.
 use_color_sorted_vbos = use_color_sorted_vbos_default = False
 use_color_sorted_vbos_prefs_key = "use_color_sorted_vbos"
+#russ 080403: Added drawing variant selection.
+use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
+use_drawing_variant_prefs_key = "use_drawing_variant"
 
 # Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
 use_c_renderer = use_c_renderer_default = False
@@ -524,6 +538,32 @@ def getSphereTriStrips(level):
         continue # band
     return points
 
+def indexVerts(verts, close):
+    """
+    Compress a vertex array into an array of unique vertices, and an array of
+    index values into the unique vertices.  This is good for converting input
+    for glDrawArrays into input for glDrawElements.
+
+    The second arg is 'close', the distance between vertices which are close
+    enough to be considered a single vertex.
+    
+    The return value is a pair of arrays (index, verts).
+    """
+    unique = []
+    index = []
+    for v in verts:
+        for i in range(len(unique)):
+            if vlen(unique[i] - v) < close:
+                index += [i]
+                break
+            pass
+        else:
+            index += [len(unique)]
+            unique += [v]
+            pass
+        continue
+    return (index, unique)
+
 # ==
 
 # generate two circles in space as 13-gons,
@@ -657,7 +697,8 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        global use_c_renderer, allow_color_sorting, use_color_sorted_dls, use_color_sorted_vbos
+        global use_c_renderer, allow_color_sorting, use_color_sorted_dls
+        global use_color_sorted_vbos, use_drawing_variant
         self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
@@ -683,6 +724,8 @@ class glprefs:
                                             use_color_sorted_dls_default)
         use_color_sorted_vbos = env.prefs.get(use_color_sorted_vbos_prefs_key,
                                             use_color_sorted_vbos_default)
+        use_drawing_variant = env.prefs.get(use_drawing_variant_prefs_key,
+                                            use_drawing_variant_default)
         use_c_renderer = quux_module_import_succeeded and \
                        env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
 
@@ -715,6 +758,8 @@ class glprefs:
                               use_color_sorted_dls_default),)
         res += (env.prefs.get(use_color_sorted_vbos_prefs_key,
                               use_color_sorted_vbos_default),)
+        res += (env.prefs.get(use_drawing_variant_prefs_key,
+                              use_drawing_variant_default),)
         return res
 
     pass # end of class glprefs
@@ -969,6 +1014,94 @@ def get_gl_info_string(glpane): # grantham 20051129
         gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
     return gl_info_string
 
+# ==
+
+# Vertex Buffer Object (VBO) and Index Buffer Object (IBO) support.
+
+# Notice that the ARB-suffixed versions of the OpenGL calls are used here.
+# They're the ones with PyConvert ctypes wrappers, see: (the incomprehensible)
+#   http://pyopengl.sourceforge.net/ctypes/pydoc/OpenGL.GL.ARB.vertex_buffer_object.html
+# The sources will do you more good.   Also see "Array Handling Routines" here:
+#   http://pyopengl.sourceforge.net/documentation/opengl_diffs.html
+#
+from OpenGL.GL.ARB.vertex_buffer_object import glGenBuffersARB
+from OpenGL.GL.ARB.vertex_buffer_object import glDeleteBuffersARB
+# Patched versions.
+from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
+
+from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB # Unwrappered.
+
+class BufferObj(object):
+    """
+    Buffer data in the graphics card's RAM space.
+
+    Useful man pages for glBind, glBufferData, etc. for OpenGL 2.1 are at:
+    http://www.opengl.org/sdk/docs/man
+    PyOpenGL versions are at:
+    http://pyopengl.sourceforge.net/ctypes/pydoc/OpenGL.html
+
+    'target' is GL_ARRAY_BUFFER_ARB for vertex/normal buffers (VBO's), and
+    GL_ELEMENT_ARRAY_BUFFER_ARB for index buffers (IBO's.)
+
+    'data' is a numpy.array, with dtype=numpy.<datatype> .
+
+    'usage' is one of the hint constants, like GL_STATIC_DRAW.
+    """
+
+    def __init__(self, target, data, usage):
+        self.buffer = glGenBuffersARB(1) # Returns a numpy.ndarray for > 1.
+        self.target = target
+
+        self.bind()
+        self.size = len(data)
+
+        # Push the data over to Graphics card RAM.
+        glBufferDataARB(target, data, usage)
+
+        self.unbind()
+        return
+
+    def __del__(self):
+        if GL:                # The graphics context may have gone away already.
+            glDeleteBuffersARB(1, self.buffer)
+            pass
+        return
+
+    def bind(self):
+        """
+        Have to bind a particular buffer to its target to fill or draw from it.
+        Don't forget to unbind() it!
+        """
+        glBindBufferARB(self.target, self.buffer)
+        return
+
+    def unbind(self):
+        """
+        Unbind a buffer object from its target after use.
+        Failure to do this can kill Python on some graphics platforms!
+        """
+        glBindBufferARB(self.target, 0)
+        return
+
+    pass # End of class BufferObj.
+
+# ==
+
+#russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
+global cache_ColorSorter
+cache_ColorSorter = False ## True
+
+### Substitute this for drawsphere_worker to test drawing a lot of spheres.
+def drawsphere_worker_loop(params):
+    (pos, radius, detailLevel) = params
+    for x in range(100): ## 500
+        for y in range(100):
+            newpos = pos + (x+x/10+x/100) * V(1, 0, 0) + (y+y/10+y/100) * V(0, 1, 0)
+            drawsphere_worker((newpos, radius, detailLevel))
+            continue
+        continue
+    return
+
 def drawsphere_worker(params):
     """Draw a sphere.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
@@ -976,22 +1109,64 @@ def drawsphere_worker(params):
 
     (pos, radius, detailLevel) = params
 
+    vboLevel = use_drawing_variant
+
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
 
-    if not (allow_color_sorting and use_color_sorted_vbos): #russ 080320 Added.
+    if vboLevel is 0:
         glCallList(sphereList[detailLevel])
-    else:
-        vbo = sphereVBOs[detailLevel]
-
+    else:                               # Array variants.
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
 
-        vbo.bind_vertexes(3, GL_FLOAT)
-        vbo.bind_normals(GL_FLOAT)
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, vbo.size)
+        size = len(sphereArrays[detailLevel])
+        GLIndexType = sphereGLIndexTypes[detailLevel]
 
+        if vboLevel is 1:               # DrawArrays from CPU RAM.
+            verts = sphereCArrays[detailLevel]
+            glVertexPointer(3, GL_FLOAT, 0, verts)
+            glNormalPointer(GL_FLOAT, 0, verts)
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, size)
+
+        elif vboLevel is 2:             # DrawElements from CPU RAM.
+            verts = sphereCElements[detailLevel][1]
+            glVertexPointer(3, GL_FLOAT, 0, verts)
+            glNormalPointer(GL_FLOAT, 0, verts)
+
+            index = sphereElements[detailLevel][0]
+            glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
+
+        elif vboLevel is 3:             # DrawArrays from graphics RAM VBO.
+            vbo = sphereArrayVBOs[detailLevel]
+            vbo.bind()
+            glVertexPointer(3, GL_FLOAT, 0, None)
+            glNormalPointer(GL_FLOAT, 0, None)
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, vbo.size)
+            vbo.unbind()
+
+        elif vboLevel is 4: # DrawElements from index in CPU RAM, verts in VBO.
+            index = sphereCElements[detailLevel][0]
+            vbo = sphereElementVBOs[detailLevel][1]
+            vbo.bind()              # Vertex and normal data comes from the vbo.
+            glVertexPointer(3, GL_FLOAT, 0, None)
+            glNormalPointer(GL_FLOAT, 0, None)
+            ### Kills Python, except in the thumb view.
+            glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
+            vbo.unbind()
+
+        elif vboLevel is 5: # DrawElements from graphics RAM: index in IBO, verts in VBO.
+            (ibo, vbo) = sphereElementVBOs[detailLevel]
+            vbo.bind()              # Vertex and normal data comes from the vbo.
+            glVertexPointer(3, GL_FLOAT, 0, None)
+            glNormalPointer(GL_FLOAT, 0, None)
+            ibo.bind()              # Index data comes from the ibo.
+            glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, None)
+            vbo.unbind()
+            ibo.unbind()
+            pass
+        
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
         pass
@@ -1420,7 +1595,6 @@ class ShapeList:
         del self.cylinder_cappings
         del self.cylinder_names
 
-
 class ColorSortedDisplayList:         #Russ 080225: Added.
     """
     The ColorSorter's parent uses one of these to store color-sorted display list
@@ -1469,15 +1643,13 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Draw the displist (cached display procedure.)
         """
-        if not (allow_color_sorting and use_color_sorted_vbos):
+        #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
+        if (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos):
+            ColorSorter.draw_sorted(self.sorted_by_color)
+        else:
             # Call a normal OpenGL display list.
             glCallList(self.dl)
-        else:
-            # VBO drawing from cached ColorSorter lists.
-            ColorSorter.draw_sorted(self.sorted_by_color)
-            pass
         return
-        
 
     def selectPick(self, boolVal):
         """
@@ -1677,7 +1849,8 @@ class ColorSorter:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color	
-            ColorSorter.schedule(lcolor, drawsphere_worker, (pos, radius, detailLevel))
+            ColorSorter.schedule(lcolor, drawsphere_worker, ### drawsphere_worker_loop ### Testing.
+                                 (pos, radius, detailLevel))
 
     schedule_sphere = staticmethod(schedule_sphere)
 
@@ -1875,24 +2048,24 @@ class ColorSorter:
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
-            if not (allow_color_sorting and use_color_sorted_dls) \
-               or (allow_color_sorting and use_color_sorted_vbos) \
-               or parent_csdl is None:  #russ 080225 Added, 080320 VBOs added.
+            if (not (allow_color_sorting and use_color_sorted_dls)
+               or (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos) \
+               or parent_csdl is None):  #russ 080225 Added, 080320 VBO experiment.
 
                 # Either all in one display list, or immediate-mode drawing.
                 objects_drawn += ColorSorter.draw_sorted(ColorSorter.sorted_by_color)
 
                 #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
-                    if allow_color_sorting and use_color_sorted_vbos: #russ 080320
-                        # Remember the ColorSorter lists as a pseudo-display-list.
+                    #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
+                    if cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos:
+                        # Remember the ColorSorter lists for use as a pseudo-display-list.
                         parent_csdl.sorted_by_color = ColorSorter.sorted_by_color
                     else:
                         # Terminate a single display list, created when color sorting
                         # is turned off.  It was started in ColorSorter.start .
                         glEndList()
                     pass
-
                 pass
 
             else: #russ 080225
@@ -1907,7 +2080,8 @@ class ColorSorter:
                     glNewList(sublist, GL_COMPILE)
                     opacity = color[3]
                     if opacity < 0:
-                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                        #russ 080306: "Unshaded colors" for lines are signaled
+                        # by a negative opacity (4th component of the color.)
                         glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
                         pass
 
@@ -1961,7 +2135,7 @@ class ColorSorter:
 
                 # Use either the normal-color display list or the selected one.
                 parent_csdl.selectDl()
-                glCallList(parent_csdl.dl) # Draw it now.
+                parent_csdl.draw_dl()
                 pass
 
             ColorSorter.sorted_by_color = None
@@ -2078,17 +2252,80 @@ def setup_drawer():
         glEndList()
         continue
 
+    # Sphere triangle-strip vertices for each level of detail.
+    # (Cache and re-use the work of making them.)
+    # Can use in converter-wrappered calls like glVertexPointerfv,
+    # but the python arrays are re-copied to C each time.
+    global sphereArrays
+    sphereArrays = []
+    for i in range(numSphereSizes):
+        sphereArrays += [getSphereTriStrips(i)]
+        continue
+
+    # Sphere glDrawArrays triangle-strip vertices for C calls.
+    # (Cache and re-use the work of converting a C version.)
+    # Used in thinly-wrappered calls like glVertexPointer.
+    global sphereCArrays
+    sphereCArrays = []
+    for i in range(numSphereSizes):
+        CArray = numpy.array(sphereArrays[i], dtype=numpy.float32)
+        sphereCArrays += [CArray]
+        continue
+
+    # Sphere indexed vertices.
+    # (Cache and re-use the work of making the indexes.)
+    # Can use in converter-wrappered calls like glDrawElementsui,
+    # but the python arrays are re-copied to C each time.
+    global sphereElements
+    sphereElements = []             # Pairs of lists (index, verts) .
+    for i in range(numSphereSizes):
+        sphereElements += [indexVerts(sphereArrays[i], .0001)]
+        continue
+
+    # Sphere glDrawElements index and vertex arrays for C calls.
+    global sphereCIndexTypes, sphereGLIndexTypes, sphereCElements
+    sphereCIndexTypes = []          # numpy index unsigned types.
+    sphereGLIndexTypes = []         # GL index types for drawElements.
+    sphereCElements = []            # Pairs of numpy arrays (Cindex, Cverts) .
+    for i in range(numSphereSizes):
+        (index, verts) = sphereElements[i]
+        if len(index) < 256:
+            Ctype = numpy.uint8
+            GLtype = GL_UNSIGNED_BYTE
+        else:
+            Ctype = numpy.uint16
+            GLtype = GL_UNSIGNED_SHORT
+            pass
+        sphereCIndexTypes += [Ctype]
+        sphereGLIndexTypes += [GLtype]
+        sphereCIndex = numpy.array(index, dtype=Ctype)
+        sphereCVerts = numpy.array(verts, dtype=numpy.float32)
+        sphereCElements += [(sphereCIndex, sphereCVerts)]
+        continue
+
     if glGetString(GL_EXTENSIONS).find("GL_ARB_vertex_buffer_object") >= 0:
 
-        # A VertexBufferObject version, in place of the display lists.
-        global sphereVBOs
-        sphereVBOs = []
+        # A BufferObj version for glDrawArrays.
+        global sphereArrayVBOs
+        sphereArrayVBOs = []
         for i in range(numSphereSizes):
-            stripVerts = getSphereTriStrips(i)
-            Cverts = numpy.array(stripVerts, dtype=numpy.float32)
-            vbo = VertexBuffer(Cverts, GL_STATIC_DRAW)
-            sphereVBOs += [vbo]
+            vbo = BufferObj(GL_ARRAY_BUFFER_ARB,
+                            sphereCArrays[i], GL_STATIC_DRAW)
+            sphereArrayVBOs += [vbo]
             continue
+
+        # A BufferObj version for glDrawElements indexed verts.
+        global sphereElementVBOs
+        sphereElementVBOs = []              # Pairs of (IBO, VBO)
+        for i in range(numSphereSizes):
+            ibo = BufferObj(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                            sphereCElements[i][0], GL_STATIC_DRAW)
+            vbo = BufferObj(GL_ARRAY_BUFFER_ARB,
+                            sphereCElements[i][1], GL_STATIC_DRAW)
+            sphereElementVBOs += [(ibo, vbo)]
+            continue
+
+        ibo.unbind()
         vbo.unbind()
         pass
 
@@ -2282,6 +2519,12 @@ def setup_drawer():
     initial_choice = choices[use_color_sorted_vbos_default]
     use_color_sorted_vbos_pref = debug_pref("Use Color-sorted Vertex Buffer Objects?",
                                            initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
+
+    #russ 080403: Added drawing variant selection.
+    use_drawing_variant_pref = debug_pref("GLPane: Use OpenGL drawing variant",
+                                          Choice(range(6),
+                                                 defaultValue = use_drawing_variant_default),
+                                          prefs_key = use_drawing_variant_prefs_key)
 
     # temporarily always print this, while default setting might be in flux,
     # and to avoid confusion if the two necessary prefs are set differently
