@@ -13,6 +13,7 @@ its a child of that PM) . See if that creates any issues.
 """
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
+from utilities.Comparison import same_vals
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
@@ -26,6 +27,8 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
+from PM.PM_SpinBox       import PM_SpinBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 
 
 class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -63,6 +66,12 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.sequenceEditor = None      
         
+        self._numberOfBases = 0 
+        self._conformation = 'B-DNA'
+        self.duplexRise = 3.18
+        self.basesPerTurn = 10
+        self.dnaModel = 'PAM-3'
+        
         
         EditCommand_PM.__init__( self, 
                                     win,
@@ -94,6 +103,34 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          text          =  "",
                          setAsDefault  =  False)
         
+        self.numberOfBasesSpinBox = \
+            PM_SpinBox( pmGroupBox, 
+                        label         =  "Number of base atoms :", 
+                        value         =  self._numberOfBases,
+                        setAsDefault  =  False,
+                        minimum       =  2,
+                        maximum       =  10000 )
+        
+        self.basesPerTurnDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Bases Per Turn:",
+                              value         =  self.basesPerTurn,
+                              setAsDefault  =  True,
+                              minimum       =  8.0,
+                              maximum       =  20.0,
+                              decimals      =  2,
+                              singleStep    =  0.1 )
+        
+        self.duplexRiseDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Rise:",
+                              value         =  self.duplexRise,
+                              setAsDefault  =  True,
+                              minimum       =  2.0,
+                              maximum       =  4.0,
+                              decimals      =  3,
+                              singleStep    =  0.01 )
+        
         self.disableStructHighlightingCheckbox = \
             PM_CheckBox( pmGroupBox,
                          text         = "Don't highlight while editing DNA",
@@ -102,6 +139,14 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          setAsDefault = True,
                          spanWidth = True
                          )
+        
+        #As of 2008-03-31, the properties such as number of bases will be 
+        #editable only by using the resize handles. post FNANO we will support 
+        #the 
+        self.numberOfBasesSpinBox.setEnabled(False)
+        self.basesPerTurnDoubleSpinBox.setEnabled(False)
+        self.duplexRiseDoubleSpinBox.setEnabled(False)
+        
     
             
     def _loadSequenceEditor(self):
@@ -114,6 +159,48 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
         self.sequenceEditor.hide()
+        
+    def getParameters(self):
+        numberOfBases = self.numberOfBasesSpinBox.value()
+        dnaForm  = self._conformation
+        dnaModel = self.dnaModel
+        basesPerTurn = self.basesPerTurn
+        duplexRise = self.duplexRise
+              
+        return (numberOfBases, 
+                dnaForm,
+                dnaModel,
+                basesPerTurn,
+                duplexRise)
+    
+    def setParameters(self, params):
+        """
+        This is usually called when you are editing an existing structure. 
+        Some property manager ui elements then display the information 
+        obtained from the object being edited. 
+        TODO:
+        - Make this a EditCommand_PM API method? 
+        - See also the routines GraphicsMode.setParams or object.setProps
+        ..better to name them all in one style?  
+        """
+        #Set the duplex rise and bases per turn spinbox values. 
+        
+        numberOfBasePairs, \
+                         dnaForm, \
+                             dnaModel,\
+                             basesPerTurn, \
+                             duplexRise = params 
+        
+        if numberOfBasePairs is not None:
+            self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        if dnaForm is not None:
+            self._conformation = dnaForm
+        if dnaModel is not None:
+            self.dnaModel = dnaModel
+        if duplexRise is not None:
+            self.duplexRiseDoubleSpinBox.setValue(duplexRise)
+        if basesPerTurn is not None:
+            self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)    
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -202,7 +289,6 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             
     def _showSequenceEditor(self):
         if self.sequenceEditor:
-            
             #hide the history widget first
             #(It will be shown back during self.close)
             #The history widget is hidden or shown only when both 
@@ -218,14 +304,15 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             
             if not self.sequenceEditor.isVisible():
                 #Show the sequence editor
-                self.sequenceEditor.show()         
-                              
-            self._updateSequence()
+                self.sequenceEditor.show()     
+                                              
+            self.updateSequence()
             if self.editCommand.hasValidStructure():
                 msg = ("Viewing properties of %s") %(self.editCommand.struct.name)
                 self.updateMessage(msg)
     
-    def _updateSequence(self):
+        
+    def updateSequence(self):
         """
         Update the sequence string in the sequence editor
         """
@@ -241,7 +328,6 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         titleString = 'Sequence Editor for ' + strand.name
                            
         self.sequenceEditor.setWindowTitle(titleString)
-        print "***len(strand.getStrandSequence() ) = ", len(strand.getStrandSequence())
         sequenceString = strand.getStrandSequence()
         if sequenceString:
             sequenceString = QString(sequenceString) 

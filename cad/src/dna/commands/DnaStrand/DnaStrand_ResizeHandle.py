@@ -45,28 +45,30 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     
     #Handle color will be changed depending on whether the the handle is grabbed
     #So this is a 'State variable and its value is used in 'appearance' 
-    #(given as an optional argument to 'Sphere')
-    handleColor = State( Color, purple)
+    #(given as an optional argument to 'Sphere') 
+    handleColor = Option(StateRef, purple)  
     
+    
+    _currentHandleColor = State(Color, _self.handleColor)
+        
     #The state ref that determines the radius (of the sphere) of this handle. 
     #See DnaStrand_EditCommand._determine_resize_handle_radius() for more 
     #details
-    sphereRadius = Option(StateRef, 1.2)
-    
-    
+    sphereRadius = Option(StateRef, 1.3)
+        
     #Appearance of the handle. (note that it uses all the code from exprs module
     # and needs more documentation there). 
     #See exprs.Rect.Sphere for definition of a drawable 'Sphere' object.
     
     appearance = Overlay(
             Sphere(_self.sphereRadius, 
-                   handleColor, 
+                   _self._currentHandleColor, 
                    center = ORIGIN + _self.direction*3.0*_self.sphereRadius),
                    
             Cylinder((ORIGIN, 
                       ORIGIN + _self.direction*2.2*_self.sphereRadius),
-                      0.5 ,
-                      handleColor))
+                      0.5* _self.sphereRadius,
+                      _self._currentHandleColor))
     
     #Handle appearance when highlighted   
     appearance_highlighted = Option(
@@ -78,7 +80,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
                    
             Cylinder((ORIGIN,  
                       ORIGIN + _self.direction*2.2*_self.sphereRadius),
-                     0.5 , 
+                     0.5* _self.sphereRadius , 
                      yellow)),
             doc = "handle appearance when highlighted")
      
@@ -98,8 +100,11 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     #This variable is used in self.command.graphicsMode to draw a rubberband 
     #line  and also to specify the endPoint2 of the structure while modifying 
     #it. See DnaSegment_EditCommand.modifyStructure for details. 
-    currentPosition = _self.origin + _self.direction*_self.height_ref.value
-    
+    if _self.origin is not None:
+        currentPosition = _self.origin + _self.direction*_self.height_ref.value
+    else:
+        currentPosition = ORIGIN
+        
     
     #Fixed end of the structure (self.command.struct) ..meaning that end won't 
     #move while user grabbs and draggs this handle (attached to a the other 
@@ -109,8 +114,63 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     fixedEndOfStructure = Option(Point, 
                                  V(0, 0, 0))
     
+    #If this is false, the 'highlightable' object i.e. this handle 
+    #won't be drawn. See DraggableHandle.py for the declararion of 
+    #the delegate(that defines a Highlightable) We define a If_Exprs to check 
+    #whether to draw the highlightable object. 
+    should_draw = State(bool, True)
     
-    hasValidCenter = Option(bool, True)
+    def ORIG_NOT_USED_hasValidParamsForDrawing(self):
+        """
+        NOT USED AS OF 2008-04-02
+        Returns True if the handles origin and direction are not 'None'. 
+        
+        @see: DnaStrand_GraphicsMode._draw_handles() where the caller
+              uses this to decide whether this handle can be drawn without 
+              a problem. 
+        """
+        #NOTE: Better to do it in the drawing code of this class? 
+        #But it uses a delegate to draw stuff (see class Highlightable)
+        #May be we should pass this method to that delegate as an optional 
+        #argument -- Ninad 2008-04-02
+        if self.origin is None or self.direction is None:
+            return  False
+       
+        return True
+    
+    
+    def hasValidParamsForDrawing(self):
+        """
+        Returns True if the handles origin and direction are not 'None'. 
+        
+        @see: DnaStrand_GraphicsMode._draw_handles() where the caller
+              uses this to decide whether this handle can be drawn without 
+              a problem. 
+        
+        """
+        
+        #NOTE: Better to do it in the drawing code of this class? 
+        #But it uses a delegate to draw stuff (see class Highlightable)
+        #May be we should pass this method to that delegate as an optional 
+        #argument -- Ninad 2008-04-02
+        
+        #@Bug: Create a duplex; Enter Dna strand edit command, 
+        # then shorten it such that it removes some bases of the strand from the
+        #original duplex. Hit undo; click on the right handle, and shorten it again
+        #sometimes it gives a traceback. in drawing the highlightable 
+        #this could be because self.should_draw flag is not getting updated.
+        
+            
+        #NOTES: If this method is used, you will also need to define the 
+        #delegate in class DraggableHandle as --
+        #delegate = If_Exprs(_self.should_draw, Highlightable(....))
+        if self.origin is None or self.direction is None:
+            self.should_draw = False
+        else:
+            self.should_draw = True
+        
+        return self.should_draw
+            
        
     def on_press(self):  
         """
@@ -123,7 +183,8 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         """
         #Change the handle color when handle is grabbed. See declaration of 
         #self.handleColor in the class definition. 
-        self.handleColor = darkgreen
+      
+        self._currentHandleColor = darkgreen
         
         #assign 'self' as the curent grabbed handle of the command. 
         self.command.grabbedHandle = self
@@ -143,10 +204,10 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         @see: B{SelectChunks.GraphicsMode.leftUp}
         @see: B{DragHandle_API}
         """
-        self.handleColor = purple
+        self._currentHandleColor = self.handleColor
         if self.command and hasattr(self.command, 'modifyStructure'): 
             self.command.modifyStructure()
             #Clear the grabbed handle attribute (the handle is no longer 
             #grabbed)
             self.command.grabbedHandle = None
-
+        
