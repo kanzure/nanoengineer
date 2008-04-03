@@ -71,7 +71,7 @@ TARGET = nv1
 DESTDIR = ../../../bin
 
 # This tells qmake to not create a Mac bundle for this application.
-CONFIG -= app_bundle
+CONFIG -= app_bundle 
 
 #macx : TARGETDEPS ~= s/.so/.dylib/g
 
@@ -84,21 +84,21 @@ macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
 
+
+TARGETDEPS += ../../../lib/libNXOpenGLSceneGraph.a \
+  ../../../lib/libGLT.a \
+  ../../../lib/libNanorexInterface.so \
+  ../../../lib/libNanorexUtility.so
+#  ../../../lib/libNXBallAndStickOpenGLRenderer.so
+#  ../../../lib/libNXOpenGLRenderingEngine.so 
+
 LIBS += -L../../../lib \
-  -lNanorexUtility \
   -lNanorexInterface \
+  -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lNXOpenGLSceneGraph \
   -lGLT \
   -lopenbabel
-# -lNXOpenGLRenderingEngine \
-# -lNXBallAndStickOpenGLRenderer \
-
-TARGETDEPS += \
-  ../../../lib/libNXOpenGLSceneGraph.a \
-  ../../../lib/libGLT.a \
-  ../../../lib/libNanorexInterface.so \
-  ../../../lib/libNanorexUtility.so
-#  ../../../lib/libNXBallAndStickOpenGLRenderer.so \
-#  ../../../lib/libNXOpenGLRenderingEngine.so 
+# -lNXOpenGLRenderingEngine 
+# -lNXBallAndStickOpenGLRenderer 
 

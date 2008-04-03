@@ -28,6 +28,7 @@ StructureGraphicsWindow::~StructureGraphicsWindow()
 {
 	if(renderingEngine != (NXRenderingEngine*) NULL)
 		delete renderingEngine;
+	renderingEngine = NULL;
 }
 
 

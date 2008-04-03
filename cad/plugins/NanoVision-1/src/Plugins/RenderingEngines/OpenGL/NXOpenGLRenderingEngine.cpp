@@ -597,6 +597,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	// atomRenderData.addData(static_cast<void const *>(&defaultAtomMaterial));
 	NXAtomData *atomData =
 		dynamic_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType)); 
+	assert(atomData != NULL);
 	string const& atomRenderStyleCode = atomData->getRenderStyleCode();
 	atomData->addSupplementalData(static_cast<void const*>(&defaultAtomMaterial));
 	

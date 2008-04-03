@@ -1,7 +1,7 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef NX_MMPIMPORTEXPORT_H
-#define NX_MMPIMPORTEXPORT_H
+#ifndef NANOREXMMPIMPORTEXPORT_H
+#define NANOREXMMPIMPORTEXPORT_H
 
 #include <openbabel/mol.h>
 #include "Nanorex/Utility/NXLogger.h"
@@ -21,8 +21,6 @@
 
 using namespace std;
 using namespace Nanorex;
-
-namespace Nanorex {
 
 
 /* CLASS: NanorexMMPImportExport */
@@ -156,10 +154,10 @@ private:
     static void populateCommandResult(NXCommandResult* result,
                                       const string& message);
     
+
 	friend class NanorexMMPImportExportTest;
+	
 };
 
 
-} // namespace Nanorex
-
-#endif // NX_MMPIMPORTEXPORT_H
+#endif // NANOREXMMPIMPORTEXPORT_H

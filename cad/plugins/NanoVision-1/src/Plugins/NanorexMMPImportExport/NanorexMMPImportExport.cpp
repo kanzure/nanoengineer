@@ -1281,7 +1281,7 @@ _eof_trans:
 	case 38:
 #line 79 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if((int)stack.size() == stackSize) {
+	if(top == stackSize) {
 		stackSize += stackSize;
 	    stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
@@ -1291,7 +1291,7 @@ _eof_trans:
 	case 39:
 #line 82 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if((int)stack.size() == stackSize) {
+	if(top == stackSize) {
 		stackSize += stackSize;
 	    stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
@@ -1301,7 +1301,7 @@ _eof_trans:
 	case 40:
 #line 87 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if((int)stack.size() == stackSize) {
+	if(top == stackSize) {
 		stackSize += stackSize;
 	    stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;

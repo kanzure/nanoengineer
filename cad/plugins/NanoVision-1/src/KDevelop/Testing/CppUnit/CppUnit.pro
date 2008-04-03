@@ -9,7 +9,8 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
  ../../../Utility/NXPointTest.cpp \
  ../../../Interface/NXSceneGraphTest.cpp \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp \
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp
 
 TEMPLATE = app
 
@@ -32,7 +33,8 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
  ../../../Interface/NXSceneGraphTest.h \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.h
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.h \
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.h
 
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
@@ -61,11 +63,15 @@ DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.
  ../../../Plugins/NanorexMMPImportExport/molecule.rl \
  ../../../Plugins/NanorexMMPImportExport/atom.rl \
  ../../../Plugins/NanorexMMPImportExport/utilities.rl \
- ../../../Plugins/NanorexMMPImportExport/group.rl 
+ ../../../Plugins/NanorexMMPImportExport/group.rl \
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.rl
+
+
 
 LIBS += -L../../../../lib \
-  -lNanorexInterface \
+  -lNanorexMMPImportExport \
   -lNanorexUtility \
+  -lNanorexInterface \
   -L$(OPENBABEL_LIBPATH) \
   -L$(HDF5_SIMRESULTS_INCPATH) \
   -lcppunit \

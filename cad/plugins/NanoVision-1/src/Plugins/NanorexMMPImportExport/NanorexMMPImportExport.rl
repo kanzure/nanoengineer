@@ -92,7 +92,7 @@ main := WHITESPACE*
 	
 # dynamic stack re-sizing
 prepush {
-	if((int)stack.size() == stackSize) {
+	if(top == stackSize) {
 		stackSize += stackSize;
 	    stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
