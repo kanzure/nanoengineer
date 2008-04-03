@@ -130,10 +130,9 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             
             if self.o.modkeys is None:
                 if isinstance(self.o.selobj, Atom):
-                    if self.o.selobj.element.role == 'strand':
-                        self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
-                    else:
-                        self.o.setCursor(self.win.translateAlongCentralAxisCursor)
+                    self.o.setCursor(self.win.translateAlongCentralAxisCursor)
+                elif isinstance(self.o.selobj, Bond):
+                    self.o.setCursor(self.win.TranslateSelectionCursor)
                         
     #===========================================================================
     #START-- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION 
@@ -475,8 +474,8 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         """
-        if self._handleDrawingRequested and \
-           self.command.handles_have_valid_centers:
+        if self._handleDrawingRequested: # and \
+           #self.command.handles_have_valid_centers:
             self._drawHandles()     
         _superclass.Draw(self)
               
@@ -484,9 +483,14 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         Draw the handles for the command.struct 
         """    
-        if self.command and self.command.hasValidStructure():            
+        if 0: #self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:
                 handle.draw()
+        
+        if self.command and self.command.hasValidStructure():            
+            for handle in self.command.handles:
+                if handle.hasValidParamsForDrawing():
+                    handle.draw()
         
         handleType = ''
         if self.command.grabbedHandle is not None:

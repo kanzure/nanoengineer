@@ -18,6 +18,7 @@ from foundation.Group import Group
 
 from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Comparison     import same_vals
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 class NanotubeSegment(Group):
     """
@@ -159,17 +160,11 @@ class NanotubeSegment(Group):
         atom's chunk is a member of this NanotubeSegment (chunk.dad is self)
         
         It also considers all the logical contents of the NanotubeSegment to determine
-        whetehr self is an ancestor. (returns True even for logical contents)
+        whether self is an ancestor. (returns True even for logical contents)
         
-                
         @see: self.get_all_content_chunks()
         @see: NanotubeSegment_GraphicsMode.leftDrag
-        
-        @Note: when dna data model is fully implemented, the code below that is 
-        flaged 'pre-Dna data model' and thus the method should be revised 
         """
-        
-        #start of POST DNA DATA MODEL IMPLEMENTATION ===========================
         c = None
         if isinstance(obj, Atom):       
             c = obj.molecule                 
@@ -184,9 +179,6 @@ class NanotubeSegment(Group):
         if c is not None:
             if c in self.get_all_content_chunks():
                 return True        
-        #end of POST DNA DATA MODEL IMPLEMENTATION =============================    
-        
-        #start of PRE- DNA DATA MODEL IMPLEMENTATION ===========================
         
         #NOTE: Need to check if the isinstance checks are acceptable (apparently
         #don't add any import cycle) Also this method needs to be revised 
@@ -196,10 +188,7 @@ class NanotubeSegment(Group):
             if chunk.dad is self:
                 return True
             else:
-                ladder = getattr(chunk, 'ladder', None)
-                if ladder:
-                    pass
-                
+                return False
         elif isinstance(obj, Bond):
             chunk1 = obj.atom1.molecule
             chunk2 = obj.atom1.molecule            
@@ -208,8 +197,6 @@ class NanotubeSegment(Group):
         elif isinstance(obj, Chunk):
             if obj.dad is self:
                 return True
-        #end of PRE- DNA DATA MODEL IMPLEMENTATION ===========================
-                
         return False
     
     def node_icon(self, display_prefs):        
@@ -218,6 +205,124 @@ class NanotubeSegment(Group):
         if self.all_content_is_hidden():    
             return imagename_to_pixmap( self.hide_iconPath)
         else:
-            return imagename_to_pixmap( self.iconPath)        
+            return imagename_to_pixmap( self.iconPath)
+        
+    # =======================================================================
+    # These methods were copied from DnaStrandOrSegment and edited for 
+    # this class.
+    
+    def permits_ungrouping(self): 
+        """
+        Should the user interface permit users to dissolve this Group
+        using self.ungroup?
+        [overridden from Group]
+        """
+        return self._show_all_kids_for_debug() # normally False
+            # note: modelTree should modify menu text for Ungroup to say "(unsupported)",
+            # but this is broken as of before 080318 since it uses a self.is_block() test.
+
+    def _show_all_kids_for_debug(self):
+         #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
+        classname_short = self.__class__.__name__.split('.')[-1]
+        debug_pref_name = "Model Tree: show content of %s?" % classname_short
+            # typical examples (for text searches to find them here):
+            # Model Tree: show content of DnaStrand?
+            # Model Tree: show content of DnaSegment?
+        return debug_pref( debug_pref_name, Choice_boolean_False )
+
+    def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment
+        """
+        [friend method for enforce_permitted_members_in_groups and subroutines]
+
+        Does self permit node as a direct member,
+        when called from enforce_permitted_members_in_groups with
+        the same options as we are passed?
+
+        @rtype: boolean
+
+        [overrides Group method]
+        """
+        #bruce 080319
+        # someday, reject if superclass would reject -- so far, it never does
+        del opts
+        assy = self.assy
+        res = isinstance( node, assy.Chunk) #@ NEEDS SOMETHING MORE.
+        return res
+    
+    def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in DnaStrandOrSegment
+        """
+        [friend method for enforce_permitted_members_in_groups and subroutines]
+        
+        Does self want to be killed due to members that got ejected
+        by _f_move_nonpermitted_members (or due to completely invalid structure
+        from before then, and no value in keeping self even temporarily)?
+
+        @rtype: boolean
+
+        [overrides Group method]   
+        """
+        #bruce 080319
+        del opts, pre_updaters
+        return not self.members
+
+    def MT_DND_can_drop_inside(self): #bruce 080317, revised 080318
+        """
+        Are ModelTree Drag and Drop operations permitted to drop nodes
+        inside self?
+
+        [overrides Node/Group method]
+        """
+        return self._show_all_kids_for_debug() # normally False
+    
+    def openable(self): # overrides Node.openable()
+        """
+        whether tree widgets should permit the user to open/close their view of this node
+        """
+        # if we decide this depends on the tree widget or on somet for thing about it,
+        # we'll have to pass in some args... don't do that unless/until we need to.
+
+        #If there are no MT_kids (subnodes visible in MT under this group) then
+        #don't make this node 'openable'. This makes sure that expand/ collapse
+        #pixmap next to the node is not shown for this type of Group with 0 
+        #MT_kids
+        #Examples of such groups include empty groups, DnaStrand Groups,
+        #DnaSegments etc -- Ninad 2008-03-15
+        return len(self.MT_kids()) != 0
+    
+    def _raw_MT_kids(self, display_prefs = {}):
+        """
+        DnaStrand or DnaSegment groups (subclasses of this class) should not 
+        show any MT kids.
+        @see: Group._raw__MT_kids()
+        @see: Group.MT_kids()
+        """
+        if self._show_all_kids_for_debug(): # normally False
+            # bruce 080318
+            return self.members
+        return ()
+
+    def move_into_your_members(self, node):
+        """
+        Move node into self's Group members, and if node was not
+        already there but left some other existing Group,
+        return that Group.
+        
+        @param node: a node of a suitable type for being our direct child
+        @type node: a DnaLadderRailChunk or DnaMarker
+
+        @return: Node's oldgroup (if we moved it out of a Group other than self)
+                 or None
+        @rtype: Group or None
+        """
+        oldgroup = node.dad # might be None
+        self.addchild(node)
+        newgroup = node.dad
+        assert newgroup is self
+        if oldgroup and oldgroup is not newgroup:
+            if oldgroup.part is newgroup.part: #k guess
+                return oldgroup
+        return None
+        
+    pass # end of class NanotubeSegment
                 
 # end

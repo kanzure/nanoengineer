@@ -55,6 +55,7 @@ from model.bonds import Bond
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities.constants   import noop
 from utilities.Comparison  import same_vals
+from utilities.debug import print_compact_stack
 
 from graphics.drawables.RotationHandle  import RotationHandle
 
@@ -200,11 +201,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         self.handles = []        
         self.grabbedHandle = None
         
-        #This flag determines whether there was a problem updating handle 
-        #positions. This flag is used in graphicsMose.Draw method to 
-        #determine wheather to draw handles. 
-        self.handles_have_valid_centers = True
-        
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
         
@@ -333,7 +329,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         Update handle positions and also update the resize handle radii and
         their 'stopper' lengths. 
         @see: self._update_resizeHandle_radius()
-        @see: self._update_resizeHandle_stopper_length()        
+        @see: self._update_resizeHandle_stopper_length()
+        @see: NanotubeSegment_GraphicsMode._drawHandles()
         """
         self.handlePoint1 = None # Needed!
         self.handlePoint2 = None
@@ -354,7 +351,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         if handlePoint1 is not None and handlePoint2 is not None:
             # (that condition is bugfix for deleted axis segment, bruce 080213)
             
-            self.handles_have_valid_centers = True
             self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2            
             
             #Update the 'stopper'  length where the resize handle being dragged 
@@ -372,9 +368,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                 v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
 
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
-                self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
-        else:
-            self.handles_have_valid_centers = False
+                self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0
         
     def _update_resizeHandle_radius(self):
         """
@@ -387,7 +381,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         self.handleSphereRadius1 = HANDLE_RADIUS_DEFAULT_VALUE
         self.handleSphereRadius2 = HANDLE_RADIUS_DEFAULT_VALUE
             
-    def _update_resizeHandle_stopper_length(self): #@ OK
+    def _update_resizeHandle_stopper_length(self):
         """
         Update the limiting length at which the resize handle being dragged
         should 'stop'  without proceeding further in the drag direction. 
@@ -667,7 +661,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         if self.hasValidStructure():
             self.struct.name = name
 
-    def getCursorText(self): #@ OK
+    def getCursorText(self):
         """
         This is used as a callback method in NanotubeLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
@@ -724,7 +718,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         self.propMgr.endPoint1 = self.grabbedHandle.fixedEndOfStructure
         self.propMgr.endPoint2 = self.grabbedHandle.currentPosition
-        length = vlen(self.propMgr.endPoint1 - self.propMgr.endPoint2 ) #@  
+        #@length = vlen(self.propMgr.endPoint1 - self.propMgr.endPoint2 ) #@  
 
         self.preview_or_finalize_structure(previewing = True)  
 
@@ -771,6 +765,9 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD = False
         
         if DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD:
+            
+            # TO DO: this entire block of code.  --Mark 2008-04-03
+            print_compact_stack("modifyStructure_NEW_SEGMENT_RESIZE(): NOT FIXED")
 
             length = vlen(self.grabbedHandle.fixedEndOfStructure - \
                           self.grabbedHandle.currentPosition )
@@ -800,7 +797,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                 length_diff =  self._determine_how_to_change_length()  
                 ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end() #@
                 
-                #@ Nanotube needs modify() method.
+                #@ Nanotube class needs modify() method.
                 self.nanotube.modify(self.struct, 
                                      length_diff,
                                      ladderEndAxisAtom.posn(),
