@@ -492,6 +492,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                 # check for duplicates (mol at two places in tree) using a dict, whose values accumulate our mols list
                 if seen.get(id(n)):
                     print "bug: some chunk occurs twice in this part's topnode tree; semi-tolerated but not fixed"
+                    print " the chunk is %r, and this part is %r, in assy %r, with topnode %r" % \
+                          (n, self, self.assy, self.topnode) #bruce 080403, since this happened to tom
                     return # from func only
                 seen[id(n)] = n
             return # from func only
