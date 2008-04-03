@@ -388,9 +388,12 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 rotateAboutAxis = False
                 freeDragWholeStructure = True
         
+        offset = None
+        
         if translateAlongAxis:
+            offset = dx * resAxis
             for mol in movables:
-                mol.move(dx * resAxis)
+                mol.move(offset)
 
         if rotateAboutAxis:
             #Don't include the axis chunk in the list of movables. 
@@ -419,22 +422,17 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 offset = point - self.movingPoint
                 self.o.assy.translateSpecifiedMovables(offset, movables = movables)
                 self.movingPoint = point
-                
-                endPt1, endPt2 = self.command.struct.nanotube.getEndPoints()
-                endPt1 += offset
-                endPt2 += offset
-                
-                print "leftDrag(): endPt1=", endPt1
-                print "leftDrag(): endPt2=", endPt2
-                
-                self.command.struct.nanotube.setEndPoints(endPt1, endPt2)
-                
             except:
                 #may be self.movingPoint is not defined in leftDown? 
                 #(e.g. _superclass.leftDown doesn't get called or as a bug? )
                 print_compact_traceback("bug:unable to free drag the whole segment")
             
-            
+        if offset: # Update the nanotube endpoints.
+            endPt1, endPt2 = self.command.struct.nanotube.getEndPoints()
+            endPt1 += offset
+            endPt2 += offset
+            self.command.struct.nanotube.setEndPoints(endPt1, endPt2)
+                
         self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
         
         self.o.SaveMouse(event)

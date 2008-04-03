@@ -334,7 +334,10 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         their 'stopper' lengths. 
         @see: self._update_resizeHandle_radius()
         @see: self._update_resizeHandle_stopper_length()        
-        """  
+        """
+        self.handlePoint1 = None # Needed!
+        self.handlePoint2 = None
+        
         #TODO: Call this method less often by implementing model_changed
         #see bug 2729 for a planned optimization
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
@@ -347,8 +350,10 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         # but the handles do not get drawn at the new handlePoint positions.
         # Need Ninad to help to fix this. --Mark 2008-04-02 
         handlePoint1, handlePoint2 = self.struct.nanotube.getEndPoints()
-        print "updateHandlePositions(): handlePoint1=", handlePoint1
-        print "updateHandlePositions(): handlePoint2=", handlePoint2
+        
+        if 0: # Debug prints
+            print "updateHandlePositions(): handlePoint1=", handlePoint1
+            print "updateHandlePositions(): handlePoint2=", handlePoint2
         
         if handlePoint1 is not None and handlePoint2 is not None:
             # (that condition is bugfix for deleted axis segment, bruce 080213)
