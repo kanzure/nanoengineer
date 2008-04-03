@@ -155,7 +155,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.connect( self.startOverButton,
                       SIGNAL("clicked()"),
                       self._startOverClicked)
-
+    
     def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  

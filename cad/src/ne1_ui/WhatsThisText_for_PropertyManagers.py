@@ -74,7 +74,27 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Peptide Generator Property Manager.
     """
-    return
+    
+    propMgr.aaTypeComboBox.setWhatsThis(
+        """<b>Chain Confirmation</b>
+        <p>
+        Lists the available confirmations for the polypeptide chain
+        </p>""")
+    
+    propMgr.startOverButton.setWhatsThis(
+        """<b>Start Over</b>
+        <p>
+        Deletes the current sequence from the sequence editor
+        </p>""")
+    
+    propMgr.sequenceEditor.setWhatsThis(
+        """<b>Sequence Editor</b>
+        <p>
+        Displays the current amino acid sequence 
+        </p>""")
+    
+    return # End of whatsThis_PeptideGeneratorPropertyManager
+
 
 def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
     """
