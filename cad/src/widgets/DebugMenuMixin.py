@@ -325,7 +325,7 @@ class DebugMenuMixin:
         ## self.destroy() ###k this doesn't seem to work. check method name.
         self.deleteLater()
 
-    def _draw_hundred_frames(self):
+    def _draw_hundred_frames(self, par1, par2):
         # redraw 100 frames, piotr 080403
         for i in range(0, 100):
             self.win.glpane.paintGL()
@@ -334,11 +334,11 @@ class DebugMenuMixin:
         # simple bechmark, piotr 080311
         from time import clock
         from utilities.debug import profile
-        print "benchmarking... please wait"
+        print "benchmarking - drawing 100 frames... please wait"
         win = self._debug_win
         self.win.resize(1024,768) # resize the window to a constant size
         tm0 = clock()
-        profile(self._hundred_frames, self, None)
+        profile(self._draw_hundred_frames, self, None)
         tm1 = clock()
         print "benchmark done. fps = ", 100.0/(tm1-tm0)
 
