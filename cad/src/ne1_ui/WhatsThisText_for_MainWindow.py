@@ -602,7 +602,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     viewNormalToActionText = \
         "<u><b>Set View Normal To</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/View/Set_View_Normal_To.png/\"><br> "\
+        "<img source=\"ui/actions/View/Set_View_Normal_To/\"><br> "\
         "Orients view to the normal vector of the plane "\
         "defined by 3 or more selected atoms, or a jig's "\
         "axis."\
@@ -1510,7 +1510,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     toolsSelectMoleculesActionText = \
         "<u><b>Select Chunks</b></u><!-- [[Feature:Select Chunks Mode]] -->"\
         "<p>"\
-        "<img source=\"ui/actions/Toolbars/Standard/63.png\"><br> "\
+        "<img source=\"ui/cursors/SelectArrowCursor.png\"><br> "\
         "<b>Select Chunks</b> allows you to select/unselect chunks with the "\
         "mouse.</p>"\
         "<p>"\
@@ -1574,7 +1574,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Fuse Chunks Mode</b></u>"\
         "<!-- [[Feature:Fuse Chunks Mode]] -->"\
         "<p>"\
-        "<img source=\"ui/actions/Tools/Build Tools/Fuse.png\"><br> "\
+        "<img source=\"ui/actions/Tools/Build Tools/Fuse_Chunks.png\"><br> "\
         "<b>Fuse Chunks</b> can be used to "\
         "interactively join two or more chunks by "\
         "dragging chunks around and fusing them "\
