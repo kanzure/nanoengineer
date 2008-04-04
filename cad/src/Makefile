@@ -74,12 +74,6 @@ DOC_MODULES = $(wildcard *.py) exprs/
 all : 
 	echo "Nothing is remade by default -- use one of the explicit make targets."
 
-# bruce 051202 added this target
-extensions: 
-	python setup.py build_ext --inplace
-
-pyx: extensions
-
 build : $(PYFILES0) 
 $(PYFILES0) : %.py : %.ui
 	pyuic $< -o $@ 

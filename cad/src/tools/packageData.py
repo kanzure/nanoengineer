@@ -110,7 +110,6 @@ disallowedModuleNames = {
 
 # modules listed below but no longer output at toplevel by AllPyFiles.sh:
 #   assembly - now in model/
-#   pyrex_test - exists as .c .pyx .so but not as .py
 #   whatsthis - now in gui/
 
 
@@ -370,7 +369,6 @@ packageMapping_for_files = {
     "example_expr_command"             : "command|prototype",
     
     "ExecSubDir"                       : "top_level",
-    "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)
     "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
     "fileIO"                           : "graphics_io|graphics/rendering", # should be split into files_mdl and files_povray
@@ -529,7 +527,6 @@ packageMapping_for_files = {
     "Process"                          : "io|processes",
     "PropMgr_Constants"                : "PM",
     "PyrexSimulator"                   : "io|simulation",
-    "pyrex_test"                       : "top_level", #? maybe not needed here -- it exists as .c and .pyx and .so, not as .py
     
     "qt4transition"                    : "utilities",
     
@@ -565,10 +562,7 @@ packageMapping_for_files = {
     
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
-    
-    "setup"                            : "top_level",
-    "setup2"                           : "top_level",
-    
+        
     "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
     "Slab"                             : "geometry",
 

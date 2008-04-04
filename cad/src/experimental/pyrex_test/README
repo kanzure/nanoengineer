@@ -1,0 +1,39 @@
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+
+@author: Bruce
+@version: $Id$
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+
+
+a simple test of building and using pyrex code
+
+
+this is what _import_roots.py said about these files
+when they were at toplevel:
+
+import extensions # a file optionally imported at runtime by NE1,
+    # but which must not yet have an import statement in NE1
+    # (since py2app/py2exe should not follow it for import dependencies,
+    #  lest it get confused by the lack of the optional dll which
+    #  this file tries to import)
+    # [bruce 071008]
+
+import setup # build script for the optional dlls loaded by extensions.py
+    # (called from Makefile but not yet part of the NE1 build process)
+    # [bruce 071008]
+
+
+
+and this is what cad/src/Makefile said:
+
+# bruce 051202 added this target
+extensions: 
+	python setup.py build_ext --inplace
+
+pyx: extensions
+
+
+
+
+extensions.py is also mentioned in startup_misc.py
+

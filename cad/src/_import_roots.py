@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 _import_roots.py - import all toplevel files in the import dependency hierarchy
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 Note: most of the files we import here are for separate main programs, never
 normally imported into one process; this file exists for the use of import
@@ -20,20 +22,6 @@ When no longer needed, they should be removed.
 import main # the NE1 main program file
 
 import ExecSubDir # a Python script which needs to remain in cad/src
-    # [bruce 071008]
-
-import extensions # a file optionally imported at runtime by NE1,
-    # but which must not yet have an import statement in NE1
-    # (since py2app/py2exe should not follow it for import dependencies,
-    #  lest it get confused by the lack of the optional dll which
-    #  this file tries to import)
-    # [bruce 071008]
-
-import setup # build script for the optional dlls loaded by extensions.py
-    # (called from Makefile but not yet part of the NE1 build process)
-    # [bruce 071008]
-
-import setup2 # build script for samevals.c dll (experimental, optional)
     # [bruce 071008]
 
 import graphics.drawables.Selobj as Selobj # a draft API file, soon to be renamed and imported from NE1

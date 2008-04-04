@@ -202,7 +202,7 @@ def post_main_show( win):
     
     # TODO: rebuild pyx modules if necessary and safe -- but only for 
     # developers, not end-users
-    # TODO: initialize Python extensions: ## import extensions.py
+    # TODO: initialize Python extensions: ## import experimental/pyrex_test/extensions.py
     _initialize_plugin_generators()
     _init_experimental_commands()
     _set_mainwindow_splitter_position( win)
