@@ -1135,7 +1135,7 @@ def drawsphere_worker(params):
             verts = sphereCElements[detailLevel][1]
             glVertexPointer(3, GL_FLOAT, 0, verts)
             glNormalPointer(GL_FLOAT, 0, verts)
-
+            # Can't use the C index in sphereCElements yet, fatal PyOpenGL bug.
             index = sphereElements[detailLevel][0]
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
 
@@ -1148,16 +1148,16 @@ def drawsphere_worker(params):
             vbo.unbind()
 
         elif vboLevel is 4: # DrawElements from index in CPU RAM, verts in VBO.
-            index = sphereCElements[detailLevel][0]
             vbo = sphereElementVBOs[detailLevel][1]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
             glNormalPointer(GL_FLOAT, 0, None)
-            ### Kills Python, except in the thumb view.
+            # Can't use the C index in sphereCElements yet, fatal PyOpenGL bug.
+            index = sphereElements[detailLevel][0]
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
             vbo.unbind()
 
-        elif vboLevel is 5: # DrawElements from graphics RAM: index in IBO, verts in VBO.
+        elif vboLevel is 5: # VBO/IBO buffered DrawElements from graphics RAM.
             (ibo, vbo) = sphereElementVBOs[detailLevel]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
@@ -2532,11 +2532,19 @@ def setup_drawer():
     use_color_sorted_vbos_pref = debug_pref("Use Color-sorted Vertex Buffer Objects?",
                                             initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
 
-    #russ 080403: Added drawing variant selection.
-    use_drawing_variant_pref = debug_pref("GLPane: Use OpenGL drawing variant",
-                                          Choice(range(6),
-                                                 defaultValue = use_drawing_variant_default),
-                                                 prefs_key = use_drawing_variant_prefs_key)
+    #russ 080403: Added drawing variant selection
+    variants = [
+        "0. OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.",
+        "1. OpenGL 1.1 - glDrawArrays from CPU RAM.",
+        "2. OpenGL 1.1 - glDrawElements indexed arrays from CPU RAM.",
+        "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
+        "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
+        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements."]
+    use_drawing_variant = debug_pref(
+        "GLPane: drawing method",
+        Choice(names = variants, values = range(len(variants)),
+               defaultValue = use_drawing_variant_default),
+        prefs_key = use_drawing_variant_prefs_key)
 
     # temporarily always print this, while default setting might be in flux,
     # and to avoid confusion if the two necessary prefs are set differently
