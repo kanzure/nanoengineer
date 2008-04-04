@@ -204,19 +204,22 @@ class DebugMenuMixin:
 
     def _debug_print_object_counts(self):
         #bruce 060327 for debugging memory leaks: report Atom & Bond refcounts, and objs that might refer to them
+        # Note: these counts include not only instances, but imports of classes into modules.
+        # That's probably why the initial counts seem too high:
+        # 40 Atoms, 24 Bonds, 40 Chunks, 34 Groups, 8 Parts, 10 Assemblies
+        # [as of 080403]
         from utilities.Log import _graymsg
         msglater = "" # things to print all in one line
         for clasname, modulename in (
-            # Note: this has not been tested since the modules were moved into packages,
-            # so I don't know if the dotted modulenames used below actually work.
-            # If not, we should fix the subsequent code so that they do.
-            # [bruce 080403]
+            #bruce 080403 fixed modulenames (since the modules were moved into
+            # packages); the dotted names seem to work.
             ('Atom', 'model.chem'),
             ('Bond', 'model.bonds'),
             # ('Node', 'Utility'), # Node or Jig is useless here, we need the specific subclasses!
             ('Chunk', 'model.chunk'),
+            # DnaLadderRailChunk
             ## ('PiBondSpChain', 'pi_bond_sp_chain'), # no module pi_bond_sp_chain -- due to lazy load or atom-debug reload??
-            ('Group', 'foundation.Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
+            ('Group', 'foundation.Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?), Dna groups
             ('Part', 'model.part'),
             ('Assembly', 'model.assembly')):
             # should also have a command to look for other classes with high refcounts
