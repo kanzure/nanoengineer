@@ -1834,6 +1834,79 @@ setBondDirection(struct part *p, int atomID1, int atomID2)
     return;
 }
 
+void
+createBondChain(struct part *p, int atomID1, int atomID2, int bondDirection, char *baseSequence) 
+{
+    int previous;
+    int current;
+    
+    printf("createBondChain(%d, %d, %d, '%s')\n", atomID1, atomID2, bondDirection, baseSequence);
+    previous = atomID1;
+    for (current=atomID1+1; current<=atomID2; previous=current, current++) {
+        addBond(p, makeBondFromIDs(p, previous, current, '1')); BAIL();
+        if (bondDirection < 0) {
+            setBondDirection(p, current, previous);
+        } else if (bondDirection > 0) {
+            setBondDirection(p, previous, current);
+        }
+        BAIL();
+    }
+    // XXX set atom bases based on baseSequence
+}
+
+static struct atomType *typeSinglet = NULL;
+static struct atomType *typePAMPhosphate = NULL;
+
+static int
+atomIDisOKforRungBond(struct part *p, int atomID)
+{
+    struct atom *a;
+    
+    if (typeSinglet == NULL) {
+        typeSinglet = getAtomTypeByName("Singlet");
+    }
+    if (typePAMPhosphate == NULL) {
+        typePAMPhosphate = getAtomTypeByName("P5P");
+    }
+    a = translateAtomID(p, atomID); BAILR(0);
+    if (atomIsType(a, typeSinglet) || atomIsType(a, typePAMPhosphate)) {
+        return 0;
+    }
+    return 1;
+}
+
+
+static int
+nextRungBondID(struct part *p, int currentID, int lastID)
+{
+    // bondpoints and phosphates are not acceptable
+    while (currentID <= lastID && !atomIDisOKforRungBond(p, currentID)) {
+        BAILR(-1);
+        currentID++;
+    }
+    if (currentID <= lastID) {
+        return currentID;
+    }
+    return -1;
+}
+
+void
+createRungBonds(struct part *p, int atomID1start, int atomID1end, int atomID2start, int atomID2end)
+{
+    int oneID;
+    int twoID;
+    
+    printf("createRungBonds(%d, %d, %d, %d)\n", atomID1start, atomID1end, atomID2start, atomID2end);
+    oneID = nextRungBondID(p, atomID1start, atomID1end);
+    twoID = nextRungBondID(p, atomID2start, atomID2end);
+    while (oneID >= 0 && twoID >= 0) {
+        addBond(p, makeBondFromIDs(p, oneID, twoID, '1')); BAIL();
+        oneID = nextRungBondID(p, oneID+1, atomID1end); BAIL();
+        twoID = nextRungBondID(p, twoID+1, atomID2end); BAIL();
+    }
+    // XXX warn if oneID or twoID is >= 0?
+}
+
 static void
 queueComponent(struct part *p, enum componentType type, void *component)
 {
@@ -2650,6 +2723,9 @@ printBond(FILE *f, struct part *p, struct bond *b)
     printAtomShort(f, b->a1);
     fprintf(f, "%c", printableBondOrder(b));
     printAtomShort(f, b->a2);
+    if (b->direction != '?') {
+        fprintf(f, " %c", b->direction);
+    }
     fprintf(f, "\n");
 }
 

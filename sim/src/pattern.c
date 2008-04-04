@@ -499,6 +499,9 @@ matchPartToAllPatterns(struct part *part)
   int i;
 
   for (i=0; i<numPatterns; i++) {
+    if (debugMatch) {
+      printf("matching part to pattern %d\n", i);
+    }
     matchPartToPattern(part, allPatterns[i]); BAIL();
   }
 }

@@ -459,6 +459,10 @@ readMMP(char *filename)
   int *atomList;
   int atomID; // atom number in mmp file
   int atomID2;
+  int atomID3;
+  int atomID4;
+  int bondDirection;
+  char *baseSequence;
 
   mmp = &thisMMPStream;
   mmp->fileName = filename;
@@ -597,7 +601,46 @@ readMMP(char *filename)
     else if (!strncmp(tok, "bond_direction", 14)) {
       expectInt(mmp, &atomID, 0);
       expectInt(mmp, &atomID2, 0);
+      consumeRestOfLine(mmp);
       setBondDirection(p, atomID, atomID2); BAILP();
+    }
+
+    // bond_chain atno atno
+    // Create a sequence of bonds between consecutive pairs of atoms
+    // in given range.
+    else if (!strcmp(tok, "bond_chain")) {
+      expectInt(mmp, &atomID, 0);
+      expectInt(mmp, &atomID2, 0);
+      consumeRestOfLine(mmp);
+      createBondChain(p, atomID, atomID2, 0, NULL); BAILP();
+    }
+
+    // directional_bond_chain atno atno direction [sequence]
+    // Create a sequence of bonds between consecutive pairs of atoms
+    // in given range.  Set their directions, and optionally apply DNA
+    // sequence info to any PAM sugar atoms in the chain.
+    else if (!strcmp(tok, "directional_bond_chain")) {
+      expectInt(mmp, &atomID, 0);
+      expectInt(mmp, &atomID2, 0);
+      expectInt(mmp, &bondDirection, 0);
+      baseSequence = readToken(mmp, 0);
+      if (*baseSequence == '\n') {
+        baseSequence = NULL;
+      } else {
+        consumeRestOfLine(mmp);
+      }
+      createBondChain(p, atomID, atomID2, bondDirection, baseSequence); BAILP();
+    }
+
+    // dna_rung_bonds atno atno atno atno
+    // Create bonds between two sequences of atoms.
+    else if (!strcmp(tok, "dna_rung_bonds")) {
+      expectInt(mmp, &atomID, 0);
+      expectInt(mmp, &atomID2, 0);
+      expectInt(mmp, &atomID3, 0);
+      expectInt(mmp, &atomID4, 0);
+      consumeRestOfLine(mmp);
+      createRungBonds(p, atomID, atomID2, atomID3, atomID4); BAILP();
     }
 		
     // waals atno atno atno ...
@@ -608,6 +651,7 @@ readMMP(char *filename)
       while (expectInt(mmp, &atomID, 1)) {
         makeVanDerWaals(p, previousAtomID, atomID); BAILP();
       }
+      consumeRestOfLine(mmp);
     }
 		
     // ground (<name>) (r, g, b) <atoms>

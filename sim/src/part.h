@@ -502,6 +502,10 @@ extern void addBond(struct part *p, struct bond *b);
 
 extern void setBondDirection(struct part *p, int atomID1, int atomID2);
 
+extern void createBondChain(struct part *p, int atomID1, int atomID2, int bondDirection, char *baseSequence);
+
+extern void createRungBonds(struct part *p, int atomID1start, int atomID1end, int atomID2start, int atomID2end);
+
 extern void queueAtom(struct part *p, struct atom *a);
 
 extern void queueBond(struct part *p, struct bond *b);
