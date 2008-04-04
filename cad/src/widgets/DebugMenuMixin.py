@@ -207,14 +207,18 @@ class DebugMenuMixin:
         from utilities.Log import _graymsg
         msglater = "" # things to print all in one line
         for clasname, modulename in (
-            ('Atom', 'chem'),
-            ('Bond', 'bonds'),
+            # Note: this has not been tested since the modules were moved into packages,
+            # so I don't know if the dotted modulenames used below actually work.
+            # If not, we should fix the subsequent code so that they do.
+            # [bruce 080403]
+            ('Atom', 'model.chem'),
+            ('Bond', 'model.bonds'),
             # ('Node', 'Utility'), # Node or Jig is useless here, we need the specific subclasses!
-            ('Chunk', 'chunk'),
+            ('Chunk', 'model.chunk'),
             ## ('PiBondSpChain', 'pi_bond_sp_chain'), # no module pi_bond_sp_chain -- due to lazy load or atom-debug reload??
-            ('Group', 'Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
-            ('Part', 'part'),
-            ('Assembly', 'assembly')):
+            ('Group', 'foundation.Group'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
+            ('Part', 'model.part'),
+            ('Assembly', 'model.assembly')):
             # should also have a command to look for other classes with high refcounts
             if sys.modules.has_key(modulename):
                 module = sys.modules[modulename]
