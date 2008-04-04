@@ -16,10 +16,8 @@ moved same_vals into utilities/Comparison.py to break an import cycle
 
 moved SAMEVALS_SPEEDUP and "import samevals" along with it
 (but left the associated files in cad/src, namely samevals.c [by wware],
-setup2.py, and part of Makefile) [bruce 071005]
+setup2.py [now in outtakes], and part of Makefile) [bruce 071005]
 """
-
-__author__ = 'bruce'
 
 from types import InstanceType # use this form in inner loops
 
@@ -43,8 +41,10 @@ SAMEVALS_SPEEDUP = True
     # Note: samevals.c [by wware] is still built and resides in cad/src,
     # not cad/src/utilities, as of 071005, but that should not
     # prevent import samevals from working here. If samevals.c is moved
-    # here into utilities/, then setup2.py and part of Makefile need to
-    # be moved along with it. [bruce 071005 comment]
+    # here into utilities/, then setup2.py [now in outtakes, nevermind]
+    # and part of Makefile need to be moved along with it. [bruce 071005 comment]
+    #bruce 080403 update: samevals.c has been replaced by samevals.pyx
+    # and samevalshelp.c, built by Makefile, all still at toplevel.
 
 if SAMEVALS_SPEEDUP:
     try:
