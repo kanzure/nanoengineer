@@ -338,16 +338,20 @@ class DebugMenuMixin:
             self.win.glpane.paintGL()
 
     def _debug_do_benchmark(self):
-        # simple bechmark, piotr 080311
+        # simple graphics benchmark, piotr 080311
         from time import clock
         from utilities.debug import profile
-        print "benchmarking - drawing 100 frames... please wait"
+        print "Entering graphics benchmark. Drawing 100 frames... please wait."
         win = self._debug_win
         self.win.resize(1024,768) # resize the window to a constant size
+        self.win.glpane.paintGL() 
+        # draw once just to make sure the GL context is current
+        # piotr 080405
+        env.call_qApp_processEvents() # make sure all events were processed
         tm0 = clock()
         profile(self._draw_hundred_frames, self, None)
         tm1 = clock()
-        print "benchmark done. fps = ", 100.0/(tm1-tm0)
+        print "Benchmark complete. FPS = ", 100.0/(tm1-tm0)
 
     def debug_menu_source_name(self): #bruce 050112
         """
