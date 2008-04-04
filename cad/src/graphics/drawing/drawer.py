@@ -457,15 +457,15 @@ def getSphereTriStrips(level):
     # Simplify indexing by replicating the Poles, so everything is in fives.
     icosRings = [ 5 * [V(0.0, -1.0, 0.0)], # South Pole.
 
-               # South ring, first edge *centered on* the Greenwich Meridian.
-               [V(cylRad*cos((i-.5)*p2_5), -vert0[1], cylRad*sin((i-.5)*p2_5))
-                for i in range(5)],
+                  # South ring, first edge *centered on* the Greenwich Meridian.
+                  [V(cylRad*cos((i-.5)*p2_5), -vert0[1], cylRad*sin((i-.5)*p2_5))
+                   for i in range(5)],
 
-               # North ring, first vertex *on* the Greenwich Meridian.
-               [V(cylRad*cos(i*p2_5 ), vert0[1], cylRad*sin(i*p2_5))
-                for i in range(5)],
+                   # North ring, first vertex *on* the Greenwich Meridian.
+                   [V(cylRad*cos(i*p2_5 ), vert0[1], cylRad*sin(i*p2_5))
+                    for i in range(5)],
 
-               5 * [V(0.0, 1.0, 0.0)] ] # North Pole.
+                    5 * [V(0.0, 1.0, 0.0)] ] # North Pole.
 
 
     # Three bands, going from bottom to top (South to North.)
@@ -501,13 +501,13 @@ def getSphereTriStrips(level):
                 fractBot = float(subBand)/float(steps)
                 fractTop = float(subBand+1)/float(steps)
                 sbBotRight = fractBot * upperRing[seg] + \
-                             (1.0-fractBot) * lowerRing[seg]
+                           (1.0-fractBot) * lowerRing[seg]
                 sbTopRight = fractTop * upperRing[seg] + \
-                             (1.0-fractTop) * lowerRing[seg]
+                           (1.0-fractTop) * lowerRing[seg]
                 sbBotLeft = fractBot * upperRing[nextseg] + \
-                            (1.0-fractBot) * lowerRing[nextseg]
+                          (1.0-fractBot) * lowerRing[nextseg]
                 sbTopLeft = fractTop * upperRing[nextseg] + \
-                            (1.0-fractTop) * lowerRing[nextseg]
+                          (1.0-fractTop) * lowerRing[nextseg]
 
                 # Output the right end of the first segment of the sub-band.
                 # We'll end up wrapping around to this same pair of points at
@@ -523,11 +523,11 @@ def getSphereTriStrips(level):
                     # Interpolate step point pairs along the sub-band edges.
                     fractLower = float(step+botOffset)/float(botSteps)
                     lower = fractLower * sbBotLeft + \
-                            (1.0-fractLower) * sbBotRight
+                          (1.0-fractLower) * sbBotRight
                     # Collapse the *last* triangle of north sub-band top edges.
                     fractUpper = float(min(step, topSteps))/float(topSteps)
                     upper = fractUpper * sbTopLeft + \
-                            (1.0-fractUpper) * sbTopRight
+                          (1.0-fractUpper) * sbTopRight
 
                     # Output verts, projected from icos faces onto unit sphere.
                     points += [norm(lower), norm(upper)]
@@ -546,7 +546,7 @@ def indexVerts(verts, close):
 
     The second arg is 'close', the distance between vertices which are close
     enough to be considered a single vertex.
-    
+
     The return value is a pair of arrays (index, verts).
     """
     unique = []
@@ -671,6 +671,7 @@ sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
+filledCircleList = None # piotr 080405
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -721,9 +722,9 @@ class glprefs:
         allow_color_sorting = env.prefs.get(allow_color_sorting_prefs_key,
                                             allow_color_sorting_default)
         use_color_sorted_dls = env.prefs.get(use_color_sorted_dls_prefs_key,
-                                            use_color_sorted_dls_default)
+                                             use_color_sorted_dls_default)
         use_color_sorted_vbos = env.prefs.get(use_color_sorted_vbos_prefs_key,
-                                            use_color_sorted_vbos_default)
+                                              use_color_sorted_vbos_default)
         use_drawing_variant = env.prefs.get(use_drawing_variant_prefs_key,
                                             use_drawing_variant_default)
         use_c_renderer = quux_module_import_succeeded and \
@@ -1166,7 +1167,7 @@ def drawsphere_worker(params):
             vbo.unbind()
             ibo.unbind()
             pass
-        
+
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
         pass
@@ -1287,7 +1288,7 @@ def drawline_worker(params):
     deferment.  Right now this is only ColorSorter.schedule (see below)
     """
     (endpt1, endpt2, dashEnabled, stipleFactor, width, isSmooth) = params
-    
+
     ###glDisable(GL_LIGHTING)
     ###glColor3fv(color)
     if dashEnabled: 
@@ -1605,7 +1606,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.selected = False   # Whether to draw in the selection over-ride color.
         self.activate()
         return
-    
+
     def clear(self):
         """
         Empty state.
@@ -1676,13 +1677,13 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
             pass
         self.activate()
         return
-       
+
     def deallocate_displists(self):
         """
         Free any allocated display lists.
         """
         for dl in [self.dl, self.color_dl, self.nocolor_dl, self.selected_dl] + \
-                 [dl for clr, dl in self.per_color_dls]:
+            [dl for clr, dl in self.per_color_dls]:
             if dl != 0:
                 glDeleteLists(dl, 1)
                 pass
@@ -1867,7 +1868,7 @@ class ColorSorter:
                 lcolor = color
             assert 0, "Need to implement a C add_wiresphere function."
             ColorSorter._cur_shapelist.add_wiresphere(lcolor, pos, radius,
-                                                  ColorSorter._gl_name_stack[-1])
+                                                      ColorSorter._gl_name_stack[-1])
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -1938,7 +1939,7 @@ class ColorSorter:
                 lcolor = color
             assert 0, "Need to implement a C add_polycone function."
             ColorSorter._cur_shapelist.add_polycone_multicolor(lcolor, pos_array, color_array, rad_array, 
-                                                    ColorSorter._gl_name_stack[-1], capped)
+                                                               ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
@@ -1948,7 +1949,7 @@ class ColorSorter:
             ColorSorter.schedule(lcolor, drawpolycone_multicolor_worker, (pos_array, color_array, rad_array))
 
     schedule_polycone_multicolor = staticmethod(schedule_polycone_multicolor)
-    
+
     def schedule_surface(color, pos, radius, tm, nm):
         """
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -1995,7 +1996,7 @@ class ColorSorter:
                 # through ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display list.
                 try:
-                        glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
+                    glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
                 except:
                     print "data related to following exception: parent_top = %r" % (parent_top,) #bruce 070521
                     raise
@@ -2049,8 +2050,8 @@ class ColorSorter:
             objects_drawn = 0
 
             if (not (allow_color_sorting and use_color_sorted_dls)
-               or (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos) \
-               or parent_csdl is None):  #russ 080225 Added, 080320 VBO experiment.
+                or (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos) \
+                or parent_csdl is None):  #russ 080225 Added, 080320 VBO experiment.
 
                 # Either all in one display list, or immediate-mode drawing.
                 objects_drawn += ColorSorter.draw_sorted(ColorSorter.sorted_by_color)
@@ -2490,6 +2491,17 @@ def setup_drawer():
     glEnd()    
     glEndList()
 
+    global filledCircleList # piotr 080405
+    filledCircleList = glGenLists(1)
+    glNewList(filledCircleList, GL_COMPILE)
+    glBegin(GL_POLYGON)
+    for ii in range(60):
+        x = cos(ii*2.0*pi/60)
+        y = sin(ii*2.0*pi/60)
+        glVertex3f(x, y, 0.0)
+    glEnd()    
+    glEndList()
+
     global lineCubeList
     lineCubeList = glGenLists(1)
     glNewList(lineCubeList, GL_COMPILE)
@@ -2518,13 +2530,13 @@ def setup_drawer():
     #russ 080225: Added.
     initial_choice = choices[use_color_sorted_vbos_default]
     use_color_sorted_vbos_pref = debug_pref("Use Color-sorted Vertex Buffer Objects?",
-                                           initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
+                                            initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
 
     #russ 080403: Added drawing variant selection.
     use_drawing_variant_pref = debug_pref("GLPane: Use OpenGL drawing variant",
                                           Choice(range(6),
                                                  defaultValue = use_drawing_variant_default),
-                                          prefs_key = use_drawing_variant_prefs_key)
+                                                 prefs_key = use_drawing_variant_prefs_key)
 
     # temporarily always print this, while default setting might be in flux,
     # and to avoid confusion if the two necessary prefs are set differently
@@ -2537,7 +2549,7 @@ def setup_drawer():
         print "note: this session WILL use color sorted Vertex Buffer Objects\n"
     else:
         print "note: this session will NOT use color sorted Vertex Buffer Objects\n"
-    
+
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
     global use_c_renderer
@@ -2570,6 +2582,32 @@ def drawCircle(color, center, radius, normal):
     glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
     glScalef(radius, radius, 1.0)
     glCallList(circleList)
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
+
+def drawFilledCircle(color, center, radius, normal):
+    """
+    Scale, rotate/translate the unit circle properly.
+    Added a filled circle variant, piotr 080405
+    """
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix() 
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+
+    glTranslatef(center[0], center[1], center[2])
+    rQ = Q(V(0, 0, 1), normal)
+    rotAngle = rQ.angle*180.0/pi
+
+    #This may cause problems as proved before in Linear motor display.
+    #rotation around (0, 0, 0)
+    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
+    #      rQ.x = 1.0
+
+    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
+    glScalef(radius, radius, 1.0)
+    glCallList(filledCircleList)
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
@@ -2749,15 +2787,15 @@ def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
     """
     pass    
 
-    
+
 def drawArrowHead(color, 
                   basePoint, 
                   drawingScale, 
                   unitBaseVector, 
                   unitHeightVector):
-    
-    
-        
+
+
+
     arrowBase = drawingScale * 0.08
     arrowHeight = drawingScale * 0.12
     glDisable(GL_LIGHTING)
@@ -2787,28 +2825,28 @@ def drawline(color,
     """
     Draw a line from endpt1 to endpt2 in the given color.  Actually, schedule
     it for rendering whenever ColorSorter thinks is appropriate.
-    
+
     @param endpt1: First endpoint.
     @type  endpt1: point
-    
+
     @param endpt2: Second endpoint.
     @type  endpt2: point
 
     @param dashEnabled: If dashEnabled is True, it will be dashed.
     @type  dashEnabled: boolean
-    
+
     @param stipleFactor: The stiple factor.
     @param stipleFactor: int
-    
+
     @param width: The line width in pixels. The default is 1.
     @type  width: int or float
-    
+
     @param isSmooth: Enables GL_LINE_SMOOTH. The default is False.
     @type  isSmooth: boolean
-    
+
     @note: Whether the line is antialiased is determined by GL state variables
     which are not set in this function.
-    
+
     @warning: Some callers pass dashEnabled as a positional argument rather 
     than a named argument.    
     """
@@ -2861,7 +2899,7 @@ def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     Draw a tag (or a 'flag') as a line ending with a circle (like a balloon 
     with a string). Note: The word 'Flag' is intentionally not used in the 
     method nameto avoid potential confusion with a boolean flag.
-    
+
     @param color: color of the tag 
     @type color: A
     @param basePoint: The base point of the tag 
@@ -2870,9 +2908,9 @@ def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     @type endPoint: V
     @param pointSize: The pointSize of the point to be drawin at the <endPoint>
     @type  pointSize: float
-    
+
     @see: GraphicsMode._drawTags where it is called (an example)
-    
+
     """
     drawline(color, basePoint, endPoint)
     drawPoint(color, endPoint, pointSize = 20.0)
@@ -3013,7 +3051,7 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
-    
+
 def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     """
     Draws a small wireframe version of the origin. It is rendered as a 
@@ -3177,13 +3215,13 @@ def drawDirectionArrow(color,
     arrowBase =  tailRadius*3.0
     arrowHeight =  arrowBase*1.5
     axis = norm(vec)
-    
+
     #as of 2008-03-03 scaledBasePoint is not used so commenting out. 
     #(will be removed after more testing)
     ##scaledBasePoint = tailPoint + vlen(vec)*axis
     drawcylinder(color, tailPoint, arrowBasePoint, tailRadius, capped = True, 
                  opacity = opacity)
-    
+
     ##pos = scaledBasePoint
     pos = arrowBasePoint
     arrowRadius = arrowBase
@@ -3191,22 +3229,22 @@ def drawDirectionArrow(color,
     drawpolycone(color, [[pos[0] - 1 * axis[0], 
                           pos[1] - 1 * axis[1],
                           pos[2] - 1 * axis[2]],
-                         [pos[0],# - axis[0], 
-                          pos[1], #- axis[1], 
-                          pos[2]], #- axis[2]],
-                         [pos[0] + arrowHeight * axis[0], 
-                          pos[1] + arrowHeight * axis[1],
-                          pos[2] + arrowHeight * axis[2]],
-                         [pos[0] + (arrowHeight + 1) * axis[0], 
-                          pos[1] + (arrowHeight + 1) * axis[1],
-                          pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
-                                                  # points not drawn)
-                        [arrowRadius, arrowRadius, 0, 0], # Radius array
-                        opacity = opacity
-                       )
+                          [pos[0],# - axis[0], 
+                           pos[1], #- axis[1], 
+                           pos[2]], #- axis[2]],
+                           [pos[0] + arrowHeight * axis[0], 
+                            pos[1] + arrowHeight * axis[1],
+                            pos[2] + arrowHeight * axis[2]],
+                            [pos[0] + (arrowHeight + 1) * axis[0], 
+                             pos[1] + (arrowHeight + 1) * axis[1],
+                             pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
+                             # points not drawn)
+                             [arrowRadius, arrowRadius, 0, 0], # Radius array
+                             opacity = opacity
+                         )
     #reset the gle number of sides to the gle default of '20'
     gleSetNumSides(20)
-    
+
 
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """
@@ -3249,7 +3287,7 @@ def drawGrid(scale, center, latticeType):
     Construct the grid model and show as position references for cookies.
     The model is build around "pov" and has size of 2*"scale" on each of
     the (x, y, z) directions.
-    
+
     @note: This should be optimized later. 
     For "scale = 200", it takes about 1479623 loops. ---Huaicai
     """
@@ -3310,19 +3348,19 @@ def drawGrid(scale, center, latticeType):
 def drawrectangle(pt1, pt2, rt, up, color):
     """
     Draws a (hollow) rectangle outline of the given I{color}.
-    
+
     @param pt1: First corner of the rectangle.
     @type  pt1: Point
-    
+
     @param pt1: Opposite corner of the rectangle.
     @type  pt1: Point
-    
+
     @param rt: Right vector of the glpane.
     @type  rt: Unit vector
-    
+
     @param up: Right vector of the glpane.
     @type  up: Unit vector
-    
+
     @param color: Color
     @type  color: color
     """
@@ -3534,10 +3572,10 @@ def drawtext(text, color, origin, point_size, glpane):
     """
     """
     # see also: _old_code_for_drawing_text()
-    
+
     if not text:
         return
-    
+
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
 
