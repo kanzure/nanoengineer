@@ -622,7 +622,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         """
         self.line = None 
         # required to erase white rubberband line on next 
-        #gl_update. [bruce 070413 moved this before tests]
+        # gl_update. [bruce 070413 moved this before tests]
 
         if not s1.is_singlet():
             return
@@ -634,12 +634,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
         s2 = self.get_singlet_under_cursor(
             event, 
-            reaction_from = neighbor.element.symbol)
-            # if reaction_from activates the atom under the cursor, s2 might be
-            # that atom itself, not a singlet,
-            # or might be that atom after it transmutes itself into a singlet 
-            # [bruce 070413 new feature]
-            #
+            reaction_from = neighbor.element.symbol,
+            desired_open_bond_direction = s1.bonds[0].bond_direction_from(s1) #bruce 080403 bugfix
+            )
             ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a 
             ##real atom w/ >1 singlets (see its docstring);
             # this may lead to bond type changer on singlet sometimes but not 
@@ -655,10 +652,12 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # changer) but forgot to activate that tool.
             # But I found that debug prints and behavior make it look like 
             # something prevents highlighting s1's base atom,
+            # [later: presumably that was the only_highlight_singlets feature]
             # but permits highlighting of other real atoms, during s1's drag. 
-            # Even if that means this bug
-            # can't happen, the code needs to be clarified. [bruce 060721 
-            #comment]
+            # Even if that means this bug can't happen, the code needs to be
+            # clarified. [bruce 060721 comment]
+            #update 080403: see also new desired_open_bond_direction code in
+            # get_singlet_under_cursor.
         
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
@@ -726,16 +725,21 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             
         self.only_highlight_singlets = False
         
-    def get_singlet_under_cursor(self, event, reaction_from = None ):
+    def get_singlet_under_cursor(self, event,
+                                 reaction_from = None,
+                                 desired_open_bond_direction = 0 ):
         """
         If the object under the cursor is a singlet, return it.  
         If the object under the cursor is a real atom with one or more singlets,
-        return one of its singlets. Otherwise, return None.
+        return one of its singlets, preferring one with the
+        desired_open_bond_direction (measured from base atom to singlet)
+        if it's necessary to choose. Otherwise, return None.
         """
-        a = self.get_obj_under_cursor(event)
-        if isinstance(a, Atom):
-            if a.is_singlet():
-                return a
+        del reaction_from # not yet used
+        atom = self.get_obj_under_cursor(event)
+        if isinstance(atom, Atom):
+            if atom.is_singlet():
+                return atom
             # Update, bruce 071121, about returning singlets bonded to real
             # atoms under the cursor, but not themselves under it:
             # Note that this method affects what happens
@@ -751,11 +755,34 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #update, bruce 080320: removed nonworking code that used
             # element symbols 'Pl' and 'Sh' (with no '5' appended).
             # (Obsolete element symbols may also appear elsewhere in *Mode.py.)
-            if a.singNeighbors():
-                if env.debug() and len(a.singNeighbors()) > 1:
-                    #bruce 060721, cond revised 071121
-                    print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
-                return a.singNeighbors()[0]
+            #
+            #revised, bruce 080403 (bugfix): use desired_open_bond_direction
+            # to choose the best bondpoint to return.
+            candidates = []
+            for bond in atom.bonds:
+                other = bond.other(atom)
+                if other.is_singlet():
+                    dir_to_other = bond.bond_direction_from(atom) # -1, 0, or 1
+                    badness = abs(desired_open_bond_direction - dir_to_other)
+                        # this means: for directional bond-source,
+                        # prefer same direction, then none, then opposite.
+                        # for non-directional source, prefer no direction, then either direction.
+                        # But we'd rather be deterministic, so in latter case we'll prefer
+                        # direction -1 to 1, accomplished by including dir_to_other in badness:
+                    badness = (badness, dir_to_other)
+                    candidates.append( (badness, other.key, other) )
+                        # include key to sort more deterministically
+                continue
+            if candidates:
+                candidates.sort()
+                return candidates[0][-1] # least badness
+            pass
+##            if atom.singNeighbors():
+##                if len(atom.singNeighbors()) > 1:
+##                    if env.debug():
+##                        #bruce 060721, cond revised 071121, text revised 080403
+##                        print "debug warning: get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (atom,)
+##                return atom.singNeighbors()[0]
         return None
     
     #==========

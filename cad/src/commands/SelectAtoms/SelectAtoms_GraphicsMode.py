@@ -177,33 +177,27 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
         self.smooth_reshaping_drag = False
             # set to True when we're going to do a "smooth-reshaping drag" in 
-            #the current drag. [bruce 070412]
-            ###WARNING: this method is in selectAtomsMode.py in Qt3 branch, and
-            ##in selectMode.py in Qt4 branch.
-            # When merging this change from Qt3 to Qt4, this specific part will
-            # need manual merging
-            # (unless this entire method is first moved over in Qt3, but that 
-            #  might complicate the merging as well, in the short run, though 
-            # it would be a good change in the longer run).
+            # the current drag. [bruce 070412]
         
         self.only_highlight_singlets = False
-            # when set to True, only singlets get highlighted when dragging a 
-            # singlet.
-            # depositMode.singletSetup() sets this to True when dragging a 
+            # When set to True, only singlets get highlighted when dragging a 
+            # singlet. (Note: the mechanism for that effect is that methods
+            # in this class can return the highlight color as None to disable
+            # highlighting for a particular selobj.)
+            # depositMode.singletSetup() sets this to True while dragging a 
             # singlet around.
-            # [update bruce 071121: this is only used in selectAtomsMode, so it
-            #  should be moved there. Maybe the same is true for other variables
-            #  here?]
+        
         self.neighbors_of_last_deleted_atom = []
             # list of the real atom neighbors connected to a deleted atom.  
             # Used by atomLeftDouble()
             # to find the connected atoms to a recently deleted atom when 
-            #double clicking with 'Shift+Control'
+            # double clicking with 'Shift+Control'
             # modifier keys pressed together.
         
         
     
     #==START Highlighting related methods================================
+    
     def _highlightAtoms(self, grp):
         """
         Highlight atoms or chunks inside ESPImage jigs.
@@ -220,9 +214,6 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # pass. If that alg was fixed so that esp draw did run then,
         # it could do this itself and not need this special case,
         # I suspect. [bruce 071026]
-        
-        
-
         if isinstance(grp, ESPImage): 
             grp.highlightAtomChunks()
         elif isinstance(grp, Group):    
@@ -236,13 +227,14 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     def _getAtomHighlightColor(self, selobj):
         """
 	Return the Atom highlight color to use for selobj
-	which is the object under the mouse.
+	which is the object under the mouse, or None to disable
+	highlighting for that object.
 
 	@note: ok to make use of self.only_highlight_singlets,
 	       and when it's set, self.current_obj. See code comments
 	       for details.
 	       
-	@return: Highlight color to use for the object (Atom or Singlet)
+	@return: Highlight color to use for the object (Atom or Singlet), or None
 	""" 
         assert isinstance(selobj, Atom)
 
@@ -297,9 +289,10 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def _getBondHighlightColor(self, selobj):
         """
-	Return the Bond highlight color.
+	Return the highlight color for selobj (a Bond),
+	or None to disable highlighting for that object.
 	
-	@return: Highlight color to use for this bond (selobj)
+	@return: Highlight color to use for this bond (selobj), or None
 	"""
         assert isinstance(selobj, Bond)
         # Following might be an outdated or 'not useful anymore' comment. 
