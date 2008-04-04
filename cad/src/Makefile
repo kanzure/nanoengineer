@@ -41,6 +41,14 @@ LDFLAGS+=-L/usr/lib -lm
 LDFLAGS+=-framework OpenGL
 LDFLAGS+=-arch i386 -arch ppc
 LDSHARED=gcc -bundle
+
+# See if we can add Universal build flags
+UNAME_M=$(shell uname -m)
+ifeq ($(UNAME_M),i386)
+CFLAGS+=-arch i386 -arch ppc
+LDFLAGS+=-arch i386 -arch ppc
+endif
+
 else
 #---------------------------------------- Unix
 CFLAGS=-pthread -I/usr/include/python$(PYDVER)
