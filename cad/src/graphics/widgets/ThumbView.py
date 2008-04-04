@@ -671,12 +671,12 @@ class ThumbView(GLPane_minimal):
             return
         if not isinstance(obj, Atom) or (obj.element is not Singlet):
             return
-
+        
         self._preHighlight()
         
         self.drawSelected(obj)
-            
-        self._endHightlight()
+        
+        self._endHighlight()
         
         glFlush()
         self.swapBuffers()
@@ -700,7 +700,7 @@ class ThumbView(GLPane_minimal):
         glMatrixMode(GL_MODELVIEW)
         return
         
-    def _endHightlight(self):
+    def _endHighlight(self):
         """
         Restore OpenGL settings changed by _preHighlight to standard values.
         """
@@ -727,7 +727,8 @@ class ThumbView(GLPane_minimal):
 class ElementView(ThumbView):
     """
     Element graphical display class.
-    """    
+    """
+    # note: as of 080403 this is only used by elementColors.py and elementSelector.py
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         self.scale = 2.0 #5.0 ## the possible largest rvdw of all elements
@@ -826,13 +827,17 @@ class MMKitView(ThumbView):
     of above type models, but find trouble to dynamically change the GLWidget
     when changing tab page.
     """
-
+    # note: as of 080403 this is constructed only by PM_PreviewGroupBox.py
+    # and required (assert isinstance(self.elementViewer, MMKitView)) by
+    # PM_Clipboard.py, PM_MolecularModelingKit.py, and PM_PartLib.py.
+    # I think that means it is used for MMKit atoms, PasteMode clipboard,
+    # and PartLib parts. [bruce 080403 comment]
     always_draw_hotspot = True
         #bruce 060627 to help with bug 2028
         # (replaces a horribe kluge in old code which broke a fix to that bug)
 
     def __init__(self, parent, name, shareWidget = None):
-        ThumbView.__init__(self, parent, name, shareWidget)                
+        ThumbView.__init__(self, parent, name, shareWidget)
         self.scale = 2.0
         self.pos = V(0.0, 0.0, 0.0)
         self.model = None
@@ -1097,67 +1102,4 @@ class MMKitView(ThumbView):
 
     pass # end of class MMKitView
     
-class ChunkView(ThumbView):
-    """
-    Chunk display class.
-    """
-    # Currently this is not used.
-    # [still true 060328 due to setup code in MMKit -- bruce comment]
-    def __init__(self, parent, name, shareWidget = None):
-        ThumbView.__init__(self, parent, name, shareWidget)
-        #self.scale = 3.0 #5.0 ## the possible largest rvdw of all elements
-        self.quat = Q(1, 0, 0, 0)
-        self.pos = V(0.0, 0.0, 0.0)
-        self.mol = None
-        
-        ## Dummy attributes. A kludge, just try to make other code
-        ##  think it looks like a glpane object.
-        self.displayMode = 0  
-    
-    def resetView(self):
-        """
-        Reset current view.
-        """
-        ThumbView.resetView(self)
-        self.scale = 10.0
-        
-    def drawModel(self):
-        """
-        The method for element drawing.
-        """
-        if self.mol:
-            self.mol.draw(self, None)
-
-    def model_is_valid(self): #bruce 080117
-        """
-        whether our model is currently valid for drawing
-        [overrides GLPane_minimal method]
-        """
-        return self.mol and self.mol.assy.assy_valid
-
-    def _get_assy(self):
-        """
-        [overrides ThumbView method]
-        """
-        return self.mol and self.mol.assy
-
-    def updateModel(self, newChunk):
-        """
-        Set new chunk for display.
-        """
-        self.mol = newChunk
-        self.resetView()
-        self.updateGL()
-    
-    def drawSelected(self, obj):
-        """
-        Override the parent version. Specific drawing code for the object.
-        """
-        if isinstance(obj, Atom) and (obj.element is Singlet):
-            obj.draw_in_abs_coords(self, 
-                                   env.prefs[bondpointHighlightColor_prefs_key])
-        return
-
-    pass # end of class ChunkView
-
 # end
