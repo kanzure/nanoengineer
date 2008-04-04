@@ -1256,12 +1256,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             old = norm(old) #k not sure if these norms make any difference
             new = norm(new)
             if old and new:
-                q = Q(old,new)
+                q = Q(old, new)
                 for atom_b in baggage: ## was self.singNeighbors()
                     atom_b.setposn(q.rot(atom_b.posn() - apo) + apo)
                         # similar to code in drag_selected_atom, but not identical
             #bruce 060629 for bondpoint problem
-            self.reposition_baggage(baggage, (atom,nupos))
+            self.reposition_baggage(baggage, (atom, nupos))
         return
     
     def __repr__(self):
@@ -3747,18 +3747,25 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.make_enough_bondpoints()
         return # from direct_Transmute
 
-    def reposition_baggage(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem
+    def reposition_baggage(self, baggage = None, planned_atom_nupos = None):
         """
-        Your baggage atoms (or the given subset of them) might no longer be sensibly located,
-        since you and/or some neighbor atoms have moved (or are about to move, re planned_atom_nupos as explained below),
-        so fix up their positions based on your other neighbors' positions, using old baggage positions only as hints.
+        Your baggage atoms (or the given subset of them) might no longer
+        be sensibly located, since you and/or some neighbor atoms have moved
+        (or are about to move, re planned_atom_nupos as explained below),
+        so fix up their positions based on your other neighbors' positions,
+        using old baggage positions only as hints.
 
-        BUT one of your other neighbors (but not self) might be about to move (rather than already having moved) --
-        if so, planned_atom_nupos = (that neighbor, its planned posn),
+        BUT one of your other neighbors (but not self) might be about to move
+        (rather than already having moved) -- if so,
+
+          planned_atom_nupos = (that neighbor, its planned posn),
+        
         and use that posn instead of its actual posn to decide what to do.
 
-        @warning: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
+        @warning: we assume baggage is a subset of self.baggageNeighbors(),
+                  but don't check this except when ATOM_DEBUG is set.
         """
+        #bruce 060629 for bondpoint problem
         try:
             import operations.reposition_baggage as reposition_baggage # don't make this a toplevel import
             reload_once_per_event(reposition_baggage) # this can be removed when devel is done, but doesn't need to be
