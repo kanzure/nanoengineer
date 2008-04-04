@@ -160,15 +160,15 @@ def bond_atoms_oldversion(a1, a2): #bruce 050502 renamed this from bond_atoms; i
 
     #bruce 051216 rewriting this to be faster and avoid console warning
     # when bond already exists (re bug 1226), but still verify bond is on both atoms or neither
-    b1 = find_bond(a1,a2) # a Bond or None
-    b2 = find_bond(a2,a1)
+    b1 = find_bond(a1, a2) # a Bond or None
+    b2 = find_bond(a2, a1)
     if b1 is not b2:
         print "bug warning: bond between %r and %r inconsistent in their .bonds lists; %r (id %#x) vs %r (id %#x)" \
-              % (a1,a2, b1, id(b1), b2, id(b2))
+              % (a1, a2, b1, id(b1), b2, id(b2))
         print_compact_stack("will remove one or both existing bonds, then make the requested new one: ")
         if b1:
             a1.bonds.remove(b1)
-            # probably no need for a1._changed_structure() since we'll do it in Bond(a1,a2) below; probably same for a2;
+            # probably no need for a1._changed_structure() since we'll do it in Bond(a1, a2) below; probably same for a2;
             # but as a precaution in case of bugs (or misanalysis or future change of this code),
             # I'll do it anyway. [bruce 060322]
             a1._changed_structure()
@@ -186,20 +186,20 @@ def bond_atoms_oldversion(a1, a2): #bruce 050502 renamed this from bond_atoms; i
             blame = compact_stack() # slow, but should be ok since this case should be rare
                 # known cases as of 051216 include only one: reading pdb files with redundant CONECT records
             if not _bond_atoms_oldversion_noops_seen.has_key(blame):
-                print_compact_stack( "atom_debug: note: bond_atoms_oldversion doing nothing since %r and %r already bonded: " % (a1,a2))
+                print_compact_stack( "atom_debug: note: bond_atoms_oldversion doing nothing since %r and %r already bonded: " % (a1, a2))
                 if not _bond_atoms_oldversion_noops_seen:
                     print "(above message (bond_atoms_oldversion noop) is only printed once for each compact_stack that calls it)"
                 _bond_atoms_oldversion_noops_seen[blame] = None
             pass
         return
-    b = Bond(a1,a2) # (this does all necessary invals, including a1 and a2._changed_structure())
+    b = Bond(a1, a2) # (this does all necessary invals, including a1 and a2._changed_structure())
     a1.bonds.append(b)
     a2.bonds.append(b)
     return
 
 ##    # pre-051216 code (starting from where new code starts above)
-##    at1,at2 = a1,a2
-##    b = Bond(at1,at2) # (this does all necessary invals)
+##    at1, at2 = a1, a2
+##    b = Bond(at1, at2) # (this does all necessary invals)
 ##    
 ##    #bruce 041029 precautionary change -- I find in debugging that the bond
 ##    # can be already in one but not the other of at1.bonds and at2.bonds,
@@ -1095,7 +1095,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
            When permit_illegal_valence is true, any valence can be reached, even one which
         is lower than any permitted valence, zero, or negative (###k not sure that's good, or ever tried).
            [The starting valence (self.v6) need not be a legal one(??); but by default
-        the final valence must be legal; not sure what should happen if no delta in [0,vdelta] makes
+        the final valence must be legal; not sure what should happen if no delta in [0, vdelta] makes
         it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
         """
         # we want the lowest permitted valence which is at least v_have - vdelta, i.e. in the range v_want to v_have.
@@ -1138,7 +1138,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
            When permit_illegal_valence is true, any valence can be reached, even one which
         is higher than any permitted valence (###k not sure that's good, or ever tried).
            [The starting valence (self.v6) need not be a legal one(??); but by default
-        the final valence must be legal; not sure what should happen if no delta in [0,vdelta] makes
+        the final valence must be legal; not sure what should happen if no delta in [0, vdelta] makes
         it legal! For now, raise an AssertionError(?) exception then. #####@@@@@]
         """
         # we want the highest permitted valence which is at most v_have + vdelta, i.e. in the range v_have to v_want.
@@ -1291,12 +1291,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # new chunk, bond to it, and only then add it into the tree of Nodes.
         if debug_flags.atom_debug and at1.molecule is not at2.molecule:
             if (at1.molecule.assy is None) or (at2.molecule.assy is None):
-                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r: " % (at1,at2))
+                print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r: " % (at1, at2))
             elif (at1.molecule.part is None) or (at2.molecule.part is None):
                 if 0: #bruce 050321 this happens a lot when reading an mmp file, so disable it for now
-                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r: " % (at1,at2))
+                    print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r: " % (at1, at2))
             elif at1.molecule.part is not at2.molecule.part:
-                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r: " % (at1,at2))
+                print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r: " % (at1, at2))
 
         if self._direction and not self.is_directional(): #bruce 070415
             self.clear_bond_direction()
@@ -1432,8 +1432,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
 ##        rcov2 = self.atom2.atomtype.rcovalent
         rcov1, rcov2 = bond_params(self.atom1.atomtype, self.atom2.atomtype, self.v6)
             #bruce 060324 experiment re bug 900
-        c1 = a1pos + vec*rcov1
-        c2 = a2pos - vec*rcov2
+        c1 = a1pos + vec * rcov1
+        c2 = a2pos - vec * rcov2
         toolong = (leng > rcov1 + rcov2)
         center = (c1 + c2) / 2.0 # before 041112 this was None when toolong
         return a1pos, c1, center, c2, a2pos, toolong
@@ -1560,7 +1560,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
         pass
 
     # "break" is a python keyword
-    def bust(self, make_bondpoints = True): #bruce 070601 added make_bondpoints feature (was effectively always True before)
+    def bust(self, make_bondpoints = True):
+        #bruce 070601 added make_bondpoints feature (was effectively always True before)
         """
         Destroy this bond, modifying the bonded atoms as needed
         (by adding singlets in place of this bond, in most cases (unless make_bondpoints is false) --
@@ -1641,7 +1642,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
             old.unbond(self, make_bondpoint = False)
             self.atom2 = new
         else:
-            print "fyi: bug: rebond: %r doesn't contain atom %r to replace with atom %r" % (self, old, new)
+            print "fyi: bug: rebond: %r doesn't contain atom %r to replace " \
+                  "with atom %r" % (self, old, new)
             # no changes in the structure
             return
         # bruce 041109 worries slightly about order of the following:
@@ -1658,8 +1660,11 @@ class Bond(BondBase, StateMixin, Selobj_API):
         #bruce 050728: this is needed so depositmode (in atom.make_enough_bondpoints)
         # can depend on bond.get_pi_info() being up to date:
         if self.pi_bond_obj is not None:
-            self.pi_bond_obj.destroy() ###e someday this might be more incremental if that obj provides a method for it;
-                # or we could call changed_structure on the two atoms of self, like bond updating code will do upon next redraw.
+            self.pi_bond_obj.destroy()
+                ###e someday this might be more incremental if that obj
+                # provides a method for it; or we could call _changed_structure
+                # on the two atoms of self, like bond updating code will do upon
+                # next redraw.
         if 1:
             # This debug code helped catch bug 232, but seems useful in general:
             # warn if this bond is a duplicate of an existing bond on A or new.
@@ -1667,9 +1672,11 @@ class Bond(BondBase, StateMixin, Selobj_API):
             #  could make that false, so we check both.) [bruce 041203]
             A = self.other(new)
             if A.bonds.count(self) > 1:
-                print "rebond bug (%r): A.bonds.count(self) == %r" % (self, A.bonds.count(self))
+                print "rebond bug (%r): A.bonds.count(self) == %r" % \
+                      (self, A.bonds.count(self))
             if new.bonds.count(self) > 1:
-                print "rebond bug (%r): new.bonds.count(self) == %r" % (self, new.bonds.count(self))
+                print "rebond bug (%r): new.bonds.count(self) == %r" % \
+                      (self, new.bonds.count(self))
         return
 
     # ==
@@ -2043,7 +2050,7 @@ class _bonder_at_singlets:
                     why = "won't"
                 else:
                     why = "can't"
-                return do_error("%s increase bond order between already-bonded atoms %r and %r" % (why,a1,a2), None)
+                return do_error("%s increase bond order between already-bonded atoms %r and %r" % (why, a1, a2), None)
         #####@@@@@ worry about s1 and s2 valences being different
             # [much later, 050702: that might be obs, but worrying about their *permitted* valences might not be...]
             # (not sure exactly what we'll do then!
@@ -2170,7 +2177,7 @@ class _bonder_at_singlets:
             v1 += a1.deficient_v6() # usually adds 0
         if len(a2.bonds) == 2:
             v2 += a2.deficient_v6()
-        vdelta = min(v1,v2) # but depending on the existing bond, we might use less than this, or none
+        vdelta = min(v1, v2) # but depending on the existing bond, we might use less than this, or none
         bond = find_bond(a1, a2)
 ##        old_bond_v6 = bond.v6 #bruce 051215 debug code
         vdelta_used = bond.increase_valence_noupdate(vdelta)
@@ -2184,7 +2191,7 @@ class _bonder_at_singlets:
 ##        if debug_flags.atom_debug: #bruce 051215
 ##            print "atom_debug: bond_v6 changed from %r to %r; vdelta_used (difference) is %r; vdelta is %r" % (old_bond_v6, new_bond_v6, vdelta_used, vdelta)
         if not vdelta_used:
-            return self.do_error("can't increase order of bond between atoms %r and %r" % (a1,a2), None) #e say existing order? say why not?
+            return self.do_error("can't increase order of bond between atoms %r and %r" % (a1, a2), None) #e say existing order? say why not?
         vdelta = vdelta_used #bruce 051215 fix unreported hypothetical bug (see comment above)
         s1.singlet_reduce_valence_noupdate(vdelta)
             # this might or might not kill it;
@@ -2199,7 +2206,7 @@ class _bonder_at_singlets:
             # when it has a chance and wants to clean up structure, if this can ever be ambiguous
             # later when the current state (including positions of old singlets) is gone.
         a2.update_valence()
-        return (0, "increased bond order between atoms %r and %r" % (a1,a2)) #e say existing and new order?
+        return (0, "increased bond order between atoms %r and %r" % (a1, a2)) #e say existing and new order?
             # Note, bruce 060629: the new bond order would be hard to say, since later code in bond_updater.py is likely
             # to decrease the value, but in a way it might be hard to predict at this point (it depends on what happens
             # to the atomtypes which that code will also fix, and that depends on the other bonds we modify here;
@@ -2252,7 +2259,7 @@ class _bonder_at_singlets:
 ##    """
 ##    pass
 ##    # int at1, at2;    /* types of the elements */
-##    # num r0,ks;           /* bond length and stiffness */
+##    # num r0, ks;           /* bond length and stiffness */
 ##    # num ediss;           /* dissociation (breaking) energy */
 ##    # int order;            /* 1 single, 2 double, 3 triple */
 ##    # num length;          // bond length from nucleus to nucleus
@@ -2275,51 +2282,51 @@ class _bonder_at_singlets:
 ##                 valence = len(a.bonds)
 ##                 # lone atom, pick 4 directions arbitrarily
 ##                 if valence == 0:
-##                     b=atom("H", a.xyz+lCHb*norm(V(-1,-1,-1)), self)
-##                     c=atom("H", a.xyz+lCHb*norm(V(1,-1,1)), self)
-##                     d=atom("H", a.xyz+lCHb*norm(V(1,1,-1)), self)
-##                     e=atom("H", a.xyz+lCHb*norm(V(-1,1,1)), self)
-##                     self.bond(a,b)
-##                     self.bond(a,c)
-##                     self.bond(a,d)
-##                     self.bond(a,e)
+##                     b=atom("H", a.xyz + lCHb * norm(V(-1, -1, -1)), self)
+##                     c=atom("H", a.xyz + lCHb * norm(V(1, -1, 1)), self)
+##                     d=atom("H", a.xyz + lCHb * norm(V(1, 1, -1)), self)
+##                     e=atom("H", a.xyz + lCHb * norm(V(-1, 1, 1)), self)
+##                     self.bond(a, b)
+##                     self.bond(a, c)
+##                     self.bond(a, d)
+##                     self.bond(a, e)
 
 ##                 # pick an arbitrary tripod, and rotate it to
 ##                 # center away from the one bond
 ##                 elif valence == 1:
-##                     bpos = lCHb*norm(V(-1,-1,-1))
-##                     cpos = lCHb*norm(V(1,-1,1))
-##                     dpos = lCHb*norm(V(1,1,-1))
-##                     epos = V(-1,1,1)
+##                     bpos = lCHb * norm(V(-1, -1, -1))
+##                     cpos = lCHb * norm(V(1, -1, 1))
+##                     dpos = lCHb * norm(V(1, 1, -1))
+##                     epos = V(-1, 1, 1)
 ##                     q1 = Q(epos, a.bonds[0].other(a).xyz - a.xyz)
-##                     b=atom("H", a.xyz+q1.rot(bpos), self)
-##                     c=atom("H", a.xyz+q1.rot(cpos), self)
-##                     d=atom("H", a.xyz+q1.rot(dpos), self)
-##                     self.bond(a,b)
-##                     self.bond(a,c)
-##                     self.bond(a,d)
+##                     b=atom("H", a.xyz + q1.rot(bpos), self)
+##                     c=atom("H", a.xyz + q1.rot(cpos), self)
+##                     d=atom("H", a.xyz + q1.rot(dpos), self)
+##                     self.bond(a, b)
+##                     self.bond(a, c)
+##                     self.bond(a, d)
 
 ##                 # for two bonds, the new ones can be constructed
 ##                 # as linear combinations of their sum and cross product
 ##                 elif valence == 2:
 ##                     b=a.bonds[0].other(a).xyz - a.xyz
 ##                     c=a.bonds[1].other(a).xyz - a.xyz
-##                     v1 = - norm(b+c)
-##                     v2 = norm(cross(b,c))
+##                     v1 = - norm(b + c)
+##                     v2 = norm(cross(b, c))
 ##                     bpos = lCHb*(v1 + sqrt(2)*v2)/sqrt(3)
 ##                     cpos = lCHb*(v1 - sqrt(2)*v2)/sqrt(3)
-##                     b=atom("H", a.xyz+bpos, self)
-##                     c=atom("H", a.xyz+cpos, self)
-##                     self.bond(a,b)
-##                     self.bond(a,c)
+##                     b=atom("H", a.xyz + bpos, self)
+##                     c=atom("H", a.xyz + cpos, self)
+##                     self.bond(a, b)
+##                     self.bond(a, c)
 
 ##                 # given 3, the last one is opposite their average
 ##                 elif valence == 3:
 ##                     b=a.bonds[0].other(a).xyz - a.xyz
 ##                     c=a.bonds[1].other(a).xyz - a.xyz
 ##                     d=a.bonds[2].other(a).xyz - a.xyz
-##                     v = - norm(b+c+d)
-##                     b=atom("H", a.xyz+lCHb*v, self)
-##                     self.bond(a,b)
+##                     v = - norm(b + c + d)
+##                     b=atom("H", a.xyz + lCHb * v, self)
+##                     self.bond(a, b)
 
 # end of bonds.py
