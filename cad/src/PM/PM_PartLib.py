@@ -102,7 +102,7 @@ class PM_PartLib(PM_GroupBox):
            
     def partChanged(self, selectedItem):
         """
-        Method  called when user changed the partlib brower tree.
+        Method called when user changed the partlib browser tree.
         
         @param selectedItem: Item currently selected in the L{self.partLib}
         @type  selectedItem: L{self.partLib.FileItem} 
@@ -117,8 +117,11 @@ class PM_PartLib(PM_GroupBox):
         if isinstance(item, self.partLib.FileItem):
             mmpFile = str(item.getFileObj())
             if os.path.isfile(mmpFile):
-                self.newModel = Assembly(self.w, 
-                                         os.path.normpath(mmpFile))
+                self.newModel = \
+                        Assembly(self.w, 
+                                 os.path.normpath(mmpFile),
+                                 run_updaters = True # desirable for PartLib [bruce 080403]
+                                )
                 self.newModel.set_glpane(self.elementViewer) # sets its .o and .glpane
                 readmmp(self.newModel, mmpFile)
                 self.newModel.update_parts() #k not sure if needed after readmmp

@@ -234,11 +234,17 @@ class Assembly( StateMixin, Assembly_API):
         # Not yet implemented in all updaters. Implemented in dna updater.
         # [bruce 080314]
     
-    def __init__(self, win, name = None, own_window_UI = False):
+    def __init__(self, win,
+                 name = None,
+                 own_window_UI = False,
+                 run_updaters = False ):
         """
         @type win: MWsemantics or None
         """
         self.own_window_UI = own_window_UI
+
+        if not run_updaters: #bruce 080403
+            self.permanently_disable_updaters = True
         
         # ignore changes to this Assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.

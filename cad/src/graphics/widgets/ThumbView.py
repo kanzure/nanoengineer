@@ -799,7 +799,7 @@ class ElementView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        assy = Assembly(None)
+        assy = Assembly(None, run_updaters = False)
         assy.set_glpane(self) # sets .o and .glpane
         mol = Chunk(assy, 'dummy')
         atm = Atom(elm.symbol, pos, mol)
@@ -940,7 +940,7 @@ class MMKitView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        assy = Assembly(None)
+        assy = Assembly(None, run_updaters = False)
         assy.set_glpane(self) # sets .o and .glpane
         mol = Chunk(assy, 'dummy') 
         atm = Atom(elm.symbol, pos, mol)

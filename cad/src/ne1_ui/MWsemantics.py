@@ -214,7 +214,10 @@ class MWsemantics(QMainWindow,
         # Note: It is very desirable to change this startup behavior so that
         # the user must select "File > New" to open an empty document after
         # NE1 starts. Mark 2007-12-30.
-        self.assy = Assembly(self, "Untitled", own_window_UI = True)
+        self.assy = Assembly(self, "Untitled",
+                             own_window_UI = True,
+                             run_updaters = True
+                             )
             #bruce 060127 added own_window_UI flag to help fix bug 1403;
             # it's required for this assy to support Undo
         #bruce 050429: as part of fixing bug 413, it's now required to call
