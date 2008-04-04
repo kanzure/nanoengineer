@@ -14,7 +14,7 @@ from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from graphics.drawing.drawDnaRibbons import drawDnaSingleRibbon
-from utilities.constants import darkred, blue, black
+from utilities.constants import darkred, blue, black, red, darkgreen
 
 
 _superclass = BuildDna_GraphicsMode
@@ -156,4 +156,12 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                ribbonThickness = 4.0,
                                ribbon1Color = ribbon1Color,
                                stepColor = black )
+            #Draw the text next to the cursor that gives info about 
+            #number of base pairs etc
+            if self.command:
+                text , textColor = self.command.getCursorText()
+                self.glpane.renderTextNearCursor(text, 
+                                                 offset = 30,
+                                                 color = textColor
+                                             )
         

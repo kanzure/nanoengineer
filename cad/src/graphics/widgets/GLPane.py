@@ -144,6 +144,7 @@ import foundation.preferences as preferences
 import foundation.env as env
 from foundation.changes import SubUsageTrackingMixin
 from ne1_ui.cursors import createCompositeCursor
+from widgets.widget_helpers import RGBf_to_QColor
 
 from graphics.widgets.DynamicTip import DynamicTip
 from graphics.drawing.Guides import Guides
@@ -188,6 +189,8 @@ from utilities.GlobalPreferences import use_frustum_culling
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 
 import utilities.qt4transition as qt4transition
+
+
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from model.bonds import Bond # used only for selobj ordering
@@ -594,7 +597,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     # ==
 
-    def renderTextNearCursor(self, textString, offset = 5):
+    def renderTextNearCursor(self, textString, offset = 5, color = (0, 0, 0)):
         """
         Renders text near the cursor position, on the top right side of the
         cursor (slightly above it).
@@ -611,6 +614,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         if not textString:
             return 
+        
+        #Extra precaution if the caller passes a junk value such as None
+        #for the color
+        if not isinstance(color, tuple) or isinstance(color, list):
+            color = (0, 0, 0)
+         
 
         pos = self.cursor().pos()  
         # x, y coordinates need to be in window coordinate system. 
@@ -626,7 +635,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         glDisable(GL_LIGHTING)
 
         # Note: It is necessary to set the font color, otherwise it may change!
-        self.qglColor(QColor(0, 0, 0))
+                        
+        self.qglColor(RGBf_to_QColor(color))
         x = pos.x() + offset
         y = pos.y() - offset
 
@@ -635,7 +645,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                         y,
                         QString(textString),
                         self._getFontForTextNearCursor())
-        self.qglClearColor(QColor(0, 0, 0))
+        self.qglClearColor(RGBf_to_QColor(color))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
 

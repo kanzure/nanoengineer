@@ -31,7 +31,6 @@ from prototype.test_connectWithState import State_preMixin
 from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__ import _self
 from exprs.Exprs import call_Expr
-from exprs.Exprs import norm_Expr
 from widgets.prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point, ORIGIN, Color
 from exprs.ExprsConstants import Vector
@@ -49,12 +48,12 @@ from dna.commands.BuildDuplex.B_Dna_PAM3_SingleStrand import B_Dna_PAM3_SingleSt
 from command_support.EditCommand import EditCommand 
 
 from utilities.constants import noop
+from utilities.constants import darkgreen, red, black
 from utilities.Comparison import same_vals
 
 
-
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
-HANDLE_RADIUS_DEFAULT_VALUE = 1.3
+HANDLE_RADIUS_DEFAULT_VALUE = 1.5
 
 ORIGIN = V(0,0,0)
 
@@ -171,12 +170,16 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #This command implements similar thing 
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
         
-    def NOT_IMPELMENTED_model_changed(self):
+    def NOT_IMPLEMENTED_model_changed(self):
+        #HAS BUGS. The length of sequence in the sequence editor 
+        #doesn't match with total number of strand atoms in the resized strand.
+        #it is often more. See related bug 2729 for details. Note that
+        #the above mentioned problem happens regardless whether the debug pref
+        #'call model_changed only when needed' is ON or OFF
+        
         if self.hasValidStructure():
             new_numberOfBases = self.struct.getNumberOfBases()
             if not same_vals(new_numberOfBases, self._previousNumberOfBases):
-                print "***new_numberOfBases = %d, self._previousNumberOfBases = %d"%(new_numberOfBases,
-                                                                                     self._previousNumberOfBases)
                 self.propMgr.updateSequence()
                 self._previousNumberOfBases = new_numberOfBases
         
@@ -352,7 +355,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                                                     numberOfBases, 
                                                     duplexRise = duplexRise)
             
-            final_position = ladderEndAxisAtom.posn() + norm(axis_vector)*segment_length_to_add
+            final_position = resizeEndAxisAtom.posn() + norm(axis_vector)*segment_length_to_add
             
         return final_position
                 
@@ -490,6 +493,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         
         if strandEndBaseAtom1:
             axisAtom1 = self.struct.get_DnaSegment_axisEndAtom_connected_to(strandEndBaseAtom1)
+            #New implementation will soon accept the axis atoms even when those 
+            #are not at the segment ends. -- Ninad 2008-04-04
+            ##axisAtom1 = strandEndBaseAtom1.axis_neighbor()
             if axisAtom1:
                 self.handleDirection1 = self._get_handle_direction(axisAtom1, 
                                                                    strandEndBaseAtom1)
@@ -504,6 +510,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         if strandEndBaseAtom2:
             axisAtom2 = self.struct.get_DnaSegment_axisEndAtom_connected_to(
                 strandEndBaseAtom2)
+            #New implementation will soon accept the axis atoms even when those 
+            #are not at the segment ends. -- Ninad 2008-04-04
+            ##axisAtom2 = strandEndBaseAtom2.axis_neighbor()
             
             if axisAtom2:
                 self.handleDirection2 = self._get_handle_direction(axisAtom2, 
@@ -642,6 +651,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         if self.grabbedHandle is not None:
             for atm in (strandEndAtom1, strandEndAtom2):
                 axisEndAtom = self.struct.get_DnaSegment_axisEndAtom_connected_to(atm)
+                #New implementation will soon accept the axis atoms even when those 
+                #are not at the segment ends. -- Ninad 2008-04-04
+                ##axisEndAtom = atm.axis_neighbor()
                 if axisEndAtom:
                     if same_vals(axisEndAtom.posn(), self.grabbedHandle.origin):
                         resizeEndStrandAtom = atm
@@ -650,7 +662,52 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         
         return (resizeEndStrandAtom, resizeEndAxisAtom)
     
-     
+    
+    def getCursorText(self):
+        """
+        Used by DnaStrand_GraphicsMode._draw_handles()
+        @TODO: It also updates the number of bases
+        """
+        if self.grabbedHandle is None:
+            return
+        
+        #@TODO: This updates the PM as the cursor moves. 
+        #Need to rename this method so that you that it also does more things 
+        #than just to return a textString. Even better if its called in 
+        #self.model_changed but at the moment there is a bug thats why we 
+        #are doing this update by calling getCursorText in the 
+        #GraphicscMode._draw_handles-- Ninad 2008-04-05
+        self.update_numberOfBases()
+        
+        original_numberOfBases = self.struct.getNumberOfBases()
+        
+        new_numberOfBases = self.propMgr.numberOfBasesSpinBox.value()
+        
+        changed_bases = new_numberOfBases - original_numberOfBases
+        
+        changedBasesString = str(changed_bases)
+        if changed_bases < 0:
+            textColor = red
+        elif changed_bases > 0:
+            textColor = darkgreen
+        else:
+            textColor = black
+        
+        text = ""
+
+        currentPosition = self.grabbedHandle.currentPosition
+        fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
+
+        duplexLength = vlen( currentPosition - fixedEndOfStructure )
+        
+        duplexLengthString = str(round(duplexLength, 3))
+        text =  str(new_numberOfBases)+ \
+             "b, "+ \
+             duplexLengthString + \
+             ", change:" \
+             +  changedBasesString
+        
+        return (text , textColor)
 
     def modifyStructure(self):
         """
@@ -687,6 +744,15 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         self.glpane.gl_update()
     
     def update_numberOfBases(self):
+        """
+        Updates the numberOfBases in the PM while a resize handle is being 
+        dragged. 
+        @see: self.getCursorText() where it is called. 
+        """
+        #@Note: originally (before 2008-04-05, it was called in 
+        #DnaStrand_ResizeHandle.on_drag() but that 'may' have some bugs 
+        #(not verified) also see self.getCursorText() to know why it is
+        #called there (basically a workaround for bug 2729
         if self.grabbedHandle is None:
             return
                 

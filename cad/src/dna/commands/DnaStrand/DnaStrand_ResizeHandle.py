@@ -54,7 +54,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     #The state ref that determines the radius (of the sphere) of this handle. 
     #See DnaStrand_EditCommand._determine_resize_handle_radius() for more 
     #details
-    sphereRadius = Option(StateRef, 1.3)
+    sphereRadius = Option(StateRef, 1.5)
         
     #Appearance of the handle. (note that it uses all the code from exprs module
     # and needs more documentation there). 
@@ -67,7 +67,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
                    
             Cylinder((ORIGIN, 
                       ORIGIN + _self.direction*2.2*_self.sphereRadius),
-                      0.5* _self.sphereRadius,
+                      0.6* _self.sphereRadius,
                       _self._currentHandleColor))
     
     #Handle appearance when highlighted   
@@ -80,7 +80,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
                    
             Cylinder((ORIGIN,  
                       ORIGIN + _self.direction*2.2*_self.sphereRadius),
-                     0.5* _self.sphereRadius , 
+                     0.6* _self.sphereRadius , 
                      yellow)),
             doc = "handle appearance when highlighted")
      
@@ -194,7 +194,11 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         Method called while dragging this handle .
         @see: B{DragHandle_API}
         """
-        self.command.update_numberOfBases()
+        pass
+        #The following call is disabled. Instead updating this spinbox 
+        #is done by the command.getCursorText method . See that method for 
+        #details
+        ##self.command.update_numberOfBases()
     
     def on_release(self):
         """
