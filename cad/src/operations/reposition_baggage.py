@@ -39,7 +39,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     and use that posn instead of its actual posn to decide what to do.
 
     @warning: we assume baggage is a subset of self.baggageNeighbors(),
-              but don't check this except when ATOM_DEBUG is set.
+              but we don't check this except when ATOM_DEBUG is set.
     """
     #bruce 060629 for bondpoint problem
     if baggage is None:
@@ -47,11 +47,12 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     else:
         other = -1 # set later if needed
         if debug_flags.atom_debug:
-            _bn = map(id,self.baggageNeighbors())
-            for at in baggage:
-                assert id(at) in _bn
-            at = 0
-            del _bn, at
+            # assert baggage is a subset of self.baggageNeighbors()
+            _bn = map(id, self.baggageNeighbors())
+            for atom in baggage:
+                assert id(atom) in _bn
+            atom = 0
+            del _bn, atom
 
     # trivial cases
     len_baggage = len(baggage)
@@ -70,7 +71,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
         return
     
     if len_other == 1:
-        # the Q(old,new) code in the callers ought to handle it properly --
+        # the Q(old, new) code in the callers ought to handle it properly --
         # UNLESS other is a pi_bond, and its alignment ought to affect a pair
         # of baggage atoms.
         if self.atomtype.spX == 2: # note: true for sp2 and sp2(graphitic)
@@ -89,17 +90,19 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     # (handling planned_atom_nupos once and for all).
     if other == -1:
         other = []
-        baggage_keys = [at.key for at in baggage]
+        baggage_keys = [atom.key for atom in baggage]
         for b in self.bonds:
-            at = b.other(self)
-            if at.key not in baggage_keys:
-                other.append(at)
+            atom = b.other(self)
+            if atom.key not in baggage_keys:
+                other.append(atom)
         if len(other) != len_other:
             # must mean baggage is not a subset of neighbors
-            print "bug in reposition_baggage: len(other) != len_other", other
+            args = (self, baggage, planned_atom_nupos)
+            print "bug in reposition_baggage%r: len(other == %r) != len_other %r" % \
+                  (args, other, len_other)
             return
     if len_other == 1:
-        other0_bond = find_bond(other[0],self)
+        other0_bond = find_bond(other[0], self)
         if other0_bond.v6 == V_SINGLE:
             # calling code handled this case well enough
             return
@@ -109,13 +112,13 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
         if planned_atom not in other:
             print "likely bug in reposition_baggage: " \
                   "planned_atom not in other", planned_atom, other
-    other_posns = [(at.posn(), nupos)[at is planned_atom] for at in other]
+    other_posns = [(atom.posn(), nupos)[atom is planned_atom] for atom in other]
         #e we might later wish we'd kept a list of the bonds to baggage and
-        # other, to grab the v6's -- make a dict from at.key above?
+        # other, to grab the v6's -- make a dict from atom.key above?
     selfposn = self.posn()
     othervecs = [norm(pos - selfposn) for pos in other_posns]
 
-    bag_posns = [at.posn() for at in baggage]
+    bag_posns = [atom.posn() for atom in baggage]
     bagvecs = [norm(pos - selfposn) for pos in bag_posns]
     
     # The alg is specific to atomtype, and number and sometimes *type* of all
@@ -223,9 +226,9 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     bags_ordered = baggage # in case len(res) == 1
     if len(res) > 1:
         dists = []
-        for at,vec,i in zip(baggage,bagvecs,range(len_baggage)):
+        for atom_junk, vec, i in zip(baggage, bagvecs, range(len_baggage)):
             for pos in res:
-                dists.append(( vlen(pos - vec) , i, pos ))
+                dists.append(( vlen(pos - vec), i, pos ))
         dists.sort()
         res0 = res
         res = []
@@ -250,11 +253,11 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
         assert len_baggage == len(res) # whether or not extra > 0
     # now move the atoms, preserving distance from self
     # (assume calling code got that part right)
-    for at, vec in zip(bags_ordered, res):
-        dist = vlen( selfposn - at.posn() )
+    for atom, vec in zip(bags_ordered, res):
+        dist = vlen( selfposn - atom.posn() )
         if abs(1.0 - vlen(vec)) > 0.00001:
             print "bug in reposition_baggage: vec not len 1:", vec
-        at.setposn( selfposn + norm(vec) * dist )
+        atom.setposn( selfposn + norm(vec) * dist )
             # norm(vec) is hoped to slightly reduce accumulated
             # numerical errors...
             ###e ideally we'd correct the bond lengths too, but as of 060630,
