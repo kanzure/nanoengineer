@@ -526,6 +526,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
     _will_kill = 0 #bruce 060327
+
+    _f_dna_updater_should_reposition_baggage = False #bruce 080404
     
     # The iconPath specifies path(string) of an icon that represents the 
     # objects of this class  (in this case its gives the path of an 'atom' icon')
@@ -3504,15 +3506,20 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     # ==
 
-    def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725; revised 051011
+    def _changed_structure(self):
+        # WARNING: this has some external calls. See docstring. [bruce 080404 comment]
+        #bruce 050627; docstring revised and some required calls added, 050725; revised 051011
         """
-        [private method]
+        [friend method, mostly used privately. Should be renamed with _f_ prefix.
+         OR, maybe it's really a public method and should be renamed with no _
+         like the method on Jig.]
 
         This must be called by all low-level methods which change this atom's or bondpoint's element, atomtype,
         or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
         or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
         when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
+        (For example, calling it on a PAM atom invalidates that atom's entire DnaLadder.)
 
         All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
         """

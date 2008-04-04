@@ -448,6 +448,11 @@ class DnaLadder(object):
         return
     
     def rail_end_baseatoms(self):
+        # rename? end_baseatoms is logical, but occurs too much in other code.
+        # ladder_end_baseatoms is good too, but is too confusable
+        # with ladder_end_atoms (which also needs renaming).
+        # end_atoms occurs only as a localvar, but is misleading
+        # re Pl or X at ends.
         """
         yield the 3 or 6 atoms which are end-atoms for one of our 3 rails,
         in arbitrary order #k
@@ -468,11 +473,11 @@ class DnaLadder(object):
 
     # ==
     
-    def get_ladder_end(self, endBaseAtom): # by Ninad
+    def get_ladder_end(self, endBaseAtom): # by Ninad # todo: rename to indicate it gets it from an atom, not an end-index
         """
         Return the end (as a value in LADDER_ENDS) of the ladder self
         which has the given end base atom, or None if the given atom
-        is not one of self's end_atoms. (If self has length 1, either
+        is not one of self's end_baseatoms. (If self has length 1, either
         end might be returned.)
         
         @param endBaseAtom: One of the end atoms of the ladder (or any
@@ -767,7 +772,7 @@ class DnaLadder(object):
     def arbitrary_baseatom(self): #bruce 080401
         return self.strand_rails[0].baseatoms[0] # override if bare axis rail is allowed
 
-    def ladder_end_atoms(self, end, reverse = False):
+    def ladder_end_atoms(self, end, reverse = False): # rename, and/or merge better with rail_end_baseatoms?
         """
         Return a list of our 3 rail-end atoms at the specified end,
         using None for a missing atom due to a missing strand2 or axis_rail,
@@ -1057,6 +1062,20 @@ class DnaLadder(object):
             res.append(chunk)
         return res
 
+    def _f_reposition_baggage(self): #bruce 080404
+        """
+        """
+        # only for atoms with _f_dna_updater_should_reposition_baggage set
+        # (and optimizes by knowing where those might be inside the ladder)
+        #@ print "_f_reposition_baggage mostly nim on", self ####
+        for atom in self.rail_end_baseatoms():
+            if atom._f_dna_updater_should_reposition_baggage:
+                #@ print "should handle %r._f_dna_updater_should_reposition_baggage" % atom ####
+                atom._f_dna_updater_should_reposition_baggage = False
+        #e assert no other atoms have that flag? Not true! interior Ax for single strand might have it.
+        # btw not enough code sets the flag yet.
+        return
+    
     # == chunk access methods
 
     def strand_chunks(self):

@@ -1300,6 +1300,55 @@ class Bond(BondBase, StateMixin, Selobj_API):
 
         if self._direction and not self.is_directional(): #bruce 070415
             self.clear_bond_direction()
+        
+        #bruce 080404 new feature:
+        # newly made bondpoints should be repositioned by dna updater.
+        #
+        # Notes / caveats / bugs:
+        #
+        # - ideally this would be generalized (to let atomtype decide whether
+        #   and how to handle this).
+        #
+        # - the tests are thought to be in optimal order, but could be optimized
+        #   more if the atomtype or element had better flags.
+        #
+        # - in theory we should do this for all monovalent elements, not just
+        #   Singlet. In practice it doesn't matter, and there is not yet a flag
+        #   for that, and len(atom.bonds) might not yet be up to date if atom
+        #   is still being constructed. I guess atomtype.valence could be used.
+        #
+        # - in theory we should *not* do this for atoms being read from an mmp
+        #   file (or any other trusted source of already-made structure, like
+        #   when copying a partlib part or anything else), at least if this new
+        #   bond is also read from that file or copied from that same source.
+        #   In practice this would require a new argument flag (or the callers
+        #   unsetting _f_dna_updater_should_reposition_baggage themselves --
+        #   easy if we find them all, but a kluge), and worse, there are a lot
+        #   of mmp files with incorrect bondpoint positions that we ought to
+        #   fix! Nonetheless, except for that, it's a bug to do it then. If this
+        #   is an issue, we'll fix the callers to unset this flag on the atoms
+        #   that were just read or copied, unless they made their own bondpoints
+        #   on them, or before they do so.
+        #
+        # - if for some reason the updater does not see this flag (probably
+        #   only possible if the new bondpoint is later removed from the atom
+        #   we set it on before it runs), no harm should be caused, even if
+        #   it sees it much later on the same atom, since that only happens
+        #   if the atom shows up at a ladder-end, and since it will verify
+        #   it still has bondpoints before "fixing them", and if it got new
+        #   ones then, that would have readded the same flag anyway. It does
+        #   mean that turning on the updater after making an atom and manually
+        #   moving its bondpoints would make it "correct" the manual moves,
+        #   but that's ok since having the dna updater off is not supported.
+        #
+        # - what we do here is only sufficient because we know
+        #   _changed_structure() is always called above on both atoms.
+        #
+        if at2.element.pam and at1.element is Singlet and at2.element.role in ('strand', 'axis'):
+            at2._f_dna_updater_should_reposition_baggage = True
+        if at1.element.pam and at2.element is Singlet and at1.element.role in ('strand', 'axis'):
+            at1._f_dna_updater_should_reposition_baggage = True        
+
         return
     
     def invalidate_bonded_mols(self): #bruce 041109

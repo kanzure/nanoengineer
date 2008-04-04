@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 reposition_baggage.py -- help reposition baggage atoms after real neighbor
 atoms have moved
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 import math
@@ -58,6 +58,20 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     len_baggage = len(baggage)
     if not len_baggage:
         return
+
+    if self.element.pam and self.element.role in ('axis', 'strand'):
+        # Let the dna updater do this when it has a DnaLadder and can
+        # do a better job. The things we'd do below are probably either
+        # useless, or more harm than good, so skip them -- at least for
+        # strand or axis pam atoms (not e.g. for Ub).
+        # [bruce 080404 new feature / bugfix]
+        # ### REVIEW: is that skipping a good idea for *all* pam elements
+        # this code sets the flag for? Is it ok to not set the flag for Ub?
+        self._changed_structure() # make sure updater runs on self
+            # (probably redundant with other changes by caller)
+        self._f_dna_updater_should_reposition_baggage = True
+        return
+    
     # cases handled well enough by calling code (as of 060629),
     # needing no correction here
     len_other = len(self.bonds) - len_baggage
