@@ -1216,12 +1216,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # so it's not clear how many different lists are needed, so it's unlikely the complexity is justified.
         return # from setposn_no_chunk_or_bond_invals
     
-    def adjBaggage(self, atom, nupos): #bruce 051209 revised meaning and name from adjSinglets
+    def adjBaggage(self, atom, nupos):
         """
         We're going to move atom, a neighbor of yours, to nupos,
         so adjust the positions of your singlets (and other baggage) to match.
         """
-        ###k could this be called for atom being itself a singlet, when dragging a singlet? [bruce 050502 question]
+        ###k could this be called for atom being itself a singlet,
+        # when dragging a singlet? [bruce 050502 question]
         apo = self.posn()
         # find the delta quat for the average non-baggage bond and apply
         # it to the baggage
@@ -1234,28 +1235,31 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # within their chunks in Build mode. Better yet might be to
         # use old singlet posns purely as hints, recomputing new ones
         # from scratch (hints are useful to disambiguate this). ###@@@
-        baggage, other = self.baggage_and_other_neighbors()
-        if atom in baggage: #bruce 060629 for safety (don't know if ever needed)
+        baggage, nonbaggage = self.baggage_and_other_neighbors()
+        if atom in baggage:
+            #bruce 060629 for safety (don't know if ever needed)
+            # make sure atom counts as nonbaggage
             baggage.remove(atom)
-            other.append(atom)
-        n = other
-        ## n = self.realNeighbors()
+            nonbaggage.append(atom)
+        ## nonbaggage = self.realNeighbors()
         old = V(0,0,0)
         new = V(0,0,0)
-        for at in n:
-            old += at.posn()-apo
-            if at is atom:
+        for atom_nb in nonbaggage:
+            old += atom_nb.posn() - apo
+            if atom_nb is atom:
                 new += nupos-apo
             else:
-                new += at.posn()-apo
-        if n:
-            # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
+                new += atom_nb.posn() - apo
+        if nonbaggage:
+            # slight safety tweaks to old code, though we're about to add new
+            # code to second-guess it [bruce 060629]
             old = norm(old) #k not sure if these norms make any difference
             new = norm(new)
             if old and new:
                 q = Q(old,new)
-                for at in baggage: ## was self.singNeighbors()
-                    at.setposn(q.rot(at.posn()-apo)+apo) # similar to code in drag_selected_atom, but not identical
+                for atom_b in baggage: ## was self.singNeighbors()
+                    atom_b.setposn(q.rot(atom_b.posn() - apo) + apo)
+                        # similar to code in drag_selected_atom, but not identical
             #bruce 060629 for bondpoint problem
             self.reposition_baggage(baggage, (atom,nupos))
         return
@@ -2883,10 +2887,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                   (self, numol, self.molecule, self.molecule.assy, numol.assy)
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
-        for atm in self.singNeighbors():
+        for atom in self.singNeighbors():
             assert self.element is not Singlet # (only if we have singNeighbors!)
                 # (since hopmol would infrecur if two singlets were bonded)
-            atm.hopmol(numol)
+            atom.hopmol(numol)
         return
     
     def neighbors(self):
@@ -2899,13 +2903,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         return a list of the real atoms (not singlets) bonded to this atom
         """
-        return filter(lambda atm: atm.element is not Singlet, self.neighbors())
+        return filter(lambda atom: atom.element is not Singlet, self.neighbors())
     
     def singNeighbors(self): #e when we have only one branch again, rename this singletNeighbors or bondpointNeighbors
         """
         return a list of the singlets bonded to this atom
         """
-        return filter(lambda atm: atm.element is Singlet, self.neighbors())
+        return filter(lambda atom: atom.element is Singlet, self.neighbors())
     
     def baggage_and_other_neighbors(self): #bruce 051209
         """
@@ -2922,11 +2926,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return [], nn
         baggage = []
         other = []
-        for atm in nn:
-            if len(atm.bonds) == 1:
-                baggage.append(atm)
+        for atom in nn:
+            if len(atom.bonds) == 1:
+                baggage.append(atom)
             else:
-                other.append(atm)
+                other.append(atom)
         return baggage, other
 
     def baggageNeighbors(self): #bruce 051209
@@ -3295,8 +3299,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if line == len(PTsenil): return #not in table
         # (note: we depend on singlets not being in the table)
         nrn = len(self.realNeighbors())
-        for atm in self.singNeighbors():
-            atm.kill()
+        for atom in self.singNeighbors():
+            atom.kill()
         try:
             newelt = PTsenil[line][nrn]
         except IndexError:
@@ -3737,8 +3741,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         kill all bondpoints, change elt and atomtype
         (both must be provided and must match), and make new bondpoints.
         """
-        for atm in self.singNeighbors():
-            atm.kill() # (since atm is a bondpoint, this kill doesn't replace it with a bondpoint)
+        for atom in self.singNeighbors():
+            atom.kill() # (since atom is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.mvElement(elt, atomtype)
         self.make_enough_bondpoints()
         return # from direct_Transmute
@@ -3774,19 +3778,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         then call make_enough_bondpoints to add the right number
         of new ones in the best positions.
         """
-        for atm in self.singNeighbors():
-            atm.kill() # (since atm is a bondpoint, this kill doesn't replace it with a bondpoint)
+        for atom in self.singNeighbors():
+            atom.kill() # (since atom is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.make_enough_bondpoints()
         return
     
     def remake_baggage_UNFINISHED(self):
         #bruce 051209 -- pseudocode; has sample calls, desirable but commented out, since it's unfinished ###@@@
         bn = self.baggageNeighbors()
-        for atm in bn:
-            if not atm.is_singlet():
+        for atom in bn:
+            if not atom.is_singlet():
                 pass ###e record element and position
-                atm.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o replacing w/ singlet; better to just tell kill that
-            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
+                atom.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o replacing w/ singlet; better to just tell kill that
+            atom.kill() # (since atom is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can
         pass ###e now transmute the elts back to what they were, if you can, based on nearness
         return
@@ -4046,15 +4050,15 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
     mol = chunk.Chunk(assy, 'bug') # name is reset below!
-    atm = Atom(elem.symbol, pos, mol)
+    atom = Atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
-    atm.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
+    atom.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
         # note, atomtype might well already be the value we're setting; if it is, this should do nothing
-    mol.name = "Chunk-%s" % str(atm)
-    atm.make_bondpoints_when_no_bonds() # notices atomtype
+    mol.name = "Chunk-%s" % str(atom)
+    atom.make_bondpoints_when_no_bonds() # notices atomtype
     assy.addmol(mol)
-    return atm
+    return atom
 
 # ==
 
