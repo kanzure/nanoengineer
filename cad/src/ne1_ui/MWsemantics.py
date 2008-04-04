@@ -19,30 +19,24 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 [some of that splitup has been done, now, by Ninad in the Qt4 branch]
 """
 
-##from qt4transition import qt4todo
 from utilities.qt4transition import qt4warning
 
 from PyQt4 import QtGui, QtCore
 
-from PyQt4.Qt import Qt # not sure if used
+from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont
-##from PyQt4.Qt import QAction
-##from PyQt4.Qt import QVBoxLayout
-##from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QIcon
 from PyQt4.Qt import QSettings
 from PyQt4.Qt import QVariant
 
 from PyQt4.Qt import QMainWindow, SIGNAL
-##from PyQt4.Qt import QWidget, QFrame
-##from PyQt4.Qt import QSplitter
 from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QToolBar
 from PyQt4.Qt import QStatusBar
 
 from model.elements import PeriodicTable
-from model.assembly import assembly 
+from model.assembly import Assembly
 from graphics.drawing.drawer import get_gl_info_string ## grantham 20051201
 import os, sys
 import time
@@ -50,7 +44,6 @@ import time
 from utilities import debug_flags
 
 from platform.PlatformDependent import find_or_make_Nanorex_directory
-##from PlatformDependent import make_history_filename
 from platform.PlatformDependent import open_file_in_editor
 from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
@@ -61,8 +54,6 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
-##from modelTree.ModelTree import modelTree
-##from GLPane import GLPane 
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
@@ -113,8 +104,6 @@ _RECENTFILES_KEY = '/Nanorex/NE1/recentFiles' # key for QSettings
 
 if debug_recent_files:
     def debug_fileList(fileList):
-        #@from qt4transition import qt4here
-        #@qt4here(show_traceback = True)
         print "BEGIN fileList"
         for x in fileList:
             print x
@@ -225,7 +214,7 @@ class MWsemantics(QMainWindow,
         # Note: It is very desirable to change this startup behavior so that
         # the user must select "File > New" to open an empty document after
         # NE1 starts. Mark 2007-12-30.
-        self.assy = assembly(self, "Untitled", own_window_UI = True)
+        self.assy = Assembly(self, "Untitled", own_window_UI = True)
             #bruce 060127 added own_window_UI flag to help fix bug 1403;
             # it's required for this assy to support Undo
         #bruce 050429: as part of fixing bug 413, it's now required to call

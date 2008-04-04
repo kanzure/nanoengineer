@@ -307,7 +307,7 @@ class Group(NodeWithAtomContents):
         """
         Return a new Group with this one's members but of the specified subclass
         (and otherwise just like this Group, which must be in class Group itself,
-        not a subclass). This won't be needed once class assembly is fixed to make
+        not a subclass). This won't be needed once class Assembly is fixed to make
         the proper subclasses directly.
         """
         assert self.__class__ is Group

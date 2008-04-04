@@ -43,7 +43,7 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
     master_model_updater.initialize()
     
     import model.assembly
-    model.assembly.assembly.initialize()
+    model.assembly.Assembly.initialize()
     
     import PM.GroupButtonMixin as GroupButtonMixin
     GroupButtonMixin.GroupButtonMixin.initialize()

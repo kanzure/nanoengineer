@@ -127,7 +127,7 @@ me, and I'll ask Bruce about it later.
 
 class Ne1Model_api:
     def get_topnodes(self):
-        """Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
+        """Return a list of the top-level nodes, typically assy.tree and assy.shelf for an Assembly.
         """
         raise Exception('overload me')
         return []

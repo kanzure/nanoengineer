@@ -1,6 +1,6 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-assembly.py -- provides class assembly, for everything stored in one mmp file,
+assembly.py -- provides class Assembly, for everything stored in one mmp file,
 including one main part and zero or more clipboard items; see also part.py.
 
 @version: $Id$
@@ -8,11 +8,11 @@ including one main part and zero or more clipboard items; see also part.py.
 
 ==
 
-About the assembly and Part classes, and their relationship:
+About the Assembly and Part classes, and their relationship:
 
 [###@@@ warning, 050309: docstring not reviewed recently]
 
-Each assembly has a set of Parts, of which one is always "current"; the current part
+Each Assembly has a set of Parts, of which one is always "current"; the current part
 is what is displayed in the glpane and operated on by most operations,
 and (for now, as of 050222) the assy attributes selmols, selatoms, and molecules
 always refer to the same-named attrs of the current Part. (In fact, many other
@@ -41,21 +41,25 @@ might be stored in files referred to from some object within one of its Parts.
 
 ==
 
-Both Part and assembly might well be renamed. We don't yet know the best terms
+Both Part and Assembly might well be renamed. We don't yet know the best terms
 with which to refer to these concepts, or even the exact ideal boundary between them in the code.
 
 ==
 
-History: the Part/assembly distinction was introduced by bruce 050222
+History:
+
+The Part/Assembly distinction was introduced by bruce 050222
 (though some of its functionality was anticipated by the "current selection group"
 introduced earlier, just before Alpha-1). [I also rewrote this entire docstring then.]
 
-The Part/assembly distinction is unfinished, particularly in how it relates to some modes and to movie files.
+The Part/Assembly distinction is unfinished, particularly in how it relates to some modes and to movie files.
 
 Prior history unclear; almost certainly originated by Josh.
 
-bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
+Bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
+
+Bruce 080403 renamed class assembly -> class Assembly.
 """
 
 ###@@@ Note: lots of old code below has been commented out for the initial
@@ -118,18 +122,18 @@ from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
 
 debug_assy_changes = 0 #bruce 050429
 
-if 1: #bruce 060124 debug code; safe but dispensable ######@@@@@@
+if 1: #bruce 060124 debug code; safe but dispensable
     debug_assy_changes = debug_assy_changes or undo_archive.debug_undo2
 
-_global_assy_number = 0 # count assembly objects [bruce 050429]
+_global_assy_number = 0 # count Assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-undo_archive.register_class_nickname("Assembly", "assembly") # for use in Undo attr-dependency decls
+## undo_archive.register_class_nickname("assembly", "Assembly") # for use in Undo attr-dependency decls # might not be needed
 
 # ==
 
-class assembly( StateMixin, Assembly_API):
+class Assembly( StateMixin, Assembly_API):
     """
     (This is the closest thing we have to an object
     representing the contents of an open mmp file,
@@ -236,12 +240,12 @@ class assembly( StateMixin, Assembly_API):
         """
         self.own_window_UI = own_window_UI
         
-        # ignore changes to this assembly during __init__, and after it,
+        # ignore changes to this Assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.
         # [bruce 050429 revised that behavior and this comment, re bug 413]
         self._modified = 1 
         
-        # the MWsemantics displaying this assembly (or None, when called from ThumbView)
+        # the MWsemantics displaying this Assembly (or None, when called from ThumbView)
         self.w = win # deprecated but widely used [bruce 071008]
         self.win = win #bruce 071008
         # both of the following are done later in MWsemantics
@@ -262,7 +266,7 @@ class assembly( StateMixin, Assembly_API):
         want_undo_manager = False
         if own_window_UI:
             #bruce 060127 added own_window_UI flag to help fix bug 1403
-            # (this is false when called from ThumbView to make its "dummy assembly" (which passes self.w of None),
+            # (this is false when called from ThumbView to make its "dummy Assembly" (which passes self.w of None),
             # or from MMKit for Library assy (which passes self.w of main window, same as main assy).
             # Another way would be to test (self.w.assy is self), but w.assy could not yet be set up at this time,
             # so any fix like that is more unclear than just having our __init__-caller pass us this flag.
@@ -284,7 +288,7 @@ class assembly( StateMixin, Assembly_API):
         self.shelf = Group("Clipboard", self, None, [])
         self.shelf.open = False
 
-        # the model tree for this assembly
+        # the model tree for this Assembly
         self.tree = Group(self.name, self, None)
 
         # a node containing both tree and shelf (also replaced when a file is opened)
@@ -292,7 +296,7 @@ class assembly( StateMixin, Assembly_API):
         self.root = Group("ROOT", self, None, [self.tree, self.shelf])
 
         # bruce 050131 for Alpha:
-        # For each assembly, maintain one Node or Group which is the
+        # For each Assembly, maintain one Node or Group which is the
         # "current selection group" (the PartGroup or one of the
         # clipboard items), in which all selection is required to reside.
         #    It might sometimes be an out-of-date node, either a
@@ -309,7 +313,7 @@ class assembly( StateMixin, Assembly_API):
         # and this needs to be kept in sync with self.part. #doc sometime.
         self.init_current_selgroup() # must be re-called when self.tree is replaced
 
-        # filename if this entire assembly (all parts) was read from a file
+        # filename if this entire Assembly (all parts) was read from a file
         self.filename = ""
         # what to select: 0=atoms, 2 = molecules
         # [bruce 050308 change: new code should use SELWHAT_ATOMS and SELWHAT_CHUNKS
@@ -380,7 +384,7 @@ class assembly( StateMixin, Assembly_API):
             self.undo_manager.init1() #k still exists and needed, but does it still need to be separate from __init__? [060223]
             # Note: self.undo_manager won't start recording checkpoints until someone calls self.clear_undo_stack() at least once,
             # which can't be done until some more initialization is done by our callers,
-            # in ways which currently differ for the first assembly created, and later ones.
+            # in ways which currently differ for the first Assembly created, and later ones.
             # This is not even done by the end of MWsemantics.__init__, as of now.
             # For details, search out the highest-level calls to clear_undo_stack. [bruce 060223]
             # [update, 080229: be sure to call it before adding much data to the model, though,
@@ -418,7 +422,7 @@ class assembly( StateMixin, Assembly_API):
 
         self.assy_valid = True
                 
-        return # from assembly.__init__
+        return # from Assembly.__init__
 
     # ==
     
@@ -542,7 +546,7 @@ class assembly( StateMixin, Assembly_API):
         """
         [friend function; not clearly documented]
         This kluge is needed until we do the same thing in
-        whatever makes the toplevel groups in an assembly (eg files_mmp).
+        whatever makes the toplevel groups in an Assembly (eg files_mmp).
         Call it as often as you want (at least once before updating model tree
         if self might be newly loaded); it only changes things when it needs to
         (once for each newly loaded file or inited assy, basically);
@@ -553,7 +557,7 @@ class assembly( StateMixin, Assembly_API):
         Note: if any of them is None, or not an instance object, we'll get an exception here.
         """
         #bruce 050131 for Alpha:
-        # this is now also called in assembly.__init__ and in readmmp,
+        # this is now also called in Assembly.__init__ and in readmmp,
         # not only from the mtree.
         
         ## oldmod = assy_begin_suspend_noticing_changes(self)
@@ -634,7 +638,7 @@ class assembly( StateMixin, Assembly_API):
     # move between Parts (though in theory, they should be deselected then, so this might not matter).
     _select_cmd_counter = 0
     def begin_select_cmd(self):
-        # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
+        # Warning: same named method exists in Assembly, GLPane, and ops_select, with different implems.
         # The best place to save this state is not clear, but probably it's a place that won't explicitly exist
         # until we restructure the code, since it's part of the "current selection" state, which in principle
         # should be maintained as its own object, either per-window or per-widget or per-model.
@@ -944,7 +948,7 @@ class assembly( StateMixin, Assembly_API):
             #bruce 060224 added condition, so we don't keep reporting this old bug in MMKit Library ThumbView:
             # AssertionError: node.part.nodecount 3 != len(kids) 1
             # ...
-            # self <assembly.assembly instance at 0xd1d62b0>,
+            # self <assembly.Assembly instance at 0xd1d62b0>,
             # glpane <ThumbView.MMKitView object at 0xcc38f00>: [main.py:186] [ThumbView.py:193] [ThumbView.py:594] [assembly.py:513]
             try:
                 self.checkparts()
@@ -1199,27 +1203,27 @@ class assembly( StateMixin, Assembly_API):
             return
         # attrnames to delegate to the current part
         # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
-        assembly.part_attrs = ['molecules','selmols','selatoms','homeView','lastView']
+        Assembly.part_attrs = ['molecules','selmols','selatoms','homeView','lastView']
             ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
-        assembly.part_methods = filter( lambda attr:
+        Assembly.part_methods = filter( lambda attr:
                                         not attr.startswith('_')
                                         and callable(getattr(Part_class,attr)), # note: this tries to get self.part before it's ready...
                                         dir(Part_class) ) #approximation!
         #####@@@@@ for both of the following:
-        assembly.part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-        assembly.part_attrs_review = ['ppa2','ppa3','ppm']
+        Assembly.part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
+        Assembly.part_attrs_review = ['ppa2','ppa3','ppm']
         ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
         ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
-        assembly.part_attrs_all = assembly.part_attrs + assembly.part_attrs_temporary + assembly.part_attrs_review
+        Assembly.part_attrs_all = Assembly.part_attrs + Assembly.part_attrs_temporary + Assembly.part_attrs_review
 
         Initialize.endInitialization(__name__)
 
     # can we use the decorator @staticmethod instead?
     initialize = staticmethod(initialize)
     
-    def __getattr__(self, attr): # in class assembly
+    def __getattr__(self, attr): # in class Assembly
         if attr.startswith('_'): # common case, be fast
             raise AttributeError, attr
         elif attr == 'part':
@@ -1287,19 +1291,19 @@ class assembly( StateMixin, Assembly_API):
     
     def has_changed(self):
         """
-        Report whether this assembly (or something it contains)
+        Report whether this Assembly (or something it contains)
         has been changed since it was last saved or loaded from a file.
         See self.changed() docstring and comments for more info.
         Don't use or set self._modified directly!
            #e We might also make this method query the current mode
-        to see if it has changes which ought to be put into this assembly
+        to see if it has changes which ought to be put into this Assembly
         before it's saved.
         """
         return self._modified
     
     def changed(self): # by analogy with other methods this would be called changed_model(), but we won't rename it [060227]
         """
-        Record the fact that this assembly (or something it contains)
+        Record the fact that this Assembly (or something it contains)
         has been changed, in the sense that saving it into a file would
         produce meaningfully different file contents than if that had been
         done before the change.
@@ -1344,7 +1348,7 @@ class assembly( StateMixin, Assembly_API):
             self._modified = 1
             # Feel free to add more side effects here, inside this 'if'
             # statement, even if they are slow! They will only run the first
-            # time you modify this assembly since it was last saved, opened, or closed
+            # time you modify this Assembly since it was last saved, opened, or closed
             # (i.e. since the last call of reset_changed).
 
             # A long time ago, this is where we'd emit a history message about unsaved changes.
@@ -1363,7 +1367,7 @@ class assembly( StateMixin, Assembly_API):
         
         self.modflag_asserts() #e should speed-optimize this eventually
         
-        return # from assembly.changed()
+        return # from Assembly.changed()
 
     def modflag_asserts(self): #bruce 060123; revised 060125
         """
@@ -1416,7 +1420,7 @@ class assembly( StateMixin, Assembly_API):
         This is a bug in the present implementation which needs to be worked around.
         It might be inherent in the present API, I don't know; the present API has no
         protection for mismatch-bugs and needs revision anyway.
-           It's probably safe even if the assembly object these methods are being called on
+           It's probably safe even if the Assembly object these methods are being called on
         is not the same for the begin and end methods!
         """
         # docstring by bruce 050429 ; might be wrong due to changes of 060121
@@ -1538,10 +1542,10 @@ class assembly( StateMixin, Assembly_API):
 #bruce 060407 zapped this, and the code can be removed soon
 ##    def become_state(self, state, archive): #bruce 060117 kluge [will it still be needed?]
 ##        from undo_archive import assy_become_state
-##        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
+##        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class Assembly
 
     def clear(self): #bruce 060117 kluge [will it still be needed?]
-        return undo_archive.assy_clear(self) # this subroutine will probably become a method of class assembly
+        return undo_archive.assy_clear(self) # this subroutine will probably become a method of class Assembly
 
     def editUndo(self):
         if self.undo_manager:
@@ -1588,7 +1592,7 @@ class assembly( StateMixin, Assembly_API):
     
     def get_part_files_directory(self): # Mark 060703.
         """
-        Returns the Part Files directory for this assembly, even if it doesn't exist.
+        Returns the Part Files directory for this Assembly, even if it doesn't exist.
         """
         # Maybe find_or_make_part_files_directory() should call this to centralize name creation. Mark 060703.
         if self.filename:
@@ -1599,7 +1603,7 @@ class assembly( StateMixin, Assembly_API):
         
     def find_or_make_part_files_directory(self, make=True):
         """
-        Return the Part Files directory for this assembly. Make it if it doesn't already exist.
+        Return the Part Files directory for this Assembly. Make it if it doesn't already exist.
         If <make> is False, return the Part Files directory if it already exists. If it doesn't exist, return None.
         
         Specifically, return:
@@ -1639,9 +1643,9 @@ class assembly( StateMixin, Assembly_API):
         
     def find_or_make_pov_files_directory(self, make=True):
         """
-        Return the POV-Ray Scene Files directory for this assembly. 
+        Return the POV-Ray Scene Files directory for this Assembly. 
         The POV-Ray Scene Files directory is a subdirectory under the current MMP file's Part Files directory
-        and contains all the associated POV-Ray files for this assembly.
+        and contains all the associated POV-Ray files for this Assembly.
         For any error, return (1, errortext); on success return (0, full_path_of_pov_files_dir).
         In other words, return (errorcode, path_or_errortext).
         """
@@ -1652,9 +1656,9 @@ class assembly( StateMixin, Assembly_API):
         povfiles_dir  = os.path.join(dir_or_errortext, "POV-Ray Scene Files")
         return find_or_make_any_directory(povfiles_dir, make = make)
     
-    pass # end of class assembly
+    pass # end of class Assembly
 
-Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
+## Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
 
 # ==
 
@@ -1665,7 +1669,7 @@ Assembly = assembly #bruce 060224 thinks this should become the preferred name f
 
 class PartGroup(Group):
     """
-    A specialized Group for holding the entire "main model" of an assembly,
+    A specialized Group for holding the entire "main model" of an Assembly,
     with provisions for including the "assy.viewdata" elements as initial MT_kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
@@ -1823,8 +1827,8 @@ class RootGroup(Group):
     ###obs doc, but reuse some of it:
     This is what the pre-050108 code made or imitated in modelTree as a Group called ROOT. ###k i think
     This will be revised soon, because
-    (1) the assembly itself might as well be this Node,
-    (2)  the toplevel members of an assembly will differ from what they are now.
+    (1) the Assembly itself might as well be this Node,
+    (2)  the toplevel members of an Assembly will differ from what they are now.
     """
     def postcopy_in_mapping(self, mapping): #bruce 050524
         assert 0, "RootGroup.postcopy_in_mapping should never be called!"

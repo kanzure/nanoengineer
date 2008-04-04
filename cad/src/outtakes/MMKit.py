@@ -41,7 +41,7 @@ from utilities.constants import diTUBES
 ## from model.chem import Atom [not used i think - bruce 071113]
 ## from model.chunk import Chunk [not used i think - bruce 071113]
 from foundation.Utility import imagename_to_icon, geticon
-from assembly import assembly
+from model.assembly import Assembly
 from files.mmp.files_mmp import readmmp
 from model.part import Part
 import foundation.env as env
@@ -53,9 +53,9 @@ from PM.PropMgr_Constants import pmMMKitPageMargin
 from model.bond_constants import btype_from_v6
 
 # PageId constants for mmkit_tab
-AtomsPage=0
-ClipboardPage=1
-LibraryPage=2
+AtomsPage = 0
+ClipboardPage = 1
+LibraryPage = 2
 
 noblegases = ["He", "Ne", "Ar", "Kr"] # Mark 2007-05-31
 
@@ -357,9 +357,9 @@ class MMKit(QDialog,
     #== Atom Selection Filter helper methods
         
     def set_selection_filter(self, enabled):
-        '''Slot for Atom Selection Filter checkbox. Prints history message when selection filter is
+        """Slot for Atom Selection Filter checkbox. Prints history message when selection filter is
         enabled/disabled and updates the cursor.
-        '''
+        """
         
         if enabled != self.w.selection_filter_enabled:
             if enabled:
@@ -378,9 +378,9 @@ class MMKit(QDialog,
         self.o.graphicsMode.update_cursor()
     
     def update_selection_filter_list(self):
-        '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter
+        """Adds/removes the element selected in the MMKit to/from Atom Selection Filter
         based on what modifier key is pressed (if any).
-        '''
+        """
         eltnum = self.w.Element
         
         if self.o.modkeys is None:
@@ -396,8 +396,8 @@ class MMKit(QDialog,
         self.update_selection_filter_list_widget()
         
     def update_selection_filter_list_widget(self):
-        '''Updates the list of elements displayed in the Atom Selection Filter List.
-        '''
+        """Updates the list of elements displayed in the Atom Selection Filter List.
+        """
         filtered_syms=''
         for e in self.w.filtered_elements[:]:
             if filtered_syms: filtered_syms += ", "
@@ -479,20 +479,20 @@ class MMKit(QDialog,
     # ==
     
     def pasteBtnStateChanged(self, state):
-        '''Slot method. Called when the state of the Paste button of deposit dashboard has been changed. '''
+        """Slot method. Called when the state of the Paste button of deposit dashboard has been changed. """
         if state == QButton.On:
             self.change2ClipboardPage()
 
 
     def depositBtnStateChanged(self, state):
-        '''Slot method. Called when the state of the Deposit button of deposit dashboard has been changed. ''' 
+        """Slot method. Called when the state of the Deposit button of deposit dashboard has been changed. """ 
         if state == QButton.On:
            self.change2AtomsPage() 
 
 
     def hybridChangedOutside(self, newId):
-        '''Slot method. Called when user changes element hybridization from the dashboard. 
-         This method achieves the same effect as user clicked one of the hybridization buttons.'''
+        """Slot method. Called when user changes element hybridization from the dashboard. 
+         This method achieves the same effect as user clicked one of the hybridization buttons."""
         self.theElements.button(newId).setChecked(True)
         self.set_hybrid_type(newId)
         self.w.Element = newId
@@ -502,28 +502,28 @@ class MMKit(QDialog,
        
 
     def change2AtomsPage(self):
-        '''Slot method called when user changes element/hybrid combobox or 
+        """Slot method called when user changes element/hybrid combobox or 
         presses Deposit button from Build mode dashboard.
-        '''
+        """
         if self.mmkit_tab.currentIndex() != AtomsPage:
             self.mmkit_tab.setCurrentIndex(AtomsPage) # Generates signal
 
     def change2ClipboardPage(self):
-        '''Slot method called when user changes pastable item combobox or 
-        presses the Paste button from the Build mode dashboard. '''
+        """Slot method called when user changes pastable item combobox or 
+        presses the Paste button from the Build mode dashboard. """
         if self.mmkit_tab.currentIndex() != ClipboardPage:
             self.mmkit_tab.setCurrentIndex(ClipboardPage) # Generates signal??
             
 
     def setElementInfo(self,value):
-        '''Slot method called when an element button is pressed in the element ButtonGroup.
-        '''
+        """Slot method called when an element button is pressed in the element ButtonGroup.
+        """
         self.w.setElement(value)
                
         
-    def update_hybrid_btngrp(self, buttonIndex=0):
-        '''Update the buttons of the current element\'s hybridization types into hybrid_btngrp; 
-        select the specified one if provided'''
+    def update_hybrid_btngrp(self, buttonIndex = 0):
+        """Update the buttons of the current element\'s hybridization types into hybrid_btngrp; 
+        select the specified one if provided"""
         elem = PeriodicTable.getElement(self.w.Element) # self.w.Element is atomic number
         
         atypes = elem.atomtypes
@@ -553,12 +553,12 @@ class MMKit(QDialog,
 	self.show_hybrid_btngrp()
 	
     def show_hybrid_btngrp(self): # Mark 2007-06-20
-	'''Show the hybrid button group and label above it.
+	"""Show the hybrid button group and label above it.
 	This is a companion method to hide_hybrid_btngrp().
 	It includes workarounds for Qt layout issues that crop up
 	when hiding/showing the hybrid button groupbox using Qt's
 	hide() and show() methods. See bug 2407 for more information.
-	'''
+	"""
 	if 1:
 	    self.hybrid_btngrp.show()
 	else:
@@ -566,12 +566,12 @@ class MMKit(QDialog,
 	    self.atomic_hybrids_label.show()
 
     def hide_hybrid_btngrp(self): # Mark 2007-06-20
-	'''Hide the hybrid button group and label above it.
+	"""Hide the hybrid button group and label above it.
 	This is a companion method to show_hybrid_btngrp().
 	It includes workarounds for Qt layout issues that crop up
 	when hiding/showing the hybrid button groupbox using Qt's
 	hide() and show() methods. See bug 2407 for more information.
-	'''
+	"""
 	if 1:
 	    # This way of hiding confuses the layout manager, so I had
 	    # do create special spacers and set sizepolicies just to make
@@ -591,8 +591,8 @@ class MMKit(QDialog,
 	    self.atomic_hybrids_label.hide()
 
     def setup_C_hybrid_buttons(self):
-        '''Displays the Carbon hybrid buttons.
-        '''
+        """Displays the Carbon hybrid buttons.
+        """
         self.theElements.button(self.w.Element).setChecked(True)
         self.sp3_btn.setIcon(imagename_to_icon('modeltree/C_sp3.png'))
         self.sp3_btn.show()
@@ -603,8 +603,8 @@ class MMKit(QDialog,
         self.graphitic_btn.hide()
         
     def setup_N_hybrid_buttons(self):
-        '''Displays the Nitrogen hybrid buttons.
-        '''
+        """Displays the Nitrogen hybrid buttons.
+        """
         self.sp3_btn.setIcon(imagename_to_icon('modeltree/N_sp3.png'))
         self.sp3_btn.show()
         self.sp2_btn.setIcon(imagename_to_icon('modeltree/N_sp2.png'))
@@ -616,8 +616,8 @@ class MMKit(QDialog,
         
         
     def setup_O_hybrid_buttons(self):
-        '''Displays the Oxygen hybrid buttons.
-        '''
+        """Displays the Oxygen hybrid buttons.
+        """
         self.sp3_btn.setIcon(imagename_to_icon('modeltree/O_sp3.png'))
         self.sp3_btn.show()
         self.sp2_btn.setIcon(imagename_to_icon('modeltree/O_sp2.png'))
@@ -627,8 +627,8 @@ class MMKit(QDialog,
         
         
     def setup_S_hybrid_buttons(self):
-        '''Displays the Sulfur hybrid buttons.
-        '''
+        """Displays the Sulfur hybrid buttons.
+        """
         self.sp3_btn.setIcon(imagename_to_icon('modeltree/O_sp3.png')) # S and O are the same.
         self.sp3_btn.show()
         self.sp2_btn.setIcon(imagename_to_icon('modeltree/O_sp2.png'))
@@ -638,7 +638,7 @@ class MMKit(QDialog,
     
     
     def set_hybrid_type(self, type_id):
-        '''Slot method. Called when any of the hybrid type buttons was clicked. '''
+        """Slot method. Called when any of the hybrid type buttons was clicked. """
         self.w.hybridComboBox.setCurrentIndex( type_id )
 
         b_name = self.bond_id2name[type_id]
@@ -650,9 +650,9 @@ class MMKit(QDialog,
         
     
     def setup_current_page(self, page):
-        '''Slot method that is called whenever a user clicks on the 
+        """Slot method that is called whenever a user clicks on the 
         'Atoms', 'Clipboard' or 'Library' tab to change to that page.
-        '''
+        """
         
         #print "setup_current_page: page=", page
         
@@ -699,7 +699,7 @@ class MMKit(QDialog,
 	self.updateBuildAtomsMessage()
         
     def chunkChanged(self, item, previous):
-        '''Slot method. Called when user changed the selected chunk. '''
+        """Slot method. Called when user changed the selected chunk. """
 
         itemId = self.chunkListBox.row(item)
 	
@@ -719,7 +719,7 @@ class MMKit(QDialog,
         
     
     def __really_update_clipboard_items(self): #bruce 060412 renamed this from update_clipboard_items to __really_update_clipboard_items
-        '''Updates the items in the clipboard\'s listview, if the clipboard is currently shown. '''
+        """Updates the items in the clipboard\'s listview, if the clipboard is currently shown. """
         if self.currentPageOpen(ClipboardPage): #bruce 060313 added this condition to fix bugs 1631, 1669, and MMKit part of 1627
             self._clipboardPageView() # includes self.update_clipboard_page_icon()
         else:
@@ -727,7 +727,7 @@ class MMKit(QDialog,
         return
         
     def partChanged(self, item):
-        '''Slot method, called when user changed the partlib brower tree'''
+        """Slot method, called when user changed the partlib brower tree"""
         if isinstance(item, self.FileItem):
            self._libPageView(True)
         else:
@@ -736,17 +736,17 @@ class MMKit(QDialog,
  
 
     def getPastablePart(self):
-        '''Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. '''
+        """Public method. Retrieve pastable part and hotspot if current tab page is in libary, otherwise, return None. """
         if self.currentPageOpen(LibraryPage):
             return self.newModel, self.elemGLPane.hotspotAtom
         return None, None
 
     def currentPageOpen(self, page_id):
-        '''Returns True if <page_id> is the current page open in the tab widget, where:
+        """Returns True if <page_id> is the current page open in the tab widget, where:
             0 = Atoms page
             1 = Clipboard page
             2 = Library page
-        '''
+        """
         pageIndex = self.mmkit_tab.currentIndex()
 
         if page_id == pageIndex:
@@ -754,7 +754,7 @@ class MMKit(QDialog,
         else:
             return False
            
-    def _libPageView(self, isFile=False):	
+    def _libPageView(self, isFile = False):	
         item = self.dirView.selectedItem()
         if not isFile and not isinstance(item, self.FileItem):
             self.newModel = None
@@ -763,16 +763,16 @@ class MMKit(QDialog,
         
         mmpfile = str(item.getFileObj())
         if os.path.isfile(mmpfile):
-            #self.newModel = assembly(self.w, "assembly 1")
-            self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
-            self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
+            #self.newModel = Assembly(self.w, "Assembly 1")
+            self.newModel = Assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
+            self.newModel.o = self.elemGLPane ## Make it looks "Assembly" used by glpane.
             readmmp(self.newModel, mmpfile)
 
 # What we did in Qt 3:
-##         #self.newModel = assembly(self.w, "assembly 1")
-##         self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
+##         #self.newModel = Assembly(self.w, "Assembly 1")
+##         self.newModel = Assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
         
-##         self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
+##         self.newModel.o = self.elemGLPane ## Make it looks "Assembly" used by glpane.
 ##         readmmp(self.newModel, mmpfile)
 
 ##         # The following is absolute nonsense, and is part of what's breaking the fix of bug 2028,
@@ -812,7 +812,7 @@ class MMKit(QDialog,
                 
     
     def _clipboardPageView(self):
-        '''Updates the clipboard page. '''
+        """Updates the clipboard page. """
         if not self.currentPageOpen(ClipboardPage):
             # (old code permitted this to be false below in 'if len(list):',
             #  but failed to check for it in the 'else' clause,
@@ -842,9 +842,9 @@ class MMKit(QDialog,
         
     
     def update_clipboard_page_icon(self):
-        '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon
+        """Updates the Clipboard page (tab) icon with a full or empty clipboard icon
 	based on whether there is anything on the clipboard (pasteables).
-        '''
+        """
         if not self.icon_tabs:
             # Work around for bug 1659. mark 060310 [revised by bruce 060313]
             return
@@ -910,13 +910,13 @@ class MMKit(QDialog,
         #The Qt documentation also suggests reimplementing subevents instead of the main 
         #event handler method (event()) 
         def mouseReleaseEvent(self, evt):
-            ''' Reimplementation of mouseReleaseEvent method of QTreeView'''
+            """ Reimplementation of mouseReleaseEvent method of QTreeView"""
             if self.selectedItem() is not None:
                     self.mmkit._libPageView()
             return QTreeView.mouseReleaseEvent(self, evt)
         
         def resizeEvent(self, evt):
-            ''' Reimplementation of resizeEvent method of QTreeView'''
+            """ Reimplementation of resizeEvent method of QTreeView"""
             if self.selectedItem() is not None:
                     self.mmkit._libPageView()
             return QTreeView.resizeEvent(self, evt)                              
@@ -1005,7 +1005,7 @@ class MMKit(QDialog,
             env.history.message(redmsg("The part library directory: %s doesn't exist." %libDir))
 
     def browseDirectories(self):
-       '''Slot method for the browse button of library page. '''
+       """Slot method for the browse button of library page. """
        # Determine what directory to open.
        if self.w.assy.filename: 
            odir = os.path.dirname(self.w.assy.filename)
@@ -1023,7 +1023,7 @@ class MMKit(QDialog,
            self.elemGLPane.updateModel(self.newModel)
     
     def useDefaultPartLibDirectory(self):
-	''' Slot method that to reset the part lib directory path to default'''
+	""" Slot method that to reset the part lib directory path to default"""
 	from history.HistoryWidget import redmsg
 	
 	#ninad070503 : A future enhancement would be a preference to have 
@@ -1068,12 +1068,12 @@ class MMKit(QDialog,
 ##    num_polish = 0
 ##    
 ##    def polish(self):
-##        '''This slot is called after a widget has been fully created and before it is shown the very first time.
+##        """This slot is called after a widget has been fully created and before it is shown the very first time.
 ##        Polishing is useful for final initialization which depends on having an instantiated widget. 
 ##        This is something a constructor cannot guarantee since the initialization of the subclasses might not be finished.
 ##        After this function, the widget has a proper font and palette and QApplication.polish() has been called.
 ##        Remember to call QDialog's implementation when reimplementing this function.
-##        '''
+##        """
 ##        QDialog.polish(self) # call QDialog's polish() implementation
 ##        self.num_polish += 1
 ##        #&print "num_polish =", self.num_polish
@@ -1086,8 +1086,8 @@ class MMKit(QDialog,
         
         
     def show(self):
-        '''MMKit\'s show slot.
-        '''
+        """MMKit\'s show slot.
+        """
         #QDialog.show(self)
         #&print "MMKit.move: setting mainwindow to active window"
         #Show it in Property Manager Tab ninad061207

@@ -162,7 +162,7 @@ class Node( StateMixin):
 
     def __init__(self, assy, name, dad = None):
         """
-        Make a new node (Node or any subclass), in the given assembly (assy)
+        Make a new node (Node or any subclass), in the given Assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
         with the given name (or "" if the supplied name is None),
         and with the optionally specified dad (a Group node or None),
@@ -180,11 +180,11 @@ class Node( StateMixin):
 
         self.name = name or "" # assumed to be a string by some code
         
-        # assy must be None or an assembly or a certain string
+        # assy must be None or an Assembly or a certain string
         if assy is not None and \
            not isinstance(assy, Assembly_API) and \
            assy != '<not an assembly>':
-            assert 0, "node.assy must be an assembly"
+            assert 0, "node.assy must be an Assembly"
                 # no need to mention the private possibilities in the error msg
         # verify assy is not None (not sure if that's allowed in principle,
         # but I think it never happens) [050223]
@@ -566,7 +566,7 @@ class Node( StateMixin):
         """
         Whether this node is higher than any node which satisfies
         node.is_top_of_selection_group(). True only of assy.shelf
-        and assy.root in the current arrangement of an assembly.
+        and assy.root in the current arrangement of an Assembly.
         """
         # This implem is not ideal -- it knows too much about assy.
         # Probably it'd be better to ask self.assy if self has this property

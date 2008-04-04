@@ -36,7 +36,7 @@ from utilities import debug_flags
 
 from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
-from model.assembly import assembly
+from model.assembly import Assembly
 
 from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
@@ -99,7 +99,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     """
     Mixin class to provide file-related methods for class MWsemantics.
     May not be safe to mix in to any other class, as it creates an
-    assembly(self), and assembly expects an MWsemantics.  Has slot
+    Assembly(self), and Assembly expects an MWsemantics.  Has slot
     methods and their helper methods.
     """
     
@@ -677,7 +677,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             start = begin_timing("File..Open")
             self.updateRecentFileList(fn)
 
-            self.__clear() # this resets self.assy to a new, empty assembly object
+            self.__clear() # this resets self.assy to a new, empty Assembly object
 
             self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
@@ -1569,7 +1569,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # print "\nfyi: closing old assy %r in __clear" % self.assy # works
             self.assy.close_assy() #bruce 080314
         
-        self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
+        self.assy = Assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy) # leaves currentCommand as nullmode

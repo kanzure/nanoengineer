@@ -65,7 +65,7 @@ from PyQt4.Qt import Qt
 
 from geometry.VQT import V, Q, A
 import graphics.drawing.drawer as drawer
-from model.assembly import assembly 
+from model.assembly import Assembly
 import foundation.env as env
 from utilities import debug_flags
 
@@ -799,7 +799,7 @@ class ElementView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        assy = assembly(None)
+        assy = Assembly(None)
         assy.set_glpane(self) # sets .o and .glpane
         mol = Chunk(assy, 'dummy')
         atm = Atom(elm.symbol, pos, mol)
@@ -861,7 +861,7 @@ class MMKitView(ThumbView):
             if isinstance(self.model, Chunk) or \
                isinstance(self.model, Group):
                 self.model.draw(self, None)
-            else: ## assembly
+            else: ## Assembly
                 self.model.draw(self)
         return
 
@@ -895,7 +895,7 @@ class MMKitView(ThumbView):
                 ##        "%r.model %r has .assy None" % \
                 ##        (self, self.model)
                 return assy
-            else: ## self.model is an assembly
+            else: ## self.model is an Assembly
                 return self.model
         return None
     
@@ -940,7 +940,7 @@ class MMKitView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        assy = assembly(None)
+        assy = Assembly(None)
         assy.set_glpane(self) # sets .o and .glpane
         mol = Chunk(assy, 'dummy') 
         atm = Atom(elm.symbol, pos, mol)
@@ -1017,12 +1017,12 @@ class MMKitView(ThumbView):
     
     def updateModel(self, newObj):
         """
-        Set new chunk or assembly for display.
+        Set new chunk or Assembly for display.
         """
         self.model = newObj
 
-        #Reset hotspot related stuff for a new assembly
-        if isinstance(newObj, assembly):
+        #Reset hotspot related stuff for a new Assembly
+        if isinstance(newObj, Assembly):
             self._find_and_set_hotSpotAtom_in_new_model(newObj)
                     
         self._fitInWindow()
@@ -1040,7 +1040,7 @@ class MMKitView(ThumbView):
         go back to this model, the hotspot will be reset to the one that already 
         exists in the model (or None if one doesn't exist)        
         """
-        assert isinstance(newModel, assembly)
+        assert isinstance(newModel, Assembly)
         chunkList = []
         def func(node):
             if isinstance(node, Chunk):
@@ -1077,7 +1077,7 @@ class MMKitView(ThumbView):
         if isinstance(self.model, Chunk):
             self.model._recompute_bbox()
             bbox = self.model.bbox
-        else: ## assembly
+        else: ## Assembly
             part = self.model.part
             bbox = part.bbox
         self.scale = bbox.scale() 

@@ -1,18 +1,19 @@
-#Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+#Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_PartLib.py
 
 The PM_PartLib class provides a groupbox that contains the partlib (any user 
-specified directory). The parts from the partlib can be pasted in the 3D 
-Workspace. The selected item in this  list is shown by its elementViewer 
-(an instance of L{PM_PreviewGroupBox}) The object being previewed can then be 
+specified directory). The parts from the partlib can be pasted into the 3D 
+workspace. The selected item in this list is shown by its elementViewer 
+(an instance of L{PM_PreviewGroupBox}). The object being previewed can then be
 deposited into the 3D workspace.
 
-@author: Bruce, Huaicai, Mark, Ninad
+@author: Huaicai, Mark, Ninad, Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
+
 The Partlib existed as a tab in the MMKit of Build Atoms Mode. (MMKit has been 
 deprecated since 2007-08-29.) 
 
@@ -23,7 +24,7 @@ from utilities import debug_flags
 
 from utilities.constants import diTUBES
 from graphics.widgets.ThumbView import MMKitView
-from model.assembly import assembly
+from model.assembly import Assembly
 from files.mmp.files_mmp import readmmp
 
 from PM.PM_GroupBox    import PM_GroupBox
@@ -116,7 +117,7 @@ class PM_PartLib(PM_GroupBox):
         if isinstance(item, self.partLib.FileItem):
             mmpFile = str(item.getFileObj())
             if os.path.isfile(mmpFile):
-                self.newModel = assembly(self.w, 
+                self.newModel = Assembly(self.w, 
                                          os.path.normpath(mmpFile))
                 self.newModel.set_glpane(self.elementViewer) # sets its .o and .glpane
                 readmmp(self.newModel, mmpFile)
