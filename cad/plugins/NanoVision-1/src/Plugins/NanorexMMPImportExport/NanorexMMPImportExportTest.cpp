@@ -78,7 +78,8 @@ void NanorexMMPImportExportTest::HTest(void)
 	NXMoleculeSet molSet;
 	NXDataStoreInfo dataStoreInfo;
 	
-	importer.importFromFile(&molSet, &dataStoreInfo, "H.mmp", 0, 0);
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/H.mmp", 0, 0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
@@ -94,7 +95,8 @@ void NanorexMMPImportExportTest::H2OTest(void)
 	NXMoleculeSet molSet;
 	NXDataStoreInfo dataStoreInfo;
 	
-	importer.importFromFile(&molSet, &dataStoreInfo, "H2O.mmp", 0, 0);
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/H2O.mmp", 0, 0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
@@ -111,7 +113,8 @@ void NanorexMMPImportExportTest::H2O2Test(void)
 	NXDataStoreInfo dataStoreInfo;
 	
 	importer.importFromFile(&molSet, &dataStoreInfo,
-	                        "hydrogen_peroxide.mmp", 0, 0);
+	                        "../src/Testing/MMP_TestFiles/hydrogen_peroxide.mmp",
+	                        0, 0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
@@ -127,7 +130,8 @@ void NanorexMMPImportExportTest::chlorophyllTest(void)
 	NXMoleculeSet molSet;
 	NXDataStoreInfo dataStoreInfo;
 	
-	importer.importFromFile(&molSet, &dataStoreInfo, "chlorophyll.mmp", 0, 0);
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/chlorophyll.mmp",0,0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
@@ -143,7 +147,8 @@ void NanorexMMPImportExportTest::vanillinTest(void)
 	NXMoleculeSet molSet;
 	NXDataStoreInfo dataStoreInfo;
 	
-	importer.importFromFile(&molSet, &dataStoreInfo, "vanillin.mmp", 0, 0);
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/vanillin.mmp", 0, 0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
@@ -159,7 +164,8 @@ void NanorexMMPImportExportTest::nanocarTest(void)
 	NXMoleculeSet molSet;
 	NXDataStoreInfo dataStoreInfo;
 	
-	importer.importFromFile(&molSet, &dataStoreInfo, "nanocar.mmp", 0, 0);
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/nanocar.mmp", 0, 0);
 	
 	CPPUNIT_ASSERT(molSet.childCount() == 0);
 	CPPUNIT_ASSERT(molSet.moleculeCount() == 5);
@@ -188,4 +194,72 @@ void NanorexMMPImportExportTest::nanocarTest(void)
 	NXMoleculeSet *clipboardGroup = dataStoreInfo.getClipboardStructure();
 	CPPUNIT_ASSERT(clipboardGroup->moleculeCount() == 4);
 	CPPUNIT_ASSERT(clipboardGroup->childCount() == 0);
+	
+	/// @todo test clipboard members
+}
+
+
+void NanorexMMPImportExportTest::benzeneTest(void)
+{
+	NanorexMMPImportExport importer;
+	NXMoleculeSet molSet;
+	NXDataStoreInfo dataStoreInfo;
+	
+	importer.importFromFile(&molSet, &dataStoreInfo,
+	                        "../src/Testing/MMP_TestFiles/benzene.mmp", 0, 0);
+	
+	CPPUNIT_ASSERT(molSet.childCount() == 0);
+	CPPUNIT_ASSERT(molSet.moleculeCount() == 1);
+	
+	int atomCount = 0;
+	OBAtomIterator atomIter;
+	OBMol *benzeneMol = *molSet.moleculesBegin();
+	OBAtom *atomPtr = NULL;
+	for(atomPtr = benzeneMol->BeginAtom(atomIter);
+	    atomPtr != NULL;
+	    atomPtr = benzeneMol->NextAtom(atomIter))
+	{
+		++atomCount;
+		int atomicNum = atomPtr->GetAtomicNum();
+		CPPUNIT_ASSERT_MESSAGE(("Atomic num " + NXUtility::itos(atomicNum) +
+		                        " found in Benzene molecule").c_str(),
+		                       atomicNum == 1 || atomicNum == 6);
+		if(atomicNum == 1) {
+			int bondCount = 0;
+			OBBondIterator bondIter;
+			OBAtom *nbrAtomPtr = NULL;
+			for(nbrAtomPtr = atomPtr->BeginNbrAtom(bondIter);
+			    nbrAtomPtr != NULL;
+			    nbrAtomPtr = atomPtr->NextNbrAtom(bondIter))
+			{
+				++bondCount;
+				CPPUNIT_ASSERT(nbrAtomPtr->GetAtomicNum() == 6);
+			}
+			CPPUNIT_ASSERT(bondCount == 1);
+		}
+		
+		else /*(atomicNum == 6)*/ {
+			int HBondCount = 0, CBondCount = 0;
+			OBBondIterator bondIter;
+			OBAtom *nbrAtomPtr = NULL;
+			for(nbrAtomPtr = atomPtr->BeginNbrAtom(bondIter);
+			    nbrAtomPtr != NULL;
+			    nbrAtomPtr = atomPtr->NextNbrAtom(bondIter))
+			{
+				int nbrAtomAtomicNum = nbrAtomPtr->GetAtomicNum();
+				CPPUNIT_ASSERT(nbrAtomAtomicNum == 6 ||
+				               nbrAtomAtomicNum == 1);
+				if(nbrAtomAtomicNum == 1)
+					++HBondCount;
+				else
+					++CBondCount;
+			}
+			CPPUNIT_ASSERT_MESSAGE("CBondCount = " + NXUtility::itos(CBondCount),
+			                       CBondCount == 2);
+			CPPUNIT_ASSERT_MESSAGE("HBondCount = " + NXUtility::itos(HBondCount),
+			                       HBondCount == 1);
+		}
+	}
+	CPPUNIT_ASSERT_MESSAGE("Benzene: atomCount = " + NXUtility::itos(atomCount),
+	                       atomCount == 12);
 }

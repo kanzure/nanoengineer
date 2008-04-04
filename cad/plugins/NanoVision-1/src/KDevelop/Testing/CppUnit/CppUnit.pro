@@ -41,11 +41,11 @@ win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin
 
-CONFIG += debug_and_release \
-stl
+CONFIG += stl \
+ debug_and_release
 
 # This tell qmake to not create a Mac bundle for this application.
-CONFIG -= app_bundle
+CONFIG -= app_bundle 
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
@@ -59,8 +59,7 @@ TARGETDEPS += ../../../../lib/libNanorexInterface.so \
 QT -= gui
 
 
-DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.rl \
- ../../../Plugins/NanorexMMPImportExport/molecule.rl \
+DISTFILES += ../../../Plugins/NanorexMMPImportExport/molecule.rl \
  ../../../Plugins/NanorexMMPImportExport/atom.rl \
  ../../../Plugins/NanorexMMPImportExport/utilities.rl \
  ../../../Plugins/NanorexMMPImportExport/group.rl \
@@ -68,10 +67,11 @@ DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.
 
 
 
+
 LIBS += -L../../../../lib \
-  -lNanorexMMPImportExport \
-  -lNanorexUtility \
   -lNanorexInterface \
+  -lNanorexUtility \
+  -lNanorexMMPImportExport \
   -L$(OPENBABEL_LIBPATH) \
   -L$(HDF5_SIMRESULTS_INCPATH) \
   -lcppunit \

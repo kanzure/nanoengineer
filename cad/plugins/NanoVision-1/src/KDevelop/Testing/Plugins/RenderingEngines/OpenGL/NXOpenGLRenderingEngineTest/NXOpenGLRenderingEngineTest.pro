@@ -1,7 +1,5 @@
 TEMPLATE = app
 
-CONFIG -= release
-
 CONFIG += stl \
 opengl \
  debug_and_release \
@@ -31,12 +29,13 @@ TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
 
 
 
+
 LIBS += -L../../../../../../../lib \
-  -lNanorexUtility \
-  -lNanorexInterface \
-  -lNXOpenGLRenderingEngine \
   -lNXBallAndStickOpenGLRenderer \
-  -lopenbabel \
+  -lNXOpenGLRenderingEngine \
+  -lNanorexInterface \
+  -lNanorexUtility \
   -lNXOpenGLSceneGraph \
-  -lGLT
+  -lGLT \
+  -lopenbabel
 

@@ -3,7 +3,8 @@ TEMPLATE = lib
 CONFIG += dll \
 plugin \
 stl \
- debug_and_release
+ debug_and_release \
+ rtti
 
 
 SOURCES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.cpp
@@ -34,9 +35,10 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+
 LIBS += -L../../../../lib \
-  -lNanorexUtility \
   -lNanorexInterface \
+  -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 

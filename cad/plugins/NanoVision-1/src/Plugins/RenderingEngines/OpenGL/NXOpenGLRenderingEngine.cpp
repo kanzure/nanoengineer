@@ -595,8 +595,10 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
     // create scenegraph node and mark atom as rendered
 	// NXAtomRenderData atomRenderData(atomPtr->GetAtomicNum());
 	// atomRenderData.addData(static_cast<void const *>(&defaultAtomMaterial));
+	assert(atomPtr->HasData(NXAtomDataType));
 	NXAtomData *atomData =
-		dynamic_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType)); 
+		static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType)); 
+	assert(atomData->GetDataType() == NXAtomDataType);
 	assert(atomData != NULL);
 	string const& atomRenderStyleCode = atomData->getRenderStyleCode();
 	atomData->addSupplementalData(static_cast<void const*>(&defaultAtomMaterial));
@@ -604,7 +606,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	// The following dynamic_cast is ok because plugins were type-checked at
 	// initialization time
 	NXOpenGLRendererPlugin *renderer =
-		dynamic_cast<NXOpenGLRendererPlugin*>(renderStyleMap[atomRenderStyleCode]);
+		static_cast<NXOpenGLRendererPlugin*>(renderStyleMap[atomRenderStyleCode]);
 	if(renderer == (NXOpenGLRendererPlugin*) NULL) {
 		SetResult(commandResult,
 		          NX_PLUGIN_CAUSED_ERROR,
@@ -717,7 +719,6 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 		}
 	}
 	
-	renderedAtoms.insert(atomPtr);
 	return atomNode;
 }
 
@@ -851,6 +852,12 @@ bool NXOpenGLRenderingEngine::initializePlugins(void)
 	    pluginIter != renderStyleMap.end();
 	    ++pluginIter)
 	{
+		// since default rendering style must also appear independently
+		// do not initialize
+		string const& renderStyleCode = pluginIter->first;
+		if(renderStyleCode == "def")
+			continue;
+		
 		NXRendererPlugin *plugin = pluginIter->second;
 		NXCommandResult const *const result = plugin->initialize();
 		

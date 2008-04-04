@@ -9497,7 +9497,7 @@ void NanorexMMPImportExportRagelTest::fileParseTest(void)
 
 void NanorexMMPImportExportRagelTest::fileParseTestH2O(void)
 {
-	ifstream infile("H2O.mmp", ios::in);
+	ifstream infile("../src/Testing/MMP_TestFiles/H2O.mmp", ios::in);
 	if(infile) {
 		reset();
 		RagelIstreamPtr testInput(infile);
@@ -9513,7 +9513,7 @@ void NanorexMMPImportExportRagelTest::fileParseTestH2O(void)
 
 void NanorexMMPImportExportRagelTest::fileParseTestHOOH(void)
 {
-	ifstream infile("hydrogen_peroxide.mmp", ios::in);
+	ifstream infile("../src/Testing/MMP_TestFiles/hydrogen_peroxide.mmp", ios::in);
 	if(infile) {
 		reset();
 		RagelIstreamPtr testInput(infile);
@@ -9529,7 +9529,7 @@ void NanorexMMPImportExportRagelTest::fileParseTestHOOH(void)
 
 void NanorexMMPImportExportRagelTest::fileParseTestChlorophyll(void)
 {
-	ifstream infile("chlorophyll.mmp", ios::in);
+	ifstream infile("../src/Testing/MMP_TestFiles/chlorophyll.mmp", ios::in);
 	if(infile) {
 		reset();
 		RagelIstreamPtr testInput(infile, 0, ios::beg);
@@ -9545,7 +9545,7 @@ void NanorexMMPImportExportRagelTest::fileParseTestChlorophyll(void)
 
 void NanorexMMPImportExportRagelTest::fileParseTestVanillin(void)
 {
-	ifstream infile("vanillin.mmp", ios::in);
+	ifstream infile("../src/Testing/MMP_TestFiles/vanillin.mmp", ios::in);
 	if(infile) {
 		reset();
 		RagelIstreamPtr testInput(infile, 0, ios::beg);
@@ -9562,7 +9562,7 @@ void NanorexMMPImportExportRagelTest::fileParseTestVanillin(void)
 
 void NanorexMMPImportExportRagelTest::fileParseTestNanocar(void)
 {
-	ifstream infile("nanocar.mmp", ios::in);
+	ifstream infile("../src/Testing/MMP_TestFiles/nanocar.mmp", ios::in);
 	if(infile) {
 		reset();
 		RagelIstreamPtr testInput(infile, 0, ios::beg);

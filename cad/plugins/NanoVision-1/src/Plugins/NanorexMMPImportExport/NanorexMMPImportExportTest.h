@@ -16,13 +16,14 @@
 class NanorexMMPImportExportTest: public CPPUNIT_NS::TestFixture {
 	
 	CPPUNIT_TEST_SUITE(NanorexMMPImportExportTest);
-	CPPUNIT_TEST(atomHTest);
-	CPPUNIT_TEST(HTest);
-	CPPUNIT_TEST(H2OTest);
-	CPPUNIT_TEST(H2O2Test);
-	CPPUNIT_TEST(chlorophyllTest);
-	CPPUNIT_TEST(vanillinTest);
-	CPPUNIT_TEST(nanocarTest);
+// 	CPPUNIT_TEST(atomHTest);
+// 	CPPUNIT_TEST(HTest);
+// 	CPPUNIT_TEST(H2OTest);
+// 	CPPUNIT_TEST(H2O2Test);
+// 	CPPUNIT_TEST(chlorophyllTest);
+// 	CPPUNIT_TEST(vanillinTest);
+// 	CPPUNIT_TEST(nanocarTest);
+	CPPUNIT_TEST(benzeneTest);
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -36,6 +37,7 @@ private:
 	void H2O2Test(void);
 	void chlorophyllTest(void);
 	void vanillinTest(void);
+	void benzeneTest(void);
 	void nanocarTest(void);
 };
 

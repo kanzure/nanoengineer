@@ -2,7 +2,8 @@ TEMPLATE = app
 
 CONFIG += stl \
 opengl \
- debug_and_release
+ debug_and_release \
+ rtti
 
 QT += opengl
 
@@ -92,13 +93,14 @@ TARGETDEPS += ../../../lib/libNXOpenGLSceneGraph.a \
 #  ../../../lib/libNXBallAndStickOpenGLRenderer.so
 #  ../../../lib/libNXOpenGLRenderingEngine.so 
 
+# -lNXOpenGLRenderingEngine 
+# -lNXBallAndStickOpenGLRenderer 
+
 LIBS += -L../../../lib \
-  -lNanorexInterface \
   -lNanorexUtility \
+  -lNanorexInterface \
   -L$(OPENBABEL_LIBPATH) \
   -lNXOpenGLSceneGraph \
   -lGLT \
   -lopenbabel
-# -lNXOpenGLRenderingEngine 
-# -lNXBallAndStickOpenGLRenderer 
 

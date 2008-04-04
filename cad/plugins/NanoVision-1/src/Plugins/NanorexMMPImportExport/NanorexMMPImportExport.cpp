@@ -928,7 +928,7 @@ char const NanorexMMPImportExport::_s_hybridizationName[8][8] = {
 /* CONSTRUCTOR */
 NanorexMMPImportExport::NanorexMMPImportExport()
 {
-	reset();
+reset();
 }
 
 /* DESTRUCTOR */
@@ -990,7 +990,7 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 {
 	reset();
 	bool success = true;
-		
+	
 	NXCommandResult *result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
 	
@@ -1281,32 +1281,32 @@ _eof_trans:
 	case 38:
 #line 79 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if(top == stackSize) {
-		stackSize += stackSize;
-	    stack.resize(stackSize, 0);
+		if(top == stackSize) {
+			stackSize += stackSize;
+			stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
-	}
-{stack[top++] = cs; cs = 294; goto _again;}} }
+		}
+	{stack[top++] = cs; cs = 294; goto _again;}} }
 	break;
 	case 39:
 #line 82 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if(top == stackSize) {
-		stackSize += stackSize;
-	    stack.resize(stackSize, 0);
+		if(top == stackSize) {
+			stackSize += stackSize;
+			stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
-	}
-{stack[top++] = cs; cs = 294; goto _again;}} }
+		}
+	{stack[top++] = cs; cs = 294; goto _again;}} }
 	break;
 	case 40:
 #line 87 "NanorexMMPImportExport.rl"
 	{ p--; {
-	if(top == stackSize) {
-		stackSize += stackSize;
-	    stack.resize(stackSize, 0);
+		if(top == stackSize) {
+			stackSize += stackSize;
+			stack.resize(stackSize, 0);
 		// cerr << "Resized stack" << endl;
-	}
-{stack[top++] = cs; cs = 294; goto _again;}} }
+		}
+	{stack[top++] = cs; cs = 294; goto _again;}} }
 	break;
 	case 44:
 #line 1 "NanorexMMPImportExport.rl"
@@ -1465,10 +1465,13 @@ void NanorexMMPImportExport::newAtom(int id, int atomicNum, int x, int y, int z,
 	
 	
 	atomPtr = molPtr->NewAtom();
+	atomPtr->SetAtomicNum(atomicNum);
 	NXAtomData *atomDataPtr = new NXAtomData(atomicNum);
 	atomDataPtr->setIdx(id);
 	atomDataPtr->setRenderStyleCode(style);
+	assert(atomDataPtr->GetDataType() == NXAtomDataType);
 	atomPtr->SetData(atomDataPtr); // atomic number
+	assert(atomPtr->HasData(NXAtomDataType));
 	
 	foundAtomList[id] = atomPtr;
 	
@@ -1519,7 +1522,7 @@ void NanorexMMPImportExport::newBond(string const& bondType, int targetAtomId)
 	
 	if(targetAtomExistsQuery == foundAtomList.end()) {
 		CSEVERE("**ERROR** attempting to bond to non-existent atomID "
-		       + NXUtility::itos(targetAtomId));
+		        + NXUtility::itos(targetAtomId));
 	}
 	else {
 		OBAtom *const targetAtomPtr = targetAtomExistsQuery->second;
@@ -1528,20 +1531,21 @@ void NanorexMMPImportExport::newBond(string const& bondType, int targetAtomId)
 		// when encountering a blank line
 		if(molPtr->GetBond(atomPtr, targetAtomPtr) == NULL) {
 			// bond was not previously encountered, include
-			CDEBUG("bonding atom #" + NXUtility::itos(atomPtr->GetIdx()) +
-			       " to atom #" + NXUtility::itos(targetAtomPtr->GetIdx()));
+			int atomId = ((NXAtomData*)(atomPtr->GetData(NXAtomDataType)))->getIdx();
+			CDEBUG("bonding atom #" + NXUtility::itos(atomId) +
+			       " to atom #" + NXUtility::itos(targetAtomId));
 			bondPtr = molPtr->NewBond();
 			bondOrder = GetBondOrderFromType(bondType);
 			bondPtr->SetBondOrder(bondOrder);
-			bondPtr->SetBegin(atomPtr);
-			bondPtr->SetEnd(targetAtomPtr);
 			atomPtr->AddBond(bondPtr);
 			targetAtomPtr->AddBond(bondPtr);
+			bondPtr->SetBegin(atomPtr);
+			bondPtr->SetEnd(targetAtomPtr);
 			CDEBUG("bond" + bondType + " " + NXUtility::itos(targetAtomId));
 		}
 		else {
 			CSEVERE("bond to atom #" + NXUtility::itos(targetAtomId) +
-			       " already exists");
+			        " already exists");
 		}
 	}
 	
@@ -1554,7 +1558,7 @@ int NanorexMMPImportExport::GetBondOrderFromType(string const& type)
 	if(type == "1")
 		return 1;
 	else if(type == "2")
-	        return 2;
+		return 2;
 	else if(type == "3")
 		return 3;
 	else if(type == "a")
@@ -1598,7 +1602,7 @@ NanorexMMPImportExport::newMolecule(string const& name, string const& style)
 /* FUNCTION: newViewDataGroup */
 void NanorexMMPImportExport::newViewDataGroup(void)
 {
-	insideViewDataGroup = true;
+insideViewDataGroup = true;
 	CDEBUG("[special] group (View Data)");
 }
 
@@ -1690,7 +1694,7 @@ void NanorexMMPImportExport::endGroup(string const& name)
 		              "group (" + groupName + ')');
 	}
 	
-
+	
 	if(insideViewDataGroup) {
 		insideViewDataGroup = false;
 		molSetPtr = NULL;
@@ -1731,7 +1735,7 @@ NanorexMMPImportExport::newChunkInfo(std::string const& key,
 	
 	if(insideViewDataGroup)
 		return;
-
+	
 	/// @todo
 }
 
@@ -1795,7 +1799,7 @@ NanorexMMPImportExport::GetAtomRenderStyleCode(OBAtom *const atomPtr)
 /* FUNCTION: PrintMolecule */
 /* static */
 void NanorexMMPImportExport::PrintMolecule(ostream& o,
-                                           OBMol *const molPtr)
+OBMol *const molPtr)
 {
 	set<int> prevAtomIdx;
 	set<int> prevBondIdx; /// @todo - replace with simple bond count

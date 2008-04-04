@@ -723,7 +723,7 @@ NXSGOpenGLNode*
 	NXSGOpenGLScale *atomScaleNode;
 	try {
 		// Atoms of radius 0.25 Angstrom
-		atomScaleNode = new NXSGOpenGLScale(2.5e-10, 2.5e-10, 2.5e-10);
+		atomScaleNode = new NXSGOpenGLScale(2.5e-11, 2.5e-11, 2.5e-11);
 	}
 	catch (...) { 
 		SetError(commandResult, "Could not create node for rendering atom");
@@ -769,7 +769,7 @@ NXSGOpenGLNode*
     try {
 	    double const bondLength = info.getLength();
 	    cerr << "bond-length = " << bondLength << endl;
-        bondScale = new NXSGOpenGLScale(1.0e-10,1.0e-10, bondLength);
+        bondScale = new NXSGOpenGLScale(1.0e-11,1.0e-11, bondLength);
     }
     catch(...) {
         SetError(commandResult,

@@ -1,0 +1,12 @@
+# Test incomplete valence satisfaction
+# to test for OpenBabel OBAtom::GetHyb() segfault heisenbug
+# bug 2610 sub-issue
+# # segfault generated when contiguous atomID generation is not followed
+mol (CH4) def
+atom 2 (1) (3,3,3) def
+atom 3 (1) (-3,-3,3) def
+atom 4 (1) (-3,3,-3) def
+atom 5 (1) (3,-3,-3) def
+atom 1 (6) (0,0,0) def
+bond1 2 3 4 5
+

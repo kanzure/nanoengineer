@@ -1,0 +1,1325 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.356228, 0.816395, 0.396533, -0.222175) (30.339253) (-10.526067, 0.143466, -1.133044) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (9.878460) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView2) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView2) (1.000000, 0.000000, 0.000000, 0.000000) (4.630813) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView3) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView3) (1.000000, 0.000000, 0.000000, 0.000000) (12.011135) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView4) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView4) (1.000000, 0.000000, 0.000000, 0.000000) (21.135852) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (nanocar)
+info opengroup open = True
+mol (Chassis) def
+atom 1 (6) (-9929, -730, -372) def
+info atom atomtype = sp2
+atom 2 (6) (-9935, -2120, -379) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-11153, -2796, -406) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-12373, -2116, -427) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-12370, -720, -419) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-11146, -37, -391) def
+info atom atomtype = sp2
+bonda 1 5
+atom 7 (1) (-13310, -170, -435) def
+bond1 5
+atom 8 (1) (-8995, -2670, -364) def
+bond1 2
+atom 9 (1) (-13310, -2668, -448) def
+bond1 4
+atom 10 (6) (-11115, -4317, -412) def
+info atom atomtype = sp
+bond1 3
+atom 11 (6) (-11159, 1483, -379) def
+info atom atomtype = sp
+bond1 6
+atom 12 (6) (-11180, 2683, -354) def
+info atom atomtype = sp
+bond3 11
+atom 13 (6) (-11056, -5516, -410) def
+info atom atomtype = sp
+bond3 10
+atom 14 (6) (-10416, -9105, 643) def
+info atom atomtype = sp2
+atom 15 (6) (-10420, -7711, 653) def
+info atom atomtype = sp2
+bonda 14
+atom 16 (6) (-11031, -7033, -413) def
+info atom atomtype = sp2
+bond1 13
+bonda 15
+atom 17 (6) (-11636, -7674, -1500) def
+info atom atomtype = sp2
+bonda 16
+atom 18 (6) (-11635, -9052, -1517) def
+info atom atomtype = sp2
+bonda 17
+atom 19 (6) (-11037, -9702, -455) def
+info atom atomtype = sp2
+bonda 14 18
+atom 20 (1) (-12090, -9620, -2331) def
+bond1 18
+atom 21 (1) (-9959, -9688, 1446) def
+bond1 14
+atom 22 (1) (-9962, -7165, 1476) def
+bond1 15
+atom 23 (1) (-12099, -7125, -2313) def
+bond1 17
+atom 24 (6) (-12297, 4811, 314) def
+info atom atomtype = sp2
+atom 25 (6) (-12363, 6190, 296) def
+info atom atomtype = sp2
+bonda 24
+atom 26 (6) (-11369, 6858, -395) def
+info atom atomtype = sp2
+bonda 25
+atom 27 (6) (-10283, 6291, -1060) def
+info atom atomtype = sp2
+bonda 26
+atom 28 (6) (-10223, 4901, -1036) def
+info atom atomtype = sp2
+bonda 27
+atom 29 (6) (-11232, 4201, -359) def
+info atom atomtype = sp2
+bond1 12
+bonda 24 28
+atom 30 (1) (-9415, 4377, -1540) def
+bond1 28
+atom 31 (1) (-13060, 4241, 835) def
+bond1 24
+atom 32 (1) (-13164, 6739, 792) def
+bond1 25
+atom 33 (1) (-9534, 6898, -1575) def
+bond1 27
+atom 34 (6) (-11191, -11154, -706) def
+info atom atomtype = sp
+bond1 19
+atom 35 (6) (-11375, -12293, -996) def
+info atom atomtype = sp
+bond3 34
+atom 36 (6) (-11664, 8306, -335) def
+info atom atomtype = sp
+bond1 26
+atom 37 (6) (-12044, 9431, -306) def
+info atom atomtype = sp
+bond3 36
+atom 38 (6) (-8520, -106, -342) def
+info atom atomtype = sp
+bond1 1
+atom 39 (6) (-7322, 35, -320) def
+info atom atomtype = sp
+bond3 38
+atom 40 (6) (-5107, 1249, -268) def
+info atom atomtype = sp2
+atom 41 (6) (-3710, 1274, -238) def
+info atom atomtype = sp2
+bonda 40
+atom 42 (6) (-2995, 70, -231) def
+info atom atomtype = sp2
+bonda 41
+atom 43 (6) (-3664, -1160, -255) def
+info atom atomtype = sp2
+bonda 42
+atom 44 (6) (-5064, -1184, -284) def
+info atom atomtype = sp2
+bonda 43
+atom 45 (6) (-5780, 24, -290) def
+info atom atomtype = sp2
+bond1 39
+bonda 40 44
+atom 46 (1) (-5590, -2138, -302) def
+bond1 44
+atom 47 (1) (-5671, 2180, -273) def
+bond1 40
+atom 48 (1) (-3182, 2225, -221) def
+bond1 41
+atom 49 (1) (-3097, -2091, -250) def
+bond1 43
+atom 50 (6) (-1456, 107, -196) def
+info atom atomtype = sp
+bond1 42
+atom 51 (6) (-253, 144, -157) def
+info atom atomtype = sp
+bond3 50
+atom 52 (6) (1956, 1412, -117) def
+info atom atomtype = sp2
+atom 53 (6) (3358, 1437, -104) def
+info atom atomtype = sp2
+bonda 52
+atom 54 (6) (4075, 227, -110) def
+info atom atomtype = sp2
+bonda 53
+atom 55 (6) (3398, -995, -119) def
+info atom atomtype = sp2
+bonda 54
+atom 56 (6) (2001, -1020, -130) def
+info atom atomtype = sp2
+bonda 55
+atom 57 (6) (1287, 182, -133) def
+info atom atomtype = sp2
+bond1 51
+bonda 52 56
+atom 58 (1) (1475, -1973, -140) def
+bond1 56
+atom 59 (1) (1388, 2343, -117) def
+bond1 52
+atom 60 (1) (3884, 2392, -95) def
+bond1 53
+atom 61 (1) (3961, -1925, -120) def
+bond1 55
+atom 62 (6) (5621, 178, -125) def
+info atom atomtype = sp
+bond1 54
+atom 63 (6) (6822, 230, -234) def
+info atom atomtype = sp
+bond3 62
+atom 64 (6) (10732, 2122, -405) def
+info atom atomtype = sp2
+atom 65 (6) (10703, 726, -388) def
+info atom atomtype = sp2
+bonda 64
+atom 66 (6) (9469, 59, -341) def
+info atom atomtype = sp2
+bonda 65
+atom 67 (6) (8262, 776, -308) def
+info atom atomtype = sp2
+bond1 63
+bonda 66
+atom 68 (6) (8296, 2165, -333) def
+info atom atomtype = sp2
+bonda 67
+atom 69 (6) (9523, 2816, -381) def
+info atom atomtype = sp2
+bonda 64 68
+atom 70 (1) (7367, 2735, -313) def
+bond1 68
+atom 71 (1) (11636, 166, -410) def
+bond1 65
+atom 72 (6) (9501, -1470, -331) def
+info atom atomtype = sp
+bond1 66
+atom 73 (6) (9512, 4332, -398) def
+info atom atomtype = sp
+bond1 69
+atom 74 (6) (9480, 5531, -369) def
+info atom atomtype = sp
+bond3 73
+atom 75 (6) (9582, -2668, -376) def
+info atom atomtype = sp
+bond3 72
+atom 76 (6) (10244, -6269, 641) def
+info atom atomtype = sp2
+atom 77 (6) (10230, -4875, 657) def
+info atom atomtype = sp2
+bonda 76
+atom 78 (6) (9614, -4191, -405) def
+info atom atomtype = sp2
+bond1 75
+bonda 77
+atom 79 (6) (9015, -4837, -1495) def
+info atom atomtype = sp2
+bonda 78
+atom 80 (6) (9024, -6217, -1517) def
+info atom atomtype = sp2
+bonda 79
+atom 81 (6) (9625, -6868, -457) def
+info atom atomtype = sp2
+bonda 76 80
+atom 82 (1) (8573, -6786, -2332) def
+bond1 80
+atom 83 (1) (10704, -6852, 1443) def
+bond1 76
+atom 84 (1) (10686, -4331, 1480) def
+bond1 77
+atom 85 (1) (8549, -4291, -2308) def
+bond1 79
+atom 86 (6) (8358, 7645, 310) def
+info atom atomtype = sp2
+atom 87 (6) (8291, 9024, 294) def
+info atom atomtype = sp2
+bonda 86
+atom 88 (6) (9286, 9693, -398) def
+info atom atomtype = sp2
+bonda 87
+atom 89 (6) (10372, 9128, -1064) def
+info atom atomtype = sp2
+bonda 88
+atom 90 (6) (10433, 7738, -1041) def
+info atom atomtype = sp2
+bonda 89
+atom 91 (6) (9422, 7040, -366) def
+info atom atomtype = sp2
+bond1 74
+bonda 86 90
+atom 92 (1) (11241, 7212, -1546) def
+bond1 90
+atom 93 (1) (7595, 7072, 827) def
+bond1 86
+atom 94 (1) (7489, 9572, 790) def
+bond1 87
+atom 95 (1) (11122, 9734, -1577) def
+bond1 89
+atom 96 (6) (9479, -8321, -705) def
+info atom atomtype = sp
+bond1 81
+atom 97 (6) (9286, -9459, -992) def
+info atom atomtype = sp
+bond3 96
+atom 98 (6) (8989, 11139, -335) def
+info atom atomtype = sp
+bond1 88
+atom 99 (6) (8605, 12264, -308) def
+info atom atomtype = sp
+bond3 98
+atom 100 (1) (11675, 2660, -438) def
+bond1 64
+mol (Wheel-1) def
+atom 101 (6) (-8366, 15449, 2332) def
+info atom atomtype = sp2
+atom 102 (6) (-10777, 14234, 3011) def
+info atom atomtype = sp2
+atom 103 (6) (-12927, 14330, 1971) def
+info atom atomtype = sp2
+atom 104 (6) (-7838, 16905, 461) def
+info atom atomtype = sp2
+atom 105 (6) (-7550, 15785, 1247) def
+info atom atomtype = sp2
+bondg 101 104
+atom 106 (6) (-8490, 14056, 2335) def
+info atom atomtype = sp2
+bondg 101
+atom 107 (6) (-11882, 13556, 2487) def
+info atom atomtype = sp2
+bondg 102 103
+atom 108 (6) (-13508, 13867, 788) def
+info atom atomtype = sp2
+bondg 103
+atom 109 (6) (-7725, 16845, -931) def
+info atom atomtype = sp2
+bondg 104
+atom 110 (6) (-9218, 13178, -3115) def
+info atom atomtype = sp2
+atom 111 (6) (-9738, 12090, -2407) def
+info atom atomtype = sp2
+bondg 110
+atom 112 (6) (-8080, 13847, -2651) def
+info atom atomtype = sp2
+bondg 110
+atom 113 (6) (-11130, 12184, -2524) def
+info atom atomtype = sp2
+bondg 111
+atom 114 (6) (-9195, 11508, -1251) def
+info atom atomtype = sp2
+bondg 111
+atom 115 (6) (-9873, 10657, -146) def
+bond1 114
+atom 116 (6) (-7554, 13399, -1435) def
+info atom atomtype = sp2
+bondg 112
+atom 117 (6) (-8137, 12308, -784) def
+info atom atomtype = sp2
+bondg 114 116
+atom 118 (6) (-11916, 11697, -1474) def
+info atom atomtype = sp2
+bondg 113
+atom 119 (6) (-11499, 10792, -284) def
+bond1 115 118 37
+atom 120 (6) (-8254, 12367, 616) def
+info atom atomtype = sp2
+bondg 117
+atom 121 (6) (-9378, 11604, 974) def
+info atom atomtype = sp2
+bond1 115
+bondg 120
+atom 122 (6) (-11407, 13318, -3294) def
+info atom atomtype = sp2
+bondg 113
+atom 123 (6) (-10228, 13955, -3692) def
+info atom atomtype = sp2
+bondg 110 122
+atom 124 (6) (-10099, 12274, 1976) def
+info atom atomtype = sp2
+bondg 121
+atom 125 (6) (-7778, 13514, 1260) def
+info atom atomtype = sp2
+bondg 106 120
+atom 126 (6) (-12101, 11783, 748) def
+info atom atomtype = sp2
+bond1 119
+atom 127 (6) (-7064, 14537, -784) def
+info atom atomtype = sp2
+bondg 116
+atom 128 (6) (-11493, 12365, 1865) def
+info atom atomtype = sp2
+bondg 107 124 126
+atom 129 (6) (-7180, 14597, 607) def
+info atom atomtype = sp2
+bondg 105 125 127
+atom 130 (6) (-10136, 15347, -3789) def
+info atom atomtype = sp2
+bondg 123
+atom 131 (6) (-12516, 14123, -3015) def
+info atom atomtype = sp2
+bondg 122
+atom 132 (6) (-12945, 12613, -1177) def
+info atom atomtype = sp2
+bondg 118
+atom 133 (6) (-7950, 15237, -2739) def
+info atom atomtype = sp2
+bondg 112
+atom 134 (6) (-8993, 15985, -3296) def
+info atom atomtype = sp2
+bondg 130 133
+atom 135 (6) (-13285, 13758, -1905) def
+info atom atomtype = sp2
+bondg 131 132
+atom 136 (6) (-13062, 12668, 220) def
+info atom atomtype = sp2
+bondg 108 126 132
+atom 137 (6) (-7319, 15668, -1567) def
+info atom atomtype = sp2
+bondg 109 127 133
+atom 138 (6) (-9692, 13421, 2665) def
+info atom atomtype = sp2
+bondg 102 106 124
+atom 139 (6) (-9783, 17347, 1869) def
+info atom atomtype = sp2
+atom 140 (6) (-11175, 17433, 1755) def
+info atom atomtype = sp2
+bondg 139
+atom 141 (6) (-8965, 17671, 780) def
+info atom atomtype = sp2
+bondg 104 139
+atom 142 (6) (-11744, 16373, 2468) def
+info atom atomtype = sp2
+bondg 140
+atom 143 (6) (-11752, 17844, 548) def
+info atom atomtype = sp2
+bondg 140
+atom 144 (6) (-12897, 17217, 43) def
+info atom atomtype = sp2
+bondg 143
+atom 145 (6) (-9543, 18080, -425) def
+info atom atomtype = sp2
+bondg 141
+atom 146 (6) (-10935, 18165, -539) def
+info atom atomtype = sp2
+bondg 143 145
+atom 147 (6) (-12876, 15728, 1962) def
+info atom atomtype = sp2
+bondg 103 142
+atom 148 (6) (-13451, 16151, 760) def
+info atom atomtype = sp2
+bondg 144 147
+atom 149 (6) (-11567, 17747, -1714) def
+info atom atomtype = sp2
+bondg 146
+atom 150 (6) (-12782, 17159, -1347) def
+info atom atomtype = sp2
+bondg 144 149
+atom 151 (6) (-10690, 15629, 3011) def
+info atom atomtype = sp2
+bondg 102 142
+atom 152 (6) (-9479, 16232, 2655) def
+info atom atomtype = sp2
+bondg 101 139 151
+atom 153 (6) (-13219, 16033, -2053) def
+info atom atomtype = sp2
+bondg 150
+atom 154 (6) (-10805, 17244, -2773) def
+info atom atomtype = sp2
+bondg 149
+atom 155 (6) (-13852, 15010, 57) def
+info atom atomtype = sp2
+bondg 108 148
+atom 156 (6) (-8781, 17576, -1484) def
+info atom atomtype = sp2
+bondg 109 145
+atom 157 (6) (-13737, 14952, -1333) def
+info atom atomtype = sp2
+bondg 135 153 155
+atom 158 (6) (-12459, 15517, -3109) def
+info atom atomtype = sp2
+bondg 131 153
+atom 159 (6) (-9414, 17156, -2659) def
+info atom atomtype = sp2
+bondg 134 154 156
+atom 160 (6) (-11257, 16125, -3482) def
+info atom atomtype = sp2
+bondg 130 154 158
+atom 161 (1) (-9468, 9655, -62) def
+bond1 115
+mol (Wheel-2) def
+atom 162 (6) (-6804, -18169, 201) def
+info atom atomtype = sp2
+atom 163 (6) (-7875, -17019, -2093) def
+info atom atomtype = sp2
+atom 164 (6) (-10053, -17192, -3059) def
+info atom atomtype = sp2
+atom 165 (6) (-7850, -19631, 1835) def
+info atom atomtype = sp2
+atom 166 (6) (-7096, -18493, 1529) def
+info atom atomtype = sp2
+bondg 162 165
+atom 167 (6) (-6921, -16779, 83) def
+info atom atomtype = sp2
+bondg 162
+atom 168 (6) (-9008, -16379, -2606) def
+info atom atomtype = sp2
+bondg 163 164
+atom 169 (6) (-11345, -16759, -2744) def
+info atom atomtype = sp2
+bondg 164
+atom 170 (6) (-8841, -19584, 2820) def
+info atom atomtype = sp2
+bondg 165
+atom 171 (6) (-11573, -15986, 3035) def
+info atom atomtype = sp2
+atom 172 (6) (-11400, -14905, 2166) def
+info atom atomtype = sp2
+bondg 171
+atom 173 (6) (-10467, -16616, 3614) def
+info atom atomtype = sp2
+bondg 171
+atom 174 (6) (-12386, -15043, 1181) def
+info atom atomtype = sp2
+bondg 172
+atom 175 (6) (-10185, -14293, 1823) def
+info atom atomtype = sp2
+bondg 172
+atom 176 (6) (-9804, -13447, 577) def
+bond1 175
+atom 177 (6) (-9212, -16139, 3221) def
+info atom atomtype = sp2
+bondg 173
+atom 178 (6) (-9123, -15056, 2340) def
+info atom atomtype = sp2
+bondg 175 177
+atom 179 (6) (-12106, -14565, -103) def
+info atom atomtype = sp2
+bondg 174
+atom 180 (6) (-10956, -13633, -572) def
+bond1 176 179 35
+atom 181 (6) (-8128, -15104, 1348) def
+info atom atomtype = sp2
+bondg 178
+atom 182 (6) (-8602, -14368, 246) def
+info atom atomtype = sp2
+bond1 176
+bondg 181
+atom 183 (6) (-13120, -16195, 1484) def
+info atom atomtype = sp2
+bondg 174
+atom 184 (6) (-12644, -16801, 2652) def
+info atom atomtype = sp2
+bondg 171 183
+atom 185 (6) (-8283, -15049, -938) def
+info atom atomtype = sp2
+bondg 182
+atom 186 (6) (-7297, -16229, 1313) def
+info atom atomtype = sp2
+bondg 167 181
+atom 187 (6) (-10527, -14633, -1679) def
+info atom atomtype = sp2
+bond1 180
+atom 188 (6) (-8370, -17255, 3192) def
+info atom atomtype = sp2
+bondg 177
+atom 189 (6) (-9265, -15184, -1927) def
+info atom atomtype = sp2
+bondg 168 185 187
+atom 190 (6) (-7379, -17302, 2206) def
+info atom atomtype = sp2
+bondg 166 186 188
+atom 191 (6) (-12620, -18191, 2806) def
+info atom atomtype = sp2
+bondg 184
+atom 192 (6) (-13601, -17031, 472) def
+info atom atomtype = sp2
+bondg 183
+atom 193 (6) (-12518, -15511, -1065) def
+info atom atomtype = sp2
+bondg 179
+atom 194 (6) (-10412, -18003, 3792) def
+info atom atomtype = sp2
+bondg 173
+atom 195 (6) (-11488, -18790, 3370) def
+info atom atomtype = sp2
+bondg 191 194
+atom 196 (6) (-13260, -16674, -836) def
+info atom atomtype = sp2
+bondg 192 193
+atom 197 (6) (-11524, -15555, -2057) def
+info atom atomtype = sp2
+bondg 169 187 193
+atom 198 (6) (-9098, -18403, 3522) def
+info atom atomtype = sp2
+bondg 170 188 194
+atom 199 (6) (-7463, -16177, -1055) def
+info atom atomtype = sp2
+bondg 163 167 185
+atom 200 (6) (-8018, -20116, -550) def
+info atom atomtype = sp2
+atom 201 (6) (-9001, -20244, -1536) def
+info atom atomtype = sp2
+bondg 200
+atom 202 (6) (-8312, -20427, 782) def
+info atom atomtype = sp2
+bondg 165 200
+atom 203 (6) (-8853, -19194, -2447) def
+info atom atomtype = sp2
+bondg 201
+atom 204 (6) (-10283, -20686, -1190) def
+info atom atomtype = sp2
+bondg 201
+atom 205 (6) (-11425, -20099, -1747) def
+info atom atomtype = sp2
+bondg 204
+atom 206 (6) (-9594, -20866, 1127) def
+info atom atomtype = sp2
+bondg 202
+atom 207 (6) (-10577, -20996, 140) def
+info atom atomtype = sp2
+bondg 204 206
+atom 208 (6) (-9989, -18587, -2993) def
+info atom atomtype = sp2
+bondg 164 203
+atom 209 (6) (-11266, -19041, -2647) def
+info atom atomtype = sp2
+bondg 205 208
+atom 210 (6) (-11894, -20610, 411) def
+info atom atomtype = sp2
+bondg 207
+atom 211 (6) (-12416, -20055, -759) def
+info atom atomtype = sp2
+bondg 205 210
+atom 212 (6) (-7781, -18412, -2005) def
+info atom atomtype = sp2
+bondg 163 203
+atom 213 (6) (-7252, -18983, -843) def
+info atom atomtype = sp2
+bondg 162 200 212
+atom 214 (6) (-13267, -18951, -655) def
+info atom atomtype = sp2
+bondg 211
+atom 215 (6) (-12225, -20096, 1669) def
+info atom atomtype = sp2
+bondg 210
+atom 216 (6) (-12092, -17919, -2517) def
+info atom atomtype = sp2
+bondg 169 209
+atom 217 (6) (-9925, -20352, 2385) def
+info atom atomtype = sp2
+bondg 170 206
+atom 218 (6) (-13082, -17875, -1529) def
+info atom atomtype = sp2
+bondg 196 214 216
+atom 219 (6) (-13597, -18424, 597) def
+info atom atomtype = sp2
+bondg 192 214
+atom 220 (6) (-11242, -19967, 2654) def
+info atom atomtype = sp2
+bondg 195 215 217
+atom 221 (6) (-13088, -19000, 1766) def
+info atom atomtype = sp2
+bondg 191 215 219
+atom 222 (1) (-9509, -12431, 812) def
+bond1 176
+mol (Wheel-3) def
+atom 223 (6) (12289, 18276, 2329) def
+info atom atomtype = sp2
+atom 224 (6) (9878, 17063, 3010) def
+info atom atomtype = sp2
+atom 225 (6) (7728, 17162, 1970) def
+info atom atomtype = sp2
+atom 226 (6) (12817, 19732, 457) def
+info atom atomtype = sp2
+atom 227 (6) (13106, 18612, 1243) def
+info atom atomtype = sp2
+bondg 223 226
+atom 228 (6) (12164, 16883, 2333) def
+info atom atomtype = sp2
+bondg 223
+atom 229 (6) (8772, 16386, 2485) def
+info atom atomtype = sp2
+bondg 224 225
+atom 230 (6) (7146, 16698, 784) def
+info atom atomtype = sp2
+bondg 225
+atom 231 (6) (12932, 19673, -934) def
+info atom atomtype = sp2
+bondg 226
+atom 232 (6) (11437, 16007, -3118) def
+info atom atomtype = sp2
+atom 233 (6) (10915, 14919, -2410) def
+info atom atomtype = sp2
+bondg 232
+atom 234 (6) (12575, 16674, -2654) def
+info atom atomtype = sp2
+bondg 232
+atom 235 (6) (9522, 15014, -2527) def
+info atom atomtype = sp2
+bondg 233
+atom 236 (6) (11457, 14337, -1254) def
+info atom atomtype = sp2
+bondg 233
+atom 237 (6) (10777, 13486, -149) def
+bond1 236
+atom 238 (6) (13100, 16227, -1437) def
+info atom atomtype = sp2
+bondg 234
+atom 239 (6) (12515, 15135, -787) def
+info atom atomtype = sp2
+bondg 236 238
+atom 240 (6) (8736, 14527, -1476) def
+info atom atomtype = sp2
+bondg 235
+atom 241 (6) (9152, 13622, -287) def
+bond1 237 240 99
+atom 242 (6) (12399, 15195, 613) def
+info atom atomtype = sp2
+bondg 239
+atom 243 (6) (11273, 14434, 972) def
+info atom atomtype = sp2
+bond1 237
+bondg 242
+atom 244 (6) (9247, 16148, -3297) def
+info atom atomtype = sp2
+bondg 235
+atom 245 (6) (10427, 16784, -3695) def
+info atom atomtype = sp2
+bondg 232 244
+atom 246 (6) (10553, 15103, 1973) def
+info atom atomtype = sp2
+bondg 243
+atom 247 (6) (12876, 16341, 1256) def
+info atom atomtype = sp2
+bondg 228 242
+atom 248 (6) (8551, 14614, 745) def
+info atom atomtype = sp2
+bond1 241
+atom 249 (6) (13590, 17365, -787) def
+info atom atomtype = sp2
+bondg 238
+atom 250 (6) (9160, 15194, 1863) def
+info atom atomtype = sp2
+bondg 229 246 248
+atom 251 (6) (13475, 17424, 604) def
+info atom atomtype = sp2
+bondg 227 247 249
+atom 252 (6) (10520, 18176, -3792) def
+info atom atomtype = sp2
+bondg 245
+atom 253 (6) (8138, 16955, -3018) def
+info atom atomtype = sp2
+bondg 244
+atom 254 (6) (7708, 15444, -1180) def
+info atom atomtype = sp2
+bondg 240
+atom 255 (6) (12706, 18064, -2742) def
+info atom atomtype = sp2
+bondg 234
+atom 256 (6) (11664, 18813, -3299) def
+info atom atomtype = sp2
+bondg 252 255
+atom 257 (6) (7369, 16589, -1909) def
+info atom atomtype = sp2
+bondg 253 254
+atom 258 (6) (7590, 15500, 215) def
+info atom atomtype = sp2
+bondg 230 248 254
+atom 259 (6) (13337, 18496, -1571) def
+info atom atomtype = sp2
+bondg 231 249 255
+atom 260 (6) (10962, 16250, 2662) def
+info atom atomtype = sp2
+bondg 224 228 246
+atom 261 (6) (10874, 20176, 1866) def
+info atom atomtype = sp2
+atom 262 (6) (9482, 20262, 1751) def
+info atom atomtype = sp2
+bondg 261
+atom 263 (6) (11692, 20499, 778) def
+info atom atomtype = sp2
+bondg 226 261
+atom 264 (6) (8912, 19203, 2466) def
+info atom atomtype = sp2
+bondg 262
+atom 265 (6) (8905, 20673, 546) def
+info atom atomtype = sp2
+bondg 262
+atom 266 (6) (7760, 20048, 40) def
+info atom atomtype = sp2
+bondg 265
+atom 267 (6) (11114, 20909, -428) def
+info atom atomtype = sp2
+bondg 263
+atom 268 (6) (9722, 20996, -542) def
+info atom atomtype = sp2
+bondg 265 267
+atom 269 (6) (7779, 18558, 1959) def
+info atom atomtype = sp2
+bondg 225 264
+atom 270 (6) (7205, 18982, 754) def
+info atom atomtype = sp2
+bondg 266 269
+atom 271 (6) (9090, 20578, -1717) def
+info atom atomtype = sp2
+bondg 268
+atom 272 (6) (7875, 19990, -1351) def
+info atom atomtype = sp2
+bondg 266 271
+atom 273 (6) (9965, 18459, 3008) def
+info atom atomtype = sp2
+bondg 224 264
+atom 274 (6) (11177, 19060, 2653) def
+info atom atomtype = sp2
+bondg 223 261 273
+atom 275 (6) (7437, 18865, -2057) def
+info atom atomtype = sp2
+bondg 272
+atom 276 (6) (9852, 20073, -2776) def
+info atom atomtype = sp2
+bondg 271
+atom 277 (6) (6803, 17842, 54) def
+info atom atomtype = sp2
+bondg 230 270
+atom 278 (6) (11876, 20404, -1487) def
+info atom atomtype = sp2
+bondg 231 267
+atom 279 (6) (6918, 17784, -1337) def
+info atom atomtype = sp2
+bondg 257 275 277
+atom 280 (6) (8196, 18348, -3112) def
+info atom atomtype = sp2
+bondg 253 275
+atom 281 (6) (11243, 19985, -2662) def
+info atom atomtype = sp2
+bondg 256 276 278
+atom 282 (6) (9400, 18955, -3485) def
+info atom atomtype = sp2
+bondg 252 276 280
+atom 283 (1) (11177, 12484, -64) def
+bond1 237
+mol (Wheel-4) def
+atom 284 (6) (13852, -15336, 199) def
+info atom atomtype = sp2
+atom 285 (6) (12780, -14186, -2097) def
+info atom atomtype = sp2
+atom 286 (6) (10602, -14359, -3064) def
+info atom atomtype = sp2
+atom 287 (6) (12805, -16797, 1833) def
+info atom atomtype = sp2
+atom 288 (6) (13560, -15660, 1529) def
+info atom atomtype = sp2
+bondg 284 287
+atom 289 (6) (13735, -13947, 80) def
+info atom atomtype = sp2
+bondg 284
+atom 290 (6) (11647, -13548, -2610) def
+info atom atomtype = sp2
+bondg 285 286
+atom 291 (6) (9309, -13927, -2749) def
+info atom atomtype = sp2
+bondg 286
+atom 292 (6) (11815, -16750, 2820) def
+info atom atomtype = sp2
+bondg 287
+atom 293 (6) (9081, -13156, 3036) def
+info atom atomtype = sp2
+atom 294 (6) (9254, -12075, 2164) def
+info atom atomtype = sp2
+bondg 293
+atom 295 (6) (10188, -13784, 3614) def
+info atom atomtype = sp2
+bondg 293
+atom 296 (6) (8268, -12212, 1179) def
+info atom atomtype = sp2
+bondg 294
+atom 297 (6) (10470, -11464, 1822) def
+info atom atomtype = sp2
+bondg 294
+atom 298 (6) (10851, -10620, 575) def
+bond1 297
+atom 299 (6) (11443, -13308, 3222) def
+info atom atomtype = sp2
+bondg 295
+atom 300 (6) (11532, -12226, 2339) def
+info atom atomtype = sp2
+bondg 297 299
+atom 301 (6) (8548, -11736, -105) def
+info atom atomtype = sp2
+bondg 296
+atom 302 (6) (9699, -10804, -573) def
+bond1 298 301 97
+atom 303 (6) (12527, -12273, 1346) def
+info atom atomtype = sp2
+bondg 300
+atom 304 (6) (12054, -11540, 244) def
+info atom atomtype = sp2
+bond1 298
+bondg 303
+atom 305 (6) (7534, -13363, 1483) def
+info atom atomtype = sp2
+bondg 296
+atom 306 (6) (8010, -13968, 2651) def
+info atom atomtype = sp2
+bondg 293 305
+atom 307 (6) (12371, -12219, -942) def
+info atom atomtype = sp2
+bondg 304
+atom 308 (6) (13359, -13397, 1311) def
+info atom atomtype = sp2
+bondg 289 303
+atom 309 (6) (10127, -11802, -1682) def
+info atom atomtype = sp2
+bond1 302
+atom 310 (6) (12287, -14423, 3192) def
+info atom atomtype = sp2
+bondg 299
+atom 311 (6) (11389, -12352, -1931) def
+info atom atomtype = sp2
+bondg 290 307 309
+atom 312 (6) (13277, -14469, 2206) def
+info atom atomtype = sp2
+bondg 288 308 310
+atom 313 (6) (8035, -15358, 2805) def
+info atom atomtype = sp2
+bondg 306
+atom 314 (6) (7053, -14198, 470) def
+info atom atomtype = sp2
+bondg 305
+atom 315 (6) (8135, -12680, -1068) def
+info atom atomtype = sp2
+bondg 301
+atom 316 (6) (10244, -15170, 3791) def
+info atom atomtype = sp2
+bondg 295
+atom 317 (6) (9167, -15956, 3368) def
+info atom atomtype = sp2
+bondg 313 316
+atom 318 (6) (7393, -13843, -839) def
+info atom atomtype = sp2
+bondg 314 315
+atom 319 (6) (9130, -12723, -2060) def
+info atom atomtype = sp2
+bondg 291 309 315
+atom 320 (6) (11557, -15569, 3522) def
+info atom atomtype = sp2
+bondg 292 310 316
+atom 321 (6) (13193, -13346, -1057) def
+info atom atomtype = sp2
+bondg 285 289 307
+atom 322 (6) (12637, -17281, -552) def
+info atom atomtype = sp2
+atom 323 (6) (11654, -17410, -1537) def
+info atom atomtype = sp2
+bondg 322
+atom 324 (6) (12344, -17593, 778) def
+info atom atomtype = sp2
+bondg 287 322
+atom 325 (6) (11802, -16360, -2449) def
+info atom atomtype = sp2
+bondg 323
+atom 326 (6) (10372, -17852, -1193) def
+info atom atomtype = sp2
+bondg 323
+atom 327 (6) (9230, -17267, -1750) def
+info atom atomtype = sp2
+bondg 326
+atom 328 (6) (11062, -18033, 1124) def
+info atom atomtype = sp2
+bondg 324
+atom 329 (6) (10078, -18162, 138) def
+info atom atomtype = sp2
+bondg 326 328
+atom 330 (6) (10666, -15754, -2996) def
+info atom atomtype = sp2
+bondg 286 325
+atom 331 (6) (9389, -16209, -2651) def
+info atom atomtype = sp2
+bondg 327 330
+atom 332 (6) (8761, -17777, 409) def
+info atom atomtype = sp2
+bondg 329
+atom 333 (6) (8240, -17221, -763) def
+info atom atomtype = sp2
+bondg 327 332
+atom 334 (6) (12875, -15579, -2008) def
+info atom atomtype = sp2
+bondg 285 325
+atom 335 (6) (13403, -16149, -845) def
+info atom atomtype = sp2
+bondg 284 322 334
+atom 336 (6) (7387, -16116, -658) def
+info atom atomtype = sp2
+bondg 333
+atom 337 (6) (8431, -17262, 1666) def
+info atom atomtype = sp2
+bondg 332
+atom 338 (6) (8562, -15088, -2521) def
+info atom atomtype = sp2
+bondg 291 331
+atom 339 (6) (10731, -17519, 2382) def
+info atom atomtype = sp2
+bondg 292 328
+atom 340 (6) (7571, -15043, -1533) def
+info atom atomtype = sp2
+bondg 318 336 338
+atom 341 (6) (7057, -15591, 594) def
+info atom atomtype = sp2
+bondg 314 336
+atom 342 (6) (9414, -17133, 2653) def
+info atom atomtype = sp2
+bondg 317 337 339
+atom 343 (6) (7567, -16166, 1763) def
+info atom atomtype = sp2
+bondg 313 337 341
+atom 344 (1) (11147, -9606, 810) def
+bond1 298
+csys (View-1) (0.356228, 0.816395, 0.396533, -0.222175) (30.339253) (-10.526067, 0.143466, -1.133044) (1.000000)
+egroup (nanocar)
+end1
+group (Clipboard)
+info opengroup open = True
+mol (Wheel) def
+atom 345 (6) (3224, 1269, 177) def
+info atom atomtype = sp2
+atom 346 (6) (1318, 3237, -236) def
+info atom atomtype = sp2
+atom 347 (6) (-809, 3157, -1367) def
+info atom atomtype = sp2
+atom 348 (6) (3262, -1041, -484) def
+info atom atomtype = sp2
+atom 349 (6) (3427, -63, 480) def
+info atom atomtype = sp2
+bondg 345 348
+atom 350 (6) (2618, 1883, 1264) def
+info atom atomtype = sp2
+bondg 345
+atom 351 (6) (-34, 3520, -276) def
+info atom atomtype = sp2
+bondg 346 347
+atom 352 (6) (-2069, 2613, -1181) def
+info atom atomtype = sp2
+bondg 347
+atom 353 (6) (2609, -2218, -166) def
+info atom atomtype = sp2
+bondg 348
+atom 354 (6) (-1115, -2109, 2423) def
+info atom atomtype = sp2
+atom 355 (6) (-1602, -896, 2882) def
+info atom atomtype = sp2
+bondg 354
+atom 356 (6) (245, -2368, 2451) def
+info atom atomtype = sp2
+bondg 354
+atom 357 (6) (-2664, -522, 2075) def
+info atom atomtype = sp2
+bondg 355
+atom 358 (6) (-726, 62, 3366) def
+info atom atomtype = sp2
+bondg 355
+atom 359 (6) (-915, 1396, 3049) def
+bond1 358
+atom 360 (6) (1120, -1409, 2931) def
+info atom atomtype = sp2
+bondg 356
+atom 361 (6) (634, -193, 3382) def
+info atom atomtype = sp2
+bondg 358 360
+atom 362 (6) (-2869, 812, 1759) def
+info atom atomtype = sp2
+bondg 357
+atom 363 (6) (-2000, 1766, 2268) def
+bond1 359 362
+atom 364 (6) (1288, 983, 3056) def
+info atom atomtype = sp2
+bondg 361
+atom 365 (6) (335, 1966, 2852) def
+info atom atomtype = sp2
+bond1 359
+bondg 364
+atom 366 (6) (-2828, -1504, 1111) def
+info atom atomtype = sp2
+bondg 357
+atom 367 (6) (-1871, -2480, 1324) def
+info atom atomtype = sp2
+bondg 354 366
+atom 368 (6) (540, 2919, 1866) def
+info atom atomtype = sp2
+bondg 365
+atom 369 (6) (2429, 945, 2270) def
+info atom atomtype = sp2
+bondg 350 364
+atom 370 (6) (-1831, 2734, 1302) def
+info atom atomtype = sp2
+bond1 363
+atom 371 (6) (2264, -1450, 2154) def
+info atom atomtype = sp2
+bondg 360
+atom 372 (6) (-521, 3325, 1085) def
+info atom atomtype = sp2
+bondg 351 368 370
+atom 373 (6) (2915, -272, 1832) def
+info atom atomtype = sp2
+bondg 349 369 371
+atom 374 (6) (-1267, -3105, 244) def
+info atom atomtype = sp2
+bondg 367
+atom 375 (6) (-3189, -1156, -179) def
+info atom atomtype = sp2
+bondg 366
+atom 376 (6) (-3251, 1164, 470) def
+info atom atomtype = sp2
+bondg 362
+atom 377 (6) (849, -2999, 1379) def
+info atom atomtype = sp2
+bondg 356
+atom 378 (6) (89, -3367, 283) def
+info atom atomtype = sp2
+bondg 374 377
+atom 379 (6) (-3413, 174, -485) def
+info atom atomtype = sp2
+bondg 375 376
+atom 380 (6) (-2624, 2355, 146) def
+info atom atomtype = sp2
+bondg 352 370 376
+atom 381 (6) (2095, -2429, 1191) def
+info atom atomtype = sp2
+bondg 353 371 377
+atom 382 (6) (1666, 2872, 1058) def
+info atom atomtype = sp2
+bondg 346 350 368
+atom 383 (6) (2700, 655, -2082) def
+info atom atomtype = sp2
+atom 384 (6) (1633, 1031, -2881) def
+info atom atomtype = sp2
+bondg 383
+atom 385 (6) (2897, -680, -1769) def
+info atom atomtype = sp2
+bondg 348 383
+atom 386 (6) (1147, 2241, -2414) def
+info atom atomtype = sp2
+bondg 384
+atom 387 (6) (758, 71, -3365) def
+info atom atomtype = sp2
+bondg 384
+atom 388 (6) (-602, 324, -3388) def
+info atom atomtype = sp2
+bondg 387
+atom 389 (6) (2021, -1638, -2248) def
+info atom atomtype = sp2
+bondg 385
+atom 390 (6) (949, -1260, -3042) def
+info atom atomtype = sp2
+bondg 387 389
+atom 391 (6) (-213, 2508, -2441) def
+info atom atomtype = sp2
+bondg 347 386
+atom 392 (6) (-1078, 1550, -2949) def
+info atom atomtype = sp2
+bondg 388 391
+atom 393 (6) (-297, -1830, -2845) def
+info atom atomtype = sp2
+bondg 390
+atom 394 (6) (-1257, -856, -3061) def
+info atom atomtype = sp2
+bondg 388 393
+atom 395 (6) (1912, 2608, -1318) def
+info atom atomtype = sp2
+bondg 346 386
+atom 396 (6) (2867, 1628, -1112) def
+info atom atomtype = sp2
+bondg 345 383 395
+atom 397 (6) (-2404, -845, -2280) def
+info atom atomtype = sp2
+bondg 394
+atom 398 (6) (-477, -2777, -1849) def
+info atom atomtype = sp2
+bondg 393
+atom 399 (6) (-2233, 1591, -2199) def
+info atom atomtype = sp2
+bondg 352 392
+atom 400 (6) (1846, -2589, -1259) def
+info atom atomtype = sp2
+bondg 353 389
+atom 401 (6) (-2915, 358, -1844) def
+info atom atomtype = sp2
+bondg 379 397 399
+atom 402 (6) (-2577, -1772, -1263) def
+info atom atomtype = sp2
+bondg 375 397
+atom 403 (6) (599, -3156, -1068) def
+info atom atomtype = sp2
+bondg 378 398 400
+atom 404 (6) (-1611, -2746, -1050) def
+info atom atomtype = sp2
+bondg 374 398 402
+atom 405 (0) (-1237, 1758, 3649) def
+bond1 359
+atom 406 (0) (-2302, 2062, 2913) def
+bond1 363
+info chunk hotspot = 406
+mol (Rod) def
+atom 407 (6) (-16, 65, 0) def
+info atom atomtype = sp
+atom 408 (0) (-676, 65, 0) def
+bond1 407
+atom 409 (6) (1303, 65, 0) def
+info atom atomtype = sp
+bond3 407
+atom 410 (0) (2077, 65, 0) def
+bond1 409
+info chunk hotspot = 408
+mol (Connector-copy1) def
+atom 411 (6) (1218, 720, 30) def
+info atom atomtype = sp2
+atom 412 (6) (1244, -675, 22) def
+info atom atomtype = sp2
+bonda 411
+atom 413 (6) (48, -1396, -7) def
+info atom atomtype = sp2
+bonda 412
+atom 414 (6) (-1172, -720, -30) def
+info atom atomtype = sp2
+bonda 413
+atom 415 (6) (-1199, 675, -22) def
+info atom atomtype = sp2
+bonda 414
+atom 416 (6) (-3, 1396, 6) def
+info atom atomtype = sp2
+bonda 411 415
+atom 417 (0) (-1861, 1041, -34) def
+bond1 415
+atom 418 (0) (-17, 2153, 10) def
+bond1 416
+atom 419 (0) (1866, 1111, 46) def
+bond1 411
+atom 420 (0) (1907, -1041, 34) def
+bond1 412
+atom 421 (0) (63, -2153, -10) def
+bond1 413
+atom 422 (0) (-1820, -1111, -45) def
+bond1 414
+mol (rear axle) def
+atom 423 (6) (1194, 748, 28) def
+info atom atomtype = sp2
+atom 424 (6) (1220, -646, 20) def
+info atom atomtype = sp2
+bonda 423
+atom 425 (6) (25, -1367, -8) def
+info atom atomtype = sp2
+bonda 424
+atom 426 (6) (-1194, -691, -30) def
+info atom atomtype = sp2
+bonda 425
+atom 427 (6) (-1221, 703, -23) def
+info atom atomtype = sp2
+bonda 426
+atom 428 (6) (-25, 1424, 4) def
+info atom atomtype = sp2
+bonda 423 427
+atom 429 (0) (-1883, 1069, -34) def
+bond1 427
+atom 430 (0) (1883, -1012, 32) def
+bond1 424
+atom 431 (0) (-1842, -1082, -45) def
+bond1 426
+atom 432 (6) (53, -2783, -13) def
+info atom atomtype = sp
+bond1 425
+atom 433 (6) (-51, 2840, 11) def
+info atom atomtype = sp
+bond1 428
+atom 434 (6) (-75, 4159, 18) def
+info atom atomtype = sp
+bond3 433
+atom 435 (6) (80, -4159, -18) def
+info atom atomtype = sp
+bond3 432
+atom 436 (6) (749, -7774, 1022) def
+info atom atomtype = sp2
+atom 437 (6) (719, -6380, 1027) def
+info atom atomtype = sp2
+bonda 436
+atom 438 (6) (110, -5690, -24) def
+info atom atomtype = sp2
+bond1 435
+bonda 437
+atom 439 (6) (-467, -6398, -1077) def
+info atom atomtype = sp2
+bonda 438
+atom 440 (6) (-437, -7793, -1083) def
+info atom atomtype = sp2
+bonda 439
+atom 441 (6) (169, -8482, -31) def
+info atom atomtype = sp2
+bonda 436 440
+atom 442 (0) (-751, -8176, -1655) def
+bond1 440
+atom 443 (0) (1079, -8148, 1592) def
+bond1 436
+atom 444 (0) (1033, -5996, 1600) def
+bond1 437
+atom 445 (0) (-796, -6024, -1648) def
+bond1 439
+atom 446 (6) (-1126, 6366, 691) def
+info atom atomtype = sp2
+atom 447 (6) (-1152, 7761, 698) def
+info atom atomtype = sp2
+bonda 446
+atom 448 (6) (-151, 8482, 41) def
+info atom atomtype = sp2
+bonda 447
+atom 449 (6) (871, 7805, -622) def
+info atom atomtype = sp2
+bonda 448
+atom 450 (6) (898, 6410, -629) def
+info atom atomtype = sp2
+bonda 449
+atom 451 (6) (-102, 5690, 25) def
+info atom atomtype = sp2
+bond1 434
+bonda 446 450
+atom 452 (0) (1453, 6044, -989) def
+bond1 450
+atom 453 (0) (-1668, 5975, 1047) def
+bond1 446
+atom 454 (0) (-1708, 8127, 1058) def
+bond1 447
+atom 455 (0) (1414, 8196, -977) def
+bond1 449
+atom 456 (6) (198, -9898, -36) def
+info atom atomtype = sp
+bond1 441
+atom 457 (6) (226, -11217, -41) def
+info atom atomtype = sp
+bond3 456
+atom 458 (0) (243, -11991, -44) def
+bond1 457
+atom 459 (6) (-177, 9898, 51) def
+info atom atomtype = sp
+bond1 448
+atom 460 (6) (-202, 11217, 60) def
+info atom atomtype = sp
+bond3 459
+atom 461 (0) (-216, 11991, 66) def
+bond1 460
+atom 462 (0) (1914, 1101, 42) def
+bond1 423
+info chunk hotspot = 431
+egroup (Clipboard)
+end molecular machine part nanocar
