@@ -33,13 +33,11 @@ ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 CFLAGS=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/ \
-   -DMACOSX -I/System/Library/Frameworks/OpenGL.framework/Headers \
-   -arch i386 -arch ppc
+   -DMACOSX -I/System/Library/Frameworks/OpenGL.framework/Headers
 LDFLAGS=-Wl,-F. -framework Python
 LDFLAGS+=-L/usr/lib -lm
 ## LDFLAGS+=-L/usr/X11R6/lib -lGL
 LDFLAGS+=-framework OpenGL
-LDFLAGS+=-arch i386 -arch ppc
 LDSHARED=gcc -bundle
 
 # See if we can add Universal build flags
