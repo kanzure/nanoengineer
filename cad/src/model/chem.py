@@ -3763,7 +3763,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         and use that posn instead of its actual posn to decide what to do.
 
         @warning: we assume baggage is a subset of self.baggageNeighbors(),
-                  but don't check this except when ATOM_DEBUG is set.
+                  but we don't check this except when ATOM_DEBUG is set.
         """
         #bruce 060629 for bondpoint problem
         try:
