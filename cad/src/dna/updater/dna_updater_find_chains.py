@@ -54,7 +54,7 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         return chain_or_ring.iteratoms()
             # note: it's essential to include Pl atoms in this value,
             # for sake of find_chain_or_ring's dict.pop.
-    __first_ok_atom = None
+    __first_ok_atom = None ### LOGIC BUG: this instance is used to find more than one chain!
     def atom_ok(self, atom):
         """
         [implements abstract_bond_chain_analyzer subclass API method]
@@ -70,9 +70,12 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         # in starting with that atom (or including it) when finding another
         # chain?
         if self.__first_ok_atom is None:
-            self.__first_ok_atom = atom
+            # WORK AROUND LOGIC BUG: never initialize this (disables the feature):
+            ## self.__first_ok_atom = atom
+            # To fix this we could have a new-chain-starting method...
+            # [bruce 080404]
             return True
-        return PAM_atoms_allowed_in_same_ladder( self.__first_ok_atom, atom )
+        return PAM_atoms_allowed_in_same_ladder( self.__first_ok_atom, atom ) # BUG - never called - see above
     pass
     
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
