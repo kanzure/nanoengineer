@@ -31,6 +31,8 @@ from utilities.constants import gensym, darkred, blue, orange, olive
 from utilities.constants import diBALL, diTUBES
 from utilities.constants import MODEL_PAM5
 
+from utilities import debug_flags
+
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
@@ -986,6 +988,9 @@ class Dna:
         # but only if edit pref would otherwise immediately convert it to PAM3.
         #update, bruce 080401: always do it, regardless of that edit pref.
         if self.model == "PAM5": ##  and pref_dna_updater_convert_to_PAM3plus5():
+            if debug_flags.atom_debug:
+                print "debug fyi: %r is setting .display_as_pam = MODEL_PAM5 " \
+                      "on %r" % (self, chunk)
             chunk.display_as_pam = MODEL_PAM5
         return chunk
 
