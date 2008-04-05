@@ -1,6 +1,0 @@
-#!/bin/sh
-DIFFS=`(for x in *.py *.ui; do diff -u $x ~/polosims/cad/src/$x -I "Id:"; done) | grep '^\-\-\-' | sed 's/^\-\-\- //' | sed 's/\t.*//'`
-echo $DIFFS
-for x in $DIFFS; do
-	cp ~/polosims/cad/src/$x .
-done
