@@ -271,6 +271,19 @@ def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
         return res
     pass
 
+def ideal_bond_length(atom1, atom2, v6 = V_SINGLE): #bruce 080404
+    """
+    Return the ideal bond length between atom1 and atom2 (using their
+    current atomtypes) for a bond of the given order (default V_SINGLE).
+    The atoms need not be bonded; if they are, that bond's current order
+    is ignored. [review: revise that rule, to use it if they are bonded??]
+    
+    (Use bond_params, which uses getEquilibriumDistanceForBond if ND-1
+     is available.)
+    """
+    rcov1, rcov2 = bond_params(atom1.atomtype, atom2.atomtype, v6)
+    return rcov1 + rcov2
+
 def _compute_bond_params(atomtype1, atomtype2, v6):
     """
     [private helper function for bond_params]

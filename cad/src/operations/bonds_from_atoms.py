@@ -89,8 +89,12 @@ def idealBondLength(atm1, atm2):
     Return the ideal length of a single bond between atm1 and atm2,
     assuming they have their current elements but their default atomtypes
     (ignoring their current atomtypes).
+
+    @see: similar function, ideal_bond_length in bond_constants.py
+          (not directly useable by this function)
     """
-    # don't use getEquilibriumDistanceForBond directly, in case pyrex sim is not available [bruce 060620]
+    # don't use getEquilibriumDistanceForBond directly, in case pyrex sim (ND-1)
+    # is not available [bruce 060620]
     r1, r2 = bond_params(atm1.element.atomtypes[0], atm2.element.atomtypes[0], V_SINGLE)
     return r1 + r2
 

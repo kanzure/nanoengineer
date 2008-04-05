@@ -538,6 +538,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # def __init__  is just below a couple undo-update methods
 
     def _undo_update(self):
+        if self._f_dna_updater_should_reposition_baggage:
+            del self._f_dna_updater_should_reposition_baggage
+                # expose class default of False
+            # ###REVIEW: will this come late enough to fix any explicit
+            # sets by other undo effects? I think so, since it's only
+            # set by user ops or creating bonds or transmuting atoms.
+            # But Bond.changed_atoms runs at some point during Undo,
+            # and if that comes later than this, it'll be a ###BUG.
+            # And it might well be, so this needs analysis or testing.
+            # If it's a bug, do this in a later pass over atoms, I guess.
+            # [bruce 080404]
         if self.molecule is None:
             # new behavior as of 060409, needed to interact well with differential mash_attrs...
             # i'm not yet fully comfortable with this (maybe we really need _nullMol in here??) ###@@@
@@ -2921,7 +2932,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         nn = self.neighbors()
         if len(nn) == 1:
-            # special case: no baggage unless neighbor is a singlet
+            # special case: no baggage unless neighbor is a Singlet
             if nn[0].element is Singlet:
                 return nn, []
             else:
@@ -3203,7 +3214,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         that our element is pretend_I_am if this is given,
         what position should we ideally have
         so that our bond to neighbor has the correct length?
+
+        @see: methods Bond.ubp, Atom.snuggle, move_closest_baggage_to
+
+        @warning: does not use getEquilibriumDistanceForBond/bond_params
         """
+        # review: should this use bond_params (which calls
+        # getEquilibriumDistanceForBond when available)?
+        # [bruce 080404 comment]
         me = self.posn()
         it = neighbor.posn()
         length = vlen( me - it )
@@ -3257,14 +3275,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def snuggle(self): #bruce 051221 revised docstring re bug 1239
         """
-        self is a singlet and the simulator has moved it out to the
-        radius of an H. move it back. the molecule may or may not be still
+        self is a Singlet and the simulator has moved it out to the
+        radius of an H. Move it back. The molecule may or may not be still
         in frozen mode. Do all needed invals.
 
         @warning: if you are moving several atoms at once, first move them all,
         then snuggle them all, since snuggling self is only correct after self's
         real neighbor has already been moved to its final position. [Ignorance of
         this issue was the cause of bug 1239.]
+
+        @see: methods Bond.ubp, Atom.ideal_posn_re_neighbor, move_closest_baggage_to
         """
         if not self.bonds:
             #bruce 050428: a bug, but probably just means we're a killed singlet.
@@ -3277,12 +3297,89 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #bruce 050406 revised docstring to say mol needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
         # but we'll still use it since it's better tested and faster.
-        o = self.bonds[0].other(self)
-        op = o.posn()
+        other = self.bonds[0].other(self)
+        op = other.posn()
         sp = self.posn()
-        np = norm(sp-op)*o.atomtype.rcovalent + op
+        np = norm(sp - op) * other.atomtype.rcovalent + op
         self.setposn(np) # bruce 041112 rewrote last line
         return
+
+    def move_closest_baggage_to(self,
+                                newpos,
+                                baggage = None,
+                                remove = False,
+                                min_bond_length = 0.1 ):
+        """
+        Find the atom in baggage (self.baggageNeighbors() by default)
+        which is closest *in direction from self* to newpos,
+        and then move it to newpos, correcting its distance from self
+        based on its and self's atomtypes (using newpos only for direction)
+        unless an option (nim) is set to false.
+
+        Return the atom moved, or None if no atom could be found to move.
+
+        If remove is true, baggage must have been passed, and we also remove
+        the moved atom (if any) from baggage (modifying it destructively).
+
+        @param newpos: desired position to move an atom to; used only for its
+                       direction from self (by default)
+
+        @param baggage: a sequence (mutable if remove is false), or None
+
+        @param remove: whether to remove the moved atom from baggage (which
+                       must be a mutable sequence if we do)
+
+        @param min_bond_length: minimum allowed distance from self to moved atom
+        
+        @return: the atom we moved, or None if we found no atom to move.
+        """
+        #bruce 080404
+        if baggage is None:
+            assert not remove
+            baggage = self.baggageNeighbors() # or singNeighbors??
+        if not baggage:
+            return None # can't move anything
+        # todo: assert baggage is a list (which we can remove from if remove is true)
+
+        # figure out which atom in baggage to move
+        selfpos = self.posn()
+        newpos_direction = norm(newpos - selfpos)
+        sortme = [] # rename?
+        for atom in baggage:
+            atom_direction = norm(atom.posn() - selfpos)
+            dist = vlen(atom_direction - newpos_direction)
+            sortme.append( (dist, atom) )
+        sortme.sort()
+        moveme = sortme[0][1]
+        
+        # maybe: don't move if already at newpos? only matters if that case
+        # often happens (on atoms which didn't already inval their chunks
+        # due to whatever caused this to be called), which I doubt (at least
+        # for its initial use in reposition_baggage_using_DnaLadder).
+        # note: that optim could probably be done by testing sortme[0][0]
+        # for being close to zero. But worry about corrections for distance
+        # on both newpos vs newpos_direction, and below.
+
+        # fix distance
+        from model.bond_constants import ideal_bond_length
+        want_length = ideal_bond_length(self, moveme)
+            # note: depends on moveme.atomtype (and therefore, possibly,
+            # on which element of baggage is chosen to be moveme)
+        if want_length < min_bond_length:
+            if debug_flags.atom_debug:
+                print "fyi, in move_closest_baggage_to: " \
+                      "ideal_bond_length(%r, %r) == %r < min_bond_length == %r" % \
+                      (self, moveme, want_length, min_bond_length)
+            want_length = min_bond_length
+            pass
+        fixed_newpos = selfpos + newpos_direction * want_length
+        
+        moveme.setposn(fixed_newpos)
+        
+        if remove:
+            baggage.remove(moveme)
+        
+        return moveme
 
     def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
         """

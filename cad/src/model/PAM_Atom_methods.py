@@ -171,7 +171,109 @@ class PAM_Atom_methods:
             # more?
             pass
         return res
-    
+
+    def reposition_baggage_using_DnaLadder(self): #bruce 080404
+        """
+        Reposition self's bondpoints (or other monovalent "baggage" atoms
+        if any), making use of structural info from self.molecule.ladder.
+
+        @note: since we don't expect any baggage except bondpoints on PAM atoms,
+               we don't bother checking for that, even though, if this did
+               ever happen, it might be arbitrary which baggage element ended
+               up at what position. This can easily be fixed if necessary.
+        
+        @warning: it's only safe to call this when self.molecule.ladder
+                  is correct (including all its chunks and rails --
+                  no need for its parent Group structure or markers),
+                  which if the dna updater is running means after self's
+                  new ladder's chunks were remade.
+        """
+        # And, if it turns out this ever needs to look inside
+        # neighbor atom dnaladders (not in the same base pair),
+        # we'll need to revise the dna updater's indirect caller
+        # to call it in a separate loop over ladders than the one
+        # that calls remake_chunks on all of the new ladders.
+
+        # Note: I don't think there's any issue of the changes we do here
+        # causing an infinite repeat (or even a single repeat) of the
+        # dna updater -- we reset the flag that makes it call us,
+        # and moving bondpoints (or real atoms) doesn't count as
+        # changing the atoms for purposes of dna updater, and even
+        # if it did, the updater ignores new changes from this step.
+        # If we ever kill and remake bondpoints here, then we'll
+        # need to also reset the flag at the end, but even if we forget,
+        # it won't cause an immediate rerun of the dna updater
+        # (due to its ignoring the changes from this step).
+        
+        self._f_dna_updater_should_reposition_baggage = False
+            # even in case of exceptions (also simplifies early return)
+
+        baggage, others = self.baggage_and_other_neighbors()
+        if not baggage:
+            return # optimization and for safety; might simplify following code
+
+        # Notes:
+        #
+        # - If baggage might not be all bondpoints, we might want to filter
+        #   it here and only look at the bondpoints. (See docstring.)
+        #
+        # - I'm assuming that Ax, Pl, Ss neighbors can never be baggage.
+        #   This depends on their having correct valence, since the test
+        #   used by baggage_and_other_neighbors is len(bonds), not valence.
+        
+        # how to do it depends on type of PAM element:
+        if self.element.role == 'axis':
+            # which real neighbors do we have?
+            # (depends on ladder len1, single strand or duplex)
+            # ...
+            # short term important case: we have one bondpoint
+            # along axis, make it opposite the other axis bond,
+            # and maybe we also have another "strand bondpoint".
+            strand_neighbors = []
+            axis_neighbors = []
+            for other in others: # would also work if baggage was in this loop
+                role = other.element.role
+                if role == 'strand':
+                    strand_neighbors += [other]
+                elif role == 'axis':
+                    axis_neighbors += [other]
+                # other roles are possible too, but we can ignore them for now
+                # (unpaired-base(?), None)
+                # (in future we'll need to count unpaired-bases to understand
+                #  how many axis bondpoints are missing) ### TODO
+                continue
+            if len(axis_neighbors) == 1:
+                # move a bondpoint to the opposite position from this one
+                # (for now, just move the already-closest one)
+                selfpos = self.posn()
+                axisvec = axis_neighbors[0].posn() - selfpos
+                newpos = selfpos - axisvec # correct only in direction, not distance
+                moved_this_one = self.move_closest_baggage_to(
+                                                newpos,
+                                                baggage,
+                                                remove = True,
+                                                min_bond_length = 3.180 / 2 )
+                    # this first corrects newpos for distance (since no option prevents that)
+                    # (but an option does set the minimum distance, since for some reason the
+                    #  bond_params distance for Ax-X on my system is way too low)
+                    # (doing it first is best for finding closest one)
+                    # (someday we might pass bond order or direction to help choose?
+                    #  then bond order would affect distance, perhaps)
+                    
+                    # passing baggage means only consider moving something in that list;
+                    # remove = True means remove the moved one from that list;
+                    # return value is the one moved, or None if none was found to move.
+                if not moved_this_one:
+                    return # optim?
+                pass
+            ### todo: also fix bondpoints meant to go to strand atoms
+            pass
+        elif self.element.role == 'strand': # might be Pl or Ss
+            pass ### nim
+        # (no other cases are possible yet, at least when called by dna updater)
+        # (flag was reset above, so we're done)
+        return
+
     # == end of methods for either strand or axis PAM atoms
 
     # == PAM Pl atom methods

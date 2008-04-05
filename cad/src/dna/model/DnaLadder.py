@@ -1064,16 +1064,30 @@ class DnaLadder(object):
 
     def _f_reposition_baggage(self): #bruce 080404
         """
+        [friend method for dna updater;
+         unsafe to call until after self.remake_chunks()]
         """
+        DEBUG_BONDPOINTS = False # DO NOT COMMIT WITH TRUE
         # only for atoms with _f_dna_updater_should_reposition_baggage set
         # (and optimizes by knowing where those might be inside the ladder)
-        #@ print "_f_reposition_baggage mostly nim on", self ####
+        if DEBUG_BONDPOINTS:
+            print "_f_reposition_baggage called on", self
         for atom in self.rail_end_baseatoms():
             if atom._f_dna_updater_should_reposition_baggage:
-                #@ print "should handle %r._f_dna_updater_should_reposition_baggage" % atom ####
+                if DEBUG_BONDPOINTS:
+                    print " calling %r.reposition_baggage_using_DnaLadder()" % atom
+                atom.reposition_baggage_using_DnaLadder()
+                    # fyi: as of 080404, the only case this handles is giving
+                    # an Ax with one axis bond a parallel open bond.
+                    # Note: only safe to call this after our chunks were remade!
+                    # and, if it turns out this ever needs to look inside
+                    # neighbor atom dnaladders (not in the same base pair),
+                    # we'll need to revise the caller to call it in a separate
+                    # loop over ladders than the one that calls remake_chunks
+                    # on all of them.
                 atom._f_dna_updater_should_reposition_baggage = False
+                    # probably redundant with that method
         #e assert no other atoms have that flag? Not true! interior Ax for single strand might have it.
-        # btw not enough code sets the flag yet.
         return
     
     # == chunk access methods

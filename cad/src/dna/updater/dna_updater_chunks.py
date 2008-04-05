@@ -254,9 +254,12 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         ladder._f_reposition_baggage() #bruce 080404
             # only for atoms with _f_dna_updater_should_reposition_baggage set
             # (and optimizes by knowing where those might be inside the ladder)
+            # (see comments inside it about what might require us
+            #  to do it in a separate loop after all chunks are remade)
 
-    ignore_new_changes("from remake_chunks", changes_ok = True)
-        # (changes are from parent chunk of atoms changing)
+    ignore_new_changes("from remake_chunks and _f_reposition_baggage", changes_ok = True)
+        # (changes are from parent chunk of atoms changing;
+        #  _f_reposition_baggage shouldn't cause any [#test, using separate loop])
 
     # Now make new wholechains on all merged_ladders,
     # let them own their atoms and markers (validating any markers found,
