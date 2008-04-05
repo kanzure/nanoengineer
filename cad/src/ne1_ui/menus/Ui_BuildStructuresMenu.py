@@ -14,7 +14,8 @@ def setupUi(win):
     @type  win: Ui_MainWindow
     """
     
-    # Populate the "Build Structures" menu.
+    # Populate the "Build Structures" menu. 
+    # Start with "Builders", then add single shot "Generators".
     win.buildStructuresMenu.addAction(win.toolsDepositAtomAction)
     win.buildStructuresMenu.addAction(win.buildDnaAction)
     
@@ -28,11 +29,14 @@ def setupUi(win):
     else:
         # Original "Build > Nanotube"
         win.buildStructuresMenu.addAction(win.nanotubeGeneratorAction)
-    
-    win.buildStructuresMenu.addAction(win.insertGrapheneAction)
+        
     win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
-    win.buildStructuresMenu.addAction(win.insertAtomAction)
+    
+    win.buildStructuresMenu.addSeparator() # Generators after this separator.
     win.buildStructuresMenu.addAction(win.insertPeptideAction) # piotr 080304
+    win.buildStructuresMenu.addAction(win.insertGrapheneAction)
+    win.buildStructuresMenu.addAction(win.insertAtomAction)
+    
     
 def retranslateUi(win):
     """

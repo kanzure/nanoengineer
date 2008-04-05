@@ -15,21 +15,17 @@ def setupUi(win):
     @type  win: Ui_MainWindow
     """
     
-    # Populate the "Reference Geometry" submenu.
-    win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
-    win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
+    # Populate the "Insert" menu.
+    win.insertMenu.addAction(win.partLibAction)
+    win.insertMenu.addAction(win.fileInsertMmpAction)
+    win.insertMenu.addAction(win.fileInsertPdbAction)
+    win.insertMenu.addSeparator()
+    win.insertMenu.addAction(win.referencePlaneAction)        
+    win.insertMenu.addAction(win.jigsGridPlaneAction)
     if debug_pref("Show Insert > Line option",
                   Choice_boolean_False,
                   prefs_key=True):
-        win.referenceGeometryMenu.addAction(win.referenceLineAction)
-        
-    # Populate the "Insert" menu.
-    win.insertMenu.addMenu(win.referenceGeometryMenu)
-    win.insertMenu.addAction(win.jigsAtomSetAction)
-    win.insertMenu.addSeparator()
-    win.insertMenu.addAction(win.fileInsertMmpAction)
-    win.insertMenu.addAction(win.fileInsertPdbAction)
-    win.insertMenu.addAction(win.partLibAction)
+        win.insertMenu.addAction(win.referenceLineAction)
     win.insertMenu.addSeparator()
     win.insertMenu.addAction(win.insertCommentAction)
     
@@ -51,6 +47,7 @@ def retranslateUi(win):
     win.insertMenu.setTitle(QtGui.QApplication.translate(
         "MainWindow", "&Insert", 
         None, QtGui.QApplication.UnicodeUTF8))
-    win.referenceGeometryMenu.setTitle(QtGui.QApplication.translate(
-        "MainWindow", "Reference Geometry", 
-        None, QtGui.QApplication.UnicodeUTF8))
+    # Removed by Mark 2008-04-05.
+    #win.referenceGeometryMenu.setTitle(QtGui.QApplication.translate(
+    #    "MainWindow", "Reference Geometry", 
+    #    None, QtGui.QApplication.UnicodeUTF8))

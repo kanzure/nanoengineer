@@ -21,8 +21,21 @@ def whatsThisTextForCommandToolbarBuildButton(button):
     button.setWhatsThis(
         """<b>Build</b>
         <p>
-         Drop down menu for switching between NanoEngineer-1 build modes. 
-         Clicking the Build button will add these modes to the Command Explorer
+        The NanoEngineer-1 <i>Build commands</i> for constructing structures 
+        interactively.
+        </p>""")
+    return
+
+def whatsThisTextForCommandToolbarInsertButton(button):
+    """
+    "What's This" text for the Insert button (menu).
+    """
+    button.setWhatsThis(
+        """<b>Insert</b>
+        <p>
+        The NanoEngineer-1 <i>Insert commands</i> for inserting reference
+        geometry, part files or other external structures into the current
+        model.
         </p>""")
     return
 

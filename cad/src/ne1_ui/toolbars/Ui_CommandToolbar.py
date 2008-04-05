@@ -65,6 +65,7 @@ from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandTool
 from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarToolsButton
 from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarMoveButton
 from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarSimulationButton
+from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForCommandToolbarInsertButton
 
 from PM.PM_Colors import getPalette
 
@@ -136,7 +137,7 @@ class Ui_CommandToolbar( QWidget ):
         self.cmdButtonGroup = QButtonGroup()    
         btn_index = 0
         
-        for name in ('Build', 'Tools', 'Move', 'Simulation'):
+        for name in ('Build', 'Insert', 'Tools', 'Move', 'Simulation'):
             btn = QToolButton(self.cmdToolbarControlArea)           
             btn.setObjectName(name)
             btn.setMinimumWidth(75)
@@ -194,6 +195,11 @@ class Ui_CommandToolbar( QWidget ):
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
                 btn.setToolTip("Build Commands")
                 whatsThisTextForCommandToolbarBuildButton(btn)
+            if str(btn.objectName()) == 'Insert':
+                btn.setMenu(self.win.insertMenu)
+                btn.setPopupMode(QToolButton.MenuButtonPopup)
+                btn.setToolTip("Insert Commands")
+                whatsThisTextForCommandToolbarInsertButton(btn)
             if str(btn.objectName()) == 'Tools':
                 #fyi: cmd stands for 'command toolbar' - ninad070406
                 self.win.cmdToolsMenu = QtGui.QMenu(self.win)

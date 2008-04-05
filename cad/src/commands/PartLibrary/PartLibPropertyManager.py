@@ -47,7 +47,7 @@ class PartLibPropertyManager(PastePropertyManager):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to the PNG file that appears in the header
-    iconPath = "ui/actions/Insert/Partlib.png"
+    iconPath = "ui/actions/Insert/Part_Library.png"
     
     def __init__(self, parentMode):
         """

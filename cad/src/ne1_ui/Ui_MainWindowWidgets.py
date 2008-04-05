@@ -439,44 +439,47 @@ def setupUi(win):
     win.insertMenu.setObjectName("Insert")
     
     # Create the "Reference Geometry" menu, a submenu of the "Insert" menu.
-    win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
-    win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
+    #win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
+    #win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
     win.jigsAtomSetAction = QtGui.QWidgetAction(MainWindow)
     win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set"))
     win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
 
-    win.fileInsertMmpAction = QtGui.QAction(MainWindow)
+    win.fileInsertMmpAction = QtGui.QWidgetAction(MainWindow)
     win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
     win.fileInsertMmpAction.setIcon(
-        geticon('ui/actions/Insert/Molecular_Machine_Part.png'))
+        geticon('ui/actions/Insert/MMP.png'))
     
-    win.fileInsertPdbAction = QtGui.QAction(MainWindow)
+    win.fileInsertPdbAction = QtGui.QWidgetAction(MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
+    win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB'))
 
-    win.partLibAction = QtGui.QAction(MainWindow)
+    win.partLibAction = QtGui.QWidgetAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
-    win.partLibAction.setText("Part from Part Library...")    
-    win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
+    win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library'))
     
-    win.insertCommentAction = QtGui.QAction(MainWindow)
-    win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))
+    win.insertCommentAction = QtGui.QWidgetAction(MainWindow)
+    win.insertCommentAction.setIcon(
+        geticon("ui/actions/Insert/Comment"))
     win.insertCommentAction.setObjectName("insertCommentAction")
 
-    win.insertPovraySceneAction = QtGui.QAction(MainWindow)
-    win.insertPovraySceneAction.setIcon(geticon("ui/actions/Insert/POV-Ray_Scene"))
+    win.insertPovraySceneAction = QtGui.QWidgetAction(MainWindow)
+    win.insertPovraySceneAction.setIcon(
+        geticon("ui/actions/Insert/POV-Ray_Scene"))
     win.insertPovraySceneAction.setObjectName("insertPovraySceneAction")
 
-    win.jigsGridPlaneAction = QtGui.QAction(MainWindow)
-    win.jigsGridPlaneAction.setIcon(geticon("ui/actions/Insert/Reference Geometry/Grid_Plane"))
+    win.jigsGridPlaneAction = QtGui.QWidgetAction(MainWindow)
+    win.jigsGridPlaneAction.setIcon(
+        geticon("ui/actions/Insert/Reference Geometry/Grid_Plane"))
     win.jigsGridPlaneAction.setObjectName("jigsGridPlaneAction")
 
-    win.referencePlaneAction = QtGui.QAction(MainWindow)
+    win.referencePlaneAction = QtGui.QWidgetAction(MainWindow)
     win.referencePlaneAction.setIcon(geticon(
         "ui/actions/Insert/Reference Geometry/Plane"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
 
-    win.referenceLineAction = QtGui.QAction(MainWindow)
+    win.referenceLineAction = QtGui.QWidgetAction(MainWindow)
     win.referenceLineAction.setIcon(geticon(
         "ui/actions/Insert/Reference Geometry/Plane"))
     win.referenceLineAction.setObjectName("referenceLineAction")
@@ -510,7 +513,8 @@ def setupUi(win):
 
     win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
-    win.modifyAdjustSelAction.setIcon(geticon("ui/actions/Tools/Adjust_Selection"))
+    win.modifyAdjustSelAction.setIcon(
+        geticon("ui/actions/Tools/Adjust_Selection"))
     win.modifyAdjustSelAction.setObjectName("modifyAdjustSelAction")
 
     win.modifyAdjustAllAction = QtGui.QWidgetAction(MainWindow)
@@ -518,7 +522,8 @@ def setupUi(win):
     win.modifyAdjustAllAction.setObjectName("modifyAdjustAllAction")
 
     win.simMinimizeEnergyAction = QtGui.QWidgetAction(MainWindow)
-    win.simMinimizeEnergyAction.setIcon(geticon("ui/actions/Simulation/Minimize_Energy"))
+    win.simMinimizeEnergyAction.setIcon(
+        geticon("ui/actions/Simulation/Minimize_Energy"))
     win.simMinimizeEnergyAction.setObjectName("simMinimizeEnergyAction")
 
     win.toolsExtrudeAction = QtGui.QWidgetAction(MainWindow)
@@ -527,18 +532,22 @@ def setupUi(win):
 
     win.toolsFuseChunksAction = QtGui.QWidgetAction(MainWindow)
     win.toolsFuseChunksAction.setCheckable(1) # make the Fuse Mode button checkable
-    win.toolsFuseChunksAction.setIcon(geticon("ui/actions/Tools/Build Tools/Fuse_Chunks"))
+    win.toolsFuseChunksAction.setIcon(
+        geticon("ui/actions/Tools/Build Tools/Fuse_Chunks"))
 
     win.modifyMirrorAction = QtGui.QWidgetAction(MainWindow)
-    win.modifyMirrorAction.setIcon(geticon("ui/actions/Tools/Build Tools/Mirror"))
+    win.modifyMirrorAction.setIcon(
+        geticon("ui/actions/Tools/Build Tools/Mirror"))
     win.modifyMirrorAction.setObjectName("modifyMirrorAction")
 
     win.modifyInvertAction = QtGui.QWidgetAction(MainWindow)
-    win.modifyInvertAction.setIcon(geticon("ui/actions/Tools/Build Tools/Invert"))
+    win.modifyInvertAction.setIcon(
+        geticon("ui/actions/Tools/Build Tools/Invert"))
     win.modifyInvertAction.setObjectName("modifyInvertAction")
 
     win.modifyStretchAction = QtGui.QWidgetAction(MainWindow)
-    win.modifyStretchAction.setIcon(geticon("ui/actions/Tools/Build Tools/Stretch"))
+    win.modifyStretchAction.setIcon(
+        geticon("ui/actions/Tools/Build Tools/Stretch"))
     win.modifyStretchAction.setObjectName("modifyStretchAction")
 
     #== "Tools > Build Structures" (menu and toolbar) widgets.
@@ -1335,27 +1344,27 @@ def retranslateUi(win):
         "MainWindow",  "Atom Set",  None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Molecular Machine Part file...", 
+        "MainWindow", "MMP file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Insert MMP", 
+        "MainWindow", "MMP file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert MMP file", 
+        "MainWindow", "Insert Molecular Machine Part (MMP) file", 
         None, QtGui.QApplication.UnicodeUTF8))
     
     win.fileInsertPdbAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Protein Data Bank file...", 
+        "MainWindow", "PDB file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertPdbAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Insert PDB", 
+        "MainWindow", "PDB file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertPdbAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert PDB file", 
+        "MainWindow", "Insert Protein Data Bank (PDB) file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.insertCommentAction.setIconText(QtGui.QApplication.translate(
@@ -1371,11 +1380,24 @@ def retranslateUi(win):
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.jigsGridPlaneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Grid Plane...", 
+        "MainWindow", "Grid Plane", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.referencePlaneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Plane...", 
+        "MainWindow", "Plane",
+        None, QtGui.QApplication.UnicodeUTF8))
+    
+    # Part Lib
+    win.partLibAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Part Library", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.partLibAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Part from Part Library", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.partLibAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Insert Part from Part Library", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     #= Tools (menu and toolbar) actions.
@@ -1507,7 +1529,7 @@ def retranslateUi(win):
         QtGui.QApplication.UnicodeUTF8))
     win.nanotubeGeneratorAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Nanotube Generator (old)", 
+        "Generate Nanotube (old)", 
         None,
         QtGui.QApplication.UnicodeUTF8))
     win.insertGrapheneAction.setIconText(QtGui.QApplication.translate(
@@ -1517,7 +1539,7 @@ def retranslateUi(win):
         QtGui.QApplication.UnicodeUTF8))
     win.insertGrapheneAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Build Graphene Sheet", 
+        "Generate Graphene", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
     win.buildDnaAction.setText(QtGui.QApplication.translate(
@@ -1559,7 +1581,7 @@ def retranslateUi(win):
         QtGui.QApplication.UnicodeUTF8))
     win.insertAtomAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Atom Generator (Developer Example)", 
+        "Generate Atom (Developer Example)", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
 
@@ -1571,7 +1593,7 @@ def retranslateUi(win):
         QtGui.QApplication.UnicodeUTF8))
     win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
-        "Peptide Generator", 
+        "Generate Peptide", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
 

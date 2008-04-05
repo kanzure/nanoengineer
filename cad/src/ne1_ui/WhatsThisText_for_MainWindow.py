@@ -954,7 +954,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         "<u><b>Part Library</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/Insert/Partlib.png\"><br> "\
+        "<img source=\"ui/actions/Insert/Part_Library.png\"><br> "\
         "Prompts the user to select an .mmp file from the NanoEngineer-1 "\
         "Part Library to be inserted into the current part. "\
         "</p>"

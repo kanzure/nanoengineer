@@ -22,6 +22,7 @@ def setupUi(win, toolbarArea):
     win.addToolBar(toolbarArea, win.buildStructuresToolBar)
     
     # Populate the "Build Structures" toolbar.
+    # Begin with "Builders", then add single shot "Generators".
     win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
     win.buildStructuresToolBar.addAction(win.buildDnaAction)
     
@@ -35,15 +36,17 @@ def setupUi(win, toolbarArea):
     else:
         # Original "Build > Nanotube"
         win.buildStructuresToolBar.addAction(win.nanotubeGeneratorAction)
-    
-    win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
+        
     win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)
     
-    # This adds the Atom Generator example for developers.
-    win.buildStructuresToolBar.addAction(win.insertAtomAction)
+    win.buildStructuresToolBar.addSeparator() # Generators after this.
     
     # This adds the Peptide Generator (piotr 080304)
     win.buildStructuresToolBar.addAction(win.insertPeptideAction)
+    win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
+    
+    # This adds the Atom Generator example for developers.
+    win.buildStructuresToolBar.addAction(win.insertAtomAction)
 
 def retranslateUi(win):
     """

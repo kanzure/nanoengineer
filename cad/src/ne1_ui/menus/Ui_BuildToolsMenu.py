@@ -25,6 +25,7 @@ def setupUi(win):
     win.buildToolsMenu.addAction(win.modifyAlignCommonAxisAction)
     win.buildToolsMenu.addAction(win.modifyCenterCommonAxisAction)
     win.buildToolsMenu.addSeparator() 
+    win.buildToolsMenu.addAction(win.jigsAtomSetAction)
 
 def retranslateUi(win):
     """
