@@ -24,7 +24,4 @@ import main # the NE1 main program file
 import ExecSubDir # a Python script which needs to remain in cad/src
     # [bruce 071008]
 
-import graphics.drawables.Selobj as Selobj # a draft API file, soon to be renamed and imported from NE1
-    # [bruce 071008]
-
 # end
