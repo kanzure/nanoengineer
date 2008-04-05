@@ -54,33 +54,17 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         return chain_or_ring.iteratoms()
             # note: it's essential to include Pl atoms in this value,
             # for sake of find_chain_or_ring's dict.pop.
-    __first_ok_atom = None ### LOGIC BUG: this instance is used to find more than one chain!
-    def atom_ok(self, atom):
+    def bond_ok(self, bond):
         """
         [implements abstract_bond_chain_analyzer subclass API method]
         """
-        #bruce 080401, wrap subclass atom_ok_by_itself methods
-        # (renamed to permit wrapping them),
-        # so we can check all atoms allowed in same DnaLadder
-        if not self.atom_ok_by_itself(atom):
-            return False
-        # REVIEW/TEST: does this get called on the very first atom?
-        # (In other words, on all atoms we end up including?)
-        # REVIEW/TEST: when this rejects an atom, does that cause any trouble
-        # in starting with that atom (or including it) when finding another
-        # chain?
-        if self.__first_ok_atom is None:
-            # WORK AROUND LOGIC BUG: never initialize this (disables the feature):
-            ## self.__first_ok_atom = atom
-            # To fix this we could have a new-chain-starting method...
-            # [bruce 080404]
-            return True
-        return PAM_atoms_allowed_in_same_ladder( self.__first_ok_atom, atom ) # BUG - never called - see above
+        #bruce 080405; note that this function permits bondpoints
+        return PAM_atoms_allowed_in_same_ladder( bond.atom1, bond.atom2 )
     pass
     
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = AxisChain
-    def atom_ok_by_itself(self, atom):
+    def atom_ok(self, atom):
         if not atom.molecule:
             # I've seen this after Undo, presumably since it's buggy [080122]
             # (To repeat: make a duplex, delete some atoms, Undo, Redo.
@@ -96,7 +80,7 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
 
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = StrandChain
-    def atom_ok_by_itself(self, atom):
+    def atom_ok(self, atom):
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
         # the atom list it stores.

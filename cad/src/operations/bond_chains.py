@@ -158,6 +158,10 @@ class abstract_bond_chain_analyzer:
     def atom_ok(self, atom):
         """
         Subclass-specific primitive for whether an atom qualifies.
+
+        @note: if an atom is only ok if it matches the prior atom in some way,
+               use bond_ok instead, for that part of the condition.
+        
         [subclass should override]
         """
         return True
@@ -170,7 +174,7 @@ class abstract_bond_chain_analyzer:
 
         This class's methods never call self.bond_ok on a bond
         unless at least one of that bond's atoms satisfies atom_ok.
-        And they never pay attention to bond_ok returning True
+        And they never pay attention to what bond_ok returns
         unless both its atoms satisfy atom_ok.
         """
         return True
@@ -470,12 +474,6 @@ class abstract_bond_chain_analyzer:
         else:
             subres = self._found_1atom_chain([atom])
         return subres
-# alt implem from when our meat was inlined into our caller; untested; remove after commit:
-##        res = self.find_chains_or_rings( {atom.key : atom} )
-##        if not res:
-##            return None
-##        assert len(res) == 1
-##        return res[0]
     pass # end of class abstract_bond_chain_analyzer
 
 # end
