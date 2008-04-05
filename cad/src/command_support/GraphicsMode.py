@@ -899,9 +899,9 @@ class basicGraphicsMode(GraphicsMode_API):
                 # (Old behavior was to use the same pref as for zooming in.)
                 #e [Should this be a separate user pref? For now it's a debug pref, just for testing.
                 #   We might replace these two prefs with a 3-choice pref which controls them both.]
-                from utilities.debug_prefs import debug_pref, Choice_boolean_False
-                if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_False,
-                              prefs_key = "A9 devel/GLPane: zoom out same as zoom in?"
+                from utilities.debug_prefs import debug_pref, Choice_boolean_True
+                if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_True,
+                              prefs_key = "A10/GLPane: zoom out same as zoom in?"
                               ):
                     recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
                 else:
