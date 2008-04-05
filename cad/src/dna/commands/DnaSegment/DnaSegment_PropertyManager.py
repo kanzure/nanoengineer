@@ -252,14 +252,14 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         self.nameLineEdit = PM_LineEdit( pmGroupBox,
-                         label         =  "Segment name ",
+                         label         =  "Segment name:",
                          text          =  "",
                          setAsDefault  =  False)
                                                    
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Base Pairs :", 
+                        label         =  "Base Pairs:", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  2,

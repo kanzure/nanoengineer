@@ -99,13 +99,13 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         self.nameLineEdit = PM_LineEdit( pmGroupBox,
-                         label         =  "Strand name ",
+                         label         =  "Strand name:",
                          text          =  "",
                          setAsDefault  =  False)
         
         self.numberOfBasesSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of base atoms :", 
+                        label         =  "Number of base atoms:", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  2,
