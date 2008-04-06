@@ -52,6 +52,7 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNX_DEBUG
 
 TARGETDEPS += ../../../../lib/libNanorexInterface.so \
   ../../../../lib/libNanorexUtility.so
