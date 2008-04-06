@@ -10,13 +10,15 @@ delete_bare_atoms.py - delete atoms lacking required neighbors
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM3_atoms
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM5_atoms
 
+from dna.model.DnaLadder import PAM_atoms_allowed_in_same_ladder
+
 from model.elements import Pl5
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 # ==
 
-def delete_bare_atoms( changed_atoms):
+def delete_bare_atoms( changed_atoms): # rename; also make not delete, just error (### need to review error propogation system)
     """
     Delete excessively-bare atoms (defined as axis atoms without strand atoms,
      or any other PAM atoms that are not allowed to exist with as few neighbors
@@ -43,7 +45,9 @@ def delete_bare_atoms( changed_atoms):
     fix_PAM3 = pref_fix_bare_PAM3_atoms()
     fix_PAM5 = pref_fix_bare_PAM5_atoms()
 
-    delete_these = []
+    delete_these_atoms = [] # change to mark them as errors
+
+    fix_these_bonds = {} # id(bond) -> bond
     
     for atom in changed_atoms.itervalues():
         pam = atom.element.pam
@@ -52,9 +56,41 @@ def delete_bare_atoms( changed_atoms):
                (pam == MODEL_PAM5 and fix_PAM5):
                 if not atom.killed():
                     if atom_is_bare(atom):
-                        delete_these.append(atom)
+                        delete_these_atoms.append(atom)
+                    else:
+                        # Do something about rung bonds between mismatched PAM atoms
+                        # (in pam model or pam3+5 properties)
+                        # [bruce 080405 new feature, for PAM3+5 safety]
+                        # Note: if this kills bonds, we'd need to do that first,
+                        # then recheck atom_is_bare (or always check it later).
+                        # But it doesn't.
+                        for bond in atom.bonds:
+                            if bond.is_rung_bond():
+                                if not PAM_atoms_allowed_in_same_ladder(bond.atom1, bond.atom2):
+                                    fix_these_bonds[id(bond)] = bond
 
-    for atom in delete_these:
+    for bond in fix_these_bonds.values():
+        # REVIEW: can one of its atoms be in delete_these_atoms?
+        # (probably doesn't matter even if it is)
+        print "*** need to fix this bad rung bond (nim, so bugs will ensue): %r" % bond #####
+        # pam model mismatch: mark them as errors, so not in any chains or ladders
+        # pam option mismatch: reset options to default on all chunks connected by rung bonds (or could mark as errors)
+        # other (if possible) (eg display styles, if that matters) --
+        #  those differences would be ok here, only matters along axis
+        #  (we'll make the func distinguish this if it ever looks at those)
+        #
+        # no need to be fast, this only happens for rare errors
+        a1, a2 = bond.atom1, bond.atom2
+        if a1.element.pam != a2.element.pam:
+            # since it's a rung bond, we know the pams are both set
+            print " nim: mark as errors", a1, a2 ## NIM here, look up how other code does it before propogation
+        elif a1.molecule.display_as_pam != a2.molecule.display_as_pam or \
+             a1.molecule.save_as_pam != a2.molecule.save_as_pam:
+            # transclose to find chunks connected by rung bonds, put in a dict, reset pam props below
+            print " nim: reset pam props starting at", a1, a2
+        continue
+    
+    for atom in delete_these_atoms:
         atom.kill()
 
     return
