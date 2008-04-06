@@ -41,7 +41,7 @@ void NXSGDeleteTesterNode::deleteRecursive(void)
 void NXSceneGraphTest::setUp(void)
 {
 #ifdef NX_DEBUG
-	NXSGNode::ResetIdSource();
+	// NXSGNode::ResetIdSource();
 #endif
     for(int i=0; i<6; ++i)
         nodes[i] = new NXSGApplyTesterNode;
@@ -59,11 +59,13 @@ void NXSceneGraphTest::tearDown(void)
 //     }
 }
 
+#if 0
 void NXSceneGraphTest::reset(void)
 {
     for(int i=0; i<7; ++i)
         nodes[i]->reset();
 }
+#endif
 
 void NXSceneGraphTest::makeTree(NXSGNode* nodes[7])
 {
@@ -89,7 +91,7 @@ void NXSceneGraphTest::makeInvertedTree(NXSGNode* nodes[7])
     nodes[6]->addChild(nodes[0]);
 }
 
-void NXSceneGraphTest::refCountTest(void)
+void NXSceneGraphTest::refCountTest1(void)
 {
     // don't know if CppUnit will run this test first
     // re-setup to test initialization
@@ -112,7 +114,13 @@ void NXSceneGraphTest::refCountTest(void)
     CPPUNIT_ASSERT(nodes[0]->getRefCount()==0);
 	// CPPUNIT_ASSERT(nodes[1]->decrementRefCount()==0);
     
-    reset();
+	for(int i=0; i<7; ++i)
+		delete nodes[i];
+}
+
+void NXSceneGraphTest::refCountTest2(void)
+{
+	// reset();
     makeInvertedTree(nodes);
     CPPUNIT_ASSERT(nodes[0]->getRefCount()==4);
     CPPUNIT_ASSERT(nodes[0]->getNumChildren()==0);
@@ -128,7 +136,7 @@ void NXSceneGraphTest::refCountTest(void)
 
 void NXSceneGraphTest::childManipTest(void)
 {
-    reset();
+	// reset();
     // Form the tree
     nodes[0]->addChild(nodes[1]);
     nodes[0]->addChild(nodes[2]);
@@ -171,7 +179,7 @@ void NXSceneGraphTest::childManipTest(void)
 	delete nodes[0];
 }
 
-void NXSceneGraphTest::applyTest(void)
+void NXSceneGraphTest::applyTest1(void)
 {
     // static count variable should initially be zero
     CPPUNIT_ASSERT(NXSGApplyTesterNode::GetNumApplications()==0);
@@ -185,7 +193,7 @@ void NXSceneGraphTest::applyTest(void)
     NXSGApplyTesterNode::ResetNumApplications();
     delete applyTesterNode;
     
-    reset();
+	// reset();
     makeTree(nodes);
     ok = nodes[0]->applyRecursive();
     // because nodes[6] is a blocker, ok == false and 6 applications
@@ -223,12 +231,17 @@ void NXSceneGraphTest::applyTest(void)
 	CPPUNIT_ASSERT(nodes[0]->removeChild(lastNode));
 	// this deletes lastNode because reference-count would have become zero
 	
+	delete nodes[0];
+}
+
+void NXSceneGraphTest::applyTest2(void)
+{
     // test with inverted tree
-    reset();
+	// reset();
     makeInvertedTree(nodes);
     NXSGApplyTesterNode::ResetNumApplications();
     assert(NXSGApplyTesterNode::GetNumApplications()==0);
-    ok = nodes[3]->applyRecursive();
+    bool ok = nodes[3]->applyRecursive();
     CPPUNIT_ASSERT(ok);
     CPPUNIT_ASSERT(NXSGApplyTesterNode::GetNumApplications()==4);
     
@@ -269,7 +282,7 @@ void NXSceneGraphTest::deleteRecursiveTest(void)
 
 void NXSceneGraphTest::isLeafTest(void)
 {
-    reset();
+	// reset();
     makeTree(nodes);
     for(int i=0; i<3; ++i)
         CPPUNIT_ASSERT(!nodes[i]->isLeaf());

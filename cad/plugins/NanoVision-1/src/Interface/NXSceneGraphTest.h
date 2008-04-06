@@ -66,9 +66,11 @@ private:
 class NXSceneGraphTest: public CPPUNIT_NS::TestFixture {
     
     CPPUNIT_TEST_SUITE(NXSceneGraphTest);
-    CPPUNIT_TEST(refCountTest);
-    CPPUNIT_TEST(childManipTest);
-    CPPUNIT_TEST(applyTest);
+    CPPUNIT_TEST(refCountTest1);
+	CPPUNIT_TEST(refCountTest2);
+	CPPUNIT_TEST(childManipTest);
+    CPPUNIT_TEST(applyTest1);
+	CPPUNIT_TEST(applyTest2);
 	// CPPUNIT_TEST(deleteRecursiveTest);
     CPPUNIT_TEST(isLeafTest);
     CPPUNIT_TEST_SUITE_END();
@@ -77,14 +79,16 @@ public:
     void setUp();
     void tearDown();
     
-    void reset();
+	// void reset();
     static void makeTree(NXSGNode* nodes[7]);
     static void makeInvertedTree(NXSGNode* nodes[7]);
     
     // tests increment, decrement, accessor
-    void refCountTest();
-    void childManipTest();
-    void applyTest();
+    void refCountTest1();
+	void refCountTest2();
+	void childManipTest();
+    void applyTest1();
+	void applyTest2();
 	// void deleteRecursiveTest();
     void isLeafTest();
     
