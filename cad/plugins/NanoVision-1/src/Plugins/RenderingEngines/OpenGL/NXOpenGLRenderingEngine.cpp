@@ -14,6 +14,13 @@ using namespace std;
 using namespace OpenBabel;
 
 
+#ifdef NX_DEBUG
+#define NX_DEBUG_FAIL assert(0)
+#else
+#define NX_DEBUG_FAIL
+#endif
+
+
 NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
 : QGLWidget(parent), NXRenderingEngine(), camera(this)
 {
@@ -355,6 +362,8 @@ NXOpenGLRenderingEngine::createSceneGraph (NXMoleculeSet *const molSetPtr)
 		return NULL;
 	}
 	
+	renderedAtoms.clear();
+	renderedBonds.clear();
 	NXSGOpenGLNode *node = createOpenGLSceneGraph(molSetPtr);
 	return static_cast<NXSGNode*>(node);
 }
@@ -365,7 +374,7 @@ NXSGNode* createSceneGraph (OpenBabel::OBMol *const molPtr) {
 	// Do nothing if no rendering plugins
 	if(!pluginsInitialized) {
 		SetResult(commandResult, NX_INTERNAL_ERROR,
-		          "Rendering plugin not set/initialized");
+"Rendering plugin not set/initialized");
 		return NULL;
 	}
 	ClearResult(commandResult);
@@ -402,10 +411,13 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 		   commandResult.getResult() == (int) NX_CMD_SUCCESS)
 		{
 			bool childAdded = moleculeSetNode->addChild(molNode);
-			if(!childAdded)
+			if(!childAdded) {
+				NX_DEBUG_FAIL;
 				return moleculeSetNode;
+			}
 		}
 		else {
+			NX_DEBUG_FAIL;
 			return moleculeSetNode;
 		}
 		/// @todo POST-FNANO: delete molNode upon failures?
@@ -421,10 +433,13 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 		   commandResult.getResult() == (int) NX_CMD_SUCCESS)
 		{
 			bool childAdded = moleculeSetNode->addChild(childMoleculeSetNode);
-			if(!childAdded)
+			if(!childAdded) {
+				NX_DEBUG_FAIL;
 				return moleculeSetNode;
+			}
 		}
 		else {
+			NX_DEBUG_FAIL;
 			return moleculeSetNode;
 		}
 		/// @todo POST-FNANO: delete childMoleculeSetNode upon failures?
@@ -433,22 +448,34 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 }
 
 
-NXSGOpenGLNode* NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
+NXSGOpenGLNode*
+NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 {
 	assert(!molPtr->Empty());
 	
 	Vector const canonicalZAxis(0.0, 0.0, 1.0);
-	set<OBAtom*> renderedAtoms; // tracks atoms already rendered
 	OBAtomIterator atomIter;
 	
-    // first atom
+    // Find first atom that is not already rendered
+	// Necessary because bonds can bridge molecules and molecule-sets and in
+	// the case of the second to last molecules rendered, their first atoms
+	// may have been rendered while traversing the previous molecules.
+	
 	OBAtom *firstAtomPtr = molPtr->BeginAtom(atomIter);
+	
 	if(firstAtomPtr == (OBAtom*) NULL) {
 		string const source("Molecule scenegraph creation");
 		string const msg("empty molecule slipped past check");
-		SetResult(commandResult, NX_INTERNAL_ERROR, source+" - "+msg);
+		SetResult(commandResult, NX_INTERNAL_ERROR, source + " - " + msg);
+		NX_DEBUG_FAIL;
 		return (NXSGOpenGLNode*) NULL;
 	}
+	
+	while(firstAtomPtr != (OBAtom*) NULL && isRendered(firstAtomPtr))
+		firstAtomPtr = molPtr->NextAtom(atomIter);
+	
+	if(firstAtomPtr == (OBAtom*) NULL)
+		return new NXSGOpenGLNode;
 	
 	Vector const firstAtomPosition(firstAtomPtr->GetX(),
 	                               firstAtomPtr->GetY(),
@@ -468,12 +495,12 @@ NXSGOpenGLNode* NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const mol
 		SetResult(commandResult,
 		          NX_INTERNAL_ERROR,
 		          "Error translating to first atom position");
+		NX_DEBUG_FAIL;
 		return NULL;
 	}
 	
 	NXSGOpenGLNode *firstAtomNode =
-		createOpenGLSceneGraph(molPtr, firstAtomPtr,
-		                       renderedAtoms, canonicalZAxis);
+		createOpenGLSceneGraph(molPtr, firstAtomPtr, canonicalZAxis);
 	if(firstAtomNode != NULL && 
 	   commandResult.getResult() == (int) NX_CMD_SUCCESS)
 	{
@@ -482,10 +509,12 @@ NXSGOpenGLNode* NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const mol
 		if(!childAdded) {
 			SetResult(commandResult, NX_INTERNAL_ERROR,
 			          "Error adding child to first atom node");
+			NX_DEBUG_FAIL;
 			return rootMoleculeNode;
 		}
 	}
 	else {
+		NX_DEBUG_FAIL;
         // either scenegraph could not be created or was created partially
         // commandResult should hold the error
 		return rootMoleculeNode;
@@ -494,68 +523,117 @@ NXSGOpenGLNode* NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const mol
 	
     // rest of the atoms
 	OBAtom *atomPtr = molPtr->NextAtom(atomIter);
-	while(atomPtr != (OBAtom*) NULL) {
-		set<OBAtom*>::iterator memberIter = renderedAtoms.find(atomPtr);
-		if(memberIter == renderedAtoms.end()) { // atom not already rendered
-			Vector const atomPosition(atomPtr->GetX(),
-			                          atomPtr->GetY(),
-			                          atomPtr->GetZ());
-			Vector const atomRelativePosition = 
-				(atomPosition - firstAtomPosition);
+	for(; atomPtr != (OBAtom*) NULL;
+	    atomPtr = molPtr->NextAtom(atomIter))
+	{
+		if(isRendered(atomPtr)) // atom already rendered
+			continue;
+		
+		Vector const atomPosition(atomPtr->GetX(),
+		                          atomPtr->GetY(),
+		                          atomPtr->GetZ());
+		Vector const atomRelativePosition = 
+			(atomPosition - firstAtomPosition);
             // move scenegraph "cursor" to this atom
-			NXSGOpenGLTranslate *translateToAtomNode = NULL;
-			try {
-				translateToAtomNode =
-					new NXSGOpenGLTranslate(atomRelativePosition.x(),
-					                        atomRelativePosition.y(),
-					                        atomRelativePosition.z());
-			}
-			catch(...) {
-				if(translateToAtomNode != NULL)
-					delete translateToAtomNode;
-				SetResult(commandResult, NX_INTERNAL_ERROR,
-				          "Error translating to atom");
-				return rootMoleculeNode;
-			}
-			
-			bool childAdded = rootMoleculeNode->addChild(translateToAtomNode);
+		NXSGOpenGLTranslate *translateToAtomNode = NULL;
+		try {
+			translateToAtomNode =
+				new NXSGOpenGLTranslate(atomRelativePosition.x(),
+				                        atomRelativePosition.y(),
+				                        atomRelativePosition.z());
+		}
+		catch(...) {
+			if(translateToAtomNode != NULL)
+				delete translateToAtomNode;
+			SetResult(commandResult, NX_INTERNAL_ERROR,
+			          "Error translating to atom");
+			NX_DEBUG_FAIL;
+			return rootMoleculeNode;
+		}
+		
+		bool childAdded = rootMoleculeNode->addChild(translateToAtomNode);
+		if(!childAdded) {
+			SetResult(commandResult, NX_INTERNAL_ERROR,
+			          "Error adding translate-to-atom node to molecule root");
+			NX_DEBUG_FAIL;
+			return rootMoleculeNode;
+		}
+			/// @todo POST-FNANO delete translateToAtomNode upon failure?
+		
+            // render subscenegraph rooted at this atom
+		NXSGOpenGLNode *atomNode = 
+			createOpenGLSceneGraph(molPtr, atomPtr, canonicalZAxis);
+		
+		if(atomNode != NULL &&
+		   commandResult.getResult() == (int) NX_CMD_SUCCESS)
+		{
+			bool childAdded = translateToAtomNode->addChild(atomNode);
 			if(!childAdded) {
 				SetResult(commandResult, NX_INTERNAL_ERROR,
-				          "Error adding translate-to-atom node to molecule root");
+				          "Error submolecule scenegraph as child of "
+				          "translation");
+				NX_DEBUG_FAIL;
 				return rootMoleculeNode;
 			}
-			/// @todo POST-FNANO delete translateToAtomNode upon failure?
-
-            // render subscenegraph rooted at this atom
-			NXSGOpenGLNode *atomNode = 
-				createOpenGLSceneGraph(molPtr, atomPtr,
-				                       renderedAtoms, canonicalZAxis);
-			if(atomNode != NULL &&
-			   commandResult.getResult() == (int) NX_CMD_SUCCESS)
-			{
-				bool childAdded = translateToAtomNode->addChild(atomNode);
-				if(!childAdded) {
-					SetResult(commandResult, NX_INTERNAL_ERROR,
-					          "Error submolecule scenegraph as child of "
-					          "translation");
-					return rootMoleculeNode;
-				}
-			}
-			else {
-				return rootMoleculeNode;
-			}
-			/// @todo POST-FNANO delete atomNode upon failures?
 		}
-		atomPtr = molPtr->NextAtom(atomIter);
-	}
+		else {
+			NX_DEBUG_FAIL;
+			return rootMoleculeNode;
+		}
+			/// @todo POST-FNANO delete atomNode upon failures?
+	} // loop over atoms
+	
 	return rootMoleculeNode;
 }
 
 
 NXSGOpenGLNode*
+NXOpenGLRenderingEngine::getRotationNode(Vector const& zAxis,
+                                         Vector const& newZAxis)
+{
+	double const dotProduct = zAxis * newZAxis;
+	
+	if(dotProduct < 0.99999) {
+		// Angle between both vectors is more than 0.25 degrees 
+		// therefore there is a well-defined rotation
+		real const rotationAngleDeg =
+			acos(dotProduct) * 180.0 / M_PI;
+		
+		Vector rotationAxis = xProduct(zAxis, newZAxis);
+		rotationAxis.normalize();
+		
+		NXSGOpenGLRotate *rotateZAxisNode = NULL;
+		try {
+			rotateZAxisNode =
+				new NXSGOpenGLRotate(rotationAngleDeg,
+				                     rotationAxis.x(),
+				                     rotationAxis.y(),
+				                     rotationAxis.z());
+		}
+		catch(...) {
+			SetResult(commandResult, NX_INTERNAL_ERROR,
+			          "Error creating axis rotation scenegraph node");
+			NX_DEBUG_FAIL;
+			return NULL;
+		}
+		
+		return rotateZAxisNode;
+	}
+	else {
+		// length of cross-product is below 1%
+		// therefore the two z-axes are parallel to within numerical error
+		// bypass creation of rotation scenegraph node
+		return NULL;
+		
+	}
+	
+}
+
+/// Render given atom in the molecule in a depth-first manner
+/// Update the rendered-atoms set to include this atom if successful
+NXSGOpenGLNode*
 NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
                                                 OBAtom *const atomPtr,
-                                                set<OBAtom*>& renderedAtoms,
                                                 Vector const& zAxis)
 {
 	// Precondition: *atomPtr shouldn't have been rendered
@@ -565,6 +643,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	if(!pluginsInitialized) {
 		SetResult(commandResult, NX_INTERNAL_ERROR,
 		          "Rendering plugin not set/initialized");
+		NX_DEBUG_FAIL;
 		return NULL;
 	}
 	
@@ -602,9 +681,13 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	assert(atomData != NULL);
 	string const& atomRenderStyleCode = atomData->getRenderStyleCode();
 	atomData->addSupplementalData(static_cast<void const*>(&defaultAtomMaterial));
+	/// @todo consider if supplemental data can be added repeatedly and the
+	/// corresponding vector grows needlessly
+	
 	
 	// The following dynamic_cast is ok because plugins were type-checked at
 	// initialization time
+	/// @fixme Use qobject_cast instead of static_cast? dynamic_cast won't work
 	NXOpenGLRendererPlugin *renderer =
 		static_cast<NXOpenGLRendererPlugin*>(renderStyleMap[atomRenderStyleCode]);
 	if(renderer == (NXOpenGLRendererPlugin*) NULL) {
@@ -613,11 +696,13 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 		          "No renderer-plugin found for rendering-style-code '" +
 		          atomRenderStyleCode + "'");
 		/// @todo POST-FNANO more descriptive error message - which atom# and moleculeSet
+		NX_DEBUG_FAIL;
 		return (NXSGOpenGLNode*) NULL;
 	}
 	NXSGOpenGLNode *const atomNode = renderer->renderAtom(*atomData);
 	if(atomNode == NULL) {
 		commandResult = renderer->getCommandResult();
+		NX_DEBUG_FAIL;
 		return NULL;
 	}
 	renderedAtoms.insert(atomPtr); // mark as rendered
@@ -628,98 +713,144 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	for(bondPtr = atomPtr->BeginBond(bondIter);
 	    bondPtr != NULL;
 	    bondPtr = atomPtr->NextBond(bondIter))
+	
 	{
-        // compute bond orientation
 		OBAtom *const nbrAtomPtr = bondPtr->GetNbrAtom(atomPtr);
+		assert(nbrAtomPtr != atomPtr);
 		Vector const nbrAtomPosition(nbrAtomPtr->GetX(),
 		                             nbrAtomPtr->GetY(),
 		                             nbrAtomPtr->GetZ());
-		Vector newZAxis = (nbrAtomPosition - atomPosition);
+		Vector const nbrAtomRelativePosition = (nbrAtomPosition - atomPosition);
+		Vector newZAxis = nbrAtomRelativePosition;
 		newZAxis.normalize();
-		Vector const rotationAxis = xProduct(zAxis, newZAxis);
-		real const rotationAngleDeg = acos(newZAxis * zAxis) * 180.0 / M_PI;
 		
-        // align z-axis with bond
-		NXSGOpenGLRotate *rotateZAxisNode = NULL;
-		try {
-			rotateZAxisNode =
-				new NXSGOpenGLRotate(rotationAngleDeg,
-				                     rotationAxis.x(),
-				                     rotationAxis.y(),
-				                     rotationAxis.z());
-		}
-		catch(...) {
-			SetResult(commandResult, NX_INTERNAL_ERROR,
-			          "Error creating axis rotation scenegraph node");
-			return atomNode;
-		}
+		if(!isRendered(bondPtr)) {
+        // compute bond orientation
+			
+			// Rotate z-axis to align with bond-direction if necessary
+			NXSGOpenGLNode *rotateZAxisNode = getRotationNode(zAxis,newZAxis);
+			if(rotateZAxisNode == NULL)
+				rotateZAxisNode = atomNode;
+			
+			else {
+				bool childAdded = atomNode->addChild(rotateZAxisNode);
+				if(!childAdded) {
+					SetResult(commandResult, NX_INTERNAL_ERROR,
+					          "Error adding rotation node as child to atom node");
+					NX_DEBUG_FAIL;
+					return atomNode;
+				}	
+			}
+			
+			void const *const defBondMatPtr = 
+				static_cast<void const*>(&defaultBondMaterial);
+			NXBondData bondRenderData((BondType)bondPtr->GetBondOrder(),
+			                          bondPtr->GetLength());
+			bondRenderData.addSupplementalData(defBondMatPtr);
+			NXSGOpenGLNode *const bondNode = renderer->renderBond(bondRenderData);
+			if(bondNode == NULL) {
+				commandResult = renderer->getCommandResult();
+				NX_DEBUG_FAIL;
+				return atomNode;
+			}
+			bool const childAdded = rotateZAxisNode->addChild(bondNode);
+			if(!childAdded) {
+				SetResult(commandResult, NX_INTERNAL_ERROR,
+				          "Error adding bond node to z-axis rotation node");
+				NX_DEBUG_FAIL;
+				return atomNode;
+			}
+			
+			markBondRendered(bondPtr);
+			
+		} // if bond not already rendered
 		
-		bool childAdded = atomNode->addChild(rotateZAxisNode);
-		if(!childAdded) {
-			SetResult(commandResult, NX_INTERNAL_ERROR,
-			          "Error adding rotation node as child to atom node");
-			return atomNode;
-		}
 		
-		void const *const defBondMatPtr = 
-			static_cast<void const*>(&defaultBondMaterial);
-		NXBondData bondRenderData((BondType)bondPtr->GetBondOrder(),
-		                          bondPtr->GetLength());
-		bondRenderData.addSupplementalData(defBondMatPtr);
-		NXSGOpenGLNode *const bondNode = renderer->renderBond(bondRenderData);
-		if(bondNode == NULL) {
-			commandResult = renderer->getCommandResult();
-			return atomNode;
-		}
-		childAdded = rotateZAxisNode->addChild(bondNode);
-		if(!childAdded) {
-			SetResult(commandResult, NX_INTERNAL_ERROR,
-			          "Error adding bond node to z-axis rotation node");
-			return atomNode;
-		}
-        // render neighbouring atom not already done, render submolecule
-		set<OBAtom*>::iterator memberIter = renderedAtoms.find(nbrAtomPtr);
-		if(memberIter == renderedAtoms.end()) {
+		if(!isRendered(nbrAtomPtr)) {
 			
             // translate to neighbouring atom center
-			double const bondLength = bondPtr->GetLength();
+			// double const bondLength = bondPtr->GetLength();
 			NXSGOpenGLTranslate *translateToNbrAtomNode = NULL;
 			try {
 				translateToNbrAtomNode =
-					new NXSGOpenGLTranslate(0.0, 0.0, bondLength);
+					new NXSGOpenGLTranslate(nbrAtomRelativePosition.x(),
+					                        nbrAtomRelativePosition.y(),
+					                        nbrAtomRelativePosition.z());
 			}
 			catch(...) {
 				SetResult(commandResult, NX_INTERNAL_ERROR,
 				          "Error creating trans-bond translation scenegraph node");
+				NX_DEBUG_FAIL;
 				return atomNode;
 			}
-			childAdded = bondNode->addChild(translateToNbrAtomNode);
+			bool const childAdded = atomNode->addChild(translateToNbrAtomNode);
 			if(!childAdded) {
 				SetResult(commandResult, NX_INTERNAL_ERROR,
-				          "Error adding trans-bond translation node as child of bond-node");
+				          "Error adding trans-bond translation node as child of"
+				          " bond-node");
+				NX_DEBUG_FAIL;
 				return atomNode;
 			}
 			
             // create scenegraph rooted at neighbouring atom
 			NXSGOpenGLNode *nbrAtomNode =
-				createOpenGLSceneGraph(molPtr, nbrAtomPtr,
-				                       renderedAtoms, atomPosition);
+				createOpenGLSceneGraph(molPtr, nbrAtomPtr, /*newZAxis*/ Vector(0.0, 0.0, 1.0));
 			if(nbrAtomNode == NULL) {
+				NX_DEBUG_FAIL;
 				return atomNode;
 			}
 			else {
-				childAdded = translateToNbrAtomNode->addChild(nbrAtomNode);
+				bool const childAdded =
+					translateToNbrAtomNode->addChild(nbrAtomNode);
 				if(!childAdded) {
 					SetResult(commandResult, NX_INTERNAL_ERROR,
 					          "Error adding neighboring-atom scenegraph subtree"
 					          " as child of trans-bond translation node");
+					NX_DEBUG_FAIL;
 					return atomNode;
 				}
 			}
-		}
+		} // if neighbouring atom not already rendered
 	}
 	
 	return atomNode;
+}
+
+
+void NXOpenGLRenderingEngine::markBondRendered(OBBond *const bondPtr)
+{
+	OBAtom *const atom1 = bondPtr->GetBeginAtom();
+	OBAtom *const atom2 = bondPtr->GetEndAtom();
+	
+	pair<OBAtom*,OBAtom*> atomPair = ( atom1 < atom2 ?
+	                                   make_pair(atom1, atom2) :
+	                                   make_pair(atom2, atom1) );
+	renderedBonds.insert(atomPair);
+}
+
+
+bool NXOpenGLRenderingEngine::isRendered(OBAtom *const atomPtr) const
+{
+	set<OBAtom*>::const_iterator memberIter = renderedAtoms.find(atomPtr);
+	bool const result = (memberIter != renderedAtoms.end());
+	return result;
+}
+
+
+bool NXOpenGLRenderingEngine::isRendered(OBBond *const bondPtr) const
+{
+	OBAtom *atom1 = bondPtr->GetBeginAtom();
+	OBAtom *atom2 = bondPtr->GetEndAtom();
+	
+	pair<OBAtom*,OBAtom*> atomPair = (atom1 < atom2 ?
+	                                  make_pair(atom1, atom2) :
+	                                  make_pair(atom2, atom1));
+	
+	RenderedBondsTableType::const_iterator memberIter =
+		renderedBonds.find(atomPair);
+	
+	bool const result = (memberIter != renderedBonds.end());
+	return result;
 }
 
 
@@ -761,11 +892,15 @@ void NXOpenGLRenderingEngine::resetView(void)
 	}
 	
 	makeCurrent();
-	camera.gluLookAt(bboxCenter.x(), bboxCenter.y(),
-	                 bboxCenter.z()+6.0*circumSphereDia,
-	                 bboxCenter.x(), bboxCenter.y(), bboxCenter.z(),
-	                 0.0, 1.0, 0.0);
+// 	camera.gluLookAt(bboxCenter.x(), bboxCenter.y(),
+// 	                 bboxCenter.z()+circumSphereDia,
+// 	                 bboxCenter.x(), bboxCenter.y(), bboxCenter.z(),
+// 	                 0.0, 1.0, 0.0);
     // camera.gluPerspective(60.0, double(width())/double(height()), n, f);
+	
+	camera.gluLookAt(0.0, 0.0, circumSphereDia,
+	                 0.0, 0.0, 0.0,
+	                 0.0, 1.0, 0.0);
 	camera.glOrtho(l, r, b, t, n, f);
 	
 	updateGL();

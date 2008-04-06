@@ -125,6 +125,27 @@ char const NanorexMMPImportExport::_s_hybridizationName[8][8] = {
 	"none", "sp", "sp2", "sp3", "X-hyb4", "X-hyb5", "X-hyb6", "X-hyb7"
 };
 
+/*static*/
+void NanorexMMPImportExport::SetResult(NXCommandResult& commandResult,
+                                       int errCode,
+                                       string const& errMsg)
+{
+	commandResult.setResult(errCode);
+	vector<QString> message;
+	message.push_back(QObject::tr(errMsg.c_str()));
+	commandResult.setParamVector(message);
+}
+
+// .............................................................................
+
+/* static */
+void NanorexMMPImportExport::ClearResult(NXCommandResult& commandResult)
+{
+	commandResult.setResult((int) NX_CMD_SUCCESS);
+	vector<QString> message;
+	commandResult.setParamVector(message);
+}
+
 
 /* CONSTRUCTOR */
 NanorexMMPImportExport::NanorexMMPImportExport()
@@ -183,12 +204,11 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 	reset();
 	bool success = true;
 	
-	NXCommandResult *result = new NXCommandResult();
-	result->setResult(NX_CMD_SUCCESS);
+	ClearResult(commandResult);
 	
 	ifstream mmpfile(theFilename.c_str(), ios::in);
 	if(!mmpfile) {
-		populateCommandResult(result,
+		populateCommandResult(&commandResult,
 		                      (string("Couldn't open file: ") + theFilename)
 		                      .c_str());
 		success = false;
@@ -204,7 +224,7 @@ importFromFile(NXMoleculeSet *rootMoleculeSetPtr,
 		dataStoreInfo->setIsSingleStructure(true);
 	}
 	
-	return result;
+	return &commandResult;
 }
 
 

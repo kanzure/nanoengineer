@@ -19,16 +19,19 @@ int main(int argc, char *argv[])
     // create application and main window
 	QApplication app(argc, argv);
 	QMainWindow mainWindow;
+	mainWindow.resize(640, 400);
+	
 	NXOpenGLRenderingEngine *renderingEngine
 		= new NXOpenGLRenderingEngine(&mainWindow);
+	
 	mainWindow.setCentralWidget(renderingEngine);
+	mainWindow.show();
+	
 	NXBallAndStickOpenGLRenderer *renderer =
 		new NXBallAndStickOpenGLRenderer(renderingEngine);
 	renderingEngine->setRenderer("bas", renderer);
 	renderingEngine->setRenderer("def", renderer);
 	renderingEngine->initializePlugins();
-	
-	mainWindow.show();
 	
 	basRenderData.setRenderStyleCode("bas");
 	NXMoleculeSet theMoleculeSet;
@@ -36,10 +39,19 @@ int main(int argc, char *argv[])
 	NanorexMMPImportExport importer;
 	NXCommandResult const *result =
 		importer.importFromFile(&theMoleculeSet, &dataStoreInfo,
-		                        "../src/Testing/MMP_TestFiles/benzene.mmp", 0,0);
-	assert(result->getResult() == (int) NX_CMD_SUCCESS);
+		                        "../src/Testing/MMP_TestFiles/chlorophyll.mmp", 0,0);
+	if(result->getResult() != (int) NX_CMD_SUCCESS) {
+		vector<QString> const params = result->getParamVector();
+		cerr << "Error: ";
+		vector<QString>::const_iterator paramIter;
+		for(paramIter = params.begin(); paramIter != params.end(); ++paramIter) {
+			cerr << ' ' << qPrintable(*paramIter);
+		}
+		cerr << endl;
+		return 1;
+	}
     
-	renderingEngine->clearFrames();
+	// renderingEngine->clearFrames();
 	assert(renderingEngine->getFrameCount() == 0);
 	result = renderingEngine->addFrame(&theMoleculeSet);
 	assert(result->getResult() == (int) NX_CMD_SUCCESS);

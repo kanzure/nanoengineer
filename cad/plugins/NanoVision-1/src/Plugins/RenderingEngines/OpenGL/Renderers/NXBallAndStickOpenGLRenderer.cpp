@@ -22,7 +22,7 @@ inline void guarded_delete(T* &ptr)
 
 
 // static data
-double const NXBallAndStickOpenGLRenderer::BOND_WIDTH(0.25);
+double const NXBallAndStickOpenGLRenderer::BOND_WIDTH(0.5);
 
 // .............................................................................
 
@@ -339,8 +339,8 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalCylinderNode(void)
 	}
 	
 #ifdef NX_DEBUG
-	cout << "canonicalCylinderNode scenegraph:" << endl;
-	canonicalCylinderNode->writeDotGraph(cout);
+	// cout << "canonicalCylinderNode scenegraph:" << endl;
+	// canonicalCylinderNode->writeDotGraph(cout);
 #endif
 	return true;
 }
@@ -465,7 +465,7 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalSingleBondNode(void)
             return false;
         }
 #ifdef NX_DEBUG
-	    canonicalCylinderNode->writeDotGraph(cerr);
+	    // canonicalCylinderNode->writeDotGraph(cerr);
 #endif
 	    assert(canonicalCylinderNode->getNumChildren()==0);
 	    assert(canonicalBondNode[SINGLE_BOND]->getNumChildren()==0);

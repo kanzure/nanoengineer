@@ -100,7 +100,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 		QString message = tr("File loaded: %1").arg(fileName);
 		NXLOG_INFO("ResultsWindow", qPrintable(message));
 	}
-	delete commandResult;
+	// delete commandResult; - commandResult now member of importer
 	return success;
 }
 

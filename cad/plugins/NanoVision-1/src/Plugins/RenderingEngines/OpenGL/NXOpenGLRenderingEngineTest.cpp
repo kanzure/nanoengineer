@@ -24,12 +24,13 @@ void makeNH3(OBMol *molPtr);
 void makeC2H2(OBMol *molPtr);
 void makeC2H4(OBMol *molPtr);
 void makeC2H6(OBMol *molPtr);
+void makeC6H6(OBMol *molPtr);
 
 void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet);
 void translateMolecule(OBMol *molPtr, vector3 const& delta);
 void setRenderStyleBAS(OBMol *molPtr);
 
-double const SCALE = 1.0e-9;
+double const SCALE = 1.0e-10;
 
 void bond(OBMol *molPtr, OBAtom *atom1Ptr, OBAtom *atom2Ptr, int bondOrder)
 {
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
     
     mainWindow.resize(1000, 600);
     mainWindow.show();
-	renderingEngine->clearFrames();
+	// renderingEngine->clearFrames();
     renderingEngine->addFrame(&theMoleculeSet);
 	renderingEngine->setCurrentFrame(0);
     int result = app.exec();
@@ -80,11 +81,15 @@ int main(int argc, char *argv[])
 
 void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet)
 {
-    OBMol *SF6 = theMoleculeSet.newMolecule();
-    makeSF6(SF6);
+	OBMol *C6H6 = theMoleculeSet.newMolecule();
+	makeC6H6(C6H6);
+	setRenderStyleBAS(C6H6);	
+
+	OBMol *SF6 = theMoleculeSet.newMolecule();
+	makeSF6(SF6);
 	setRenderStyleBAS(SF6);
 	
-    NXMoleculeSet *triatomics = new NXMoleculeSet;
+	NXMoleculeSet *triatomics = new NXMoleculeSet;
     theMoleculeSet.addChild(triatomics);
 	
     OBMol *CO2 = triatomics->newMolecule();
@@ -124,7 +129,8 @@ void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet)
     translateMolecule(C2H2, vector3(SCALE*-3.0, SCALE*3.0, SCALE*-3.0));
 	setRenderStyleBAS(C2H2);
 	
-    OBMol *C2H4 = hydrocarbons->newMolecule();
+	OBMol *C2H4 = hydrocarbons->newMolecule();
+	// OBMol *C2H4 = theMoleculeSet.newMolecule();
     makeC2H4(C2H4);
     translateMolecule(C2H4, vector3(SCALE*-3.0, SCALE*-3.0, SCALE*3.0));
 	setRenderStyleBAS(C2H4);
@@ -133,6 +139,7 @@ void makeTheMoleculeSet(NXMoleculeSet& theMoleculeSet)
     makeC2H6(C2H6);
     translateMolecule(C2H6, vector3(SCALE*-3.0, SCALE*-3.0, SCALE*-3.0));
 	setRenderStyleBAS(C2H6);
+
 }
 
 
@@ -167,6 +174,7 @@ void setRenderStyleBAS(OBMol *molPtr)
 
 void makeCH4(OBMol *molPtr)
 {
+	molPtr->SetTitle("CH4");
     OBAtom *C = molPtr->NewAtom();
     C->SetAtomicNum(6);
     C->SetVector(0.0, 0.0, 0.0);
@@ -195,6 +203,7 @@ void makeCH4(OBMol *molPtr)
 
 void makeNH3(OBMol *molPtr)
 {
+	molPtr->SetTitle("NH3");
     // double const SCALE = 5.0;
     double const THETA = 120.0 * M_PI/180.0;
     double sinTheta = 0.0, cosTheta = 0.0;
@@ -227,6 +236,7 @@ void makeNH3(OBMol *molPtr)
 
 void makeSF6(OBMol *molPtr)
 {
+	molPtr->SetTitle("SF6");
     // double const SCALE = 5.0;
     
     OBAtom *S = molPtr->NewAtom();
@@ -267,6 +277,7 @@ void makeSF6(OBMol *molPtr)
 
 void makeH2O(OBMol *molPtr)
 {
+	molPtr->SetTitle("H2O");
     // double const SCALE = 5.0;
     double const THETA = (180.0-104.45)/2 * M_PI/180.0;
     double sinTheta = 0.0, cosTheta = 0.0;
@@ -295,6 +306,7 @@ void makeH2O(OBMol *molPtr)
 
 void makeNO2(OBMol *molPtr)
 {
+	molPtr->SetTitle("NO2");
     // double const SCALE = 5.0;
     double const THETA = (180.0-134.3)/2 * M_PI/180.0;
     double sinTheta = 0.0, cosTheta = 0.0;
@@ -323,6 +335,7 @@ void makeNO2(OBMol *molPtr)
 
 void makeCO2(OBMol *molPtr)
 {
+	molPtr->SetTitle("CO2");
     OBAtom *C = molPtr->NewAtom();
     C->SetAtomicNum(6);
     C->SetVector(0.0, 0.0, 0.0);
@@ -341,6 +354,7 @@ void makeCO2(OBMol *molPtr)
 
 void makeC2H2(OBMol *molPtr)
 {
+	molPtr->SetTitle("C2H2");
     OBAtom *C1 = molPtr->NewAtom();
     C1->SetAtomicNum(6);
     C1->SetVector(0.0, SCALE*0.5, 0.0);
@@ -364,6 +378,7 @@ void makeC2H2(OBMol *molPtr)
 
 void makeC2H4(OBMol *molPtr)
 {
+	molPtr->SetTitle("C2H4");
     OBAtom *C1 = molPtr->NewAtom();
     C1->SetAtomicNum(6);
     C1->SetVector(0.0, SCALE*0.5, 0.0);
@@ -397,6 +412,8 @@ void makeC2H4(OBMol *molPtr)
 
 void makeC2H6(OBMol *molPtr)
 {
+	molPtr->SetTitle("C2H6");
+	
     double const THETA = 120.0 * M_PI / 180.0;
     double sinTheta = 0.0, cosTheta = 0.0;
 #ifdef _GNU_SOURCE
@@ -447,3 +464,27 @@ void makeC2H6(OBMol *molPtr)
 }
 
 
+void makeC6H6(OBMol *molPtr)
+{
+	molPtr->SetTitle("C6H6");
+	int const N = 6;
+	OBAtom *C[N], *H[N];
+	for(int i=0; i<N; ++i) {
+		C[i] = molPtr->NewAtom();
+		C[i]->SetAtomicNum(6);
+		H[i] = molPtr->NewAtom();
+		H[i]->SetAtomicNum(1);
+		double const theta = (i * 360.0/N) * M_PI / 180.0;
+		double const cosTheta = cos(theta);
+		double const sinTheta = sin(theta);
+		C[i]->SetVector(0.0, 2.0*SCALE * cosTheta, 2.0*SCALE * sinTheta);
+		H[i]->SetVector(0.0, 3.0*SCALE * cosTheta, 3.0*SCALE * sinTheta);
+		bond(molPtr, C[i], H[i], 1);
+	}
+	
+	int bondOrder = 1;
+	for(int i=0; i<N; ++i) {
+		bond(molPtr, C[i], C[(i+1)%N], bondOrder);
+		bondOrder = 3 - bondOrder;
+	}
+}

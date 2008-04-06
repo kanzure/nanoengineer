@@ -154,21 +154,22 @@ bool NXSGOpenGLModelViewTransform::applyRecursive(void) const throw()
     
     // apply transform and quit if error
     bool appliedOK = apply();
-    if(!appliedOK)
-        return false;
-    
-    bool childrenOK = true;
-    ChildrenList::const_iterator child_iter;
-    for(child_iter = children.begin();
-        child_iter != children.end() && childrenOK;
-        ++child_iter)
-    {
-        childrenOK = (*child_iter)->applyRecursive();
-    }
+	if(appliedOK) {
+		bool childrenOK = true;
+		ChildrenList::const_iterator child_iter;
+		for(child_iter = children.begin();
+		    child_iter != children.end() && childrenOK;
+		    ++child_iter)
+		{
+			childrenOK = (*child_iter)->applyRecursive();
+		}
+		appliedOK = childrenOK;
+	}
+	
     // Restore model-view matrix
     glPopMatrix();
     
-    return childrenOK;
+    return appliedOK;
 }
 
 // .............................................................................

@@ -6,6 +6,7 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <functional>
 
 // #include <QtGui>
 #include <QtOpenGL>
@@ -82,6 +83,15 @@ public:
 private:
     
 	typedef unsigned int uint;
+	
+	template<typename T1, typename T2>
+		struct PairwiseLess : public binary_function<T1, T2, bool> {
+			bool operator () (pair<T1,T2> const& a, pair<T1,T2> const& b) const
+			{
+				return (a.first < b.first ||
+				        (a.first == b.first && a.second < b.second));
+			}
+		};
     
 	NXOpenGLCamera camera;
     
@@ -99,7 +109,16 @@ private:
 	std::map<uint, Nanorex::NXRGBColor> elementColorMap;
     NXOpenGLMaterial defaultAtomMaterial;
     NXOpenGLMaterial defaultBondMaterial;
-        
+	
+	typedef set<OBAtom*> RenderedAtomsTableType;
+	RenderedAtomsTableType renderedAtoms; // tracks rendered atoms
+	
+	typedef
+		set<pair<OBAtom*,OBAtom*>, PairwiseLess<OBAtom*,OBAtom*> >
+		RenderedBondsTableType;
+	
+	RenderedBondsTableType renderedBonds; // tracks rendered bonds
+	
 	NXSGOpenGLNode*
 		createOpenGLSceneGraph(Nanorex::NXMoleculeSet *const molSetPtr);
 	
@@ -109,12 +128,18 @@ private:
 	NXSGOpenGLNode*
 		createOpenGLSceneGraph(OpenBabel::OBMol *const molPtr,
 		                       OpenBabel::OBAtom *const atomPtr,
-		                       std::set<OpenBabel::OBAtom*>& renderedAtoms,
 		                       Vector const& zAxis);
+	
+	NXSGOpenGLNode* getRotationNode(Vector const& zAxis,
+	                                Vector const& newZAxis);
 	
     // Implement inherited pure-virtual methods
 	Nanorex::NXSGNode*
 		createSceneGraph (Nanorex::NXMoleculeSet *const molSetPtr);
+	
+	bool isRendered(OBAtom *const atomPtr) const;
+	bool isRendered(OBBond *const bondPtr) const;
+	void markBondRendered(OBBond *const bondPtr);
 	
 	// NXSGNode* createSceneGraph (OpenBabel::OBMol *const molPtr);
     

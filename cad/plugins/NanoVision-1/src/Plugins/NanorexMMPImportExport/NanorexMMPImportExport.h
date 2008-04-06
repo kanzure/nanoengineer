@@ -105,6 +105,8 @@ private:
 	RagelIstreamPtr charStringWithSpaceStart, charStringWithSpaceStop;
 	RagelIstreamPtr lineStart;
 	
+	NXCommandResult commandResult;
+	
     // helper functions
 	
 	void reset(void);
@@ -153,6 +155,11 @@ private:
 
     static void populateCommandResult(NXCommandResult* result,
                                       const string& message);
+	
+	static void SetResult(NXCommandResult& cmdResult,
+	                      int errCode, std::string const& errMsg);
+	static void ClearResult(NXCommandResult& cmdResult);
+	
     
 
 	friend class NanorexMMPImportExportTest;
