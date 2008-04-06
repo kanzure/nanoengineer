@@ -1855,9 +1855,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # is highlighted.) [bruce 080214]
         if self.atom1.molecule is not self.atom2.molecule:
             if self.atom1.check_bond_geometry(external = True):
-                self.atom1.overdraw_bond_geometry_error_indicator()
+                self.atom1.overdraw_bond_geometry_error_indicator(glpane, dispdef)
             if self.atom2.check_bond_geometry(external = True):
-                self.atom2.overdraw_bond_geometry_error_indicator()
+                self.atom2.overdraw_bond_geometry_error_indicator(glpane, dispdef)
         return
 
     def legal_for_atomtypes(self): #bruce 050716

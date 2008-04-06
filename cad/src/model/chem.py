@@ -1347,7 +1347,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Check the geometry of our bonds, and update
         self.bond_geometry_error_string with current data.
         Also return it for convenience, as modified by the
-        external option.
+        <external> option. (For no error which should be displayed
+        for that value of <external>, it's "".)
 
         Be fast if nothing relevant has changed.
 
@@ -1467,15 +1468,27 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _BOND_GEOM_ERROR_RADIUS_MULTIPLIER = 1.5 # not sure this big is good
         # (or that a solid sphere is the best error indicator)
     
-    def overdraw_bond_geometry_error_indicator(self): #bruce 080214
+    def overdraw_bond_geometry_error_indicator(self, glpane, dispdef):
+        #bruce 080214, revised 080406
         """
+        ###doc
         """
         assert self._f_draw_bond_geometry_error_indicator_externally # for now
         assert self.bond_geometry_error_string # make private??
-        from utilities.constants import ave_colors, red
-        color = ave_colors(0.5, orange, red) # revise? 
-        self.overdraw_with_special_color( color,
-            factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
+        
+##        from utilities.constants import ave_colors, red
+##        color = ave_colors(0.5, orange, red) # revise? 
+##        self.overdraw_with_special_color( color,
+##            factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
+
+        disp = dispdef ### REVIEW -- is it ok if diDEFAULT is passed?? does that happen?
+        pos = self.posn() # assume in abs coords
+        pickedrad = 2 ### STUB, WRONG -- unless we want it to stay extra big; maybe we do...
+            # (but, inconsistent with the value used for interior atoms
+            #  by another call of this method; but this kind of error is rare
+            #  on interior atoms, maybe nonexistent when dna updater is active)
+        self.draw_valence_error_wireframe(glpane, disp, pos, pickedrad, external = True)
+        return
 
     def get_glname(self, glpane): #bruce 080220
         """
@@ -1771,13 +1784,24 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 color = PickedColor
             drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
         #bruce 050806: check valence more generally, and not only for picked atoms.
+        self.draw_valence_error_wireframe(glpane, disp, pos, pickedrad, external = False)
+
+    def draw_valence_error_wireframe(self, glpane, disp, pos, pickedrad, external = -1):
+        #bruce 080406 split this out, added external option
+        """
+        ###doc
+
+        @param external: see docstring of self.check_bond_geometry
+        """
         if disp != diINVISIBLE: #bruce 050825 added this condition to fix bug 870
             # The above only checks for number of bonds.
             # Now that we have higher-order bonds, we also need to check valence more generally.
             # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
             #####@@@@@ need to do this in atom.getinfo().
             #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
-            if glpane.should_draw_valence_errors() and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
+            if glpane.should_draw_valence_errors() and \
+               self.bad_valence(external = external) and \
+               env.prefs[ showValenceErrors_prefs_key ]:
                 # Note: the env.prefs check should come last, or changing the pref would gl_update when it didn't need to.
                 # [bruce 060315 comment]
                 drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
@@ -1809,10 +1833,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             numbonds = self.atomtype.numbonds
         return numbonds != len(self.bonds) ##REVIEW: this doesn't check bond valence at all... should it??
 
-    def bad_valence(self): #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ##REVIEW
+    def bad_valence(self, external = -1):
+        #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ##REVIEW
+        #bruce 080406 added external option
         """
         is this atom's valence clearly wrong, considering
         valences presently assigned to its bonds?
+
+        @param external: see docstring of self.check_bond_geometry().
         """
         # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
         #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
@@ -1835,6 +1863,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (superseding [nim] the orange color-override, which has UI issues)
         if self._dna_updater__error:
             # note: doesn't cover duplex errors or bond geometry errors
+            return True
+        if self.check_bond_geometry(external = external):
             return True
         return False
 
@@ -1882,6 +1912,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (also it's not reviewed for whether it contains
             #  only legal characters for statusbar)
             return "PAM DNA error; see tooltip"
+        bges = self.check_bond_geometry()
+            # note: external option is not needed here,
+            # in spite of being needed in self.bad_valence()
+        if bges:
+            return bges ### REVIEW: whether it has enough context, or is too long
         return ""
 
     def min_max_actual_valence(self): #bruce 051215 split this out of .bad and .bad_valence

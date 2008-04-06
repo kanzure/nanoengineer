@@ -119,7 +119,9 @@ class PAM_Atom_methods:
     def dna_updater_error_string(self,
                                  include_propogated_error_details = True,
                                  newline = '\n'
-                                 ): #bruce 080206; 080214 also covers check_bond_geometry
+                                 ):
+        #bruce 080206; 080214 also covers check_bond_geometry
+        ### REVIEW: integrate with bad_valence etc
         """
         Return "" if self has no dna updater error (recorded by the dna updater
         in the private attribute self._dna_updater__error), or an error string
