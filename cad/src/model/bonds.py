@@ -738,6 +738,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         return self._direction * (self.atom2.posn() - self.atom1.posn())
 
+    def spatial_direction_from(self, atom): #bruce 080405
+        """
+        Return the vector in absolute model coords from atom to self.other(atom).
+        """
+        return self.other(atom).posn() - atom.posn()
+    
     def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070415
         """
         Assume self is a directional bond (not checked);

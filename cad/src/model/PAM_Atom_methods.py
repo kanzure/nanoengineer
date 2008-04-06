@@ -27,11 +27,13 @@ from model.elements import Pl5
 from utilities.debug import print_compact_stack
 
 from utilities.constants import Pl_STICKY_BOND_DIRECTION, MODEL_PAM5
+from utilities.constants import average_value
 
 from model.bond_constants import DIRBOND_CHAIN_MIDDLE
 from model.bond_constants import DIRBOND_CHAIN_END
 from model.bond_constants import DIRBOND_NONE
 from model.bond_constants import DIRBOND_ERROR
+from model.bond_constants import find_bond
 
 from utilities import debug_flags
 
@@ -43,13 +45,22 @@ from dna.model.pam3plus5_math import default_Pl_relative_position
 
 from dna.model.pam3plus5_ops import Pl_pos_from_neighbor_PAM3plus5_data
 
-##from geometry.VQT import V
+from geometry.VQT import norm
+from Numeric import dot
 
+##from geometry.VQT import V
 ##from foundation.state_constants import S_CHILDREN
 
 VALID_ELEMENTS_FOR_DNABASENAME = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
     # TODO: use a boolean element attribute instead.
     # review: not the same as role == 'strand'... but is it if we exclude Pl?
+
+def make_vec_perp_to_vec(vec1, vec2): #bruce 080405; todo: refile, or find an existing func the same
+    """
+    return a modified copy of vec1 with its component parallel to vec2 subtracted out.
+    """
+    remove_this_direction = norm(vec2)
+    return vec1 - dot(vec1, remove_this_direction) * remove_this_direction #k
 
 # ==
 
@@ -177,6 +188,10 @@ class PAM_Atom_methods:
         Reposition self's bondpoints (or other monovalent "baggage" atoms
         if any), making use of structural info from self.molecule.ladder.
 
+        @note: as of late 080405, this doesn't yet actually make use of
+               self.molecule.ladder. (Perhaps it could be optimized by
+               making it do so?)
+        
         @note: since we don't expect any baggage except bondpoints on PAM atoms,
                we don't bother checking for that, even though, if this did
                ever happen, it might be arbitrary which baggage element ended
@@ -222,7 +237,7 @@ class PAM_Atom_methods:
         #   used by baggage_and_other_neighbors is len(bonds), not valence.
         
         # how to do it depends on type of PAM element:
-        if self.element.role == 'axis':
+        if self.element.role == 'axis': # Ax3, Ax5, or Gv5
             # which real neighbors do we have?
             # (depends on ladder len1, single strand or duplex)
             # ...
@@ -268,8 +283,103 @@ class PAM_Atom_methods:
                 pass
             ### todo: also fix bondpoints meant to go to strand atoms
             pass
-        elif self.element.role == 'strand': # might be Pl or Ss
-            pass ### nim
+        elif self.element.role == 'strand': # might be Pl5 or Ss5 or Ss3
+            if self.element.symbol == 'Ss3':
+                # if we have one real strand bond, make the open directional bond opposite it
+                # (assume we have correct structure of directional bonds with direction set --
+                #  one in, one out)
+                strand_neighbors = []
+                axis_neighbors = []
+                for other in others:
+                    role = other.element.role
+                    if role == 'strand':
+                        strand_neighbors += [other]
+                    elif role == 'axis':
+                        axis_neighbors += [other]
+                    continue
+                honorary_strand_neighbor = None # might be set below
+                reference_strand_neighbor = None # might be set below
+                if len(strand_neighbors) == 1:
+                    reference_strand_neighbor = strand_neighbors[0]
+                elif not strand_neighbors and not axis_neighbors:
+                    # totally bare (e.g. just deposited)
+                    reference_strand_neighbor = self.next_atom_in_bond_direction(1)
+                    # should exist, but no need to check here
+                if reference_strand_neighbor is not None:
+                    direction_to_it = find_bond(self, reference_strand_neighbor).bond_direction_from(self)
+                    moveme = self.next_atom_in_bond_direction( - direction_to_it )
+                    if moveme is not None and moveme in baggage:
+                        honorary_strand_neighbor = moveme
+                        selfpos = self.posn()
+                        strandvec = reference_strand_neighbor.posn() - selfpos
+                        newpos = selfpos - strandvec # correct only in direction, not distance
+                        moved_this_one = self.move_closest_baggage_to(
+                                                newpos,
+                                                [moveme] )
+                        if moved_this_one is not moveme:
+                            # should never happen
+                            print "error: moved_this_one %r is not moveme %r" % (moved_this_one, moveme)
+                        pass
+                    pass
+                if len(axis_neighbors) == 0:
+                    # see if we can figure out which baggage should point towards axis
+                    candidates = list(baggage)
+                    if honorary_strand_neighbor is not None:
+                        # it's in baggage, by construction above
+                        candidates.remove(honorary_strand_neighbor)
+                    if reference_strand_neighbor is not None and reference_strand_neighbor in candidates:
+                        candidates.remove(reference_strand_neighbor)
+                    if len(candidates) != 1:
+                        # I don't know if this ever happens (didn't see it in test,
+                        #  can't recall if I thought it should be possible)
+                        pass # print " for %r: candidates empty or ambiguous:" % self, candidates
+                    else:
+                        # this is the honorary axis neighbor; we'll repoint it.
+                        honorary_axis_neighbor = candidates[0]
+                        # but which way should it point? just "not along the strand"?
+                        # parallel to the next strand atom's? that makes sense...
+                        # we'll start with that if we have it (otherwise with whatever it already is),
+                        # then correct it to be perp to our strand.
+                        axisvecs_from_strand_neighbors = []
+                        for sn in strand_neighbors: # real ones only
+                            its_axisbond = None # might be set below
+                            its_rung_bonds = [b for b in sn.bonds if b.is_rung_bond()]
+                            if len(its_rung_bonds) == 1:
+                                its_axisbond = its_rung_bonds[0]
+                            elif not its_rung_bonds:
+                                its_runglike_bonds = [b for b in sn.bonds if not b.bond_direction_from(sn)]
+                                    # might be rung bonds, might be open bonds with no direction set
+                                if len(its_runglike_bonds) == 1:
+                                    its_axisbond = its_runglike_bonds[0]
+                            if its_axisbond is not None:
+                                # that gives us the direction to start with
+                                axisvec_sn = its_axisbond.spatial_direction_from(sn)
+                                # but correct it to be perpendicular to our bond to sn
+                                axisvec_sn = make_vec_perp_to_vec( axisvec_sn, sn.posn() - self.posn() )
+                                axisvecs_from_strand_neighbors += [axisvec_sn]
+                            continue
+                        axisvec = None # might be set below
+                        if axisvecs_from_strand_neighbors:
+                            axisvec = average_value(axisvecs_from_strand_neighbors)
+                            # print " for %r: axisvec %r from strand_neighbors" % (self, axisvec,)
+                        if axisvec is None: # i.e. no strand_neighbors
+                            axisvec = honorary_axis_neighbor.posn() - self.posn() # this value (which it has now) would not change it
+                            # print " for %r: axisvec %r starts as" % (self, axisvec,)
+                            # now remove the component parallel to the presumed strand bonds' average direction
+                            presumed_strand_baggage = filter( None,
+                                [reference_strand_neighbor, honorary_strand_neighbor] )
+                            vecs = [norm(find_bond(self, sn).bond_direction_vector()) for sn in presumed_strand_baggage]
+                            if vecs:
+                                strand_direction = average_value(vecs)
+                                axisvec = make_vec_perp_to_vec( axisvec, strand_direction )
+                            pass
+                        assert axisvec is not None
+                        self.move_closest_baggage_to( self.posn() + axisvec, [honorary_axis_neighbor] )
+                        # assume it worked (since all candidates were in baggage)
+                        pass
+                    pass
+                pass
+            pass
         # (no other cases are possible yet, at least when called by dna updater)
         # (flag was reset above, so we're done)
         return

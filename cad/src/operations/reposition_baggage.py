@@ -41,7 +41,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     @warning: we assume baggage is a subset of self.baggageNeighbors(),
               but we don't check this except when ATOM_DEBUG is set.
     """
-    #bruce 060629 for bondpoint problem
+    #bruce 060629 for bondpoint problem -- second guess what caller did so far
     if baggage is None:
         baggage, other = self.baggage_and_other_neighbors()
     else:
@@ -54,22 +54,35 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
             atom = 0
             del _bn, atom
 
+    _reposition_baggage_1(self, baggage, other, planned_atom_nupos)
+
+    if self.element.pam and self.element.role in ('axis', 'strand'):
+        # Let the dna updater 3rd-guess this when it has a DnaLadder and can
+        # do a better job. REVIEW: are the things already done in _reposition_baggage_1
+        # good or bad in this case? At least in most cases, they seem good (by testing).
+        # [bruce 080404/080405 new feature / bugfix]
+        self._f_dna_updater_should_reposition_baggage = True
+        # do it immediately if possible
+        ladder = self.molecule.ladder
+        if ladder and ladder.valid and not ladder.error:
+            # usual case, at least when dragging a real neighbor of self;
+            # in these cases the dna updater is never running;
+            # by test it's clear this is doing more good than harm, usually,
+            # as of the late 080405 improvements to this method
+            self.reposition_baggage_using_DnaLadder()
+        else:
+            # don't know if this ever happens
+            self._changed_structure() # make sure dna updater runs on self
+                # (probably NOT redundant with other changes by caller)            
+        pass
+    return
+
+def _reposition_baggage_1(self, baggage, other, planned_atom_nupos):
+    """
+    """
     # trivial cases
     len_baggage = len(baggage)
     if not len_baggage:
-        return
-
-    if self.element.pam and self.element.role in ('axis', 'strand'):
-        # Let the dna updater do this when it has a DnaLadder and can
-        # do a better job. The things we'd do below are probably either
-        # useless, or more harm than good, so skip them -- at least for
-        # strand or axis pam atoms (not e.g. for Ub).
-        # [bruce 080404 new feature / bugfix]
-        # ### REVIEW: is that skipping a good idea for *all* pam elements
-        # this code sets the flag for? Is it ok to not set the flag for Ub?
-        self._changed_structure() # make sure updater runs on self
-            # (probably redundant with other changes by caller)
-        self._f_dna_updater_should_reposition_baggage = True
         return
     
     # cases handled well enough by calling code (as of 060629),
@@ -280,7 +293,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
             #  moving, which I suppose they ought to...)
     if debugprints and 0:
         print "done"
-    return # from reposition_baggage_0
+    return # from _reposition_baggage_1
 
 # end... tested: sp3 2 2, sp2 1 2
 # not tested: the others, the extreme cases

@@ -1035,7 +1035,14 @@ class DnaLadder(object):
                     print "dna updater: why is %r.dad == None? (assy = %r)" % (old_chunk, assy) ###
                 group = part.topnode
             assert group.is_group()
-            assert group.part is part
+            ## assert group.part is part, \
+            if not (group.part is part):
+                print "\n*** BUG: " \
+                   "group.part %r is not part %r, for old_chunk %r, .dad %r, part.topnode %r" % \
+                   (group.part, part, old_chunk, old_chunk.dad, part.topnode)
+                # this is failing in Undo of creating or bonding lone Ss3, or Undo/Redo/Undo of same,
+                # with group.part None, group probably a DnaStrand which doesn't exist in new state(?).
+                # [bruce 080405 comment, might relate to "tom's undo bug" reported by email yesterday]
             chunk = constructor(self.assy, rail, self)
                 # Note: these constructors need to be passed self,
                 # in case they reuse an old chunk, which self takes over.
@@ -1073,7 +1080,8 @@ class DnaLadder(object):
         # (and optimizes by knowing where those might be inside the ladder)
         if DEBUG_BONDPOINTS:
             print "_f_reposition_baggage called on", self
-        for atom in self.rail_end_baseatoms():
+        for atom in self._atoms_needing_reposition_baggage_check():
+            # (for single strands, we need to scan all the baseatoms)
             if atom._f_dna_updater_should_reposition_baggage:
                 if DEBUG_BONDPOINTS:
                     print " calling %r.reposition_baggage_using_DnaLadder()" % atom
@@ -1090,6 +1098,14 @@ class DnaLadder(object):
                     # probably redundant with that method
         #e assert no other atoms have that flag? Not true! interior Ax for single strand might have it.
         return
+
+    def _atoms_needing_reposition_baggage_check(self): #bruce 080405
+        """
+        [private helper for _f_reposition_baggage]
+
+        [subclasses with interior bondpoints must override this implem]
+        """
+        return self.rail_end_baseatoms() # for duplex ladders
     
     # == chunk access methods
 
@@ -1362,7 +1378,15 @@ class DnaSingleStrandDomain(DnaLadder):
         [implem is subclass-specific]
         """
         return [self.strand_rails[0], None, None]
-    
+
+    def _atoms_needing_reposition_baggage_check(self): #bruce 080405
+        """
+        [private helper for _f_reposition_baggage]
+
+        [overrides duplex implem in superclass]
+        """
+        return self.strand_rails[0].baseatoms
+        
     def __repr__(self):
         ns = self.num_strands()
         if ns == 1:
