@@ -562,7 +562,18 @@ class DnaLadderRailChunk(Chunk):
         for rail in self.ladder.all_rails():
             if rail.baseatoms[0].molecule is self:
                 return rail
-        assert 0, "failed" # might happen if used during dna updater run
+        # This might be reached if this is called too early during a dna updater run.
+        # Or, this can definitely be reached as of late 080405 by depositing Ss3 on an interior bondpoint
+        # of a single strand chain of otherwise-bare Ss3's (making an Ss3 with 3 Ss3 neighbors).
+        # guess about the cause: atoms in a DnaLadderRailChunk become erroneous
+        # and get left behind in an "invalid" one... looks like its ladder does not even
+        # get cleared in that case (though probably it gets marked invalid).
+        # Probably we need to do something about those erroneous DnaLadderRailChunks --
+        # they might cause all kinds of trouble (e.g. not all their ladder's baseatoms
+        # are in them). This might be related to some existing bugs, maybe even undo bugs...
+        # so we need to turn them into regular chunks, I think. (Not by class assignment,
+        # due to Undo.) [bruce 080405 comment]
+        return None
 
     def get_baseatoms(self):
         return self.get_ladder_rail().baseatoms
@@ -612,6 +623,8 @@ class DnaLadderRailChunk(Chunk):
         [overrides Chunk.draw]
         """
         _superclass.draw(self, glpane, dispdef)
+        if not self.__ok():
+            return
         if debug_pref("DNA: draw ladder rail atom indices?",
                       Choice_boolean_False,
                       prefs_key = True):
@@ -632,6 +645,13 @@ class DnaLadderRailChunk(Chunk):
             pass
         return
 
+    def __ok(self): #bruce 080405 [todo: move this method earlier in class]
+        # TODO: all uses of get_baseatoms or even self.ladder should test this @@@@@@
+        # (review whether get_baseatoms should return [] when this is False)
+        # (see also the comments in get_ladder_rail)
+        ladder = self.ladder
+        return ladder and ladder.valid # ok even if ladder.error
+    
     # == mmp methods
 
     def atoms_in_mmp_file_order(self, mapping = None): #bruce 080321
