@@ -68,6 +68,11 @@ from model.elements import PeriodicTable
 
 from model.atomtypes import AtomType #bruce 080327
 
+from model.bond_constants import V_SINGLE
+from model.bond_constants import min_max_valences_from_v6
+from model.bond_constants import valence_to_v6
+from model.bond_constants import ideal_bond_length
+
 from model.bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
 import model.global_model_changedicts as global_model_changedicts
@@ -119,10 +124,6 @@ from utilities.constants import PickedColor
 from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
 from utilities.GlobalPreferences import dna_updater_is_enabled
-
-from model.bond_constants import V_SINGLE
-from model.bond_constants import min_max_valences_from_v6
-from model.bond_constants import valence_to_v6
 
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
@@ -3361,7 +3362,6 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # on both newpos vs newpos_direction, and below.
 
         # fix distance
-        from model.bond_constants import ideal_bond_length
         want_length = ideal_bond_length(self, moveme)
             # note: depends on moveme.atomtype (and therefore, possibly,
             # on which element of baggage is chosen to be moveme)

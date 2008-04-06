@@ -1,11 +1,11 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 bond_constants.py -- constants and simple functions for use with class Bond
 (which can be defined without importing that class).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -29,10 +29,6 @@ import foundation.env as env
 from simulation.PyrexSimulator import thePyrexSimulator
 
 # ==
-
-MAX_ELEMENT = 109
-    # review: MAX_ELEMENT is no longer used (it's exceeded by PAM pseudoatoms);
-    # is it useful?? [bruce 071216 Q]
 
 # Bond valence constants -- exact ints, 6 times the numeric valence they represent.
 # If these need an order, their standard order is the same as the order of their numeric valences
@@ -254,20 +250,23 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
 
 _bond_params = {} # maps triple of atomtype codes and v6 to (rcov1, rcov2) pairs
 
-def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
+def bond_params(atomtype1, atomtype2, v6 = V_SINGLE):
+    #bruce 060324 for bug 900; made v6 optional, 080405
     """
-    Given two atomtypes and a bond order encoded as v6,
+    Given two atomtypes and an optional bond order encoded as v6,
     look up or compute the parameters for that kind of bond.
     For now, the return value is just a pair of numbers, rcov1 and rcov2,
     for use as the covalent radii for atom1 and atom2 respectively for this kind of bond
     (with their sum adjusted to the equilibrium bond length if this is known).
     """
-    atcode1 = id(atomtype1) #e should add a small int code attr to atomtype, for efficiency
+    atcode1 = id(atomtype1)
+        # maybe: add a small int code attr to atomtype, for efficiency
     atcode2 = id(atomtype2)
     try:
         return _bond_params[(atcode1, atcode2, v6)]
     except KeyError:
-        res = _bond_params[(atcode1, atcode2, v6)] = _compute_bond_params(atomtype1, atomtype2, v6)
+        res = _bond_params[(atcode1, atcode2, v6)] = \
+              _compute_bond_params(atomtype1, atomtype2, v6)
         return res
     pass
 
@@ -284,50 +283,86 @@ def ideal_bond_length(atom1, atom2, v6 = V_SINGLE): #bruce 080404
     rcov1, rcov2 = bond_params(atom1.atomtype, atom2.atomtype, v6)
     return rcov1 + rcov2
 
-def _compute_bond_params(atomtype1, atomtype2, v6):
+def _compute_bond_params(atomtype1, atomtype2, v6): #bruce 080405 revised this
     """
     [private helper function for bond_params]
     """
-    # this doesn't need to be fast, since its results for given arguments are cached for the entire session
+    # note: this needn't be fast, since its results for given arguments
+    # are cached for the entire session by the caller.
     # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-    #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
+    #  etc, so for nonsense bonds like He-He the entire bond is drawn as if
+    #  "too long". [review: what should we do for a nonsense bond like C-He?])
     rcov1 = atomtype1.rcovalent
     rcov2 = atomtype2.rcovalent
-    rcovsum = rcov1 + rcov2
+    rcovsum = rcov1 + rcov2 # ideal length according to our .rcovalent tables,
+        # used as a fallback if we can't get a better length
+    if not rcovsum:
+        print "error: _compute_bond_params for nonsense bond:", \
+              atomtype1, atomtype2, v6
+        rcov1 = rcov2 = 0.5 # arbitrary
+        rcovsum = rcov1 + rcov2
+    # now adjust rcov1 and rcov2 to make their sum the equilibrium bond length
+    # [bruce 060324 re bug 900]
+    eltnum1 = atomtype1.element.eltnum
+        # note: both atoms and atomtypes have .element
+    eltnum2 = atomtype2.element.eltnum
+    ltr = bond_letter_from_v6(v6)
+    
+    # determine ideal bond length (special case for one element being Singlet)
+    assert eltnum1 or eltnum2, "can't bond bondpoints to each other"
+    if eltnum1 == 0 or eltnum2 == 0:
+        # one of them is Singlet (bondpoint); getEquilibriumDistanceForBond
+        # doesn't know about those, so work around this by using half the
+        # distance for a bond from the non-Singlet atomtype to itself
+        eltnum = eltnum1 or eltnum2
+        nicelen = _safely_call_getEquilibriumDistanceForBond( eltnum, eltnum, ltr)
+        if nicelen:
+            nicelen = nicelen / 2.0
+    else:
+        nicelen = _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr)
+    if nicelen is None:
+        # the call failed, use our best guess
+        nicelen = rcovsum
+    assert nicelen > 0.0
+    # now adjust rcov1 and rcov2 so their sum equals nicelen
+    # (this works even if one of them is 0, presumably for a bondpoint)
+    ratio = nicelen / float(rcovsum)
+    rcov1 *= ratio
+    rcov2 *= ratio
+    
+    return rcov1, rcov2
+
+def _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr): #bruce 080405 split this out
+    """
+    #doc
+    eg: args for C-C are (6, 6, '1')
+
+    @return: ideal length in Angstroms (as a positive float),
+             or None if the call of getEquilibriumDistanceForBond failed
+    """
     try:
-        # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length [bruce 060324 re bug 900]
-        elementNumber1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
-##        if (elementNumber1 > MAX_ELEMENT):
-##            elementNumber1 = MAX_ELEMENT
-        elementNumber2 = atomtype2.element.eltnum
-##        if (elementNumber2 > MAX_ELEMENT):
-##            elementNumber2 = MAX_ELEMENT
-        ltr = bond_letter_from_v6(v6)
-        pm = thePyrexSimulator().getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
-        assert pm > 2.0, "too-low pm %r for getEquilibriumDistanceForBond%r" % (pm, (elementNumber1, elementNumber2, ltr))
-            # 1.0 means an error occurred; 2.0 is still ridiculously low [not as of 070410]; btw what will happen for He-He??
+        pm = thePyrexSimulator().getEquilibriumDistanceForBond(eltnum1,
+                                                               eltnum2,
+                                                               ltr)
+        assert pm > 2.0, "too-low pm %r for getEquilibriumDistanceForBond%r" % \
+               (pm, (eltnum1, eltnum2, ltr))
+            # 1.0 means an error occurred; 2.0 is still ridiculously low
+            # [not as of 070410]; btw what will happen for He-He??
             # update 070410: it's 1.8 for (202, 0, '1').
             # -- but a new sim-params.txt today changes the above to 170
-        nicelen = pm / 100.0
+        nicelen = pm / 100.0 # convert picometers to Angstroms
+        return nicelen
     except:
-        # be fast when this happens a lot (not important now that our retval is cached, actually; even so, don't print too much)
-        if not env.seen_before("error in getEquilibriumDistanceForBond"): #e include env.redraw_counter?
-            print_compact_traceback("bug: ignoring exceptions when using getEquilibriumDistanceForBond, like this one: ")
-        pass
-    else:
-        if not rcovsum:
-            if debug_flags.atom_debug:
-                print "debug: _compute_bond_params for nonsense bond:"
-            rcov1 = rcov2 = 0.5 # arbitrary
-            rcovsum = rcov1 + rcov2
-        ratio = nicelen / rcovsum
-        rcov1 *= ratio
-        rcov2 *= ratio
-        if 0 and debug_flags.atom_debug:
-            print "debug: _compute_bond_params adjusts %s-%s-%s length by %f" % \
-                  (atomtype1.fullname, ltr, atomtype2.fullname, ratio)
-    return rcov1, rcov2
-        
+        # be fast when this happens a lot (not important now that our retval
+        # is cached, actually; even so, don't print too much)
+        if not env.seen_before("error in getEquilibriumDistanceForBond"):
+            #e include env.redraw_counter to print more often? no.
+            msg = "bug: ignoring exceptions when using " \
+                  "getEquilibriumDistanceForBond, like this one: "
+            print_compact_traceback(msg)
+        return None
+    pass
+    
 # ==
 
 # Here's an old long comment which is semi-obsolete now [050707], but which motivates the term "v6".

@@ -254,8 +254,8 @@ class PAM_Atom_methods:
                                                 remove = True,
                                                 min_bond_length = 3.180 / 2 )
                     # this first corrects newpos for distance (since no option prevents that)
-                    # (but an option does set the minimum distance, since for some reason the
-                    #  bond_params distance for Ax-X on my system is way too low)
+                    # (an option does set the minimum distance -- after 080405 fix in
+                    #  _compute_bond_params this is no longer needed, but remains as a precaution)
                     # (doing it first is best for finding closest one)
                     # (someday we might pass bond order or direction to help choose?
                     #  then bond order would affect distance, perhaps)
