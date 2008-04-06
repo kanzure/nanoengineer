@@ -53,6 +53,7 @@ from utilities.prefs_constants import bondpointHighlightColor_prefs_key
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 from utilities.prefs_constants import deleteBondHighlightColor_prefs_key
 from utilities.prefs_constants import deleteAtomHighlightColor_prefs_key
+from utilities.prefs_constants import reshapeAtomsSelection_prefs_key
 
 from utilities.constants import average_value
 
@@ -87,8 +88,6 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         """
         Select_basicGraphicsMode.__init__(self, glpane)
-        self.get_smooth_reshaping_drag()
-            # exercise debug_pref to make sure it's always in the menu.
         self.get_use_old_safe_drag_code() # ditto
     
     def Enter_GraphicsMode(self):
@@ -1491,7 +1490,10 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     
     #bruce 070525 shortened text (it made entire menu too wide)
-    def get_smooth_reshaping_drag(self): 
+    #@ Leaving this here before removing it. I'd like to discuss the proper
+    #  way for this method should get the state of the "Reshape drag" checkbox
+    #  in the "Build Atoms" Property Manager. --Mark 2008-04-06
+    def get_smooth_reshaping_drag_OBSOLETE(self): 
         res = debug_pref(
             "Drag reshapes selected atoms?", 
             Choice_boolean_False,
@@ -1499,6 +1501,15 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             bonded to unselected atoms?',
             non_debug = True )
         return res
+    
+    def get_smooth_reshaping_drag(self): 
+        """
+        Returns the state of the "Dragging reshapes selection" checkbox.
+        
+        @return: The state of the checkbox (True or False).
+        @rtype:  boolean
+	"""
+        return env.prefs[reshapeAtomsSelection_prefs_key]
 
     def get_use_old_safe_drag_code(self): #bruce 070413
         res = debug_pref("use old safe drag code, when not reshaping?",

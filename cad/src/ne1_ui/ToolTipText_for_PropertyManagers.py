@@ -168,12 +168,14 @@ def ToolTip_BuildAtomsPropertyManager(propMgr):
     propMgr.selectionFilterCheckBox.setToolTip("Selection Filter")
 
     propMgr.filterlistLE.setToolTip("Selection Filter Field")
+    
+    propMgr.reshapeSelectionCheckBox.setToolTip("Enable/disable reshaping the selection while dragging selected atom")
 
-    propMgr.autoBondCheckBox.setToolTip("Autobond ON/OFF")
+    propMgr.autoBondCheckBox.setToolTip("Enable/disable atomic auto-bonding")
 
-    propMgr.waterCheckBox.setToolTip("Water ON/OFF")
+    propMgr.waterCheckBox.setToolTip("Enable/disable water surface")
 
-    propMgr.highlightingCheckBox.setToolTip("Highlighting ON/OFF")
+    propMgr.highlightingCheckBox.setToolTip("Enable/disable hover highlighting")
 
     propMgr.showSelectedAtomInfoCheckBox.setToolTip("Show Atom Info")
 

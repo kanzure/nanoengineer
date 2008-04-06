@@ -1109,14 +1109,24 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         """<b>Selection Filter Field</b>
         <p>
         Lists the current atom type the user may select while Selection 
-        Filter is checked
+        Filter is checked.
         </p>""")
     
     propMgr.autoBondCheckBox.setWhatsThis(
-        """<b>Autobond</b>
+        """<b>Auto bond</b>
         <p>
         When enabled, additional bonds are formed automatically with the
-        deposited atom if possile
+        deposited atom if possile.
+        </p>""")
+    
+    propMgr.reshapeSelectionCheckBox.setWhatsThis(
+        """<b>Dragging reshapes selection</b>
+        <p>
+        When enabled, selected atoms are "reshaped" when dragged by the mouse.
+        </p>
+        <p>
+        When disabled (default), selected atoms follow the mouse as typical
+        when dragged.
         </p>""")
     
     propMgr.waterCheckBox.setWhatsThis(
@@ -1144,9 +1154,9 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
        </p>""")
     
     propMgr.highlightingCheckBox.setWhatsThis(
-        """<b>Highlighting</b>
+        """<b>Hover highlighting</b>
         <p>
-        Enables/disables Hover Highlighting. When enabled, atoms and bonds
+        Enables/disables <i>hover highlighting</i>. When enabled, atoms and bonds
         under the cursor are highlighted to indicate what would be selected 
         if the user clicks the left mouse button. 
         </p>""")

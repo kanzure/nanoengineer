@@ -40,6 +40,11 @@ from PM.PM_PreviewGroupBox     import PM_PreviewGroupBox
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
 
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
+import foundation.env as env
+from utilities.prefs_constants import reshapeAtomsSelection_prefs_key
+
 
 class Ui_BuildAtomsPropertyManager(PM_Dialog):
     """
@@ -274,12 +279,23 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.toggle_selectedAtomPosGroupBox(show = 0)
         self.enable_or_disable_selectedAtomPosGroupBox( bool_enable = False)
         
-        self.waterCheckBox = PM_CheckBox( inPmGroupBox,
-                                          text         = "Z depth filter (water surface)",
-                                          widgetColumn = 0,
-                                          state        = Qt.Unchecked  )
-                    
-    
+        self.reshapeSelectionCheckBox = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = 'Dragging reshapes selection',
+                         widgetColumn = 0,
+                         state        = Qt.Unchecked  )
+        
+        connect_checkbox_with_boolean_pref( self.reshapeSelectionCheckBox, 
+                                            reshapeAtomsSelection_prefs_key )
+        
+        env.prefs[reshapeAtomsSelection_prefs_key] = False
+        
+        self.waterCheckBox = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = "Z depth filter (water surface)",
+                         widgetColumn = 0,
+                         state        = Qt.Unchecked  )
+
     def _loadSelectedAtomPosGroupBox(self, inPmGroupBox):
         """
         Load the selected Atoms position groupbox It is a sub-gropbox of 
@@ -321,16 +337,18 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         @param inPmGroupBox: The Advanced Options box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """        
-                    
-        self.autoBondCheckBox = PM_CheckBox( inPmGroupBox,
-                                              text         = 'Auto Bond',
-                                              widgetColumn = 0,
-                                              state        = Qt.Checked  )
         
-        self.highlightingCheckBox = PM_CheckBox( inPmGroupBox,
-                                                 text         = "Highlighting",
-                                                 widgetColumn = 0,
-                                                 state        = Qt.Checked )
+        self.autoBondCheckBox = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = 'Auto bond',
+                         widgetColumn = 0,
+                         state        = Qt.Checked  )
+        
+        self.highlightingCheckBox = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = "Hover highlighting",
+                         widgetColumn = 0,
+                         state        = Qt.Checked )
         
     def _loadBondToolsGroupBox(self, inPmGroupBox):
         """
