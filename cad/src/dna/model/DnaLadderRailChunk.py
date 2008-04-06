@@ -578,19 +578,33 @@ class DnaLadderRailChunk(Chunk):
     def get_baseatoms(self):
         return self.get_ladder_rail().baseatoms
 
-    def strand_direction(self): #bruce 080328
+    def idealized_strand_direction(self):
+        #bruce 080328; renamed/revised to permit self.error, 080406 (bugfix)
         """
-        Return the bond_direction along this strand, relative to the
-        internal base indices (i.e. to the order of
-        self.get_ladder_rail().baseatoms), assuming it's been
-        canonicalized by our DnaLadder and has no errors.
+        Return the bond_direction which this strand would have, relative to the
+        internal base indices of self.ladder (which must exist) (i.e. to the
+        order of self.get_ladder_rail().baseatoms), if it had the correct
+        one for this ladder to be finished with no errors, based on which
+        strand of self.ladder it is.
 
-        @raise: AssertionError if our ladder is not valid and error-free.
+        (If self.ladder.valid and not self.ladder.error, then this corresponds
+         to the actual strand bond_direction, assuming no bugs.)
+
+        @note: it's not an error to call this if self.ladder.error or not
+               self.ladder.valid, but for some kinds of self.ladder.error,
+               the return value might not correspond to the *actual* strand
+               direction in those cases (or that direction might not even be
+               well defined -- not sure that can happen). Some callers depend
+               on being allowed to call this under those conditions
+               (e.g. writemmp, when writing ladders with errors).
         """
         ladder = self.ladder
-        assert ladder and not ladder.error and ladder.valid, \
-               "%r.ladder = %r not valid and error-free" % \
-               (self, ladder)
+        ## assert ladder and not ladder.error and ladder.valid, \
+        ##        "%r.ladder = %r not valid and error-free" % \
+        ##        (self, ladder)
+        assert ladder # no way to avoid requiring this; might be an issue for
+            # Ss3 left out of ladders due to atom errors, unless we fix
+            # their chunk class or detect this sooner during writemmp (untested)
         rail = self.get_ladder_rail()
         assert rail in ladder.strand_rails
         if rail is ladder.strand_rails[0]:
@@ -717,7 +731,9 @@ class DnaLadderRailChunk(Chunk):
         for atom in all_real_atoms: # in this order
             if not dict1.has_key(atom.key):
                 res.append(atom)
-        assert len(res) == number_of_atoms
+        assert len(res) == number_of_atoms, \
+               "len(res) %r != number_of_atoms %r" % \
+               (len(res), number_of_atoms) # can fail for ladder.error or atom errors, don't yet know why [080406 1238p]
         return res
 
     def indexed_atoms_in_order(self, mapping): #bruce 080321
@@ -740,7 +756,9 @@ class DnaLadderRailChunk(Chunk):
         if not mapping.write_bonds_compactly:
             return {}
         if not self.ladder or self.ladder.error or not self.ladder.valid:
-            return {} # self.strand_direction might be wrong
+            # self.idealized_strand_direction might differ from actual
+            # bond directions, so we can't abbreviate them this way
+            return {} 
         atoms = self.indexed_atoms_in_order(mapping)
         return dict([(atom.key, atom) for atom in atoms])
 
@@ -1115,7 +1133,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
         code_start, code_end = \
             self._compute_atom_range_for_write_bonds_compactly(mapping)
             # todo: override that to assert the bond directions are as expected?
-        bond_direction = self.strand_direction()
+        bond_direction = self.idealized_strand_direction()
         sequence = self._short_sequence_string() # might be ""
         if sequence:
             record = "directional_bond_chain %s %s %d %s\n" % \

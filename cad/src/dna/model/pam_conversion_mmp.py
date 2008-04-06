@@ -111,10 +111,14 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
         if self._save_as_pam == MODEL_PAM3:
             return None # or if this fails, [None] * (length+1)
 
-        # find out strand direction, based on where we are in ladder
+        # find out idealized strand direction, based on where we are in ladder
+        # (not always equal to true strand direction, if ladder.error is set;
+        #  that matters elsewhere (and is checked there) but doesn't matter here,
+        #  I think -- not sure, it might cause trouble at the ends ####REVIEW --
+        #  can/should we just leave out end-Pls then??)
         chunk = self.chunk
         baseatoms = chunk.get_baseatoms()
-        direction = chunk.strand_direction()
+        direction = chunk.idealized_strand_direction()
 
         # note: we never look at Pls cached on neighbor_baseatoms
         # since any such Pl would belong in a neighbor chunk, not ours
