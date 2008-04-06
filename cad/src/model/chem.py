@@ -1816,26 +1816,43 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
         #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
+        # REVIEW: see comments in bad_valence_explanation
+        # NOTE: to include check_bond_geometry, we might need an "external" arg to pass it
         bonds = self.bonds
         if self.element is Singlet:
             ok = (len(bonds) == 1)
-            return not ok # any open bond valence is legal, for now
+            return not ok # any bond order is legal on an open bond, for now
         if self.atomtype.numbonds != len(bonds):
             ok = False
             return not ok
-        minv, maxv = self.min_max_actual_valence() # min and max reasonable interpretations of actual valence, based on bond types
+        minv, maxv = self.min_max_actual_valence()
+            # min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
-        return not ok
+        if not ok:
+            return True
+        #bruce 080406 new feature: include dna updater errors in this indicator
+        # (superseding [nim] the orange color-override, which has UI issues)
+        if self._dna_updater__error:
+            # note: doesn't cover duplex errors or bond geometry errors
+            return True
+        return False
 
     def bad_valence_explanation(self): #bruce 050806; revised 060703 ####@@@@ use more widely
         """
-        Return the reason self's valence is bad (as a short text string), or '' if it's not bad.
+        Return the reason self's valence is bad (as a short text string
+        suitable for use as part of a statusbar string), or "" if it's not bad.
 
-        [TODO: Some callers might want an even shorter string; if so, we'll add an option to ask for that,
-         and perhaps implement it by stripping off " -- " and whatever follows that.]
+        [TODO: Some callers might want an even shorter string; if so, we'll add
+         an option to ask for that, and perhaps implement it by stripping off
+         " -- " and whatever follows that.]
         """
-        # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
+        # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync!
+        # note: this is used in statusbar, not tooltip (as of 080406)
+        ### TODO: REVIEW and unify: all uses of this, .bad, .bad_valence,
+        # dna updater error methods,
+        # geometry errors (check_bond_geometry -- nontrivial re external bonds),
+        # duplex errors, Atom methods getinfo, getInformationString
         bonds = self.bonds
         if self.element is Singlet:
             ok = (len(bonds) == 1)
@@ -1843,7 +1860,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self.atomtype.numbonds != len(bonds):
             ok = False
             return (not ok) and "wrong number of bonds" or ""
-        minv, maxv = self.min_max_actual_valence() # min and max reasonable interpretations of actual valence, based on bond types
+        minv, maxv = self.min_max_actual_valence()
+            # min and max reasonable interpretations of actual valence, based on bond types
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
         if not ok:
@@ -1857,9 +1875,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return "valence too large -- need lower bond orders" + ordiff
             else:
                 return "internal error in valence-checking code"
-        else:
-            return ""
-        pass
+        if self._dna_updater__error:
+            #bruce 080406
+            # don't return self.dna_updater_error_string(),
+            # it might be too long for statusbar
+            # (also it's not reviewed for whether it contains
+            #  only legal characters for statusbar)
+            return "PAM DNA error; see tooltip"
+        return ""
 
     def min_max_actual_valence(self): #bruce 051215 split this out of .bad and .bad_valence
         """
