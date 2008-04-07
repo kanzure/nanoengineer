@@ -332,7 +332,8 @@ class DnaLadder(object):
             # For now, just report it: [#e todo: fix inconsistent case in dna updater warnings @@@@]
             # Later display it in remake_chunks or in some ladder-specific display code. (And in tooltip too, somehow.)
             # Ideally we draw an unmissable graphic which points out the error.
-            # (And same for the per-atom _dna_updater__error, which is too missable as mere orange color.) @@@@
+            # (And same for the per-atom _dna_updater__error, which might be too missable
+            #  as mere pink wireframe.) @@@@
             error_string = self.error
             if error_string.startswith("bug:"):
                 prefix = "Bug"

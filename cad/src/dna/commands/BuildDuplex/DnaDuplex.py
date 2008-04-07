@@ -27,7 +27,7 @@ from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
 
-from utilities.constants import gensym, darkred, blue, orange, olive
+from utilities.constants import gensym, darkred, blue
 from utilities.constants import diBALL, diTUBES
 from utilities.constants import MODEL_PAM5
 

@@ -116,7 +116,7 @@ from utilities.constants import TubeRadius
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
 from utilities.constants import pink
-from utilities.constants import orange
+##from utilities.constants import orange
 
 from utilities.constants import ErrorPickedColor
 from utilities.constants import PickedColor
@@ -261,7 +261,7 @@ def _undo_update_Atom_jigs(archive, assy):
                 break
             continue # next atom
         continue # next jig
-            
+    
     return
 
 # WARNING: register_undo_updater does not yet pay attention to its arguments
@@ -1476,11 +1476,6 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         assert self._f_draw_bond_geometry_error_indicator_externally # for now
         assert self.bond_geometry_error_string # make private??
         
-##        from utilities.constants import ave_colors, red
-##        color = ave_colors(0.5, orange, red) # revise? 
-##        self.overdraw_with_special_color( color,
-##            factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
-
         disp = dispdef ### REVIEW -- is it ok if diDEFAULT is passed?? does that happen?
         pos = self.posn() # assume in abs coords
         pickedrad = 2 ### STUB, WRONG -- unless we want it to stay extra big; maybe we do...
@@ -1582,26 +1577,24 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
-    def drawing_color(self, molcolor = None): #bruce 070417 [most calls have the bug of letting molcolor override this ###FIX]
+    def drawing_color(self, molcolor = None): #bruce 070417; revised, 080406
+        # BUG: most calls have the bug of letting molcolor override this. ###FIX
         """
         Return the color in which to draw self, and certain things that touch self.
         This is molcolor or self.element.color by default
-        (where molcolor is self.molecule.drawing_color() if not supplied),
-        but some preferences can override that with a warning or error color
-        for atoms with something wrong with them.
+        (where molcolor is self.molecule.drawing_color() if not supplied).
         """
         if molcolor is None:
             molcolor = self.molecule.drawing_color()
         color = molcolor
         if color is None:
             color = self.element.color
-        # see if warning color is needed
-        if self.check_bond_geometry(): #bruce 080214 (minor groove angle)
-            ### REVIEW: should this be done for interior atoms? maybe only for some calls of this method??
-            color = orange
-        elif self._dna_updater__error: #bruce 080130
-            color = orange
-        
+##        # see if warning color is needed
+##        if self.check_bond_geometry(): #bruce 080214 (minor groove angle)
+##            ### REVIEW: should this be done for interior atoms? maybe only for some calls of this method??
+##            color = orange
+##        elif self._dna_updater__error: #bruce 080130
+##            color = orange
         return color
 
     # bruce 070409 split this out of draw_atom_sphere; 
@@ -1664,18 +1657,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #bruce 060630 split this out for sharing with draw_in_abs_coords
         style = self._draw_atom_style()
         if style == 'do not draw':
-            if disable_do_not_draw_open_bonds() or self._dna_updater__error:
+            if disable_do_not_draw_open_bonds(): ##  or self._dna_updater__error:
                 # (first cond is a debug_pref for debugging -- bruce 080122)
-                # (the other cond [bruce 080130] should be a more general
-                #  structure error flag...)
+##                # (the other cond [bruce 080130] should be a more general
+##                #  structure error flag...)
                 style = ''
-                color = orange
+##                color = orange
             else:
                 return
-        if self.check_bond_geometry(external = False): #bruce 080214 (needed?)
-            color = orange
-        elif self._dna_updater__error: #bruce 080130; needed both here and in self.drawing_color()
-            color = orange
+##        if self.check_bond_geometry(external = False): #bruce 080214 (needed?)
+##            color = orange
+##        elif self._dna_updater__error: #bruce 080130; needed both here and in self.drawing_color()
+##            color = orange
         if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
             # and even fixes the bondpoint-buried-in-big-atom bugs,
@@ -1860,7 +1853,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if not ok:
             return True
         #bruce 080406 new feature: include dna updater errors in this indicator
-        # (superseding [nim] the orange color-override, which has UI issues)
+        # (superseding the orange color-override, which has UI issues)
         if self._dna_updater__error:
             # note: doesn't cover duplex errors or bond geometry errors
             return True

@@ -72,12 +72,18 @@ dnaDict = \
 # by breaking an existing strand.
 # Do not use the following colors in _strandColorList: 
 #   - white/lightgray (reserved for axis)
-#   - black (reserved as a default color for scaffold strand) [also used for dna updater duplex errors (subject to change) bruce 080206]
+#   - black (reserved as a default color for scaffold strand;
+#      also used for dna updater duplex errors (subject to change)
+#      [bruce 080206])
 #   - yellow (used for hover highlighting)
 #   - red (used as delete highlight color)
 #   - green (reserved for selection color)
-#   - orange (reserved for dna updater errors on atoms and bonds [bruce 080206, subject to change])
-_strandColorList = [ purple, brass, steelblue, lightgreen, darkgray, lightblue, # bruce 080206 orange -> lightgreen, see comment above
+#   - orange (reserved for dna updater errors on atoms and bonds [bruce 080206]
+#              (subject to change))
+#     (update [bruce 080406]: orange is no longer used that way, but might
+#      still be, or in future be, used for other warnings, so is still
+#      left out of this list)
+_strandColorList = [ purple, brass, steelblue, lightgreen, darkgray, lightblue,
                     darkorange, violet, copper, olive, gray]
 
 _strand_color_counter = 0
