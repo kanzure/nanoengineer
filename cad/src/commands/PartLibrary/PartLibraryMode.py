@@ -92,8 +92,8 @@ class PartLibraryMode(PasteMode):
 
     def _init_flyoutActions(self):
         """
-        Defines the actions to be added in the flyout toolbar of the 
-        Command Explorer
+        Defines the actions to be added in the flyout toolbar section of the 
+        Command Toolbar.
         """
         PasteMode._init_flyoutActions(self)
         self.exitModeAction.setText("Exit Partlib")

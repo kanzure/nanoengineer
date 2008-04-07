@@ -86,7 +86,7 @@ class PasteMode(depositMode):
     def init_gui(self):
         """
         Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command explorer , connecting widget 
+        the property manager, updating the command toolbar, connecting widget 
         slots etc. 
 
         Called once each time the mode is entered; should be called only by code 
@@ -138,7 +138,7 @@ class PasteMode(depositMode):
     def restore_gui(self):
         """
         Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command explorer , 
+        this mode's property manager, updating the command toolbar, 
         disconnecting widget slots etc. 
         @see: L{self.init_gui}
         """
@@ -256,8 +256,8 @@ class PasteMode(depositMode):
 
     def _init_flyoutActions(self):
         """
-        Defines the actions to be added in the flyout toolbar of the 
-        Command Explorer
+        Defines the actions to be added in the flyout toolbar section of the 
+        Command Explorer.
         """
 
         depositMode._init_flyoutActions(self)        

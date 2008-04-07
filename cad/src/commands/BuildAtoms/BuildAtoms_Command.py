@@ -93,7 +93,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     def init_gui(self):
         """
         Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command explorer , connecting widget 
+        the property manager, updating the command toolbar, connecting widget 
         slots etc. 
         
         Called once each time the mode is entered; should be called only by code 
@@ -145,7 +145,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     def restore_gui(self):
         """
         Do changes to the GUI while exiting this mode. This includes closing 
-        this mode's property manager, updating the command explorer , 
+        this mode's property manager, updating the command toolbar, 
         disconnecting widget slots etc. 
         @see: L{self.init_gui}
         """

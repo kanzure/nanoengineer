@@ -47,7 +47,7 @@ def whatsThisTextForCommandToolbarToolsButton(button):
         """<b>Tools</b>
         <p>
         This is a drop down Tool menu. Clicking on the Tool button will add
-        these tools to the Command Explorer.
+        these tools to the Command Toolbar.
         </p>""")
     return
 
@@ -59,7 +59,7 @@ def whatsThisTextForCommandToolbarMoveButton(button):
         """<b>Move</b>
         <p>
        This is a drop down menu of Move commands. Clicking on the Move button
-       will add these commands to the Command Explorer.
+       will add these commands to the Command Toolbar.
         </p>""")
     return
 
