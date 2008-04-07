@@ -310,13 +310,28 @@ class Dna:
                 self.assy.update_parts()
     
                 self.axis_atom_end1 = None
-                                
+                
+                             
+                
+                                                
                 self._fuse_new_dna_with_original_duplex(new_endBaseAtomList, 
                                                         endBaseAtomList)
+                
+                
         
         self.assy.update_parts()
     
    
+    def _replace_overlapping_axisAtoms_of_new_dna(self, new_endBaseAtomList):
+        """
+        @see: B_Dna_PAM3_SingleStrand._replace_overlapping_axisAtoms_of_new_dna()
+        """
+        pass
+    
+    def _bond_bare_strandAtoms_with_orig_axisAtoms(self, 
+                                                              new_endBaseAtomList):
+        pass
+    
     
     def _fuse_new_dna_with_original_duplex(self, 
                                            new_endBaseAtomList,
@@ -331,16 +346,22 @@ class Dna:
         @see: self.modify()
         @see: B_Dna_PAM3_SingleStrand._fuse_new_dna_with_original_duplex()
         """
+        
+        
         #FUSE new duplex with the original duplex
+        
+        #strand1 chunks
         chunkList1 = \
                    [ new_endBaseAtomList[0].molecule, 
                      self._resizeEndStrand1Atom.molecule]
-
+        
+        #Axis chunks
         chunkList2 = \
                    [ new_endBaseAtomList[1].molecule,
                       self._resizeEndAxisAtom.molecule]
         
         if endBaseAtomList[2]:
+            #strand2 chunks
             chunkList3 = \
                        [new_endBaseAtomList[2].molecule,
                         endBaseAtomList[2].molecule]
@@ -362,9 +383,14 @@ class Dna:
                     chunkPair[0].setcolor(color)
  
         self.fuseBasePairChunks(chunkList1)
-        self.fuseBasePairChunks(chunkList2, fuseTolerance = 3.0)
+        self.fuseBasePairChunks(chunkList2, fuseTolerance = 1.5)
         if chunkList3:
             self.fuseBasePairChunks(chunkList3)
+        
+        #Now replace the overlapping axis atoms with the corresponding 
+        #original axis atoms, make bonds between strand and axis atoms as needed
+        #see this method docstrings for details
+        self._replace_overlapping_axisAtoms_of_new_dna(new_endBaseAtomList)
         
     
     def _remove_bases_from_duplex(self,
