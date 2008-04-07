@@ -890,7 +890,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         ###e future: require all assys the same, or, do this once per topnode or assy-node.
         # for now: this will have bugs when done across topnodes!
         # so the caller doesn't let that happen, for now. [050126]
-        new = Group(gensym("Group"), node.assy, node) # was self.assy
+        new = Group(gensym("Group", node.assy), node.assy, node) # was self.assy
         assert not new.picked
 
         # put it where we want it -- before the first node member-tree with anything picked in it

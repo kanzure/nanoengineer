@@ -343,7 +343,9 @@ class PartLibraryMode(PasteMode):
                     dirjunk, base = os.path.split(newPart.name)
                     basename, extjunk = os.path.splitext(base)
                 from utilities.constants import gensym
-                newnode.name = gensym( basename + " " ) # name library part 
+                newnode.name = gensym( basename, assy) # name library part
+                    #bruce 080407 basename + " " --> basename, and pass assy
+                    # (per Mark NFR desire)
                 #based on basename recorded in its mmp file's top node
                 newnode.move(moveOffset) #k not sure this method is correctly 
                 #implemented for measurement jigs, named views

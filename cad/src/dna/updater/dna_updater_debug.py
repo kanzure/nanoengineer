@@ -155,7 +155,7 @@ def mark_atoms(atoms):
     for atom in atoms:
         assert atom.molecule.assy is assy # all in same assy
     jig = VeryVisibleAtomMarker(assy, atoms)
-    jig.name = gensym("Marked Atoms ")
+    jig.name = gensym("Marked Atoms ", assy)
     assy.place_new_jig(jig)
     # redraw, etc
     assy.win.glpane.gl_update() # this works now to redraw

@@ -100,6 +100,7 @@ from utilities.Printing import Vector3ToString
 from utilities.Log import orangemsg, redmsg
 
 from utilities.constants import genKey
+from utilities.constants import gensym
 
 from utilities.constants import diDEFAULT
 from utilities.constants import diBALL
@@ -4239,7 +4240,8 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     # no need for gensym since atom key makes the name unique, e.g. C1.
     atom.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
         # note, atomtype might well already be the value we're setting; if it is, this should do nothing
-    mol.name = "Chunk-%s" % str(atom)
+    ## mol.name = "Chunk-%s" % str(atom)
+    mol.name = gensym("Chunk", assy) #bruce 080407 per Mark NFR desire
     atom.make_bondpoints_when_no_bonds() # notices atomtype
     assy.addmol(mol)
     return atom

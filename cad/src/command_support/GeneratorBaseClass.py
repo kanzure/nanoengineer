@@ -467,7 +467,7 @@ class GeneratorBaseClass:
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
-            name = self.name = gensym(self.prefix) # (in _build_struct)
+            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
             # use externally created name
@@ -482,7 +482,7 @@ class GeneratorBaseClass:
             env.history.message(self.cmd + "Creating " + name)
         self.remove_struct()
         self.previousParams = params
-        self.struct = self.build_struct(name, params, -self.win.glpane.pov)
+        self.struct = self.build_struct(name, params, - self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
         # Do this if you want it centered on the previous center.
         # self.win.glpane.setViewFitToWindow(fast = True)

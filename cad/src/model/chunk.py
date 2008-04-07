@@ -343,7 +343,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         self.init_InvalMixin()
         ## dad = None #bruce 050216 removed dad from __init__ args, since no calls pass it
             # and callers need to do more to worry about the location anyway (see comments above) 
-        _superclass.__init__(self, assy, name or gensym("Chunk."))
+        _superclass.__init__(self, assy, name or gensym("Chunk", assy))
 
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
@@ -3597,7 +3597,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         from model.bonds import bond_copied_atoms # might be a recursive import if done at toplevel
         pairlis = []
         ndix = {}
-        newname = mol_copy_name(self.name)
+        newname = mol_copy_name(self.name, self.assy)
         #bruce 041124 added "-copy<n>" (or renumbered it, if already in name),
         # similar to Ninad's suggestion for improving bug 163's status message
         # by making it less misleading.
@@ -3670,7 +3670,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
         if self._dispfunc is not None:
             numol._dispfunc = self._dispfunc
-        return numol
+        return numol # assy
 
     # ==
 
@@ -3912,7 +3912,7 @@ def shakedown_poly_evals_evecs_axis(basepos):
 
 # ==
 
-def mol_copy_name(name): # bruce 041124
+def mol_copy_name(name, assy = None): # bruce 041124; added assy arg, 080407
     """
     turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>
     """
@@ -3925,7 +3925,7 @@ def mol_copy_name(name): # bruce 041124
         # name must look like xxx-copy<n>
         name = "-copy".join(parts[:-1]) # this is the xxx part
             # (fyi: it doesn't contain '-copy' unless original name contained it twice)
-    return gensym(name + "-copy") # (in mol_copy_name)
+    return gensym(name + "-copy", assy) # (in mol_copy_name)
         # note: we assume this adds a number to the end
 
 # == Numeric.array utilities [bruce 041207/041213]

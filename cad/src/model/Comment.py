@@ -41,7 +41,7 @@ class Comment(SimpleCopyMixin, Node):
     def __init__(self, assy, name, text=''):
         self.const_pixmap = imagename_to_pixmap("modeltree/comment.png")
         if not name:
-            name = gensym("%s-" % self.sym) #bruce 070604 genViewNum -> gensym [##e can we someday teach superclass to do this?]
+            name = gensym("%s" % self.sym, assy)
         Node.__init__(self, assy, name)
         self.lines = [] # this makes set_text changed() test legal (result of test doesn't matter)
         self.set_text(text)

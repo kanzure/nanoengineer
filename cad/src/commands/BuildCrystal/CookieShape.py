@@ -895,7 +895,7 @@ class CookieShape(shape):
             #print "allCarbons: ", allCarbons
                 
             carbonAtoms = {}
-            mol = Chunk(assy, gensym("Crystal-"))
+            mol = Chunk(assy, gensym("Crystal", assy))
             for bKey, bBonds in allBonds.items():
                 keyHedron = True
                 if len(bBonds):

@@ -85,7 +85,7 @@ class ops_rechunk_Mixin:
             pass 
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
-            numol = Chunk(self.assy, gensym(mol.name + "-frag")) # (in modifySeparate)
+            numol = Chunk(self.assy, gensym(mol.name + "-frag", self.assy)) # (in modifySeparate)
             for a in mol.atoms.values():
                 if a.picked:
                     # leave the moved atoms picked, so still visible
@@ -167,7 +167,7 @@ class ops_rechunk_Mixin:
                     
         #bruce 060329 new feature: work on atoms too (put all selected atoms into a new chunk)
         self.ensure_toplevel_group() # avoid bug for part containing just one chunk, all atoms selected
-        numol = Chunk(self.assy, gensym("Chunk"))
+        numol = Chunk(self.assy, gensym("Chunk", self.assy))
         natoms = len(self.selatoms)
         for a in self.selatoms.values():
             # leave the moved atoms picked, so still visible
@@ -211,7 +211,7 @@ class ops_rechunk_Mixin:
         if name:
             newChunk = Chunk(self.assy, name)
         else:
-            newChunk = Chunk(self.assy, gensym("Chunk"))
+            newChunk = Chunk(self.assy, gensym("Chunk", self.assy))
             
         for a in atomList:
             a.hopmol(newChunk)
@@ -291,7 +291,10 @@ class ops_rechunk_Mixin:
             _new_strand_color = _five_prime_atom.molecule.color
         return self.makeChunkFromAtomList(atomList,
                                           group = _group_five_prime_was_in,
-                                          name = gensym("Strand"), 
+                                          name = gensym("Strand"),
+                                              # doesn't need "DnaStrand" or self.assy,
+                                              # since not normally seen by users
+                                              # [bruce 080407 comment]
                                           color = _new_strand_color)
 
     pass # end of class ops_rechunk_Mixin

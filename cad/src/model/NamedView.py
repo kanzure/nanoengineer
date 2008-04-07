@@ -60,7 +60,7 @@ class NamedView(SimpleCopyMixin, Node):
         """
         self.const_pixmap = imagename_to_pixmap("modeltree/NamedView.png")
         if not name:
-            name = gensym("%s-" % self.sym)
+            name = gensym("%s" % self.sym, assy)
         Node.__init__(self, assy, name)
         self.scale = scale
         assert type(pov) is type(V(1, 0, 0))

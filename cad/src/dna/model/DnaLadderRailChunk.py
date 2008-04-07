@@ -101,8 +101,17 @@ class DnaLadderRailChunk(Chunk):
             # make names unique for debugging. (If it did become user-visible,
             # we might want to derive and reuse a common prefix, except that
             # there's no fast way to do that.)
-            self.name = gensym(self.__class__.__name__.split('.')[-1])
-
+            assy_to_pass_to_gensym = debug_flags.atom_debug and assy or None
+            self.name = gensym(self.__class__.__name__.split('.')[-1],
+                               assy_to_pass_to_gensym )
+                # note 1: passing assy is only useful here if gensym is not yet
+                # optimized to not look at node names never seen by user
+                # when finding node names to avoid returning. If we do optim
+                # it like that, give it an option to pass here to turn that off,
+                # but, for speed, maybe only pass it when debugging.
+                # note 2: since passing assy might be a bit slow, only do it in the
+                # first place when debugging.
+                # [bruce 080407 comment]
         return
 
     def _init_atoms_from_chain( self, chain, reuse_old_chunk_if_possible):

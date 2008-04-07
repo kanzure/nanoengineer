@@ -1300,7 +1300,7 @@ def molmake(assy,shap):
     #@@@ ninad20070511 : Is the followinf ever used?? I found another code
     # which eventually decided the chunk name after Crystal creation. 
     # it is in shape.py -> buildChunk method
-    mol = Chunk(assy, gensym("Crystal-"))
+    mol = Chunk(assy, gensym("Crystal", assy))
     ndx={}
     hashAtomPos #bruce 050222 comment: this line is probably a harmless typo, should be removed
     bbhi, bblo = shap.bbox.data

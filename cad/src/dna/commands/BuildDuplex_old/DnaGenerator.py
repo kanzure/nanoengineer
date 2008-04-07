@@ -529,7 +529,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             print "bug in creating chunks from the given atom list"
             return
         
-        newChunk = Chunk(self.win.assy, gensym("Chunk"))
+        newChunk = Chunk(self.win.assy, gensym("Chunk", self.win.assy))
         for a in atomList:            
             # leave the moved atoms picked, so still visible
             a.hopmol(newChunk)

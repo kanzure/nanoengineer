@@ -154,7 +154,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         [extends superclass method]
         """
         # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
-        _superclass.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
+        _superclass.__init__(self, assy, gensym("%s" % self.sym, assy))
         self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
             # Note: the atomlist fed to __init__ is always [] for some subclasses
             # (with the real one being fed separately, later, to self.setAtoms)

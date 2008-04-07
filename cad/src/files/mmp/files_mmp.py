@@ -429,6 +429,9 @@ class _readmmp_state:
             return x.group(1)
         print "warning: mmp record without a valid name field: %r" % (card,) #bruce 071019
         return gensym(default)
+            # Note: I'm not sure it's safe/good to pass an assy argument
+            # to this gensym, and I also think this probably never happens,
+            # so it's best to be safe and not pass one. [bruce 080407 comment]
     
     def get_decoded_name_and_rest(self, card, default = None): #bruce 080115
         """
@@ -464,6 +467,8 @@ class _readmmp_state:
             print "warning: mmp record without a valid name field: %r" % (card,) #bruce 071019
             if type(default) == type(""):
                 name = gensym(default)
+                    # Note: I'm not sure it's safe/good to pass an assy argument
+                    # to this gensym, so I won't. [bruce 080407 comment]
             else:
                 name = default
             rest = ""

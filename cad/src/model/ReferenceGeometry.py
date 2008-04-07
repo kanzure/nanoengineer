@@ -63,7 +63,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         
     def __init__(self, win):  
         self.win = win
-        #Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
+        #Node.__init__(self, win.assy, gensym("%s" % self.sym, win.assy))        
         Jig.__init__(self, win.assy, self.atoms)        
         ## redundant with Jig.__init__: self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o

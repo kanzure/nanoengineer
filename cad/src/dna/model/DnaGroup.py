@@ -96,7 +96,8 @@ class DnaGroup(Group):
         assert not self.killed(), \
                "self must not be killed in %r.make_DnaStrandOrSegment_for_marker" % self
         class1 = controlling_marker.DnaStrandOrSegment_class()
-        name = gensym(class1.__name__.split('.')[-1]) ###STUB -- should use class constant prefix, ensure unique names
+        name = gensym(class1.__name__.split('.')[-1], self.assy)
+            ###STUB -- should use class constant prefix
             # todo: sensible name? (if we split a seg, is name related to old seg; if so how?)
         assy = controlling_marker.assy # it's a Jig so it has one
         obj = class1(name, assy, None) # note: these args are for Group.__init__
@@ -396,8 +397,8 @@ def find_or_make_DnaGroup_for_homeless_object(node):
 
 def _make_DnaGroup_for_homeless_objects_in_Part(part):
     # not needed, done in addnode: part.ensure_toplevel_group()
-    name = gensym("fallback DnaGroup")
     assy = part.assy #k
+    name = gensym("DnaGroup", assy) #bruce 080407 remove "fallback", pass assy
     dad = None
     dnaGroup = DnaGroup(name, assy, dad) # same args as for Group.__init__
     part.addnode(dnaGroup)

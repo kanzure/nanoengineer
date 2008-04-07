@@ -63,7 +63,7 @@ class ops_copy_Mixin:
                 # WARNING [bruce 060307]: when we implement this, it might remove all atoms and
                 # (for a clipboard part containing only chunks) reset self.topnode to None,
                 # as happened in delete_sel with bug 1466 (see 'mark 060307' comment there).
-            new = Group(gensym("Copy"), self.assy, None) # (in cut_sel)
+            new = Group(gensym("Copy", self.assy), self.assy, None) # (in cut_sel)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
             if self.immortal() and self.topnode.picked:
                 ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
@@ -82,7 +82,7 @@ class ops_copy_Mixin:
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
                 use.name = self.topnode.name # not copying any other properties of the Group (if it has any)
-                new = Group(gensym("Copy"), self.assy, None) # (in cut_sel)
+                new = Group(gensym("Copy", self.assy), self.assy, None) # (in cut_sel)
                 new.addchild(use)
             else:
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
@@ -978,7 +978,9 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # we can't tell, but since it's likely and since this is dubious anyway, don't do it in this case.
                 pass
             else:
-                res.name = mol_copy_name(res.name)
+                res.name = mol_copy_name(res.name, self.assy)
+                    # REVIEW: is self.assy correct here, even when we're copying
+                    # something from one assy to another? [bruce 080407 Q]
         #e in future we might also need to store a ref to the top original node, top_orig;
         # this is problematic when it was made up as a wrapping group,
         # but if we think of verytopnode as the one, in that case (always a group in that case), then it's probably ok...

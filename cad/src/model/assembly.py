@@ -262,6 +262,8 @@ class Assembly( StateMixin, Assembly_API):
         
         # the name if any
         self.name = str(name or gensym("Assembly"))
+            # note: we intentionally don't pass an assy argument to gensym.
+            # [bruce 080407 comment]
 
         #bruce 050429
         global _global_assy_number

@@ -2137,7 +2137,7 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         for newMol in newnodes:
             if newMol is not None: #bruce 070525 precaution
                 from model.chunk import mol_copy_name
-                newMol.name = mol_copy_name(newMol.name)
+                newMol.name = mol_copy_name(newMol.name, assy)
                     # this should work for any kind of node, unless it has an update bug for some of them,
                     # but since the node doesn't yet have a dad, that's very unlikely.
                 assy.addmol(newMol)
