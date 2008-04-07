@@ -845,8 +845,9 @@ letters (labels) on top of bonds.</p>
 = Aromatic bond<br>
 <b>G</b> = Graphitic bond<br>""")
         self.show_valence_errors_checkbox.setWhatsThis("""<p><b>Show Valence Errors</b></p><p>Enables/Disables Valence
-                                                       Error Checker.</p>When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates
-that one or more of the atom's bonds are not of the correct order (type).""")
+                                                       Error Checker.</p>When enabled, atoms with valence errors are displayed with a pink wireframe sphere. This indicates
+that one or more of the atom's bonds are not of the correct order (type), or that the atom has the wrong number of bonds,
+or (for PAM DNA pseudoatoms) that there is some error in bond directions or in which PAM elements are bonded. The error details can be seen in the tooltip for the atom.""")
         self.textLabel1_3.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
         self.textLabel1.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode""")
         self.cpk_cylinder_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
