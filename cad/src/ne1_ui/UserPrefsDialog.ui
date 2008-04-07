@@ -1110,7 +1110,7 @@
             <string>Mouse wheel settings</string>
            </property>
            <property name="title" >
-            <string>Mouse Wheel</string>
+            <string>Mouse Wheel Settings</string>
            </property>
            <layout class="QGridLayout" >
             <property name="margin" >
@@ -1131,12 +1131,12 @@
                <widget class="QComboBox" name="mouseWheelDirectionComboBox" >
                 <item>
                  <property name="text" >
-                  <string>Pull wheel to zoom in</string>
+                  <string>Pull/push wheel to zoom in/out</string>
                  </property>
                 </item>
                 <item>
                  <property name="text" >
-                  <string>Push wheel to zoom in</string>
+                  <string>Push/pull wheel to zoom in/out</string>
                  </property>
                 </item>
                </widget>
@@ -1145,7 +1145,7 @@
                <widget class="QComboBox" name="mouseWheelZoomInPointComboBox" >
                 <item>
                  <property name="text" >
-                  <string>Center on cursor postion</string>
+                  <string>Center about cursor position</string>
                  </property>
                 </item>
                 <item>
@@ -1159,7 +1159,7 @@
                <widget class="QComboBox" name="mouseWheelZoomOutPointComboBox" >
                 <item>
                  <property name="text" >
-                  <string>Center on cursor position</string>
+                  <string>Center about cursor position</string>
                  </property>
                 </item>
                 <item>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Mon Apr 07 00:37:05 2008
+# Created: Mon Apr 07 00:50:48 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -3276,12 +3276,12 @@ class Ui_UserPrefsDialog(object):
         self.perspective_radioButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Perspective", None, QtGui.QApplication.UnicodeUTF8))
         self.orthographic_radioButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Orthographic", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Mouse wheel settings", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_4.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Mouse Wheel", None, QtGui.QApplication.UnicodeUTF8))
-        self.mouseWheelDirectionComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Pull wheel to zoom in", None, QtGui.QApplication.UnicodeUTF8))
-        self.mouseWheelDirectionComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Push wheel to zoom in", None, QtGui.QApplication.UnicodeUTF8))
-        self.mouseWheelZoomInPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center on cursor postion", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_4.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Mouse Wheel Settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.mouseWheelDirectionComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Pull/push wheel to zoom in/out", None, QtGui.QApplication.UnicodeUTF8))
+        self.mouseWheelDirectionComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Push/pull wheel to zoom in/out", None, QtGui.QApplication.UnicodeUTF8))
+        self.mouseWheelZoomInPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center about cursor position", None, QtGui.QApplication.UnicodeUTF8))
         self.mouseWheelZoomInPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center about screen", None, QtGui.QApplication.UnicodeUTF8))
-        self.mouseWheelZoomOutPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center on cursor position", None, QtGui.QApplication.UnicodeUTF8))
+        self.mouseWheelZoomOutPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center about cursor position", None, QtGui.QApplication.UnicodeUTF8))
         self.mouseWheelZoomOutPointComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Center about screen", None, QtGui.QApplication.UnicodeUTF8))
         self.label_19.setText(QtGui.QApplication.translate("UserPrefsDialog", "Direction:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_17.setText(QtGui.QApplication.translate("UserPrefsDialog", "Zoom in:", None, QtGui.QApplication.UnicodeUTF8))
