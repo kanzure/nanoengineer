@@ -1123,7 +1123,12 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<p>"\
         "<img source=\"ui/actions/View/Display/Unhide.png\"><br> "\
         "Unhides the current selection. Works on atoms, chunks and/or any "\
-        "other object that can be hidden."\
+        "other object that can be hidden.</p>"\
+        "<p>"\
+        "If a selected chunk is both hidden <i>and</i> contains invisible "\
+        "atoms, then the first unhide operation will unhide the chunk and "\
+        "the second unhide operation will unhide the invisible atoms inside "\
+        "the chunk."\
         "</p>"
 
     win.dispUnhideAction.setWhatsThis(unhideActionText)
