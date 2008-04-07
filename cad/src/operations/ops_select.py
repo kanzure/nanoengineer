@@ -481,28 +481,45 @@ class ops_select_Mixin:
     def unhideSelection(self):
         """
         Unhides the current selection.
-
-        Selected atoms are made visible by changing their display style
+        
+        If the current selection mode is "Select Chunks", the selected movables
+        (i.e. chunks, jigs, planes, etc.) are unhidden. If all the movables
+        were already visible (unhidden), then we unhide any invisble atoms
+        inside chunks by changing their display style to default (even if 
+        their display style before they were hidden was something different).
+        
+        If the current selection mode is "Select Atoms (i.e. Build Atoms), then
+        the selected atoms are made visible by changing their display style
         to default (even if their display style before they were hidden
         was something different).
-        
-        Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
-        are unhidden.
         """
         # Added by Mark 2008-02-25. [slight revisions, bruce 080305]
 
         cmd = "Unhide: "
         env.history.message(greenmsg(cmd))
         
-        # Unhide selected objects.
-        self.assy.Unhide()
+        _movable_was_unhidden = False
+        
+        # Unhide any movables. This includes chunks, jigs, etc. (but not atoms).
+        for mov in self.getSelectedMovables():
+            if mov.hidden:
+                _movable_was_unhidden = True
+                mov.unhide()
+                
+        if _movable_was_unhidden:
+            self.w.win_update()
+            return
         
         if not self.selatoms:
-            self.selectNone()
+            # Unhide any invisible atoms in the selected chunks.
+            for chunk in self.assy.selmols[:]:
+                for a in chunk.atoms.itervalues():
+                    a.setDisplay(diDEFAULT)
         else:
             # Unhide selected atoms by changing their display style to default.
             for a in self.selatoms.itervalues():
                 a.setDisplay(diDEFAULT)
+        self.w.win_update()
         return
     
     # ==
