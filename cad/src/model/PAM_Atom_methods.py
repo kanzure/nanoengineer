@@ -176,11 +176,11 @@ class PAM_Atom_methods:
         ladder = self.molecule.ladder
         res = []
         if ladder: # in case dna updater failed or is not enabled
-            conversion_menu_spec = ladder.conversion_menu_spec(self)
-            if conversion_menu_spec:
+            dnaladder_menu_spec = ladder.dnaladder_menu_spec(self)
+            if dnaladder_menu_spec:
                 if res: # never happens yet
                     res.append(None)
-                res.extend(conversion_menu_spec)
+                res.extend(dnaladder_menu_spec)
             # more?
             pass
         return res

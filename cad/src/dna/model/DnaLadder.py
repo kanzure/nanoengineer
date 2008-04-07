@@ -1165,7 +1165,8 @@ class DnaLadder(object):
         """
         for chunk in self.axis_chunks():
             chunk.kill()
-
+        return
+    
     def kill_all_chunks(self):
         """
         Kill all the strand and axis chunks (DnaLadderRailChunk objects) of this DnaLadder.
@@ -1178,16 +1179,20 @@ class DnaLadder(object):
         """
         for chunk in self.all_chunks():
             chunk.kill()
-
+        return
+    
     # ==
 
-    def conversion_menu_spec(self, selobj): #bruce 080401
+    def dnaladder_menu_spec(self, selobj): #bruce 080401, renamed 080407
         """
         Return a menu_spec list of context menu entries specific to selobj being
-        a PAM atom whose ladder is self, or None.
+        a PAM atom or chunk whose DnaLadder is self. (If we have no entries,
+        return an empty menu_spec list, namely [].)
 
         (Other kinds of selobj might be permitted later.)
         """
+        del selobj # there's not yet any difference in the cmenu
+            # for different selobj or selobj.__class__ in same DnaLadder
         res = []
         if len(self.strand_rails) == 2:
             what = "basepair"
@@ -1201,7 +1206,7 @@ class DnaLadder(object):
             if self.error:
                 text = "%s (%d %ss)" % (self.error, len(self), what)
             else:
-                text = "invalid ladder (%d %ss)" % (len(self), what)
+                text = "invalid DnaLadder (%d %ss)" % (len(self), what)
             res.append( (text, noop, 'disabled') )
             return res
         if self.pam_model() == MODEL_PAM3: # todo: fix_plurals
@@ -1213,7 +1218,9 @@ class DnaLadder(object):
         # TODO:
         # later, add conversions between types of ladders (duplex, free strand, sticky end)
         # and for subsections of a ladder (base pairs of selected atoms?)
-        return res
+        # and for larger parts of the model (duplex == segment, strand, DnaGroup),
+        # and commands to do other things to those (e.g. select them).
+        return res # selobj
 
     def cmd_convert_to_pam5(self):
         """

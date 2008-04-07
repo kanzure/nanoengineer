@@ -416,28 +416,27 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     def make_glpane_context_menu_items(self, contextMenuList, command = None):
         """
-        TODO: See checm.make_selobj_cmenu_items. This method is very similar to 
-        that method. But its not named like that because the chunk may not be 
-        a glpane.selobj (as it may get highlighted in SelectChunks mode even 
-        when, for example,  the cursor is over one of its atoms 
-        (i.e selobj = Atom) . So ideally, that old method should be renamed to 
-        this one. 
         """
+        # TODO: See make_selobj_cmenu_items in other classes. This method is very
+        # similar to  that method. But it's not named the same because the chunk
+        # may not be a glpane.selobj (as it may get highlighted in SelectChunks
+        # mode even when, for example, the cursor is over one of its atoms 
+        # (i.e. selobj = an Atom). So ideally, that old method should be renamed
+        # to this one. [Ninad]
         if command is None:
             return 
 
         if command.commandName == 'SELECTMOLS':
             dnaGroup = self.getDnaGroup()
             if dnaGroup is not None:
-                item = (("DnaGroup: [%s]"%dnaGroup.name), noop, 'disabled')
+                item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
                 contextMenuList.append(item)	    
                 item = (("Edit properties..."), 
                         dnaGroup.edit) 
                 contextMenuList.append(item)
             return
 
-
-        if command.commandName in ['BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND']:
+        if command.commandName in ('BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
             if self.isStrandChunk():
                 strandGroup = self.parent_node_of_class(self.assy.DnaStrand)
 
@@ -453,28 +452,40 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 if dnaGroup is None:
                     #This is probably a bug. A strand should always be contained
                     #within a Dnagroup. Lets assume that this is possible. 
-                    item = (("%s"%strand.name), noop, 'disabled')
+                    item = (("%s" % strand.name), noop, 'disabled')
                 else:
-                    item = (("%s of [%s]"%(strand.name, dnaGroup.name)),
+                    item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
                             noop,
                             'disabled')		
                 contextMenuList.append(item)	    
                 item = (("Edit properties..."), 
                         strand.edit) 			  
                 contextMenuList.append(item)
+                # add menu commands from our DnaLadder [bruce 080407]
+                if self.ladder: # in case dna updater failed or is not enabled
+                    menu_spec = self.ladder.dnaladder_menu_spec(self)
+                    if menu_spec:
+                        # append separator?? ## contextMenuList.append(None)
+                        contextMenuList.extend(menu_spec)
 
             elif self.isAxisChunk():
                 segment = self.parent_node_of_class(self.assy.DnaSegment)
                 dnaGroup = segment.parent_node_of_class(self.assy.DnaGroup)
                 if segment is not None:
-                    item = (("%s of [%s]"%(segment.name, dnaGroup.name)),
+                    item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
                             noop,
                             'disabled')
                     contextMenuList.append(item)
                     item = (("Edit properties..."), 
-                            segment.edit) 
-
+                            segment.edit)
                     contextMenuList.append(item)
+                    # add menu commands from our DnaLadder [bruce 080407]
+                    if self.ladder:
+                        menu_spec = self.ladder.dnaladder_menu_spec(self)
+                        if menu_spec:
+                            contextMenuList.extend(menu_spec)
+            
+        return # from make_glpane_context_menu_items
 
     # START of Dna-Strand-or-Axis chunk specific code ==========================
 
