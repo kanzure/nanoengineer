@@ -1,35 +1,19 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 fusechunksMode.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QWidgetAction
-from PyQt4.Qt import QAction
-
 import foundation.env as env
-import foundation.changes as changes
-
 from geometry.VQT import vlen
-from graphics.drawing.drawer import drawline
-from model.elements import Singlet
 from commands.Move.modifyMode import modifyMode
 from model.bonds import bond_at_singlets
-from utilities.Log import redmsg, orangemsg
-from platform.PlatformDependent import fix_plurals
-from commands.Fuse.FusePropertyManager import FusePropertyManager
-from utilities.icon_utilities import geticon
-from graphics.behaviors.shape import get_selCurve_color
-
-from utilities.constants import green
-from utilities.constants import magenta
-from utilities.constants import blue
-from utilities.constants import darkred
+from utilities.Log import orangemsg
 from utilities.constants import diINVISIBLE
+
 
 MAKEBONDS = 'Make Bonds Between Chunks'
 FUSEATOMS = 'Fuse Overlapping Atoms'
@@ -178,6 +162,44 @@ class fusechunksBase:
         mbonds, singlets_not_bonded, singlet_pairs = self.multibonds()
         tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
         return tol_str
+    
+    def find_bondable_pairs_in_given_atompairs(self, atomPairs):
+        """
+        This is just a convience method that doesn't need chunk lists as an 
+        arguments.
+        
+        Finds the bondable pairs between the atom pairs provided in the 
+        atom pair list. The format is [(a1, a2), (a3, a4) ...]. 
+        This method is only used internally (no direct user interation involved)
+        It skips the checks such as atom's display while finding the bondable
+        pairs.. 
+        As of 2008-04-07 this method is not used. 
+        
+        """
+        self.bondable_pairs = []
+        self.ways_of_bonding = {}
+        
+        for atm1, atm2 in atomPairs:
+            #Skip the pair if its one and the same atom.
+            if atm1 is atm2:
+                continue
+            #Loop through singlets (bondpoints) of atm1 (@see:Atom.singNeighbor)
+            for s1 in atm1.singNeighbors():
+                #Loop through the 'singlets' i.e. bond point neigbors of atm2
+                for s2 in atm2.singNeighbors():
+                    if vlen (s1.posn() - s2.posn()) <= self.tol:
+                        # Add this pair to the list
+                        self.bondable_pairs.append( (s1,s2) )
+                        # Now increment ways_of_bonding for each of the two singlets.
+                        if s1.key in self.ways_of_bonding:
+                            self.ways_of_bonding[s1.key] += 1
+                        else:
+                            self.ways_of_bonding[s1.key] = 1
+                        if s2.key in self.ways_of_bonding:
+                            self.ways_of_bonding[s2.key] += 1
+                        else:
+                            self.ways_of_bonding[s2.key] = 1
+                        
 
     def make_bonds(self, assy = None):
         """
