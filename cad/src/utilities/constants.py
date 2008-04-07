@@ -106,10 +106,15 @@ def _fix_gensym_prefix(prefix): #bruce 070604
         # Note: someday we might change the added char to ' ' if prefix contains ' ',
         # and/or also do this if prefix ends with a letter (so most gensym callers
         # can rely on this rule rather than adding '-' themselves).
+        # NOTE: this special rule is still needed, even if we never want default
+        # new node names to contain '-' or ' '. It's ok since they also won't
+        # include digits in the prefix, so this rule won't happen. [bruce 080407 comment]
         prefix = prefix + '-' 
     return prefix
 
-def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
+def gensym(prefix, assy = None):
+    #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
+    #bruce 080407: new option to pass assy, used for names_to_avoid
     """
     Return prefix with a number appended, where the number is 1 more
     than the last time we were called for the same prefix, or 1 the first time
@@ -124,11 +129,41 @@ def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces thre
     (The prefix is typically related to a Node classname, but can be more or less
     specialized, e.g. when making chunks of certain kinds (like DNA) or copying nodes
     or library parts.)
+
+    @param prefix: prefix for generated name.
+
+    @param assy: if provided and not None, don't duplicate any node name
+                 presently used in assy.
     """
     prefix = _fix_gensym_prefix(prefix)
+    names_to_avoid = {} # maps name -> anything, for 0 or more names we don't want to generate
+    # fill names_to_avoid with node names from assy, if provided
+    import debug_flags # might be an import cycle, but probably ok for now
+    if assy is not None:
+        try:
+            # the try/except is not needed unless this new code has bugs
+            def avoid_my_name(node):
+                names_to_avoid[node.name] = None
+            assy.root.apply2all( avoid_my_name )
+                # could optim and not delve inside nodes that hide contents
+        except:
+            # can't import print_compact_traceback in this file
+            # (todo: move gensym into its own file in utilities, so we can;
+            #  or, move this code into a new method in class Assembly (better))
+            if debug_flags.atom_debug:
+                print "bug: exception in gensym(%r, %r) filling names_to_avoid, reraising since atom_debug set:" % (prefix, assy)
+                raise # make debugging possible
+            else:
+                print "bug: ignoring exception (discarded) in gensym(%r, %r) filling names_to_avoid" % (prefix, assy)
+            pass
+        pass
     new_value = _gensym_counters.get(prefix, 0) + 1
+    name = prefix + str(new_value)
+    while name in names_to_avoid:
+        new_value += 1
+        name = prefix + str(new_value)
     _gensym_counters[prefix] = new_value
-    return prefix + str(new_value)
+    return name
 
 def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
     """
