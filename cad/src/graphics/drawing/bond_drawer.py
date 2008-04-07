@@ -59,6 +59,7 @@ from utilities.constants import blue
 from utilities.constants import black
 from utilities.constants import white
 from utilities.constants import orange
+from utilities.constants import lighterblue
 
 from model.bond_constants import V_SINGLE
 from model.bond_constants import V_DOUBLE
@@ -349,14 +350,18 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 if not bool_arrowsOnFivePrimeEnds:
                     # Don't draw bond 5' open bond cylinder.
                     if _disable_do_not_draw:
-                        col = orange
+                        if not highlighted and debug_flags.atom_debug:
+                            col = lighterblue #bruce 800406 revised color & cond
+                        pass
                     else:
                         return
             if self.isThreePrimeOpenBond():
                 if not bool_arrowsOnThreePrimeEnds:
                     # Don't draw bond 3' open bond cylinder.
                     if _disable_do_not_draw:
-                        col = orange
+                        if not highlighted and debug_flags.atom_debug:
+                            col = lighterblue
+                        pass
                     else:
                         return
                 
@@ -417,13 +422,6 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
     
     color1 = col or atom1.drawing_color()
     color2 = col or atom2.drawing_color()
-##    if 'DEBUG_070602':
-##        # indicate bugs in atom.bonds by orange color
-##        #e maybe we should leave this code in permanently?? only if mouseover msg explains the color.
-##        if self not in self.atom1.bonds:
-##            color1 = orange 
-##        if self not in self.atom2.bonds:
-##            color2 = orange
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
         # note: bondcolor is only used in diBALL display style. todo: rename it.
 
@@ -432,15 +430,19 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
         # not sure if 'and' or 'or' is better in it;
         # for now, use 'and' below for color, but use 'or' for a debug print.
         # The outer condition is to optimize the usual case where all these are false.
-        if direction_error or (atom1._dna_updater__error and atom2._dna_updater__error):
-            bondcolor = orange # note: no effect except in diBALL display style
-        # work around bug in uses above of drawing_color method: [bruce 080131]
-        if atom1._dna_updater__error or direction_error:
-            color1 = orange
-            # todo: also change toolong_color if we can
-        if atom2._dna_updater__error or direction_error:
-            color2 = orange
-            # todo: also change toolong_color if we can
+        if not highlighted:
+            #bruce 080406 added "not highlighted" condition as bugfix
+            # (this also required a bugfix in Bond.draw_in_abs_coords to pass
+            #  highlighted = True for external bonds)
+            if direction_error or (atom1._dna_updater__error and atom2._dna_updater__error):
+                bondcolor = orange # note: no effect except in diBALL display style
+            # work around bug in uses above of drawing_color method: [bruce 080131]
+            if atom1._dna_updater__error or direction_error:
+                color1 = orange
+                # todo: also change toolong_color if we can
+            if atom2._dna_updater__error or direction_error:
+                color2 = orange
+                # todo: also change toolong_color if we can
         if atom1._dna_updater__error or atom2._dna_updater__error:
             if not atom1._dna_updater__error and atom2._dna_updater__error:
                 # debug print if self is a rung bond (means error in dna updater)

@@ -118,13 +118,13 @@ def disable_do_not_draw_open_bonds():
     Whether to disable all behavior which under some conditions
     refrains from drawing open bonds or bondpoints
     which would be drawn according to "traditional" rules
-    (those in place before 2007). May also draw the affected
-    objects in orange rather than their usual color.
+    (those in place before 2007).
 
     Can be useful for debugging, if the developer remembers it's enabled.
     """
     res = debug_pref("DNA: draw all open bonds?",
                      Choice_boolean_False,
+                     non_debug = True, #bruce 080406
                      prefs_key = True)
     return res
 

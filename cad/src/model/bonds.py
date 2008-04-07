@@ -1890,7 +1890,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             # internal bond; geometric info is stored in chunk-relative coords; we need mol's help to use those
             mol.pushMatrix()
             self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, 
-                      highlighted , bool_fullBondLength )
+                      highlighted, bool_fullBondLength )
                 # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
                 # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
                 #bruce 050702 using shorten_tubes [as of 050727, this is done via highlighted = True]
@@ -1903,7 +1903,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         else:
             # external bond -- draw it at max dispdef of those from its mols
             disp = max( mol.get_dispdef(glpane), mol2.get_dispdef(glpane) )
-            self.draw(glpane, disp, color, mol.assy.drawLevel)
+            self.draw(glpane, disp, color, mol.assy.drawLevel,
+                      highlighted, bool_fullBondLength )
+                #bruce 080406 bugfix: pass highlighted, bool_fullBondLength (lost recently??)
         return
 
     def killed(self): #bruce 050702

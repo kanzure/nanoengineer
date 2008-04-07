@@ -463,7 +463,12 @@ copper = (0.3, 0.3, 0.1)
 mustard = (0.78, 0.78, 0.0)
 
 #ninad20060922 using it while drawing origin axis
-lightblue = ave_colors(0.03, white, blue) 
+lightblue = ave_colors(0.03, white, blue)
+    # Note: that color is misnamed -- it's essentially just blue.
+    # Or maybe the definition has a typo?
+    # This needs cleanup... in the meantime,
+    # consider also lighterblue:
+lighterblue = ave_colors( 0.5, white, blue)
 
 # Following color is used to draw the back side of a reference plane. 
 #Better call it brownish yellow or greenish brown?? lets just call it brown 
