@@ -127,7 +127,11 @@ from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+
 from utilities.prefs_constants import showValenceErrors_prefs_key
+from utilities.prefs_constants import dnaDisplayMinorGrooveErrorIndicators_prefs_key
+from utilities.prefs_constants import dnaMinorGrooveErrorIndicatorColor_prefs_key
+
 from utilities.prefs_constants import cpkScaleFactor_prefs_key
 from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 
@@ -1482,7 +1486,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (but, inconsistent with the value used for interior atoms
             #  by another call of this method; but this kind of error is rare
             #  on interior atoms, maybe nonexistent when dna updater is active)
-        self.draw_valence_error_wireframe(glpane, disp, pos, pickedrad, external = True)
+        self.draw_error_wireframe_if_needed( glpane, disp, pos, pickedrad,
+            external = True,
+            prefs_key = dnaDisplayMinorGrooveErrorIndicators_prefs_key,
+            color_prefs_key = dnaMinorGrooveErrorIndicatorColor_prefs_key
+         )
         return
 
     def get_glname(self, glpane): #bruce 080220
@@ -1777,29 +1785,43 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 color = PickedColor
             drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
         #bruce 050806: check valence more generally, and not only for picked atoms.
-        self.draw_valence_error_wireframe(glpane, disp, pos, pickedrad, external = False)
+        self.draw_error_wireframe_if_needed(glpane, disp, pos, pickedrad,
+                                          external = False,
+                                          prefs_key = showValenceErrors_prefs_key )
+        return
 
-    def draw_valence_error_wireframe(self, glpane, disp, pos, pickedrad, external = -1):
-        #bruce 080406 split this out, added external option
+    def draw_error_wireframe_if_needed(self, glpane, disp, pos, pickedrad,
+                                     external = -1,
+                                     prefs_key = None,
+                                     color_prefs_key = None ):
+        #bruce 080406 split this out, added options
         """
         ###doc
 
         @param external: see docstring of self.check_bond_geometry
         """
-        if disp != diINVISIBLE: #bruce 050825 added this condition to fix bug 870
-            # The above only checks for number of bonds.
-            # Now that we have higher-order bonds, we also need to check valence more generally.
-            # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
-            #####@@@@@ need to do this in atom.getinfo().
-            #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
-            if glpane.should_draw_valence_errors() and \
-               self.bad_valence(external = external) and \
-               env.prefs[ showValenceErrors_prefs_key ]:
-                # Note: the env.prefs check should come last, or changing the pref would gl_update when it didn't need to.
-                # [bruce 060315 comment]
-                drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
-                #e we might want to not draw this when self.bad() but draw that differently,
-                # and optim this when atomtype is initial one (or its numbonds == valence).
+        if disp == diINVISIBLE: #bruce 050825 added this condition to fix bug 870
+            return
+        # The calling code in draw_wirespheres only checks for number of bonds.
+        # Now that we have higher-order bonds, we also need to check valence more generally.
+        # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
+        #####@@@@@ need to do this in atom.getinfo().
+        #e We might need to be able to turn this [what?] off by a preference setting; or, only do it in Build mode.
+        # Don't check prefs until we know we need them, to avoid needless
+        # gl_update when user changes prefs value.
+        if not glpane.should_draw_valence_errors():
+            return
+        if not self.bad_valence(external = external):
+            return
+        if prefs_key is not None and not env.prefs[prefs_key]:
+            return
+        if color_prefs_key is not None:
+            color = env.prefs[color_prefs_key]
+        else:
+            color = pink
+        drawwiresphere(color, pos, pickedrad * 1.08) # experimental, but works well enough for A6.
+        #e we might want to not draw this when self.bad() but draw that differently,
+        # and optim this when atomtype is initial one (or its numbonds == valence).
         return
 
     def max_pixel_radius(self): #bruce 070409
