@@ -259,7 +259,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Base Pairs:", 
+                        label         =  "Base pairs:", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  2,
@@ -267,7 +267,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Bases Per Turn:",
+                              label         =  "Bases per turn:",
                               value         =  self.basesPerTurn,
                               setAsDefault  =  True,
                               minimum       =  8.0,
@@ -289,7 +289,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         # Duplex Length
         self.duplexLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
-                         label         =  "Duplex Length: ",
+                         label         =  "Duplex length: ",
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 

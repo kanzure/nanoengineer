@@ -105,7 +105,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.numberOfBasesSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of base atoms:", 
+                        label         =  "Number of bases:", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  2,
@@ -113,7 +113,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Bases Per Turn:",
+                              label         =  "Bases per turn:",
                               value         =  self.basesPerTurn,
                               setAsDefault  =  True,
                               minimum       =  8.0,

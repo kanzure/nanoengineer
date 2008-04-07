@@ -272,7 +272,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Bases Per Turn:",
+                              label         =  "Bases per turn:",
                               value         =  self._basesPerTurn,
                               setAsDefault  =  True,
                               minimum       =  8.0,
@@ -293,7 +293,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Base Pairs:", 
+                        label         =  "Base pairs:", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  0,
@@ -304,7 +304,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         # Duplex Length
         self.duplexLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
-                         label         =  "Duplex Length: ",
+                         label         =  "Duplex length: ",
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 
@@ -316,12 +316,12 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
-            title = 'Rubber band Line:')
+            title = 'Rubber band line:')
         
         dnaLineChoices = ['Ribbons', 'Ladder']
         self.dnaRubberBandLineDisplayComboBox = \
             PM_ComboBox( self._rubberbandLineGroupBox ,     
-                         label         =  " Display As:", 
+                         label         =  " Display as:", 
                          choices       =  dnaLineChoices,
                          setAsDefault  =  True)
         
