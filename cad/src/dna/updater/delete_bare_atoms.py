@@ -64,6 +64,19 @@ def delete_bare_atoms( changed_atoms): # rename; also make not delete, just erro
                         # Note: if this kills bonds, we'd need to do that first,
                         # then recheck atom_is_bare (or always check it later).
                         # But it doesn't.
+                        #
+                        #update 080407: maybe this is not necessary:
+                        # - we could permit these mismatches until DnaLadders
+                        #   are formed, then fix them much more easily;
+                        # - or we could even permit them then
+                        #   (each rail would be uniform within itself),
+                        #   with a little extra complexity in PAM conversion,
+                        #   but it might even be useful to display "one strand
+                        #   in PAM5", for example.
+                        # So for now, I won't finish this code here, though I'll
+                        # leave it in for long enough to see if it prints
+                        # anything; then it should be removed, in case it's
+                        # slow. ##### @@@@@
                         for bond in atom.bonds:
                             if bond.is_rung_bond():
                                 if not PAM_atoms_allowed_in_same_ladder(bond.atom1, bond.atom2):
