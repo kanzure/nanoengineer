@@ -15,6 +15,8 @@ Piotr 2008-01-11: Implemented Peptide Generator dialog using PropMgrBaseClass
 Piotr 2008-03-02: Re-written the Property Manager dialogs to allow it working in 
                   the interactive mode.
 
+Piotr 080407: Fixed minor bugs in sequence text editor window.
+
 """
 
 import math
@@ -140,10 +142,10 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
 
         self.sequenceEditor = \
             PM_TextEdit( inPmGroupBox, 
-                         label      = "",
+                         label      = "Sequence",
                          spanWidth = True )
 
-        self.sequenceEditor.insertHtml("Sequence:<br>", False, 4, 10, True)
+        self.sequenceEditor.insertHtml("", False, 4, 10, True)
 
         self.startOverButton = \
             PM_PushButton( inPmGroupBox,
@@ -155,7 +157,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.connect( self.startOverButton,
                       SIGNAL("clicked()"),
                       self._startOverClicked)
-    
+
     def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  
@@ -201,5 +203,5 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         Resets a sequence in the sequence editor window.
         """
-        self.sequenceEditor.insertHtml("Sequence:<br>", False, 4, 10, True)
+        self.sequenceEditor.clear()
         self.peptide_cache = []
