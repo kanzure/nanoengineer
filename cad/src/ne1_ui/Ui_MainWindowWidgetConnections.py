@@ -235,8 +235,6 @@ def setupUi(win):
     win.connect(win.toolsSelectMoleculesAction,SIGNAL("triggered()"),win.toolsSelectMolecules)
     win.connect(win.zoomToAreaAction,SIGNAL("toggled(bool)"),win.zoomToArea)
     win.connect(win.zoomInOutAction,SIGNAL("toggled(bool)"),win.zoomInOut)
-    win.connect(win.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
-                 win.changeZoomBehavior)
     win.connect(win.viewQuteMolAction,SIGNAL("triggered()"),win.viewQuteMol)
     win.connect(win.viewRaytraceSceneAction,SIGNAL("triggered()"),win.viewRaytraceScene)
     win.connect(win.insertPovraySceneAction,SIGNAL("triggered()"),win.insertPovrayScene)

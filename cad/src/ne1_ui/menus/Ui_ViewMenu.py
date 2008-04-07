@@ -48,7 +48,6 @@ def setupUi(win):
     win.modifyMenu.addAction(win.viewOrientationAction)
     win.modifyMenu.addAction(win.setViewFitToWindowAction)
     win.modifyMenu.addAction(win.setViewRecenterAction)
-    win.modifyMenu.addAction(win.viewZoomAboutScreenCenterAction)
     win.modifyMenu.addAction(win.setViewZoomtoSelectionAction)
     win.modifyMenu.addAction(win.zoomToAreaAction)
     win.modifyMenu.addSeparator()

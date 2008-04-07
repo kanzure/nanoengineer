@@ -122,19 +122,6 @@ class viewSlotsMixin:
         env.history.message(cmd + info)
         self.glpane.setViewRecenter()
 
-    def changeZoomBehavior(self, booleanJunk):
-        """
-	Changes the zoom behavior based on the user preference (zoom about 
-        the GLPane's center). as of 061003, this preference is implemented as
-        View > Zoom About Screen Center (and not in Edit > Preferences).
-
-	@param booleanJunk: Not used, we just need to know that the 
-	                    ZoomAboutScreenCenter preference is toggled.
-	@type booleanJunk: bool
-	"""
-        # self.userPrefs is a UserPrefs object ninad061003
-        self.userPrefs.changeZoomBehaviorPreference()  
-
     def zoomToArea(self, val):
         """
         Zoom to Area Tool, allowing the user to specify a rectangular area 

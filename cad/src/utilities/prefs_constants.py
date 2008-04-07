@@ -96,7 +96,6 @@ backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
-zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
 displayRulers_prefs_key = 'A10/Display rulers'
 displayVertRuler_prefs_key = 'A10/Display vertical ruler'
 displayHorzRuler_prefs_key = 'A10/Display horizontal ruler'
@@ -104,6 +103,11 @@ rulerPosition_prefs_key = 'A10/Ruler Position'
 rulerColor_prefs_key = 'A10/Ruler Color'
 rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
+
+#Mouse wheel Prefs
+mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
+zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
+zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -423,8 +427,12 @@ prefs_table = (
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-    ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
     
+    # Mouse wheel prefs. Mark 2008-04-07
+    ('', 'int', mouseWheelDirection_prefs_key,       0),
+    ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
+    ('', 'int', zoomOutAboutScreenCenter_prefs_key, 0),
+
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 
     ('', 'boolean', displayRulers_prefs_key, True),

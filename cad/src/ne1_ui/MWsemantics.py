@@ -82,7 +82,6 @@ from utilities.prefs_constants import gamess_enabled_prefs_key
 from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import cpp_enabled_prefs_key
 from utilities.prefs_constants import nv1_enabled_prefs_key
-from utilities.prefs_constants import zoomAboutScreenCenter_prefs_key
 from utilities.prefs_constants import workingDirectory_prefs_key
 from utilities.prefs_constants import getDefaultWorkingDirectory
 from utilities.prefs_constants import rememberWinPosSize_prefs_key
@@ -90,6 +89,9 @@ from utilities.prefs_constants import captionPrefix_prefs_key
 from utilities.prefs_constants import captionSuffix_prefs_key
 from utilities.prefs_constants import captionFullPath_prefs_key
 from utilities.prefs_constants import displayRulers_prefs_key
+from utilities.prefs_constants import mouseWheelDirection_prefs_key
+from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
+from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 
@@ -310,10 +312,9 @@ class MWsemantics(QMainWindow,
         self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
         self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
         self.userPrefs.enable_nv1(env.prefs[nv1_enabled_prefs_key])
-
-        #Zoom behavior setting  (View > Zoom About Screen Center)
-        self.viewZoomAboutScreenCenterAction.setChecked(
-            env.prefs[zoomAboutScreenCenter_prefs_key])
+        
+        #Mouse wheel behavior settings.
+        self.updateMouseWheelSettings()
 
         # Create the Help dialog. Mark 050812
         from ne1_ui.help.help import Ne1HelpDialog
@@ -454,6 +455,22 @@ class MWsemantics(QMainWindow,
         self._init_part_two_done = True
         return # from _init_part_two
 
+    def updateMouseWheelSettings(self):
+        """
+        Updates important mouse wheel attrs kept in self, including:
+        - Mouse direction
+        - Zoom in point
+        - Zoom out point
+        @note: These are typically set from the Preferences dialog.
+        """
+        if env.prefs[mouseWheelDirection_prefs_key] == 0:
+            self.mouseWheelDirection = 1
+        else:
+            self.mouseWheelDirection = -1
+            
+        self.mouseWheelZoomInPoint  = env.prefs[zoomInAboutScreenCenter_prefs_key]
+        self.mouseWheelZoomOutPoint = env.prefs[zoomOutAboutScreenCenter_prefs_key]
+        
     def _get_commandSequencer(self):
         # WARNING: if this causes infinite recursion, we just get an AttributeError
         # from the inner call (saying self has no attr 'commandSequencer')

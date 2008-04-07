@@ -31,7 +31,7 @@ from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import QString
 from PyQt4.Qt import QFont
 from PyQt4.Qt import Qt
-
+from PyQt4.Qt import QWhatsThis
 
 from UserPrefsDialog import Ui_UserPrefsDialog
 import foundation.preferences as preferences
@@ -93,6 +93,11 @@ from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 from utilities.prefs_constants import cpkScaleFactor_prefs_key
 from utilities.prefs_constants import showBondStretchIndicators_prefs_key
 from utilities.prefs_constants import showValenceErrors_prefs_key
+
+# Mouse wheel prefs
+from utilities.prefs_constants import mouseWheelDirection_prefs_key
+from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
+from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 
 # DNA prefs
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
@@ -162,7 +167,6 @@ from utilities.prefs_constants import mouseSpeedDuringRotation_prefs_key
 from utilities.prefs_constants import Adjust_endRMS_prefs_key
 from utilities.prefs_constants import Adjust_endMax_prefs_key
 from utilities.prefs_constants import Adjust_cutoverMax_prefs_key
-from utilities.prefs_constants import zoomAboutScreenCenter_prefs_key
 from utilities.prefs_constants import sponsor_permanent_permission_prefs_key
 from utilities.prefs_constants import sponsor_download_permission_prefs_key
 from utilities.prefs_constants import bondpointHotspotColor_prefs_key
@@ -456,6 +460,11 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
+        
+        # Some standard attrs.
+        self.glpane = assy.o
+        self.w = assy.w
+        self.assy = assy
 
         #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin, 
         #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
@@ -471,6 +480,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             geticon('ui/dialogs/Reset.png'))
         self.reset_dnaStrutScaleToolButton.setIcon(
             geticon('ui/dialogs/Reset.png'))
+        self.whatsThisToolButton.setIcon(
+            geticon("ui/actions/Help/WhatsThis.png"))
         #this is for solid background color frame. It is important to 
         #setAutofillBackground to True in order for it to work.
         #ideally should be done in UserPrefsDialog.py -- ninad070430
@@ -545,6 +556,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                     buttonId = 2
                 self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
         self.setUI_LogoDownloadPermissions()
+        
+        self.connect(self.whatsThisToolButton,SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.rulerDisplayComboBox,SIGNAL("currentIndexChanged(int)"),self.set_ruler_display)
@@ -558,9 +571,19 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
+        
+        # Mouse wheel prefs signal-slot connections.
+        self.connect(self.mouseWheelDirectionComboBox,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.set_mouse_wheel_direction)
+        self.connect(self.mouseWheelZoomInPointComboBox,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.set_mouse_wheel_zoom_in_position)
+        self.connect(self.mouseWheelZoomOutPointComboBox,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.set_mouse_wheel_zoom_out_position)
 
-        # DNA page signal/slot connections.
-
+        # DNA page signal-slot connections.
         self.connect(self.dnaBasesPerTurnDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaBasesPerTurn)
         self.connect(self.dnaRiseDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaRise)
         self.connect(self.dnaRestoreFactoryDefaultsPushButton,SIGNAL("clicked()"),self.dnaRestoreFactoryDefaults)
@@ -693,9 +716,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
         self.connect(self.mouseSpeedDuringRotation_slider,SIGNAL("valueChanged(int)"),self.change_mouseSpeedDuringRotation)
         self.connect(self.resetMouseSpeedDuringRotation_btn,SIGNAL("clicked()"),self.reset_mouseSpeedDuringRotation)
-        self.glpane = assy.o
-        self.w = assy.w
-        self.assy = assy
 
         #mark 060627
         # Validator for the linedit widgets. [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]
@@ -790,15 +810,15 @@ permission to do so.</p>""")
                                                     <p>Don't ask permission to download sponsor logos and don't download 
 them.</p>""")
 
-        self.animate_views_checkbox.setWhatsThis("""<p><b>Animate Between Views</b></p>Enables/disables animation
-                                             when switching between the current view and a new view.""")
-        self.animation_speed_slider.setWhatsThis("""<p><b>View Animation Speed</b></p>Sets the animation speed when
+        self.animate_views_checkbox.setWhatsThis("""<p><b>Animate Between Views</b></p><p>Enables/disables animation
+                                             when switching between the current view and a new view.</p>""")
+        self.animation_speed_slider.setWhatsThis("""<p><b>View Animation Speed</b></p><p>Sets the animation speed when
                                                  animating between view (i.e. Front View to Right View).  It is recommended that this be set to Fast when working on large
-models.""")
-        self.textLabel1_7.setWhatsThis("""<p><b>Level of Detail</b></p>Sets the <b>Level of Detail</b>
+models.</p>""")
+        self.textLabel1_7.setWhatsThis("""<p><b>Level of Detail</b></p><p>Sets the <b>Level of Detail</b>
                                        for atoms and bonds.<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics
 quality<br> <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between
-High, Medium and Low based on the model size (number of atoms).""")
+High, Medium and Low based on the model size (number of atoms).</p>""")
         self.level_of_detail_combox.setWhatsThis("""<p><b>Level of Detail</b></p>Sets the graphics quality for atoms
                                                  (and bonds)<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics quality<br>
 <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between High, Medium
@@ -849,23 +869,23 @@ letters (labels) on top of bonds.</p>
 that one or more of the atom's bonds are not of the correct order (type), or that the atom has the wrong number of bonds,
 or (for PAM DNA pseudoatoms) that there is some error in bond directions or in which PAM elements are bonded. The error details can be seen in the tooltip for the atom.""")
         self.textLabel1_3.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
-        self.textLabel1.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode""")
+        self.textLabel1.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Style""")
         self.cpk_cylinder_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
                                                for the cylinder representing bonds in Ball and Stick display mode""")
         self.bond_line_thickness_spinbox.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for
-                                                  Lines Display Mode""")
+                                                  Lines Display Style""")
         self.fill_type_combox.setWhatsThis("""<p><b>Fill Type</b></p>
                                        <p>Sets the fill type of the background. Each mode can have a different color, if desired.</p>""")
         self.cpk_rbtn.setWhatsThis("""<u><b>CPK (Space Filling)</b></u><br>
-                                   <p>Changes the <i>Default Display Mode</i>  to <b>CPK</b> mode.
+                                   <p>Changes the <i>Default Display Style</i>  to <b>CPK</b> mode.
 Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
         self.ballNstick_rbtn.setWhatsThis("""<u><b>Ball and Stick</b></u><br>
-                                          <p>Changes the <i>Default Display Mode</i>  to <b>Ball and Stick</b> mode. Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
+                                          <p>Changes the <i>Default Display Style</i> to <b>Ball and Stick</b> mode. Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
 (sticks).</p>""")
         self.lines_rbtn.setWhatsThis("""<u><b>Lines</b></u><br>
-                                 <p>Changes the <i>Default Display Mode</i> to <b>Lines</b> mode. Bonds are rendered as lines. Atoms are not rendered.</p>""")
+                                 <p>Changes the <i>Default Display Style</i> to <b>Lines</b> mode. Bonds are rendered as lines. Atoms are not rendered.</p>""")
         self.tubes_rbtn.setWhatsThis("""<u><b>Tubes</b></u><br>
-                                 <p>Changes the <i>Default Display Mode</i> to <b>Tubes</b> mode.Atoms and bonds are rendered as colored tubes.</p>""")
+                                 <p>Changes the <i>Default Display Style</i> to <b>Tubes</b> mode.Atoms and bonds are rendered as colored tubes.</p>""")
         self.autobond_checkbox.setWhatsThis("""Build mode's default setting for Autobonding at startup (enabled/disabled)""")
         self.water_checkbox.setWhatsThis("""Build mode's default setting for Water at startup (enabled/disabled)""")
         self.buildmode_select_atoms_checkbox.setWhatsThis("""<p><b>Select Atoms of Deposited Object</b></p>
@@ -1159,6 +1179,14 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
+        
+        #Mouse wheel combo boxes
+        self.mouseWheelDirectionComboBox.setCurrentIndex(
+            env.prefs[mouseWheelDirection_prefs_key])
+        self.mouseWheelZoomInPointComboBox.setCurrentIndex(
+            env.prefs[zoomInAboutScreenCenter_prefs_key])
+        self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
+            env.prefs[zoomOutAboutScreenCenter_prefs_key])
 
         if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
             self.rulerDisplayComboBox.setCurrentIndex(0)
@@ -2032,6 +2060,44 @@ restored when the user undoes a structural change.</p>
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+            
+    def set_mouse_wheel_direction(self, direction):
+        """
+        Slot for Mouse Wheel Direction combo box.
+        
+        @param direction: The mouse wheel direction for zooming in.
+                          0 = Pull (default), 1 = Push
+        @type  direction: int
+        """
+        env.prefs[mouseWheelDirection_prefs_key] = direction
+        self.w.updateMouseWheelSettings()
+        return
+    
+    def set_mouse_wheel_zoom_in_position(self, position):
+        """
+        Slot for Mouse Wheel "Zoom In Position" combo box.
+        
+        @param position: The mouse wheel zoom in position, where:
+                        0 = Cursor position (default) 
+                        1 = Graphics area center
+        @type  position: int
+        """
+        env.prefs[zoomInAboutScreenCenter_prefs_key] = position
+        self.w.updateMouseWheelSettings()
+        return
+    
+    def set_mouse_wheel_zoom_out_position(self, position):
+        """
+        Slot for Mouse Wheel "Zoom Out Position" combo box.
+        
+        @param position: The mouse wheel zoom out position, where:
+                        0 = Cursor position (default) 
+                        1 = Graphics area center
+        @type  position: int
+        """
+        env.prefs[zoomOutAboutScreenCenter_prefs_key] = position
+        self.w.updateMouseWheelSettings()
+        return
 
     def set_ruler_display(self, display):
         """
@@ -2085,20 +2151,6 @@ restored when the user undoes a structural change.</p>
         Change the ruler opacity.
         """
         env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
-
-    def changeZoomBehaviorPreference(self):
-        """
-        Changes the zoom behavior based on the user preference (zoom about 
-        the GLPane's center). as of 061003, this preference is implemented as
-         View > Zoom About Screen Center (and not in Edit > Preferences).
-         """
-        #ninad061003 : Also, we may need to change the wording 'Zoom About Screen Center' 
-        #to 'Zoom About 3D workspace center'  or something similar
-        if self.w.viewZoomAboutScreenCenterAction.isChecked():
-            env.prefs[zoomAboutScreenCenter_prefs_key] = True
-        else:
-            env.prefs[zoomAboutScreenCenter_prefs_key] = False
-
 
     def setUI_LogoDownloadPermissions(self):
         """

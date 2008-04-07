@@ -219,10 +219,6 @@ def setupUi(win):
     win.zoomInOutAction.setIcon(geticon("ui/actions/View/Modify/Zoom_In_Out"))
     win.zoomInOutAction.setObjectName("zoomInOutAction")
 
-    win.viewZoomAboutScreenCenterAction = QtGui.QAction(MainWindow)
-    win.viewZoomAboutScreenCenterAction.setCheckable(True)
-    win.viewZoomAboutScreenCenterAction.setObjectName("zoom about screen center")
-
     win.setViewRecenterAction = QtGui.QAction(MainWindow)
     win.setViewRecenterAction.setEnabled(True)
     win.setViewRecenterAction.setIcon(
@@ -1187,12 +1183,6 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Zoom to Area", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.viewZoomAboutScreenCenterAction.setText(
-        QtGui.QApplication.translate(
-            "MainWindow", "Zoom About Screen Center", 
-            None, QtGui.QApplication.UnicodeUTF8))
-
     win.setViewZoomtoSelectionAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Zoom To Selection", 

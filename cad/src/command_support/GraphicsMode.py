@@ -41,7 +41,8 @@ from graphics.behaviors.shape import get_selCurve_color
 from utilities.constants import SELSHAPE_RECT
 from utilities.constants import yellow
 
-from utilities.prefs_constants import zoomAboutScreenCenter_prefs_key
+from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
+from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
@@ -851,7 +852,7 @@ class basicGraphicsMode(GraphicsMode_API):
             dScale *= 0.25
         farQ_junk, point = self.dragstart_using_GL_DEPTH( event)
             # russ 080116 Limit mouse acceleration on the Mac.
-        delta = max( -360, min(event.delta(), 360))
+        delta = max( -360, min(event.delta(), 360)) * self.w.mouseWheelDirection
         factor = exp(dScale * delta)
         #print "Wheel factor=", factor, " delta=", delta
 
@@ -892,20 +893,10 @@ class basicGraphicsMode(GraphicsMode_API):
             # decide whether to recenter around point (or do nothing, i.e. stay centered on center of view).
             if factor < 1.0:
                 # zooming in
-                recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
-                    # ninad 060924 Zoom about screen center is disabled by default (so recenter is True by default)
+                recenter = not env.prefs[zoomInAboutScreenCenter_prefs_key]
             else:
-                # zooming out -- behavior changed for A9 by bruce 070402 on Mark request to not recenter on point.
-                # (Old behavior was to use the same pref as for zooming in.)
-                #e [Should this be a separate user pref? For now it's a debug pref, just for testing.
-                #   We might replace these two prefs with a 3-choice pref which controls them both.]
-                from utilities.debug_prefs import debug_pref, Choice_boolean_True
-                if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_True,
-                              prefs_key = "A10/GLPane: zoom out same as zoom in?"
-                              ):
-                    recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
-                else:
-                    recenter = False # the new documented behavior
+                # zooming out
+                recenter = not env.prefs[zoomOutAboutScreenCenter_prefs_key]
             if not recenter:
                 point = None
         glpane = self.o

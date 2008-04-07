@@ -760,18 +760,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Opens the Orientation Menu "\
         "</p>"
 
-    win.viewOrientationAction.setWhatsThis( viewOrientationActionText )
-    
-    # zoom to center of screen
-    
-    viewZoomAboutScreenCenterActionText = \
-        "<b>Zoom About Screen Center</b>"\
-        "<p>"\
-        "Toggles between Zoom to Cursor and About Center of the Screen"\
-        "</p>"
-    
-    win.viewZoomAboutScreenCenterAction.setWhatsThis\
-       ( viewZoomAboutScreenCenterActionText )    
+    win.viewOrientationAction.setWhatsThis( viewOrientationActionText ) 
     
     # Set Current View to Home View
     
