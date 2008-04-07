@@ -170,18 +170,26 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #This command implements similar thing 
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
         
-    def NOT_IMPLEMENTED_model_changed(self):
-        #HAS BUGS. The length of sequence in the sequence editor 
-        #doesn't match with total number of strand atoms in the resized strand.
-        #it is often more. See related bug 2729 for details. Note that
-        #the above mentioned problem happens regardless whether the debug pref
-        #'call model_changed only when needed' is ON or OFF
+    def model_changed(self):
+        #This MAY HAVE BUG. WHEN --
+        #debug pref 'call model_changed only when needed' is ON
+        #See related bug 2729 for details. 
+        
+        #The following code that updates te handle positions and the strand 
+        #sequence fixes bugs like 2745 and updating the handle positions
+        #updating handle positions in model_changed instead of in 
+        #self.graphicsMode._draw_handles() is also a minor optimization
+        #This can be further optimized by debug pref 
+        #'call model_changed only when needed' but its NOT done because of an 
+        # issue menitoned in bug 2729   - Ninad 2008-04-07
+        if self.grabbedHandle is not None:
+            return
         
         if self.hasValidStructure():
-            new_numberOfBases = self.struct.getNumberOfBases()
-            if not same_vals(new_numberOfBases, self._previousNumberOfBases):
-                self.propMgr.updateSequence()
-                self._previousNumberOfBases = new_numberOfBases
+            self.updateHandlePositions()
+            #NOTE: The following also updates self._previousParams
+            self._updateStrandSequence_if_needed()
+            
         
     def keep_empty_group(self, group):
         """
@@ -276,7 +284,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         
         
         numberOfBasesToAddOrRemove =  self._determine_numberOfBases_to_change()
-     
+             
         if numberOfBasesToAddOrRemove != 0: 
             resizeEndStrandAtom, resizeEndAxisAtom = \
                            self.get_strand_and_axis_endAtoms_at_resize_end()
@@ -298,11 +306,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                                 resizeEndAxisAtom.posn(),
                                 resizeEnd_final_position,
                                 resizeEndStrandAtom = resizeEndStrandAtom
-                            )
-                
-        
-        self.previousParams = params
-                
+                            )                        
         
         return  
     
@@ -331,10 +335,26 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         EditCommand._previewStructure(self)
         self.updateHandlePositions()
         self._updateStrandSequence_if_needed()
+        
+        
   
     def _updateStrandSequence_if_needed(self):
         if self.hasValidStructure():
             new_numberOfBases = self.struct.getNumberOfBases()
+            self.propMgr.numberOfBasesSpinBox.setValue(new_numberOfBases)
+            #@TODO Update self._previousParams again? 
+            #This NEEDS TO BE REVISED. BUG MENTIONED BELOW----
+            #we already update this in EditCommand class. But, it doesn't work for 
+            #the following bug -- 1. create a duplex with 5 basepairs, 2. resize 
+            #red strand to 2 bases. 3. Undo 4. Redo 5. Try to resize it again to 
+            #2 bases -- it doesn't work because self.previousParams stil stores 
+            #bases as 2 and thinks nothing got changed! Can we declare 
+            #self._previewStructure as a undiable state? Or better self._previousParams
+            #should store self.struct and should check method return value 
+            #like self.struct.getNumberOfBases()--Ninad 2008-04-07
+            if self.previousParams is not None:
+                if new_numberOfBases != self.previousParams[0]:
+                    self.previousParams = self._gatherParameters()
             if not same_vals(new_numberOfBases, self._previousNumberOfBases):
                 self.propMgr.updateSequence()
                 self._previousNumberOfBases = new_numberOfBases    
@@ -492,10 +512,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             return
         
         if strandEndBaseAtom1:
-            axisAtom1 = self.struct.get_DnaSegment_axisEndAtom_connected_to(strandEndBaseAtom1)
-            #New implementation will soon accept the axis atoms even when those 
-            #are not at the segment ends. -- Ninad 2008-04-04
-            ##axisAtom1 = strandEndBaseAtom1.axis_neighbor()
+            axisAtom1 = strandEndBaseAtom1.axis_neighbor()
             if axisAtom1:
                 self.handleDirection1 = self._get_handle_direction(axisAtom1, 
                                                                    strandEndBaseAtom1)
@@ -508,11 +525,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                     self.handlePoint1 = axisAtom1.posn() + v1/2.0
                 
         if strandEndBaseAtom2:
-            axisAtom2 = self.struct.get_DnaSegment_axisEndAtom_connected_to(
-                strandEndBaseAtom2)
-            #New implementation will soon accept the axis atoms even when those 
-            #are not at the segment ends. -- Ninad 2008-04-04
-            ##axisAtom2 = strandEndBaseAtom2.axis_neighbor()
+            axisAtom2 = strandEndBaseAtom2.axis_neighbor()
             
             if axisAtom2:
                 self.handleDirection2 = self._get_handle_direction(axisAtom2, 
@@ -650,10 +663,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         
         if self.grabbedHandle is not None:
             for atm in (strandEndAtom1, strandEndAtom2):
-                axisEndAtom = self.struct.get_DnaSegment_axisEndAtom_connected_to(atm)
-                #New implementation will soon accept the axis atoms even when those 
-                #are not at the segment ends. -- Ninad 2008-04-04
-                ##axisEndAtom = atm.axis_neighbor()
+                axisEndAtom = atm.axis_neighbor()
                 if axisEndAtom:
                     if same_vals(axisEndAtom.posn(), self.grabbedHandle.origin):
                         resizeEndStrandAtom = atm
