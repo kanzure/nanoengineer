@@ -654,7 +654,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         ##self.connect(self.startup_mode_combox,
                 ##SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.default_projection_btngrp,SIGNAL("buttonClicked(int)"),self.set_default_projection)
-        self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
+        self.connect(self.compassGroupBox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.endmax_linedit,SIGNAL("textChanged(const QString&)"),self.change_endmax)
         self.connect(self.endrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_endrms)
         self.connect(self.minimize_engine_combobox,SIGNAL("activated(int)"),self.set_adjust_minimization_engine)
@@ -759,7 +759,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.display_origin_axis_checkbox.setWhatsThis("""<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis""")
         self.display_pov_axis_checkbox.setWhatsThis("""<p><b>Display Point of View Axis</b></p>Shows/Hides the Point
                                                 of View Axis""")
-        self.display_compass_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
+        self.compassGroupBox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
         self.display_compass_labels_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
         self.update_btngrp.setWhatsThis("""<p><b>Watch motion in real time</b></p>Enables/disables real
                                     time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>""")
@@ -1178,7 +1178,7 @@ restored when the user undoes a structural change.</p>
         """
         Setup widgets to initial (default or defined) values on the General page.
         """
-        connect_checkbox_with_boolean_pref( self.display_compass_checkbox, displayCompass_prefs_key )
+        connect_checkbox_with_boolean_pref( self.compassGroupBox, displayCompass_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
