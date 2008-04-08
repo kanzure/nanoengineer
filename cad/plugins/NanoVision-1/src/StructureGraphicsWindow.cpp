@@ -5,7 +5,8 @@
 /* CONSTRUCTOR */
 StructureGraphicsWindow::
 StructureGraphicsWindow(QWidget *parent,
-                        NXGraphicsManager *theGraphicsManager)
+                        NXGraphicsManager *theGraphicsManager,
+                        int width, int height)
 : DataWindow(parent),
 graphicsManager(theGraphicsManager),
 molSetPtr(NULL),
@@ -19,6 +20,7 @@ renderingEngine(NULL)
 		thisWidgetLayout->setSpacing(0);
 	}
 	thisWidgetLayout->addWidget(renderingEngineWidget);
+	resize(width, height);
 	update();
 }
 
@@ -41,6 +43,7 @@ StructureGraphicsWindow::setMoleculeSet(NXMoleculeSet *theMolSetPtr)
 	if(result->getResult() == (int) NX_CMD_SUCCESS) {
 		molSetPtr = theMolSetPtr;
 		renderingEngine->setCurrentFrame(0);
+		renderingEngine->resetView();
 	}
 	return result;
 }

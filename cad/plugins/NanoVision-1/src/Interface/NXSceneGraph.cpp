@@ -2,6 +2,7 @@
 
 #include <Nanorex/Interface/NXSceneGraph.h>
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
+#include <Nanorex/Utility/NXUtility.h>
 #include <algorithm>
 #include <sstream>
 #include <iostream>
@@ -19,7 +20,7 @@ int NXSGNode::idSource(0);
 NXSGNode::NXSGNode() throw() :
     ref_count(0), children()
 #ifdef NX_DEBUG
-	,id(idSource++)
+	,id(idSource++), name()
 #endif
 {
 }
@@ -27,7 +28,8 @@ NXSGNode::NXSGNode() throw() :
 NXSGNode::~NXSGNode()
 {
 #ifdef NX_DEBUG
-	// cerr << "Deleting " << getName() << endl;
+	cerr << "deleting " << this->getName()
+		<< " [ref = " << getRefCount() << ']' << endl;
 #endif
 	removeAllChildren(); 
 }
@@ -53,7 +55,8 @@ bool NXSGNode::addChild(NXSGNode *const child)
 {
 	ClearResult();
     if(child == NULL) return false; // prevent seg-faults early
-    try { children.push_back(child); }
+	assert(find(children.begin(), children.end(), child) == children.end());
+	try { children.push_back(child); }
     catch(...) {
         SetError((int) NX_INTERNAL_ERROR,
                  "Failed to add scenegraph child");
@@ -69,8 +72,9 @@ bool NXSGNode::addChild(NXSGNode *const child)
 /// Does not remove child from the list of children
 inline void NXSGNode::removeChildWithoutCheck(NXSGNode *childPtr)
 {
-    int childNewRefCount = childPtr->decrementRefCount();
-    if(childNewRefCount == 0) {
+	assert(childPtr->getRefCount() >= 1);
+	int childNewRefCount = childPtr->decrementRefCount();
+	if(childNewRefCount == 0) {
         delete childPtr; // will call deleteRecursive
     }
 }
@@ -139,9 +143,11 @@ void NXSGNode::reset(void)
 
 string const NXSGNode::getName() const
 {
-	ostringstream strm;
-    strm << "Node_" << id;
-    return strm.str();
+// 	ostringstream strm;
+// 	strm << "Node_" << name << "-" << id;
+//     return strm.str();
+	
+	return "Node_" + name + "_" + NXUtility::itos(id);
 }
 
 void NXSGNode::writeDotGraph(ostream& o) const

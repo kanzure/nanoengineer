@@ -18,7 +18,8 @@ class StructureGraphicsWindow : public DataWindow
     
 public:
     StructureGraphicsWindow(QWidget *parent,
-                            NXGraphicsManager *gm);
+                            NXGraphicsManager *gm,
+                            int width = 640, int height = 400);
     ~StructureGraphicsWindow();
     
 	NXCommandResult const *const setMoleculeSet(NXMoleculeSet *theMolSetPtr);

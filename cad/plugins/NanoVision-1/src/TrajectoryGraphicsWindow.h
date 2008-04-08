@@ -78,9 +78,6 @@ protected slots:
     void on_endFrameSpinBox_valueChanged(int);
     void on_currentFrameSpinBox_valueChanged(int);
     
-    void on_frameAdvanceButtonGroup_buttonClicked(int frameAdvanceMode);
-    void on_repetitionButtonGroup_buttonClicked(int repetitionMode);
-    
     void on_trajectoryPlusFiveButton_clicked(bool);
     void on_trajectoryMinusFiveButton_clicked(bool);
     
@@ -92,9 +89,13 @@ protected slots:
     void on_trajectoryStopButton_clicked(bool);
     void on_trajectoryPlayButton_toggled(bool checked);
     
+	// non-QMetaObject slots: note nomenclature difference
+	void onFrameAdvanceButtonGroupButtonClicked(int frameAdvanceMode);
+	void onRepetitionButtonGroupButtonClicked(int repetitionMode);
+	
     // slots to handle repetition behavior
-    void on_beginFrameReached(void);
-    void on_endFrameReached(void);
+    void onBeginFrameReached(void);
+    void onEndFrameReached(void);
     
     // slots extending functionality
     // current frame spin box and slider updates to visual

@@ -2,6 +2,7 @@
 
 #include "NXOpenGLSceneGraph.h"
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
+#include <Nanorex/Utility/NXUtility.h>
 #include "GLT/glt_error.h"
 #include <sstream>
 #include <cassert>
@@ -316,72 +317,87 @@ bool NXSGOpenGLMaterial::apply(void) const throw ()
 #ifdef NX_DEBUG
 string const NXSGOpenGLNode::getName() const
 {
-    ostringstream strm;
-    strm << "OGLNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGL_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGL_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLTransform::getName() const
 {
-    ostringstream strm;
-    strm << "OGLTfNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLTf_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLTf_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLModelViewTransform::getName() const
 {
-    ostringstream strm;
-    strm << "OGLMVNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLMV_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLMV_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLTranslate::getName() const
 {
-    ostringstream strm;
-    strm << "OGLTraNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLTra_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLTra_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLRotate::getName() const
 {
-    ostringstream strm;
-    strm << "OGLRotNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLRot_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLRot_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLScale::getName() const
 {
-    ostringstream strm;
-    strm << "OGLScaNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLSca_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLSca_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLRenderable::getName() const
 {
-    ostringstream strm;
-    strm << "OGLRendNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLRend_"  + name + "-") << id;
+//     return strm.str();
+	return "OGLRend_"  + name + "_" + NXUtility::itos(id);
 }
 
 // .............................................................................
 
 string const NXSGOpenGLMaterial::getName() const
 {
-    ostringstream strm;
-    strm << "OGLMatNode_" << id;
-    return strm.str();
+//     ostringstream strm;
+// 	strm << ("OGLMat_"  + name + "-") << id;
+//     return strm.str();
+	
+	return "OGLMat_"  + name + "_" + NXUtility::itos(id);
 }
 
 

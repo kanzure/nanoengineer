@@ -58,7 +58,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		return result;
 	}
 	
-	// If this is the first call to import the data store, retrieve the meta
+	// If this is the first ca	ll to import the data store, retrieve the meta
 	// information about the data store, and other data.
 	if ((frameIndex == 0) && (frameSetId == 0) &&
 		(result->getResult() == NX_CMD_SUCCESS)) {
@@ -142,8 +142,12 @@ printf("HDF5: setStoreComplete(true)\n");
 			atom = molecule->NewAtom();
 			atom->SetIdx(atomIds[index]);
 			atom->SetAtomicNum(atomicNumbers[index]);
-			atom->SetVector(positions[index*3 + 0], positions[index*3 + 1],
-							positions[index*3 + 2]);
+			atom->SetVector(positions[index*3 + 0] * 1.0e-13,
+			                positions[index*3 + 1] * 1.0e-13,
+			                positions[index*3 + 2] * 1.0e-13);
+			NXAtomData *atomData = new NXAtomData(atomicNumbers[index]);
+			atomData->setRenderStyleCode("def");
+			atom->SetData(atomData);
 		}
 		for (index = 0; index < bondCount; index++) {
 			simResultsBond = ((SimResultsBond*)bonds)[index];

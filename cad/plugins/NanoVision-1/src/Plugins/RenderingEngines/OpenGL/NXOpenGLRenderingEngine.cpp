@@ -365,6 +365,16 @@ NXOpenGLRenderingEngine::createSceneGraph (NXMoleculeSet *const molSetPtr)
 	renderedAtoms.clear();
 	renderedBonds.clear();
 	NXSGOpenGLNode *node = createOpenGLSceneGraph(molSetPtr);
+
+#ifdef NX_DEBUG
+	NXSGNode const *const node1 = node;
+	ofstream sgFile((molSetPtr->getTitle() + ".sg").c_str(), ios::out);
+	sgFile << "digraph SG {" << endl;
+	if(sgFile)
+		node1->writeDotGraph(sgFile);
+	sgFile << "}" << endl;
+#endif
+
 	return static_cast<NXSGNode*>(node);
 }
 
@@ -903,6 +913,19 @@ void NXOpenGLRenderingEngine::resetView(void)
 	                 0.0, 1.0, 0.0);
 	camera.glOrtho(l, r, b, t, n, f);
 	
+	// default HomeView: (1, 0, 0, 0) (10) (0, 0, 0) (1)
+	// orthographic projection as in GLPane.py::_setup_projection()
+	
+// 	double const SCALE = 10.0 * 1.0e-13;
+// 	double const VDIST = 6.0 * SCALE;
+// 	camera.gluLookAt(0.0, 0.0, VDIST,
+// 	                 0.0, 0.0, 0.0,
+// 	                 0.0, 1.0, 0.0);
+// 	double const NEAR = 0.25, FAR = 12.0;
+// 	camera.glOrtho(-SCALE * aspect, SCALE * aspect,
+// 	               -SCALE         , SCALE,
+// 	               VDIST * NEAR   , VDIST * FAR);
+	
 	updateGL();
 }
 
@@ -1036,6 +1059,11 @@ bool NXOpenGLRenderingEngine::cleanupPlugins(void)
 	    pluginIter != renderStyleMap.end();
 	    ++pluginIter)
 	{
+		// skip cleanup of default because it is an alias of another plugin
+		string const& renderStyleCode = pluginIter->first;
+		if(renderStyleCode == "def")
+			continue;
+		
 		NXRendererPlugin *plugin = pluginIter->second;
 		NXCommandResult const *const result = plugin->cleanup();
 		
@@ -1050,6 +1078,7 @@ bool NXOpenGLRenderingEngine::cleanupPlugins(void)
 				logMsgStream << ' ' << qPrintable(*msgIter);
 			}
 			NXLOG_SEVERE("NXOpenGLRenderingEngine", logMsgStream.str());
+			success = false;
 		}
 		else {
 			NXLOG_INFO("NXOpenGLRenderingEngine",

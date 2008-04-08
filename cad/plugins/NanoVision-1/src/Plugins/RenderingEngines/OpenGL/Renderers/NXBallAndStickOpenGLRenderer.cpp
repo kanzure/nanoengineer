@@ -7,16 +7,16 @@
 
 #include <iostream>
 
+
 using namespace std;
 using namespace Nanorex;
 
 // utility function
-template<typename T>
-inline void guarded_delete(T* &ptr)
+inline void guarded_delete(NXSGOpenGLNode* &ptr)
 {
-	if(ptr != (T*) NULL) {
+	if(ptr != (NXSGOpenGLNode*) NULL) {
 		delete ptr;
-		ptr = (T*) NULL;
+		ptr = (NXSGOpenGLNode*) NULL;
 	}
 }
 
@@ -79,6 +79,7 @@ NXCommandResult const *const NXBallAndStickOpenGLRenderer::initialize(void)
 			{
 				bool const addedChild =
 					canonicalBondNodeGuard[bondType].addChild(canonicalBondNode[SINGLE_BOND]);
+				assert(canonicalBondNodeGuard[bondType].getNumChildren() == 1);
 	            /// @todo check the indices above!
 				initialized = initialized && addedChild;
 			}
@@ -114,8 +115,14 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalGeometryNodes(void)
 	// ref count is at least one if all other nodes behave correctly
 	bool const guardedSphereNode =
 		canonicalSphereNodeGuard.addChild(canonicalSphereNode);
+	assert(canonicalSphereNode->getRefCount() == 1);
+	assert(canonicalSphereNodeGuard.getNumChildren() == 1);
+	
 	bool const guardedCylinderNode =
 		canonicalCylinderNodeGuard.addChild(canonicalCylinderNode);
+	assert(canonicalCylinderNode->getRefCount() == 1);
+	assert(canonicalCylinderNodeGuard.getNumChildren() == 1);
+	
 	if(!guardedSphereNode || !guardedCylinderNode) {
 		SetError(commandResult,
 		         "Could not set up canonical sphere/cylinder node guards");
@@ -139,6 +146,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalSphereNode(void)
 	
 	try {
 		canonicalSphereNode = new NXSGOpenGLRenderable;
+#ifdef NX_DEBUG
+		canonicalSphereNode->setName("CanonicalSphere");
+#endif
 	}
 	catch (...) {
         // fail silently if unable to create for any reason
@@ -290,6 +300,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalCylinderNode(void)
 	
 	try {
 		canonicalCylinderNode = new NXSGOpenGLRenderable;
+#ifdef NX_DEBUG
+		canonicalCylinderNode->setName("CanonicalCylinder");
+#endif
 	}
 	catch (...) {
         // fail if unable to create for any reason
@@ -457,6 +470,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalSingleBondNode(void)
         try {
             canonicalBondNode[SINGLE_BOND] =
                 new NXSGOpenGLScale(BOND_WIDTH, BOND_WIDTH, 1.0);
+#ifdef NX_DEBUG
+	        canonicalBondNode[SINGLE_BOND]->setName("SingleBond");
+#endif
         }
         catch(...) {
             canonicalBondNode[SINGLE_BOND] = NULL;
@@ -500,6 +516,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalDoubleBondNode(void)
             translateNode1 = new NXSGOpenGLTranslate(BOND_WIDTH, 0.0, 0.0);
             translateNode2 = new NXSGOpenGLTranslate(-BOND_WIDTH, 0.0, 0.0);
             canonicalBondNode[DOUBLE_BOND] = new NXSGOpenGLNode;
+#ifdef NX_DEBUG
+	        canonicalBondNode[DOUBLE_BOND]->setName("DoubleBond");
+#endif
         }
         catch(...) {
             doubleBondOK = false;
@@ -508,8 +527,8 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalDoubleBondNode(void)
             bool ok1 = translateNode1->addChild(canonicalBondNode[SINGLE_BOND]);
             bool ok2 = translateNode2->addChild(canonicalBondNode[SINGLE_BOND]);
             if(ok1 && ok2) {
-                bool ok3 = canonicalBondNode[1]->addChild(translateNode1);
-                bool ok4 = canonicalBondNode[1]->addChild(translateNode2);
+                bool ok3 = canonicalBondNode[DOUBLE_BOND]->addChild(translateNode1);
+                bool ok4 = canonicalBondNode[DOUBLE_BOND]->addChild(translateNode2);
                 doubleBondOK = ok3 && ok4;
             }
             else {
@@ -554,6 +573,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalTripleBondNode(void)
             translateNode2 =
 		        new NXSGOpenGLTranslate(1.5*(-BOND_WIDTH), 0.0, 0.0);
             canonicalBondNode[TRIPLE_BOND] = new NXSGOpenGLNode;
+#ifdef NX_DEBUG
+	        canonicalBondNode[TRIPLE_BOND]->setName("TripleBond");
+#endif
         }
         catch(...) {
             tripleBondOK = false;
@@ -606,7 +628,10 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalAromaticBondNode(void)
 	bool success = true;
     try {
         canonicalBondNode[AROMATIC_BOND] = new NXSGOpenGLNode;
-        if(!canonicalBondNode[AROMATIC_BOND]->
+#ifdef NX_DEBUG
+	    canonicalBondNode[AROMATIC_BOND]->setName("AromaticBond");
+#endif
+	    if(!canonicalBondNode[AROMATIC_BOND]->
            addChild(canonicalBondNode[SINGLE_BOND]))
         {
             delete canonicalBondNode[AROMATIC_BOND];
@@ -636,7 +661,10 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalCarbomericBondNode(void)
 	bool success = true;
     try {
         canonicalBondNode[CARBOMERIC_BOND] = new NXSGOpenGLNode;
-        if(!canonicalBondNode[CARBOMERIC_BOND]->
+#ifdef NX_DEBUG
+	    canonicalBondNode[CARBOMERIC_BOND]->setName("CarbomericBond");
+#endif
+	    if(!canonicalBondNode[CARBOMERIC_BOND]->
            addChild(canonicalBondNode[SINGLE_BOND]))
         {
             delete canonicalBondNode[CARBOMERIC_BOND];
@@ -666,6 +694,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalGraphiticBondNode(void)
 	bool success = true;
     try {
         canonicalBondNode[GRAPHITIC_BOND] = new NXSGOpenGLNode;
+#ifdef NX_DEBUG
+	    canonicalBondNode[GRAPHITIC_BOND]->setName("GraphiticBond");
+#endif
         if(!canonicalBondNode[GRAPHITIC_BOND]->
            addChild(canonicalBondNode[SINGLE_BOND]))
         {
@@ -689,15 +720,17 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalGraphiticBondNode(void)
 NXCommandResult const *const NXBallAndStickOpenGLRenderer::cleanup(void)
 {
 	NXRendererPlugin::ClearResult(commandResult);
-	guarded_delete(canonicalSphereNode);
-	guarded_delete(canonicalCylinderNode);
-	for(int bondType = (int)SINGLE_BOND;
-	    bondType < (int)NUM_BOND_TYPES;
-		++bondType)
-	{
-		guarded_delete(canonicalBondNode[bondType]);
+	if(initialized) {
+		// guarded_delete(canonicalSphereNode);
+		// guarded_delete(canonicalCylinderNode);
+		for(int bondType = (int)SINGLE_BOND;
+		    bondType < (int)NUM_BOND_TYPES;
+		    ++bondType)
+		{
+			guarded_delete(canonicalBondNode[bondType]);
+		}
+		initialized = false;
 	}
-	initialized = false;
 	return &commandResult;
 }
 

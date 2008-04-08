@@ -7,6 +7,13 @@
 
 #include <sstream>
 
+#ifdef NX_DEBUG
+#define NX_DEBUG_FAIL  assert(0);
+#else
+#define NX_DEBUG_FAIL
+#endif
+
+
 using namespace std;
 
 namespace Nanorex {
@@ -59,6 +66,8 @@ bool NXGraphicsManager::loadPlugins(NXProperties *const props)
 		detectDefaultRenderer(props);
 		printDiagnosticLogs();
 	}
+	else
+		NX_DEBUG_FAIL;
 	return success;
 }
 
@@ -339,18 +348,25 @@ void NXGraphicsManager::detectDefaultRenderer(NXProperties *const props)
 		RenderStyleRendererPluginTable::iterator rendererFinder =
 			renderStyleRendererPluginTable.find(defaultRendererCode);
 		if(rendererFinder == renderStyleRendererPluginTable.end()) {
+			defaultRenderer = renderStyleRendererPluginTable.begin()->second;
 			NXLOG_WARNING("NXGraphicsManager",
 			              "Invalid default render-style code - "
-			              "default render-style set to 'invisible'");
+			              "assigning arbitrarily");
 		}
 		else {
 			defaultRenderer = rendererFinder->second;
-			renderStyleRendererPluginTable["def"] = defaultRenderer;
 		}
 	}
 	else {
-		NXLOG_WARNING("NXGraphicsManager", "Default renderer not specified - "
-		              "default render-style set to 'invisible'");
+		if(!renderStyleRendererPluginTable.empty()) {
+			defaultRenderer = renderStyleRendererPluginTable.begin()->second;
+			NXLOG_WARNING("NXGraphicsManager",
+			              "No default render-style code - assigning arbitrarily");
+		}
+		else {
+			NXLOG_SEVERE("NXGraphicsManager", "Default renderer not specified -"
+			             " and no renderers to assign arbitrarily as default");
+		}
 	}
 }
 
@@ -415,6 +431,7 @@ NXRenderingEngine* NXGraphicsManager::newGraphicsInstance(QWidget *parent)
 	    ++renderStyleCodeIter)
 	{
 		string const& renderStyleCode = renderStyleCodeIter->first;
+		assert(renderStyleCode != "def");
 		string const& renderStyleName = renderStyleNameTable[renderStyleCode];
 		NXRendererPlugin *plugin = renderStyleCodeIter->second;
 		NXRendererPlugin *newPlugin = plugin->newInstance(newEngine);
@@ -422,7 +439,10 @@ NXRenderingEngine* NXGraphicsManager::newGraphicsInstance(QWidget *parent)
 			NXLOG_WARNING("NXGraphicsManager", "Failed to create new instance "
 			              "of plugin for " + renderStyleName + " render-style");
 		}
-		newEngine->setRenderer(renderStyleCodeIter->first, newPlugin);
+		newEngine->setRenderer(renderStyleCode, newPlugin);
+		
+		if(defaultRenderer == plugin)
+			newEngine->setRenderer("def", newPlugin);
 	}
 	
 	bool pluginsInitialized = newEngine->initializePlugins();

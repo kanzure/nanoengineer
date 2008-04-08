@@ -71,9 +71,13 @@ public:
 	
 	bool isRendererCompatible(QObject *plugin) const;
 	
-	void setCurrentFrame(int frameIdx);
+	// void setCurrentFrame(int frameIdx);
 	
 	Nanorex::NXRendererPlugin* renderer_cast(QObject *plugin) const;
+	
+    /// Reset the view based on the atom-bond distribution in the
+	/// current frame's molecule-set
+	void resetView (void);
 	
     // Mouse-event handlers
 	void mousePressEvent(QMouseEvent *mouseEvent);
@@ -148,9 +152,6 @@ private:
 	void resizeGL(int width, int height);
 	void paintGL(void);
     
-    /// Reset the view based on the atom-bond distribution in the molecule-set
-    void resetView (void);
-    
 	bool initializeElementColorMap(void);
 	void initializeDefaultMaterials(void);
 	void setupDefaultLights(void);
@@ -160,6 +161,9 @@ private:
 	// static methods
 	BoundingBox GetBoundingBox(Nanorex::NXMoleculeSet *const molSetPtr);
 	BoundingBox GetBoundingBox(OpenBabel::OBMol *const molPtr);
+	
+	friend class NXOpenGLRenderingEngineTest;
+	friend class MMPOpenGLRendererTest;
 };
 
 
@@ -184,7 +188,7 @@ NXOpenGLRenderingEngine::renderer_cast(QObject *plugin) const
 		static_cast<Nanorex::NXRendererPlugin*>(rendererPlugin);
 }
 
-
+#if 0
 inline void NXOpenGLRenderingEngine::setCurrentFrame(int frameIdx)
 {
 	if(frameIdx < (int)frames.size()) {
@@ -192,5 +196,6 @@ inline void NXOpenGLRenderingEngine::setCurrentFrame(int frameIdx)
 		resetView();
 	}
 }
+#endif
 
 #endif // NX_OPENGLRENDERINGENGINE_H

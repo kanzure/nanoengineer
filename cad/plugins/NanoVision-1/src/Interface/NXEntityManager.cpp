@@ -321,7 +321,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 								NXLOG_INFO("NXEntityManager",
 										   qPrintable(logMessage));
 							}
-							delete _result;
+							// delete _result;
 						}
 						iter++;
 					}

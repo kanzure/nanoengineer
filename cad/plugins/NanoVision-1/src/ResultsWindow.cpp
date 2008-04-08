@@ -252,7 +252,12 @@ void ResultsWindow::setupSimulationResultsTree(void)
 			int trajectoryId =
 				dataStoreInfo->getTrajectoryId(*trajectoryNameIter);
 			if ((resultsSummaryItem != NULL) &&
-			    (!dataStoreInfo->storeIsComplete(trajectoryId))) {
+			    (!dataStoreInfo->storeIsComplete(trajectoryId)))
+			{
+				/// @todo: This code will need to be a little smarter once we support multiple
+				/// trajectories and such. As it stands, it would make multiple identical signal-
+				/// slot connections.
+				
 				    QObject::connect(entityManager,
 				                     SIGNAL(dataStoreComplete()),
 				                     resultsSummaryItem,
@@ -559,6 +564,7 @@ void StructureGraphicsTreeItem::showWindow() {
 			new StructureGraphicsWindow(NULL,
 			                            resultsWindow->graphicsManager);
 		assert(structureWindow != NULL);
+		structureWindow->show();
 		
 		NXCommandResult const *const addMolSetFrameResult =
 			structureWindow->setMoleculeSet(molSetPtr);
@@ -576,7 +582,10 @@ void StructureGraphicsTreeItem::showWindow() {
 		}
 		resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
 	}
-	structureWindow->show();
+	else
+		structureWindow->show();
+	
+	// structureWindow->update();
 }
 
 

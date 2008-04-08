@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
 	// renderingEngine->clearFrames();
     renderingEngine->addFrame(&theMoleculeSet);
 	renderingEngine->setCurrentFrame(0);
+	renderingEngine->resetView();
     int result = app.exec();
 	return result;
 }

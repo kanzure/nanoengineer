@@ -16,6 +16,7 @@
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
+#include "Nanorex/Interface/NXAtomData.h"
 using namespace Nanorex;
 
 #include <vector>

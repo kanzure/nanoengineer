@@ -113,7 +113,7 @@ public:
 	/// Create new instances of plugins local to this context from those in the
 	/// graphics-manager. Returns true if successful, false if at least one
 	/// plugin instantiation failed.
-	virtual bool importRendererPluginsFromGraphicsManager(void);
+// 	virtual bool importRendererPluginsFromGraphicsManager(void);
 	
 	/// Access chemical entity at index idx - returns NULL if not found
 	/// which happens if index is out of bounds
@@ -131,6 +131,10 @@ public:
 	/// Clear all frame info
 	void clearFrames(void) { deleteFrames(); moleculeSets.clear(); }
 	
+	/// Derived classes can implement to adjust view based on current frame's
+	/// molecule-set
+	virtual void resetView(void) { }
+	
 	/// Result of the last command
 	NXCommandResult const* getCommandResult(void) const
 	{ return &commandResult; }
@@ -143,7 +147,7 @@ protected:
 	
 	/// Track renderer-plugins initialized in local context and delete in
 	/// destructor
-	std::vector<NXRendererPlugin*> rendererSet;
+	// std::vector<NXRendererPlugin*> rendererSet;
 	
 	/// Local map render-style to plugin
 	std::map<std::string, NXRendererPlugin*> renderStyleMap;

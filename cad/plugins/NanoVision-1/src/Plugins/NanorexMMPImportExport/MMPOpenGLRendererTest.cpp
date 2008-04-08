@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	NanorexMMPImportExport importer;
 	NXCommandResult const *result =
 		importer.importFromFile(&theMoleculeSet, &dataStoreInfo,
-		                        "../src/Testing/MMP_TestFiles/chlorophyll.mmp", 0,0);
+		                        "../src/Testing/MMP_TestFiles/H2.mmp", 0,0);
 	if(result->getResult() != (int) NX_CMD_SUCCESS) {
 		vector<QString> const params = result->getParamVector();
 		cerr << "Error: ";
@@ -56,7 +56,11 @@ int main(int argc, char *argv[])
 	result = renderingEngine->addFrame(&theMoleculeSet);
 	assert(result->getResult() == (int) NX_CMD_SUCCESS);
 	assert(renderingEngine->getFrameCount() == 1);
+	
+	// renderingEngine->frames[0]->writeDotGraph(cout);
+	
 	renderingEngine->setCurrentFrame(0);
+	renderingEngine->resetView();
 	
 	return app.exec();
 }

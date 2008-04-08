@@ -13,7 +13,7 @@ Ui::TrajectoryGraphicsWindow(),
 // playbackContext(*this),
 entityManager(entityMgr),
 graphicsManager(graphicsMgr),
-frameSetId(0),
+frameSetId(-1),
 renderingEngine(NULL),
 repetitionButtonGroup(NULL),
 frameAdvanceButtonGroup(NULL),
@@ -39,9 +39,9 @@ numFrames(0)
 	bool engineCreated = createRenderingEngine();
 	
 	/// @todo set busy cursor
-	bool animationCreated = false;
-	if(engineCreated)
-		animationCreated = createAnimation();
+	// bool animationCreated = false;
+	// if(engineCreated)
+	// 	animationCreated = createAnimation();
 	/// @todo unset busy cursor
 	
 	/// @todo trap errors	
@@ -69,15 +69,20 @@ bool TrajectoryGraphicsWindow::createRenderingEngine(void)
 		assert(placeholderWidgetIndex >= 0);
 		
 		// then include engine and delete placeholder
+		trajectoryGraphicsLayout->setEnabled(false);
 		trajectoryGraphicsLayout->removeWidget(glPanePlaceholderTextEdit);
+		trajectoryGraphicsLayout->removeWidget(controlsFrame);
 		QWidget *renderingEngineWidget = renderingEngine->asQWidget();
 		trajectoryGraphicsLayout->addWidget(renderingEngineWidget);
-		renderingEngineWidget->resize(glPanePlaceholderTextEdit->size());
-		renderingEngineWidget->move(glPanePlaceholderTextEdit->pos());
+		trajectoryGraphicsLayout->addWidget(controlsFrame);
+		// renderingEngineWidget->resize(glPanePlaceholderTextEdit->size());
+		// renderingEngineWidget->move(glPanePlaceholderTextEdit->pos());
+		trajectoryGraphicsLayout->setEnabled(true);
+
 		delete glPanePlaceholderTextEdit;
 		glPanePlaceholderTextEdit = (QTextEdit*) NULL;
 		
-		trajectoryGraphicsLayout->update();
+		update();
 		NXLOG_DEBUG("TrajectoryGraphicsWindow",
 		            "Locally instantiated rendering-engine");
 	}
@@ -91,12 +96,18 @@ bool TrajectoryGraphicsWindow::createRenderingEngine(void)
 
 bool TrajectoryGraphicsWindow::createAnimation(void)
 {
+	assert(entityManager != NULL);
+	assert(graphicsManager != NULL);
+	assert(frameSetId >= 0);
+	
 	// create scenegraphs for each frame
 	numFrames = entityManager->getFrameCount(frameSetId);
 	bool success = true;
 	
+	renderingEngine->clearFrames();
+	
 	int frameId = 0;
-	for(frameId = 0; frameId < numFrames; ++frameId) {
+	for(frameId = 0; (frameId < numFrames) && success; ++frameId) {
 		// extract and render molecule-set for frame
 		NXMoleculeSet *const molSetPtr_frameId =
 			entityManager->getRootMoleculeSet(frameSetId, frameId);
@@ -126,9 +137,12 @@ bool TrajectoryGraphicsWindow::createAnimation(void)
 	numFrames = frameId; // last frame created if there was failure
 	if(numFrames > 0) {
 		currentFrameIndex = 0;
+		renderingEngine->setCurrentFrame(0); // resets the view
+		renderingEngine->resetView();
 		setSpinBoxValues(1, 1, numFrames, 1, 1, numFrames, numFrames);
 	}
-	return true;
+	
+	return success;
 }
 
 
@@ -168,7 +182,8 @@ void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
 	beginFrameSpinBox->setRange(beginMin, beginMax);
 	beginFrameSpinBox->setValue(beginVal);
 	currentFrameSpinBox->setRange(beginVal, endVal);
-	currentFrameSpinBox->setValue(current);
+	currentFrameHSlider->setRange(beginVal, endVal);
+	currentFrameSpinBox->setValue(current); // will also set slider
 	endFrameSpinBox->setRange(endMin, endMax);
 	endFrameSpinBox->setValue(endVal);
 }
@@ -183,6 +198,18 @@ void TrajectoryGraphicsWindow::connectSignalsAndSlots(void)
 	// auto-play
 	QObject::connect(autoPlayTimer, SIGNAL(timeout()),
 	                 this, SLOT(autoPlayFrameAdvance()));
+	
+	QObject::connect(this, SIGNAL(beginFrameReached(void)),
+	                 this, SLOT(onBeginFrameReached(void)));
+	
+	QObject::connect(this, SIGNAL(endFrameReached(void)),
+	                 this, SLOT(onEndFrameReached(void)));
+	
+	QObject::connect(frameAdvanceButtonGroup, SIGNAL(buttonClicked(int)),
+	                 this, SLOT(onFrameAdvanceButtonGroupButtonClicked(int)));
+	
+	QObject::connect(repetitionButtonGroup, SIGNAL(buttonClicked(int)),
+	                 this, SLOT(onRepetitionButtonGroupButtonClicked(int)));
 }
 
 
@@ -191,7 +218,7 @@ void TrajectoryGraphicsWindow::connectSignalsAndSlots(void)
 void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
                                         NXMoleculeSet* newMoleculeSet)
 {
-	
+#if 0
 	// Start printing all frames available from the first render() call
 	unsigned int frameCount = entityManager->getFrameCount(frameSetId);;
 	QString line;
@@ -214,6 +241,7 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 		moleculeSet =
 			entityManager->getRootMoleculeSet(frameSetId, frameIndex);
 	}
+#endif
 	
 	// Generate frames for each molecule-sets in each new frame
 	if(frameSetId == this->frameSetId && newFrameIndex > numFrames) {
@@ -222,6 +250,14 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 				entityManager->getRootMoleculeSet(frameSetId, frameId);
 			renderingEngine->addFrame(molSetPtr);
 		}
+		
+		// If the end-frame happens to be the last frame then user probably
+		// wants to play till the end so revise that value
+		if(endFrameSpinBox->value() == numFrames) {
+			endFrameSpinBox->setValue(newFrameIndex);
+			//< will emit signals to update rest of GUI
+		}
+		
 		numFrames = newFrameIndex;
 	}
 	// Stop once the data store is complete
@@ -233,6 +269,8 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 void TrajectoryGraphicsWindow::setFrameSetId(int frameSetId)
 {
 	this->frameSetId = frameSetId;
+	createAnimation();
+#if 0
 	int frameCount = entityManager->getFrameCount(frameSetId);
 	renderingEngine->clearFrames();
 	for(int frameId=0; frameId<frameCount; ++frameId) {
@@ -240,6 +278,7 @@ void TrajectoryGraphicsWindow::setFrameSetId(int frameSetId)
 			entityManager->getRootMoleculeSet(frameSetId, frameId);
 		renderingEngine->addFrame(molSetPtr);
 	}
+#endif
 }
 
 
@@ -249,6 +288,7 @@ TrajectoryGraphicsWindow::on_beginFrameSpinBox_valueChanged(int frameIndex)
 	beginFrameIndex = frameIndex;
 	endFrameSpinBox->setMinimum(frameIndex);
 	currentFrameSpinBox->setMinimum(frameIndex);
+	currentFrameHSlider->setMinimum(frameIndex);
 }
 
 void
@@ -257,6 +297,7 @@ TrajectoryGraphicsWindow::on_endFrameSpinBox_valueChanged(int frameIndex)
 	endFrameIndex = frameIndex;
 	beginFrameSpinBox->setMaximum(frameIndex);
 	currentFrameSpinBox->setMaximum(frameIndex);
+	currentFrameHSlider->setMaximum(frameIndex);
 }
 
 
@@ -266,12 +307,16 @@ TrajectoryGraphicsWindow::on_currentFrameSpinBox_valueChanged(int frameIndex)
 	currentFrameIndex = frameIndex;
 	
     // update scenegraph to be rendered
-	renderingEngine->setCurrentFrame(currentFrameIndex);
-	
-	if(frameIndex == beginFrameIndex)
+	if(renderingEngine != NULL)
+		renderingEngine->setCurrentFrame(currentFrameIndex);
+	/// @todo renderingEngine->update()?
+
+	if(playing && (frameIndex == beginFrameIndex))
 		emit beginFrameReached();
-	else if(frameIndex == endFrameIndex)
+	
+	else if(playing && (frameIndex == endFrameIndex))
 		emit endFrameReached();
+	/// @todo renderingEngine->update()?
 }
 
 
@@ -294,7 +339,7 @@ void TrajectoryGraphicsWindow::on_trajectoryMinusFiveButton_clicked(bool)
 /// button-quartet swap is performed by a parallel direct signal-slot connection.
 void
 TrajectoryGraphicsWindow::
-on_frameAdvanceButtonGroup_buttonClicked(int frameAdvanceMode)
+onFrameAdvanceButtonGroupButtonClicked(int frameAdvanceMode)
 {
 	this->frameAdvanceMode = static_cast<FrameAdvanceMode>(frameAdvanceMode);
     // Change of controls displayed is achieved by signal from button group
@@ -305,9 +350,12 @@ on_frameAdvanceButtonGroup_buttonClicked(int frameAdvanceMode)
         // disable oscillate-repetition option but before doing so, transfer...
         // ...enabled state to no-repetition button
 		bool oscillateRepetitionSelected = oscillateRepetitionRadioButton->isChecked();
-		noneRepetitionRadioButton->setChecked(oscillateRepetitionSelected);
-        /// @fixme want this to emit signal and connected slots will update GUI state
-		oscillateRepetitionRadioButton->setEnabled(false);
+		if(oscillateRepetitionSelected) {
+			noneRepetitionRadioButton->click(); // emits signals
+			assert(noneRepetitionRadioButton->isChecked());
+			assert(!oscillateRepetitionRadioButton->isChecked());
+		}
+        oscillateRepetitionRadioButton->setEnabled(false);
 	}
 	else
 		oscillateRepetitionRadioButton->setEnabled(true);
@@ -316,7 +364,7 @@ on_frameAdvanceButtonGroup_buttonClicked(int frameAdvanceMode)
 
 void
 TrajectoryGraphicsWindow::
-on_repetitionButtonGroup_buttonClicked(int repetitionMode)
+onRepetitionButtonGroupButtonClicked(int repetitionMode)
 {
 	this->repetitionMode = (RepetitionMode) repetitionMode;
 	currentFrameSpinBox->setWrapping(repetitionMode == LOOP_REPETITION);
@@ -404,7 +452,7 @@ void TrajectoryGraphicsWindow::autoPlayFrameAdvance(void)
 }
 
 
-void TrajectoryGraphicsWindow::on_beginFrameReached(void)
+void TrajectoryGraphicsWindow::onBeginFrameReached(void)
 {
 	if(frameAdvanceMode == AUTO_FRAME_ADVANCE) {
         // State reached by
@@ -431,7 +479,7 @@ void TrajectoryGraphicsWindow::on_beginFrameReached(void)
 }
 
 
-void TrajectoryGraphicsWindow::on_endFrameReached(void)
+void TrajectoryGraphicsWindow::onEndFrameReached(void)
 {
 	if(frameAdvanceMode == AUTO_FRAME_ADVANCE) {
         // State reached by
@@ -458,5 +506,6 @@ void TrajectoryGraphicsWindow::on_endFrameReached(void)
 
 void TrajectoryGraphicsWindow::setCurrentFrameIndex(int frameIndex)
 {
-	/// @todo
+	currentFrameIndex = frameIndex;
+	renderingEngine->setCurrentFrame(frameIndex);
 }

@@ -39,7 +39,7 @@ void NXRenderingEngine::
 
 /* CONSTRUCTOR */
 NXRenderingEngine::NXRenderingEngine()
-	: rendererSet(),
+	: // rendererSet(),
 	renderStyleMap(),
 	graphicsManager(NULL),
 	moleculeSets(),
@@ -57,18 +57,24 @@ NXRenderingEngine::NXRenderingEngine()
 NXRenderingEngine::~NXRenderingEngine()
 {
 	// release plugin instances initialized in this context
-	std::vector<NXRendererPlugin*>::iterator pluginIter;
-	for(pluginIter = rendererSet.begin();
-	    pluginIter != rendererSet.end();
+	map<string, NXRendererPlugin*>::iterator pluginIter;
+	for(pluginIter = renderStyleMap.begin();
+	    pluginIter != renderStyleMap.end();
 	    ++pluginIter)
 	{
-		delete *pluginIter;
+		string const renderStyleCode = pluginIter->first;
+		if(renderStyleCode != "def") {
+			NXRendererPlugin *plugin = pluginIter->second;
+			delete plugin;
+		}
 	}
 	
 	// release frame-memory allocated in this context
 	std::vector<NXSGNode*>::iterator frameIter;
-	for(frameIter = frames.begin(); frameIter != frames.end(); ++frameIter)
-		delete *frameIter;
+	for(frameIter = frames.begin(); frameIter != frames.end(); ++frameIter) {
+		NXSGNode *frame = *frameIter;
+		delete frame;
+	}
 }
 
 // .............................................................................
@@ -106,6 +112,7 @@ void NXRenderingEngine::setCurrentFrame(int frameIdx)
 
 // .............................................................................
 
+#if 0
 bool NXRenderingEngine::importRendererPluginsFromGraphicsManager(void)
 {
 	ClearResult(commandResult);
@@ -120,7 +127,7 @@ bool NXRenderingEngine::importRendererPluginsFromGraphicsManager(void)
 	
 	bool success = true;
 	
-	rendererSet.clear();
+	// rendererSet.clear();
 	vector<string> renderStyleCodes = graphicsManager->getRenderStyles();
 	vector<string>::const_iterator renderStyleCodeIter;
 	for(renderStyleCodeIter = renderStyleCodes.begin();
@@ -141,11 +148,12 @@ bool NXRenderingEngine::importRendererPluginsFromGraphicsManager(void)
 		}
 		else {
 			renderStyleMap[*renderStyleCodeIter] = renderer;
-			rendererSet.push_back(renderer);
+			// rendererSet.push_back(renderer);
 		}
 	}
 	
 	return success;
 }
+#endif
 
 } // Nanorex

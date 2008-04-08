@@ -67,7 +67,8 @@ public:
     
     /// Get a name for the node
     virtual std::string const getName(void) const;
-    
+	void setName(std::string const& _name) { name = _name; }
+	
     /// write scenegraph structure in GraphViz format
     void writeDotGraph(std::ostream& o) const;
 	
@@ -91,6 +92,7 @@ protected:
 #ifdef NX_DEBUG
 	int id;
 	static int idSource;
+	std::string name;
 #endif
 	
     /// Most recent error - to be set by failing node
