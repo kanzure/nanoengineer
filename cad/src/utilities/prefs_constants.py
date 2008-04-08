@@ -458,9 +458,9 @@ prefs_table = (
     ('', 'float', GLPane_scale_for_dna_commands_prefs_key, 50.0),
     
     # Mouse wheel prefs. Mark 2008-04-07
-    ('', 'int', mouseWheelDirection_prefs_key,       0),
+    ('', 'int', mouseWheelDirection_prefs_key,      0),
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
-    ('', 'int', zoomOutAboutScreenCenter_prefs_key, 0),
+    ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
 
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 
