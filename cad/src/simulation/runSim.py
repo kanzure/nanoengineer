@@ -312,11 +312,13 @@ class SimRunner:
             return
         self.sim_input_file = self.sim_input_filename()
             # might get name from options or make up a temporary filename
+            
+        launchNV1 = debug_pref("GROMACS: Launch NV1", Choice_boolean_False)
         if (self.mflag == 1 and self.useGromacs):
             if (not self.verifyGromacsPlugin()):
                 self.errcode = FAILURE_ALREADY_DOCUMENTED
                 return
-            if (self.background):
+            if (self.background and launchNV1):
                 if (not self.verifyNanoVision1Plugin()):
                     self.errcode = FAILURE_ALREADY_DOCUMENTED
                     return
@@ -361,7 +363,7 @@ class SimRunner:
                 gromacsWorkingDir = gromacsFullBaseFileInfo.dir().absolutePath()
                 gromacsBaseFileName = gromacsFullBaseFileInfo.fileName()
                 
-                env.history.message("%s: files at %s%s%s.*" %
+                env.history.message("%s: GROMACS files at %s%s%s.*" %
                     (self.cmdname, gromacsWorkingDir, os.sep,
                      gromacsFullBaseFileInfo.completeBaseName()))
                      
@@ -409,12 +411,13 @@ class SimRunner:
                         ("%s-mdrun-stderr.txt" % gromacsFullBaseFileName)
                         
                     trajectoryOutputFile = None
-                    if (self.background):
+                    if (self.background and launchNV1):
                         trajectoryOutputFile = "%s/%s.%s" % \
                             (gromacsFullBaseFileInfo.absolutePath(),
                              gromacsFullBaseFileInfo.completeBaseName(), "nh5")
                     else:
-                        progressBar.show()
+                        if (not self.background):
+                            progressBar.show()
                         trajectoryOutputFile = \
                             "%s.%s" % (gromacsFullBaseFileName, "trr")
                         
@@ -444,10 +447,11 @@ class SimRunner:
                         env.history.message(self.cmdname + ": " + msg)
                         self.errcode = 3;
                     if (self.background and errorCode == 0):
-                        hdf5DataStoreDir = \
-                            gromacsWorkingDir + os.sep + \
-                            gromacsFullBaseFileInfo.completeBaseName()
-                        os.mkdir(hdf5DataStoreDir)
+                        if (launchNV1):
+                            hdf5DataStoreDir = \
+                                gromacsWorkingDir + os.sep + \
+                                gromacsFullBaseFileInfo.completeBaseName()
+                            os.mkdir(hdf5DataStoreDir)
                             
                         sleep(1) # Give GMX/HDF5 a chance to write basic info
 						
@@ -458,6 +462,7 @@ class SimRunner:
                         # mdrun log file.
                         mdrunLogFileName = \
                             "%s-mdrun.log" % gromacsFullBaseFileName
+                        pid = None
                         fileOpenAttemptIndex = 0
                         while (fileOpenAttemptIndex < 3):
                             try:
@@ -478,35 +483,40 @@ class SimRunner:
                         
                         # Write the input file into the HDF5 data store
                         # directory. (It is part of data store.)
-                        inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
-                        env.history.message(self.cmdname + ": Writing input.mmp file to HDF5 data store directory.")
-                        all_atoms = {}
-                        self.part.writemmpfile(inputFileName,
-                                               add_atomids_to_dict = all_atoms)
+                        if (launchNV1):
+                            inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
+                            env.history.message(self.cmdname + ": Writing input.mmp file to HDF5 data store directory.")
+                            all_atoms = {}
+                            self.part.writemmpfile(inputFileName,
+                                                   add_atomids_to_dict = all_atoms)
 						
                         # Write a file that maps the ids of the atoms actually
                         # used for simulation to the atom ids of the complete
                         # structure stored in the MMP file above.
-                        used_atoms = self.used_atoms
-                        assert used_atoms is not None, \
-                               "self.used_atoms didn't get stored"
-                        mapFilename = \
-                            hdf5DataStoreDir + os.sep + "trajAtomIdMap.txt"
-                        self.writeTrajectoryAtomIdMapFile(mapFilename,
-                                                          used_atoms, all_atoms)
+                        if (launchNV1):
+                            used_atoms = self.used_atoms
+                            assert used_atoms is not None, \
+                                   "self.used_atoms didn't get stored"
+                            mapFilename = \
+                                hdf5DataStoreDir + os.sep + "trajAtomIdMap.txt"
+                            self.writeTrajectoryAtomIdMapFile(mapFilename,
+                                                              used_atoms, all_atoms)
                         
                         # Launch the NV1 process
-                        nv1 = self.nv1_executable_path
-                        nv1Process = Process()
-                        nv1Args = [
-                            "-f", hdf5DataStoreDir + ".nh5",
-                            "-p", "GMX", "%s" % pid,
-                            ]
-                        nv1Process.setStandardOutputPassThrough(True)
-                        nv1Process.setStandardErrorPassThrough(True)
-                        nv1Process.setProcessName("nv1")
-                        env.history.message(self.cmdname + ": Launching NanoVision-1...")
-                        nv1Process.run(nv1, nv1Args, True)
+                        if (launchNV1):
+                            nv1 = self.nv1_executable_path
+                            nv1Process = Process()
+                            nv1Args = [
+                                "-f", hdf5DataStoreDir + ".nh5",
+                                "-p", "GMX", "%s" % pid,
+                                ]
+                            nv1Process.setStandardOutputPassThrough(True)
+                            nv1Process.setStandardErrorPassThrough(True)
+                            nv1Process.setProcessName("nv1")
+                            env.history.message(self.cmdname + ": Launching NanoVision-1...")
+                            nv1Process.run(nv1, nv1Args, True)
+                        else:
+                            env.history.message(self.cmdname + ": GROMACS process " + pid + " has been launched.")
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
