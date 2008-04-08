@@ -165,9 +165,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             #whole DnaGroup highlighting is disabled. (i.e. where the 
             #highlighting of individual strands and segments is allowed)             
             #-- Ninad 2008-03-14
-            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrand)
-            if strandOrSegment is None:
-                strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaSegment)            
+            strandOrSegment = a_chunk.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)           
             if strandOrSegment is not None:
                 m = strandOrSegment
                     
@@ -249,9 +248,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             #whole DnaGroup highlighting is disabled. (i.e. where the 
             #highlighting of individual strands and segments is allowed)             
             #-- Ninad 2008-03-14
-            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrand)
-            if strandOrSegment is None:
-                strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaSegment)            
+            strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrandOrSegment)            
             if strandOrSegment is not None:
                 m = strandOrSegment
         
@@ -305,9 +302,26 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 chunk1 = dnaGroup1
                 
             if dnaGroup2 is not None:
-                chunk2 = dnaGroup2
-                           
-        
+                chunk2 = dnaGroup2                           
+        else:
+            #@TODO Fixes part of bug 2749. Method needs refactoring 
+            #-- Ninad 2008-04-07
+            dnaStrandOrSegment1 = chunk1.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)
+            dnaStrandOrSegment2 = chunk2.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)
+            
+            if dnaStrandOrSegment1 is not None and \
+               dnaStrandOrSegment1 is dnaStrandOrSegment2:
+                self.chunkLeftDown(chunk1, event)
+                return 
+            
+            if dnaStrandOrSegment1 is not None:
+                chunk1 = dnaStrandOrSegment1
+                
+            if dnaStrandOrSegment2 is not None:
+                chunk2 = dnaStrandOrSegment2
+                
         if self.o.modkeys is None:
             if chunk1.picked and chunk2.picked:
                 pass
@@ -376,6 +390,26 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 
             if dnaGroup2 is not None:
                 chunk2 = dnaGroup2
+        else:
+            #@TODO Fixes part of bug 2749. Method needs refactoring 
+            #-- Ninad 2008-04-07
+            dnaStrandOrSegment1 = chunk1.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)
+            dnaStrandOrSegment2 = chunk2.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)
+            
+            if dnaStrandOrSegment1 is not None and \
+               dnaStrandOrSegment1 is dnaStrandOrSegment2:
+                self.chunkLeftDown(chunk1, event)
+                return 
+            
+            if dnaStrandOrSegment1 is not None:
+                chunk1 = dnaStrandOrSegment1
+                
+            if dnaStrandOrSegment2 is not None:
+                chunk2 = dnaStrandOrSegment2
+            
+            
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -505,20 +539,31 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             return
 
         if self.drag_handler is not None:
-            movables = self.o.assy.getSelectedMovables()
+            movables = self.getMovablesForLeftDragging()
             if movables:
                 if self.drag_handler not in movables:
                     self.dragHandlerDrag(self.drag_handler, event) 
                     return
                 elif len(movables) == 1:
                     self.dragHandlerDrag(self.drag_handler, event)
-                    return                    
+                    return                   
 
-        if self.o.assy.getSelectedMovables():
-            # TODO: optim by computing this only once, before the prior 'if'
-            # [bruce 071022 suggestion]
-            #Free Drag Translate the selected (movable) objects.
-            self.pseudoMoveModeLeftDrag(event)
+        #Free Drag Translate the selected (movable) objects.
+        self.pseudoMoveModeLeftDrag(event)
+            
+    def getMovablesForLeftDragging(self):
+        """
+        Returns a list of movables that will be moved during this gaphics mode's
+        left drag. In SelectChunks_GraphicsMode it is the selected movables
+        in the assembly. However, some subclasses can override this method to 
+        provide a custom list of objects it wants to move during the left drag
+        Example: In buildDna_GraphicsMode, it moving a dnaSegment axis chunk 
+        will move all the axischunk members of the dna segment and also 
+        its logical content chunks. 
+        @see: self.pseudoMoveModeLeftDrag()
+        @see:BuildDna_GraphicsMode.getMovablesForLeftDragging()
+	"""
+        return self.o.assy.getSelectedMovables()
 
 
     def pseudoMoveModeLeftDown(self, event):
@@ -556,7 +601,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if not self.picking:
             return
 
-        if not self.o.assy.getSelectedMovables():
+        if not self.getMovablesForLeftDragging():
             return
         
         if self.movingPoint is None: 
@@ -799,21 +844,27 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         chunkList = []
         colorList = []
         
-        #Note: Make sure to check if its a 'DnaStrand' so that its 
-        #draw_highlighted method gets called when applicable. There could be 
+        #Note: Make sure to check if its a 'DnaStrand' or a 'DnaSegment' so that
+        #its draw_highlighted method gets called when applicable. There could be 
         #several such things in the future. so need to think of a better way to 
         #do it.
+        #@TODO Following also fixes part of bug 2749. Method needs refactoring 
+        #-- Ninad 2008-04-07
         if isinstance(selobj, Chunk): 
-            dnaStrand = selobj.parent_node_of_class(self.win.assy.DnaStrand)            
-            if dnaStrand:
-                chunkList = [dnaStrand]
+            dnaStrandOrSegment = selobj.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)      
+            
+            if dnaStrandOrSegment:
+                chunkList = [dnaStrandOrSegment]
             else:
                 chunkList = [selobj]
             colorList = [hiColor1]
         elif isinstance(selobj, Atom):
-            dnaStrand = selobj.molecule.parent_node_of_class(self.win.assy.DnaStrand)
-            if dnaStrand:
-                chunkList = [dnaStrand]
+            dnaStrandOrSegment = selobj.molecule.parent_node_of_class(
+                self.win.assy.DnaStrandOrSegment)
+            
+            if dnaStrandOrSegment:
+                chunkList = [dnaStrandOrSegment]
             else:
                 chunkList = [selobj.molecule]                 
             colorList = [hiColor1]
@@ -821,17 +872,20 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             chunk1 = selobj.atom1.molecule
             chunk2 = selobj.atom2.molecule
             if chunk1 is chunk2:
-                dnaStrand = chunk1.parent_node_of_class(self.win.assy.DnaStrand)
-                if dnaStrand:
-                    chunkList = [dnaStrand]
+                dnaStrandOrSegment = chunk1.parent_node_of_class(
+                    self.win.assy.DnaStrandOrSegment)
+                
+                if dnaStrandOrSegment:
+                    chunkList = [dnaStrandOrSegment]
                 else:
                     chunkList = [chunk1]                     
                 colorList = [hiColor1]
             else:
                 for c in [chunk1, chunk2]:
-                    dnaStrand = c.parent_node_of_class(self.win.assy.DnaStrand)
-                    if dnaStrand:
-                        chunkList.append(dnaStrand)
+                    dnaStrandOrSegment = c.parent_node_of_class(
+                        self.win.assy.DnaStrandOrSegment)
+                    if dnaStrandOrSegment:
+                        chunkList.append(dnaStrandOrSegment)
                     else:
                         chunkList.append(c)
                 colorList = [hiColor1, hiColor2]
@@ -854,6 +908,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
     
     def _is_dnaGroup_highlighting_enabled(self):
         """
+        NOTE: TO BE DEPRECATED: 2008-04-07 onwards, the whole DnaGroup will never be highlighted
+        So this flag will always returns True in this class and in subclasses
+        See bug Bug 2749 for implementation change details. post FNANO, this 
+        method and its calls can be removed (provided implementation doesn't
+        change). Returning 'False' is as good as not using this feature in the
+        UI so no problem.        
+        
         Returns a boolean that decides whether to highlight the whole 
         DnaGroup or just the chunk of the glpane.selobj. 
         Example: In default mode (SelectChunks_graphicsMode) if the cursor is
@@ -867,7 +928,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.drawHighlightedChunk()
         @see : self.drawHighlightedObjectUnderMouse()
 	"""
-        return True
+        return False
      
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
         """
