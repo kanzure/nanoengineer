@@ -405,10 +405,6 @@ class SimRunner:
                     progressBar.reset()
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
-                    gromacsProcess.redirect_stdout_to_file \
-                        ("%s-mdrun-stdout.txt" % gromacsFullBaseFileName)
-                    gromacsProcess.redirect_stderr_to_file \
-                        ("%s-mdrun-stderr.txt" % gromacsFullBaseFileName)
                         
                     trajectoryOutputFile = None
                     if (self.background and launchNV1):
@@ -421,26 +417,47 @@ class SimRunner:
                         trajectoryOutputFile = \
                             "%s.%s" % (gromacsFullBaseFileName, "trr")
                         
-                    mdrunArgs = [
-                        "-s", "%s.tpr" % gromacsFullBaseFileName,
-                        "-o", "%s" % trajectoryOutputFile,
-                        "-e", "%s.edr" % gromacsFullBaseFileName,
-                        "-c", "%s-out.gro" % gromacsFullBaseFileName,
-                        "-g", "%s-mdrun.log" % gromacsFullBaseFileName,
+                    mdrunArgs = None
+                    if (self.background):
+                        mdrunArgs = [
+                            "unused",
+                            gromacs_topo_dir,
+                            mdrun,
+                            gromacsFullBaseFileName
                         ]
+                    else:
+                        mdrunArgs = [
+                            "-s", "%s.tpr" % gromacsFullBaseFileName,
+                            "-o", "%s" % trajectoryOutputFile,
+                            "-e", "%s.edr" % gromacsFullBaseFileName,
+                            "-c", "%s-out.gro" % gromacsFullBaseFileName,
+                            "-g", "%s-mdrun.log" % gromacsFullBaseFileName,
+                            ]
                     if (self.hasPAM5):
                         tableFile = \
                             os.path.join(gromacs_plugin_path,
                                          "Pam5Potential.xvg")
                         mdrunArgs += [ "-table", tableFile ]
+                        
                     if (self.background):
                         abortHandler = None
+                        scriptSuffix = None
+                        if (sys.platform == 'win32'):
+                            scriptSuffix = "bat"
+                        else:
+                            scriptSuffix = "sh"
+                        os.spawnv(os.P_NOWAIT,
+                                  os.path.join(gromacs_plugin_path,
+                                               "mdrunner.%s" % scriptSuffix),
+                                  mdrunArgs);
+
                     else:
                         abortHandler = \
                             AbortHandler(self.win.statusBar(), "mdrun")
-                    errorCode = \
-                              gromacsProcess.run(mdrun, mdrunArgs,
-                                                 self.background, abortHandler)
+                        errorCode = \
+                                  gromacsProcess.run(mdrun, mdrunArgs,
+                                                     self.background,
+                                                     abortHandler)
                     abortHandler = None
                     if (errorCode != 0):
                         msg = redmsg("GROMACS minimization failed, mdrun returned %d" % errorCode)
@@ -516,7 +533,10 @@ class SimRunner:
                             env.history.message(self.cmdname + ": Launching NanoVision-1...")
                             nv1Process.run(nv1, nv1Args, True)
                         else:
-                            env.history.message(self.cmdname + ": GROMACS process " + pid + " has been launched.")
+                            if (pid != None):
+                                env.history.message(self.cmdname + ": GROMACS process " + pid + " has been launched.")
+                            else:
+                                env.history.message(self.cmdname + ": GROMACS process has been launched; unable to determine its identifier.")
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
