@@ -92,6 +92,26 @@ class DnaSegment(DnaStrandOrSegment):
             
         assert commandSequencer.currentCommand.commandName == 'DNA_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
+        
+        
+    def draw_highlighted(self, glpane, color):
+        """
+        Draw the strand and axis chunks as highlighted. (Calls the related 
+        methods in the chunk class)
+        @param: GLPane object 
+        @param color: The highlight color
+        @see: Chunk.draw_highlighted()
+        @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
+        @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
+        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
+        """            
+        #Note: As of 2008-04-07, there is no 'highlightPolicy' for 
+        #a DnaSegment like in DnaStrand. 
+        #(Not needed but can be easily implemented)
+        
+        for c in self.members: 
+            if isinstance(c, DnaAxisChunk):
+                c.draw_highlighted(glpane, color)   
     
 
     #Following methods are likely to be revised in a fully functional dna data 
