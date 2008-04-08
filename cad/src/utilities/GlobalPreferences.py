@@ -46,7 +46,8 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
 
     res = debug_pref("Enable pyrex atoms in next session?",
                      Choice_boolean_False,
-                     non_debug = True, # revised this option and menu text (thus prefs key), bruce 080221
+                     ## non_debug = True, # revised this option and menu text (thus prefs key), bruce 080221
+                         # make this ATOM_DEBUG only for release (since it's a slowdown), bruce 080408
                      prefs_key = True)
 
     # uncomment the following line to temporarily override the above debug_pref,
@@ -95,7 +96,9 @@ def _test_atombase():
 def debug_pyrex_atoms():
     res = debug_pref("debug pyrex atoms?",
                      Choice_boolean_False,
-                     non_debug = True,
+                     ## non_debug = True,
+                         # make ATOM_DEBUG only for release (not useful enough
+                         # for non_debug), bruce 080408
                      prefs_key = True )
     return res
 # ==
@@ -107,7 +110,9 @@ def permit_atom_chunk_coselection():
     res = debug_pref("permit atom/chunk coselection?",
                      ## use Choice_boolean_True once this has no obvious bugs
                      Choice_boolean_False,
-                     non_debug = True,
+                     ## non_debug = True,
+                         # make ATOM_DEBUG only for release (since maybe unsafe,
+                         # not useful since unsupported), bruce 080408
                      prefs_key = permit_atom_chunk_coselection_prefs_key )
     return res
 
@@ -125,6 +130,7 @@ def disable_do_not_draw_open_bonds():
     res = debug_pref("DNA: draw all open bonds?",
                      Choice_boolean_False,
                      non_debug = True, #bruce 080406
+                         # leave this visible w/o ATOM_DEBUG for release [bruce 080408]
                      prefs_key = True)
     return res
 
@@ -133,7 +139,9 @@ def disable_do_not_draw_open_bonds():
 def _debug_pref_use_dna_updater(): #bruce 080320 moved this here from master_model_updater.py, made private
     res = debug_pref("DNA: enable dna updater?", #bruce 080317 revised text
                      Choice_boolean_True, #bruce 080317 False -> True
-                     non_debug = True,
+                     ## non_debug = True,
+                         # make ATOM_DEBUG only for release (since unsafe to change (undo bugs),
+                         # not useful since off is more and more unsupported), bruce 080408
                      prefs_key = "A10/DNA: enable dna updater?" #bruce 080317 changed prefs_key
                  )
     return res
@@ -161,7 +169,9 @@ def debug_pref_write_bonds_compactly(): #bruce 080328
 def debug_pref_read_bonds_compactly(): #bruce 080328
     res = debug_pref("mmp format: read dna bonds compactly?",
                      Choice_boolean_True, # use False to simulate old reading code for testing
-                     non_debug = True, # temporary
+                     ## non_debug = True, # temporary
+                         # make ATOM_DEBUG only for release (not useful enough
+                         # for non_debug), bruce 080408
                      prefs_key = True # temporary
                  )
     return res
@@ -186,7 +196,9 @@ def debug_pref_write_new_display_names(): #bruce 080328
 def debug_pref_read_new_display_names(): #bruce 080328
     res = debug_pref("mmp format: read new display names?",
                      Choice_boolean_True, # use False to simulate old reading code for testing
-                     non_debug = True, # temporary
+                     ## non_debug = True, # temporary
+                         # make ATOM_DEBUG only for release (not useful enough
+                         # for non_debug), bruce 080408
                      prefs_key = True # temporary
                  )
     return res
@@ -203,7 +215,9 @@ def use_frustum_culling(): #piotr 080401
     """
     res = debug_pref("GLPane: enable frustum culling?",
                      Choice_boolean_True,
-                     non_debug = True, 
+                     non_debug = True,
+                         # leave this visible w/o ATOM_DEBUG for release
+                         # [bruce 080408]
                      prefs_key = "A10/GLPane: enable frustum culling?") 
 
     return res
