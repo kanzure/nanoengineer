@@ -80,7 +80,7 @@ NE1 makes use of a number of free extensions and companion applications, includi
   <li>GROMACS+HDF5, an extremely high performance, open source, and cross-platform package used to perform molecular dynamics simulation of systems with hundreds to millions of particles. The +HDF5 comes from our experimental HDF5 file format augmentation. NE1 uses GROMACS+HDF5 as an energy minimization engine.
   <li>Open Babel, used to import/export different chemistry file formats to/from NE1.
   <li>QuteMolX, a high-quality molecular visualization system that can be "launched and loaded" from NE1. Very cool!
-  <li>NanoVision-1, an application for viewing molecular structures and simulations, especially those produced by NanoEngineer-1.
+  <!-- <li>NanoVision-1, an application for viewing molecular structures and simulations, especially those produced by NanoEngineer-1. -->
   <li>POV-Ray, which creates high-quality renderings of the current model with a single click of the mouse. 
   <li>MegaPOV (for Mac OS X), which creates high-quality renderings of the current model with a single click of the mouse. POV-Ray is also required. 
   <li>GNUPlot, used to plot the results of molecular dynamics simulations using NanoDynamics-1, NE1's own molecular dynamics engine for nanomechanical simulations. It is installed with NE1 for Windows and Mac. 
@@ -175,15 +175,17 @@ Note that the <b>NanoEngineer-1 Application Suite</b> includes all of the above 
 
 <li> GROMACS Integration
   <ul>
-    <li> GROMACS has been added as an energy minimization engine. Structures can be minimized in the foreground, or in a separate GROMACS process which is monitored by NanoVision-1.
-    <li> HDF5 support was added to GMX for writing and viewing trajectory files.
+    <li> GROMACS has been added as an energy minimization engine. Structures can be minimized in the foreground, or in a separate background GROMACS process. The location of all the GROMACS input/output files, and the identifier (PID) for the GROMACS process is printed in the History text area at the bottom of NE1. An application called NanoVision-1, which is currently in development and not yet available, will be able to attach to, monitor, and cleanly abort the spawned GROMACS processes.
+    <li> HDF5 support was added to GMX for writing and viewing trajectory files, but won't be fully realized until NanoVision-1 is available.
   </ul>
   
+  <!--
 <li> NanoVision-1
   <ul>
     <li> NanoVision-1 (NV1) is a cross-platform, open-source application that displays structures and simulations especially those produced by NE1 with GROMACS.
 	<li> NV1 launches automatically when a backgrounded GROMACS minimization is initiated and shows a visualization of the minimization as it progresses.
   </ul>
+  -->
 
 <li> Notable Bug Fixes
   <ul>
