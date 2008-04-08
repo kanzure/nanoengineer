@@ -2,7 +2,7 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-DIST_VERSION=NanoEngineer-1_1.0.0b2
+DIST_VERSION=NanoEngineer-1_1.0.0b7
 
 # Set up path variables
 cd ..
@@ -25,14 +25,21 @@ mkdir $DIST_CONTENTS/bin
 cp $TOP_LEVEL/cad/src/rungms $DIST_CONTENTS/bin/
 if [ ! -e "$DIST_CONTENTS/bin/rungms" ]; then exit; fi
 
+# Build atombase.so and samevals.so (some native binary NE1 optimizations)
+cd $TOP_LEVEL/cad/src
+make clean || exit 1
+make shared || exit 1
+cp atombase.so $DIST_CONTENTS/bin/
+cp samevals.so $DIST_CONTENTS/bin/
+if [ ! -e "$DIST_CONTENTS/bin/samevals.so" ]; then exit; fi
+cd $TOP_LEVEL
+
 # Build and copy NanoDynamics-1
 cd $TOP_LEVEL/sim/src
 cp $TOP_LEVEL/packaging/MacOSX/ND1-Makefile ./Makefile
 make clean || exit 1
 make || exit 1
 make pyx || exit 1
-cp simulator $DIST_CONTENTS/bin/
-if [ ! -e "$DIST_CONTENTS/bin/simulator" ]; then exit; fi
 cp sim.so $DIST_CONTENTS/bin/
 if [ ! -e "$DIST_CONTENTS/bin/sim.so" ]; then exit; fi
 cd $TOP_LEVEL
@@ -70,22 +77,23 @@ cd $TOP_LEVEL
 cd $TOP_LEVEL
 DIST_IMAGES_DIR=$DIST_CONTENTS/src/ui/
 mkdir -p $DIST_IMAGES_DIR/actions
-cp -R cad/src/ui/actions/Edit $DIST_IMAGES_DIR/actions/ 
-cp -R cad/src/ui/actions/File $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Help $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Insert $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Properties\ Manager $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Simulation $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Toolbars $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Tools $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/View $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/border $DIST_IMAGES_DIR
-cp -R cad/src/ui/confcorner $DIST_IMAGES_DIR
-cp -R cad/src/ui/cursors $DIST_IMAGES_DIR
-cp -R cad/src/ui/dialogs $DIST_IMAGES_DIR
-cp -R cad/src/ui/exprs $DIST_IMAGES_DIR
-cp -R cad/src/ui/images $DIST_IMAGES_DIR
-cp -R cad/src/ui/modeltree $DIST_IMAGES_DIR
+cp -R cad/src/ui $DIST_CONTENTS/src/
+#cp -R cad/src/ui/actions/Edit $DIST_IMAGES_DIR/actions/ 
+#cp -R cad/src/ui/actions/File $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Help $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Insert $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Properties\ Manager $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Simulation $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Toolbars $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Tools $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/View $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/border $DIST_IMAGES_DIR
+#cp -R cad/src/ui/confcorner $DIST_IMAGES_DIR
+#cp -R cad/src/ui/cursors $DIST_IMAGES_DIR
+#cp -R cad/src/ui/dialogs $DIST_IMAGES_DIR
+#cp -R cad/src/ui/exprs $DIST_IMAGES_DIR
+#cp -R cad/src/ui/images $DIST_IMAGES_DIR
+#cp -R cad/src/ui/modeltree $DIST_IMAGES_DIR
 cd $TOP_LEVEL
 
 # Copy the ReadeMe.html file and Licenses/ files
@@ -120,13 +128,13 @@ mkdir $DIST_CONTENTS/plugins
 #if [ ! -e "$DIST_CONTENTS/plugins/CoNTub/bin/HJ" ]; then exit; fi
 #cd $TOP_LEVEL
 
-# Copy the DNA plugin files
 cp -R $TOP_LEVEL/cad/plugins/DNA $DIST_CONTENTS/plugins/
 cp -R $TOP_LEVEL/cad/plugins/NanoDynamics-1 $DIST_CONTENTS/plugins/
 mkdir $DIST_CONTENTS/plugins/GROMACS
 cp -R $TOP_LEVEL/cad/plugins/GROMACS/Pam5Potential.xvg $DIST_CONTENTS/plugins/GROMACS/
-cd $TOP_LEVEL
+cp -R $TOP_LEVEL/cad/plugins/Nanotube $DIST_CONTENTS/plugins/
 
+cd $TOP_LEVEL
 #
 # End Plugins
 
