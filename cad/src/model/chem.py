@@ -1446,7 +1446,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return "valence error"
             strand_neighbors = self.strand_neighbors()
             if not len(strand_neighbors) in (1, 2):
-                return "wrong number of strand neighbors"
+                # this is an error even if pref_permit_bare_axis_atoms() is true
+                if not strand_neighbors:
+                    return "bare axis"
+                else:
+                    return "more than 2 strand neighbors"
             if len(strand_neighbors) == 2:
                 # check minor groove angle
                 # REVIEW: when this error happens, can we or dna updater

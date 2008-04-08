@@ -24,6 +24,7 @@ fix_bond_classes = STUB_FUNCTION
 from dna.updater.fix_deprecated_elements import fix_deprecated_elements
 
 from dna.updater.delete_bare_atoms import delete_bare_atoms
+from dna.updater.dna_updater_prefs import pref_permit_bare_axis_atoms
 
 from dna.updater.fix_bond_directions import fix_local_bond_directions
 
@@ -116,25 +117,26 @@ def update_PAM_atoms_and_bonds(changed_atoms):
 
     # delete bare atoms (axis atoms without strand atoms, or vice versa).
 
-    delete_bare_atoms( changed_atoms)
+    if not pref_permit_bare_axis_atoms():
+        delete_bare_atoms( changed_atoms)
         # must tolerate killed atoms; can kill more atoms and break bonds,
         # but we can ignore those changes; BUT it can change neighbor atom
         # structure, and those changes are needed by subsequent steps
         # (though no need to fix their classes or look for bareness again,
         #  as explained inside that function)
 
-    # Grab newly changed atoms from that step (neighbors of deleted atoms),
-    # to include in subsequent steps. (But no need to fix their classes
-    # or again call delete_bare_atoms, as explained inside that function.)
-    # (Note also that atoms already in changed_atoms might have been killed
-    #  during that step.)
+        # Grab newly changed atoms from that step (neighbors of deleted atoms),
+        # to include in subsequent steps. (But no need to fix their classes
+        # or again call delete_bare_atoms, as explained inside that function.)
+        # (Note also that atoms already in changed_atoms might have been killed
+        #  during that step.)
 
-    new_atoms = get_changes_and_clear()
+        new_atoms = get_changes_and_clear()
 
-    if new_atoms:
-        if debug_flags.DEBUG_DNA_UPDATER:            
-            print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)    
-        changed_atoms.update( new_atoms )
+        if new_atoms:
+            if debug_flags.DEBUG_DNA_UPDATER:            
+                print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)    
+            changed_atoms.update( new_atoms )
 
     # ==
 

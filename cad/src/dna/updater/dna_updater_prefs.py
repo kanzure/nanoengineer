@@ -34,6 +34,8 @@ def initialize_prefs():
     pref_fix_bare_PAM3_atoms()
     pref_fix_bare_PAM5_atoms()
 
+    pref_permit_bare_axis_atoms()
+
     pref_print_bond_direction_errors()
     pref_per_ladder_colors()
     pref_draw_internal_markers()
@@ -86,6 +88,26 @@ def pref_fix_bare_PAM5_atoms():
                      prefs_key = "A10/DNA: fix bare PAM5 atoms?", # changed, bruce 080317
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
+
+def pref_permit_bare_axis_atoms():
+    #bruce 080407; seems to work, so I hope we can make it the default soon,
+    # but would require adaptations in strand edit props, to delete them manually
+    # and to tolerate their existence when extending one strand.
+    # warning: like all updater behavior prefs, changing it at runtime and then
+    # undoing to before that point might cause undo bugs,
+    # so it requires atom_debug to see it.
+    res = debug_pref("DNA: permit bare axis atoms? ",
+                      Choice_boolean_False,
+                      ## non_debug = True,
+                      prefs_key = True )
+    return res
+
+def legal_numbers_of_strand_neighbors_on_axis(): #bruce 080407
+    if pref_permit_bare_axis_atoms():
+        return (0, 1, 2)
+    else:
+        return (1, 2)
+    pass
 
 # ==
 

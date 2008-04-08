@@ -82,7 +82,6 @@ def _DEBUG_REVERSE_STRANDS():
     # same as _DEBUG_LADDER_FINISH_AND_MERGE, for now
     return debug_flags.DEBUG_DNA_UPDATER_VERBOSE
 
-
 from dna.model.dna_model_constants import LADDER_ENDS
 from dna.model.dna_model_constants import LADDER_END0
 from dna.model.dna_model_constants import LADDER_END1
@@ -91,9 +90,10 @@ from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
 
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
-from dna.updater.dna_updater_prefs import pref_per_ladder_colors
-
 from dna.model.pam3plus5_math import other_baseframe_data
+
+from dna.updater.dna_updater_prefs import pref_per_ladder_colors
+from dna.updater.dna_updater_prefs import pref_permit_bare_axis_atoms
 
 # ==
 
@@ -214,10 +214,11 @@ class DnaLadder(object):
         assert not self.valid # not required, just a useful check on the current caller algorithm
         ## assert len(self.strand_rails) in (1, 2)
         # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
-        if not ( len(self.strand_rails) in (1, 2) ):
-            # bug, so always print it
-            print "\n***bug: DnaLadder %r has %d strand_rails " \
-                  "(should be 1 or 2)" % (self, len(self.strand_rails))
+        from dna.updater.dna_updater_prefs import legal_numbers_of_strand_neighbors_on_axis
+        legal_nums = legal_numbers_of_strand_neighbors_on_axis()
+        if not ( len(self.strand_rails) in legal_nums ):
+            print "error: axis atom %r has %d strand_neighbors (should be %s)" % \
+                  (self, len(self.strand_rails), " or ".join(map(str, legal_nums)))
             self.error = "bug: illegal number (%d) of strand rails" % len(self.strand_rails)
         axis_rail = self.axis_rail
         # make sure rungs are aligned between the strand and axis rails
@@ -681,6 +682,11 @@ class DnaLadder(object):
         # that the ladder-end-atoms go top to bottom on the right,
         # but bottom-to-top on the left.)
 
+        if not self.strand_rails:
+            # simplest just to never merge bare axis, for now,
+            # especially since len 1 case would be nontrivial [bruce 080407]
+            return False
+
         strand1 = self.strand_rails[0]
         assert 1 == LADDER_STRAND1_BOND_DIRECTION # since it's probably also hardcoded implicitly
         assert strand1.bond_direction() == LADDER_STRAND1_BOND_DIRECTION, \
@@ -771,8 +777,14 @@ class DnaLadder(object):
         # (In which case the Pl should prefer to stay in the same chunk
         #  as the Ss5 atom, not the Ss3 atom -- this is now implemented in Pl_preferred_Ss_neighbor.)
 
-    def arbitrary_baseatom(self): #bruce 080401
-        return self.strand_rails[0].baseatoms[0] # override if bare axis rail is allowed
+    def arbitrary_baseatom(self): #bruce 080401, revised 080407
+        # (this might also make it correct for ladders with different pam models per rail,
+        #  in its current use in this file, which it wasn't until now,
+        #  since now it returns an atom from a rail that's unchanged if self is flipped)
+        """
+        [overridden in DnaSingleStrandDomain]
+        """
+        return self.axis_rail.baseatoms[0]
 
     def ladder_end_atoms(self, end, reverse = False): # rename, and/or merge better with rail_end_baseatoms?
         """
@@ -967,22 +979,30 @@ class DnaLadder(object):
             return [self.strand_rails[0], self.axis_rail, self.strand_rails[1]]
         elif len(self.strand_rails) == 1:
             return [self.strand_rails[0], self.axis_rail, None]
+        elif len(self.strand_rails) == 0 and pref_permit_bare_axis_atoms():
+            return [None, self.axis_rail, None] # not sure this will work in callers;
+                # note: this works even if self.axis_rail is None due to bugs
         else:
             # this happens, after certain bugs, in debug code with self.error already set;
             # make sure we notice if it happens without self.error being set: [bruce 080219]
             if not self.error:
                 self.error = "late-detected wrong number of strands, %d" % len(self.strand_rails)
                 print "\n***BUG: %r: %s" % (self, self.error)
-            return [None, self.axis_rail, None] # not sure this will work in callers;
-                # note: this works even if self.axis_rail is None due to bugs
+            return [None, self.axis_rail, None] # same as above, see comment there
         pass
 
     def pam_model(self): #bruce 080401
         """
         Return an element of PAM_MODELS (presently MODEL_PAM3 or MODEL_PAM5)
-        which indicates the PAM model of all atoms in self.
+        which indicates the PAM model of all atoms in self,
+        assuming this is the same for all of self's baseatoms.
+
+        @note: we are considering allowing mixed-PAM ladders, as long as each
+               rail is consistent. If we do, all uses of this method will
+               need review, since it will no longer always make sense
+               (unless we give it a new return value, MODEL_MIXED or so).
         """
-        return self.strand_rails[0].baseatoms[0].element.pam
+        return self.arbitrary_baseatom().element.pam
 
     # ==
     
@@ -1387,6 +1407,12 @@ class DnaSingleStrandDomain(DnaLadder):
         """
         return [self.strand_rails[0], None, None]
 
+    def arbitrary_baseatom(self): #bruce 080407
+        """
+        [overrides DnaLadder implem]
+        """
+        return self.strand_rails[0].baseatoms[0]
+
     def _atoms_needing_reposition_baggage_check(self): #bruce 080405
         """
         [private helper for _f_reposition_baggage]
@@ -1537,11 +1563,11 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401  # has known bugs, s
         if chunk1 is chunk2:
             # optimize common case
             return True
-        if chunk1.display_as_pam != chunk2.display_as_pam:
+        if (chunk1.display_as_pam or None) != (chunk2.display_as_pam or None): # "or None" is kluge bug workaround [080407 late]
             if explain_false:
                 print "different display_as_pam: %r != %r" % ( chunk1.display_as_pam, chunk2.display_as_pam)
             return False
-        if chunk1.save_as_pam != chunk2.save_as_pam:
+        if (chunk1.save_as_pam or None) != (chunk2.save_as_pam or None):
             if explain_false:
                 print "different save_as_pam: %r != %r" % ( chunk1.save_as_pam, chunk2.save_as_pam)
             return False

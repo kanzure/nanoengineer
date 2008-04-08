@@ -1316,9 +1316,12 @@ class PAM_Atom_methods:
         ##       "error: axis atom %r has %d strand_neighbors (should be 1 or 2)"\
         ##       % (self, len(res))
         # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
-        if not ( len(res) in (1, 2) ):
-            print "error: axis atom %r has %d strand_neighbors " \
-                  "(should be 1 or 2)" % (self, len(res))
+        from dna.updater.dna_updater_prefs import legal_numbers_of_strand_neighbors_on_axis
+            # might be recursive if at toplevel; might be import cycle
+        legal_nums = legal_numbers_of_strand_neighbors_on_axis()
+        if not ( len(res) in legal_nums ):
+            print "error: axis atom %r has %d strand_neighbors (should be %s)" % \
+                  (self, len(res), " or ".join(map(str, legal_nums)))
         return res
 
     def axis_neighbors(self): #bruce 071204
