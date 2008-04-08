@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>751</width>
-    <height>559</height>
+    <width>1054</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -2326,14 +2326,14 @@
       <attribute name="title" >
        <string>DNA</string>
       </attribute>
-      <layout class="QGridLayout" >
+      <layout class="QHBoxLayout" >
        <property name="margin" >
         <number>9</number>
        </property>
        <property name="spacing" >
         <number>6</number>
        </property>
-       <item row="0" column="0" >
+       <item>
         <layout class="QVBoxLayout" >
          <property name="margin" >
           <number>0</number>
@@ -2941,7 +2941,7 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="1" >
+       <item>
         <layout class="QVBoxLayout" >
          <property name="margin" >
           <number>0</number>
@@ -2964,7 +2964,7 @@
             <item>
              <widget class="QTabWidget" name="tabWidget_3" >
               <property name="currentIndex" >
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tab_4" >
                <attribute name="title" >
@@ -3156,17 +3156,17 @@
                   </item>
                   <item>
                    <property name="text" >
-                    <string>Start</string>
+                    <string>5'</string>
                    </property>
                   </item>
                   <item>
                    <property name="text" >
-                    <string>End</string>
+                    <string>3'</string>
                    </property>
                   </item>
                   <item>
                    <property name="text" >
-                    <string>Both</string>
+                    <string>5' and 3'</string>
                    </property>
                   </item>
                  </widget>
@@ -3420,27 +3420,21 @@
                 <property name="spacing" >
                  <number>6</number>
                 </property>
-                <item row="0" column="1" >
-                 <widget class="QComboBox" name="dnaStyleBasesShapeComboBox" >
-                  <item>
-                   <property name="text" >
-                    <string>None</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text" >
-                    <string>Spheres</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text" >
-                    <string>Cartoon</string>
-                   </property>
-                  </item>
+                <item row="1" column="1" >
+                 <widget class="QDoubleSpinBox" name="dnaStyleBasesScaleSpinBox" >
+                  <property name="maximum" >
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="singleStep" >
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value" >
+                   <double>1.000000000000000</double>
+                  </property>
                  </widget>
                 </item>
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_33" >
+                <item row="2" column="0" >
+                 <widget class="QLabel" name="label_34" >
                   <property name="sizePolicy" >
                    <sizepolicy>
                     <hsizetype>1</hsizetype>
@@ -3450,7 +3444,7 @@
                    </sizepolicy>
                   </property>
                   <property name="text" >
-                   <string>Shape:</string>
+                   <string>Color:</string>
                   </property>
                   <property name="alignment" >
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3470,8 +3464,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0" >
-                 <widget class="QLabel" name="label_34" >
+                <item row="0" column="0" >
+                 <widget class="QLabel" name="label_33" >
                   <property name="sizePolicy" >
                    <sizepolicy>
                     <hsizetype>1</hsizetype>
@@ -3481,7 +3475,7 @@
                    </sizepolicy>
                   </property>
                   <property name="text" >
-                   <string>Color:</string>
+                   <string>Shape:</string>
                   </property>
                   <property name="alignment" >
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3512,16 +3506,29 @@
                   </item>
                  </widget>
                 </item>
-                <item row="1" column="1" >
-                 <widget class="QDoubleSpinBox" name="dnaStyleBasesScaleSpinBox" >
-                  <property name="maximum" >
-                   <double>10.000000000000000</double>
-                  </property>
-                  <property name="singleStep" >
-                   <double>0.100000000000000</double>
-                  </property>
-                  <property name="value" >
-                   <double>1.000000000000000</double>
+                <item row="0" column="1" >
+                 <widget class="QComboBox" name="dnaStyleBasesShapeComboBox" >
+                  <item>
+                   <property name="text" >
+                    <string>None</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Sugar Spheres</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Base Cartoons</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="2" >
+                 <widget class="QCheckBox" name="dnaStyleBasesDisplayLettersCheckBox" >
+                  <property name="text" >
+                   <string>Display Base Letters</string>
                   </property>
                  </widget>
                 </item>
@@ -3542,29 +3549,36 @@
               </property>
               <layout class="QGridLayout" >
                <property name="margin" >
-                <number>5</number>
+                <number>9</number>
                </property>
                <property name="spacing" >
-                <number>3</number>
+                <number>6</number>
                </property>
-               <item row="1" column="0" >
-                <widget class="QLabel" name="bg1_color_lbl_2" >
-                 <property name="text" >
-                  <string>Custom Color:</string>
+               <item row="0" column="1" >
+                <widget class="QComboBox" name="dnaStrandLabelColorComboBox" >
+                 <property name="toolTip" >
+                  <string>Background fill type</string>
                  </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0" >
-                <widget class="QLabel" name="fill_type_lbl_2" >
-                 <property name="text" >
-                  <string>Color:</string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
+                 <item>
+                  <property name="text" >
+                   <string>Same as strand</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text" >
+                   <string>Black</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text" >
+                   <string>White</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text" >
+                   <string>Custom</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="1" column="1" >
@@ -3609,31 +3623,24 @@
                  </item>
                 </layout>
                </item>
-               <item row="0" column="1" >
-                <widget class="QComboBox" name="dnaStrandLabelColorComboBox" >
-                 <property name="toolTip" >
-                  <string>Background fill type</string>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="fill_type_lbl_2" >
+                 <property name="text" >
+                  <string>Color:</string>
                  </property>
-                 <item>
-                  <property name="text" >
-                   <string>Same as strand</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text" >
-                   <string>Black</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text" >
-                   <string>White</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text" >
-                   <string>Custom</string>
-                  </property>
-                 </item>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" >
+                <widget class="QLabel" name="bg1_color_lbl_2" >
+                 <property name="text" >
+                  <string>Custom Color:</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -3652,12 +3659,116 @@
               </property>
               <layout class="QGridLayout" >
                <property name="margin" >
-                <number>5</number>
+                <number>9</number>
                </property>
                <property name="spacing" >
-                <number>3</number>
+                <number>6</number>
                </property>
+               <item row="0" column="1" >
+                <widget class="QComboBox" name="dnaStyleBasesShapeComboBox_2" >
+                 <item>
+                  <property name="text" >
+                   <string>View plane</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="0" >
+                <widget class="QLabel" name="bg1_color_lbl_6" >
+                 <property name="text" >
+                  <string>Inverse indicators color:</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
                <item row="2" column="1" >
+                <layout class="QHBoxLayout" >
+                 <property name="margin" >
+                  <number>0</number>
+                 </property>
+                 <property name="spacing" >
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="QFrame" name="dnaBaseOrientationIndicatorsInvColorFrame" >
+                   <property name="minimumSize" >
+                    <size>
+                     <width>23</width>
+                     <height>23</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize" >
+                    <size>
+                     <width>23</width>
+                     <height>23</height>
+                    </size>
+                   </property>
+                   <property name="frameShape" >
+                    <enum>QFrame::Box</enum>
+                   </property>
+                   <property name="frameShadow" >
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="dnaChooseBaseOrientationIndicatorsInvColorButton" >
+                   <property name="text" >
+                    <string>Choose...</string>
+                   </property>
+                   <property name="autoDefault" >
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="3" column="0" colspan="2" >
+                <widget class="QCheckBox" name="dnaBaseOrientationIndicatorsInverseCheckBox" >
+                 <property name="text" >
+                  <string>Enable inverse indicators</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label_35" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>1</hsizetype>
+                   <vsizetype>5</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text" >
+                  <string>Plane:</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" >
+                <widget class="QLabel" name="label_13" >
+                 <property name="sizePolicy" >
+                  <sizepolicy>
+                   <hsizetype>1</hsizetype>
+                   <vsizetype>5</vsizetype>
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text" >
+                  <string>Angle threshold:</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1" >
                 <widget class="QDoubleSpinBox" name="dnaBaseOrientationIndicatorsTerminalDistanceSpinBox" >
                  <property name="decimals" >
                   <number>0</number>
@@ -3670,7 +3781,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1" >
+               <item row="4" column="1" >
                 <widget class="QDoubleSpinBox" name="dnaBaseOrientationIndicatorsThresholdSpinBox" >
                  <property name="decimals" >
                   <number>1</number>
@@ -3686,7 +3797,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1" >
+               <item row="1" column="1" >
                 <layout class="QHBoxLayout" >
                  <property name="margin" >
                   <number>0</number>
@@ -3728,7 +3839,7 @@
                  </item>
                 </layout>
                </item>
-               <item row="2" column="0" >
+               <item row="5" column="0" >
                 <widget class="QLabel" name="label_14" >
                  <property name="sizePolicy" >
                   <sizepolicy>
@@ -3747,27 +3858,9 @@
                 </widget>
                </item>
                <item row="1" column="0" >
-                <widget class="QLabel" name="label_13" >
-                 <property name="sizePolicy" >
-                  <sizepolicy>
-                   <hsizetype>1</hsizetype>
-                   <vsizetype>5</vsizetype>
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text" >
-                  <string>Angle threshold:</string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0" >
                 <widget class="QLabel" name="bg1_color_lbl_5" >
                  <property name="text" >
-                  <string>Color:</string>
+                  <string>Indicators color:</string>
                  </property>
                  <property name="alignment" >
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3795,7 +3888,7 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="2" >
+       <item>
         <spacer>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
