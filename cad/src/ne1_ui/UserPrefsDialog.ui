@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -2964,7 +2964,7 @@
             <item>
              <widget class="QTabWidget" name="tabWidget_3" >
               <property name="currentIndex" >
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="tab_4" >
                <attribute name="title" >
@@ -3111,7 +3111,7 @@
                 <item row="1" column="1" >
                  <widget class="QDoubleSpinBox" name="dnaStyleAxisScaleSpinBox" >
                   <property name="maximum" >
-                   <double>10.000000000000000</double>
+                   <double>2.000000000000000</double>
                   </property>
                   <property name="singleStep" >
                    <double>0.100000000000000</double>
@@ -3229,7 +3229,7 @@
                 <item row="1" column="1" >
                  <widget class="QDoubleSpinBox" name="dnaStyleStrandsScaleSpinBox" >
                   <property name="maximum" >
-                   <double>10.000000000000000</double>
+                   <double>5.000000000000000</double>
                   </property>
                   <property name="singleStep" >
                    <double>0.100000000000000</double>
@@ -3329,7 +3329,7 @@
                 <item row="1" column="1" >
                  <widget class="QDoubleSpinBox" name="dnaStyleStrutsScaleSpinBox" >
                   <property name="maximum" >
-                   <double>10.000000000000000</double>
+                   <double>3.000000000000000</double>
                   </property>
                   <property name="singleStep" >
                    <double>0.100000000000000</double>
@@ -3411,7 +3411,7 @@
               </widget>
               <widget class="QWidget" name="tab_5" >
                <attribute name="title" >
-                <string>Bases</string>
+                <string>Nucleosides</string>
                </attribute>
                <layout class="QGridLayout" >
                 <property name="margin" >
@@ -3423,7 +3423,7 @@
                 <item row="1" column="1" >
                  <widget class="QDoubleSpinBox" name="dnaStyleBasesScaleSpinBox" >
                   <property name="maximum" >
-                   <double>10.000000000000000</double>
+                   <double>3.000000000000000</double>
                   </property>
                   <property name="singleStep" >
                    <double>0.100000000000000</double>

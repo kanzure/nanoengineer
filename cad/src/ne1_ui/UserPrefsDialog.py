@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Tue Apr  8 11:40:43 2008
+# Created: Tue Apr  8 15:11:34 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1383,7 +1383,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout20.addWidget(self.label_31,2,0,1,1)
 
         self.dnaStyleAxisScaleSpinBox = QtGui.QDoubleSpinBox(self.tab_4)
-        self.dnaStyleAxisScaleSpinBox.setMaximum(10.0)
+        self.dnaStyleAxisScaleSpinBox.setMaximum(2.0)
         self.dnaStyleAxisScaleSpinBox.setSingleStep(0.1)
         self.dnaStyleAxisScaleSpinBox.setProperty("value",QtCore.QVariant(1.0))
         self.dnaStyleAxisScaleSpinBox.setObjectName("dnaStyleAxisScaleSpinBox")
@@ -1434,7 +1434,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout21.addWidget(self.label_261,2,0,1,1)
 
         self.dnaStyleStrandsScaleSpinBox = QtGui.QDoubleSpinBox(self.tab_9)
-        self.dnaStyleStrandsScaleSpinBox.setMaximum(10.0)
+        self.dnaStyleStrandsScaleSpinBox.setMaximum(5.0)
         self.dnaStyleStrandsScaleSpinBox.setSingleStep(0.1)
         self.dnaStyleStrandsScaleSpinBox.setProperty("value",QtCore.QVariant(1.0))
         self.dnaStyleStrandsScaleSpinBox.setObjectName("dnaStyleStrandsScaleSpinBox")
@@ -1474,7 +1474,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout22.addWidget(self.dnaStyleStrutsColorComboBox,2,1,1,1)
 
         self.dnaStyleStrutsScaleSpinBox = QtGui.QDoubleSpinBox(self.tab_3)
-        self.dnaStyleStrutsScaleSpinBox.setMaximum(10.0)
+        self.dnaStyleStrutsScaleSpinBox.setMaximum(3.0)
         self.dnaStyleStrutsScaleSpinBox.setSingleStep(0.1)
         self.dnaStyleStrutsScaleSpinBox.setProperty("value",QtCore.QVariant(1.0))
         self.dnaStyleStrutsScaleSpinBox.setObjectName("dnaStyleStrutsScaleSpinBox")
@@ -1521,7 +1521,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout23.setObjectName("gridlayout23")
 
         self.dnaStyleBasesScaleSpinBox = QtGui.QDoubleSpinBox(self.tab_5)
-        self.dnaStyleBasesScaleSpinBox.setMaximum(10.0)
+        self.dnaStyleBasesScaleSpinBox.setMaximum(3.0)
         self.dnaStyleBasesScaleSpinBox.setSingleStep(0.1)
         self.dnaStyleBasesScaleSpinBox.setProperty("value",QtCore.QVariant(1.0))
         self.dnaStyleBasesScaleSpinBox.setObjectName("dnaStyleBasesScaleSpinBox")
@@ -3148,9 +3148,9 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(0)
+        self.prefs_tab.setCurrentIndex(3)
         self.level_of_detail_combox.setCurrentIndex(2)
-        self.tabWidget_3.setCurrentIndex(0)
+        self.tabWidget_3.setCurrentIndex(3)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
         QtCore.QMetaObject.connectSlotsByName(UserPrefsDialog)
         UserPrefsDialog.setTabOrder(self.prefs_tab,self.display_origin_axis_checkbox)
@@ -3481,7 +3481,7 @@ class Ui_UserPrefsDialog(object):
         self.dnaStyleBasesShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Sugar Spheres", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base Cartoons", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesDisplayLettersCheckBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Display Base Letters", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QtGui.QApplication.translate("UserPrefsDialog", "Bases", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QtGui.QApplication.translate("UserPrefsDialog", "Nucleosides", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaDisplayStrandLabelsGroupBox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Display Strand Labels", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStrandLabelColorComboBox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Background fill type", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStrandLabelColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as strand", None, QtGui.QApplication.UnicodeUTF8))

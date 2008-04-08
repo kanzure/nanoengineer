@@ -250,6 +250,7 @@ dnaBaseIndicatorsEnabled_prefs_key = 'A10/DNA base orientation indicators enable
 dnaBaseIndicatorsAngle_prefs_key = 'A10/DNA base orientation indicators angle'
 dnaBaseIndicatorsColor_prefs_key = 'A10/DNA base orientation indicators color'
 dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
+dnaStyleBasesDisplayLetters_prefs_key = 'A10/DNA base letters enabled'
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -356,7 +357,7 @@ _abandoned_prefs_keys = [
     'glpane lighting', # was released in A6 and maybe some prior versions; superceded by 'A7/glpane lighting' [bruce 051206]
     'A7/Selection Behavior', # only released in pre-release snapshots of A7. [mark 060304]
     'A7/Select Atoms Mode Highlighting Enabled' # only released in pre-release snapshots of A7. [mark 060404]
-    ]
+]
 
 #==
 
@@ -399,7 +400,7 @@ _default_bondColor = (0.25, 0.25, 0.25)
 def getDefaultWorkingDirectory(): 
     """
     Get the default Working Directory.
-    
+
     @return: The default working directory, which is platform dependent:
     - Windows: $HOME\My Documents
     - MacOS and Linux: $HOME
@@ -430,7 +431,7 @@ _default_workingDirectory = getDefaultWorkingDirectory()
 prefs_table = (
     # entries are: (attribute name, prefs type-and-db-format code, prefs key, optional default value)
     ##e add categories or tags?
-    
+
     # General preferences [added to this table by mark 050919] 
 
     ('display_compass', 'boolean', displayCompass_prefs_key, True),
@@ -448,7 +449,7 @@ prefs_table = (
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-    
+
     #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
     #can not be set by the user. Its just used internally. 
     #@see: GLPane_Minimial.__init__() and GLPane._adjust_GLPane_scale_if_needed()
@@ -456,7 +457,7 @@ prefs_table = (
     ('', 'float', startup_GLPane_scale_prefs_key, 10.0),
     ('', 'float', GLPane_scale_for_atom_commands_prefs_key, 10.0),
     ('', 'float', GLPane_scale_for_dna_commands_prefs_key, 50.0),
-    
+
     # Mouse wheel prefs. Mark 2008-04-07
     ('', 'int', mouseWheelDirection_prefs_key,      0),
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
@@ -471,233 +472,234 @@ prefs_table = (
     ('', 'color', rulerColor_prefs_key, mustard),
     ('', 'float', rulerOpacity_prefs_key, 0.7),
     ('', 'boolean', showRulersInPerspectiveView_prefs_key, False),
-    
+
     #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
     #reduced model(enable or disable elecrostatics)
     ('Electrostatics for Dna During Adjust','boolean',
      electrostaticsForDnaDuringAdjust_prefs_key, False),
-    ('Electrostatics For Dna During Minimize', 'boolean',
-     electrostaticsForDnaDuringMinimize_prefs_key, True),
-    ('Electrostatics For Dna During Simulation', 'boolean',
-     electrostaticsForDnaDuringDynamics_prefs_key, True),
-   
-    # Minimize prefs (some are in General prefs pane, some are in dialogs)
-    # [mark 060627, revised & extended by bruce 060628, 060705 for A8]
-    # (none yet are specific to Adjust Atoms aka Local Minimize)
-    
-    ('', 'boolean', Adjust_watchRealtimeMinimization_prefs_key, True),
-    ('', 'float', Adjust_endRMS_prefs_key, 100.0), # WARNING: this value may also be hardcoded in runSim.py
-    ('', 'float', Adjust_endMax_prefs_key, -1.0), # -1.0 means blank lineedit widget, and actual value is computed from other prefs
-    ('', 'float', Adjust_cutoverRMS_prefs_key, -1.0),
-    ('', 'float', Adjust_cutoverMax_prefs_key, -1.0),
+     ('Electrostatics For Dna During Minimize', 'boolean',
+      electrostaticsForDnaDuringMinimize_prefs_key, True),
+      ('Electrostatics For Dna During Simulation', 'boolean',
+       electrostaticsForDnaDuringDynamics_prefs_key, True),
 
-    ('', 'int', Adjust_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
-    
-    ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True), 
-    ('', 'float', Minimize_endRMS_prefs_key, +1.0), # WARNING: this value may also be hardcoded in runSim.py
-    ('', 'float', Minimize_endMax_prefs_key, -1.0), 
-    ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
-    ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
+       # Minimize prefs (some are in General prefs pane, some are in dialogs)
+       # [mark 060627, revised & extended by bruce 060628, 060705 for A8]
+       # (none yet are specific to Adjust Atoms aka Local Minimize)
 
-    ('', 'int', Minimize_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
+       ('', 'boolean', Adjust_watchRealtimeMinimization_prefs_key, True),
+       ('', 'float', Adjust_endRMS_prefs_key, 100.0), # WARNING: this value may also be hardcoded in runSim.py
+       ('', 'float', Adjust_endMax_prefs_key, -1.0), # -1.0 means blank lineedit widget, and actual value is computed from other prefs
+       ('', 'float', Adjust_cutoverRMS_prefs_key, -1.0),
+       ('', 'float', Adjust_cutoverMax_prefs_key, -1.0),
 
-    # preference for adding potential energy to trace file
+       ('', 'int', Adjust_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
 
-    ('', 'boolean', Potential_energy_tracefile_prefs_key, False),
-    
-    # Atom preferences - colors (other than element colors, handled separately)
+       ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True), 
+       ('', 'float', Minimize_endRMS_prefs_key, +1.0), # WARNING: this value may also be hardcoded in runSim.py
+       ('', 'float', Minimize_endMax_prefs_key, -1.0), 
+       ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
+       ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
 
-    ('atom_highlight_color', 'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
-    ('delete_atom_highlight_color', 'color', deleteAtomHighlightColor_prefs_key, _default_HICOLOR_delete_atom ),
-    ('bondpoint_highlight_color', 'color', bondpointHighlightColor_prefs_key, _default_HICOLOR_bondpoint),
-    ('bondpoint_hotspot_color', 'color', bondpointHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
-    
-    ## ('openbond_highlight_color',  'color', xxx_prefs_key, HICOLOR_singlet ), ## pink [not yet in prefs db]
-    
-    # Atom preferences - other
-    
-    ('', 'float', diBALL_AtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
-    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
-    ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
-    # Preference to force to keep bonds while transmuting atoms 
-    ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
-    ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
-    
-    # Bond preferences - colors
-    
-    ('bond_highlight_color', 'color', bondHighlightColor_prefs_key, _default_HICOLOR_real_bond),
-    ('delete_bond_highlight_color', 'color', deleteBondHighlightColor_prefs_key, _default_HICOLOR_delete_bond),
-    ('bond_stretch_color', 'color', bondStretchColor_prefs_key, _default_toolong_color),
-    ## ('bond_stretch_highlight_color', 'color', xxx_prefs_key, _default_toolong_hicolor), ## [not yet in prefs db]
-    ('pi_vane_color',  'color', bondVaneColor_prefs_key, _default_bondVaneColor),
-    ('',               'color', diBALL_bondcolor_prefs_key, _default_bondColor),
+       ('', 'int', Minimize_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
 
-    # Bond preferences - other
-    
-    #ninad 070430 Enable or disable display of bond stretch indicators --
-    ('show_bond_stretch_indicators', 'boolean', 
-     showBondStretchIndicators_prefs_key, True),   
+       # preference for adding potential energy to trace file
 
-    ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
-    ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
-    ('show_valence_errors', 'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
-    ('', 'int', linesDisplayModeThickness_prefs_key, 1),
-    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0),
-    ('', 'float', diDNACYLINDER_BondCylinderRadius_prefs_key, 1.0),
-    
-    # DNA preferences
-    # All DNA default values need to be confirmed by Eric D and Paul R.
-    # Mark 2008-01-31.
-    ('', 'float', adnaBasesPerTurn_prefs_key, 10.0),
-    ('', 'float', adnaRise_prefs_key, 3.391),
-    ('', 'float', bdnaBasesPerTurn_prefs_key, 10.0),
-    ('', 'float', bdnaRise_prefs_key, 3.180),
-    ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
-    ('', 'float', zdnaRise_prefs_key, 3.715),
-    ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
-    ('', 'int', dnaColorBasesBy_prefs_key, 0),
-    ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
-    
-    # Strand display option prefs.
-    ('show_arrows_on_all_directional_bonds', 'boolean', 
-     arrowsOnBackBones_prefs_key, True), 
-    ('show_three_prime_ends_as_out_arrow_heads', 'boolean', 
-     arrowsOnThreePrimeEnds_prefs_key, True), 
-    ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
-     arrowsOnFivePrimeEnds_prefs_key, False), 
-    
-    # DNA minor groove error indicator prefs.
-    ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
-    ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]
-    ('', 'int', dnaMaxMinorGrooveAngle_prefs_key, 150), # ditto
-    ('', 'color', dnaMinorGrooveErrorIndicatorColor_prefs_key, orange),
-    
-    # Only used in "Break Strands" PM.
-    ('', 'boolean', assignColorToBrokenDnaStrands_prefs_key, True),
-     
-    # DNA style preferences 080310 piotr
-    # updated on 080313
-    ('', 'int', dnaStyleStrandsShape_prefs_key, 2),
-    ('', 'int', dnaStyleStrandsColor_prefs_key, 1),
-    ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),
-    ('', 'int', dnaStyleStrandsArrows_prefs_key, 0),
-    ('', 'int', dnaStyleAxisShape_prefs_key, 1),
-    ('', 'int', dnaStyleAxisColor_prefs_key, 3),
-    ('', 'float', dnaStyleAxisScale_prefs_key, 0.7),
-    ('', 'int', dnaStyleAxisTaper_prefs_key, 4),
-    ('', 'int', dnaStyleStrutsShape_prefs_key, 0),
-    ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
-    ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),
-    ('', 'int', dnaStyleBasesShape_prefs_key, 0),
-    ('', 'int', dnaStyleBasesColor_prefs_key, 0),
-    ('', 'float', dnaStyleBasesScale_prefs_key, 1.2),
+       ('', 'boolean', Potential_energy_tracefile_prefs_key, False),
 
-    # DNA angle and base indicators 080325 piotr
-    ('', 'boolean', dnaStrandLabelsEnabled_prefs_key, False),
-    ('', 'color', dnaStrandLabelsColor_prefs_key, _default_strandLabelsColor),
-    ('', 'int', dnaStrandLabelsColorMode_prefs_key, 0),
-    ('', 'boolean', dnaBaseIndicatorsEnabled_prefs_key, False),
-    ('', 'color', dnaBaseIndicatorsColor_prefs_key, _default_baseIndicatorsColor),
-    ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
-    ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
-     
-    # Modes preferences [added to this table by mark 050910]
-    
-    ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
-    ##('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
-    #ninad070430:  made select chunks mode the only startup and defasult option 
-    #for A9  based on discussion
-    ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ), 
-    ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
-    ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
-    ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
-    ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, False ), # mark 060310.
-    
-    # Lighting preferences [added to this table by mark 051124]
-    # If any default light colors are changed here, you must also change the color of 
-    # the light in '_lights' in GLPane to keep them synchronized.  Mark 051204.
-    ('light1_color', 'color', light1Color_prefs_key, white ),
-    ('light2_color', 'color', light2Color_prefs_key, white ),
-    ('light3_color', 'color', light3Color_prefs_key, white ),
-    # Material specular properties.
-    ('ms_highlights', 'boolean', material_specular_highlights_prefs_key, True),
-    ('ms_finish', 'float', material_specular_finish_prefs_key, 0.5),
-    ('ms_shininess', 'float', material_specular_shininess_prefs_key, 35.0), 
-    ('ms_brightness', 'float', material_specular_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
+       # Atom preferences - colors (other than element colors, handled separately)
 
-    # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
+       ('atom_highlight_color', 'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
+       ('delete_atom_highlight_color', 'color', deleteAtomHighlightColor_prefs_key, _default_HICOLOR_delete_atom ),
+       ('bondpoint_highlight_color', 'color', bondpointHighlightColor_prefs_key, _default_HICOLOR_bondpoint),
+       ('bondpoint_hotspot_color', 'color', bondpointHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
 
-    ('', 'string', wiki_help_prefix_prefs_key, "http://www.nanoengineer-1.net/mediawiki/index.php?title=" ),
+       ## ('openbond_highlight_color',  'color', xxx_prefs_key, HICOLOR_singlet ), ## pink [not yet in prefs db]
 
-    # Plug-ins preferences [added to this table by mark 050919]
-    
-    ('qutemol_exe_path', 'string', qutemol_path_prefs_key, "" ),
-    ('qutemol_enabled', 'boolean', qutemol_enabled_prefs_key, False ),
-    ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
-    ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
-    ('povray_exe_path', 'string', povray_path_prefs_key, "" ),
-    ('povray_enabled', 'boolean', povray_enabled_prefs_key, False ),
-    ('megapov_exe_path', 'string', megapov_path_prefs_key, "" ),
-    ('megapov_enabled', 'boolean', megapov_enabled_prefs_key, False ),
-    ('povdir_path', 'string', povdir_path_prefs_key, "" ), #bruce 060710
-    ('povdir_enabled', 'boolean', povdir_enabled_prefs_key, False ), #bruce 060710
-    ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
-    ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
-    ('gromacs_exe_path', 'string', gromacs_path_prefs_key, "" ),
-    ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
-    ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
-    ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
-    ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
-    ('nv1_enabled', 'boolean', nv1_enabled_prefs_key, False ),
-    
-    # Undo and History preferences [added to this table by bruce 050810]
-    ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
-    ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
-    ('', 'int', undoStackMemoryLimit_prefs_key, 100), # mark 060327
-    ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
-    ('', 'boolean', historyMsgTimestamp_prefs_key, True),
-    ('history_height', 'int', historyHeight_prefs_key, 4), # ninad 060904
-    
-    # Window preferences [added to this table by bruce 050810]
-    
-    ('', 'boolean', rememberWinPosSize_prefs_key, False), # mark 060315. NIY.
-    ('', 'string', captionPrefix_prefs_key, "" ),
-    ('', 'string', captionSuffix_prefs_key, "*" ),
-    ('', 'boolean', captionFullPath_prefs_key, False ),
-    ('', 'boolean', useSelectedFont_prefs_key, False ),
-    ('', 'string', displayFont_prefs_key, "defaultFont"),
-    ('', 'int', displayFontPointSize_prefs_key, -1), # will be reset by the actual default font size.
-    ("", 'color', mtColor_prefs_key, white ), # Model Tree bg color. Mark 2007-06-04
-    #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
-    #Following saves the toolbar and dockwidget positions between NE1 sessions
-    ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
-    ('', 'boolean', displayReportsWidget_prefs_key, True),
-    # ...    
-    ('', 'boolean', sponsor_download_permission_prefs_key, False ),
-    ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
-    ('', 'boolean', sponsor_md5_mismatch_flag_key, True ),
-    
-    # Dynamic Tooltip preferences [added to this table by ninad 060818]
-    ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.
-    ('atom_distance_precision', 'int', dynamicToolTipAtomDistancePrecision_prefs_key, 3), # number of decimal places  ninad 060821
-    ('bend_angle_precision', 'int', dynamicToolTipBendAnglePrecision_prefs_key, 3), # number of decimal places 
-    
-    ('atom_chunk_info', 'boolean', dynamicToolTipAtomChunkInfo_prefs_key, False), # checkbox for displaying chunk name an atom belongs to
-    ('bond_chunk_info', 'boolean', dynamicToolTipBondChunkInfo_prefs_key, False), # checkbox -chunk name(s) of the two atoms in the bond
-    ('atom_position', 'boolean', dynamicToolTipAtomPosition_prefs_key, False), #checkbox for displaying xyz pos
-    ('atom_distance_deltas', 'boolean', dynamicToolTipAtomDistanceDeltas_prefs_key, False), # check box to display xyz deltas
-    ('bond_length', 'boolean', dynamicToolTipBondLength_prefs_key, False), # displays the bond length (precision determined by atom distance precision) @@@ ninad060823: It only returns the nuclear distance between the bonded atoms doesn't return covalent bond length.
-    ('atom_mass', 'boolean', dynamicToolTipAtomMass_prefs_key, False), #displays mass of the atom ninad060829
-    
-    #This preference adds VDW radii of the two atoms to the distance 
-    #in the 'distance between atoms' information given by the dynamic tooltip.
-    ('vdw_radii_in_atom_distance', 'boolean',
-     dynamicToolTipVdwRadiiInAtomDistance_prefs_key,
-     False),
-    
-     #=== Start of NIYs ninad060822===#
-    ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3), # number of decimal places 
-    #===End of NIYs ninad060822 ===#
+       # Atom preferences - other
+
+       ('', 'float', diBALL_AtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
+       ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
+       ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
+       # Preference to force to keep bonds while transmuting atoms 
+       ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
+       ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
+
+       # Bond preferences - colors
+
+       ('bond_highlight_color', 'color', bondHighlightColor_prefs_key, _default_HICOLOR_real_bond),
+       ('delete_bond_highlight_color', 'color', deleteBondHighlightColor_prefs_key, _default_HICOLOR_delete_bond),
+       ('bond_stretch_color', 'color', bondStretchColor_prefs_key, _default_toolong_color),
+       ## ('bond_stretch_highlight_color', 'color', xxx_prefs_key, _default_toolong_hicolor), ## [not yet in prefs db]
+       ('pi_vane_color',  'color', bondVaneColor_prefs_key, _default_bondVaneColor),
+       ('',               'color', diBALL_bondcolor_prefs_key, _default_bondColor),
+
+       # Bond preferences - other
+
+       #ninad 070430 Enable or disable display of bond stretch indicators --
+       ('show_bond_stretch_indicators', 'boolean', 
+        showBondStretchIndicators_prefs_key, True),   
+
+        ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
+        ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
+        ('show_valence_errors', 'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
+        ('', 'int', linesDisplayModeThickness_prefs_key, 1),
+        ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0),
+        ('', 'float', diDNACYLINDER_BondCylinderRadius_prefs_key, 1.0),
+
+        # DNA preferences
+        # All DNA default values need to be confirmed by Eric D and Paul R.
+        # Mark 2008-01-31.
+        ('', 'float', adnaBasesPerTurn_prefs_key, 10.0),
+        ('', 'float', adnaRise_prefs_key, 3.391),
+        ('', 'float', bdnaBasesPerTurn_prefs_key, 10.0),
+        ('', 'float', bdnaRise_prefs_key, 3.180),
+        ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
+        ('', 'float', zdnaRise_prefs_key, 3.715),
+        ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
+        ('', 'int', dnaColorBasesBy_prefs_key, 0),
+        ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
+
+        # Strand display option prefs.
+        ('show_arrows_on_all_directional_bonds', 'boolean', 
+         arrowsOnBackBones_prefs_key, True), 
+         ('show_three_prime_ends_as_out_arrow_heads', 'boolean', 
+          arrowsOnThreePrimeEnds_prefs_key, True), 
+          ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
+           arrowsOnFivePrimeEnds_prefs_key, False), 
+
+           # DNA minor groove error indicator prefs.
+           ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
+           ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]
+           ('', 'int', dnaMaxMinorGrooveAngle_prefs_key, 150), # ditto
+           ('', 'color', dnaMinorGrooveErrorIndicatorColor_prefs_key, orange),
+
+           # Only used in "Break Strands" PM.
+           ('', 'boolean', assignColorToBrokenDnaStrands_prefs_key, True),
+
+           # DNA style preferences 080310 piotr
+           # updated on 080313
+           ('', 'int', dnaStyleStrandsShape_prefs_key, 2),
+           ('', 'int', dnaStyleStrandsColor_prefs_key, 1),
+           ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),
+           ('', 'int', dnaStyleStrandsArrows_prefs_key, 0),
+           ('', 'int', dnaStyleAxisShape_prefs_key, 1),
+           ('', 'int', dnaStyleAxisColor_prefs_key, 3),
+           ('', 'float', dnaStyleAxisScale_prefs_key, 0.7),
+           ('', 'int', dnaStyleAxisTaper_prefs_key, 4),
+           ('', 'int', dnaStyleStrutsShape_prefs_key, 0),
+           ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
+           ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),
+           ('', 'int', dnaStyleBasesShape_prefs_key, 0),
+           ('', 'int', dnaStyleBasesColor_prefs_key, 0),
+           ('', 'float', dnaStyleBasesScale_prefs_key, 1.2),
+           ('', 'boolean', dnaStyleBasesDisplayLetters_prefs_key, False),
+
+           # DNA angle and base indicators 080325 piotr
+           ('', 'boolean', dnaStrandLabelsEnabled_prefs_key, False),
+           ('', 'color', dnaStrandLabelsColor_prefs_key, _default_strandLabelsColor),
+           ('', 'int', dnaStrandLabelsColorMode_prefs_key, 0),
+           ('', 'boolean', dnaBaseIndicatorsEnabled_prefs_key, False),
+           ('', 'color', dnaBaseIndicatorsColor_prefs_key, _default_baseIndicatorsColor),
+           ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
+           ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
+
+           # Modes preferences [added to this table by mark 050910]
+
+           ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
+           ##('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
+           #ninad070430:  made select chunks mode the only startup and defasult option 
+           #for A9  based on discussion
+           ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ), 
+           ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
+           ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
+           ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
+           ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, False ), # mark 060310.
+
+           # Lighting preferences [added to this table by mark 051124]
+           # If any default light colors are changed here, you must also change the color of 
+           # the light in '_lights' in GLPane to keep them synchronized.  Mark 051204.
+           ('light1_color', 'color', light1Color_prefs_key, white ),
+           ('light2_color', 'color', light2Color_prefs_key, white ),
+           ('light3_color', 'color', light3Color_prefs_key, white ),
+           # Material specular properties.
+           ('ms_highlights', 'boolean', material_specular_highlights_prefs_key, True),
+           ('ms_finish', 'float', material_specular_finish_prefs_key, 0.5),
+           ('ms_shininess', 'float', material_specular_shininess_prefs_key, 35.0), 
+           ('ms_brightness', 'float', material_specular_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
+
+           # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
+
+           ('', 'string', wiki_help_prefix_prefs_key, "http://www.nanoengineer-1.net/mediawiki/index.php?title=" ),
+
+           # Plug-ins preferences [added to this table by mark 050919]
+
+           ('qutemol_exe_path', 'string', qutemol_path_prefs_key, "" ),
+           ('qutemol_enabled', 'boolean', qutemol_enabled_prefs_key, False ),
+           ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
+           ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
+           ('povray_exe_path', 'string', povray_path_prefs_key, "" ),
+           ('povray_enabled', 'boolean', povray_enabled_prefs_key, False ),
+           ('megapov_exe_path', 'string', megapov_path_prefs_key, "" ),
+           ('megapov_enabled', 'boolean', megapov_enabled_prefs_key, False ),
+           ('povdir_path', 'string', povdir_path_prefs_key, "" ), #bruce 060710
+           ('povdir_enabled', 'boolean', povdir_enabled_prefs_key, False ), #bruce 060710
+           ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
+           ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
+           ('gromacs_exe_path', 'string', gromacs_path_prefs_key, "" ),
+           ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
+           ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
+           ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
+           ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
+           ('nv1_enabled', 'boolean', nv1_enabled_prefs_key, False ),
+
+           # Undo and History preferences [added to this table by bruce 050810]
+           ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
+           ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
+           ('', 'int', undoStackMemoryLimit_prefs_key, 100), # mark 060327
+           ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
+           ('', 'boolean', historyMsgTimestamp_prefs_key, True),
+           ('history_height', 'int', historyHeight_prefs_key, 4), # ninad 060904
+
+           # Window preferences [added to this table by bruce 050810]
+
+           ('', 'boolean', rememberWinPosSize_prefs_key, False), # mark 060315. NIY.
+           ('', 'string', captionPrefix_prefs_key, "" ),
+           ('', 'string', captionSuffix_prefs_key, "*" ),
+           ('', 'boolean', captionFullPath_prefs_key, False ),
+           ('', 'boolean', useSelectedFont_prefs_key, False ),
+           ('', 'string', displayFont_prefs_key, "defaultFont"),
+           ('', 'int', displayFontPointSize_prefs_key, -1), # will be reset by the actual default font size.
+           ("", 'color', mtColor_prefs_key, white ), # Model Tree bg color. Mark 2007-06-04
+           #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
+           #Following saves the toolbar and dockwidget positions between NE1 sessions
+           ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
+           ('', 'boolean', displayReportsWidget_prefs_key, True),
+           # ...    
+           ('', 'boolean', sponsor_download_permission_prefs_key, False ),
+           ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
+           ('', 'boolean', sponsor_md5_mismatch_flag_key, True ),
+
+           # Dynamic Tooltip preferences [added to this table by ninad 060818]
+           ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.
+           ('atom_distance_precision', 'int', dynamicToolTipAtomDistancePrecision_prefs_key, 3), # number of decimal places  ninad 060821
+           ('bend_angle_precision', 'int', dynamicToolTipBendAnglePrecision_prefs_key, 3), # number of decimal places 
+
+           ('atom_chunk_info', 'boolean', dynamicToolTipAtomChunkInfo_prefs_key, False), # checkbox for displaying chunk name an atom belongs to
+           ('bond_chunk_info', 'boolean', dynamicToolTipBondChunkInfo_prefs_key, False), # checkbox -chunk name(s) of the two atoms in the bond
+           ('atom_position', 'boolean', dynamicToolTipAtomPosition_prefs_key, False), #checkbox for displaying xyz pos
+           ('atom_distance_deltas', 'boolean', dynamicToolTipAtomDistanceDeltas_prefs_key, False), # check box to display xyz deltas
+           ('bond_length', 'boolean', dynamicToolTipBondLength_prefs_key, False), # displays the bond length (precision determined by atom distance precision) @@@ ninad060823: It only returns the nuclear distance between the bonded atoms doesn't return covalent bond length.
+           ('atom_mass', 'boolean', dynamicToolTipAtomMass_prefs_key, False), #displays mass of the atom ninad060829
+
+           #This preference adds VDW radii of the two atoms to the distance 
+           #in the 'distance between atoms' information given by the dynamic tooltip.
+           ('vdw_radii_in_atom_distance', 'boolean',
+            dynamicToolTipVdwRadiiInAtomDistance_prefs_key,
+            False),
+
+            #=== Start of NIYs ninad060822===#
+            ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3), # number of decimal places 
+            #===End of NIYs ninad060822 ===#
 
 )
 

@@ -139,6 +139,7 @@ from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
 # Undo prefs
 from utilities.prefs_constants import undoRestoreView_prefs_key
@@ -460,7 +461,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
-        
+
         # Some standard attrs.
         self.glpane = assy.o
         self.w = assy.w
@@ -556,7 +557,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                     buttonId = 2
                 self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
         self.setUI_LogoDownloadPermissions()
-        
+
         self.connect(self.whatsThisToolButton,SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -571,7 +572,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
-        
+
         # Mouse wheel prefs signal-slot connections.
         self.connect(self.mouseWheelDirectionComboBox,
                      SIGNAL("currentIndexChanged(int)"),
@@ -590,7 +591,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
         self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
         self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
-        
+
         # DNA Minor Groove Error Indicator signal/slot connections.
         self.connect(self.dnaMinGrooveAngleSpinBox,
                      SIGNAL("valueChanged(int)"),
@@ -604,7 +605,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton,
                      SIGNAL("clicked()"),
                      self._restore_dnaMinorGrooveFactoryDefaults)
-        
+
         # DNA style 080310 piotr 
         self.connect(self.dnaStyleStrandsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsColor)
         self.connect(self.dnaStyleStrutsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsColor)
@@ -629,6 +630,9 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton,SIGNAL("clicked()"),self.change_dnaBaseIndicatorsColor)
         self.connect(self.dnaChooseStrandLabelColorButton,SIGNAL("clicked()"),self.change_dnaStrandLabelsColor)
         self.connect(self.dnaStrandLabelColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStrandLabelsColorMode)
+
+        # piotr 080408
+        self.connect(self.dnaStyleBasesDisplayLettersCheckBox,SIGNAL("toggled(bool)"),self.toggle_dnaStyleBasesDisplayLettersCheckBox)
 
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
@@ -1179,7 +1183,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
-        
+
         #Mouse wheel combo boxes
         self.mouseWheelDirectionComboBox.setCurrentIndex(
             env.prefs[mouseWheelDirection_prefs_key])
@@ -1606,19 +1610,19 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
-        
+
         # Display Minor Groove Error Indicator groupbox widgets.
-        
+
         connect_checkbox_with_boolean_pref(
             self.dnaDisplayMinorGrooveErrorGroupBox,
             dnaDisplayMinorGrooveErrorIndicators_prefs_key)
-        
+
         self.dnaMinGrooveAngleSpinBox.setValue(
             env.prefs[dnaMinMinorGrooveAngle_prefs_key])
-        
+
         self.dnaMaxGrooveAngleSpinBox.setValue(
             env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
-        
+
         connect_colorpref_to_colorframe( 
             dnaMinorGrooveErrorIndicatorColor_prefs_key, 
             self.dnaGrooveIndicatorColorFrame)
@@ -1661,6 +1665,11 @@ restored when the user undoes a structural change.</p>
                                         self.dnaBaseOrientationIndicatorsColorFrame)
         connect_colorpref_to_colorframe(dnaStrandLabelsColor_prefs_key,
                                         self.dnaStrandLabelColorFrame)
+
+        # piotr 080408
+        connect_checkbox_with_boolean_pref(
+            self.dnaStyleBasesDisplayLettersCheckBox,
+            dnaStyleBasesDisplayLetters_prefs_key)
 
     def _setup_undo_page(self):
         """
@@ -2060,11 +2069,11 @@ restored when the user undoes a structural change.</p>
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
-            
+
     def set_mouse_wheel_direction(self, direction):
         """
         Slot for Mouse Wheel Direction combo box.
-        
+
         @param direction: The mouse wheel direction for zooming in.
                           0 = Pull (default), 1 = Push
         @type  direction: int
@@ -2072,11 +2081,11 @@ restored when the user undoes a structural change.</p>
         env.prefs[mouseWheelDirection_prefs_key] = direction
         self.w.updateMouseWheelSettings()
         return
-    
+
     def set_mouse_wheel_zoom_in_position(self, position):
         """
         Slot for Mouse Wheel "Zoom In Position" combo box.
-        
+
         @param position: The mouse wheel zoom in position, where:
                         0 = Cursor position (default) 
                         1 = Graphics area center
@@ -2085,11 +2094,11 @@ restored when the user undoes a structural change.</p>
         env.prefs[zoomInAboutScreenCenter_prefs_key] = position
         self.w.updateMouseWheelSettings()
         return
-    
+
     def set_mouse_wheel_zoom_out_position(self, position):
         """
         Slot for Mouse Wheel "Zoom Out Position" combo box.
-        
+
         @param position: The mouse wheel zoom out position, where:
                         0 = Cursor position (default) 
                         1 = Graphics area center
@@ -2441,28 +2450,28 @@ restored when the user undoes a structural change.</p>
     def save_dnaMinMinorGrooveAngles(self, minAngle):
         """
         Slot for minimum minor groove angle spinboxes.
-        
+
         @param minAngle: The minimum angle.
         @type  minAngle: int
         """
         env.prefs[dnaMinMinorGrooveAngle_prefs_key] = minAngle
-        
+
     def save_dnaMaxMinorGrooveAngles(self, maxAngle):
         """
         Slot for maximum minor groove angle spinboxes.
-        
+
         @param maxAngle: The maximum angle.
         @type  maxAngle: int
         """
         env.prefs[dnaMaxMinorGrooveAngle_prefs_key] = maxAngle
-        
+
     def change_dnaMinorGrooveErrorIndicatorColor(self):
         """
         Slot for the I{Choose...} button for changing the 
         DNA minor groove error indicator color.
         """
         self.usual_change_color( dnaMinorGrooveErrorIndicatorColor_prefs_key )
-        
+
     def _restore_dnaMinorGrooveFactoryDefaults(self):
         """
         Slot for Minor Groove Error Indicator I{Restore Factory Defaults} 
@@ -2479,7 +2488,7 @@ restored when the user undoes a structural change.</p>
             env.prefs[dnaMinMinorGrooveAngle_prefs_key])
         self.dnaMaxGrooveAngleSpinBox.setValue(
             env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
-        
+
     # DNA display style piotr 080310
     def change_dnaStyleStrandsColor(self, value):
         """
@@ -2733,6 +2742,17 @@ restored when the user undoes a structural change.</p>
         @type state: boolean
         """
         env.prefs[dnaBaseIndicatorsEnabled_prefs_key] = state
+
+    def toggle_dnaStyleBasesDisplayLettersCheckBox(self, state):
+        """
+        Toggles DNA Base Letters.
+
+        @param state: Is the CheckBox enabled?
+                    - True = on
+                    - False = off
+        @type state: boolean
+        """
+        env.prefs[dnaStyleBasesDisplayLetters_prefs_key] = state
 
     def change_dnaBaseIndicatorsColor(self):
         """
