@@ -171,6 +171,9 @@ from utilities.prefs_constants import LOWER_LEFT
 from utilities.prefs_constants import displayCompassLabels_prefs_key
 from utilities.prefs_constants import displayRulers_prefs_key
 from utilities.prefs_constants import showRulersInPerspectiveView_prefs_key
+from utilities.prefs_constants import startup_GLPane_scale_prefs_key
+from utilities.prefs_constants import GLPane_scale_for_atom_commands_prefs_key
+from utilities.prefs_constants import GLPane_scale_for_dna_commands_prefs_key
 
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
@@ -531,9 +534,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         ## drawer.setup_drawer()
         self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
-
+        
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
-
+    
         self.loadLighting() #bruce 050311
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 
@@ -555,6 +558,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
 
         return # from GLPane.__init__ 
+    
 
     def should_draw_valence_errors(self):
         """
@@ -829,10 +833,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # logically I'd prefer to move this to just after set_part, but right now
             # I have no time to fully analyze whether set_part might depend on
             # this having been done, so I won't move it down for now. [bruce 080314]
-
+            
         self.set_part( mainpart)
-
-
+        
+        
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911
 
@@ -949,6 +953,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         Recenter the current view around the origin of modeling space.
         """
+        print "**in setViewRecenter"
         part = self.part
         part.computeBoundingBox()
         scale = (part.bbox.scale() * 0.75) + (vlen(part.center) * .5)
@@ -1315,7 +1320,52 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # changed this to a full update (not just a glpane update),
         # though technically the non-glpane part is the job of our caller rather than us,
         # and changed MWsemantics to make that safe during our __init__.
+        
+        self._adjust_GLPane_scale_if_needed()        
         self.win.win_update()
+    
+    def _adjust_GLPane_scale_if_needed(self):
+        """
+        Adjust the glpane scale while in a certain command. 
+        
+        Behavior --
+        
+        Default scale remains the same (i.e. value of 
+        startup_GLPane_scale_prefs_key) 
+        
+        If user enters BuildDna command and if --
+        a) there is no model in the assembly AND 
+        b) user didn't change the zoom factor , the glpane.scale woud be 
+        adjusted to 50.0 (GLPane_scale_for_dna_commands_prefs_key)
+        
+        If User doesn't do anything in BuildDna AND also doesn't modify the zoom
+        factor, exiting BuildDna and going into the defaultcommand
+        (or any command such asBuildAtoms ), it should restore zoom scale to 
+        10.0 (value for GLPane_scale_for_atom_commands_prefs_key)
+        
+        @see: self.update_after_new_current_command() where it is called. This
+              method in turn, gets called after you enter a new command.
+        @see: Command.start_using_new_mode()
+        """
+        #Implementing this method fixes bug 2774
+        dnaCommands = ('BUILD_DNA', 'DNA_DUPLEX', 'DNA_SEGMENT', 'DNA_STRAND')
+        
+        startup_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
+        
+        dna_preferred_scale = float(
+            env.prefs[GLPane_scale_for_dna_commands_prefs_key])
+        
+        atom_preferred_scale = float(
+            env.prefs[GLPane_scale_for_atom_commands_prefs_key])
+        
+        if self.currentCommand.commandName in dnaCommands:
+            if self.scale ==  startup_scale and \
+               len(self.assy.part.topnode.members) == 0:                
+                self.scale = dna_preferred_scale
+        else:
+            if self.scale == dna_preferred_scale and \
+               len(self.assy.part.topnode.members) == 0:
+                self.scale = atom_preferred_scale
 
     # ==
 
@@ -2482,6 +2532,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         point = intersection
 
         return point
+    
+    def setScaleToDna(self):
+        pass
+    
 
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller

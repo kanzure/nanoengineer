@@ -22,6 +22,7 @@ from graphics.behaviors.Trackball import Trackball
 from model.NamedView import NamedView
 
 from utilities.prefs_constants import undoRestoreView_prefs_key
+from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 
 from utilities.debug_prefs import Choice
 from utilities.debug_prefs import debug_pref
@@ -128,8 +129,8 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         self.pov = V(0.0, 0.0, 0.0)
 
         # half-height of window in Angstroms (reset by certain view-changing operations)
-        self.scale = 10.0
-
+        self.scale = float(env.prefs[startup_GLPane_scale_prefs_key])
+        
         # zoom factor
         self.zoomFactor = 1.0
 
@@ -298,7 +299,11 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
                 self.quat = Q(1, 0, 0, 0)
                 # point of view (i.e. negative of center of view)
                 self.pov = V(0.0, 0.0, 0.0)
-                # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
+                
+                # half-height of window in Angstroms (gets reset by certain 
+                #view-changing operations [bruce 050615 comment])                
+                #@REVIEW: Should self.scale here should be set from 
+                #startup_GLPane_scale_prefs_key ??
                 self.scale = 10.0
                 # zoom factor
                 self.zoomFactor = 1.0

@@ -82,6 +82,7 @@ from utilities.constants import diDEFAULT
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 from utilities.prefs_constants import levelOfDetail_prefs_key
+from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 
 from model.Line import Line
 
@@ -198,8 +199,25 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # which are not yet added (and we don't want to assume topnode's
             # kids will all be added, though for now this might be true --
             # not sure).
-            self.homeView = NamedView(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, Q(1.0, 0.0, 0.0, 0.0))
-            self.lastView = NamedView(self.assy, "LastView", 10.0, V(0,0,0), 1.0, Q(1.0, 0.0, 0.0, 0.0))
+            
+            #Default scale is usually = 10.0-- obtained from the preference 
+            #value for startup_GLPane_scale_prefs_key
+            #@see: GLPane.__init__, 
+            #@see:GLPane._adjust_GLPane_scale_if_needed()
+            default_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
+            self.homeView = NamedView(self.assy, 
+                                      "HomeView", 
+                                      default_scale, 
+                                      V(0,0,0), 
+                                      1.0, 
+                                      Q(1.0, 0.0, 0.0, 0.0))
+            
+            self.lastView = NamedView(self.assy, 
+                                      "LastView", 
+                                      default_scale, 
+                                      V(0,0,0), 
+                                      1.0, 
+                                      Q(1.0, 0.0, 0.0, 0.0))
 
         self.add(topnode)
         # for now:
