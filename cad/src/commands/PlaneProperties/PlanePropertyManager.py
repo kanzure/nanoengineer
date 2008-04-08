@@ -226,25 +226,22 @@ class PlanePropertyManager(EditCommand_PM):
                 
         if buttonId == 0:
             msg = "Create a Plane parallel to the screen. \
-            NOTE: With <b>Parallel to Screen</b> plane placement option, the \
-            center of the plane is always (0,0,0). This value is set during \
-            plane creation or when the <b>Preview</b> button is clicked."
+            With <b>Parallel to Screen</b> plane placement option, the \
+            center of the plane is always (0,0,0)" 
             self.updateMessage(msg)
             self.editCommand.placePlaneParallelToScreen()            
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center\
             of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
-            selected, the Plane will pass through those atoms. Select atoms \
-            and hit <b>Preview</b> to see the new Plane placement"        
+            selected, the Plane will pass through those atoms."        
             self.updateMessage(msg)            
             self.editCommand.placePlaneThroughAtoms()
             if self.editCommand.logMessage:
                 env.history.message(self.editCommand.logMessage)
         elif buttonId == 2:
-            msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
-            in the direction indicated by the direction arrow. \
-            Select an existing plane and hit <b>Preview</b>.\
-            You can click on the direction arrow to reverse its direction."
+            msg = "Create a Plane at an <b>offset</b> to the selected plane\
+            indicated by the direction arrow. \
+            you can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
             self.editCommand.placePlaneOffsetToAnother()
             if self.editCommand.logMessage:
@@ -252,8 +249,8 @@ class PlanePropertyManager(EditCommand_PM):
         elif buttonId == 3:
             #'Custom' plane placement. Do nothing (only update message box)
             # Fixes bug 2439
-            msg = "Create a plane with a <b>Custom</b> plane placement. During \
-            its creation, the plane is placed parallel to the screen, with \
+            msg = "Create a plane with a <b>Custom</b> plane placement. \
+            The plane is placed parallel to the screen, with \
             center at (0, 0, 0). User can then modify the plane placement."
             self.updateMessage(msg)
     
