@@ -109,6 +109,27 @@ mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
 zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
 zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
 
+
+
+#GLpane scale preferences
+#GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
+#can not be set by the user. Its just used internally. 
+#@see: GLPane_Minimial.__init__() and GLPane._adjust_GLPane_scale_if_needed()
+#for more implementation details
+
+#The GLPane scale setup initially (at startup) i.e. while starting a new 
+#(empty) model
+startup_GLPane_scale_prefs_key = 'A10/GLPane Scale at startup'
+
+#Preferred GLPane scale is user starts with an empty model and directly enters
+#commands such as Build Atoms. 
+GLPane_scale_for_atom_commands_prefs_key = 'A10/ Initial GLPane scale for Atom commands'
+
+#Preferred GLPane scale if user starts with an empty model and without changing 
+#the initial scale, directly enters a Dna command (such as BuildDna) 
+GLPane_scale_for_dna_commands_prefs_key = 'A10/Initial GLPane Scale for Dna commands'
+
+
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
 dynamicToolTipAtomDistancePrecision_prefs_key = 'A9/DynamicToolTip Atom Distance Precision'
@@ -427,6 +448,14 @@ prefs_table = (
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
+    
+    #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
+    #can not be set by the user. Its just used internally. 
+    #@see: GLPane_Minimial.__init__() and GLPane._adjust_GLPane_scale_if_needed()
+    #for more implementation details
+    ('', 'float', startup_GLPane_scale_prefs_key, 10.0),
+    ('', 'float', GLPane_scale_for_atom_commands_prefs_key, 10.0),
+    ('', 'float', GLPane_scale_for_dna_commands_prefs_key, 50.0),
     
     # Mouse wheel prefs. Mark 2008-04-07
     ('', 'int', mouseWheelDirection_prefs_key,       0),
