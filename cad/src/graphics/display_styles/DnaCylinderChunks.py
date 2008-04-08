@@ -427,7 +427,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 len2 = len(strand_atoms_lists[1])
                 if pos>=0 and pos<len1 and pos<len2:
                     base_name = strand_atoms_lists[0][pos].getDnaBaseName()
-                    print "base_name = ", base_name
                     if base_name=='A' or base_name=='T':
                         color = [0.0, 1.0, 0.5]
                     elif base_name=='G' or base_name=='C':
@@ -1098,8 +1097,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     glColor3f(base_color[0],base_color[1],base_color[2])
                     glpane.renderText(textpos[0], textpos[1], textpos[2], 
                                       label_text, labelFont)                    
-
-                    print "highlighted = ", highlighted
                     
                     if highlighted:
                         color = yellow
@@ -1351,8 +1348,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
         # (actually chunk.poly_evals_evecs_axis[2]),
         # it's best to just use the axis and center, then recompute 
         # a bounding cylinder.
-
-        print "recomputing memo"
         
         # import the style preferences from User Preferences
         self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
