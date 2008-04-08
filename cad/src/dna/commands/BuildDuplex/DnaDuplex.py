@@ -1541,8 +1541,8 @@ class B_Dna_PAM3(B_Dna_PAM5):
         @see: B_Dna_PAM3_SingleStrand._strand_neighbors_to_delete() which 
               overrides this method
         """
-        strand_neghbors_to_delete = axisAtom.strand_neighbors()
-        return strand_neghbors_to_delete
+        strand_neighbors_to_delete = axisAtom.strand_neighbors()
+        return strand_neighbors_to_delete
 
 
     def _create_atomLists_for_regrouping(self, dnaGroup):
