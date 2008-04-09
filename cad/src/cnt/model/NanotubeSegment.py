@@ -142,6 +142,7 @@ class NanotubeSegment(Group):
         # Need to save/restore these params in the MMP file. --Mark 2008-04-01.
         props = (self.nanotube.getChirality(),
                  self.nanotube.getType(),
+                 self.nanotube.getEndings(),
                  self.nanotube.getEndPoints())
         return props
     
