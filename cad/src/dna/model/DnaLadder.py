@@ -87,7 +87,6 @@ from dna.model.dna_model_constants import LADDER_STRAND1_BOND_DIRECTION
 
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
-
 from dna.model.DnaLadder_pam_conversion import DnaLadder_pam_conversion_methods
 
 from dna.model.PAM_atom_rules import PAM_atoms_allowed_in_same_ladder

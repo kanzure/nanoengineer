@@ -25,11 +25,6 @@ from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 ######## NOT YET FINAL VALUES ########
 
-X_APRIME = 2.695 # x_a' (where _ means subscript)
-
-X_SPRIME = -0.772 # x_s'
-Y_SPRIME = -0.889 # y_s'
-
 # Note: these are approximate numbers (from Eric M)
 # based on what the current PAM3 and PAM5 generators are producing:
 #
@@ -39,11 +34,25 @@ Y_SPRIME = -0.889 # y_s'
 # x_g  =  8.657
 # y_m  =  6.198
 
+X_APRIME = 2.695 # x_a' (where _ means subscript)
+
+X_SPRIME = -0.772 # x_s'
+Y_SPRIME = -0.889 # y_s'
+
+SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
+
+DEFAULT_X_G = 8.657 # x_g
+DEFAULT_Y_M = 6.198 # y_m
+
+DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0) # most likely, only x actually matters
 
 
+# note this in another file:
+##        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
+##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
 
-SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0)
 
+# ==
 
 # goals:
 # - enumerate the numerical parameters i need - see above
@@ -170,8 +179,16 @@ def baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos):
 def default_Pl_relative_position(direction):
     """
     """
-    print "stub for default_Pl_relative_position"
+    print "stub for default_Pl_relative_position" ####  printonce?
     return V(X_SPRIME, Y_SPRIME, - direction) #### STUB  --  @@@@ FIX (use direction to choose one of two different values)
+
+def default_Gv_relative_position():
+    print "stub for default_Gv_relative_position" ####
+    return DEFAULT_GV5_RELPOS # assume ok to return same value (mutable Numeric array)
+
+# note this in another file:
+##        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
+##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
 
 # ==
 

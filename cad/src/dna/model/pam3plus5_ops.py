@@ -30,7 +30,8 @@ from model.bond_constants import find_bond
 
 def Pl_pos_from_neighbor_PAM3plus5_data(
         bond_directions_to_neighbors,
-        remove_data_from_neighbors = False
+        remove_data_from_neighbors = False,
+        ladders_dict = None
     ): #bruce 080402
     """
     Figure out where a new Pl atom should be located
@@ -45,6 +46,8 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     
     @see: related method (stores data in the other direction),
           _f_Pl_store_position_into_Ss3plus5_data
+
+    @see: a similar function for Gv [nim]
     """
     proposed_posns = []
     
@@ -54,7 +57,8 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
             pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
                     - direction,
                     remove_data = remove_data_from_neighbors,
-                    make_up_position_if_necessary = True
+                    make_up_position_if_necessary = True,
+                    ladders_dict = ladders_dict
              )
             if pos is None:
                 # can happen in theory, in spite of

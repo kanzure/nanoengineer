@@ -40,6 +40,7 @@ from utilities import debug_flags
 from dna.model.pam3plus5_math import baseframe_abs_to_rel
 from dna.model.pam3plus5_math import baseframe_rel_to_abs
 from dna.model.pam3plus5_math import default_Pl_relative_position
+from dna.model.pam3plus5_math import default_Gv_relative_position
     # import cycle? unlikely, that module won't need much.
     # (could fold this into a ladder method if desired)
 
@@ -61,6 +62,8 @@ def make_vec_perp_to_vec(vec1, vec2): #bruce 080405; todo: refile, or find an ex
     """
     remove_this_direction = norm(vec2)
     return vec1 - dot(vec1, remove_this_direction) * remove_this_direction #k
+
+_GV5_DATA_INDEX = 2
 
 # ==
 
@@ -571,7 +574,7 @@ class PAM_Atom_methods:
         for direction_to, ss in self.bond_directions_to_neighbors():
             if ss.element.role == 'strand':
                 # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
-                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos, ladders_dict = ladders_dict) # IMPLEM option
+                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos, ladders_dict = ladders_dict)
             continue
 
         self._f_Pl_posn_is_definitive = False
@@ -1257,6 +1260,9 @@ class PAM_Atom_methods:
             fake_Pls = self._fake_Pls = [None, None]
         assert direction in (1, -1)
         direction_index = (direction == 1) # arbitrary map from direction to [0,1] ### clean up dup code when we have some
+            # review: change this to data_index, store a Fake_Gv in the same array??
+            # (don't know yet if writemmp pam5 conversion will need one -- maybe not,
+            #  or if it does it can probably be a flyweight, but not yet known)
         Pl = fake_Pls[direction_index]
         from dna.model.pam_conversion_mmp import Fake_Pl # import cycle??? guess no...
         if Pl is None:
@@ -1267,9 +1273,13 @@ class PAM_Atom_methods:
         # nonsense: ## assert Pl.killed() # for now
         return Pl
 
-    _PAM3plus5_Pl_data = None
+    # methods related to storing PAM3+5 Pl data on Ss
+    # (Gv and Pl data share private helper methods)
     
-    def _f_store_PAM3plus5_Pl_abs_position(self, direction, abspos): #bruce 080402
+    _PAM3plus5_Pl_Gv_data = None
+    
+    def _f_store_PAM3plus5_Pl_abs_position(self, direction, abspos, **opts):
+        #bruce 080402, split 080409
         """
         [friend method for PAM3plus5 code, called from dna updater]
 
@@ -1290,9 +1300,19 @@ class PAM_Atom_methods:
                optimized in a loop over basepairs in order (in that case).
         """
         assert direction in (1, -1)
+        data_index = (direction == 1)
+        self._store_PAM3plus5_abspos(data_index, abspos, **opts)
+            # both Pl and Gv use this, with different data_index
+        return
+
+    def _store_PAM3plus5_abspos(self, data_index, abspos, ladders_dict = None):
+        """
+        [private helper, used for Pl and Gv methods]
+        """
+        #bruce 080402, split 080409
         if not self.element.symbol.startswith('Ss'): # kluge? needs to match Ss3 and Ss5, and not Pl
             # not necessarily an error
-            print "fyi: _f_store_PAM3plus5_Pl_abs_position is a noop for %r" % self
+            print "fyi: _store_PAM3plus5_abspos%r is a noop for this element" % (self, data_index, abspos)
                 # remove when works if routine; leave in if never seen, to notice bugs;
                 # current caller tries not to call in this case, so this should not happen
             return
@@ -1300,42 +1320,61 @@ class PAM_Atom_methods:
         assert ladder
         whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
             # TODO: pass index hint to optimize?
-        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) ##### @@@@@ TODO: ensure up to date
+        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index, ladders_dict)
+            # we trust caller to make sure this is up to date (no way to detect if not)
             # implem note: if we only store top baseframes, this will derive bottom ones on the fly
         relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
-        if not self._PAM3plus5_Pl_data:
-            self._PAM3plus5_Pl_data = [None, None]
-        direction_index = (direction == 1)
-        self._PAM3plus5_Pl_data[direction_index] = relpos
-        print "fyi, on %r for direction %r stored relpos %r" % (self, direction, relpos) ####
-            ##### use these prints to get constants for default_Pl_relative_position @@@@
+        if not self._PAM3plus5_Pl_Gv_data:
+            self._PAM3plus5_Pl_Gv_data = [None, None, None]
+        self._PAM3plus5_Pl_Gv_data[data_index] = relpos
+        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
+            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
         return 
 
     def _f_recommend_PAM3plus5_Pl_abs_position(self,
                     direction,
-                    remove_data = False,
-                    make_up_position_if_necessary = True ): #bruce 080402
+                    make_up_position_if_necessary = True,
+                    ladders_dict = None,
+                    **opts
+         ):
         """
         #doc; return None or a position
         """
+        #bruce 080402, split 080409
+        assert direction in (1, -1)
+        data_index = (direction == 1)
+        res = self._recommend_PAM3plus5_abspos(data_index, ladders_dict = ladders_dict, **opts) ###k
+            # both Pl and Gv use this, with different data_index
+        if res is None and make_up_position_if_necessary:
+            res = self._make_up_Pl_abs_position(direction, ladders_dict = ladders_dict)
+                # note: don't store this, even if not remove_data
+                # (even though save in PAM5, then reload file,
+                #  *will* effectively store it, since in the file we don't
+                #  mark it as "made up, should be ignored"; if we did,
+                #  we'd want to erase that as soon as anything moved it,
+                #  and it'd be a kind of hidden info with mysterious effects,
+                #  so it's not a good idea to mark it that way)
+        return res
+
+    def _recommend_PAM3plus5_abspos(self,
+                    data_index,
+                    remove_data = False ):
+        """
+        [private helper, used for Pl and Gv methods]
+
+        #doc; return None or a position; never make up a position
+        """
+        #bruce 080402, split 080409
         data = None
-        if self._PAM3plus5_Pl_data:
-            direction_index = (direction == 1)
-            data = self._PAM3plus5_Pl_data[direction_index] # might be None
+        if self._PAM3plus5_Pl_Gv_data:
+            data = self._PAM3plus5_Pl_Gv_data[data_index] # might be None
             if remove_data:
-                self._PAM3plus5_Pl_data[direction_index] = None
-                # don't bother removing the [None, None] list itself
+                self._PAM3plus5_Pl_Gv_data[data_index] = None
+                # don't bother removing the [None, None, ...] list itself
                 # (optim: should we remove it to conserve RAM??)
-        # data is None or a relative Pl position
+        # data is None or a relative Pl or Gv position
         if data is None:
-            if make_up_position_if_necessary:
-                return self._make_up_Pl_abs_position(direction)
-                    #k @@@@ can this be None? can self be non-Ss? can self be PAM5?
-                    # can this make use of more info than the "baseframe"? is it ever called when that's not there?
-                # don't store it, even if not remove_data
-                # (note: save and reload file *will* effectively store it)
-            else:
-                return None
+            return None
         else:
             relpos = data
             ladder = self.molecule.ladder
@@ -1343,7 +1382,7 @@ class PAM_Atom_methods:
             whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
             origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
             return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
-        pass # end of _f_recommend_PAM3plus5_Pl_abs_position
+        pass # end of _recommend_PAM3plus5_abspos
 
     def _make_up_Pl_abs_position(self, direction): #bruce 080402
         """
@@ -1354,7 +1393,60 @@ class PAM_Atom_methods:
         whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
         origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) # todo: factor this out, used in 3 places
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+
+    # methods related to storing PAM3+5 Gv data on Ss
+    # (Gv and Pl data share private helper methods)
     
+    def _f_store_PAM3plus5_Gv_abs_position(self, abspos): #bruce 080409 # CALL ME ### @@@
+        """
+        [friend method for PAM3plus5 code, called from dna updater]
+
+        If self is a PAM3 or PAM5 strand sugar atom,
+        store "PAM3+5 Gv-position data" on self,
+        for a hypothetical (or actual) Gv attached to self,
+        at absolute position abspos, converting this to a relative position
+        using the baseframe info corresponding to self stored in
+        self's DnaLadder, which must exist and be up to date
+        (assumed, not checked).
+
+        @warning: slow for non-end atoms of very long ladders, due to a
+                  linear search for self within the ladder. Could be optimized
+                  by passing an index hint if necessary.
+
+        @note: this method might be inlined, since much of it could be
+               optimized in a loop over basepairs in order (in that case);
+               or it might be passed a baseindex hint, or baseframe info.
+        """
+        self._store_PAM3plus5_abspos( _GV5_DATA_INDEX, abspos)
+            # both Pl and Gv use this, with different data_index
+        return
+
+    def _f_recommend_PAM3plus5_Gv_abs_position(self,
+                    direction,
+                    make_up_position_if_necessary = True,
+                    **opts # e.g. remove_data = False
+         ): # CALL ME ### @@@
+        """
+        #doc; return None or a position
+        """
+        #bruce 080409
+        res = self._recommend_PAM3plus5_abspos( _GV5_DATA_INDEX, **opts)
+            # both Pl and Gv use this, with different data_index
+        if res is None and make_up_position_if_necessary:
+            res = self._make_up_Gv_abs_position()
+        return res
+
+    def _make_up_Gv_abs_position(self): #bruce 080409
+        """
+        """
+        relpos = default_Gv_relative_position() # (a constant)
+        # following code is the same as for the Pl version
+        ladder = self.molecule.ladder
+        assert ladder
+        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) # todo: factor this out, used in 3 places
+        return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+
     # == end of PAM strand atom methods
     
     # == PAM axis atom methods

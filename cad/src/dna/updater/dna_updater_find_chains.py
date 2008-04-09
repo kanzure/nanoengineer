@@ -59,6 +59,8 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         [implements abstract_bond_chain_analyzer subclass API method]
         """
         #bruce 080405; note that this function permits bondpoints
+        # note: this is called (legitimately) on rung bonds even though only
+        # non-rung bonds will end up in found chains.
         return PAM_atoms_allowed_in_same_ladder( bond.atom1, bond.atom2 )
     pass
     

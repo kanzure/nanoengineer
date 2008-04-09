@@ -8,7 +8,8 @@ and (perhaps in future) related helper functions.
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from model.elements import Pl5
+from model.elements import Pl5, Ss5, Ax5, Gv5
+from model.elements import      Ss3, Ax3
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
@@ -200,12 +201,14 @@ class DnaLadder_pam_conversion_methods:
         if self.pam_model() == MODEL_MIXED:
             # todo: summary message about why
             return False
-        if self.axis_rail and self.axis_rail.baseatoms[0].element.symbol not in ('Gv5', 'Ax3'):
-            # todo: summary message about why
-            # guess the reason is Ax5... if this happens, improve msg to be specific
-            print "conversion from PAM axis element %r is not yet implemented" % \
-                  self.axis_rail.baseatoms[0].element.symbol
-            return False
+        if self.axis_rail:
+            element = self.axis_rail.baseatoms[0].element
+            if element not in (Gv5, Ax3):
+                # todo: summary message about why
+                # guess the reason is Ax5...
+                print "conversion from PAM axis element %r is not yet implemented (in %r)" % \
+                      (self.axis_rail.baseatoms[0].element, self)
+                return False
         if 0 and 'safety stub': # debug pref to simulate failure?
             ###### STUB (but correct if this should always fail, i think):
             print "_convert_to_pam(%r, %r) is NIM" % (self, pam_model) ###
@@ -256,7 +259,7 @@ class DnaLadder_pam_conversion_methods:
         # if we know the base indices as we go, so do them in a loop or loops
         # over base indices.
 
-        self._convert_axis_to_pam(pam_model) # moves and transmutes axis atoms # IMPLEM
+        self._convert_axis_to_pam(pam_model) # moves and transmutes axis atoms
         for rail in self.strand_rails:
             self._convert_strand_rail_to_pam(pam_model, rail)# IMPLEM
                 # moves and transmutes sugars, makes or removes Pls,
@@ -274,6 +277,47 @@ class DnaLadder_pam_conversion_methods:
         
         return True  # could put above in try/except and return False for exceptions
 
+    def _convert_axis_to_pam(self, want_pam_model): # IMPLEM the nim moves
+        """
+        moves and transmutes axis atoms, during conversion to specified pam_model
+        """
+        # note: make this work even if not needed (already correct pam model)
+        # for robustness (if in future we have mixed models, or if bugs call it twice),
+        # but say this happens in a print (since unexpected)
+        axis_atoms = self.axis_rail.baseatoms
+        if want_pam_model == MODEL_PAM5:
+            # they are presumably Ax3, need to become Gv5 and get moved.
+            # (but don't move if already Gv5 for some reason)
+            for i in range( len(axis_atoms)):
+                atom = axis_atoms[i]
+                if atom.element is not Gv5:
+                    
+                    print "nim: move", atom #### @@@@
+
+                    origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
+                    
+                    atom.mvElement(Gv5)
+                else:
+                    print "unexpected: %r is already Gv5" % atom
+                    # this might turn out to be normal if we can someday convert
+                    # PAM5-with-Ax5 (in old mmp files) to PAM5-with-Gv5.
+                continue
+            pass
+        elif want_pam_model == MODEL_PAM3:
+            # they might be already Ax3 (unexpected, no move needed)
+            # or Ax5 (legal but not yet supported in callers; no move needed)
+            # or Gv5 (move needed). Either way, transmute to Ax3.
+            for i in range( len(axis_atoms)):
+                atom = axis_atoms[i]
+                if atom.element is Gv5:
+                    print "nim: move", atom #### @@@@
+                # don't bother checking for unexpected element
+                atom.mvElement(Ax3) ###k check if enough invals done, atomtype updated, etc @@@
+            pass
+        else:
+            assert 0
+        return
+    
     def _f_finish_converting_bridging_Pl_atoms(self, ladders_dict): #bruce 080408        
         """
         [friend method for dna updater]
@@ -358,10 +402,23 @@ class DnaLadder_pam_conversion_methods:
         del self._baseframe_data
         return
     
-    def _f_baseframe_data_at(self, whichrail, index): # bruce 080402 # refile within class?
+    def _f_baseframe_data_at(self, whichrail, index, ladders_dict): # bruce 080402 # refile within class?
         """
         #doc
         """
+        if ladders_dict is not None: # review: is this code needed elsewhere?
+            # caller is not sure self._baseframe_data is computed and/or
+            # up to date, and is keeping a set of ladders in which it's knowmn
+            # to be up to date (at least at the ends, which is all it needs
+            # for the ladders it's not sure about) in ladders_dict.
+            # If we're not in there, compute our baseframe data and store it
+            # (at least at the first and last basepair) and store self into
+            # ladders_dict. [bruce 080409]
+            assert type(ladders_dict) is type({})
+            if self not in ladders_dict:
+                self._compute_and_store_new_baseframe_data( ends_only = True)
+                ladders_dict[self] = None
+            pass
         baseframe_data = self._baseframe_data
         if whichrail == 0:
             return baseframe_data[index]
@@ -369,7 +426,7 @@ class DnaLadder_pam_conversion_methods:
         return other_baseframe_data( baseframe_data[index] )
             # maybe: store this too (precomputed), as an optim
 
-    def _compute_and_store_new_baseframe_data(self, ends_only = False): #bruce 080408 #### @@@@ CALL ME from [+]main and [-]corners
+    def _compute_and_store_new_baseframe_data(self, ends_only = False): #bruce 080408 #### @@@@ CALL ME from [+]main and [-?or done by ladders_dict?]corners
         """
         @return: success boolean
         """
@@ -383,6 +440,8 @@ class DnaLadder_pam_conversion_methods:
         # The ghost attribute is stored in the mmp file, and is copyable and undoable. #### DOIT
         self._baseframe_data = None
         assert self.axis_rail, "need to override this in the subclass"
+        if ends_only:
+            print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self ### remove when seen as expected
         del ends_only # using this is an optim, not yet implemented
         if len(self.strand_rails) < 2:
             self._make_ghost_bases() # IMPLEM -- until then, conversion fails on less than full duplexes

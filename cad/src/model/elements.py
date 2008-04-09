@@ -311,7 +311,12 @@ Oxygen = PeriodicTable.getElement(8)
 Singlet = PeriodicTable.getElement(0)
 
 Pl5 = PeriodicTable.getElement('Pl5') #bruce 080312 for convertToPam3plus5
+Ss5 = PeriodicTable.getElement('Ss5')
+Ax5 = PeriodicTable.getElement('Ax5')
+Gv5 = PeriodicTable.getElement('Gv5')
 
+Ss3 = PeriodicTable.getElement('Ss3')
+Ax3 = PeriodicTable.getElement('Ax3')
 
 # == test code
 
