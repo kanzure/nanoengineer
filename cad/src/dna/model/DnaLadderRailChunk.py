@@ -699,7 +699,7 @@ class DnaLadderRailChunk(Chunk):
             # (one that permits an upcoming mmp format optimization).
             from files.mmp.files_mmp_writing import writemmp_mapping
                 # might be import cycle, might be a problem if done at toplevel
-            mapping = writemmpfile_mapping()
+            mapping = writemmp_mapping(self.assy)
         
         initial_atoms = self.indexed_atoms_in_order(mapping = mapping)
             # (implem is per-subclass; should be fast for repeated calls ###CHECK)

@@ -37,6 +37,9 @@ from utilities import debug_flags
 from platform.PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import Assembly
+from model.chem import move_alist_and_snuggle
+
+from simulation.runSim import readGromacsCoordinates
 
 from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
@@ -662,6 +665,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             formats = \
                     "Molecular Machine Part (*.mmp);;"\
+                    "GROMACS Coordinates (*.gro);;"\
                     "All Files (*.*)"
             
             fn = QFileDialog.getOpenFileName(self,
@@ -704,12 +708,33 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #  model or viewpoint when it's entered.)
             # [bruce 050911 questions]
             
-            # This puts up the hourglass cursor while opening a file.
-            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
             _openmsg = "" # Precaution.
             env.history.message("Opening file...")
             
             isMMPFile = False
+            gromacsCoordinateFile = None
+
+            if fn[-4:] == ".gro":
+                gromacsCoordinateFile = fn
+                failedToFindMMP = True
+                fn = gromacsCoordinateFile[:-3] + "mmp"
+                if (os.path.exists(fn)):
+                    failedToFindMMP = False
+                elif gromacsCoordinateFile[-8:] == ".xyz.gro":
+                    fn = gromacsCoordinateFile[:-7] + "mmp"
+                    if (os.path.exists(fn)):
+                        failedToFindMMP = False
+                elif gromacsCoordinateFile[-12:] == ".xyz-out.gro":
+                    fn = gromacsCoordinateFile[:-11] + "mmp"
+                    if (os.path.exists(fn)):
+                        failedToFindMMP = False
+                if (failedToFindMMP):
+                    env.history.message(redmsg("Could not find .mmp file associated with %s" % gromacsCoordinateFile))
+                    return
+
+            # This puts up the hourglass cursor while opening a file.
+            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+            
             if fn[-3:] == "mmp":
                 readmmp(self.assy, fn, showProgressDialog = True)
                     #bruce 050418 comment: we need to check for an error return
@@ -717,6 +742,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     # this is not yet perfectly possible in readmmmp.
                 _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
                 isMMPFile = True
+                if (gromacsCoordinateFile):
+                    part = self.assy.part
+                    # force recompute of part.alist, since it's not
+                    # yet invalidated when it needs to be
+                    part.alist = None
+                    del part.alist
+                    alist = part.alist
+                    newPositions = readGromacsCoordinates(gromacsCoordinateFile, alist)
+                    if (type(newPositions) == type([])):
+                        move_alist_and_snuggle(alist, newPositions)
+                    else:
+                        env.history.message(redmsg(newPositions))
             
             dir, fil, ext = _fileparse(fn)
             # maybe: could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
