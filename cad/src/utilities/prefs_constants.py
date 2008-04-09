@@ -577,21 +577,21 @@ prefs_table = (
            ('', 'boolean', assignColorToBrokenDnaStrands_prefs_key, True),
 
            # DNA style preferences 080310 piotr
-           # updated on 080313
+           # updated on 080408
            ('', 'int', dnaStyleStrandsShape_prefs_key, 2),
-           ('', 'int', dnaStyleStrandsColor_prefs_key, 1),
+           ('', 'int', dnaStyleStrandsColor_prefs_key, 0),
            ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),
-           ('', 'int', dnaStyleStrandsArrows_prefs_key, 0),
+           ('', 'int', dnaStyleStrandsArrows_prefs_key, 2),
            ('', 'int', dnaStyleAxisShape_prefs_key, 1),
-           ('', 'int', dnaStyleAxisColor_prefs_key, 3),
-           ('', 'float', dnaStyleAxisScale_prefs_key, 0.7),
+           ('', 'int', dnaStyleAxisColor_prefs_key, 0),
+           ('', 'float', dnaStyleAxisScale_prefs_key, 1.1),
            ('', 'int', dnaStyleAxisTaper_prefs_key, 4),
-           ('', 'int', dnaStyleStrutsShape_prefs_key, 0),
-           ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
+           ('', 'int', dnaStyleStrutsShape_prefs_key, 1),
+           ('', 'int', dnaStyleStrutsColor_prefs_key, 3),
            ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),
            ('', 'int', dnaStyleBasesShape_prefs_key, 0),
-           ('', 'int', dnaStyleBasesColor_prefs_key, 0),
-           ('', 'float', dnaStyleBasesScale_prefs_key, 1.2),
+           ('', 'int', dnaStyleBasesColor_prefs_key, 3),
+           ('', 'float', dnaStyleBasesScale_prefs_key, 1.7),
            ('', 'boolean', dnaStyleBasesDisplayLetters_prefs_key, False),
 
            # DNA angle and base indicators 080325 piotr
