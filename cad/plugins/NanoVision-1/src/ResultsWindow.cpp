@@ -625,6 +625,7 @@ void TrajectoryGraphicsTreeItem::showWindow() {
 			new TrajectoryGraphicsWindow((QWidget*)0,
 			                             entityManager,
 			                             graphicsManager);
+		trajWindow->show();
 		trajWindow->setFrameSetId(trajId);
 		resultsWindow->workspace->addWindow(trajWindow);
 		if (!dataStoreInfo->storeIsComplete(trajId)) {

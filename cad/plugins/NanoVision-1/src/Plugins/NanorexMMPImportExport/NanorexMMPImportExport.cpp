@@ -1596,7 +1596,7 @@ int NanorexMMPImportExport::GetBondOrderFromType(string const& type)
 /* FUNCTION: newBondDirection */
 void NanorexMMPImportExport::newBondDirection(int atomId1, int atomId2)
 {
-	assert(false);
+	// assert(false);
 }
 
 

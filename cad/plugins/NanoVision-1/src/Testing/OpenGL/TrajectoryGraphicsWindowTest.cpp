@@ -49,21 +49,24 @@ int main(int argc, char *argv[])
 	TrajectoryTestGraphicsManager graphicsManager;
 	
 	TrajectoryGraphicsWindow *trajectoryWindow =
-		new TrajectoryGraphicsWindow(&mainWindow,
+		new TrajectoryGraphicsWindow((QWidget*) 0,
 		                             &entityManager,
 		                             &graphicsManager);
 	
 	mainWindow.setCentralWidget(trajectoryWindow);
 	mainWindow.show();
 	
-	NXMoleculeSet theMoleculeSet[NUM_FRAMES];
+	NXMoleculeSet *theMoleculeSet = new NXMoleculeSet[NUM_FRAMES];
 	createMoleculeSets(theMoleculeSet, NUM_FRAMES);
 	initializeEntityManager(&entityManager, theMoleculeSet, NUM_FRAMES);
 	trajectoryWindow->setFrameSetId(0);
 	
 	mainWindow.update();
 	
-	return app.exec();
+	int retval = app.exec();
+	
+	delete[] theMoleculeSet;
+	return retval;
 }
 
 

@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 		
 	NXProperties* properties = new NXProperties();
 	properties->setProperty("ImportExport.0.plugin",
-							"libHDF5_SimResultsImportExport");
+							"HDF5_SimResultsImportExport");
 	properties->setProperty("ImportExport.0.exportFormats",
 							"HDF5 Simulation Results (*.h5 *.nh5)");
 	properties->setProperty("ImportExport.0.importFormats",

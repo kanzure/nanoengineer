@@ -133,13 +133,13 @@ bool TrajectoryGraphicsWindow::createAnimation(void)
 		}
 	}
 	
-	// Update UI elements with frame-count info
+		// Update UI elements with frame-count info
 	numFrames = frameId; // last frame created if there was failure
 	if(numFrames > 0) {
-		currentFrameIndex = 0;
-		renderingEngine->setCurrentFrame(0); // resets the view
+		setCurrentFrameIndex(1);
 		renderingEngine->resetView();
 		setSpinBoxValues(1, 1, numFrames, 1, 1, numFrames, numFrames);
+		renderingEngine->asQWidget()->update();
 	}
 	
 	return success;
@@ -186,6 +186,9 @@ void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
 	currentFrameSpinBox->setValue(current); // will also set slider
 	endFrameSpinBox->setRange(endMin, endMax);
 	endFrameSpinBox->setValue(endVal);
+	QString numFramesString;
+	numFramesString.setNum(endMax);
+	numFramesLineEdit->setText(numFramesString);
 }
 
 
@@ -253,9 +256,13 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 		
 		// If the end-frame happens to be the last frame then user probably
 		// wants to play till the end so revise that value
-		if(endFrameSpinBox->value() == numFrames) {
+		if(endFrameSpinBox->value() == endFrameSpinBox->maximum()) {
+			endFrameSpinBox->setMaximum(newFrameIndex);
 			endFrameSpinBox->setValue(newFrameIndex);
 			//< will emit signals to update rest of GUI
+		}
+		else {
+			endFrameSpinBox->setMaximum(newFrameIndex);
 		}
 		
 		numFrames = newFrameIndex;
@@ -270,6 +277,8 @@ void TrajectoryGraphicsWindow::setFrameSetId(int frameSetId)
 {
 	this->frameSetId = frameSetId;
 	createAnimation();
+	
+	
 #if 0
 	int frameCount = entityManager->getFrameCount(frameSetId);
 	renderingEngine->clearFrames();
@@ -508,5 +517,5 @@ void TrajectoryGraphicsWindow::onEndFrameReached(void)
 void TrajectoryGraphicsWindow::setCurrentFrameIndex(int frameIndex)
 {
 	currentFrameIndex = frameIndex;
-	renderingEngine->setCurrentFrame(frameIndex);
+	renderingEngine->setCurrentFrame(frameIndex-1);
 }

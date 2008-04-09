@@ -142,9 +142,12 @@ printf("HDF5: setStoreComplete(true)\n");
 			atom = molecule->NewAtom();
 			atom->SetIdx(atomIds[index]);
 			atom->SetAtomicNum(atomicNumbers[index]);
-			atom->SetVector(positions[index*3 + 0] * 1.0e-13,
-			                positions[index*3 + 1] * 1.0e-13,
-			                positions[index*3 + 2] * 1.0e-13);
+			/// @todo Remove the 1.0e-9 scale factors after Brian corrects
+			/// HDF5_SimResultsImportExport to present atom coords in SI
+			/// (bug #2790)
+			atom->SetVector(positions[index*3 + 0] * 1.0e-9,
+			                positions[index*3 + 1] * 1.0e-9,
+			                positions[index*3 + 2] * 1.0e-9);
 			NXAtomData *atomData = new NXAtomData(atomicNumbers[index]);
 			atomData->setRenderStyleCode("def");
 			atom->SetData(atomData);

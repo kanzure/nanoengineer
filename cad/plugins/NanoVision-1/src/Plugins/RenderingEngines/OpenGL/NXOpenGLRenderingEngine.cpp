@@ -864,6 +864,8 @@ bool NXOpenGLRenderingEngine::isRendered(OBBond *const bondPtr) const
 }
 
 
+static inline double sqr(double const&x) { return x*x; }
+
 void NXOpenGLRenderingEngine::resetView(void)
 {
     // create axis-aligned bounding box
@@ -880,25 +882,36 @@ void NXOpenGLRenderingEngine::resetView(void)
 	real const bboxZDepth = 1.0*(bboxMax.z() - bboxMin.z());
 	
 	real const projCubeWidth = max(bboxXWidth, max(bboxYWidth, bboxZDepth));
-	real const circumSphereRad = sqrt(3.0*0.25*projCubeWidth*projCubeWidth);
+	real const circumSphereRad = // sqrt(3.0*0.25*projCubeWidth*projCubeWidth);
+		sqrt(sqr(max(bboxMax.x(), bboxMin.x())) +
+		     sqr(max(bboxMax.y(), bboxMin.y())) +
+		     sqr(max(bboxMax.z(), bboxMin.z())) );
 	real const circumSphereDia = 2.0 * circumSphereRad;
 	Vector const bboxCenter = bbox.center();
 	
 	real l, r, b, t;
-	real const n = 0.25 * circumSphereDia;
-	real const f = 12.0 * circumSphereDia;
+	real const n = 0.25 * circumSphereRad;
+	real const f = 12.0 * circumSphereRad;
 	real const aspect = real(width()) / real(height());
 	if(aspect < 1.0) {
-		l = bboxCenter.x() - circumSphereDia;
-		r = bboxCenter.x() + circumSphereDia;
-		b = bboxCenter.y() - circumSphereDia / aspect;
-		t = bboxCenter.y() + circumSphereDia / aspect;
+// 		l = bboxCenter.x() - circumSphereDia;
+// 		r = bboxCenter.x() + circumSphereDia;
+// 		b = bboxCenter.y() - circumSphereDia / aspect;
+// 		t = bboxCenter.y() + circumSphereDia / aspect;
+		l = -circumSphereRad;
+		r = -l;
+		b = -circumSphereRad / aspect;
+		t = -b;
 	}
 	else {
-		l = bboxCenter.x() - aspect * circumSphereDia;
-		r = bboxCenter.x() + aspect * circumSphereDia;
-		b = bboxCenter.y() - circumSphereDia;
-		t = bboxCenter.y() + circumSphereDia;
+// 		l = bboxCenter.x() - aspect * circumSphereDia;
+// 		r = bboxCenter.x() + aspect * circumSphereDia;
+// 		b = bboxCenter.y() - circumSphereDia;
+// 		t = bboxCenter.y() + circumSphereDia;
+		l = -aspect * circumSphereRad;
+		r = -l;
+		b = -circumSphereRad;
+		t = -b;
 	}
 	
 	makeCurrent();
@@ -908,7 +921,7 @@ void NXOpenGLRenderingEngine::resetView(void)
 // 	                 0.0, 1.0, 0.0);
     // camera.gluPerspective(60.0, double(width())/double(height()), n, f);
 	
-	camera.gluLookAt(0.0, 0.0, circumSphereDia,
+	camera.gluLookAt(0.0, 0.0, circumSphereRad,
 	                 0.0, 0.0, 0.0,
 	                 0.0, 1.0, 0.0);
 	camera.glOrtho(l, r, b, t, n, f);
