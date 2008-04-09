@@ -10,6 +10,7 @@ dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 from foundation.state_utils import transclose
 
 from dna.updater.dna_updater_globals import ignore_new_changes
+from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 
 from utilities import debug_flags
 
@@ -206,12 +207,19 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         continue
 
     if number_converted:
-        ladders_dict = {}
+        ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+        if ladders_dict:
+            print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
+            ladders_dict.clear()
         for ladder in all_new_unmerged_ladders:
             ladders_dict[ladder] = None
         for ladder in all_new_unmerged_ladders:
-            ladder._f_finish_converting_bridging_Pl_atoms(ladders_dict)
-                # the ladders in the dict are known to have valid baseframes;
+            ladder._f_finish_converting_bridging_Pl_atoms()
+                # (don't pass ladders_dict, it's accessed as the global which
+                #  is assigned to it above [080409 revision])
+                # the ladders in ladders_dict are known to have valid baseframes
+                # (as we start this loop) or valid baseframes at the ends
+                # (as we continue this loop);
                 # this method needs to look at neighboring ladders
                 # (touching ladder at corners) and use end-baseframes from
                 # them; if it sees one not in the dict, it computes its

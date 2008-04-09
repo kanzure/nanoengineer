@@ -437,7 +437,7 @@ class PAM_Atom_methods:
             # is enabled, but that's ok since we're only used then
         return None
 
-    def _f_Pl_finish_converting_if_needed(self, ladders_dict = None):
+    def _f_Pl_finish_converting_if_needed(self):
         """
         [friend method for dna updater]
 
@@ -462,9 +462,6 @@ class PAM_Atom_methods:
         called twice on self in this case; self's position would typically be
         non-definitive the first time and (due to our side effect that time)
         definitive the second time.)
-
-        @param ladders_dict: for doc, see caller; only needed if self
-                             might be a bridging Pl connecting two ladders.
         """
         assert not self.killed()
         sn = self.strand_neighbors()
@@ -475,19 +472,19 @@ class PAM_Atom_methods:
             # neighbors (this method is not legal to call then)
             assert sn, "error: %r._f_Pl_finish_converting_if_needed() illegal since no strand neighbors" % self
             if self._f_Pl_posn_is_definitive:
-                self._f_Pl_store_position_into_Ss3plus5_data(ladders_dict)
+                self._f_Pl_store_position_into_Ss3plus5_data()
                     # sets flag to false
             print "fyi: stored pos of %r, will kill it and rebond neighbors" % self ####
             kill_Pl_and_rebond_neighbors(self)
             ###REVIEW: does killing self mess up its chain or its DnaLadderRailChunk?
         else:
             if not self._f_Pl_posn_is_definitive:
-                self._f_Pl_set_position_from_Ss3plus5_data(ladders_dict)
+                self._f_Pl_set_position_from_Ss3plus5_data()
                     # sets flag to true
             print "fyi: fixed pos of %r, keeping it" % self ####
         return
     
-    def _f_Pl_set_position_from_Ss3plus5_data(self, ladders_dict = None): #bruce 080402 # @@@@ UNFINISHED
+    def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402 # @@@@ UNFINISHED
         """
         [friend method for dna updater]
 
@@ -511,9 +508,6 @@ class PAM_Atom_methods:
 
         No effect on other "PAM3plus5 data" (if any) on those neighbors
         (e.g. Gv-position data).
-
-        @param ladders_dict: for doc, see caller; only needed if self
-                             might be a bridging Pl connecting two ladders.
         """
         assert not self._f_Pl_posn_is_definitive
 
@@ -521,8 +515,7 @@ class PAM_Atom_methods:
 
         abspos = Pl_pos_from_neighbor_PAM3plus5_data(
                     self.bond_directions_to_neighbors(),
-                    remove_data_from_neighbors = True,
-                    ladders_dict = ladders_dict # IMPLEM option
+                    remove_data_from_neighbors = True
                  )
         
         print "_f_Pl_set_position_from_Ss3plus5_data(%r) will set %r on %r, now at %r" % (abspos, self, self.posn()) #######
@@ -534,7 +527,7 @@ class PAM_Atom_methods:
             # but expose class default value to save RAM
         return
 
-    def _f_Pl_store_position_into_Ss3plus5_data(self, ladders_dict = None): #bruce 080402
+    def _f_Pl_store_position_into_Ss3plus5_data(self): #bruce 080402
         """
         [friend method for dna updater]
 
@@ -558,9 +551,6 @@ class PAM_Atom_methods:
 
         No effect on other "PAM3plus5 data" (if any) on those neighbors
         (e.g. Gv-position data).
-
-        @param ladders_dict: for doc, see caller; only needed if self
-                             might be a bridging Pl connecting two ladders.
         """
         assert self._f_Pl_posn_is_definitive
 
@@ -574,7 +564,7 @@ class PAM_Atom_methods:
         for direction_to, ss in self.bond_directions_to_neighbors():
             if ss.element.role == 'strand':
                 # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
-                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos, ladders_dict = ladders_dict)
+                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos)
             continue
 
         self._f_Pl_posn_is_definitive = False
@@ -1305,7 +1295,7 @@ class PAM_Atom_methods:
             # both Pl and Gv use this, with different data_index
         return
 
-    def _store_PAM3plus5_abspos(self, data_index, abspos, ladders_dict = None):
+    def _store_PAM3plus5_abspos(self, data_index, abspos):
         """
         [private helper, used for Pl and Gv methods]
         """
@@ -1320,7 +1310,7 @@ class PAM_Atom_methods:
         assert ladder
         whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
             # TODO: pass index hint to optimize?
-        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index, ladders_dict)
+        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
             # we trust caller to make sure this is up to date (no way to detect if not)
             # implem note: if we only store top baseframes, this will derive bottom ones on the fly
         relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
@@ -1334,7 +1324,6 @@ class PAM_Atom_methods:
     def _f_recommend_PAM3plus5_Pl_abs_position(self,
                     direction,
                     make_up_position_if_necessary = True,
-                    ladders_dict = None,
                     **opts
          ):
         """
@@ -1343,10 +1332,10 @@ class PAM_Atom_methods:
         #bruce 080402, split 080409
         assert direction in (1, -1)
         data_index = (direction == 1)
-        res = self._recommend_PAM3plus5_abspos(data_index, ladders_dict = ladders_dict, **opts) ###k
+        res = self._recommend_PAM3plus5_abspos(data_index, **opts)
             # both Pl and Gv use this, with different data_index
         if res is None and make_up_position_if_necessary:
-            res = self._make_up_Pl_abs_position(direction, ladders_dict = ladders_dict)
+            res = self._make_up_Pl_abs_position(direction)
                 # note: don't store this, even if not remove_data
                 # (even though save in PAM5, then reload file,
                 #  *will* effectively store it, since in the file we don't

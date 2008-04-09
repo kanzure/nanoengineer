@@ -1209,7 +1209,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         res.extend( self._pam_conversion_menu_spec(selobj) )
         return res
 
-    def strand_neighbor_ladders(self): #bruce 080408 (guess: mostly superseded by ladders_dict; but used for bug safety)
+    def strand_neighbor_ladders(self): #bruce 080408
+        # (mostly superseded by _f_ladders_with_up_to_date_baseframes_at_ends;
+        #  but still used for bug safety)
         """
         Return a sequence of 0 to 4 ladders which are connected to self
         at a "corner" (by a strand that leaves self an immediately enters

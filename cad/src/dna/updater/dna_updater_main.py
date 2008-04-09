@@ -40,6 +40,14 @@ def full_dna_update():
     Enforce rules on all newly changed DNA-related model objects,
     including DnaGroups, AxisChunks, PAM atoms, etc.
 
+    @warning: external calls to any smaller parts of the dna updater
+              would probably have bugs, due to the lack of beginning
+              and ending calls to clear_updater_run_globals, and possibly
+              for many other reasons. In fact, external calls to this function
+              rather than to update_parts (which calls it) are risky, since it's
+              not reviewed how much this function depends on things that
+              update_parts has normally done by the time it calls this.
+
     @note: The newly changed objects are not necessarily
            all in the same assy (class assembly).
            E.g. there might be some from an open mmp file

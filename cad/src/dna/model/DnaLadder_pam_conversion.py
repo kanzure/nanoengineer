@@ -26,6 +26,8 @@ from dna.model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_
 
 from dna.model.pam3plus5_math import other_baseframe_data, compute_duplex_baseframes
 
+from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
+
 # ==
 
 class DnaLadder_pam_conversion_methods:
@@ -224,8 +226,9 @@ class DnaLadder_pam_conversion_methods:
         # first compute and store current baseframes on self, where private
         # methods can find them on demand. REVIEW: need to do this on connected ladders
         # not being converted, for sake of bridging Pl atoms? Not if we can do those
-        # on demand, but then we'd better inval them all first! Instead, caller passes
-        # a ladders_dict (see that parameter in various methods, for doc).
+        # on demand, but then we'd better inval them all first! Instead, caller initializes
+        # a global _f_ladders_with_up_to_date_baseframes_at_ends (formerly a parameter
+        # ladders_dict) (search for mentions of that global in various places, for doc).
         ok = self._compute_and_store_new_baseframe_data()
             # note: this calls _make_ghost_bases [nim] if necessary to make sure we
             # temporarily have a full set of 2 strand_rails.
@@ -318,7 +321,7 @@ class DnaLadder_pam_conversion_methods:
             assert 0
         return
     
-    def _f_finish_converting_bridging_Pl_atoms(self, ladders_dict): #bruce 080408        
+    def _f_finish_converting_bridging_Pl_atoms(self): #bruce 080408        
         """
         [friend method for dna updater]
 
@@ -335,7 +338,7 @@ class DnaLadder_pam_conversion_methods:
                from the same caller using the same dict).
         """
         for Pl in self._bridging_Pl_atoms():
-            Pl._f_Pl_finish_converting_if_needed(ladders_dict)
+            Pl._f_Pl_finish_converting_if_needed()
                 # note: this might kill Pl.
         return
 
@@ -402,22 +405,24 @@ class DnaLadder_pam_conversion_methods:
         del self._baseframe_data
         return
     
-    def _f_baseframe_data_at(self, whichrail, index, ladders_dict): # bruce 080402 # refile within class?
+    def _f_baseframe_data_at(self, whichrail, index): # bruce 080402
         """
         #doc
         """
-        if ladders_dict is not None: # review: is this code needed elsewhere?
-            # caller is not sure self._baseframe_data is computed and/or
-            # up to date, and is keeping a set of ladders in which it's knowmn
-            # to be up to date (at least at the ends, which is all it needs
-            # for the ladders it's not sure about) in ladders_dict.
-            # If we're not in there, compute our baseframe data and store it
-            # (at least at the first and last basepair) and store self into
-            # ladders_dict. [bruce 080409]
-            assert type(ladders_dict) is type({})
-            if self not in ladders_dict:
-                self._compute_and_store_new_baseframe_data( ends_only = True)
-                ladders_dict[self] = None
+        ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+        # review: is this code needed elsewhere?
+        # caller is not sure self._baseframe_data is computed and/or
+        # up to date, and is keeping a set of ladders in which it's knowmn
+        # to be up to date (at least at the ends, which is all it needs
+        # for the ladders it's not sure about) in the above global known
+        # locally as ladders_dict.
+        # If we're not in there, compute our baseframe data and store it
+        # (at least at the first and last basepair) and store self into
+        # ladders_dict. [bruce 080409]
+        assert type(ladders_dict) is type({})
+        if self not in ladders_dict:
+            self._compute_and_store_new_baseframe_data( ends_only = True)
+            ladders_dict[self] = None
             pass
         baseframe_data = self._baseframe_data
         if whichrail == 0:
@@ -426,7 +431,8 @@ class DnaLadder_pam_conversion_methods:
         return other_baseframe_data( baseframe_data[index] )
             # maybe: store this too (precomputed), as an optim
 
-    def _compute_and_store_new_baseframe_data(self, ends_only = False): #bruce 080408 #### @@@@ CALL ME from [+]main and [-?or done by ladders_dict?]corners
+    def _compute_and_store_new_baseframe_data(self, ends_only = False):
+        #bruce 080408 #### @@@@ CALL ME from [+]main and [-?or done by ladders_dict?]corners
         """
         @return: success boolean
         """

@@ -116,6 +116,10 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
 
 _f_DnaGroup_for_homeless_objects_in_Part = {}
 
+_f_ladders_with_up_to_date_baseframes_at_ends = {}
+    #bruce 080409, replacing ladders_dict params (whose passing into enough
+    #  methods/functions was unfinished)
+
 def clear_updater_run_globals(): #bruce 080218
     """
     Clear globals which are only used during individual runs of the dna updater.
@@ -123,6 +127,7 @@ def clear_updater_run_globals(): #bruce 080218
     # Note: perhaps not all such globals are here yet, which should be.
     # And there are some in fix_bond_directions (IIRC) which can't be here.
     _f_DnaGroup_for_homeless_objects_in_Part.clear()
+    _f_ladders_with_up_to_date_baseframes_at_ends.clear()
     return
 
 # end
