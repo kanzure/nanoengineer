@@ -424,7 +424,6 @@ NXRenderingEngine* NXGraphicsManager::newGraphicsInstance(QWidget *parent)
 		return (NXRenderingEngine*) NULL;
 	}
 	
-	/// @todo initialize plugins
 	RenderStyleRendererPluginTable::const_iterator renderStyleCodeIter;
 	for(renderStyleCodeIter = renderStyleRendererPluginTable.begin();
 	    renderStyleCodeIter != renderStyleRendererPluginTable.end();

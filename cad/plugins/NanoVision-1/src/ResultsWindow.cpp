@@ -580,7 +580,9 @@ void StructureGraphicsTreeItem::showWindow() {
 			}
 			NXLOG_SEVERE("StructureGraphicsWindow", logMsgStream.str());
 		}
+		
 		resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
+		structureWindow->show();
 	}
 	else
 		structureWindow->show();

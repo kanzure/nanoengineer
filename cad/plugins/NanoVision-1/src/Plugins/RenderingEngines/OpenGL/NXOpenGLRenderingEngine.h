@@ -11,13 +11,13 @@
 // #include <QtGui>
 #include <QtOpenGL>
 
-#include "glt_light.h"
-#include "glt_lightm.h"
+#include "GLT/glt_light.h"
+#include "GLT/glt_lightm.h"
 // #include "glt_material.h"
-#include "glt_vector3.h"
-#include "glt_project.h"
-#include "glt_viewport.h"
-#include "glt_bbox.h"
+#include "GLT/glt_vector3.h"
+#include "GLT/glt_project.h"
+#include "GLT/glt_viewport.h"
+#include "GLT/glt_bbox.h"
 
 #include <Nanorex/Interface/NXRenderingEngine.h>
 #include <Nanorex/Interface/NXMoleculeSet.h>

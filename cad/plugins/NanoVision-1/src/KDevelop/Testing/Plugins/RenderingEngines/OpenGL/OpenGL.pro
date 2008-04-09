@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += NXOpenGLRenderingEngineTest
+SUBDIRS += NXOpenGLRenderingEngineTest \
+ TrajectoryGraphicsWindowTest
 

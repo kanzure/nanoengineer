@@ -10,10 +10,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
-#include <glt_vector3.h>
-#include <glt_vector4.h>
-#include <glt_matrix4.h>
-#include <glt_viewport.h>
+#include "GLT/glt_vector3.h"
+#include "GLT/glt_vector4.h"
+#include "GLT/glt_matrix4.h"
+#include "GLT/glt_viewport.h"
 
 #include "NXOpenGLCamera_sm.h"
 

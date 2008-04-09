@@ -41,7 +41,7 @@ public:
 	/// List of all styles supported
 	std::vector<std::string> getRenderStyles(void);
 		
-	NXRenderingEngine* getRenderingEngine(void);
+	NXRenderingEngine* getRenderingEngine(void) { return renderingEngine; }
 	
 	/// Pointer to renderer-plugin instance that handles the given style, NULL
 	/// if style-renderer combination was not registered
@@ -56,7 +56,7 @@ public:
 	/// in its context
 	NXRenderingEngine *newGraphicsInstance(QWidget *parent);
 	
-private:
+protected:
 	
 	NXProperties properties;
 	NXRenderingEngine *renderingEngine;

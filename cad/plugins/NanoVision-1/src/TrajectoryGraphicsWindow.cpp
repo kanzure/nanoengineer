@@ -307,9 +307,10 @@ TrajectoryGraphicsWindow::on_currentFrameSpinBox_valueChanged(int frameIndex)
 	currentFrameIndex = frameIndex;
 	
     // update scenegraph to be rendered
-	if(renderingEngine != NULL)
-		renderingEngine->setCurrentFrame(currentFrameIndex);
-	/// @todo renderingEngine->update()?
+	if(renderingEngine != NULL) {
+		renderingEngine->setCurrentFrame(currentFrameIndex-1);
+		renderingEngine->asQWidget()->update();
+	}
 
 	if(playing && (frameIndex == beginFrameIndex))
 		emit beginFrameReached();
