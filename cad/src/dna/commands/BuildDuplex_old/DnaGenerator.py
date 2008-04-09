@@ -52,7 +52,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
 
     cmd              =  greenmsg("Build DNA: ")
     sponsor_keyword  =  'DNA'
-    prefix           =  'DNA-'   # used for gensym
+    prefix           =  'Dna'   # used for gensym
 
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.

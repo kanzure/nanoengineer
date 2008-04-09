@@ -63,7 +63,7 @@ class AtomGenerator( AtomGeneratorPropertyManager, GeneratorBaseClass ):
     """
 
     cmd     =  greenmsg("Build Atom: ")
-    prefix  =  'Atom-'   # used for gensym
+    prefix  =  'Atom'   # used for gensym
 
     # Generators for DNA, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.

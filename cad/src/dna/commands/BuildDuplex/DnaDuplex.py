@@ -989,13 +989,13 @@ class Dna:
         if _strandA_list:
             strandAChunk = self._makeChunkFromAtomList(
                             _strandA_list,
-                            name = gensym("Strand"),
+                            name = gensym("Strand", self.assy),
                             group = dnaGroup,
                             color = darkred)
         if _strandB_list:
             strandBChunk = self._makeChunkFromAtomList(
                             _strandB_list,
-                            name = gensym("Strand"),
+                            name = gensym("Strand", self.assy),
                             group = dnaGroup,
                             color = blue)
         if _axis_list:

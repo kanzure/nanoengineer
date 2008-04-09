@@ -507,7 +507,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
-            name = self.name = gensym(self.prefix) # (in _build_struct)
+            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
             # use externally created name
@@ -589,7 +589,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
-            name = self.name = gensym(self.prefix) # (in _build_struct)
+            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
             # use externally created name

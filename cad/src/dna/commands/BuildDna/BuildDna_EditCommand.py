@@ -45,7 +45,7 @@ class BuildDna_EditCommand(EditCommand):
     """
     cmd              =  greenmsg("Build DNA: ")
     sponsor_keyword  =  'DNA'
-    prefix           =  'Dna '   # used for gensym
+    prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"
     commandName       = 'BUILD_DNA'
     featurename       = 'Build_Dna'
@@ -267,7 +267,7 @@ class BuildDna_EditCommand(EditCommand):
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
-            name = self.name = gensym(self.prefix) # (in _build_struct)
+            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
             # use externally created name
@@ -338,7 +338,7 @@ class BuildDna_EditCommand(EditCommand):
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
-            name = self.name = gensym(self.prefix) # (in _build_struct)
+            name = self.name = gensym(self.prefix, self.win.assy) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
             # use externally created name
