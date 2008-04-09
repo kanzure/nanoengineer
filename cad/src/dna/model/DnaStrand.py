@@ -78,6 +78,20 @@ class DnaStrand(DnaStrandOrSegment):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
+    
+    def setStrandColor(self, color):
+        """
+        Set the color of the all the strand chunks within this strand group to 
+        the given color 
+        @param color: The new color of the strand chunks
+        @see: BuildAtoms_GraphicsMode._singletLeftUp_joinstrands()
+        @see: BuildAtoms_GraphicsMode._singletLeftUp()
+        """
+        m = None
+        for m in self.members:
+            if isinstance(m, DnaStrandChunk):
+                m.setcolor(color)
+        
 
     def isEmpty(self):
         """
@@ -254,21 +268,36 @@ class DnaStrand(DnaStrandOrSegment):
         """
         Returns the total number of baseatoms of this DnaStrand. 
         """
-        member = None
+        
         numberOfBases = None
+        
+        strand_wholechain = self.get_strand_wholechain()
+        if strand_wholechain:
+            numberOfBases = len(strand_wholechain.get_all_baseatoms())
+        
+        return numberOfBases
+    
+    def get_strand_wholechain(self):
+        """
+        Return the 'wholechain' of the strand chunk within this dna group. 
+        This essentially means the whole 'strand' that gets selected when the 
+        user clicks on a strand group in the model tree. 
+        @see: Wholechain
+        """
+        member = None
+        strand_wholechain  = None
         for member in self.members:
             if isinstance(member, DnaStrandChunk):
                 break
         if member:
             strand_wholechain = member.wholechain
-            numberOfBases = len(strand_wholechain.get_all_baseatoms())
-        
-        return numberOfBases
-    
+            
+        return strand_wholechain
+             
                         
     def getStrandChunks(self): 
         """
-        Return a list of all strand chuns
+        Return a list of all strand chunks
         """
         strandChunkList = []
         for m in self.members:

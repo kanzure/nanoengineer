@@ -619,6 +619,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         - If the cursor is over a different singlet, bond <s1> to it.
         - If the cursor is over empty space, do nothing.
         <event> is a LMB release event.
+        @see:self._singletLeftUp_joinDnaStrands()
         """
         self.line = None 
         # required to erase white rubberband line on next 
@@ -701,16 +702,16 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                         self.command.propMgr.updateMessage(msg) 
                     return
                 # Ok to DND 3' onto 5' or 5' onto 3'.
+                
                 if (open_bond1.isThreePrimeOpenBond() and \
                     open_bond2.isFivePrimeOpenBond()) or \
                    (open_bond1.isFivePrimeOpenBond()  and \
                     open_bond2.isThreePrimeOpenBond()):
-                    a1 = open_bond1.other(s1)
-                    a2 = open_bond2.other(s2)
-                    # We rely on merge() to check that mols are not the same.
-                    # merge also results in making the strand colors the same.
-                    a1.molecule.merge(a2.molecule) 
-                
+                    
+                    self._singletLeftUp_joinDnaStrands(s1,s2,
+                                                   open_bond1, open_bond2)
+                    return #don't proceed further
+                                
                 # ... now bond the highlighted singlet <s2> to the first 
                 # singlet <s1>
                 self.bond_singlets(s1, s2)
@@ -724,6 +725,59 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # gl_update_highlight cover this? [bruce 070626]
             
         self.only_highlight_singlets = False
+        
+    def _singletLeftUp_joinDnaStrands(self, 
+                                      s1, 
+                                      s2, 
+                                      open_bond1,
+                                      open_bond2
+                                      ):
+        """
+        Only to be called from self.singletLeftUp
+        """
+        #This was split out of self.singletLeftUp()
+        
+        # Ok to DND 3' onto 5' or 5' onto 3' . We already check the 
+        #if condition in self
+        
+        if (open_bond1.isThreePrimeOpenBond() and \
+            open_bond2.isFivePrimeOpenBond()) or \
+           (open_bond1.isFivePrimeOpenBond()  and \
+            open_bond2.isThreePrimeOpenBond()):
+            a1 = open_bond1.other(s1)
+            a2 = open_bond2.other(s2)
+            # We rely on merge() to check that mols are not the same.
+            # merge also results in making the strand colors the same.
+            
+            a1.molecule.merge(a2.molecule) 
+   
+            # ... now bond the highlighted singlet <s2> to the first 
+            # singlet <s1>
+            self.bond_singlets(s1, s2)
+            #Run the dna updater -- important to do it otherwise it won't update
+            #the whole strand group color
+            #
+            self.win.assy.update_parts()       
+            self.set_cmdname('Create Bond')
+            
+            #The following fixes bug 2770
+            #Set the color of the whole dna strandGroup to the color of the
+            #strand, whose bondpoint, is dropped over to the bondboint of the 
+            #other strandchunk (thus joining the two strands together into
+            #a single dna strand group) - Ninad 2008-04-09
+            color = a1.molecule.color 
+            strandGroup1 = a1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
+            
+            if strandGroup1 is not None and color is not None:
+                strandGroup1.setStrandColor(color) 
+            
+            self.o.gl_update()
+            if self.command.propMgr:
+                self.command.propMgr.updateMessage() 
+                
+            self.only_highlight_singlets = False
+            
+            return
         
     def get_singlet_under_cursor(self, event,
                                  reaction_from = None,
