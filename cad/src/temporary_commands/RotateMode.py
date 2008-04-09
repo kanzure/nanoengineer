@@ -10,6 +10,9 @@ Rotate mode functionality.
 
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
 
+### from utilities.debug import doProfile   ###
+### clicked = False                         ###
+
 # == GraphicsMode part
 
 class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
@@ -17,6 +20,8 @@ class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     Custom GraphicsMode for use as a component of RotateMode.
     """
     def leftDown(self, event):
+        ### global clicked                  ###
+        ### clicked = True                  ###
         self.glpane.SaveMouse(event)
         self.glpane.trackball.start(self.glpane.MousePos[0],
                                     self.glpane.MousePos[1])
@@ -24,6 +29,11 @@ class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         return
         
     def leftDrag(self, event):
+        ### global clicked                  ###
+        ### if clicked:                     ###
+        ###     doProfile(True)             ###
+        ###     clicked = False             ###
+
         self.glpane.SaveMouse(event)
         q = self.glpane.trackball.update(self.glpane.MousePos[0],
                                          self.glpane.MousePos[1])

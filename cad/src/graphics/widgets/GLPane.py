@@ -133,6 +133,7 @@ import graphics.drawing.drawer as drawer
 from commandSequencer.CommandSequencer import modeMixin
 
 from utilities import debug_flags
+### from utilities.debug import profile, doProfile ###
 
 from utilities.Log import orangemsg
 from platform.PlatformDependent import fix_event_helper
@@ -2671,6 +2672,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         [overrides GLPane_minimal method]
         """
         return self.assy.assy_valid
+
+    ### def paintGL(self):                              ###
+    ###     profile( self.paintGL2)                     ###
+    ###     doProfile(False)                            ###
 
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """

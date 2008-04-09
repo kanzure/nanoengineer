@@ -688,6 +688,11 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
 
 DO_PROFILE = False
 
+def doProfile(t):
+    global DO_PROFILE
+    DO_PROFILE = t
+    return
+
 _profile_function = None
 _profile_args = None
 _profile_keywordArgs = None
@@ -713,11 +718,12 @@ def profile(func, *args, **keywordArgs):
     global _profile_function
     global _profile_args
     global _profile_keywordArgs
+    global DO_PROFILE
     
     _profile_function = func
     _profile_args = args
     _profile_keywordArgs = keywordArgs
-    
+
     if (DO_PROFILE):
         import cProfile
         print "Capturing profile..."
