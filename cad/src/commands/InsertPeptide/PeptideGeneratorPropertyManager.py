@@ -84,7 +84,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         # phi psi angles will define the secondary structure of the peptide chain
         self.phi = -57.0
         self.psi = -47.0 
-        self.ss_idx = 0
+        self.ss_idx = 1
         self.peptide_cache = []
 
         self.updateMessageGroupBox()
@@ -116,12 +116,17 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         Load widgets in the group box.
         """
 
-        memberChoices = ["Alpha helix", "Pi helix", "3_10 helix", "Beta strand"]
+        memberChoices = ["Custom", 
+                         "Alpha helix", 
+                         "Pi helix", 
+                         "3_10 helix", 
+                         "Beta strand"]
+        
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
                          label        = "Conformation :", 
                          choices      = memberChoices, 
-                         index        = 0, 
+                         index        = 1, 
                          setAsDefault = True,
                          spanWidth    = False )
 
@@ -129,6 +134,31 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                       SIGNAL("currentIndexChanged(int)"),
                       self._aaTypeChanged)
 
+        self.phiAngleField = \
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "Phi angle :", 
+                              value        = -57.0, 
+                              setAsDefault = True,
+                              minimum      = -180.0, 
+                              maximum      = 180.0, 
+                              singleStep   = 1.0, 
+                              decimals     = 1, 
+                              suffix       = " degrees")
+        
+        self.psiAngleField = \
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "Psi angle :", 
+                              value        = -47.0, 
+                              setAsDefault = True,
+                              minimum      = -180.0, 
+                              maximum      = 180.0, 
+                              singleStep   = 1.0, 
+                              decimals     = 1, 
+                              suffix       = " degrees" )
+
+        self.phiAngleField.setEnabled(False)
+        self.psiAngleField.setEnabled(False)        
+        
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
                                buttonList = AA_BUTTON_LIST,
@@ -178,31 +208,45 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         Changes phi/psi angles for secondary structure.
         """
         self.ss_idx = idx
-        if idx==0: # alpha helix
+        
+        if idx == 1: # alpha helix
             self.phi = -57.0
             self.psi = -47.0
-        elif idx==1: # pi helix
+        elif idx == 2: # pi helix
             self.phi = -55.0
             self.psi = -70.0
-        elif idx==2: # 3-10 helix
+        elif idx == 3: # 3-10 helix
             self.phi = -49.0
             self.psi = -26.0
-        else: # beta strand
+        elif idx == 4: # beta strand
             self.phi = 180.0
             self.psi = 170.0
+        else:
+            self.phi = self.phiAngleField.value()
+            self.psi = self.phiAngleField.value()
+            
+        self.phiAngleField.setValue(self.phi)
+        self.psiAngleField.setValue(self.phi)
+        
+        if idx == 0:
+            self.phiAngleField.setEnabled(True)
+            self.psiAngleField.setEnabled(True)
+        else:
+            self.phiAngleField.setEnabled(False)
+            self.psiAngleField.setEnabled(False)
 
     def _setAminoAcidType(self, aaTypeIndex):
         """
         Adds a new amino acid to the peptide molecule.
         """
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
-        if self.ss_idx==0:
+        if self.ss_idx==1:
             aa_txt = "<font color=red>"
-        elif self.ss_idx==1:
-            aa_txt = "<font color=orange>"
         elif self.ss_idx==2:
-            aa_txt = "<font color=green>"
+            aa_txt = "<font color=orange>"
         elif self.ss_idx==3:
+            aa_txt = "<font color=green>"
+        elif self.ss_idx==4:
             aa_txt = "<font color=blue>"
         else:
             aa_txt = "<font color=black>"
