@@ -434,6 +434,32 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 item = (("Edit properties..."), 
                         dnaGroup.edit) 
                 contextMenuList.append(item)
+            
+            #return
+                # Don't return since we check for commandName SELECTMOLS again.
+        
+        if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
+            if self.isNanotubeChunk():
+                try:
+                    segment = self.parent_node_of_class(self.assy.NanotubeSegment)
+                except:
+                    # A graphene sheet or a simple chunk that thinks its a nanotube.
+                    return
+                if segment is not None:
+                    try:
+                        nanotubeGroup = segment.parent_node_of_class(self.assy.NanotubeGroup)
+                    except:
+                        pass
+                    else:
+                        # Self is a member of a Nanotube group, so add this 
+                        # info to a disabled menu item in the context menu.
+                        item = (("%s of [%s]" % (segment.name, nanotubeGroup.name)),
+                                noop, 'disabled')
+                        contextMenuList.append(item)
+                    
+                    item = (("Edit properties..."), 
+                            segment.edit)
+                    contextMenuList.append(item)
             return
 
         if command.commandName in ('BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
@@ -817,6 +843,52 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
 
     #END of Dna-Strand-or-Axis chunk specific code ========================
+    
+    #START of Nanotube chunk specific code ========================
+    
+    def isNanotubeChunk(self):
+        """
+        Returns True if *all atoms* in this chunk are either:
+        - carbon (sp2) and either all hydrogen or nitrogen atoms or bondpoints
+        - boron and either all all hydrogen or nitrogen atoms or bondpoints
+        
+        @warning: This is a very loose test. It will return True if self is a
+        graphene sheet, benzene ring, etc. Use at your own risk.
+        """
+        found_carbon_atom = False # CNT
+        found_boron_atom = False  # BNNT
+        
+        for atm in self.atoms.itervalues():
+            if atm.element.symbol == 'C':
+                if atm.atomtype.spX == 2:
+                    found_carbon_atom = True
+                else:
+                    return False
+            elif atm.element.symbol == 'B':
+                found_boron_atom = True
+            elif atm.element.symbol == 'N':
+                pass
+            elif atm.element.symbol == 'H':
+                pass
+            elif atm.is_singlet():
+                pass
+            else:
+                # other kinds of atoms are not allowed
+                return False
+            
+            if found_carbon_atom and found_boron_atom:
+                return False
+            continue
+
+        return True  
+    
+    def getNanotubeGroup(self): # ninad 080205
+        """
+        Return the NanotubeGroup of this chunk if it has one. 
+        """
+        return self.parent_node_of_class(self.assy.NanotubeGroup)
+    
+    #END of Nanotube chunk specific code ========================
 
 
     # Methods relating to our OpenGL display list, self.displist.
