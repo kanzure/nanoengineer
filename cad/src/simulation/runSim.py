@@ -419,11 +419,14 @@ class SimRunner:
                         
                     mdrunArgs = None
                     if (self.background):
+                        fullBaseFilename = gromacsFullBaseFileName
+                        if (sys.platform == 'win32'):
+                            fullBaseFilename = "\"" + fullBaseFilename + "\""
                         mdrunArgs = [
-                            "unused",
+                            os.path.join(gromacs_plugin_path, "mdrunner.bat"),
                             gromacs_topo_dir,
                             mdrun,
-                            gromacsFullBaseFileName
+                            fullBaseFilename
                         ]
                     else:
                         mdrunArgs = [
