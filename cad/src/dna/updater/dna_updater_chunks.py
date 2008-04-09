@@ -167,10 +167,12 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     new_axis_ladders, new_singlestrand_ladders = make_new_ladders( axis_chains, strand_chains)
 
+    all_new_unmerged_ladders = new_axis_ladders + new_singlestrand_ladders
+    
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
-        assert_unique_ladder_baseatoms( new_axis_ladders + new_singlestrand_ladders)
+        assert_unique_ladder_baseatoms( all_new_unmerged_ladders)
 
     # convert pam model of ladders that want to be converted
     # (assume all old ladders that want this were invalidated
@@ -184,9 +186,18 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         # We will probably need either that, or "convert selection to PAM5",
         # or both. As of 080401 we only have "convert one ladder to PAM5" (unfinished).
     
-    number_converted = 0
+    number_converted = 0 # not counting failures
     number_failed = 0
-    for ladder in new_axis_ladders + new_singlestrand_ladders:
+
+    if 1:
+        # make errors more obvious, bugs less likely
+        for ladder in all_new_unmerged_ladders:
+            ladder.clear_baseframe_data()
+            for ladder1 in ladder.strand_neighbor_ladders():
+                ladder.clear_baseframe_data()
+        pass
+    
+    for ladder in all_new_unmerged_ladders:
         wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
         didit = wanted and succeeded 
         failed = wanted and not succeeded
@@ -194,6 +205,23 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         number_failed += not not failed
         continue
 
+    if number_converted:
+        ladders_dict = {}
+        for ladder in all_new_unmerged_ladders:
+            ladders_dict[ladder] = None
+        for ladder in all_new_unmerged_ladders:
+            ladder._f_finish_converting_bridging_Pl_atoms(ladders_dict)
+                # the ladders in the dict are known to have valid baseframes;
+                # this method needs to look at neighboring ladders
+                # (touching ladder at corners) and use end-baseframes from
+                # them; if it sees one not in the dict, it computes its
+                # baseframes (perhaps just at both ends as an optim)
+                # and also stores that ladder in the dict so this won't
+                # be done to it again.
+            continue
+        del ladders_dict
+        pass
+    
     # Note: if ladders were converted, their chains are still ok,
     # since those only store baseatoms (for strand and axis),
     # and those transmuted and moved but didn't change identity.

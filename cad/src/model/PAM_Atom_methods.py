@@ -434,7 +434,57 @@ class PAM_Atom_methods:
             # is enabled, but that's ok since we're only used then
         return None
 
-    def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402 # @@@@ UNFINISHED; CALL ME
+    def _f_Pl_finish_converting_if_needed(self, ladders_dict = None):
+        """
+        [friend method for dna updater]
+
+        Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
+        in the same or different DnaLadders, which have finished doing
+        a pam conversion or decided not to or didn't need to
+        (i.e. which are in their proper post-conversion choice of model),
+        and that self has proper directional bonds.
+
+        Figure out whether self should continue to exist.
+        (This is true iff either neighbor is a PAM5 atom, presumably Ss5.)
+        
+        If not, kill self and directly bond its neighbors,
+        also recording its position on them if its position is definitive
+        (if it's not, it means this already happened -- maybe not possible,
+         not sure). (This won't be called twice on self; assert that
+         by asserting self is not killed.)
+
+        If so, ensure self's position is definitive, which means, if it's not,
+        make it so by setting it from the "+5 data" on self's neighbors
+        intended for self, and removing that data. (This method can be
+        called twice on self in this case; self's position would typically be
+        non-definitive the first time and (due to our side effect that time)
+        definitive the second time.)
+
+        @param ladders_dict: for doc, see caller; only needed if self
+                             might be a bridging Pl connecting two ladders.
+        """
+        assert not self.killed()
+        sn = self.strand_neighbors()
+        pam5_neighbors = [n for n in sn if n.element.pam == MODEL_PAM5]
+        should_exist = not not pam5_neighbors
+        if not should_exist:
+            # make sure it's not due to being called when we have no strand
+            # neighbors (this method is not legal to call then)
+            assert sn, "error: %r._f_Pl_finish_converting_if_needed() illegal since no strand neighbors" % self
+            if self._f_Pl_posn_is_definitive:
+                self._f_Pl_store_position_into_Ss3plus5_data(ladders_dict)
+                    # sets flag to false
+            print "fyi: stored pos of %r, will kill it and rebond neighbors" % self ####
+            kill_Pl_and_rebond_neighbors(self)
+            ###REVIEW: does killing self mess up its chain or its DnaLadderRailChunk?
+        else:
+            if not self._f_Pl_posn_is_definitive:
+                self._f_Pl_set_position_from_Ss3plus5_data(ladders_dict)
+                    # sets flag to true
+            print "fyi: fixed pos of %r, keeping it" % self ####
+        return
+    
+    def _f_Pl_set_position_from_Ss3plus5_data(self, ladders_dict = None): #bruce 080402 # @@@@ UNFINISHED
         """
         [friend method for dna updater]
 
@@ -458,6 +508,9 @@ class PAM_Atom_methods:
 
         No effect on other "PAM3plus5 data" (if any) on those neighbors
         (e.g. Gv-position data).
+
+        @param ladders_dict: for doc, see caller; only needed if self
+                             might be a bridging Pl connecting two ladders.
         """
         assert not self._f_Pl_posn_is_definitive
 
@@ -465,7 +518,8 @@ class PAM_Atom_methods:
 
         abspos = Pl_pos_from_neighbor_PAM3plus5_data(
                     self.bond_directions_to_neighbors(),
-                    remove_data_from_neighbors = True
+                    remove_data_from_neighbors = True,
+                    ladders_dict = ladders_dict # IMPLEM option
                  )
         
         print "_f_Pl_set_position_from_Ss3plus5_data(%r) will set %r on %r, now at %r" % (abspos, self, self.posn()) #######
@@ -477,7 +531,7 @@ class PAM_Atom_methods:
             # but expose class default value to save RAM
         return
 
-    def _f_Pl_store_position_into_Ss3plus5_data(self): #bruce 080402 # @@@@ CALL ME
+    def _f_Pl_store_position_into_Ss3plus5_data(self, ladders_dict = None): #bruce 080402
         """
         [friend method for dna updater]
 
@@ -501,6 +555,9 @@ class PAM_Atom_methods:
 
         No effect on other "PAM3plus5 data" (if any) on those neighbors
         (e.g. Gv-position data).
+
+        @param ladders_dict: for doc, see caller; only needed if self
+                             might be a bridging Pl connecting two ladders.
         """
         assert self._f_Pl_posn_is_definitive
 
@@ -514,7 +571,7 @@ class PAM_Atom_methods:
         for direction_to, ss in self.bond_directions_to_neighbors():
             if ss.element.role == 'strand':
                 # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
-                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos)
+                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos, ladders_dict = ladders_dict) # IMPLEM option
             continue
 
         self._f_Pl_posn_is_definitive = False

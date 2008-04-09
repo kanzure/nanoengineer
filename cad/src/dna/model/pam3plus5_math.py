@@ -13,6 +13,10 @@ http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordin
 
 from geometry.VQT import Q, V, norm, vlen, cross, X_AXIS, Y_AXIS, Z_AXIS
 
+from utilities.debug import print_compact_traceback
+
+from utilities.constants import MODEL_PAM3, MODEL_PAM5
+
 # PAM3+5 conversion constants (in Angstroms)
 #
 # for explanation, see:
@@ -171,7 +175,7 @@ def default_Pl_relative_position(direction):
 
 # ==
 
-def get_duplex_baseframes( baseframe_maker, data ): # @@@ CALL ME, mayb from DnaLadder
+def compute_duplex_baseframes( pam_model, data ):
     """
     Given a list of three lists of positions (for the 3 rails
     of a duplex DnaLadder, in the order strand1, axis, strand2),
@@ -191,7 +195,22 @@ def get_duplex_baseframes( baseframe_maker, data ): # @@@ CALL ME, mayb from Dna
     # the calculations in the baseframe_makers on entire arrays in parallel,
     # or (probably better) by recoding this and everything it calls above
     # into C and/or Pyrex. We'll see if it shows up in a profile.
+    if pam_model == MODEL_PAM3:
+        baseframe_maker = baseframe_from_pam3_data
+    elif pam_model == MODEL_PAM5:
+        # assume data comes from Gv5 posns, not Ax5 posns
+        baseframe_maker = baseframe_from_pam5_data
+    else:
+        assert 0, "pam_model == %r is not supported" % pam_model
+        # to support mixed, caller needs to identity each rail's model...
     r1, r2, r3 = data
-    return [baseframe_maker(a1,a2,a3) for (a1,a2,a3) in zip(r1,r2,r3)]
+    try:
+        return [baseframe_maker(a1,a2,a3) for (a1,a2,a3) in zip(r1,r2,r3)]
+    except:
+        print_compact_traceback("exception computing duplex baseframes: ")
+        # hmm, we don't know for what ladder here, though caller can say
+        return None
+    pass
+
 
 # end

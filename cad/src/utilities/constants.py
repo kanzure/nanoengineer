@@ -390,6 +390,8 @@ MODEL_PAM5 = 'PAM5'
 
 PAM_MODELS = (MODEL_PAM3, MODEL_PAM5)
 
+MODEL_MIXED = 'PAM_MODEL_MIXED' # review: good this is not in PAM_MODELS?
+
 # Dna constants presently needed outside of dna package.
 # After sufficient refactoring, these could be moved inside it.
 

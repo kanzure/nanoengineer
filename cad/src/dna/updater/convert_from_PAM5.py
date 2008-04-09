@@ -2,6 +2,12 @@
 """
 convert_from_PAM5.py - detect PAM5 atoms and convert (some of) them to PAM3+5
 
+WARNING: THIS MODULE IS PROBABLY OBSOLETE, and is no longer called as of 080408.
+Newer code does this in later stages of the dna updater after ladders are made.
+However, it might be partly revived (see comment near the commented-out call)
+and some code within it will be useful in those later stages,
+so don't remove it yet.
+
 @author: Bruce (but model and conversion function is by Eric D)
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -49,7 +55,7 @@ def convert_from_PAM5( changed_atoms): # might be misnamed, if it turns out it d
         else:
             pam = atom.element.pam
             if pam == MODEL_PAM5:
-                pam5_atoms += [atom]
+                pam5_atoms += [atom] # note: slow and not yet used
         continue
 
     return # from convert_from_PAM5
@@ -67,6 +73,10 @@ def _convert_Pl5(atom):
 
     Summarize results (ok or error) to history.
     """
+
+    ### NOTE: the code starting from here has been copied and modified
+    #### into a new function in pam3plus5_ops.py by bruce 080408.
+    
     assert atom.element is Pl5 # remove when works
 
     # could also assert no dna updater error
