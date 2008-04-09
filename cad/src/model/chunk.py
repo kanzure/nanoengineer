@@ -1934,9 +1934,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 if hd:
                     hd._drawchunk_realtime(glpane, self)
 
-                assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
-                       "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
-                    # (we use `x` == `y` since x == y doesn't work well for these data types)
+                # russ 080409 Don't do the string formatting unless needed.  It's slow.
+                if should_not_change != ( + self.basecenter, + self.quat ):
+                    assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
+                           "%r != %r, what's up?" % (should_not_change,
+                                                     ( + self.basecenter, + self.quat))
 
                 if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
                     self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
