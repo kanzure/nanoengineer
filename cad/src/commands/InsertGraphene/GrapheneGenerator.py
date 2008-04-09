@@ -41,7 +41,7 @@ class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
     """
 
     cmd = greenmsg("Build Graphene: ")
-    prefix = 'Graphene-'   # used for gensym
+    prefix = 'Graphene'   # used for gensym
     # Generators for DNA, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix = True 

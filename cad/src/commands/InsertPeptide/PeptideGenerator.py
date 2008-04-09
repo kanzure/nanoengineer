@@ -538,7 +538,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
     """
 
     cmd = greenmsg("Build Peptide: ")
-    prefix = 'Peptide-'   # used for gensym
+    prefix = 'Peptide'   # used for gensym
     # Generators for DNA, peptides, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix = True 

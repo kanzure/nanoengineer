@@ -22,7 +22,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
 
     cmdname = greenmsg("Insert POV-Ray Scene: ")
     sponsor_keyword = 'DNA'
-    prefix = 'POV-Ray Scene-'
+    prefix = 'POVRayScene'
     extension = ".pov"
 
     def __init__(self, win):

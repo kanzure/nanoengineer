@@ -313,7 +313,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
     """
 
     cmd = greenmsg("Build Nanotube: ")
-    prefix = 'Nanotube-'   # used for gensym
+    prefix = 'Nanotube'   # used for gensym
     # Generators for DNA, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix = True 
