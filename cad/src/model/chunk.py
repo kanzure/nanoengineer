@@ -130,14 +130,14 @@ from utilities.constants import noop
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
-#piotr 080402
-from utilities.GlobalPreferences import use_frustum_culling 
+from utilities.GlobalPreferences import use_frustum_culling #piotr 080402
 
 from model.elements import PeriodicTable
 
 from commands.ChunkProperties.ChunkProp import ChunkProp
 
 from dna.model.Dna_Constants import getComplementSequence
+
 
 from operations.bond_chains import grow_directional_bond_chain
 
@@ -434,10 +434,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 item = (("Edit properties..."), 
                         dnaGroup.edit) 
                 contextMenuList.append(item)
-            
+
             #return
                 # Don't return since we check for commandName SELECTMOLS again.
-        
+
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
             if self.isNanotubeChunk():
                 try:
@@ -456,7 +456,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                         item = (("%s of [%s]" % (segment.name, nanotubeGroup.name)),
                                 noop, 'disabled')
                         contextMenuList.append(item)
-                    
+
                     item = (("Edit properties..."), 
                             segment.edit)
                     contextMenuList.append(item)
@@ -510,7 +510,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
                         if menu_spec:
                             contextMenuList.extend(menu_spec)
-            
+
         return # from make_glpane_context_menu_items
 
     # START of Dna-Strand-or-Axis chunk specific code ==========================
@@ -843,21 +843,21 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
 
     #END of Dna-Strand-or-Axis chunk specific code ========================
-    
+
     #START of Nanotube chunk specific code ========================
-    
+
     def isNanotubeChunk(self):
         """
         Returns True if *all atoms* in this chunk are either:
         - carbon (sp2) and either all hydrogen or nitrogen atoms or bondpoints
         - boron and either all all hydrogen or nitrogen atoms or bondpoints
-        
+
         @warning: This is a very loose test. It will return True if self is a
         graphene sheet, benzene ring, etc. Use at your own risk.
         """
         found_carbon_atom = False # CNT
         found_boron_atom = False  # BNNT
-        
+
         for atm in self.atoms.itervalues():
             if atm.element.symbol == 'C':
                 if atm.atomtype.spX == 2:
@@ -875,19 +875,19 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             else:
                 # other kinds of atoms are not allowed
                 return False
-            
+
             if found_carbon_atom and found_boron_atom:
                 return False
             continue
 
         return True  
-    
+
     def getNanotubeGroup(self): # ninad 080205
         """
         Return the NanotubeGroup of this chunk if it has one. 
         """
         return self.parent_node_of_class(self.assy.NanotubeGroup)
-    
+
     #END of Nanotube chunk specific code ========================
 
 
@@ -1697,15 +1697,17 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 # this possibility added by bruce 041207
                 glpane = self.assy.o
             disp = glpane.displayMode
-        
+
         # piotr 080409: fixed bug 2785
         # If the chunk is not DNA and global display mode == diDNACYLINDER
-        # use the default_display_mode instead.
+        # use the default_display_mode instead 
+        # (equal to diTUBES in utilities.constants).
         from utilities.constants import default_display_mode
         if disp == diDNACYLINDER \
-           and not hasattr(self, "ladder"):
-            disp = default_display_mode
-            
+           and not (self.isAxisChunk() or
+                    self.isStrandChunk()): # non-DNA chunk
+            disp = default_display_mode 
+
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
@@ -2900,12 +2902,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # remake) if user selects several chunks and changes them all
             # at once, and some are already set to disp.
             return
-        
+
         # piotr 080409: fixing bug 2785
         if disp == diDNACYLINDER \
-           and not hasattr(self, "ladder"): # not a DNA chunk
+           and not (self.isAxisChunk() or
+                    self.isStrandChunk()): # non-DNA chunk
             return # don't change anything
-        
+
         self.display = disp
         # inlined self.changeapp(1):
         self.havelist = 0
