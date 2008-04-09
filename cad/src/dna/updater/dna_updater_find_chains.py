@@ -16,7 +16,7 @@ from dna.model.AtomChainOrRing import AtomChain, AtomRing
 from dna.model.DnaChain import AxisChain, StrandChain
 from dna.model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
 
-from dna.model.DnaLadder import PAM_atoms_allowed_in_same_ladder
+from dna.model.PAM_atom_rules import PAM_atoms_allowed_in_same_ladder
 
 from utilities.debug import print_compact_stack
 

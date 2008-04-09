@@ -10,7 +10,7 @@ delete_bare_atoms.py - delete atoms lacking required neighbors
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM3_atoms
 from dna.updater.dna_updater_prefs import pref_fix_bare_PAM5_atoms
 
-from dna.model.DnaLadder import PAM_atoms_allowed_in_same_ladder
+from dna.model.PAM_atom_rules import PAM_atoms_allowed_in_same_ladder
 
 from model.elements import Pl5
 
