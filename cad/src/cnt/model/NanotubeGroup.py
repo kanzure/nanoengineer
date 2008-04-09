@@ -59,12 +59,12 @@ class NanotubeGroup(Group):
         open = display_prefs.get('open', False)
         if open:
             if self.all_content_is_hidden():    
-                return imagename_to_pixmap("modeltree/NanotubeGroup-expanded-hidden.png")
+                return imagename_to_pixmap("modeltree/NanotubeGroup-expanded-hide.png")
             else:
                 return imagename_to_pixmap("modeltree/NanotubeGroup-expanded.png")
         else:
             if self.all_content_is_hidden():    
-                return imagename_to_pixmap("modeltree/NanotubeGroup-collapsed-hidden.png")
+                return imagename_to_pixmap("modeltree/NanotubeGroup-collapsed-hide.png")
             else:
                 return imagename_to_pixmap("modeltree/NanotubeGroup-collapsed.png")
     
