@@ -112,11 +112,66 @@ class DnaSegment(DnaStrandOrSegment):
         for c in self.members: 
             if isinstance(c, DnaAxisChunk):
                 c.draw_highlighted(glpane, color)   
+                
     
+    def getNumberOfBasePairs(self):
+        #@REVIEW: Is it okay to simply return the number of axis atoms within 
+        #the segment (like done below)? But what if there is a bare axis atom 
+        #within the segment?In any case, the way we compute the numberOfBase 
+        #pairs is again an estimatebased on the duplex length! (i.e. it doesn't 
+        #count the individual base-pairs. BTW, a segment may even have a single 
+        #strand,so the word basepair is not always correct. -- Ninad 2008-04-08
+        return self.getNumberOfAxisAtoms()
+    
+    def getNumberOfAxisAtoms(self): 
+        """
+        Returns the number of axis atoms present within this dna segment 
+        Returns None if more than one axis chunks are present 
+        This is a temporary method until dna data model is fully working. 
+        @see: DnaSegment_EditCommand.editStructure() where it is used. 
+        """
+        #THIS WORKS ONLY WITH DNA DATA MODEL. pre-dna data model implementation
+        #rfor this method not supported -- Ninad 2008-04-08
+        numberOfAxisAtoms = 0        
+        for m in self.members:
+            if isinstance(m, DnaAxisChunk):
+                numberOfAxisAtoms += len(m.get_baseatoms())
+                       
+        return numberOfAxisAtoms
 
     #Following methods are likely to be revised in a fully functional dna data 
     # model. These methods are mainly created to get working many core UI 
     # operations for Rattlesnake.  -- Ninad 2008-02-01
+    
+    def kill(self):
+        """
+        Overrides superclass method. For a Dnasegment , as of 2008-04-09,
+        the default implementation is that deleting a segment will delete 
+        the segment along with its logical contents (see bug 2749).
+        It is tempting to call self.kill_with_contents , BUT DON'T CALL IT HERE!
+        ...as kill_with_contents  is used elsewhere (before bug 2749 NFR was
+        suggested and it calls self.kill() at the end. So that will create 
+        infinite recursions. 
+        @TODO: code cleanup/ refactoring to resolve kill_with_content issue
+        """
+        
+        #The following block is copied over from self.kill_with_contents()
+        #It implements behavior suggested in bug 2749 (deleting a segment will 
+        #delete the segment along with its logical contents )
+        #See method docsting above on why we shouldn't call that method instead
+        for member in self.members:            
+            if isinstance(member, DnaAxisChunk):                
+                ladder = member.ladder
+                try:
+                    #See a note in dna_model.kill_strand_chunks. Should we 
+                    #instead call ladder.kill() and thus kill bothstrand 
+                    #and axis chunks. ?
+                    ladder.kill_strand_chunks()
+                except:
+                    print_compact_traceback("bug in killing the ladder chunk")
+                    
+        DnaStrandOrSegment.kill(self)
+           
      
     def kill_with_contents(self):  
         """
@@ -133,6 +188,8 @@ class DnaSegment(DnaStrandOrSegment):
         @see: EditCommand._removeStructure() which calls this Node API method
         @see: DnaDuplex_EditCommand._removeSegments()
         @see: dna_model.DnaLadder.kill_strand_chunks() for a comment.
+        
+        @see: A note in self.kill() about NFR bug 2749
         
         """   
         for member in self.members:            
@@ -485,27 +542,9 @@ class DnaSegment(DnaStrandOrSegment):
         segmentLength = vlen(endPoint1 - endPoint2)
         return segmentLength
     
+       
            
-    def getNumberOfAxisAtoms(self): # review: post dna data model version?
-        """
-        Returns the number of axis atoms present within this dna segment 
-        Returns None if more than one axis chunks are present 
-        This is a temporary method until dna data model is fully working. 
-        @see: DnaSegment_EditCommand.editStructure where it is used. 
-        """
-        axisChunkList = []
-        numberOfAxisAtoms = None
-        for m in self.members:
-            if isinstance(m, Chunk) and m.isAxisChunk():
-                axisChunkList.append(m)
-        #@BUG: What if the segment has more than one axis chunks? 
-        #We will only print a message for now in the console
-        if len(axisChunkList) == 1:
-            axisChunk = axisChunkList[0]
-            
-            numberOfAxisAtoms = len(axisChunk.atoms.values())
-        
-        return numberOfAxisAtoms
+    
         
     def isAncestorOf(self, obj):
         """
