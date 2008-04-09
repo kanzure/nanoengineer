@@ -59,6 +59,9 @@ _superclass = Select_basicGraphicsMode
 class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
     """
     """
+    #A list of movables that will be moved while dragging.
+    #@seeself.getMovablesForLeftDragging()
+    _leftDrag_movables = []
     
     def Enter_GraphicsMode(self):
         """
@@ -69,7 +72,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         """
         _superclass.Enter_GraphicsMode(self)        
         self.o.assy.selectChunksWithSelAtoms_noupdate()
-            # josh 10/7 to avoid race in assy init          
+            # josh 10/7 to avoid race in assy init     
+            
+        self.reset_drag_vars() #for safety
+        
     
     def leftDouble(self, event):
         """
@@ -456,9 +462,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.LMB_press_event = QMouseEvent(event) 
 
         self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
-
-        self.pseudoMoveModeLeftDown(event) 
-
+        
         obj = self.get_obj_under_cursor(event)
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
@@ -484,10 +488,16 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 return
             self.drag_handler = retval # needed even if this is None
             if self.drag_handler is not None:
+                #the psuedoMoveMode left down might still be needed even when 
+                #drag handler is not None 
+                #(especially to get the self._leftDrag_movables)
+                self.pseudoMoveModeLeftDown(event) 
                 self.dragHandlerSetup(self.drag_handler, event) 
                 return
 
         self.doObjectSpecificLeftDown(obj, event)
+        
+        self.pseudoMoveModeLeftDown(event) 
 
         self.w.win_update()
 
@@ -539,7 +549,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             return
 
         if self.drag_handler is not None:
-            movables = self.getMovablesForLeftDragging()
+            movables = self._leftDrag_movables
             if movables:
                 if self.drag_handler not in movables:
                     self.dragHandlerDrag(self.drag_handler, event) 
@@ -550,6 +560,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         #Free Drag Translate the selected (movable) objects.
         self.pseudoMoveModeLeftDrag(event)
+        
             
     def getMovablesForLeftDragging(self):
         """
@@ -560,18 +571,56 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Example: In buildDna_GraphicsMode, it moving a dnaSegment axis chunk 
         will move all the axischunk members of the dna segment and also 
         its logical content chunks. 
+        @see: self._leftDrag_movables #attr
+        @see: self.pseudoMoveModeLeftDown()
         @see: self.pseudoMoveModeLeftDrag()
         @see:BuildDna_GraphicsMode.getMovablesForLeftDragging()
 	"""
-        return self.o.assy.getSelectedMovables()
-
+        movables = []
+        
+        movables = self.win.assy.getSelectedMovables()
+        
+        contentChunksOfSelectedSegments = [] 
+        contentChunksOfSelectedStrands  = []
+          
+        selectedSegments = self.win.assy.getSelectedDnaSegments()
+        selectedStrands = self.win.assy.getSelectedDnaStrands()        
+               
+        for segment in selectedSegments:
+            contentChunks = segment.get_all_content_chunks()
+            contentChunksOfSelectedSegments.extend(contentChunks)
+                 
+        for strand in selectedStrands:
+            strandContentChunks = strand.get_all_content_chunks()
+            contentChunksOfSelectedStrands.extend(strandContentChunks)
+         
+        #doing item in list' could be a slow operation. But this method will get
+        #called only duting leftdown and not during leftDrag so it should be
+        #okay -- Ninad 2008-04-08
+        
+        for c in contentChunksOfSelectedSegments:
+            if c not in movables:
+                movables.append(c)
+        
+        #After appending appropriate content chunks of segment, do same thing for
+        #strand content chunk list. 
+        #Remember that the  contentChunksOfSelectedStrandscould contain chunks 
+        #that are already listed in contentChunksOfSelectedSegments
+        
+        for c in contentChunksOfSelectedStrands:
+            if c not in movables:
+                movables.append(c)
+            
+        return movables
+    
 
     def pseudoMoveModeLeftDown(self, event):
         """
 	Initialize variables required for translating the selection during
 	leftDrag method (pseudoMoveModeLeftDrag) . 
 	@param event: Mouse left down event	
-	@see : self.leftDown
+	@see : self.leftDown()
+        @see: self.getMovablesForLeftDragging()
 	"""
         #pseudo move mode related initialization STARTS
         self.o.SaveMouse(event)
@@ -583,7 +632,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
         self.startpt = self.movingPoint
             # Used in leftDrag() to compute move offset during drag op.
+            
+        self._leftDrag_movables = [] #Just for safety. This is already reset 
+        #in self.reset_drag_vars()
         #pseudo move mode related initialization ENDS 
+        
+        #Defin the left drag movables. These will be computed once only in 
+        #the leftDown (and not each time duruing the leftDrag)
+        self._leftDrag_movables = self.getMovablesForLeftDragging()
         return
 
     def pseudoMoveModeLeftDrag(self, event):
@@ -594,14 +650,16 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @param  event: mouse left drag event. 
 	@see: self.leftDrag
 	@see: modifyMode.leftDrag
+        #@see: self.getMovablesForLeftDragging()
 	@note : This method uses some duplicate code (free drag translate code)
 	from modifyMode.leftDrag 
+        
         """
 
         if not self.picking:
             return
 
-        if not self.getMovablesForLeftDragging():
+        if not self._leftDrag_movables:
             return
         
         if self.movingPoint is None: 
@@ -632,8 +690,12 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                                                          self.moveOffset[1], 
                                                          self.moveOffset[2])
         env.history.statusbar_msg(msg)
+        
+        offset = point - self.movingPoint
+        self.win.assy.translateSpecifiedMovables(offset, 
+                                                 self._leftDrag_movables)
 
-        self.o.assy.movesel(point - self.movingPoint)
+        ##self.o.assy.movesel(point - self.movingPoint)
         self.movingPoint = point    
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
@@ -680,6 +742,15 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.w.win_update()
         return # from selectMolsMode.leftUp
     
+    def reset_drag_vars(self):
+        """
+        @see: SelectGraphicsMode.reset_drag_vars() for documentation
+	"""
+        _superclass.reset_drag_vars(self)
+        #Clear the list of movables (to be moved while left dragging selection)
+        #@see: self.psudoMoveModeLeftDown()
+        self._leftDrag_movables = []
+    
     def leftUp_reset_a_few_drag_vars(self):
         """
         reset a few drag vars at the end of leftUp --
@@ -689,6 +760,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.current_obj = None #bruce 041130 fix bug 230
             # later: i guess this attr had a different name then [bruce 060721]
         self.o.selatom = None #bruce 041208 for safety in case it's killed
+        self._leftDrag_movables = []
         return
 
     def bareMotion(self, event): 

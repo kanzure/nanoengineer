@@ -98,7 +98,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
             startPoint = params[0]
             endPoint = params[1]
             offset = endPoint - startPoint	
-            self.o.assy.movesel(offset)
+            movables = self.graphicsMode.getMovablesForLeftDragging()
+            self.assy.translateSpecifiedMovables(offset, 
+                                                 movables = movables)
+            
             self.o.gl_update()
 
         self.propMgr.moveFromToButton.setChecked(False)		
@@ -178,8 +181,8 @@ class Move_basicCommand(SelectChunks_basicCommand):
         by theta (degrees)
 	"""
 
-        selectedMovables = self.o.assy.getSelectedMovables()
-        if not selectedMovables: 
+        movables = self.graphicsMode.getMovablesForLeftDragging()
+        if not movables: 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
 
@@ -204,9 +207,11 @@ class Move_basicCommand(SelectChunks_basicCommand):
         qrot = Q(ma,dy) # Quat for rotation delta.
 
         if self.propMgr.rotateAsUnitCB.isChecked():
-            self.o.assy.rotsel(qrot) # Rotate the selection as a unit.
+            # Rotate the selection as a unit.
+            self.assy.rotateSpecifiedMovables(qrot, 
+                                              movables)
         else:
-            for item in selectedMovables:
+            for item in movables:
                 try:
                     item.rot(qrot)
                 except AssertionError:
@@ -216,22 +221,30 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.o.gl_update()
 
     def transDeltaPlus(self):
-        "Add X, Y, and Z to the selected chunk(s) current position"
-        if not self.o.assy.getSelectedMovables(): 
+        """
+        Add X, Y, and Z to the selected chunk(s) current position
+	"""
+        movables = self.graphicsMode.getMovablesForLeftDragging()
+        if not movables:
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         offset = self.propMgr.get_move_delta_xyz()
-        self.o.assy.movesel(offset)
+        self.assy.translateSpecifiedMovables(offset, 
+                                             movables = movables)
         self.o.gl_update()
 
     def transDeltaMinus(self):
-        "Subtract X, Y, and Z from the selected chunk(s) current position"
-        if not self.o.assy.getSelectedMovables(): 
+        """
+	Subtract X, Y, and Z from the selected chunk(s) current position
+	"""
+        movables = self.graphicsMode.getMovablesForLeftDragging()
+        if not movables: 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
 
         offset = self.propMgr.get_move_delta_xyz(Plus=False)
-        self.o.assy.movesel(offset)
+        self.assy.translateSpecifiedMovables(offset, 
+                                             movables = movables)
         self.o.gl_update()
 
     def moveAbsolute(self):
@@ -240,7 +253,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
         the bbox center of everything as if they were one big chunk, then move
         everything as a unit.
         """
-        movables = self.o.assy.getSelectedMovables()
+        movables = self.graphicsMode.getMovablesForLeftDragging()
         if not movables: 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
@@ -254,9 +267,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
 
         pt2 = self.propMgr.get_move_xyz() # pt2 = X, Y, Z values from PM
-        offset = pt2 - pt1 # Compute offset for movesel.
+        offset = pt2 - pt1 # Compute offset for translating the selection
 
-        self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
+        self.assy.translateSpecifiedMovables(offset, 
+                                             movables = movables)
 
         # Print history message about what happened.
         if len(movables) == 1:

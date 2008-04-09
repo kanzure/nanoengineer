@@ -127,14 +127,9 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         self.clear_leftA_variables() #bruce 070605 added this 
                                      #(guess at what's needed)
         env.history.statusbar_msg("")
-
-        # If keyboard key 'A' is pressed, set it up for constrained translation
-        #and rotation along the axis and return. 
-        if self.isConstrainedDragAlongAxis:
-            self.leftADown(event)
-            return
-
+        
         self.reset_drag_vars()
+  
 
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event 
         #and save it. 
@@ -151,12 +146,30 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         # We don't bother to vertically flip y using self.height 
         #(as mousepoints does),
         # since this is only used for drag distance within single drags.
-        #Subclasses should override one of the following method if they need 
-        #to do additional things to prepare for dragging. 
-        self._leftDown_preparation_for_dragging(event)
+        
+        # If keyboard key 'A' is pressed OR if the corresponding toolbutton
+        # in the propMgr is pressed,  set it up for constrained translation
+        # and rotation along the axis and return. 
+        
+        # @TODO: Should reuse the flag self.isConstrainedDragAlongAxis instead 
+        # of checking move/ rotate options independently. Better to associate
+        # key 'A' with the appropriate option in the PM. Also, the 
+        # propMgr sets the moveOption flags of the graphics mode. PropMgr should 
+        # be prevented from using graphicsmode object for clarity. This is 
+        # one of the code cleanup and refactoring projects related to this command
+        # (this is one of the things that hasn't completely cleanued up
+        # during refactoring and major cleanup of the old modifyMode class code. 
+        # --Ninad 2008-04-09
+        
+        if self.isConstrainedDragAlongAxis or \
+           self.moveOption == 'ROT_TRANS_ALONG_AXIS' or \
+           self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+            self.leftADown(event)
+            return
         
         # Permit movable object picking upon left down.  
         obj = self.get_obj_under_cursor(event)
+        
         # If highlighting is turned on, get_obj_under_cursor() returns atoms, 
         # singlets, bonds, jigs,
         # or anything that can be highlighted and end up in glpane.selobj. 
@@ -168,18 +181,26 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             return	
 
         self.doObjectSpecificLeftDown(obj, event)
+                
+        #Subclasses should override one of the following method if they need 
+        #to do additional things to prepare for dragging. 
+        self._leftDown_preparation_for_dragging(event)
+        
         self.w.win_update()
         return
            
     def _leftDown_preparation_for_dragging(self, event):
         """
-        Subclasses should override this if they need additional things to be 
+        Subclasses should override this (AND ALSO CALLING THIS method in 
+        the overridden method)
+        if they need additional things to be 
         done in self.leftDown, to prepare for left dragging the selection.  
         @see: TranslateChunks_GraphicsMode._leftDown_preparation_for_dragging
         @see: RotateChunks_GraphicsMode._leftDown_preparation_for_dragging
         """
-        pass
-    
+        self._leftDrag_movables = self.getMovablesForLeftDragging()
+        
+            
     def leftDrag(self, event):
         """
 	Drag the selected object(s):
@@ -193,7 +214,6 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         @see: TranslateChunks.leftDrag
         @see: RotateChunks.leftDrag
         """
-
         if self.cursor_over_when_LMB_pressed == 'Empty Space':            
             ##self.continue_selection_curve(event)             
             self.emptySpaceLeftDrag(event)
@@ -207,7 +227,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         if not self.picking:
             return
 
-        if not self.o.assy.getSelectedMovables():
+        if not self._leftDrag_movables:
             return
 
         if self.isConstrainedDragAlongAxis:
@@ -305,8 +325,9 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         @see: TranslateChunks_GraphicsMode.leftADown
         @seE: RotateChunks_GraphicsMode.leftADown
         """
-    
+            
         self._leftADown = True
+
         if self.command and \
            self.command.propMgr and \
            hasattr(self.command.propMgr, 'rotateAsUnitCB'):
@@ -316,7 +337,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
 
 
         obj = self.get_obj_under_cursor(event)
-
+        
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
             #Left A drag is not possible unless the cursor is over a 
@@ -327,7 +348,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
 
         self.doObjectSpecificLeftDown(obj, event)
 
-        movables = self.o.assy.getSelectedMovables()
+        movables = self.getMovablesForLeftDragging()
         self._leftADown_movables = movables
 
         if not movables:
@@ -375,15 +396,20 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         self.Zmat = A([ma,[-ma[1],ma[0]]])
         self.picking = True
         self.dragdist = 0.0
+        
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)	
+        # Following is in leftDrag() to compute move offset during drag op.
+        self.startpt = self.movingPoint 
 
         self._leftADown_total_dx_dy = V(0.0, 0.0)
-
+        
         if 0: # looks ok; axis for 3-strand n=10 DNA is reasonably close to
             #axis of Axis strand [bruce 070605]
             print "\nleftADown gets",self._leftADown_averaged_axis
             print self._leftADown_indiv_axes
             print movables
-            print self.Zmat
+            print self.Zmat            
+        
             
         return # from leftADown
     
@@ -392,7 +418,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
            and rotate around its axis (left-right) while left dragging
            the selection with keyboard key 'A' pressed
         """
-
+        
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking:
             return
@@ -432,14 +458,14 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         else:
             # move/rotate selection as a unit
 
-            #find out resultant axis, translate and rotate the selected
-            #movables along this axis (for rotate use rotsel)-- ninad 20070605
+            #find out resultant axis, translate and rotate the specified
+            #movables along this axis -- ninad 20070605
             # (modified/optimized by bruce 070605)
             resAxis = self._leftADown_averaged_axis
             for mol in movables:
                 mol.move(dx*resAxis)
-
-            self.o.assy.rotsel(Q(resAxis,-dy)) 
+            self.win.assy.rotateSpecifiedMovables( Q(resAxis,-dy), 
+                                                   movables = movables)
             # this assumes movables are exactly the selected movable objects 
             # (as they are)
             # [could this be slow, or could something in here have a memory 
@@ -448,6 +474,11 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             # in the bg.  Aha, I bet it's all those Undo checkpoints, which we 
             #should not be collecting during drags at all!!
             #  --bruce 070605 Q]
+            #Implementation change note: the movables are computed only in 
+            #self.leftADown or self._leftDown_preparation_for_dragging()
+            #the movables needen't necessarily be the selected objects 
+            #see self.getMovablesForLeftDragging() for details. 
+            #--Ninad 2008-04-08
 
         self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
         self.o.SaveMouse(event)

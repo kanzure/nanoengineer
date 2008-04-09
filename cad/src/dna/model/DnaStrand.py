@@ -186,6 +186,27 @@ class DnaStrand(DnaStrandOrSegment):
         return axisEndAtom
     
     
+    def get_all_content_chunks(self):
+        """
+        Return all the chunks including 
+        A) the chunks within the DnaSegments that this DnaStrand 'touches' 
+        (passes through).
+        B) Its own member chunks (DnaStrandChunks)
+      
+        @see: SelectChunks_GraphicsMode.getMovablesForLeftDragging() where this 
+              is used
+        """
+        #ONLY WORKS in DNA DATA model. pre dna data model is unsupported
+        all_content_chunk_list = []
+                    
+        for member in self.members:
+            if isinstance(member, DnaStrandChunk):
+                ladder = member.ladder
+                all_content_chunk_list.extend(ladder.all_chunks())
+                
+        return all_content_chunk_list
+
+    
     def getDnaSegment_at_three_prime_end(self): 
         """
         Returns DnaSegment at the three prime end. i.e. the stand end base atom

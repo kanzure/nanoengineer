@@ -61,6 +61,8 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
 	@see: self.leftDragTranslation
         Overrides _superclass._leftDown_preparation_for_dragging
 	"""
+        _superclass._leftDown_preparation_for_dragging(self, event)
+        
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
@@ -72,7 +74,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
         self.startpt = self.movingPoint 
 
         # Translate section
-
+        
         if self.moveOption != 'MOVEDEFAULT':
             if self.moveOption == 'TRANSX': 
                 ma = V(1,0,0) # X Axis
@@ -84,6 +86,14 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                 ma = V(0,0,1) # Z Axis
                 self.axis = 'Z'
             elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+                #The method 'self._leftDown_preparation_for_dragging should 
+                #never be reached if self.moveOption is 'ROT_TRANS_ALONG_AXIS'
+                #If this code is reached, it indicates a bug. So fail gracefully
+                #by calling self.leftADown() 
+                if debug_flags.atom_debug:
+                    print_compact_stack("bug: _leftDown_preparation_for_dragging"\
+                                        " called for translate option"\
+                                        "'ROT_TRANS_ALONG_AXIS'")
                 self.leftADown(event)
                 return
             else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
@@ -102,7 +112,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
             # end of Translate section
 
         self.leftDownType = 'TRANSLATE'
-
+    
         return
     
     def leftDrag(self, event):       
@@ -115,7 +125,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
 	@type  event: QMouseEvent instance
         """
         _superclass.leftDrag(self, event)
-        
+                
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             #The _superclass.leftDrag considers this condition. 
             #So simply return and don't go further. Fixes bug 2607
@@ -186,7 +196,11 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                                                              self.moveOffset[2])
 
             env.history.statusbar_msg(msg)
-            self.o.assy.movesel(point - self.movingPoint)
+            
+            offset = point - self.movingPoint
+            self.win.assy.translateSpecifiedMovables(offset, 
+                                                     movables = self._leftDrag_movables)
+            
             self.movingPoint = point    
             # end of Move section
 
@@ -209,8 +223,9 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                       self.moveOption                
                 return
 
-            self.transDelta += dx # Increment translation delta  
-            self.o.assy.movesel(dx*ma)
+            self.transDelta += dx # Increment translation delta 
+            self.win.assy.translateSpecifiedMovables(dx*ma, 
+                                                     movables = self._leftDrag_movables)
 
         # Print status bar msg indicating the current translation delta
         if self.o.assy.selmols:

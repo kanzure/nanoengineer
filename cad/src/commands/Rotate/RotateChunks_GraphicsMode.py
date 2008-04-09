@@ -21,6 +21,7 @@ import math
 from Numeric import dot, sign
 import foundation.env as env
 from utilities.Log import redmsg
+from utilities.debug import print_compact_stack
 
 from utilities.debug import print_compact_traceback
 from geometry.VQT import V, Q, A, vlen, norm
@@ -63,7 +64,8 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
 	@see: self.leftDragRotation
         Overrides _superclass._leftDown_preparation_for_dragging
 	"""
-
+        
+        _superclass._leftDown_preparation_for_dragging(self, event)
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0	
@@ -83,6 +85,15 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                 ma = V(0,0,1) # Z Axis
                 self.axis = 'Z'
             elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+                #The method 'self._leftDown_preparation_for_dragging should 
+                #never be reached if self.rotateOption is 'ROT_TRANS_ALONG_AXIS'
+                #If this code is reached, it indicates a bug. So fail gracefully
+                #by calling self.leftADown() 
+                if debug_flags.atom_debug:
+                    print_compact_stack("bug: _leftDown_preparation_for_dragging"\
+                                        " called for rotate option"\
+                                        "'ROT_TRANS_ALONG_AXIS'")
+                    
                 self.leftADown(event)
                 return
 
@@ -102,7 +113,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
             self.Zmat = A([ma,[-ma[1],ma[0]]])
 
         self.leftDownType = 'ROTATE'
-
+        
         return
     
     def leftDrag(self, event):       
@@ -190,8 +201,10 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
            hasattr(self.command.propMgr, 'updateRotationDeltaLabels'):
             self.command.propMgr.updateRotationDeltaLabels(self.rotateOption, 
                                                    self.rotDelta)
-        self.o.assy.rotsel(qrot) 
-
+        
+        self.win.assy.rotateSpecifiedMovables(qrot, 
+                                              movables = self._leftDrag_movables)
+        
         # Print status bar msg indicating the current rotation delta.
         if self.o.assy.selmols:
             msg = "%s delta: [0 Angstroms] [%.2f Degrees]" % (self.axis, 
@@ -217,7 +230,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
 
         """
         
-        selectedMovables = self.o.assy.getSelectedMovables()
+        selectedMovables = self._leftDrag_movables
         
         if not selectedMovables: 
             # This should never happen (i.e. the method self._leftDragFreeRotation
@@ -241,7 +254,8 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         if self.command and self.command.propMgr and \
            hasattr(self.command.propMgr, 'rotateComboBox'):            
             if self.command.propMgr.rotateAsUnitCB.isChecked():
-                self.o.assy.rotsel(q) # Rotate the selection as a unit.               
+                self.win.assy.rotateSpecifiedMovables(q, 
+                                              movables = self._leftDrag_movables) # Rotate the selection as a unit.               
             else:
                 #Following fixes bug 2521
                 for item in selectedMovables:
@@ -256,8 +270,9 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         #By default always rotate the selection as a unit (this code will 
         #never be reached if the command's propMgr has a 'rotateAsaUnit'
         #checkbox )
-        self.o.assy.rotsel(q) 
-        
+        self.win.assy.rotateSpecifiedMovables(q, 
+                                              movables = self._leftDrag_movables)
+               
         self.o.gl_update()
     
     def leftADown(self, event):
