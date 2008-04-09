@@ -708,6 +708,9 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
         Build a peptide from a sequence entered through the Property Manager dialog.
         """
 
+        if len(self.peptide_cache) == 0:
+            return None
+        
         # create a molecule	
         mol = Chunk(self.win.assy,name)
 
