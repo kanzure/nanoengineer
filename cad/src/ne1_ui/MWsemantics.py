@@ -50,7 +50,7 @@ from platform.PlatformDependent import find_or_make_Nanorex_subdir
 from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
 from utilities.debug import print_compact_traceback
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 
 from ne1_ui.Ui_MainWindow import Ui_MainWindow
 from ne1_ui.Ui_PartWindow import Ui_PartWindow
@@ -325,9 +325,8 @@ class MWsemantics(QMainWindow,
 
         #  New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
-                      Choice_boolean_False, 
-                      non_debug = True,
-                      prefs_key = "A10 devel/Nanotube generator"):
+                      Choice_boolean_True, 
+                      prefs_key = "A10 devel/Old Nanotube Generator"):
             # New "Build > CNT", experimental. --Mark 2008-03-10
             from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
             self.InsertNanotubeEditCommand = InsertNanotube_EditCommand(self.glpane)	
@@ -1567,9 +1566,8 @@ class MWsemantics(QMainWindow,
         """
         #  New Nanotube Builder or old Nanotube Generator?
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
-                      Choice_boolean_False, 
-                      non_debug = True,
-                      prefs_key = "A10 devel/Nanotube generator"):
+                      Choice_boolean_True, 
+                      prefs_key = "A10 devel/Old Nanotube Generator"):
             
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand

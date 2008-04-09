@@ -5,7 +5,7 @@ $Id$
 
 from PyQt4 import QtGui
 from foundation.wiki_help import QToolBar_WikiHelp
-from utilities.debug_prefs import debug_pref, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice_boolean_True
 
 def setupUi(win, toolbarArea):
     """
@@ -28,9 +28,8 @@ def setupUi(win, toolbarArea):
     
     #  New Nanotube Builder or old Nanotube Generator?
     if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
-                  Choice_boolean_False, 
-                  non_debug = True,
-                  prefs_key = "A10 devel/Nanotube generator"):
+                  Choice_boolean_True, 
+                  prefs_key = "A10 devel/Old Nanotube Generator"):
         # New "Build > CNT", experimental. --Mark 2008-03-10
         win.buildStructuresToolBar.addAction(win.buildNanotubeAction) 
     else:
