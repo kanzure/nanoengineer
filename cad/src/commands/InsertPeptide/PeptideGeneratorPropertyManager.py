@@ -196,7 +196,19 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         Adds a new amino acid to the peptide molecule.
         """
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
-        self.sequenceEditor.insertHtml(symbol, False, 4, 10, False)
+        if self.ss_idx==0:
+            aa_txt = "<font color=red>"
+        elif self.ss_idx==1:
+            aa_txt = "<font color=orange>"
+        elif self.ss_idx==2:
+            aa_txt = "<font color=green>"
+        elif self.ss_idx==3:
+            aa_txt = "<font color=blue>"
+        else:
+            aa_txt = "<font color=black>"
+        
+        aa_txt += symbol+"</font>"
+        self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
         self.addAminoAcid(aaTypeIndex)
 
     def _startOverClicked(self):

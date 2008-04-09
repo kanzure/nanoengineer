@@ -38,13 +38,13 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
     #  as a clarification. Likely desirable change (###TODO): register a model updater in assy,
     #  which calls the bond updater presently registered by bond_updater.initialize.)
     # [bruce 070925 comment]
-    
+
     import model_updater.master_model_updater as master_model_updater
     master_model_updater.initialize()
-    
+
     import model.assembly
     model.assembly.Assembly.initialize()
-    
+
     import PM.GroupButtonMixin as GroupButtonMixin
     GroupButtonMixin.GroupButtonMixin.initialize()
 
@@ -72,9 +72,9 @@ def register_MMP_RecordParsers(): #bruce 071019
         pass
 
     # TODO: add more of these.
-    
+
     return
-    
+
 # (MWsemantics.__init__ is presumably run after the above functions and before the following ones.)
 
 def pre_main_show( win):
@@ -91,13 +91,13 @@ def pre_main_show( win):
     from platform.PlatformDependent import screen_pos_size
     ((x0, y0), (screen_w, screen_h)) = screen_pos_size()
     # note: y0 is nonzero on mac, due to menubar at top of screen.
-    
+
     # use 85% of screen width and 90% of screen height, or more if that would be
     # less than 780 by 560 pixels, but never more than the available space.
     norm_w = int( min(screen_w - 2, max(780, screen_w * 0.85)))
     norm_h = int( min(screen_h - 2, max(560, screen_h * 0.90)))
         #bruce 050118 reduced max norm_h to never overlap mac menubar (bugfix?)
-    
+
     # determine normal window origin
     # [bruce 041230 changed this to center it, but feel free to change this back
     #  by changing the next line to center_it = 0]
@@ -113,7 +113,7 @@ def pre_main_show( win):
         want_y = 36 # Top (36 pixels)
         norm_x = min( want_x, (screen_w - norm_w)) + x0
         norm_y = min( want_y, (screen_h - norm_h)) + y0
-    
+
     # Set the main window geometry, hopefully before the caller shows the window
     from PyQt4.Qt import QRect
     win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
@@ -140,7 +140,7 @@ def pre_main_show( win):
     # provided they are fully supported (not experimental, unlikely to cause bugs when added)
     # and won't take a lot of runtime to add. Otherwise they can be added after the
     # main window is shown. [bruce 071005 comment] ###@@@
-    
+
     return # from pre_main_show
 
 # This is debugging code used to find out the origin and size of the fullscreen window
@@ -155,23 +155,23 @@ def _initialize_custom_display_modes(win):
     # They must match the order of related display style list-index definitions
     # in constants.py.
     # [bruce 080212 comment; related code has comments with same signature]
-    
+
     # diDNACYLINDER
     import graphics.display_styles.DnaCylinderChunks as DnaCylinderChunks #mark 2008-02-11
-    
+
     # diCYLINDER
     import graphics.display_styles.CylinderChunks as CylinderChunks #bruce 060609
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
     enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
-                                      Choice_boolean_False, 
-                                      non_debug = True, 
-                                      prefs_key = True)
+                                       Choice_boolean_False, 
+                                       non_debug = True, 
+                                       prefs_key = True)
     win.dispCylinderAction.setText("Cylinder (experimental)")
     win.dispCylinderAction.setEnabled(enable_CylinderChunks)
     win.dispCylinderAction.setVisible(enable_CylinderChunks)
     if enable_CylinderChunks:
         win.displayStylesToolBar.addAction(win.dispCylinderAction)
-    
+
     # diSURFACE
     import graphics.display_styles.SurfaceChunks as SurfaceChunks #mark 060610
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
@@ -183,7 +183,7 @@ def _initialize_custom_display_modes(win):
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     if enable_SurfaceChunks:
         win.displayStylesToolBar.addAction(win.dispSurfaceAction)
-    
+
     return
 
 # ==
@@ -199,7 +199,7 @@ def post_main_show( win):
     # NOTE: if possible, new code should be added into one of the following
     # functions, or into a new function called by this one, rather than 
     # directly into this function.
-    
+
     # TODO: rebuild pyx modules if necessary and safe -- but only for 
     # developers, not end-users
     # TODO: initialize Python extensions: ## import experimental/pyrex_test/extensions.py
@@ -234,24 +234,23 @@ def _init_command_Atom_Generator():
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
     from commands.BuildAtom.AtomGenerator import enableAtomGenerator
     _atomGeneratorIsEnabled = \
-                    debug_pref("Atom Generator example code: enabled?", 
-                               Choice_boolean_False, 
-                               non_debug = True, 
-                               prefs_key = "A9/Atom Generator Visible",
-                               call_with_new_value = enableAtomGenerator )
+                            debug_pref("Atom Generator example code: enabled?", 
+                                       Choice_boolean_False, 
+                                       non_debug = True, 
+                                       prefs_key = "A9/Atom Generator Visible",
+                                       call_with_new_value = enableAtomGenerator )
     enableAtomGenerator(_atomGeneratorIsEnabled)
     return
 
 def _init_command_Peptide_Generator(): # piotr 080304 
     # This function enables an experimental peptide generator.
-    from utilities.debug_prefs import debug_pref, Choice_boolean_False
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True
     from commands.InsertPeptide.PeptideGenerator import enablePeptideGenerator
     _peptideGeneratorIsEnabled = \
-                    debug_pref("Peptide Generator: enabled?", 
-                               Choice_boolean_False, 
-                               non_debug = True, 
-                               prefs_key = "A9/Peptide Generator Visible",
-                               call_with_new_value = enablePeptideGenerator )
+                               debug_pref("Peptide Generator: enabled?", 
+                                          Choice_boolean_True, 
+                                          prefs_key = "A10/Peptide Generator Visible",
+                                          call_with_new_value = enablePeptideGenerator )
     enablePeptideGenerator(_peptideGeneratorIsEnabled)
     return
 
@@ -281,7 +280,7 @@ def _set_mainwindow_splitter_position( win):
     pixels.
 
     This should be called after all visible changes to the main window.
-    
+
     @param win: the single Main Window object.
     @type  win: L{MWsemantics}
     """
@@ -310,7 +309,7 @@ def _set_mainwindow_splitter_position( win):
     # Since we want the default width of the PropMgr to be <pmDefaultWidth>,
     # I compute the new glpane width = magic_combined_width - pmDefaultWidth.
     # Note: the resize is visible at startup.
-    
+
     pw = win.activePartWindow()
     from PM.PropMgr_Constants import pmDefaultWidth
     w1, w2 = pw.pwSplitter.sizes()
