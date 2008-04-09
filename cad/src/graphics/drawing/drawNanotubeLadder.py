@@ -17,6 +17,7 @@ from OpenGL.GL import glTranslatef
 
 from graphics.drawing.drawer import drawline
 from graphics.drawing.drawer import drawPoint
+from graphics.drawing.drawer import drawCircle
 
 from geometry.VQT import norm, vlen, V, cross
 
@@ -99,6 +100,7 @@ def drawNanotubeLadder(endCenter1,
     x = 0.0
     while x < ladderLength:        
         drawPoint(stepColor, pointOnAxis)
+        drawCircle(stepColor, pointOnAxis, ladderWidth * 0.5, unitVector)
         
         previousPoint = pointOnAxis        
         previousLadderBeam1Point = ladderBeam1Point
@@ -123,7 +125,7 @@ def drawNanotubeLadder(endCenter1,
                      width = beamThickness, 
                      isSmooth = True )
             
-            drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
+            #drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
                                 
     glPopMatrix()
     glEnable(GL_LIGHTING)
