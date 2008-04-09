@@ -1697,6 +1697,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 # this possibility added by bruce 041207
                 glpane = self.assy.o
             disp = glpane.displayMode
+        
+        # piotr 080409: fixed bug 2785
+        # If the chunk is not DNA and global display mode == diDNACYLINDER
+        # use the default_display_mode instead.
+        from utilities.constants import default_display_mode
+        if disp == diDNACYLINDER \
+           and not hasattr(self, "ladder"):
+            disp = default_display_mode
+            
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
@@ -2891,6 +2900,12 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # remake) if user selects several chunks and changes them all
             # at once, and some are already set to disp.
             return
+        
+        # piotr 080409: fixing bug 2785
+        if disp == diDNACYLINDER \
+           and not hasattr(self, "ladder"): # not a DNA chunk
+            return # don't change anything
+        
         self.display = disp
         # inlined self.changeapp(1):
         self.havelist = 0
