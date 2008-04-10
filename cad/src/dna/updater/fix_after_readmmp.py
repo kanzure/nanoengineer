@@ -23,7 +23,7 @@ def will_special_updates_after_readmmp_do_anything(assy):
 
 def fix_after_readmmp_before_updaters(assy):
     if pref_fix_after_readmmp_before_updaters():
-        print "\ndoing fix_after_readmmp_before_updaters"
+        ## print "\ndoing fix_after_readmmp_before_updaters"
 
         # note: this happens before updaters like dna updater and bond updater,
         # but not before update_parts has fixed the .part structure of assy.
@@ -35,7 +35,7 @@ def fix_after_readmmp_before_updaters(assy):
 
 def fix_after_readmmp_after_updaters(assy):
     if pref_fix_after_readmmp_after_updaters():
-        print "\ndoing fix_after_readmmp_after_updaters"
+        ## print "\ndoing fix_after_readmmp_after_updaters"
 
         for part in assy.all_parts():
             part.enforce_permitted_members_in_groups( pre_updaters = False )
