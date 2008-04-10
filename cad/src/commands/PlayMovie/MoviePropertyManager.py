@@ -1,15 +1,14 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 MoviePropertyManager.py
-@author: Ninad
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  All rights reserved.
 
 History:
-ninad20070507 : Converted movie dashboard into movie Property manager
+ninad20070507 : Converted movie dashboard into movie Property manager 
+(authors: various)
 
 """
-__author__  = "Ninad"
 
 from PyQt4 import QtCore, QtGui
 from commands.PlayMovie.Ui_MoviePropertyManager import Ui_MoviePropertyManager
@@ -17,6 +16,7 @@ from PyQt4.Qt import Qt, SIGNAL, QFileDialog, QString, QMessageBox
 import os, foundation.env as env
 from utilities.Log import redmsg, greenmsg
 from utilities.constants import filesplit
+from utilities.prefs_constants import workingDirectory_prefs_key
 
 class MoviePropertyManager(Ui_MoviePropertyManager):
     """
@@ -308,6 +308,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         r = _checkMovieFile(self.w.assy.part, fn)
 
         if r == 1:
+            
 ##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
 ##            env.history.message(msg)
             return
@@ -328,12 +329,16 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 self.w.assy.current_movie._close()
             self.w.assy.current_movie = new_movie
             self.w.assy.current_movie.cueMovie(propMgr = self)
+            #Make sure to enable movie control buttons!
+            self.parentMode.enableMovieControls(True)
+            self.updateFrameInformation()
             self._updateMessageInModePM()
         else:
             # should never happen due to _checkMovieFile call, so this msg is ok
             # (but if someday we do _checkMovieFile inside find_saved_movie and not here,
             #  then this will happen as an error return from find_saved_movie)
             msg = redmsg("Internal error in fileOpenMovie")
+            self.parentMode.enableMovieControls(False)
             self._updateMessageInModePM(msg)
             env.history.message(msg)
         return
