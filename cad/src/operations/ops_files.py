@@ -736,22 +736,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
             
             if fn[-3:] == "mmp":
-                readmmp(self.assy, fn, showProgressDialog = True)
+                listOfAtoms = readmmp(self.assy, fn, showProgressDialog = True, returnListOfAtoms = True)
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
                 _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
                 isMMPFile = True
                 if (gromacsCoordinateFile):
-                    part = self.assy.part
-                    # force recompute of part.alist, since it's not
-                    # yet invalidated when it needs to be
-                    part.alist = None
-                    del part.alist
-                    alist = part.alist
-                    newPositions = readGromacsCoordinates(gromacsCoordinateFile, alist)
+                    newPositions = readGromacsCoordinates(gromacsCoordinateFile, listOfAtoms)
                     if (type(newPositions) == type([])):
-                        move_alist_and_snuggle(alist, newPositions)
+                        move_alist_and_snuggle(listOfAtoms, newPositions)
                     else:
                         env.history.message(redmsg(newPositions))
             

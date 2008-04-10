@@ -276,6 +276,7 @@ class _readmmp_state:
         self._info_objects = {} #bruce 071017 for info records
             # (replacing attributes of self named by the specific kinds)
         self._registered_parser_objects = {} #bruce 071017
+        self.listOfAtomsInFileOrder = []
         return
 
     def destroy(self):
@@ -287,6 +288,7 @@ class _readmmp_state:
         self.sim_input_badnesses_so_far = None
         self._info_objects = None
         self._registered_parser_objects = None
+        self.listOfAtomsInFileOrder = None
         return
 
     def extract_toplevel_items(self):
@@ -577,6 +579,7 @@ class _readmmp_state:
             self.prevchunk = Chunk(self.assy,  "sim chunk")
             self.addmember(self.prevchunk)
         a = Atom(sym, xyz, self.prevchunk) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
+        self.listOfAtomsInFileOrder.append(a)
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
@@ -1572,15 +1575,21 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     else:
         pass # nothing was wrong!
     assert len(grouplist) == 3
-        
+
+    listOfAtomsInFileOrder = state.listOfAtomsInFileOrder
+    
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
     
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
     
-    return grouplist # from _readmmp
+    return grouplist, listOfAtomsInFileOrder # from _readmmp
 
-def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
+def readmmp(assy,
+            filename,
+            isInsert = False,
+            showProgressDialog = False,
+            returnListOfAtoms = False):
     """
     Read an mmp file to create a new model (including a new
     Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
@@ -1612,6 +1621,12 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     @param showProgressDialog: if True, display a progress dialog while reading
                                a file. Default is False.
     @type  showProgressDialog: boolean
+
+    @param returnListOfAtoms: if True, return value is a list of all
+                              atoms in the file, in the order they
+                              appeared.  If False (the default),
+                              returns the group list.
+    @type  returnListOfAtoms: boolean
     """
     kluge_main_assy = env.mainwindow().assy
         # use this instead of assy to fix logic bug in use of assy_valid flag
@@ -1622,7 +1637,10 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     kluge_main_assy.assy_valid = False # disable updaters during _readmmp
         # [bruce 080117/080124, revised 080319]
     try:
-        grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
+        grouplist, listOfAtomsInFileOrder = _readmmp(assy,
+                                                     filename,
+                                                     isInsert,
+                                                     showProgressDialog)
             # warning: can show a dialog, which can cause paintGL calls.
     finally:
         kluge_main_assy.assy_valid = True
@@ -1630,6 +1648,8 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         _reset_grouplist(assy, grouplist)
             # note: handles grouplist is None (though not very well)
             # note: runs all updaters when done, and sets per-part viewdata
+    if (returnListOfAtoms):
+        return listOfAtomsInFileOrder
     return grouplist
     
 def _reset_grouplist(assy, grouplist):
