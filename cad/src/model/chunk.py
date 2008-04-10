@@ -53,6 +53,7 @@ from Numeric import dot
 from Numeric import PyObject
 from Numeric import argsort
 from Numeric import compress
+from Numeric import sum
 from Numeric import take
 from Numeric import argmax
 
@@ -1935,7 +1936,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     hd._drawchunk_realtime(glpane, self)
 
                 # russ 080409 Don't do the string formatting unless needed.  It's slow.
-                if should_not_change != ( + self.basecenter, + self.quat ):
+                # Vector comparisons return a vector of booleans, but don't work in tuples.
+                if (sum(should_not_change[0] != self.basecenter) > 0 or
+                    # Quaternion comparisons return True or False.  May need fuzz?
+                    should_not_change[1] != self.quat ):
                     assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                            "%r != %r, what's up?" % (should_not_change,
                                                      ( + self.basecenter, + self.quat))
