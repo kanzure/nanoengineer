@@ -1935,11 +1935,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 if hd:
                     hd._drawchunk_realtime(glpane, self)
 
-                # russ 080409 Don't do the string formatting unless needed.  It's slow.
-                # Vector comparisons return a vector of booleans, but don't work in tuples.
-                if (sum(should_not_change[0] != self.basecenter) > 0 or
-                    # Quaternion comparisons return True or False.  May need fuzz?
-                    should_not_change[1] != self.quat ):
+                # russ 080409 Array to string formatting is slow, avoid it
+                # when not needed.  Use !=, not ==, to compare Numeric arrays.
+                # (!= returns V(0,0,0), a False boolean value, when equal.)
+                if (should_not_change[0] != self.basecenter or
+                    should_not_change[1] != self.quat):
                     assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                            "%r != %r, what's up?" % (should_not_change,
                                                      ( + self.basecenter, + self.quat))
