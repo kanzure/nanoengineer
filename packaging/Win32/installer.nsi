@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "NanoEngineer-1"
-!define PRODUCT_VERSION "1.0.0b1"
+!define PRODUCT_VERSION "1.0.0b8"
 !define PRODUCT_NICKNAME "(Alpha 10)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"

@@ -9,7 +9,7 @@ Usage:
 from distutils.core import setup
 import py2exe
 
-APP = [{'script': 'main.py', 'icon_resources': [(0, '../../Distribution/Win32/NE1.ico')]}]
+APP = [{'script': 'main.py', 'icon_resources': [(0, '../../packaging/Win32/NE1.ico')]}]
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True}
 
