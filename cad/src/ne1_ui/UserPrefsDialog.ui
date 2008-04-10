@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>737</width>
-    <height>562</height>
+    <width>953</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -2763,7 +2763,7 @@
                  <widget class="QComboBox" name="dnaStyleStrutsColorComboBox" >
                   <item>
                    <property name="text" >
-                    <string>Same as chunk</string>
+                    <string>Same as strand</string>
                    </property>
                   </item>
                   <item>
@@ -2868,7 +2868,7 @@
               </widget>
               <widget class="QWidget" name="tab_5" >
                <attribute name="title" >
-                <string>Nucleosides</string>
+                <string>Nucleotides</string>
                </attribute>
                <layout class="QGridLayout" >
                 <property name="margin" >
@@ -2943,7 +2943,7 @@
                  <widget class="QComboBox" name="dnaStyleBasesColorComboBox" >
                   <item>
                    <property name="text" >
-                    <string>Same as chunk</string>
+                    <string>Same as strand</string>
                    </property>
                   </item>
                   <item>

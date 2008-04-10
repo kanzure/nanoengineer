@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Tue Apr 08 18:01:14 2008
+# Created: Thu Apr 10 11:15:51 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_UserPrefsDialog(object):
     def setupUi(self, UserPrefsDialog):
         UserPrefsDialog.setObjectName("UserPrefsDialog")
-        UserPrefsDialog.resize(QtCore.QSize(QtCore.QRect(0,0,737,562).size()).expandedTo(UserPrefsDialog.minimumSizeHint()))
+        UserPrefsDialog.resize(QtCore.QSize(QtCore.QRect(0,0,953,707).size()).expandedTo(UserPrefsDialog.minimumSizeHint()))
 
         self.gridlayout = QtGui.QGridLayout(UserPrefsDialog)
         self.gridlayout.setMargin(9)
@@ -3444,7 +3444,7 @@ class Ui_UserPrefsDialog(object):
         self.dnaStyleStrandsShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Tube", None, QtGui.QApplication.UnicodeUTF8))
         self.label_26.setText(QtGui.QApplication.translate("UserPrefsDialog", "Shape:", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_9), QtGui.QApplication.translate("UserPrefsDialog", "Strands", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleStrutsColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as chunk", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleStrutsColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as strand", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleStrutsColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base order", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleStrutsColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Strand order", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleStrutsColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base type", None, QtGui.QApplication.UnicodeUTF8))
@@ -3460,7 +3460,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_3_2_12.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "CPK Atom Scale factor for CPK display mode", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_3_2_12.setText(QtGui.QApplication.translate("UserPrefsDialog", "Scale:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_33.setText(QtGui.QApplication.translate("UserPrefsDialog", "Shape:", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleBasesColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as chunk", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleBasesColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as strand", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base order", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Strand order", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base type", None, QtGui.QApplication.UnicodeUTF8))
@@ -3468,7 +3468,7 @@ class Ui_UserPrefsDialog(object):
         self.dnaStyleBasesShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Sugar Spheres", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base Cartoons", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleBasesDisplayLettersCheckBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Display Base Letters", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QtGui.QApplication.translate("UserPrefsDialog", "Nucleosides", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QtGui.QApplication.translate("UserPrefsDialog", "Nucleotides", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaDisplayStrandLabelsGroupBox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Display Strand Labels", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStrandLabelColorComboBox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Background fill type", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStrandLabelColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as strand", None, QtGui.QApplication.UnicodeUTF8))
