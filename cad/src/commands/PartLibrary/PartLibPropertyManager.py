@@ -60,8 +60,8 @@ class PartLibPropertyManager(PastePropertyManager):
         
         PastePropertyManager.__init__(self, parentMode)
         self.updateMessage(
-        """The part library contains many structures and molecules
-        that can be added to a project by selecting the item from the directory
+        """The part library contains structures and molecules
+        that can be added to a project by selecting from the directory
         and double clicking in the 3D graphics area."""
         )
     

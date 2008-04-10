@@ -92,8 +92,8 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
     def updateMessageGroupBox(self):
         msg = ""
 
-        msg = msg + "Click on <b>Amino Acid</b> buttons to add a new residuum to the \
-            polypeptide chain. Click <b>Done</b> to insert it into the model."
+        msg = msg + "Click on the Amino Acid buttons to add a new residuum to\
+            the polypeptide chain. Click Done to insert it into the project."
 
         # This causes the "Message" box to be displayed as well.
         # setAsDefault=True causes this message to be reset whenever
