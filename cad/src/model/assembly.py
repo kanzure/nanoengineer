@@ -938,10 +938,17 @@ class Assembly( StateMixin, Assembly_API):
                               (node.part, node.part.nodecount, len(kids))
                         print msg
             except:
-                #bruce 080325 revised message, removed re-raise at end
-                msg = "\n***BUG?: ignoring exception in checkparts(%s) of %r about node %r" % \
-                      (when and `when` or "", self, node)
-                print_compact_traceback(msg + ": ")
+                #bruce 080325 revised message, removed re-raise at end;
+                #bruce 080410 revising again -- this seems to happen when pasting CX4 with hotspot
+                # into free space in its own clipboard item, so reducing the print messiness
+                # until we can debug this
+                if debug_flags.atom_debug:
+                    msg = "\n***BUG?: ignoring exception in checkparts(%s) of %r about node %r" % \
+                          (when and `when` or "", self, node)
+                    print_compact_traceback(msg + ": ")
+                else:
+                    print "exception in checkparts about node %r ignored, set debug_flags to see" % \
+                          (node,)
                 # this would be useful, but doesn't seem to work right in this context:
                 ## if not when:
                 ##     print_compact_stack(" ... which was called from here: ") #bruce 080314

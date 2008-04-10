@@ -1054,17 +1054,25 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     print "bug: %r.atom2.molecule was None (changing it to _nullMol)" % b
                 bad = True
             if bad:
+                # bruce 060412 print -> print_compact_stack
+                # e.g. this will happen if above code sets a mol to _nullMol
                 #bruce 080227 revised following debug prints; maybe untested
+                #bruce 080410 making them print, not print_compact_stack, temporarily;
+                # they are reported to happen with paste chunk with hotspot onto open bond
                 if m1.part is None:
-                    msg = "\nbug: %r .atom1 == %r .mol == %r .part is None: " % \
+                    msg = "possible bug: %r .atom1 == %r .mol == %r .part is None" % \
                         ( b, b.atom1, m1 )
-                    print_compact_stack( msg )
+                    if debug_flags.atom_debug:
+                        print_compact_stack( "\n" + msg + ": " )
+                    else:
+                        print msg
                 if m2.part is None:
-                    msg = "\nbug: %r .atom2 == %r .mol == %r .part is None: " % \
+                    msg = "possible bug: %r .atom2 == %r .mol == %r .part is None" % \
                         ( b, b.atom2, m2 )
-                    print_compact_stack( msg )
-                        # bruce 060412 print -> print_compact_stack
-                        # e.g. this will happen if above code sets a mol to _nullMol
+                    if debug_flags.atom_debug:
+                        print_compact_stack( "\n" + msg + ": " )
+                    else:
+                        print msg
                 b.bust() 
         # someday, maybe: check atom-jig bonds ... but callers need to handle
         # some jigs specially first, which this would destroy...
