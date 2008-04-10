@@ -183,13 +183,14 @@ debug_pref_read_bonds_compactly()
 # ==
 
 def debug_pref_write_new_display_names(): #bruce 080328
-    # note: reading code for this was made active a few days before 080328
+    # note: reading code for this was made active a few days before 080328;
+    # this affects *all* mmp files we write (for save, ND1, NV1)
     res = debug_pref("mmp format: write new display names?",
                      # we will change this to True as soon as all developers
-                     # have the necessary reading code
-                     Choice_boolean_False,
+                     # have the necessary reading code... doing that, 080410
+                     Choice_boolean_True,
                      non_debug = True,
-                     prefs_key = "A10/mmp format: write new display names? "
+                     prefs_key = "A10/mmp format: write new display names?"
                  )
     return res
 
