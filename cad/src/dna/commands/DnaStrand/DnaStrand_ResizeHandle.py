@@ -26,8 +26,12 @@ from exprs.__Symbols__      import _self
 from exprs.Overlay          import Overlay
 from exprs.ExprsConstants   import Drawable
 from exprs.ExprsConstants   import Color
+from exprs.ExprsConstants   import Boolean
+from exprs.ExprsConstants   import Width
 from exprs.ExprsConstants   import Point
-from exprs.ExprsConstants   import ORIGIN, DX 
+from exprs.ExprsConstants   import ORIGIN, DX
+
+from exprs.If_expr import If_expr
 
 from exprs.dna_ribbon_view  import Cylinder
 from exprs.Rect             import Sphere
@@ -36,25 +40,36 @@ from utilities.constants import yellow, purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
-from exprs.ExprsConstants import StateRef
 
 class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     """
     Provides a resize handle for editing the length of an existing Dna Strand. 
     """
     
-    #Handle color will be changed depending on whether the the handle is grabbed
-    #So this is a 'State variable and its value is used in 'appearance' 
-    #(given as an optional argument to 'Sphere') 
-    handleColor = Option(StateRef, purple)  
+    #Handle color will be changed depending on whether the handle is grabbed
+    # [bruce 080409 revised some details of this to fix bug 2747]
     
+    handleColor = Option(Color, purple) # formula from caller
+        # (in current usage, a state variable in caller)
+
+    handleIsGrabbed = State(Boolean, False)
+        # Note: this might not be needed if we passed more args to
+        # Highlightable (namely, the appearance when pressed);
+        # that would also be more reliable, since as it is, any failure for
+        # on_release to be called would leave the handle stuck in the
+        # grabbed state; client code would be wise to sometimes reset
+        # this state. Also, it seems rare to ever see this darkgreen color
+        # since the handle is usually highlighted and yellow while dragging it.
+        # So this state could probably just be removed, with all uses of
+        # _currentHandleColor changes to uses of handleColor.
+        # [bruce 080409]
     
-    _currentHandleColor = State(Color, _self.handleColor)
+    _currentHandleColor = If_expr( handleIsGrabbed, darkgreen, _self.handleColor)
         
-    #The state ref that determines the radius (of the sphere) of this handle. 
+    #The caller-specified formula that determines the radius (of the sphere) of this handle. 
     #See DnaStrand_EditCommand._determine_resize_handle_radius() for more 
     #details
-    sphereRadius = Option(StateRef, 1.5)
+    sphereRadius = Option(Width, 1.5)
         
     #Appearance of the handle. (note that it uses all the code from exprs module
     # and needs more documentation there). 
@@ -63,23 +78,25 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     appearance = Overlay(
             Sphere(_self.sphereRadius, 
                    _self._currentHandleColor, 
-                   center = ORIGIN + _self.direction*3.0*_self.sphereRadius),
+                   center = ORIGIN + _self.direction * 3.0 * _self.sphereRadius),
                    
             Cylinder((ORIGIN, 
-                      ORIGIN + _self.direction*2.2*_self.sphereRadius),
-                      0.6* _self.sphereRadius,
+                      ORIGIN + _self.direction * 2.2 * _self.sphereRadius),
+                      0.6 * _self.sphereRadius,
                       _self._currentHandleColor))
     
-    #Handle appearance when highlighted   
+    #Handle appearance when highlighted
+    # [this probably doesn't need to be an Option, since the client never
+    #  passes it [bruce 080409 comment]]
     appearance_highlighted = Option(
         Drawable,
         Overlay(
             Sphere(_self.sphereRadius, 
                    yellow, 
-                   center = ORIGIN + _self.direction*3.0*_self.sphereRadius),
+                   center = ORIGIN + _self.direction * 3.0 * _self.sphereRadius),
                    
             Cylinder((ORIGIN,  
-                      ORIGIN + _self.direction*2.2*_self.sphereRadius),
+                      ORIGIN + _self.direction * 2.2 * _self.sphereRadius),
                      0.6* _self.sphereRadius , 
                      yellow)),
             doc = "handle appearance when highlighted")
@@ -101,7 +118,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     #line  and also to specify the endPoint2 of the structure while modifying 
     #it. See DnaSegment_EditCommand.modifyStructure for details. 
     if _self.origin is not None:
-        currentPosition = _self.origin + _self.direction*_self.height_ref.value
+        currentPosition = _self.origin + _self.direction * _self.height_ref.value
     else:
         currentPosition = ORIGIN
         
@@ -184,7 +201,8 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         #Change the handle color when handle is grabbed. See declaration of 
         #self.handleColor in the class definition. 
       
-        self._currentHandleColor = darkgreen
+        ## self._currentHandleColor = darkgreen
+        self.handleIsGrabbed = True
         
         #assign 'self' as the curent grabbed handle of the command. 
         self.command.grabbedHandle = self
@@ -208,7 +226,9 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         @see: B{SelectChunks.GraphicsMode.leftUp}
         @see: B{DragHandle_API}
         """
-        self._currentHandleColor = self.handleColor
+        ## self._currentHandleColor = self.handleColor
+        self.handleIsGrabbed = False
+        
         if self.command and hasattr(self.command, 'modifyStructure'): 
             self.command.modifyStructure()
             #Clear the grabbed handle attribute (the handle is no longer 
