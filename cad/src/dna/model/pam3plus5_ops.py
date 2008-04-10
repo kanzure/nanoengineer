@@ -18,6 +18,7 @@ http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordin
 # [bruce 080409]
 
 from utilities.constants import average_value
+from utilities.constants import Pl_STICKY_BOND_DIRECTION
 
 from model.elements import Pl5, Singlet
 
@@ -57,11 +58,11 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     """
     proposed_posns = []
     
-    for dirto, ss in bond_directions_to_neighbors:
+    for direction_to, ss in bond_directions_to_neighbors:
         if ss.element.role == 'strand':
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
             pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
-                    - direction,
+                    - direction_to,
                     remove_data = remove_data_from_neighbors,
                     make_up_position_if_necessary = True
              )
@@ -260,16 +261,78 @@ def kill_Pl_and_rebond_neighbors(atom):
 
 # ==
 
-def insert_Pl_between(s1, s2): #bruce 080409
-    #### IMPLEM; for other calls [nim, for ensuring bridging Pls exist] it might be find_or_insert...
+def insert_Pl_between(s1, s2): #bruce 080409/080410
     """
-    Assume s1 and s2 are directly bonded Ss3 and/or Ss5 atoms.
+    Assume s1 and s2 are directly bonded atoms, which can each
+    be Ss3 or Ss5 (PAM strand sugar atoms) or bondpoints
+    (but not both bondpoints -- impossible since such can never be
+     directly bonded).
+    
     Insert a Pl5 between them (bonded to each of them, replacing
     their direct bond), set it to have non-definitive position,
     and return it.
+
+    @note: inserting Pl5 between Ss5-X is only correct at one end
+           of a PAM5 strand, but we depend on the caller to check this
+           and only call us if it's correct (since we just insert it
+           without checking).
+
+    @return: the Pl5 atom we made. (Never returns None. Errors are either
+             not detected or cause exceptions.)
     """
-    assert 0, "nim"
-    return Pl # or None if error? caller assumes not possible
+    direct_bond = find_bond(s1, s2)
+    assert direct_bond
+    direction = direct_bond.bond_direction_from(s1) # from s1 to s2
+
+    # Figure out which atom the Pl sticks to (joins the chunk of).
+    # Note: the following works even if s1 or s2 is a bondpoint,
+    # which is needed for putting a Pl at the end of a newly-PAM5 strand.
+    # But whether to actually put one there is up to the caller --
+    # it's only correct at one end, but this function will always do it.
+    if direction == Pl_STICKY_BOND_DIRECTION:
+        Pl_prefers = [s2, s1]
+    else:
+        Pl_prefers = [s1, s2]
+    # The Pl sticks to the first thing in Pl_prefers which is not a bondpoint
+    # (which always exists, since two bondpoints can't be bonded):
+    # (see also the related method Pl_preferred_Ss_neighbor())
+    Pl_sticks_to = None # for pylint
+    for s in Pl_prefers:
+        if not s.is_singlet():
+            Pl_sticks_to = s
+            break
+        continue
+
+    # break the old bond
+    direct_bond.bust(make_bondpoints = False)
+
+    # make the new Pl atom
+    Atom = s1.__class__
+        # kluge to avoid import of chem.py, for now
+        # (though that would probably be ok (at least as a runtime import)
+        #  even though it might expand the import cycle graph)
+        # needs revision if we introduce Atom subclasses
+        # TODO: check if this works when Atom is an extension object
+        # (from pyrex atoms)
+    chunk = Pl_sticks_to.molecule
+    pos = (s1.posn() + s2.posn()) / 2.0
+        # position will be corrected by caller before user sees it
+    Pl = Atom('Pl5', pos, chunk)
+    Pl._f_Pl_posn_is_definitive = False
+        # tell caller it needs to, and is allowed to, correct pos
+
+    # bond it to s1 and s2
+    from model.bonds import bond_atoms_faster
+    from model.bond_constants import V_SINGLE
+        # runtime imports, since we're imported indirectly by chem.py
+    b1 = bond_atoms_faster(Pl, s1, V_SINGLE)
+    b2 = bond_atoms_faster(Pl, s2, V_SINGLE)
+    
+    # set bond directions: s1->Pl->s2 same as s1->s2 was before
+    b1.set_bond_direction_from(s1, direction)
+    b2.set_bond_direction_from(Pl, direction)
+    
+    return Pl # or None if error? caller assumes not possible, so do we
 
 def find_Pl_between(s1, s2): #bruce 080409
     """

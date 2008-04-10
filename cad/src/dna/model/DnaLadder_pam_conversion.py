@@ -11,6 +11,9 @@ and (perhaps in future) related helper functions.
 from model.elements import Pl5, Ss5, Ax5, Gv5
 from model.elements import      Ss3, Ax3
 
+from model.bonds import bond_direction #e rename
+from utilities.constants import Pl_STICKY_BOND_DIRECTION
+
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
 
@@ -231,7 +234,8 @@ class DnaLadder_pam_conversion_methods:
                 #  came after that check was added or before)
             return False # simulate failure
 
-        print "WARNING: _convert_to_pam(%r, %r) is unfinished, will fail somehow" % (self, pam_model) #### @@@
+        print "WARNING: _convert_to_pam(%r, %r) is unfinished, will probably fail somehow" % (self, pam_model) #### @@@
+        env.history.orangemsg( "Warning: convert to %s is under development, may have bugs" % pam_model ) ####
         
         # first compute and store current baseframes on self, where private
         # methods can find them on demand. REVIEW: need to do this on connected ladders
@@ -279,7 +283,7 @@ class DnaLadder_pam_conversion_methods:
                 # but does not notice or remove ghost bases
             continue
         if pam_model == MODEL_PAM5:
-            self._make_bridging_Pls_as_needed()# IMPLEM
+            self._make_bridging_Pls_as_needed()
 
         if pam_model == MODEL_PAM3: # (do this last)
             # todo: remove ghost bases if desired
@@ -441,7 +445,54 @@ class DnaLadder_pam_conversion_methods:
         else:
             assert 0
         return # from _convert_strand_rail_to_pam
-    
+
+    def _make_bridging_Pls_as_needed(self): #bruce 080410
+        """
+        We just converted self to PAM5 (or tried to).
+        Find all places where self touches another ladder
+        (or touches itself at the corners, where a strand rail ends),
+        and if any of them now need, but don't yet have, a bridging Pl atom,
+        make one, with a non-definitive position.
+
+        (Also make one at strand ends, i.e. between Ss5-X,
+         if needed and correct re bond directions.)
+        ### REVIEW: is that case handled in _f_finish_converting_bridging_Pl_atoms?
+        """
+        # similar code to _bridging_Pl_atoms, and much of its checks are
+        # redundant and not needed in both -- REVIEW which one to remove them from
+        if self.error or not self.valid:
+            # caller should have rejected self before this point
+            # (but safer to not assert this, but just debug print for now)
+            print "bug: _make_bridging_Pls_as_needed on ladder with error or not valid:", self
+            return
+        res = {}
+        for end_atom, next_atom in self._corner_atoms_with_next_atoms_or_None():
+            # next_atom might be None (??) or a non-Pl atom
+            if next_atom is not None and next_atom.element is Pl5:
+                continue # nothing to do here (we never remove a Pl or move it)
+            # review: is next_atom a bondpoint, None, or both, when a strand ends? I think a bondpoint,
+            # this code only works properly for that case.
+            if next_atom is None:
+                print "***BUG: _make_bridging_Pls_as_needed(%r) doesn't handle next_atom is None" % self
+                continue
+            # assume it's a bondpoint or Ss3 or Ss5. We want Pl iff either atom is Ss5.
+            def atom_wants_Pl(atom):
+                return atom.element is Ss5 # maybe: also check for error on this atom?
+            want_Pl = atom_wants_Pl(end_atom) or atom_wants_Pl(next_atom)
+            if want_Pl:
+                # inserting Pl5 between Ss5-X is only correct at one end
+                # of a PAM5 strand ... see if the direction in which it prefers
+                # to stick with Ss points to an X among these atoms, and if so,
+                # don't insert it, though the function would work if we tried.
+                if Pl_STICKY_BOND_DIRECTION == bond_direction(end_atom, next_atom):
+                    Pl_sticks_to = next_atom # not literally true if next_atom is a bondpoint, fyi
+                else:
+                    Pl_sticks_to = end_atom
+                if not Pl_sticks_to.is_singlet():
+                    insert_Pl_between(end_atom, next_atom)
+            continue
+        return
+        
     def _f_finish_converting_bridging_Pl_atoms(self): #bruce 080408        
         """
         [friend method for dna updater]
@@ -464,6 +515,8 @@ class DnaLadder_pam_conversion_methods:
         return
 
     def _bridging_Pl_atoms(self):
+        #bruce 080410 revised this to call _corner_atoms_with_next_atoms_or_None
+        # (split out from this)
         """
         [private helper]
 
@@ -486,9 +539,43 @@ class DnaLadder_pam_conversion_methods:
             # (but safer to not assert this, but just debug print for now)
             print "bug: _bridging_Pl_atoms on ladder with error or not valid:", self
             return
+        res = {}
+        for end_atom, next_atom in self._corner_atoms_with_next_atoms_or_None():
+            if end_atom._dna_updater__error:
+                print "bug: %r has _dna_updater__error %r in %r, returning no _bridging_Pl_atoms" % \
+                      (end_atom, end_atom._dna_updater__error, self)
+                return []
+            possible_Pl = next_atom
+            # might be None or a non-Pl atom; if a Pl atom, always include in return value,
+            # unless it has a _dna_updater__error, in which case complain and bail
+            if possible_Pl is not None and possible_Pl.element is Pl5:
+                if possible_Pl._dna_updater__error:
+                    print "bug: possible_Pl %r has _dna_updater__error %r in %r, returning no _bridging_Pl_atoms" % \
+                      (possible_Pl, possible_Pl._dna_updater__error, self)
+                return []
+                res[possible_Pl.key] = possible_Pl
+            continue
+        return res.values()
+
+    def _corner_atoms_with_next_atoms_or_None(self): #bruce 080410 split this out of _bridging_Pl_atoms
+        """
+        @note: we don't check for self.error or not self.valid, but our results
+               can be wrong if caller didn't check for this and not call us then
+               (since strand bond directions can be different than we assume).
+        
+        @return: a list of pairs (end_atom, next_atom), each describing one of
+                 our corners (ends of strand rails, of which we have 2 per
+                 strand rail); end_atom is always an Ss3 or Ss5 atom in self,
+                 but next_atom might be None, or a Pl in same or other ladder,
+                 or X in same ladder, or Ss3 or SS5 in other ladder;
+                 "other ladder" can be self if the strand connects to self.
+                 All these cases should be handled by callers;
+                 so must be checking result for repeated atoms,
+                 or for _dna_updater__error set on the atoms.
+        """
         # same implem is correct for axis ladders (superclass) and free floating
         # single strands (subclass)
-        res = {}
+        res = []
         for rail in self.strand_rails:
             assert rail is not None
             for end in LADDER_ENDS:
@@ -500,23 +587,13 @@ class DnaLadder_pam_conversion_methods:
                     # ok since we don't pam_convert ladders with errors
                     # (including parallel strand bonds) ### REVIEW: is that check implemented?
                 end_atom = rail.end_baseatoms()[end]
-                if end_atom._dna_updater__error:
-                    print "bug: %r has _dna_updater__error %r in %r, returning no _bridging_Pl_atoms" % \
-                          (end_atom, end_atom._dna_updater__error, self)
-                    return []
-                possible_Pl = end_atom.next_atom_in_bond_direction( bond_direction_to_other)
-                # might be None or a non-Pl atom; if a Pl atom, always include in return value,
-                # unless it has a _dna_updater__error, in which case complain and bail
-                if possible_Pl is not None and possible_Pl.element is Pl5:
-                    if possible_Pl._dna_updater__error:
-                        print "bug: possible_Pl %r has _dna_updater__error %r in %r, returning no _bridging_Pl_atoms" % \
-                          (possible_Pl, possible_Pl._dna_updater__error, self)
-                    return []
-                    res[possible_Pl.key] = possible_Pl
+                next_atom = end_atom.next_atom_in_bond_direction( bond_direction_to_other)
+                    # 
+                res.append( (end_atom, next_atom) )
                 continue
             continue
-        return res.values()
-
+        return res
+    
     # ==
     
     def clear_baseframe_data(self):

@@ -185,11 +185,11 @@ def relpos_in_other_frame(relpos, y_m):
 def default_Pl_relative_position(direction):
     """
     """
-    print "stub for default_Pl_relative_position" ####  printonce?
+    # print "stub for default_Pl_relative_position" ####
     return V(X_SPRIME, Y_SPRIME, - direction) #### STUB  --  @@@@ FIX (use direction to choose one of two different values)
 
 def default_Gv_relative_position():
-    print "stub for default_Gv_relative_position" ####
+    # print "stub for default_Gv_relative_position" ####
     return DEFAULT_GV5_RELPOS # assume ok to return same value (mutable Numeric array)
 
 # note this in another file:
@@ -197,6 +197,7 @@ def default_Gv_relative_position():
 ##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
 
 def correct_Ax3_relative_position(y_m):
+    print "stub for correct_Ax3_relative_position" ####
     return V( X_APRIME, y_m, 0.0)
 
 # note: the analogue for Ss3 position is hardcoded, near the call of

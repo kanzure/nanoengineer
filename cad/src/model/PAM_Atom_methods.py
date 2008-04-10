@@ -493,7 +493,7 @@ class PAM_Atom_methods:
             print "fyi: fixed pos of %r, keeping it" % self ####
         return
     
-    def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402 # @@@@ UNFINISHED
+    def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402
         """
         [friend method for dna updater]
 
@@ -527,7 +527,7 @@ class PAM_Atom_methods:
                     remove_data_from_neighbors = True
                  )
         
-        print "_f_Pl_set_position_from_Ss3plus5_data(%r) will set %r on %r, now at %r" % (abspos, self, self.posn()) #######
+        print "_f_Pl_set_position_from_Ss3plus5_data will set %r on %r, now at %r" % (abspos, self, self.posn()) #######
 
         self.setposn(abspos)
         
