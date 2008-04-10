@@ -20,6 +20,7 @@ from utilities.debug import print_compact_stack
 from dna.model.Dna_Constants import getComplementSequence
 
 from operations.bond_chains import grow_directional_bond_chain
+from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
 
 class DnaStrand(DnaStrandOrSegment):
     """
@@ -406,6 +407,90 @@ class DnaStrand(DnaStrandOrSegment):
                 if isinstance(c, DnaStrandChunk):
                     c.draw_highlighted(glpane, color)            
 
+    def getStrandSequenceAndItsComplement(self):
+        """
+        Returns the strand sequence  and the sequence of the complementary 
+        strands of the for the DnaStrandChunks within this
+        DnaStrand group. If the complementary strand base atom is not found 
+        (e.g. a single stranded DNA), it returns the corresponding sequence
+        character (for the complementary sequence) as '*' meaning its 
+        missing.
+
+        @return: strand Sequence string
+        @rtype: str
+        
+        @TODO: REFACTOR this. See how to split out common part of 
+        this method and self.getStrandSequence() Basically we could have simply
+        replaced self.getStrandSequence with this method , but keeping
+        self.getStrandSequence has an advantage that we don't compute the 
+        complement sequence (not sure if that would improve performance but,
+        in theory, that will improve it.) One possibility is to pass an argument 
+        compute_complement_sequence = True' to this method. 
+        """
+        # TODO: Is there a way to make use of DnaStrandMarkers to get the strand
+        #       atoms in bond direction for this DnaStrandGroup??
+        #       [A: they are not needed for that, but they could be used
+        #        to define an unambiguous sequence origin for a ring.]
+        #       
+        #       OR: does self.members alway return DnaStrandChunks in the 
+        #       direction of bond direction? [A. no.]
+        #       
+        #       While the above questions remain unanswered, the following 
+        #       makes use of a method self.get_strand_atoms_in_bond_direction 
+        #       This method is mostly copied here from chunk class with some 
+        #       modifications ... i.e. it accepts an atomList and uses a random 
+        #       start atom within that list to find out the connected atoms 
+        #       in the bond direction. Actually, sending the list 
+        #       with *all atoms* of the strand isn't really necessary. All we are 
+        #       interested in is a start Ss atom and bond direction which can 
+        #       ideally be obtained by using even a single DnaStrandChunk within 
+        #       this DnaStrand Group. For a short time, we will pass the whole 
+        #       atom list. Will definitely be revised and refactored within the
+        #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
+
+        sequenceString = ''     
+        rawAtomList = []
+        for c in self.members:
+            if isinstance(c, DnaStrandChunk):
+                rawAtomList.extend(c.atoms.itervalues())
+
+        #see a to do comment about rawAtom list above
+
+        sequenceString = ''  
+        complementSequenceString = ''
+        for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
+            
+            baseName = str(atm.getDnaBaseName())
+            complementBaseAtom = atm.get_strand_atom_mate()
+                        
+            if baseName:
+                sequenceString = sequenceString + baseName
+            else:
+                #What if baseName is not assigned due to some error?? Example
+                #while reading in an mmp file. 
+                #As a fallback, we should assign unassigned base letter 'X'
+                #to all the base atoms that don't have a baseletter defined
+                #also, make sure that the atom is not a bondpoint. 
+                if atm.element.symbol != 'X':                    
+                    baseName = 'X'
+                    sequenceString = sequenceString + baseName
+            
+            complementBaseName = ''
+            if complementBaseAtom:
+                complementBaseName = getComplementSequence(baseName)
+                
+            else:
+                #This means the complementary strand base atom is not present.
+                #(its a single stranded dna) .So just indicate the complementary
+                #sequence as '*' which means its missing.
+                if atm.element.symbol != 'X':
+                    complementBaseName = MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL                
+            if complementBaseName:            
+                complementSequenceString = complementSequenceString + \
+                                         complementBaseName 
+
+        return (sequenceString, complementSequenceString)
+    
     def getStrandSequence(self):
         """
         Returns the strand sequence for the DnaStrandChunks within this
@@ -445,7 +530,9 @@ class DnaStrand(DnaStrandOrSegment):
 
         sequenceString = ''  
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
+            
             baseName = str(atm.getDnaBaseName())
+                        
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
@@ -459,7 +546,6 @@ class DnaStrand(DnaStrandOrSegment):
                     sequenceString = sequenceString + baseName
 
         return sequenceString
-
 
     def setStrandSequence(self, sequenceString):
         """

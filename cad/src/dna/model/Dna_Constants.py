@@ -64,6 +64,15 @@ dnaDict = \
                    'DuplexRise':   env.prefs[zdnaRise_prefs_key]} 
                }
 
+#If the qiven strand atom doesn't have a compelmentary strand base atom, 
+#the sequence editor will show a specific character in the 'complement sequence
+#text field (i.e. in self.sequenceTextEdit_mate) indicating that the 
+#complement is missing. 
+#@see: DnaSequenceEditor._determine_complementSequence()
+#@see: DnaStrand.getStrandSequenceAndItsComplement()
+MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL = '*'
+
+
 # Common DNA helper functions. ######################################
 
 # for getNextStrandColor:

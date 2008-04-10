@@ -315,6 +315,10 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def updateSequence(self):
         """
         Update the sequence string in the sequence editor
+        @see: DnaSequenceEditor.setSequence()
+        @see DnaSequenceEditor._determine_complementSequence()
+        @see: DnaSequenceEditor.setComplementSequence()
+        @see: DnaStrand.getStrandSequenceAndItsComplement()
         """
         #Read in the strand sequence of the selected strand and 
         #show it in the text edit in the sequence editor.
@@ -328,11 +332,20 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         titleString = 'Sequence Editor for ' + strand.name
                            
         self.sequenceEditor.setWindowTitle(titleString)
-        sequenceString = strand.getStrandSequence()
+        sequenceString, complementSequenceString = strand.getStrandSequenceAndItsComplement()
         if sequenceString:
             sequenceString = QString(sequenceString) 
             sequenceString = sequenceString.toUpper()
-            self.sequenceEditor.setSequence(sequenceString) 
+            #Set the initial sequence (read in from the file)
+            self.sequenceEditor.setSequence(sequenceString)
+            
+            #Set the initial complement sequence for DnaSequence editor. 
+            #do this independently because 'complementSequenceString' may have
+            #some characters (such as * ) that denote a missing base on the 
+            #complementary strand. this information is used by the sequence
+            #editor. See DnaSequenceEditor._determine_complementSequence() 
+            #for more details. See also bug 2787
+            self.sequenceEditor.setComplementSequence(complementSequenceString)
             
     def change_struct_highlightPolicy(self,checkedState = False):
         """

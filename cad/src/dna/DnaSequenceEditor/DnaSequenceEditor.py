@@ -60,6 +60,8 @@ from dna.DnaSequenceEditor.Ui_DnaSequenceEditor import Ui_DnaSequenceEditor
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
 
+from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
+
 class DnaSequenceEditor(Ui_DnaSequenceEditor):
     """
     Creates a dockable sequence editor. The sequence editor has two text edit 
@@ -87,6 +89,14 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         Ui_DnaSequenceEditor.__init__(self, parentWidget)  
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
+        #Flag used in self.sequenceChanged so that it doesn't get called 
+        #recusrively in the text changed signal while changing the sequence
+        #in self.textEdit while in that method. 
+        self._supress_textChanged_signal = False
+        #Initial complement sequence set while reading in the strand sequence
+        #of the strand being edited. 
+        #@see: self.setComplementSequence(), self._determine_complementSequence()
+        self._initial_complementSequence = ''
         
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -97,7 +107,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                           method. 
         @type  isConnect: boolean
         """
-        
+                
         #@see: BuildDna_PropertyManager.connect_or_disconnect_signals
         #for a comment about these flags.
         if isConnect and self.isAlreadyConnected:
@@ -187,9 +197,19 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         the text edit (which was meant to be for 5' to 3')
         @param itemIndex: currentIndex of combobox
         @type  itemIndex: int
+        @see self._determine_complementSequence() and bug 2787
         """
-        sequence = self.getPlainSequence()
-        reverseSequence = getReverseSequence(str(sequence))
+        sequence = str(self.getPlainSequence())
+        complementSequence = str(self.sequenceTextEdit_mate.toPlainText())
+        
+        reverseSequence = getReverseSequence(sequence)
+        
+        #Important to reverse the complement sequence separately 
+        #see bug 2787 for implementation notes. 
+        #@see self._determine_complementSequence()
+        reverseComplementSequence = getReverseSequence(complementSequence)
+        
+        self.setComplementSequence(reverseComplementSequence)
         self.setSequence(reverseSequence)  
              
     def sequenceChanged( self ):
@@ -198,12 +218,19 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
         """ 
+        
+        if self._supress_textChanged_signal:
+            return
+        
+        self._supress_textChanged_signal = True
+        
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
-        # Disconnect while we edit the sequence.            
-        self.disconnect( self.sequenceTextEdit,
-                         SIGNAL("textChanged()"),
-                         self.sequenceChanged )        
+        
+        ### Disconnect while we edit the sequence.            
+        ##self.disconnect( self.sequenceTextEdit,
+                         ##SIGNAL("textChanged()"),
+                         ##self.sequenceChanged )        
    
         # How has the text changed?
         if theSequence.length() == 0:  # There is no sequence.
@@ -212,14 +239,16 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             ##self.updateDuplexLength()            
         else:
             # Insert the sequence; it will be "stylized" by setSequence().
-            self.setSequence( theSequence )
+            self._updateSequenceAndItsComplement(theSequence)
         
-        # Reconnect to respond when the sequence is changed.
-        self.connect( self.sequenceTextEdit,
-                      SIGNAL("textChanged()"),
-                      self.sequenceChanged )
+        ### Reconnect to respond when the sequence is changed.
+        ##self.connect( self.sequenceTextEdit,
+                      ##SIGNAL("textChanged()"),
+                      ##self.sequenceChanged )
 
         self.synchronizeLengths()
+        
+        self._supress_textChanged_signal = False
         
     
     def getPlainSequence( self, inOmitSymbols = False ):
@@ -352,10 +381,188 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
 
         return outSequence
     
+    def _updateSequenceAndItsComplement(self, 
+                                       inSequence, 
+                                       inRestoreCursor  =  True):
+        """
+        Update the main strand sequence and its complement.  (pribvate method)
+        
+        Updating the complement sequence is done as explaned in the method 
+        docstring of  self._detemine_complementSequence()
+        
+        Note that the callers outside the class call self.setSequence and 
+        self.setComplementsequence but never call this method. 
+        
+        @see: self.setsequence() -- most portion (except for calling 
+              self._determine_complementSequence() is copied over from
+              setSequence. 
+        @see: self._updateSequenceAndItsComplement()
+        @see: self._determine_complementSequence()
+        """
+        #@BUG: This method was mostly copied from self.setSequence, which in turn
+        #was copied over from old DnaGenerator. (so both methods have similar 
+        #issues mentioned below)
+        #Apparently PM_TextEdit.insertHtml replaces the the whole 
+        #sequence each time. This needs to be cleaned up. - Ninad 2007-04-10
+        
+        cursor          =  self.sequenceTextEdit.textCursor()
+                
+        selectionStart  =  cursor.selectionStart()
+        selectionEnd    =  cursor.selectionEnd()
+        
+        #Find out complement sequence
+        complementSequence = self._determine_complementSequence(inSequence)
+    
+        inSequence = self._fixedPitchSequence(inSequence)
+        complementSequence = self._fixedPitchSequence(complementSequence)
+           
+    
+        # Specify that theSequence is definitely HTML format, because 
+        # Qt can get confused between HTML and Plain Text.        
+        self.sequenceTextEdit.insertHtml( inSequence )
+        self.sequenceTextEdit_mate.insertHtml(complementSequence)
+        
+        if inRestoreCursor:                      
+            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
+            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+
+            self.sequenceTextEdit.setTextCursor( cursor )
+        
+    def _determine_complementSequence(self, inSequence):
+        """
+        Determine the complementary sequence based on the main sequence. 
+        It does lots of thing than just obtaining the information by using 
+        'getComplementSequence'. 
+        
+        Examples of what it does: 
+        
+        1. Suppose you have a duplex with 10 basepairs. 
+        You are editing strand A and you lengthen it to create a sticky end. 
+        Lets assume that it is lengthened by 5 bases. Since there will be no 
+        complementary strand baseatoms for these, the sequence editor will show 
+        an asterisk('*'), indicating that its missing the strand mate base atom.
+        
+        Sequence Editor itself doesn't check each time if the strand mate is 
+        missing. Rather, it relies on what the caller supplied as the initial 
+        complement sequence. (@see: self.setComplementSequence) . The caller 
+        determines the sequence of the strand being edited and also its complement.
+        If the complement doesn't exist, it replace the complement with a '*' 
+        and passes this information to the sequence editor. Everytime sequence
+        editor is updating its sequnece, it updates the mate sequence and skips
+        the positions marked '*' (by using self._initial_complementSequence), 
+        and thus those remain unaltered. 
+        
+        If user enters a sequence which has more characters than the original
+        sequence, then it doesn't update the complement portion of that
+        extra portion of the sequence. This gives a visual indication of 
+        where the sequence ends. (see NFR bug 2787). 
+        
+        Reversing the sequence also reverses the complement (including the '*'
+        positions)
+        
+        @see Bug 2787 for details of the implementation. 
+        
+        @see: self.setComplementSequence()
+        @see: self._updateSequenceAndItsComplement()
+        @see: self.setSequence()
+        @see: DnaStrand_PropertyManager.updateSequence() (the caller)
+        @see: Dna_Constants.MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
+        @see: DnaStrand.getStrandSequenceAndItsComplement()
+        
+        """
+        if not self._initial_complementSequence:
+            #This is unlikely. Do nothing in this case. 
+            return ''
+        
+        complementSequence = ''
+        
+        #Make sure that the insequence is a string object
+        inSequence = str(inSequence)
+       
+        #Do the following only when the length of sequence (inSequence) is 
+        #greater than or equal to length of original complement sequence
+        
+        #REVIEW This could be SLOW, need to think of a better way to do this.
+        if len(inSequence) >= len(self._initial_complementSequence):                
+            for i in range(len(self._initial_complementSequence)):
+                if self._initial_complementSequence[i] == \
+                   MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL:
+                    complementSequence += self._initial_complementSequence[i]
+                else:
+                    complementSequence += getComplementSequence(inSequence[i])
+                    
+        else:
+            #Use complementSequence as a list object as we will need to modify 
+            #some of the charactes within it. We can't do for example
+            #string[i] = 'X' as it is not permitted in python. So we will first 
+            #treat the complementSequence as a list, do necessary modifications
+            #to it and then convert is back to a string. 
+            #TODO: see if re.sub or re.subn can be used directly to replace
+            #some characters (the reason re.suib is not used here is that 
+            #it does find and repalce for all matching patterns, which we don't
+            # want here )
+            
+            complementSequence = list(self._initial_complementSequence)
+            
+            for i in range(len(inSequence)):
+                if complementSequence[i] != MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL:
+                    complementSequence[i] = getComplementSequence(inSequence[i])
+            
+            #Now there is additinal complementary sequence (because lenght of the
+            #main sequence provided is less than the 'original complementary
+            #sequence' (or the 'original main strand sequence) . In this case, 
+            #for the remaining complementary sequence, we will use unassigned
+            #base symbol 'X' . 
+            #Example: If user starts editing a strand, 
+            #the initial strand sequence and its complement are shown in the
+            #sequence editor. Now, the user deletes some characters from the 
+            #main sequence (using , e.g. backspace in sequence text edit to 
+            #delete those), here, we will assume that this deletion of a 
+            #character is as good as making it an unassigned base 'X', 
+            #so its new complement will be of course 'X' --Ninad 2008-04-10
+            extra_length = len(complementSequence) - len(inSequence)
+            #do the above mentioned replacement 
+            count = extra_length
+            while count > 0:
+                if complementSequence[-count] != MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL:
+                    complementSequence[-count] = 'X'
+                count -= 1                           
+       
+            #convert the complement sequence back to a string
+            complementSequence = ''.join(complementSequence)
+  
+        return complementSequence
+
+    def setComplementSequence(self, complementSequence):
+        """
+        The callers must call this method immediately before or after calling 
+        self.setSequence() . 
+        
+        @param complementSequence: the complementary sequence determined by the
+               caller. This string may contain characters '*' which indicate
+               that there is a missing strand mate atom for the strand you are
+               editing. The Sequence Editorkeeps the '*' characters while 
+               determining the compelment sequence  (if the main sequence is 
+               changed by the user)
+        @type complementSequence: str
+        
+        See method docstring self._detemine_complementSequence() for more 
+        information.         
+        
+        @see: self.setComplementSequence()
+        @see: self._updateSequenceAndItsComplement()
+        @see: self._determine_complementSequence()
+        @see: DnaStrand_PropertyManager.updateSequence()
+        """
+        self._initial_complementSequence = complementSequence
+        complementSequence = self._fixedPitchSequence(complementSequence)        
+        self.sequenceTextEdit_mate.insertHtml(complementSequence)
+
     def setSequence( self,
                      inSequence,
                      inStylize        =  True,
-                     inRestoreCursor  =  True):
+                     inRestoreCursor  =  True
+                     ):
         """ 
         Replace the current strand sequence with the new sequence text.
         
@@ -373,17 +580,19 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         @attention: Signals/slots must be managed before calling this method.  
         The textChanged() signal will be sent to any connected widgets.
         
+        @see: self.setsequence()
+        @see: self._updateSequenceAndItsComplement()
+        @see: self._determine_complementSequence()
         
         """
-        #@NOTE: This method was mostly copied from old DnaGenerator
+        #@BUG: This method was mostly copied from old DnaGenerator
         #Apparently PM_TextEdit.insertHtml replaces the the whole 
         #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
-
+        
         cursor          =  self.sequenceTextEdit.textCursor()
                 
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
-        complementSequence = getComplementSequence(str(inSequence))
       
         if inStylize:
             #Temporary fix for bug 2604--
@@ -392,18 +601,14 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             # Example: NE1 hangs while loading M13 sequence (8kb file) if we 
             #stylize the sequence .-- Ninad 2008-01-22
             ##inSequence  =  self.stylizeSequence( inSequence )            
-            ##complementSequence = self.stylizeSequence(complementSequence)
             
             #Instead only make the sequence 'Fixed pitch' (while bug 2604
             #is still open
-            inSequence = self._fixedPitchSequence(inSequence)
-            complementSequence = self._fixedPitchSequence(complementSequence)
-           
+            inSequence = self._fixedPitchSequence(inSequence)           
     
         # Specify that theSequence is definitely HTML format, because 
         # Qt can get confused between HTML and Plain Text.        
         self.sequenceTextEdit.insertHtml( inSequence )
-        self.sequenceTextEdit_mate.insertHtml(complementSequence)
         
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
@@ -517,7 +722,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         sequence = lines[0]
         sequence = QString(sequence) 
         sequence = sequence.toUpper()
-        self.setSequence(sequence)
+        self._updateSequenceAndItsComplement(sequence)
         
     
     def _writeStrandSequenceFile(self, fileName, strandSequence):
@@ -690,7 +895,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         cursor  =  self.sequenceTextEdit.textCursor() 
         selectionStart = cursor.selectionStart()
         selectionEnd = cursor.selectionEnd()
-                
+                        
         sequence.replace( selectionStart, 
                           (selectionEnd - selectionStart), 
                           replaceString )  
@@ -708,8 +913,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         self.sequenceTextEdit.setTextCursor(cursor)   
         
         #Set the sequence in the text edit. This could be slow. See comments
-        #in self.setSequence for more info. 
-        self.setSequence(sequence)
+        #in self._updateSequenceAndItsComplement for more info. 
+        self._updateSequenceAndItsComplement(sequence)
         
         #Find the next occurance of the 'seqrchString' in the sequence.
         self.findNext()
