@@ -33,13 +33,13 @@
 !define PRODUCT_GMX_UNINST_ROOT_KEY "HKLM"
 
 ;NV1 Defines
-!define PRODUCT_NV1_VERSION "0.1.0"
-!define PRODUCT_NV1_NAME "NanoVision-1 ${PRODUCT_NV1_VERSION}"
-!define PRODUCT_NV1_PUBLISHER "Nanorex, Inc"
-!define PRODUCT_NV1_WEB_SITE "http://www.nanorex.com"
-!define PRODUCT_NV1_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\nv1.exe"
-!define PRODUCT_NV1_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-!define PRODUCT_NV1_UNINST_ROOT_KEY "HKLM"
+;!define PRODUCT_NV1_VERSION "0.1.0"
+;!define PRODUCT_NV1_NAME "NanoVision-1 ${PRODUCT_NV1_VERSION}"
+;!define PRODUCT_NV1_PUBLISHER "Nanorex, Inc"
+;!define PRODUCT_NV1_WEB_SITE "http://www.nanorex.com"
+;!define PRODUCT_NV1_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\nv1.exe"
+;!define PRODUCT_NV1_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+;!define PRODUCT_NV1_UNINST_ROOT_KEY "HKLM"
 
 !macro ReplaceInFile SOURCE_FILE SEARCH_TEXT REPLACEMENT
    Push "${SOURCE_FILE}"
@@ -112,8 +112,8 @@ Section "NanoEngineer-1" SECNE1
   
   SetOutPath "$SYSDIR"
   SetOverwrite off
-  File "glut32.dll"
-  File "gle32.dll"
+  File "..\..\Win32\glut32.dll"
+  File "..\..\Win32\gle32.dll"
   SetOutPath "$INSTDIR\Pref_Mod"
   File /r "\pref_mod\dist\*"
   CreateDirectory "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
@@ -152,42 +152,42 @@ Section /o "Source" SEC_QMX_SRC
 SectionEnd
 SectionGroupEnd
 
-SectionGroup /e "NanoVision-1"
-Section "NanoVision-1 Base" NV1_BASE
-  SectionIn 1 2
-  SetOutPath "$INSTDIR\NanoVision-1\bin"
-  SetOverwrite try
-  File "\NV1_Install\bin\*"
-  CreateDirectory "$SMPROGRAMS\Nanorex\NanoVision-1"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\NanoVision-1.lnk" "$INSTDIR\NanoVision-1\bin\nv1.exe"
-  CreateShortCut "$DESKTOP\NanoVision-1.lnk" "$INSTDIR\NanoVision-1\bin\nv1.exe"
-  SetOutPath "$INSTDIR\NanoVision-1\include"
-  File /r "\NV1_Install\include\*"
-  SetOutPath "$INSTDIR\NanoVision-1\lib"
-  File /r "\NV1_Install\lib\*"
-  SetOutPath "$INSTDIR\NanoVision-1"
-  SetOverwrite  on
-  File "\NV1_Install\ReadMe.html"
-  File "\NV1_Install\License.txt"
-  SetOutPath "$APPDATA\Nanorex"
-  File "\NV1_Install\NanoVision-1.ini"
-  Push "$INSTDIR\NanoVision-1\lib"
-  Push "\"
-  Push "/"
-  Call StrRep
-  Pop "$R0" ;result
-  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_enabled -v True'
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_path -v "$INSTDIR\NanoVision-1\bin\NV1.exe"'
-  SetOutPath "$INSTDIR"
-SectionEnd
+;SectionGroup /e "NanoVision-1"
+;Section "NanoVision-1 Base" NV1_BASE
+;  SectionIn 1 2
+;  SetOutPath "$INSTDIR\NanoVision-1\bin"
+;  SetOverwrite try
+;  File "\NV1_Install\bin\*"
+;  CreateDirectory "$SMPROGRAMS\Nanorex\NanoVision-1"
+;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\NanoVision-1.lnk" "$INSTDIR\NanoVision-1\bin\nv1.exe"
+;  CreateShortCut "$DESKTOP\NanoVision-1.lnk" "$INSTDIR\NanoVision-1\bin\nv1.exe"
+;  SetOutPath "$INSTDIR\NanoVision-1\include"
+;  File /r "\NV1_Install\include\*"
+;  SetOutPath "$INSTDIR\NanoVision-1\lib"
+;  File /r "\NV1_Install\lib\*"
+;  SetOutPath "$INSTDIR\NanoVision-1"
+;  SetOverwrite  on
+;  File "\NV1_Install\ReadMe.html"
+;  File "\NV1_Install\License.txt"
+;  SetOutPath "$APPDATA\Nanorex"
+;  File "\NV1_Install\NanoVision-1.ini"
+;  Push "$INSTDIR\NanoVision-1\lib"
+;  Push "\"
+;  Push "/"
+;  Call StrRep
+;  Pop "$R0" ;result
+;  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
+;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_enabled -v True'
+;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_path -v "$INSTDIR\NanoVision-1\bin\NV1.exe"'
+;  SetOutPath "$INSTDIR"
+;SectionEnd
 
-Section /o "source" NV1_SRC
-  SectionIn 2
-  SetOutPath "$INSTDIR\NanoVision-1\source"
-  File /r "\NV1_Install\src\*"
-SectionEnd
-SectionGroupEnd
+;Section /o "source" NV1_SRC
+;  SectionIn 2
+;  SetOutPath "$INSTDIR\NanoVision-1\source"
+;  File /r "\NV1_Install\src\*"
+;SectionEnd
+;SectionGroupEnd
 
 SectionGroup /e "GROMACS"
 Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
@@ -284,8 +284,8 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\partlib"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\Licenses"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url"
+;  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
+;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url"
   WriteIniStr "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX\Website.lnk" "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url"
 SectionEnd
@@ -325,7 +325,7 @@ Section Uninstall
   RMDir /r "C:\GROMACS_HDF5"
 
   Delete "$DESKTOP\NanoEngineer-1.lnk"
-  Delete "$DESKTOP\NanoVision-1.lnk"
+;  Delete "$DESKTOP\NanoVision-1.lnk"
   Delete "$DESKTOP\QuteMolX.lnk"
 
   RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
