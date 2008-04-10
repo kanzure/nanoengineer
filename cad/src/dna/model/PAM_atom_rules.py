@@ -12,8 +12,6 @@ or hardcoded in other files)
 
 from model.elements import Singlet
 
-from utilities.debug import print_compact_stack
-
 # ==
 
 def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
@@ -81,7 +79,7 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
     res = doit()
     if not res:
         # if we turn off this print in general, leave it on when explain_false
-        print_compact_stack( "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r: " % (a1, a2, res)) #######
+        print "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r" % (a1, a2, res) #######
     return res
 
 # end

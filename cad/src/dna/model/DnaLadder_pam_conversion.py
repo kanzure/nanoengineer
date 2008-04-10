@@ -16,6 +16,7 @@ from utilities.constants import noop
 
 from utilities.Log import redmsg, quote_html
 
+from geometry.VQT import V
 
 from platform.PlatformDependent import fix_plurals
 
@@ -24,7 +25,16 @@ import foundation.env as env
 from dna.model.dna_model_constants import LADDER_ENDS
 from dna.model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
 
-from dna.model.pam3plus5_math import other_baseframe_data, compute_duplex_baseframes
+from dna.model.pam3plus5_math import other_baseframe_data
+from dna.model.pam3plus5_math import compute_duplex_baseframes
+from dna.model.pam3plus5_math import correct_Ax3_relative_position
+from dna.model.pam3plus5_math import relpos_in_other_frame
+from dna.model.pam3plus5_math import SPRIME_D_SDFRAME
+from dna.model.pam3plus5_math import baseframe_rel_to_abs
+
+from dna.model.pam3plus5_ops import Gv_pos_from_neighbor_PAM3plus5_data
+from dna.model.pam3plus5_ops import insert_Pl_between
+from dna.model.pam3plus5_ops import find_Pl_between
 
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 
@@ -264,7 +274,7 @@ class DnaLadder_pam_conversion_methods:
 
         self._convert_axis_to_pam(pam_model) # moves and transmutes axis atoms
         for rail in self.strand_rails:
-            self._convert_strand_rail_to_pam(pam_model, rail)# IMPLEM
+            self._convert_strand_rail_to_pam(pam_model, rail)
                 # moves and transmutes sugars, makes or removes Pls,
                 # but does not notice or remove ghost bases
             continue
@@ -280,7 +290,7 @@ class DnaLadder_pam_conversion_methods:
         
         return True  # could put above in try/except and return False for exceptions
 
-    def _convert_axis_to_pam(self, want_pam_model): # IMPLEM the nim moves
+    def _convert_axis_to_pam(self, want_pam_model):
         """
         moves and transmutes axis atoms, during conversion to specified pam_model
         """
@@ -294,11 +304,20 @@ class DnaLadder_pam_conversion_methods:
             for i in range( len(axis_atoms)):
                 atom = axis_atoms[i]
                 if atom.element is not Gv5:
-                    
-                    print "nim: move", atom #### @@@@
-
-                    origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
-                    
+                    # move it in space to a saved or good position for a Gv5
+                    # (this works even if the neighbors are Ss5 and atom
+                    # is Ax5, since it uses baseframes, not neighbor posns)
+                    newpos = Gv_pos_from_neighbor_PAM3plus5_data(
+                        atom.strand_neighbors(),
+                        remove_data_from_neighbors = True
+                     )
+                        # fyi, done inside that (should optim by passing i at least):
+                        ## origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
+                    assert newpos is not None, "can't compute new position for Gv5!"
+                        # should never happen, even for bare axis
+                        # (no strand_neighbors), since we made up ghost bases earlier
+                    atom.setposn(newpos)
+                    # transmute it
                     atom.mvElement(Gv5)
                 else:
                     print "unexpected: %r is already Gv5" % atom
@@ -307,19 +326,121 @@ class DnaLadder_pam_conversion_methods:
                 continue
             pass
         elif want_pam_model == MODEL_PAM3:
-            # they might be already Ax3 (unexpected, no move needed)
-            # or Ax5 (legal but not yet supported in callers; no move needed)
+            # they might be already Ax3 (unexpected, no move needed (but might be ok or good?))
+            # or Ax5 (legal but not yet supported in callers; no move needed
+            #  if posn correct, but this is not guaranteed so move might be good)
             # or Gv5 (move needed). Either way, transmute to Ax3.
             for i in range( len(axis_atoms)):
                 atom = axis_atoms[i]
                 if atom.element is Gv5:
-                    print "nim: move", atom #### @@@@
-                # don't bother checking for unexpected element
+                    atom._f_Gv_store_position_into_Ss3plus5_data()
+                # always move in space (even if atom is already Ax5 or even Ax3),
+                # since PAM3 specifies only one correct Ax3 position, given the
+                # baseframes (ref: the wiki page mentioned in another file)
+                origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
+                    # it's ok to assume that data exists and is up to date,
+                    # since our callers (known since we're a private helper)
+                    # just recomputed it
+                relpos = correct_Ax3_relative_position(y_m)
+                newpos = baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+                atom.setposn( newpos)
+                # transmute it
+                # don't bother checking for unexpected element, or whether this is needed
                 atom.mvElement(Ax3) ###k check if enough invals done, atomtype updated, etc @@@
             pass
         else:
             assert 0
         return
+    
+    def _convert_strand_rail_to_pam(self, want_pam_model, rail):
+        #bruce 080409, modified from _convert_axis_to_pam
+        """
+        [private helper, during conversion to specified pam_model]
+
+        moves and transmutes strand sugar PAM atoms, and makes or removes Pls,
+        but does not notice ghost status of bases or remove ghost bases
+        """
+        # note: make this work even if not needed (already correct pam model)
+        # for robustness (if in future we have mixed models, or if bugs call it twice),
+        # but say this happens in a print (since unexpected)
+        strand_baseatoms = rail.baseatoms
+        is_strand2 = (rail is not self.strand_rails[0])
+        if want_pam_model == MODEL_PAM5:
+            # atoms are presumably Ss3, need to become Ss5 and get moved
+            # and get Pls inserted between them (inserting Pls at the ends
+            # where self joins other ladders is handled by a separate method)
+            for i in range( len(strand_baseatoms)):
+                atom = strand_baseatoms[i]
+                if atom.element is Ss3:
+                    # transmute it [just to prove we can do these steps
+                    #  in whatever order we want]
+                    atom.mvElement(Ss5)
+                    
+                    # move it in space
+                    origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
+                    if is_strand2:
+                        relpos = V(0, 2 * y_m, 0)
+                    else:
+                        relpos = V(0, 0, 0)
+                        # could optimize this case: newpos = origin
+                    newpos = baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+                    atom.setposn(newpos)
+
+                    if i + 1 < len(strand_baseatoms):
+                        # insert a Pl linker between atom i and atom i+1,
+                        # and put it at the correct position in space
+                        # (share code with the corner-Pl-inserter)
+
+                        # assume seeing one Ss3 means entire strand is Ss3 and
+                        # has no Pl linkers now
+                        Pl = insert_Pl_between(atom, strand_baseatoms[i+1])
+
+                        # move that Pl to the correct position
+                        Pl._f_Pl_set_position_from_Ss3plus5_data()
+                        pass
+                    pass    
+                elif atom.element is Ss5:
+                    print "unexpected: strand rail %r (judging by atom %r) seems to be already PAM5" % (rail, atom)
+                    # don't break loop here, in case this repairs a bug from an earlier exception
+                    # partway through a pam conversion (not too likely, but then neither is this case at all,
+                    # so we don't need to optimize it)
+                    pass
+                else:
+                    print "likely bug: %r is not Ss3 or Ss5" % atom
+                continue
+            pass
+        elif want_pam_model == MODEL_PAM3:
+            # atoms might be already Ss3 (unexpected, no move needed (but might be ok or good?))
+            # or Ss5 (move needed). Either way, transmute to Ss3, store Pl data, remove Pls.
+            for i in range( len(strand_baseatoms)):
+                atom = strand_baseatoms[i]
+
+                # move it in space (doesn't matter what element it is)
+                origin, rel_to_abs_quat, y_m = self._baseframe_data[i]
+                relpos = SPRIME_D_SDFRAME
+                if is_strand2:
+                    relpos = relpos_in_other_frame(relpos, y_m)
+                newpos = baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
+                atom.setposn(newpos)
+
+                # transmute it
+                atom.mvElement(Ss3)
+
+                if i + 1 < len(strand_baseatoms):
+                    # find a Pl linker between atom i and atom i+1
+                    # (None if not there since they are directly bonded)
+                    Pl = find_Pl_between(atom, strand_baseatoms[i+1])
+                    if Pl is not None:
+                        # store Pl data
+                        Pl._f_Pl_store_position_into_Ss3plus5_data()
+                        # remove Pl
+                        kill_Pl_and_rebond_neighbors(Pl)
+                    pass
+                continue
+            pass
+        else:
+            assert 0
+        return # from _convert_strand_rail_to_pam
     
     def _f_finish_converting_bridging_Pl_atoms(self): #bruce 080408        
         """
@@ -428,11 +549,11 @@ class DnaLadder_pam_conversion_methods:
         if whichrail == 0:
             return baseframe_data[index]
         assert whichrail == 2
-        return other_baseframe_data( baseframe_data[index] )
+        return other_baseframe_data( * baseframe_data[index] )
             # maybe: store this too (precomputed), as an optim
 
     def _compute_and_store_new_baseframe_data(self, ends_only = False):
-        #bruce 080408 #### @@@@ CALL ME from [+]main and [-?or done by ladders_dict?]corners
+        #bruce 080408
         """
         @return: success boolean
         """

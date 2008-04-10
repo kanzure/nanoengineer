@@ -40,6 +40,8 @@ X_SPRIME = -0.772 # x_s'
 Y_SPRIME = -0.889 # y_s'
 
 SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
+    # position of PAM3 strand sugar 'd' in baseframe 'd' coordinates
+    # (for position of sugar 'u' in 'd' coords, see relpos_in_other_frame)
 
 DEFAULT_X_G = 8.657 # x_g
 DEFAULT_Y_M = 6.198 # y_m
@@ -174,6 +176,10 @@ def baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos):
     # optimization: use 2 args, not a baseframe class with 2 attrs
     return rel_to_abs_quat.unrot( abspos - origin )
 
+def relpos_in_other_frame(relpos, y_m):
+    x, y, z = relpos
+    return V(x, 2 * y_m - y, - z)
+
 # ==
 
 def default_Pl_relative_position(direction):
@@ -189,6 +195,12 @@ def default_Gv_relative_position():
 # note this in another file:
 ##        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
 ##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
+
+def correct_Ax3_relative_position(y_m):
+    return V( X_APRIME, y_m, 0.0)
+
+# note: the analogue for Ss3 position is hardcoded, near the call of
+# correct_Ax3_relative_position.
 
 # ==
 

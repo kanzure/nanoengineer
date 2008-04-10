@@ -22,6 +22,15 @@ entries for PAM elements, and some bond_geometry_error_string things
 (which needs a separate refactoring first, for other reasons)
 """
 
+# WARNING: this module is imported by chem.py and therefore indirectly by
+# chunk.py. Therefore its import dependence on other things needs to be
+# minimized, especially toplevel imports of dna model and updater code.
+# We'll let it import from pam3plus5_math and maybe pam3plus5_ops
+# and keep those clean as well, until all this can be cleared up.
+# (The ultimate issue is having PAM-specific methods on class Atom.
+#  It may also relate to the chem.py / chunk.py import cycle, not sure.)
+# [bruce 080409]
+
 from model.elements import Pl5
 
 from utilities.debug import print_compact_stack
@@ -547,11 +556,15 @@ class PAM_Atom_methods:
         Assume that self's neighbors' DnaLadders have up-to-date stored
         PAM basepair baseframe data to help do the necessary coordinate
         conversions. (This might not be checked. Using out of date data
-        would cause hard-to-notice bugs.)
+        would cause hard-to-notice bugs. Note that the global formerly called
+        ladders_dict only assures that the baseframes are set at the ends.)
 
         No effect on other "PAM3plus5 data" (if any) on those neighbors
         (e.g. Gv-position data).
+
+        @see: _f_Gv_store_position_into_Ss3plus5_data
         """
+        assert self.element is Pl5
         assert self._f_Pl_posn_is_definitive
 
         # note: unlike with _f_Pl_set_position_from_Ss3plus5_data,
@@ -569,7 +582,54 @@ class PAM_Atom_methods:
 
         self._f_Pl_posn_is_definitive = False
         return
-        
+
+    def _f_Gv_store_position_into_Ss3plus5_data(self): # todo: refile within class
+        #bruce 080409, modified from _f_Pl_store_position_into_Ss3plus5_data
+        """
+        [friend method for dna updater]
+
+        Assume self is (or very recently was transmuted from??)
+        a Gv5 atom axially between two Ss3 or Ss5 atoms
+        (connected by rung bonds, in the same base pair),
+        in the same DnaLadder (valid and error-free),
+        and that self's current position is definitive
+        (i.e. that any "PAM3plus5 Gv-position data" on self's
+         neighbors should be ignored, and can be entirely replaced),
+        as is true for all live Gv's except *very* transiently when they
+        are created or removed during PAM conversion.
+
+        Set the "PAM3plus5 Gv-position data" on self's Ss3 or Ss5
+        neighbors to correspond to self's current position.
+        (This means that self will soon be moved or transmuted
+         (or perhaps just has been??), with its neighbors
+         also transmuted to Ss3 if necessary, but all that is
+         up to the caller.)
+
+        Assume that self's DnaLadder has up-to-date stored
+        PAM basepair baseframe data to help do the necessary coordinate
+        conversions. (This might not be checked. Using out of date data
+        would cause hard-to-notice bugs. Note that the global formerly called
+        ladders_dict only assures that the baseframes are set for the
+        basepairs at the ends of a ladder.)
+
+        No effect on other "PAM3plus5 data" (if any) on self's neighbors
+        (e.g. Pl-position data).
+
+        @see: _f_Pl_store_position_into_Ss3plus5_data
+        """
+        assert self.element.role == 'axis'
+        pos = self.posn()
+        sn = self.strand_neighbors()
+        if len(sn) != 2:
+            print "bug? %r has unexpected number of strand_neighbors %r" % (self, sn)
+            # since ghost bases should be added to bring this up to 2
+        for ss in sn:
+            assert ss.element.role == 'strand'
+                # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
+            ss._f_store_PAM3plus5_Gv_abs_position( pos)
+            continue
+        return
+    
     # == end of PAM Pl atom methods
     
     # == PAM strand atom methods (some are more specific than that,
@@ -1254,7 +1314,9 @@ class PAM_Atom_methods:
             # (don't know yet if writemmp pam5 conversion will need one -- maybe not,
             #  or if it does it can probably be a flyweight, but not yet known)
         Pl = fake_Pls[direction_index]
-        from dna.model.pam_conversion_mmp import Fake_Pl # import cycle??? guess no...
+        from dna.model.pam_conversion_mmp import Fake_Pl
+            # import cycle? YES (confirmed), since this is imported by chem.py,
+            # so keep this as a runtime import for now
         if Pl is None:
             Pl = fake_Pls[direction_index] = Fake_Pl(self, direction)
                 ## not: self.__class__(Pl5, V(0,0,0))
@@ -1386,7 +1448,7 @@ class PAM_Atom_methods:
     # methods related to storing PAM3+5 Gv data on Ss
     # (Gv and Pl data share private helper methods)
     
-    def _f_store_PAM3plus5_Gv_abs_position(self, abspos): #bruce 080409 # CALL ME ### @@@
+    def _f_store_PAM3plus5_Gv_abs_position(self, abspos): #bruce 080409
         """
         [friend method for PAM3plus5 code, called from dna updater]
 
@@ -1411,10 +1473,9 @@ class PAM_Atom_methods:
         return
 
     def _f_recommend_PAM3plus5_Gv_abs_position(self,
-                    direction,
                     make_up_position_if_necessary = True,
                     **opts # e.g. remove_data = False
-         ): # CALL ME ### @@@
+         ):
         """
         #doc; return None or a position
         """

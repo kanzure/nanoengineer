@@ -122,6 +122,20 @@ def find_bond(a1, a2):
             return bond
     return None
 
+def find_Pl_bonds(atom1, atom2):
+    #bruce 080409 moved this here to clear up an import cycle
+    """
+    return the two bonds in atom1-Pl5-atom2,
+    or (None, None) if that structure is not found.
+    """
+    for bond1 in atom1.bonds:
+        Pl = bond1.other(atom1)
+        if Pl.element.symbol == 'Pl5': # avoid import of model.elements
+            bond2 = find_bond(Pl, atom2)
+            if bond2:
+                return bond1, bond2
+    return None, None
+
 # ==
 
 def min_max_valences_from_v6(v6):

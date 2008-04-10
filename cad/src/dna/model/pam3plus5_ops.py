@@ -12,6 +12,11 @@ Reference and explanation for PAM3+5 conversion process and formulas:
 http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordinates
 """
 
+# WARNING: this list of imports must be kept fairly clean,
+# especially of anything from dna module. For explanation
+# see import comment near top of PAM_Atom_methods.py.
+# [bruce 080409]
+
 from utilities.constants import average_value
 
 from model.elements import Pl5, Singlet
@@ -24,7 +29,7 @@ from utilities import debug_flags
 import foundation.env as env
 from utilities.Log import redmsg, graymsg
 
-from model.bond_constants import find_bond
+from model.bond_constants import find_bond, find_Pl_bonds
 
 # ==
 
@@ -42,11 +47,13 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     Assume the neighbors are in DnaLadders with up to date baseframe info
     already computed and stored. This may not be checked, and out of date
     info would cause hard-to-notice bugs.
-    
+
+    @return: new absolute position, or None if we can't compute one (error).
+
     @see: related method (stores data in the other direction),
           _f_Pl_store_position_into_Ss3plus5_data
 
-    @see: a similar function for Gv [nim]
+    @see: analogous function for Gv: Gv_pos_from_neighbor_PAM3plus5_data
     """
     proposed_posns = []
     
@@ -250,6 +257,95 @@ def kill_Pl_and_rebond_neighbors(atom):
     env.history.deferred_summary_message( graymsg(summary_format) )
     
     return
+
+# ==
+
+def insert_Pl_between(s1, s2): #bruce 080409
+    #### IMPLEM; for other calls [nim, for ensuring bridging Pls exist] it might be find_or_insert...
+    """
+    Assume s1 and s2 are directly bonded Ss3 and/or Ss5 atoms.
+    Insert a Pl5 between them (bonded to each of them, replacing
+    their direct bond), set it to have non-definitive position,
+    and return it.
+    """
+    assert 0, "nim"
+    return Pl # or None if error? caller assumes not possible
+
+def find_Pl_between(s1, s2): #bruce 080409
+    """
+    Assume s1 and s2 are Ss3 and/or Ss5 atoms which
+    might be directly bonded or might have a Pl5 between them.
+    If they are directly bonded, return None.
+    If they have a Pl between them, return it.
+    If neither is true, raise an exception.
+    """
+    # optimize for the Pl being found
+    bond1, bond2 = find_Pl_bonds(s1, s2)
+    if bond1:
+        return bond1.other(s1)
+    else:
+        assert find_bond(s1, s2)
+        return None
+    pass
+    
+# ==
+
+def Gv_pos_from_neighbor_PAM3plus5_data(
+        neighbors,
+        remove_data_from_neighbors = False
+     ):
+    #bruce 080409, modified from Pl_pos_from_neighbor_PAM3plus5_data
+    """
+    Figure out where a new Gv atom should be located
+    based on the PAM3plus5_data (related to its position)
+    in its neighbor Ss3 or Ss5 atoms (whose positions are assumed correct).
+    (If the neighbors are Ss5 it's because they got converted from Ss3
+     recently, since this info is normally only present on Ss3 atoms.)
+
+    Assume the neighbors are in the same basepair in a DnaLadder
+    with up to date baseframe info already computed and stored.
+    This may not be checked, and out of date
+    info would cause hard-to-notice bugs.
+
+    @return: new absolute position, or None if we can't compute one (error).
+    
+    @see: related method (stores data in the other direction),
+          _f_Gv_store_position_into_Ss3plus5_data
+
+    @see: analogous function for Pl: Pl_pos_from_neighbor_PAM3plus5_data
+    """
+    proposed_posns = []
+    
+    for ss in neighbors:
+        assert ss.element.role == 'strand'
+            # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
+        pos = ss._f_recommend_PAM3plus5_Gv_abs_position(
+                remove_data = remove_data_from_neighbors,
+                make_up_position_if_necessary = True
+         )
+        if pos is None:
+            # can happen in theory, in spite of
+            # make_up_position_if_necessary = True,
+            # if ss is not a valid atom for this;
+            # but the loop above tries not to call it then,
+            # so this should not happen unless there are bugs.
+            print "fyi: _f_recommend_PAM3plus5_Gv_abs_position returned None for %r" % ss
+                # remove when works if routine; leave in if never seen, to notice bugs
+        else:
+            proposed_posns.append(pos)
+        continue
+
+    if not proposed_posns:
+        # neither neighbor was able to make up a position -- error.
+        # caller might have ways of handling this, but we don't...
+        print "bug: Gv_pos_from_neighbor_PAM3plus5_data can't compute pos for %r" % self
+        return None
+
+    if len(proposed_posns) == 1:
+        # optimization
+        return proposed_posns[0]
+
+    return average_value( proposed_posns)
 
 # ==
 

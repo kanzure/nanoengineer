@@ -18,9 +18,7 @@ from dna.model.dna_model_constants import LADDER_END0
 import foundation.env as env
 from utilities.Log import redmsg
 
-from model.bond_constants import find_bond
-
-from model.elements import Pl5
+from model.bond_constants import find_bond, find_Pl_bonds
 
 # ==
 
@@ -749,20 +747,5 @@ class StrandChain(DnaChain_AtomChainWrapper):
         return # atoms bonds
         
     pass
-
-# ==
-
-def find_Pl_bonds(atom1, atom2): #e refile
-    """
-    return the two bonds in atom1-Pl5-atom2,
-    or (None, None) if that structure is not found.
-    """
-    for bond1 in atom1.bonds:
-        Pl = bond1.other(atom1)
-        if Pl.element is Pl5:
-            bond2 = find_bond(Pl, atom2)
-            if bond2:
-                return bond1, bond2
-    return None, None
 
 # end
