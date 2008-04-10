@@ -25,7 +25,7 @@
 
 ;GMX Defines
 !define PRODUCT_GMX_VERSION "3.3.2"
-!define PRODUCT_GMX_NAME "GROMACS+HDF5"
+!define PRODUCT_GMX_NAME "GROMACS_HDF5"
 !define PRODUCT_GMX_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_GMX_WEB_SITE "http://www.nanorex.com"
 !define PRODUCT_GMX_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_GMX_VERSION}"
@@ -33,13 +33,13 @@
 !define PRODUCT_GMX_UNINST_ROOT_KEY "HKLM"
 
 ;NV1 Defines
-;!define PRODUCT_NV1_VERSION "0.1.0"
-;!define PRODUCT_NV1_NAME "NanoVision-1 ${PRODUCT_NV1_VERSION}"
-;!define PRODUCT_NV1_PUBLISHER "Nanorex, Inc"
-;!define PRODUCT_NV1_WEB_SITE "http://www.nanorex.com"
-;!define PRODUCT_NV1_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\nv1.exe"
-;!define PRODUCT_NV1_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-;!define PRODUCT_NV1_UNINST_ROOT_KEY "HKLM"
+!define PRODUCT_NV1_VERSION "0.1.0"
+!define PRODUCT_NV1_NAME "NanoVision-1 ${PRODUCT_NV1_VERSION}"
+!define PRODUCT_NV1_PUBLISHER "Nanorex, Inc"
+!define PRODUCT_NV1_WEB_SITE "http://www.nanorex.com"
+!define PRODUCT_NV1_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\nv1.exe"
+!define PRODUCT_NV1_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define PRODUCT_NV1_UNINST_ROOT_KEY "HKLM"
 
 !macro ReplaceInFile SOURCE_FILE SEARCH_TEXT REPLACEMENT
    Push "${SOURCE_FILE}"
@@ -61,14 +61,10 @@
 !define MUI_WELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 
-InstType "Basic"
-InstType "Full"
-
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE "..\..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
-;!insertmacro MUI_INSTALLOPTIONS_DISPLAY "iofile.ini"
+!insertmacro MUI_PAGE_LICENSE "..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
@@ -76,8 +72,8 @@ InstType "Full"
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program\main.exe"
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\ReadMe.html"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\program\main.exe"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -89,7 +85,7 @@ InstType "Full"
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
-OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
+OutFile "..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
 ;InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1_${PRODUCT_VERSION}"
 InstallDir "$PROGRAMFILES\Nanorex"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -101,51 +97,43 @@ ShowUnInstDetails show
 
 SectionGroup /e "NanoEngineer-1 Suite Installer"
 Section "NanoEngineer-1" SECNE1
-  SectionIn 1 2
-  SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}"
   SetOverwrite try
-  File /r "..\..\..\cad\src\dist\*"
+  File /r "..\..\cad\src\dist\*"
   
   ; hack
-  SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program"
-  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
+;  SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program"
+;  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
   
-  SetOutPath "$SYSDIR"
-  SetOverwrite off
-  File "..\..\Win32\glut32.dll"
-  File "..\..\Win32\gle32.dll"
-  SetOutPath "$INSTDIR\Pref_Mod"
-  File /r "\pref_mod\dist\*"
+;  SetOutPath "$SYSDIR"
+;  SetOverwrite off
+;  File "glut32.dll"
+;  File "gle32.dll"
   CreateDirectory "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program\main.exe"
-  CreateShortCut "$DESKTOP\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program\main.exe"
+  CreateShortCut "$DESKTOP\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program\main.exe"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\ReadMe.html"
   SetOutPath "$INSTDIR"
 SectionEnd
 
 SectionGroup /e "QuteMolX"
 Section "QuteMolX (Required)" SEC_QMX_BASE
-  SectionIn 1 2
-  SetOutPath "$INSTDIR\QuteMolX"
+  SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}"
   SetOverwrite try
   File "\QMX_Install\License.txt"
   File "\QMX_Install\ReadMe.html"
   File "\QMX_Install\build\*"
-  SetOutPath "$INSTDIR\QuteMolX\image"
-  File "\QMX_Install\build\image\*"
-  SetOutPath "$INSTDIR\QuteMolX\presets"
+  SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\image"
+  File "\QMX_INSTALL\build\image\*"
+  SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\presets"
   File "\QMX_Install\build\presets\*"
-  SetOutPath "$INSTDIR\QuteMolX"
-  CreateDirectory "$SMPROGRAMS\Nanorex\QuteMolX"
-  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX\QuteMolX.lnk" "$INSTDIR\QuteMolX\QuteMolX.exe"
-  CreateShortCut "$DESKTOP\QuteMolX.lnk" "$INSTDIR\QuteMolX\QuteMolX.exe"
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k qutemol_enabled -v True'
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k qutemol_path -v "$INSTDIR\QuteMolX\QuteMolX.exe"'
-  SetOutPath "$INSTDIR"
+  SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}"
+  CreateDirectory "$SMPROGRAMS\Nanorex\QuteMolX ${PRODUCT_QMX_VERSION}"
+  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.lnk" "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.exe"
+  CreateShortCut "$DESKTOP\QuteMolX.lnk" "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.exe"
 SectionEnd
 Section /o "Source" SEC_QMX_SRC
-  SectionIn 2
-  SetOutPath "$INSTDIR\QuteMolX\source"
+  SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\source"
   SetOverwrite try
   File /r "\QMX_Install\source\*"
   SetOutPath "$INSTDIR"
@@ -154,7 +142,6 @@ SectionGroupEnd
 
 ;SectionGroup /e "NanoVision-1"
 ;Section "NanoVision-1 Base" NV1_BASE
-;  SectionIn 1 2
 ;  SetOutPath "$INSTDIR\NanoVision-1\bin"
 ;  SetOverwrite try
 ;  File "\NV1_Install\bin\*"
@@ -169,21 +156,18 @@ SectionGroupEnd
 ;  SetOverwrite  on
 ;  File "\NV1_Install\ReadMe.html"
 ;  File "\NV1_Install\License.txt"
-;  SetOutPath "$APPDATA\Nanorex"
+;  SetOutPath "$APPDATA\Nanorex\NanoVision-1"
 ;  File "\NV1_Install\NanoVision-1.ini"
 ;  Push "$INSTDIR\NanoVision-1\lib"
 ;  Push "\"
 ;  Push "/"
 ;  Call StrRep
 ;  Pop "$R0" ;result
-;  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
-;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_enabled -v True'
-;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k nv1_path -v "$INSTDIR\NanoVision-1\bin\NV1.exe"'
+;  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
 ;  SetOutPath "$INSTDIR"
 ;SectionEnd
 
 ;Section /o "source" NV1_SRC
-;  SectionIn 2
 ;  SetOutPath "$INSTDIR\NanoVision-1\source"
 ;  File /r "\NV1_Install\src\*"
 ;SectionEnd
@@ -191,88 +175,77 @@ SectionGroupEnd
 
 SectionGroup /e "GROMACS"
 Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
-  SectionIn 1 2
 ;  SetOutPath "$INSTDIR"
-  SetOutPath "c:\GROMACS_HDF5"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2"
   SetOverwrite try
   File "\GMX_Install\ReadMe.html"
   File "\GMX_Install\.\License.txt"
-  SetOutPath "c:\GROMACS_HDF5\bin"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\bin"
   SetOverwrite try
   File "\GMX_Install\dist\bin\*"
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k gromacs_enabled -v True"'
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k gromacs_path -v "c:\GROMACS_HDF5\bin\mdrun.exe"'
 SectionEnd
 Section /o "Headers & Libraries" SEC_GMX_LIBHDR
-  SectionIn 2
-  SetOutPath "c:\GROMACS_HDF5\include\gromacs"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\include\gromacs"
   File "\GMX_Install\dist\include\gromacs\*"
-  SetOutPath "c:\GROMACS_HDF5\include\gromacs\types"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\include\gromacs\types"
   File "\GMX_Install\dist\include\gromacs\types\*"
-  SetOutPath "c:\GROMACS_HDF5\include\gromacs"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\include\gromacs"
   File "\GMX_Install\dist\include\gromacs\*"
-  SetOutPath "c:\GROMACS_HDF5\lib"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\lib"
   File "\GMX_Install\dist\lib\*"
 SectionEnd
 Section "Documentation" SEC_GMX_DOC
-  SectionIn 1 2
   SetOverwrite try
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\html"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\html"
   File "\GMX_Install\dist\share\gromacs\html\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\html\images"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\html\images"
   File "\GMX_Install\dist\share\gromacs\html\images\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\html\online"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\html\online"
   File "\GMX_Install\dist\share\gromacs\html\online\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\template"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\template"
   File "\GMX_Install\dist\share\gromacs\template\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\top"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\top"
   File "\GMX_Install\dist\share\gromacs\top\*"
 SectionEnd
 Section "Tutorials" SEC_GMX_TUTOR
-  SectionIn 1 2
   SetOverwrite try
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor"
   File "\GMX_Install\dist\share\gromacs\tutor\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\gmxdemo"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\gmxdemo"
   File "\GMX_Install\dist\share\gromacs\tutor\gmxdemo\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\methanol"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\methanol"
   File "\GMX_Install\dist\share\gromacs\tutor\methanol\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\mixed"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\mixed"
   File "\GMX_Install\dist\share\gromacs\tutor\mixed\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\nmr1"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\nmr1"
   File "\GMX_Install\dist\share\gromacs\tutor\nmr1\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\nmr2"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\nmr2"
   File "\GMX_Install\dist\share\gromacs\tutor\nmr2\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\speptide"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\speptide"
   File "\GMX_Install\dist\share\gromacs\tutor\speptide\*"
-  SetOutPath "c:\GROMACS_HDF5\share\gromacs\tutor\water"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\share\gromacs\tutor\water"
   File "\GMX_Install\dist\share\gromacs\tutor\water\*"
 SectionEnd
 Section /o "Source" SEC_GMX_SRC
-  SectionIn 2
   SetOverwrite try
-  SetOutPath "c:\GROMACS_HDF5\source"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\source"
   file /r "\GMX_Install\dist\src\gromacs-3.3.2\*"
 SectionEnd
 SectionGroupEnd
 
 SectionGroup /e "MCPP"
-Section "MCPP (Required for GROMACS)" SEC_MCPP
-  SectionIn 1 2
-  SetOutPath "c:\GROMACS_HDF5\MCPP\bin"
+Section "MCPP (Required)" SEC_MCPP
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\MCPP\bin"
   File "\GMX_Install\mcpp\bin\mcpp.exe"
-  SetOutPath "c:\GROMACS_HDF5\MCPP"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\MCPP"
   File "\GMX_Install\mcpp\LICENSE"
   File "\GMX_Install\mcpp\mcpp-manual-jp.html"
   File "\GMX_Install\mcpp\mcpp-manual.html"
   File "\GMX_Install\mcpp\NEWS"
   File "\GMX_Install\mcpp\README"
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k cpp_enabled -v True'
-  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k cpp_path -v "c:\GROMACS_HDF5\mcpp\bin\mcpp.exe"'
 SectionEnd
 Section /o "Source" SEC_MCPP_SRC
-  SectionIn 2
-  SetOutPath "c:\GROMACS_HDF5MCPP\source"
+  SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\mcpp\source"
   File /r "\GMX_Install\mcpp\source\*"
 SectionEnd
 SectionGroupEnd
@@ -284,10 +257,10 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\partlib"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\Licenses"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
-;  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
-;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}_${PRODUCT_NV1_VERSION}.url"
-  WriteIniStr "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX\Website.lnk" "$INSTDIR\QuteMolX\${PRODUCT_QMX_NAME}_${PRODUCT_QMX_VERSION}.url"
+;  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}-${PRODUCT_NV1_VERSION.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
+;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}.url"
+  WriteIniStr "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\${PRODUCT_QMX_NAME}-${PRODUCT_QMX_VERSION}.url" "InternetShortcut" "URL" "${PRODUCT_QMX_WEB_SITE}"
+  CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX ${PRODUCT_QMX_VERSION}\Website.lnk" "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\${PRODUCT_QMX_NAME}.url"
 SectionEnd
 
 Section -Post
@@ -322,13 +295,13 @@ Section Uninstall
   RMDir /r "$INSTDIR\doc"
   RMDir /r "$INSTDIR\bin"
   RMDir /r "$INSTDIR"
-  RMDir /r "C:\GROMACS_HDF5"
+  RMDir /r "C:\GROMACS_3.3.2+HDF5_p2"
 
   Delete "$DESKTOP\NanoEngineer-1.lnk"
-;  Delete "$DESKTOP\NanoVision-1.lnk"
+  Delete "$DESKTOP\NanoVision-1.lnk"
   Delete "$DESKTOP\QuteMolX.lnk"
 
-  RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
+  RMDir /r "$SMPROGRAMS\NanoEngineer-1 ${PRODUCT_VERSION}"
   RMDir /r "$SMPROGRAMS\Nanorex"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
