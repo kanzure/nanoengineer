@@ -17,9 +17,12 @@ this list was first started.
 bruce 080328 added reader code (not in this file) to warn if the mmpformat
 being read appears to be too new.
 
+bruce 080410 added a long string comment about the mmpformat situation
+for the upcoming release of NE1 1.0.0.
+
 TODO:
 
-- describe and fix the logic bug in "info leaf".
+- fix the logic bug in "info leaf", described below.
 """
 
 # ==
@@ -128,20 +131,131 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 080321 preferred' -- bruce, adding info chunk display_as_pam, save_as_pam
 
-'080328 required' -- bruce, adding new records bond_chain, directional_bond_chain, and dna_rung_bonds,
-                     and using new display style names
+'080327 required' -- bruce, ADDED AFTER THE FACT to cover new display style names but not new "write_bonds_compactly" records
+
+'080328 required' -- bruce, adding new records bond_chain, directional_bond_chain, and dna_rung_bonds
+                     (all enabled for writing by the option write_bonds_compactly in the present code),
+                     and also using new display style names
 """
 
 # ==
+ 
+# comment about status for NE1 1.0.0, to be released soon: [bruce 080410]
+
+"""
+This describes the mmp format situation as it's being revised today [080410]
+to prepare for releasing NE1 1.0.0 in the near future. It covers
+two incompatible changes (write_bonds_compactly and new display style names),
+one being written by default, one not. (It's edited email, but ought
+to be rewritten from scratch to be more useful as a comment in this file.)
+
+==
+
+We will not enable the write_bonds_compactly optimized mmp format by
+default, for NE1 1.0.0. The risk is small, the work is small, the
+testing is small, but they are all nonzero, and the gain is at most a
+20-30% savings in disk space (and some in runtime for file open or
+save, perhaps, but less than that) (never yet measured, FYI), and at
+this late stage (shortly before the release, 080410) that gain doesn't
+really justify any nonzero risk or extra work.
+
+(One of the work and/or risk items is that there are loose ends in the
+writing code for certain cases where strands leave one corner of a dna
+ladder and reenter another corner of the same ladder -- rare, but
+theoretically possible; easy to fix, but not yet fixed; only a writing
+code bug, not needing any change in format or reading code. I'd
+forgotten I still needed to fix those writing bugs when I was
+discussing this on today's call.)
+
+We should still (and I just did) enable the new display style names,
+which *are* worth enabling now for all mmp writing. Those have
+essentially zero risk, and are a confusion-reduction rather than just
+an optimization.
+
+These changes were both part of a single new "mmpformat version". The
+code before now was conservative -- if either change was enabled, it
+wrote the new mmpformat version, to warn reading code about both
+changes being potentially present. To avoid needless worry by reading
+code that understands new display names but not new bond records (as
+we are writing now), I'll add an intermediate mmpformat version "after
+the fact" for that, dated one day before the one that includes both
+changes: '080327 required'. This won't matter for NE1 reading code
+(since if it's new enough to care about the mmpformat version record,
+it can also read both revisions to the mmp format itself), but will
+allow other code to rely on that record to know that compact bonds are
+not present even though new display style names are present.
+
+==
+
+The debug_pref we have now controls write_bonds_compactly for NE1
+save, only. It will remain available but off by default. In current
+code, there is no way to turn it on for mmp writing meant for ND1 or
+NV1.
+
+If time permits, we'll add 2 other debug_prefs to enable
+write_bonds_compactly for writing files for ND1 and for NV1, so we can
+easily test it for them later.
+
+(ND1 has code to read it but this is untested. NV1 doesn't read it and
+no work on making it read it is urgent -- unlike for its reading new
+display style codes, now required but trivial.)
+
+==
+
+It is worth noting here that there are two known compatibility bugs
+not covered by the mmpformat version record value:
+
+- New element numbers cause crashes when read by old code,
+  or turn into the wrong element (I think) in fairly recent code.
+  (Ideally, we'd read them as special atoms which permitted any
+   number of bonds and could be written out again with the same
+   "unrecognized element number".)
+
+- There is a logic bug in the "info leaf" record, or in any info kind
+  which can apply to more mmp recordnames in newer writing code
+  ("leaf" is the only one). Old readers will ignore the new mmp recordnames
+  it applies to, but will recognize "info leaf" and will associate it
+  with the wrong record (whichever prior one it can apply to which they
+  *did* recognize and read). This bug won't matter for this release,
+  even though it adds a DnaMarker record to the set which can use
+  info leaf, since that record can't occur without new element numbers
+  (for PAM DNA elements), and those cause all older released reading
+  code to crash. But it will matter for the next subsequent release
+  in which we add any jigs applicable to not-just-added element numbers.
+  (It even affects this release, for a debugging-only jig which can mark any
+   kind of atom, but that can be ignored since it's undocumented and only
+   useful for debugging.)
+
+  The solution is to close off the set of mmprecords info leaf can apply to,
+  after this upcoming release of NE1 1.0.0, and revise that scheme somehow
+  for any new mmp recordname that needs it, by adding a new info kind just for
+  that mmp recordname (which can be isomorphic to info leaf).
+"""
+
+# ==
+
+# When you revise these, also revise (if necessary) the body of
+# def _mmp_format_version_we_can_read() in files_mmp.py.
 
 MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080321 preferred'
     # this semi-formally indicates required & ideal reader versions...
     # for notes about when/how to revise this, see general notes referred to
     # at end of module docstring.
 
+MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES = '080327 required'
+    # For NE1 1.0.0 we will write new display names but not (by default)
+    # the new bond records enabled in current code by 'write_bonds_compactly'.
+
 MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES = '080328 required'
-    # Soon, this can become the usually-written version, I hope,
-    # and this separately named constant can go away. 
+    # Soon after NE1 1.0.0, this can become the usually-written version, I hope,
+    # and these separately named constants can go away. (Or, the oldest one
+    # might be retained, so we can offer the ability to write mmp files for
+    # old reading code, if there is any reason for that.)
+
+_version_being_written_by_default = MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
+    # used locally, only for startup prints, but still it ought to be
+    # kept in sync with reality as determined by files_mmp_writing.py
+    # and by the default values of certain debug_prefs
 
 # ==
 
@@ -158,12 +272,15 @@ KNOWN_MMPFORMAT_VERSIONS = _extract(_RAW_LIST_OF_KNOWN_MMPFORMAT_VERSIONS)
 
 assert MMP_FORMAT_VERSION_TO_WRITE in KNOWN_MMPFORMAT_VERSIONS
 
+assert MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES in KNOWN_MMPFORMAT_VERSIONS
+
 assert MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES in KNOWN_MMPFORMAT_VERSIONS
 
-if MMP_FORMAT_VERSION_TO_WRITE != KNOWN_MMPFORMAT_VERSIONS[-1]:
-    # warn, since this situation should be temporary
-    print "warning: KNOWN_MMPFORMAT_VERSIONS contains more recent versions " \
-          " than MMP_FORMAT_VERSION_TO_WRITE"
+if _version_being_written_by_default != KNOWN_MMPFORMAT_VERSIONS[-1]:
+    # warn, since this situation should be temporary; warning will be wrong
+    # if these constants are not kept up to date with the actual writing code
+    print "note: KNOWN_MMPFORMAT_VERSIONS contains more recent versions " \
+          " than the one we're writing by default, %r" % _version_being_written_by_default
     pass
 
 # ==

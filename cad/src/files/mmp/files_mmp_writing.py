@@ -26,6 +26,7 @@ see other files in this package.
 """
 
 from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE
+from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES # temporary definition
 from files.mmp.mmpformat_versions import MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES # temporary definition
 
 from utilities import debug_flags
@@ -150,12 +151,20 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         # [see also the general notes and history of the mmpformat,
         # in a comment or docstring near the top of this file -- bruce 050217]
         from utilities.GlobalPreferences import debug_pref_write_new_display_names
-        if self.write_bonds_compactly or debug_pref_write_new_display_names():
-            # soon, this constant will become the usual one, I hope
+        if self.write_bonds_compactly:
+            # soon, this will become the usual case, I hope
             mmpformat = MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
+        elif debug_pref_write_new_display_names():
+            # this is what will be used by default in NE1 1.0.0,
+            # as it turned on by default as of now, for writing to all mmp files
+            # (whether intended for NE1 or NV1; doesn't affect files for ND1)
+            # [bruce 080410]
+            mmpformat = MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
         else:
             # this case is needed as long as some readers don't yet support
-            # this incompatible change.
+            # the new display names (an incompatible change), or if we want
+            # to retain the ability to write files for older reading code
+            # such as A9.1 or prior releases.
             mmpformat = MMP_FORMAT_VERSION_TO_WRITE
         if not (self.sim or self.min):
             #bruce 050322 comment: this side effect is questionable when
