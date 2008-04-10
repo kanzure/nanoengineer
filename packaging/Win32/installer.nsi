@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "NanoEngineer-1"
-!define PRODUCT_VERSION "1.0.0b8"
+!define PRODUCT_VERSION "1.0.0"
 !define PRODUCT_NICKNAME "(Alpha 10)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
@@ -47,7 +47,7 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
 OutFile "..\..\cad\src\build\NanoEngineer-1_${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES\NanoEngineer-1_${PRODUCT_VERSION}"
+InstallDir "$PROGRAMFILES\NanoEngineer-1 ${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
