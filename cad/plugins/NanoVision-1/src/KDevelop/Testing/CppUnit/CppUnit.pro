@@ -1,3 +1,16 @@
+TEMPLATE = app
+TARGET = CppUnit
+DESTDIR = ../../../../bin/
+
+CONFIG += stl \
+ debug_and_release \
+ build_all
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
+
+
 SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Interface/NXEntityManagerTest.cpp \
  ../../../Interface/NXNumbersTest.cpp \
@@ -12,10 +25,6 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp
 
-TEMPLATE = app
-
-TARGET = CppUnit
-
 
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH) \
@@ -23,6 +32,7 @@ INCLUDEPATH += ../../../../include \
  ../../../../src
 # The "../../../src" is temporary for NXEntityManager to access an
 # HDF5_SimResultsImportExport plugin function directly.
+
 
 HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Utility/NXLoggerTest.h \
@@ -38,11 +48,6 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
-
-DESTDIR = ../../../../bin
-
-CONFIG += stl \
- debug_and_release
 
 # This tell qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle 
@@ -66,15 +71,18 @@ DISTFILES += ../../../Plugins/NanorexMMPImportExport/molecule.rl \
  ../../../Plugins/NanorexMMPImportExport/group.rl \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.rl
 
+PROJECTLIBS = -lNanorexMMPImportExport \
+  -lNanorexUtility \
+  -lNanorexInterface
 
-
+CONFIG(debug,debug|release): PROJECTLIBS ~= s/(.+)/\1_d/g
 
 LIBS += -L../../../../lib \
-  -lNanorexInterface \
-  -lNanorexUtility \
-  -lNanorexMMPImportExport \
+  $$PROJECTLIBS \
   -L$(OPENBABEL_LIBPATH) \
   -L$(HDF5_SIMRESULTS_INCPATH) \
   -lcppunit \
   -lopenbabel
 
+# make clean target
+QMAKE_CLEAN += $${DESTDIR}$${TARGET}

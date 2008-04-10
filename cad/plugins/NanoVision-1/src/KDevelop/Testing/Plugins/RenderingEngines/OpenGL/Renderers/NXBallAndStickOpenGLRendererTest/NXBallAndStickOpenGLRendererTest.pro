@@ -5,6 +5,10 @@ CONFIG += stl \
 opengl \
  debug_and_release
 
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
+
 QT += opengl
 
 
