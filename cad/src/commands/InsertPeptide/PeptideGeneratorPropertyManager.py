@@ -121,7 +121,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                          "Pi helix", 
                          "3_10 helix", 
                          "Beta strand"]
-        
+
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
                          label        = "Conformation :", 
@@ -144,7 +144,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                               singleStep   = 1.0, 
                               decimals     = 1, 
                               suffix       = " degrees")
-        
+
         self.psiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
                               label        = "Psi angle :", 
@@ -158,7 +158,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
 
         self.phiAngleField.setEnabled(False)
         self.psiAngleField.setEnabled(False)        
-        
+
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
                                buttonList = AA_BUTTON_LIST,
@@ -176,6 +176,8 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                          spanWidth = True )
 
         self.sequenceEditor.insertHtml("", False, 4, 10, True)
+
+        self.sequenceEditor.setReadOnly(True)
 
         self.startOverButton = \
             PM_PushButton( inPmGroupBox,
@@ -208,7 +210,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         Changes phi/psi angles for secondary structure.
         """
         self.ss_idx = idx
-        
+
         if idx == 1: # alpha helix
             self.phi = -57.0
             self.psi = -47.0
@@ -223,11 +225,11 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
             self.psi = 170.0
         else:
             self.phi = self.phiAngleField.value()
-            self.psi = self.phiAngleField.value()
-            
+            self.psi = self.psiAngleField.value()
+
         self.phiAngleField.setValue(self.phi)
-        self.psiAngleField.setValue(self.phi)
-        
+        self.psiAngleField.setValue(self.psi)
+
         if idx == 0:
             self.phiAngleField.setEnabled(True)
             self.psiAngleField.setEnabled(True)
@@ -250,7 +252,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
             aa_txt = "<font color=blue>"
         else:
             aa_txt = "<font color=black>"
-        
+
         aa_txt += symbol+"</font>"
         self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
         self.addAminoAcid(aaTypeIndex)

@@ -58,7 +58,7 @@ GLY_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA2", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -71,7 +71,7 @@ SER_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -88,23 +88,23 @@ PHE_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
     (   7, "CB ", "C", "sp3",    5,    3,    2,    1.525,  111.100,   60.000 ),
     (   8, "HB2", "H", "",       7,    5,    3,    1.090,  109.500,  300.000 ),
     (   9, "HB3", "H", "",       7,    5,    3,    1.090,  109.500,   60.000 ),
-    (  10, "CG ", "C", "sp2",    7,    5,    3,    1.510,  115.000,  180.000 ),
-    (  11, "CD1", "C", "sp2",   10,    7,    5,    1.400,  120.000,  240.000 ),
+    (  10, "CG ", "C", "sp2a",    7,    5,    3,    1.510,  115.000,  180.000 ),
+    (  11, "CD1", "C", "sp2a",   10,    7,    5,    1.400,  120.000,  240.000 ),
     (  12, "HD1", "H", "",      11,   10,    7,    1.090,  120.000,    0.000 ),
-    (  13, "CE1", "C", "sp2",   11,   10,    7,    1.400,  120.000,  180.000 ),
+    (  13, "CE1", "C", "sp2a",   11,   10,    7,    1.400,  120.000,  180.000 ),
     (  14, "HE1", "H", "",      13,   11,   10,    1.090,  120.000,  180.000 ),
-    (  15, "CZ ", "C", "sp2",   13,   11,   10,    1.400,  120.000,    0.000 ),
+    (  15, "CZ ", "C", "sp2a",   13,   11,   10,    1.400,  120.000,    0.000 ),
     (  16, "HZ ", "H", "",      15,   13,   11,    1.090,  120.000,  180.000 ),
-    (  17, "CE2", "C", "sp2",   15,   13,   11,    1.400,  120.000,    0.000 ),
+    (  17, "CE2", "C", "sp2a",   15,   13,   11,    1.400,  120.000,    0.000 ),
     (  18, "HE2", "H", "",      17,   15,   13,    1.090,  120.000,  180.000 ),
-    (  19, "CD2", "C", "sp2",   17,   15,   13,    1.400,  120.000,    0.000 ),
+    (  19, "CD2", "C", "sp2a",   17,   15,   13,    1.400,  120.000,    0.000 ),
     (  20, "HD2", "H", "",      19,   17,   15,    1.090,  120.000,  180.000 ),
     (  21, "C  ", "C", "sp2",    5,    3,    2,    1.522,  111.100,  180.000 ),
     (  22, "O  ", "O", "sp2",   21,    5,    3,    1.229,  120.500,    0.000 ),
@@ -114,7 +114,7 @@ GLU_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -136,7 +136,7 @@ PRO_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.337,  117.000,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.337,  117.000,  180.000 ),
     (   4, "CD ", "C", "sp3",    3,    2,    1,    1.458,  126.100,  356.100 ),
     (   5, "HD2", "H", "",       4,    3,    2,    1.090,  109.500,   80.000 ),
     (   6, "HD3", "H", "",       4,    3,    2,    1.090,  109.500,  320.000 ),
@@ -156,7 +156,7 @@ CYS_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -173,7 +173,7 @@ MET_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -196,7 +196,7 @@ THR_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -216,7 +216,7 @@ LEU_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -242,7 +242,7 @@ ILE_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -267,7 +267,7 @@ VAL_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -289,28 +289,28 @@ TRP_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
     (   7, "CB ", "C", "sp3",    5,    3,    2,    1.525,  111.100,   60.000 ),
     (   8, "HB2", "H", "",       7,    5,    3,    1.090,  109.500,  300.000 ),
     (   9, "HB3", "H", "",       7,    5,    3,    1.090,  109.500,   60.000 ),
-    (  10, "CG ", "C", "sp3",    7,    5,    3,    1.510,  115.000,  180.000 ),
-    (  11, "CD1", "C", "sp3",   10,    7,    5,    1.340,  127.000,  180.000 ),
+    (  10, "CG ", "C", "sp2",    7,    5,    3,    1.510,  115.000,  180.000 ),
+    (  11, "CD1", "C", "sp2",   10,    7,    5,    1.340,  127.000,  180.000 ),
     (  12, "HD1", "H", "",      11,   10,    7,    1.090,  120.000,    0.000 ),
     (  13, "NE1", "N", "sp3",   11,   10,    7,    1.430,  107.000,  180.000 ),
     (  14, "HE1", "H", "",      13,   11,   10,    1.010,  125.500,  180.000 ),
-    (  15, "CE2", "C", "sp2",   13,   11,   10,    1.310,  109.000,    0.000 ),
-    (  16, "CZ2", "C", "sp2",   15,   13,   11,    1.400,  128.000,  180.000 ),
+    (  15, "CE2", "C", "sp2a",   13,   11,   10,    1.310,  109.000,    0.000 ),
+    (  16, "CZ2", "C", "sp2a",   15,   13,   11,    1.400,  128.000,  180.000 ),
     (  17, "HZ2", "H", "",      16,   15,   13,    1.090,  120.000,    0.000 ),
-    (  18, "CH2", "C", "sp2",   16,   15,   13,    1.390,  116.000,  180.000 ),
+    (  18, "CH2", "C", "sp2a",   16,   15,   13,    1.390,  116.000,  180.000 ),
     (  19, "HH2", "H", "",      18,   16,   15,    1.090,  120.000,  180.000 ),
-    (  20, "CZ3", "C", "sp2",   18,   16,   15,    1.350,  121.000,    0.000 ),
+    (  20, "CZ3", "C", "sp2a",   18,   16,   15,    1.350,  121.000,    0.000 ),
     (  21, "HZ3", "H",  "",     20,   18,   16,    1.090,  120.000,  180.000 ),
-    (  22, "CE3", "C", "sp2",   20,   18,   16,    1.410,  122.000,    0.000 ),
+    (  22, "CE3", "C", "sp2a",   20,   18,   16,    1.410,  122.000,    0.000 ),
     (  23, "HE3", "H", "",      22,   20,   18,    1.090,  120.000,  180.000 ),
-    (  24, "CD2", "C", "sp2",   22,   20,   18,    1.400,  117.000,    0.000 ),
+    (  24, "CD2", "C", "sp2a",   22,   20,   18,    1.400,  117.000,    0.000 ),
     (  25, "C  ", "C", "sp2",    5,    3,    2,    1.522,  111.100,  180.000 ),
     (  26, "O  ", "O", "sp2",   25,    5,    3,    1.229,  120.500,    0.000 ),
 ]                 
@@ -319,24 +319,24 @@ TYR_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
     (   7, "CB ", "C", "sp3",    5,    3,    2,    1.525,  111.100,   60.000 ),
     (   8, "HB2", "H", "",       7,    5,    3,    1.090,  109.500,  300.000 ),
     (   9, "HB3", "H", "",       7,    5,    3,    1.090,  109.500,   60.000 ),
-    (  10, "CG ", "C", "sp2",    7,    5,    3,    1.510,  109.470,  180.000 ),
-    (  11, "CD1", "C", "sp2",   10,    7,    5,    1.400,  120.000,  180.000 ),
+    (  10, "CG ", "C", "sp2a",    7,    5,    3,    1.510,  109.470,  180.000 ),
+    (  11, "CD1", "C", "sp2a",   10,    7,    5,    1.400,  120.000,  180.000 ),
     (  12, "HD1", "H", "",      11,   10,    7,    1.090,  120.000,    0.000 ),
-    (  13, "CE1", "C", "sp2",   11,   10,    7,    1.400,  120.000,  180.000 ),
+    (  13, "CE1", "C", "sp2a",   11,   10,    7,    1.400,  120.000,  180.000 ),
     (  14, "HE1", "H", "",      13,   11,   10,    1.090,  120.000,  180.000 ),
-    (  15, "CZ ", "C", "sp2",   13,   11,   10,    1.400,  120.000,    0.000 ),
+    (  15, "CZ ", "C", "sp2a",   13,   11,   10,    1.400,  120.000,    0.000 ),
     (  16, "OH ", "O", "sp3",   15,   13,   11,    1.360,  120.000,  180.000 ),
     (  17, "HH ", "H", "",      16,   15,   13,    0.960,  113.000,    0.000 ),
-    (  18, "CE2", "C", "sp2",   15,   13,   11,    1.400,  120.000,    0.000 ),
+    (  18, "CE2", "C", "sp2a",   15,   13,   11,    1.400,  120.000,    0.000 ),
     (  19, "HE2", "H", "",      18,   15,   13,    1.090,  120.000,  180.000 ),
-    (  20, "CD2", "C", "sp2",   18,   15,   13,    1.400,  120.000,    0.000 ),
+    (  20, "CD2", "C", "sp2a",   18,   15,   13,    1.400,  120.000,    0.000 ),
     (  21, "HD2", "H", "",      20,   18,   15,    1.090,  120.000,  180.000 ),
     (  22, "C  ", "C", "sp2",    5,    3,    2,    1.522,  111.100,  180.000 ),
     (  23, "O  ", "O", "sp2",   22,    5,    3,    1.229,  120.500,    0.000 ),
@@ -346,7 +346,7 @@ LYS_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -373,7 +373,7 @@ ARG_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -402,7 +402,7 @@ HIS_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -414,8 +414,8 @@ HIS_ZMATRIX = [
     (  12, "HD1", "H", "",      11,   10,    7,    1.010,  126.000,    0.000 ),
     (  13, "CE1", "C", "sp2",   11,   10,    7,    1.320,  108.000,  180.000 ),
     (  14, "HE1", "H", "",      13,   11,   10,    1.090,  120.000,  180.000 ),
-    (  15, "NE2", "N", "sp2",   13,   11,   10,    1.310,  109.000,    0.000 ),
-    (  16, "CD2", "C", "sp2",   15,   13,   11,    1.360,  110.000,    0.000 ),
+    (  15, "NE2", "N", "sp2s",   13,   11,   10,    1.310,  109.000,    0.000 ),
+    (  16, "CD2", "C", "sp2s",   15,   13,   11,    1.360,  110.000,    0.000 ),
     (  17, "HD2", "H", "",      16,   15,   13,    1.090,  120.000,  180.000 ),
     (  18, "C  ", "C", "sp2",    5,    3,    2,    1.522,  111.100,  180.000 ),
     (  19, "O  ", "O", "sp2",   18,    5,    3,    1.229,  120.500,    0.000 ),
@@ -425,7 +425,7 @@ ASP_ZMATRIX = [
     (   0, "DUM",  "",  "",     -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM",  "",  "",      0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM",  "",  "",      1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ",  "N", "sp3",   2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ",  "N", "sp2(graphitic)",   2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ",  "H", "",      3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ",  "C", "sp3",   3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ",  "H", "",      5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -444,7 +444,7 @@ ASN_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -464,7 +464,7 @@ GLN_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.335,  116.600,  180.000 ),
     (   4, "H  ", "H", "",       3,    2,    1,    1.010,  119.800,    0.000 ),
     (   5, "CA ", "C", "sp3",    3,    2,    1,    1.449,  121.900,  180.000 ),
     (   6, "HA ", "H", "",       5,    3,    2,    1.090,  109.500,  300.000 ),
@@ -491,13 +491,14 @@ NTERM_ZMATRIX = [
 ]
 
 # Note: this is just a fake "N  " label for the _buildResiduum
-# to think we are starting a next amino acid.
+# to make it thinking that we are starting a new amino acid.
 CTERM_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "O", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
-    (   4, "H  ", "H", "",       3,    2,    1,    0.960,  109.500,    0.000 ),
+    (   3, "N  ", "O"
+        , "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+        (   4, "H  ", "H", "",       3,    2,    1,    0.960,  109.500,    0.000 ),
 ]
 
 # all amino acids, z-matrices and their sizes
@@ -580,14 +581,14 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
 
         return (self.length)
 
-    def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi):
+    def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi, init_pos):
         """
 	Builds cartesian coordinates for an amino acid from the internal coordinates table.
 	mol is a chunk to where the amino acid will be added. 
 
 	zmatrix is an internal coordinates array corresponding to a given amino acid.
 	n_atoms is a number of atoms to be build + 3 dummy atoms.
-	
+
 	phi is a peptide bond PHI angle.
 	psi is a peptide bond PSI angle.
 
@@ -598,32 +599,39 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
         if mol==None:
             return
 
-        if self.prev_coords: # assign three previous atom positions
+        if not init_pos: # assign three previous atom positions
             for i in range (0,3):
                 self.coords[i][0] = self.prev_coords[i][0]
                 self.coords[i][1] = self.prev_coords[i][1]
                 self.coords[i][2] = self.prev_coords[i][2]
         else: # if no prev_coords are given, compute the first three atom positions
             num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
+            self.coords[0][0] = 0.0;
+            self.coords[0][1] = 0.0;
+            self.coords[0][2] = 0.0;
             self.coords[1][0] = r;
             self.coords[1][1] = 0.0;
             self.coords[1][2] = 0.0;
             ccos = cos(DEG2RAD*a)
             num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
-            if mc==1: 
-                self.coords[2][0] = self.coords[0][0]+r*ccos
+            if atom_c == 1: 
+                self.coords[2][0] = self.coords[0][0] + r*ccos
             else:
-                self.coords[2][0] = self.coords[0][0]-r*ccos					
+                self.coords[2][0] = self.coords[0][0] - r*ccos					
             self.coords[2][1] = r * sin(DEG2RAD*a)
             self.coords[2][2] = 0.0
+            for i in range (0,3):
+                self.prev_coords[i][0] = self.coords[i][0] + init_pos[0]
+                self.prev_coords[i][1] = self.coords[i][1] + init_pos[1]
+                self.prev_coords[i][2] = self.coords[i][2] + init_pos[2]
 
         for n in range (3, n_atoms): # generate all coordinates using three atoms 
                                         # as a frame of reference
             num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
             cosa = cos(DEG2RAD*a)
-            xb = self.coords[atom_b][0]-self.coords[atom_c][0]
-            yb = self.coords[atom_b][1]-self.coords[atom_c][1]
-            zb = self.coords[atom_b][2]-self.coords[atom_c][2]
+            xb = self.coords[atom_b][0] - self.coords[atom_c][0]
+            yb = self.coords[atom_b][1] - self.coords[atom_c][1]
+            zb = self.coords[atom_b][2] - self.coords[atom_c][2]
             rbc = 1.0/sqrt(xb*xb+yb*yb+zb*zb)
             if abs(cosa)>=0.999: # almost linear bond
                 rbc = r*rbc*cosa
@@ -645,38 +653,38 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                     xb = xpb
                     xyb = sqrt(xb*xb+yb*yb)
                     inv = True
-                costh = xb/xyb
-                sinth = yb/xyb
-                xpa = xa*costh+ya*sinth
-                ypa = ya*costh-xa*sinth
-                sinph = zb*rbc
-                cosph = sqrt(abs(1.0-sinph*sinph))
-                xqa = xpa*cosph+za*sinph
-                zqa = za*cosph-xpa*sinph      
-                yza = sqrt(ypa*ypa+zqa*zqa)
-                if yza<1e-8:
+                costh = xb / xyb
+                sinth = yb / xyb
+                xpa = xa * costh + ya * sinth
+                ypa = ya * costh - xa * sinth
+                sinph = zb * rbc
+                cosph = sqrt(abs(1.0- sinph * sinph))
+                xqa = xpa * cosph + za * sinph
+                zqa = za * cosph - xpa * sinph      
+                yza = sqrt(ypa * ypa + zqa * zqa)
+                if yza < 1e-8:
                     coskh = 1.0
                     sinkh = 0.0
                 else:
-                    coskh = ypa/yza
-                    sinkh = zqa/yza				
+                    coskh = ypa / yza
+                    sinkh = zqa / yza				
                 # apply the peptide bond conformation 
-                if name=="N  ":
+                if name=="N  " and not init_pos:
                     t = self.prev_psi
                 if name=="O  ":
-                    t = psi+180.0
+                    t = psi + 180.0
                 if name=="HA " or name=="HA2": 
-                    t = 120.0+phi
+                    t = 120.0 + phi
                 if name=="CB " or name=="HA3": 
-                    t = 240.0+phi
+                    t = 240.0 + phi
                 if name=="C  ": 
                     t = phi
-                sina = sin(DEG2RAD*a)
-                sind = -sin(DEG2RAD*t)
-                cosd = cos(DEG2RAD*t)
-                xd = r*cosa
-                yd = r*sina*cosd
-                zd = r*sina*sind     
+                sina = sin(DEG2RAD * a)
+                sind = -sin(DEG2RAD * t)
+                cosd = cos(DEG2RAD * t)
+                xd = r * cosa
+                yd = r * sina * cosd
+                zd = r * sina * sind     
                 ypd = yd * coskh - zd * sinkh
                 zpd = zd * coskh + yd * sinkh
                 xpd = xd * cosph - zpd * sinph
@@ -687,24 +695,39 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                     xrd = -zqd
                     zqd = xqd
                     xqd = xrd
-                self.coords[n][0] = xqd+self.coords[atom_c][0]
-                self.coords[n][1] = yqd+self.coords[atom_c][1]
-                self.coords[n][2] = zqd+self.coords[atom_c][2]
+                self.coords[n][0] = xqd + self.coords[atom_c][0]
+                self.coords[n][1] = yqd + self.coords[atom_c][1]
+                self.coords[n][2] = zqd + self.coords[atom_c][2]
+
                 # store previous coordinates for the next building step
-                if name=="N  ":
-                    self.prev_coords[0][0] = self.coords[n][0]
-                    self.prev_coords[0][1] = self.coords[n][1]
-                    self.prev_coords[0][2] = self.coords[n][2]
-                if name=="CA ":
-                    self.prev_coords[1][0] = self.coords[n][0]
-                    self.prev_coords[1][1] = self.coords[n][1]
-                    self.prev_coords[1][2] = self.coords[n][2]
-                if name=="C  ":
-                    self.prev_coords[2][0] = self.coords[n][0]
-                    self.prev_coords[2][1] = self.coords[n][1]
-                    self.prev_coords[2][2] = self.coords[n][2]
+                if not init_pos:
+                    if name=="N  ":
+                        self.prev_coords[0][0] = self.coords[n][0]
+                        self.prev_coords[0][1] = self.coords[n][1]
+                        self.prev_coords[0][2] = self.coords[n][2]
+                    if name=="CA ":
+                        self.prev_coords[1][0] = self.coords[n][0]
+                        self.prev_coords[1][1] = self.coords[n][1]
+                        self.prev_coords[1][2] = self.coords[n][2]
+                    if name=="C  ":
+                        self.prev_coords[2][0] = self.coords[n][0]
+                        self.prev_coords[2][1] = self.coords[n][1]
+                        self.prev_coords[2][2] = self.coords[n][2]
+
                 # add a new atom to the molecule	
                 atom = Atom(atom_name, V(self.coords[n][0], self.coords[n][1], self.coords[n][2]), mol)    
+
+                atom._is_aromatic = False
+                atom._is_single = False
+
+                if atom_type == "sp2a":
+                    atom_type = "sp2"
+                    atom._is_aromatic = True
+
+                if atom_type == "sp2s":
+                    atom_type = "sp2"
+                    atom._is_single = True
+
                 atom.set_atomtype_but_dont_revise_singlets(atom_type)
 
                 if name=="CA ": # set c-alpha flag for visualization
@@ -734,30 +757,32 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
         # generate dummy atom positions
         # starting approximately at <position>
 
-        self.prev_coords[0][0] = position[0]-2.0
+
+        self.prev_coords[0][0] = position[0] 
         self.prev_coords[0][1] = position[1]
         self.prev_coords[0][2] = position[2]
 
-        self.prev_coords[1][0] = position[0]-1.5
-        self.prev_coords[1][1] = position[1]+1.5
+        self.prev_coords[1][0] = position[0] - 1.499
+        self.prev_coords[1][1] = position[1] 
         self.prev_coords[1][2] = position[2]
 
-        self.prev_coords[2][0] = position[0]
-        self.prev_coords[2][1] = position[1]
+        self.prev_coords[2][0] = position[0] - 1.499
+        self.prev_coords[2][1] = position[1] + 1.539
         self.prev_coords[2][2] = position[2]
 
+
         # add a N-terminal hydrogen
-        self._buildResiduum(mol, NTERM_ZMATRIX, 4, self.phi, self.psi)
-        
+        self._buildResiduum(mol, NTERM_ZMATRIX, 4, 0.0, 0.0, position)
+
         # Generate the peptide chain.
         self.length = 1	
         for index, phi, psi in self.peptide_cache:
             name, short_name, symbol, zmatrix, size = AMINO_ACIDS[index]
-            self._buildResiduum(mol, zmatrix, size, phi, psi)
+            self._buildResiduum(mol, zmatrix, size, phi, psi, None)
 
         # add a C-terminal OH group
-        self._buildResiduum(mol, CTERM_ZMATRIX, 5, 0.0, 0.0)
-        
+        self._buildResiduum(mol, CTERM_ZMATRIX, 5, 0.0, 0.0, None)
+
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment. 
         inferBonds(mol)
@@ -768,12 +793,18 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 for bond in atom.bonds:
                     if bond.atom1.getAtomTypeName()=="sp2" and \
                        bond.atom2.getAtomTypeName()=="sp2":
-                        if ((bond.atom1.element.symbol=="C" and 
-                             bond.atom2.element.symbol=="C")): 
+                        if (bond.atom1._is_aromatic and 
+                            bond.atom2._is_aromatic): 
                             bond.set_v6(V_AROMATIC)
-                        else:
+                        elif ((bond.atom1._is_aromatic == False and
+                               bond.atom1._is_aromatic == False) and 
+                               not (bond.atom1._is_single and
+                                    bond.atom2._is_single)):
                             bond.set_v6(V_DOUBLE)
 
+        for atom in mol.atoms.itervalues():
+            del atom._is_aromatic
+            del atom._is_single
 
         return mol
 
