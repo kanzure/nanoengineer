@@ -288,7 +288,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             self.end_selection_from_GLPane()
             self.w.win_update()
     
-    def clear_leftA_variables(self): # bruce 070605 #####@@@@CALL ME  
+    def clear_leftA_variables(self): # bruce 070605
         #k should it clear sbar too?
         # Clear variables that only leftADown can set. This needs to be done 
         #for every mousedown and mouseup ###DOIT.
