@@ -13,7 +13,8 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXRenderingEngine.h \
  ../../../include/Nanorex/Interface/NXAtomData.h \
  ../../../include/Nanorex/Interface/NXSceneGraph.h \
- ../../../include/Nanorex/Interface/NXBondData.h
+ ../../../include/Nanorex/Interface/NXBondData.h \
+ ../../../include/Nanorex/Interface/NXNamedView.h
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
  ../../../src \
@@ -31,15 +32,22 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXSceneGraph.cpp \
  ../../Interface/NXRenderingEngine.cpp \
  ../../Interface/NXAtomData.cpp
+
 TEMPLATE = lib
 
 CONFIG += stl \
  dll \
- debug_and_release
-win32 : CONFIG -= dll
-win32 : CONFIG += staticlib
+ debug_and_release \
+ build_all
 
 TARGET = NanorexInterface
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
+
+win32 : CONFIG -= dll
+win32 : CONFIG += staticlib
 
 DESTDIR = ../../../lib
 
@@ -50,7 +58,7 @@ win32 : TARGETDEPS ~= s/.so/.a/g
 QT -= gui
 
 LIBS += -L../../../lib \
-  -lNanorexUtility \
+  -lNanorexUtility_d \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 
@@ -58,4 +66,6 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
   -g \
   -O0 \
   -fno-inline
+
+QMAKE_CXXFLAGS_RELEASE += -DNX_DEBUG
 

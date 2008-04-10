@@ -1,16 +1,22 @@
+TEMPLATE = lib
+TARGET = GLT
+DESTDIR = ../../../../../../lib/
 
 CONFIG -= qt \
-thread \
- release
+thread 
 
 CONFIG += opengl \
 staticlib \
- debug_and_release
+debug_and_release \
+build_all
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
 
 QT -= core \
 gui
 
-TEMPLATE = lib
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/bbox.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/color.cpp \
@@ -27,7 +33,6 @@ SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/bbox.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/vector4.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/viewport.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/rgb.cpp
-TARGET = GLT
 
 HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_color.h \
@@ -49,9 +54,14 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_vector4.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_viewport.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_rgb.h
-DESTDIR = ../../../../../../lib/
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 -g \
 -O0 \
 -fno-inline
+
+# make clean targets
+unix: QMAKE_CLEAN += $${DESTDIR}lib$${TARGET}.a
+macx: QMAKE_CLEAN += $${DESTDIR}lib$${TARGET}.a
+win32: QMAKE_CLEAN += $${DESTDIR}$${TARGET}.lib
+

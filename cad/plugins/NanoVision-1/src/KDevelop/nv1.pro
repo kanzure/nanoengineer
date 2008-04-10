@@ -4,7 +4,7 @@ CONFIG += warn_on \
           qt \
           thread \
  ordered \
- debug_and_release
+ debug
 
 SUBDIRS += Utility \
   Interface \

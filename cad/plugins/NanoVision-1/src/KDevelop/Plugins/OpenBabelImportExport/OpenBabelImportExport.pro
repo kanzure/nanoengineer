@@ -1,35 +1,60 @@
 TEMPLATE = lib
 
-CONFIG += dll \
- plugin \
- debug_and_release
+TARGET = OpenBabelImportExport
 
 DESTDIR = ../../../../lib
-
-INCLUDEPATH += $(OPENBABEL_INCPATH) \
-../../../../include
 
 SOURCES += ../../../Plugins/OpenBabelImportExport/OpenBabelImportExport.cpp
 
 HEADERS += ../../../Plugins/OpenBabelImportExport/OpenBabelImportExport.h
 
-LIBS += -L../../../../lib \
- -lNanorexInterface \
- -lNanorexUtility \
- -L$(OPENBABEL_LIBPATH) \
- -lopenbabel
+TARGETDEPS += ../../../../lib/libNanorexInterface.so \
+  ../../../../lib/libNanorexUtility.so
 
-TARGETDEPS += ../../../../lib/libNanorexUtility.so \
- ../../../../lib/libNanorexInterface.so
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
+CONFIG += dll \
+ plugin \
+ debug_and_release \
+ build_all
 
+PROJECTLIBS = -lNanorexInterface \
+ -lNanorexUtility
+
+CONFIG(debug,debug|release) {
+    TARGET = $$join(TARGET,,,_d)
+    PROJECTLIBS ~= s/(.+)/\1_d/g
+}
+
+unix {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so
 # Remove the "lib" from the start of the library
-unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
-macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
+    QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+}
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+macx {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+    TARGETDEPS ~= s/.so/.dylib/g
+    QMAKE_POST_LINK ~= s/.so/.dylib/g
+}
+
+win32 {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dll
+    TARGETDEPS ~= s/.so/.a/g
+}
+
+
+INCLUDEPATH += $(OPENBABEL_INCPATH) \
+../../../../include
+
+
+MAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
+
+
+LIBS += -L../../../../lib \
+  $$PROJECTLIBS \
+  -lNanorexInterface \
+  -L$(OPENBABEL_LIBPATH) \
+  -lopenbabel
 

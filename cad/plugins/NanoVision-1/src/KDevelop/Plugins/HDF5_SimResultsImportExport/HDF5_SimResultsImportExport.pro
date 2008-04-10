@@ -2,6 +2,8 @@ SOURCES += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExp
 
 HEADERS += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.h
 
+DESTDIR = ../../../../lib
+
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH) \
  $(HDF5_SIMRESULTS_INCPATH)
@@ -9,26 +11,49 @@ INCLUDEPATH += ../../../../include \
 TEMPLATE = lib
 
 CONFIG += dll \
+ plugin \
  debug_and_release \
- plugin
+ build_all
+
+TARGET = HDF5_SimResultsImportExport
+
+TARGETDEPS += ../../../../lib/libNanorexInterface.so \
+  ../../../../lib/libNanorexUtility.so
+
+PROJECTLIBS = -lNanorexInterface \
+ -lNanorexUtility
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+	PROJECTLIBS ~= s/(.+)/\1_d/g
+}
+
+unix {
+	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so
+# Remove the "lib" from the start of the library
+	QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+}
+
+macx {
+	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+	TARGETDEPS ~= s/.so/.dylib/g
+    QMAKE_POST_LINK ~= s/.so/.dylib/g
+}
+
+win32 {
+	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dll
+	TARGETDEPS ~= s/.so/.a/g
+}
+
+# message($$QMAKE_CLEAN)
+
+
 
 LIBS += -L../../../../lib \
--L$(OPENBABEL_LIBPATH) \
--L$(HDF5_SIMRESULTS_LIBPATH) \
--lNanorexInterface \
--lNanorexUtility \
--lopenbabel \
--lHDF5_SimResults \
--lhdf5
-
-TARGETDEPS += ../../../../lib/libNanorexUtility.so \
-../../../../lib/libNanorexInterface.so
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
-
-DESTDIR = ../../../../lib
-
-# Remove the "lib" from the start of the library
-unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
-macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
+  $$PROJECTLIBS \
+  -L$(OPENBABEL_LIBPATH) \
+  -L$(HDF5_SIMRESULTS_LIBPATH) \
+  -lopenbabel \
+  -lHDF5_SimResults \
+  -lhdf5
 

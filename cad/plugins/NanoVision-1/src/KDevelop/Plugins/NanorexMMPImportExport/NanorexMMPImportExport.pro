@@ -1,10 +1,15 @@
 TEMPLATE = lib
 
+TARGET = NanorexMMPImportExport
+
+DESTDIR = ../../../../lib/
+
 CONFIG += dll \
 plugin \
 stl \
- debug_and_release \
- rtti
+debug_and_release \
+rtti \
+build_all
 
 
 SOURCES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.cpp
@@ -17,18 +22,43 @@ DISTFILES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.rl \
 
 HEADERS += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.h \
  ../../../Plugins/NanorexMMPImportExport/RagelIstreamPtr.h
+
 QT -= gui
 
 
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
-TARGET = NanorexMMPImportExport
 
-DESTDIR = ../../../../lib/
+TARGETDEPS += ../../../../lib/libNanorexInterface.so \
+  ../../../../lib/libNanorexUtility.so
 
+PROJECTLIBS = -lNanorexInterface -lNanorexUtility
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+	PROJECTLIBS ~= s/(.+)/\1_d/g
+}
+
+# message ($$PROJECTLIBS)
+
+unix {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so
 # Remove the "lib" from the start of the library
-unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
-macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
+    QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
+}
+
+macx {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+    TARGETDEPS ~= s/.so/.dylib/g
+    QMAKE_POST_LINK ~= s/.so/.dylib/g
+}
+
+win32 {
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dll
+    TARGETDEPS ~= s/.so/.a/g
+}
+
+
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
@@ -37,7 +67,7 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 
 
 LIBS += -L../../../../lib \
-  -lNanorexInterface \
+  $$PROJECTLIBS \
   -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel

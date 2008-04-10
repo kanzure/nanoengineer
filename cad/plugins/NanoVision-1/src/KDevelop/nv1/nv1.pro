@@ -1,9 +1,15 @@
 TEMPLATE = app
+TARGET = nv1
+DESTDIR = ../../../bin/
+
 
 CONFIG += stl \
 opengl \
- debug_and_release \
- rtti
+debug_and_release \
+rtti \
+build_all
+
+CONFIG(debug,debug|release) : TARGET = $${TARGET}_d
 
 QT += opengl
 
@@ -67,10 +73,6 @@ INCLUDEPATH += ../../../include \
  ../../../src \
  ../../../src/Plugins/RenderingEngines/OpenGL
 
-TARGET = nv1
-
-DESTDIR = ../../../bin
-
 # This tells qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle 
 
@@ -85,22 +87,17 @@ macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
 
-
-TARGETDEPS += ../../../lib/libNXOpenGLSceneGraph.a \
-  ../../../lib/libGLT.a \
-  ../../../lib/libNanorexInterface.so \
+TARGETDEPS += ../../../lib/libNanorexInterface.so \
   ../../../lib/libNanorexUtility.so
-#  ../../../lib/libNXBallAndStickOpenGLRenderer.so
-#  ../../../lib/libNXOpenGLRenderingEngine.so 
 
-# -lNXOpenGLRenderingEngine 
-# -lNXBallAndStickOpenGLRenderer 
+PROJECTLIBS = -lNanorexUtility -lNanorexInterface
+
+CONFIG(debug,debug|release): PROJECTLIBS ~= s/(.+)/\1_d/g
 
 LIBS += -L../../../lib \
-  -lNanorexUtility \
-  -lNanorexInterface \
+  $$PROJECTLIBS \
   -L$(OPENBABEL_LIBPATH) \
-  -lNXOpenGLSceneGraph \
-  -lGLT \
   -lopenbabel
 
+# make clean target
+QMAKE_CLEAN += $${DESTDIR}$${TARGET}

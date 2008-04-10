@@ -3,6 +3,11 @@ TEMPLATE = lib
 CONFIG += opengl \
  dll \
  debug_and_release
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
+
 win32 : CONFIG -= dll
 win32 : CONFIG += staticlib
 
@@ -33,8 +38,6 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
-
-CONFIG -= release
 
 
 INCLUDEPATH += $(OPENBABEL_INCPATH) \

@@ -1,13 +1,19 @@
 TEMPLATE = lib
+TARGET = NXBallAndStickOpenGLRenderer
+DESTDIR = ../../../../../../../lib/
 
 CONFIG += stl \
 opengl \
 dll \
- debug_and_release \
- plugin \
- rtti
-win32 : CONFIG -= dll
-win32 : CONFIG += staticlib
+plugin \
+rtti \
+debug_and_release \
+build_all
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+}
+
 
 QT += opengl
 
@@ -19,27 +25,13 @@ HEADERS += ../../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../../../../../include/Nanorex/Interface/NXAtomData.h \
  ../../../../../../../include/Nanorex/Interface/NXBondData.h
 
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
-
-DESTDIR = ../../../../../../../lib
-
-
-# qmake puts these library declarations too early in the g++ command on win32
-win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32 
 
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.cpp
-
-TARGET = NXBallAndStickOpenGLRenderer
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
-
-# Remove the "lib" from the start of the library
-unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
-macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 
 
 
@@ -49,13 +41,40 @@ TARGETDEPS += ../../../../../../../lib/libNXOpenGLSceneGraph.a \
   ../../../../../../../lib/libNanorexUtility.so
 
 
-
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
   ../../../../../../../include
 
-LIBS += -L../../../../../../../lib \
+unix {
+# Remove the "lib" from the start of the library
+	QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
+	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so $${DESTDIR}lib$${TARGET}.so
+}
+
+macx {
+	TARGETDEPS ~= s/.so/.dylib/g
+	QMAKE_POST_LINK ~= s/.so/.dylib/g
+	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+}
+
+win32 {
+	CONFIG -= dll
+	CONFIG += staticlib
+	TARGETDEPS ~= s/.so/.a/g
+# qmake puts these library declarations too early in the g++ command on win32
+	LIBS += -lopengl32 -lglu32 -lgdi32 -luser32 
+}
+
+
+PROJECTLIBS = -lNanorexUtility \
   -lNanorexInterface \
-  -lNanorexUtility \
   -lNXOpenGLSceneGraph \
   -lGLT
+
+CONFIG(debug,debug|release) {
+	PROJECTLIBS ~= s/(.+)/\1_d/g
+}
+
+LIBS += -L../../../../../../../lib \
+$$PROJECTLIBS
+
 
