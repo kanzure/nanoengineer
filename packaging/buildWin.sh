@@ -29,6 +29,17 @@ make sim.dll || exit 1
 #if [ ! -e "$DIST_CONTENTS/bin/simulator.exe" ]; then exit; fi
 cp sim.dll $DIST_CONTENTS/bin/
 if [ ! -e "$DIST_CONTENTS/bin/sim.dll" ]; then exit; fi
+
+# Build/copy the shared DLLs
+cd $TOP_LEVEL/cad/src
+STORED_PATH=$PYTHONPATH
+PYTHONPATH=/c/Python24/Lib
+export PYTHONPATH
+make shared || exit 1
+cp atombase.dll $DIST_CONTENTS/bin/
+cp samevals.dll $DIST_CONTENTS/bin/
+PYTHONPATH=$STORED_PATH
+
 cd $TOP_LEVEL
 
 # Copy the gnuplot binary
@@ -38,7 +49,10 @@ if [ ! -e "$DIST_CONTENTS/bin/wgnuplot.exe" ]; then exit; fi
 # Copy the OpenBabel binaries
 
 #unzip $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.zip -d $DIST_CONTENTS/bin
-cp $TOP_LEVEL/packaging/Win32/openbabel/* $DIST_CONTENTS/bin
+cd $DIST_CONTENTS/bin
+tar -xzvf $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.tgz
+cd $TOP_LEVEL
+#cp $TOP_LEVEL/packaging/Win32/openbabel/* $DIST_CONTENTS/bin
 
 # Copy the doc/ files
 mkdir $DIST_CONTENTS/doc
@@ -110,6 +124,7 @@ cp -R $TOP_LEVEL/cad/plugins/DNA $DIST_CONTENTS/plugins/
 cp -R $TOP_LEVEL/cad/plugins/NanoDynamics-1 $DIST_CONTENTS/plugins/
 mkdir $DIST_CONTENTS/plugins/GROMACS
 cp -R $TOP_LEVEL/cad/plugins/GROMACS/Pam5Potential.xvg $DIST_CONTENTS/plugins/GROMACS/
+cp $TOP_LEVEL/cad/plugins/GROMACS/mdrunner.bat $DIST_CONTENTS/plugins/GROMACS/
 cd $TOP_LEVEL
 
 #
