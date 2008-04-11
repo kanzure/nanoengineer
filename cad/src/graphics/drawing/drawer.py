@@ -66,6 +66,7 @@ from OpenGL.GL import GL_COMPILE
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import GL_CONSTANT_ATTENUATION
 from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_CURRENT_BIT
 from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glDeleteTextures
 from OpenGL.GL import glDepthMask
@@ -129,9 +130,11 @@ from OpenGL.GL import GL_POINTS
 from OpenGL.GL import GL_POINT_SMOOTH
 from OpenGL.GL import GL_POLYGON
 from OpenGL.GL import glPolygonMode
+from OpenGL.GL import glPopAttrib
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_POSITION
+from OpenGL.GL import glPushAttrib
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPushName
 from OpenGL.GL import GL_QUADS
@@ -1264,8 +1267,12 @@ def drawpolycone_multicolor_worker(params):
     (pos_array, color_array, rad_array) = params
     glEnable(GL_COLOR_MATERIAL) # have to enable GL_COLOR_MATERIAL for
                                 # the GLE function
+    glPushAttrib(GL_CURRENT_BIT) # store current attributes in case glePolyCone
+                                 # modifies the (e.g. current color)
+                                 # piotr 080411
     glePolyCone(pos_array, color_array, rad_array)
-    glDisable(GL_COLOR_MATERIAL)
+    glPopAttrib(GL_CURRENT_BIT)
+    glDisable(GL_COLOR_MATERIAL)    
     return
 
 def drawsurface_worker(params):
