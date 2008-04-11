@@ -53,7 +53,8 @@ class PM_TextEdit( QTextEdit ):
                  label       = '', 
                  labelColumn = 0,
                  spanWidth   = False,
-                 addToParent = True
+                 addToParent = True,
+                 permit_enter_keystroke = True
                  ):
         """
         Appends a QTextEdit (Qt) widget to the bottom of I{parentWidget}, 
@@ -83,6 +84,15 @@ class PM_TextEdit( QTextEdit ):
                             other way.
         @type  addToParent: bool
         
+        @param permit_enter_keystroke: If set to True, this PM_textEdit can have multiple
+                               lines. Otherwise, it will block the 'Enter' keypress
+                               within the text editor. Note that caller needs 
+                               to make sure that linewrapping option is a
+                               propriately set, (in addition to this flag)
+                               so as to permit/ not permit multiple lines 
+                               in the text edit.
+                               
+        
         @see: U{B{QTextEdit}<http://doc.trolltech.com/4/qtextedit.html>}
         """
         
@@ -98,6 +108,7 @@ class PM_TextEdit( QTextEdit ):
         self.label        = label
         self.labelColumn  = labelColumn
         self.spanWidth    = spanWidth
+        self._permit_enter_keystroke = permit_enter_keystroke
         
         if label: # Create this widget's QLabel.
             self.labelWidget = QLabel()
@@ -134,6 +145,23 @@ class PM_TextEdit( QTextEdit ):
         
        
         return
+    
+    def keyPressEvent(self, event):
+        """
+        Overrides the superclass method. 
+        """
+        #If user hits 'Enter' key (return key), don't do anything. 
+        if event.key() == Qt.Key_Return:
+            #there is no obvious way to allow only a single line in a 
+            #QTextEdit (we can use some methods that restrict the columnt width
+            #, line wrapping etc but this is untested when the line contains 
+            # huge umber of characters. Anyway, the following always works 
+            #and fixes bug 2713
+            if not self._permit_enter_keystroke:
+                return  
+            
+        QTextEdit.keyPressEvent(self, event)
+                
         
     def insertHtml(self, 
                    text, 

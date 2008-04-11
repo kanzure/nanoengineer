@@ -175,7 +175,10 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         Load the SequenceTexteditWidgets.         
         """        
         self.sequenceTextEdit = \
-            PM_TextEdit( self, label = " Sequence: ", spanWidth = False )        
+            PM_TextEdit( self, 
+                         label = " Sequence: ", 
+                         spanWidth = False,
+                         permit_enter_keystroke = False)        
         self.sequenceTextEdit.setCursorWidth(2)
         self.sequenceTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.sequenceTextEdit.setFixedHeight(20)
@@ -183,7 +186,11 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         #The StrandSequence 'Mate' it is a read only etxtedit that shows
         #the complementary strand sequence.         
         self.sequenceTextEdit_mate = \
-            PM_TextEdit(self, label = "", spanWidth = False )        
+            PM_TextEdit(self, 
+                        label = "", 
+                        spanWidth = False,
+                        permit_enter_keystroke = False
+                    )        
         palette = getPalette(None, 
                              QPalette.Base, 
                              sequenceEditStrandMateBaseColor)
