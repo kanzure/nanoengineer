@@ -33,11 +33,12 @@ entirely low-level and classify it as either utilities or constants.
 # __author__ is deprecated, superceded by an @author line in the
 # module docstring. [bruce 071215 comment])
 
-__copyright__ = "Copyright 2004-2007, Nanorex, Inc."
+__copyright__ = "Copyright 2004-2008, Nanorex, Inc."
 
 # Alphabetical by last name
 __author__ = """Damian Allis
 K. Eric Drexler
+Russ Fish
 Josh Hall
 Brian Helfrich
 Eric Messick
@@ -56,12 +57,12 @@ class Version:
     """
     # Every instance of Version will share the same state
     __shared_state = {
-        "major": 0,
-        "minor": 9,
-        "tiny": 1,     # tiny and teensy are optional
+        "major": 1,
+        "minor": 0,
+        "tiny": 0,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
-        "releaseType": "Alpha 9",
-        "releaseDate": "July 1, 2007",
+        "releaseType": "Rattlesnake",
+        "releaseDate": "April 15, 2008",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
