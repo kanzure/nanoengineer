@@ -690,6 +690,18 @@ class DnaLadderRailChunk(Chunk):
         # for write operations that convert to PAM5); then write the
         # remaining atoms (all real) in the same order as the superclass
         # would have.
+        #
+        #update, bruce 080411:
+        # We do this even if not mapping.write_bonds_compactly,
+        # though AFAIK there is no need to in that case. But I'm not sure.
+        # Need to review and figure out if doing it then is needed,
+        # and if not, if it's good, and if not, if it's ok.
+        # Also I heard of one bug from this, suspect it might be caused
+        # by doing it in a chunk with errors, so I will add a check in
+        # initial atoms for ladder to exist and be valid (not sure
+        # about error-free), and if not, not do this. There was already
+        # a check for that about not honoring write_bonds_compactly then
+        # (which I split out and called self._ladder_is_fully_ok).
 
         if mapping is None:
             # We need a real mapping, in order to produce and use a
@@ -764,13 +776,17 @@ class DnaLadderRailChunk(Chunk):
         """
         if not mapping.write_bonds_compactly:
             return {}
-        if not self.ladder or self.ladder.error or not self.ladder.valid:
+        if not self._ladder_is_fully_ok():
             # self.idealized_strand_direction might differ from actual
             # bond directions, so we can't abbreviate them this way
             return {} 
         atoms = self.indexed_atoms_in_order(mapping)
         return dict([(atom.key, atom) for atom in atoms])
 
+    def _ladder_is_fully_ok(self): #bruce 080411 split this out; it might be redundant with other methods
+        ladder = self.ladder
+        return ladder and ladder.valid and not ladder.error
+    
     def write_bonds_compactly(self, mapping): #bruce 080328
         """
         [overrides superclass method]
@@ -924,6 +940,13 @@ class DnaAxisChunk(DnaLadderRailChunk):
         [implements abstract method of DnaLadderRailChunk]
         """
         del mapping
+        if not self._ladder_is_fully_ok():
+            # in this case, it's even possible get_baseatoms will fail
+            # (if we are a leftover DnaLadderRailChunk full of error atoms
+            #  rejected when making new ladders, and have no .ladder ourselves
+            #  (not sure this is truly possible, needs review))
+            # [bruce 080411 added this check]
+            return []
         return self.get_baseatoms()
     
     def number_of_conversion_atoms(self, mapping): #bruce 080321
@@ -1054,6 +1077,13 @@ class DnaStrandChunk(DnaLadderRailChunk):
         """
         [implements abstract method of DnaLadderRailChunk]
         """
+        if not self._ladder_is_fully_ok():
+            # in this case, it's even possible get_baseatoms will fail
+            # (if we are a leftover DnaLadderRailChunk full of error atoms
+            #  rejected when making new ladders, and have no .ladder ourselves
+            #  (not sure this is truly possible, needs review))
+            # [bruce 080411 added this check]
+            return []
         # TODO: optimization: also include bondpoints at the end.
         # This can be done later without altering mmp reading code.
         # It's not urgent.
@@ -1096,6 +1126,9 @@ class DnaStrandChunk(DnaLadderRailChunk):
             return 0
 
         assert mapping # otherwise, save_as_what_PAM_model should return None
+
+        ### REVIEW: if not self._ladder_is_fully_ok(), should we return 0 here
+        # and refuse to convert in other places? [bruce 080411 Q]
         
         # Our conversion atoms are whatever Pl atoms we are going to write
         # which are not in self.atoms (internally they are Fake_Pl objects).
