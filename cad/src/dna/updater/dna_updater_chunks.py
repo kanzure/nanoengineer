@@ -190,6 +190,11 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     number_converted = 0 # not counting failures
     number_failed = 0
 
+    ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+    if ladders_dict:
+        print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
+        ladders_dict.clear()
+
     if 1:
         # make errors more obvious, bugs less likely
         for ladder in all_new_unmerged_ladders:
@@ -200,19 +205,19 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     
     for ladder in all_new_unmerged_ladders:
         wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
+            # this sets baseframe data if conversion succeeds,
+            # and stores ladder in ladders_dict, with value False
         didit = wanted and succeeded 
         failed = wanted and not succeeded
         number_converted += not not didit
         number_failed += not not failed
+        if didit:
+            assert ladders_dict.get(ladder, None) == False
         continue
 
     if number_converted:
-        ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
-        if ladders_dict:
-            print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
-            ladders_dict.clear()
-        for ladder in all_new_unmerged_ladders:
-            ladders_dict[ladder] = None
+##        for ladder in all_new_unmerged_ladders:
+##            ladders_dict[ladder] = None # TODO: refactor this -- see above comment
         for ladder in all_new_unmerged_ladders:
             ladder._f_finish_converting_bridging_Pl_atoms()
                 # (don't pass ladders_dict, it's accessed as the global which
@@ -227,8 +232,8 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
                 # and also stores that ladder in the dict so this won't
                 # be done to it again.
             continue
-        del ladders_dict
         pass
+    del ladders_dict
     
     # Note: if ladders were converted, their chains are still ok,
     # since those only store baseatoms (for strand and axis),

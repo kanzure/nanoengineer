@@ -601,6 +601,12 @@ class DnaLadder_pam_conversion_methods:
             # if not deleted, None means it had an error,
             # not that it was never computed, so:
         del self._baseframe_data
+        # probably not needed:
+        ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+        if ladders_dict.has_key(self):
+            print "unexpected: %r in ladders_dict too early, when cleared" % self
+            # only unexpected due to current usage, not an error in principle
+        ladders_dict.pop(self, None) 
         return
     
     def _f_baseframe_data_at(self, whichrail, index): # bruce 080402
@@ -619,9 +625,18 @@ class DnaLadder_pam_conversion_methods:
         # ladders_dict. [bruce 080409]
         assert type(ladders_dict) is type({})
         if self not in ladders_dict:
+            assert index == 0 or index == len(self) - 1, \
+                   "_f_baseframe_data_at%r: index not at end but self not in ladders_dict" % \
+                   ( (self, whichrail, index), )
             self._compute_and_store_new_baseframe_data( ends_only = True)
-            ladders_dict[self] = None
             pass
+        if index == 0 or index == len(self) - 1:
+            assert ladders_dict.has_key(self)
+        else:
+            assert ladders_dict[self] == False, \
+                "_f_baseframe_data_at%r: index not at end but ladders_dict[self] != False, but %r" % \
+                   ( (self, whichrail, index), ladders_dict[self])
+                   # not ends_only, i.e. full recompute
         baseframe_data = self._baseframe_data
         if whichrail == 0:
             return baseframe_data[index]
@@ -646,7 +661,7 @@ class DnaLadder_pam_conversion_methods:
         assert self.axis_rail, "need to override this in the subclass"
         if ends_only:
             print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self ### remove when seen as expected
-        del ends_only # using this is an optim, not yet implemented
+        # using ends_only is an optim, not yet implemented
         if len(self.strand_rails) < 2:
             self._make_ghost_bases() # IMPLEM -- until then, conversion fails on less than full duplexes
                 # need to DECIDE how we'll do this when we implement the
@@ -659,7 +674,26 @@ class DnaLadder_pam_conversion_methods:
             posns = [a.posn() for a in baseatoms]
             data.append(posns)
         baseframes = compute_duplex_baseframes(self.pam_model(), data)
+        # even if this is None, we store it, and store something saying we computed it
+        # so we won't try to compute it again -- though uses of it will fail.
+        print "fyi: computed baseframes (ends_only = %r) for %r; success == %r" % \
+              (ends_only, self, (baseframes is not None)) #######
+        print " details of self: valid = %r, error = %r, assy = %r, contents:\n%s" % \
+              (self.valid, self.error, self.axis_rail.baseatoms[0].molecule.assy,
+               self.ladder_string()) ########
         self._baseframe_data = baseframes # even if None
+        ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+        if ladders_dict.get(self, None) is not None:
+            print "unexpected: %r was already computed (ends_only = %r), doing it again (%r)" % \
+                  (self, ladders_dict[self], ends_only)
+        if ends_only:
+            # partial recompute: only record if first recompute for self            
+            ladders_dict.setdefault(self, ends_only) 
+        else:
+            # full recompute: overrides prior record
+            if ladders_dict.get(self, None) == True:
+                print " in fact, very unexpected: was computed at ends and is now computed on whole"
+            ladders_dict[self] = ends_only 
         if baseframes is None:
             # todo: print summary message? give reason (hard, it's a math exception)
             # (warning: good error detection might be nim in there)

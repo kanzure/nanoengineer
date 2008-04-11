@@ -901,17 +901,19 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             print "dna updater: fyi: merged %r and %r to produce %r" % (self, other, new_ladder,)
         return new_ladder
 
-    def ladder_string(self, name, flipQ = False, mark_end = None):
+    def ladder_string(self, name = None, flipQ = False, mark_end = None):
         """
         Return a multi-line string listing all baseatoms in self,
         labelling self as name, marking one end of self if requested by mark_end,
         flipping self if requested (mark_end is interpreted as referring
         to the unflipped state). Even empty rails are shown.
 
-        @type name: string
+        @type name: string or None
         @type flipQ: boolean
         @type mark_end: None or LADDER_END0 or LADDER_END1
         """
+        if name is None:
+            name = "%r" % self
         assert LADDER_END0 == 0 and LADDER_END1 == 1
             # make it easier to compute left/right mark
         classname = self.__class__.__name__.split('.')[-1]
@@ -1028,7 +1030,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 # this happens for MMKit chunks with "dummy" in their names;
                 # can it happen for anything else? should fix in mmkit code.
                 if "dummy" not in old_chunk.name:
-                    print "dna updater: why is %r.dad == None? (assy = %r)" % (old_chunk, assy) ###
+                    print "dna updater: why is %r.dad == None? (old_chunk.assy = %r)" % (old_chunk, old_chunk.assy) ###
                 group = part.topnode
             assert group.is_group()
             ## assert group.part is part, \
