@@ -79,7 +79,7 @@ class DnaStrand(DnaStrandOrSegment):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
-    
+
     def setStrandColor(self, color):
         """
         Set the color of the all the strand chunks within this strand group to 
@@ -92,7 +92,7 @@ class DnaStrand(DnaStrandOrSegment):
         for m in self.members:
             if isinstance(m, DnaStrandChunk):
                 m.setcolor(color)
-        
+
 
     def isEmpty(self):
         """
@@ -138,7 +138,7 @@ class DnaStrand(DnaStrandOrSegment):
                     three_prime_end_base_atom = atm         
                 if previous_strand_atom is None and next_strand_atom:
                     five_prime_end_base_atom = atm
-                
+
                 if next_strand_atom is None and previous_strand_atom is None:
                     #We have a case where the current strand atom has no
                     #strand atoms bonded. So simply return it twice.
@@ -166,7 +166,7 @@ class DnaStrand(DnaStrandOrSegment):
         endbaseAtoms = self.get_strand_end_base_atoms()        
         return endbaseAtoms[0] 
 
-    
+
     def get_DnaSegment_with_content_atom(self, strand_atom):
         """
         Returns a DnaSegment which is has the given strand atom as its 
@@ -179,7 +179,7 @@ class DnaStrand(DnaStrandOrSegment):
                 segment = axis_atom.molecule.parent_node_of_class(
                     self.assy.DnaSegment)
         return segment
-    
+
     def get_DnaSegment_axisEndAtom_connected_to(self, strand_atom):
         """
         Returns end axis atom of a DnaSegment connected to the given 
@@ -193,35 +193,35 @@ class DnaStrand(DnaStrandOrSegment):
             axis_rail = axis_atom.molecule.get_ladder_rail()
             if axis_atom in axis_rail.wholechain_end_baseatoms():
                 axisEndAtom = axis_atom
-            
+
         #Alternative implementation
         ##dnaSegment = self.get_DnaSegment_with_content_atom(strand_atom)
         ##axisEndAtom1, axisEndAtom2 = dnaSegment.getAxisEndAtoms()
-        
+
         return axisEndAtom
-    
-    
+
+
     def get_all_content_chunks(self):
         """
         Return all the chunks including 
         A) the chunks within the DnaSegments that this DnaStrand 'touches' 
         (passes through).
         B) Its own member chunks (DnaStrandChunks)
-      
+
         @see: SelectChunks_GraphicsMode.getMovablesForLeftDragging() where this 
               is used
         """
         #ONLY WORKS in DNA DATA model. pre dna data model is unsupported
         all_content_chunk_list = []
-                    
+
         for member in self.members:
             if isinstance(member, DnaStrandChunk):
                 ladder = member.ladder
                 all_content_chunk_list.extend(ladder.all_chunks())
-                
+
         return all_content_chunk_list
 
-    
+
     def getDnaSegment_at_three_prime_end(self): 
         """
         Returns DnaSegment at the three prime end. i.e. the stand end base atom
@@ -234,9 +234,9 @@ class DnaStrand(DnaStrandOrSegment):
         atom = self.get_three_prime_end_base_atom()
         if atom:
             dnaSegment = self.get_DnaSegment_with_content_atom(atom)
-            
+
         return dnaSegment
-    
+
     def getDnaSegment_at_five_prime_end(self):
         """
         Returns DnaSegment at the five prime end. i.e. the stand end base atom
@@ -246,9 +246,9 @@ class DnaStrand(DnaStrandOrSegment):
         atom = self.get_five_prime_end_base_atom()
         if atom:
             dnaSegment = self.get_DnaSegment_with_content_atom(atom)
-            
+
         return dnaSegment     
-    
+
     def getStrandEndAtomAtPosition(self, position):
         """
         Returns an end baseatom of this strand at the specified position. 
@@ -264,20 +264,20 @@ class DnaStrand(DnaStrandOrSegment):
                 strandEndAtom = atm
                 break
         return strandEndAtom
-    
+
     def getNumberOfBases(self):
         """
         Returns the total number of baseatoms of this DnaStrand. 
         """
-        
+
         numberOfBases = None
-        
+
         strand_wholechain = self.get_strand_wholechain()
         if strand_wholechain:
             numberOfBases = len(strand_wholechain.get_all_baseatoms())
-        
+
         return numberOfBases
-    
+
     def get_strand_wholechain(self):
         """
         Return the 'wholechain' of the strand chunk within this dna group. 
@@ -292,10 +292,10 @@ class DnaStrand(DnaStrandOrSegment):
                 break
         if member:
             strand_wholechain = member.wholechain
-            
+
         return strand_wholechain
-             
-                        
+
+
     def getStrandChunks(self): 
         """
         Return a list of all strand chunks
@@ -418,7 +418,7 @@ class DnaStrand(DnaStrandOrSegment):
 
         @return: strand Sequence string
         @rtype: str
-        
+
         @TODO: REFACTOR this. See how to split out common part of 
         this method and self.getStrandSequence() Basically we could have simply
         replaced self.getStrandSequence with this method , but keeping
@@ -459,10 +459,10 @@ class DnaStrand(DnaStrandOrSegment):
         sequenceString = ''  
         complementSequenceString = ''
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
-            
+
             baseName = str(atm.getDnaBaseName())
             complementBaseAtom = atm.get_strand_atom_mate()
-                        
+
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
@@ -474,11 +474,11 @@ class DnaStrand(DnaStrandOrSegment):
                 if atm.element.symbol != 'X':                    
                     baseName = 'X'
                     sequenceString = sequenceString + baseName
-            
+
             complementBaseName = ''
             if complementBaseAtom:
                 complementBaseName = getComplementSequence(baseName)
-                
+
             else:
                 #This means the complementary strand base atom is not present.
                 #(its a single stranded dna) .So just indicate the complementary
@@ -490,7 +490,7 @@ class DnaStrand(DnaStrandOrSegment):
                                          complementBaseName 
 
         return (sequenceString, complementSequenceString)
-    
+
     def getStrandSequence(self):
         """
         Returns the strand sequence for the DnaStrandChunks within this
@@ -530,9 +530,9 @@ class DnaStrand(DnaStrandOrSegment):
 
         sequenceString = ''  
         for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
-            
+
             baseName = str(atm.getDnaBaseName())
-                        
+
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
@@ -773,6 +773,177 @@ class DnaStrand(DnaStrandOrSegment):
 
         #TODO: could zap first and/or last element if they are bondpoints 
         #[bruce 080205 comment]        
+        return atomList   
+
+    pass
+
+    def get_strand_sugar_atoms_in_bond_direction(self, inputAtomList): 
+        """
+        Return a list of sugar atoms in a fixed direction -- from 5' to 3'
+
+        @note: this is a stub and we can modify it so that
+        it can accept other direction i.e. 3' to 5' , as an argument.
+
+        [I think at most one atom at each end can be a bondpoint,
+         so we could revise this code to remove them before returning.
+         bruce 080205]
+
+        piotr 080411: This is a modified version of the 
+        'get_strand_atoms_in_bond_direction' that works with for both PAM3 
+        and PAM5. This method returns ONLY consecutive sugar atoms
+        (no bondpoints). 
+
+        @warning: for a ring, this uses an arbitrary start atom in self
+                  (so it is not yet useful in that case). ### VERIFY
+
+        @note: this would return all atoms from an entire strand (chain or ring)
+               even if it spanned multiple chunks.
+
+        @TODO:  THIS method is copied over from chunk class. with a minor modification
+        To be revised. See self.getStrandSequence() for a comment. 
+        """ 
+        startAtom = None
+        atomList = []
+
+        #Choose startAtom randomly (make sure that it's a Sugar atom 
+        # and not a bondpoint)
+        for atm in inputAtomList:
+            if atm.element.symbol == 'Ss3' or \
+               atm.element.symbol == 'Ss5':
+                startAtom = atm
+                break        
+
+        if startAtom is None:
+            print_compact_stack("bug: no Sugar atom (Ss3 or Ss5) found: " )
+            return []
+
+        #Build one list in each direction, detecting a ring too 
+
+        #ringQ decides whether the first returned list forms a ring. 
+        #This needs a better name in bond_chains.grow_directional_bond_chain
+        ringQ = False        
+        atomList_direction_1 = []
+        atomList_direction_2 = []     
+
+        b = None  
+        bond_direction = 0
+        for bnd in startAtom.directional_bonds():
+            if not bnd.is_open_bond(): # (this assumes strand length > 1)
+                #Determine the bond_direction from the 'startAtom'
+                direction = bnd.bond_direction_from(startAtom)
+                if direction in (1, -1):                    
+                    b = bnd
+                    bond_direction = direction
+                    break
+
+        if b is None or bond_direction == 0:
+            return []         
+
+        #Find out the list of new atoms and bonds in the direction 
+        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
+        #(i.e. bond_direction = -1 OR the reverse direction 
+        # Later, we will check  the bond direction and do appropriate things. 
+        #(things that will decide which list (atomList_direction_1 or 
+        #atomList_direction_2) should  be prepended in atomList so that it has 
+        #atoms ordered from 5' to 3' end. 
+
+        # 'atomList_direction_1' does NOT include 'startAtom'.
+        # See a detailed explanation below on how atomList_direction_a will be 
+        # used, based on bond_direction
+        ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
+
+        del listb # don't need list of bonds
+
+        if ringQ:
+            # The 'ringQ' returns True So its it's a 'ring'.
+            #First add 'startAtom' (as its not included in atomList_direction_1)
+            atomList.append(startAtom)
+            #extend atomList with remaining atoms
+            atomList.extend(atomList_direction_1)            
+        else:       
+            #Its not a ring. Now we need to make sure to include atoms in the 
+            #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
+            #the directional bond chain in the opposite direction. 
+
+            other_atom = b.other(startAtom)
+            if not other_atom.is_singlet():  
+                ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
+                assert not ringQ #bruce 080205
+                del listb
+                #See a detailed explanation below on how 
+                #atomList_direction_2 will be used based on 'bond_direction'
+                atomList_direction_2.insert(0, other_atom)
+
+            atomList = [] # not needed but just to be on a safer side.
+
+            if bond_direction == 1:
+                # 'bond_direction' is the direction *away from* startAtom and 
+                # along the bond 'b' declared above. . 
+
+                # This can be represented by the following sketch --
+                # (3'end) <--1 <-- 2 <-- 3 <-- 4 <-- (5' end)
+
+                # Let startAtom be '2' and bond 'b' be directional bond between 
+                # 1 and 2. In this case, the direction of bond *away* from 
+                # '2' and along 2  = bond direction of bond 'b' and thus 
+                # atoms traversed along bond_direction = 1 lead us to 3' end. 
+
+                # Now, 'atomList_direction_1'  is computed by 'growing' (expanding)
+                # a bond chain  in the direction that goes from bond b 
+                # *towards* startAtom. That is, in this case it is the opposite 
+                # direction of one specified by 'bond_direction'.  The last atom
+                # in atomList_direction_1 is the (5' end) atom.
+                # Note that atomList_direction_1 doesn't include 'startAtom'
+                # Therefore, to get atomList ordered from 5'to 3' end we must
+                #reverse atomList_direction_1 , then append startAtom to the 
+                #atomList (as its not included in atomList_direction_1) and then 
+                #extend atoms from atomList_direction_2. 
+
+                #What is atomList_direction_2 ?  It is the list of atoms 
+                #obtained by growing bond chain from bond b, in the direction of 
+                #atom 1 (atom 1 is the 'other atom' of the bond) . In this case 
+                #these are the atoms in the direction same as 'bond_direction'
+                #starting from atom 1. Thus the atoms in the list are already 
+                #arranged from 5' to 3' end. (also note that after computing 
+                #the atomList_direction_2, we also prepend 'atom 1' as the 
+                #first atom in that list. See the code above that does that.                 
+                atomList_direction_1.reverse()                
+                atomList.extend(atomList_direction_1)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_2)                
+
+            else:     
+                #See a detailed explanation above. 
+                #Here, bond_direction == -1. 
+
+                # This can be represented by the following sketch --
+                # (5'end) --> 1 --> 2 --> 3 --> 4 --> (3' end)
+
+                #bond b is the bond betweern atoms 1 and 2. 
+                #startAtom remains the same ..i.e. atom 2. 
+
+                #As you can notice from the sketch, the bond_direction is 
+                #direction *away* from 2, along bond b and it leads us to 
+                # 5' end. 
+
+                #based on how atomList_direction_2 (explained earlier), it now 
+                #includes atoms begining at 1 and ending at 5' end. So 
+                #we must reverse atomList_direction_2 now to arrange them 
+                #from 5' to 3' end. 
+                atomList_direction_2.reverse()
+                atomList.extend(atomList_direction_2)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_1)
+
+        # Note: the bondpoint atoms are NOT included.
+        # ONLY consecutive sugar stoms are returned.
+        # piotr 080411
+
+        def filter_sugars(atm):
+            return atm.element.symbol == 'Ss3' or \
+                   atm.element.symbol == 'Ss5'
+
+        atomList = filter(filter_sugars, atomList)
         return atomList   
 
     pass
