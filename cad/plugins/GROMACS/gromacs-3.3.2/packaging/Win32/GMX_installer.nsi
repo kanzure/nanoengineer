@@ -34,7 +34,7 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "..\ReadMe.html"
+!define MUI_FINISHPAGE_SHOWREADME ".\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -199,6 +199,7 @@ Section Uninstall
   Delete "$SMPROGRAMS\Nanorex\GROMACS_${PRODUCT_VERSION}\Uninstall.lnk"
 
   RMDir "$SMPROGRAMS\Nanorex\GROMACS_${PRODUCT_VERSION}"
+  RMDir "$SMPROGRAMS\Nanorex"
   RMDir "$INSTDIR\MCPP\bin"
   RMDir /r "$INSTDIR\MCPP"
   RMDir "$INSTDIR\lib"
