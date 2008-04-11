@@ -2,7 +2,7 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-DIST_VERSION=NanoEngineer-1_1.0.0b7
+DIST_VERSION=NanoEngineer-1_1.0.0
 
 # Set up path variables
 cd ..
@@ -20,10 +20,11 @@ if [ ! -e "$DIST_CONTENTS/Resources/lib/python2.3/lib-dynload/PyQt4/QtOpenGL.so"
 cp $TOP_LEVEL/packaging/MacOSX/py2app-Info.plist $DIST_CONTENTS/Info.plist
 cd $TOP_LEVEL
 
-# Copy the GAMESS helper script
 mkdir $DIST_CONTENTS/bin
-cp $TOP_LEVEL/cad/src/rungms $DIST_CONTENTS/bin/
-if [ ! -e "$DIST_CONTENTS/bin/rungms" ]; then exit; fi
+
+# Copy the GAMESS helper script
+#cp $TOP_LEVEL/cad/src/rungms $DIST_CONTENTS/bin/
+#if [ ! -e "$DIST_CONTENTS/bin/rungms" ]; then exit; fi
 
 # Build atombase.so and samevals.so (some native binary NE1 optimizations)
 cd $TOP_LEVEL/cad/src
@@ -132,6 +133,7 @@ cp -R $TOP_LEVEL/cad/plugins/DNA $DIST_CONTENTS/plugins/
 cp -R $TOP_LEVEL/cad/plugins/NanoDynamics-1 $DIST_CONTENTS/plugins/
 mkdir $DIST_CONTENTS/plugins/GROMACS
 cp -R $TOP_LEVEL/cad/plugins/GROMACS/Pam5Potential.xvg $DIST_CONTENTS/plugins/GROMACS/
+cp -R $TOP_LEVEL/cad/plugins/GROMACS/mdrunner.sh $DIST_CONTENTS/plugins/GROMACS/
 cp -R $TOP_LEVEL/cad/plugins/Nanotube $DIST_CONTENTS/plugins/
 
 cd $TOP_LEVEL
