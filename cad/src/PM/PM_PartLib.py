@@ -22,7 +22,7 @@ ninad 2007-09-06: Created.
 import os
 from utilities import debug_flags
 
-from utilities.constants import diTUBES
+from utilities.constants import diTrueCPK
 from graphics.widgets.ThumbView import MMKitView
 from model.assembly import Assembly
 from files.mmp.files_mmp import readmmp
@@ -45,14 +45,15 @@ class PM_PartLib(PM_GroupBox):
                  ):            
         self.w = win
         self.elementViewer = elementViewer
-        self.elementViewer.setDisplay(diTUBES)
+        # piotr 080410 changed diTUBES to diTrueCPK
+        self.elementViewer.setDisplay(diTrueCPK)
         self.partLib = None
         self.newModel = None
-        
+
         PM_GroupBox.__init__(self, parentWidget, title)
-                
+
         self._loadPartLibGroupBox()
-    
+
     def connect_or_disconnect_signals(self, isConnect):         
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -64,7 +65,7 @@ class PM_PartLib(PM_GroupBox):
         ##    change_connect = self.w.connect
         ##else:
         ##    change_connect = self.w.disconnect
-        
+
         #Following doesn't work for some reasons so this call is disabled. 
         #Instead , see PM_TreeView.mouseReleaseEvent where self.partChanged is 
         #called. 
@@ -73,7 +74,7 @@ class PM_PartLib(PM_GroupBox):
         ##               QItemSelection *)"),
         ##               self.partChanged)
         pass
-       
+
 
     def _loadPartLibGroupBox(self):
         """
@@ -93,20 +94,20 @@ class PM_PartLib(PM_GroupBox):
         """
         if not self.elementViewer:
             return  
-                
+
         assert isinstance(self.elementViewer, MMKitView)  
-        
+
         self.elementViewer.resetView()             
         if newModel:
             self.elementViewer.updateModel(newModel)
-           
+
     def partChanged(self, selectedItem):
         """
         Method called when user changed the partlib browser tree.
-        
+
         @param selectedItem: Item currently selected in the L{self.partLib}
         @type  selectedItem: L{self.partLib.FileItem} 
-        
+
         @attention: This is called in the L{PM_TreeView.mouseReleaseEvent}. The 
         'selectionChanged' signal for self.partLib apparently was not emitted
         so that code has been removed.                        
@@ -118,10 +119,10 @@ class PM_PartLib(PM_GroupBox):
             mmpFile = str(item.getFileObj())
             if os.path.isfile(mmpFile):
                 self.newModel = \
-                        Assembly(self.w, 
-                                 os.path.normpath(mmpFile),
-                                 run_updaters = True # desirable for PartLib [bruce 080403]
-                                )
+                    Assembly(self.w, 
+                             os.path.normpath(mmpFile),
+                             run_updaters = True # desirable for PartLib [bruce 080403]
+                         )
                 self.newModel.set_glpane(self.elementViewer) # sets its .o and .glpane
                 readmmp(self.newModel, mmpFile)
                 self.newModel.update_parts() #k not sure if needed after readmmp
@@ -131,8 +132,8 @@ class PM_PartLib(PM_GroupBox):
                         m.kill() #k guess about a correct way to handle them
                     self.newModel.update_parts() #k probably not needed
                     self.newModel.checkparts() #k probably not needed
-                    
-        self._updateElementViewer(self.newModel)
-        
 
- 
+        self._updateElementViewer(self.newModel)
+
+
+
