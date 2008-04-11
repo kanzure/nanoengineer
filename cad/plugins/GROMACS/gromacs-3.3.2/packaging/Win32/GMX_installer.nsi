@@ -34,7 +34,7 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME ".\ReadMe.html"
+!define MUI_FINISHPAGE_SHOWREADME "..\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -56,7 +56,7 @@ SectionGroup /e "GROMACS"
 Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
   SetOutPath "$INSTDIR"
   SetOverwrite try
-  File ".\ReadMe.html"
+  File "..\ReadMe.html"
   File ".\License.txt"
   SetOutPath "$INSTDIR\bin"
   SetOverwrite try

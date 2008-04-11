@@ -3,7 +3,7 @@
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "NanoEngineer-1"
 !define PRODUCT_VERSION "1.0.0"
-!define PRODUCT_NICKNAME "(Alpha 10)"
+!define PRODUCT_NICKNAME "(Rattlesnake)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_VERSION}"

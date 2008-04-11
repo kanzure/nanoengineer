@@ -33,7 +33,7 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME ".\ReadMe.html"
+!define MUI_FINISHPAGE_SHOWREADME "..\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -56,7 +56,7 @@ Section "QuteMolX (Required)" SEC_QMX_BASE
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File ".\License.txt"
-  File ".\ReadMe.html"
+  File "..\ReadMe.html"
   File "build\*"
   SetOutPath "$INSTDIR\image"
   File "build\image\*"
