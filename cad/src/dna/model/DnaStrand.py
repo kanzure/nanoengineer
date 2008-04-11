@@ -22,6 +22,8 @@ from dna.model.Dna_Constants import getComplementSequence
 from operations.bond_chains import grow_directional_bond_chain
 from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
 
+from utilities.constants import MODEL_PAM5
+
 class DnaStrand(DnaStrandOrSegment):
     """
     Model object which represents a Dna Strand inside a Dna Group.
@@ -633,12 +635,15 @@ class DnaStrand(DnaStrandOrSegment):
                   (so it is not yet useful in that case). ### VERIFY
 
         @warning: this only works for PAM3 chunks (not PAM5).
+                  [piotr 080411 modified it to work with PAM5, but only 
+                   sugar atoms and bondpoints will be returned]
 
+        @note: 
         @note: this would return all atoms from an entire strand (chain or ring)
                even if it spanned multiple chunks.
         @TODO:  THIS method is copied over from chunk class. with a minor modification
         To be revised. See self.getStrandSequence() for a comment. 
-        """ 
+        """         
         startAtom = None
         atomList = []
 
@@ -648,7 +653,12 @@ class DnaStrand(DnaStrandOrSegment):
             if atm.element.symbol == 'Ss3':
                 startAtom = atm
                 break        
-
+            elif atm.element.pam == MODEL_PAM5: 
+                # piotr 080411
+                # If inputAtomList contains PAM5 atoms, process it independently.
+                atomList = self._get_pam5_strand_atoms_in_bond_direction(inputAtomList)
+                return atomList
+            
         if startAtom is None:
             print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
             return []
@@ -777,7 +787,7 @@ class DnaStrand(DnaStrandOrSegment):
 
     pass
 
-    def get_strand_sugar_atoms_in_bond_direction(self, inputAtomList): 
+    def _get_pam5_strand_atoms_in_bond_direction(self, inputAtomList): 
         """
         Return a list of sugar atoms in a fixed direction -- from 5' to 3'
 
@@ -788,10 +798,10 @@ class DnaStrand(DnaStrandOrSegment):
          so we could revise this code to remove them before returning.
          bruce 080205]
 
-        piotr 080411: This is a modified version of the 
-        'get_strand_atoms_in_bond_direction' that works with for both PAM3 
-        and PAM5. This method returns ONLY consecutive sugar atoms
-        (no bondpoints). 
+        piotr 080411: This is a helper method for  
+        'get_strand_atoms_in_bond_direction'. It is called for PAM5
+        models and should be replaced by a properly modified caller method.
+        Only bondpoints ('X') and sugar atoms ('Ss3', Ss5') are preserved.
 
         @warning: for a ring, this uses an arbitrary start atom in self
                   (so it is not yet useful in that case). ### VERIFY
@@ -939,9 +949,13 @@ class DnaStrand(DnaStrandOrSegment):
         # ONLY consecutive sugar stoms are returned.
         # piotr 080411
 
+        # extract only sugar atoms or bondpoints
+        # the bondpoints are extracted to make the method compatible
+        # with get_strand_atoms_in_bond_direction
         def filter_sugars(atm):
             return atm.element.symbol == 'Ss3' or \
-                   atm.element.symbol == 'Ss5'
+                   atm.element.symbol == 'Ss5' or \
+                   atm.element.symbol == 'X'
 
         atomList = filter(filter_sugars, atomList)
         return atomList   
