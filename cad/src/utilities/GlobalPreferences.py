@@ -223,4 +223,19 @@ def use_frustum_culling(): #piotr 080401
 
     return res
 
+# ==
+
+def pref_indicate_overlapping_atoms(): #bruce 080411
+    res = debug_pref("GLPane: indicate overlapping atoms?",
+                     Choice_boolean_False,
+                         # not on by default, since experimental, and in case
+                         # initial implem is slow (it has to scan all atoms of
+                         #  all chunks, though it doesn't disable their display
+                         #  lists for their regular drawing). We might revise
+                         # this (after the pcoming release) if it's safe and
+                         # can be made to be fast.
+                     non_debug = True, # since potentially very useful for users
+                     prefs_key = "A10/GLPane: indicate overlapping atoms? " )
+    return res
+
 # end

@@ -57,12 +57,16 @@ from geometry.VQT import V, Q
 from utilities.debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 
+from utilities.GlobalPreferences import pref_indicate_overlapping_atoms
+
 from utilities.Log import greenmsg, redmsg
 from geometry.BoundingBox import BBox
 
 from model.chunk import Chunk
 from model.jigs import Jig
 from foundation.node_indices import fix_one_or_complain
+
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
 
 from utilities.constants import diINVISIBLE
 
@@ -135,11 +139,23 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # default values of instance variables:
 
+    # variables which are effectively part of a "model_draw_frame"
+    # (and ought to be moved into a class for that which we own one of here):
+    # - repeated_bonds_dict
+    # - indicate_overlapping_atoms
+    # - _f_state_for_indicate_overlapping_atoms
+
     # repeated_bonds_dict is a dict during calls of self.draw,
     # but is intentionally not a dict outside of those calls,
     # so that erroneous use of it is noticed as an error.
     # For intended use, see comments where it's used. [bruce 070928]
+    # (Update, 080411: at least one use, in Chunk._draw_external_bonds,
+    #  silently tolerates its being None.)
     repeated_bonds_dict = None
+
+    # These are for implementing optional indicators about overlapping atoms.
+    _f_state_for_indicate_overlapping_atoms = None
+    indicate_overlapping_atoms = False
     
 
     def _undo_update_always(self): #bruce 060224
@@ -998,11 +1014,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # (could optim by only invalling drawLevel itself if the prefs value is not 'variable', I think,
             #  but recomputing natoms should be fast compared to drawing, anyway)
         self.before_drawing_model()
+        error = True
         try:
             # draw all visible model objects in self
             self.topnode.draw(glpane, glpane.displayMode)
+            error = False
         finally:
-            self.after_drawing_model()
+            self.after_drawing_model(error)
         return
 
     def before_drawing_model(self): #bruce 070928
@@ -1037,12 +1055,38 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # might be drawn twice in one frame. See comments near its use in
             # Chunk.draw (and in docstring) for ways we might need to generalize
             # it. [bruce 070928]
-        pass
 
-    def after_drawing_model(self): #bruce 070928
+        self.indicate_overlapping_atoms = pref_indicate_overlapping_atoms()
+        if self.indicate_overlapping_atoms:
+            TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for
+                # bonded atoms, or atoms and their bondpoints,
+                # but big enough to catch "visually hard to separate" atoms.
+                # (1.0 is far too large; 0.1 is ok but too small to be best.)
+                # It would be much better to let this depend on the elements
+                # and whether they're bonded, and not hard to implement
+                # (each atom could be asked whether it's too close to each
+                #  other one, and take all this into account). If we do that,
+                # this value should be the largest tolerance for any pair
+                # of atoms, and the code that uses this NeighborhoodGenerator
+                # should do more filtering on the results. [bruce 080411]
+            self._f_state_for_indicate_overlapping_atoms = \
+                NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
+            pass
+        
+        return
+
+    def after_drawing_model(self, error = False): #bruce 070928
         """
         @see: before_drawing_model
+
+        @param error: if the caller knows, it can pass an error flag
+                      to indicate whether drawing succeeded or failed.
+                      If it's known to have failed, we might not do some
+                      things we normally do. Default value is False
+                      since most calls don't pass anything. (#REVIEW: good?)
         """
+        del error # not yet used (error param added by bruce 080411)
+        
         assert self.repeated_bonds_dict is not None
         del self.repeated_bonds_dict
             # this exposes the default value (not a dict)
@@ -1051,7 +1095,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # to its values so as to not prevent those objects
             # from being freed.
         assert self.repeated_bonds_dict is None
-        pass
+
+        self.indicate_overlapping_atoms = False
+        self._f_state_for_indicate_overlapping_atoms = None
+        
+        return
 
     def draw_text_label(self, glpane):
         """

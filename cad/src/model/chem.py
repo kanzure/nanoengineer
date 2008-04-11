@@ -116,7 +116,7 @@ from utilities.constants import TubeRadius
 
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
-from utilities.constants import pink
+from utilities.constants import pink, yellow
 ##from utilities.constants import orange
 
 from utilities.constants import ErrorPickedColor
@@ -1829,6 +1829,46 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # and optim this when atomtype is initial one (or its numbonds == valence).
         return
 
+    def draw_overlap_indicator(self, prior_atoms_too_close = ()): # bruce 080411
+        """
+        Draw an indicator around self which indicates that it is too close
+        to the atoms in the list prior_atoms_too_close (perhaps empty).
+
+        In the initially implemented calling code, this will be called
+        multiple times per atom -- on the average, about once for each
+        other atom it's too close to, but possibly as much as twice
+        per other close atom. More specifically: for each pair of too-close
+        atoms, and for each ordering of that pair as a1, a2,
+        this will be called exactly once on a1 with a2 an element of
+        prior_atoms_too_close. If a1 was scanned first, it will
+        receive a2 alone in that list; otherwise it might receive
+        other atoms in that list in the same call.
+
+        This means that if the distance tolerance should depend on the
+        elements or bonding status (or any other property) of a pair
+        of too-close atoms, this can be implemented in this method
+        by only drawing the indicator around seld if one of the atoms
+        in the argument is in fact too close to self, considering
+        that property of the pair of atoms.
+
+        (This could be optimized, but only by using new code in the caller.)
+        """
+        color = yellow # ??
+        pos = self.posn()
+        pickedrad = self.drawing_radius(picked_radius = True)
+        draw_at_these_radii = []
+        for other in prior_atoms_too_close:
+            otherrad = other.drawing_radius(picked_radius = True)
+            maxrad = max(otherrad, pickedrad)
+            if maxrad not in draw_at_these_radii:
+                draw_at_these_radii.append(maxrad)
+        for maxrad in draw_at_these_radii:
+            # this is to make it easier to see a small atom (e.g. a bondpoint)
+            # buried inside another one.
+            radius = maxrad * 1.12
+            drawwiresphere(color, pos, radius)
+        return
+        
     def max_pixel_radius(self): #bruce 070409
         """
         Return an estimate (upper bound) of the maximum distance
@@ -2044,13 +2084,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  testing for rotated chunks, since until you next modify them, the wirespheres are also drawn rotated.)
         self.molecule.pushMatrix()
         try:
+            # note: the following inlines self.drawing_radius(picked_Radius = True),
+            # but makes further use of intermediate values which that method
+            # computes but does not return, so merging them would require a
+            # variant method that returned more values. [bruce 080411 comment]
             dispdef = self.molecule.get_dispdef() #e could optimize, since sometimes computed above -- but doesn't matter.
-            pos = self.baseposn()
             disp, drawrad = self.howdraw(dispdef)
             if disp == diTUBES:
-                pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
+                pickedrad = drawrad * 1.8 # this code snippet is now shared between several places [bruce 060315/080411]
             else:
                 pickedrad = drawrad * 1.1
+            pos = self.baseposn()
             self.draw_wirespheres(glpane, disp, pos, pickedrad)
         except:
             print_compact_traceback("exception in draw_wirespheres part of draw_in_abs_coords ignored: ")
@@ -2058,14 +2102,20 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.molecule.popMatrix()
         return
     
-    def drawing_radius(self):
+    def drawing_radius(self, picked_radius = False):
         """
         Return the current drawing radius of the atom. It determines it using 
         the following order -- Returns drawing radius based on atom's current 
         display. If the atom's display is 'default display'it then looks for 
-        the chunk's display. If een the chunk's display is default display, 
+        the chunk's display. If even the chunk's display is default display, 
         it returns the GLPane's current display. Note that these things are 
-        done in self.molecule.get_dispdef() and self.howdraw()
+        done in self.molecule.get_dispdef() and self.howdraw().
+
+        @param picked_radius: instead of the drawing radius, return the larger
+                              radius used by the selected-atom wireframe.
+                              (Note: not all effects on that radius are
+                               implemented yet.)
+        @type: bool
         
         @see: DnaSegment_EditCommand._determine_resize_handle_radius() that 
         uses this method to draw the resize handles.
@@ -2073,11 +2123,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @see: self.howdraw()
         @see: Chunk.get_dispdef()
         """
+        # note: this is inlined into draw_in_abs_coords, and possibly elsewhere
         dispdef = self.molecule.get_dispdef()
         disp, drawrad = self.howdraw(dispdef)
+        if picked_radius:
+            #bruce 080411 added this option
+            if disp == diTUBES:
+                pickedrad = drawrad * 1.8
+            else:
+                pickedrad = drawrad * 1.1
+            return pickedrad
         return drawrad
    
-
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()

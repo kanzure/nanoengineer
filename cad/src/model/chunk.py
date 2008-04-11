@@ -1763,8 +1763,35 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         # and frustum culling tests 
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
             # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
+            #
+            ##e bruce 041109: couldn't we figure out self.glpane on the fly from self.dad?
+            # (in getattr or in a special method)
+            #bruce 050804: self.glpane is now also used in self.changeapp(),
+            # since it's faster than self.track_change (whose features are overkill for this),
+            # though the fact that only one glpane can be recorded in self
+            # is a limitation we'll need to remove at some point.
 
-        if self.hidden:
+        if not self.atoms:
+            # do nothing for a Chunk without any atoms
+            # [to fix bugs -- Huaicai 09/30/04]
+            # (moved before frustum test, bruce 080411)
+            return
+
+        # Indicate overlapping atoms, if that pref is enabled.
+        # We do this outside of the display list so we can still use that
+        # for most of the drawing (for speed). We do it even for atoms
+        # in hidden chunks, even in display modes that don't draw atoms,
+        # etc. (But not for frustum culled atoms, since the indicators
+        # would also be off-screen.) [bruce 080411 new feature]
+        
+        indicate_overlapping_atoms = self.part and self.part.indicate_overlapping_atoms
+            # note: using self.part for this is a slight kluge;
+            # see the comments where this variable is defined in class Part.
+        
+        if self.hidden and not indicate_overlapping_atoms:
+            # (usually do this now, to avoid overhead of frustum test;
+            #  if indicate_overlapping_atoms is true, we'll test self.hidden
+            #  again below, to make sure we still skip other drawing)
             return
 
         # Frustum culling test # piotr 080331
@@ -1782,18 +1809,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         is_chunk_visible = glpane.is_sphere_visible(self.bbox.center(), 
                                                     self.bbox.scale() + (MAX_ATOM_SPHERE_RADIUS - BBOX_MIN_RADIUS) + 0.5)
 
-        ##e bruce 041109: can't we figure it out from mol.dad?
-        # (in getattr or in a special method)
-        #bruce 050804: this is now also used in self.changeapp(),
-        # since it's faster than self.track_change (whose features are overkill for this),
-        # though the fact that only one glpane can be recorded in self
-        # is a limitation we'll need to remove at some point.
+        if indicate_overlapping_atoms and is_chunk_visible:
+            self._indicate_overlapping_atoms()
 
-        if len(self.atoms) == 0:
-            # do nothing for a Chunk without any atoms
-            # [to fix bugs -- Huaicai 09/30/04]
+        if self.hidden:
+            # catch the case where indicate_overlapping_atoms skipped this test earlier
             return
-
+        
         self.basepos
         # make sure basepos is up-to-date, so basecenter is not changed
         # during the redraw. #e Ideally we'd have a way to detect or
@@ -1830,6 +1852,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # external bond. 
 
             #This is needed for chunk highlighting
+            ### REVIEW: this is our first use of "nested glnames". The hover
+            # highlighting code in GLPane was written with the assumption
+            # that we never use them, and the effects of using them on it
+            # have not been reviewed. Conceivably it might slow it down
+            # (by making some of its optims work less well, e.g. due to
+            # overlapping highlight regions between self and its draw-children
+            # with their own glnames (atoms and bonds), or cause bugs, though
+            # I think both of those are unlikely, so this review is not urgent.
+            # [bruce 080411 comment]
             glPushName(self.glname)
 
             # put it in its place
@@ -1943,6 +1974,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 if hd:
                     hd._drawchunk_realtime(glpane, self)
 
+                if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
+                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+
                 # russ 080409 Array to string formatting is slow, avoid it
                 # when not needed.  Use !=, not ==, to compare Numeric arrays.
                 # (!= returns V(0,0,0), a False boolean value, when equal.)
@@ -1951,9 +1985,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                            "%r != %r, what's up?" % (should_not_change,
                                                      ( + self.basecenter, + self.quat))
-
-                if self.hotspot is not None: # note, as of 050217 that can have side effects in getattr
-                    self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
+                    
+                pass # end of drawing within self's local coordinate frame
 
             except:
                 print_compact_traceback("exception in Chunk.draw, continuing: ")
@@ -1961,6 +1994,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             glPopMatrix()
 
             glPopName()
+
+            pass # end of 'if is_chunk_visible:'
 
         draw_external_bonds = True # piotr 080401
             # Added for the additional test - the external bonds could be still
@@ -2096,6 +2131,37 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 ##            pass
 ##        return
 
+    def _indicate_overlapping_atoms(self): #bruce 080411
+        """
+        Draw indicators around all atoms that overlap (or are too close to)
+        other atoms (in self or in other chunks).
+        """
+        model_draw_frame = self.part # kluge, explained elsewhere in this file
+        if not model_draw_frame:
+            return
+        neighborhoodGenerator = model_draw_frame._f_state_for_indicate_overlapping_atoms
+        for atom in self.atoms.itervalues():
+            pos = atom.posn()
+            prior_atoms_too_close = neighborhoodGenerator.region(pos)
+            if prior_atoms_too_close:
+                # This atom overlaps the prior atoms.
+                # Draw an indicator around it,
+                # and around the prior ones if they don't have one yet.
+                # (That can be true even if there is more than one of them,
+                #  if the prior ones were not too close to each other,
+                #  so for now, just draw it on the prior ones too, even
+                #  though this means drawing it twice for each atom.)
+                #
+                # Pass an arg which indicates the atoms for which one or more
+                # was too close. See draw_overlap_indicator docstring for more
+                # about how that can be used, given our semi-symmetrical calls.
+                for prior_atom in prior_atoms_too_close:
+                    prior_atom.draw_overlap_indicator((atom,))
+                atom.draw_overlap_indicator(prior_atoms_too_close)
+            neighborhoodGenerator.add(atom)
+            continue
+        return
+    
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
         """
         [private submethod of self.draw]
