@@ -33,7 +33,7 @@
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "..\ReadMe.html"
+!define MUI_FINISHPAGE_SHOWREADME ".\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -45,7 +45,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "QuteMolX-${PRODUCT_VERSION}-setup.exe"
+OutFile "QuteMolX-${PRODUCT_VERSION}.exe"
 InstallDir "$PROGRAMFILES\Nanorex\QuteMolX ${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
