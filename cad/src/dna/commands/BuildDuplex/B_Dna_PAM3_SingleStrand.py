@@ -215,9 +215,10 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         overlapping_atoms = \
                           self._find_overlapping_axisAtomPairs(atomlist_to_keep,
                                                                atomlist_with_overlapping_atoms)
-                
-        axisAndStrandAtomPairsToBond = []        
-        axisAndAxisAtomPairsToBond = []        
+        
+                        
+        axis_and_strand_atomPairs_to_bond = []        
+        axis_and_axis_atomPairs_to_bond = []        
         fusableAxisAtomPairsDict = {}
         
         for atm_to_keep, atm_to_delete in overlapping_atoms:
@@ -242,7 +243,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
                 strand_atom_new_dna = atm_to_delete.strand_neighbors()[0]
                 
                 #We will fuse this strand atom to the old axis atom 
-                axisAndStrandAtomPairsToBond.append((atm_to_keep,
+                axis_and_strand_atomPairs_to_bond.append((atm_to_keep,
                                                      strand_atom_new_dna))
                 
                 fusableAxisAtomPairsDict[atm_to_keep] = atm_to_delete   
@@ -261,7 +262,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
                 for neighbor in atm_to_delete.axis_neighbors():
                         if neighbor is not None and \
                            neighbor not in fusableAxisAtomPairsDict.values():
-                            axisAndAxisAtomPairsToBond.append((atm_to_keep,
+                            axis_and_axis_atomPairs_to_bond.append((atm_to_keep,
                                                                neighbor))
     
         for atm_to_delete in fusableAxisAtomPairsDict.values():
@@ -270,13 +271,118 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
                 atm_to_delete.kill()                    
             except:
                 print_compact_stack("Strand resizing: Error killing axis atom")
-            
-        self._bond_bare_strandAtoms_with_orig_axisAtoms(axisAndStrandAtomPairsToBond)
+                
+        if axis_and_strand_atomPairs_to_bond:            
+            self._bond_bare_strandAtoms_with_orig_axisAtoms(axis_and_strand_atomPairs_to_bond)
         
-        self._bond_axisNeighbors_with_orig_axisAtoms(axisAndAxisAtomPairsToBond)
+        if axis_and_axis_atomPairs_to_bond:
+            self._bond_axisNeighbors_with_orig_axisAtoms(axis_and_axis_atomPairs_to_bond)
+        
+    def _bond_atoms_in_atomPairs(self, atomPairs):
+        """
+        Create bonds between the atoms in given atom pairs. It creats explicit 
+        bonds between the two atoms at the specified bondpoints (i.e. it doesn't
+        use fuseChunkBase to find the bondable pairs within certain tolerance)
+        
+        @see: self._fuse_new_dna_with_original_duplex()
+        @see: _bond_two_strandAtoms() called here
+        
+        @TODO: Refactor self._bond_bare_strandAtoms_with_orig_axisAtoms
+           self._bond_axisNeighbors_with_orig_axisAtoms to use this method
+        """
+        for atm1, atm2 in atomPairs:
+            if atm1.element.role == 'strand' and atm2.element.role == 'strand':
+                self._bond_two_strandAtoms(atm1, atm2)
+            else:
+                #@REVIEW -- As of 2008-04-11, the atomPairs send to this method
+                #are of the same type i.e. (axis, axis) or (strand, strand) 
+                #but when we do refactoring of methods like 
+                #self._bond_bare_strandAtoms_with_orig_axisAtoms, to use this 
+                #method, may be we must make sure that we are not bonding
+                #an axis atom with a 5' or 3' bondpoint of the strand atom.
+                #Skip the pair if its one and the same atom.
+                DEBUG_bonded = False 
+                if atm1 is not atm2:     
+                    for s1 in atm1.singNeighbors():
+                        if atm2.singNeighbors(): 
+                            s2 = atm2.singNeighbors()[0]
+                            DEBUG_bonded = True
+                            bond_at_singlets(s1, s2, move = False)
+                            break
+                        
+    def _bond_two_strandAtoms(self, atm1, atm2):
+        """
+        Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
+        it always makes sure that a 3' bondpoint on one atom is bonded to 5'
+        bondpoint on the other atom. 
+        Example:
+        User lengthens a strand by a single strand baseatom. The final task done
+        in self.modify() is to fuse the created strand base atom with the 
+        strand end atom of the original dna. But this new atom has two bondpoints
+        -- one is a 3' bondpoint and other is 5' bondpoint. So we must find out 
+        what bondpoint is available on the original dna. If its a 5' bondpoint, 
+        we will use that and the 3'bondpoint available on the new strand 
+        baseatom. But what if even the strand endatom of the original dna is a
+        single atom not bonded to any strand neighbors? ..thus, even that
+        atom will have both 3' and 5' bondpoints. In that case it doesn't matter
+        what pair (5' orig and 3' new) or (3' orig and 5' new) we bond, as long
+        as we honor bonding within the atoms of any atom pair mentioned above.
+        
+        @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be 
+                     bonded with atm2. 
+        @param atm2: Second sugar atom
+        @see: self._fuse_new_dna_with_original_duplex()
+        @see: self._bond_atoms_in_atomPairs() which calls this
+        """
+        assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
+        #Initialize all possible bond points to None
+                
+        five_prime_bondPoint_atm1  = None
+        three_prime_bondPoint_atm1 = None
+        five_prime_bondPoint_atm2  = None
+        three_prime_bondPoint_atm2 = None
+        #Initialize the final bondPoints we will use to create bonds
+        bondPoint1 = None
+        bondPoint2 = None
+        
+        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
+        #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
+        #But it doesn't matter here. 
+        for s1 in atm1.singNeighbors():
+            bnd = s1.bonds[0]            
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm1 = s1                
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm1 = s1
+                
+        #Find 5' and 3' bondpoints of atm2
+        for s2 in atm2.singNeighbors():
+            bnd = s2.bonds[0]
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm2 = s2
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm2 = s2
+        #Determine bondpoint1 and bondPoint2 (the ones we will bond). See method
+        #docstring for details.
+        if five_prime_bondPoint_atm1 and three_prime_bondPoint_atm2:
+            bondPoint1 = five_prime_bondPoint_atm1
+            bondPoint2 = three_prime_bondPoint_atm2
+        #Following will overwrite bondpoint1 and bondPoint2, if the condition is
+        #True. Doesn't matter. See method docstring to know why.
+        if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
+            bondPoint1 = three_prime_bondPoint_atm1
+            bondPoint2 = five_prime_bondPoint_atm2
+            
+        #Do the actual bonding        
+        if bondPoint1 and bondPoint2:
+            bond_at_singlets(bondPoint1, bondPoint2, move = False)
+        else:
+            print_compact_stack("Bug: unable to bond atoms %s and %s"%(atm1, 
+                                                                       atm2))
+            
     
     def _bond_bare_strandAtoms_with_orig_axisAtoms(self, 
-                                                   axisAndStrandAtomPairsToBond):
+                                                   axis_and_strand_atomPairs_to_bond):
         """
         Create bonds between the bare strand atoms of the new dna with the
         corresponding axis atoms of the original dna. This method should be
@@ -284,26 +390,35 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         we remove the axis atoms of new dna that overlap the ones in old dna. 
         We need to re-bond the bare strand atoms as a result of this replacment,
         with the axis atoms of the old dna.
-        @param axisAndStrandAtomPairsToBond: A list containing pairs of the 
+        @param axis_and_strand_atomPairs_to_bond: A list containing pairs of the 
                axis and strand atoms that will be bonded together. It is of the
                format [(atm1, atm2) , ....]
                Where, 
                atm1 is always axisAtom of original dna
                atm2 is always bare strandAtom of new dna
                
-        @type  axisAndStrandAtomPairsToBond: list
+        @type  axis_and_strand_atomPairs_to_bond: list
         @see: self._replace_overlapping_axisAtoms_of_new_dna() which calls this.
         """
+        
+        #@REVIEW/ TODO: Make sure that we are not bondingan axis atom with a 
+        #5' or 3' bondpoint of the strand atom.Skip the pair if its one and 
+        #the same atom (?) This may not be needed because of the other 
+        #code but is not obvious , so better to make sure in this method
+        #-- Ninad 2008-04-11
+        
   
-        for atm1, atm2 in axisAndStrandAtomPairsToBond:
+        for atm1, atm2 in axis_and_strand_atomPairs_to_bond:
             #Skip the pair if its one and the same atom.
             if atm1 is not atm2:     
                 for s1 in atm1.singNeighbors():
                     if atm2.singNeighbors():                    
                         s2 = atm2.singNeighbors()[0]
                         bond_at_singlets(s1, s2, move = False)
-                                                 
-            
+                        #REVIEW 2008-04-10 if 'break' is needed -
+                        break
+        
+                        
         #Alternative-- Use find bondable pairs using class fuseChunksBase
         # Fuse the base-pair chunks together into continuous strands.
         #But this DOESN't WORK if bondpoints are disoriented or beyond the 
@@ -312,11 +427,11 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         ##from commands.Fuse.fusechunksMode import fusechunksBase
         ##fcb = fusechunksBase()
         ##fcb.tol = 2.0        
-        ##fcb.find_bondable_pairs_in_given_atompairs(axisAndStrandAtomPairsToBond)      
+        ##fcb.find_bondable_pairs_in_given_atompairs(axis_and_strand_atomPairs_to_bond)      
         ##fcb.make_bonds(self.assy)
            
     def _bond_axisNeighbors_with_orig_axisAtoms(self, 
-                                                axisAndAxisAtomPairsToBond
+                                                axis_and_axis_atomPairs_to_bond
                                                 ):
         """
         The operation that replaces the overlapping axis atoms of the new dnas
@@ -324,7 +439,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         some neighboring axis atoms of the *new dna* without bonds. So those 
         need to be bonded with the axis atom of the original dna which replaced
         their neighbor. This method does that job. 
-        @param axisAndAxisAtomPairsToBond: A list containing pairs of the 
+        @param axis_and_axis_atomPairs_to_bond: A list containing pairs of the 
                axis atom of original dna and axis atom on the new dna (which was
                a neighbor of the atom deleted in the replacement operation and
                was bonded to it) . Thies eatoms will be bonded with each other.
@@ -339,7 +454,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
                     (because 'A' was overlapping) and was previously
                     bonded to 'A'. 
         """
-        for atm1, atm2 in axisAndAxisAtomPairsToBond:
+        for atm1, atm2 in axis_and_axis_atomPairs_to_bond:
             #Skip the pair if its one and the same atom.
             if atm1 is atm2:
                 continue
@@ -418,10 +533,11 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         chunkList1 = \
                    [ new_endBaseAtomList[0].molecule, 
                      self._resizeEndStrand1Atom.molecule]
-
+        
         chunkList2 = \
                    [ new_endBaseAtomList[1].molecule,
                       self._resizeEndAxisAtom.molecule]
+        
         
         #Set the chunk color and chunk display of the new duplex such that
         #it matches with the original duplex chunk color and display
@@ -436,11 +552,24 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
             if color:
                 chunkPair[0].setcolor(color)
             
-            #TODO: We should create explicit bonds between the end base atoms 
-            #(like done in self._bond_bare_strandAtoms_with_orig_axisAtoms())
-            #instead of relying on fuse chunks (which relies on finding 
-            #bondable atom pairs within a tolerance limit. 
-            self.fuseBasePairChunks(chunkPair)
+            #Original implementation which relied on  on fuse chunks for finding 
+            #bondable atom pairs within a tolerance limit. This is no longer
+            #used and can be removed after more testing of explicit bonding
+            #done in self._bond_atoms_in_atomPairs() (called below)
+            #-- Ninad 2008-04-11
+            ##self.fuseBasePairChunks(chunkPair)
+        
+        endAtomPairsToBond = [ (new_endBaseAtomList[0], 
+                                self._resizeEndStrand1Atom), 
+                                
+                                (new_endBaseAtomList[1], 
+                                 self._resizeEndAxisAtom)]
+        
+        #Create explicit bonds between the end base atoms 
+        #(like done in self._bond_bare_strandAtoms_with_orig_axisAtoms())
+        #instead of relying on fuse chunks (which relies on finding 
+        #bondable atom pairs within a tolerance limit. This fixes bug 2798
+        self._bond_atoms_in_atomPairs(endAtomPairsToBond)
         
         #Make sure to call this AFTER the endatoms of new and 
         #original DNAs are joined. Otherwise (if you replace the overlapping 
