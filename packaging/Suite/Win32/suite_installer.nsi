@@ -63,7 +63,7 @@
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE "..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
+!insertmacro MUI_PAGE_LICENSE "..\..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
@@ -72,7 +72,7 @@
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
 !define MUI_FINISHPAGE_RUN "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program\main.exe"
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\ReadMe.html"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -84,7 +84,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
-OutFile "..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
+OutFile "..\..\..\cad\src\build\NanoEngineer-1_Suite_${PRODUCT_VERSION}.exe"
 ;InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1_${PRODUCT_VERSION}"
 InstallDir "$PROGRAMFILES\Nanorex"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
@@ -95,25 +95,54 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 SectionGroup /e "NanoEngineer-1 Suite Installer"
-Section "NanoEngineer-1" SECNE1
+
+SectionGroup /e "NanoEngineer-1"
+Section "NanoEngineer-1 Program" SECNE1
+  SectionIn 1 2
   SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}"
   SetOverwrite try
-  File /r "..\..\cad\src\dist\*"
+  File "..\..\..\cad\src\dist\ReadMe.html"
+  SetOverwrite try
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\bin"
+  File /r "..\..\..\cad\src\dist\bin\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\doc"
+  File /r "..\..\..\cad\src\dist\doc\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses"
+  File /r "..\..\..\cad\src\dist\Licenses\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\partlib"
+  File /r "..\..\..\cad\src\dist\partlib\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\plugins"
+  File /r "..\..\..\cad\src\dist\plugins\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program"
+  File /r "..\..\..\cad\src\dist\program\*"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\src"
+  File /r "..\..\..\cad\src\dist\src\*"
   
   ; hack
-;  SetOutPath "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program"
-;  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program"
+  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
   
-;  SetOutPath "$SYSDIR"
-;  SetOverwrite off
-;  File "glut32.dll"
-;  File "gle32.dll"
+  SetOutPath "$SYSDIR"
+  SetOverwrite off
+  File "..\..\Win32\glut32.dll"
+  File "..\..\Win32\gle32.dll"
   CreateDirectory "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\program\main.exe"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program\main.exe"
   CreateShortCut "$DESKTOP\NanoEngineer-1.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\program\main.exe"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\ReadMe.html"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html"
+  SetOutPath "$INSTDIR"
+  SetOutPath "$INSTDIR\Pref_Mod"
+  File /r "\pref_mod\dist\*"
   SetOutPath "$INSTDIR"
 SectionEnd
+Section /o "Source" SEC_NE1_SRC
+  SectionIn 2
+  SetOutPath "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\source"
+  SetOverwrite try
+  File /r "..\..\..\cad\src\dist\source\*"
+  SetOutPath "$INSTDIR"
+SectionEnd
+SectionGroupEnd
 
 SectionGroup /e "QuteMolX"
 Section "QuteMolX (Required)" SEC_QMX_BASE
@@ -130,6 +159,9 @@ Section "QuteMolX (Required)" SEC_QMX_BASE
   CreateDirectory "$SMPROGRAMS\Nanorex\QuteMolX ${PRODUCT_QMX_VERSION}"
   CreateShortCut "$SMPROGRAMS\Nanorex\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.lnk" "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.exe"
   CreateShortCut "$DESKTOP\QuteMolX.lnk" "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\QuteMolX.exe"
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k qutemol_enabled -v True'
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k qutemol_path -v "$INSTDIR\QuteMolX\QuteMolX.exe"'
+  SetOutPath "$INSTDIR"
 SectionEnd
 Section /o "Source" SEC_QMX_SRC
   SetOutPath "$INSTDIR\QuteMolX ${PRODUCT_QMX_VERSION}\source"
@@ -164,6 +196,17 @@ SectionGroupEnd
 ;  Pop "$R0" ;result
 ;  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
 ;  SetOutPath "$INSTDIR"
+;  SetOutPath "$APPDATA\Nanorex\NanoVision-1"
+;  File "\NV1_Install\NanoVision-1.ini"
+;  Push "$INSTDIR\NanoVision-1\lib"
+;  Push "\"
+;  Push "/"
+;  Call StrRep
+;  Pop "$R0" ;result
+;  !insertmacro ReplaceInFile "$APPDATA\Nanorex\NanoVision-1.ini" "@PLUGSRCHPATH@" "$R0"
+;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe -k qutemol_enabled -v True"'
+;  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe -k qutemol_path -v $INSTDIR\QuteMolX\QuteMolX.exe"
+;  SetOutPath "$INSTDIR"
 ;SectionEnd
 
 ;Section /o "source" NV1_SRC
@@ -182,6 +225,8 @@ Section "GROMACS+HDF5 (Required)" SEC_GMX_BASE
   SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\bin"
   SetOverwrite try
   File "\GMX_Install\dist\bin\*"
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k gromacs_enabled -v True"'
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k gromacs_path -v "c:\GROMACS_HDF5\bin\mdrun.exe"'
 SectionEnd
 Section /o "Headers & Libraries" SEC_GMX_LIBHDR
   SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\include\gromacs"
@@ -242,6 +287,8 @@ Section "MCPP (Required)" SEC_MCPP
   File "\GMX_Install\mcpp\mcpp-manual.html"
   File "\GMX_Install\mcpp\NEWS"
   File "\GMX_Install\mcpp\README"
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k cpp_enabled -v True'
+  ExecWait '"$INSTDIR\Pref_Mod\pref_modifier.exe" -k cpp_path -v "c:\GROMACS_HDF5\mcpp\bin\mcpp.exe"'
 SectionEnd
 Section /o "Source" SEC_MCPP_SRC
   SetOutPath "c:\GROMACS_3.3.2+HDF5_p2\mcpp\source"
@@ -253,8 +300,8 @@ SectionGroupEnd
 
 Section -AdditionalIcons
   SetOutPath $INSTDIR
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\partlib"
-  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1_${PRODUCT_VERSION}\Licenses"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\partlib.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\partlib"
+  CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses.lnk" "$INSTDIR\NanoEngineer-1 ${PRODUCT_VERSION}\Licenses"
   CreateShortCut "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
 ;  WriteIniStr "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}-${PRODUCT_NV1_VERSION.url" "InternetShortcut" "URL" "${PRODUCT_NV1_WEB_SITE}"
 ;  CreateShortCut "$SMPROGRAMS\Nanorex\NanoVision-1\Website.lnk" "$INSTDIR\NanoVision-1\${PRODUCT_NV1_NAME}.url"
