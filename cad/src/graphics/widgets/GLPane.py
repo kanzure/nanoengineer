@@ -3563,9 +3563,22 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                     if debug_flags.atom_debug and len(names) > 1: ###@@@ bruce 060725
                         if len(names) == 2 and names[0] == names[1]:
                             if not env.seen_before("dual-names bug"): # this happens for Atoms, don't know why (colorsorter bug??)
-                                print "debug (once-per-session message): why are some glnames duplicated on the namestack?",names
+                                print "debug (once-per-session message): why are some glnames duplicated on the namestack?", names
                         else:
-                            print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
+                            # Note: as of sometime before 080411, this became common --
+                            # I guess that chunks (which recently acquired glselect names)
+                            # are pushing their names even while drawing their atoms and bonds.
+                            # I am not sure if this can cause any problems -- almost surely not
+                            # directly, but maybe the nestedness of highlighted appearances could
+                            # violate some assumptions made by the highlight code... anyway,
+                            # to reduce verbosity I need to not print this when the deeper name
+                            # is that of a chunk, and there are exactly two names. [bruce 080411]
+                            if len(names) == 2 and \
+                               isinstance( self.object_for_glselect_name(names[0]), self.assy.Chunk ):
+                                if not env.seen_before("nested names for Chunk"):
+                                    print "debug (once-per-session message): nested glnames for a Chunk: ", names
+                            else:
+                                print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
                     obj = self.object_for_glselect_name(names[-1]) #k should always return an obj
                     if obj is None:
                         print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1],names)
