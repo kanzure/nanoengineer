@@ -20,7 +20,6 @@ but has all different code than before.)
 __author__ = "Mark"
 
 import os
-from datetime import datetime
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QButtonGroup
@@ -37,6 +36,7 @@ from utilities.prefs_constants import Potential_energy_tracefile_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.qt4transition import qt4todo
+from utilities.TimeUtilities import timeStamp
 
 # class FakeMovie:
 #
@@ -296,16 +296,16 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             # end of 060705 changes
     
             suffix = self.suffix
-            timeStamp = datetime.now().isoformat()
+            tStamp = timeStamp()
             if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
                 import shutil
                 dir, fil = os.path.split(self.assy.filename)
                 fil, ext = os.path.splitext(fil)
-                self.movie.filename = os.path.join(partdir, fil + '.' + timeStamp + suffix + '.dpb')
-                self.movie.origfile = os.path.join(partdir, fil + '.' + timeStamp + '.orig' + ext)
+                self.movie.filename = os.path.join(partdir, fil + '.' + tStamp + suffix + '.dpb')
+                self.movie.origfile = os.path.join(partdir, fil + '.' + tStamp + '.orig' + ext)
                 shutil.copy(self.assy.filename, self.movie.origfile)
             else: 
-                self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.%s%s.dpb" % (timeStamp, suffix))
+                self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.%s%s.dpb" % (tStamp, suffix))
                 # Untitled parts usually do not have a filename
             #bruce 060601 fix bug 1840, also make params sticky across opening of new files
             global _stickyParams
