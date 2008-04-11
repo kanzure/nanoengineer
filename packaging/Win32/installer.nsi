@@ -24,10 +24,15 @@
 !define MUI_WELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "wizard-sidebar.bmp"
 
+InstType "Basic"
+InstType "Full"
+
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !insertmacro MUI_PAGE_LICENSE "..\..\cad\src\dist\Licenses\NanoEngineer-1_License.txt"
+; Components page
+!insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -47,16 +52,32 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${PRODUCT_NICKNAME}"
 OutFile "..\..\cad\src\build\NanoEngineer-1_${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES\NanoEngineer-1 ${PRODUCT_VERSION}"
+InstallDir "$PROGRAMFILES\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
+SectionGroup /e "NanoEngineer-1"
 Section "MainSection" SEC01
+  SectionIn 1 2
   SetOutPath "$INSTDIR"
+  File "..\..\cad\src\dist\ReadMe.html"
   SetOverwrite try
-  File /r "..\..\cad\src\dist\*"
-  
+  SetOutPath "$INSTDIR\bin"
+  File /r "..\..\cad\src\dist\bin\*"
+  SetOutPath "$INSTDIR\doc"
+  File /r "..\..\cad\src\dist\doc\*"
+  SetOutPath "$INSTDIR\Licenses"
+  File /r "..\..\cad\src\dist\Licenses\*"
+  SetOutPath "$INSTDIR\partlib"
+  File /r "..\..\cad\src\dist\partlib\*"
+  SetOutPath "$INSTDIR\plugins"
+  File /r "..\..\cad\src\dist\plugins\*"
+  SetOutPath "$INSTDIR\program"
+  File /r "..\..\cad\src\dist\program\*"
+  SetOutPath "$INSTDIR\src"
+  File /r "..\..\cad\src\dist\src\*"
+
   ; hack
   SetOutPath "$INSTDIR\program"
   File "C:\Qt\4.2.3\bin\QtSvg4.dll"
@@ -70,6 +91,14 @@ Section "MainSection" SEC01
   CreateShortCut "$DESKTOP\NanoEngineer-1.lnk" "$INSTDIR\program\main.exe"
   CreateShortCut "$SMPROGRAMS\NanoEngineer-1 ${PRODUCT_VERSION}\ReadMe.html.lnk" "$INSTDIR\ReadMe.html"
 SectionEnd
+Section /o "Source" SEC_QMX_SRC
+  SectionIn 2
+  SetOutPath "$INSTDIR\source"
+  SetOverwrite try
+  File /r "..\..\cad\src\dist\source\*"
+  SetOutPath "$INSTDIR"
+SectionEnd
+SectionGroupEnd
 
 Section -AdditionalIcons
   SetOutPath $INSTDIR
@@ -109,11 +138,14 @@ Section Uninstall
   RMDir /r "$INSTDIR\Licenses"
   RMDir /r "$INSTDIR\doc"
   RMDir /r "$INSTDIR\bin"
+  RMDir /r "$INSTDIR\source"
   RMDir "$INSTDIR"
+  RMDir "$PROGRAMFILES\Nanorex"
 
   Delete "$DESKTOP\NanoEngineer-1.lnk"
 
-  RMDir /r "$SMPROGRAMS\NanoEngineer-1 ${PRODUCT_VERSION}"
+  RMDir /r "$SMPROGRAMS\Nanorex\NanoEngineer-1 ${PRODUCT_VERSION}"
+  RMDir "$SMPROGRAMS\Nanorex"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
