@@ -20,6 +20,7 @@ but has all different code than before.)
 __author__ = "Mark"
 
 import os
+from datetime import datetime
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QButtonGroup
@@ -295,15 +296,16 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             # end of 060705 changes
     
             suffix = self.suffix
+            timeStamp = datetime.now().isoformat()
             if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
                 import shutil
                 dir, fil = os.path.split(self.assy.filename)
                 fil, ext = os.path.splitext(fil)
-                self.movie.filename = os.path.join(partdir, fil + suffix + '.dpb')
-                self.movie.origfile = os.path.join(partdir, fil + '.orig' + ext)
+                self.movie.filename = os.path.join(partdir, fil + '.' + timeStamp + suffix + '.dpb')
+                self.movie.origfile = os.path.join(partdir, fil + '.' + timeStamp + '.orig' + ext)
                 shutil.copy(self.assy.filename, self.movie.origfile)
             else: 
-                self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
+                self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.%s%s.dpb" % (timeStamp, suffix))
                 # Untitled parts usually do not have a filename
             #bruce 060601 fix bug 1840, also make params sticky across opening of new files
             global _stickyParams
