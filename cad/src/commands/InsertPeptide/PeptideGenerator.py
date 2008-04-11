@@ -25,7 +25,7 @@ from model.chem import Atom
 from model.chunk import Chunk
 
 from model.bonds import bond_atoms
-from model.bonds import NeighborhoodGenerator
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
 from model.bond_constants import atoms_are_bonded
 from model.bond_constants import V_SINGLE, V_DOUBLE, V_AROMATIC
 from operations.bonds_from_atoms import inferBonds

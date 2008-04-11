@@ -38,7 +38,8 @@ from geometry.VQT import atom_angle_radians
 
 import foundation.env as env
 
-from model.bonds import bond_atoms_faster, NeighborhoodGenerator
+from model.bonds import bond_atoms_faster
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
 
 from model.bond_constants import atoms_are_bonded # was: from bonds import bonded
 from model.bond_constants import V_SINGLE

@@ -38,7 +38,8 @@ __author__ = "Will"
 
 from math import sin, cos, pi, floor
 from geometry.VQT import V, vlen
-from model.bonds import NeighborhoodGenerator, bond_atoms, CC_GRAPHITIC_BONDLENGTH
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
+from model.bonds import bond_atoms, CC_GRAPHITIC_BONDLENGTH
 from model.bond_constants import V_GRAPHITE
 from model.chem import Atom
 

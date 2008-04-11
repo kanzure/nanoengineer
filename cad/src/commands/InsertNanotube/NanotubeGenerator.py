@@ -25,7 +25,7 @@ from model.chunk import Chunk
 from model.elements import PeriodicTable
 
 from model.bonds import bond_atoms
-from model.bonds import NeighborhoodGenerator
+from geometry.NeighborhoodGenerator import NeighborhoodGenerator
 
 from model.bond_constants import V_GRAPHITE, V_SINGLE
 ##from bonds_from_atoms import make_bonds
