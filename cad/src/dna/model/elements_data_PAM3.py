@@ -30,7 +30,8 @@ _defaultRad_Color = {
     "Sh3" : (3.0, [0.6, 0.2, 0.6]),
     "Hp3" : (4.5, [0.3, 0.7, 0.3]),
     "Ub3" : (2.3, [0.428, 0.812, 0.808]), #bruce 080117 guess, "light blue"
-
+    "Ux3" : (2.3, [0.428, 0.812, 0.808]), #bruce 080410 stub
+    "Uy3" : (2.3, [0.812, 0.428, 0.808]), #bruce 080410 stub
     }
   
 _altRad_Color = {}
@@ -39,16 +40,23 @@ _altRad_Color = {}
 
 _mendeleev = [
     # B-DNA PAM3 v2 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
+    #
     # Note: the bond vector lists are mainly what we want in length,
     # not necessarily in geometry.
     #
-    #bruce 071106: added option dicts; deprecated_to options are good or bad guesses or unfinished; the X ones might be WRONG
+    #bruce 071106: added option dicts; deprecated_to options are good or bad
+    # guesses or unfinished; the X ones might be WRONG
 
+    #bruce 080410 added Ux3 and Uy3 and updated all general comments below
+
+    # axis and strand sugar -- these make up all the PAM atoms in a simple PAM3 duplex
     ("Ax3", "PAM3-Axis",           300, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')),
     ("Ss3", "PAM3-Sugar",          301, 1.0, [[3, 210, flat]],       dict(role = 'strand')),
-    
+
+    # PAM3 version of Pl5 (never used, in past, present or future)
     ("Pl3", "PAM3-Phosphate",      302, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'remove')), ### ?? unused atom?
-    
+
+    # deprecated PAM3 elements
     ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]],       dict(role = 'strand', deprecated_to = 'Ss3')),
     ("Ae3", "PAM3-Axis-End",       304, 1.0, [[3, 200, tetra3]],     dict(role = 'axis',   deprecated_to = 'Ax3')),
     ("Se3", "PAM3-Sugar-End",      305, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
@@ -60,7 +68,22 @@ _mendeleev = [
     # note: 308 and 309 are not used because they correspond to PAM5 atoms
     # with no PAM3 analogue.
 
+    # unpaired base elements:
+    
+    # one-atom (besides backbone) unpaired base -- might be used, don't know yet
     ("Ub3", "PAM3-Unpaired-base",  310, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')),
+
+    # two-atom (besides backbone) unpaired base -- the PAM5 version of this
+    # (see elements_data_PAM5.py for an explanation of these element symbols
+    #  and names, and something about their purpose)
+    # is a recent proposal under active development and is very likely to
+    # be used; the PAM3 translation is undecided, and might be a single Ub3,
+    # but seems a bit more likely to be a pair of these two, Ux3 and Uy3,
+    # because that way their positions will transform properly with no extra
+    # work when we rotate a set of atoms, and will define a PAM3+5 baseframe:
+    ("Ux3", "PAM3-Unpaired-base-x",  311, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
+    ("Uy3", "PAM3-Unpaired-base-y",  312, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
+    
  ]
 
 # ==
