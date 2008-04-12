@@ -204,7 +204,49 @@ class DnaSegment(DnaStrandOrSegment):
                     print_compact_traceback("bug in killing the ladder chunk")
         
         DnaStrandOrSegment.kill_with_contents(self)
+        
+    def get_DnaSegments_reachable_thru_crossovers(self):
+        """
+        Return a list of DnaSegments that are reachable through the crossovers.
+        
+        @see: ops_select_Mixin.expandDnaComponentSelection()
+        @see: ops_select_Mixin.contractDnaComponentSelection()
+        @see: ops_select_Mixin._expandDnaStrandSelection()
+        @see:ops_select_Mixin._contractDnaStrandSelection()
+        @see: ops_select_Mixin._contractDnaSegmentSelection()
+        @see: DnaStrand.get_DnaStrandChunks_sharing_basepairs()
+        @see: DnaSegment.get_DnaSegments_reachable_thru_crossovers()
+        @see: NFR bug 2749 for details.
+        @see: SelectChunks_GraphicsMode.chunkLeftDouble()
+        """
+        neighbor_segments = []
+        content_strand_chunks = self.get_content_strand_chunks()
+        for c in content_strand_chunks:
+            strand_rail = c.get_ladder_rail()
+            for atm in strand_rail.neighbor_baseatoms:
+                if not atm:
+                    continue               
+                axis_neighbor = atm.axis_neighbor()
+                if not axis_neighbor:
+                    continue
+                dnaSegment = axis_neighbor.molecule.parent_node_of_class(DnaSegment)
+                if dnaSegment and dnaSegment is not self:
+                    if dnaSegment not in neighbor_segments:
+                        neighbor_segments.append(dnaSegment)
+                        
+        return neighbor_segments
     
+    def get_content_strand_chunks(self):
+        """
+        """
+        content_strand_chunks = []
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                ladder = member.ladder
+                content_strand_chunks.extend(ladder.strand_chunks())
+                
+        return content_strand_chunks
+
     def get_all_content_chunks(self):
         """
         Return all the chunks contained within this DnaSegment. This includes 

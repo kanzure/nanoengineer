@@ -29,7 +29,6 @@ from utilities.icon_utilities import geticon
 
 from dna.model.DnaGroup import DnaGroup
 from dna.model.DnaStrand import DnaStrand
-from dna.model.DnaSegment import DnaSegment
 from cnt.model.NanotubeGroup import NanotubeGroup
 
 # Object flags, used by objectSelected() and its callers. 
@@ -208,7 +207,7 @@ class ops_select_Mixin:
         
         selDnaSegmentList = []
         def addSelectedDnaSegment(obj, dnaList = selDnaSegmentList):
-            if obj.picked and isinstance(obj, DnaSegment):
+            if obj.picked and isinstance(obj, self.win.assy.DnaSegment):
                 dnaList += [obj]
 
         self.topnode.apply2all(addSelectedDnaSegment)
@@ -341,6 +340,97 @@ class ops_select_Mixin:
         env.history.message("Selection Inverted")
 
         self.w.win_update()
+        
+    def expandDnaComponentSelection(self, dnaStrandOrSegment):
+        """
+        Expand the DnaComponent selection. DnaComponent can be a strand or a 
+        segment. 
+        For DnaSegment -- it selects that dna segment and the adjacent segments
+        reachable through crossovers. 
+        For DnaStrand it selects that strand and all the complementary strands.
+        @see: self._expandDnaSegmentSelection()
+        @see: SelectChunks_GraphicsMode.chunkLeftDouble()
+        @see: DnaStrand.get_DnaStrandChunks_sharing_basepairs()
+        @see: DnaSegment.get_DnaSegments_reachable_thru_crossovers()
+        @see: NFR bug 2749 for details.
+        """
+        if isinstance(dnaStrandOrSegment, self.win.assy.DnaStrand):
+            self._expandDnaStrandSelection(dnaStrandOrSegment)
+        elif isinstance(dnaStrandOrSegment, self.win.assy.DnaSegment):
+            self._expandDnaSegmentSelection(dnaStrandOrSegment)
+
+    
+    def _expandDnaSegmentSelection(self, dnaSegment):
+        """
+        Expand the selection of such that the segment <dnaSegment> and all its 
+        adjacent DnaSegments reachable through the crossovers, are selected. 
+        @see:self.expandDnaComponentSelection()
+        """
+        assert isinstance(dnaSegment, self.win.assy.DnaSegment)
+        segmentList = [dnaSegment]
+        segmentList.extend(dnaSegment.get_DnaSegments_reachable_thru_crossovers())
+        for segment in segmentList:
+            if not segment.picked:
+                segment.pick()    
+    
+    def _expandDnaStrandSelection(self, dnaStrand):
+        """
+        Expand the selection such that the <dnaStrand> and all its complementary
+        strand chunks are selected. 
+        """
+        assert isinstance(dnaStrand, self.win.assy.DnaStrand)
+        lst = dnaStrand.getStrandChunks()
+        lst.extend(dnaStrand.get_DnaStrandChunks_sharing_basepairs())
+        
+        for c in lst:
+            if not c.picked:
+                c.pick()   
+    
+    def contractDnaComponentSelection(self, dnaStrandOrSegment):
+        """
+        Contract the selection such that:
+        
+        If is a DnaStrand, then that strand and all its complementary
+        strand chunks are deselected.
+        
+        If its a DnaSegment, then that segment and its adjacent segments reachable
+        through cross overs are deselected.
+        
+        @see:self._contractDnaStrandSelection()
+        @see: self._contractDnaSegmentSelection()
+        @see: SelectChunks_GraphicsMode.chunkLeftDouble()
+        @see: DnaStrand.get_DnaStrandChunks_sharing_basepairs()
+        @see: DnaSegment.get_DnaSegments_reachable_thru_crossovers()
+        @see: NFR bug 2749 for details.
+        """
+        if isinstance(dnaStrandOrSegment, self.win.assy.DnaStrand):
+            self._contractDnaStrandSelection(dnaStrandOrSegment)
+        elif isinstance(dnaStrandOrSegment, self.win.assy.DnaSegment):
+            self._contractDnaSegmentSelection(dnaStrandOrSegment)
+    
+    def _contractDnaStrandSelection(self, dnaStrand):
+        assert isinstance(dnaStrand, self.win.assy.DnaStrand)
+        assert isinstance(dnaStrand, self.win.assy.DnaStrand)
+        lst = dnaStrand.getStrandChunks()
+        lst.extend(dnaStrand.get_DnaStrandChunks_sharing_basepairs())
+        
+        for c in lst:
+            if c.picked:
+                c.unpick() 
+    
+    def _contractDnaSegmentSelection(self, dnaSegment):
+        """
+        Contract the selection of the picked DnaSegments such that the segment 
+        <dnaSegment> and all its adjacent DnaSegments reachable through the 
+        crossovers, are deselected. 
+        """
+        assert isinstance(dnaSegment, self.win.assy.DnaSegment)
+        segmentList = [dnaSegment]
+        segmentList.extend(dnaSegment.get_DnaSegments_reachable_thru_crossovers())
+        for segment in segmentList:
+            if segment.picked:
+                segment.unpick()
+    
 
     def selectExpand(self):
         """

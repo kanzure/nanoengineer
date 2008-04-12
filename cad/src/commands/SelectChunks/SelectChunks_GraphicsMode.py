@@ -70,23 +70,103 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         This method is called in self.command.Enter
         @see: B{SelectChunks_basicCommand.Enter}, B{basicCommand.Enter}
         """
-        _superclass.Enter_GraphicsMode(self)        
+        _superclass.Enter_GraphicsMode(self) #also calls self.reset_drag_vars() 
+                                             #etc
+                                             
         self.o.assy.selectChunksWithSelAtoms_noupdate()
             # josh 10/7 to avoid race in assy init     
-            
-        self.reset_drag_vars() #for safety
-        
+                            
     
     def leftDouble(self, event):
         """
-	Select connected chunks
+        Handles LMB doubleclick event.
+        @see:self.chunkLeftDouble()
 	"""
+        self.ignore_next_leftUp_event = True
+        
+        if not self.obj_doubleclicked:
+            return
+        
         #this is a temporary fix for NFR bug 2569. 'Selectconnected chunks not
         #implemented yet
-        if self.cursor_over_when_LMB_pressed != 'Empty Space':            
-            self.selectConnectedChunks()          
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            return
+        
+        chunk = None
+        
+        #Select neighboring DnaSegments            
+        if isinstance(self.obj_doubleclicked, Chunk):
+            chunk = self.obj_doubleclicked
+        elif isinstance(self.obj_doubleclicked, Atom):
+            chunk = self.obj_doubleclicked.molecule
+        elif isinstance(self.obj_doubleclicked, Bond):
+            atm1 = self.obj_doubleclicked.atom1
+            atm2 = self.obj_doubleclicked.atom2
+            #@TODO" For now (2008-04-11, it considers only the chunk of a single
+            #atom (and not atm2.molecule)
+            chunk = atm1.molecule
+        if chunk:
+            self.chunkLeftDouble(chunk, event)        
             
         return
+    
+    def chunkLeftDouble(self, chunk, event):
+        """
+        Select the connected chunks 
+        Note: For Rattlesnake, the implementation is limited for DnaStrands and 
+        DnaSegment. See the following methods to know what it selects/ deselects
+        @see: ops_select_Mixin.expandDnaComponentSelection()
+        @see: ops_select_Mixin.contractDnaComponentSelection()
+        @see: ops_select_Mixin._expandDnaStrandSelection()
+        @see:ops_select_Mixin._contractDnaStrandSelection()
+        @see: ops_select_Mixin._contractDnaSegmentSelection()
+        @see: DnaStrand.get_DnaStrandChunks_sharing_basepairs()
+        @see: DnaSegment.get_DnaSegments_reachable_thru_crossovers()
+        @see: NFR bug 2749 for details.
+	"""
+        if self.selection_locked():
+            return
+        
+        if not isinstance(chunk, Chunk):
+            return
+        
+        if chunk.isNullChunk():
+            #The chunk might have got deleted (during first leftUp operation
+            #before it calls leftDouble-- Reason: it might have got deleted 
+            #during first leftUp of a Shift + Control  double click. 
+            #When the chunk is killed, its treated as a _nullMol_Chunk before 
+            #the next update. For rattlesnake release, we don't support 
+            #delete connected on chunks so return from the left double.
+            return
+        
+        
+        dnaStrandOrSegment = chunk.parent_node_of_class(self.win.assy.DnaStrandOrSegment)
+        
+        if dnaStrandOrSegment:
+            if self.o.modkeys == 'Control':
+                self.win.assy.contractDnaComponentSelection(dnaStrandOrSegment)
+            elif self.o.modkeys == 'Shift+Control':
+                #Deleting conneced dna components not supported for Rattlesnake 
+                #release
+                pass
+            else:
+                self.win.assy.expandDnaComponentSelection(dnaStrandOrSegment)
+        else: 
+            #Selecting / deselecting / deleting connected regular chunks is not
+            #supported for Rattlesnke release
+            if self.o.modkeys == 'Control':
+                pass
+                ##self.o.assy.unselectConnected( [ chunk ] )
+            elif self.o.modkeys == 'Shift+Control':
+                #Deleting conneced chunks not supported for Rattlesnake 
+                #release
+                pass
+            else:
+                pass
+                ##self.o.assy.selectConnected( [ chunk ] )
+            
+        return
+    
     
     def selectConnectedChunks(self):
         """
@@ -209,8 +289,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.atomLeftUp
         @see: self.chunkLeftDown
         
-        """
-        
+        """        
         #Note: The following check is already done in 
         #selectMode.doObjectspecificLeftUp. 
         #self.chunkLeftUp method should never be called if
@@ -220,8 +299,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #(e.g. leftup on a bondPoint etc), this method is invoked. 
         #although it is a bug, its harmless because we do proper check here.
         #So print a warning message if ATOM_DEBUG flag is enabled. 
-        
-        
         
         if not self.current_obj_clicked:
             if debug_flags.atom_debug:
@@ -263,6 +340,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             m.pick()          
         elif self.o.modkeys == 'Shift+Control':
             obj = self.get_obj_under_cursor(event)
+            ##if not obj is self.obj_doubleclicked:
             if obj is self.o.selobj:
                 m.kill()                
             self.o.selobj =  None             
@@ -707,6 +785,16 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Event handler for all LMB release events.
         """
         env.history.flush_saved_transients()
+
+        if self.ignore_next_leftUp_event:
+            # This event is the second leftUp of a double click, so ignore it.
+            # [REVIEW: will resetting this flag here cause trouble for a triple
+            #  click? I guess/hope not, since that also calls leftDouble and
+            #  sets this. bruce comment 071022]
+            self.ignore_next_leftUp_event = False
+            self.update_selobj(event) # Fixes bug 1467. mark 060307.
+            return
+        
 
         #Enable the highlighting which might be turned off during left drag 
         #@warning: When we add the chunk highlighting to the preferences, 

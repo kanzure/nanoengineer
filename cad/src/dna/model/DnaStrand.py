@@ -280,6 +280,29 @@ class DnaStrand(DnaStrandOrSegment):
 
         return numberOfBases
 
+    def get_DnaStrandChunks_sharing_basepairs(self):
+        """
+        Returns a list of strand chunk that have atleast one complementary 
+        strand baseatom with self. 
+        @see: ops_select_Mixin.expandDnaComponentSelection()
+        @see: ops_select_Mixin._expandDnaStrandSelection()
+        @see:ops_select_Mixin._contractDnaStrandSelection()
+        @see: ops_select_Mixin._contractDnaSegmentSelection()
+        @see: SelectChunks_GraphicsMode.chunkLeftDouble()
+        """
+        #REVIEW-- method needs optimization -- Ninad 2008-04-12
+        complementary_strand_chunks = []
+        
+        for c in self.getStrandChunks():
+            ladder = c.ladder
+            for strandChunk in ladder.strand_chunks():
+                if not strandChunk is c:
+                    if strandChunk not in complementary_strand_chunks:
+                        complementary_strand_chunks.append(strandChunk)
+                                
+        return complementary_strand_chunks
+    
+    
     def get_strand_wholechain(self):
         """
         Return the 'wholechain' of the strand chunk within this dna group. 
