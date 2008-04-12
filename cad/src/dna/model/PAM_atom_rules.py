@@ -12,6 +12,8 @@ or hardcoded in other files)
 
 from model.elements import Singlet
 
+from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
+
 # ==
 
 def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
@@ -60,6 +62,14 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
         # we don't need to check for "both non-PAM", since we're not called
         # for such atoms (and if we were, we might as well allow them together)
 
+        # compare manual pam conversion requests
+        if _f_baseatom_wants_pam.get(a1.key) != _f_baseatom_wants_pam.get(a2.key):
+            if explain_false:
+                print "different requested manual pam conversion:", \
+                      _f_baseatom_wants_pam.get(a1.key), \
+                      _f_baseatom_wants_pam.get(a2.key)
+            return False
+        
         # compare pam-related properties of chunks
         chunk1 = a1.molecule
         chunk2 = a2.molecule

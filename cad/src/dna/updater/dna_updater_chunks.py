@@ -12,6 +12,7 @@ from foundation.state_utils import transclose
 from dna.updater.dna_updater_globals import ignore_new_changes
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
+from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
 
 from utilities import debug_flags
 
@@ -131,6 +132,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     dissolve_or_fragment_invalid_ladders( changed_atoms)
         # note: this adds atoms (live atoms only) to changed_atoms;
         # see its comments and above comment for details.
+
+    # TODO: make sure _f_baseatom_wants_pam is extended to cover whole basepairs
+    # (unless all code which stores into it does that)
     
     # Find the current axis and strand chains (perceived from current bonding)
     # on which any changed atoms reside, but only scanning along atoms
@@ -249,7 +253,11 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
                 # be done to it again.
             continue
         pass
+    ladders_dict.clear()
     del ladders_dict
+    locator.clear()
+    del locator
+    _f_baseatom_wants_pam.clear()
     
     # Note: if ladders were converted, their chains are still ok,
     # since those only store baseatoms (for strand and axis),

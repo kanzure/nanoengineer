@@ -41,6 +41,7 @@ from dna.model.pam3plus5_ops import find_Pl_between
 
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
+from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
 
 # ==
 
@@ -119,18 +120,35 @@ class DnaLadder_pam_conversion_methods:
         """
         self._cmd_convert_to_pam(MODEL_PAM3)
 
-    # todo: also a command to "convert to default PAM display" which sets chunk.display_as_pam = None
-    # (what to call it?)
-    # (or just make the one that corresponds to that, do that, if it's pam3 at least??)
+##    # todo: also a command to "convert to default PAM display"
+####    # which sets chunk.display_as_pam = None
+##    # (what to call it?)
+##    # (or just make the one that corresponds to that, do that, if it's pam3 at least??) [no]
     
     def _cmd_convert_to_pam(self, which_model):
         """
         Command to convert all of self to one of the PAM_MODELS.
         """
+        #revised, bruce 080411
+        _f_baseatom_wants_pam.clear() # precaution
+            # ASSUME WE ARE DOING THIS FOR ONLY SELF, NOT ANYTHING ELSE AT SAME TIME
+        
         env.history.graymsg(quote_html("Debug fyi: Convert %r to %s" % (self, which_model))) #####
+        
+##        for chunk in self.all_chunks():
+##            chunk.display_as_pam = which_model
+##            chunk.changed() # calls assy.changed(); might be needed
+
+        for rail in self.all_rails():
+            for baseatom in rail.baseatoms:
+                _f_baseatom_wants_pam[baseatom.key] = which_model
+        self.arbitrary_baseatom().molecule.assy.changed() # might be needed
         for chunk in self.all_chunks():
-            chunk.display_as_pam = which_model
-            chunk.changed() # calls assy.changed(); might be needed
+            chunk.display_as_pam = None
+            del chunk.display_as_pam
+            chunk.save_as_pam = None
+            del chunk.save_as_pam
+        
         self.invalidate()
             # this tells dna updater to remake self from scratch;
             # it will notice display_as_pam differing from element.pam of the
@@ -166,9 +184,8 @@ class DnaLadder_pam_conversion_methods:
 
         @return: a pair of booleans: (conversion_wanted, conversion_succeeded).
         """
-        want = self.arbitrary_baseatom().molecule.display_as_pam
-        if not want:
-            want = default_pam_model # might be None, which means, whatever you already are
+        want = self._want_pam(default_pam_model)
+            # might be None, which means, whatever you already are
         have = self.pam_model() # might be MODEL_MIXED
         if want == have or want is None:
             # no conversion needed
@@ -191,6 +208,20 @@ class DnaLadder_pam_conversion_methods:
             # per chunk, the last succeeding pam as well as the last desired one?
         return True, succeeded
 
+    def _want_pam(self, default_pam_model): #bruce 080411
+        """
+        """
+        atom = self.arbitrary_baseatom()
+            # by construction, all our baseatoms want the same pam_model
+        try:
+            return _f_baseatom_wants_pam[atom.key] # supersedes everything else
+        except KeyError:
+            pass
+        want = atom.molecule.display_as_pam
+        if not want:
+            want = default_pam_model # might be None, which means, whatever you already are
+        return want
+    
     def _convert_to_pam(self, pam_model): #bruce 080401
         """
         [private helper for _f_convert_pam_if_desired; other calls might be added]

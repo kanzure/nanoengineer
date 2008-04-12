@@ -112,6 +112,13 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
 
 # ==
 
+_f_baseatom_wants_pam = {}
+    # maps baseatom.key to a PAM_MODEL it wants updater to convert it to
+    #bruce 080411, for use instead of chunk attrs like .display_as_pam
+    # by commands for manual conversion of PAM model
+
+# ==
+
 # These should be cleared at the start and end of any dna updater run.
 
 _f_DnaGroup_for_homeless_objects_in_Part = {}
