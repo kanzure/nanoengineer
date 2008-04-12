@@ -565,9 +565,27 @@ class DnaLadderRailChunk(Chunk):
 
     # == convenience methods for external use, e.g. access methods
 
-    def get_ladder_rail(self): # todo: use more widely
+    def get_ladder_rail(self):
+        # todo: use more widely (but only when safe!) # revised 080411
         """
+        @warning: This is only legitimate to call if you know that self is a
+                  chunk which was made by a valid DnaLadder's remake_chunks
+                  method and that ladder was not subsequently invalidated.
+                  When this is false (i.e. when not self.ladder and self.
+                  ladder.valid), it ought to assert 0, but to mitigate
+                  bugs in callers, it instead debug prints and does its best,
+                  sometimes returning a rail in an invalid ladder and sometimes
+                  returning None. It also prints and returns None if the rail
+                  can't be found in self.ladder.
         """
+        ladder = self.ladder
+        if not ladder:
+            print "BUG: %r.get_ladder_rail() but self.ladder is None" % self
+            return None
+        if not ladder.valid:
+            print "BUG: %r.get_ladder_rail() but self.ladder %r is not valid" % \
+                  (self, ladder)
+            # but continue and return the rail if you can find it
         for rail in self.ladder.all_rails():
             if rail.baseatoms[0].molecule is self:
                 return rail
@@ -582,6 +600,8 @@ class DnaLadderRailChunk(Chunk):
         # are in them). This might be related to some existing bugs, maybe even undo bugs...
         # so we need to turn them into regular chunks, I think. (Not by class assignment,
         # due to Undo.) [bruce 080405 comment]
+        print "BUG: %r.get_ladder_rail() can't find the rail using self.ladder %r" % \
+              (self, ladder)
         return None
 
     def get_baseatoms(self):
@@ -672,6 +692,7 @@ class DnaLadderRailChunk(Chunk):
         # TODO: all uses of get_baseatoms or even self.ladder should test this @@@@@@
         # (review whether get_baseatoms should return [] when this is False)
         # (see also the comments in get_ladder_rail)
+        # see also: self._ladder_is_fully_ok()
         ladder = self.ladder
         return ladder and ladder.valid # ok even if ladder.error
     
@@ -784,6 +805,7 @@ class DnaLadderRailChunk(Chunk):
         return dict([(atom.key, atom) for atom in atoms])
 
     def _ladder_is_fully_ok(self): #bruce 080411 split this out; it might be redundant with other methods
+        # see also: self.__ok()
         ladder = self.ladder
         return ladder and ladder.valid and not ladder.error
     

@@ -46,8 +46,10 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
      recently, since this info is normally only present on Ss3 atoms.)
 
     Assume the neighbors are in DnaLadders with up to date baseframe info
-    already computed and stored. This may not be checked, and out of date
-    info would cause hard-to-notice bugs.
+    already computed and stored (but not necessarily that these ladders
+    have remade their chunks, meaning atom.molecule.ladder might not exist
+    or point to the new DnaLadders). The up to dateness of the baseframe info
+    may not be checked, and out of date info would cause hard-to-notice bugs.
 
     @return: new absolute position, or None if we can't compute one (error).
 
@@ -367,7 +369,9 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
 
     Assume the neighbors are in the same basepair in a DnaLadder
     with up to date baseframe info already computed and stored.
-    This may not be checked, and out of date
+    (See warning in Pl_pos_from_neighbor_PAM3plus5_data about atom.
+     molecule.ladder perhaps being wrong or missing.)
+    This up to dateness may not be checked, and out of date
     info would cause hard-to-notice bugs.
 
     @return: new absolute position, or None if we can't compute one (error).
@@ -409,6 +413,25 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
         return proposed_posns[0]
 
     return average_value( proposed_posns)
+
+# ==
+
+def _f_find_new_ladder_location_of_baseatom(self): #bruce 080411 split common code out of several methods
+    # current buggy version (the assert ladder.valid below will typically always fail)
+    ladder = self.molecule.ladder
+    assert ladder
+    assert ladder.valid # routinely fails (for a known reason)...
+    whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+        # TODO: pass index hint to optimize?
+    return ladder, whichrail, index
+
+def _f_baseframe_data_at_baseatom(self): #bruce 080411 split common code out of several methods
+    # current buggy version
+    ladder, whichrail, index = _f_find_new_ladder_location_of_baseatom(self)
+    origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
+        # we trust caller to make sure this is up to date (no way to detect if not)
+        # implem note: if we only store top baseframes, this will derive bottom ones on the fly
+    return origin, rel_to_abs_quat, y_m_junk
 
 # ==
 

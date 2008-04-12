@@ -54,6 +54,8 @@ from dna.model.pam3plus5_math import default_Gv_relative_position
     # (could fold this into a ladder method if desired)
 
 from dna.model.pam3plus5_ops import Pl_pos_from_neighbor_PAM3plus5_data
+from dna.model.pam3plus5_ops import _f_baseframe_data_at_baseatom
+
 
 from geometry.VQT import norm
 from Numeric import dot
@@ -451,7 +453,9 @@ class PAM_Atom_methods:
         [friend method for dna updater]
 
         Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
-        in the same or different DnaLadders, which have finished doing
+        in the same or different DnaLadders, WHICH MAY NOT HAVE YET REMADE
+        THEIR CHUNKS (i.e. which may differ from atom.molecule.ladder for
+         their atoms, if that even exists), which have finished doing
         a pam conversion or decided not to or didn't need to
         (i.e. which are in their proper post-conversion choice of model),
         and that self has proper directional bonds.
@@ -498,7 +502,9 @@ class PAM_Atom_methods:
         [friend method for dna updater]
 
         Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
-        in the same or different DnaLadders,
+        in the same or different DnaLadders, WHICH MAY NOT HAVE YET REMADE
+        THEIR CHUNKS (i.e. which may differ from atom.molecule.ladder for
+        their atoms, if that even exists),
         and that self has proper directional bonds,
         and that self's current position is meaningless or out of date
         (and should be ignored).
@@ -510,7 +516,8 @@ class PAM_Atom_methods:
         (Note that the analogous method on class Fake_Pl would *not*
          remove that data from its neighbors.)
 
-        Assume that self's neighbors' DnaLadders have up-to-date stored
+        Assume that self's neighbors' DnaLadders (which, like self's,
+        may not yet have remade their chunks) have up-to-date stored
         PAM basepair baseframe data to help do the necessary coordinate
         conversions. (This might not be checked. Using out of date data
         would cause hard-to-notice bugs.)
@@ -541,7 +548,9 @@ class PAM_Atom_methods:
         [friend method for dna updater]
 
         Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
-        in the same or different DnaLadders,
+        in the same or different newly made DnaLadders -- WHICH MAY NOT
+        HAVE YET REMADE THEIR CHUNKS (i.e. which may differ from atom.
+         molecule.ladder for their atoms, if that even exists) --
         and that self has proper directional bonds,
         and that self's current position is definitive
         (i.e. that any "PAM3plus5 Pl-position data" on self's
@@ -605,12 +614,13 @@ class PAM_Atom_methods:
          also transmuted to Ss3 if necessary, but all that is
          up to the caller.)
 
-        Assume that self's DnaLadder has up-to-date stored
-        PAM basepair baseframe data to help do the necessary coordinate
-        conversions. (This might not be checked. Using out of date data
-        would cause hard-to-notice bugs. Note that the global formerly called
-        ladders_dict only assures that the baseframes are set for the
-        basepairs at the ends of a ladder.)
+        Assume that self's DnaLadder -- WHICH MAY NOT HAVE YET REMADE ITS CHUNKS
+        (i.e. which may differ from atom.molecule.ladder for its atoms, if that
+         even exists) -- has up-to-date stored PAM basepair baseframe data to
+        help do the necessary coordinate conversions. (This might not be checked.
+        Using out of date data would cause hard-to-notice bugs. Note that the
+        global formerly called ladders_dict only assures that the baseframes
+        are set for the basepairs at the ends of a ladder.)
 
         No effect on other "PAM3plus5 data" (if any) on self's neighbors
         (e.g. Pl-position data).
@@ -1368,13 +1378,7 @@ class PAM_Atom_methods:
                 # remove when works if routine; leave in if never seen, to notice bugs;
                 # current caller tries not to call in this case, so this should not happen
             return
-        ladder = self.molecule.ladder
-        assert ladder
-        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-            # TODO: pass index hint to optimize?
-        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
-            # we trust caller to make sure this is up to date (no way to detect if not)
-            # implem note: if we only store top baseframes, this will derive bottom ones on the fly
+        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
         relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
         if not self._PAM3plus5_Pl_Gv_data:
             self._PAM3plus5_Pl_Gv_data = [None, None, None]
@@ -1428,10 +1432,7 @@ class PAM_Atom_methods:
             return None
         else:
             relpos = data
-            ladder = self.molecule.ladder
-            assert ladder
-            whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-            origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
+            origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
             return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
         pass # end of _recommend_PAM3plus5_abspos
 
@@ -1439,10 +1440,7 @@ class PAM_Atom_methods:
         """
         """
         relpos = default_Pl_relative_position(direction)
-        ladder = self.molecule.ladder
-        assert ladder
-        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) # todo: factor this out, used in 3 places
+        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self) 
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
 
     # methods related to storing PAM3+5 Gv data on Ss
@@ -1458,7 +1456,9 @@ class PAM_Atom_methods:
         at absolute position abspos, converting this to a relative position
         using the baseframe info corresponding to self stored in
         self's DnaLadder, which must exist and be up to date
-        (assumed, not checked).
+        (assumed, not checked), BUT WHICH MAY NOT
+        HAVE YET REMADE ITS CHUNKS (i.e. which may differ from atom.
+         molecule.ladder for its atoms, if that even exists).
 
         @warning: slow for non-end atoms of very long ladders, due to a
                   linear search for self within the ladder. Could be optimized
@@ -1491,10 +1491,7 @@ class PAM_Atom_methods:
         """
         relpos = default_Gv_relative_position() # (a constant)
         # following code is the same as for the Pl version
-        ladder = self.molecule.ladder
-        assert ladder
-        whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-        origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index) # todo: factor this out, used in 3 places
+        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self) 
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
 
     # == end of PAM strand atom methods

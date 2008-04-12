@@ -562,6 +562,10 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                  and index is from 0 to len(self) - 1, such that
                  self.rail_at_index(whichrail).baseatoms[index] is baseatom.        
         """
+        if not self.valid: #bruce 080411
+            # maybe make this an assertion failure?
+            print "likely bug: invalid ladder in whichrail_and_index_of_baseatom(%r, %r)" % \
+                  (self, baseatom)
         # TODO: pass index hint to optimize?
         look_at_rails = self.rail_indices_and_rails(baseatom)
         for index in range(-1, len(self) - 1):
@@ -1222,7 +1226,14 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         contains None (for an end there), self, or the same ladder twice.
         The actual length of the returned list is twice the number of
         strand rails of self.
+
+        @note: this is safe to call on freshly made valid ladders which
+               didn't yet remake their chunks.
         """
+        assert self.valid
+        if self.error:
+            print "possible bug: strand_neighbor_ladders called on %r " \
+                  " which has error = %r" % (self, self.error)
         res = []
         for rail in self.strand_rails:
             for end in LADDER_ENDS:
@@ -1240,6 +1251,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                  if that strand ends at that corner.
 
         @note: can be wrong if self.error or not self.valid (not checked).
+
+        @note: this is safe to call on freshly made valid ladders which
+               didn't yet remake their chunks.
         """
         bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         if rail is not self.strand_rails[0]:

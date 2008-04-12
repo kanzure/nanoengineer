@@ -301,6 +301,7 @@ class DnaLadder_pam_conversion_methods:
         # note: make this work even if not needed (already correct pam model)
         # for robustness (if in future we have mixed models, or if bugs call it twice),
         # but say this happens in a print (since unexpected)
+        assert self.valid and not self.error
         axis_atoms = self.axis_rail.baseatoms
         if want_pam_model == MODEL_PAM5:
             # they are presumably Ax3, need to become Gv5 and get moved.
@@ -364,6 +365,7 @@ class DnaLadder_pam_conversion_methods:
         moves and transmutes strand sugar PAM atoms, and makes or removes Pls,
         but does not notice ghost status of bases or remove ghost bases
         """
+        assert self.valid and not self.error
         # note: make this work even if not needed (already correct pam model)
         # for robustness (if in future we have mixed models, or if bugs call it twice),
         # but say this happens in a print (since unexpected)
@@ -458,6 +460,7 @@ class DnaLadder_pam_conversion_methods:
          if needed and correct re bond directions.)
         ### REVIEW: is that case handled in _f_finish_converting_bridging_Pl_atoms?
         """
+        assert self.valid and not self.error
         # similar code to _bridging_Pl_atoms, and much of its checks are
         # redundant and not needed in both -- REVIEW which one to remove them from
         if self.error or not self.valid:
@@ -509,6 +512,7 @@ class DnaLadder_pam_conversion_methods:
                be done to it again (by some other call of this method
                from the same caller using the same dict).
         """
+        assert self.valid and not self.error
         for Pl in self._bridging_Pl_atoms():
             Pl._f_Pl_finish_converting_if_needed()
                 # note: this might kill Pl.
@@ -597,6 +601,7 @@ class DnaLadder_pam_conversion_methods:
     # ==
     
     def clear_baseframe_data(self):
+        assert self.valid # otherwise caller must be making a mistake to call this on self
         self._baseframe_data = None
             # if not deleted, None means it had an error,
             # not that it was never computed, so:
@@ -613,6 +618,10 @@ class DnaLadder_pam_conversion_methods:
         """
         #doc
         """
+        if not self.valid: #bruce 080411
+            # maybe make this an assertion failure?
+            print "likely bug: invalid ladder in _f_baseframe_data_at(%r, %r, %r)" % \
+                  (self, whichrail, index)
         ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
         # review: is this code needed elsewhere?
         # caller is not sure self._baseframe_data is computed and/or
@@ -649,6 +658,7 @@ class DnaLadder_pam_conversion_methods:
         """
         @return: success boolean
         """
+        assert self.valid and not self.error
         # note: this implem is for an axis ladder, having any number of strands.
         # The DnaSingleStrandDomain subclass overrides this. #### DOIT
         # This version, when converting to PAM5, first makes up "ghost bases"

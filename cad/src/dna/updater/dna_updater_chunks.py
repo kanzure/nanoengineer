@@ -204,9 +204,11 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         pass
     
     for ladder in all_new_unmerged_ladders:
+        assert ladder.valid, "bug: new ladder %r not valid!" % self
         wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
             # this sets baseframe data if conversion succeeds,
             # and stores ladder in ladders_dict, with value False
+        assert ladder.valid, "bug: _f_convert_pam_if_desired made %r invalid!" % ladder
         didit = wanted and succeeded 
         failed = wanted and not succeeded
         number_converted += not not didit
@@ -220,6 +222,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 ##            ladders_dict[ladder] = None # TODO: refactor this -- see above comment
         for ladder in all_new_unmerged_ladders:
             ladder._f_finish_converting_bridging_Pl_atoms()
+            assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
                 # (don't pass ladders_dict, it's accessed as the global which
                 #  is assigned to it above [080409 revision])
                 # the ladders in ladders_dict are known to have valid baseframes
