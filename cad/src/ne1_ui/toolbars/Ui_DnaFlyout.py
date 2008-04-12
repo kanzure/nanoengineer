@@ -360,22 +360,16 @@ class DnaFlyout:
     def convertPAM3to5Command(self):
         """
         Slot for B{Convert PAM3 to PAM5} action.
-        @see: MWSemantics.orderDna
+        @see: ops_atoms_Mixin.convertPAM3to5Command
         """
-        msg1 = greenmsg("Convert PAM3 to PAM5: ")
-        msg2 = "Not implemented yet."
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
+        self.win.assy.convertPAM3to5Command()
         
     def convertPAM5to3Command(self):
         """
         Slot for B{Convert PAM5 to PAM3} action.
-        @see: MWSemantics.orderDna
+        @see: ops_atoms_Mixin.convertPAM5to3Command
         """
-        msg1 = greenmsg("Convert PAM5 to PAM3: ")
-        msg2 = "Not implemented yet."
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
+        self.win.assy.convertPAM5to3Command()
         
     def orderDnaCommand(self):
         """

@@ -1,10 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_atoms.py -- operations on the atoms and/or bonds inside a Part.
 These operations generally create or destroy atoms, bondpoints, or real bonds.
 Operations specific to single modes (Build, Cookie, Extrude) are not included here.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -21,15 +22,18 @@ from model.elements import Singlet
 import foundation.env as env
 
 class ops_atoms_Mixin:
-    "Mixin class for providing these methods to class Part"
+    """
+    Mixin class for providing these methods to class Part
+    """
     
     def modifyTransmute(self, elem, force = False, atomType=None): 
-        ''' This method was originally a method of class mode and selectMode.
-            Transmute selected atoms into <elem> and with an optional <atomType>. 
-            <elem> is an element number that selected atoms will be transmuted to.
-            <force>: boolean variable meaning keeping existing bond or not.
-            <atomType>: the optional hybrid bond type if the element support hybrid. --Huaicai[9/1/05]'''
-                
+        """
+        This method was originally a method of class mode and selectMode.
+        Transmute selected atoms into <elem> and with an optional <atomType>. 
+        <elem> is an element number that selected atoms will be transmuted to.
+        <force>: boolean variable meaning keeping existing bond or not.
+        <atomType>: the optional hybrid bond type if the element support hybrid. --Huaicai[9/1/05]
+        """    
         # now change selected atoms to the specified element
         # [bruce 041215: this should probably be made available for any modes
         #  in which "selected atoms" are permitted, not just Select modes. #e]
@@ -59,9 +63,9 @@ class ops_atoms_Mixin:
     
     
     def modifyDeleteBonds(self):
-        """Delete all bonds between selected and unselected atoms or chunks
         """
-        
+        Delete all bonds between selected and unselected atoms or chunks
+        """
         cmd = greenmsg("Delete Bonds: ")
         
         if not self.selatoms and not self.selmols: # optimization, and different status msg
@@ -129,9 +133,9 @@ class ops_atoms_Mixin:
     # It is more informative about the number of chunks modified, etc.
     # Mark 050124
     def modifyHydrogenate(self):
-        """Add hydrogen atoms to bondpoints on selected chunks/atoms.
         """
-        
+        Add hydrogen atoms to bondpoints on selected chunks/atoms.
+        """
         cmd = greenmsg("Hydrogenate: ")
         
         fixmols = {} # helps count modified mols for statusbar
@@ -193,9 +197,9 @@ class ops_atoms_Mixin:
     #  and cleaned up (and perhaps further bugfixed) after shakedown changes
     #  on 041118.)
     def modifyDehydrogenate(self):
-        """Remove hydrogen atoms from selected chunks/atoms.
         """
-        
+        Remove hydrogen atoms from selected chunks/atoms.
+        """
         cmd = greenmsg("Dehydrogenate: ")
         
         fixmols = {} # helps count modified mols for statusbar
@@ -251,6 +255,20 @@ class ops_atoms_Mixin:
         env.history.message(cmd + didwhat)
         return
 
+    def convertPAM3to5Command(self):
+        msg1 = greenmsg("Convert PAM3 to PAM5: ")
+        msg2 = "Not implemented yet."
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
+        return
+    
+    def convertPAM5to3Command(self):
+        msg1 = greenmsg("Convert PAM5 to PAM3: ")
+        msg2 = "Not implemented yet."
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
+        return
+    
     pass # end of class ops_atoms_Mixin
 
 # end
