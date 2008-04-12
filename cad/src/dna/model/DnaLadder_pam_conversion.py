@@ -38,6 +38,7 @@ from dna.model.pam3plus5_math import baseframe_rel_to_abs
 from dna.model.pam3plus5_ops import Gv_pos_from_neighbor_PAM3plus5_data
 from dna.model.pam3plus5_ops import insert_Pl_between
 from dna.model.pam3plus5_ops import find_Pl_between
+from dna.model.pam3plus5_ops import kill_Pl_and_rebond_neighbors
 
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict

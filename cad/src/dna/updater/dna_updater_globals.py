@@ -117,6 +117,18 @@ _f_baseatom_wants_pam = {}
     #bruce 080411, for use instead of chunk attrs like .display_as_pam
     # by commands for manual conversion of PAM model
 
+# note: Pl atoms are not baseatoms! To use _f_baseatom_wants_pam on them,
+# you need this function:
+
+def _f_anyatom_wants_pam(atom): #bruce 080411
+    # not counting its chunk attrs, just looking at _f_baseatom_wants_pam properly
+    if atom.element.symbol == 'Pl5':
+        atom = atom.Pl_preferred_Ss_neighbor()
+        if atom is None:
+            # that method printed a bug note already
+            return None
+    return _f_baseatom_wants_pam.get(atom.key)
+
 # ==
 
 # These should be cleared at the start and end of any dna updater run.

@@ -12,10 +12,10 @@ or hardcoded in other files)
 
 from model.elements import Singlet
 
-from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
+from dna.updater.dna_updater_globals import _f_anyatom_wants_pam
 
 # ==
-
+        
 def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
     # has known bugs, see comment; in future may apply only within rails
     """
@@ -63,11 +63,11 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
         # for such atoms (and if we were, we might as well allow them together)
 
         # compare manual pam conversion requests
-        if _f_baseatom_wants_pam.get(a1.key) != _f_baseatom_wants_pam.get(a2.key):
+        if _f_anyatom_wants_pam(a1) != _f_anyatom_wants_pam(a2):
             if explain_false:
                 print "different requested manual pam conversion:", \
-                      _f_baseatom_wants_pam.get(a1.key), \
-                      _f_baseatom_wants_pam.get(a2.key)
+                      _f_anyatom_wants_pam(a1), \
+                      _f_anyatom_wants_pam(a2)
             return False
         
         # compare pam-related properties of chunks

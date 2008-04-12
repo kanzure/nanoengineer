@@ -141,7 +141,8 @@ def kill_Pl_and_rebond_neighbors(atom):
         
         if element is Singlet:
             num_bondpoints += 1
-        elif element.symbol in ('Ss3',): ## 'Ss5'): # [in the 080408 copy, will always be Ss3 AFAIK]
+        elif element.symbol in ('Ss3', 'Ss5'):
+            # [in the 080408 copy, will often be one of each!]
             pass
         else:
             bad = True

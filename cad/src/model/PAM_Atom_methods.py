@@ -488,6 +488,8 @@ class PAM_Atom_methods:
                 self._f_Pl_store_position_into_Ss3plus5_data()
                     # sets flag to false
             print "fyi: stored pos of %r, will kill it and rebond neighbors" % self ####
+            from dna.model.pam3plus5_ops import kill_Pl_and_rebond_neighbors
+                # this may need to remain a runtime import due to likely import cycle issues
             kill_Pl_and_rebond_neighbors(self)
             ###REVIEW: does killing self mess up its chain or its DnaLadderRailChunk?
         else:
@@ -586,7 +588,7 @@ class PAM_Atom_methods:
         for direction_to, ss in self.bond_directions_to_neighbors():
             if ss.element.role == 'strand':
                 # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
-                ss._f_store_PAM3plus5_Pl_abs_position( - direction, pos)
+                ss._f_store_PAM3plus5_Pl_abs_position( - direction_to, pos)
             continue
 
         self._f_Pl_posn_is_definitive = False
@@ -1383,7 +1385,7 @@ class PAM_Atom_methods:
         if not self._PAM3plus5_Pl_Gv_data:
             self._PAM3plus5_Pl_Gv_data = [None, None, None]
         self._PAM3plus5_Pl_Gv_data[data_index] = relpos
-        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
+        print "fyi, on %r for data_index %r stored relpos %r" % (self, data_index, relpos) ####
             ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
         return 
 
