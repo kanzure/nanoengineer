@@ -400,6 +400,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         return # from Chunk.__init__
 
     # ==
+    
+    def isNullChunk(self):
+        """
+        If chunk is a Null molecule (can happen in certain cases if the chunk 
+        gets killed. By default, it returns False. This is overridden in subclass
+        _nullMol_Chunk ONLY.
+        @see: _nullMol_Chunk.isNullChunk()
+        """
+        return False
 
     def invalidate_ladder(self): #bruce 071203
         """
@@ -4048,6 +4057,18 @@ class _nullMol_Chunk(Chunk):
         else:
             print msg
         return
+    
+    def isNullChunk(self):
+        """
+        If chunk is a Null molecule (can happen in certain cases if the chunk 
+        gets killed. By default, it returns False. This is overridden in subclass
+        _nullMol_Chunk ONLY.
+        
+        This method helps replace comparisons to _nullMol (helps with imports, 
+        replaces set_undo_nullMol, permits per-assy _nullMol if desired)
+        """
+        return True
+    
     pass # end of class _nullMol
 
 # ==
