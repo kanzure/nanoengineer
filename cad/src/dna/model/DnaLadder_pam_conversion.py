@@ -10,6 +10,7 @@ and (perhaps in future) related helper functions.
 
 from model.elements import Pl5, Ss5, Ax5, Gv5
 from model.elements import      Ss3, Ax3
+from model.elements import Singlet
 
 from model.bonds import bond_direction #e rename
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
@@ -630,6 +631,35 @@ class DnaLadder_pam_conversion_methods:
                 continue
             continue
         return res
+
+    def fix_bondpoint_positions_at_ends_of_rails(self): #bruce 080411
+        fix_soon = {}
+        def _fix(atom):
+            fix_soon[atom.key] = atom
+        # first, strand rails [this is not working as of 080411 +1:14am PT]
+        for end_atom, next_atom in self._corner_atoms_with_next_atoms_or_None():
+            _fix(end_atom)
+            if next_atom is not None and next_atom.element is Pl5:
+                # a Pl, maybe with a bondpoint
+                _fix(next_atom)
+        # next, axis rails [this seems to work]
+        if self.axis_rail:
+            _fix(self.axis_rail.baseatoms[0])
+            _fix(self.axis_rail.baseatoms[-1])
+        # now do it
+        for atom in fix_soon.values():
+            if atom.element is Singlet:
+                print "didn't expect X here:", atom
+                continue
+            atom.reposition_baggage()
+                # Note: on baseatoms (and on Pl if we extend it for that),
+                # this ends up setting a flag which causes a later call
+                # by the same dna updater run as we're in now
+                # to call self._f_reposition_baggage. As of now,
+                # that only works for baseatoms, not Pls sticking out from them.
+                # But maybe the direct code will work ok for Pl.
+            continue
+        return
     
     # ==
     

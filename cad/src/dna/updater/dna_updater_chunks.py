@@ -240,6 +240,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         for ladder in all_new_unmerged_ladders:
             ladder._f_finish_converting_bridging_Pl_atoms()
             assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
+            ladder.fix_bondpoint_positions_at_ends_of_rails()
                 # (don't pass ladders_dict, it's accessed as the global which
                 #  is assigned to it above [080409 revision])
                 # the ladders in ladders_dict are known to have valid baseframes
