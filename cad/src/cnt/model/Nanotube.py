@@ -17,7 +17,7 @@ import os
 
 from math import sin, cos, pi
 from math import atan2, asin
-from Numeric import dot
+from Numeric import dot, argmax, argmin, sqrt
 
 from model.chem import Atom
 from model.bonds import bond_atoms
@@ -30,7 +30,8 @@ from utilities.debug import print_compact_traceback
 
 from platform.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
-from geometry.VQT import Q, V, angleBetween, cross, vlen
+from geometry.VQT import Q, V, angleBetween, cross, vlen, norm
+from geometry.geometryUtilities import matrix_putting_axis_at_z
 from commands.Fuse.fusechunksMode import fusechunksBase
 from command_support.GeneratorBaseClass import PluginBug
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
@@ -183,7 +184,7 @@ class Nanotube:
         self._update()
         
         return self.getChirality()
-    
+
     def getChirality(self):
         """
         Returns the n,m chirality of self.
@@ -300,13 +301,124 @@ class Nanotube:
         """
         return self.endings
     
-    def setEndPoints(self, endPt1, endPt2):
-        self.endPoint1 = endPt1
-        self.endPoint2 = endPt2
+    def setEndPoints(self, endPoint1, endPoint2, trimEndPoint2 = False):
+        """
+        Sets endpoints to I{endPoint1} and I{endPoint2}.
+        
+        @param endPoint1: point
+        @type  endPoint1: V
+        
+        @param endPoint2: point
+        @type  endPoint2: V
+        
+        @param trimEndPoint2: If true, endPoint2 will be trimmed to a point in
+                              which the length of the nanotube is an integral
+                              of the nanotube rise. This is not implemented yet.
+        @type trimEndPoint2: boolean
+        
+        @attention: trimEndPoint2 argument is ignored (NIY).
+        """
+        # See drawNanotubeLadder() for math needed to implement trimEndPoint2.
+        self.endPoint1 = endPoint1
+        self.endPoint2 = endPoint2
         
     def getEndPoints(self):
+        """
+        Return endpoints.
+        """
         return (self.endPoint1, self.endPoint2)
     
+    def getParameters(self):
+        """
+        Returns all the parameters needed to (re) build the nanotube using
+        build().
+        @return: The parameters of the nanotube segment.
+                These parameters are retreived via 
+                L{NanotubeSegment.getProps()}, called from 
+                L{NanotubeSegment_EditCommand.editStructure()}.
+                
+                Parameters:
+                - n, m (chirality)
+                - type (i.e. carbon or boron nitride)
+                - endings (none, hydrogen, nitrogen)
+                - endpoints (endPoint1, endPoint2)
+        @rtype: list (n, m), type, endings, (endPoint1, endPoint2)
+        """
+        return (self.getChirality(),
+                self.getType(),
+                self.getEndings(),
+                self.getEndPoints())
+        
+    def computeEndPointsFromChunk(self, chunk, update = True):
+        """
+        Derives and returns the endpoints and radius of a nanotube chunk.
+        @param chunk: a nanotube chunk
+        @type  chunk: Chunk
+        @return: endPoint1, endPoint2 and radius
+        @rtype: Point, Point and float
+        
+        @attention: endPoint1 and endPoint2 may not be the original endpoints,
+                    and they may be flipped (opposites of) the original endpoints.
+        """
+        # Since chunk.axis is not always one of the vectors chunk.evecs 
+        # (actually chunk.poly_evals_evecs_axis[2]), it's best to just use
+        # the axis and center, then recompute a bounding cylinder.
+        if not chunk.atoms:
+            return None
+        
+        axis = chunk.axis
+        axis = norm(axis) # needed
+        center = chunk._get_center()
+        points = chunk.atpos - center # not sure if basepos points are already centered
+        # compare following Numeric Python code to findAtomUnderMouse and its caller
+        matrix = matrix_putting_axis_at_z(axis)
+        v = dot( points, matrix)
+        # compute xy distances-squared between axis line and atom centers
+        r_xy_2 = v[:,0]**2 + v[:,1]**2
+
+        # to get radius, take maximum -- not sure if max(r_xy_2) would use Numeric code, but this will for sure:
+        i = argmax(r_xy_2)
+        max_xy_2 = r_xy_2[i]
+        radius = sqrt(max_xy_2)
+        # to get limits along axis (since we won't assume center is centered between them), use min/max z:
+        z = v[:,2]
+        min_z = z[argmin(z)]
+        max_z = z[argmax(z)]
+        
+        # Adjust the endpoints such that the ladder rungs (rings) will fall
+        # on the ring segments. 
+        # TO DO: Fix drawNanotubeLadder() to offset the first ring, then I can
+        # remove this adjustment. --Mark 2008-04-12
+        z_adjust = self.getEndPointZOffset()
+        min_z += z_adjust
+        max_z -= z_adjust
+        
+        endpoint1 = center + min_z * axis
+        endpoint2 = center + max_z * axis
+        
+        if update:
+            #print "Original endpoints:", self.getEndPoints()
+            self.setEndPoints(endpoint1, endpoint2)
+            #print "New endpoints:", self.getEndPoints()
+            
+        return (endpoint1, endpoint2, radius)
+    
+    def getEndPointZOffset(self):
+        """
+        Returns the z offset, determined by the endings.
+        
+        @note: Offset distances are not exact, but approximated, which is good
+        in this case. Providing exact offset values will result in the last
+        ladder ring from being drawn by drawNanotubeLadder().
+        """
+        endings = self.getEndings()
+        if endings == "Hydrogen":
+            return 0.8 
+        elif endings == "Nitrogen":
+            return 1.1
+        else:
+            return 0.5
+            
     def _computeRise(self): #@ See Python get/set attr builtin methods.
         """
         Private method.
@@ -624,8 +736,12 @@ class Nanotube:
         
         # Move and rotate the nanotube into final orientation.
         cntChunk.move(qrot.rot(cntChunk.center) - cntChunk.center + rawOffset + pt1)
-        cntChunk.rot(qrot) #@ NEEDED?
-    
+        cntChunk.rot(qrot)
+        
+        # Bruce suggested I add this. It works here, but not if its 
+        # before move() and rot() above. Mark 2008-04-11
+        cntChunk.full_inval_and_update() 
+        
     pass
     
  

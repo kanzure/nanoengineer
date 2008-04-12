@@ -33,7 +33,6 @@ class NanotubeSegment(Group):
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('NanotubeSegment',)
     
-    _nanotubeRise = None
     _endPoint1 = None
     _endPoint2 = None
         # TODO: undo or copy code for those attrs,
@@ -51,8 +50,7 @@ class NanotubeSegment(Group):
     hide_iconPath = "ui/modeltree/NanotubeSegment-hide.png"
     
     def __init__(self, name, assy, dad, members = (), editCommand = None):
-        
-        self._nanotubeRise = 3.18 #@      
+            
         Group.__init__(self, 
                        name, 
                        assy, 
@@ -115,11 +113,8 @@ class NanotubeSegment(Group):
         fall back, it returns some constant values) 
         @see: InsertNanotube_EditCommand.createStructure which calls this method. 
         @see: self.getProps, NanotubeSegment_EditCommand.editStructure        
-        """        
-        _chirality, _type, _endings, _endPoints = props
-        
-        _n, _m = _chirality
-        _endPoint1, _endPoint2 = _endPoints
+        """
+        (_n, _m), _type, _endings, (_endPoint1, _endPoint2) = props
         
         from cnt.model.Nanotube import Nanotube
         self.nanotube = Nanotube()
@@ -137,7 +132,7 @@ class NanotubeSegment(Group):
         @see: NanotubeSegmentEditCommand._createStructure        
         """
         
-        #@ BUG: nanotube does not exist if it wasn't created during the
+        #@ MAJOR BUG: nanotube does not exist if it wasn't created during the
         # current session (i.e. the nanotube was loaded from an MMP file).
         # Need to save/restore these params in the MMP file. --Mark 2008-04-01.
         props = (self.nanotube.getChirality(),
@@ -223,7 +218,7 @@ class NanotubeSegment(Group):
             # but this is broken as of before 080318 since it uses a self.is_block() test.
 
     def _show_all_kids_for_debug(self):
-         #bruce 080207 in deprecated class Block, copied to DnaStrandOrSegment 080318
+         #bruce 080207 in deprecated class Block 080318
         classname_short = self.__class__.__name__.split('.')[-1]
         debug_pref_name = "Model Tree: show content of %s?" % classname_short
             # typical examples (for text searches to find them here):
@@ -231,7 +226,7 @@ class NanotubeSegment(Group):
             # Model Tree: show content of DnaSegment?
         return debug_pref( debug_pref_name, Choice_boolean_False )
 
-    def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment
+    def permit_as_member(self, node, pre_updaters = True, **opts):
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
 

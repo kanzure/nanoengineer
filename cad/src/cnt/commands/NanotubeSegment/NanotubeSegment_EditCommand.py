@@ -236,15 +236,15 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             self._parentNanotubeGroup = self.struct.getNanotubeGroup() 
             #Set the endpoints
             #@ DOES THIS DO ANYTHING? I don't think so. --Mark 2008-04-01
-            endPoint1, endPoint2 = self.struct.nanotube.getEndPoints()
-            params_for_propMgr = (endPoint1, endPoint2)
+            #@endPoint1, endPoint2 = self.struct.nanotube.getEndPoints()
+            #@params_for_propMgr = (endPoint1, endPoint2)
             
             #TODO 2008-03-25: better to get all parameters from self.struct and
             #set it in propMgr?  This will mostly work except that reverse is 
             #not true. i.e. we can not specify same set of params for 
             #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
             #by the structure when needed. Commenting out following line of code
-            ##self.propMgr.setParameters(self.struct.getProps())
+            self.propMgr.setParameters(self.struct.getProps())
             
             #Store the previous parameters. Important to set it after you 
             #set nanotube attrs in the propMgr. 
@@ -468,6 +468,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             position = V(0.0, 0.0, 0.0)
             ntChunk = nanotube.build(self.name, self.win.assy, position)
             
+            nanotube.computeEndPointsFromChunk(ntChunk)
+            
             ntSegment.addchild(ntChunk)
             
             #set some properties such as nanotubeRise
@@ -555,6 +557,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
+        
+        @attention: is not implemented.
         """        
         
         #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
@@ -566,7 +570,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         assert self.struct      
         
         from utilities.debug import print_compact_stack
-        print_compact_stack("BUG!" )
+        print_compact_stack("_modifyStructure_NEW_SEGMENT_RESIZE() not fixed!" )
         print "Params =", params
         
         self.nanotube = params #@

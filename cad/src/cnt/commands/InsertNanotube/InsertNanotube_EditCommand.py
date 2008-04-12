@@ -475,7 +475,7 @@ class InsertNanotube_EditCommand(EditCommand):
             ntGroup = self._fallbackNanotubeGroup
         else:
             ntGroup = self._parentNanotubeGroup
-
+	    
         ntSegment = NanotubeSegment(self.name, 
                                     self.win.assy,
                                     ntGroup,
@@ -501,13 +501,12 @@ class InsertNanotube_EditCommand(EditCommand):
             #structure (such as a nanotube) without actually recreating the  
             #entire structure, then the following properties must be set in 
             #self._modifyStructure as well. Needs more thought.
-            #props = (nanotube.getRise(), nanotube.endPoint1, nanotube.endPoint2) #@ - use getEndPoints()?
-            props =(nanotube.getChirality(),
-                    nanotube.getType(),
-                    nanotube.getEndings(),
-                    nanotube.getEndPoints())
+            #props =(nanotube.getChirality(),
+            #        nanotube.getType(),
+            #        nanotube.getEndings(),
+            #        nanotube.getEndPoints())
             
-            ntSegment.setProps(props)
+            ntSegment.setProps(nanotube.getParameters())
 
             return ntSegment
 

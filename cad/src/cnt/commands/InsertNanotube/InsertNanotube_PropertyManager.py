@@ -461,6 +461,8 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint2 = V(x2, y2, z2)
             
         self.nanotube.setEndPoints(self.endPoint1, self.endPoint2)
+            # Need arg "recompute=True", which will recompute the second
+            # endpoint (endPoint2) using the nanotube rise.
         
     def getParameters(self):
         """

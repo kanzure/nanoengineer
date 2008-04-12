@@ -23,6 +23,8 @@ from PM.PM_LineEdit import PM_LineEdit
 
 from geometry.VQT import V, vlen
 
+from utilities.debug import print_compact_stack
+
 class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
     The NanotubeSegmenta_PropertyManager class provides a Property Manager 
@@ -113,21 +115,66 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
     def setParameters(self, params):
         """
-        This is usually called when you are editing an existing structure. 
-        Some property manager ui elements then display the information 
-        obtained from the object being edited. 
+        This is called when entering "Nanotube Segment Properties 
+        (i.e. "Edit properties...") to retrieve and set parameters of the
+        nanotube segment that might be modified during this command and
+        are needed to regenerate the nanotube segment.
+        
+        @param params: The parameters of the nanotube segment.
+                       These parameters are retreived via 
+                       L{NanotubeSegment.getProps()}, called from 
+                       L{NanotubeSegment_EditCommand.editStructure()}.
+                       
+                       Parameters:
+                       - n, m (chirality)
+                       - type (i.e. carbon or boron nitride)
+                       - endings (none, hydrogen, nitrogen)
+                       - endpoints (endPoint1, endPoint2)
+        @type params: list (n, m), type, endings, (endPoint1, endPoint2)
+
+        @note: Any widgets in the property manager that display these
+        parameters should be updated here. 
+        
+        @see: L{NanotubeSegment.getProps()}
+        
         TODO:
         - Make this a EditCommand_PM API method? 
         - See also the routines GraphicsMode.setParams or object.setProps
         ..better to name them all in one style?  
         """
-        self.nanotube = params #@ BUG
+        (self.n, self.m), self.type, self.endings,\
+            (self.endPoint1, self.endPoint2) = params
+        
+        # This is needed to update the endpoints since the Nanotube segment
+        # may have been moved (i.e. translated or rotated). In that case,
+        # the endpoints are not updated, so we recompute them here.
+        nanotubeChunk = self.struct.members[0]
+        self.endPoint1, self.endPoint2, radius = \
+            self.struct.nanotube.computeEndPointsFromChunk(nanotubeChunk)
+        
+        if 0:
+            print "\n--------------"
+            print "setParameters():"
+            print "Struct=", self.struct
+            print "N, M:", self.n, self.m
+            print "type:", self.type
+            print "endings:", self.endings
+            print "pt1, pt2:", self.endPoint1, self.endPoint2
         
     def getParameters(self):
         """
         Get the parameters that the edit command will use to determine if
         any have changed. If any have, then the nanotube will be modified.
         """
+        if 0:
+            print "\n--------------"
+            print "getParameters():"
+            print "Struct=", self.struct
+            print "N, M:", self.n, self.m
+            print "type:", self.type
+            print "endings:", self.endings
+            print "pt1, pt2:", self.endPoint1, self.endPoint2
+        
         return (self.n, self.m, 
                 self.type,
                 self.endings,
