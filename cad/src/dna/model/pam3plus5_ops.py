@@ -216,6 +216,8 @@ def kill_Pl_and_rebond_neighbors(atom):
     old_nbonds_neighbor0 = len(n0.bonds) # for assert
     
     b1.bust(make_bondpoints = False) # n1 is now missing one bond; so is atom
+        # note: if n1 was a Singlet, this would kill it (causing bugs);
+        # see comment above, where we swap n1 and n0 if needed to prevent that.
     b0.rebond(atom, n1) # now n1 has enough bonds again; atom is missing both bonds
 
     assert len(atom.bonds) == 0, "Pl %r should have no bonds but has %r" % (atom, atom.bonds)
@@ -305,8 +307,9 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
             break
         continue
 
-    # break the old bond
-    direct_bond.bust(make_bondpoints = False)
+    # break the old bond... wait, do this later,
+    # so as not to kill s1 or s2 if one of them is a Singlet
+    ## direct_bond.bust(make_bondpoints = False)
 
     # make the new Pl atom
     Atom = s1.__class__
@@ -329,6 +332,9 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
         # runtime imports, since we're imported indirectly by chem.py
     b1 = bond_atoms_faster(Pl, s1, V_SINGLE)
     b2 = bond_atoms_faster(Pl, s2, V_SINGLE)
+
+    # now it should be safe to break the old bond
+    direct_bond.bust(make_bondpoints = False)
     
     # set bond directions: s1->Pl->s2 same as s1->s2 was before
     b1.set_bond_direction_from(s1, direction)
