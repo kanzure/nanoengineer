@@ -6,7 +6,7 @@ This file provides functions for setting the "Tooltip" text
 for widgets (typically QActions) in the Command Toolbar.
 
 @author: Mark
-@version:$Id:$
+@version:$Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
@@ -31,6 +31,8 @@ def toolTipTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.breakStrandAction.setToolTip("Break Strands")
     commandToolbar.joinStrandsAction.setToolTip("Join Strands")
     commandToolbar.dnaOrigamiAction.setToolTip("Origami")
+    commandToolbar.convertPAM3to5Action.setToolTip("Convert PAM3 to PAM5")
+    commandToolbar.convertPAM5to3Action.setToolTip("Convert PAM5 to PAM3")
     commandToolbar.orderDnaAction.setToolTip("Order DNA")
         
     return

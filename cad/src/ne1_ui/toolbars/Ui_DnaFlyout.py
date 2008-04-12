@@ -90,6 +90,8 @@ class DnaFlyout:
         subControlAreaActionList.append(self.dnaDuplexAction)        
         subControlAreaActionList.append(self.breakStrandAction)
         subControlAreaActionList.append(self.joinStrandsAction)
+        subControlAreaActionList.append(self.convertPAM3to5Action)
+        subControlAreaActionList.append(self.convertPAM5to3Action)
         subControlAreaActionList.append(self.orderDnaAction)
 
         allActionsList.extend(subControlAreaActionList)
@@ -134,6 +136,16 @@ class DnaFlyout:
         self.dnaOrigamiAction.setText("Origami")
         self.dnaOrigamiAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/DNA_Origami.png"))
+        
+        self.convertPAM3to5Action = QtGui.QWidgetAction(parentWidget)
+        self.convertPAM3to5Action.setText("PAM3 to PAM5")
+        self.convertPAM3to5Action.setIcon(
+            geticon("ui/actions/Command Toolbar/Convert3to5.png"))
+        
+        self.convertPAM5to3Action = QtGui.QWidgetAction(parentWidget)
+        self.convertPAM5to3Action.setText("PAM5 to PAM3")
+        self.convertPAM5to3Action.setIcon(
+            geticon("ui/actions/Command Toolbar/Convert5to3.png"))
         
         self.orderDnaAction = QtGui.QWidgetAction(parentWidget)
         self.orderDnaAction.setText("Order DNA")
@@ -187,10 +199,17 @@ class DnaFlyout:
                              SIGNAL("triggered(bool)"),
                              self.activateJoinStrands_Command)
         
-        
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
                              self.activateDnaOrigamiEditCommand)
+        
+        change_connect(self.convertPAM3to5Action, 
+                             SIGNAL("triggered()"),
+                             self.convertPAM3to5Command)
+        
+        change_connect(self.convertPAM5to3Action, 
+                             SIGNAL("triggered()"),
+                             self.convertPAM5to3Command)
         
         change_connect(self.orderDnaAction, 
                              SIGNAL("triggered()"),
@@ -334,6 +353,26 @@ class DnaFlyout:
         Slot for B{Origami} action.
         """
         msg1 = greenmsg("DNA Origami: ")
+        msg2 = "Not implemented yet."
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
+    
+    def convertPAM3to5Command(self):
+        """
+        Slot for B{Convert PAM3 to PAM5} action.
+        @see: MWSemantics.orderDna
+        """
+        msg1 = greenmsg("Convert PAM3 to PAM5: ")
+        msg2 = "Not implemented yet."
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
+        
+    def convertPAM5to3Command(self):
+        """
+        Slot for B{Convert PAM5 to PAM3} action.
+        @see: MWSemantics.orderDna
+        """
+        msg1 = greenmsg("Convert PAM5 to PAM3: ")
         msg2 = "Not implemented yet."
         final_msg = msg1 + msg2
         env.history.message(final_msg)

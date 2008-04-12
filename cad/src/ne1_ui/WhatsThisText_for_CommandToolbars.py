@@ -124,6 +124,18 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         Enters DNA Origami mode- currently not implemented 
         </p>""")
     
+    commandToolbar.convertPAM3to5Action.setWhatsThis(
+        """<b>Convert PAM3 to PAM5</b>
+        <p>
+        Converts the selected DNA from PAM3 to PAM5. 
+        </p>""")
+    
+    commandToolbar.convertPAM5to3Action.setWhatsThis(
+        """<b>Convert PAM5 to PAM3</b>
+        <p>
+        Converts the selected DNA from PAM5 to PAM3. 
+        </p>""")
+    
     commandToolbar.orderDnaAction.setWhatsThis(
         """<b>Order DNA</b>
         <p>
