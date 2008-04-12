@@ -3032,8 +3032,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self.molecule is numol:
             return
         if self.molecule.assy is not numol.assy: #bruce 080219 debug code, might be slow, might print routinely ##
-            print "\nBUG?: hopmol(%r, %r) but self.molecule %r .assy %r != numol.assy %r" % \
+            msg = "\nBUG?: hopmol(%r, %r) but self.molecule %r .assy %r != numol.assy %r" % \
                   (self, numol, self.molecule, self.molecule.assy, numol.assy)
+            print_compact_stack(msg + ": ") #bruce 080411
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
         for atom in self.singNeighbors():

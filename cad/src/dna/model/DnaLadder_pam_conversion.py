@@ -40,6 +40,7 @@ from dna.model.pam3plus5_ops import insert_Pl_between
 from dna.model.pam3plus5_ops import find_Pl_between
 
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
+from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 
 # ==
 
@@ -613,7 +614,39 @@ class DnaLadder_pam_conversion_methods:
             # only unexpected due to current usage, not an error in principle
         ladders_dict.pop(self, None) 
         return
-    
+
+    def _f_store_locator_data(self): #bruce 080411
+        """
+        #doc
+        
+        @see: related method, whichrail_and_index_of_baseatom
+        """
+        print "storing locator data for", self #####
+        locator = _f_atom_to_ladder_location_dict
+        look_at_rails = self.rail_indices_and_rails()
+        length = len(self)
+        for index in range(length):
+            for whichrail, rail in look_at_rails:
+                if whichrail == 1:
+                    continue # KLUGE optim -- skip axis rail;
+                        # see LADDER_RAIL_INDICES (may exist only in docstrings)
+                baseatom = rail.baseatoms[index]
+                locator[baseatom.key] = (self, whichrail, index)
+                # print "fyi: stored locator[%r.key] = %r" % (baseatom, locator[baseatom.key])
+                if index in (0, 1, length - 1): # slow, remove when works ###
+                    assert self.rail_at_index(whichrail).baseatoms[index] is baseatom
+                    assert self.whichrail_and_index_of_baseatom(baseatom) == (whichrail, index) # by search in self
+                    assert self._f_use_locator_data(baseatom) == (whichrail, index) # using locator global
+                continue
+            continue
+        return
+
+    def _f_use_locator_data(self, baseatom): #bruce 080411 # so far, used only for asserts above
+        locator = _f_atom_to_ladder_location_dict
+        ladder, whichrail, index = locator[baseatom.key]
+        assert ladder is self
+        return whichrail, index
+
     def _f_baseframe_data_at(self, whichrail, index): # bruce 080402
         """
         #doc

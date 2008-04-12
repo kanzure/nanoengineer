@@ -11,6 +11,7 @@ from foundation.state_utils import transclose
 
 from dna.updater.dna_updater_globals import ignore_new_changes
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
+from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 
 from utilities import debug_flags
 
@@ -195,12 +196,23 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
         ladders_dict.clear()
 
+    locator = _f_atom_to_ladder_location_dict
+    if locator:
+        print "***BUG: _f_atom_to_ladder_location_dict was found with leftover garbage; clearing it now"
+        locator.clear()
+
     if 1:
-        # make errors more obvious, bugs less likely
+        # make errors more obvious, bugs less likely;
+        # also make it easy & reliable to locate all atoms in new ladders
+        # (this could surely be optimized, but simple & reliable is primary
+        #  concern for now)
+        
         for ladder in all_new_unmerged_ladders:
             ladder.clear_baseframe_data()
+            ladder._f_store_locator_data()
             for ladder1 in ladder.strand_neighbor_ladders():
                 ladder.clear_baseframe_data()
+                # no need to store locator data for these
         pass
     
     for ladder in all_new_unmerged_ladders:
@@ -215,6 +227,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         number_failed += not not failed
         if didit:
             assert ladders_dict.get(ladder, None) == False
+            print "converted:", ladder.ladder_string() ####
         continue
 
     if number_converted:

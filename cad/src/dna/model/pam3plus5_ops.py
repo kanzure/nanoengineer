@@ -416,18 +416,45 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
 
 # ==
 
-def _f_find_new_ladder_location_of_baseatom(self): #bruce 080411 split common code out of several methods
-    # current buggy version (the assert ladder.valid below will typically always fail)
-    ladder = self.molecule.ladder
-    assert ladder
-    assert ladder.valid # routinely fails (for a known reason)...
+def _f_find_new_ladder_location_of_baseatom(self):
+    """
+    """
+    #bruce 080411 split common code out of several methods,
+    # then totally rewrote it to stop assuming wrongly
+    # that atom.molecule.ladder can find fresh ladders
+    # that didn't yet remake their chunks
+    
+    # note: only used in this file
+##    # buggy version (the assert ladder.valid below will typically always fail)
+##    ladder = self.molecule.ladder
+##    assert ladder
+##    assert ladder.valid # routinely fails (for a known reason)...
+##    whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
+##        # TODO: pass index hint to optimize?
+    
+    # keep these as runtime imports for now, see comment at top of module;
+    # WARNING: these will freak out the import cycle graph; no trivial fix at the moment
+    from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
+    from dna.model.DnaLadder import _rail_end_atom_to_ladder # refile this sometime soon!
+    
+    locator = _f_atom_to_ladder_location_dict
+    data = locator.get(self.key)
+    if data:
+        return data # (ladder, whichrail, index)
+    # otherwise it must be an end atom on a non-fresh ladder
+    ladder = _rail_end_atom_to_ladder(self)
     whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-        # TODO: pass index hint to optimize?
+        # by search in ladder, optimized to try the ends first
     return ladder, whichrail, index
 
 def _f_baseframe_data_at_baseatom(self): #bruce 080411 split common code out of several methods
-    # current buggy version
+    # old buggy version. magically transformed to new correct version
+    # by merely adding a new assert (and rewriting the subroutine)
     ladder, whichrail, index = _f_find_new_ladder_location_of_baseatom(self)
+    assert ladder.valid, \
+           "bug: got invalid ladder %r (and whichrail %r, index %r) " \
+           "from _f_find_new_ladder_location_of_baseatom(%r)" % \
+           ( ladder, whichrail, index, self)
     origin, rel_to_abs_quat, y_m_junk = ladder._f_baseframe_data_at(whichrail, index)
         # we trust caller to make sure this is up to date (no way to detect if not)
         # implem note: if we only store top baseframes, this will derive bottom ones on the fly

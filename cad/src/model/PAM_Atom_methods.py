@@ -1488,6 +1488,7 @@ class PAM_Atom_methods:
 
     def _make_up_Gv_abs_position(self): #bruce 080409
         """
+        @note: self should be a strand sugar atom
         """
         relpos = default_Gv_relative_position() # (a constant)
         # following code is the same as for the Pl version

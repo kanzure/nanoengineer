@@ -120,6 +120,13 @@ _f_ladders_with_up_to_date_baseframes_at_ends = {}
     #bruce 080409, replacing ladders_dict params (whose passing into enough
     #  methods/functions was unfinished)
 
+_f_atom_to_ladder_location_dict = {}
+    #bruce 080411, to permit finding ladder/rail/index of atoms in freshly
+    # made ladders which didn't yet remake their chunks
+    # (needn't store all end atoms, since those can be found using
+    #  _rail_end_atom_to_ladder -- important for bridging Pls
+    #  between fresh and old-untouched ladders)
+
 def clear_updater_run_globals(): #bruce 080218
     """
     Clear globals which are only used during individual runs of the dna updater.
@@ -128,6 +135,7 @@ def clear_updater_run_globals(): #bruce 080218
     # And there are some in fix_bond_directions (IIRC) which can't be here.
     _f_DnaGroup_for_homeless_objects_in_Part.clear()
     _f_ladders_with_up_to_date_baseframes_at_ends.clear()
+    _f_atom_to_ladder_location_dict.clear()
     return
 
 # end

@@ -56,6 +56,7 @@ from utilities.constants import noop
 from utilities.Log import orangemsg, redmsg, quote_html
 
 from utilities import debug_flags
+from utilities.debug import print_compact_stack
 
 from platform.PlatformDependent import fix_plurals
 
@@ -93,6 +94,9 @@ from dna.model.PAM_atom_rules import PAM_atoms_allowed_in_same_ladder
 
 from dna.updater.dna_updater_prefs import pref_per_ladder_colors
 from dna.updater.dna_updater_prefs import pref_permit_bare_axis_atoms
+
+from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
+from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 
 # ==
 
@@ -438,9 +442,25 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                     if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                         print "%r owning %r" % (self, atom)
             else:
-                # un-tell them
+                # un-tell them, but first, warn if this might cause or indicate
+                # a bug in pam conversion
+                ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+                if self in ladders_dict:
+                    msg = "\n*** likely bug: %r is in ladders_dict (value %r) but is becoming invalid" % \
+                          (self, ladders_dict[self])
+                    print_compact_stack(msg + ": ")
+                if self.strand_rails:
+                    locator = _f_atom_to_ladder_location_dict
+                    sample_atom = self.strand_rails[0].baseatoms[0]
+                    if sample_atom.key in locator:
+                        msg = "\n*** likely bug: %r's atom %r is in locator (value %r) but self is becoming invalid" % \
+                          (self, sample_atom, locator[sample_atom.key])
+                        print_compact_stack(msg + ": ")
+                    pass
+                # now un-tell them (even if we warned)
                 for atom in self.rail_end_baseatoms():
                     # (could debug-warn if not set to self)
+                    assert atom._DnaLadder__ladder is self # 080411
                     atom._DnaLadder__ladder = None
                     del atom._DnaLadder__ladder
                     if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
@@ -560,7 +580,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         @return: (whichrail, index), where whichrail is in LADDER_RAIL_INDICES
                  [i.e. 0, 1, or 2, maybe not yet formally defined]
                  and index is from 0 to len(self) - 1, such that
-                 self.rail_at_index(whichrail).baseatoms[index] is baseatom.        
+                 self.rail_at_index(whichrail).baseatoms[index] is baseatom.
+
+        @see: related method, _f_store_locator_data
         """
         if not self.valid: #bruce 080411
             # maybe make this an assertion failure?
@@ -581,7 +603,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                   (baseatom, self, look_at_rails)
         pass
 
-    def rail_indices_and_rails(self, baseatom): # bruce 080402
+    def rail_indices_and_rails(self, baseatom = None): # bruce 080402
         """
         #doc
 
