@@ -33,6 +33,8 @@ class NanotubeSegment(Group):
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('NanotubeSegment',)
     
+    nanotube = None
+    
     _endPoint1 = None
     _endPoint2 = None
         # TODO: undo or copy code for those attrs,
@@ -131,16 +133,20 @@ class NanotubeSegment(Group):
         @see: NanotubeSegment_PropertyManager.getParameters
         @see: NanotubeSegmentEditCommand._createStructure        
         """
-        
         #@ MAJOR BUG: nanotube does not exist if it wasn't created during the
         # current session (i.e. the nanotube was loaded from an MMP file).
         # Need to save/restore these params in the MMP file. --Mark 2008-04-01.
-        props = (self.nanotube.getChirality(),
-                 self.nanotube.getType(),
-                 self.nanotube.getEndings(),
-                 self.nanotube.getEndPoints())
-        return props
-    
+        if not self.nanotube:
+            # This is a temporary "workaround" for the major bug mentioned 
+            # above. We create a "default" 5x5 CNT if the user resizes it.
+            # This is better than the nanotube disappearing. I am still working
+            # on a permanent fix. --Mark 2008-04-12.
+            from cnt.model.Nanotube import Nanotube
+            self.nanotube = Nanotube() # Returns a 5x5 CNT.
+            self.nanotube.computeEndPointsFromChunk(self.members[0])
+            
+        return self.nanotube.getParameters()
+        
     def getNanotubeGroup(self):
         """
         Return the NanotubeGroup we are contained in, or None if we're not
