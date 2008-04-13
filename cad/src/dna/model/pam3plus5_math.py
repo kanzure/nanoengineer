@@ -25,7 +25,7 @@ from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 ######## NOT YET FINAL VALUES ########
 
-# Note: these are approximate numbers (from Eric M)
+# Note: these are approximate numbers (from Eric M, a few days before 080412)
 # based on what the current PAM3 and PAM5 generators are producing:
 #
 # x_a' =  2.695
@@ -45,13 +45,27 @@ SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
 
 DEFAULT_X_G = 8.657 # x_g
 DEFAULT_Y_M = 6.198 # y_m
+    # confirmed from my debug print (converting from PAM5 duplex from our
+    # current generator, bruce 080412:
+    ## ... for data_index 2 stored relpos array([  8.65728085e+00,   6.19902777e+00,  -1.33226763e-15])
+    # (and similar numbers)
 
-DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0) # most likely, only x actually matters
+DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0)
+    # most likely, only x (DEFAULT_X_G) actually matters out of these three coords
+
+DEFAULT_Ss_plus_to_Pl5_RELPOS = V(-3.459, -0.489, -1.59)
+    # derived, bruce 080412, for data_index True stored relpos array([-3.45992359, -0.48928416, -1.59      ])
+    # the prior stub value was -0.772, -0.889, -1
+
+DEFAULT_Ss_minus_to_Pl5_RELPOS = V(1.645 , -2.830,  1.59)
+    # derived, bruce 080412, for data_index False stored relpos array([ 1.6456331 , -2.83064599,  1.59      ])
+    # the prior stub value was -0.772, -0.889, +1
+
+# see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
 
 
-# note this in another file:
+# the debug prints that generate those lines look like this in the source code in another file:
 ##        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
-##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
 
 
 # ==
@@ -182,11 +196,19 @@ def relpos_in_other_frame(relpos, y_m):
 
 # ==
 
-def default_Pl_relative_position(direction):
+def default_Pl_relative_position(direction): # revised to principled values (though still not final), bruce 080412 late
     """
     """
     # print "stub for default_Pl_relative_position" ####
-    return V(X_SPRIME, Y_SPRIME, - direction) #### STUB  --  @@@@ FIX (use direction to choose one of two different values)
+    ## return V(X_SPRIME, Y_SPRIME, - direction) # stub
+    
+    # use direction to choose one of two different values)
+    if direction == 1:
+        return DEFAULT_Ss_plus_to_Pl5_RELPOS
+    else:
+        assert direction == -1
+        return DEFAULT_Ss_minus_to_Pl5_RELPOS
+    pass
 
 def default_Gv_relative_position():
     # print "stub for default_Gv_relative_position" ####
@@ -197,7 +219,7 @@ def default_Gv_relative_position():
 ##            ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
 
 def correct_Ax3_relative_position(y_m):
-    print "stub for correct_Ax3_relative_position" ####
+    # print "stub for correct_Ax3_relative_position" ####
     return V( X_APRIME, y_m, 0.0)
 
 # note: the analogue for Ss3 position is hardcoded, near the call of
