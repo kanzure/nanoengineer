@@ -99,7 +99,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         </p>""")
     
     commandToolbar.dnaDuplexAction.setWhatsThis(
-        """<b>Insert dsDNA</b>
+        """<b>Insert DNA</b>
         <p>
         Insert a double stranded (ds) DNA helix by clicking two
         points in the 3D graphics area.

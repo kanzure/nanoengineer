@@ -27,7 +27,7 @@ def toolTipTextForDnaCommandToolbar(commandToolbar):
     """
     "ToolTip" text for the Build DNA Command Toolbar
     """
-    commandToolbar.dnaDuplexAction.setToolTip("Insert dsDNA")
+    commandToolbar.dnaDuplexAction.setToolTip("Insert DNA")
     commandToolbar.breakStrandAction.setToolTip("Break Strands")
     commandToolbar.joinStrandsAction.setToolTip("Join Strands")
     commandToolbar.dnaOrigamiAction.setToolTip("Origami")

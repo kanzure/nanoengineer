@@ -62,7 +62,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Insert dsDNA"
+    title         =  "Insert DNA"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/InsertDsDna.png"
 
