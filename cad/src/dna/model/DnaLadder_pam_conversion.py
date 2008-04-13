@@ -18,6 +18,8 @@ from utilities.constants import Pl_STICKY_BOND_DIRECTION
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
 
+from utilities import debug_flags
+
 from utilities.Log import redmsg, quote_html
 
 from geometry.VQT import V
@@ -163,8 +165,9 @@ class DnaLadder_pam_conversion_methods:
         # (might not be needed due to upcoming code in dna updater which
         #  processes _f_baseatom_wants_pam at the start of each updater run,
         #  but safe, so kept for now -- bruce 080413)
-        self._dna_updater_rescan_all_atoms()
-        for ladder in self.strand_neighbor_ladders():
+        inval_these = [self] + self.strand_neighbor_ladders()
+            # might contain Nones or duplicate entries;
+            # including the neighbor ladders is
             # hoped to be a bugfix for messing up neighboring ladders
             # [bruce 080413 1040am pt...]
             # turns out not enough, but reason is finally known --
@@ -173,8 +176,14 @@ class DnaLadder_pam_conversion_methods:
             # inval the neighbor ladder at a time when this is not allowed
             # during the dna updater run. So I'll commit this explan,
             # partial fix, and accumulated debug code and minor changes,
-            # then put in the real fix elsewhere.
+            # then put in the real fix elsewhere. [update same day --
+            #  after that commit I revised this code slightly]
+        for ladder in inval_these:
             if ladder is not None:
+                ladder._dna_updater_rescan_all_atoms()
+                    # should be ok to do this twice to one ladder
+                    # even though it sets ladder invalid the first time
+                # just to be sure I'm right, do it again:
                 ladder._dna_updater_rescan_all_atoms()
             continue
         return
@@ -287,8 +296,9 @@ class DnaLadder_pam_conversion_methods:
                 #  came after that check was added or before)
             return False # simulate failure
 
-        print "WARNING: _convert_to_pam(%r, %r) is unfinished, will probably fail somehow" % (self, pam_model) #### @@@
-        env.history.orangemsg( "Warning: convert to %s is under development, may have bugs" % pam_model ) ####
+        if 0: # it seems to work now! 080413 354pm
+            print "WARNING: _convert_to_pam(%r, %r) is unfinished, will probably fail somehow" % (self, pam_model)
+            env.history.orangemsg( "Warning: convert to %s is under development, may have bugs" % pam_model )
         
         # first compute and store current baseframes on self, where private
         # methods can find them on demand. REVIEW: need to do this on connected ladders
@@ -707,7 +717,8 @@ class DnaLadder_pam_conversion_methods:
         
         @see: related method, whichrail_and_index_of_baseatom
         """
-        print "storing locator data for", self #####
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
+            print "storing locator data for", self
         locator = _f_atom_to_ladder_location_dict
         look_at_rails = self.rail_indices_and_rails()
         length = len(self)
@@ -789,7 +800,8 @@ class DnaLadder_pam_conversion_methods:
         self._baseframe_data = None
         assert self.axis_rail, "need to override this in the subclass"
         if ends_only:
-            print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self ### remove when seen as expected
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
+                print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self
         # using ends_only is an optim, not yet implemented
         if len(self.strand_rails) < 2:
             self._make_ghost_bases() # IMPLEM -- until then, conversion fails on less than full duplexes
@@ -805,11 +817,12 @@ class DnaLadder_pam_conversion_methods:
         baseframes = compute_duplex_baseframes(self.pam_model(), data)
         # even if this is None, we store it, and store something saying we computed it
         # so we won't try to compute it again -- though uses of it will fail.
-        print "fyi: computed baseframes (ends_only = %r) for %r; success == %r" % \
-              (ends_only, self, (baseframes is not None)) #######
-        print " details of self: valid = %r, error = %r, assy = %r, contents:\n%s" % \
-              (self.valid, self.error, self.axis_rail.baseatoms[0].molecule.assy,
-               self.ladder_string()) ########
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
+            print "fyi: computed baseframes (ends_only = %r) for %r; success == %r" % \
+                  (ends_only, self, (baseframes is not None)) 
+            print " details of self: valid = %r, error = %r, assy = %r, contents:\n%s" % \
+                  (self.valid, self.error, self.axis_rail.baseatoms[0].molecule.assy,
+                   self.ladder_string()) 
         self._baseframe_data = baseframes # even if None
         ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
         if ladders_dict.get(self, None) is not None:

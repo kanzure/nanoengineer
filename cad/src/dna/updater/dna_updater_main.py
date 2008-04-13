@@ -11,6 +11,9 @@ including DnaGroups, AxisChunks, PAM atoms, etc.
 from dna.updater.dna_updater_globals import get_changes_and_clear
 from dna.updater.dna_updater_globals import ignore_new_changes
 from dna.updater.dna_updater_globals import clear_updater_run_globals
+from dna.updater.dna_updater_globals import _f_invalid_dna_ladders
+from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
 
 from utilities import debug_flags
 
@@ -69,6 +72,11 @@ def _full_dna_update_0( _runcount):
     """
     [private helper for full_dna_update -- do all the work]
     """
+
+    # TODO: process _f_baseatom_wants_pam: (or maybe a bit later, after delete bare, and error finding?)
+    # - extend to well-structured basepairs; drop structure error atoms (as whole basepairs)
+    # - these and their baseatom neighbors in our changed atoms, maybe even real .changed_structure
+    
     changed_atoms = get_changes_and_clear()
 
     debug_prints_as_dna_updater_starts( _runcount, changed_atoms)
@@ -76,6 +84,11 @@ def _full_dna_update_0( _runcount):
         # note: the corresponding _ends call is in our caller.
     
     if not changed_atoms and not _f_are_there_any_homeless_dna_markers():
+        # maybe: also check _f_baseatom_wants_pam, invalid ladders, here and elsewhere
+        # (or it might be more efficient to officially require _changed_structure on representative atoms,
+        #  which we're already doing now as a kluge workaround for the lack of testing those here)
+        # [bruce 080413 comment]
+        #
         # note: adding marker check (2 places) fixed bug 2673 [bruce 080317]
         return # optimization (might not be redundant with caller)
 
@@ -108,8 +121,12 @@ def _full_dna_update_0( _runcount):
         
     if changed_atoms:
         update_PAM_atoms_and_bonds( changed_atoms)
+            # this can invalidate DnaLadders as it changes various things
+            # which call atom._changed_structure -- that's necessary to allow,
+            # so we don't change dnaladder_inval_policy until below,
+            # inside update_PAM_chunks [bruce 080413 comment]
     
-    if not changed_atoms and not _f_are_there_any_homeless_dna_markers():
+    if not changed_atoms and not _f_are_there_any_homeless_dna_markers() and not _f_invalid_dna_ladders:
         return # optimization
 
     homeless_markers = _f_get_homeless_dna_markers() #e rename, homeless is an obs misleading term ####
@@ -124,6 +141,8 @@ def _full_dna_update_0( _runcount):
     assert not _f_are_there_any_homeless_dna_markers() # since getting them cleared them
     
     new_chunks, new_wholechains = update_PAM_chunks( changed_atoms, homeless_markers)
+        # note: at the right time during this or a subroutine, it sets
+        # dnaladder_inval_policy to DNALADDER_INVAL_IS_ERROR
 
     # review: if not new_chunks, return? wait and see if there are also new_markers, etc...
     
@@ -141,7 +160,14 @@ def _full_dna_update_0( _runcount):
             print "dna updater fyi: as updater returns, some DnaMarkers await processing by next run"
                 # might be normal...don't know. find out, by printing it even
                 # in minimal debug output. [bruce 080317]
-    
+
+    if _f_invalid_dna_ladders: #bruce 080413
+        print "\n*** likely bug: some invalid ladders are recorded, as dna updater returns:", _f_invalid_dna_ladders
+        # but don't clear them, in case this was sometimes routine and we were
+        # working around bugs (unknowingly) by invalidating them next time around
+
+    restore_dnaladder_inval_policy( DNALADDER_INVAL_IS_OK)
+
     return # from _full_dna_update_0
 
 # end

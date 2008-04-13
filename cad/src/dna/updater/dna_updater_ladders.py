@@ -14,7 +14,11 @@ from utilities import debug_flags
 from dna.updater.dna_updater_follow_strand import dna_updater_follow_strand
 
 from dna.model.DnaLadder import DnaLadder, DnaSingleStrandDomain
-from dna.model.DnaLadder import _f_get_invalid_dna_ladders
+
+from dna.updater.dna_updater_globals import _f_get_invalid_dna_ladders
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_ERROR
 
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
@@ -49,7 +53,9 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
                   (chunk, getattr(chunk, 'ladder', "<has none>"))
             pass
         # todo: assert not killed, not nullMol, is a Chunk
-        chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
+        ## chunk.invalidate_ladder() 
+        chunk.invalidate_ladder_and_assert_permitted()
+            # fyi: noop except in DnaLadderRailChunk
             # this just invals chunk.ladder (and below code will dissolve it);
             # a future optim could fragment it instead,
             # if we also recorded which basepair positions
@@ -65,6 +71,17 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
 
     invalid_ladders = _f_get_invalid_dna_ladders()
 
+    # now that we grabbed invalid ladders, and callers will make new valid
+    # ones soon, any uncontrolled/unexpected inval of ladders is a bug --
+    # so make it an error except for specific times when we temporarily
+    # permit it and make it a noop (using DNALADDER_INVAL_IS_NOOP_BUT_OK).
+    # [bruce 080413]
+    _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_ERROR )
+        # note: the restore happens elsewhere, which is why we assert what the
+        # old policy was, rather than bothering to later pass it to the
+        # restore function (not called before we return), restore_dnaladder_inval_policy.
+    assert _old == DNALADDER_INVAL_IS_OK
+    
     for ladder in invalid_ladders:
         # WARNING: the following is only reviewed for the case of the above code
         # dissolving (invalidating, not fragmenting) chunk's ladder.

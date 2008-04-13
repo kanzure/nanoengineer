@@ -442,12 +442,18 @@ class PAM_Atom_methods:
             # It also excludes Sj and Hp (bad), but is only used from dna updater
             # so that won't be an issue. Non-kluge variant would test for
             # "a strand base atom".
-        candidates_PAM5 = [c for c in candidates if c.element.pam == MODEL_PAM5]
-            # Try these first, so we prefer Ss5 over Ss3 if both are present,
-            # regardless of bond direction. [bruce 080401]
-        for candidate in candidates_PAM5 + candidates:
-            # all necessary tests were done above
-            return candidate
+        ## if debug_pref("DNA: Pl5 stick with PAM5 over PAM3 chunk, regardless of bond direction?", ...):
+        if 0: # see if this caused my last bridging Pl bug, bruce 080413 330pm PT:
+            candidates_PAM5 = [c for c in candidates if c.element.pam == MODEL_PAM5]
+                # Try these first, so we prefer Ss5 over Ss3 if both are present,
+                # regardless of bond direction. [bruce 080401]
+            candidates = candidates_PAM5 + candidates
+##        for candidate in candidates:
+##            if ...:
+##                return candidate
+        # all necessary tests were done above -- just return first one, if any are there
+        if candidates:
+            return candidates[0]
         print "bug: Pl with no Ss: %r" % self
             # only a true statement (that this is a bug) when dna updater
             # is enabled, but that's ok since we're only used then
@@ -507,7 +513,8 @@ class PAM_Atom_methods:
             if not self._f_Pl_posn_is_definitive:
                 self._f_Pl_set_position_from_Ss3plus5_data()
                     # sets flag to true
-            print "fyi: fixed pos of %r, keeping it" % self ####
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
+                print "fyi: fixed pos of %r, keeping it" % self
         return
     
     def _f_Pl_set_position_from_Ss3plus5_data(self): #bruce 080402
@@ -1396,7 +1403,8 @@ class PAM_Atom_methods:
         if not self._PAM3plus5_Pl_Gv_data:
             self._PAM3plus5_Pl_Gv_data = [None, None, None]
         self._PAM3plus5_Pl_Gv_data[data_index] = relpos
-        print "fyi, on %r for data_index %r stored relpos %r" % (self, data_index, relpos) ####
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
+            print "fyi, on %r for data_index %r stored relpos %r" % (self, data_index, relpos)
             ##### use these prints to get constants for default_Pl_relative_position (and Gv) @@@@
         return 
 

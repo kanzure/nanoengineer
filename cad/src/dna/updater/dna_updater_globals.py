@@ -112,6 +112,35 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
 
 # ==
 
+# globals and accessors
+# (some can be set outside of dna updater runs, noticed during them)
+
+# (not yet here: _f_are_there_any_homeless_dna_markers, etc)
+
+_f_invalid_dna_ladders = {} # moved here from DnaLadder.py, bruce 080413 [rename with _f_?]
+
+def _f_get_invalid_dna_ladders(): # moved here from DnaLadder.py, bruce 080413
+    """
+    Return the invalid dna ladders,
+    and clear the list so they won't be returned again
+    (unless they are newly made invalid).
+
+    Friend function for dna updater. Other calls
+    would cause it to miss newly invalid ladders,
+    causing serious bugs.
+    """
+    res = _f_invalid_dna_ladders.values()
+    _f_invalid_dna_ladders.clear()
+    res = filter( lambda ladder: not ladder.valid, res ) # probably not needed
+    return res
+
+def _f_clear_invalid_dna_ladders(): #bruce 080413; see comment in caller about need for review/testing
+    if _f_invalid_dna_ladders:
+        print "fyi: dna updater: ignoring %d newly invalid dnaladders" % \
+              len( _f_invalid_dna_ladders)
+    _f_invalid_dna_ladders.clear()
+    return
+
 _f_baseatom_wants_pam = {}
     # maps baseatom.key to a PAM_MODEL it wants updater to convert it to
     #bruce 080411, for use instead of chunk attrs like .display_as_pam
@@ -146,6 +175,21 @@ _f_atom_to_ladder_location_dict = {}
     #  _rail_end_atom_to_ladder -- important for bridging Pls
     #  between fresh and old-untouched ladders)
 
+DNALADDER_INVAL_IS_OK = 0
+DNALADDER_INVAL_IS_ERROR = 1
+DNALADDER_INVAL_IS_NOOP_BUT_OK = 2
+
+dnaladder_inval_policy = DNALADDER_INVAL_IS_OK
+    ### todo: make private; only used directly in this file
+    # and this rule should be maintained
+    # [bruce 080413]
+
+def get_dnaladder_inval_policy():
+    # (use this to prevent bugs from importing a mutable value
+    # and having only the initial value defined globally in a
+    # client module)
+    return dnaladder_inval_policy
+
 def clear_updater_run_globals(): #bruce 080218
     """
     Clear globals which are only used during individual runs of the dna updater.
@@ -155,6 +199,24 @@ def clear_updater_run_globals(): #bruce 080218
     _f_DnaGroup_for_homeless_objects_in_Part.clear()
     _f_ladders_with_up_to_date_baseframes_at_ends.clear()
     _f_atom_to_ladder_location_dict.clear()
+    global dnaladder_inval_policy
+    dnaladder_inval_policy = DNALADDER_INVAL_IS_OK
+        # important in case of exceptions during updater
+    return
+
+def temporarily_set_dnaladder_inval_policy(new): # bruce 080413
+    """
+    Must be used in matching pairs with restore_dnaladder_inval_policy,
+    and only within the dna updater.
+    """
+    global dnaladder_inval_policy
+    old = dnaladder_inval_policy
+    dnaladder_inval_policy = new
+    return old
+
+def restore_dnaladder_inval_policy(old): # bruce 080413
+    global dnaladder_inval_policy
+    dnaladder_inval_policy = old
     return
 
 # end

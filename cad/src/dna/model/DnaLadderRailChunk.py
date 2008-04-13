@@ -263,7 +263,7 @@ class DnaLadderRailChunk(Chunk):
         """
         if self.ladder and self.ladder.valid:
             print "bug? but working around it: reusing %r but its old ladder %r was valid" % (self, self.ladder)
-            self.ladder.invalidate()
+            self.ladder.ladder_invalidate_and_assert_permitted()
         self.ladder = ladder
         # can't do this, no self.chain; could do it if passed the chain:
         ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
@@ -482,7 +482,7 @@ class DnaLadderRailChunk(Chunk):
         if self.wholechain:
             self.wholechain.destroy()
             self.wholechain = None
-        self.invalidate_ladder() # review: sufficient? set it to None?
+        self.invalidate_ladder_and_assert_permitted() # review: sufficient? set it to None?
         self.ladder = None #bruce 080227 guess, based on comment where class constant default value is assigned
         for atom in self.atoms.itervalues():
             atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
@@ -490,13 +490,28 @@ class DnaLadderRailChunk(Chunk):
         return
 
     def invalidate_ladder(self): #bruce 071203
+        # separated some calls into invalidate_ladder_and_assert_permitted, 080413;
+        # it turns out nothing still calls this version, but something might in future,
+        # so I left it in the API and in class Chunk
         """
         [overrides Chunk method]
         [only legal after init, not during it, thus not in self.addatom --
          that might be obs as of 080120 since i now check for self.ladder... not sure]
         """
         if self.ladder: # cond added 080120
-            self.ladder.invalidate()
+            # possible optim: see comment in invalidate_ladder_and_assert_permitted
+            self.ladder.ladder_invalidate_if_not_disabled()
+        return
+
+    def invalidate_ladder_and_assert_permitted(self): #bruce 080413
+        """
+        [overrides Chunk method]
+        """
+        if self.ladder:
+            # possible optim: ' and not self.ladder.valid' above --
+            # not added for now so that the debug prints and checks
+            # in the following are more useful [bruce 080413]
+            self.ladder.ladder_invalidate_and_assert_permitted()
         return
 
     def in_a_valid_ladder(self): #bruce 071203
@@ -521,15 +536,15 @@ class DnaLadderRailChunk(Chunk):
             # Note the debug print was off for bondpoints, that might be why I didn't see it,
             # if there is a bug that causes one to be added... can't think why there would be tho.
             if atom.element.eltnum != 0:
-                print "dna updater, fyi: addatom %r to %r invals %r" % (atom, self, self.ladder)
-            self.ladder.invalidate()
+                print "dna updater, fyi: addatom %r to %r invals_if_not_disabled %r" % (atom, self, self.ladder)
+            self.ladder.ladder_invalidate_if_not_disabled()
         return
 
     def delatom(self, atom):
         _superclass.delatom(self, atom)
         if self.ladder and self.ladder.valid:
-            print "dna updater, fyi: delatom %r from %r invals %r" % (atom, self, self.ladder)
-            self.ladder.invalidate()
+            print "dna updater, fyi: delatom %r from %r invals_if_not_disabled %r" % (atom, self, self.ladder)
+            self.ladder.ladder_invalidate_if_not_disabled()
         return
 
     def merge(self, other): # overridden just for debug, 080120 9pm
@@ -553,7 +568,7 @@ class DnaLadderRailChunk(Chunk):
         also catches addatom/delatom themselves (so above overrides are not needed??)
         """
         if self.ladder and self.ladder.valid:
-            self.ladder.invalidate() # 080120 10pm bugfix
+            self.ladder.ladder_invalidate_if_not_disabled() # 080120 10pm bugfix
         return _superclass.invalidate_atom_lists(self)
         
     # == other invalidation-related methods

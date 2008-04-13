@@ -97,27 +97,12 @@ from dna.updater.dna_updater_prefs import pref_permit_bare_axis_atoms
 
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
+from dna.updater.dna_updater_globals import _f_invalid_dna_ladders
 
-# ==
-
-# globals and accessors
-
-_invalid_dna_ladders = {}
-
-def _f_get_invalid_dna_ladders():
-    """
-    Return the invalid dna ladders,
-    and clear the list so they won't be returned again
-    (unless they are newly made invalid).
-
-    Friend function for dna updater. Other calls
-    would cause it to miss newly invalid ladders,
-    causing serious bugs.
-    """
-    res = _invalid_dna_ladders.values()
-    _invalid_dna_ladders.clear()
-    res = filter( lambda ladder: not ladder.valid, res ) # probably not needed
-    return res
+from dna.updater.dna_updater_globals import get_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_ERROR
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
 
 # ==
 
@@ -246,7 +231,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
     def _finish_strand_rails(self): # also used in DnaSingleStrandDomain
         """
         verify strand bond directions are antiparallel, and standardize them;
-        then self.set_valid()
+        then self._ladder_set_valid()
         (note there might be only the first strand_rail;
          this code works even if there are none)
         """
@@ -327,7 +312,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             for rail in self.strand_rails:
                 strand_rail.debug_check_bond_direction("end of %r._finish_strand_rails" % self)
             print " *** _DEBUG_REVERSE_STRANDS end for %r\n" % self
-        self.set_valid(True) # desired even if self.error was set above, or will be set below
+        self._ladder_set_valid(True) # desired even if self.error was set above, or will be set below
         self._duplex_geometric_checks() # might set or append to self.error
         if self.error:
             # We want to display the error, but not necessarily by setting
@@ -430,7 +415,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
     def num_strands(self):
         return len(self.strand_rails)
     
-    def set_valid(self, val):
+    def _ladder_set_valid(self, val):
         if val != self.valid:
             self.valid = val
             if val:
@@ -472,7 +457,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                     if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                         print "%r de-owning %r" % (self, atom)
                 # tell the next run of the dna updater we're invalid
-                _invalid_dna_ladders[id(self)] = self
+                _f_invalid_dna_ladders[id(self)] = self
         return
     
     def rail_end_baseatoms(self):
@@ -492,12 +477,43 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             if atom2 is not atom1:
                 yield atom2
         return
-        
-    def invalidate(self):
-        # note: this is called from dna updater and from
+
+    # external invalidation methods, which check dnaladder_inval_policy
+    # [bruce 080413 separated existing invalidate method calls into calls
+    #  of these two variants, also giving them text-searchable methodnames]
+
+        # note: one of these is called from dna updater and from
         # DnaLadderRailChunk.delatom, so changed atoms inval their
         # entire ladders
-        self.set_valid(False)
+    
+    def ladder_invalidate_and_assert_permitted(self): #bruce 080413
+        dnaladder_inval_policy = get_dnaladder_inval_policy()
+        if dnaladder_inval_policy != DNALADDER_INVAL_IS_OK:
+            print "\n*** BUG: dnaladder_inval_policy is %r, but we'll inval %r anyway" % \
+                  (dnaladder_inval_policy, self)
+        self._ladder_set_valid(False)
+        return
+
+    def ladder_invalidate_if_not_disabled(self): #bruce 080413
+        dnaladder_inval_policy = get_dnaladder_inval_policy()
+        if dnaladder_inval_policy == DNALADDER_INVAL_IS_OK:
+            # usual case should be fastest
+            self._ladder_set_valid(False)            
+        elif dnaladder_inval_policy == DNALADDER_INVAL_IS_NOOP_BUT_OK:
+            print "fyi: disabled inval of %r" % self ### remove when works, or put under debug_flags
+            pass # don't invalidate it
+        elif dnaladder_inval_policy == DNALADDER_INVAL_IS_ERROR:
+            # this will happen for true errors, but also for places where we
+            # need to disable but permit the inval. To show those clearly,
+            # also useful for true errors, we always print the stack, even
+            # though this will be verbose when there are bugs.
+            msg = "\n*** BUG: dnaladder inval is an error now, but we'll inval %r anyway" % \
+                  (self, )
+            print_compact_stack( msg + ": " )
+            self._ladder_set_valid(False) # an error, but fewer bugs predicted from doing it than not
+        else:
+            assert 0, "unrecognized dnaladder_inval_policy %r" % dnaladder_inval_policy
+        return
 
     # ==
     
@@ -856,9 +872,14 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             extra = " (single strand)"
         elif ns == 0:
             # don't say it's an error if 0, since it might be still being made
+            # (or be a bare axis ladder)
             extra = " (0 strands)"
         else:
             extra = " (error: %d strands)" % ns
+        if not self.valid:
+            extra += " (invalid)"
+        if self.error:
+            extra += " (.error set)"
         return "<%s at %#x, axis len %d%s>" % (self.__class__.__name__, id(self), self.axis_rail.baselength(), extra)
 
     def _do_merge_with_other_at_ends(self, other, end, other_end): # works in either class; when works, could optim for single strand
@@ -919,8 +940,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         if _DEBUG_LADDER_FINISH_AND_MERGE():
             print "dna updater: fyi: new_baseatom_lists (after flip or no flip) == %r" % (new_baseatom_lists,)
         # invalidate old ladders before making new rails or new ladder
-        self.invalidate() # @@@@ ok at this stage?
-        other.invalidate()
+        self.ladder_invalidate_and_assert_permitted()
+        other.ladder_invalidate_and_assert_permitted()
+            # ok at this stage? should be -- in fact, caller
+            # explicitly permits it to work, via global dnaladder_inval_policy
+            # [new feature in caller, bruce 080413]
         # now make new rails and new ladder
         new_rails = [ _new_rail( baseatom_list, strandQ, bond_direction)
                       for baseatom_list, strandQ, bond_direction in
@@ -1280,8 +1304,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         """
         tells dna updater to remake self from scratch (when it next runs)
         """
-        self.invalidate()
-        ### BUG: the above, alone, doesn't cause dna updater to actually run.
+        self.ladder_invalidate_and_assert_permitted()
+        # BUG (but will probably become officially ok, with the following
+        #  workaround officially required and documented; see comments in
+        #  initial code called by full_dna_update [comment revised, bruce 080413]):
+        # the above, alone, doesn't cause dna updater to actually run.
         # KLUGE WORKAROUND -- also do this:
         self.arbitrary_baseatom()._changed_structure()
         return
@@ -1305,7 +1332,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         @note: this is safe to call on freshly made valid ladders which
                didn't yet remake their chunks.
         """
-        assert self.valid
+        if not self.valid:
+            # was assert, but happened for convert to pam3 of ladder
+            # whose self & neighbor were converted to PAM5 [bruce 080413 336pm]
+            print "possible bug: strand_neighbor_ladders called on %r " \
+                  " which is not valid" % (self,)
         if self.error:
             print "possible bug: strand_neighbor_ladders called on %r " \
                   " which has error = %r" % (self, self.error)
@@ -1446,7 +1477,7 @@ def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an im
         ladder = atom._DnaLadder__ladder
         assert isinstance(ladder, DnaLadder)
         assert ladder.valid, "%r not valid" % ladder
-            # note: changes in set_valid mean this will become common for bugs, attrerror will be rare [080413]
+            # note: changes in _ladder_set_valid mean this will become common for bugs, attrerror will be rare [080413]
             # or: if not, print "likely bug: invalid ladder %r found on %r during merging" % (ladder, atom) #k
             # REVIEW: it might be better to return an invalid ladder than no ladder or raise an exception,
             # so we might change this to return one, provided the atom is in the end_baseatoms. ####

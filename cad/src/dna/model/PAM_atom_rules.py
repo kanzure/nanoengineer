@@ -102,8 +102,10 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
         bond = find_bond(a1, a2)
         weird = False
         if bond is None: # can this happen, re find_bond semantics? I think so;
-            # should not happen re how we are called, tho
-            weird = "not bonded"
+            # should not happen re how we are called, tho..
+            # oops, it's routine, since ladder merge is filtered by checking
+            # this for arbitrary baseatoms, so nevermind. [bruce 080413 230pm]
+            pass ## weird = "not bonded"
         elif bond.is_rung_bond():
             weird = "rung bond"
         if weird:

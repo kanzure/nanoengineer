@@ -13,6 +13,13 @@ from dna.updater.dna_updater_globals import ignore_new_changes
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
+from dna.updater.dna_updater_globals import _f_invalid_dna_ladders
+
+from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_ERROR
+from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import _f_clear_invalid_dna_ladders
 
 from utilities import debug_flags
 
@@ -132,6 +139,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     dissolve_or_fragment_invalid_ladders( changed_atoms)
         # note: this adds atoms (live atoms only) to changed_atoms;
         # see its comments and above comment for details.
+        #
+        # NOTE: THIS SETS dnaladder_inval_policy to DNALADDER_INVAL_IS_ERROR
+        # (at the right time during its side effects/tests on ladders)
 
     # TODO: make sure _f_baseatom_wants_pam is extended to cover whole basepairs
     # (unless all code which stores into it does that)
@@ -186,6 +196,10 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     #  in case conversion errors are confined to smaller ladders
     #  that way, maybe for other reasons) [bruce 080401 new feature]
 
+    # note: several of the pam conversion methods might temporarily change
+    # dnaladder_inval_policy, but only very locally in the code,
+    # and they will change it back to its prior value before returning
+
     default_pam = pref_dna_updater_convert_to_PAM3plus5() and MODEL_PAM3 or None
         # None means "whatever you already are", i.e. do no conversion.
         # There is not yet a way to say "display everything in PAM5".
@@ -231,7 +245,8 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         number_failed += not not failed
         if didit:
             assert ladders_dict.get(ladder, None) == False
-            print "converted:", ladder.ladder_string() ####
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
+                print "converted:", ladder.ladder_string()
         continue
 
     if number_converted:
@@ -282,6 +297,20 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     else:
         ignore_new_changes(msg, changes_ok = False)
 
+    if _f_invalid_dna_ladders:
+        #bruce 080413
+        print "\n*** likely bug: _f_invalid_dna_ladders is nonempty " \
+              "just before merging new ladders: %r" % _f_invalid_dna_ladders
+
+    # During the merging of ladders, we make ladder inval work normally;
+    # at the end, we ignore any invalidated ladders due to the merge.
+    # (The discarding is a new feature and possible bugfix, but needs more testing
+    #  and review since I'm surprised it didn't show up before, so I might be
+    #  missing something) [bruce 080413 1pm PT]
+
+    _old_policy = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_OK)
+    assert _old_policy == DNALADDER_INVAL_IS_ERROR
+    
     # merge axis ladders (ladders with an axis, and 1 or 2 strands)
     
     merged_axis_ladders = merge_and_split_ladders( new_axis_ladders,
@@ -304,6 +333,11 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     del new_singlestrand_ladders
 
+    restore_dnaladder_inval_policy( _old_policy)
+    del _old_policy
+
+    _f_clear_invalid_dna_ladders()
+    
     merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
     
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
@@ -316,12 +350,16 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     
     for ladder in merged_ladders:
         new_chunks = ladder.remake_chunks()
+            # note: this doesn't have an issue about wrongly invalidating the
+            # ladders whose new chunks pull atoms into themselves,
+            # since when that happens the chunks didn't yet set their .ladder.
         all_new_chunks.extend( new_chunks)
         ladder._f_reposition_baggage() #bruce 080404
             # only for atoms with _f_dna_updater_should_reposition_baggage set
             # (and optimizes by knowing where those might be inside the ladder)
             # (see comments inside it about what might require us
             #  to do it in a separate loop after all chunks are remade)
+            ### REVIEW: will this invalidate any ladders?? If so, need to turn that off.
 
     ignore_new_changes("from remake_chunks and _f_reposition_baggage", changes_ok = True)
         # (changes are from parent chunk of atoms changing;

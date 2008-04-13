@@ -413,10 +413,17 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     def invalidate_ladder(self): #bruce 071203
         """
         Subclasses which have a .ladder attribute
-        should call its invalidate method.
+        should call its ladder_invalidate_if_not_disabled method.
         """
         return
 
+    def invalidate_ladder_and_assert_permitted(self): #bruce 080413
+        """
+        Subclasses which have a .ladder attribute
+        should call its ladder_invalidate_and_assert_permitted method.
+        """
+        return
+        
     def in_a_valid_ladder(self): #bruce 071203
         """
         Is this chunk a rail of a valid DnaLadder?

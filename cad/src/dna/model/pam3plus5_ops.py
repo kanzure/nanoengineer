@@ -114,6 +114,29 @@ def kill_Pl_and_rebond_neighbors(atom):
     
     # could also assert no dna updater error
 
+    if 1:
+        # kluge: do these at runtime to avoid import recursion issues.
+        # clean this up asap after the release.
+        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
+        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+        from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
+        from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
+
+    _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_NOOP_BUT_OK)
+        # REVIEW: can this ever be called outside dna updater?
+        # If so, we might not want to change the policy then
+        # (i.e. only change it if it's DNALADDER_INVAL_IS_ERROR).
+        # To notice this if it happens and force a review, we assert
+        # _old is not what it would be outside the updater:
+    assert _old != DNALADDER_INVAL_IS_OK # see comment for explanation
+    try:
+        return _kill_Pl_and_rebond_neighbors_0(atom)
+    finally:        
+        restore_dnaladder_inval_policy( _old)
+    pass
+
+def _kill_Pl_and_rebond_neighbors_0(atom):
+
     # Note: we optimize for the common case (nothing wrong, conversion happens)
 
     ### NOTE: many of the following checks have probably also been done by
@@ -252,15 +275,16 @@ def kill_Pl_and_rebond_neighbors(atom):
     atom.kill()
 ##        # (let's hope this happened before an Undo checkpoint ever saw it --
 ##        #  sometime verify that, and optimize if it's not true)
-    
-    # summarize our success -- we'll remove this when it becomes the default,
-    # or condition it on a DEBUG_DNA_UPDATER flag ###
 
-    debug_flags.DEBUG_DNA_UPDATER # for use later
-    
-    summary_format = \
-        "Note: dna updater removed [N] Pl5 pseudoatom(s) while converting to PAM3+5"
-    env.history.deferred_summary_message( graymsg(summary_format) )
+    if 0: # for now; bruce 080413 356pm
+        # summarize our success -- we'll remove this when it becomes the default,
+        # or condition it on a DEBUG_DNA_UPDATER flag ###
+
+        debug_flags.DEBUG_DNA_UPDATER # for use later
+        
+        summary_format = \
+            "Note: dna updater removed [N] Pl5 pseudoatom(s) while converting to PAM3+5"
+        env.history.deferred_summary_message( graymsg(summary_format) )
     
     return
 
@@ -285,6 +309,28 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
     @return: the Pl5 atom we made. (Never returns None. Errors are either
              not detected or cause exceptions.)
     """
+    if 1:
+        # kluge: do these at runtime to avoid import recursion issues.
+        # clean this up asap after the release.
+        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
+        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+        from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
+        from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
+
+    _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_NOOP_BUT_OK)
+        # REVIEW: can this ever be called outside dna updater?
+        # If so, we might not want to change the policy then
+        # (i.e. only change it if it's DNALADDER_INVAL_IS_ERROR).
+        # To notice this if it happens and force a review, we assert
+        # _old is not what it would be outside the updater:
+    assert _old != DNALADDER_INVAL_IS_OK # see comment for explanation
+    try:
+        return _insert_Pl_between_0(s1, s2)
+    finally:        
+        restore_dnaladder_inval_policy( _old)
+    pass
+
+def _insert_Pl_between_0(s1, s2):
     direct_bond = find_bond(s1, s2)
     assert direct_bond
     direction = direct_bond.bond_direction_from(s1) # from s1 to s2
