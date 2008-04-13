@@ -349,8 +349,6 @@ class MWsemantics(QMainWindow,
         else:
             # This might soon become the usual case, with the debug_pref 
             # removed. - Mark
-
-            print "Using new DNA Duplex command (supports PAM-3 only)."
             from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
             self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
             self.dnacntl = self.dnaEditCommand
