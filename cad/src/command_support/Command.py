@@ -1343,7 +1343,7 @@ class basicCommand(anyCommand):
                 except:
                     print_compact_traceback("bug, ignoring: ") #bruce 071011 added this
             else:
-                #TEMPORARY FIX FOR BUG 2593 NEEDS CLEANUP
+                #TEMPORARY FIX FOR BUG 2593, 2800 NEEDS CLEANUP
                 # This code is not copied in Cancel 
                 # method as it seems unncessary to do so (as of 2007-12-21) 
                 #(This part of the code is reached only when user explicitely 
@@ -1353,7 +1353,7 @@ class basicCommand(anyCommand):
                 #to properly exit the previous command from which it was invoked. 
                 #before entering the 'new_mode' (not 'None' in this elase 
                 #statement) The new_mode  is supplied to the this method as a 
-                #parameter, This fixes bugs like 2593.  
+                #parameter, This fixes bugs like 2593, 2800.  
                 previous_command = self.commandSequencer.prevMode
                 if previous_command is not new_mode:
                     self._exit_previous_command(exit_using_done_or_cancel_button)
@@ -1395,8 +1395,15 @@ class basicCommand(anyCommand):
         this function first exits any pending previous mode commands. 
         @see: comment in self.Done. 
         """
-        previous_command = self.commandSequencer.prevMode                
-        if previous_command and not self.command_has_its_own_gui:            
+        previous_command = self.commandSequencer.prevMode 
+        #Fixed bug 2800. The original if conditional was as follows --
+        #if previous_command and not self.command_has_its_own_gui
+        #But it could happen that the current command is a temporary command 
+        #that usually resumes the previous mode and it still has its own gui.
+        #(e.g. Join Strand command). So 'if not self.command_has_its_own_gui
+        #is incorrect. -- Ninad 2008-04-12. See also bug 2583
+        
+        if previous_command:           
             if exit_using_done_or_cancel_button:
                 if previous_command.command_has_its_own_gui:
                     previous_command.Done()

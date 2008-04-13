@@ -259,6 +259,41 @@ class CommandToolbar(Ui_CommandToolbar):
                     a.defaultWidget().setText(text)
                 
         self.flyoutToolBar.addActions(menu.actions())
+        
+    def check_controlAreaButton_containing_action(self, action = None):
+        """
+        This method is called once while entering a command. It makes 
+        sure to check the control area button which lists <action> as its
+        menu item. (not true for BuildAtoms subclasses such as partlib mode)
+        
+        This ensures that when you enter a command, the flyout toolbar is set
+        to show the Exit command etc buttons specific to that command. (The user
+        can then always click on some other control button to display some 
+        different flyout toolbar. But by default, we ensure to show the flyout 
+        toolbar that the user will obviously expect to see after entering a 
+        command
+        
+        @see: bug 2600, 2801 (this method fixes these bugs)
+        @TODO: Ater more testing, deprecate code in 
+               Ui_DnaFlyout.activateFlyoutToolbar and some other files that fixes 
+               bug 2600. 
+        """
+        buttonToCheck = None
+        
+        if action:
+            for controlAreaButton in self.cmdButtonGroup.buttons():
+                if buttonToCheck:
+                    break
+                
+                menu = controlAreaButton.menu()            
+                if menu:
+                    for a in menu.actions():
+                        if a is action:
+                            buttonToCheck = controlAreaButton
+                            break
+                        
+        if buttonToCheck:
+            buttonToCheck.setChecked(True)       
                     
     def updateCommandToolbar(self, action, obj, entering = True): #Ninad 070125
         """
@@ -274,6 +309,8 @@ class CommandToolbar(Ui_CommandToolbar):
         if entering:    
             self._createFlyoutToolBar(obj)          
             self.in_a_mode = entering
+            #This fixes bugs like 2600, 2801
+            self.check_controlAreaButton_containing_action(action)
             self.currentAction = action
             self._updateFlyoutToolBar(in_a_mode = self.in_a_mode)
         else:
