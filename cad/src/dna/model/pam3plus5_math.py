@@ -17,6 +17,8 @@ from utilities.debug import print_compact_traceback
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
+__USE_OLD_VALUES__ = False
+
 # PAM3+5 conversion constants (in Angstroms)
 #
 # for explanation, see:
@@ -34,32 +36,105 @@ from utilities.constants import MODEL_PAM3, MODEL_PAM5
 # x_g  =  8.657
 # y_m  =  6.198
 
-X_APRIME = 2.695 # x_a' (where _ means subscript)
+if (__USE_OLD_VALUES__):
+    X_APRIME = 2.695 # x_a' (where _ means subscript)
 
-X_SPRIME = -0.772 # x_s'
-Y_SPRIME = -0.889 # y_s'
+    X_SPRIME = -0.772 # x_s'
+    Y_SPRIME = -0.889 # y_s'
 
-SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
+    SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
     # position of PAM3 strand sugar 'd' in baseframe 'd' coordinates
     # (for position of sugar 'u' in 'd' coords, see relpos_in_other_frame)
 
-DEFAULT_X_G = 8.657 # x_g
-DEFAULT_Y_M = 6.198 # y_m
+    DEFAULT_X_G = 8.657 # x_g
+    DEFAULT_Y_M = 6.198 # y_m
     # confirmed from my debug print (converting from PAM5 duplex from our
     # current generator, bruce 080412:
     ## ... for data_index 2 stored relpos array([  8.65728085e+00,   6.19902777e+00,  -1.33226763e-15])
     # (and similar numbers)
 
-DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0)
+    DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0)
     # most likely, only x (DEFAULT_X_G) actually matters out of these three coords
 
-DEFAULT_Ss_plus_to_Pl5_RELPOS = V(-3.459, -0.489, -1.59)
+    DEFAULT_Ss_plus_to_Pl5_RELPOS = V(-3.459, -0.489, -1.59)
     # derived, bruce 080412, for data_index True stored relpos array([-3.45992359, -0.48928416, -1.59      ])
     # the prior stub value was -0.772, -0.889, -1
 
-DEFAULT_Ss_minus_to_Pl5_RELPOS = V(1.645 , -2.830,  1.59)
+    DEFAULT_Ss_minus_to_Pl5_RELPOS = V(1.645 , -2.830,  1.59)
     # derived, bruce 080412, for data_index False stored relpos array([ 1.6456331 , -2.83064599,  1.59      ])
     # the prior stub value was -0.772, -0.889, +1
+
+
+
+# Here's another set of numbers from EricD as of 2008/04/13.  "[D]on't
+# expect full mutual consistency in the last digit or so."
+#
+# Ss5-Ss5  1.0749 nm
+# Ss5-Gv5  0.9233 nm
+# Ax3-Gv5  0.4996 nm
+#
+# measured off of current PAM3 generator output:
+#
+# Ss3-Ss3  1.5951 nm (no corrosponding value in sim-params.txt)
+# Ss3-Ax3  0.8697 nm (0.8700 nm in sim-params.txt)
+#
+# formulas for computing the below numbers from the above:
+#
+# y_m = Ss5-Ss5 / 2                                =  0.53745
+# x_g = sqrt(Ss5-Gv5^2 - y_m^2)                    =  0.750753213446
+# x_a' = x_g - Ax3-Gv5                             =  0.251153213446
+# x_s' = x_a' - sqrt(Ss3-Ax3^2 - (Ss3-Ss3 / 2)^2)  = -0.095678283826
+# y_s' = y_m - (Ss3-Ss3 / 2)                       = -0.2601
+#
+# to a more reasonable number of significant figures:
+#
+# x_a' =  0.2512 nm
+# x_s' = -0.0957 nm
+# y_s' = -0.2601 nm
+# x_g  =  0.7508 nm
+# y_m  =  0.5375 nm
+#
+# (where _ means subscript)
+#
+# The Pl positioning data comes from the following email from EricD:
+#
+# Reading data from a slightly imprecise on-screen model,
+# the FNANO 08 PAM5 Pl offsets  (in base coordinates and nm)
+# are:
+#
+#   Ss->Pl+   0.2875 -0.4081  0.0882
+#   Ss->Pl-  -0.2496 -0.2508 -0.2324
+#
+# To be redundant, the origin and sign conventions
+# in base coordinates are:
+#
+# (0,0,0) is the location of Ss
+# +x is toward the major groove
+# +y is toward the opposite Ss
+# +z is in the 5'-3'direction
+
+if (not __USE_OLD_VALUES__):
+    # (x_a', y_m) is the location of the PAM3 Ax, relative to a PAM5 Ss.
+    X_APRIME =  2.512 # x_a' 
+
+    X_SPRIME = -0.957 # x_s'
+    Y_SPRIME = -2.601 # y_s'
+
+    SPRIME_D_SDFRAME = V(X_SPRIME, Y_SPRIME, 0.0)
+    # position of PAM3 strand sugar 'd' in baseframe 'd' coordinates
+    # (for position of sugar 'u' in 'd' coords, see relpos_in_other_frame)
+
+    DEFAULT_X_G = 7.508 # x_g
+    DEFAULT_Y_M = 5.375 # y_m
+
+    DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0)
+    # most likely, only x (DEFAULT_X_G) actually matters out of these three coords
+
+    # The labels on these are different from the above email, so I've
+    # selected them to corrospond to the signs in the old data.
+    # -EricM
+    DEFAULT_Ss_plus_to_Pl5_RELPOS = V(-2.496, -2.508, -2.324)
+    DEFAULT_Ss_minus_to_Pl5_RELPOS = V(2.875, -4.081,  0.882)
 
 # see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
 
