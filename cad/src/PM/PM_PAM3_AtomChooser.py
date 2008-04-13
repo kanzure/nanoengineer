@@ -1,15 +1,15 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_PAM3_AtomChooser.py
 
 @author: Ninad
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  All rights reserved.
-
+@copyright: 2007-2008 Nanorex, Inc.  All rights reserved.
 """
 
 from PM.PM_MolecularModelingKit import PM_MolecularModelingKit
 from utilities.constants import diBALL
+from utilities.GlobalPreferences import pref_MMKit_include_experimental_PAM_atoms
 
 # Elements button list to create PAM3 atoms toolbutton group.
 # Format: 
@@ -22,18 +22,30 @@ from utilities.constants import diBALL
 # - column
 # - row
 
-PAM3_ATOMS_BUTTON_LIST = [ \
+PAM3_ATOMS_BUTTON_LIST = [
+    #bruce 080412 revised this
     ( "QToolButton", 300, "Ax3", "", "PAM3-Axis",           None, 0, 0 ),
-    ( "QToolButton", 301, "Ss3", "", "PAM3-Sugar",          None, 0, 1 ),
-    ( "QToolButton", 303, "Sj3", "", "PAM3-Sugar-Junction", None, 1, 1 ),
-    ( "QToolButton", 304, "Ae3", "", "PAM3-Axis-End",       None, 1, 0 ),
-    ( "QToolButton", 306, "Sh3", "", "PAM3-Sugar-Hydroxyl", None, 2, 1 ),
-    ( "QToolButton", 307, "Hp3", "", "PAM3-Hairpin",        None, 0, 2 )  
+    ( "QToolButton", 301, "Ss3", "", "PAM3-Sugar",          None, 1, 0 ),
+##    ( "QToolButton", 303, "Sj3", "", "PAM3-Sugar-Junction", None, 1, 1 ),
+##    ( "QToolButton", 304, "Ae3", "", "PAM3-Axis-End",       None, 1, 0 ),
+##    ( "QToolButton", 306, "Sh3", "", "PAM3-Sugar-Hydroxyl", None, 2, 1 ),
+##    ( "QToolButton", 307, "Hp3", "", "PAM3-Hairpin",        None, 0, 2 )  
     
     #NOTE: Following atoms are not used for now
     #( "QToolButton", 302, "Pl3", "", "PAM3-Phosphate",      None, 0, 2 ),
     #( "QToolButton", 305, "Se3", "", "PAM3-Sugar-End",      None, 1, 2 ),
 ]
+
+PAM3_ATOMS_BUTTON_LIST_EXPERIMENTAL = [
+    #bruce 080412 added this
+    ( "QToolButton", 310, "Ub3", "", "PAM3-Unpaired-base",   None, 0, 1 ),
+    ( "QToolButton", 311, "Ux3", "", "PAM3-Unpaired-base-x", None, 1, 1 ),
+    ( "QToolButton", 312, "Uy3", "", "PAM3-Unpaired-base-y", None, 2, 1 ),
+]
+
+if pref_MMKit_include_experimental_PAM_atoms():
+    PAM3_ATOMS_BUTTON_LIST += PAM3_ATOMS_BUTTON_LIST_EXPERIMENTAL
+        
 
 class PM_PAM3_AtomChooser( PM_MolecularModelingKit ):
     """

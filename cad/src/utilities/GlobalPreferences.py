@@ -238,4 +238,13 @@ def pref_indicate_overlapping_atoms(): #bruce 080411
                      prefs_key = "A10/GLPane: indicate overlapping atoms? " )
     return res
 
+# ==
+
+def pref_MMKit_include_experimental_PAM_atoms(): #bruce 080412
+    res = debug_pref("MMKit: include experimental PAM atoms (next session)?",
+                     Choice_boolean_False,
+                         # not on by default, and not visible without ATOM_DEBUG,
+                         # since these elements would confuse users
+                     prefs_key = "A10/MMKit: include experimental PAM atoms?" )
+    return res
 # end
