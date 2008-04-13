@@ -217,8 +217,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #Initialize DEBUG preference
         pref_dna_segment_resize_without_recreating_duplex()
         
-
-
     def init_gui(self):
         """
         Initialize gui. 
@@ -239,6 +237,44 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #  EditCommand API was written before the command sequencer API and 
         #  it has some loose ends like this. ) -- Ninad 2008-01-22
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
+    
+    def model_changed(self):
+        #This MAY HAVE BUG. WHEN --
+        #debug pref 'call model_changed only when needed' is ON
+        #See related bug 2729 for details. 
+        
+        #The following code that updates te handle positions and the strand 
+        #sequence fixes bugs like 2745 and updating the handle positions
+        #updating handle positions in model_changed instead of in 
+        #self.graphicsMode._draw_handles() is also a minor optimization
+        #This can be further optimized by debug pref 
+        #'call model_changed only when needed' but its NOT done because of an 
+        # issue menitoned in bug 2729   - Ninad 2008-04-07
+        
+        if self.grabbedHandle is not None:
+            return
+        
+        if self.hasValidStructure():
+            self.updateHandlePositions()
+            
+            #The following fixes bug 2802. The bug comment has details of what
+            #it does. Copying some portion of it below--            
+            #We have fixed similar problem for strand resizing, by updating the
+            #self.previousParams attr in model_changed method (and also updating
+            #the numberOfBasePairs spinbox in the PM. But here, user can even 
+            #change the number of basepairs from the PM. When he does that, 
+            #the model_changed is called and it resets the number of basepairs 
+            #spinbox value with  the ones currently on the structure! Thereby 
+            #making it impossible to upate structure using spinbox.  To fix this
+            #we introduce a new parameter in propMgr.getParameters() which 
+            #reports the actual number of bases on the structure. 
+            #-- Ninad 2008-04-12
+            if self.previousParams is not None:
+                new_numberOfBasePairs = self.struct.getNumberOfBasePairs()
+                if new_numberOfBasePairs != self.previousParams[0]:
+                    self.propMgr.numberOfBasePairsSpinBox.setValue(new_numberOfBasePairs)
+                    self.previousParams = self.propMgr.getParameters()
+                    
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
@@ -250,7 +286,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #Set the duplex rise and number of bases
             basesPerTurn, duplexRise = self.struct.getProps()
             endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-            params_for_propMgr = (None, 
+            params_for_propMgr = (None,
+                                  None, 
                                   None,
                                   None,
                                   basesPerTurn, 
@@ -466,6 +503,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
+        number_of_basePairs_from_struct,\
         numberOfBases, \
                      dnaForm, \
                      dnaModel, \
@@ -574,8 +612,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
-        """    
-        
+        """                
         if pref_dna_segment_resize_without_recreating_duplex():
             self._modifyStructure_NEW_SEGMENT_RESIZE(params)
             return
@@ -643,7 +680,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         assert self.struct        
         
         self.dna = B_Dna_PAM3()
-            
+        
+        number_of_basePairs_from_struct,\
         numberOfBases, \
                     dnaForm, \
                     dnaModel, \
@@ -655,10 +693,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #Delete unused parameters. 
         del endPoint1
         del endPoint2
+        del number_of_basePairs_from_struct
         
         numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
                         
         ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
+        
+        
         
         if numberOfBasePairsToAddOrRemove != 0:   
             

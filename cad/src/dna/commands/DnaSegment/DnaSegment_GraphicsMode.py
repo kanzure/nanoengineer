@@ -335,7 +335,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #Reset the flag that decides whether to draw the handles. This flag is
         #set during left dragging, when no handle is 'grabbed'. See the 
         #class definition for more details about this flag.
-        if self.command and self.command.handles:         
+        if self.command and self.command.handles: 
+            self.command.updateHandlePositions()
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
             
@@ -529,11 +530,15 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if self.command:
                 text = self.command.getCursorText()
                 self.glpane.renderTextNearCursor(text, offset = 30)
-        else: 
-            #No handle is grabbed. But may be the structure changed 
-            #(e.g. while dragging it ) and as a result, the endPoint positions 
-            #are modified. So we must update the handle positions because 
-            #during left drag (when handle is not dragged) we skip the 
-            #handle drawing code and computation to update the handle positions
-            #TODO: see bug 2729 for planned optimization. 
-            self.command.updateHandlePositions()
+        ##else: 
+        #UPDATE 2008-04-12: Updating the handle positions is now called in 
+        #DnaSegment_EditCommand.model_changed().(calling it there provides 
+        #minor optimization. See also bug 2729 for remaining issue) 
+        #Commenting out the following line of code
+            ###No handle is grabbed. But may be the structure changed 
+            ###(e.g. while dragging it ) and as a result, the endPoint positions 
+            ###are modified. So we must update the handle positions because 
+            ###during left drag (when handle is not dragged) we skip the 
+            ###handle drawing code and computation to update the handle positions
+            ###TODO: see bug 2729 for planned optimization. 
+            ##self.command.updateHandlePositions()

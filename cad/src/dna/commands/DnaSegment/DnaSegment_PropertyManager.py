@@ -173,19 +173,30 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def getParameters(self):
         """
         """
+        #See bug 2802 for details about the parameter 
+        #'number_of_basePairs_from_struct'. Basically it is used to check
+        #if the structure got modified (e.g. because of undo) 
+        #The numberOfBases parameter obtained from the propMgr is given as a 
+        #separate parameter for the reasons mentioned in bug 2802
+        #-- Ninad 2008-04-12
+        number_of_basePairs_from_struct = None
+        if self.editCommand.hasValidStructure():
+            number_of_basePairs_from_struct = self.editCommand.struct.getNumberOfBasePairs()
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = self._conformation
         dnaModel = self.dnaModel
         basesPerTurn = self.basesPerTurn
         duplexRise = self.duplexRise
               
-        return (numberOfBases, 
-                dnaForm,
-                dnaModel,
-                basesPerTurn,
-                duplexRise,
-                self.endPoint1, 
-                self.endPoint2)
+        return (
+            number_of_basePairs_from_struct,
+            numberOfBases, 
+            dnaForm,
+            dnaModel,
+            basesPerTurn,
+            duplexRise,
+            self.endPoint1, 
+            self.endPoint2)
     
     def _update_widgets_in_PM_before_show(self):
         """
