@@ -452,7 +452,8 @@ class PAM_Atom_methods:
         """
         [friend method for dna updater]
 
-        Assume self is a Pl5 atom between two Ss3 or Ss5 atoms,
+        Assume self is a Pl5 atom between two Ss3 or Ss5 atoms
+        (or between one such atom and a bondpoint),
         in the same or different DnaLadders, WHICH MAY NOT HAVE YET REMADE
         THEIR CHUNKS (i.e. which may differ from atom.molecule.ladder for
          their atoms, if that even exists), which have finished doing
@@ -464,25 +465,26 @@ class PAM_Atom_methods:
         (This is true iff either neighbor is a PAM5 atom, presumably Ss5.)
         
         If not, kill self and directly bond its neighbors,
-        also recording its position on them if its position is definitive
+        also recording its position on the neighbors which are Ss3 or Ss5
+        if its position is definitive
         (if it's not, it means this already happened -- maybe not possible,
          not sure). (This won't be called twice on self; assert that
          by asserting self is not killed.)
 
         If so, ensure self's position is definitive, which means, if it's not,
-        make it so by setting it from the "+5 data" on self's neighbors
+        make it so by setting it from the "+5 data" on self's Ss neighbors
         intended for self, and removing that data. (This method can be
         called twice on self in this case; self's position would typically be
         non-definitive the first time and (due to our side effect that time)
         definitive the second time.)
         """
         assert not self.killed()
-        sn = self.strand_neighbors()
+        sn = self.strand_neighbors() # doesn't include bondpoints
         pam5_neighbors = [n for n in sn if n.element.pam == MODEL_PAM5]
         should_exist = not not pam5_neighbors
         if not should_exist:
             # make sure it's not due to being called when we have no strand
-            # neighbors (this method is not legal to call then)
+            # neighbors (bare Pl) (this method is not legal to call then)
             assert sn, "error: %r._f_Pl_finish_converting_if_needed() illegal since no strand neighbors" % self
             if self._f_Pl_posn_is_definitive:
                 self._f_Pl_store_position_into_Ss3plus5_data()
@@ -492,6 +494,10 @@ class PAM_Atom_methods:
                 # this may need to remain a runtime import due to likely import cycle issues
             kill_Pl_and_rebond_neighbors(self)
             ###REVIEW: does killing self mess up its chain or its DnaLadderRailChunk?
+            # (when called from dna updater, those are already invalid, they're
+            # not the new ones we worry about -- UNLESS self was old and untouched
+            # except by this corner Pl. That issue is a predicted unresolved bug
+            # as of 080412 11:54pm PT. #### @@@@)
         else:
             if not self._f_Pl_posn_is_definitive:
                 self._f_Pl_set_position_from_Ss3plus5_data()

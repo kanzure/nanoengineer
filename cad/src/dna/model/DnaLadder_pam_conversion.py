@@ -543,6 +543,7 @@ class DnaLadder_pam_conversion_methods:
                be done to it again (by some other call of this method
                from the same caller using the same dict).
         """
+##        print "fyi: called _f_finish_converting_bridging_Pl_atoms(%r)" % self ####
         assert self.valid and not self.error
         for Pl in self._bridging_Pl_atoms():
             Pl._f_Pl_finish_converting_if_needed()
@@ -559,6 +560,7 @@ class DnaLadder_pam_conversion_methods:
         between self and another ladder, or between self and self
         (which means the Pl is connecting end atoms not adjacent in self,
          not an interior Pl atom [but see note for a possible exception]).
+        or between self and a bondpoint.
 
         Make sure this list includes any Pl atom only once.
 
@@ -587,10 +589,12 @@ class DnaLadder_pam_conversion_methods:
                 if possible_Pl._dna_updater__error:
                     print "bug: possible_Pl %r has _dna_updater__error %r in %r, returning no _bridging_Pl_atoms" % \
                       (possible_Pl, possible_Pl._dna_updater__error, self)
-                return []
+                    return [] # bugfix: fixed indent level of this line [bruce 080412]
                 res[possible_Pl.key] = possible_Pl
             continue
-        return res.values()
+        res = res.values()
+##        print "fyi: _bridging_Pl_atoms(%r) returns %r" % (self, res) ####
+        return res
 
     def _corner_atoms_with_next_atoms_or_None(self): #bruce 080410 split this out of _bridging_Pl_atoms
         """
@@ -627,6 +631,7 @@ class DnaLadder_pam_conversion_methods:
                 res.append( (end_atom, next_atom) )
                 continue
             continue
+##        print "fyi: _corner_atoms_with_next_atoms_or_None(%r) returns %r" % (self, res) ####
         return res
 
     def fix_bondpoint_positions_at_ends_of_rails(self): #bruce 080411
