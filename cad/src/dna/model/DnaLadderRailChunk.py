@@ -515,14 +515,20 @@ class DnaLadderRailChunk(Chunk):
             # (update, 080120: I think it would happen in self.merge(other)
             #  except that we're inlined there! So it might happen if an atom
             #  gets deposited on self, too. ### REVIEW)
+            # update 080413: I expect it to be an issue for adding bridging Pl
+            # during conversion to PAM5, but didn't yet see it happen then. ###
+            # when it does, disable the inval, for Pl. (not for bondpoints!)
+            # Note the debug print was off for bondpoints, that might be why I didn't see it,
+            # if there is a bug that causes one to be added... can't think why there would be tho.
             if atom.element.eltnum != 0:
-                print "dna updater, fyi: %r.addatom %r invals %r" % (self, atom, self.ladder)
+                print "dna updater, fyi: addatom %r to %r invals %r" % (atom, self, self.ladder)
             self.ladder.invalidate()
         return
 
     def delatom(self, atom):
         _superclass.delatom(self, atom)
         if self.ladder and self.ladder.valid:
+            print "dna updater, fyi: delatom %r from %r invals %r" % (atom, self, self.ladder)
             self.ladder.invalidate()
         return
 

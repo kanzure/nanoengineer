@@ -127,13 +127,17 @@ class DnaLadder_pam_conversion_methods:
         Command to convert all of self to one of the PAM_MODELS.
         """
         #revised, bruce 080411
-        _f_baseatom_wants_pam.clear() # precaution
-            # ASSUME WE ARE DOING THIS FOR ONLY SELF, NOT ANYTHING ELSE AT SAME TIME.
-            # (This assumption is a reason to keep this method private.
-            #  If general code could call it, it might assume it could call it
-            #  on more than one DnaLadder during one user event handler.
-            #  OTOH, if this is ever an issue, we can probably just remove
-            #  this clear entirely.)
+
+        if _f_baseatom_wants_pam:
+            print "unexpected: something called %r._cmd_convert_to_pam(%r) " \
+                  "but _f_baseatom_wants_pam is not empty" % \
+                  ( self, which_model)
+            # should be safe, so don't clear it [bruce 080413 revision]
+            # Note: if general code (not just our own cmenu ops) could call this
+            # method, that code might assume it could call it on more than one
+            # DnaLadder during one user event handler. That would be reasonable
+            # and ok, so if this is ever wanted, we'll just remove this print.
+            pass
         
         env.history.graymsg(quote_html("Debug fyi: Convert %r to %s" % (self, which_model))) #####
         
@@ -150,11 +154,29 @@ class DnaLadder_pam_conversion_methods:
             del chunk.display_as_pam
             chunk.save_as_pam = None
             del chunk.save_as_pam
+        # Tell dna updater to remake self and its connected ladders
+        # (which would otherwise be invalidated during updater run (a bug)
+        #  by rebonding, or by adding/removing Pls to their chunks)
+        # from scratch (when it next runs);
+        # it will notice our atoms added to _f_baseatom_wants_pam,
+        # and do the actual conversion [mostly working as of 080411 late]
+        # (might not be needed due to upcoming code in dna updater which
+        #  processes _f_baseatom_wants_pam at the start of each updater run,
+        #  but safe, so kept for now -- bruce 080413)
         self._dna_updater_rescan_all_atoms()
-            # this tells dna updater to remake self from scratch
-            # (when it next runs);
-            # it will notice our atoms added to _f_baseatom_wants_pam,
-            # and do the actual conversion [mostly working as of 080411 late]
+        for ladder in self.strand_neighbor_ladders():
+            # hoped to be a bugfix for messing up neighboring ladders
+            # [bruce 080413 1040am pt...]
+            # turns out not enough, but reason is finally known --
+            # not only Pl add/remove, but even just transmute doing changed
+            # structure calls on neighbor atoms (I think), is enough to
+            # inval the neighbor ladder at a time when this is not allowed
+            # during the dna updater run. So I'll commit this explan,
+            # partial fix, and accumulated debug code and minor changes,
+            # then put in the real fix elsewhere.
+            if ladder is not None:
+                ladder._dna_updater_rescan_all_atoms()
+            continue
         return
 
     def _f_convert_pam_if_desired(self, default_pam_model): #bruce 080401

@@ -14,6 +14,8 @@ from model.elements import Singlet
 
 from dna.updater.dna_updater_globals import _f_anyatom_wants_pam
 
+from model.bonds import find_bond
+
 # ==
         
 def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
@@ -49,7 +51,15 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
     #
     # Review: how to treat atoms with dna_updater_errors?
     
-    explain_false = True # do not commit with true, once development is done
+    explain_false_when_printed = True
+
+    explain_false_always = False # do not commit with true --
+        # too verbose if user makes mixed PAM models on purpose
+    
+    explain_false = explain_false_when_printed or explain_false_always
+        # revised all explain_false logic, bruce 080413
+    
+    print0 = [""]
 
     def doit():
         if a1.element is Singlet or a2.element is Singlet:
@@ -57,7 +67,7 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
         if a1.element.pam != a2.element.pam:
             # different pam models, or one has no pam model (non-PAM element)
             if explain_false:
-                print "different pam models:", a1.element.pam, a2.element.pam
+                print0[0] = "different pam models: %s, %s" % (a1.element.pam, a2.element.pam)
             return False
         # we don't need to check for "both non-PAM", since we're not called
         # for such atoms (and if we were, we might as well allow them together)
@@ -65,9 +75,9 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
         # compare manual pam conversion requests
         if _f_anyatom_wants_pam(a1) != _f_anyatom_wants_pam(a2):
             if explain_false:
-                print "different requested manual pam conversion:", \
-                      _f_anyatom_wants_pam(a1), \
-                      _f_anyatom_wants_pam(a2)
+                print0[0] = "different requested manual pam conversion: %s, %s" % \
+                      ( _f_anyatom_wants_pam(a1),
+                        _f_anyatom_wants_pam(a2) )
             return False
         
         # compare pam-related properties of chunks
@@ -79,17 +89,30 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
             return True
         if (chunk1.display_as_pam or None) != (chunk2.display_as_pam or None): # "or None" is kluge bug workaround [080407 late]
             if explain_false:
-                print "different display_as_pam: %r != %r" % ( chunk1.display_as_pam, chunk2.display_as_pam)
+                print0[0] = "different display_as_pam: %r != %r" % ( chunk1.display_as_pam, chunk2.display_as_pam)
             return False
         if (chunk1.save_as_pam or None) != (chunk2.save_as_pam or None):
             if explain_false:
-                print "different save_as_pam: %r != %r" % ( chunk1.save_as_pam, chunk2.save_as_pam)
+                print0[0] = "different save_as_pam: %r != %r" % ( chunk1.save_as_pam, chunk2.save_as_pam)
             return False
         return True
     res = doit()
     if not res:
-        # if we turn off this print in general, leave it on when explain_false
-        print "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r" % (a1, a2, res) #######
+        # should we print this as a possible bug, and/or explain why it's false?
+        bond = find_bond(a1, a2)
+        weird = False
+        if bond is None: # can this happen, re find_bond semantics? I think so;
+            # should not happen re how we are called, tho
+            weird = "not bonded"
+        elif bond.is_rung_bond():
+            weird = "rung bond"
+        if weird:
+            print "might cause bugs: %r and %r not allowed in same ladder, but %s" % (a1, a2, weird)
+            if explain_false:
+                print " reason not allowed: ", print0[0]
+        elif explain_false_always: 
+            print "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r" % (a1, a2, res)
+            print " reason not allowed: ", print0[0]
     return res
 
 # end

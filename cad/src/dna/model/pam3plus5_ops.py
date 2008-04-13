@@ -60,11 +60,11 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     """
     proposed_posns = []
     
-    for direction_to, ss in bond_directions_to_neighbors:
+    for direction_to, ss in bond_directions_to_neighbors: # neighbors of Pl
         if ss.element.role == 'strand':
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
             pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
-                    - direction_to,
+                    - direction_to, # the sign makes this the Ss -> Pl direction
                     remove_data = remove_data_from_neighbors,
                     make_up_position_if_necessary = True
              )

@@ -126,6 +126,11 @@ class PAM_Atom_methods:
 
     _fake_Pls = None # see comments where used
 
+    _DnaLadder__ladder = None # for private use by class DnaLadder
+        # note: not named with _f_, so I can use the pseudo-name-mangling
+        # convention to indicate ownership by objects of a different class
+        # [bruce 080413 added class definition, revised using code]
+
     # not: _s_attr__nonlive_Pls = S_CHILDREN
 
     # == methods for either strand or axis PAM atoms

@@ -437,7 +437,10 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 # tell the rail end atoms their ladder;
                 # see _rail_end_atom_to_ladder for how this hint is interpreted
                 for atom in self.rail_end_baseatoms():
-                    # (could debug-warn if already set)
+                    # (could debug-warn if already set to a valid ladder)
+                    if atom._DnaLadder__ladder is not None and atom._DnaLadder__ladder.valid:
+                        print "\n*** likely bug: %r is owned by %r as %r takes it over" % \
+                              (atom, atom._DnaLadder__ladder, self)
                     atom._DnaLadder__ladder = self
                     if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                         print "%r owning %r" % (self, atom)
@@ -461,8 +464,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 for atom in self.rail_end_baseatoms():
                     # (could debug-warn if not set to self)
                     assert atom._DnaLadder__ladder is self # 080411
-                    atom._DnaLadder__ladder = None
-                    del atom._DnaLadder__ladder
+                    # don't do this:
+                    ## atom._DnaLadder__ladder = None
+                    ## del atom._DnaLadder__ladder
+                    # since it makes it harder to debug things;
+                    # uses of atom._DnaLadder__ladder check self.valid anyway
                     if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                         print "%r de-owning %r" % (self, atom)
                 # tell the next run of the dna updater we're invalid
@@ -1284,12 +1290,16 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         # (mostly superseded by _f_ladders_with_up_to_date_baseframes_at_ends;
         #  but still used for bug safety)
         """
-        Return a sequence of 0 to 4 ladders which are connected to self
-        at a "corner" (by a strand that leaves self an immediately enters
-        the other ladder). Always return them in the order strand1-left,
+        Return a sequence of 0 to 4 ladders (or Nones) which includes all
+        ladders which are connected to self at a "corner" (by a strand that
+         leaves self and immediately enters the other ladder, possibly by
+         crossing a "bridging Pl atom").
+
+        Always return them in the order strand1-left,
         strand1-right, strand2-left, strand2-right, even if this list
         contains None (for an end there), self, or the same ladder twice.
-        The actual length of the returned list is twice the number of
+        
+        The length of the returned list is always exactly twice the number of
         strand rails of self.
 
         @note: this is safe to call on freshly made valid ladders which
@@ -1435,8 +1445,11 @@ def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an im
     try:
         ladder = atom._DnaLadder__ladder
         assert isinstance(ladder, DnaLadder)
-        assert ladder.valid
+        assert ladder.valid, "%r not valid" % ladder
+            # note: changes in set_valid mean this will become common for bugs, attrerror will be rare [080413]
             # or: if not, print "likely bug: invalid ladder %r found on %r during merging" % (ladder, atom) #k
+            # REVIEW: it might be better to return an invalid ladder than no ladder or raise an exception,
+            # so we might change this to return one, provided the atom is in the end_baseatoms. ####
         assert atom in ladder.rail_end_baseatoms()
         return ladder
     except:
