@@ -29,9 +29,6 @@ While in this command, user can
 History:
 Ninad 2008-01-18: Created
 
-TODO: 
-DnaSegment_editCommand doesn't retain , for instance, crossovers. This can be 
-fixed after dna_data model is fully implemented
 
 """
 from command_support.EditCommand       import EditCommand 
@@ -39,6 +36,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm
+from Numeric import dot
 
 from utilities.constants  import gensym
 from utilities.Log        import redmsg
@@ -60,6 +58,7 @@ from model.bonds import Bond
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities.constants   import noop
 from utilities.Comparison  import same_vals
+from utilities.constants    import red, black, darkgreen
 
 from graphics.drawables.RotationHandle  import RotationHandle
 
@@ -795,10 +794,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         This is used as a callback method in DnaLine mode 
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
+        #@TODO: Refactor this. Similar code exists in 
+        #DnaStrand_EditCommand.getCursorText() -- Ninad 2008-04-12
         if self.grabbedHandle is None:
-            return
-
-        text = ""
+            return        
+        
+        text = ""       
 
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
@@ -813,8 +814,56 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        
+        original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
+                
+        changed_basePairs = numberOfBasePairs - original_numberOfBasePairs
+        
+        changedBasePairsString = str(changed_basePairs)
+        
+        if changed_basePairs < 0:
+            textColor = red
+        elif changed_basePairs > 0:
+            textColor = darkgreen
+        else:
+            textColor = black
+            
+        text += ", change:"  +  changedBasePairsString            
 
-        return text
+        return (text, textColor)
+    
+    def getDnaRibbonParams(self):
+        """
+        Returns parameters for drawing the dna ribbon. 
+        
+        If the dna rubberband line should NOT be drawn (example when you are 
+        removing basepairs from the segment 
+        So the caller should check if the method return value is not None. 
+        @see: DnaSegment_GraphicsMode._draw_handles()
+        """
+        
+        if self.grabbedHandle is None:
+            return None
+        
+        if self.grabbedHandle.origin is None:
+            return None
+        
+        direction_of_drag = norm(self.grabbedHandle.currentPosition - \
+                                 self.grabbedHandle.origin)
+        
+        #If the segment is being shortened (determined by checking the 
+        #direction of drag) , no need to draw the rubberband line. 
+        if dot(self.grabbedHandle.direction, direction_of_drag) < 0:
+            return None
+        
+        basesPerTurn = self.struct.getBasesPerTurn()
+        duplexRise = self.struct.getDuplexRise()
+        
+        
+        return (self.grabbedHandle.fixedEndOfStructure,
+                self.grabbedHandle.currentPosition,
+                basesPerTurn,
+                duplexRise )
     
     
     def modifyStructure(self):

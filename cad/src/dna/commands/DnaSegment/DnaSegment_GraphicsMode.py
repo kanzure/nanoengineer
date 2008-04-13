@@ -486,6 +486,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def _drawHandles(self):
         """
         Draw the handles for the command.struct 
+        #@see: DnaSegment_EditCommand.getDnaRibbonParams()
         """    
         if self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:
@@ -503,33 +504,35 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         
         if handleType and handleType == 'RESIZE_HANDLE': 
                                     
-            basesPerTurn = self.command.struct.getBasesPerTurn()
-            duplexRise = self.command.struct.getDuplexRise()
-            
-            #Note: The displayStyle argument for the rubberband line should 
-            #really be obtained from self.command.struct. But the struct 
-            #is a DnaSegment (a Group) and doesn't have attr 'display'
-            #Should we then obtain this information from one of its strandChunks?
-            #but what if two strand chunks and axis chunk are rendered 
-            #in different display styles? since situation may vary, lets 
-            #use self.glpane.displayMode for rubberbandline displayMode
-            drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
-                           self.command.grabbedHandle.currentPosition,
-                           basesPerTurn,
-                           duplexRise,
-                           self.glpane.scale,
-                           self.glpane.lineOfSight,
-                           self.glpane.displayMode,
-                           ribbonThickness = 4.0,
-                           ribbon1Color = darkred,
-                           ribbon2Color = blue,
-                           stepColor = black )
+            params = self.command.getDnaRibbonParams()
+            if params:
+                end1, end2, basesPerTurn, duplexRise = params            
+                #Note: The displayStyle argument for the rubberband line should 
+                #really be obtained from self.command.struct. But the struct 
+                #is a DnaSegment (a Group) and doesn't have attr 'display'
+                #Should we then obtain this information from one of its strandChunks?
+                #but what if two strand chunks and axis chunk are rendered 
+                #in different display styles? since situation may vary, lets 
+                #use self.glpane.displayMode for rubberbandline displayMode
+                drawDnaRibbons(end1,
+                               end2,
+                               basesPerTurn,
+                               duplexRise,
+                               self.glpane.scale,
+                               self.glpane.lineOfSight,
+                               self.glpane.displayMode,
+                               ribbonThickness = 4.0,
+                               ribbon1Color = darkred,
+                               ribbon2Color = blue,
+                               stepColor = black )
           
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             if self.command:
-                text = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text, offset = 30)
+                text , textColor = self.command.getCursorText()
+                self.glpane.renderTextNearCursor(text, 
+                                                 offset = 30,
+                                                 color = textColor)
         ##else: 
         #UPDATE 2008-04-12: Updating the handle positions is now called in 
         #DnaSegment_EditCommand.model_changed().(calling it there provides 
