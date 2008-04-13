@@ -22,8 +22,6 @@ from utilities.Log import redmsg, quote_html
 
 from geometry.VQT import V
 
-from platform.PlatformDependent import fix_plurals
-
 import foundation.env as env
 
 from dna.model.dna_model_constants import LADDER_ENDS
@@ -85,19 +83,16 @@ class DnaLadder_pam_conversion_methods:
         del selobj # there's not yet any difference in this part of the cmenu
             # for different selobj or selobj.__class__ in same DnaLadder
         res = []
-        if len(self.strand_rails) == 2: # todo: methodize this common code
-            what = "basepair"
-        else:
-            what = "base"
         pam_model = self.pam_model()
+        nwhats = self._n_bases_or_basepairs_string()
         if pam_model == MODEL_PAM3:
-            res.append( (fix_plurals("Convert %d %s(s) to PAM5" % (len(self), what)),
+            res.append( ("Convert %s to PAM5" % nwhats,
                          self.cmd_convert_to_pam5) )
         elif pam_model == MODEL_PAM5:
-            res.append( (fix_plurals("Convert %d %s(s) to PAM3" % (len(self), what)),
+            res.append( ("Convert %s to PAM3" % nwhats,
                          self.cmd_convert_to_pam3) )
         elif pam_model == MODEL_MIXED:
-            res.append( (fix_plurals("Mixed PAM models in %d %s(s), conversion nim" % (len(self), what)),
+            res.append( ("Mixed PAM models in %s, conversion nim" % nwhats,
                          noop,
                          'disabled') )
         else:
@@ -133,7 +128,12 @@ class DnaLadder_pam_conversion_methods:
         """
         #revised, bruce 080411
         _f_baseatom_wants_pam.clear() # precaution
-            # ASSUME WE ARE DOING THIS FOR ONLY SELF, NOT ANYTHING ELSE AT SAME TIME
+            # ASSUME WE ARE DOING THIS FOR ONLY SELF, NOT ANYTHING ELSE AT SAME TIME.
+            # (This assumption is a reason to keep this method private.
+            #  If general code could call it, it might assume it could call it
+            #  on more than one DnaLadder during one user event handler.
+            #  OTOH, if this is ever an issue, we can probably just remove
+            #  this clear entirely.)
         
         env.history.graymsg(quote_html("Debug fyi: Convert %r to %s" % (self, which_model))) #####
         
@@ -150,14 +150,11 @@ class DnaLadder_pam_conversion_methods:
             del chunk.display_as_pam
             chunk.save_as_pam = None
             del chunk.save_as_pam
-        
-        self.invalidate()
-            # this tells dna updater to remake self from scratch;
-            # it will notice display_as_pam differing from element.pam of the
-            # atoms, and do the actual conversion [mostly nim as of 080401 430pm]
-        ### BUG: the above, alone, doesn't cause dna updater to actually run.
-        # KLUGE WORKAROUND:
-        self.arbitrary_baseatom()._changed_structure()
+        self._dna_updater_rescan_all_atoms()
+            # this tells dna updater to remake self from scratch
+            # (when it next runs);
+            # it will notice our atoms added to _f_baseatom_wants_pam,
+            # and do the actual conversion [mostly working as of 080411 late]
         return
 
     def _f_convert_pam_if_desired(self, default_pam_model): #bruce 080401

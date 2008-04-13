@@ -1216,26 +1216,69 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
         (Other kinds of selobj might be permitted later.)
         """
-        if len(self.strand_rails) == 2: # todo: methodize this common code
-            what = "basepair"
-        else:
-            what = "base"
         res = []
+        nwhats = self._n_bases_or_basepairs_string()
         if self.error or not self.valid:
             # (this prevents reoffering a failed pam conversion
             #  until you modify the ladder atoms enough for the
             #  dna updater to remake the ladder)
             # If there's a problem with this ladder, report the status
             # and don't offer any other menu entries for it.
+            if not self.valid:
+                text = "invalid DnaLadder (bug?) (%s)" % nwhats
+                res.append( (text, noop, 'disabled') )
             if self.error:
-                text = "%s (%d %s(s))" % (self.error, len(self), what)
-            else:
-                text = "invalid DnaLadder (%d %s(s))" % (len(self), what)
-            text = fix_plurals(text)
-            res.append( (text, noop, 'disabled') )
-            return res
-        res.extend( self._pam_conversion_menu_spec(selobj) )
+                text = "%s (%s)" % (self.error, nwhats)
+                res.append( (text, noop, 'disabled') )
+            if self.error and self.valid:
+                text = "rescan %s for errors" % nwhats
+                cmd = self.cmd_rescan_for_errors
+                res.append( (text, cmd) )
+            pass
+        else:
+            # valid, no error
+            res.extend( self._pam_conversion_menu_spec(selobj) )
+            text = "scan %s for errors" % nwhats
+            cmd = self.cmd_rescan_for_errors
+            res.append( (text, cmd) )
         return res
+
+    def _n_bases_or_basepairs_string(self):
+        nstrands = len(self.strand_rails)
+        if nstrands == 2:
+            what = "basepair"
+        elif nstrands == 1:
+            what = "base"
+        elif nstrands == 0:
+            what = "bare axis atom"
+        else:
+            what = "wrongly structured base"
+        text = "%d %s(s)" % (len(self), what)
+        text = fix_plurals(text)
+            # note: works here, wouldn't work if text had another ')' after it
+            # (due to trivial bug in fix_plurals)
+        return text
+
+    def cmd_rescan_for_errors(self): #bruce 080412
+        self._dna_updater_rescan_all_atoms()
+        # review: does this miss anything?
+        # the following (or something like it) seems to be needed,
+        # due to bugs in handling duplex errors I guess
+        # (e.g. for relative motion of rails w/o distorting any rail)
+        for chunk in self.all_chunks():
+            chunk.changeapp(0)
+        # also gl_update? doesn't seem needed by test
+        return
+
+    def _dna_updater_rescan_all_atoms(self): #bruce 080412 split this out
+        """
+        tells dna updater to remake self from scratch (when it next runs)
+        """
+        self.invalidate()
+        ### BUG: the above, alone, doesn't cause dna updater to actually run.
+        # KLUGE WORKAROUND -- also do this:
+        self.arbitrary_baseatom()._changed_structure()
+        return
 
     def strand_neighbor_ladders(self): #bruce 080408
         # (mostly superseded by _f_ladders_with_up_to_date_baseframes_at_ends;
