@@ -357,8 +357,12 @@ class Nanotube:
         @return: endPoint1, endPoint2 and radius
         @rtype: Point, Point and float
         
+        @note: computing the endpoints works fine when n=m or m=0. Otherwise,
+               the endpoints can be slightly off the central axis, especially
+               if the nanotube is short.
         @attention: endPoint1 and endPoint2 may not be the original endpoints,
-                    and they may be flipped (opposites of) the original endpoints.
+                    and they may be flipped (opposites of) the original 
+                    endpoints.
         """
         # Since chunk.axis is not always one of the vectors chunk.evecs 
         # (actually chunk.poly_evals_evecs_axis[2]), it's best to just use

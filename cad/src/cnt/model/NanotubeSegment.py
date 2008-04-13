@@ -133,18 +133,11 @@ class NanotubeSegment(Group):
         @see: NanotubeSegment_PropertyManager.getParameters
         @see: NanotubeSegmentEditCommand._createStructure        
         """
-        #@ MAJOR BUG: nanotube does not exist if it wasn't created during the
-        # current session (i.e. the nanotube was loaded from an MMP file).
-        # Need to save/restore these params in the MMP file. --Mark 2008-04-01.
-        if not self.nanotube:
-            # This is a temporary "workaround" for the major bug mentioned 
-            # above. We create a "default" 5x5 CNT if the user resizes it.
-            # This is better than the nanotube disappearing. I am still working
-            # on a permanent fix. --Mark 2008-04-12.
-            from cnt.model.Nanotube import Nanotube
-            self.nanotube = Nanotube() # Returns a 5x5 CNT.
-            self.nanotube.computeEndPointsFromChunk(self.members[0])
-            
+        # Recompute the endpoints in case this nanotube was read from
+        # MMP file (which means this nanotube doesn't have endpoint 
+        # parameters yet). 
+        self.nanotube.computeEndPointsFromChunk(self.members[0])
+        
         return self.nanotube.getParameters()
         
     def getNanotubeGroup(self):
@@ -324,7 +317,7 @@ class NanotubeSegment(Group):
             if oldgroup.part is newgroup.part: #k guess
                 return oldgroup
         return None
-        
+    
     pass # end of class NanotubeSegment
                 
 # end
