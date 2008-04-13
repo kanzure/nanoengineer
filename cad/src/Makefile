@@ -88,14 +88,13 @@ doc:
 	epydoc $(DOC_MODULES)
 
 cleanpyc:
-	find . -name \*.pyc -delete
+	del /F /S *.pyc
 
 pyclean: cleanpyc
 	rm -f $(PYFILES0) *~
 
 clean: cleanpyc
-	rm -f *~ *.o *.so *.a *.dll *.def core
-	rm -f atombase.c samevals.c pyrex_test.c
+	rm -f *~ *.o *.so *.a *.dll *.def atombase.c samevals.c core
 
 pyrex: $(PYREXTARGET)
 
@@ -114,12 +113,12 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 shared: $(SHARED_LIBRARIES)
 
 # On Windows, use "make atombase.dll"
-atombase.dll: atombase.o libpython$(PYVER).a
-	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll atombase.o \
-		-Wl,--output-def,atombase.def -L. -lpython$(PYVER) -lopengl32
+atombase.dll: atombase.c $(PYREXOBJS) libpython$(PYVER).a
+	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll $(PYREXOBJS) \
+		-Wl,--output-def,atombase.def -L. -lpython$(PYVER)
 
-samevals.dll: samevals.o libpython$(PYVER).a
-	gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll samevals.o \
+samevals.dll: samevals.c $(PYREXOBJS) libpython$(PYVER).a
+	gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll $(PYREXOBJS) \
 		-Wl,--output-def,samevals.def -L. -lpython$(PYVER)
 
 # On Mac and Linux, use "make atombase.so"

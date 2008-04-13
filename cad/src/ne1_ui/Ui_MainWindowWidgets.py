@@ -490,7 +490,7 @@ def setupUi(win):
     # Create the "Build Structures" menu, a submenu of the "Tools" menu.
     win.buildStructuresMenu = QtGui.QMenu(win.toolsMenu)
     win.buildStructuresMenu.setObjectName("buildStructuresMenu")
-    
+       
     # Create the "Build Tools" menu, a submenu of the "Tools" menu.
     win.buildToolsMenu = QtGui.QMenu(win.toolsMenu)
     win.buildToolsMenu.setObjectName("buildToolsMenu")
@@ -1098,7 +1098,6 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Shift+R", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
     win.editRenameObjectsAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Rename Objects",

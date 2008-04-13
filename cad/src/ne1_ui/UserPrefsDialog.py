@@ -1001,7 +1001,7 @@ class Ui_UserPrefsDialog(object):
         self.vboxlayout20.addWidget(self.cpk_cylinder_rad_spinbox)
 
         self.bond_line_thickness_spinbox = QtGui.QSpinBox(self.TabPage1)
-        self.bond_line_thickness_spinbox.setMaximum(4)
+        self.bond_line_thickness_spinbox.setMaximum(10)
         self.bond_line_thickness_spinbox.setMinimum(1)
         self.bond_line_thickness_spinbox.setObjectName("bond_line_thickness_spinbox")
         self.vboxlayout20.addWidget(self.bond_line_thickness_spinbox)
