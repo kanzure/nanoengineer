@@ -271,7 +271,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                 msg += "Click on an atom's <i>red bondpoint</i> to attach a " \
                    + element.name + " atom to it." 
                 if element.symbol in PAMATOMS:
-                    msg =" Note: this atom can only be deposited onto a strand sugar"\
+                    msg ="Note: this atom can only be deposited onto a strand sugar"\
                         " and will disappear if deposited in free space"
         else: # Bonds Tool is selected
             if self.parentMode.cutBondsAction.isChecked():
