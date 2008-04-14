@@ -287,7 +287,7 @@ canonicalizeBendName(char *bendName)
 // r0 in pm, or 1e-12 m
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
-static struct bondStretch *
+struct bondStretch *
 newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality, int quadratic)
 {
   struct bondStretch *stretch;

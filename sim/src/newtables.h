@@ -161,6 +161,15 @@ extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
 
 extern int isAtomTypeValid(int atomTypeIndex);
 
+extern struct bondStretch *newBondStretch(char *bondName,
+                                          double ks,
+                                          double r0,
+                                          double de,
+                                          double beta,
+                                          double inflectionR,
+                                          int quality,
+                                          int quadratic);
+
 extern struct bendData *newBendData(char *bendName, double kb, double theta0, int quality);
 
 extern struct atomType *getAtomTypeByName(char *symbol);

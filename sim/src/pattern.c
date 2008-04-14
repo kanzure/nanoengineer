@@ -43,7 +43,7 @@ destroyMatch(struct patternMatch *match)
   free(match);
 }
 
-static void
+void
 printMatch(struct patternMatch *match)
 {
   int i;

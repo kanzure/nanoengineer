@@ -470,6 +470,8 @@ extern struct bend *getBend(struct part *p, struct atom *a1, struct atom *ac, st
 
 extern struct bond *getBond(struct part *p, struct atom *a1, struct atom *a2);
 
+extern struct stretch *getStretch(struct part *p, struct atom *a1, struct atom *a2);
+
 extern void updateVanDerWaals(struct part *p, void *validity, struct xyz *positions);
 
 extern void setThermalVelocities(struct part *p, double temperature);

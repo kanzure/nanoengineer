@@ -137,7 +137,6 @@ vdw 7.2 10.0 100.0 7.2 Se3-v-Se3
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax5-1-Ax5
 stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax5-1-Ss5
 stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax5-1-Sj5
-stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss5-1-Pl5
 stretch   4.00  400.00  1.0000   -1         -1       9    1   Pl5-1-Sj5
 stretch   4.00  180.00  1.0000   -1         -1       9    1   H-1-Ax5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Ss5
@@ -150,13 +149,16 @@ stretch   4.00  357.00  1.0000   -1         -1       9    1   Pe5-1-Hp5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   Sh5-1-Hp5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
 
-stretch  50.00 1239.60  1.0000   -1         -1       9    1   Ss5-1-Ss5
-stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gv5-1-Ss5
-stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gr5-1-Ss5
+stretch  10.00 1075.00  1.0000   -1         -1       9    1   Ss5-1-Ss5
+stretch  10.00  923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
+stretch  10.00  923.40  1.0000   -1         -1       9    1   Gr5-1-Ss5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
 
+# this is overridden by separate directional parameters below, but we
+# still need a max value for bond stretch indicators
+stretch   4.00  510.00  1.0000   -1         -1       9    1   Ss5-1-Pl5
 
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ax3
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ae3
@@ -199,100 +201,6 @@ stretch   4.00  670.00  1.0000   -1         -1       9    1   Sj3-1-Sj3
 #                        sp2_g is graphitic, sp3d is not supported yet
 #
 #    ktheta          theta0  qual  bondName
-
-# 180 degree along Axis
-bend   0.18          180.000   9   Ax5-1-Ax5.sp3-1-Ax5
-#bend  0.18          180.000   9   H-1-Ax5.sp3-1-Ax5 #duplicate, H is sugar
-#bend  0.18          180.000   9   H-1-Ax5.sp3-1-Ae5 #duplicate, H is sugar
-bend   0.18          180.000   9   Ax5-1-Ax5.sp3-1-Ae5
-bend   0.18          180.000   9   Ae5-1-Ax5.sp3-1-Ae5
-
-# 90 degree Axis to Sugar
-bend   1.0            90.000   9   Ax5-1-Ax5.sp3-1-Ss5
-bend   1.0            90.000   9   Ax5-1-Ax5.sp3-1-Sj5
-#bend  1.0            90.000   9   H-1-Ax5.sp3-1-Ss5 #duplicate, H is sugar
-bend   1.0            90.000   9   Ss5-1-Ax5.sp3-1-Ae5
-bend   1.0            90.000   9   H-1-Ax5.sp3-1-Ax5
-bend   1.0            90.000   9   H-1-Ax5.sp3-1-Ae5
-bend   1.0            90.000   9   H-1-Ax5.sp3-1-H
-
-# 133 degree minor groove
-bend   1.0           133.000   9   Ss5-1-Ax5.sp3-1-Ss5
-bend   1.0           133.000   9   Ss5-1-Ax5.sp3-1-Sj5
-bend   1.0           133.000   9   Sj5-1-Ax5.sp3-1-Sj5
-bend   1.0           133.000   9   H-1-Ax5.sp3-1-Ss5
-bend   1.0           133.000   9   H-1-Ax5.sp3-1-Sj5
-
-# 121 degree Axis Sugar Phosphate
-bend   0.04          121.000   9   Ax5-1-Ss5.sp3-1-Pl5
-bend   0.04          121.000   9   Ax5-1-Ss5.sp3-1-Pe5
-bend   0.04          121.000   9   Ax5-1-Ss5.sp3-1-Sh5
-bend   0.04          121.000   9   H-1-Ss5.sp3-1-Ax5
-
-# 127 degree Phosphate Sugar Phosphate
-bend   0.04          127.000   9   Pl5-1-Ss5.sp3-1-Pl5
-bend   0.04          127.000   9   Pl5-1-Ss5.sp3-1-Pe5
-bend   0.04          127.000   9   Pl5-1-Ss5.sp3-1-Sh5
-bend   0.04          127.000   9   Pe5-1-Ss5.sp3-1-Pe5
-bend   0.04          127.000   9   Pe5-1-Ss5.sp3-1-Sh5
-bend   0.04          127.000   9   Sh5-1-Ss5.sp3-1-Sh5
-bend   0.04          127.000   9   H-1-Ss5.sp3-1-Pl5
-bend   0.04          127.000   9   H-1-Ss5.sp3-1-Pe5
-bend   0.04          127.000   9   H-1-Ss5.sp3-1-Sh5
-bend   0.04          127.000   9   H-1-Ss5.sp3-1-H
-
-# 127 degree Phosphate Hairpin Phosphate
-bend   0.04          127.000   9   Pl5-1-Hp5.sp3-1-Pl5
-bend   0.04          127.000   9   Pl5-1-Hp5.sp3-1-Pe5
-bend   0.04          127.000   9   Pl5-1-Hp5.sp3-1-Sh5
-bend   0.04          127.000   9   Pe5-1-Hp5.sp3-1-Pe5
-bend   0.04          127.000   9   Pe5-1-Hp5.sp3-1-Sh5
-bend   0.04          127.000   9   Sh5-1-Hp5.sp3-1-Sh5
-bend   0.04          127.000   9   H-1-Hp5.sp3-1-Pl5
-bend   0.04          127.000   9   H-1-Hp5.sp3-1-Pe5
-bend   0.04          127.000   9   H-1-Hp5.sp3-1-Sh5
-bend   0.04          127.000   9   H-1-Hp5.sp3-1-H
-
-# 115 degree Axis JunctionSugar Phosphate
-bend   0.04          115.000   9   Ax5-1-Sj5.sp3-1-Pl5
-bend   0.04          115.000   9   Ax5-1-Sj5.sp3-1-Pe5
-bend   0.04          115.000   9   Ax5-1-Sj5.sp3-1-Sh5
-bend   0.04          115.000   9   H-1-Sj5.sp3-1-Ax5
-
-# 110 degree Phosphate JunctionSugar Phosphate
-bend   0.04          110.000   9   Pl5-1-Sj5.sp3-1-Pl5
-bend   0.04          110.000   9   Pl5-1-Sj5.sp3-1-Pe5
-bend   0.04          110.000   9   H-1-Sj5.sp3-1-Pl5
-bend   0.04          110.000   9   H-1-Sj5.sp3-1-H
-bend   0.04          110.000   9   H-1-Sj5.sp3-1-Pe5
-bend   0.04          110.000   9   Pe5-1-Sj5.sp3-1-Pe5
-
-# 127 degree Phosphate JunctionSugar end
-bend   0.04          127.000   9   Pl5-1-Sj5.sp3-1-Sh5
-bend   0.04          127.000   9   Pe5-1-Sj5.sp3-1-Sh5
-bend   0.04          127.000   9   Sh5-1-Sj5.sp3-1-Sh5
-bend   0.04          127.000   9   H-1-Sj5.sp3-1-Sh5
-
-# 92.5 degree Sugar Phosphate Sugar
-bend   0.04           92.500   9   Ss5-1-Pl5.sp3-1-Ss5
-bend   0.04           92.500   9   Ss5-1-Pl5.sp3-1-Sh5
-bend   0.04           92.500   9   Ss5-1-Pl5.sp3-1-Hp5
-bend   0.04           92.500   9   Sh5-1-Pl5.sp3-1-Sh5
-bend   0.04           92.500   9   Sh5-1-Pl5.sp3-1-Hp5
-bend   0.04           92.500   9   Hp5-1-Pl5.sp3-1-Hp5
-bend   0.04           92.500   9   H-1-Pl5.sp3-1-Ss5
-bend   0.04           92.500   9   H-1-Pl5.sp3-1-Sh5
-bend   0.04           92.500   9   H-1-Pl5.sp3-1-Hp5
-bend   0.04           92.500   9   H-1-Pl5.sp3-1-H
-
-# 92.5 degree Sugar Phosphate JunctionSugar
-bend   0.04           92.500   9   Ss5-1-Pl5.sp3-1-Sj5
-bend   0.04           92.500   9   Sj5-1-Pl5.sp3-1-Sh5
-bend   0.04           92.500   9   Sj5-1-Pl5.sp3-1-Hp5
-bend   0.04           92.500   9   H-1-Pl5.sp3-1-Sj5
-
-# 115.8 degree JunctionSugar Phosphate JunctionSugar
-bend   0.04          115.800   9   Sj5-1-Pl5.sp3-1-Sj5
 
 # PAM3 Bend Parameters ####################################3
 
@@ -414,11 +322,20 @@ bend   0.04          127.000    9   H-1-Hp3.sp3-1-H
 
 # parameters for pattern match routines
 
-pattern PAM5:Ax-Ax-Ss_low_ktheta     1.0
-pattern PAM5:Ax-Ax-Ss_low_theta0     85.000
+# these two bends are not used by current code.
+#pattern PAM5:Ax-Ax-Ss_low_ktheta     1.0
+#pattern PAM5:Ax-Ax-Ss_low_theta0     85.000
+#pattern PAM5:Ax-Ax-Ss_high_ktheta    1.0
+#pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
 
-pattern PAM5:Ax-Ax-Ss_high_ktheta    1.0
-pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
+# These are the stretch terms for the two different Pl-Ss
+# interactions.  5 and 3 represent the 5' and 3' ends of the strand.
+
+pattern PAM5:5-Pl-Ss-3_r0            509.0
+pattern PAM5:5-Pl-Ss-3_ks              1.0
+
+pattern PAM5:5-Ss-Pl-3_r0            420.9
+pattern PAM5:5-Ss-Pl-3_ks              1.0
 
 
 # For the PAM5-Stack pattern, two base pair planes are defined, each by
@@ -471,47 +388,47 @@ pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
 # 7  6.435
 
 
-pattern PAM5-Stack:vDa1-p             -0.649158
-pattern PAM5-Stack:vDa1-q              0.874952
+pattern PAM5-Stack:vDa1-p             -0.284437
+pattern PAM5-Stack:vDa1-q              0.710930
 
-pattern PAM5-Stack:vDb1-p              0.880904
-pattern PAM5-Stack:vDb1-q              0.269853
+pattern PAM5-Stack:vDb1-p              0.814144
+pattern PAM5-Stack:vDb1-q              0.147775
 
-pattern PAM5-Stack:vDa2-p             -0.107957
-pattern PAM5-Stack:vDa2-q              0.909742
+pattern PAM5-Stack:vDa2-p              0.814144
+pattern PAM5-Stack:vDa2-q              0.147775
 
-pattern PAM5-Stack:vDb2-p              0.889773
-pattern PAM5-Stack:vDb2-q              0.144766
+pattern PAM5-Stack:vDb2-p             -0.284437
+pattern PAM5-Stack:vDb2-q              0.710930
 
-pattern PAM5-Stack:vDa3-p              0.334917
-pattern PAM5-Stack:vDa3-q              0.334911
+pattern PAM5-Stack:vDa3-p              0.339838
+pattern PAM5-Stack:vDa3-q             -0.114530
 
-pattern PAM5-Stack:vDb3-p              0.334917
-pattern PAM5-Stack:vDb3-q              0.334911
+pattern PAM5-Stack:vDb3-p              0.179148
+pattern PAM5-Stack:vDb3-q             -0.128732
 
-pattern PAM5-Stack:vDa4-p              0.444701
-pattern PAM5-Stack:vDa4-q             -0.982461
+pattern PAM5-Stack:vDa4-p              0.179148
+pattern PAM5-Stack:vDa4-q             -0.128732
 
-pattern PAM5-Stack:vDb4-p              0.444701
-pattern PAM5-Stack:vDb4-q             -0.982461
+pattern PAM5-Stack:vDb4-p              0.339838
+pattern PAM5-Stack:vDb4-q             -0.114530
 
-pattern PAM5-Stack:vDa5-p              0.023090
-pattern PAM5-Stack:vDa5-q             -0.482253
+pattern PAM5-Stack:vDa5-p             -0.028400
+pattern PAM5-Stack:vDa5-q              0.765609
 
-pattern PAM5-Stack:vDb5-p              0.023090
-pattern PAM5-Stack:vDb5-q             -0.482253
+pattern PAM5-Stack:vDb5-p             -0.028400
+pattern PAM5-Stack:vDb5-q              0.765609
 
-pattern PAM5-Stack:vDa6-p              0.889773
-pattern PAM5-Stack:vDa6-q              0.144766
+pattern PAM5-Stack:vDa6-p              0.349685
+pattern PAM5-Stack:vDa6-q              0.591307
 
-pattern PAM5-Stack:vDb6-p             -0.107957
-pattern PAM5-Stack:vDb6-q              0.909742
+pattern PAM5-Stack:vDb6-p              0.349685
+pattern PAM5-Stack:vDb6-q              0.591307
 
-pattern PAM5-Stack:vDa7-p              0.880904
-pattern PAM5-Stack:vDa7-q              0.269853
+pattern PAM5-Stack:vDa7-p              0.558201
+pattern PAM5-Stack:vDa7-q              0.738422
 
-pattern PAM5-Stack:vDb7-p             -0.649158
-pattern PAM5-Stack:vDb7-q              0.874952
+pattern PAM5-Stack:vDb7-p              0.558201
+pattern PAM5-Stack:vDb7-q              0.738422
 
 pattern PAM5-Stack:vDa8-p              0.0
 pattern PAM5-Stack:vDa8-q              0.0
@@ -521,13 +438,16 @@ pattern PAM5-Stack:vDb8-q              0.0
 
 pattern PAM5-Stack:vDn-pq              0.250
 
-#         ks      r0    de      beta    inflectionR qual quad bondName
+#         ks       r0    de      beta    inflectionR qual quad bondName
 
-stretch  1.6810  643.5  1.0000   -1         -1       9    1   vDa1-1-vDb1
-stretch  1.0739  342.4  1.0000   -1         -1       9    1   vDa2-1-vDb2
-stretch  1.7007  336.6  1.0000   -1         -1       9    1   vDa3-1-vDb3
-stretch  0.4509 1032.6  1.0000   -1         -1       9    1   vDa4-1-vDb4
-stretch  0.2787  393.8  1.0000   -1         -1       9    1   vDa5-1-vDb5
-stretch  1.0739  342.4  1.0000   -1         -1       9    1   vDa6-1-vDb6
-stretch  1.6810  643.5  1.0000   -1         -1       9    1   vDa7-1-vDb7
-stretch  0.0000    0.0  1.0000   -1         -1       9    1   vDa8-1-vDb8
+stretch  1.69474  369.32 1.0000   -1         -1       9    1   vDa1-1-vDb1
+stretch  1.69474  369.32 1.0000   -1         -1       9    1   vDa2-1-vDb2
+stretch  0.94669  363.60 1.0000   -1         -1       9    1   vDa3-1-vDb3
+stretch  0.94669  363.60 1.0000   -1         -1       9    1   vDa4-1-vDb4
+stretch  1.04685  840.87 1.0000   -1         -1       9    1   vDa5-1-vDb5
+stretch  0.57124  339.60 1.0000   -1         -1       9    1   vDa6-1-vDb6
+stretch  0.38792  336.04 1.0000   -1         -1       9    1   vDa7-1-vDb7
+stretch  0.00000    0.0  1.0000   -1         -1       9    1   vDa8-1-vDb8
+
+stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
+stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5

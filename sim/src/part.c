@@ -702,6 +702,25 @@ getBond(struct part *p, struct atom *a1, struct atom *a2)
     return NULL;
 }
 
+struct stretch *
+getStretch(struct part *p, struct atom *a1, struct atom *a2)
+{
+    struct stretch *s;
+    int i;
+    
+    for (i=0; i<p->num_stretches; i++) {
+        s = &p->stretches[i];
+        if ((s->a1 == a1 && s->a2 == a2) ||
+            (s->a1 == a2 && s->a2 == a1))
+        {
+            return s;
+        }
+    }
+    ERROR2("getStretch: no stretch between atom ids %d-%d", a1->atomID, a2->atomID);
+    p->parseError(p->stream);
+    return NULL;
+}
+
 // use these if the vdw generation code fails to create or destroy an
 // interaction when it should, as determined by the verification
 // routine.  The grid locations of the two indicated atoms will be

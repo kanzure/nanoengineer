@@ -124,12 +124,18 @@ static struct atomType *vDa_type[8];
 static struct atomType *vDb_type[8];
 static struct atomType *vDn_type;
 
+static struct bondStretch *stretch_5_Pl_Ss_3;
+static struct bondStretch *stretch_5_Ss_Pl_3;
+
+
 static void
 init_stack_match(void)
 {
   int i;
   char buf[256];
   struct patternParameter *param;
+  double r0;
+  double ks;
 
   if (stack_match_initialized) {
     return;
@@ -156,6 +162,19 @@ init_stack_match(void)
   vDn_type = getAtomTypeByName("vDn");
   param = getPatternParameter("PAM5-Stack:vDn-pq"); BAIL();
   vDn_pq = param->value;
+
+  param = getPatternParameter("PAM5:5-Pl-Ss-3_r0"); BAIL();
+  r0 = param->value; // pm
+  param = getPatternParameter("PAM5:5-Pl-Ss-3_ks"); BAIL();
+  ks = param->value; // N/m
+  stretch_5_Pl_Ss_3 = newBondStretch("5-Pl-Ss-3", ks, r0, 1.0, -1.0, -1.0, 9, 1);
+
+  param = getPatternParameter("PAM5:5-Ss-Pl-3_r0"); BAIL();
+  r0 = param->value; // pm
+  param = getPatternParameter("PAM5:5-Ss-Pl-3_ks"); BAIL();
+  ks = param->value; // N/m
+  stretch_5_Ss_Pl_3 = newBondStretch("5-Ss-Pl-3", ks, r0, 1.0, -1.0, -1.0, 9, 1);
+
   stack_match_initialized = 1;
 }
 
@@ -177,6 +196,7 @@ pam5_basepair_match(struct patternMatch *match)
                        vDn_pq, vDn_pq, 0.0);
   aG->creationParameters.r.associatedAtom = aV;
   queueAtom(match->p, aV);
+  //printMatch(match);
 }
 
 static void
@@ -224,6 +244,92 @@ pam5_stack_match(struct patternMatch *match)
     queueAtom(match->p, vB);
     queueBond(match->p, bond);
   }
+  //printMatch(match);
+}
+
+// Sets the phosphate-sugar bond type differently based on the bond
+// direction.  This allows the phosphate to be closer to one sugar
+// than the other, based on the strand direction.
+static void
+pam5_phosphate_sugar_match(struct patternMatch *match) 
+{
+  struct part *p = match->p;
+  struct atom *aPl = p->atoms[match->atomIndices[0]];
+  struct atom *aSs = p->atoms[match->atomIndices[1]];
+  struct bond *b = getBond(p, aPl, aSs); BAIL();
+  struct stretch *s = getStretch(p, aPl, aSs); BAIL();
+  int reverse;
+
+  pam5_requires_gromacs(match->p); BAIL();
+  init_stack_match();
+
+  switch (b->direction) {
+  case 'F':
+    reverse = (b->a1 == aSs);
+    break;
+  case 'R':
+    reverse = (b->a1 == aPl);
+    break;
+  default:
+    ERROR2("pam5_phosphate_sugar_match: bond between ids %d and %d has no direction", aPl->atomID, aSs->atomID);
+    p->parseError(p->stream);
+    return;
+  }
+  s->stretchType = reverse ? stretch_5_Ss_Pl_3 : stretch_5_Pl_Ss_3 ;
+  //printMatch(match);
+}
+
+// Creates the Pl-Pl interaction, which replaces the Pl-Ss-Pl bend
+// term.
+static void
+pam5_phosphate_phosphate_match(struct patternMatch *match) 
+{
+  struct part *p = match->p;
+  struct atom *aPl1 = p->atoms[match->atomIndices[0]];
+  struct atom *aPl2 = p->atoms[match->atomIndices[2]];
+  struct bond *bond;
+  
+  pam5_requires_gromacs(p); BAIL();
+
+  bond = makeBond(p, aPl1, aPl2, '1');
+  queueBond(p, bond);
+  //printMatch(match);
+}
+
+// Creates the Gv-Pl interaction, which replaces the Gv-Ss-Pl bend
+// term.  Only do this on the 5' side.
+static void
+pam5_groove_phosphate_match(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *aGv = p->atoms[match->atomIndices[0]];
+  struct atom *aSs = p->atoms[match->atomIndices[1]];
+  struct atom *aPl = p->atoms[match->atomIndices[2]];
+  struct bond *b = getBond(p, aPl, aSs); BAIL();
+  struct bond *bond;
+  int reverse;
+
+  pam5_requires_gromacs(p); BAIL();
+
+  switch (b->direction) {
+  case 'F':
+    reverse = (b->a1 == aSs);
+    break;
+  case 'R':
+    reverse = (b->a1 == aPl);
+    break;
+  default:
+    ERROR2("pam5_phosphate_sugar_match: bond between ids %d and %d has no direction", aPl->atomID, aSs->atomID);
+    p->parseError(p->stream);
+    return;
+  }
+  if (reverse) {
+    return;
+  }
+  
+  bond = makeBond(p, aPl, aGv, '1');
+  queueBond(p, bond);
+  //printMatch(match);
 }
 
 void
@@ -288,6 +394,25 @@ createPam5Patterns(void)
   t[3] = makeTraversal(a[1], a[4], '1');
   t[4] = makeTraversal(a[1], a[5], '1');
   makePattern("PAM5-stack", pam5_stack_match, 6, 5, t);
+
+  a[0] = makePatternAtom(0, "P5P");
+  a[1] = makePatternAtom(1, "P5S");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  makePattern("PAM5-phosphate-sugar", pam5_phosphate_sugar_match, 2, 1, t);
+
+  a[0] = makePatternAtom(0, "P5P");
+  a[1] = makePatternAtom(1, "P5S");
+  a[2] = makePatternAtom(2, "P5P");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  makePattern("PAM5-phosphate-phosphate", pam5_phosphate_phosphate_match, 3, 2, t);
+
+  a[0] = makePatternAtom(0, "P5G");
+  a[1] = makePatternAtom(1, "P5S");
+  a[2] = makePatternAtom(2, "P5P");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  makePattern("PAM5-groove-phosphate", pam5_groove_phosphate_match, 3, 2, t);
   
   /*
   param = getPatternParameter("PAM5:Ax-Ax-Ss_low_ktheta"); BAIL();
