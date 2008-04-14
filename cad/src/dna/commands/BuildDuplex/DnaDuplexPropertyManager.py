@@ -262,7 +262,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                          choices       =  ["B-DNA"],
                          setAsDefault  =  True)
 
-        dnaModelChoices = ['PAM-3', 'PAM-5']
+        dnaModelChoices = ['PAM3', 'PAM5']
         self.dnaModelComboBox = \
             PM_ComboBox( pmGroupBox,     
                          label         =  "Model:", 

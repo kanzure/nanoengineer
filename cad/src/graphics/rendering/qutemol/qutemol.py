@@ -286,9 +286,9 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
         WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
         EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
         EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
-        EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
-        EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM-3 axis atoms)
-        EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM-3 axis bonds)
+        EXCLUDE_DNA_ATOMS = 4 (excludes PAM3 and PAM5 pseudo atoms)
+        EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM3 axis atoms)
+        EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM3 axis bonds)
     @type  excludeFlags: int
     
     @return: the name of the temp PDB file, or None if no atoms are in I{part}.

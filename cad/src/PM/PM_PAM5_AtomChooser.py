@@ -57,7 +57,7 @@ class PM_PAM5_AtomChooser( PM_MolecularModelingKit ):
         
     @see: B{elements.py}
     @see: B{L{PM_MolecularModelingKit}}
-    @see: U{B{PAM-5}<http://www.nanoengineer-1.net/mediawiki/index.php?title=PAM-5>}
+    @see: U{B{PAM5}<http://www.nanoengineer-1.net/mediawiki/index.php?title=PAM5>}
     """
     viewerDisplay = diBALL
         

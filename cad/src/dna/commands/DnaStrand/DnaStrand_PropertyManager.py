@@ -70,7 +70,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._conformation = 'B-DNA'
         self.duplexRise = 3.18
         self.basesPerTurn = 10
-        self.dnaModel = 'PAM-3'
+        self.dnaModel = 'PAM3'
         
         
         EditCommand_PM.__init__( self, 

@@ -36,7 +36,7 @@ Bruce 2008-1-1:
 
 # To do:
 #
-# 1) Atomistic and PAM-5 generated models should have exact orientation
+# 1) Atomistic and PAM5 generated models should have exact orientation
 # (i.e. rotational origin).
 
 import foundation.env as env
@@ -79,7 +79,7 @@ class Dna:
     
     @ivar model: The model representation, where:
                           - "Atomistic" = atomistic model
-                          - "PAM5" = PAM-5 reduced model.
+                          - "PAM5" = PAM5 reduced model.
     @type model: str
     
     @ivar sequence: The sequence (of strand A of the duplex).
@@ -313,7 +313,7 @@ class A_Dna_Atomistic(A_Dna):
 
 class A_Dna_PAM5(A_Dna):
     """
-    Provides a PAM-5 reduced model of the B form of DNA.
+    Provides a PAM5 reduced model of the B form of DNA.
     
     @attention: This class is not implemented yet.
     """
@@ -370,7 +370,7 @@ class B_Dna_Atomistic(B_Dna):
 
 class B_Dna_PAM5(B_Dna):
     """
-    Provides a PAM-5 reduced model of the B form of DNA.
+    Provides a PAM5 reduced model of the B form of DNA.
     """
     model      =  "PAM5"
     
@@ -488,7 +488,7 @@ class B_Dna_PAM5(B_Dna):
 
 class B_Dna_PAM3(B_Dna_PAM5):
     """
-    Provides a PAM-3 reduced model of the B form of DNA.
+    Provides a PAM3 reduced model of the B form of DNA.
     """
     model      =  "PAM3"
     
@@ -617,7 +617,7 @@ class Z_Dna_PAM5(Z_Dna):
 
 class Z_Dna_PAM5(Z_Dna):
     """
-    Provides a PAM-5 reduced model of the Z form of DNA.
+    Provides a PAM5 reduced model of the Z form of DNA.
     
     @attention: This class is not implemented yet.
     """

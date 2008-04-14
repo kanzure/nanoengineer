@@ -573,9 +573,9 @@ class DnaDuplex_EditCommand(EditCommand):
                       getDuplexLength('B-DNA', numberOfBases)
 
         if dnaForm == 'B-DNA':
-            if dnaModel == 'PAM-3':
+            if dnaModel == 'PAM3':
                 dna = B_Dna_PAM3()
-            elif dnaModel == 'PAM-5':
+            elif dnaModel == 'PAM5':
                 dna = B_Dna_PAM5()
             else:
                 print "bug: unknown dnaModel type: ", dnaModel

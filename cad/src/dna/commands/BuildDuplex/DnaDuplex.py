@@ -74,8 +74,8 @@ class Dna:
     @type handedness: int
 
     @ivar model: The model representation, where:
-                    - "PAM3" = PAM-3 reduced model.
-                    - "PAM5" = PAM-5 reduced model.
+                    - "PAM3" = PAM3 reduced model.
+                    - "PAM5" = PAM5 reduced model.
 
     @type model: str
 
@@ -1082,7 +1082,7 @@ class A_Dna(Dna):
 
 class A_Dna_PAM5(A_Dna):
     """
-    Provides a PAM-5 reduced model of the B form of DNA.
+    Provides a PAM5 reduced model of the B form of DNA.
 
     @attention: This class is not implemented yet.
     """
@@ -1091,7 +1091,7 @@ class A_Dna_PAM5(A_Dna):
 
 class A_Dna_PAM3(A_Dna):
     """
-    Provides a PAM-5 reduced model of the B form of DNA.
+    Provides a PAM5 reduced model of the B form of DNA.
 
     @attention: This class is not implemented yet.
     """
@@ -1112,7 +1112,7 @@ class B_Dna(Dna):
 
 class B_Dna_PAM5(B_Dna):
     """
-    Provides a PAM-5 reduced model of the B form of DNA.
+    Provides a PAM5 reduced model of the B form of DNA.
     """
     model = "PAM5"
 
@@ -1278,7 +1278,7 @@ class B_Dna_PAM5(B_Dna):
 
 class B_Dna_PAM3(B_Dna_PAM5):
     """
-    Provides a PAM-3 reduced model of the B form of DNA.
+    Provides a PAM3 reduced model of the B form of DNA.
     """
     model = "PAM3"
 
@@ -1653,7 +1653,7 @@ class Z_Dna_Atomistic(Z_Dna):
 
 class Z_Dna_PAM5(Z_Dna):
     """
-    Provides a PAM-5 reduced model of the Z form of DNA.
+    Provides a PAM5 reduced model of the Z form of DNA.
 
     @attention: This class is not implemented yet.
     """

@@ -343,7 +343,7 @@ class MWsemantics(QMainWindow,
                       non_debug = True,
                       prefs_key = "A9 devel/DNA Duplex"):
 
-            print "Using original DNA generator (supports PAM-5)."
+            print "Using original DNA generator (supports PAM5)."
             from dna.commands.BuildDuplex_old.DnaGenerator import DnaGenerator
             self.dnacntl = DnaGenerator(self)
         else:

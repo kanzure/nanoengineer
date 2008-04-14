@@ -530,9 +530,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             return None
 
         if dnaForm == 'B-DNA':
-            if dnaModel == 'PAM-3':
+            if dnaModel == 'PAM3':
                 dna = B_Dna_PAM3()
-            elif dnaModel == 'PAM-5':
+            elif dnaModel == 'PAM5':
                 dna = B_Dna_PAM5()
             else:
                 print "bug: unknown dnaModel type: ", dnaModel
@@ -1000,7 +1000,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 ##########################################
                     
         ##dnaForm = 'B-DNA'
-        ##dnaModel = 'PAM-3'
+        ##dnaModel = 'PAM3'
         ##basesPerTurn, duplexRise = self.struct.getProps()
        
         ##params_to_set_in_propMgr = (None, 
