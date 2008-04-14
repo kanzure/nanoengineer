@@ -51,8 +51,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                 #See DnaDuplex_EditCommand.createStructure for new 
                 #implementaion)
                 ##self.command.callback_addSegments()
+                self.glpane.gl_update()          
                 
-                self.glpane.gl_update()            
             return
     
     def snapLineEndPoint(self):
@@ -85,7 +85,17 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         # -Ninad 2007-10-30
         
         
-        LineMode.GraphicsMode_class.Draw(self)        
+        LineMode.GraphicsMode_class.Draw(self)    
+        
+        #This fixes NFR bug  2803
+        #Don't draw the Dna rubberband line if the cursor is over the confirmation
+        #corner. But make sure to call superclass.Draw method before doing this 
+        #check because we need to draw the rest of the model in the graphics 
+        #mode!. @see: LineMode_GM.Draw
+        handler = self.o.mouse_event_handler
+        if handler is not None and handler is self._ccinstance:
+            return
+        
         if self.endPoint2 is not None and \
            self.endPoint1 is not None: 
             
@@ -115,6 +125,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                 #Note there needs to be a radio button to switch on the 
                 # rubberband ladder display for a dna line. At the moment it is 
                 # disabled and is superseded by the ribbons ruberband display. 
+
                 drawDnaLadder(self.endPoint1,
                               self.endPoint2, 
                               self.command.duplexRise,

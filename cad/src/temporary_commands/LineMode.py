@@ -26,6 +26,8 @@ from utilities.constants import black, darkred, blue
 
 from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
+
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -34,7 +36,8 @@ STARTPOINT_SPHERE_DRAWLEVEL = 2
 
 _superclass_for_GM = Select_GraphicsMode
 
-class LineMode_GM( Select_GraphicsMode ):
+class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
+                   Select_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of LineMode.
     
@@ -276,6 +279,17 @@ class LineMode_GM( Select_GraphicsMode ):
         Draw method for this temporary mode. 
         """
         _superclass_for_GM.Draw(self)
+        
+        #This fixes NFR bug  2803
+        #Don't draw the Dna rubberband line if the cursor is over the confirmation
+        #corner. But make sure to call superclass.Draw method before doing this 
+        #check because we need to draw the rest of the model in the graphics 
+        #mode!. @see: DnaLineMode_GM.Draw() which does similar thing to not 
+        #draw the rubberband line when the cursor is on the confirmation corner
+        handler = self.o.mouse_event_handler
+        if handler is not None and handler is self._ccinstance:
+            self.update_cursor()
+            return
         
         if self.endPoint2 is not None:
             
