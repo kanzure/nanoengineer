@@ -8,6 +8,8 @@
 	<string>com.nanorex.NanoEngineer-1</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>01000.03.00</string>
 	<key>IFMajorVersion</key>
 	<integer>1</integer>
 	<key>IFMinorVersion</key>
