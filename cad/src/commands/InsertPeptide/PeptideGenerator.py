@@ -136,21 +136,22 @@ PRO_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.337,  117.000,  180.000 ),
+    (   3, "N  ", "N", "sp2(graphitic)",    2,    1,    0,    1.337,  117.000,  180.000 ),  
     (   4, "CD ", "C", "sp3",    3,    2,    1,    1.458,  126.100,  356.100 ),
-    (   5, "HD2", "H", "",       4,    3,    2,    1.090,  109.500,   80.000 ),
+    (   5, "HD2", "H", "",       4,    3,    2,    1.090,  109.500,   80.000 ), 
     (   6, "HD3", "H", "",       4,    3,    2,    1.090,  109.500,  320.000 ),
-    (   7, "CG ", "C", "sp3",    4,    3,    2,    1.500,  103.200,  200.100 ),
+    (   7, "CG ", "C", "sp3",    4,    3,    2,    1.500,  103.200,  200.100 ), 
     (   8, "HG2", "H", "",       7,    4,    3,    1.090,  109.500,  218.000 ),
     (   9, "HG3", "H", "",       7,    4,    3,    1.090,  109.500,   98.000 ),
-    (  10, "CB ", "C", "sp3",    7,    4,    3,    1.510,  106.000,  338.300 ),
+    (  10, "CB ", "C", "sp3",    7,    4,    3,    1.510,  106.000,  338.300 ), 
     (  11, "HB2", "H", "",      10,    7,    4,    1.090,  109.500,  256.300 ),
     (  12, "HB3", "H", "",      10,    7,    4,    1.090,  109.500,  136.300 ),
     (  13, "CA ", "C", "sp3",    3,    2,    1,    1.451,  120.600,  175.200 ),
-    (  14, "HA ", "H", "",      13,    3,    2,    1.090,  109.500,   60.000 ),
-    (  15, "C  ", "C", "sp2",   13,    3,    2,    1.522,  109.500,  300.000 ),
-    (  16, "O  ", "O", "sp2",   15,   13,    3,    1.229,  120.500,    0.000 ),
+    (  14, "HA ", "H", "",      13,    3,    2,    1.090,  109.500,   60.000 ), 
+    (  15, "C  ", "C", "sp2",   13,    3,    2,    1.522,  109.500,  300.000 ), 
+    (  16, "O  ", "O", "sp2",   15,   13,    3,    1.229,  120.500,    0.000 ), 
 ]               
+
 
 CYS_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
@@ -611,7 +612,8 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 self.coords[i][1] = self.prev_coords[i][1]
                 self.coords[i][2] = self.prev_coords[i][2]
         else: # if no prev_coords are given, compute the first three atom positions
-            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
+            num, name, atom_name, atom_type, \
+               atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
             self.coords[0][0] = 0.0;
             self.coords[0][1] = 0.0;
             self.coords[0][2] = 0.0;
@@ -619,29 +621,35 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
             self.coords[1][1] = 0.0;
             self.coords[1][2] = 0.0;
             ccos = cos(DEG2RAD*a)
-            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
+            num, name, atom_name, atom_type, \
+               atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
             if atom_c == 1: 
                 self.coords[2][0] = self.coords[0][0] + r*ccos
             else:
                 self.coords[2][0] = self.coords[0][0] - r*ccos					
             self.coords[2][1] = r * sin(DEG2RAD*a)
             self.coords[2][2] = 0.0
-            for i in range (0,3):
+            for i in range (0, 3):
                 self.prev_coords[i][0] = self.coords[i][0] + init_pos[0]
                 self.prev_coords[i][1] = self.coords[i][1] + init_pos[1]
                 self.prev_coords[i][2] = self.coords[i][2] + init_pos[2]
 
         for n in range (3, n_atoms): 
-            # Generate all coordinates using three atoms 
-            # as a frame of reference
-            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
+            # Generate all coordinates using three previous atoms 
+            # as a frame of reference,
+            num, name, atom_name, atom_type, \
+               atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
+
             cosa = cos(DEG2RAD * a)
             xb = self.coords[atom_b][0] - self.coords[atom_c][0]
             yb = self.coords[atom_b][1] - self.coords[atom_c][1]
             zb = self.coords[atom_b][2] - self.coords[atom_c][2]
             rbc = 1.0 / sqrt(xb*xb + yb*yb + zb*zb)
-            if abs(cosa) >= 0.999: # almost linear bond
-                rbc = r*rbc*cosa
+
+            if abs(cosa) >= 0.999: 
+                # Linear bond case
+                # Skip angles, just extend along the bond. 
+                rbc = r * rbc * cosa
                 self.coords[n][0] = self.coords[atom_c][0] + xb*rbc
                 self.coords[n][1] = self.coords[atom_c][1] + yb*rbc
                 self.coords[n][2] = self.coords[atom_c][2] + zb*rbc
@@ -649,7 +657,9 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 xa = self.coords[atom_a][0] - self.coords[atom_c][0]
                 ya = self.coords[atom_a][1] - self.coords[atom_c][1]
                 za = self.coords[atom_a][2] - self.coords[atom_c][2]
+
                 xyb = sqrt(xb*xb + yb*yb)
+
                 inv = False
                 if xyb < 0.001:
                     xpa = za
@@ -660,6 +670,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                     xb = xpb
                     xyb = sqrt(xb*xb + yb*yb)
                     inv = True
+
                 costh = xb / xyb
                 sinth = yb / xyb
                 xpa = xa * costh + ya * sinth
@@ -674,25 +685,36 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                     sinkh = 0.0
                 else:
                     coskh = ypa / yza
-                    sinkh = zqa / yza				
-                # Apply the peptide bond conformation 
-                if name=="N  " and not init_pos:
-                    t = self.prev_psi
-                if name=="O  ":
-                    t = psi + 180.0
-                if name=="HA " or name=="HA2": 
-                    t = 120.0 + phi
-                if name=="CB " or name=="HA3": 
-                    t = 240.0 + phi
-                if name=="C  ": 
-                    t = phi
+                    sinkh = zqa / yza			
+
+                # Apply the peptide bond conformation
+                if symbol != "P":
+                    if name=="N  " and not init_pos:
+                        t = self.prev_psi
+                    if name=="O  ":
+                        t = psi + 180.0
+                    if name=="HA " or name=="HA2": 
+                        t = 120.0 + phi
+                    if name=="CB " or name=="HA3": 
+                        t = 240.0 + phi
+                    if name=="C  ": 
+                        t = phi
+                else:
+                    # proline
+                    if name=="N  " and not init_pos:
+                        t = self.prev_psi
+                    if name=="O  ":
+                        t = psi + 180.0
+
                 sina = sin(DEG2RAD * a)
                 sind = -sin(DEG2RAD * t)
                 cosd = cos(DEG2RAD * t)
+
                 # Apply the bond length.
                 xd = r * cosa
                 yd = r * sina * cosd
                 zd = r * sina * sind     
+
                 # Compute the atom position using bond and torsional angles.
                 ypd = yd * coskh - zd * sinkh
                 zpd = zd * coskh + yd * sinkh
@@ -700,6 +722,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 zqd = zpd * cosph + xd * sinph
                 xqd = xpd * costh - ypd * sinth
                 yqd = ypd * costh + xpd * sinth
+
                 if inv: 
                     tmp = -zqd
                     zqd = xqd
@@ -708,6 +731,13 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 self.coords[n][0] = xqd + self.coords[atom_c][0]
                 self.coords[n][1] = yqd + self.coords[atom_c][1]
                 self.coords[n][2] = zqd + self.coords[atom_c][2]
+
+                if self.nterm_hydrogen:
+                    # It is a hack for the first hydrogen atom
+                    # to make sure the bond length is correct.
+                    self.nterm_hydrogen.setposn( 
+                        self.nterm_hydrogen.posn() + 0.25 * V(xqd, yqd, zqd))
+                    self.nterm_hydrogen = None
 
                 ax = self.coords[n][0]
                 ay = self.coords[n][1]
@@ -728,33 +758,14 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                         self.prev_coords[2][1] = self.coords[n][1]
                         self.prev_coords[2][2] = self.coords[n][2]
 
-                if self.length == 1 and \
-                   n == 3: 
-                    # It is a hack for the first hydrogen atom
-                    # to make sure the bond length is correct.
-                    r = 1.100
-                    xd = r * cosa
-                    yd = r * sina * cosd
-                    zd = r * sina * sind     
-                    ypd = yd * coskh - zd * sinkh
-                    zpd = zd * coskh + yd * sinkh
-                    xpd = xd * cosph - zpd * sinph
-                    zqd = zpd * cosph + xd * sinph
-                    xqd = xpd * costh - ypd * sinth
-                    yqd = ypd * costh + xpd * sinth
-                    if inv: 
-                        tmp = -zqd
-                        zqd = xqd
-                        xqd = tmp
-                    ax = xqd + self.coords[atom_c][0]
-                    ay = yqd + self.coords[atom_c][1]
-                    az = zqd + self.coords[atom_c][2]
 
                 # Add a new atom to the molecule	
-                atom = Atom(atom_name, V(ax, ay, az), mol)    
+                atom = Atom(
+                    atom_name, 
+                    V(self.coords[n][0], self.coords[n][1], self.coords[n][2]), 
+                    mol)    
 
                 # Create temporary attributes for proper bond assignment.
-
                 atom._is_aromatic = False
                 atom._is_single = False
 
@@ -768,7 +779,8 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
 
                 atom.set_atomtype_but_dont_revise_singlets(atom_type)
 
-                if name == "CA ": # set c-alpha flag for visualization
+                if name == "CA ": 
+                    # Set c-alpha flag for protein main chain visualization.
                     atom.is_calpha = True
                 else:
                     atom.is_calpha = False
@@ -776,9 +788,9 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 # debug - output in PDB format	
                 # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
 
-        self.prev_psi = self.psi # remember previous psi angle
+        self.prev_psi = self.psi # Remember previous psi angle.
 
-        self.length += 1 # increase amino acid counter
+        self.length += 1 # Increase the amino acid counter.
 
         return        
 
@@ -811,6 +823,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
         atom = Atom("H", position, mol)    
         atom._is_aromatic = False
         atom._is_single = False
+        self.nterm_hydrogen = atom
 
         # Generate the peptide chain.
         self.length = 1	
