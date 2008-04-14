@@ -255,19 +255,20 @@ class ops_atoms_Mixin:
         env.history.message(cmd + didwhat)
         return
 
-    def convertPAM3to5Command(self):
-        msg1 = greenmsg("Convert PAM3 to PAM5: ")
-        msg2 = "Not implemented yet."
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
-        return
-    
-    def convertPAM5to3Command(self):
-        msg1 = greenmsg("Convert PAM5 to PAM3: ")
-        msg2 = "Not implemented yet."
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
-        return
+# moved to class ops_pam_Mixin [bruce 080413]:
+##    def convertPAM3to5Command(self):
+##        msg1 = greenmsg("Convert PAM3 to PAM5: ")
+##        msg2 = "Not implemented yet."
+##        final_msg = msg1 + msg2
+##        env.history.message(final_msg)
+##        return
+##    
+##    def convertPAM5to3Command(self):
+##        msg1 = greenmsg("Convert PAM5 to PAM3: ")
+##        msg2 = "Not implemented yet."
+##        final_msg = msg1 + msg2
+##        env.history.message(final_msg)
+##        return
     
     pass # end of class ops_atoms_Mixin
 

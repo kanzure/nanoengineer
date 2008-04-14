@@ -156,6 +156,9 @@ class DnaLadder_pam_conversion_methods:
             del chunk.display_as_pam
             chunk.save_as_pam = None
             del chunk.save_as_pam
+
+        # (see related code to the following, in class ops_pam_Mixin)
+        
         # Tell dna updater to remake self and its connected ladders
         # (which would otherwise be invalidated during updater run (a bug)
         #  by rebonding, or by adding/removing Pls to their chunks)

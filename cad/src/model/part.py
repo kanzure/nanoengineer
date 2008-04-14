@@ -82,6 +82,8 @@ from operations.ops_motion import ops_motion_Mixin
 from operations.ops_rechunk import ops_rechunk_Mixin
 from operations.ops_select import ops_select_Mixin
 
+from dna.operations.ops_pam import ops_pam_Mixin #bruce 080413
+
 from utilities.constants import diDEFAULT
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
@@ -100,7 +102,7 @@ debug_parts = False # set this to True in a debugger, to enable some print state
 debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
 class Part( jigmakers_Mixin, InvalMixin, StateMixin,
-            ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
+            ops_atoms_Mixin, ops_pam_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
             ):
     """
