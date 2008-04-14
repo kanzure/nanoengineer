@@ -23,9 +23,11 @@ import math
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import Qt
 
 from PM.PM_Dialog         import PM_Dialog
 from PM.PM_GroupBox       import PM_GroupBox
+from PM.PM_CheckBox       import PM_CheckBox
 from PM.PM_ComboBox       import PM_ComboBox
 from PM.PM_DoubleSpinBox  import PM_DoubleSpinBox
 from PM.PM_SpinBox        import PM_SpinBox
@@ -83,7 +85,8 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
 
         # phi psi angles will define the secondary structure of the peptide chain
         self.phi = -57.0
-        self.psi = -47.0 
+        self.psi = -47.0
+        self.chirality = 1
         self.ss_idx = 1
         self.peptide_cache = []
 
@@ -121,7 +124,8 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                          "Beta strand",
                          "Pi helix", 
                          "3_10 helix", 
-                         "Polyproline-II helix"]
+                         "Polyproline-II helix",
+                         "Fully extended"]
 
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
@@ -146,6 +150,12 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                               decimals     = 1, 
                               suffix       = " degrees")
 
+        self.connect( self.phiAngleField,
+                      SIGNAL("valueChanged(double)"),
+                      self._aaPhiAngleChanged)
+
+        self.phiAngleField.setEnabled(False)
+
         self.psiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
                               label        = "Psi angle :", 
@@ -157,8 +167,22 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                               decimals     = 1, 
                               suffix       = " degrees" )
 
-        self.phiAngleField.setEnabled(False)
+        self.connect( self.psiAngleField,
+                      SIGNAL("valueChanged(double)"),
+                      self._aaPsiAngleChanged)
+
         self.psiAngleField.setEnabled(False)        
+
+
+        self.invertChiralityPushButton = \
+            PM_PushButton( inPmGroupBox,
+                           text         = 'Invert chirality' ,
+                           spanWidth    = False
+                       )
+
+        self.connect(self.invertChiralityPushButton,
+                     SIGNAL("clicked()"),
+                     self._aaChiralityChanged)
 
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
@@ -205,6 +229,16 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
         ToolTip_PeptideGeneratorPropertyManager(self)
 
+    def _aaChiralityChanged(self):
+        """
+        Set chirality of the peptide chain.
+        """
+        self.psi *= -1
+        self.phi *= -1
+
+        self.phiAngleField.setValue(self.phi)
+        self.psiAngleField.setValue(self.psi)
+
     def _aaTypeChanged(self, idx):
         """
         Slot for Peptide Structure Type combobox.
@@ -212,34 +246,50 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         self.ss_idx = idx
 
-        if idx == 1: # alpha helix
-            self.phi = -57.0
-            self.psi = -47.0
-        elif idx == 3: # 3-10 helix
-            self.phi = -49.0
-            self.psi = -26.0
-        elif idx == 2: # beta strand
-            self.phi = 180.0
-            self.psi = 170.0
-        elif idx == 4: # pi helix
-            self.phi = -55.0
-            self.psi = -70.0
-        elif idx == 5: # polyprolin-II
-            self.phi = -75.0
-            self.psi = 150.0
-        else:
-            self.phi = self.phiAngleField.value()
-            self.psi = self.psiAngleField.value()
-
-        self.phiAngleField.setValue(self.phi)
-        self.psiAngleField.setValue(self.psi)
-
         if idx == 0:
             self.phiAngleField.setEnabled(True)
             self.psiAngleField.setEnabled(True)
         else:
             self.phiAngleField.setEnabled(False)
             self.psiAngleField.setEnabled(False)
+
+        if idx == 1: # alpha helix
+            self.phi = -57.0
+            self.psi = -47.0
+        elif idx == 2: # beta strand
+            self.phi = -135.0
+            self.psi = 135.0
+        elif idx == 3: # 3-10 helix
+            self.phi = -49.0
+            self.psi = -26.0
+        elif idx == 4: # pi helix
+            self.phi = -55.0
+            self.psi = -70.0
+        elif idx == 5: # polyprolin-II
+            self.phi = -75.0
+            self.psi = 150.0
+        elif idx == 6: # fully extended
+            self.phi = -180.0
+            self.psi = 180.0
+        else:
+            self.phi = self.phiAngleField.value()
+            self.psi = self.psiAngleField.value()
+
+        self.phi *= self.chirality
+        self.psi *= self.chirality
+
+        self.phiAngleField.setValue(self.phi)
+        self.psiAngleField.setValue(self.psi)
+        pass
+
+    def _aaPhiAngleChanged(self, phi):
+        self.phi = self.phiAngleField.value()
+        pass
+
+
+    def _aaPsiAngleChanged(self, psi):
+        self.psi = self.psiAngleField.value()
+        pass        
 
     def _setAminoAcidType(self, aaTypeIndex):
         """
@@ -256,12 +306,15 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
             aa_txt = "<font color=orange>"
         elif self.ss_idx==5:
             aa_txt = "<font color=magenta>"
+        elif self.ss_idx==6:
+            aa_txt = "<font color=darkblue>"
         else:
             aa_txt = "<font color=black>"
 
         aa_txt += symbol+"</font>"
         self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
         self.addAminoAcid(aaTypeIndex)
+        pass
 
     def _startOverClicked(self):
         """
@@ -269,3 +322,4 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         self.sequenceEditor.clear()
         self.peptide_cache = []
+        pass

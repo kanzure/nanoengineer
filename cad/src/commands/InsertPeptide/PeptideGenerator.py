@@ -96,7 +96,7 @@ PHE_ZMATRIX = [
     (   8, "HB2", "H", "",       7,    5,    3,    1.090,  109.500,  300.000 ),
     (   9, "HB3", "H", "",       7,    5,    3,    1.090,  109.500,   60.000 ),
     (  10, "CG ", "C", "sp2a",    7,    5,    3,    1.510,  115.000,  180.000 ),
-    (  11, "CD1", "C", "sp2a",   10,    7,    5,    1.400,  120.000,  240.000 ),
+    (  11, "CD1", "C", "sp2a",   10,    7,    5,    1.400,  120.000,  180.000 ),
     (  12, "HD1", "H", "",      11,   10,    7,    1.090,  120.000,    0.000 ),
     (  13, "CE1", "C", "sp2a",   11,   10,    7,    1.400,  120.000,  180.000 ),
     (  14, "HE1", "H", "",      13,   11,   10,    1.090,  120.000,  180.000 ),
@@ -496,9 +496,8 @@ CTERM_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
     (   2, "DUM", "",  "",       1,    0,   -1,    1.522,  111.100,    0.000 ),
-    (   3, "N  ", "O"
-        , "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
-        (   4, "H  ", "H", "",       3,    2,    1,    0.960,  109.500,    0.000 ),
+    (   3, "N  ", "O", "sp3",    2,    1,    0,    1.335,  116.600,  180.000 ),
+    (   4, "H  ", "H", "",       3,    2,    1,    0.960,  109.500,    0.000 ),
 ]
 
 # all amino acids, z-matrices and their sizes
@@ -602,7 +601,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
 	Unfortunately, the proper bond order can not be correctly recognized this way.
 	"""
 
-        if mol==None:
+        if mol == None:
             return
 
         if not init_pos: # assign three previous atom positions
@@ -688,26 +687,26 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
 
                 # Apply the peptide bond conformation
                 if symbol != "P":
-                    if name=="N  " and not init_pos:
-                        t = self.prev_psi
-                    if name=="O  ":
+                    if name == "N  " and not init_pos:
+                        t = self.prev_psi + 0.0
+                    if name == "O  ":
                         t = psi + 180.0
-                    if name=="HA " or name=="HA2": 
+                    if name == "HA " or name == "HA2": 
                         t = 120.0 + phi
-                    if name=="CB " or name=="HA3": 
+                    if name == "CB " or name == "HA3": 
                         t = 240.0 + phi
-                    if name=="C  ": 
+                    if name == "C  ": 
                         t = phi
                 else:
                     # proline
-                    if name=="N  " and not init_pos:
-                        t = self.prev_psi
-                    if name=="O  ":
+                    if name == "N  " and not init_pos:
+                        t = self.prev_psi + 0.0
+                    if name == "O  ":
                         t = psi + 180.0
-                    if name=="CA ":
-                        t = phi 
-                    if name=="CD ":
-                        t = phi + 180.0
+                    if name == "CA ":
+                        t = phi - 120.0 
+                    if name == "CD ":
+                        t = phi + 60.0 
 
                 sina = sin(DEG2RAD * a)
                 sind = -sin(DEG2RAD * t)
@@ -761,7 +760,6 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                         self.prev_coords[2][1] = self.coords[n][1]
                         self.prev_coords[2][2] = self.coords[n][2]
 
-
                 # Add a new atom to the molecule	
                 atom = Atom(
                     atom_name, 
@@ -791,7 +789,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                 # debug - output in PDB format	
                 # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
 
-        self.prev_psi = self.psi # Remember previous psi angle.
+        self.prev_psi = psi # Remember previous psi angle.
 
         self.length += 1 # Increase the amino acid counter.
 
