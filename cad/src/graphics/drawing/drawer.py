@@ -1618,11 +1618,11 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Empty state.
         """
-        self.dl = 0             # The display list called for the current appearance.
-        self.color_dl = 0       # Second-level display list setting color and calling sublists
-        self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
-        self.selected_dl = 0    # 2nd level call-list with a single over-ride color.
-        self.per_color_dls = [] # Per-color sublists.
+        self.dl = 0             # Current display list (color or selected.)
+        self.color_dl = 0       # DL to set colors, call each lower level list.
+        self.selected_dl = 0    # DL with a single (selected) over-ride color.
+        self.nocolor_dl = 0     # DL of lower-level calls for color over-rides.
+        self.per_color_dls = [] # Lower level, per-color primitive sublists.
         return
 
     def not_clear(self):
@@ -1677,20 +1677,24 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
     def reset(self):
         """
-        Return to ready state.
+        Return to initialized state.
         """
         if self.not_clear():
+            # deallocate leaves it clear.
             self.deallocate_displists()
             pass
-        self.activate()
         return
 
     def deallocate_displists(self):
         """
         Free any allocated display lists.
         """
-        for dl in [self.dl, self.color_dl, self.nocolor_dl, self.selected_dl] + \
-            [dl for clr, dl in self.per_color_dls]:
+        # With CSDL active, self.dl duplicates either selected_dl or color_dl.
+        if (self.dl is not self.color_dl and
+            self.dl is not self.selected_dl):
+            glDeleteLists(self.dl, 1)
+        for dl in [self.color_dl, self.nocolor_dl, self.selected_dl] + \
+            [dl for clr, dl in self.per_color_dls]: # Second-level dl's.
             if dl != 0:
                 glDeleteLists(dl, 1)
                 pass
@@ -2080,17 +2084,18 @@ class ColorSorter:
 
                 parent_csdl.reset()
 
-                # First build the per-color sublists.
+                # First build the lower level per-color sublists of primitives.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
                     sublist = glGenLists(1)
-                    parent_csdl.per_color_dls.append([color, sublist]) # Remember.
+                    # Remember the display list ID for this color.
+                    parent_csdl.per_color_dls.append([color, sublist])
 
                     glNewList(sublist, GL_COMPILE)
                     opacity = color[3]
                     if opacity < 0:
                         #russ 080306: "Unshaded colors" for lines are signaled
                         # by a negative opacity (4th component of the color.)
-                        glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                        glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                         pass
 
                     for func, params, name in funcs:
@@ -2109,7 +2114,7 @@ class ColorSorter:
                     glEndList()
                     continue
 
-                # Now the second-level lists that call all of the per-color sublists.
+                # Now the upper-level lists call all of the per-color sublists.
                 # One with colors.
                 color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
@@ -2117,7 +2122,8 @@ class ColorSorter:
 
                     opacity = color[3]
                     if opacity < 0:
-                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                        #russ 080306: "Unshaded colors" for lines are signaled
+                        # by a negative alpha.
                         glColor3fv(color[:3])
                     else:
                         apply_material(color)
@@ -2126,7 +2132,7 @@ class ColorSorter:
                     continue
                 glEndList()
 
-                # Another one without any colors.
+                # A second one without any colors.
                 nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
                 glNewList(nocolor_dl, GL_COMPILE)
                 for color, dl in parent_csdl.per_color_dls:
@@ -2134,7 +2140,7 @@ class ColorSorter:
                     continue
                 glEndList()
 
-                # A third overlaying the second one with a single color for selection.
+                # A third overlays the second with a single color for selection.
                 selected_dl = parent_csdl.selected_dl = glGenLists(1)
                 glNewList(selected_dl, GL_COMPILE)
                 apply_material(darkgreen)
@@ -2143,6 +2149,8 @@ class ColorSorter:
 
                 # Use either the normal-color display list or the selected one.
                 parent_csdl.selectDl()
+
+                # Draw the newly-built display list.
                 parent_csdl.draw_dl()
                 pass
 
@@ -2164,8 +2172,9 @@ class ColorSorter:
 
             opacity = color[3]
             if opacity < 0:
-                #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
-                glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                #russ 080306: "Unshaded colors" for lines are signaled
+                # by a negative opacity (4th component of the color.)
+                glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                 glColor3fv(color[:3])
             else:
                 apply_material(color)
