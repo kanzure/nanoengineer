@@ -247,8 +247,10 @@ dnaStrandLabelsEnabled_prefs_key = 'A10/DNA strand labels enabled'
 dnaStrandLabelsColor_prefs_key = 'A10/DNA strand labels color'
 dnaStrandLabelsColorMode_prefs_key = 'A10/DNA strand labels color mode'
 dnaBaseIndicatorsEnabled_prefs_key = 'A10/DNA base orientation indicators enabled'
+dnaBaseInvIndicatorsEnabled_prefs_key = 'A10/DNA base inverse orientation indicators enabled'
 dnaBaseIndicatorsAngle_prefs_key = 'A10/DNA base orientation indicators angle'
 dnaBaseIndicatorsColor_prefs_key = 'A10/DNA base orientation indicators color'
+dnaBaseInvIndicatorsColor_prefs_key = 'A10/DNA base inverse orientation indicators color'
 dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
 dnaStyleBasesDisplayLetters_prefs_key = 'A10/DNA base letters enabled'
 
@@ -380,6 +382,7 @@ _default_toolong_hicolor = ave_colors( 0.8, magenta, black) ## not yet in prefs 
 
 _default_strandLabelsColor = black # piotr 080325 added these default colors
 _default_baseIndicatorsColor = lightgreen
+_default_baseInvIndicatorsColor = red
 
 def _compute_default_bondVaneColor():
     ord_pi_for_color = 0.5
@@ -599,7 +602,9 @@ prefs_table = (
            ('', 'color', dnaStrandLabelsColor_prefs_key, _default_strandLabelsColor),
            ('', 'int', dnaStrandLabelsColorMode_prefs_key, 0),
            ('', 'boolean', dnaBaseIndicatorsEnabled_prefs_key, False),
+           ('', 'boolean', dnaBaseInvIndicatorsEnabled_prefs_key, False),
            ('', 'color', dnaBaseIndicatorsColor_prefs_key, _default_baseIndicatorsColor),
+           ('', 'color', dnaBaseInvIndicatorsColor_prefs_key, _default_baseInvIndicatorsColor),
            ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
            ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
 

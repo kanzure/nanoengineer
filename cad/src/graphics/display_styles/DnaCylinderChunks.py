@@ -84,6 +84,8 @@ from utilities.prefs_constants import dnaStrandLabelsColor_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
+from utilities.prefs_constants import dnaBaseInvIndicatorsEnabled_prefs_key
+from utilities.prefs_constants import dnaBaseInvIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
 
@@ -295,7 +297,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             """
             Renders a strand shape along points array using colors 
             and radii arrays, with optional arrows. 
-            
+
             draw5p and draw3p control arrow drawing at 5' and 3' ends.
             shape controls the strand apperance (0=cylinders, 1=tube)
             """
@@ -393,7 +395,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     else:
                         drawer.drawpolycone(
                             colors[1], new_points, new_radii)
-            
+
         def get_axis_positions(atom_list, color_style):
             """
             From an atom list create a list of positions
@@ -548,7 +550,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             q = ilength * (start + step * idx)
             return self.getRainbowColor(q, 0.75, 1.0)
         pass
-    
+
         def get_strand_colors(atom_list, color_style, start, end, length):
             """
             From an atom list create a list of colors
@@ -582,7 +584,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             colors[n_atoms+1] = colors[n_atoms]
             return colors
         pass
-    
+
         def get_strand_radii(atom_list, radius):
             """
             From an atom list create a list of radii
@@ -596,7 +598,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             radii[n_atoms+1] = radii[n_atoms]
             return radii
         pass
-    
+
         # ---------------------------------------------------------------------
 
         chunk._dnaStyleExternalBonds = []
@@ -735,14 +737,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             bposn-0.25*self.dnaStyleBasesScale*normal,
                             bposn+0.25*self.dnaStyleBasesScale*normal,
                             1.0*self.dnaStyleBasesScale, True)
-                
-                
+
+
             if self.dnaStyleStrandsShape>0: # render strands
                 # Render the external bonds, if there are any.
                 # Moved this to draw_realtime otherwise the struts won't be updated.
                 # piotr 080411
 
-                # It is a kludge. But these bonds have to be drawn in draw_realtime
+                # It is a kludge. These bonds may need to be drawn in draw_realtime
                 # to reflect orientation changes of the individual chunks.                
                 for bond in chunk.externs:
                     if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
@@ -826,7 +828,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             """
 
             axis_atom = strand_atom.axis_neighbor()
-            
+
             if axis_atom:
                 mol = axis_atom.molecule
                 axis_atoms = mol.ladder.axis_rail.baseatoms
@@ -838,12 +840,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 if pos<n_bases-1:
                     atom1 = axis_atoms[pos+1]
                     dpos = chunk.abs_to_base(atom1.posn()) - \
-                           chunk.abs_to_base(atom0.posn())
+                         chunk.abs_to_base(atom0.posn())
                 else:
                     atom1 = axis_atoms[pos-1]
                     atom2 = axis_atoms[pos]
                     dpos = chunk.abs_to_base(atom2.posn()) - \
-                           chunk.abs_to_base(atom1.posn())
+                         chunk.abs_to_base(atom1.posn())
                 last_dpos = dpos
                 dvec = norm(cross(dpos,glpane.out))
                 pos0 = chunk.abs_to_base(axis_atom.posn())#-mol.center
@@ -877,13 +879,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
                 indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
                 indicators_color = env.prefs[dnaBaseIndicatorsColor_prefs_key]
+                inv_indicators_color = env.prefs[dnaBaseInvIndicatorsColor_prefs_key]                
+                inv_indicators_enabled = env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key]
+                indicators_distance = env.prefs[dnaBaseIndicatorsDistance_prefs_key]
                 if chunk.isStrandChunk(): 
                     if chunk.ladder.axis_rail:
                         if self.dnaStyleStrandsShape>0 or \
                            self.dnaStyleBasesShape>0 or \
                            self.dnaStyleStrutsShape>0:                   
                             n_bases = chunk.ladder.baselength()
-                            if chunk==chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+                            if chunk == chunk.ladder.strand_rails[0].baseatoms[0].molecule:
                                 chunk_strand = 0
                             else:
                                 chunk_strand = 1
@@ -895,10 +900,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 # calculate an angle between this vector 
                                 # and the vector towards the viewer
                                 a = angleBetween(vz, v2)
-                                if abs(a)<indicators_angle:
+                                if abs(a) < indicators_angle:
                                     drawer.drawsphere(
                                         indicators_color, 
                                         chunk.abs_to_base(atom1.posn()), 1.5, 2)
+                                if inv_indicators_enabled:
+                                    if abs(a) > (180.0-indicators_angle):
+                                        drawer.drawsphere(
+                                            inv_indicators_color, 
+                                            chunk.abs_to_base(atom1.posn()), 1.5, 2)
 
             if chunk.isStrandChunk():       
 
@@ -914,7 +924,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         drawer.drawsphere(color, pos1, self.dnaStyleStrandsScale, 2)
                         drawer.drawsphere(color, pos2, self.dnaStyleStrandsScale, 2)
                         drawer.drawcylinder(color, pos1, pos2, self.dnaStyleStrandsScale, True)              
-                
+
                 if self.dnaStyleBasesDisplayLetters: 
                     # calculate text size
                     # this is kludgy...
@@ -1459,7 +1469,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             chunk_color = white
 
         strand_positions = axis_positions = None
-        
+
         num_strands = chunk.ladder.num_strands()
 
         current_strand = 0
@@ -1500,17 +1510,17 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                 # determine strand and end atom indices
                 # within the entire strand.
-                
+
                 # this doesn't work with PAM5 models
                 ### all_atoms = chunk.get_strand_atoms_in_bond_direction()
-                
+
                 rawAtomList = []
                 for c in strand.members:
                     if isinstance(c, DnaStrandChunk):
                         rawAtomList.extend(c.atoms.itervalues())
-                        
+
                 all_atoms = strand.get_strand_atoms_in_bond_direction(rawAtomList)
-                
+
                 start_atom = strand_atoms[current_strand][0]
                 end_atom = strand_atoms[current_strand][len(strand_atoms[0])-1]
                 if  start_atom in all_atoms and \
