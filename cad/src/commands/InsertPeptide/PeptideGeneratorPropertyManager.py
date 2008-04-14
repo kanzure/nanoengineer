@@ -121,7 +121,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
                          "Beta strand",
                          "Pi helix", 
                          "3_10 helix", 
-                         "Polyprolin-II helix"]
+                         "Polyproline-II helix"]
 
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
