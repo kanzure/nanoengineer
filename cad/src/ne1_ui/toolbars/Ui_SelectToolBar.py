@@ -25,6 +25,7 @@ def setupUi(win, toolbarArea):
     win.addToolBar(toolbarArea, win.selectToolBar)
 
     # Populate the "Select" toolbar.
+    win.selectToolBar.addAction(win.selectLockAction)
     win.selectToolBar.addAction(win.selectAllAction)
     win.selectToolBar.addAction(win.selectNoneAction)
     win.selectToolBar.addAction(win.selectInvertAction)
@@ -32,7 +33,6 @@ def setupUi(win, toolbarArea):
     win.selectToolBar.addAction(win.selectDoublyAction)
     win.selectToolBar.addAction(win.selectExpandAction)
     win.selectToolBar.addAction(win.selectContractAction)
-    win.selectToolBar.addAction(win.selectLockAction)
 
 def retranslateUi(win):
     """

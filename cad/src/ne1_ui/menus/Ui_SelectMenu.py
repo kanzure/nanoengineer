@@ -14,6 +14,7 @@ def setupUi(win):
     """
     
     # Populate the "Select" menu.
+    win.selectionMenu.addAction(win.selectLockAction)
     win.selectionMenu.addAction(win.selectAllAction)
     win.selectionMenu.addAction(win.selectNoneAction)
     win.selectionMenu.addAction(win.selectInvertAction)
