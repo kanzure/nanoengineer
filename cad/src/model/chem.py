@@ -2973,8 +2973,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if not self.bonds:
                 self.kill() # bruce 041115 added this and revised all callers
             else:
-                print "fyi: bug: unbond on a singlet %r finds unexpected bonds left over in it, %r" % (self,self.bonds)
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
+                from dna.updater.dna_updater_globals import get_dnaladder_inval_policy, DNALADDER_INVAL_IS_NOOP_BUT_OK
+                    # can't be a toplevel import for now
+                if get_dnaladder_inval_policy() == DNALADDER_INVAL_IS_NOOP_BUT_OK:
+                    pass # this now happens routinely during PAM conversion [bruce 080413]
+                else:
+                    # I don't recall ever seeing this otherwise, but it's good
+                    # to keep checking for it [bruce 080413]
+                    print "fyi: bug: unbond on a singlet %r finds unexpected bonds left over in it, %r" % (self, self.bonds)
             return None
         if not make_bondpoint:
             #bruce 070601 new feature

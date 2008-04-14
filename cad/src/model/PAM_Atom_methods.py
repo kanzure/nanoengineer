@@ -500,7 +500,8 @@ class PAM_Atom_methods:
             if self._f_Pl_posn_is_definitive:
                 self._f_Pl_store_position_into_Ss3plus5_data()
                     # sets flag to false
-            print "fyi: stored pos of %r, will kill it and rebond neighbors" % self ####
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
+                print "fyi: stored pos of %r, will kill it and rebond neighbors" % self
             from dna.model.pam3plus5_ops import kill_Pl_and_rebond_neighbors
                 # this may need to remain a runtime import due to likely import cycle issues
             kill_Pl_and_rebond_neighbors(self)
