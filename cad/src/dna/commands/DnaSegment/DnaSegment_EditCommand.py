@@ -250,12 +250,22 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #'call model_changed only when needed' but its NOT done because of an 
         # issue menitoned in bug 2729   - Ninad 2008-04-07
         
+        EditCommand.model_changed(self) #This also calls the 
+                                        #propMgr.model_changed 
+        
         if self.grabbedHandle is not None:
             return
         
+        #For Rattlesnake, PAM5 segment resizing  is not supported. 
+        #@see: self.hasResizableStructure()
         if self.hasValidStructure():
-            self.updateHandlePositions()
-            
+            if not self.hasResizableStructure():
+                self.handles = []
+                return
+            elif len(self.handles) == 0:
+                self._updateHandleList()
+        
+            self.updateHandlePositions()            
             #The following fixes bug 2802. The bug comment has details of what
             #it does. Copying some portion of it below--            
             #We have fixed similar problem for strand resizing, by updating the
@@ -307,8 +317,15 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #self.previousParams is used in self._previewStructure and 
             #self._finalizeStructure to check if self.struct changed.
             self.previousParams = self._gatherParameters()
-            self._updateHandleList()
-            self.updateHandlePositions()
+            
+            #For Rattlesnake, we do not support resizing of PAM5 model. 
+            #So don't append the exprs handles to the handle list (and thus 
+            #don't draw those handles. See self.model_changed()            
+            if not self.hasResizableStructure():
+                self.handles = []
+            else:
+                self._updateHandleList()
+                self.updateHandlePositions()
             
     def keep_empty_group(self, group):
         """
@@ -342,7 +359,19 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         
         return bool_keep
     
-
+    def hasResizableStructure(self):
+        """
+        For Rattlesnake release, we dont support segment resizing for PAM5 
+        models. If the structure is not resizable, the handles won't be drawn
+        @see:self.model_changed()
+        @see:DnaSegment_PropertyManager.model_changed()
+        @see: self.editStructure()
+        @see: DnaSegment.is_PAM3_DnaSegment()
+        """
+        if not self.hasValidStructure():
+            return False        
+        return self.struct.is_PAM3_DnaSegment()
+       
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
@@ -388,6 +417,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: self._update_resizeHandle_stopper_length()     
         @see: DnaSegment_GraphicsMode._drawHandles()
         """  
+        
+        if len(self.handles) == 0:
+            #No handles are appended to self.handles list. 
+            #@See self.model_changed() and self._updateHandleList()
+            return
+        
+                
         #TODO: Call this method less often by implementing model_changed
         #see bug 2729 for a planned optimization
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE

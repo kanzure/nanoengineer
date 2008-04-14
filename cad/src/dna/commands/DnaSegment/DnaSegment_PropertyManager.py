@@ -24,6 +24,7 @@ from PM.PM_LineEdit import PM_LineEdit
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexLength
 
 from geometry.VQT import V, vlen
+from utilities.Log import redmsg
 
 class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -78,6 +79,11 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmPreviewButton | \
                                 pmWhatsThisButton)
+        
+        msg = "Use resize handles to resize the segment. Drag any axis or sugar"\
+            " atom for translation or rotation about axis respectively. Dragging"\
+            " any bond will freely move the whole segment."
+        self.updateMessage(msg)   
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -104,7 +110,28 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect( self.duplexRiseDoubleSpinBox,
                       SIGNAL("valueChanged(double)"),
                       self.duplexRiseChanged )
-    
+        
+    def model_changed(self): 
+        """
+        @see: DnaSegment_EditCommand.model_changed()
+        @see: DnaSegment_EditCommand.hasResizableStructure()
+        """
+        if not self.editCommand.hasResizableStructure():
+            #disable all widgets
+            if self._pmGroupBox1.isEnabled():
+                self._pmGroupBox1.setEnabled(False)
+                msg = redmsg("To edit DnaProperties, first convert it to a PAM3"\
+                   " model")                    
+                self.updateMessage(msg)
+        else:
+            if not self._pmGroupBox1.isEnabled():
+                self._pmGroupBox1.setEnabled(True)
+                msg = "Use resize handles to resize the segment. Drag any axis or sugar"\
+                    " atom for translation or rotation about axis respectively. Dragging"\
+                    " any bond will freely move the whole segment."
+                self.updateMessage(msg)
+
+                
     def show(self):
         """
         Show this property manager. Overrides EditCommand_PM.show()
@@ -306,7 +333,6 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.duplexLengthLineEdit.setDisabled(True)  
         
-        
     
     def _addWhatsThisText(self):
         """
@@ -320,4 +346,4 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         pass
     
-        
+         
