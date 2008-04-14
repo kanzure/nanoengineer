@@ -1,0 +1,1577 @@
+mmpformat 080327 required; 080412 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (110.231764) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Untitled)
+info opengroup open = True
+group (mao_3point_star_blunt1) DnaGroup
+info opengroup open = False
+group (DnaSegment3) DnaSegment
+info opengroup open = False
+forward_ref (151953856) # DnaSegmentMarker (DnaMarker7)
+mol (DnaAxisChunk102) CPK
+atom 1 (300) (62721, -6941, -2896) def
+atom 2 (300) (59905, -8702, -2496) def
+bond1 1
+atom 3 (300) (57094, -10333, -2276) def
+bond1 2
+atom 4 (300) (54315, -12038, -2176) def
+bond1 3
+atom 5 (300) (51600, -13833, -2116) def
+bond1 4
+atom 6 (300) (48928, -15681, -2046) def
+bond1 5
+atom 7 (300) (46259, -17553, -1966) def
+bond1 6
+atom 8 (300) (43593, -19412, -1859) def
+bond1 7
+atom 9 (300) (40917, -21253, -1719) def
+bond1 8
+atom 10 (300) (38201, -23026, -1549) def
+bond1 9
+atom 11 (300) (35463, -24741, -1389) def
+bond1 10
+atom 12 (0) (64059, -6104, -3086) def
+bond1 1
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker7) (127, 127, 127) 1 2
+info leaf forwarded = 151953856
+mol (DnaAxisChunk101) CPK
+atom 13 (300) (32730, -26407, -1199) def
+bond1 11
+atom 14 (300) (29982, -28048, -1019) def
+bond1 13
+atom 15 (300) (27207, -29681, -859) def
+bond1 14
+atom 16 (300) (24436, -31300, -709) def
+bond1 15
+atom 17 (300) (21649, -32893, -579) def
+bond1 16
+atom 18 (300) (18852, -34470, -469) def
+bond1 17
+atom 19 (300) (16050, -36037, -379) def
+bond1 18
+atom 20 (300) (13256, -37600, -289) def
+bond1 19
+atom 21 (300) (10449, -39159, -209) def
+bond1 20
+atom 22 (300) (7659, -40708, -119) def
+bond1 21
+atom 23 (300) (4856, -42253, -39) def
+bond1 22
+atom 24 (0) (3464, -43021, 0) def
+bond1 23
+info chunk color = 128 128 128
+egroup (DnaSegment3)
+group (DnaSegment4) DnaSegment
+info opengroup open = False
+forward_ref (151962888) # DnaSegmentMarker (DnaMarker10)
+mol (DnaAxisChunk100) CPK
+atom 25 (300) (14288, -58203, -1699) def
+atom 26 (300) (16995, -56494, -1739) def
+bond1 25
+atom 27 (300) (19694, -54790, -1739) def
+bond1 26
+atom 28 (300) (22411, -53098, -1709) def
+bond1 27
+atom 29 (300) (25147, -51418, -1659) def
+bond1 28
+atom 30 (300) (27880, -49752, -1609) def
+bond1 29
+atom 31 (300) (30616, -48073, -1539) def
+bond1 30
+atom 32 (300) (33357, -46402, -1419) def
+bond1 31
+atom 33 (300) (36105, -44761, -1259) def
+bond1 32
+atom 34 (300) (38887, -43159, -1069) def
+bond1 33
+atom 35 (300) (41685, -41605, -859) def
+bond1 34
+atom 36 (0) (12944, -59052, -1679) def
+bond1 25
+info chunk color = 128 128 128
+mol (DnaAxisChunk99) CPK
+atom 37 (300) (44483, -40110, -659) def
+bond1 35
+atom 38 (300) (47332, -38642, -509) def
+bond1 37
+atom 39 (300) (50194, -37155, -439) def
+bond1 38
+atom 40 (300) (53050, -35660, -399) def
+bond1 39
+atom 41 (300) (55922, -34191, -389) def
+bond1 40
+atom 42 (300) (58813, -32756, -449) def
+bond1 41
+atom 43 (300) (61702, -31335, -619) def
+bond1 42
+atom 44 (300) (64563, -29848, -909) def
+bond1 43
+atom 45 (300) (67375, -28298, -1279) def
+bond1 44
+atom 46 (300) (70200, -26670, -1829) def
+bond1 45
+atom 47 (0) (71559, -25888, -2093) def
+bond1 46
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker10) (127, 127, 127) 46 45
+info leaf forwarded = 151962888
+egroup (DnaSegment4)
+group (DnaSegment5) DnaSegment
+info opengroup open = True
+forward_ref (151976296) # DnaSegmentMarker (DnaMarker10)
+mol (DnaAxisChunk109) CPK
+atom 48 (300) (71217, 64879, -1996) def
+atom 49 (300) (71340, 61691, -2016) def
+bond1 48
+atom 50 (300) (71469, 58495, -1996) def
+bond1 49
+atom 51 (300) (71576, 55297, -1956) def
+bond1 50
+atom 52 (300) (71651, 52093, -1896) def
+bond1 51
+atom 53 (300) (71722, 48897, -1829) def
+bond1 52
+atom 54 (300) (71789, 45688, -1749) def
+bond1 53
+atom 55 (300) (71859, 42492, -1629) def
+bond1 54
+atom 56 (300) (71890, 39285, -1459) def
+bond1 55
+atom 57 (300) (71863, 36078, -1249) def
+bond1 56
+atom 58 (300) (71794, 32881, -1039) def
+bond1 57
+atom 59 (0) (71155, 66468, -1986) def
+bond1 48
+info chunk color = 128 128 128
+mol (DnaAxisChunk108) CPK
+atom 60 (300) (71657, 29703, -829) def
+bond1 58
+atom 61 (300) (71477, 26499, -689) def
+bond1 60
+atom 62 (300) (71280, 23285, -609) def
+bond1 61
+atom 63 (300) (71088, 20062, -559) def
+bond1 62
+atom 64 (300) (70838, 16840, -539) def
+bond1 63
+atom 65 (300) (70551, 13620, -589) def
+bond1 64
+atom 66 (300) (70251, 10403, -769) def
+bond1 65
+atom 67 (300) (70018, 7191, -1059) def
+bond1 66
+atom 68 (300) (69870, 3972, -1429) def
+bond1 67
+atom 69 (300) (69787, 709, -1976) def
+bond1 68
+atom 70 (0) (69747, -858, -2238) def
+bond1 69
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker10) (127, 127, 127) 69 68
+info leaf forwarded = 151976296
+egroup (DnaSegment5)
+group (DnaSegment6) DnaSegment
+info opengroup open = True
+forward_ref (151985608) # DnaSegmentMarker (DnaMarker7)
+mol (DnaAxisChunk116) CPK
+atom 71 (300) (90726, -2444, -2856) def
+atom 72 (300) (90673, 878, -2526) def
+bond1 71
+atom 73 (300) (90730, 4114, -2356) def
+bond1 72
+atom 74 (300) (90710, 7362, -2296) def
+bond1 73
+atom 75 (300) (90593, 10597, -2276) def
+bond1 74
+atom 76 (300) (90394, 13833, -2246) def
+bond1 75
+atom 77 (0) (90751, -4026, -3013) def
+bond1 71
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker7) (127, 127, 127) 71 72
+info leaf forwarded = 151985608
+mol (DnaAxisChunk115) CPK
+atom 78 (300) (90165, 17063, -2176) def
+bond1 76
+atom 79 (300) (89935, 20293, -2086) def
+bond1 78
+atom 80 (300) (89728, 23524, -1966) def
+bond1 79
+atom 81 (300) (89579, 26754, -1819) def
+bond1 80
+atom 82 (300) (89484, 29971, -1659) def
+bond1 81
+info chunk color = 128 128 128
+mol (DnaAxisChunk114) CPK
+atom 83 (300) (89410, 33153, -1479) def
+bond1 82
+atom 84 (300) (89384, 36352, -1309) def
+bond1 83
+atom 85 (300) (89362, 39564, -1159) def
+bond1 84
+atom 86 (300) (89367, 42770, -1019) def
+bond1 85
+atom 87 (300) (89408, 45973, -879) def
+bond1 86
+atom 88 (300) (89466, 49187, -779) def
+bond1 87
+atom 89 (300) (89526, 52378, -689) def
+bond1 88
+atom 90 (300) (89590, 55583, -599) def
+bond1 89
+atom 91 (300) (89658, 58779, -509) def
+bond1 90
+atom 92 (300) (89726, 61975, -429) def
+bond1 91
+atom 93 (300) (89800, 65163, -349) def
+bond1 92
+atom 94 (0) (89836, 66752, -309) def
+bond1 93
+info chunk color = 128 128 128
+egroup (DnaSegment6)
+group (DnaSegment5) DnaSegment
+info opengroup open = True
+forward_ref (152003528) # DnaSegmentMarker (DnaMarker10)
+mol (DnaAxisChunk104) CPK
+atom 95 (300) (148567, -45113, -2046) def
+atom 96 (300) (145740, -43621, -2056) def
+bond1 95
+atom 97 (300) (142917, -42138, -2036) def
+bond1 96
+atom 98 (300) (140093, -40632, -1986) def
+bond1 97
+atom 99 (300) (137282, -39107, -1916) def
+bond1 98
+atom 100 (300) (134474, -37569, -1849) def
+bond1 99
+atom 101 (300) (131657, -36036, -1769) def
+bond1 100
+atom 102 (300) (128849, -34497, -1639) def
+bond1 101
+atom 103 (300) (126048, -32931, -1459) def
+bond1 102
+atom 104 (300) (123288, -31318, -1259) def
+bond1 103
+atom 105 (300) (120553, -29667, -1049) def
+bond1 104
+atom 106 (0) (149973, -45856, -2041) def
+bond1 95
+info chunk color = 128 128 128
+mol (DnaAxisChunk103) CPK
+atom 107 (300) (117865, -27977, -829) def
+bond1 105
+atom 108 (300) (115177, -26229, -689) def
+bond1 107
+atom 109 (300) (112489, -24481, -609) def
+bond1 108
+atom 110 (300) (109787, -22729, -559) def
+bond1 109
+atom 111 (300) (107101, -20945, -539) def
+bond1 110
+atom 112 (300) (104448, -19118, -589) def
+bond1 111
+atom 113 (300) (101795, -17291, -759) def
+bond1 112
+atom 114 (300) (99109, -15507, -1029) def
+bond1 113
+atom 115 (300) (96388, -13801, -1379) def
+bond1 114
+atom 116 (300) (93610, -12117, -1906) def
+bond1 115
+atom 117 (0) (92268, -11303, -2160) def
+bond1 116
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker10) (127, 127, 127) 116 115
+info leaf forwarded = 152003528
+egroup (DnaSegment5)
+group (DnaSegment6) DnaSegment
+info opengroup open = True
+forward_ref (152016936) # DnaSegmentMarker (DnaMarker7)
+mol (DnaAxisChunk98) CPK
+atom 118 (300) (80140, -28734, -2846) def
+atom 119 (300) (83075, -30291, -2536) def
+bond1 118
+atom 120 (300) (85901, -31900, -2386) def
+bond1 119
+atom 121 (300) (88750, -33449, -2336) def
+bond1 120
+atom 122 (300) (91652, -34909, -2326) def
+bond1 121
+atom 123 (300) (94579, -36319, -2306) def
+bond1 122
+atom 124 (300) (97515, -37701, -2266) def
+bond1 123
+atom 125 (300) (100446, -39074, -2186) def
+bond1 124
+atom 126 (300) (103367, -40488, -2066) def
+bond1 125
+atom 127 (300) (106251, -41959, -1916) def
+bond1 126
+atom 128 (300) (109094, -43477, -1759) def
+bond1 127
+atom 129 (0) (78741, -27993, -2993) def
+bond1 118
+info chunk color = 128 128 128
+DnaSegmentMarker (DnaMarker7) (127, 127, 127) 118 119
+info leaf forwarded = 152016936
+mol (DnaAxisChunk97) CPK
+atom 130 (300) (111888, -45012, -1579) def
+bond1 128
+atom 131 (300) (114681, -46582, -1409) def
+bond1 130
+atom 132 (300) (117478, -48162, -1249) def
+bond1 131
+atom 133 (300) (120255, -49765, -1099) def
+bond1 132
+atom 134 (300) (123019, -51387, -969) def
+bond1 133
+atom 135 (300) (125772, -53028, -859) def
+bond1 134
+atom 136 (300) (128521, -54682, -759) def
+bond1 135
+atom 137 (300) (131264, -56328, -669) def
+bond1 136
+atom 138 (300) (134008, -57974, -579) def
+bond1 137
+atom 139 (300) (136735, -59630, -499) def
+bond1 138
+atom 140 (300) (139466, -61294, -419) def
+bond1 139
+atom 141 (0) (140824, -62122, -379) def
+bond1 140
+info chunk color = 128 128 128
+egroup (DnaSegment6)
+group (Green) DnaStrand
+info opengroup open = True
+forward_ref (152026448) # DnaStrandMarker (DnaMarker8)
+mol (DnaStrandChunk215) CPK
+atom 142 (301) (67664, -14100, -2816) def
+info atom dnaBaseName = C
+bond1 1
+atom 143 (301) (63970, -15078, 1810) def
+info atom dnaBaseName = T
+bond1 142 2
+bond_direction 142 143
+atom 144 (301) (59351, -13399, 5550) def
+info atom dnaBaseName = T
+bond1 143 3
+bond_direction 143 144
+atom 145 (301) (53783, -10820, 6420) def
+info atom dnaBaseName = G
+bond1 144 4
+bond_direction 144 145
+atom 146 (301) (48341, -8789, 4170) def
+info atom dnaBaseName = C
+bond1 145 5
+bond_direction 145 146
+atom 147 (301) (44082, -8650, -379) def
+info atom dnaBaseName = C
+bond1 146 6
+bond_direction 146 147
+atom 148 (301) (41633, -11112, -5536) def
+info atom dnaBaseName = A
+bond1 147 7
+bond_direction 147 148
+atom 149 (301) (40866, -15961, -9366) def
+info atom dnaBaseName = G
+bond1 148 8
+bond_direction 148 149
+atom 150 (301) (40997, -22099, -10376) def
+info atom dnaBaseName = G
+bond1 149 9
+bond_direction 149 150
+atom 151 (301) (40930, -27940, -8196) def
+info atom dnaBaseName = C
+bond1 150 10
+bond_direction 150 151
+atom 152 (301) (39771, -31964, -3616) def
+info atom dnaBaseName = A
+bond1 151 11
+bond_direction 151 152
+info chunk color = 0 170 0
+DnaStrandMarker (DnaMarker8) (0, 170, 0) 142 143
+info leaf forwarded = 152026448
+mol (DnaStrandChunk209) CPK
+atom 153 (301) (40570, -32967, 2420) def
+info atom dnaBaseName = C
+bond1 37 152
+bond_direction 152 153
+atom 154 (301) (44883, -34421, 6690) def
+info atom dnaBaseName = C
+bond1 153 38
+bond_direction 153 154
+atom 155 (301) (50157, -37409, 8250) def
+info atom dnaBaseName = A
+bond1 154 39
+bond_direction 154 155
+atom 156 (301) (55411, -40362, 6530) def
+info atom dnaBaseName = T
+bond1 155 40
+bond_direction 155 156
+atom 157 (301) (59671, -41627, 2130) def
+info atom dnaBaseName = C
+bond1 156 41
+bond_direction 156 157
+atom 158 (301) (62350, -40166, -3326) def
+info atom dnaBaseName = G
+bond1 157 42
+bond_direction 157 158
+atom 159 (301) (63460, -35939, -7786) def
+info atom dnaBaseName = T
+bond1 158 43
+bond_direction 158 159
+atom 160 (301) (63624, -29948, -9556) def
+info atom dnaBaseName = A
+bond1 159 44
+bond_direction 159 160
+atom 161 (301) (63919, -23904, -7936) def
+info atom dnaBaseName = G
+bond1 160 45
+bond_direction 160 161
+atom 162 (301) (65488, -19569, -3526) def
+info atom dnaBaseName = G
+bond1 161 46
+bond_direction 161 162
+info chunk color = 0 170 0
+mol (DnaStrandChunk227) CPK
+atom 163 (301) (79783, 29460, 2270) def
+info atom dnaBaseName = C
+bond1 60
+atom 164 (301) (76339, 26459, 6520) def
+info atom dnaBaseName = C
+bond1 163 61
+bond_direction 163 164
+atom 165 (301) (71052, 23476, 8080) def
+info atom dnaBaseName = A
+bond1 164 62
+bond_direction 164 165
+atom 166 (301) (65813, 20509, 6340) def
+info atom dnaBaseName = T
+bond1 165 63
+bond_direction 165 166
+atom 167 (301) (62529, 17532, 1930) def
+info atom dnaBaseName = C
+bond1 166 64
+bond_direction 166 167
+atom 168 (301) (62404, 14477, -3526) def
+info atom dnaBaseName = G
+bond1 167 65
+bond_direction 167 168
+atom 169 (301) (65455, 11317, -7966) def
+info atom dnaBaseName = T
+bond1 168 66
+bond_direction 168 169
+atom 170 (301) (70480, 8043, -9696) def
+info atom dnaBaseName = A
+bond1 169 67
+bond_direction 169 170
+atom 171 (301) (75469, 4632, -8056) def
+info atom dnaBaseName = G
+bond1 170 68
+bond_direction 170 171
+atom 172 (301) (78314, 1019, -3636) def
+info atom dnaBaseName = G
+bond1 171 69
+bond_direction 171 172
+info chunk color = 0 170 0
+mol (DnaStrandChunk243) CPK
+atom 173 (301) (82038, -2961, -2786) def
+info atom dnaBaseName = C
+bond1 71
+atom 174 (301) (83114, 769, 1790) def
+info atom dnaBaseName = T
+bond1 173 72
+bond_direction 173 174
+atom 175 (301) (86953, 3887, 5480) def
+info atom dnaBaseName = T
+bond1 174 73
+bond_direction 174 175
+atom 176 (301) (92081, 7299, 6290) def
+info atom dnaBaseName = G
+bond1 175 74
+bond_direction 175 176
+atom 177 (301) (96634, 10860, 3970) def
+info atom dnaBaseName = C
+bond1 176 75
+bond_direction 176 177
+atom 178 (301) (98919, 14371, -629) def
+info atom dnaBaseName = C
+bond1 177 76
+bond_direction 177 178
+atom 179 (0) (100067, 16135, -2939) def
+bond1 178
+bond_direction 178 179
+info chunk color = 0 170 0
+mol (DnaStrandChunk241) CPK
+atom 180 (301) (98046, 17709, -5816) def
+info atom dnaBaseName = A
+bond1 78
+atom 181 (301) (94232, 20837, -9626) def
+info atom dnaBaseName = G
+bond1 180 79
+bond_direction 180 181
+atom 182 (301) (88868, 23842, -10616) def
+info atom dnaBaseName = G
+bond1 181 80
+bond_direction 181 182
+atom 183 (301) (83892, 26854, -8396) def
+info atom dnaBaseName = C
+bond1 182 81
+bond_direction 182 183
+atom 184 (301) (81033, 29860, -3766) def
+info atom dnaBaseName = A
+bond1 183 163 82
+bond_direction 183 184
+bond_direction 184 163
+atom 185 (0) (99958, 16141, -3905) def
+bond1 180
+bond_direction 185 180
+info chunk color = 0 170 0
+mol (DnaStrandChunk217) CPK
+atom 186 (301) (113598, -34943, 2160) def
+info atom dnaBaseName = C
+bond1 107
+atom 187 (301) (112691, -30523, 6460) def
+info atom dnaBaseName = C
+bond1 186 108
+bond_direction 186 187
+atom 188 (301) (112694, -24476, 8090) def
+info atom dnaBaseName = A
+bond1 187 109
+bond_direction 187 188
+atom 189 (301) (112712, -18432, 6420) def
+info atom dnaBaseName = T
+bond1 188 110
+bond_direction 188 189
+atom 190 (301) (111749, -14055, 2040) def
+info atom dnaBaseName = C
+bond1 189 111
+bond_direction 189 190
+atom 191 (301) (109193, -12392, -3416) def
+info atom dnaBaseName = G
+bond1 190 112
+bond_direction 190 191
+atom 192 (301) (104971, -13461, -7886) def
+info atom dnaBaseName = T
+bond1 191 113
+bond_direction 191 192
+atom 193 (301) (99654, -16196, -9676) def
+info atom dnaBaseName = A
+bond1 192 114
+bond_direction 192 193
+atom 194 (301) (94216, -18885, -8086) def
+info atom dnaBaseName = G
+bond1 193 115
+bond_direction 193 194
+atom 195 (301) (89675, -19666, -3666) def
+info atom dnaBaseName = G
+bond1 194 116
+bond_direction 194 195
+info chunk color = 0 170 0
+mol (DnaStrandChunk207) CPK
+atom 196 (301) (83849, -20866, -2746) def
+info atom dnaBaseName = C
+bond1 118
+atom 197 (301) (86624, -23631, 1800) def
+info atom dnaBaseName = T
+bond1 196 119
+bond_direction 196 197
+atom 198 (301) (87539, -28511, 5460) def
+info atom dnaBaseName = T
+bond1 197 120
+bond_direction 197 198
+atom 199 (301) (88053, -34648, 6250) def
+info atom dnaBaseName = G
+bond1 198 121
+bond_direction 198 199
+atom 200 (301) (88957, -40347, 3900) def
+info atom dnaBaseName = C
+bond1 199 122
+bond_direction 199 200
+atom 201 (301) (90895, -44033, -729) def
+info atom dnaBaseName = C
+bond1 200 123
+bond_direction 200 201
+atom 202 (301) (94215, -44864, -5926) def
+info atom dnaBaseName = A
+bond1 201 124
+bond_direction 201 202
+atom 203 (301) (98797, -43073, -9736) def
+info atom dnaBaseName = G
+bond1 202 125
+bond_direction 202 203
+atom 204 (301) (104061, -39894, -10716) def
+info atom dnaBaseName = G
+bond1 203 126
+bond_direction 203 204
+atom 205 (301) (109154, -37072, -8506) def
+info atom dnaBaseName = C
+bond1 204 127
+bond_direction 204 205
+atom 206 (301) (113207, -36113, -3896) def
+info atom dnaBaseName = A
+bond1 205 128 186
+bond_direction 205 206
+bond_direction 206 186
+info chunk color = 0 170 0
+mol (DnaStrandChunk270) CPK
+atom 207 (301) (75655, -3353, 680) def
+info atom dnaBaseName = T
+bond1 172
+bond_direction 172 207
+atom 208 (301) (74615, -9151, -1359) def
+info atom dnaBaseName = T
+bond1 207
+bond_direction 207 208
+atom 209 (301) (69652, -10064, -5026) def
+info atom dnaBaseName = T
+bond1 208 142
+bond_direction 208 209
+bond_direction 209 142
+atom 210 (0) (72707, -2374, 337) def
+bond1 207
+atom 211 (0) (67253, -8304, -4071) def
+bond1 209
+atom 212 (0) (71973, -7621, -691) def
+bond1 208
+info chunk color = 0 170 0
+mol (DnaStrandChunk269) CPK
+atom 213 (301) (70687, -19236, 720) def
+info atom dnaBaseName = T
+bond1 162
+bond_direction 162 213
+atom 214 (301) (76180, -17095, -1319) def
+info atom dnaBaseName = T
+bond1 213
+bond_direction 213 214
+atom 215 (301) (79521, -20860, -5006) def
+info atom dnaBaseName = T
+bond1 214 196
+bond_direction 214 215
+bond_direction 215 196
+atom 216 (0) (71428, -22261, 459) def
+bond1 213
+atom 217 (0) (79064, -23827, -4136) def
+bond1 215
+atom 218 (0) (76173, -20152, -672) def
+bond1 214
+info chunk color = 0 170 0
+mol (DnaStrandChunk268) CPK
+atom 219 (301) (86791, -15967, 700) def
+info atom dnaBaseName = T
+bond1 195
+bond_direction 195 219
+atom 220 (301) (82287, -12120, -1249) def
+info atom dnaBaseName = T
+bond1 219
+bond_direction 219 220
+atom 221 (301) (83988, -7418, -4976) def
+info atom dnaBaseName = T
+bond1 220 173
+bond_direction 220 221
+bond_direction 221 173
+atom 222 (0) (88975, -13739, 529) def
+bond1 219
+atom 223 (0) (86880, -6497, -4232) def
+bond1 221
+atom 224 (0) (84994, -10703, -589) def
+bond1 220
+info chunk color = 0 170 0
+egroup (Green)
+group (Red) DnaStrand
+info opengroup open = True
+forward_ref (152077936) # DnaStrandMarker (DnaMarker13)
+mol (DnaStrandChunk213) CPK
+atom 225 (301) (36995, -33122, 2350) def
+info atom dnaBaseName = G
+bond1 13
+atom 226 (301) (32567, -31632, 6480) def
+info atom dnaBaseName = G
+bond1 225 14
+bond_direction 225 226
+atom 227 (301) (27155, -28783, 7790) def
+info atom dnaBaseName = T
+bond1 226 15
+bond_direction 226 227
+atom 228 (301) (21824, -26192, 5830) def
+info atom dnaBaseName = T
+bond1 227 16
+bond_direction 227 228
+atom 229 (301) (17531, -25481, 1350) def
+info atom dnaBaseName = G
+bond1 228 17
+bond_direction 228 229
+atom 230 (301) (14839, -27552, -3886) def
+info atom dnaBaseName = C
+bond1 229 18
+bond_direction 229 230
+atom 231 (301) (13689, -32243, -7836) def
+info atom dnaBaseName = A
+bond1 230 19
+bond_direction 230 231
+atom 232 (301) (13413, -38378, -8956) def
+info atom dnaBaseName = T
+bond1 231 20
+bond_direction 231 232
+atom 233 (301) (13068, -44220, -6776) def
+info atom dnaBaseName = A
+bond1 232 21
+bond_direction 232 233
+atom 234 (301) (11714, -48150, -2106) def
+info atom dnaBaseName = G
+bond1 233 22
+bond_direction 233 234
+atom 235 (301) (8808, -49245, 3310) def
+info atom dnaBaseName = T
+bond1 234 23
+bond_direction 234 235
+atom 236 (0) (7353, -49793, 6021) def
+bond1 235
+bond_direction 235 236
+info chunk color = 255 0 0
+mol (DnaStrandChunk211) CPK
+atom 237 (301) (9818, -51180, -4216) def
+info atom dnaBaseName = C
+bond1 25
+atom 238 (301) (12616, -49545, 1130) def
+info atom dnaBaseName = G
+bond1 237 26
+bond_direction 237 238
+atom 239 (301) (17037, -50610, 5410) def
+info atom dnaBaseName = T
+bond1 238 27
+bond_direction 238 239
+atom 240 (301) (22431, -53330, 6990) def
+info atom dnaBaseName = T
+bond1 239 28
+bond_direction 239 240
+atom 241 (301) (27813, -55988, 5250) def
+info atom dnaBaseName = A
+bond1 240 29
+bond_direction 240 241
+atom 242 (301) (32182, -56886, 890) def
+info atom dnaBaseName = C
+bond1 241 30
+bond_direction 241 242
+atom 243 (301) (34974, -55046, -4376) def
+info atom dnaBaseName = C
+bond1 242 31
+bond_direction 242 243
+atom 244 (301) (36222, -50540, -8516) def
+info atom dnaBaseName = G
+bond1 243 32
+bond_direction 243 244
+atom 245 (301) (36502, -44470, -9946) def
+info atom dnaBaseName = T
+bond1 244 33
+bond_direction 244 245
+atom 246 (301) (36762, -38504, -8106) def
+info atom dnaBaseName = G
+bond1 245 34
+bond_direction 245 246
+atom 247 (301) (37899, -34284, -3656) def
+info atom dnaBaseName = T
+bond1 246 35 225
+bond_direction 246 247
+bond_direction 247 225
+atom 248 (0) (8420, -51997, -6888) def
+bond1 237
+bond_direction 248 237
+info chunk color = 255 0 0
+DnaStrandMarker (DnaMarker13) (255, 0, 0) 247 246
+info leaf forwarded = 152077936
+egroup (Red)
+group (Red) DnaStrand
+info opengroup open = True
+forward_ref (152087448) # DnaStrandMarker (DnaMarker13)
+mol (DnaStrandChunk229) CPK
+atom 249 (301) (79539, 65228, -4496) def
+info atom dnaBaseName = C
+bond1 48
+atom 250 (301) (79553, 62010, 860) def
+info atom dnaBaseName = G
+bond1 249 49
+bond_direction 249 250
+atom 251 (301) (76405, 58743, 5150) def
+info atom dnaBaseName = T
+bond1 250 50
+bond_direction 250 251
+atom 252 (301) (71342, 55438, 6740) def
+info atom dnaBaseName = T
+bond1 251 51
+bond_direction 251 252
+atom 253 (301) (66360, 52112, 5000) def
+info atom dnaBaseName = A
+bond1 252 52
+bond_direction 252 253
+atom 254 (301) (63384, 48771, 650) def
+info atom dnaBaseName = C
+bond1 253 53
+bond_direction 253 254
+atom 255 (301) (63576, 45427, -4606) def
+info atom dnaBaseName = C
+bond1 254 54
+bond_direction 254 255
+atom 256 (301) (66858, 42078, -8736) def
+info atom dnaBaseName = G
+bond1 255 55
+bond_direction 255 256
+atom 257 (301) (71970, 38775, -10136) def
+info atom dnaBaseName = T
+bond1 256 56
+bond_direction 256 257
+atom 258 (301) (76974, 35535, -8276) def
+info atom dnaBaseName = G
+bond1 257 57
+bond_direction 257 258
+atom 259 (301) (80031, 32449, -3796) def
+info atom dnaBaseName = T
+bond1 258 58
+bond_direction 258 259
+atom 260 (0) (79532, 66837, -7175) def
+bond1 249
+bond_direction 260 249
+info chunk color = 255 0 0
+DnaStrandMarker (DnaMarker13) (255, 0, 0) 259 258
+info leaf forwarded = 152087448
+mol (DnaStrandChunk239) CPK
+atom 261 (301) (81529, 32843, 2190) def
+info atom dnaBaseName = G
+bond1 83 259
+bond_direction 259 261
+atom 262 (301) (85100, 35942, 6250) def
+info atom dnaBaseName = G
+bond1 261 84
+bond_direction 261 262
+atom 263 (301) (90317, 39163, 7480) def
+info atom dnaBaseName = T
+bond1 262 85
+bond_direction 262 263
+atom 264 (301) (95216, 42452, 5420) def
+info atom dnaBaseName = T
+bond1 263 86
+bond_direction 263 264
+atom 265 (301) (97920, 45784, 880) def
+info atom dnaBaseName = G
+bond1 264 87
+bond_direction 264 265
+atom 266 (301) (97395, 49141, -4356) def
+info atom dnaBaseName = C
+bond1 265 88
+bond_direction 265 266
+atom 267 (301) (93842, 52516, -8236) def
+info atom dnaBaseName = A
+bond1 266 89
+bond_direction 266 267
+atom 268 (301) (88654, 55832, -9236) def
+info atom dnaBaseName = T
+bond1 267 90
+bond_direction 267 268
+atom 269 (301) (83828, 59084, -6956) def
+info atom dnaBaseName = A
+bond1 268 91
+bond_direction 268 269
+atom 270 (301) (81220, 62214, -2226) def
+info atom dnaBaseName = G
+bond1 269 92
+bond_direction 269 270
+atom 271 (301) (81855, 65256, 3190) def
+info atom dnaBaseName = T
+bond1 270 93
+bond_direction 270 271
+atom 272 (0) (82172, 66779, 5901) def
+bond1 271
+bond_direction 271 272
+info chunk color = 255 0 0
+egroup (Red)
+group (Red) DnaStrand
+info opengroup open = True
+forward_ref (152109304) # DnaStrandMarker (DnaMarker13)
+mol (DnaStrandChunk219) CPK
+atom 273 (301) (144716, -52450, -4676) def
+info atom dnaBaseName = C
+bond1 95
+atom 274 (301) (141904, -50926, 690) def
+info atom dnaBaseName = G
+bond1 273 96
+bond_direction 273 274
+atom 275 (301) (140620, -46634, 5040) def
+info atom dnaBaseName = T
+bond1 274 97
+bond_direction 274 275
+atom 276 (301) (140277, -40628, 6710) def
+info atom dnaBaseName = T
+bond1 275 98
+bond_direction 275 276
+atom 277 (301) (139898, -34621, 5060) def
+info atom dnaBaseName = A
+bond1 276 99
+bond_direction 276 277
+atom 278 (301) (138509, -30309, 750) def
+info atom dnaBaseName = C
+bond1 277 100
+bond_direction 277 278
+atom 279 (301) (135533, -28742, -4496) def
+info atom dnaBaseName = C
+bond1 278 101
+bond_direction 278 279
+atom 280 (301) (131029, -29861, -8666) def
+info atom dnaBaseName = G
+bond1 279 102
+bond_direction 279 280
+atom 281 (301) (125628, -32633, -10146) def
+info atom dnaBaseName = T
+bond1 280 103
+bond_direction 280 281
+atom 282 (301) (120326, -35393, -8346) def
+info atom dnaBaseName = G
+bond1 281 104
+bond_direction 281 282
+atom 283 (301) (116094, -36561, -3926) def
+info atom dnaBaseName = T
+bond1 282 105
+bond_direction 282 283
+atom 284 (0) (146122, -53213, -7360) def
+bond1 273
+bond_direction 284 273
+info chunk color = 255 0 0
+DnaStrandMarker (DnaMarker13) (255, 0, 0) 283 282
+info leaf forwarded = 152109304
+mol (DnaStrandChunk205) CPK
+atom 285 (301) (115556, -38015, 2070) def
+info atom dnaBaseName = G
+bond1 130 283
+bond_direction 283 285
+atom 286 (301) (116455, -42637, 6140) def
+info atom dnaBaseName = G
+bond1 285 131
+bond_direction 285 286
+atom 287 (301) (116658, -48760, 7390) def
+info atom dnaBaseName = T
+bond1 286 132
+bond_direction 286 287
+atom 288 (301) (117075, -54653, 5350) def
+info atom dnaBaseName = T
+bond1 287 133
+bond_direction 287 288
+atom 289 (301) (118618, -58676, 830) def
+info atom dnaBaseName = G
+bond1 288 134
+bond_direction 288 289
+atom 290 (301) (121791, -59907, -4396) def
+info atom dnaBaseName = C
+bond1 289 135
+bond_direction 289 290
+atom 291 (301) (126474, -58520, -8296) def
+info atom dnaBaseName = A
+bond1 290 136
+bond_direction 290 291
+atom 292 (301) (131937, -55677, -9316) def
+info atom dnaBaseName = T
+bond1 291 137
+bond_direction 291 292
+atom 293 (301) (137162, -53101, -7056) def
+info atom dnaBaseName = A
+bond1 292 138
+bond_direction 292 293
+atom 294 (301) (141189, -52391, -2336) def
+info atom dnaBaseName = G
+bond1 293 139
+bond_direction 293 294
+atom 295 (301) (143529, -54436, 3080) def
+info atom dnaBaseName = T
+bond1 294 140
+bond_direction 294 295
+atom 296 (0) (144701, -55460, 5791) def
+bond1 295
+bond_direction 295 296
+info chunk color = 255 0 0
+egroup (Red)
+group (Blue) DnaStrand
+info opengroup open = True
+forward_ref (152118816) # DnaStrandMarker (DnaMarker9)
+mol (DnaStrandChunk216) CPK
+atom 297 (301) (60832, -2529, 4360) def
+info atom dnaBaseName = G
+bond1 1
+atom 298 (301) (55965, -1495, 360) def
+info atom dnaBaseName = A
+bond1 297 2
+bond_direction 298 297
+atom 299 (301) (52735, -3222, -4736) def
+info atom dnaBaseName = A
+bond1 298 3
+bond_direction 299 298
+atom 300 (301) (51274, -7562, -8976) def
+info atom dnaBaseName = C
+bond1 299 4
+bond_direction 300 299
+atom 301 (301) (51174, -13504, -10796) def
+info atom dnaBaseName = G
+bond1 300 5
+bond_direction 301 300
+atom 302 (301) (51407, -19559, -9426) def
+info atom dnaBaseName = G
+bond1 301 6
+bond_direction 302 301
+atom 303 (301) (50778, -24188, -5306) def
+info atom dnaBaseName = T
+bond1 302 7
+bond_direction 303 302
+atom 304 (301) (48487, -26348, 50) def
+info atom dnaBaseName = C
+bond1 303 8
+bond_direction 304 303
+atom 305 (301) (44405, -25919, 4740) def
+info atom dnaBaseName = C
+bond1 304 9
+bond_direction 305 304
+atom 306 (301) (39108, -23641, 7080) def
+info atom dnaBaseName = G
+bond1 305 10
+bond_direction 306 305
+atom 307 (301) (33555, -20948, 6200) def
+info atom dnaBaseName = T
+bond1 306 11
+bond_direction 307 306
+info chunk color = 0 0 127
+DnaStrandMarker (DnaMarker9) (0, 0, 127) 297 298
+info leaf forwarded = 152118816
+mol (DnaStrandChunk214) CPK
+atom 308 (301) (28833, -19468, 2300) def
+info atom dnaBaseName = C
+bond1 13 307
+bond_direction 308 307
+atom 309 (301) (25570, -20785, -2876) def
+info atom dnaBaseName = C
+bond1 308 14
+bond_direction 309 308
+atom 310 (301) (24014, -24845, -7346) def
+info atom dnaBaseName = A
+bond1 309 15
+bond_direction 310 309
+atom 311 (301) (23667, -30743, -9356) def
+info atom dnaBaseName = A
+bond1 310 16
+bond_direction 311 310
+atom 312 (301) (23560, -36851, -8086) def
+info atom dnaBaseName = C
+bond1 311 17
+bond_direction 312 311
+atom 313 (301) (22642, -41463, -3976) def
+info atom dnaBaseName = G
+bond1 312 18
+bond_direction 313 312
+atom 314 (301) (20249, -43429, 1450) def
+info atom dnaBaseName = T
+bond1 313 19
+bond_direction 314 313
+atom 315 (301) (16243, -42596, 6170) def
+info atom dnaBaseName = A
+bond1 314 20
+bond_direction 315 314
+atom 316 (301) (11107, -39863, 8440) def
+info atom dnaBaseName = T
+bond1 315 21
+bond_direction 316 315
+atom 317 (301) (5734, -36844, 7430) def
+info atom dnaBaseName = C
+bond1 316 22
+bond_direction 317 316
+atom 318 (301) (1099, -35278, 3540) def
+info atom dnaBaseName = A
+bond1 317 23
+bond_direction 318 317
+atom 319 (0) (-1217, -34495, 1595) def
+bond1 318
+bond_direction 319 318
+info chunk color = 0 0 127
+mol (DnaStrandChunk230) CPK
+atom 320 (301) (67385, 64666, 5810) def
+info atom dnaBaseName = G
+bond1 48
+atom 321 (301) (63642, 61385, 2030) def
+info atom dnaBaseName = C
+bond1 320 49
+bond_direction 321 320
+atom 322 (301) (62871, 58181, -3276) def
+info atom dnaBaseName = A
+bond1 321 50
+bond_direction 322 321
+atom 323 (301) (65377, 55026, -8056) def
+info atom dnaBaseName = A
+bond1 322 51
+bond_direction 323 322
+atom 324 (301) (70221, 51901, -10476) def
+info atom dnaBaseName = T
+bond1 323 52
+bond_direction 324 323
+atom 325 (301) (75597, 48799, -9616) def
+info atom dnaBaseName = G
+bond1 324 53
+bond_direction 325 324
+atom 326 (301) (79491, 45730, -5806) def
+info atom dnaBaseName = G
+bond1 325 54
+bond_direction 326 325
+atom 327 (301) (80475, 42677, -439) def
+info atom dnaBaseName = C
+bond1 326 55
+bond_direction 327 326
+atom 328 (301) (78199, 39644, 4520) def
+info atom dnaBaseName = A
+bond1 327 56
+bond_direction 328 327
+atom 329 (301) (73486, 36592, 7280) def
+info atom dnaBaseName = C
+bond1 328 57
+bond_direction 329 328
+atom 330 (301) (68073, 33488, 6800) def
+info atom dnaBaseName = A
+bond1 329 58
+bond_direction 330 329
+atom 331 (0) (69256, 66307, 7700) def
+bond1 320
+bond_direction 320 331
+info chunk color = 0 0 127
+mol (DnaStrandChunk228) CPK
+atom 332 (301) (63956, 30369, 3150) def
+info atom dnaBaseName = G
+bond1 60 330
+bond_direction 332 330
+atom 333 (301) (62887, 26979, -1996) def
+info atom dnaBaseName = G
+bond1 332 61
+bond_direction 333 332
+atom 334 (301) (65086, 23538, -6706) def
+info atom dnaBaseName = T
+bond1 333 62
+bond_direction 334 333
+atom 335 (301) (69649, 20063, -9136) def
+info atom dnaBaseName = A
+bond1 334 63
+bond_direction 335 334
+atom 336 (301) (74730, 16555, -8306) def
+info atom dnaBaseName = G
+bond1 335 64
+bond_direction 336 335
+atom 337 (301) (78273, 13058, -4556) def
+info atom dnaBaseName = C
+bond1 336 65
+bond_direction 337 336
+atom 338 (301) (78801, 9598, 610) def
+info atom dnaBaseName = A
+bond1 337 66
+bond_direction 338 337
+atom 339 (301) (76083, 6212, 5100) def
+info atom dnaBaseName = T
+bond1 338 67
+bond_direction 339 338
+atom 340 (301) (71213, 2894, 7100) def
+info atom dnaBaseName = C
+bond1 339 68
+bond_direction 340 339
+atom 341 (301) (66757, -1062, 5990) def
+info atom dnaBaseName = C
+bond1 340 297 69
+bond_direction 341 340
+bond_direction 297 341
+info chunk color = 0 0 127
+egroup (Blue)
+group (Blue) DnaStrand
+info opengroup open = True
+forward_ref (152735016) # DnaStrandMarker (DnaMarker11)
+mol (DnaStrandChunk212) CPK
+atom 342 (301) (16429, -61387, 6110) def
+info atom dnaBaseName = G
+bond1 25
+atom 343 (301) (21124, -62998, 2310) def
+info atom dnaBaseName = C
+bond1 342 26
+bond_direction 343 342
+atom 344 (301) (24271, -62075, -3006) def
+info atom dnaBaseName = A
+bond1 343 27
+bond_direction 344 343
+atom 345 (301) (25742, -58344, -7796) def
+info atom dnaBaseName = A
+bond1 344 28
+bond_direction 345 344
+atom 346 (301) (26012, -52592, -10236) def
+info atom dnaBaseName = T
+bond1 345 29
+bond_direction 346 345
+atom 347 (301) (26005, -46389, -9406) def
+info atom dnaBaseName = G
+bond1 346 30
+bond_direction 347 346
+atom 348 (301) (26704, -41464, -5616) def
+info atom dnaBaseName = G
+bond1 347 31
+bond_direction 348 347
+atom 349 (301) (28847, -39054, -259) def
+info atom dnaBaseName = C
+bond1 348 32
+bond_direction 349 348
+atom 350 (301) (32619, -39468, 4700) def
+info atom dnaBaseName = A
+bond1 349 33
+bond_direction 350 349
+atom 351 (301) (37628, -41986, 7460) def
+info atom dnaBaseName = C
+bond1 350 34
+bond_direction 351 350
+atom 352 (301) (43053, -45093, 6990) def
+info atom dnaBaseName = A
+bond1 351 35
+bond_direction 352 351
+atom 353 (0) (14081, -60582, 8010) def
+bond1 342
+bond_direction 342 353
+info chunk color = 0 0 127
+mol (DnaStrandChunk210) CPK
+atom 354 (301) (47837, -47070, 3340) def
+info atom dnaBaseName = G
+bond1 37 352
+bond_direction 354 352
+atom 355 (301) (51315, -46277, -1799) def
+info atom dnaBaseName = G
+bond1 354 38
+bond_direction 355 354
+atom 356 (301) (53164, -42636, -6506) def
+info atom dnaBaseName = T
+bond1 355 39
+bond_direction 356 355
+atom 357 (301) (53788, -36954, -8966) def
+info atom dnaBaseName = A
+bond1 356 40
+bond_direction 357 356
+atom 358 (301) (54138, -30785, -8186) def
+info atom dnaBaseName = G
+bond1 357 41
+bond_direction 358 357
+atom 359 (301) (55262, -25912, -4466) def
+info atom dnaBaseName = C
+bond1 358 42
+bond_direction 359 358
+atom 360 (301) (57902, -23616, 700) def
+info atom dnaBaseName = A
+bond1 359 43
+bond_direction 360 359
+atom 361 (301) (62195, -24129, 5200) def
+info atom dnaBaseName = T
+bond1 360 44
+bond_direction 361 360
+atom 362 (301) (67555, -26533, 7240) def
+info atom dnaBaseName = C
+bond1 361 45
+bond_direction 362 361
+atom 363 (301) (73258, -28317, 6160) def
+info atom dnaBaseName = C
+bond1 362 46
+bond_direction 363 362
+info chunk color = 0 0 127
+DnaStrandMarker (DnaMarker11) (0, 0, 127) 363 362
+info leaf forwarded = 152735016
+mol (DnaStrandChunk208) CPK
+atom 364 (301) (77451, -32683, 4420) def
+info atom dnaBaseName = G
+bond1 118 363
+bond_direction 364 363
+atom 365 (301) (78878, -37355, 300) def
+info atom dnaBaseName = A
+bond1 364 119
+bond_direction 365 364
+atom 366 (301) (81886, -39194, -4896) def
+info atom dnaBaseName = A
+bond1 365 120
+bond_direction 366 365
+atom 367 (301) (86302, -38220, -9186) def
+info atom dnaBaseName = C
+bond1 366 121
+bond_direction 367 366
+atom 368 (301) (91496, -35314, -11026) def
+info atom dnaBaseName = G
+bond1 367 122
+bond_direction 368 367
+atom 369 (301) (96650, -32130, -9646) def
+info atom dnaBaseName = G
+bond1 368 123
+bond_direction 369 368
+atom 370 (301) (100999, -30430, -5536) def
+info atom dnaBaseName = T
+bond1 369 124
+bond_direction 370 369
+atom 371 (301) (104046, -31409, -199) def
+info atom dnaBaseName = C
+bond1 370 125
+bond_direction 371 370
+atom 372 (301) (105683, -35215, 4450) def
+info atom dnaBaseName = C
+bond1 371 126
+bond_direction 372 371
+atom 373 (301) (106318, -40968, 6730) def
+info atom dnaBaseName = G
+bond1 372 127
+bond_direction 373 372
+atom 374 (301) (106725, -47122, 5770) def
+info atom dnaBaseName = T
+bond1 373 128
+bond_direction 374 373
+info chunk color = 0 0 127
+mol (DnaStrandChunk206) CPK
+atom 375 (301) (107809, -51902, 1810) def
+info atom dnaBaseName = C
+bond1 130 374
+bond_direction 375 374
+atom 376 (301) (110597, -53998, -3376) def
+info atom dnaBaseName = C
+bond1 375 131
+bond_direction 376 375
+atom 377 (301) (114922, -53263, -7816) def
+info atom dnaBaseName = A
+bond1 376 132
+bond_direction 377 376
+atom 378 (301) (120213, -50602, -9756) def
+info atom dnaBaseName = A
+bond1 377 133
+bond_direction 378 377
+atom 379 (301) (125562, -47663, -8406) def
+info atom dnaBaseName = C
+bond1 378 134
+bond_direction 379 378
+atom 380 (301) (129977, -46214, -4236) def
+info atom dnaBaseName = G
+bond1 379 135
+bond_direction 380 379
+atom 381 (301) (132831, -47377, 1200) def
+info atom dnaBaseName = T
+bond1 380 136
+bond_direction 381 380
+atom 382 (301) (134056, -51332, 5880) def
+info atom dnaBaseName = A
+bond1 381 137
+bond_direction 382 381
+atom 383 (301) (134205, -57185, 8080) def
+info atom dnaBaseName = T
+bond1 382 138
+bond_direction 383 382
+atom 384 (301) (134271, -63331, 6980) def
+info atom dnaBaseName = C
+bond1 383 139
+bond_direction 384 383
+atom 385 (301) (135254, -68078, 3030) def
+info atom dnaBaseName = A
+bond1 384 140
+bond_direction 385 384
+atom 386 (0) (135746, -70450, 1056) def
+bond1 385
+bond_direction 386 385
+info chunk color = 0 0 127
+egroup (Blue)
+group (Blue) DnaStrand
+info opengroup open = True
+forward_ref (152765544) # DnaStrandMarker (DnaMarker9)
+mol (DnaStrandChunk244) CPK
+atom 387 (301) (95462, -2940, 4420) def
+info atom dnaBaseName = G
+bond1 71
+atom 388 (301) (98879, 578, 330) def
+info atom dnaBaseName = A
+bond1 387 72
+bond_direction 388 387
+atom 389 (301) (99067, 4123, -4846) def
+info atom dnaBaseName = A
+bond1 388 73
+bond_direction 389 388
+atom 390 (301) (96098, 7551, -9136) def
+info atom dnaBaseName = C
+bond1 389 74
+bond_direction 390 389
+atom 391 (301) (91043, 10699, -10966) def
+info atom dnaBaseName = G
+bond1 390 75
+bond_direction 391 390
+atom 392 (301) (85742, 13636, -9596) def
+info atom dnaBaseName = G
+bond1 391 76
+bond_direction 392 391
+info chunk color = 0 0 127
+DnaStrandMarker (DnaMarker9) (0, 0, 127) 387 388
+info leaf forwarded = 152765544
+mol (DnaStrandChunk242) CPK
+atom 393 (301) (82120, 16576, -5466) def
+info atom dnaBaseName = T
+bond1 78 392
+bond_direction 393 392
+atom 394 (301) (81483, 19670, -109) def
+info atom dnaBaseName = C
+bond1 393 79
+bond_direction 394 393
+atom 395 (301) (83994, 22935, 4550) def
+info atom dnaBaseName = C
+bond1 394 80
+bond_direction 395 394
+atom 396 (301) (88693, 26326, 6830) def
+info atom dnaBaseName = G
+bond1 395 81
+bond_direction 396 395
+atom 397 (301) (93835, 29735, 5860) def
+info atom dnaBaseName = T
+bond1 396 82
+bond_direction 397 396
+info chunk color = 0 0 127
+mol (DnaStrandChunk240) CPK
+atom 398 (301) (97427, 33055, 1890) def
+info atom dnaBaseName = C
+bond1 83 397
+bond_direction 398 397
+atom 399 (301) (97849, 36518, -3306) def
+info atom dnaBaseName = C
+bond1 398 84
+bond_direction 399 398
+atom 400 (301) (95038, 39876, -7746) def
+info atom dnaBaseName = A
+bond1 399 85
+bond_direction 400 399
+atom 401 (301) (90085, 43146, -9676) def
+info atom dnaBaseName = A
+bond1 400 86
+bond_direction 401 400
+atom 402 (301) (84883, 46327, -8306) def
+info atom dnaBaseName = C
+bond1 401 87
+bond_direction 402 401
+atom 403 (301) (81439, 49440, -4126) def
+info atom dnaBaseName = G
+bond1 402 88
+bond_direction 403 402
+atom 404 (301) (81060, 52489, 1310) def
+info atom dnaBaseName = T
+bond1 403 89
+bond_direction 404 403
+atom 405 (301) (83905, 55521, 5980) def
+info atom dnaBaseName = A
+bond1 404 90
+bond_direction 405 404
+atom 406 (301) (88910, 58571, 8150) def
+info atom dnaBaseName = T
+bond1 405 91
+bond_direction 406 405
+atom 407 (301) (94216, 61681, 7020) def
+info atom dnaBaseName = C
+bond1 406 92
+bond_direction 407 406
+atom 408 (301) (97810, 64899, 3050) def
+info atom dnaBaseName = A
+bond1 407 93
+bond_direction 408 407
+atom 409 (0) (99608, 66508, 1065) def
+bond1 408
+bond_direction 409 408
+info chunk color = 0 0 127
+mol (DnaStrandChunk220) CPK
+atom 410 (301) (150259, -41797, 5810) def
+info atom dnaBaseName = G
+bond1 95
+atom 411 (301) (149303, -36860, 2100) def
+info atom dnaBaseName = C
+bond1 410 96
+bond_direction 411 410
+atom 412 (301) (146932, -34507, -3186) def
+info atom dnaBaseName = A
+bond1 411 97
+bond_direction 412 411
+atom 413 (301) (142974, -35038, -7986) def
+info atom dnaBaseName = A
+bond1 412 98
+bond_direction 413 412
+atom 414 (301) (137867, -37637, -10476) def
+info atom dnaBaseName = T
+bond1 413 99
+bond_direction 414 413
+atom 415 (301) (132500, -40761, -9696) def
+info atom dnaBaseName = G
+bond1 414 100
+bond_direction 415 414
+atom 416 (301) (127879, -42668, -5936) def
+info atom dnaBaseName = G
+bond1 415 101
+bond_direction 416 415
+atom 417 (301) (124714, -42082, -579) def
+info atom dnaBaseName = C
+bond1 416 102
+bond_direction 417 416
+atom 418 (301) (123185, -38654, 4430) def
+info atom dnaBaseName = A
+bond1 417 103
+bond_direction 418 417
+atom 419 (301) (122867, -33086, 7250) def
+info atom dnaBaseName = C
+bond1 418 104
+bond_direction 419 418
+atom 420 (301) (122874, -26828, 6840) def
+info atom dnaBaseName = A
+bond1 419 105
+bond_direction 420 419
+atom 421 (0) (150737, -44266, 7665) def
+bond1 410
+bond_direction 410 421
+info chunk color = 0 0 127
+mol (DnaStrandChunk218) CPK
+atom 422 (301) (122239, -21667, 3250) def
+info atom dnaBaseName = G
+bond1 107 420
+bond_direction 422 420
+atom 423 (301) (119864, -18992, -1876) def
+info atom dnaBaseName = G
+bond1 422 108
+bond_direction 423 422
+atom 424 (301) (115813, -19148, -6616) def
+info atom dnaBaseName = T
+bond1 423 109
+bond_direction 424 423
+atom 425 (301) (110560, -21381, -9116) def
+info atom dnaBaseName = A
+bond1 424 110
+bond_direction 425 424
+atom 426 (301) (105004, -24105, -8366) def
+info atom dnaBaseName = G
+bond1 425 111
+bond_direction 426 425
+atom 427 (301) (100202, -25527, -4666) def
+info atom dnaBaseName = C
+bond1 426 112
+bond_direction 427 426
+atom 428 (301) (96900, -24372, 500) def
+info atom dnaBaseName = A
+bond1 427 113
+bond_direction 428 427
+atom 429 (301) (95253, -20410, 5040) def
+info atom dnaBaseName = T
+bond1 428 114
+bond_direction 429 428
+atom 430 (301) (94769, -14579, 7130) def
+info atom dnaBaseName = C
+bond1 429 115
+bond_direction 430 429
+atom 431 (301) (93593, -8716, 6110) def
+info atom dnaBaseName = C
+bond1 430 116 387
+bond_direction 431 430
+bond_direction 387 431
+info chunk color = 0 0 127
+egroup (Blue)
+egroup (mao_3point_star_blunt1)
+egroup (Untitled)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Untitled
