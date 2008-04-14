@@ -35,6 +35,8 @@ from operations.ops_copy import copied_nodes_for_DND
 
 import foundation.env as env
 
+from utilities.GlobalPreferences import pref_drop_onto_Group_puts_nodes_at_top
+
 # ==
 
 class MT_DND_Target_API(object):
@@ -122,6 +124,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             # if false, they will become new siblings. [revised, bruce 080317]
         autogroup_at_top = will_drop_inside and \
                            self.node.drop_on_should_autogroup(drag_type, nodes)
+        drop_onto_Group_at_top = pref_drop_onto_Group_puts_nodes_at_top() #bruce 080414
         if autogroup_at_top:
             #bruce 050203/080303:
             # nodes dropped onto the clipboard come from one
@@ -145,10 +148,13 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                 pass
             pass
         #e rewrite to use copy_nodes (nim)? (also rewrite the assy methods? not for alpha)
+
         res = [] #bruce 050203: return any new nodes this creates (toplevel nodes only, for copied groups)
+
         #bruce 050216: order is correct if you're dropping on a group, but (for the ops used below)
         # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge
         # [revised to fix bug 2403 (most likely, this never worked as intended for copy until now), bruce 070525]:
+
         if not will_drop_inside:
             # drops on nodes which act like leaf nodes are placed after them,
             # when done by the methods named in the following flags,
@@ -157,33 +163,45 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             # (as well as which method we use) depends on whether we're
             # doing move or copy, so these flags are used in the right
             # place below.
-            reverse_moveto = True
-            reverse_addmember = True
+##            reverse_moveto = True
+            
+            reverse_addmember = True # for either addchild or addsibling
+            pass
         else:
+            # will_drop_inside is True
+            #
             # drops on groups which accept drops inside themselves
             # go at the end of their members,
-            # when done by those methods, so *don't* reverse node order.
-            #
-            # [WARNING: this might change if we decide to put nodes dropped
-            # on groups at the beginning of their members list. But implementing that
-            # is not just a matter of changing these, but of calling different functions
-            # to move or add the nodes. Also, a review might be needed to find other things
-            # that need to be changed.]
+            # when done by those methods, so *don't* reverse node order --
+            # UNLESS drop_onto_Group_at_top is set, which means, we put nodes dropped
+            # on groups at the beginning of their members list.
+            # REVIEW: are there any other things that need to be changed for that? ###
+            
             ## assert not debug_pref_DND_drop_at_start_of_groups()
-            reverse_moveto = False
-            reverse_addmember = False
+##            reverse_moveto = drop_onto_Group_at_top
+            
+            reverse_addmember = drop_onto_Group_at_top
+            
             #bruce 060203 removing this, to implement one aspect of NFR 932:
             ## self.node.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
             pass
+        
         if drag_type == 'move':
-            if reverse_moveto:
+            # TODO: this code is now the same as the end of the copy case;
+            # after the release, clean this up by moving the common code
+            # outside of (after) this move/copy 'if' statement.
+            # [bruce 080414 comment]
+            
+            if reverse_addmember: # [bruce 080414 post-rc0 code cleanup: reverse_moveto -> reverse_addmember]
                 nodes = nodes[::-1]
             for node in nodes[:]:
                 ## node.moveto(self.node)
                 if will_drop_inside:
-                    self.node.addchild(node, top = False)
+                    self.node.addchild(node, top = drop_onto_Group_at_top)
                 else:
                     self.node.addsibling(node, before = False)
+                continue
+            pass
 
         else:
             #bruce 050527 [revised 071025] this uses copied_nodes_for_DND,
@@ -197,26 +215,35 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                 #####@@@@@ kluge! replace with per-group variable or func.
                 #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
                 # as the comment in copied_nodes_for_DND or its subr suggests.
+
             nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
                 # Note: this ignores order within input list of nodes, using only their MT order
                 # to affect the order of copied nodes which it returns. [bruce 070525 comment]
             if not nodes: # might be None
-                return [] # return copied nodes
+                return res # return copied nodes [bruce 080414 post-rc0 code cleanup: [] -> res]
+
             res.extend(nodes)
+
+            # note: the following code is the same in the move/copy cases;
+            # see above for more about this.
             if reverse_addmember:
                 nodes = nodes[::-1]
                     # note: if autogroup_at_top makes len(nodes) == 1, this has no effect,
                     # but it's harmless then, and logically best to do it whenever using
                     # addmember on list elements.
-            for nc in nodes[:]: 
-                ## self.node.addmember(nc) # self.node is sometimes a Group,
+            for node in nodes[:]:
+                # node is a "copied node" [bruce 080414 post-rc0 code cleanup: renamed nc -> node]
+                ## self.node.addmember(node) # self.node is sometimes a Group,
                 ##     # so this does need to be addmember (not addchild or addsibling)
                 if will_drop_inside:
-                    self.node.addchild(nc, top = False)
+                    self.node.addchild(node, top = drop_onto_Group_at_top)
                 else:
-                    self.node.addsibling(nc, before = False)
-                pass
+                    self.node.addsibling(node, before = False)
+                continue
+            pass
+        
         self.node.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
+
         return res
 
     # Note: the methods drop_under_ok and drop_under are never called

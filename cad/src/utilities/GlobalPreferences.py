@@ -247,4 +247,27 @@ def pref_MMKit_include_experimental_PAM_atoms(): #bruce 080412
                          # since these elements would confuse users
                      prefs_key = "A10/MMKit: include experimental PAM atoms?" )
     return res
+
+# ==
+
+def pref_drop_onto_Group_puts_nodes_at_top(): #bruce 080414; added after 1.0.0rc0 was made
+    """
+    If enabled, nodes dropped directly onto Groups in the Model Tree
+    are placed at the beginning of their list of children,
+    not at the end as was done before.
+    """
+    res = debug_pref("Model Tree: drop onto Group puts nodes at top?",
+                     Choice_boolean_True, # this default setting fixes a longstanding NFR
+                     non_debug = True,
+                         # leave this visible w/o ATOM_DEBUG for release
+                         # [bruce 080414]
+                     prefs_key = "A10/Model Tree: drop onto Group puts nodes at top?")
+
+    return res
+
+pref_drop_onto_Group_puts_nodes_at_top()
+    # exercise it at startup to make sure it's in the debug prefs menu
+    # TODO: have an init function in this file, run after history is available ###
+    # (not sure if first import of this file is after that)
+
 # end
