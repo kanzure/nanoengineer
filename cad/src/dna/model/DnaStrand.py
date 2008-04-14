@@ -21,7 +21,7 @@ from dna.model.Dna_Constants import getComplementSequence
 
 from operations.bond_chains import grow_directional_bond_chain
 from dna.model.Dna_Constants import MISSING_COMPLEMENTARY_STRAND_ATOM_SYMBOL
-
+from utilities.constants import MODEL_PAM3
 from utilities.constants import MODEL_PAM5
 
 class DnaStrand(DnaStrandOrSegment):
@@ -301,6 +301,45 @@ class DnaStrand(DnaStrandOrSegment):
                         complementary_strand_chunks.append(strandChunk)
                                 
         return complementary_strand_chunks
+    
+    def is_PAM3_DnaStrand(self):
+        """
+        Returns true if all the baseatoms in the DnaLadders of this strand
+        are PAM3 baseatoms (axis or strands) Otherwise returns False
+        @see: DnaStrand_EditCommand.model_changed()
+        @see: DnaStrand_EditCommand.hasResizableStructure()
+        @see: DnaSegment.is_PAM3_DnaSegment() (similar implementation)
+        """
+                
+        is_PAM3 = False
+        
+        ladderList = self.getDnaLadders()        
+        if len(ladderList) == 0:
+            is_PAM3 = False
+        
+        for ladder in ladderList:
+            pam_model = ladder.pam_model()
+            if pam_model == MODEL_PAM3:
+                is_PAM3 = True
+            else:
+                is_PAM3 = False
+                break
+        
+        return is_PAM3
+     
+    def getDnaLadders(self):
+        """
+        Returns a list of all DnaLadders within this segment
+        """
+        ladderList = []
+        
+        for member in self.members:
+            if isinstance(member, DnaStrandChunk):
+                ladder = member.ladder
+                if ladder not in ladderList:
+                    ladderList.append(ladder)
+        
+        return ladderList
     
     
     def get_strand_wholechain(self):
@@ -808,7 +847,6 @@ class DnaStrand(DnaStrandOrSegment):
         #[bruce 080205 comment]        
         return atomList   
 
-    pass
 
     def _get_pam5_strand_atoms_in_bond_direction(self, inputAtomList): 
         """

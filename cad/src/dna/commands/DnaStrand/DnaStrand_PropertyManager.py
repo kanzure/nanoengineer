@@ -14,6 +14,7 @@ its a child of that PM) . See if that creates any issues.
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
 from utilities.Comparison import same_vals
+from utilities.Log import redmsg
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
@@ -84,6 +85,13 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 pmWhatsThisButton)
         
         self._loadSequenceEditor()
+        
+        if self.editCommand.hasValidStructure():
+            msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name)                        
+            msg2 = "Use resize handles to resize the strand. Use sequence editor"\
+                       "to assign a new sequence or the current one to a file."
+            self.updateMessage(msg1 + msg2)
+       
     
     def _addGroupBoxes( self ):
         """
@@ -247,6 +255,27 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                        SIGNAL('stateChanged(int)'), 
                        self.change_struct_highlightPolicy)
         
+    def model_changed(self): 
+        """
+        @see: DnaStrand_EditCommand.model_changed()
+        @see: DnaStrand_EditCommand.hasResizableStructure()
+        """
+        if not self.editCommand.hasResizableStructure():
+            #disable all widgets
+            if self._pmGroupBox1.isEnabled():
+                self._pmGroupBox1.setEnabled(False)
+                msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name) 
+                msg2 = redmsg("To resize the strand, first convert it to a PAM3"\
+                   " model")                    
+                self.updateMessage(msg1 + msg2)
+        else:
+            if not self._pmGroupBox1.isEnabled():
+                self._pmGroupBox1.setEnabled(True)
+                msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name) 
+                msg2 = "Use resize handles to resize the strand. Use sequence editor"\
+                    "to assign a new sequence or the current one to a file."
+                self.updateMessage(msg1 + msg2)
+        
     def show(self):
         """
         Show this PM 
@@ -259,6 +288,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         EditCommand_PM.show(self) 
         self._showSequenceEditor()
+    
         if self.editCommand is not None:
             name = self.editCommand.getStructureName()
             if name is not None:
@@ -307,10 +337,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.sequenceEditor.show()     
                                               
             self.updateSequence()
-            if self.editCommand.hasValidStructure():
-                msg = ("Viewing properties of %s") %(self.editCommand.struct.name)
-                self.updateMessage(msg)
-    
+
         
     def updateSequence(self):
         """

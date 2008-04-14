@@ -174,7 +174,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #This MAY HAVE BUG. WHEN --
         #debug pref 'call model_changed only when needed' is ON
         #See related bug 2729 for details. 
-        
+                
         #The following code that updates te handle positions and the strand 
         #sequence fixes bugs like 2745 and updating the handle positions
         #updating handle positions in model_changed instead of in 
@@ -182,10 +182,22 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #This can be further optimized by debug pref 
         #'call model_changed only when needed' but its NOT done because of an 
         # issue menitoned in bug 2729   - Ninad 2008-04-07
+        
+        EditCommand.model_changed(self) #This also calls the 
+                                        #propMgr.model_changed 
+                                        
         if self.grabbedHandle is not None:
             return
         
+        #For Rattlesnake, PAM5 segment resizing  is not supported. 
+        #@see: self.hasResizableStructure()        
         if self.hasValidStructure():
+            if not self.hasResizableStructure():
+                self.handles = []
+                return
+            elif len(self.handles) == 0:
+                self._updateHandleList()
+                
             self.updateHandlePositions()
             #NOTE: The following also updates self._previousParams
             self._updateStrandSequence_if_needed()
@@ -336,10 +348,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         self.updateHandlePositions()
         self._updateStrandSequence_if_needed()
         
-        
   
     def _updateStrandSequence_if_needed(self):
-        if self.hasValidStructure():
+        if self.hasValidStructure():            
             new_numberOfBases = self.struct.getNumberOfBases()
             self.propMgr.numberOfBasesSpinBox.setValue(new_numberOfBases)
             #@TODO Update self._previousParams again? 
@@ -437,8 +448,14 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             if isinstance(self.struct.dad , self.assy.DnaSegment):
                 self._parentDnaSegment = self.struct.dad   
 
-            self._updateHandleList()
-            self.updateHandlePositions()
+            #For Rattlesnake, we do not support resizing of PAM5 model. 
+            #So don't append the exprs handles to the handle list (and thus 
+            #don't draw those handles. See self.model_changed()            
+            if not self.hasResizableStructure():
+                self.handles = []
+            else:
+                self._updateHandleList()
+                self.updateHandlePositions()
 
     def hasValidStructure(self):
         """
@@ -458,6 +475,19 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             return True
 
         return False
+    
+    def hasResizableStructure(self):
+        """
+        For Rattlesnake release, we dont support strand resizing for PAM5 
+        models. If the structure is not resizable, the handles won't be drawn
+        @see:self.model_changed()
+        @see:DnaStrand_PropertyManager.model_changed()
+        @see: self.editStructure()
+        @see: DnaSegment.is_PAM3_DnaStrand()
+        """
+        if not self.hasValidStructure():
+            return False        
+        return self.struct.is_PAM3_DnaStrand()
 
     def _updateHandleList(self):
         """        
@@ -477,6 +507,11 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         """
         Update handle positions
         """
+        if len(self.handles) == 0:
+            #No handles are appended to self.handles list. 
+            #@See self.model_changed() and self._updateHandleList()
+            return
+        
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE 
         
