@@ -201,6 +201,23 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         self.lastNamedViewList = list
         return self.lastNamedViewList
     
+    def keyReleaseEvent(self, event):
+        """
+        The keystroke release event handler for the Orientation dialog.
+        
+        @param event: The key release event.
+        @type  event: U{B{QKeyEvent}<http://doc.trolltech.com/4/qkeyevent.html>}
+        
+        @note: This overrides QWidget.keyReleaseEvent().
+        """
+        key = event.key()
+        if key == Qt.Key_Escape:
+            # Close the dialog if the user has (pressed and then) released the 
+            # Esc key.
+            self.close()
+        else:
+            event.ignore() # Important, per the Qt documentation.
+        
     def closeEvent(self, ce):
         """
         When the user closes the dialog by clicking the 'X' button
@@ -209,5 +226,4 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         """
         self.win.viewOrientationAction.setChecked(False)
         ce.accept()
-        
-                
+
