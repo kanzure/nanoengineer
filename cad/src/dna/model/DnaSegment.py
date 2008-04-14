@@ -28,6 +28,7 @@ from dna.model.Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
 from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Comparison     import same_vals
+from utilities.constants import MODEL_PAM3
 
 class DnaSegment(DnaStrandOrSegment):
     """
@@ -246,6 +247,44 @@ class DnaSegment(DnaStrandOrSegment):
                 content_strand_chunks.extend(ladder.strand_chunks())
                 
         return content_strand_chunks
+    
+    def is_PAM3_DnaSegment(self):
+        """
+        Returns true if all the baseatoms in the DnaLadders of this segment
+        are PAM3 baseatoms (axis or strands) Otherwise returns False
+        @see: DnaSegment_EditCommand.model_changed()
+        @see: DnaSegment_EditCommand.isResizableStructure()
+        """
+                
+        is_PAM3 = False
+        
+        ladderList = self.getDnaLadders()        
+        if len(ladderList) == 0:
+            is_PAM3 = False
+        
+        for ladder in ladderList:
+            pam_model = ladder.pam_model()
+            if pam_model == MODEL_PAM3:
+                is_PAM3 = True
+            else:
+                is_PAM3 = False
+                break
+        
+        return is_PAM3
+     
+    def getDnaLadders(self):
+        """
+        Returns a list of all DnaLadders within this segment
+        """
+        ladderList = []
+        
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                ladder = member.ladder
+                if ladder not in ladderList:
+                    ladderList.append(ladder)
+        
+        return ladderList
 
     def get_all_content_chunks(self):
         """
