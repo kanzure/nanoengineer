@@ -20,7 +20,7 @@ from utilities.constants import noop
 
 from utilities import debug_flags
 
-from utilities.Log import redmsg, quote_html
+from utilities.Log import redmsg, orangemsg, quote_html
 
 from geometry.VQT import V
 
@@ -222,9 +222,16 @@ class DnaLadder_pam_conversion_methods:
         have = self.pam_model() # might be MODEL_MIXED
         if want == have or want is None:
             # no conversion needed
+            # TODO: summary message like in self._convert_to_pam
+            summary_format = "Note: [N] DnaLadder(s) were already in requested PAM model"
+            env.history.deferred_summary_message( summary_format )            
             return False, False
         assert want in PAM_MODELS # can't be MODEL_MIXED
         succeeded = self._convert_to_pam(want) # someday this can work for self being MODEL_MIXED
+        if succeeded == -1:
+            # conversion not wanted/needed, or not implemented;
+            # it already emitted appropriate message
+            return False, False
         if not succeeded:
             summary_format = "Error: PAM conversion failed for [N] DnaLadder(s)"
             env.history.deferred_summary_message( redmsg( summary_format))
@@ -239,7 +246,7 @@ class DnaLadder_pam_conversion_methods:
             # them to? "nothing" is probably best, even though in some cases that
             # means we'll retry a conversion. Maybe an ideal fix needs to know,
             # per chunk, the last succeeding pam as well as the last desired one?
-        return True, succeeded
+        return True, succeeded # REVIEW: caller bug (asfail) when we return True, False??
 
     def _want_pam(self, default_pam_model): #bruce 080411
         """
@@ -269,39 +276,75 @@ class DnaLadder_pam_conversion_methods:
          that the changes to atoms in self will be ignored, rather than
          causing self to be remade.)
         
-        If conversion can't succeed, set an error in self and return False
-        (but emit no messages). Don't modify self or its atoms in this case.
+        If conversion can't succeed due to an error, return False.
+        Or if it should not run, or need not run, or is not yet
+        implemented, return -1. Don't modify self or its atoms in
+        these cases.
         """
-        if self.error or not self.valid:
+        # various reasons for conversion to not succeed;
+        # most emit a deferred_summary_message
+        if not self.valid:
             # caller should have rejected self before this point
             # (but safer to not assert this, but just debug print for now)
-            print "bug: _convert_to_pam on ladder with error or not valid:", self
-            # todo: summary message about why
-            return False
+            print "bug?: _convert_to_pam on invalid ladder:", self
+            summary_format = "Bug: PAM conversion attempted on [N] invalid DnaLadder(s)"
+            env.history.deferred_summary_message( redmsg( summary_format ))
+            return -1
+        if self.error:
+            # cmenu caller should have rejected self before this point
+            # (but safer to not assert this, but just debug print for now);
+            # but when called from the ui actions, self.error
+            # is not a bug or even really an error...
+            ## print "bug?: _convert_to_pam on ladder with error:", self
+            summary_format = "Warning: PAM conversion refused for [N] DnaLadder(s) with errors"
+            env.history.deferred_summary_message( redmsg( summary_format )) # red warning is intended
+            return -1
         if self.pam_model() == MODEL_MIXED:
-            # todo: summary message about why
-            return False
+            summary_format = "Warning: PAM conversion not implemented for [N] DnaLadder(s) with mixed PAM models"
+            env.history.deferred_summary_message( orangemsg( summary_format ))
+            return -1
         if self.axis_rail:
             element = self.axis_rail.baseatoms[0].element
-            if element not in (Gv5, Ax3):
-                # todo: summary message about why
-                # guess the reason is Ax5...
+            if element not in (Gv5, Ax3): # e.g. it might be Ax5
+                summary_format = "Warning: PAM conversion not implemented for [N] DnaLadder(s) with %s axis" % \
+                                  element.symbol
+                env.history.deferred_summary_message( orangemsg( summary_format ))
                 print "conversion from PAM axis element %r is not yet implemented (in %r)" % \
                       (self.axis_rail.baseatoms[0].element, self)
-                return False
-        if 0 and 'safety stub': # debug pref to simulate failure?
-            ###### STUB (but correct if this should always fail, i think):
-            print "_convert_to_pam(%r, %r) is NIM" % (self, pam_model) ###
-            self.set_error("_convert_to_pam is NIM")
-                # review: is this comment obs?
-                # bug: doesn't prevent command from being offered again, even if ladder unmodified
-                # (maybe fixed by checking for error in cmenu maker? i forget if this comment
-                #  came after that check was added or before)
-            return False # simulate failure
+                return -1
+            pass
+        if self.pam_model() == pam_model:
+            # note: should never happen (AFAIK) since caller handles it,
+            # but preserve this just in case; meanwhile this code is copied into caller,
+            # with a slight text revision here so we can figure out if this one happens
+            summary_format = "Note: [N] DnaLadder(s) were already in desired PAM model"
+            env.history.deferred_summary_message( summary_format )
+            return -1
+                    
+        # fail gracefully for not yet implemented cases;
+        # keep this in sync with self.can_make_up_Pl_abs_position_for()
+        if not self.axis_rail:
+            summary_format = "Warning: PAM conversion not implemented for [N] DnaSingleStrandDomain(s)"
+            env.history.deferred_summary_message( orangemsg( summary_format ))
+            return -1
 
-        if 0: # it seems to work now! 080413 354pm
-            print "WARNING: _convert_to_pam(%r, %r) is unfinished, will probably fail somehow" % (self, pam_model)
-            env.history.orangemsg( "Warning: convert to %s is under development, may have bugs" % pam_model )
+        nstrands = len(self.strand_rails)
+        if nstrands == 0:
+            summary_format = "Warning: PAM conversion not implemented for [N] bare axis DnaLadder(s)"
+            env.history.deferred_summary_message( orangemsg( summary_format ))
+            return -1
+        elif nstrands == 1:
+            summary_format = "Warning: PAM conversion not implemented for [N] sticky end DnaLadder(s)"
+                # need to have a method to describe self, since if it's in the middle of a segment
+                # then we should not call it a sticky end ###FIX
+            env.history.deferred_summary_message( orangemsg( summary_format ))
+            return -1
+        elif nstrands > 2:
+            summary_format = "Bug: PAM conversion attempted on [N] DnaLadder(s) with more than two strands"
+            env.history.deferred_summary_message( redmsg( summary_format ))
+            return -1
+            
+        # do the conversion.
         
         # first compute and store current baseframes on self, where private
         # methods can find them on demand. REVIEW: need to do this on connected ladders
@@ -360,6 +403,29 @@ class DnaLadder_pam_conversion_methods:
         
         return True  # could put above in try/except and return False for exceptions
 
+    def can_make_up_Pl_abs_position_for(self, ss, direction): #bruce 080413
+        """
+        Are we capable of making up an absolute Pl position in space
+        for the given strand atom ss of ours, for the Pl in the given
+        bond direction from it?
+        """
+        # for now, assume yes if we're a duplex with no error and ok axis elements;
+        # keep this in sync with the code in _convert_to_pam
+        del ss, direction
+        if not self.valid or self.error:
+            print "reason 1"
+            return False
+        if len(self.strand_rails) != 2:
+            print "reason 2"
+            return False
+        if not self.axis_rail:
+            print "reason 3"
+            return False
+        if self.axis_rail.baseatoms[0].element not in (Ax3, Gv5):
+            print "reason 4"
+            return False
+        return True
+    
     def _convert_axis_to_pam(self, want_pam_model):
         """
         moves and transmutes axis atoms, during conversion to specified pam_model

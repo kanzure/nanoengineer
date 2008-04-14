@@ -55,6 +55,7 @@ from dna.model.pam3plus5_math import default_Gv_relative_position
 
 from dna.model.pam3plus5_ops import Pl_pos_from_neighbor_PAM3plus5_data
 from dna.model.pam3plus5_ops import _f_baseframe_data_at_baseatom
+from dna.model.pam3plus5_ops import _f_find_new_ladder_location_of_baseatom
 
 
 from geometry.VQT import norm
@@ -557,7 +558,10 @@ class PAM_Atom_methods:
         
         # print "_f_Pl_set_position_from_Ss3plus5_data will set %r on %r, now at %r" % (abspos, self, self.posn())
 
-        self.setposn(abspos)
+        if abspos is None:
+            print "bug: _f_Pl_set_position_from_Ss3plus5_data can't set %r on %r, now at %r" % (abspos, self, self.posn())
+        else:
+            self.setposn(abspos)
         
         del self._f_Pl_posn_is_definitive
             # like doing self._f_Pl_posn_is_definitive = True,
@@ -1399,6 +1403,13 @@ class PAM_Atom_methods:
                 # remove when works if routine; leave in if never seen, to notice bugs;
                 # current caller tries not to call in this case, so this should not happen
             return
+
+        if not self.can_make_up_Pl_abs_position(data_index and 1 or -1):
+            # kluge: can store is the same as can make up, for now;
+            # needed to fix bugs in pam conversion killing Pls next to
+            # single strands [bruce 080413]
+            return
+        
         origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
         relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
         if not self._PAM3plus5_Pl_Gv_data:
@@ -1416,6 +1427,10 @@ class PAM_Atom_methods:
          ):
         """
         #doc; return None or a position
+
+        @warning: this can return None even if make_up_position_if_necessary
+                  is passed, since some Ss atoms *can't* make up a position
+                  (e.g. those in DnaSingleStrandDomains, at least for now)
         """
         #bruce 080402, split 080409
         assert direction in (1, -1)
@@ -1423,7 +1438,7 @@ class PAM_Atom_methods:
         res = self._recommend_PAM3plus5_abspos(data_index, **opts)
             # both Pl and Gv use this, with different data_index
         if res is None and make_up_position_if_necessary:
-            res = self._make_up_Pl_abs_position(direction)
+            res = self._make_up_Pl_abs_position(direction) # might be None!
                 # note: don't store this, even if not remove_data
                 # (even though save in PAM5, then reload file,
                 #  *will* effectively store it, since in the file we don't
@@ -1461,10 +1476,27 @@ class PAM_Atom_methods:
     def _make_up_Pl_abs_position(self, direction): #bruce 080402
         """
         """
+        if not self.can_make_up_Pl_abs_position(direction):
+            return None
         relpos = default_Pl_relative_position(direction)
         origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self) 
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
 
+    def can_make_up_Pl_abs_position(self, direction): #bruce 080413
+        try:
+            ladder, whichrail, index = _f_find_new_ladder_location_of_baseatom(self)
+            # not self.molecule.ladder, it finds the old invalid ladder instead
+        except:
+            print "bug? can_make_up_Pl_abs_position can't find new ladder of %r" % \
+                  (self,)
+            return True # should be False, but mitigate new bugs caused by this feature
+        if not ladder:
+            # probably can't happen
+            print "bug? can_make_up_Pl_abs_position sees ladder of None for %r" % \
+                  (self,)
+            return True # should be False, but mitigate new bugs caused by this feature
+        return ladder.can_make_up_Pl_abs_position_for(self, direction)
+    
     # methods related to storing PAM3+5 Gv data on Ss
     # (Gv and Pl data share private helper methods)
     

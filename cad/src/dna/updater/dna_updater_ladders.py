@@ -342,7 +342,11 @@ def make_new_ladders(axis_chains, strand_chains):
                 # single strand with no Ax (will be true of every Ss in chain)
 ##                print "dna updater: fyi: found single strand domain %r" % (strand_rail,)
                 for atom2 in strand_rail.baseatoms:
-                    assert atom2.axis_neighbor() is None # remove when works?? has failed once, 080325 for tom...
+                    assert atom2.axis_neighbor() is None, \
+                           "%r.axis_neighbor() should be None, is %r; atom is %r, sr is %r" % \
+                           (atom2, atom2.axis_neighbor(), atom, strand_rail)
+                        # remove when works?? has failed once, 080325 for tom...
+                        # and once for me, after exception in pam conversion, 080413
                 singlestrand = DnaSingleStrandDomain(strand_rail)
                 singlestrands.append(singlestrand)
             else:

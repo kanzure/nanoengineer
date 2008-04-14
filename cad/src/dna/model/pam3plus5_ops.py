@@ -66,14 +66,16 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
             pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
                     - direction_to, # the sign makes this the Ss -> Pl direction
                     remove_data = remove_data_from_neighbors,
-                    make_up_position_if_necessary = True
+                    make_up_position_if_necessary = True # doesn't prevent all returns of None
              )
             if pos is None:
                 # can happen in theory, in spite of
                 # make_up_position_if_necessary = True,
                 # if ss is not a valid atom for this;
                 # but the loop above tries not to call it then,
-                # so this should not happen unless there are bugs.
+                # so this should not happen unless there are bugs...
+                # oops, it can be called for ss in a single strand domain, for example.
+                # todo: debug_flags for this:
                 print "fyi: _f_recommend_PAM3plus5_Pl_abs_position returned None for %r" % ss
                     # remove when works if routine; leave in if never seen, to notice bugs
             else:
@@ -83,7 +85,8 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     if not proposed_posns:
         # neither neighbor was able to make up a position -- error.
         # caller might have ways of handling this, but we don't...
-        print "bug: Pl_pos_from_neighbor_PAM3plus5_data can't compute pos for %r" % self
+        print "bug: Pl_pos_from_neighbor_PAM3plus5_data can't compute pos " \
+              "for Pl between these neighbors:", bond_directions_to_neighbors
         return None
 
     if len(proposed_posns) == 1:
@@ -441,14 +444,10 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
         pos = ss._f_recommend_PAM3plus5_Gv_abs_position(
                 remove_data = remove_data_from_neighbors,
-                make_up_position_if_necessary = True
+                make_up_position_if_necessary = True # doesn't prevent all returns of None
          )
         if pos is None:
-            # can happen in theory, in spite of
-            # make_up_position_if_necessary = True,
-            # if ss is not a valid atom for this;
-            # but the loop above tries not to call it then,
-            # so this should not happen unless there are bugs.
+            # see comment in Pl_pos_from_neighbor_PAM3plus5_data
             print "fyi: _f_recommend_PAM3plus5_Gv_abs_position returned None for %r" % ss
                 # remove when works if routine; leave in if never seen, to notice bugs
         else:
@@ -458,7 +457,9 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
     if not proposed_posns:
         # neither neighbor was able to make up a position -- error.
         # caller might have ways of handling this, but we don't...
-        print "bug: Gv_pos_from_neighbor_PAM3plus5_data can't compute pos for %r" % self
+        print "bug: Gv_pos_from_neighbor_PAM3plus5_data can't compute pos " \
+              "for Gv between these neighbors:", neighbors
+        
         return None
 
     if len(proposed_posns) == 1:
@@ -477,7 +478,6 @@ def _f_find_new_ladder_location_of_baseatom(self):
     # that atom.molecule.ladder can find fresh ladders
     # that didn't yet remake their chunks
     
-    # note: only used in this file
 ##    # buggy version (the assert ladder.valid below will typically always fail)
 ##    ladder = self.molecule.ladder
 ##    assert ladder
