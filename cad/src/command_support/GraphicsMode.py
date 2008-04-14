@@ -949,6 +949,13 @@ class basicGraphicsMode(GraphicsMode_API):
             self.o.scale *= dScale
             self.o.gl_update()
             
+        def pan(offsetVector, panIncrement):
+            planePoint = V(0.0, 0.0, 0.0)
+            offsetPoint = offsetVector * self.o.scale * panIncrement
+            povOffset = planeXline(planePoint, self.o.out, offsetPoint, self.o.out)
+            self.glpane.pov += povOffset
+            self.glpane.gl_update()
+            
         if key == Qt.Key_Delete:
             self.w.killDo()
         elif key == Qt.Key_Escape: # Select None. mark 060129.
@@ -978,6 +985,24 @@ class basicGraphicsMode(GraphicsMode_API):
         elif key in (Qt.Key_Plus, Qt.Key_Less):  # Zoom out a lot.         
             dScale = 1.2
             zoom(dScale)
+            
+        # Pan left, right, up and down using arrow keys, requested by Paul.
+        # Mark 2008-04-13
+        elif key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
+            panIncrement = 0.1
+            if self.o.modkeys == 'Control':
+                panIncrement *= 0.25
+            elif self.o.modkeys == 'Shift':
+                panIncrement *= 4.0
+            if key == Qt.Key_Left:
+                pan(-self.o.right, panIncrement)
+            elif key == Qt.Key_Right:
+                pan(self.o.right, panIncrement)
+            elif key == Qt.Key_Up:
+                pan(self.o.up, panIncrement)
+            elif key == Qt.Key_Down:
+                pan(-self.o.up, panIncrement)
+
         # comment out wiki help feature until further notice, wware 051101
         # [bruce 051130 revived/revised it, elsewhere in file]
         #if key == Qt.Key_F1:
