@@ -31,13 +31,13 @@
 
 	group_mol_struct_stmt_begin_line =
 		'group'
-# -- no style -- % { stringVal2.clear(); }
+		% { stringVal2.clear(); }
 		nonNEWLINEspace*
 		'('  nonNEWLINEspace*  char_string_with_space  nonNEWLINEspace*  ')'
-# - no style -- (nonNEWLINEspace+ char_string_with_space2)?
+		(nonNEWLINEspace+ char_string_with_space2)?
 		nonNEWLINEspace*
 		EOL
-		@ { newMolStructGroup(stringVal/*, stringVal2*/); }
+		@ { newMolStructGroup(stringVal, stringVal2); }
 	;
 	
 	end1_line =

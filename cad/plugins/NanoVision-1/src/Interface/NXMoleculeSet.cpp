@@ -7,10 +7,17 @@ namespace Nanorex {
 
 unsigned int NXMoleculeSet::NextMoleculeIndex = 0;
 
+char const *const NXMoleculeSet::groupClassificationString[NXMoleculeSet::NUM_GROUP_CLASSIFICATIONS] =
+{
+	"", "DnaGroup", "DnaSegment", "DnaStrand", "Block",
+		"NanotubeGroup", "NanotubeSegment"
+};
 
 /* CONSTRUCTOR */
 NXMoleculeSet::NXMoleculeSet(bool const& deleteOnDestruct)
-	: deleteInDestructor(deleteOnDestruct)
+	: deleteInDestructor(deleteOnDestruct),
+	children(), molecules(),
+	title(), classification(NONE)
 {
 }
 
@@ -87,5 +94,8 @@ bool NXMoleculeSet::empty(void)
     }
     else return false;
 }
+
+
+
 
 } // Nanorex::

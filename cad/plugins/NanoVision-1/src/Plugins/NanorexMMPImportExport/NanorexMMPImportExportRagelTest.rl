@@ -12,7 +12,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(NanorexMMPImportExportRagelTest);
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NanorexMMPImportExportRagelTest,
                                       "NanorexMMPImportExportRagelTestSuite");
 
-// #define VERBOSE
+#define VERBOSE
 
 #if defined(VERBOSE)
 #define CERR(s) \
@@ -669,7 +669,7 @@ void NanorexMMPImportExportRagelTest::groupLineTest(void)
 	char const *testInput = NULL;
 	
 // #if 0
-	testInput = "group (FirstGroup) #FirstGroupStyle\n";
+	testInput = "group (FirstGroup) FirstGroupStyle\n";
 	groupLineTestHelper(testInput);
 	CPPUNIT_ASSERT(groupNameStack.size() == 1);
 	CPPUNIT_ASSERT(groupNameStack.back() == "FirstGroup");
@@ -716,11 +716,11 @@ void NanorexMMPImportExportRagelTest::groupLineTest(void)
 	lineNum = 0;
 	testInput =
 		"group (group 1)\n"
-		"group (group 1_1) #def\n"
+		"group (group 1_1) def\n"
 		"egroup (group 1_1)\n"
 		"group (amines)\n"
 		"group (histamines) #def\n"
-		"group ( histhistamines\t) \t#def\t\n"
+		"group ( histhistamines\t) \tdef\t\n"
 		"egroup\n"
 		"group (histhistamines siblings)\n"
 		"egroup (histhistamines siblings)\n"
@@ -783,6 +783,7 @@ void NanorexMMPImportExportRagelTest::newViewDataGroup(void)
 	groupNameStack.push_back(currentGroupName);
 }
 
+
 #if 0
 void NanorexMMPImportExportRagelTest::endViewDataGroup(void)
 {
@@ -792,14 +793,18 @@ groupNameStack.pop_back();
 }
 #endif
 
+
 void
-NanorexMMPImportExportRagelTest::newMolStructGroup(std::string const& name)
+NanorexMMPImportExportRagelTest::
+newMolStructGroup(std::string const& name,
+                  std::string const& classification)
 {
 	++groupCount;
-	CERR("group (" + name + ") ");
+	CERR("group (" + name + ") " + classification);
 	currentGroupName = name;
 	groupNameStack.push_back(currentGroupName);
 }
+
 
 #if 0
 void NanorexMMPImportExportRagelTest::endMolStructGroup(std::string const& name)
@@ -812,6 +817,7 @@ currentGroupName = groupNameStack.back();
 groupNameStack.pop_back();
 }
 #endif
+
 
 void NanorexMMPImportExportRagelTest::newClipboardGroup(void)
 {

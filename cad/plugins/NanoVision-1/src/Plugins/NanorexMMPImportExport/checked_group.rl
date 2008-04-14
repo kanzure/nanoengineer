@@ -47,7 +47,7 @@
 # -- no style -- (nonNEWLINEspace+ checked_group_style)?
 		nonNEWLINEspace*
 		EOL
-		@ { newMolStructGroup(stringVal/*, stringVal2*/); }
+		@ { newMolStructGroup(stringVal, stringVal2); }
 	;
 	
 	

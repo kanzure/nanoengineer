@@ -147,7 +147,8 @@ private:
 	void newChunkInfo(std::string const& key, std::string const& value);
 	
 	void newViewDataGroup(void);
-	void newMolStructGroup(std::string const& name);
+	void newMolStructGroup(std::string const& name,
+	                       std::string const& classification);
 	void newClipboardGroup(void);
 	void endGroup(std::string const& name);
 	void newOpenGroupInfo(std::string const& key, std::string const& value);
