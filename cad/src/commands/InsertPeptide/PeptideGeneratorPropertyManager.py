@@ -118,9 +118,10 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
 
         memberChoices = ["Custom", 
                          "Alpha helix", 
+                         "Beta strand",
                          "Pi helix", 
                          "3_10 helix", 
-                         "Beta strand"]
+                         "Polyprolin-II helix"]
 
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
@@ -214,15 +215,18 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         if idx == 1: # alpha helix
             self.phi = -57.0
             self.psi = -47.0
-        elif idx == 2: # pi helix
-            self.phi = -55.0
-            self.psi = -70.0
         elif idx == 3: # 3-10 helix
             self.phi = -49.0
             self.psi = -26.0
-        elif idx == 4: # beta strand
+        elif idx == 2: # beta strand
             self.phi = 180.0
             self.psi = 170.0
+        elif idx == 4: # pi helix
+            self.phi = -55.0
+            self.psi = -70.0
+        elif idx == 5: # polyprolin-II
+            self.phi = -75.0
+            self.psi = 150.0
         else:
             self.phi = self.phiAngleField.value()
             self.psi = self.psiAngleField.value()
@@ -245,11 +249,13 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         if self.ss_idx==1:
             aa_txt = "<font color=red>"
         elif self.ss_idx==2:
-            aa_txt = "<font color=orange>"
+            aa_txt = "<font color=blue>"
         elif self.ss_idx==3:
             aa_txt = "<font color=green>"
         elif self.ss_idx==4:
-            aa_txt = "<font color=blue>"
+            aa_txt = "<font color=orange>"
+        elif self.ss_idx==5:
+            aa_txt = "<font color=magenta>"
         else:
             aa_txt = "<font color=black>"
 

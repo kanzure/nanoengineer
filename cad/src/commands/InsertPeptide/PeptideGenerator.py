@@ -152,7 +152,6 @@ PRO_ZMATRIX = [
     (  16, "O  ", "O", "sp2",   15,   13,    3,    1.229,  120.500,    0.000 ), 
 ]               
 
-
 CYS_ZMATRIX = [
     (   0, "DUM", "",  "",      -1,   -2,   -3,    0.000,    0.000,    0.000 ),
     (   1, "DUM", "",  "",       0,   -1,   -2,    1.449,    0.000,    0.000 ),
@@ -705,6 +704,10 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                         t = self.prev_psi
                     if name=="O  ":
                         t = psi + 180.0
+                    if name=="CA ":
+                        t = phi 
+                    if name=="CD ":
+                        t = phi + 180.0
 
                 sina = sin(DEG2RAD * a)
                 sind = -sin(DEG2RAD * t)
@@ -736,7 +739,7 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                     # It is a hack for the first hydrogen atom
                     # to make sure the bond length is correct.
                     self.nterm_hydrogen.setposn( 
-                        self.nterm_hydrogen.posn() + 0.25 * V(xqd, yqd, zqd))
+                        self.nterm_hydrogen.posn() + 0.325 * norm(V(xqd, yqd, zqd)))
                     self.nterm_hydrogen = None
 
                 ax = self.coords[n][0]
