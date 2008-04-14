@@ -25,6 +25,8 @@ __USE_OLD_VALUES__ = False
 #
 # http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordinates
 
+# ==
+
 ######## NOT YET FINAL VALUES ########
 
 # Note: these are approximate numbers (from Eric M, a few days before 080412)
@@ -52,6 +54,8 @@ if (__USE_OLD_VALUES__):
     # current generator, bruce 080412:
     ## ... for data_index 2 stored relpos array([  8.65728085e+00,   6.19902777e+00,  -1.33226763e-15])
     # (and similar numbers)
+    # the debug prints that generate those lines look like this in the source code in another file:
+    ## print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
 
     DEFAULT_GV5_RELPOS = V(DEFAULT_X_G, DEFAULT_Y_M, 0.0)
     # most likely, only x (DEFAULT_X_G) actually matters out of these three coords
@@ -64,7 +68,9 @@ if (__USE_OLD_VALUES__):
     # derived, bruce 080412, for data_index False stored relpos array([ 1.6456331 , -2.83064599,  1.59      ])
     # the prior stub value was -0.772, -0.889, +1
 
+    # see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
 
+# ==
 
 # Here's another set of numbers from EricD as of 2008/04/13.  "[D]on't
 # expect full mutual consistency in the last digit or so."
@@ -75,7 +81,7 @@ if (__USE_OLD_VALUES__):
 #
 # measured off of current PAM3 generator output:
 #
-# Ss3-Ss3  1.5951 nm (no corrosponding value in sim-params.txt)
+# Ss3-Ss3  1.5951 nm (no corresponding value in sim-params.txt)
 # Ss3-Ax3  0.8697 nm (0.8700 nm in sim-params.txt)
 #
 # formulas for computing the below numbers from the above:
@@ -131,28 +137,12 @@ if (not __USE_OLD_VALUES__):
     # most likely, only x (DEFAULT_X_G) actually matters out of these three coords
 
     # The labels on these are different from the above email, so I've
-    # selected them to corrospond to the signs in the old data.
+    # selected them to correspond to the signs in the old data.
     # -EricM
     DEFAULT_Ss_plus_to_Pl5_RELPOS = V(-2.496, -2.508, -2.324)
     DEFAULT_Ss_minus_to_Pl5_RELPOS = V(2.875, -4.081,  0.882)
 
-# see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
-
-
-# the debug prints that generate those lines look like this in the source code in another file:
-##        print "fyi, on %r for data_index %r stored relpos %r" % (self, direction, relpos) ####
-
-
-# ==
-
-# goals:
-# - enumerate the numerical parameters i need - see above
-# - make sure i know the formulas for the conversion - prototyping them below
-
-# then:
-# - ask for the params
-# - implement DnaLadder methods/attrs to help with conversion
-# - add ladder cmenu op to do an in-place conversion (modifying the model); use this for testing, and it's useful
+    # see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
 
 # ==
 
