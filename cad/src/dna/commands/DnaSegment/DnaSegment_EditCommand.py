@@ -997,9 +997,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                     break
                 
                 endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-                old_dulex_length = vlen(endPoint1 - endPoint2)
+                old_duplex_length = vlen(endPoint1 - endPoint2)
                 old_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                         old_dulex_length)
+                                                                         old_duplex_length)
         
                 self.propMgr.numberOfBasePairsSpinBox.setValue(new_numberOfBasePairs)
                         
@@ -1085,10 +1085,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         new_numberOfBasePairs = self.propMgr.numberOfBasePairsSpinBox.value()
         
         endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-        original_dulex_length = vlen(endPoint1 - endPoint2)
+        if endPoint1 is None or endPoint2 is None:
+            return 0
+        
+        original_duplex_length = vlen(endPoint1 - endPoint2)
         
         original_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 original_dulex_length, 
+                                                                 original_duplex_length, 
                                                                  duplexRise = duplexRise
                                                              )
         
