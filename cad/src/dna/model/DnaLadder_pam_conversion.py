@@ -222,9 +222,11 @@ class DnaLadder_pam_conversion_methods:
         have = self.pam_model() # might be MODEL_MIXED
         if want == have or want is None:
             # no conversion needed
-            # TODO: summary message like in self._convert_to_pam
-            summary_format = "Note: [N] DnaLadder(s) were already in requested PAM model"
-            env.history.deferred_summary_message( summary_format )            
+            # TODO: reenable this summary message when we're running due to manual
+            # pam conversion command... I am disabling it since it also affects
+            # file open, copy, etc. [bruce 080414 12:42pm PT, not in rc0]
+            ## summary_format = "Note: [N] DnaLadder(s) were/was already in requested PAM model"
+            ## env.history.deferred_summary_message( summary_format )            
             return False, False
         assert want in PAM_MODELS # can't be MODEL_MIXED
         succeeded = self._convert_to_pam(want) # someday this can work for self being MODEL_MIXED
@@ -317,7 +319,7 @@ class DnaLadder_pam_conversion_methods:
             # note: should never happen (AFAIK) since caller handles it,
             # but preserve this just in case; meanwhile this code is copied into caller,
             # with a slight text revision here so we can figure out if this one happens
-            summary_format = "Note: [N] DnaLadder(s) were already in desired PAM model"
+            summary_format = "Note: [N] DnaLadder(s) were/was already in desired PAM model"
             env.history.deferred_summary_message( summary_format )
             return -1
                     
