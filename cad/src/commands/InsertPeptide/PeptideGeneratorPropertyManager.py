@@ -71,7 +71,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
     for the "Build > Peptide" command.
     """
     # The title that appears in the property manager header.
-    title = "Peptide"
+    title = "Peptide Generator"
     # The name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
     pmName = title

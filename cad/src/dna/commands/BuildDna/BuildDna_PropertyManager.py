@@ -55,7 +55,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "DNA Properties"
+    title         =  "Build DNA"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
 

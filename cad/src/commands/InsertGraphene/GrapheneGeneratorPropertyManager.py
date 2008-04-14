@@ -27,7 +27,7 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
     for the "Build > Graphene (Sheet)" command.
     """
     # The title that appears in the property manager header.
-    title = "Graphene Sheet"
+    title = "Graphene Generator"
     # The name of this property manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
     pmName = title

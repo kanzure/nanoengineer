@@ -58,9 +58,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "Nanotube Group"
+    title         =  "Build Nanotube"
     pmName        =  title
-    iconPath      =  "ui/actions/Tools/Build Structures/NanotubeGroup.png"
+    iconPath      =  "ui/actions/Tools/Build Structures/Nanotube.png"
 
     def __init__( self, win, editCommand ):
         """
