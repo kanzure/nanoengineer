@@ -31,6 +31,7 @@ from utilities.Comparison import same_vals
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 PAMATOMS = ["Gv5", "Ax3"]
+ALL_PAM_ATOMS = ["Gv5", "Ss5", "Pl5", "Ax3", "Ss3", "Ub3", "Ux3", "Uy3"]
 
 class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     """
@@ -263,15 +264,19 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             return
         
         element = self.elementChooser.element
+        if element.symbol in ALL_PAM_ATOMS:
+            atom_or_PAM_atom_string = ' pseudoatom'
+        else:
+            atom_or_PAM_atom_string = ' atom'
                
         if self.elementChooser.isVisible():
             msg = "Double click in empty space to insert a single " \
-                + element.name + " atom. "
+                + element.name + atom_or_PAM_atom_string + "."
             if not element.symbol in NOBLEGASES: 
                 msg += "Click on an atom's <i>red bondpoint</i> to attach a " \
-                   + element.name + " atom to it." 
+                   + element.name + atom_or_PAM_atom_string +" to it." 
                 if element.symbol in PAMATOMS:
-                    msg ="Note: this atom can only be deposited onto a strand sugar"\
+                    msg ="Note: this pseudoatom can only be deposited onto a strand sugar"\
                         " and will disappear if deposited in free space"
         else: # Bonds Tool is selected
             if self.parentMode.cutBondsAction.isChecked():

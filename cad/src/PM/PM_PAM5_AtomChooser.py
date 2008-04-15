@@ -65,7 +65,7 @@ class PM_PAM5_AtomChooser( PM_MolecularModelingKit ):
                  parentWidget,
                  parentPropMgr   = None,
                  title           = "",
-                 element         = "Ax5",
+                 element         = "Ss5",
                  elementViewer   =  None
                  ):
         """

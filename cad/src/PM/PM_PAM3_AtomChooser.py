@@ -67,7 +67,7 @@ class PM_PAM3_AtomChooser( PM_MolecularModelingKit ):
                  parentWidget,
                  parentPropMgr   = None,
                  title           = "",
-                 element         = "Ax3",
+                 element         = "Ss3",
                  elementViewer   =  None
                  ):
         """
