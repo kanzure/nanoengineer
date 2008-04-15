@@ -1271,7 +1271,9 @@ def drawpolycone_multicolor_worker(params):
                                  # modifies the (e.g. current color)
                                  # piotr 080411
     glePolyCone(pos_array, color_array, rad_array)
-    glPopAttrib(GL_CURRENT_BIT)
+    glPopAttrib() # This fixes the 'disappearing cylinder' bug
+                  # glPopAttrib doesn't take any arguments
+                  # piotr 080415
     glDisable(GL_COLOR_MATERIAL)    
     return
 
