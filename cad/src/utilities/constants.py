@@ -329,11 +329,20 @@ def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
         # during debugging)
         assert 0, "reload during debug for display modes " \
                "is not yet implemented; or, non-unique " \
-               "mmp_code %r" % (disp_name,)
+               "mmp_code %r (in dispNames)" % (disp_name,)
+    if disp_name in _new_dispNames: #bruce 080415
+        # same comment applies as above
+        assert 0, "reload during debug for display modes " \
+               "is not yet implemented; or, non-unique " \
+               "mmp_code %r (in _new_dispNames)" % (disp_name,)
     assert len(dispNames) == len(dispLabel)
+    assert len(dispNames) == len(_new_dispNames) #bruce 080415
     dispNames.append(disp_name)
+    _new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in saving nodes with "chunk display styles" set (not in .rc1)
     dispLabel.append(disp_label)
     ind = dispNames.index(disp_name) # internal value used by setDisplay
+        # note: this always works, since we appended the same disp_name to *both*
+        # dispNames and _new_dispNames [bruce 080415 comment]
     if not allowed_for_atoms:
         remap_atom_dispdefs[ind] = diDEFAULT # kluge?
     return ind
