@@ -32,8 +32,7 @@ from geometry.VQT import V
 from geometry.BoundingBox import BBox
 from model.jigs import Jig
 
-DEBUG_COPY = True # do not leave this as True in the release!!!! [bruce 080414] ###############  @@@@@@@@@@@
-###### FIX anything with 6 or more '#'s before the release! and review all uses of 080414.
+DEBUG_COPY = False # do not leave this as True in the release [bruce 080414]
 
 class ops_copy_Mixin:
     """
@@ -48,7 +47,7 @@ class ops_copy_Mixin:
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.delete_sel (Delete operation).
 
-    def cut(self):
+    def cut(self): # we should remove this obsolete alias shortly after the release. [bruce 080414 comment]
         print "bug (worked around): assy.cut called, should use its new name cut_sel" #bruce 050927
         if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
@@ -56,6 +55,7 @@ class ops_copy_Mixin:
     
     def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
+        ###BUG: this does not yet work properly for DNA. No time to fix for .rc1. [bruce 080414 late]
         mc = env.begin_op("Cut") #bruce 050908 for Undo
         try:
             cmd = greenmsg("Cut: ")
@@ -135,7 +135,7 @@ class ops_copy_Mixin:
             env.end_op(mc)
         return
 
-    def copy(self):
+    def copy(self): # we should remove this obsolete alias shortly after the release. [bruce 080414 comment]
         print "bug (worked around): assy.copy called, should use its new name copy_sel" #bruce 050927
         if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
@@ -161,15 +161,41 @@ class ops_copy_Mixin:
     def copy_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from copy
         #bruce 050523 new code
+
         # 1. what objects is user asking to copy?
-        
         cmd = greenmsg ("Copy: ")
+
+        from dna.model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
+            # must be runtime import; after release, clean up by doing it in class Assembly
+            # and referring to these as self.assy.DnaAxisChunk etc
+        
+        def chunks_to_copy_along_with(chunk):
+            """
+            Return a list (or other sequence) of chunks that we should copy along with chunk.
+            """
+            # after release, refactor by adding methods to these chunk classes.
+            if isinstance(chunk, DnaAxisChunk):
+                ladder = chunk.ladder
+                if ladder and ladder.valid: # don't worry about ladder.error
+                    return ladder.strand_chunks() #k
+            elif isinstance(chunk, DnaStrandChunk):
+                ladder = chunk.ladder
+                if ladder and ladder.valid:
+                    return ladder.axis_chunks() #k
+            else:
+                pass
+            return ()
         
         part = self
-        sel = selection_from_part(part, use_selatoms = use_selatoms)
+        sel = selection_from_part(part,
+                                  use_selatoms = use_selatoms,
+                                  expand_chunkset_func = chunks_to_copy_along_with
+                                  )
+        
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
         # and emit message about what we're about to do
+
         if debug_flags.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
             print "atom_debug: fyi: importing or reloading ops_copy from itself"
             import operations.ops_copy as hmm
@@ -190,9 +216,11 @@ class ops_copy_Mixin:
             whynot = copier.whynot()
             env.history.message(cmd + redmsg(whynot))
             return
+        
         # 3. do it
         new = copier.copy_as_node_for_shelf()
         self.shelf.addchild(new)
+
         # 4. clean up
         self.assy.update_parts()
             # overkill! should just apply to the new shelf items. [050308] ###@@@
@@ -363,6 +391,7 @@ class ops_copy_Mixin:
         @see:L{self._pasteChunk}, L{self._pasteGroup}, L{self._pasteJig}
         @see:L{MWsemantics.editPaste}, L{MWsemantics.editPasteFromClipboard}
         """
+        ###REVIEW: this has not been reviewed for DNA data model. No time to fix for .rc1. [bruce 080414 late]
         
         pastable = pastableNode 
         pos = mousePosition
@@ -573,6 +602,8 @@ class ops_copy_Mixin:
         delete all selected nodes or atoms in this Part
         [except the top node, if we're an immortal Part]
         """
+        ###REVIEW: this may not yet work properly for DNA. No time to review or fix for .rc1. [bruce 080414 late]
+        
         #bruce 050419 renamed this from kill, to distinguish it
         # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
@@ -875,6 +906,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             return (False, None)
         name = "Copied Selection" #k ?? add unique int?
         res = Group(name, self.assy, None, newstuff)
+            ### REVIEW: some other subclass of Group?
+            # use copy_with_provided_copied_partial_contents?
         return (True, res)
 
     def copy_as_list(self, make_partial_groups = True):
@@ -951,14 +984,15 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # Now clean up the toplevel Group structure of the copy, and return it.
         newstuff = self.newstuff
         del self.newstuff
-        assert (not self.make_partial_groups) or (not newstuff or len(newstuff) == 1)
+        ## assert (not self.make_partial_groups) or (not newstuff or len(newstuff) == 1)
+        if not ((not self.make_partial_groups) or (not newstuff or len(newstuff) == 1)): # weakened to print, just in case, 080414
+            print "fyi: old sanity check failed: assert (not self.make_partial_groups) or (not newstuff or len(newstuff) == 1)"
             # since either verytopnode is a leaf and refused or got copied,
             # or it's a group and copied as one (or all contents refused -- not sure if it copies then #k)
             # (this assert is not required by following code, it's just here as a sanity check)
         # strip off unneeded groups at the top, and return None if nothing got copied
-        while len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
-            if DEBUG_COPY:
-                print "debug copy: discarding the outer Group wrapper of: %r" % newstuff[0]
+        while len(newstuff) == 1 and \
+              self._dissolveable_and_in_tentative_new_groups( newstuff[0]):
             newstuff = newstuff[0].steal_members()
         if not newstuff:
             # everything refused to be copied. Can happen (e.g. for a single selected jig at the top).
@@ -968,6 +1002,27 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # further processing depends on the caller (a public method of this class)
         return newstuff
 
+    def _dissolveable_and_in_tentative_new_groups(self, group): #bruce 080414
+        # note: this method name is intended to be findable when searching for tentative_new_groups;
+        # otherwise I'd call this _dissolveable_tentative_group.
+        res = id(group) in self.tentative_new_groups and \
+              not self._non_dissolveable_group(group)
+        if DEBUG_COPY and res:
+            print "debug copy: discarding the outer Group wrapper of: %r" % group
+        return res
+    
+    def _non_dissolveable_group(self, group): #bruce 080414
+        """
+        id(group) is in self.tentative_new_groups, and if it's an ordinary
+        Group we will dissolve it and use its members directly,
+        since we made it but it was not selected initially during this copy.
+        But, not all Groups want us to dissolve them then!
+        Return True if this is one of the special kinds that doesn't want that.
+        """
+        DnaStrandOrSegment = self.assy.DnaStrandOrSegment
+        DnaGroup = self.assy.DnaGroup        
+        return isinstance(group, DnaGroup) or isinstance(group, DnaStrandOrSegment)
+    
     def autogroup_if_several(self, newstuff): #bruce 050527
         #e should probably refile this into self.assy or so,
         # or even into Node or Group (for target node which asks for the grouping to do),
@@ -1060,6 +1115,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # Since this only happens for Anchor jigs, and the semantics are same as copying them fully,
             # for now I'll just use the same method... later we can introduce a distinct 'copy_partial_in_mapping'
             # if there's some reason to do so.
+            # [note, update 080414: 'copy_partial_in_mapping' is used in class Node as an alias
+            #  for (the Node implem of) copy_full_in_mapping, even though it's never called.]
             res = orig.copy_full_in_mapping(self)
         elif orig.is_group():
             # what this section does depends on self.make_partial_groups, so is described
@@ -1078,21 +1135,40 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             else:
                 newstuff = None
                 ## print "not self.make_partial_groups" # fyi: this does happen, for DND of copied nodes onto a node
+                ###BUG: this does not yet work properly for DNA. No time to fix for .rc1. [bruce 080414 late]
             if newstuff:
                 # if self.make_partial_groups, this means: if anything in orig was copied.
                 # otherwise, this means: always false (don't run this code).
                 # [bruce 080414 comment]
                 
-                # we'll make some sort of Group from it, as a partial copy of orig
+                # we'll make some sort of Group from newstuff, as a partial copy of orig
                 # (note that orig is a group which was not selected, so is only needed
                 #  to hold copies of selected things inside it, perhaps at lower levels
                 #  than its actual members)
-                if len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
+
+                # first, if newstuff has one element which is a Group we made,
+                # decide whether to merge it into the group we'll make as a partial copy
+                # of orig, or not. As part of fixing copy of Dna bugs [bruce 080414],
+                # I'll modify this to never dissolve a DnaStrandOrSegment or a DnaGroup.
+                # After the release we can figure out a more principled way of asking
+                # the group whether to dissolve it here -- this might be determinable
+                # from existing Group API attrs or methods, or require new ones.
+                # (Note that debug prefs that open up groups in the MT for seeing into
+                #  or ungrouping should *not* thereby affect copy behavior, even if they
+                #  affect MT drop-on behavior.)
+
+                # make sure i got these attr names right [remove when works]
+                DnaStrandOrSegment = self.assy.DnaStrandOrSegment
+                DnaGroup = self.assy.DnaGroup
+
+                if len(newstuff) == 1 and \
+                   self._dissolveable_and_in_tentative_new_groups( newstuff[0]):
                     # merge names (and someday, pref settings) of orig and newstuff[0]
-                    #update, bruce 080414: probably don't merge them if special classes
-                    # (i.e. DnaStrandOrSegment, DnaGroup)
+                    #update, bruce 080414: use non_dissolveable_group to not merge them
+                    # if special classes (i.e. DnaStrandOrSegment, DnaGroup)
                     # unless they are a special case that is mergable in a special way
-                    # (hopefully controlled by methods on one or both of the orig objects) ######FIX
+                    # (hopefully controlled by methods on one or both of the orig objects)
+                    # (no such special case is yet needed).
                     innergroup = newstuff[0]
                     name = orig.name + '/' + innergroup.name
                     newstuff = innergroup.steal_members()
@@ -1100,10 +1176,13 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                         # would have merged with its own member if possible
                 else:
                     name = orig.name
-                res = Group(name, self.assy, None, newstuff)
-                    # note, this pulls those members out of innergroup, if still there (slow?)
+                ## res = Group(name, self.assy, None, newstuff)
+                res = orig.copy_with_provided_copied_partial_contents( name, self.assy, None, newstuff ) #bruce 080414
+                    # note: if newstuff elements are still members of innergroup
+                    # (not sure if this is true after steal_members! probably not. should review.),
+                    # this constructor call pulls them out of innergroup (slow?)
                     #update, bruce 080414: this probably needs to make a special class of Group
-                    # (by asking orig what class to use) in some cases ######FIX
+                    # (by asking orig what class to use) in some cases... now it does!
                 self.tentative_new_groups[id(res)] = res
                     # mark it as tentative so enclosing-group copies are free to discard it and more directly wrap its contents
                 ## record_copy is probably not needed, but do it anyway just for its assertions, for now:

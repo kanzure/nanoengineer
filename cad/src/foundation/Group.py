@@ -950,6 +950,9 @@ class Group(NodeWithAtomContents):
         # the class to use for making copies. [bruce 080314, comment revised 080331]
         class_for_copies = self._class_for_copies(mapping)
         new = class_for_copies(self.name, mapping.assy, None)
+
+        ## probably not needed: self._copy_editCommand_to_copy_of_self_if_desirable(new)
+        
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name; also copies .open
             # (This might be wrong for some Group subclasses! Not an issue for now, but someday
@@ -970,6 +973,46 @@ class Group(NodeWithAtomContents):
         # default implem, for subclasses meant for new model objects
         del mapping
         return self.__class__ 
+
+# probably not needed (based on Ninad reply to Bruce email query, 080414 late;
+#  if this is confirmed, we can remove it entirely after the release --
+#  and maybe we can remove everything about editCommand from this class?
+#  I don't know...):
+##    def _copy_editCommand_to_copy_of_self_if_desirable(self, new): #bruce 080414, total guess
+##        """
+##        New is a copy or partial copy of self. If it is a good idea to do so,
+##        copy self.editCommand to new.editCommand.
+##        """
+##        if not new.editCommand and self.editCommand and new.assy is self.assy:
+##            new.editCommand = self.editCommand
+##        return
+    
+    def copy_with_provided_copied_partial_contents( self, name, assy, dad, members): #bruce 080414
+        """
+        Imitate Group(name, assy, dad, members) but using the correct class
+        for copying self. (Arg signature is like that of Group.__init__
+        except that all args are required.)
+
+        @param dad: None, or a node we should make our new parent node.
+
+        @note: in current calls, members will be a partial copy of self.members,
+               possibly modified with wrapping groups, merged or dissolved internal
+               groups, partialness of copy at any level, etc.
+
+        @note: assy might not be self.assy, but will be the assy of all passed
+               members and dad.
+        """
+        mapping = "KLUGE: we know all implems of _class_for_copies ignore this argument"
+            # this KLUGE needs cleanup after the release
+        class_for_copies = self._class_for_copies(mapping)
+        new = class_for_copies(name, assy, dad, members)
+        ## probably not needed: self._copy_editCommand_to_copy_of_self_if_desirable(new)
+        self.copy_copyable_attrs_to(new)
+            # redundantly copies .name [messing up the one we just passed]; also copies .open
+            # (This might be wrong for some Group subclasses! Not an issue for now, but someday
+            #  it might be better to use attrlist from target, or intersection of their attrlists...)
+        new.name = name # fix what copy_copyable_attrs_to might have messed up
+        return new
 
     # ==
 

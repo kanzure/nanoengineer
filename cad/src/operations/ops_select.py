@@ -1,14 +1,19 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
+
+Various improvements since then, by various developers.
+
+TODO: probably needs some refactoring, judging by the imports
+as of 080414.
 """
 
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
@@ -1001,7 +1006,7 @@ class ops_select_Mixin:
         part = self
         return selection_for_entire_part( part)
 
-    def selection_from_MT(self): #bruce 050523; might not yet be used
+    def selection_from_MT(self): #bruce 050523; not used as of 080414, but might be someday
         """
         [#doc]
         """
@@ -1030,17 +1035,22 @@ def topmost_selected_nodes(nodes): #bruce 050523 split this out from the same-na
 # ==
 
 def selection_from_glpane( part): #bruce 050523 split this out as intermediate helper function; revised 050523
+    # note: as of 080414 this is used only in sim_commandruns.py and MinimizeEnergyProp.py
     return Selection( part, atoms = part.selatoms, chunks = part.selmols )
 
-def selection_from_MT( part): #bruce 050523; might not yet be used
+def selection_from_MT( part): #bruce 050523; not used as of 080414, but might be someday
     return Selection( part, atoms = {}, nodes = topmost_selected_nodes([part.topnode]) )
 
-def selection_from_part( part, use_selatoms = True): #bruce 050523
+def selection_from_part( part, use_selatoms = True, expand_chunkset_func = None): #bruce 050523
+    # note: as of 080414 all ultimate uses of this are in ModelTree.py or ops_copy.py
     if use_selatoms:
         atoms = part.selatoms
     else:
         atoms = {}
-    return Selection( part, atoms = atoms, nodes = topmost_selected_nodes([part.topnode]) )
+    res = Selection( part, atoms = atoms, nodes = topmost_selected_nodes([part.topnode]) )
+    if expand_chunkset_func:
+        res.expand_chunkset(expand_chunkset_func)
+    return res
 
 def selection_for_entire_part( part): #bruce 050523 split this out, revised it
     return Selection( part, atoms = {}, chunks = part.molecules )
@@ -1049,7 +1059,9 @@ def selection_from_atomlist( part, atomlist): #bruce 051129, for initial use in 
     return Selection( part, atoms = atomdict_from_atomlist(atomlist) )
 
 def atomdict_from_atomlist(atomlist): #bruce 051129 [#e should refile -- if I didn't already implement it somewhere else]
-    "Given a list of atoms, return a dict mapping atom keys to those atoms."
+    """
+    Given a list of atoms, return a dict mapping atom keys to those atoms.
+    """
     return dict( [(a.key, a) for a in atomlist] )
 
 class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection; revised 050523
@@ -1091,7 +1103,8 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
 
         Some methods assume only certain kinds of object arguments were 
         passed (see their docstrings for details).
-        """ #bruce 051129 revised docstring -- need to review code to verify its accuracy. ###k
+        """
+        #bruce 051129 revised docstring -- need to review code to verify its accuracy. ###k
         # note: topnodes might not always be provided;
         # when provided it should be a list of nodes in the part compatible with selmols
         # but containing groups and jigs as well as chunks, and not containing members of groups it contains
@@ -1161,11 +1174,40 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             self.selmols_dict = res
             return res
         raise AttributeError, attr
+    
     def picks_atom(self, atom): #bruce 050526
         """
         Does this selection include atom, either directly or via its chunk?
         """
         return atom.key in self.selatoms or id(atom.molecule) in self.selmols_dict
+    
+    def picks_chunk(self, chunk): #bruce 080414
+        """
+        Does this selection include chunk, either directly or via a containing
+        Group in topnodes?
+        """
+        return id(chunk) in self.selmols_dict
+    
+    def add_chunk(self, chunk): #bruce 080414
+        """
+        If not self.picks_chunk(chunk), add chunk to this selection
+        (no effect on external selection state i.e. chunk.picked).
+        Otherwise do nothing.
+        """
+        if not self.picks_chunk(chunk):
+            self.selmols_dict[id(chunk)] = chunk
+            self.selmols.append(chunk)
+            # sometimes self.selmols is the same mutable list as self.topnodes.
+            # if so, preserve this, otherwise also add to self.topnodes
+            if self.topnodes and self.topnodes[-1] is chunk:
+                pass
+            else:
+                self.topnodes.append(chunk)
+            # (note: modifying those attrs is only permissible because
+            #  __init__ shallow-copies those lists)
+            pass
+        return
+    
     def describe_objects_for_history(self):
         """
         Return a string like "5 items" but more explicit if possible, for use
@@ -1184,6 +1226,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             res += fix_plurals( "%d atom(s)" % len(self.selatoms) )
             #e could say "other atoms" if the selected nodes contain any atoms
         return res
+    
     def expand_atomset(self, ntimes = 1): #bruce 051129 for use in Local Minimize; compare to selectExpand
         """
         Expand self's set of atoms (to include all their real-atom neighbors)
@@ -1207,6 +1250,29 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
                 for a2 in a1.realNeighbors():
                     atoms[a2.key] = a2 # analogous to a2.pick()
         return
+
+    def expand_chunkset(self, func): #bruce 080414
+        """
+        func can be called on one chunk to return a list of chunks.
+        Expand the set of chunks in self (once, not recursively)
+        by including all chunks in func(orig) for orig being any chunk
+        originally in self (when this is called). Independently protect
+        from exceptions in each call of func, and also from the bug
+        of func returning None.
+        """
+        for chunk in list(self.selmols):
+            try:
+                more_chunks = func(chunk)
+                assert more_chunks is not None
+            except:
+                print_compact_traceback("ignoring exception in, or returning of None by, %r(%r): " % (func, chunk))
+                more_chunks = ()
+            if more_chunks:
+                for chunk2 in more_chunks:
+                    self.add_chunk(chunk2)
+            continue
+        return
+                
     pass # end of class Selection
 
 # end
