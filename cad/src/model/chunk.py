@@ -1860,7 +1860,17 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         disp = self.get_dispdef(glpane) 
             # piotr 080401: Moved it here, because disp is required by 
             # _draw_external_bonds.
-
+            
+        # piotr 080415: fixing bug 2785 again (not in rc1)
+        # Non-DNA chunks shouldn't be drawn using the diDNACYLINDER style. 
+        if disp == diDNACYLINDER \
+           and not (self.isAxisChunk() or
+                    self.isStrandChunk()): # non-DNA chunk
+            disp = diDEFAULT # use diDEFAULT instead
+            # note: it should never happen that disp == diDNACYLINDER
+            # if the global display style == diDNACYLINDER and the chunk is non-DNA. 
+            # self.get_dispdef takes care of that case.
+            
         if is_chunk_visible:
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
             # external bonds (unless a separate debug pref is set.) 
@@ -2297,7 +2307,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     continue
                 ColorSorter.finish()
                 pass
-            pass
+            pass                    
         else:
             if self.get_dispdef() == diDNACYLINDER :
                 #If the chunk is drawn with the DNA cylinder display style, 
@@ -2327,6 +2337,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     continue
                 continue
             pass
+
         return
 
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
@@ -2998,12 +3009,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # remake) if user selects several chunks and changes them all
             # at once, and some are already set to disp.
             return
-
-        # piotr 080409: fixing bug 2785
-        if disp == diDNACYLINDER \
-           and not (self.isAxisChunk() or
-                    self.isStrandChunk()): # non-DNA chunk
-            return # don't change anything
 
         self.display = disp
         # inlined self.changeapp(1):
