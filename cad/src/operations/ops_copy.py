@@ -1,14 +1,16 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
+
+bruce extended it at various later times.
 """
 
 from utilities import debug_flags
@@ -29,6 +31,9 @@ from utilities.constants import noop
 from geometry.VQT import V
 from geometry.BoundingBox import BBox
 from model.jigs import Jig
+
+DEBUG_COPY = True # do not leave this as True in the release!!!! [bruce 080414] ###############  @@@@@@@@@@@
+###### FIX anything with 6 or more '#'s before the release! and review all uses of 080414.
 
 class ops_copy_Mixin:
     """
@@ -199,13 +204,16 @@ class ops_copy_Mixin:
     def copy_sel_in_same_part(self, use_selatoms = True): 
         """
         Copies the selected object in the same part.
+        
         @param  use_selatoms: If true, it uses the selected atoms in the GLPane 
                 for copying. 
+
         @type   use_selatoms: boolean
+
         @return copiedObject: Object copied and added to the same part
                 (e.g. Group, chunk, jig) 
                 
-        Uses: Used in mirror operation.
+        @note: Uses: Used in mirror operation.
         """
         #NOTE: This uses most of the code in copy_sel. 
         
@@ -618,6 +626,8 @@ class ops_copy_Mixin:
 
 # ==
 
+### TODO: after the release, should split this into two files at this point. [bruce 080414 comment]
+
 DEBUG_ORDER = False #bruce 070525, can remove soon
 
 def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = False):
@@ -633,8 +643,9 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = 
     copy_nodes_in_order instead.
     
     @note: _sort is a private option for use by copy_nodes_in_order.
+
+    @note: this method is used for several kinds of copying, not only for DND.
     """
-    # note: this method is used for several kinds of copying, not only for DND
     if not nodes:
         return None
     if DEBUG_ORDER:
@@ -708,10 +719,12 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     """
     Control one run of an operation which copies selected nodes and/or atoms.
 
-    Note: When this is passed to Node copy routines, it's referred to in argument names as a mapping.
+    @note: When this is passed to Node copy routines, it's referred to in their
+           argument names as a mapping.
     """
     def __init__(self, sel, assy = None):
-        """Create a new Copier for a new (upcoming) copy operation,
+        """
+        Create a new Copier for a new (upcoming) copy operation,
         where sel is a Selection object which represents the set of things we'll copy
         (or maybe a superset of that?? #k),
         and assy (optional) is the assembly object which should contain the new node copies
@@ -726,6 +739,9 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         """
         Figure out whether to make a new toplevel Group,
         whether to copy any nonselected Groups or Chunks with selected innards, etc.
+
+        @note: in spite of the name, this is also used by copied_nodes_for_DND
+               (which is itself used for several kinds of copying, not only for DND).
         """
         # Rules: partly copy (just enough to provide a context or container for other copied things):
         # - any chunk with copied atoms (since atoms can't live outside of chunks),
@@ -851,6 +867,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         containing copies of the top selected nodes (perhaps partially grouped if they were in the original),
         even if there is only one top selected node.
         """
+        # review: is this used by anything accessible from the UI?
         if [self.sel.part.topnode] == self.sel.topnodes:
             return (False, self.sel.part.topnode)
         newstuff = self.copy_as_list( make_partial_groups = True) # might be None
@@ -894,7 +911,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
 
         # Now handle the bonds that were not made when atoms were copied.
         # (Someday we might merge this into the "finishing up" (for jigs) that happens
-        #  later. The order of this vs. that vs. group cleanup should not matter.)
+        #  later. The order of this vs. that vs. group cleanup should not matter.
+        #  [update 080414: a comment below, dated [bruce 050704], says it might matter now.])
         halfbonds = {}
         actualbonds = {}
         origid_to_copy = self.origid_to_copy
@@ -939,6 +957,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # (this assert is not required by following code, it's just here as a sanity check)
         # strip off unneeded groups at the top, and return None if nothing got copied
         while len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
+            if DEBUG_COPY:
+                print "debug copy: discarding the outer Group wrapper of: %r" % newstuff[0]
             newstuff = newstuff[0].steal_members()
         if not newstuff:
             # everything refused to be copied. Can happen (e.g. for a single selected jig at the top).
@@ -961,6 +981,16 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # not sure when to do that or how to trigger it; probably could create a
                 # fake old part here just to hold the name...
                 # addendum, 050527: new prior_part feature might be doing this now; find out sometime #k
+                #update, bruce 080414: does this ever need to make a special class of Group?
+                # answer: not due to its members or where they came from -- if they needed that,
+                # then we needed to copy some Group around them when copying them
+                # in recurse (the kind of Group it stores in tentative_new_groups).
+                # but maybe, if the reason is based on where we plan to *put* the result.
+                # AFAIK that never matters yet, except that the reason we autogroup at all
+                # is that this matters for the clipboard. If in future we know we're
+                # pasting inside a special group (e.g. a DnaGroup), it might matter then
+                # (not sure) (alternatively the paste could modify our outer layers,
+                # perhaps using our internal record of whether they were tentative).
             newstuff = [res]
         return newstuff
         
@@ -969,6 +999,12 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         if len(newstuff) > 1: #revised 050527
             newstuff = self.autogroup_if_several(newstuff)
             (res,) = newstuff
+                # later comment [bruce 080414]:
+                # hmm, I think this means:
+                #   assert len(newstuff) == 1
+                #   res = newstuff[0]
+                # and after the upcoming release I should change it to that
+                # as a clarification.
         else:
             res = newstuff[0]
             # now rename it, like old code would do (in mol.copy), though whether
@@ -995,10 +1031,14 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         
     def recurse(self, orig): #e rename 
         """
-        copy whatever is needed from orig and below, but don't fix refs immediately; append new copies to self.newstuff
+        copy whatever is needed from orig and below, but don't fix refs
+        immediately; append new copies to self.newstuff.
+
+        @note: this is initially called on self.verytopnode.
         """
+        # review: should this method be renamed as private? [bruce 080414 comment]
         idorig = id(orig)
-        res = None
+        res = None # default result, changed in many cases below
         if idorig in self.fullcopy:
             res = orig.copy_full_in_mapping(self)
                 # recurses into groups, does atoms, bonds, jigs...
@@ -1022,7 +1062,13 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # if there's some reason to do so.
             res = orig.copy_full_in_mapping(self)
         elif orig.is_group():
+            # what this section does depends on self.make_partial_groups, so is described
+            # differently below in each clause of the following 'if' statement
+            # [bruce 080414 comments]:
             if self.make_partial_groups: #bruce 050527 made this optional so DND copy can not do it
+                # copy whatever needs copying from orig into a new self.newstuff
+                # that is initially [], and is the local var newstuff in later code,
+                # with the initial self.newstuff unchanged
                 save = self.newstuff
                 self.newstuff = []
             map( self.recurse, orig.members)
@@ -1033,12 +1079,20 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 newstuff = None
                 ## print "not self.make_partial_groups" # fyi: this does happen, for DND of copied nodes onto a node
             if newstuff:
+                # if self.make_partial_groups, this means: if anything in orig was copied.
+                # otherwise, this means: always false (don't run this code).
+                # [bruce 080414 comment]
+                
                 # we'll make some sort of Group from it, as a partial copy of orig
                 # (note that orig is a group which was not selected, so is only needed
                 #  to hold copies of selected things inside it, perhaps at lower levels
                 #  than its actual members)
                 if len(newstuff) == 1 and id(newstuff[0]) in self.tentative_new_groups:
                     # merge names (and someday, pref settings) of orig and newstuff[0]
+                    #update, bruce 080414: probably don't merge them if special classes
+                    # (i.e. DnaStrandOrSegment, DnaGroup)
+                    # unless they are a special case that is mergable in a special way
+                    # (hopefully controlled by methods on one or both of the orig objects) ######FIX
                     innergroup = newstuff[0]
                     name = orig.name + '/' + innergroup.name
                     newstuff = innergroup.steal_members()
@@ -1046,7 +1100,10 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                         # would have merged with its own member if possible
                 else:
                     name = orig.name
-                res = Group(name, self.assy, None, newstuff) # note, this pulls those members out of innergroup, if still there (slow?)
+                res = Group(name, self.assy, None, newstuff)
+                    # note, this pulls those members out of innergroup, if still there (slow?)
+                    #update, bruce 080414: this probably needs to make a special class of Group
+                    # (by asking orig what class to use) in some cases ######FIX
                 self.tentative_new_groups[id(res)] = res
                     # mark it as tentative so enclosing-group copies are free to discard it and more directly wrap its contents
                 ## record_copy is probably not needed, but do it anyway just for its assertions, for now:
