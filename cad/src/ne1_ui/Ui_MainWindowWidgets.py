@@ -551,7 +551,7 @@ def setupUi(win):
     win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Build Atoms"))
+        geticon("ui/actions/Tools/Build Structures/Build Chunks"))
 
     win.toolsCookieCutAction = QtGui.QWidgetAction(MainWindow)
     win.toolsCookieCutAction.setCheckable(1) # make the cookie button checkable
