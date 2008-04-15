@@ -181,8 +181,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #self.graphicsMode._draw_handles() is also a minor optimization
         #This can be further optimized by debug pref 
         #'call model_changed only when needed' but its NOT done because of an 
-        # issue menitoned in bug 2729   - Ninad 2008-04-07
-        
+        # issue menitoned in bug 2729   - Ninad 2008-04-07    
+               
         EditCommand.model_changed(self) #This also calls the 
                                         #propMgr.model_changed 
                                         
@@ -352,7 +352,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     def _updateStrandSequence_if_needed(self):
         if self.hasValidStructure():            
             new_numberOfBases = self.struct.getNumberOfBases()
-            self.propMgr.numberOfBasesSpinBox.setValue(new_numberOfBases)
+            
             #@TODO Update self._previousParams again? 
             #This NEEDS TO BE REVISED. BUG MENTIONED BELOW----
             #we already update this in EditCommand class. But, it doesn't work for 
@@ -365,6 +365,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             #like self.struct.getNumberOfBases()--Ninad 2008-04-07
             if self.previousParams is not None:
                 if new_numberOfBases != self.previousParams[0]:
+                    self.propMgr.numberOfBasesSpinBox.setValue(new_numberOfBases)
                     self.previousParams = self._gatherParameters()
             if not same_vals(new_numberOfBases, self._previousNumberOfBases):
                 self.propMgr.updateSequence()
@@ -515,22 +516,11 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE 
         
-        # Set handlePoints (i.e. their origins) and the handle directions to 
-        # None. The GraphicsMode checks if the handles ahve valid placement 
-        # attributes set before drawing it.
-        # For example, if the one of the strand end atoms is NOT at a 
-        # 'DnaSegment end' , then the handlePoint of the handle at that end will
-        # remain 'None' as a result.
-        self.handlePoint1 = None
-        self.handlePoint2 = None        
-        self.handleDirection1 = None
-        self.handleDirection2 = None
-        
         axisAtom1 = None
         axisAtom2 = None
         strandEndBaseAtom1 = None
         strandEndBaseAtom2 = None  
-        
+               
         #It could happen (baecause of bugs) that standEndBaseAtom1 and 
         #strandEndBaseAtom2 are one and the same! i.e strand end atom is 
         #not bonded. If this happens, we should throw a traceback bug 
@@ -546,18 +536,13 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                                 "has only one atom")
             return
         
+        
         if strandEndBaseAtom1:
             axisAtom1 = strandEndBaseAtom1.axis_neighbor()
             if axisAtom1:
                 self.handleDirection1 = self._get_handle_direction(axisAtom1, 
-                                                                   strandEndBaseAtom1)
-                
-                self.handlePoint1 = axisAtom1.posn()
-                #Alternate implementation --
-                #Position the handle midway between the axis and strand atoms
-                if 0:
-                    v1 = strandEndBaseAtom1.posn() - axisAtom1.posn()
-                    self.handlePoint1 = axisAtom1.posn() + v1/2.0
+                                                                   strandEndBaseAtom1)                
+                self.handlePoint1 = axisAtom1.posn()                
                 
         if strandEndBaseAtom2:
             axisAtom2 = strandEndBaseAtom2.axis_neighbor()
@@ -565,13 +550,27 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             if axisAtom2:
                 self.handleDirection2 = self._get_handle_direction(axisAtom2, 
                                                                    strandEndBaseAtom2)
-                self.handlePoint2 = axisAtom2.posn()
-                #Alternate implementation --
-                #Position the handle midway between the axis and strand atoms
-                if 0:
-                    v2 = strandEndBaseAtom2.posn() - axisAtom2.posn()
-                    self.handlePoint2 = axisAtom2.posn() + v2/2.0
+                self.handlePoint2 = axisAtom2.posn()   
+                
+       
+        # UPDATE 2008-04-15:
+        # Before 2008-04-15 the state attrs for exprs handles were always reset to None
+        #at the beginning of the method. But it is calling model_changed signal
+        #recursively. (se also bug 2729) So, reset thos state attrs only when 
+        #needed  -- Ninad  [ this fix was not in RattleSnake rc1] 
         
+        # Set handlePoints (i.e. their origins) and the handle directions to 
+        # None if the atoms used to compute these state attrs are missing. 
+        # The GraphicsMode checks if the handles have valid placement 
+        # attributes set before drawing it.        
+        
+        if strandEndBaseAtom1 is None or axisAtom1 is None:            
+            self.handleDirection1 = None
+            self.handlePoint1 = None
+        
+        if strandEndBaseAtom2 is None or axisAtom2 is None:            
+            self.handleDirection2 = None
+            self.handlePoint2 = None
         
         #update the radius of resize handle 
         self._update_resizeHandle_radius(axisAtom1, axisAtom2)
