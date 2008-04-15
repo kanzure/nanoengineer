@@ -1519,13 +1519,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.toolsSelectMoleculesAction.setWhatsThis\
        ( toolsSelectMoleculesActionText )
 
-    # Build Atoms
+    # Build Chunks
 
     toolsDepositAtomActionText = \
-        "<u><b>Build Atoms</b></u><!-- [[Feature:Build Atoms]] -->"\
+        "<u><b>Build Chunks</b></u><!-- [[Feature:Build Chunks]] -->"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
-        "<b>Build Atoms</b> allows you to build structures one atom at "\
+        "<b>Build Chunks</b> allows you to build structures one atom at "\
         "a time or by depositing objects that are on the paste "\
         "clipboard. You can also insert structures from the "\
         "NanoEngineer-1 Parts Library.</p>"\
