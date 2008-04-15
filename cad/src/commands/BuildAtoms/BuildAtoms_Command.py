@@ -609,12 +609,12 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #name)-ninad20070717
                 
         self.exitModeAction = QtGui.QWidgetAction(self.w)
-        self.exitModeAction.setText("Exit Atoms")
+        self.exitModeAction.setText("Exit Chunks")
         self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
         self.exitModeAction.setCheckable(True)
         self.exitModeAction.setChecked(True)
         self.exitModeAction.setWhatsThis(
-        """<b>Exit Atoms </b>
+        """<b>Exit Chunks </b>
         <p>
        Exits the Build Atoms Mode
         </p>""")
