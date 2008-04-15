@@ -260,11 +260,11 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
             self.phi = -135.0
             self.psi = 135.0
         elif idx == 3: # 3-10 helix
-            self.phi = -49.0
-            self.psi = -26.0
-        elif idx == 4: # pi helix
             self.phi = -55.0
             self.psi = -70.0
+        elif idx == 4: # pi helix
+            self.phi = -49.0
+            self.psi = -26.0
         elif idx == 5: # polyprolin-II
             self.phi = -75.0
             self.psi = 150.0

@@ -92,7 +92,53 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
         <p>
         Displays the current amino acid sequence 
         </p>""")
-    
+
+def whatsThis_PeptideGeneratorPropertyManager(propMgr):
+    """
+    "Whats This" text for widgets in the Peptide Generator Property Manager.
+    """
+    propMgr.aaTypeComboBox.setWhatsThis(
+        """<b>Chain Confirmation</b>
+        <p>
+        Lists the available confirmations for the polypeptide chain
+        </p>""")
+
+    propMgr.startOverButton.setWhatsThis(
+        """<b>Start Over</b>
+        <p>
+        Deletes the current sequence from the sequence editor
+        </p>""")
+
+    propMgr.phiAngleField.setWhatsThis(
+        """<b>Phi angle</b>
+        <p>
+        Sets a Phi dihedral backbone angle of the polypeptide chain  
+        </p>""")
+
+    propMgr.psiAngleField.setWhatsThis(
+        """<b>Psi angle</b>
+        <p>
+        Sets a Psi dihedral backbone angle of the polypeptide chain  
+        </p>""")
+
+    propMgr.invertChiralityPushButton.setWhatsThis(
+        """<b>Invert chirality</b>
+        <p>
+        Inverts a chirality of the polypeptide bakcbone   
+        </p>""")
+
+    propMgr.aaTypesButtonGroup.setWhatsThis(
+        """<b>Amino acids</b>
+        <p>
+        Adds an amino acid to the constructed peptide   
+        </p>""")
+
+    propMgr.sequenceEditor.setWhatsThis(
+        """<b>Sequence Editor</b>
+        <p>
+        Displays the current amino acid sequence 
+        </p>""")
+
     return # End of whatsThis_PeptideGeneratorPropertyManager
 
 
