@@ -225,7 +225,7 @@ class ops_rechunk_Mixin:
         
         return newChunk 
 
-    def makeStrandChunkFromBrokenStrand(self, x1, x2):
+    def makeStrandChunkFromBrokenStrand(self, x1, x2): # by Mark
         """
         Makes a new strand chunk using the two singlets just created by
         busting the original strand, which is now broken. If the original
@@ -250,10 +250,15 @@ class ops_rechunk_Mixin:
                  is created, as is the case of a ring.
         @rtype:  L{Chunk}
         """
-        minimize = debug_pref("Adjust open bond singlets using minimizer?",
+        minimize = debug_pref("Adjust broken strand bondpoints using minimizer?",
+                          #bruce 080415 revised text (to not use the developer-
+                          # jargon-only term "singlet"), changed prefs_key,
+                          # and removed non_debug = True, for .rc2 release,
+                          # since the repositioning bug this worked around
+                          # is now fixed.
                          Choice_boolean_False,
-                         prefs_key = '_debug_pref_key:Adjust open bond singlets using minimizer?',
-                         non_debug = True )
+                         prefs_key = True,
+                    )
         
         _five_prime_atom = None
         _three_prime_atom = None
@@ -270,10 +275,10 @@ class ops_rechunk_Mixin:
         # If not, there is probably a direction error on the open bond(s)
         # that x1 and/or x2 are members of.
         if not _five_prime_atom:
-            print_compact_stack("No 5' singlet.")
+            print_compact_stack("No 5' bondpoint.")
             return None
         if not _three_prime_atom:
-            print_compact_stack("No 3' singlet.")
+            print_compact_stack("No 3' bondpoint.")
             return None
             
         atomList = self.o.assy.getConnectedAtoms([_five_prime_atom])
