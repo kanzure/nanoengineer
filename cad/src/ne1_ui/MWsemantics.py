@@ -1335,7 +1335,7 @@ class MWsemantics(QMainWindow,
         from utilities.version import Version
         v = Version()
         product = v.product
-        versionString = repr(v)
+        versionString = "Version " + repr(v)
         if v.releaseType:
             versionString += (" (%s)" % v.releaseType)
         date = "Release Date: " + v.releaseDate
@@ -1345,7 +1345,7 @@ class MWsemantics(QMainWindow,
         installdir = "Running from: " + filePath
         techsupport = "For technical support, send email to support@nanorex.com"
         website = "Website: www.nanoengineer-1.com"
-        wiki = "Wiki: www.nanoengineer-1.net"
+        wiki = "Wiki and Tutorials: www.nanoengineer-1.net"
         aboutstr = product + " " + versionString \
                  + "\n\n" \
                  + date \
