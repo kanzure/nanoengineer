@@ -69,7 +69,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
     # The relative path to the PNG file that appears in the header
-    iconPath = "ui/actions/Tools/Build Structures/Build Atoms.png"
+    iconPath = "ui/actions/Tools/Build Structures/Build Chunks.png"
     
     def __init__(self, parentMode):
         """
