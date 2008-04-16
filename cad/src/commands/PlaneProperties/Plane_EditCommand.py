@@ -1,9 +1,9 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Plane_editCommand.py
+Plane_EditCommand.py
 
 @author: Ninad,
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
 History:
@@ -11,6 +11,14 @@ ninad 20070606: Created.
 ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to Plane_EditCommand
                   while refactoring the old GeometryGeneratorBaseClass
 ninad 2007-12-26: Changes to make Plane_EditCommand a command on command stack
+
+@TODO 2008-04-15:
+Note that Plane_EditCommand was originally implemented before the command 
+sequencer was operational. This class and its Property Manager has some methods 
+that need cleanup to matchup with the command/commandsequencer API. 
+e.g. in its PM, the method update_props_if_needed_before_closing need to be 
+revised because there is any easy way now, to know which command is currently 
+active.Also a general clanup is due -- Ninad
 """
 
 from utilities.Log import greenmsg
@@ -39,6 +47,12 @@ class Plane_EditCommand(EditCommand):
     # sponsor_keyword = ('Graphenes', 'Carbon')
     sponsor_keyword = 'Plane'
     #See Command.anyCommand for details about the following flags
+    
+    #command_can_be_suspended = False mitigates bug similar to bug 2699
+    #(atleast it removes the property manager) . Actual fix will be cleanup of 
+    #command/command sequencer and inscreasing the command stack depth
+    #-- Ninad 2008-04-15
+    command_can_be_suspended = False 
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
         # When <command_should_resume_prevMode> and <command_has_its_own_gui>
@@ -86,6 +100,37 @@ class Plane_EditCommand(EditCommand):
             self.struct = None
         
         EditCommand.Enter(self)
+        
+    def restore_gui(self):
+        """
+        @see: EditCommand.restore_gui
+        """
+        EditCommand.restore_gui(self)
+        #Following call doesn't update the struct with steps similar to 
+        #ones in bug 2699. Instead calling struct.updateCosmeticProps directly
+        ##self.propMgr.update_props_if_needed_before_closing()
+        if self.hasValidStructure():
+            self.struct.updateCosmeticProps() 
+        
+        
+    def hasValidStructure(self):
+        """        
+        Tells the caller if this edit command has a valid structure. 
+        Overrides EditCommand.hasValidStructure()
+        @see: EditCommand.hasValidSructure()
+        """
+
+        isValid = EditCommand.hasValidStructure(self)
+
+        if not isValid:
+            return isValid
+
+        if not isinstance(self.struct, Plane): 
+            return False  
+        
+        return True
+    
+        
 
     def _createPropMgrObject(self):
         """
