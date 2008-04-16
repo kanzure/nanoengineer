@@ -1091,7 +1091,7 @@ class SimRunner:
                     # user potential function table passed to
                     # mdrun.  See GROMACS user manual section
                     # 6.6.2
-                    simopts.VanDerWaalsCutoffRadius = 10.0
+                    simopts.VanDerWaalsCutoffRadius = 3.0
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.

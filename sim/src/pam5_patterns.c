@@ -119,10 +119,8 @@ static double vDax_p[8];
 static double vDax_q[8];
 static double vDbx_p[8];
 static double vDbx_q[8];
-static double vDn_pq;
 static struct atomType *vDa_type[8];
 static struct atomType *vDb_type[8];
-static struct atomType *vDn_type;
 
 static struct bondStretch *stretch_5_Pl_Ss_3;
 static struct bondStretch *stretch_5_Ss_Pl_3;
@@ -159,10 +157,6 @@ init_stack_match(void)
     param = getPatternParameter(buf); BAIL();
     vDbx_q[i] = param->value;
   }
-  vDn_type = getAtomTypeByName("vDn");
-  param = getPatternParameter("PAM5-Stack:vDn-pq"); BAIL();
-  vDn_pq = param->value;
-
   param = getPatternParameter("PAM5:5-Pl-Ss-3_r0"); BAIL();
   r0 = param->value; // pm
   param = getPatternParameter("PAM5:5-Pl-Ss-3_ks"); BAIL();
@@ -181,21 +175,14 @@ init_stack_match(void)
 static void
 pam5_basepair_match(struct patternMatch *match)
 {
-  struct atom *aG  = match->p->atoms[match->atomIndices[0]];
   struct atom *aS1 = match->p->atoms[match->atomIndices[1]];
   struct atom *aS2 = match->p->atoms[match->atomIndices[2]];
-  struct atom *aV;
   struct bond *bond;
 
   pam5_requires_gromacs(match->p); BAIL();
   init_stack_match();
   bond = makeBond(match->p, aS1, aS2, '1');
   queueBond(match->p, bond);
-  aV = makeVirtualAtom(vDn_type, sp3, 3, 1,
-                       aG, aS1, aS2, NULL,
-                       vDn_pq, vDn_pq, 0.0);
-  aG->creationParameters.r.associatedAtom = aV;
-  queueAtom(match->p, aV);
   //printMatch(match);
 }
 

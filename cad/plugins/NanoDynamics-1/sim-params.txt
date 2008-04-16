@@ -110,7 +110,7 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 #
 #  rvdW evdW start end name
 
-vdw 1800.0 0.1 100.0 7.2 vDn-v-vDn
+vdw 700.0 10.0 100.0 7.2 Pl5-v-Pl5
 
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Pl3
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Se3
@@ -149,7 +149,7 @@ stretch   4.00  357.00  1.0000   -1         -1       9    1   Pe5-1-Hp5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   Sh5-1-Hp5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
 
-stretch  10.00 1075.00  1.0000   -1         -1       9    1   Ss5-1-Ss5
+stretch  10.00 1075.00  1.0000   -1         -1       9    6   Ss5-1-Ss5
 stretch  10.00  923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
 stretch  10.00  923.40  1.0000   -1         -1       9    1   Gr5-1-Ss5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
@@ -440,14 +440,14 @@ pattern PAM5-Stack:vDn-pq              0.250
 
 #         ks       r0    de      beta    inflectionR qual quad bondName
 
-stretch  1.69474  369.32 1.0000   -1         -1       9    1   vDa1-1-vDb1
-stretch  1.69474  369.32 1.0000   -1         -1       9    1   vDa2-1-vDb2
-stretch  0.94669  363.60 1.0000   -1         -1       9    1   vDa3-1-vDb3
-stretch  0.94669  363.60 1.0000   -1         -1       9    1   vDa4-1-vDb4
-stretch  1.04685  840.87 1.0000   -1         -1       9    1   vDa5-1-vDb5
-stretch  0.57124  339.60 1.0000   -1         -1       9    1   vDa6-1-vDb6
-stretch  0.38792  336.04 1.0000   -1         -1       9    1   vDa7-1-vDb7
-stretch  0.00000    0.0  1.0000   -1         -1       9    1   vDa8-1-vDb8
+stretch  1.69474  381.6  1.0000   -1         -1       9    6   vDa1-1-vDb1
+stretch  1.69474  381.6  1.0000   -1         -1       9    6   vDa2-1-vDb2
+stretch  0.94669  416.3  1.0000   -1         -1       9    6   vDa3-1-vDb3
+stretch  0.94669  416.3  1.0000   -1         -1       9    6   vDa4-1-vDb4
+stretch  1.04685  834.1  1.0000   -1         -1       9    6   vDa5-1-vDb5
+stretch  0.57124  339.8  1.0000   -1         -1       9    6   vDa6-1-vDb6
+stretch  0.38792  324.6  1.0000   -1         -1       9    6   vDa7-1-vDb7
+stretch  0.00000    0.0  1.0000   -1         -1       9    6   vDa8-1-vDb8
 
 stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
 stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5

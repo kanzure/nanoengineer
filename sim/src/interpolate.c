@@ -408,7 +408,7 @@ gradientBuckingham(double r, void *p)
 // value smoothly changes to 0 by the time r == end, after which it
 // remains 0.
 //
-// Potential functions are mulitplied by the switching function S:
+// Potential functions are multiplied by the switching function S:
 //
 //          (r/start - 1)^4
 // S = (1 - ----------------- ) ^4

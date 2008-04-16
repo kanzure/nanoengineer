@@ -52,8 +52,44 @@ writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a
     }
 }
 
-struct atomType *vDn_type = NULL;
-struct atomType *P5G_type = NULL;
+struct atomType *Gv5_type = NULL;
+struct atomType *Pl5_type = NULL;
+
+//   Pl   Pl   Pl
+//   |    |    |
+//  Gv1--Gv2--Gv3
+//   |    |    |
+//   Pl   Pl   Pl
+
+static int
+writeExclusionsOnOneGroove(FILE *top,
+                           struct part *p,
+                           struct atom *first,
+                           struct atom *groove,
+                           int gotOne)
+{
+    struct atom *toExclude;
+    struct bond *b;
+    int i;
+
+    for (i=0; i<groove->num_bonds; i++) {
+        b = groove->bonds[i];
+        toExclude = NULL;
+        if (b->a1 == groove && b->a2 != first && atomIsType(b->a2, Pl5_type)) {
+            toExclude = b->a2;
+        } else if (b->a2 == groove && b->a1 != first && atomIsType(b->a1, Pl5_type)) {
+            toExclude = b->a1;
+        }
+        if (toExclude != NULL) {
+            if (!gotOne) {
+                fprintf(top, "%d", atomNumber(p, first));
+                gotOne = 1;
+            }
+            fprintf(top, " %d", atomNumber(p, toExclude));
+        }
+    }
+    return gotOne;
+}
 
 static int
 writeExclusion(FILE *top,
@@ -64,26 +100,18 @@ writeExclusion(FILE *top,
                int gotOne,
                int depth)
 {
-    struct atom *vDn;
     struct bond *b;
     int i;
 
-    vDn = groove2->creationParameters.r.associatedAtom;
-    if (vDn != NULL && atomIsType(vDn, vDn_type)) {
-        if (!gotOne) {
-            fprintf(top, "%d", atomNumber(p, first));
-            gotOne = 1;
-        }
-        fprintf(top, " %d", atomNumber(p, vDn));
-    }
+    gotOne |= writeExclusionsOnOneGroove(top, p, first, groove2, gotOne);
     if (--depth < 1) {
         return gotOne;
     }
     for (i=0; i<groove2->num_bonds; i++) {
         b = groove2->bonds[i];
-        if (b->a1 == groove2 && b->a2 != groove1 && atomIsType(b->a2, P5G_type)) {
+        if (b->a1 == groove2 && b->a2 != groove1 && atomIsType(b->a2, Gv5_type)) {
             gotOne |= writeExclusion(top, p, first, groove2, b->a2, gotOne, depth);
-        } else if (b->a2 == groove2 && b->a1 != groove1 && atomIsType(b->a1, P5G_type)) {
+        } else if (b->a2 == groove2 && b->a1 != groove1 && atomIsType(b->a1, Gv5_type)) {
             gotOne |= writeExclusion(top, p, first, groove2, b->a1, gotOne, depth);
         }
     }
@@ -98,63 +126,35 @@ writeExclusion(FILE *top,
 static void
 writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
 {
-    struct atom *groove1;
     struct bond *b;
+    struct atom *first;
     int i;
+    int j;
     int gotOne = 0;
     
-    if (!atomIsType(a, vDn_type)) {
+    if (!atomIsType(a, Gv5_type)) {
         return;
     }
-    groove1 = a->creationParameters.v.virtual1;
-    if (groove1 != NULL) {
-        for (i=0; i<groove1->num_bonds; i++) {
-            b = groove1->bonds[i];
-            if (b->a1 == groove1 && atomIsType(b->a2, P5G_type)) {
-                gotOne = writeExclusion(top, p, a, groove1, b->a2, gotOne, DEPTH_TO_EXCLUDE);
-            } else if (b->a2 == groove1 && atomIsType(b->a1, P5G_type)) {
-                gotOne = writeExclusion(top, p, a, groove1, b->a1, gotOne, DEPTH_TO_EXCLUDE);
-            }
+    for (i=0; i<a->num_bonds; i++) {
+        b = a->bonds[i];
+        first = NULL;
+        if (b->a1 == a && atomIsType(b->a2, Pl5_type)) {
+            first = b->a2;
+        } else if (b->a2 == a && atomIsType(b->a1, Pl5_type)) {
+            first = b->a1;
         }
-    }
-    if (gotOne) {
-        fprintf(top, "\n");
-    }
-}
-
-// Create a bond using function 5 (potential identically zero) between
-// neighboring groove atoms.  This turns the groove atoms into a
-// single molecule, allowing exclusions to work.  The use of function
-// 5 keeps these bonds from otherwise affecting the calculation.
-static void
-writeGromacsFakeBonds(FILE *top, struct part *p, struct atom *a)
-{
-    struct atom *groove1;
-    struct atom *groove2;
-    struct atom *vDn;
-    struct bond *b;
-    int i;
-    
-    if (!atomIsType(a, vDn_type)) {
-        return;
-    }
-    groove1 = a->creationParameters.v.virtual1;
-    if (groove1 != NULL) {
-        for (i=0; i<groove1->num_bonds; i++) {
-            b = groove1->bonds[i];
-            if (b->a1 == groove1 && atomIsType(b->a2, P5G_type)) {
-                groove2 = b->a2;
-            } else if (b->a2 == groove1 && atomIsType(b->a1, P5G_type)) {
-                groove2 = b->a1;
-            } else {
-                continue;
-            }
-            vDn = groove2->creationParameters.r.associatedAtom;
-            if (vDn != NULL && atomIsType(vDn, vDn_type)) {
-                // create a fake bond between a and vDn
-                if (a->index < vDn->index) {
-                    fprintf(top, "%5d %5d   5\n", atomNumber(p, a), atomNumber(p, vDn));
+        if (first != NULL) {
+            gotOne = writeExclusionsOnOneGroove(top, p, first, a, 0);
+            for (j=0; j<a->num_bonds; j++) {
+                b = a->bonds[j];
+                if (b->a1 == a && atomIsType(b->a2, Gv5_type)) {
+                    gotOne |= writeExclusion(top, p, first, a, b->a2, gotOne, DEPTH_TO_EXCLUDE);
+                } else if (b->a2 == a && atomIsType(b->a1, Gv5_type)) {
+                    gotOne |= writeExclusion(top, p, first, a, b->a1, gotOne, DEPTH_TO_EXCLUDE);
                 }
+            }
+            if (gotOne) {
+                fprintf(top, "\n");
             }
         }
     }
@@ -194,7 +194,7 @@ writeGromacsBond(FILE *top, struct part *p, struct stretch *stretch)
         // multiply by 1e-18 to get kJ mol^-1 nm^-2
         ks = zJ_to_kJpermol(bs->ks * 1e21) * 1e-18;
         if (fabs(ks) > 1e-8) {
-            fprintf(top, "%5d %5d   6   %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), r0, ks);
+            fprintf(top, "%5d %5d   %d   %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), bs->quadratic, r0, ks);
         }
     } else {
         r0 = bs->r0 * 1e-3; // convert pm to nm
@@ -263,10 +263,16 @@ allNonBondedAtomtypesPass2(char *symbol, void *value)
                     evdW = zJ_to_kJpermol(vdw->evdW);
 
                     if (nonbonded_function == 1) {
-                        A = 2.0 * evdW * pow(rvdW, 6.0);
-                        B = evdW * pow(rvdW, 12.0);
+                        // Lennard-Jones
+                        //A = 2.0 * evdW * pow(rvdW, 6.0);
+                        //B = evdW * pow(rvdW, 12.0);
 
-                        fprintf(closure_topologyFile, "%4s %4s    1 %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B);
+                        // Yukawa (user defined table)
+                        A = 1.0;
+                        B = 0.0;
+                        if (element > 110 && EnableElectrostatic) {
+                            fprintf(closure_topologyFile, "%4s %4s    1 %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B);
+                        }
                     } else {
                         A = 2.48e5 * evdW;                 // kJ mol^-1
                         B = 12.5 / rvdW;                   // nm^-1
@@ -355,8 +361,8 @@ printGromacsToplogy(char *basename, struct part *p)
     }
     free(fileName);
 
-    vDn_type = getAtomTypeByName("vDn");
-    P5G_type = getAtomTypeByName("P5G");
+    Gv5_type = getAtomTypeByName("Gv5");
+    Pl5_type = getAtomTypeByName("Pl5");
     
     fprintf(mdp, "title               =  NE1-minimize\n");
     fprintf(mdp, "constraints         =  none\n");
@@ -395,7 +401,7 @@ printGromacsToplogy(char *basename, struct part *p)
     // emtol in kJ mol^-1 nm^-1
     // MinimizeThresholdEndRMS is in pN (1e-12 J m^-1), or zJ nm^-1
     fprintf(mdp, "emtol               =  %f\n", zJ_to_kJpermol(MinimizeThresholdEndRMS));
-    fprintf(mdp, "emstep              =  0.1\n"); // initial step size in nm
+    fprintf(mdp, "emstep              =  0.01\n"); // initial step size in nm
     fclose(mdp);
     
     fprintf(top, "[ defaults ]\n");
@@ -454,15 +460,17 @@ printGromacsToplogy(char *basename, struct part *p)
     for (i=0; i<p->num_stretches; i++) {
 	writeGromacsBond(top, p, &p->stretches[i]);
     }
-    for (i=0; i<p->num_virtual_atoms; i++) {
-        writeGromacsFakeBonds(top, p, p->virtual_atoms[i]);
-    }
-    fprintf(top, "\n");
 
     fprintf(top, "[ angles ]\n");
     fprintf(top, ";  ai    aj    ak func       theta0     ktheta\n");
     for (i=0; i<p->num_bends; i++) {
 	writeGromacsAngle(top, p, &p->bends[i]);
+    }
+    fprintf(top, "\n");
+
+    fprintf(top, "[ exclusions ]\n");
+    for (i=0; i<p->num_atoms; i++) {
+        writeGromacsExclusions(top, p, p->atoms[i]);
     }
     fprintf(top, "\n");
 
@@ -474,12 +482,6 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(top, "[ molecules ]\n");
     fprintf(top, "; Compound        #mols\n");
     fprintf(top, "Example             1\n");
-    fprintf(top, "\n");
-
-    fprintf(top, "[ exclusions ]\n");
-    for (i=0; i<p->num_virtual_atoms; i++) {
-        writeGromacsExclusions(top, p, p->virtual_atoms[i]);
-    }
     fprintf(top, "\n");
 
     fclose(top);
