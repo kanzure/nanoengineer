@@ -58,7 +58,7 @@ from utilities.debug import print_compact_traceback
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 from utilities.constants import ave_colors, black, red, blue, white, yellow, darkgreen
 
-from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 
@@ -127,8 +127,10 @@ except:
 
 import colorsys
 from OpenGL.GL import glBegin
+from OpenGL.GL import GL_BLEND
 from OpenGL.GL import glEnd
 from OpenGL.GL import glVertex3f
+from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glColor3f
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import glTranslatef
@@ -151,6 +153,7 @@ from OpenGL.GL import glRotatef
 from OpenGL.GL import glScalef
 from OpenGL.GL import glLineWidth
 from OpenGL.GL import GL_QUADS
+from OpenGL.GL import GL_LINE_SMOOTH
 
 from OpenGL.GLU import gluUnProject
 
@@ -241,17 +244,19 @@ class DnaCylinderChunks(ChunkDisplayMode):
         A = blue
         T = cyan
         """
-        if base=="G":
-            return ([1.0,0.0,0.0])
-        elif base=="C":
-            return ([1.0,0.5,0.0])
-        if base=="A":
-            return ([0.0,0.3,0.9])
-        elif base=="T":
-            return ([0.0,0.7,0.8])
+        
+        if base == "G":
+            color = [1.0, 0.0, 0.0]
+        elif base == "C":
+            color = [1.0, 0.5, 0.0]
+        elif base == "A":
+            color = [0.0, 0.3, 0.9]
+        elif base == "T":
+            color = [0.0, 0.7, 0.8]
         else:
-            return ([0.5,0.5,0.5])
-
+            color = [0.5, 0.5, 0.5]
+        return color
+    
     def getRainbowColorInRange(self, pos, count, saturation, value):
         if count>1: count -= 1
         hue = float(pos)/float(count)        
@@ -606,7 +611,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         if not memo: # nothing to render
             return
 
-        if self.dnaExperimentalModeEnabled: 
+        if self.dnaExperimentalMode > 0: 
             # experimental mode is drawn in drawchunk_realtime
             return
 
@@ -802,7 +807,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         and 
         """
 
-        def realTextSize(text, fm):
+        def _realTextSize(text, fm):
             """
             Returns a pair of vectors corresponding to a width
             and a height vector of a rendered text. 
@@ -822,7 +827,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             x2, y2, z2 = gluUnProject(0, textheight, 0)
             return (V(x1-x0, y1-y0, z1-z0),V(x2-x0, y2-y0, z2-z0))
 
-        def get_screen_position_of_strand_atom(strand_atom):
+        def _get_screen_position_of_strand_atom(strand_atom):
             """
             For a given strand atom, find its on-screen position.
             """
@@ -837,27 +842,75 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 n_bases = len(axis_atoms)
                 pos = axis_atoms.index(axis_atom)
                 atom0 = axis_atom
-                if pos<n_bases-1:
+                if pos < n_bases-1:
                     atom1 = axis_atoms[pos+1]
-                    dpos = chunk.abs_to_base(atom1.posn()) - \
-                         chunk.abs_to_base(atom0.posn())
+                    dpos = atom1.posn() - atom0.posn()
                 else:
                     atom1 = axis_atoms[pos-1]
                     atom2 = axis_atoms[pos]
-                    dpos = chunk.abs_to_base(atom2.posn()) - \
-                         chunk.abs_to_base(atom1.posn())
+                    dpos = atom2.posn() - atom1.posn()
                 last_dpos = dpos
-                dvec = norm(cross(dpos,glpane.out))
-                pos0 = chunk.abs_to_base(axis_atom.posn())#-mol.center
-                pos1 = pos0+7.0*dvec
-                pos2 = pos0-7.0*dvec
-                if mol.ladder.strand_rails[0].baseatoms[pos]==strand_atom:
-                    return pos1
-                elif mol.ladder.strand_rails[1].baseatoms[pos]==strand_atom:
-                    return pos2
+                if flipped:
+                    dvec = norm(cross(dpos, -glpane.out))
+                else:
+                    dvec = norm(cross(dpos, glpane.out))                    
+                pos0 = chunk.abs_to_base(axis_atom.posn())
+                pos1 = pos0 + ssep * dvec
+                pos2 = pos0 - ssep * dvec
+                if mol.ladder.strand_rails[0].baseatoms[pos] == strand_atom:
+                    return (pos1, dpos)
+                elif mol.ladder.strand_rails[1].baseatoms[pos] == strand_atom:
+                    return (pos2, -dpos)
 
-            return None
+            return (None, None)
 
+        
+        def _draw_arrow(atom):
+            if atom:
+                strand = atom.molecule.parent_node_of_class(
+                    atom.molecule.assy.DnaStrand)
+                if atom == strand.get_three_prime_end_base_atom():
+                    ax_atom = atom.axis_neighbor()
+                    a_neighbors = ax_atom.axis_neighbors()
+                    #dvec = chunk.abs_to_base(ax_atom.posn()) - \
+                    #       chunk.abs_to_base(a_neighbors[0].posn())
+                    pos0, dvec = _get_screen_position_of_strand_atom(atom)
+                    ovec = norm(cross(dvec, glpane.out))
+                    pos1 = pos0 + 0.5 * dvec
+                    if mode == 1:
+                        pos1 += 1.0 * dvec
+                    glVertex3fv(pos0)
+                    glVertex3fv(pos1)
+                    dvec = norm(dvec)
+                    avec2 = pos1 - 0.5 * (dvec - ovec) - dvec
+                    glVertex3fv(pos1)
+                    glVertex3fv(avec2)
+                    avec3 = pos1 - 0.5 * (dvec + ovec) - dvec
+                    glVertex3fv(pos1)
+                    glVertex3fv(avec3)
+                    return True
+            return False
+        
+        def _draw_external_bonds():
+            for bond in chunk.externs:
+                if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
+                    if bond.atom1.molecule != bond.atom2.molecule: # but different chunks
+                        pos0, dvec = _get_screen_position_of_strand_atom(bond.atom1)
+                        pos1, dvec = _get_screen_position_of_strand_atom(bond.atom2)
+                        if pos0 and pos1:
+                            glVertex3f(pos0[0], pos0[1], pos0[2])
+                            glVertex3f(pos1[0], pos1[1], pos1[2])
+        
+        def _light_color(color):
+            """
+            Make a lighter color
+            """
+            lcolor = [0.0, 0.0, 0.0]
+            lcolor[0] = 0.5 * (1.0 + color[0])
+            lcolor[1] = 0.5 * (1.0 + color[1])
+            lcolor[2] = 0.5 * (1.0 + color[2])
+            return lcolor
+        
         from utilities.constants import lightgreen
         from PyQt4.Qt import QFont, QString, QColor, QFontMetrics
         from widgets.widget_helpers import RGBf_to_QColor
@@ -871,7 +924,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         else:
             chunk_color = white
 
-        if not self.dnaExperimentalModeEnabled:
+        if self.dnaExperimentalMode == 0:
 
             if indicators_enabled: # draw the orientation indicators
                 self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
@@ -941,7 +994,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     glpane.qglColor(RGBf_to_QColor(black))
                     # get text size in world coordinates
                     label_text = QString("X")
-                    dx, dy = realTextSize(label_text, fm)
+                    dx, dy = _realTextSize(label_text, fm)
                     # disable lighting
                     glDisable(GL_LIGHTING)            
                     for atom in chunk.atoms.itervalues():
@@ -993,7 +1046,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             # this is terribly slow... I need something like
                             # "get_strand_chunks_in_bond_direction"...             
 
-
                             strandGroup = chunk.parent_node_of_class(chunk.assy.DnaStrand)
                             if strandGroup is None:
                                 strand = chunk
@@ -1035,7 +1087,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     textpos = chunk.abs_to_base(atom.posn())+halfbond+5.0*glpane.out 
 
                                     # calculate shift for right aligned text
-                                    dx, dy = realTextSize(label_text, fm)
+                                    dx, dy = _realTextSize(label_text, fm)
 
                                     # check if the right alignment is necessary
                                     if dot(glpane.right,halfbond)<0.0:
@@ -1051,258 +1103,302 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     glEnable(GL_LIGHTING)
 
 
-        if self.dnaExperimentalModeEnabled and chunk.isAxisChunk():
-            # very exprimental, buggy and undocumented
+        if self.dnaExperimentalMode > 0:
+            # Very exprimental, buggy and undocumented 2D DNA display mode.
+            # The helices are flattened, so sequence ond overall topology
+            # can be visualized in a convenient way. Particularly
+            # useful for short structural motifs and origami structures.
+            # As for 080415, this work is still considered very preliminary
+            # and experimental.
+            
+            # The structure will follow a 2D projection of the central axis.
+            # Note: this mode doesn't work well for PAM5 models.
+            
             axis = chunk.ladder.axis_rail
 
-            # rescale font size for OSX
-            font_scale = int(500.0/glpane.scale)
-            if sys.platform == "darwin":
-                font_scale *= 2                        
-            if font_scale<9: font_scale = 9
-            if font_scale>100: font_scale = 100
+            flipped = False
+            
+            # if hasattr(chunk.ladder, "flipped"):
+            #     flipped = chunk.ladder.flipped
+                
+            # print "flipped: ", flipped
+            
+            mode = self.dnaExperimentalMode - 1
 
+            #if not axis:
+            #    print "No axis rail for ", chunk
+
+            no_axis = False
+            
+            if axis is None:
+                axis = chunk.ladder.strand_rails[0]
+                no_axis = True
+                
             if axis:
-                n_bases = len(chunk.ladder.axis_rail.baseatoms)
-
-                atom0 = chunk.ladder.axis_rail.baseatoms[0]
-                atom1 = chunk.ladder.axis_rail.baseatoms[n_bases-1]
-
-                pos0 = chunk.abs_to_base(atom0.posn())
-                pos1 = chunk.abs_to_base(atom1.posn())
-
+                # Calculate the font scale.
+                if mode == 0:
+                    font_scale = int(500.0/glpane.scale)
+                else:
+                    font_scale = int(300.0/glpane.scale)
+                    
+                # Rescale font scale for OSX.
+                if sys.platform == "darwin":
+                    font_scale *= 2         
+    
+                # Limit the font scale.            
+                if font_scale<9: font_scale = 9
+                if font_scale>100: font_scale = 100
+    
+                # Number of bases
+                n_bases = len(axis)
+                
+                
+                # Disable lighting, we are drawing only text and lines.                
                 glDisable(GL_LIGHTING)
-                glColor3f(0,0,0)
 
-                # glLineWidth(5.0)
-                glLineWidth(1.0+100.0/glpane.scale)
-                #glBegin(GL_LINES)
-                last_dpos = V(0,0,0)
-                """
-                for pos in range(0, n_bases):
-                    a_atom = chunk.ladder.axis_rail.baseatoms[pos]
-                    s1_atom = chunk.ladder.strand_rails[0].baseatoms[pos]
-                    s2_atom = chunk.ladder.strand_rails[1].baseatoms[pos]
+                # Calculate the line width.
+                if mode == 0:
+                    lw = 1.0 + 100.0 / glpane.scale
 
-                    a_pos = a_atom.posn()-chunk.center
-                    s1_pos = get_screen_postion_of_strand_atom(s1_atom)
-                    s2_pos = get_screen_postion_of_strand_atom(s2_atom)
-
-                    if s1_pos and s2_pos:
-                        glVertex3f(a_pos[0], a_pos[1], a_pos[2])
-                        glVertex3f(s1_pos[0], s1_pos[1], s1_pos[2])
-                        glVertex3f(a_pos[0], a_pos[1], a_pos[2])
-                        glVertex3f(s2_pos[0], s2_pos[1], s2_pos[2])
-
-                glEnd()
-                glEnable(GL_LIGHTING)
-
-                return
-                """
-
+                if mode == 1:
+                    lw = 2.0 + 200.0 / glpane.scale
+ 
                 labelFont = QFont( QString("Lucida Grande"), font_scale)
                 fm = QFontMetrics(labelFont)
-                glpane.qglColor(RGBf_to_QColor(black))
+                
+                # Calculate the font extents
+                dx, dy = _realTextSize("X", fm)
 
-                dx, dy = realTextSize("X", fm)
-
-                glBegin(GL_LINES)
-                # draw bases
-                for pos in range(0,n_bases):
-                    atom0 = chunk.ladder.axis_rail.baseatoms[pos]
-                    if pos<n_bases-1:
-                        atom1 = chunk.ladder.axis_rail.baseatoms[pos+1]
-                        dpos = atom1.posn()-atom0.posn()
+                # Get the axis atoms
+                axis_atoms = axis.baseatoms 
+                
+                # Get the strand atoms
+                strand_atoms = [None, None]
+                for i in range(0, len(chunk.ladder.strand_rails)):
+                    strand_atoms[i] = chunk.ladder.strand_rails[i].baseatoms
+                            
+                base_list = []
+                    
+                if mode == 0:
+                    ssep = 7.0
+                else:
+                    ssep = 5.0
+                
+                # Prepare a list of bases to render and their positions.
+                for pos in range(0, n_bases):
+                    atom0 = axis_atoms[pos]
+                    if pos < n_bases-1:
+                        atom1 = axis_atoms[pos+1]
+                        dpos = atom1.posn() - atom0.posn()
                     else:
-                        atom1 = chunk.ladder.axis_rail.baseatoms[pos-1]
-                        atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                        dpos = atom2.posn()-atom1.posn()                           
+                        atom1 = axis_atoms[pos-1]
+                        atom2 = axis_atoms[pos]
+                        dpos = atom2.posn() - atom1.posn()                           
                     last_dpos = dpos
-                    dvec = norm(cross(dpos,glpane.out))
+                    # Project the axis atom position onto a current view plane
+                    if flipped:
+                        dvec = norm(cross(dpos, -glpane.out))
+                    else:                        
+                        dvec = norm(cross(dpos, glpane.out))
                     pos0 = chunk.abs_to_base(atom0.posn())
-                    # print "dvec = ", dvec
-                    s_atom0 = chunk.ladder.strand_rails[0].baseatoms[pos]
-                    s_atom1 = chunk.ladder.strand_rails[1].baseatoms[pos]
-                    bvec = norm(s_atom0.posn()-s_atom1.posn())
-                    #bvec = glpane.quat.unrot(dvec)
-                    pos3 = pos0+7.0*dvec
-                    pos4 = pos0-7.0*dvec
-                    pos1 = pos3
-                    pos2 = pos4
-                    #angle = dot(bvec, dvec)
-                    #if angle<0.0:
-                    #    pos1 = pos4
-                    #    pos2 = pos3
-                    """
-                    # this assignment should depend on a relative turn orientation
-                    base_color = self.getBaseColor(s_atom0.getDnaBaseName())
-                    #base_color = self.getFullRainbowColor(0.5*(angle+1.0))
-                    glColor3f(base_color[0],base_color[1],base_color[2])
-                    glVertex3f(pos0[0], pos0[1], pos0[2])
-                    glVertex3f(pos1[0], pos1[1], pos1[2])
-                    base_color = self.getBaseColor(s_atom1.getDnaBaseName())
-                    #base_color = self.getFullRainbowColor(0.5*(angle+1.0))
-                    glColor3f(base_color[0],base_color[1],base_color[2])
-                    glVertex3f(pos0[0], pos0[1], pos0[2])
-                    glVertex3f(pos2[0], pos2[1], pos2[2])
+                    s_atom0 = s_atom1 = None
+                    if strand_atoms[0]:
+                        if pos < len(strand_atoms[0]):
+                            s_atom0 = strand_atoms[0][pos]
+                    if strand_atoms[1]:
+                        if pos < len(strand_atoms[1]):
+                            s_atom1 = strand_atoms[1][pos]
+                    s_atom0_pos = pos0 + ssep * dvec
+                    s_atom1_pos = pos0 - ssep * dvec
+                    str_atoms = [s_atom0, s_atom1]
+                    str_pos = [s_atom0_pos, s_atom1_pos]
+                    base_list.append((atom0, pos0, 
+                                      str_atoms, str_pos)) 
+                
+                if chunk.isStrandChunk():
+                    
+                    glLineWidth(lw)
 
-                    #dpos = norm(dpos)
-                    #angle = dot(glpane.out,bvec)
-                    #print "dpos = ", dpos
-                    #print "bvec = ", bvec
-
-                    #print "angle = ", angle
-
-                    #base_color = self.getFullRainbowColor(0.5*(angle+1.0))
-                    #glColor3f(base_color[0],base_color[1],base_color[2])
-                    glColor3f(0,0,0)
-                    """
-                    glEnd()
-
-                    textpos = pos0+0.5*(pos1-pos0)
-                    label_text = QString(s_atom0.getDnaBaseName())
-                    # dx, dy = realTextSize(label_text, fm)
-                    textpos -= 0.5*(dx+dy)  
-                    base_color = self.getBaseColor(s_atom0.getDnaBaseName())
-                    glColor3f(base_color[0],base_color[1],base_color[2])
-                    glpane.renderText(textpos[0], textpos[1], textpos[2], 
-                                      label_text, labelFont)                    
-
-                    textpos = pos0+0.5*(pos2-pos0)
-                    label_text = QString(s_atom1.getDnaBaseName())
-                    # dx, dy = realTextSize(label_text, fm)
-                    textpos -= 0.5*(dx+dy)  
-                    base_color = self.getBaseColor(s_atom1.getDnaBaseName())
-                    glColor3f(base_color[0],base_color[1],base_color[2])
-                    glpane.renderText(textpos[0], textpos[1], textpos[2], 
-                                      label_text, labelFont)                    
-
-                    if highlighted:
-                        color = yellow
-                    elif chunk.picked:
-                        color = darkgreen
-                    else:
-                        color = black
-
-                    drawer.drawFilledCircle(color, pos0, 0.5, glpane.out)
-
-                    glDisable(GL_LIGHTING)
-                    glBegin(GL_LINES)
-
-                    if s_atom0.molecule.picked:
-                        color0 = darkgreen
-                    else:
-                        color0 = s_atom0.molecule.color
-
-                    if s_atom1.molecule.picked:
-                        color1 = darkgreen
-                    else:
-                        color1 = s_atom1.molecule.color
-
-                    if pos>0:
-                        glColor3f(color0[0],
-                                  color0[1],
-                                  color0[2])
-                        glVertex3f(last_pos3[0],last_pos3[1],last_pos3[2])
-                        glVertex3f(pos3[0],pos3[1],pos3[2])
-                        glColor3f(color1[0],
-                                  color1[1],
-                                  color1[2])
-                        glVertex3f(pos4[0],pos4[1],pos4[2])
-                        glVertex3f(last_pos4[0],last_pos4[1],last_pos4[2])
-
-
-                    last_pos1 = pos1
-                    last_pos2 = pos2
-                    last_pos3 = pos3
-                    last_pos4 = pos4
-
-                # draw arrows on endatoms                    
-                endatoms = (chunk.ladder.axis_rail.baseatoms[0],
-                            chunk.ladder.axis_rail.baseatoms[n_bases-1])
-
-                for atom in endatoms:
-                    neighbors = atom.strand_neighbors()
-                    for strand_atom in neighbors:
-                        strand_chunk = strand_atom.molecule
-                        strand = strand_chunk.parent_node_of_class(
-                            strand_chunk.assy.DnaStrand)
-                        if strand_atom==strand.get_three_prime_end_base_atom():
-                            glColor3f(strand_atom.molecule.color[0],
-                                      strand_atom.molecule.color[1],
-                                      strand_atom.molecule.color[2])
-                            a_neighbors = atom.axis_neighbors()
-                            dvec = atom.posn()-a_neighbors[0].posn()
-                            ovec = norm(cross(dvec,glpane.out))
-                            pos0 = chunk.abs_to_base(atom.posn()) + 7.0*ovec
-                            pos1 = pos0 + dvec 
-                            glVertex3f(pos0[0], pos0[1], pos0[2])
-                            glVertex3f(pos1[0], pos1[1], pos1[2])
-                            dvec = norm(dvec)
-                            avec2 = pos1-0.5*(dvec-ovec)-1.0*dvec
-                            glVertex3f(pos1[0],pos1[1],pos1[2])
-                            glVertex3f(avec2[0],avec2[1],avec2[2])
-                            avec3 = pos1-0.5*(dvec+ovec)-1.0*dvec
-                            glVertex3f(pos1[0], pos1[1], pos1[2])
-                            glVertex3f(avec3[0], avec3[1], avec3[2])
-
-                glEnd()
-
-                """
-                neighbors = endatoms[0].strand_neighbors()
-                s = 1
-                for strand_atom in neighbors:
-                    strand_chunk = strand_atom.molecule
-                    print "drawing strand ", strand_chunk
-                    for atom in strand_chunk.atoms.itervalues():
-                        axis_atom = atom.axis_neighbor()
-                        if axis_atom:
-                            a_neighbors = axis_atom.axis_neighbors()
-                            if axis_atom.index<a_neighbors[0].index:
-                                idx = -1
+                    for str in [0, 1]:
+                        # Draw the strand
+                        atom = None
+                        for base in base_list:
+                            ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                            if str_atoms[str] != None:
+                                atom = str_atoms[str]
+                                break
+        
+                        if atom and \
+                           chunk == atom.molecule:
+                            if atom.molecule.color:
+                                strand_color = atom.molecule.color
                             else:
-                                idx = 1
-                            dvec = axis_atom.posn()-a_neighbors[0].posn()
-                            ovec = norm(cross(dvec,glpane.out))
-                            pos0 = axis_atom.posn() - axis_atom.molecule.center + 7.0*s*idx*ovec                                        
-                            drawFilledCircle(strand_chunk.color, pos0, 0.5, glpane.out)
-                    s *= -1 # next strand            
-                """
+                                strand_color = lightgreen
+                            
+                            if chunk.picked:
+                                strand_color = darkgreen
+                                
+                            glColor3fv(strand_color)
+                            glBegin(GL_LINES)
+                            last_str_atom_pos = None
+                            for base in base_list:
+                                ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                if str_atoms[str]:
+                                    if last_str_atom_pos:
+                                        glVertex3fv(last_str_atom_pos)
+                                        glVertex3fv(str_atoms_pos[str])
+                                    last_str_atom_pos = str_atoms_pos[str]
+                                else:
+                                    last_str_atom_pos = None
+        
+                            glEnd()
+                            
+                            if mode == 0:
+                                glLineWidth(lw)
+                            elif mode == 1:
+                                glLineWidth(0.4 * lw)
+                            
+                            glBegin(GL_LINES)
+                            # Draw an arrow on 3' atom    
+                            if not _draw_arrow(atom):
+                                # Check out the other end
+                                atom = None
+                                for base in base_list:
+                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                    if str_atoms[str] != None:
+                                        atom = str_atoms[str]                        
+                                # Draw an arrow on 3' atom    
+                                _draw_arrow(atom)
+    
+                            
+                            glEnd()
+                            
+                            glLineWidth(lw)
 
-                axis_atoms = chunk.ladder.axis_rail.baseatoms
-                """
-                neighbors = endatoms[0].strand_neighbors()
-                for strand_atom in neighbors:
-                    strand_chunk = strand_atom.molecule
-                    for atom in strand_chunk.atoms.itervalues():
-                        if atom:
-                            pos = get_screen_position_of_strand_atom(atom)
-                            if pos:
-                                drawFilledCircle(atom.molecule.color, pos, 0.5, glpane.out)
-                """
-
-                glBegin(GL_LINES)
-                # draw the external bonds
-                neighbors = endatoms[0].strand_neighbors()
-                for strand_atom in neighbors:
-                    strand_chunk = strand_atom.molecule
-                    for bond in strand_chunk.externs:
-                        if bond.atom1.molecule.dad==bond.atom2.molecule.dad: # same group
-                            if bond.atom1.molecule!=bond.atom2.molecule: # but different chunks
-                                pos0 = get_screen_position_of_strand_atom(bond.atom1)
-                                pos1 = get_screen_position_of_strand_atom(bond.atom2)
-                                if pos0 and pos1:
-                                    glColor3f(bond.atom1.molecule.color[0],
-                                              bond.atom1.molecule.color[1],
-                                              bond.atom1.molecule.color[2])
-                                    glVertex3f(pos0[0], pos0[1], pos0[2])
-                                    glVertex3f(pos1[0], pos1[1], pos1[2])
-
-                glEnd() # end line drawing
-
+                            glBegin(GL_LINES)
+                            
+                            # draw the external bonds
+                            _draw_external_bonds()
+            
+                            """
+                            for bond in chunk.externs:
+                                if bond.atom1.molecule.dad == bond.atom2.molecule.dad: # same group
+                                    if bond.atom1.molecule != bond.atom2.molecule: # but different chunks
+                                        pos0, dvec = _get_screen_position_of_strand_atom(bond.atom1)
+                                        pos1, dvec = _get_screen_position_of_strand_atom(bond.atom2)
+                                        if pos0 and pos1:
+                                            glVertex3f(pos0[0], pos0[1], pos0[2])
+                                            glVertex3f(pos1[0], pos1[1], pos1[2])
+                            """
+                            
+                            # Line drawing done
+                            glEnd()
+                            
+                            # Draw the base letters
+                            if mode == 0:
+                                for base in base_list:
+                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                    if str_atoms[str]:
+                                        textpos = ax_atom_pos + 0.5 * (str_atoms_pos[str] - ax_atom_pos)
+                                        base_name = str_atoms[str].getDnaBaseName()
+                                        label_text = QString(base_name)
+                                        textpos -= 0.5 * (dx + dy)  
+                                        if chunk.picked:
+                                            glColor3fv(darkgreen)
+                                        else:
+                                            base_color = self.getBaseColor(base_name)
+                                            glColor3fv(base_color)
+                                        glpane.renderText(textpos[0], 
+                                                          textpos[1], 
+                                                          textpos[2], 
+                                                          label_text, labelFont)                    
+                            elif mode == 1:
+                                if no_axis is False:
+                                    glLineWidth(lw)
+                                    glBegin(GL_LINES)
+                                    if chunk.picked:
+                                        glColor3fv(darkgreen)
+                                    for base in base_list:
+                                        ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                        if str_atoms[str]:
+                                            if not chunk.picked:
+                                                base_color = self.getBaseColor(
+                                                    str_atoms[str].getDnaBaseName())
+                                                glColor3fv(base_color)   
+                                            glVertex3fv(str_atoms_pos[str])
+                                            glVertex3fv(ax_atom_pos)                                
+                                    glEnd()
+                                
+                                # draw circles interior
+                                for base in base_list:
+                                    if chunk.picked:
+                                        lcolor = _light_color(darkgreen)
+                                    else:
+                                        lcolor = _light_color(strand_color)
+                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                    if str_atoms[str]:
+                                        drawer.drawFilledCircle(
+                                            lcolor, 
+                                            str_atoms_pos[str] + 3.0 * glpane.out, 
+                                            1.5, glpane.out)                                     
+                            
+                                # draw circles border
+                                glLineWidth(3.0)
+                                #glColor3fv(strand_color)
+                                for base in base_list:
+                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                    if str_atoms[str]:
+                                        drawer.drawCircle(
+                                            strand_color, 
+                                            str_atoms_pos[str] + 3.1 * glpane.out, 
+                                            1.5, glpane.out) 
+                                glLineWidth(1.0)
+                    
+                if chunk.isAxisChunk():
+                    if mode == 0:
+                        # Draw filled circles in the center of the axis rail.
+                        if chunk.picked:
+                            color = darkgreen
+                        else:
+                            color = black
+                        for base in base_list:
+                            ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                            if str_atoms[0] and str_atoms[1]:
+                                drawer.drawFilledCircle(color, ax_atom_pos, 0.5, glpane.out)
+                            else:
+                                drawer.drawFilledCircle(color, ax_atom_pos, 0.15, glpane.out)
+                    """
+                    elif mode == 1:
+                        glLineWidth(10.0)
+                        glBegin(GL_LINES)
+                        if chunk.picked:
+                            glColor3fv(darkgreen)
+                        for base in base_list:
+                            ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                            if str_atoms[0]:
+                                if not chunk.picked:
+                                    base_color = self.getBaseColor(
+                                        str_atoms[0].getDnaBaseName())
+                                    glColor3fv(base_color)   
+                                glVertex3fv(str_atoms_pos[0])
+                                glVertex3fv(ax_atom_pos)
+                            if str_atoms[1]:
+                                if not chunk.picked:
+                                    base_color = self.getBaseColor(
+                                        str_atoms[1].getDnaBaseName())
+                                    glColor3fv(base_color)                                    
+                                glVertex3fv(str_atoms_pos[1])
+                                glVertex3fv(ax_atom_pos)                        
+                        
+                        glEnd()
+                    """
+                    
+                glEnable(GL_LIGHTING)              
+                
+                glLineWidth(1.0) 
+            
                 # line width should be restored to initial value
                 # but I think 1.0 is maintained within the program
-                glLineWidth(1.0) 
 
     def writepov(self, chunk, memo, file):
         """
@@ -1443,12 +1539,31 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaStyleBasesScale = env.prefs[dnaStyleBasesScale_prefs_key]
         self.dnaStyleBasesDisplayLetters = env.prefs[dnaStyleBasesDisplayLetters_prefs_key]
 
+        self.dnaExperimentalMode = 0
+
         # render in experimental 2D mode?
-        self.dnaExperimentalModeEnabled = debug_pref(
-            "DNA CylinderStyle: enable experimental 2D mode?",
-            Choice_boolean_False,
-            prefs_key = True,
-            non_debug = True )
+        dna_style = debug_pref(
+              "DNA style: ", #bruce 080215
+                   # initial paren or space puts it at start of menu
+               Choice(["Default", 
+                       "Experimental mode 1", 
+                       "Experimental mode 2"], 
+                      defaultValue = "Default"),
+               non_debug = False, 
+               prefs_key = True 
+           )
+        
+        if dna_style == "Experimental mode 1":
+            self.dnaExperimentalMode = 1
+        
+        if dna_style == "Experimental mode 2":
+            self.dnaExperimentalMode = 2
+        
+        #debug_pref(
+        #    "DNA CylinderStyle: enable experimental 2D mode?",
+        #    Choice_boolean_False,
+        #    prefs_key = True,
+        #    non_debug = True )
 
         if not hasattr(chunk, 'ladder'):
             # DNA updater is off ?            
