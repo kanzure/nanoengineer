@@ -86,12 +86,11 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._loadSequenceEditor()
         
-        if self.editCommand.hasValidStructure():
-            msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name)                        
-            msg2 = "Use resize handles to resize the strand. Use sequence editor"\
-                       "to assign a new sequence or the current one to a file."
-            self.updateMessage(msg1 + msg2)
-       
+        msg = "Use resize handles to resize the strand. Use sequence editor"\
+                   "to assign a new sequence or the current one to a file."
+        self.updateMessage(msg)
+        
+               
     
     def _addGroupBoxes( self ):
         """
@@ -292,7 +291,9 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None:
             name = self.editCommand.getStructureName()
             if name is not None:
-                self.nameLineEdit.setText(name)
+                self.nameLineEdit.setText(name)               
+           
+                
                 
     
     def close(self):
