@@ -53,27 +53,60 @@ class ops_copy_Mixin:
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
         return self.cut_sel()
     
-    def cut_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
-        #bruce 050419 renamed this from cut to avoid confusion with Node method and follow new _sel convention
-        ###BUG: this does not yet work properly for DNA. No time to fix for .rc1. [bruce 080414 late]
+    def cut_sel(self, use_selatoms = True):
+        #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
+        #bruce 050419 renamed this from cut to avoid confusion with Node method
+        # and follow new _sel convention
+        #
+        ###BUG: this does not yet work properly for DNA. No time to fix for .rc1.
+        # [bruce 080414 late]
+        #
+        # Note [bruce 080415]:
+        # one correct implem for DNA would just be "copy, then delete".
+        # (Each of those two ops operates on a differently extended set of chunks
+        #  based on the selected chunks.) This would also make it work for
+        # selected atoms, and make it "autogroup multiple items for clipboard".
+        #
+        # The issues of that implementation would be:
+        # - delete doesn't yet work for DNA either (needs to extend the selection
+        #   as specified elsewhere).
+        # - need to make sure copy doesn't change selection, or if it does,
+        #   record it first and restore it before delete, or pass the set
+        #   of objects to use as the selection to delete_sel.
+        # - copied jigs referring to noncopied atoms lose those references,
+        #   whereas current code (which moves the jigs) preserves them
+        #   (the jigs become disabled, but keep all their atoms).
+        # - the history messages would say Copy rather than Cut.
+        # - there may be other benefits of moving nodes rather than copying
+        #   them, which I am not thinking of now.
+        # Some of those could be addressed by adding a flag to Copier to
+        # tell it it was "copying as part of Cut". Maybe we could even get
+        # it to move rather than copy for nodes in a specified set.
+        
         mc = env.begin_op("Cut") #bruce 050908 for Undo
         try:
             cmd = greenmsg("Cut: ")
             if use_selatoms and self.selatoms:
                 # condition should not use selwhat, since jigs can be selected even in Select Atoms mode
                 msg = redmsg("Cutting selected atoms is not yet supported.")
+                    # REVIEW: could we fix that by calling Separate here,
+                    # selecting the chunks it made from selected atoms,
+                    # then continuing with Cut on them? [bruce 080415 Q]
+                    # WARNING [bruce 060307, clarified 080415]: when this is
+                    # implemented, the code below needs to check self.topnode
+                    # for becoming None as a side effect of removing all atoms
+                    # from a clipboard item whose topnode is a single chunk.
+                    # See similar code in delete_sel, added by Mark to fix
+                    # bug 1466, and the 'mark 060307' comment there.
                 env.history.message(cmd + msg)
                 # don't return yet, in case some jigs were selected too.
                 # note: we will check selatoms again, below, to know whether we emitted this message
-                # WARNING [bruce 060307]: when we implement this, it might remove all atoms and
-                # (for a clipboard part containing only chunks) reset self.topnode to None,
-                # as happened in delete_sel with bug 1466 (see 'mark 060307' comment there).
             new = Group(gensym("Copy", self.assy), self.assy, None) # (in cut_sel)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
             if self.immortal() and self.topnode.picked:
                 ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
                 ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
-                ### This is not a properly of the node, so much as of the Part, I think.... not clear since 1-1 corr.
+                ### This is not a property of the node, so much as of the Part, I think.... not clear since 1-1 corr.
                 ### but i'll go with that guess. immortal parts are the ones that can't be killed in the UI.
                 
                 #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
@@ -122,6 +155,10 @@ class ops_copy_Mixin:
                     # based on the theory that chunks remaining in assy.molecules is the problem:
                     ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
                     self.shelf.addchild(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
+                        #bruce 080415 comment: it seems wrong that this doesn't
+                        # put them all into a single new Group on the clipboard,
+                        # when there is more than one item. That would fix the
+                        # bond-breaking issue mentioned above.
                 nshelf_after = len(self.shelf.members) #bruce 050201
                 msg = fix_plurals("Cut %d item(s)." % (nshelf_after - nshelf_before)) 
                 env.history.message(cmd + msg) #bruce 050201
@@ -610,7 +647,7 @@ class ops_copy_Mixin:
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
         
         cmd = greenmsg("Delete: ")
-        info = ''
+        info = ""
             
         ###@@@ #e this also needs a results-message, below.
         if use_selatoms and self.selatoms:
@@ -639,11 +676,16 @@ class ops_copy_Mixin:
         if self.immortal():
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
         if self.topnode:
-            # The code above that calls a.kill() may have already deleted the Chunk/Node the atom(s) belonged to.
-            # If the current node is a clipboard item part, self no longer has a topnode.  Fixes bug 1466.  mark 060307.
-            # [bruce 060307 adds: this only happens if all atoms in the Part were deleted, and it has nothing except Chunks.
-            #  By "the current node" (which is not a concept we have) I think Mark meant the former value of self.topnode,
-            #  when that was a chunk which lost all its atoms.) See also my comment in cut_sel, which will someday need this fix.]
+            # This condition is needed because the code above that calls
+            # a.kill() may have already deleted the Chunk/Node the atom(s)
+            # belonged to. If the current node is a clipboard item part,
+            # self no longer has a topnode.  Fixes bug 1466.  mark 060307.
+            # [bruce 060307 adds: this only happens if all atoms in the Part
+            #  were deleted, and it has no nodes except Chunks. By "the current
+            #  node" (which is not a concept we have) I think Mark meant the
+            #  former value of self.topnode, when that was a chunk which lost
+            #  all its atoms.) See also my comment in cut_sel, which will
+            #  someday need this fix [when it can cut atoms].]
             self.topnode.apply2picked(lambda o: o.kill())
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the Atom and Chunk kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
@@ -1214,7 +1256,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         """
         Node-specific copy methods can call this
         to request that func be run once when the entire copy operation is finished.
-        Warning: it is run before ###doc.
+        Warning: it is run before [###doc -- before what?].
         """
         self.do_these_at_end.append(func)
     
