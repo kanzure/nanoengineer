@@ -322,7 +322,7 @@ class DnaDuplex_EditCommand(EditCommand):
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
         self.graphicsMode.resetVariables()
-
+        self.win.win_update() #fixes bug 2810
 
     def _createPropMgrObject(self):
         """
