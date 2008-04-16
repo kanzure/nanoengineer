@@ -51,7 +51,7 @@ from PyQt4.Qt  import QListWidgetItem
 from PyQt4.Qt  import SIGNAL
 from PyQt4.Qt  import QPalette
 from PyQt4.Qt  import QAbstractItemView
-##from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt
 from PM.PM_Colors import getPalette
 from utilities.constants import yellow
 from utilities.icon_utilities import geticon
@@ -142,6 +142,21 @@ class PM_SelectionListWidget(PM_ListWidget):
         #see self.updateSelection for more comments. 
         self._supress_itemSelectionChanged_signal = False
         
+        #The following flag supresses the itemChanged signal
+        #ItemChanged signal is emitted too frequently. We use this to know that
+        #the data of an item has changed...example : to know that the renaming
+        #operation of the widget is completed. When a widgetItem is renamed, 
+        #we want to rename the corresponding object in the glpane (which is 
+        #stored as a value in self._itemDictionary) As of 2008-04-16 this signal
+        #is the most convienent way to do it (in Qt4.2.3). If this flag 
+        #is set to False, it simply returns from the method that gets called 
+        #when itemItemChanged signal is sent. The flag is set to True
+        #while updating items in self.isertItems. When itemDoubleClicked signal
+        #is sent, the flag is explicitely set to False -- Ninad 2008-04-16
+        #@see: self.renameItemValue(), 
+        #@self.editItem() (This is a QListWidget method)
+        self._supress_itemChanged_signal = False
+        
         PM_ListWidget.__init__(self, 
                                parentWidget, 
                                label = '',
@@ -177,21 +192,71 @@ class PM_SelectionListWidget(PM_ListWidget):
         change_connect(self,
                        SIGNAL('itemSelectionChanged()'), 
                        self.tagItems)
+        change_connect(self, 
+                       SIGNAL('itemDoubleClicked ( QListWidgetItem *)'),
+                       self.editItem)
+        change_connect(self, 
+                       SIGNAL('itemChanged ( QListWidgetItem *)'),
+                       self.renameItemValue)
         
         #Not USED -- editing widgets items is not supported
         #change_connect(self, 
                        #SIGNAL('itemDoubleClicked(QListWidgetItem *)'), 
                        #self.editItem)   
+        
     
     def editItem(self, item):
         """
-        #Not SUPPORTED -- editing widgets items is not supported. 
-        Not called as of 2008-01-16
+        Edit the widget item.
         @see: self.insertItems for a comment 
+        @see: self.renameItemValue()
+        @self.editItem() (This is a QListWidget method
         """
+        #explicitely set the flag to False for safety. 
+        self._supress_itemChanged_signal = False
         PM_ListWidget.editItem(self, item)
+            
     
- 
+    def renameItemValue(self, item):
+        """
+        slot method that gets called when itemChanged signal is emitted. 
+        
+        Example: 1. User double clicks an item in the strand list widget of the 
+        BuildDna mode 2. Edits the name. 3.Hits Enter key or clicks outside the 
+        selection to end rename operation. 
+        During step1, itemDoubleClicked signal is emitted which calls self.editItem
+        and at the end of step3, it emits itemChanged signal which calls this 
+        method
+        
+        @self.editItem() (This is a QListWidget method)        
+        
+        """
+        #See a detailed note in self.__init__  where the following flag is 
+        #declared. The flag is set to True when 
+        if self._supress_itemChanged_signal:
+            return
+        
+      
+        if self._itemDictionary.has_key(item):
+            val = self._itemDictionary[item]
+            
+            #Check if the 'val' (obj which this widgetitem represents) has an 
+            #attr name. 
+            if not hasattr(val, 'name'):
+                if not item.text():
+                    #don't permit empty names -- doesn't make sense. 
+                    item.setText('name')
+                return
+            
+            #Do the actual renaming of the 'val' 
+            if item.text():
+                val.name = item.text()
+                self.win.win_update()
+            else:
+                #Don't allow assignment of a blank name
+                item.setText(val.name)
+            
+  
     def insertItems(self, row, items, setAsDefault = True):
         """
         Insert the <items> specified items in this list widget. 
@@ -211,12 +276,18 @@ class PM_SelectionListWidget(PM_ListWidget):
         
         @param setAsDefault: Not used here. See PM_ListWidget.insertItems where 
                              it is used.
+                             
+        @see: self.renameItemValue() for a comment about 
+              self._supress_itemChanged_signal
         
         """       
         
         #delete unused argument. Should this be provided as an argument in this
         #class method ?  
         del setAsDefault
+        
+        #self.__init__ for a comment about this flag
+        self._supress_itemChanged_signal = True
                 
         #Clear the previous contents of the self._itemDictionary 
         self._itemDictionary.clear()
@@ -234,13 +305,15 @@ class PM_SelectionListWidget(PM_ListWidget):
             
             #When we support editing list widget items , uncomment out the 
             #following line . See also self.editItems -- Ninad 2008-01-16
-            ##listWidgetItem.setFlags( listWidgetItem.flags()| Qt.ItemIsEditable)
-            
+            listWidgetItem.setFlags( listWidgetItem.flags()| Qt.ItemIsEditable)
             
             if hasattr(item.__class__, 'iconPath'): 
                 listWidgetItem.setIcon(geticon(item.iconPath))
                 
             self._itemDictionary[listWidgetItem] = item  
+            
+        #Reset the flag that temporarily supresses itemChange signal.   
+        self._supress_itemChanged_signal = False
                 
     def clearTags(self):
         """

@@ -15,6 +15,8 @@ file and renamed it PM_ListWidget.
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QListWidget
 from PyQt4.Qt import QWidget
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QAbstractItemView
 
 from utilities.debug import print_compact_traceback
 
@@ -129,7 +131,15 @@ class PM_ListWidget( QListWidget ):
         margin = self.fontMetrics().leading() * 2 # Mark 2007-05-28
         height = heightByRows * self.fontMetrics().lineSpacing() + margin
         self.setMaximumHeight(height)
+                     
         
+        #As of 2008-04-16, the items in any list widgets won't be sorted 
+        #automatically. It can be changes by simply uncommentting the lines
+        #below -- Ninad
+        ##self.setSortingEnabled(True)
+        ##self.sortItems() 
+        
+        self.setAlternatingRowColors(True)                        
         parentWidget.addPmWidget(self)
         
     def insertItems(self, row, items, setAsDefault = True):
