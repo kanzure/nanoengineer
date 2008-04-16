@@ -1,11 +1,11 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 version.py -- provide version information for NanoEngineer-1,
 including author list, program name, release info, etc.
 
 @author: Will, Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 NOTE: this is copied and imported by autoBuild.py in a directory
 which contains no other files, so it needs to be completely self-contained.
@@ -36,17 +36,21 @@ entirely low-level and classify it as either utilities or constants.
 __copyright__ = "Copyright 2004-2008, Nanorex, Inc."
 
 # Alphabetical by last name
-__author__ = """Damian Allis
+__author__ = """
+Damian Allis
 K. Eric Drexler
 Russ Fish
 Josh Hall
 Brian Helfrich
 Eric Messick
 Huaicai Mo
+Tom Moore
+Piotr Rotkiewicz
 Ninad Sathaye
 Mark Sims
 Bruce Smith
-Will Ware"""
+Will Ware
+"""
 
 class Version:
     """
@@ -61,7 +65,7 @@ class Version:
         "minor": 0,
         "tiny": 0,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
-        "releaseType": "Rattlesnake",
+        "releaseType": "",
         "releaseDate": "April 15, 2008",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,

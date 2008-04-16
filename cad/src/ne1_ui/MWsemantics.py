@@ -1335,7 +1335,9 @@ class MWsemantics(QMainWindow,
         from utilities.version import Version
         v = Version()
         product = v.product
-        versionString = repr(v) + (" (%s)" % v.releaseType)
+        versionString = repr(v)
+        if v.releaseType:
+            versionString += (" (%s)" % v.releaseType)
         date = "Release Date: " + v.releaseDate
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         if filePath.endswith('/Contents/Resources'):
