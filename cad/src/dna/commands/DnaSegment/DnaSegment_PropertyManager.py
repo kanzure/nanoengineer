@@ -120,7 +120,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(False)
-                msg = redmsg("To edit DnaProperties, first convert it to a PAM3"\
+                msg = redmsg("To edit DnaSegment properties, first convert it to a PAM3"\
                    " model")                    
                 self.updateMessage(msg)
         else:

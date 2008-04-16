@@ -448,7 +448,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             if dnaGroup is not None:
                 item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
                 contextMenuList.append(item)	    
-                item = (("Edit properties..."), 
+                item = (("Edit DnaGroup Properties..."), 
                         dnaGroup.edit) 
                 contextMenuList.append(item)
 
@@ -474,12 +474,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                                 noop, 'disabled')
                         contextMenuList.append(item)
 
-                    item = (("Edit properties..."), 
+                    item = (("Edit Nanotube Properties..."), 
                             segment.edit)
                     contextMenuList.append(item)
-            return
 
-        if command.commandName in ('BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
+        if command.commandName in ('SELECTMOLS', 'BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
             if self.isStrandChunk():
                 strandGroup = self.parent_node_of_class(self.assy.DnaStrand)
 
@@ -499,11 +498,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 else:
                     item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
                             noop,
-                            'disabled')		
+                            'disabled')	
+                contextMenuList.append(None) #adds a separator in the contextmenu
                 contextMenuList.append(item)	    
-                item = (("Edit properties..."), 
+                item = (("Edit DnaStrand Properties..."), 
                         strand.edit) 			  
                 contextMenuList.append(item)
+                contextMenuList.append(None) #adds a separator in the contextmenu
                 # add menu commands from our DnaLadder [bruce 080407]
                 if self.ladder: # in case dna updater failed or is not enabled
                     menu_spec = self.ladder.dnaladder_menu_spec(self)
@@ -515,13 +516,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 segment = self.parent_node_of_class(self.assy.DnaSegment)
                 dnaGroup = segment.parent_node_of_class(self.assy.DnaGroup)
                 if segment is not None:
+                    contextMenuList.append(None)#adds a separator in the contextmenu
                     item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
                             noop,
                             'disabled')
                     contextMenuList.append(item)
-                    item = (("Edit properties..."), 
+                    item = (("Edit DnaSegment Properties..."), 
                             segment.edit)
                     contextMenuList.append(item)
+                    contextMenuList.append(None) #adds a separator in the contextmenu
                     # add menu commands from our DnaLadder [bruce 080407]
                     if self.ladder:
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
