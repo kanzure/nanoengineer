@@ -116,12 +116,12 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: DnaSegment_EditCommand.model_changed()
         @see: DnaSegment_EditCommand.hasResizableStructure()
         """
-        if not self.editCommand.hasResizableStructure():
+        isStructResizable, why_not = self.editCommand.hasResizableStructure()
+        if not isStructResizable:
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(False)
-                msg = redmsg("To edit DnaSegment properties, first convert it to a PAM3"\
-                   " model")                    
+                msg = redmsg("DnaSegment is not resizable. Reason: %s"%(why_not))
                 self.updateMessage(msg)
         else:
             if not self._pmGroupBox1.isEnabled():

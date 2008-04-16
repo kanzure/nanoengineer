@@ -259,13 +259,13 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: DnaStrand_EditCommand.model_changed()
         @see: DnaStrand_EditCommand.hasResizableStructure()
         """
-        if not self.editCommand.hasResizableStructure():
+        isStructResizable, why_not = self.editCommand.hasResizableStructure()
+        if not isStructResizable:
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
                 self._pmGroupBox1.setEnabled(False)
                 msg1 = ("Viewing properties of %s <br>") %(self.editCommand.struct.name) 
-                msg2 = redmsg("To resize the strand, first convert it to a PAM3"\
-                   " model")                    
+                msg2 = redmsg("DnaStrand is not resizable. Reason: %s"%(why_not))                    
                 self.updateMessage(msg1 + msg2)
         else:
             if not self._pmGroupBox1.isEnabled():

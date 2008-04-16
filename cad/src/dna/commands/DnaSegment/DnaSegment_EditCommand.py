@@ -259,7 +259,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #For Rattlesnake, PAM5 segment resizing  is not supported. 
         #@see: self.hasResizableStructure()
         if self.hasValidStructure():
-            if not self.hasResizableStructure():
+            isStructResizable, why_not = self.hasResizableStructure()
+            if not isStructResizable:
                 self.handles = []
                 return
             elif len(self.handles) == 0:
@@ -320,8 +321,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             
             #For Rattlesnake, we do not support resizing of PAM5 model. 
             #So don't append the exprs handles to the handle list (and thus 
-            #don't draw those handles. See self.model_changed()            
-            if not self.hasResizableStructure():
+            #don't draw those handles. See self.model_changed() 
+            isStructResizable, why_not = self.hasResizableStructure()
+            if not isStructResizable:
                 self.handles = []
             else:
                 self._updateHandleList()
@@ -368,9 +370,34 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: self.editStructure()
         @see: DnaSegment.is_PAM3_DnaSegment()
         """
+        #Note: This method fixes bugs similar to bug 2812 but the changes 
+        #didn't made it to Rattlesnake rc2 -- Ninad 2008-04-16
+        isResizable = True
+        why_not = ''
+        
         if not self.hasValidStructure():
-            return False        
-        return self.struct.is_PAM3_DnaSegment()
+            isResizable = False
+            why_not     = 'It is invalid.'
+            return isResizable, why_not
+        
+        isResizable = self.struct.is_PAM3_DnaSegment()
+        if not isResizable:
+            why_not = 'It needs to be converted to PAM3 model'
+            return isResizable, why_not
+        
+        endAtom1, endAtom2 = self.struct.getAxisEndAtoms() 
+        
+        if endAtom1 is None or endAtom2 is None:
+            isResizable = False
+            why_not = "Unable to determine one or both end atoms of the segment"
+            return isResizable, why_not
+        
+        if endAtom1 is endAtom2:
+            isResizable = False
+            why_not = "Resizing a segment with single atom is unsupported"
+            return isResizable, why_not
+            
+        return isResizable, why_not
        
     def hasValidStructure(self):
         """

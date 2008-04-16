@@ -192,7 +192,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #For Rattlesnake, PAM5 segment resizing  is not supported. 
         #@see: self.hasResizableStructure()        
         if self.hasValidStructure():
-            if not self.hasResizableStructure():
+            isStructResizable, why_not = self.hasResizableStructure()
+            if not isStructResizable:
                 self.handles = []
                 return
             elif len(self.handles) == 0:
@@ -451,8 +452,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
 
             #For Rattlesnake, we do not support resizing of PAM5 model. 
             #So don't append the exprs handles to the handle list (and thus 
-            #don't draw those handles. See self.model_changed()            
-            if not self.hasResizableStructure():
+            #don't draw those handles. See self.model_changed() 
+            isStructResizable, why_not = self.hasResizableStructure()
+            if not isStructResizable:
                 self.handles = []
             else:
                 self._updateHandleList()
@@ -486,9 +488,33 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @see: self.editStructure()
         @see: DnaSegment.is_PAM3_DnaStrand()
         """
+        #Note: This method fixes bugs similar to (and including) bug 2812 but 
+        #the changes didn't made it to Rattlesnake rc2 -- Ninad 2008-04-16
+        isResizable = True
+        why_not = ''
+        
         if not self.hasValidStructure():
-            return False        
-        return self.struct.is_PAM3_DnaStrand()
+            isResizable = False
+            why_not     = 'It is invalid.'
+            return isResizable, why_not        
+        
+        isResizable = self.struct.is_PAM3_DnaStrand()
+        
+        if not isResizable:
+            why_not = 'It needs to be converted to PAM3 model.'
+            return isResizable, why_not
+        
+        #The following fixes bug 2812
+        strandEndBaseAtom1, strandEndBaseAtom2 = self.struct.get_strand_end_base_atoms()
+        
+        if strandEndBaseAtom1 is strandEndBaseAtom2:
+            isResizable = False
+            why_not = "It is probably a \'closed loop\'."
+            return isResizable, why_not
+        
+        
+        return True, ''
+        
 
     def _updateHandleList(self):
         """        
@@ -562,7 +588,12 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         # Set handlePoints (i.e. their origins) and the handle directions to 
         # None if the atoms used to compute these state attrs are missing. 
         # The GraphicsMode checks if the handles have valid placement 
-        # attributes set before drawing it.        
+        # attributes set before drawing it.    
+        
+        if strandEndBaseAtom1 is None and strandEndBaseAtom2 is None:
+            #probably a ring
+            self.handles = []
+            
         
         if strandEndBaseAtom1 is None or axisAtom1 is None:            
             self.handleDirection1 = None
