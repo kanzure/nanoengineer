@@ -176,7 +176,12 @@ def _initialize_custom_display_modes(win):
     import graphics.display_styles.SurfaceChunks as SurfaceChunks #mark 060610
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
                                       Choice_boolean_False, 
-                                      non_debug = True, 
+                                      ## non_debug = True,
+                                          # bruce 080416 hiding this since it's
+                                          # broken at the moment when CSDL is
+                                          # enabled and psurface.so is not found.
+                                          # If/when it's fixed, it should be
+                                          # made visible again.
                                       prefs_key = True)
     win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
     win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)

@@ -1510,9 +1510,11 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
     def get_use_old_safe_drag_code(self): #bruce 070413
         res = debug_pref("use old safe drag code, when not reshaping?",
-                         Choice_boolean_True, ###e change this default to False
-                         ##(and change the prefs key) after FNANO-2007
-                         prefs_key = True, non_debug = True )
+                         Choice_boolean_True,
+                             # asap, try changing this to False, and if all is well, remove the old code;
+                             # but meanwhile, I'm removing non_debug [bruce 080416]
+                         ## non_debug = True,
+                         prefs_key = True )
         return res
     
     

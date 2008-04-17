@@ -148,10 +148,15 @@ def pref_draw_internal_markers():
 
 # Note: the DNA Generator model choice may also need to change somehow, for this.
 
+# WARNING: as of 080416, these are mostly not yet implemented, and setting them
+# may cause bugs. The names don't reflect this. So I am hiding them (removing
+# non_debug = True). Unfortunately this didn't make it into .rc2 (since I forgot
+# about it) so it may not make it into the release. [bruce 080416]
+
 def pref_dna_updater_convert_to_PAM3plus5():
     res = debug_pref("DNA: edit as PAM3+5? ",
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
-                      non_debug = True,
+                      ## non_debug = True,
                       prefs_key = True,
                       call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
@@ -159,21 +164,21 @@ def pref_dna_updater_convert_to_PAM3plus5():
 def pref_mmp_save_convert_to_PAM5():
     res = debug_pref("DNA: save as PAM5? ",
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
-                      non_debug = True,
+                      ## non_debug = True,
                       prefs_key = True )
     return res
 
 def pref_renderers_convert_to_PAM5():
     res = debug_pref("DNA: render externally as PAM5?", # e.g. QuteMol, POV-Ray
                       Choice_boolean_False,
-                      non_debug = True,
+                      ## non_debug = True,
                       prefs_key = True )
     return res
 
 def pref_minimizers_convert_to_PAM5():
     res = debug_pref("DNA: minimize in PAM5? ", # i.e. for ND-1 (GROMACS or not)
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
-                      non_debug = True,
+                      ## non_debug = True,
                       prefs_key = True )
     return res
 

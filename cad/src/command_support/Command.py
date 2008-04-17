@@ -1119,7 +1119,10 @@ class basicCommand(anyCommand):
         """
         if debug_pref("call model_changed (etc) only when needed?",
                       Choice_boolean_False,
-                      non_debug = True,
+                      ## non_debug = True,
+                          #bruce 080416 hide this since the commands can't yet
+                          # handle it properly, so it causes bugs
+                          # (this change didn't make it into .rc2)
                       prefs_key = True):
             ### experimental, but will become the usual case soon [bruce 071116]:
             # call each method only when needed, using assy change counters, and a selobj test.

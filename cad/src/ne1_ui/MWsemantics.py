@@ -255,7 +255,9 @@ class MWsemantics(QMainWindow,
         # centralAreaVBoxLayout only (the default).
         if debug_pref("Enable QWorkspace for MDI support? (next session)", 
                       Choice_boolean_False, 
-                      non_debug = True,
+                      ## non_debug = True,
+                          #bruce 080416 hid this, since MDI is not yet implemented
+                          # (this change didn't make it into .rc2)
                       prefs_key = "A10/Use QWorkspace"):
 
             print "QWorkspace for MDI support is enabled (experimental)"

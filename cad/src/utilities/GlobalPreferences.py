@@ -128,6 +128,8 @@ def disable_do_not_draw_open_bonds():
     Can be useful for debugging, if the developer remembers it's enabled.
     """
     res = debug_pref("DNA: draw all open bonds?",
+                         # the name starts with DNA because the special rules
+                         # it turns off only affect DNA
                      Choice_boolean_False,
                      non_debug = True, #bruce 080406
                          # leave this visible w/o ATOM_DEBUG for release [bruce 080408]

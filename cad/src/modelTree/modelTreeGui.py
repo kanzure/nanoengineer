@@ -511,7 +511,9 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     ## (since unhide of them requires another step)
     ## (and the latter is nim, we'll make bug report)
     
-    node_symbols = debug_pref("Model Tree: add special symbols to node icons?", 
+    node_symbols = debug_pref("Model Tree: add content symbols to node icons?",
+                                  #bruce 080416 renamed this, special -> content,
+                                  # for clarity
                               Choice_boolean_True, #bruce 080307 False -> True
                               non_debug = True, 
                               prefs_key = True #bruce 080307 (safe now)
