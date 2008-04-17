@@ -38,6 +38,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
 
 from utilities.constants import gensym
+from utilities.constants import black
 
 from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
 
@@ -545,9 +546,15 @@ class InsertNanotube_EditCommand(EditCommand):
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
-        ntLength = vlen(endPoint2 - endPoint1)
-        text = '%5.3f A' % ntLength
-        return text 
+        if endPoint1 is None or endPoint2 is None:
+            return
+        
+        textColor = black
+        vec = endPoint2 - endPoint1
+        ntLength = vlen(vec)
+        theta = self.glpane.get_angle_made_with_screen_right(vec)
+        text = '%5.3fA, %5.2f deg' % (ntLength, theta)
+        return text , textColor
 
     def isRubberbandLineSnapEnabled(self):
         """

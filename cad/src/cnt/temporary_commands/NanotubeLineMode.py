@@ -91,14 +91,6 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
                           beam1Color = gray,
                           beam2Color = gray,
                           stepColor = black ) 
-            
-            # Draw the text next to the cursor that gives info about 
-            # number of base pairs etc
-            if self.command:
-                self.text = self.command.callbackMethodForCursorTextString(
-                    self.endPoint1, 
-                    self.endPoint2)
-                self.glpane.renderTextNearCursor(self.text)
 
 # == Command part
 class NanotubeLineMode(LineMode): 

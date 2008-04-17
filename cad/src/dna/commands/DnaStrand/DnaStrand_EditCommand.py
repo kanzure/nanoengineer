@@ -760,16 +760,21 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         
         changed_bases = new_numberOfBases - original_numberOfBases
         
-        changedBasesString = str(changed_bases)
-        if changed_bases < 0:
-            textColor = red
-        elif changed_bases > 0:
-            textColor = darkgreen
-        else:
-            textColor = black
         
-        text = ""
-
+        #Note: for Rattlesnake rc2, the text color is green when bases are added
+        #, red when subtracted black when no change. But this implementation is 
+        #changed based on Mark's user experience. The text is now always shown
+        #in black color. -- Ninad 2008-04-17
+        textColor = black     
+        
+        text = ""  
+        
+        if changed_bases > 0:
+            changedBasesString = "(" + "+" + str(changed_bases) + ")"
+        else:
+            changedBasesString = "(" + str(changed_bases) + ")"
+        
+                
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
@@ -779,8 +784,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         text =  str(new_numberOfBases)+ \
              "b, "+ \
              duplexLengthString + \
-             ", change:" \
-             +  changedBasesString
+             "A, " + \
+             changedBasesString              
         
         return (text , textColor)
 

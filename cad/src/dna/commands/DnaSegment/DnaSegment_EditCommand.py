@@ -871,7 +871,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
                                                                  duplexLength)
         duplexLengthString = str(round(duplexLength, 3))
-        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
+        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString + "A, "
 
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
@@ -881,17 +881,20 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
                 
         changed_basePairs = numberOfBasePairs - original_numberOfBasePairs
+                
+        #Note: for Rattlesnake rc2, the text color is green when bases are added
+        #, red when subtracted black when no change. But this implementation is 
+        #changed based on Mark's user experience. The text is now always shown
+        #in black color. -- Ninad 2008-04-17
+        textColor = black  
         
-        changedBasePairsString = str(changed_basePairs)
-        
-        if changed_basePairs < 0:
-            textColor = red
-        elif changed_basePairs > 0:
-            textColor = darkgreen
+        if changed_basePairs > 0:
+            changedBasePairsString = "(" + "+" + str(changed_basePairs) + ")"
         else:
-            textColor = black
+            changedBasePairsString = "(" + str(changed_basePairs) + ")"
             
-        text += ", change:"  +  changedBasePairsString            
+            
+        text += changedBasePairsString            
 
         return (text, textColor)
     

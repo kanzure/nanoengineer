@@ -31,14 +31,12 @@ TODO:
 """
 from command_support.EditCommand import EditCommand
 
-
-
 from dna.model.DnaSegment import DnaSegment
 from dna.model.DnaGroup import DnaGroup
 from utilities.debug import print_compact_stack
 
 from utilities.Log  import redmsg, greenmsg
-from geometry.VQT import V, Veq, vlen
+from geometry.VQT import V, Veq, vlen, planeXline
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 
@@ -46,6 +44,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from utilities.constants import gensym
+from utilities.constants import black
 
 
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
@@ -689,6 +688,10 @@ class DnaDuplex_EditCommand(EditCommand):
         This is used as a callback method in DnaLine mode 
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
+        if endPoint1 is None or endPoint2 is None:
+            return ''
+        
+        textColor = black
 
         duplexLength = vlen(endPoint2 - endPoint1)
         numberOfBasePairs = \
@@ -697,16 +700,20 @@ class DnaDuplex_EditCommand(EditCommand):
                               duplexLength,
                               duplexRise = self.duplexRise)
         numberOfTurns = numberOfBasePairs / self.basesPerTurn
+        
+        vec = endPoint2 - endPoint1
+        
+        theta = self.glpane.get_angle_made_with_screen_right(vec)
 
-        text = '%db (%5.3ft), %5.3f' \
-             % (numberOfBasePairs, numberOfTurns, duplexLength)
-
+        text = '%db (%5.3ft), %5.3fA, %5.2f deg' \
+             % (numberOfBasePairs, numberOfTurns, duplexLength, theta)
+        
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
-        return text 
+        return text , textColor
 
     def isRubberbandLineSnapEnabled(self):
         """

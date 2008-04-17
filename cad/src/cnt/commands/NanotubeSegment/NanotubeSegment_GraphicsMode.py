@@ -522,8 +522,10 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             if self.command:
-                text = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text, offset = 30)
+                text, textColor = self.command.getCursorText()
+                self.glpane.renderTextNearCursor(text, 
+                                                 offset = 30, 
+                                                 color = textColor)
         else: 
             #No handle is grabbed. But may be the structure changed 
             #(e.g. while dragging it ) and as a result, the endPoint positions 

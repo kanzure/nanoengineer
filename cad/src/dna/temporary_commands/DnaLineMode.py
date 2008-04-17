@@ -151,14 +151,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
             else:
                 pass
             
-            #Draw the text next to the cursor that gives info about 
-            #number of base pairs etc
-            if self.command:
-                self.text = self.command.callbackMethodForCursorTextString(
-                    self.endPoint1, 
-                    self.endPoint2)
-                self.glpane.renderTextNearCursor(self.text)
-        
+                    
 
 # == Command part
 class DnaLineMode(LineMode): 

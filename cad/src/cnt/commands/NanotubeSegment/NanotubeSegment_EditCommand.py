@@ -55,6 +55,7 @@ from model.bonds import Bond
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities.constants   import noop
 from utilities.Comparison  import same_vals
+from utilities.constants   import black
 from utilities.debug import print_compact_stack
 
 from graphics.drawables.RotationHandle  import RotationHandle
@@ -674,6 +675,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             return
 
         text = ""
+        
+        textColor = black
 
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
@@ -681,7 +684,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         nanotubeLength = vlen( currentPosition - fixedEndOfStructure )
 
         nanotubeLengthString = str(round(nanotubeLength, 3))
-        text =  nanotubeLengthString 
+        text =  nanotubeLengthString + "A"
 
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
@@ -689,7 +692,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         lengthText = "%-7.4f Angstroms" %  (nanotubeLength)
         self.propMgr.ntLengthLineEdit.setText(lengthText)
 
-        return text
+        return text, textColor
     
     
     def modifyStructure(self):

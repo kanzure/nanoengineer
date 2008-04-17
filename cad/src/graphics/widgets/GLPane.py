@@ -122,7 +122,7 @@ except:
     print "GLE module can't be imported. Now trying _GLE"
     from OpenGL._GLE import glePolyCone
 
-from geometry.VQT import V, Q, A, norm, vlen
+from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
 import graphics.drawing.drawer as drawer
 
@@ -193,6 +193,7 @@ from utilities.GlobalPreferences import use_frustum_culling
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 
 import utilities.qt4transition as qt4transition
+
 
 
 
@@ -601,8 +602,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.setWhatsThis(glpaneText)
 
     # ==
+    
+    
 
-    def renderTextNearCursor(self, textString, offset = 5, color = (0, 0, 0)):
+    def renderTextNearCursor(self, 
+                             textString, 
+                             offset = 5, 
+                             color = (0, 0, 0)):
         """
         Renders text near the cursor position, on the top right side of the
         cursor (slightly above it).
@@ -644,8 +650,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.qglColor(RGBf_to_QColor(color))
         x = pos.x() + offset
         y = pos.y() - offset
-
-        # Note: self.renderText is QGLWidget.renderText method.
+        
+        
+        ### Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x,
                         y,
                         QString(textString),
@@ -844,6 +851,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         return # from GLPane.setAssy
 
     # ==
+    
 
     def center_and_scale_from_bbox(self, bbox, klugefactor = 1.0):
         #bruce 070919 split this out of some other methods here.
@@ -2473,6 +2481,54 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 ##    
 ##    def getZoomFactor(self):
 ##        return self.zoomFactor
+    
+    def get_angle_made_with_screen_right(self, vec):  
+        
+        """
+        Returns the angle (in degrees) between screen right direction
+        and the given vector. It returns positive angles if the 
+        vector lies in first or second quadrants. The 'quadrants' are determined
+        by checking the dot products between the given vector and screen 'right'
+        and 'up. The angle returned in this case is between 0 and 
+        180. For third and fourth quadrands the andle returned is negative. 
+        @see: self.inFourthQuadrant()
+        @see: self.inThirdQuadrant()
+        """
+        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
+        vec = norm(vec)        
+        theta = angleBetween(vec, self.right)
+        
+        if self.inThirdQuadrant(vec) or  self.inFourthQuadrant(vec):
+            theta = - theta
+                   
+        return theta
+    
+    def inFourthQuadrant(self, vec):
+        """
+        Returns True if the vector lies in a fourth quadrant (with origin 
+        located at vector start point)
+        
+        The 'quadrants' are determined by checking the dot products between 
+        the given vector and screen 'right' and 'up. 
+        @see: self.get_angle_made_with_screen_right()
+        """
+        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
+        return ( dot(vec, self.right) > 0 and \
+                 dot(vec, self.up) < 0)
+                   
+    def inThirdQuadrant(self, vec):
+        """
+        Returns True if the vector lies in a third quadrant (with origin 
+        located at vector start point)
+        
+        The 'quadrants' are determined by checking the dot products between 
+        the given vector and screen 'right' and 'up. 
+        @see: self.get_angle_made_with_screen_right()
+        """
+        #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
+        return ( dot(vec, self.right) < 0 and \
+                 dot(vec, self.up) < 0)
+    
 
     def dragstart_using_GL_DEPTH(self, event, more_info = False): #bruce 061206 added more_info option
         """

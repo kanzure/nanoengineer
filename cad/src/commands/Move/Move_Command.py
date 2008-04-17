@@ -34,6 +34,7 @@ from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
 from geometry.VQT import V, Q
 from utilities.debug import print_compact_traceback
+from utilities.constants import black
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 
@@ -111,6 +112,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
 	NOTE: See selectMolsMode.provideParamsForTemporaryMode 
 	for detail comment. This needs to be a API method. This is a temporary
 	implementation
+        @see: LineMode_GM._drawCursorText
         """
 
         if temporaryModeName == "LineMode":
@@ -118,6 +120,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
             mouseClickLimit = 2
             return (mouseClickLimit)
     
+       
     def moveFromToTemporaryMode(self, isChecked = False):
         """
 	Move the selected entities by the offset vector specified by the 
