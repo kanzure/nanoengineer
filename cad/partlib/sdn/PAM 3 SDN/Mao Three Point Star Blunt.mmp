@@ -12,7 +12,7 @@ info opengroup open = False
 group (DnaSegment3) DnaSegment
 info opengroup open = False
 forward_ref (151953856) # DnaSegmentMarker (DnaMarker7)
-mol (DnaAxisChunk102) CPK
+mol (DnaAxisChunk102) def
 atom 1 (300) (62721, -6941, -2896) def
 atom 2 (300) (59905, -8702, -2496) def
 bond1 1
@@ -39,7 +39,7 @@ bond1 1
 info chunk color = 128 128 128
 DnaSegmentMarker (DnaMarker7) (127, 127, 127) 1 2
 info leaf forwarded = 151953856
-mol (DnaAxisChunk101) CPK
+mol (DnaAxisChunk101) def
 atom 13 (300) (32730, -26407, -1199) def
 bond1 11
 atom 14 (300) (29982, -28048, -1019) def
@@ -69,7 +69,7 @@ egroup (DnaSegment3)
 group (DnaSegment4) DnaSegment
 info opengroup open = False
 forward_ref (151962888) # DnaSegmentMarker (DnaMarker10)
-mol (DnaAxisChunk100) CPK
+mol (DnaAxisChunk100) def
 atom 25 (300) (14288, -58203, -1699) def
 atom 26 (300) (16995, -56494, -1739) def
 bond1 25
@@ -94,7 +94,7 @@ bond1 34
 atom 36 (0) (12944, -59052, -1679) def
 bond1 25
 info chunk color = 128 128 128
-mol (DnaAxisChunk99) CPK
+mol (DnaAxisChunk99) def
 atom 37 (300) (44483, -40110, -659) def
 bond1 35
 atom 38 (300) (47332, -38642, -509) def
@@ -124,7 +124,7 @@ egroup (DnaSegment4)
 group (DnaSegment5) DnaSegment
 info opengroup open = True
 forward_ref (151976296) # DnaSegmentMarker (DnaMarker10)
-mol (DnaAxisChunk109) CPK
+mol (DnaAxisChunk109) def
 atom 48 (300) (71217, 64879, -1996) def
 atom 49 (300) (71340, 61691, -2016) def
 bond1 48
@@ -149,7 +149,7 @@ bond1 57
 atom 59 (0) (71155, 66468, -1986) def
 bond1 48
 info chunk color = 128 128 128
-mol (DnaAxisChunk108) CPK
+mol (DnaAxisChunk108) def
 atom 60 (300) (71657, 29703, -829) def
 bond1 58
 atom 61 (300) (71477, 26499, -689) def
@@ -179,7 +179,7 @@ egroup (DnaSegment5)
 group (DnaSegment6) DnaSegment
 info opengroup open = True
 forward_ref (151985608) # DnaSegmentMarker (DnaMarker7)
-mol (DnaAxisChunk116) CPK
+mol (DnaAxisChunk116) def
 atom 71 (300) (90726, -2444, -2856) def
 atom 72 (300) (90673, 878, -2526) def
 bond1 71
@@ -196,7 +196,7 @@ bond1 71
 info chunk color = 128 128 128
 DnaSegmentMarker (DnaMarker7) (127, 127, 127) 71 72
 info leaf forwarded = 151985608
-mol (DnaAxisChunk115) CPK
+mol (DnaAxisChunk115) def
 atom 78 (300) (90165, 17063, -2176) def
 bond1 76
 atom 79 (300) (89935, 20293, -2086) def
@@ -208,7 +208,7 @@ bond1 80
 atom 82 (300) (89484, 29971, -1659) def
 bond1 81
 info chunk color = 128 128 128
-mol (DnaAxisChunk114) CPK
+mol (DnaAxisChunk114) def
 atom 83 (300) (89410, 33153, -1479) def
 bond1 82
 atom 84 (300) (89384, 36352, -1309) def
@@ -238,7 +238,7 @@ egroup (DnaSegment6)
 group (DnaSegment5) DnaSegment
 info opengroup open = True
 forward_ref (152003528) # DnaSegmentMarker (DnaMarker10)
-mol (DnaAxisChunk104) CPK
+mol (DnaAxisChunk104) def
 atom 95 (300) (148567, -45113, -2046) def
 atom 96 (300) (145740, -43621, -2056) def
 bond1 95
@@ -263,7 +263,7 @@ bond1 104
 atom 106 (0) (149973, -45856, -2041) def
 bond1 95
 info chunk color = 128 128 128
-mol (DnaAxisChunk103) CPK
+mol (DnaAxisChunk103) def
 atom 107 (300) (117865, -27977, -829) def
 bond1 105
 atom 108 (300) (115177, -26229, -689) def
@@ -293,7 +293,7 @@ egroup (DnaSegment5)
 group (DnaSegment6) DnaSegment
 info opengroup open = True
 forward_ref (152016936) # DnaSegmentMarker (DnaMarker7)
-mol (DnaAxisChunk98) CPK
+mol (DnaAxisChunk98) def
 atom 118 (300) (80140, -28734, -2846) def
 atom 119 (300) (83075, -30291, -2536) def
 bond1 118
@@ -320,7 +320,7 @@ bond1 118
 info chunk color = 128 128 128
 DnaSegmentMarker (DnaMarker7) (127, 127, 127) 118 119
 info leaf forwarded = 152016936
-mol (DnaAxisChunk97) CPK
+mol (DnaAxisChunk97) def
 atom 130 (300) (111888, -45012, -1579) def
 bond1 128
 atom 131 (300) (114681, -46582, -1409) def
@@ -350,7 +350,7 @@ egroup (DnaSegment6)
 group (Green) DnaStrand
 info opengroup open = True
 forward_ref (152026448) # DnaStrandMarker (DnaMarker8)
-mol (DnaStrandChunk215) CPK
+mol (DnaStrandChunk215) def
 atom 142 (301) (67664, -14100, -2816) def
 info atom dnaBaseName = C
 bond1 1
@@ -397,7 +397,7 @@ bond_direction 151 152
 info chunk color = 0 170 0
 DnaStrandMarker (DnaMarker8) (0, 170, 0) 142 143
 info leaf forwarded = 152026448
-mol (DnaStrandChunk209) CPK
+mol (DnaStrandChunk209) def
 atom 153 (301) (40570, -32967, 2420) def
 info atom dnaBaseName = C
 bond1 37 152
@@ -439,7 +439,7 @@ info atom dnaBaseName = G
 bond1 161 46
 bond_direction 161 162
 info chunk color = 0 170 0
-mol (DnaStrandChunk227) CPK
+mol (DnaStrandChunk227) def
 atom 163 (301) (79783, 29460, 2270) def
 info atom dnaBaseName = C
 bond1 60
@@ -480,7 +480,7 @@ info atom dnaBaseName = G
 bond1 171 69
 bond_direction 171 172
 info chunk color = 0 170 0
-mol (DnaStrandChunk243) CPK
+mol (DnaStrandChunk243) def
 atom 173 (301) (82038, -2961, -2786) def
 info atom dnaBaseName = C
 bond1 71
@@ -508,7 +508,7 @@ atom 179 (0) (100067, 16135, -2939) def
 bond1 178
 bond_direction 178 179
 info chunk color = 0 170 0
-mol (DnaStrandChunk241) CPK
+mol (DnaStrandChunk241) def
 atom 180 (301) (98046, 17709, -5816) def
 info atom dnaBaseName = A
 bond1 78
@@ -533,7 +533,7 @@ atom 185 (0) (99958, 16141, -3905) def
 bond1 180
 bond_direction 185 180
 info chunk color = 0 170 0
-mol (DnaStrandChunk217) CPK
+mol (DnaStrandChunk217) def
 atom 186 (301) (113598, -34943, 2160) def
 info atom dnaBaseName = C
 bond1 107
@@ -574,7 +574,7 @@ info atom dnaBaseName = G
 bond1 194 116
 bond_direction 194 195
 info chunk color = 0 170 0
-mol (DnaStrandChunk207) CPK
+mol (DnaStrandChunk207) def
 atom 196 (301) (83849, -20866, -2746) def
 info atom dnaBaseName = C
 bond1 118
@@ -620,7 +620,7 @@ bond1 205 128 186
 bond_direction 205 206
 bond_direction 206 186
 info chunk color = 0 170 0
-mol (DnaStrandChunk270) CPK
+mol (DnaStrandChunk270) def
 atom 207 (301) (75655, -3353, 680) def
 info atom dnaBaseName = T
 bond1 172
@@ -641,7 +641,7 @@ bond1 209
 atom 212 (0) (71973, -7621, -691) def
 bond1 208
 info chunk color = 0 170 0
-mol (DnaStrandChunk269) CPK
+mol (DnaStrandChunk269) def
 atom 213 (301) (70687, -19236, 720) def
 info atom dnaBaseName = T
 bond1 162
@@ -662,7 +662,7 @@ bond1 215
 atom 218 (0) (76173, -20152, -672) def
 bond1 214
 info chunk color = 0 170 0
-mol (DnaStrandChunk268) CPK
+mol (DnaStrandChunk268) def
 atom 219 (301) (86791, -15967, 700) def
 info atom dnaBaseName = T
 bond1 195
@@ -687,7 +687,7 @@ egroup (Green)
 group (Red) DnaStrand
 info opengroup open = True
 forward_ref (152077936) # DnaStrandMarker (DnaMarker13)
-mol (DnaStrandChunk213) CPK
+mol (DnaStrandChunk213) def
 atom 225 (301) (36995, -33122, 2350) def
 info atom dnaBaseName = G
 bond1 13
@@ -735,7 +735,7 @@ atom 236 (0) (7353, -49793, 6021) def
 bond1 235
 bond_direction 235 236
 info chunk color = 255 0 0
-mol (DnaStrandChunk211) CPK
+mol (DnaStrandChunk211) def
 atom 237 (301) (9818, -51180, -4216) def
 info atom dnaBaseName = C
 bond1 25
@@ -790,7 +790,7 @@ egroup (Red)
 group (Red) DnaStrand
 info opengroup open = True
 forward_ref (152087448) # DnaStrandMarker (DnaMarker13)
-mol (DnaStrandChunk229) CPK
+mol (DnaStrandChunk229) def
 atom 249 (301) (79539, 65228, -4496) def
 info atom dnaBaseName = C
 bond1 48
@@ -840,7 +840,7 @@ bond_direction 260 249
 info chunk color = 255 0 0
 DnaStrandMarker (DnaMarker13) (255, 0, 0) 259 258
 info leaf forwarded = 152087448
-mol (DnaStrandChunk239) CPK
+mol (DnaStrandChunk239) def
 atom 261 (301) (81529, 32843, 2190) def
 info atom dnaBaseName = G
 bond1 83 259
@@ -893,7 +893,7 @@ egroup (Red)
 group (Red) DnaStrand
 info opengroup open = True
 forward_ref (152109304) # DnaStrandMarker (DnaMarker13)
-mol (DnaStrandChunk219) CPK
+mol (DnaStrandChunk219) def
 atom 273 (301) (144716, -52450, -4676) def
 info atom dnaBaseName = C
 bond1 95
@@ -943,7 +943,7 @@ bond_direction 284 273
 info chunk color = 255 0 0
 DnaStrandMarker (DnaMarker13) (255, 0, 0) 283 282
 info leaf forwarded = 152109304
-mol (DnaStrandChunk205) CPK
+mol (DnaStrandChunk205) def
 atom 285 (301) (115556, -38015, 2070) def
 info atom dnaBaseName = G
 bond1 130 283
@@ -996,7 +996,7 @@ egroup (Red)
 group (Blue) DnaStrand
 info opengroup open = True
 forward_ref (152118816) # DnaStrandMarker (DnaMarker9)
-mol (DnaStrandChunk216) CPK
+mol (DnaStrandChunk216) def
 atom 297 (301) (60832, -2529, 4360) def
 info atom dnaBaseName = G
 bond1 1
@@ -1043,7 +1043,7 @@ bond_direction 307 306
 info chunk color = 0 0 127
 DnaStrandMarker (DnaMarker9) (0, 0, 127) 297 298
 info leaf forwarded = 152118816
-mol (DnaStrandChunk214) CPK
+mol (DnaStrandChunk214) def
 atom 308 (301) (28833, -19468, 2300) def
 info atom dnaBaseName = C
 bond1 13 307
@@ -1092,7 +1092,7 @@ atom 319 (0) (-1217, -34495, 1595) def
 bond1 318
 bond_direction 319 318
 info chunk color = 0 0 127
-mol (DnaStrandChunk230) CPK
+mol (DnaStrandChunk230) def
 atom 320 (301) (67385, 64666, 5810) def
 info atom dnaBaseName = G
 bond1 48
@@ -1140,7 +1140,7 @@ atom 331 (0) (69256, 66307, 7700) def
 bond1 320
 bond_direction 320 331
 info chunk color = 0 0 127
-mol (DnaStrandChunk228) CPK
+mol (DnaStrandChunk228) def
 atom 332 (301) (63956, 30369, 3150) def
 info atom dnaBaseName = G
 bond1 60 330
@@ -1187,7 +1187,7 @@ egroup (Blue)
 group (Blue) DnaStrand
 info opengroup open = True
 forward_ref (152735016) # DnaStrandMarker (DnaMarker11)
-mol (DnaStrandChunk212) CPK
+mol (DnaStrandChunk212) def
 atom 342 (301) (16429, -61387, 6110) def
 info atom dnaBaseName = G
 bond1 25
@@ -1235,7 +1235,7 @@ atom 353 (0) (14081, -60582, 8010) def
 bond1 342
 bond_direction 342 353
 info chunk color = 0 0 127
-mol (DnaStrandChunk210) CPK
+mol (DnaStrandChunk210) def
 atom 354 (301) (47837, -47070, 3340) def
 info atom dnaBaseName = G
 bond1 37 352
@@ -1279,7 +1279,7 @@ bond_direction 363 362
 info chunk color = 0 0 127
 DnaStrandMarker (DnaMarker11) (0, 0, 127) 363 362
 info leaf forwarded = 152735016
-mol (DnaStrandChunk208) CPK
+mol (DnaStrandChunk208) def
 atom 364 (301) (77451, -32683, 4420) def
 info atom dnaBaseName = G
 bond1 118 363
@@ -1325,7 +1325,7 @@ info atom dnaBaseName = T
 bond1 373 128
 bond_direction 374 373
 info chunk color = 0 0 127
-mol (DnaStrandChunk206) CPK
+mol (DnaStrandChunk206) def
 atom 375 (301) (107809, -51902, 1810) def
 info atom dnaBaseName = C
 bond1 130 374
@@ -1378,7 +1378,7 @@ egroup (Blue)
 group (Blue) DnaStrand
 info opengroup open = True
 forward_ref (152765544) # DnaStrandMarker (DnaMarker9)
-mol (DnaStrandChunk244) CPK
+mol (DnaStrandChunk244) def
 atom 387 (301) (95462, -2940, 4420) def
 info atom dnaBaseName = G
 bond1 71
@@ -1405,7 +1405,7 @@ bond_direction 392 391
 info chunk color = 0 0 127
 DnaStrandMarker (DnaMarker9) (0, 0, 127) 387 388
 info leaf forwarded = 152765544
-mol (DnaStrandChunk242) CPK
+mol (DnaStrandChunk242) def
 atom 393 (301) (82120, 16576, -5466) def
 info atom dnaBaseName = T
 bond1 78 392
@@ -1427,7 +1427,7 @@ info atom dnaBaseName = T
 bond1 396 82
 bond_direction 397 396
 info chunk color = 0 0 127
-mol (DnaStrandChunk240) CPK
+mol (DnaStrandChunk240) def
 atom 398 (301) (97427, 33055, 1890) def
 info atom dnaBaseName = C
 bond1 83 397
@@ -1476,7 +1476,7 @@ atom 409 (0) (99608, 66508, 1065) def
 bond1 408
 bond_direction 409 408
 info chunk color = 0 0 127
-mol (DnaStrandChunk220) CPK
+mol (DnaStrandChunk220) def
 atom 410 (301) (150259, -41797, 5810) def
 info atom dnaBaseName = G
 bond1 95
@@ -1524,7 +1524,7 @@ atom 421 (0) (150737, -44266, 7665) def
 bond1 410
 bond_direction 410 421
 info chunk color = 0 0 127
-mol (DnaStrandChunk218) CPK
+mol (DnaStrandChunk218) def
 atom 422 (301) (122239, -21667, 3250) def
 info atom dnaBaseName = G
 bond1 107 420

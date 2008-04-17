@@ -12,7 +12,7 @@ info opengroup open = True
 group (DnaSegment21) DnaSegment
 info opengroup open = True
 forward_ref (175339120) # DnaSegmentMarker (DnaMarker-176)
-mol (DnaAxisChunk90) tub
+mol (DnaAxisChunk90) def
 atom 1 (300) (-165838, 1265, 1767) def
 atom 2 (300) (-162658, 1265, 1767) def
 bond1 1
@@ -67,7 +67,7 @@ bond1 1
 info chunk color = 204 204 204
 DnaSegmentMarker (DnaMarker-176) (127, 127, 127) 1 2
 info leaf forwarded = 175339120
-mol (DnaAxisChunk89) tub
+mol (DnaAxisChunk89) def
 atom 27 (300) (-86339, 1265, 1767) def
 bond1 25
 atom 28 (300) (-83159, 1265, 1767) def
@@ -129,7 +129,7 @@ egroup (DnaSegment21)
 group (DnaSegment22) DnaSegment
 info opengroup open = True
 forward_ref (190594664) # DnaSegmentMarker (DnaMarker-177)
-mol (DnaAxisChunk91) tub
+mol (DnaAxisChunk91) def
 atom 55 (300) (-89489, -16813, 1767) def
 atom 56 (300) (-89489, -19993, 1767) def
 bond1 55

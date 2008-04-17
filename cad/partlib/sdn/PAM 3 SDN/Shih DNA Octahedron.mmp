@@ -8241,7 +8241,7 @@ egroup (DnaStrand39)
 group (DnaStrand43) DnaStrand
 info opengroup open = True
 forward_ref (192893176) # DnaStrandMarker (DnaMarker-73)
-mol (DnaStrandChunk495) tub
+mol (DnaStrandChunk495) def
 atom 2770 (301) (1334, 27294, 50396) def
 bond1 703
 atom 2771 (301) (1179, 28391, 56575) def
@@ -8304,7 +8304,7 @@ bond_direction 2789 2788
 info chunk color = 8 8 156
 DnaStrandMarker (DnaMarker-73) (127, 127, 127) 2789 2788
 info leaf forwarded = 192893176
-mol (DnaStrandChunk290) tub
+mol (DnaStrandChunk290) def
 atom 2790 (301) (25269, 78256, 72800) def
 bond1 149 2789
 bond_direction 2790 2789
