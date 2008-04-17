@@ -81,6 +81,9 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
     _snapOn = False
     _snapType = ''
     _standardAxisVectorForDrawingSnapReference = None
+    
+    #cursor text. ##@@ rename it to 'cursorText' -- Ninad
+    text = ''
 
     def leftDown(self, event):
         """
@@ -308,6 +311,36 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             
             self._drawSnapReferenceLines()
             
+            self._drawCursorText()
+            
+            
+            
+    def _drawCursorText(self):
+        """"
+        """       
+        if self.endPoint1 is None or self.endPoint2 is None:
+            return
+        
+        self.text = ''
+        textColor = black
+        
+        #Draw the text next to the cursor that gives info about 
+        #number of base pairs etc. So this class and its command class needs 
+        #cleanup. e.g. callbackMethodForCursorTextString should be simply
+        #self.command.getCursorText() and like that. -- Ninad2008-04-17
+        if self.command and hasattr(self.command, 
+                                    'callbackMethodForCursorTextString'):            
+            self.text, textColor = self.command.callbackMethodForCursorTextString(
+                self.endPoint1, 
+                self.endPoint2)            
+        else:
+            vec = self.endPoint2 - self.endPoint1
+            theta = self.glpane.get_angle_made_with_screen_right(vec)
+            dist = vlen(vec)
+            self.text = "%5.2fA, %5.2f deg"%(dist, theta)
+                                    
+        self.glpane.renderTextNearCursor(self.text, color = textColor)
+        
     
     def leftUp(self, event):
         """
@@ -426,9 +459,9 @@ class LineMode(Select_Command):
             #clear the list
             self.mouseClickPoints = []       
         
-        self.graphicsMode.resetVariables()
-               
+        self.graphicsMode.resetVariables()               
         return
+       
     
     def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
         """
