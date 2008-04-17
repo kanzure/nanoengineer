@@ -594,7 +594,11 @@ class basicGraphicsMode(GraphicsMode_API):
 	"""
         part = self.win.assy.part
         
-        class_list = (self.win.assy.DnaStrandOrSegment, self.win.assy.DnaGroup)
+        class_list = (self.win.assy.DnaStrandOrSegment, 
+                      self.win.assy.DnaGroup, 
+                      self.win.assy.NanotubeGroup, 
+                      self.win.assy.NanotubeSegment
+                  )
         
         topnode = part.topnode
         topnode.call_on_topmost_unpicked_nodes_of_certain_classes(

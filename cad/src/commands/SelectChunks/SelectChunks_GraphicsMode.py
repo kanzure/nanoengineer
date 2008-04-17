@@ -237,6 +237,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         
         m = a_chunk
         
+        #@REVIEW: The following code that checks if its a dna segment or strand 
+        #etc is probably not needed because now we have implemented the API
+        #method self.end_selection_from_GLPane() (which is also called in this
+        #method.) Needs cleanup -- Ninad 2008-04-17
+        
         if self._is_dnaGroup_highlighting_enabled():
             #If this graphicsmode highlights the whole DnaGroup, 
             #pick that whole dna group when leftDown event occurs.
@@ -274,6 +279,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.cursor_over_when_LMB_pressed = 'Picked Chunk'
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
+            
+        #Fixes bug because of which Nanotube segment is not selected from the
+        #MT if the correspoinding chunk is selected from GLPane. 
+        #This was fixed AFTER Rattlesnake rc2  See also similar changes in  
+        #self.chunkLeftUp and self.bondLeftDown etc -- Ninad 2008-04-17
+        self.end_selection_from_GLPane()
+        
         
         self.w.win_update()
             
@@ -317,6 +329,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         
         m = a_chunk
         
+        #@REVIEW: The following code that checks if its a dna segment or strand 
+        #etc is probably not needed because now we have implemented the API
+        #method self.end_selection_from_GLPane() (which is also called in this
+        #method.) Needs cleanup -- Ninad 2008-04-17
+        
         if self._is_dnaGroup_highlighting_enabled():
             #If this graphicsmode highlights the whole DnaGroup, 
             #pick that whole dna group when leftDown event occurs.
@@ -337,13 +354,22 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
-            m.pick()          
+            m.pick()     
         elif self.o.modkeys == 'Shift+Control':
             obj = self.get_obj_under_cursor(event)
             ##if not obj is self.obj_doubleclicked:
             if obj is self.o.selobj:
                 m.kill()                
-            self.o.selobj =  None             
+            self.o.selobj =  None        
+        
+        #Fixes bug because of which Nanotube segment is not selected from the
+        #MT if the correspoinding chunk is selected from GLPane. 
+        #REVIEW: Should we do the following only when self.o.modkeys is None?
+        #probably not. Some basic tests indicate that the fix is also good 
+        #for shift + control deleting the segment from the GLPane. This was fixed
+        #AFTER Rattlesnake rc2  See also similar changes in  self.chunkLeftDown
+        #and self.bondLeftDown -- Ninad 2008-04-17
+        self.end_selection_from_GLPane()
         
         self.w.win_update()
 
@@ -434,6 +460,12 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.cursor_over_when_LMB_pressed = 'Picked Chunk'
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
+            
+        #Fixes bug because of which Nanotube segment is not selected from the
+        #MT if the correspoinding chunk is selected from GLPane. 
+        #This was fixed AFTER Rattlesnake rc2  See also similar changes in  
+        #self.chunkLeftUp and self.bondLeftUp etc -- Ninad 2008-04-17
+        self.end_selection_from_GLPane()
 
         self.w.win_update()
 
