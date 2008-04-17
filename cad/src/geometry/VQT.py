@@ -394,7 +394,18 @@ class Q(DataMixin):
             del self.__dict__['matrix']
 
     def __setattr__(self, attr, value):
-        #bruce comment 050518: possible bug (depends on usage, unknown): this doesn't call __reset
+        #bruce comment 050518:
+        # - possible bug (depends on usage, unknown): this doesn't call __reset
+        #bruce comments 080417:
+        # - note that the x,y,z used here are *not* the same as the ones
+        #   that would normally be passed to the constructor form Q(W, x, y, z).
+        # - it is likely that this is never used (though it is often called).
+        # - the existence of this method might be a significant slowdown,
+        #   because it runs (uselessly) every time methods in this class
+        #   set any attributes of self, such as vec or counter.
+        #   If we can determine that it is never used, we should remove it.
+        #   Alternatively we could reimplement it using properties of a
+        #   new-style class.
         if attr == "w":
             self.vec[0] = value
         elif attr == "x":
