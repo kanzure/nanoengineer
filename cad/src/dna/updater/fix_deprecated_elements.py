@@ -15,6 +15,7 @@ from utilities import debug_flags
 
 from dna.updater.dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
 from dna.updater.dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
+from dna.updater.dna_updater_prefs import dna_updater_warn_when_transmuting_deprecated_elements
 
 import foundation.env as env
 from utilities.Log import orangemsg
@@ -90,11 +91,12 @@ def fix_deprecated_elements( changed_atoms):
             if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                 print "dna updater: transmute deprecated atom %r to element %s" % \
                       (atom, elt.symbol)
-            summary_format = \
-                "Warning: dna updater transmuted [N] %s to %s pseudoatom(s)" % \
-                (atom.element.symbol, elt.symbol )
-            env.history.deferred_summary_message( orangemsg(summary_format) )
-                # todo: refactor so orangemsg is replaced with a warning option
+            if dna_updater_warn_when_transmuting_deprecated_elements():
+                summary_format = \
+                    "Warning: dna updater transmuted [N] %s to %s pseudoatom(s)" % \
+                    (atom.element.symbol, elt.symbol )
+                env.history.deferred_summary_message( orangemsg(summary_format) )
+                    # todo: refactor so orangemsg is replaced with a warning option
             atom.mvElement(elt)
             atom.make_enough_bondpoints()
                 # REVIEW: do this later, if atom classes should be corrected first

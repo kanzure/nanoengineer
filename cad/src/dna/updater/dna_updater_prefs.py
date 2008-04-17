@@ -89,6 +89,15 @@ def pref_fix_bare_PAM5_atoms():
                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
+def dna_updater_warn_when_transmuting_deprecated_elements(): #bruce 080416 (not in .rc2)
+    res = debug_pref("DNA: warn when transmuting deprecated PAM elements?",
+                     Choice_boolean_False, # warning is not useful for a released version,
+                         # and is distracting since it always happens during Insert DNA
+                     ## non_debug = True,
+                     prefs_key = "A10/DNA: warn when transmuting deprecated PAM elements?",
+                    )
+    return res
+    
 def pref_permit_bare_axis_atoms():
     #bruce 080407; seems to work, so I hope we can make it the default soon,
     # but would require adaptations in strand edit props, to delete them manually
@@ -99,7 +108,8 @@ def pref_permit_bare_axis_atoms():
     res = debug_pref("DNA: permit bare axis atoms? ",
                       Choice_boolean_False,
                       ## non_debug = True,
-                      prefs_key = True )
+                      prefs_key = True,
+                      call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
 def legal_numbers_of_strand_neighbors_on_axis(): #bruce 080407
