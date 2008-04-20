@@ -84,8 +84,12 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         #a ladder with arrow heads for the beams is the current implementation 
         # -Ninad 2007-10-30
         
-        
-        LineMode.GraphicsMode_class.Draw(self)    
+        #@see: LineMode_GM class definition about this flag. Basically we supress
+        #cursor text drawing in the superclass and draw later in this method
+        #after everyting is drawn.
+        self._ok_to_render_cursor_text = False
+        LineMode.GraphicsMode_class.Draw(self) 
+        self._ok_to_render_cursor_text = True
         
         #This fixes NFR bug  2803
         #Don't draw the Dna rubberband line if the cursor is over the confirmation
@@ -150,6 +154,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                                stepColor = black )   
             else:
                 pass
+            
+            self._drawCursorText()
             
                     
 

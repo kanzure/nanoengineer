@@ -82,8 +82,21 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
     _snapType = ''
     _standardAxisVectorForDrawingSnapReference = None
     
+    #Flag that determines whether the cursor text should be rendered in 
+    #self.Draw. Example: This class draws cursor text at the end of the draw 
+    #method. Subclass of this class (say DnaLine_GM) calls this Draw mthod 
+    #and then do some more drawing and then again want to draw the cursor text
+    #So that subclass can temporarily supress cursor text. 
+    #@see: DnaLine_GM.Draw()
+    _ok_to_render_cursor_text = True
+    
     #cursor text. ##@@ rename it to 'cursorText' -- Ninad
     text = ''
+    
+    def Enter_GraphicsMode(self):
+        _superclass_for_GM.Enter_GraphicsMode(self)
+        self._ok_to_render_cursor_text = True
+        
 
     def leftDown(self, event):
         """
@@ -313,10 +326,9 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             
             self._drawSnapReferenceLines()
             
-            self._drawCursorText()
-            
-            
-            
+            if self._ok_to_render_cursor_text:                           
+                self._drawCursorText()
+ 
     def _drawCursorText(self):
         """"
         """       
