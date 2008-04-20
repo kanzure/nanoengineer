@@ -191,6 +191,7 @@ from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
+from utilities.constants import gray, darkgray, black, lightgray
 
 import utilities.qt4transition as qt4transition
 
@@ -622,6 +623,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor
+        #@Note: the color argument is not used. It is superseded by bg_color
+        and forgraound colored text . So color arg is unsupported for Rattlesnake 
         """
         if not textString:
             return 
@@ -644,30 +647,51 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # the text rendering as well (if GL_Lighting is not disabled)
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
-
-        # Note: It is necessary to set the font color, otherwise it may change!
-                        
-        self.qglColor(RGBf_to_QColor(color))
+        ############
+        from utilities.constants import white
+        
         x = pos.x() + offset
         y = pos.y() - offset
         
+        deltas_for_bg_color = ((1, 1), (-1, -1), (-1, 1), (1, -1))
+        
+        #background color
+        bg_color = lightgray
+        #Foreground color 
+        fg_color = black
+        
+        for dx, dy in deltas_for_bg_color: 
+            self.qglColor(RGBf_to_QColor(bg_color)) 
+        
+            ### Note: self.renderText is QGLWidget.renderText method.
+            self.renderText(x + dx ,
+                            y + dy,
+                            QString(textString),
+                            self._getFontForTextNearCursor())
+            self.qglClearColor(RGBf_to_QColor(bg_color))
+
+        # Note: It is necessary to set the font color, otherwise it may change!
+       
+        self.qglColor(RGBf_to_QColor(fg_color))   
+        x = pos.x() + offset
+        y = pos.y() - offset
         
         ### Note: self.renderText is QGLWidget.renderText method.
-        self.renderText(x,
-                        y,
+        self.renderText(x ,
+                        y ,
                         QString(textString),
                         self._getFontForTextNearCursor())
-        self.qglClearColor(RGBf_to_QColor(color))
+        self.qglClearColor(RGBf_to_QColor(fg_color))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
 
-    def _getFontForTextNearCursor(self):
+    def _getFontForTextNearCursor(self, fontSize = 10, isBold = False):
         """
         Returns the font for text near the cursor. 
         @see: self.renderTextNearCursor
         """
-        font = QFont("Arial", 10)
-        ##font.setBold(True)
+        font = QFont("Arial", fontSize)
+        font.setBold(isBold)
         ##font.setPixelSize(15)                
         return font
 
