@@ -560,9 +560,9 @@ class DnaSegment(DnaStrandOrSegment):
             #frthest endPoint
             origin = atomAtVectorOrigin.posn()
             if vlen(endPoint2 - origin ) > vlen(endPoint1 - origin):
-                return norm(endPoint2 - origin)
+                return norm(endPoint2 - endPoint1)
             else:
-                return norm(endPoint1 - origin)
+                return norm(endPoint1 - endPoint2)
        
         
         return norm(endPoint2 - endPoint1)
