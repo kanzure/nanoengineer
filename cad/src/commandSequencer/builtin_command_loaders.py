@@ -60,8 +60,7 @@ from commands.Rotate.RotateChunks_Command import RotateChunks_Command
 from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
 from commands.Fuse.FuseChunks_Command import FuseChunks_Command
 from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
-#from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
-
+from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 def preloaded_command_classes():
     """
     Return a list of command classes for the commands which are always loaded
@@ -105,8 +104,8 @@ def preloaded_command_classes():
         RotateChunks_Command,
         TranslateChunks_Command, 
         FuseChunks_Command,
-        ##SketchMode, #Sketchmode not implemented yet
-     ]
+        RotateAboutPoint_Command
+    ]
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs
     return command_classes

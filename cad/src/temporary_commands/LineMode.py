@@ -97,10 +97,10 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         # of the line
         farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)
         
-        ##NIY code that accepts highlighted atom center as the endPoint instead 
-        ## of always using the glpane depth. To be  implemented
+        #NIY code that accepts highlighted atom center as the endPoint instead 
+         ##of always using the glpane depth. To be  implemented
         ##if self.glpane.selobj is not None:
-            ## if isinstance(selobj, Atom):
+             ##if isinstance(selobj, Atom):
                  ##self.endPoint1 = self.glpane.selobj.posn()
    
         if self._snapOn and self.endPoint2 is not None:
@@ -113,8 +113,10 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             # the click  -- Ninad 2007-12-04
             self.endPoint1 = self.snapLineEndPoint()    
             self._snapOn = False
+                    
         self.command.mouseClickPoints.append(self.endPoint1)
         return
+        
     
     def bareMotion(self, event):
         """
@@ -130,7 +132,7 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         _superclass_for_GM.bareMotion(self,event)
         
         return
-    
+            
     def snapLineEndPoint(self):
         """
         Snap the line to the specified constraints. 

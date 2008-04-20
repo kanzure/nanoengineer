@@ -3232,6 +3232,49 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             pass
 
         return
+    
+    def getAxis_of_self_or_eligible_parent_node(self, atomAtVectorOrigin = None):
+        """
+        Return the axis of a parent node such as a DnaSegment or a Nanotube 
+        segment or a dna segment of a DnaStrand. If one doesn't exist, 
+        return the self's axis.
+        @param atomAtVectorOrigin: If the atom at vector origin is specified, 
+            the method will try to return the axis vector with the vector
+            start point at the this atom's center. 
+        @type atomAtVectorOrigin: B{Atom}
+        @see:
+        """
+        #@TODO: refactor this. MEthod written just before FNANO08 for a critical
+        #NFR. (this code is not a part of Rattlesnake rc2)
+        #- Ninad 2008-04-17
+        dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
+        if dnaSegment and self.isAxisChunk():
+            axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
+            if axisVector is not None:
+                return axisVector
+        
+        dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
+        if dnaStrand and self.isStrandChunk():
+            arbitraryAtom = self.atlist[0]
+            dnaSegment = dnaStrand.get_DnaSegment_with_content_atom(
+                arbitraryAtom)
+            if dnaSegment:
+                axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
+                if axisVector is not None:
+                    return axisVector
+            
+        nanotube = self.parent_node_of_class(self.assy.NanotubeSegment)
+        if nanotube:
+            axisVector = nanotube.getAxisVector()
+            if axisVector is not None:
+                return axisVector
+            
+        #If no eligible parent node with an axis is found, return self's 
+        #axis.
+        return self.getaxis() 
+            
+            
+        
 
     def is_glpane_content_itself(self): #bruce 080319
         # note: some code which tests for "Chunk or Jig" might do better

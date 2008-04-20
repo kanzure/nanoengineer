@@ -104,6 +104,12 @@ class MovePropertyManager(Ui_MovePropertyManager):
         change_connect(self.moveFromToButton, 
                        SIGNAL("toggled(bool)"), 
                        self.parentMode.moveFromToTemporaryMode)
+        
+        change_connect(self.rotateAboutPointButton, 
+                       SIGNAL("toggled(bool)"), 
+                       self.parentMode.rotateAboutPointTemporaryCommand)
+        
+        
 
     def ok_btn_clicked(self):
         """

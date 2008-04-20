@@ -108,6 +108,24 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
          # Reinitialize previously picked atoms (ppas).
         self.o.assy.ppa2 = self.o.assy.ppa3 = None
         self.o.selatom = None
+    
+    def getMovablesForLeftDragging(self):
+        """
+        Returns a list of movables that will be moved during this gaphics mode's
+        left drag. In SelectChunks_GraphicsMode it is the selected movables
+        in the assembly. However, some subclasses can override this method to 
+        provide a custom list of objects it wants to move during the left drag
+        Example: In buildDna_GraphicsMode, it moving a dnaSegment axis chunk 
+        will move all the axischunk members of the dna segment and also 
+        its logical content chunks. 
+        @see: self._leftDrag_movables #attr
+        @see: self.pseudoMoveModeLeftDown()
+        @see: self.pseudoMoveModeLeftDrag()
+        @see:BuildDna_GraphicsMode.getMovablesForLeftDragging()
+        @Note: Not implemented in SelectAtoms_GraphicsMode
+	"""
+        movables = []
+        return movables
                 
             
     def reset_drag_vars(self):

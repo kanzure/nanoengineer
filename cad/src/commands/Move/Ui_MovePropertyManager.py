@@ -1,16 +1,14 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Ui_MovePropertyManager.py
 @author: Ninad
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 $Id$
 
 History:
 
 ninad 2007-08-20: code cleanup to use new PM module classes. 
 """
-
-__author__ = "Ninad"
 
 from PyQt4.Qt import Qt
 
@@ -396,6 +394,29 @@ class Ui_MovePropertyManager( PM_Dialog ):
                                             title = "",
                                             labelList = Z_ROW_LABELS )  
         self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]    
+        
+        self.rotateAboutPointButton = PM_ToolButton(
+                    inPmGroupBox, 
+                    text = "Rotate selection about a point",
+                    iconPath  = "ui/actions/Properties Manager"\
+                    "/Rotate_Components.png",
+                    spanWidth = True                    
+                    )
+        self.rotateAboutPointButton.setCheckable(True)
+        self.rotateAboutPointButton.setAutoRaise(True)
+        self.rotateAboutPointButton.setToolButtonStyle(
+            Qt.ToolButtonTextBesideIcon)
+        
+        
+        self.rotateStartCoordLineEdit = PM_LineEdit( 
+            inPmGroupBox, 
+            label        = "ui/actions/Properties Manager"\
+                    "/Move_Start_Point.png",
+            text         = "Define start point from 3D workspace",
+            setAsDefault = False,
+            )
+        self.rotateStartCoordLineEdit.setReadOnly(True)
+        self.rotateStartCoordLineEdit.setEnabled(False)
             
             
     def _loadBySpecifiedAngleGroupBox(self, inPmGroupBox):

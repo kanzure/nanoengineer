@@ -23,6 +23,7 @@ See Move_GraphicsMode.py
 """
 import foundation.env as env
 import math
+from Numeric import dot
 import foundation.changes as changes
 from PyQt4 import QtGui
 from PyQt4.Qt import SIGNAL
@@ -32,11 +33,12 @@ from commands.SelectChunks.SelectChunks_Command import SelectChunks_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
-from geometry.VQT import V, Q
+from geometry.VQT import V, Q, cross, norm
 from utilities.debug import print_compact_traceback
 from utilities.constants import black
 from commands.Translate.TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from commands.Rotate.RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
+from model.chem import Atom #for instance check only as of 2008-04-17
 
 class Move_basicCommand(SelectChunks_basicCommand):
     """
@@ -85,6 +87,142 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.connect_or_disconnect_signals(False)        
         if self.propMgr:	    
             self.propMgr.close()
+            
+    def NEWER_acceptParamsFromTemporaryMode(self, temporaryModeName, params):
+        """
+	NOTE: see electMolsMode.acceptParamsFromTemporaryMode for detail 
+	comment. This needs to be a API method. This is a temporary
+	implementation	
+        """
+        
+        if len(params) == 2:
+            mouseClickPoints, pivotAtom = params
+            
+            #Mouseclick points should contain 2 points. But if user abruptly 
+            #terminates  the temporary mode, this might not be true. So rotate 
+            #only when the it has 2 points!  
+        
+            if len(mouseClickPoints) < 2:
+                self.propMgr.rotateAboutPointButton.setChecked(False)
+                return
+            
+            
+            startPoint = mouseClickPoints[0]
+            endPoint = mouseClickPoints[1]
+            #initial assignment of reference_vec. The selected movables will be
+            #rotated by the angle between this vector and the lineVector
+            reference_vec = self.glpane.right 
+            if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk() :
+                reference_vec = pivotAtom.molecule.getAxis_of_self_or_eligible_parent_node()
+            else:
+                reference_vec = self.glpane.right
+            
+            lineVector = endPoint - startPoint	
+            
+            quat1 = Q(lineVector, reference_vec)
+            
+            print "***angle =", (quat1.angle)*180/math.pi
+            print "***dot(lineVector, reference_vec)=", dot(lineVector, reference_vec)
+            
+            if dot(lineVector, reference_vec) < 0:
+                theta = math.pi - quat1.angle
+            else:
+                theta = quat1.angle
+                
+            print "*** new angle =", theta*180/math.pi
+            
+            
+            rot_axis = cross(lineVector, reference_vec)
+            
+            cross_prod_1 = norm(cross(reference_vec, rot_axis))
+            cross_prod_2 = norm(cross(lineVector, rot_axis))
+            
+            print "***dot(cross_prod_1, cross_prod_2) =", dot(cross_prod_1, cross_prod_2)
+            
+            if dot(cross_prod_1, cross_prod_2) < 0:
+                quat2 = Q(rot_axis,  theta) 
+            else:
+                quat2 = Q(rot_axis,  - theta) 
+                            
+            movables = self.graphicsMode.getMovablesForLeftDragging()
+            self.assy.rotateSpecifiedMovables(
+                quat2,
+                movables = movables, 
+                commonCenter = startPoint)
+            
+            self.o.gl_update()
+
+        self.propMgr.rotateAboutPointButton.setChecked(False)
+        
+    def EXPERIMENTAL_acceptParamsFromTemporaryMode(self, temporaryModeName, params):
+        """
+	NOTE: see electMolsMode.acceptParamsFromTemporaryMode for detail 
+	comment. This needs to be a API method. This is a temporary
+	implementation	
+        """
+        DEBUG_ROTATE_ABOUT_POINT = False
+        
+        if DEBUG_ROTATE_ABOUT_POINT:
+            if len(params) == 2:
+                mouseClickPoints, pivotAtom = params
+                
+                #Mouseclick points should contain 2 points. But if user abruptly 
+                #terminates  the temporary mode, this might not be true. So rotate 
+                #only when the it has 2 points!  
+            
+                if len(mouseClickPoints) < 2:
+                    self.propMgr.rotateAboutPointButton.setChecked(False)
+                    return
+                
+                
+                startPoint = mouseClickPoints[0]
+                endPoint = mouseClickPoints[1]
+                #initial assignment of reference_vec. The selected movables will be
+                #rotated by the angle between this vector and the lineVector
+                reference_vec = self.glpane.right 
+                if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
+                    mol = pivotAtom.molecule
+                    reference_vec = mol.getAxis_of_self_or_eligible_parent_node(
+                        atomAtVectorOrigin = pivotAtom)
+                else:
+                    reference_vec = self.glpane.right
+                
+                lineVector = endPoint - startPoint	
+                
+                quat1 = Q(lineVector, reference_vec)
+                
+                #DEBUG Disabled temporarily . will not be used
+                ##if dot(lineVector, reference_vec) < 0:
+                    ##theta = math.pi - quat1.angle
+                ##else:
+                    ##theta = quat1.angle
+                
+                #TEST_DEBUG-- Works fine
+                theta = quat1.angle
+                                
+                rot_axis = cross(lineVector, reference_vec)
+                
+                if dot(lineVector, reference_vec) < 0:
+                    rot_axis = - rot_axis
+                
+                cross_prod_1 = norm(cross(reference_vec, rot_axis))
+                cross_prod_2 = norm(cross(lineVector, rot_axis))        
+                
+                if dot(cross_prod_1, cross_prod_2) < 0:
+                    quat2 = Q(rot_axis,  theta) 
+                else:
+                    quat2 = Q(rot_axis,  - theta)
+                    
+                         
+                movables = self.graphicsMode.getMovablesForLeftDragging()
+                self.assy.rotateSpecifiedMovables(
+                    quat2,
+                    movables = movables, 
+                    commonCenter = startPoint)
+                
+                self.o.gl_update()
+
+        self.propMgr.rotateAboutPointButton.setChecked(False)
     
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
@@ -106,6 +244,11 @@ class Move_basicCommand(SelectChunks_basicCommand):
             self.o.gl_update()
 
         self.propMgr.moveFromToButton.setChecked(False)		
+        
+        #For Rotate about point tool. May be we should do the following 
+        #only when the graphics mode is Rotate graphics mode? Okay for now
+        #feature implemented just before FNANO 08 . clanup -- Ninad 2008-04-20
+        self.propMgr.rotateAboutPointButton.setChecked(False)
     
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
@@ -114,11 +257,42 @@ class Move_basicCommand(SelectChunks_basicCommand):
 	implementation
         @see: LineMode_GM._drawCursorText
         """
+        
+        temporaryModeNames = ("LineMode", "RotateAboutPoint")
 
-        if temporaryModeName == "LineMode":
+        if temporaryModeName in temporaryModeNames:
             #This is the number of mouse clicks that the temporary mode accepts
             mouseClickLimit = 2
             return (mouseClickLimit)
+        
+    def rotateAboutPointTemporaryCommand(self, isChecked = False):
+        """
+        @see: self.moveFromToTemporaryMode  
+	"""
+        #@TODO: clean this up. This was written just after Rattlesnake rc2 
+        #for FNANO presentation -- Ninad 2008-04-17
+        
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        
+        if isChecked:	    
+            self.propMgr.rotateStartCoordLineEdit.setEnabled(isChecked)
+            msg = "Click inside the 3D workspace to define two points" \
+                "of a line. The selection will be rotated about the first point"\
+                " in the direction specified by that line"
+                
+
+            self.propMgr.updateMessage(msg)            
+            if currentCommand.commandName != "RotateAboutPoint":
+                commandSequencer.userEnterTemporaryCommand(
+                    'RotateAboutPoint')
+                return
+        else:
+            if currentCommand.commandName == "RotateAboutPoint":
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+            self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
+            self.propMgr.updateMessage()
+    
     
        
     def moveFromToTemporaryMode(self, isChecked = False):

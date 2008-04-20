@@ -220,6 +220,18 @@ def loadCursors(w):
     w.translateAlongCentralAxisCursor = \
      QCursor(getCursorPixmap("Translate_Along_Central_Axis.png"), 0, 0)
     
+    #Rotate about a point cursors
+    w.rotateAboutPointCursor = \
+     QCursor(getCursorPixmap("RotateAboutPointCursor.png"), 0, 0)
+    
+    w.rotateAboutPointHorizontalSnapCursor = \
+        createCompositeCursor(w.rotateAboutPointCursor, horizontalSymbol, 
+                              offsetX = 22, offsetY = 22)
+    w.rotateAboutPointVerticalSnapCursor = \
+        createCompositeCursor(w.rotateAboutPointCursor, verticalSymbol, 
+                              offsetX = 22, offsetY = 22)
+    
+    
     return # from loadCursors
 
 def createCompositeCursor(cursor, overlayCursor, 

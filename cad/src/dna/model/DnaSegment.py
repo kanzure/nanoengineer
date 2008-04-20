@@ -254,14 +254,13 @@ class DnaSegment(DnaStrandOrSegment):
         are PAM3 baseatoms (axis or strands) Otherwise returns False
         @see: DnaSegment_EditCommand.model_changed()
         @see: DnaSegment_EditCommand.isResizableStructure()
-        """
-                
-        is_PAM3 = False
+        """          
+        is_PAM3 = False      
         
         ladderList = self.getDnaLadders()        
         if len(ladderList) == 0:
             is_PAM3 = False
-        
+            
         for ladder in ladderList:
             pam_model = ladder.pam_model()
             if pam_model == MODEL_PAM3:
@@ -542,16 +541,31 @@ class DnaSegment(DnaStrandOrSegment):
         # chain
         return end_baseatoms
         
-    def getAxisVector(self):
+    def getAxisVector(self, atomAtVectorOrigin = None):
         """
         Returns the unit axis vector of the segment (vector between two axis 
         end points)
         """
         endPoint1, endPoint2 = self.getAxisEndPoints()
-        if endPoint1 is not None and endPoint2 is not None:
-            return norm(endPoint2 - endPoint1)
-        else:
+        
+        if endPoint1 is None or endPoint2 is None:
             return V(0, 0, 0)
+        
+        
+        if atomAtVectorOrigin is not None:
+            #If atomAtVectorOrigin is specified, we will return a vector that
+            #starts at this atom and ends at endPoint1 or endPoint2 . 
+            #Which endPoint to choose will be dicided by the distance between
+            #atomAtVectorOrigin and the respective endPoints. (will choose the 
+            #frthest endPoint
+            origin = atomAtVectorOrigin.posn()
+            if vlen(endPoint2 - origin ) > vlen(endPoint1 - origin):
+                return norm(endPoint2 - origin)
+            else:
+                return norm(endPoint1 - origin)
+       
+        
+        return norm(endPoint2 - endPoint1)
         
     
     def setProps(self, props):
