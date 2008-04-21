@@ -108,7 +108,10 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         # begins supporting highlighting, we can also add feature to use 
         # coordinates of a highlighted object (e.g. atom center) as endpoints 
         # of the line
-        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)
+        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( 
+            event,
+            always_use_center_of_view = True
+        )
         
         #NIY code that accepts highlighted atom center as the endPoint instead 
          ##of always using the glpane depth. To be  implemented

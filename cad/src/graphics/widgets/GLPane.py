@@ -2554,7 +2554,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                  dot(vec, self.up) < 0)
     
 
-    def dragstart_using_GL_DEPTH(self, event, more_info = False): #bruce 061206 added more_info option
+    def dragstart_using_GL_DEPTH(self, 
+                                 event, 
+                                 more_info = False,
+                                 always_use_center_of_view = False): #bruce 061206 added more_info option
         """
         Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context (of self) is current -- caller is responsible for this)
@@ -2573,14 +2576,25 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         even though they might be less than 1.0 due to drawing of a background rectangle. (In the current implementation,
         farZ is always GL_FAR_Z, a public global constant defined in constants.py, but in principle it might depend on the
         GLPane and/or vary with differently drawn frames.)
+        @param always_use_center_of_view: If True it always uses the depth of the
+             center of view (returned by self.mousepoints) . This is used by
+             LineMode_GM.leftDown(). 
+             
         """
+        #@NOTE: Argument  always_use_center_of_view added on April 20, 2008 to 
+        #fix a bug for Mark's Demo.
+        #at FNANO08 -- This was the bug: In CPK display style,, start drawing 
+        #a duplex,. When the rubberbandline draws 20 basepairs, move the cursor 
+        #just over the last sphere drawn and click to finish duplex creation
+        #Switch the view to left view -- the duplex axis is not vertical 
+
         wX = event.pos().x()
         wY = self.height - event.pos().y()
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         depth = wZ[0][0]
         farZ = GL_FAR_Z
 
-        if depth >= farZ:
+        if depth >= farZ or always_use_center_of_view:
             junk, point = self.mousepoints(event)
             farQ = True
         else:
