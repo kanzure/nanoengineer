@@ -2,7 +2,7 @@
 """
 DnaCylinderChunks.py -- defines I{DNA Cylinder} display mode, which draws 
 axis chunks as a cylinder in the chunk's color.
-
+f
 @author: Mark
 @version: $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
@@ -235,6 +235,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
         if hue>1.0: hue=1.0
         return colorsys.hsv_to_rgb(hue, saturation, value)
 
+    def getNiceRainbowColor(self, hue, saturation, value):
+        """
+        Gets a color of a full hue range.
+        """
+        hue *= 0.8
+        if hue<0.0: hue=0.0
+        if hue>1.0: hue=1.0
+        return colorsys.hsv_to_rgb(hue, saturation, value)
+
     def getBaseColor(self, base):
         """
         Returns a color according to DNA base type.
@@ -270,6 +279,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
         if hue<0.0: hue = 0.0
         if hue>1.0: hue = 1.0
         return self.getFullRainbowColor(hue, saturation, value)
+
+    def getNiceRainbowColorInRange(self, pos, count, saturation, value):
+        if count>1: count -= 1
+        hue = float(pos)/float(count)        
+        if hue<0.0: hue = 0.0
+        if hue>1.0: hue = 1.0
+        return self.getNiceRainbowColor(hue, saturation, value)
 
     def drawchunk(self, glpane, chunk, memo, highlighted):
         """
@@ -360,7 +376,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     gleSetJoinStyle(TUBE_JN_ROUND | TUBE_NORM_PATH_EDGE 
                                     | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED)        
                     if color_style==1:
-                        drawer.drawpolycone_multicolor(colors[1], 
+                        drawer.drawpolycone_multicolor([0, 0, 0, -2], 
                                                        points,
                                                        colors,
                                                        radii)
@@ -396,7 +412,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     # draw the tube
                     if color_style==1:
                         drawer.drawpolycone_multicolor(
-                            colors[1], new_points, new_colors, new_radii)
+                            [0, 0, 0, -2], new_points, new_colors, new_radii)
                     else:
                         drawer.drawpolycone(
                             colors[1], new_points, new_radii)
@@ -424,8 +440,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 positions = [None] * (n_atoms+2)
                 for i in range(1, n_atoms+1):
                     positions[i] = chunk.abs_to_base(atom_list[i-1].posn())
-                positions[0] = 2*positions[1] - positions[2]
-                positions[n_atoms+1] = 2*positions[n_atoms] - positions[n_atoms-1]
+                if n_atoms > 1:
+                    positions[0] = 2 * positions[1] - positions[2]
+                else:
+                    positions[0] = positions[1]
+                if n_atoms > 1:    
+                    positions[n_atoms+1] = 2*positions[n_atoms] - positions[n_atoms-1]
+                else:
+                    positions[n_atoms+1] = positions[n_atoms]                    
             return positions
 
         def get_axis_atom_color_per_base(pos, strand_atoms_lists):
@@ -452,7 +474,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
             Create a list of colors from atom list.
             """
             n_atoms = len(atom_list)
-            if color_style==2 or color_style==3: # discrete colors
+            if color_style == 2 or \
+               color_style == 3: # discrete colors
                 colors = [None] * (2*n_atoms+2)
                 pos = 2
                 for i in range (1, n_atoms):
@@ -475,11 +498,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 colors[pos+1] = colors[pos] 
             else:
                 colors = [None] * (n_atoms+2)
-                if color_style==1:                    
+                if color_style == 1:                    
                     for i in range(1, n_atoms+1):
                         colors[i] = self.getRainbowColorInRange(
                             i, n_atoms, 0.75, 1.0)
-                elif color_style==4:
+                elif color_style == 4:
                     for i in range(1, n_atoms+1):
                         colors[i] = group_color
                 else:
@@ -647,7 +670,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 # draw the polycone                
                 if self.dnaStyleAxisColor==1 or self.dnaStyleAxisColor==2 \
                    or self.dnaStyleAxisColor==3: # render discrete colors                
-                    drawer.drawpolycone_multicolor(axis_colors[1], 
+                    drawer.drawpolycone_multicolor([0, 0, 0, -2], 
                                                    axis_positions, 
                                                    axis_colors, 
                                                    axis_radii)
@@ -833,7 +856,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             """
 
             axis_atom = strand_atom.axis_neighbor()
-
+            
             if axis_atom:
                 mol = axis_atom.molecule
                 axis_atoms = mol.ladder.axis_rail.baseatoms
@@ -850,10 +873,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     atom2 = axis_atoms[pos]
                     dpos = atom2.posn() - atom1.posn()
                 last_dpos = dpos
+                out = mol.quat.unrot(glpane.out)
                 if flipped:
-                    dvec = norm(cross(dpos, -glpane.out))
+                    dvec = norm(cross(dpos, -out))
                 else:
-                    dvec = norm(cross(dpos, glpane.out))                    
+                    dvec = norm(cross(dpos, out))                    
                 pos0 = chunk.abs_to_base(axis_atom.posn())
                 pos1 = pos0 + ssep * dvec
                 pos2 = pos0 - ssep * dvec
@@ -875,7 +899,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     #dvec = chunk.abs_to_base(ax_atom.posn()) - \
                     #       chunk.abs_to_base(a_neighbors[0].posn())
                     pos0, dvec = _get_screen_position_of_strand_atom(atom)
-                    ovec = norm(cross(dvec, glpane.out))
+                    ovec = norm(cross(dvec, chunk.quat.unrot(glpane.out)))
                     pos1 = pos0 + 0.5 * dvec
                     if mode == 1:
                         pos1 += 1.0 * dvec
@@ -1157,7 +1181,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 glDisable(GL_LIGHTING)
 
                 # Calculate the line width.
-                if mode == 0:
+                if mode == 0 \
+                   or mode == 2:
                     lw = 1.0 + 100.0 / glpane.scale
 
                 if mode == 1:
@@ -1181,7 +1206,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     
                 if mode == 0:
                     ssep = 7.0
-                else:
+                elif mode == 1 \
+                     or mode == 2:
                     ssep = 5.0
                 
                 # Prepare a list of bases to render and their positions.
@@ -1196,10 +1222,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         dpos = atom2.posn() - atom1.posn()                           
                     last_dpos = dpos
                     # Project the axis atom position onto a current view plane
+                    out = chunk.quat.unrot(glpane.out)
                     if flipped:
-                        dvec = norm(cross(dpos, -glpane.out))
-                    else:                        
-                        dvec = norm(cross(dpos, glpane.out))
+                        dvec = norm(cross(dpos, -out))
+                    else:
+                        dvec = norm(cross(dpos, out))                    
                     pos0 = chunk.abs_to_base(atom0.posn())
                     s_atom0 = s_atom1 = None
                     if strand_atoms[0]:
@@ -1253,7 +1280,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
                             glEnd()
                             
-                            if mode == 0:
+                            if mode == 0 \
+                               or mode == 2:
                                 glLineWidth(lw)
                             elif mode == 1:
                                 glLineWidth(0.4 * lw)
@@ -1312,7 +1340,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                                           textpos[1], 
                                                           textpos[2], 
                                                           label_text, labelFont)                    
-                            elif mode == 1:
+                            elif mode == 1 \
+                                 or mode == 2:
                                 if no_axis is False:
                                     glLineWidth(lw)
                                     glBegin(GL_LINES)
@@ -1329,30 +1358,31 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                             glVertex3fv(ax_atom_pos)                                
                                     glEnd()
                                 
-                                # draw circles interior
-                                for base in base_list:
-                                    if chunk.picked:
-                                        lcolor = _light_color(darkgreen)
-                                    else:
-                                        lcolor = _light_color(strand_color)
-                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
-                                    if str_atoms[str]:
-                                        drawer.drawFilledCircle(
-                                            lcolor, 
-                                            str_atoms_pos[str] + 3.0 * glpane.out, 
-                                            1.5, glpane.out)                                     
-                            
-                                # draw circles border
-                                glLineWidth(3.0)
-                                #glColor3fv(strand_color)
-                                for base in base_list:
-                                    ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
-                                    if str_atoms[str]:
-                                        drawer.drawCircle(
-                                            strand_color, 
-                                            str_atoms_pos[str] + 3.1 * glpane.out, 
-                                            1.5, glpane.out) 
-                                glLineWidth(1.0)
+                                if mode == 1:
+                                    # draw circles interior
+                                    for base in base_list:
+                                        if chunk.picked:
+                                            lcolor = _light_color(darkgreen)
+                                        else:
+                                            lcolor = _light_color(strand_color)
+                                        ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                        if str_atoms[str]:
+                                            drawer.drawFilledCircle(
+                                                lcolor, 
+                                                str_atoms_pos[str] + 3.0 * chunk.quat.unrot(glpane.out), 
+                                                1.5, chunk.quat.unrot(glpane.out))                                     
+                                
+                                    # draw circles border
+                                    glLineWidth(3.0)
+                                    #glColor3fv(strand_color)
+                                    for base in base_list:
+                                        ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
+                                        if str_atoms[str]:
+                                            drawer.drawCircle(
+                                                strand_color, 
+                                                str_atoms_pos[str] + 3.1 * chunk.quat.unrot(glpane.out), 
+                                                1.5, chunk.quat.unrot(glpane.out)) 
+                                    glLineWidth(1.0)
                     
                 if chunk.isAxisChunk():
                     if mode == 0:
@@ -1364,9 +1394,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         for base in base_list:
                             ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                             if str_atoms[0] and str_atoms[1]:
-                                drawer.drawFilledCircle(color, ax_atom_pos, 0.5, glpane.out)
+                                drawer.drawFilledCircle(color, ax_atom_pos, 0.5, chunk.quat.unrot(glpane.out))
                             else:
-                                drawer.drawFilledCircle(color, ax_atom_pos, 0.15, glpane.out)
+                                drawer.drawFilledCircle(color, ax_atom_pos, 0.15, chunk.quat.unrot(glpane.out))
                     """
                     elif mode == 1:
                         glLineWidth(10.0)
@@ -1542,12 +1572,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaExperimentalMode = 0
 
         # render in experimental 2D mode?
+        # piotr 080416
         dna_style = debug_pref(
-              "DNA style: ", #bruce 080215
-                   # initial paren or space puts it at start of menu
+              "DNA style: ",
                Choice(["Default", 
                        "Experimental mode 1", 
-                       "Experimental mode 2"], 
+                       "Experimental mode 2", 
+                       "Experimental mode 3"], 
                       defaultValue = "Default"),
                non_debug = False, 
                prefs_key = True 
@@ -1558,6 +1589,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
         
         if dna_style == "Experimental mode 2":
             self.dnaExperimentalMode = 2
+        
+        if dna_style == "Experimental mode 3":
+            self.dnaExperimentalMode = 3
         
         #debug_pref(
         #    "DNA CylinderStyle: enable experimental 2D mode?",
@@ -1608,10 +1642,62 @@ class DnaCylinderChunks(ChunkDisplayMode):
         start_index = end_index = 0
         total_strand_length = 1
 
-        if chunk.isAxisChunk() and axis_atoms: # axis chunk           
-            axis_chunks = chunk.getDnaGroup().getAxisChunks()
-            group_color = self.getRainbowColorInRange(
-                axis_chunks.index(chunk), len(axis_chunks), 0.75, 1.0)                             
+        if chunk.isAxisChunk() \
+           and axis_atoms \
+           and self.dnaStyleAxisColor == 4: # axis chunk
+            
+            sorted_axis_chunks = []
+            strands = chunk.getDnaGroup().getStrands()
+            
+            longest_strand = None
+            longest_length = 0
+            
+            for strand in strands:
+                found = False
+                for c in strand.members:
+                    if isinstance(c, DnaStrandChunk):
+                        if c.ladder.axis_rail:
+                            if c.ladder.axis_rail.baseatoms[0].molecule == chunk:
+                                found = True
+                                break
+                if found:
+                    n_atoms = len(strand.get_strand_wholechain())
+                    if n_atoms > longest_length:
+                        longest_length = n_atoms
+                        longest_strand = strand
+                    
+            if longest_strand:
+
+                rawAtomList = []
+                
+                for c in longest_strand.members:
+                    if isinstance(c, DnaStrandChunk):
+                        rawAtomList.extend(c.atoms.itervalues())
+
+                all_atoms = strand.get_strand_atoms_in_bond_direction(rawAtomList)
+
+                last_axis = None
+                for atom in all_atoms:
+                    ax_atom = atom.axis_neighbor()
+                    if ax_atom and \
+                       ax_atom.molecule != last_axis:
+                        last_axis = ax_atom.molecule
+                        sorted_axis_chunks.append(last_axis)
+                
+                if chunk in sorted_axis_chunks:
+                    group_color = self.getNiceRainbowColorInRange(
+                        sorted_axis_chunks.index(chunk), 
+                        len(sorted_axis_chunks), 
+                        0.8, 
+                        0.8)                             
+                
+            else:    
+                axis_chunks = chunk.getDnaGroup().getAxisChunks()
+                group_color = self.getRainbowColorInRange(
+                    axis_chunks.index(chunk), 
+                    len(axis_chunks), 
+                    0.75, 
+                    1.0)                             
         elif chunk.isStrandChunk(): # strand chunk
             strands = chunk.getDnaGroup().getStrands()
             group_color = self.getRainbowColorInRange(
