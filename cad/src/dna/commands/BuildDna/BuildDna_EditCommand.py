@@ -420,8 +420,13 @@ class BuildDna_EditCommand(EditCommand):
             #See: DnaDuplex_EditCommand._createSegment(), 
             #    DnaDuplex_EditCommand.createStructure(), and
             #    DnaDuplex_EditCommand.restore_gui()
-
-            if self.struct is None:
+            
+            #following condition (hasValidStructure) fixes bug 2815.Earlier 
+            #ondition was just checking if self.struct is None. 
+            #self.hasValidStructure checks if the structure is killed etc 
+            #--Ninad 2008-04-21
+   
+            if not self.hasValidStructure():
                 self.struct = self._createStructure()
             params = (self.callback_addSegments, self.struct)
 
