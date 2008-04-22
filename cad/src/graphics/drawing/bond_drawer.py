@@ -610,10 +610,25 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     # This is multiplied by the "DNA Strut Scale Factor" user preference to
     # compute the final radius. Mark 2008-01-31.
     ### REVIEW: is this correct for diTrueCPK and/or diDNACYLINDER? [bruce comment 080213]
-    if (atom1.element.pam or atom2.element.pam):
+    if (atom1.element.pam or atom2.element.pam):            
         if disp == diBALL or disp == diTUBES:
+            #The following increases the radius of the axis bonds by the 
+            #'axisFactor'. The new radius makes it easy to drag the dna segment 
+            #while in DnaSegment_EditCommand. Another possibility is to 
+            #increase this radius only in DnaSegment_EditCommand. But retrieving
+            #the current command information in this method may not be straigtforward
+            #and is infact kludgy (like this) The radius of axis bonds 
+            #was increased per Mark's request for his presentation at FNANO08
+            #-- Ninad 2008-04-22
+            if atom1.element.role == 'axis' and atom2.element.role == 'axis':
+                axisFactor = 2.0
+            else:
+                axisFactor = 1.0
+                
             sigmabond_cyl_radius = \
-                TubeRadius * env.prefs[dnaStrutScaleFactor_prefs_key]
+                TubeRadius * env.prefs[dnaStrutScaleFactor_prefs_key]*axisFactor
+    
+        
         
     # Figure out banding (only in CPK [review -- old or true cpk?] or Tubes display modes).
     # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
