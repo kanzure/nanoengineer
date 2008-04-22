@@ -97,7 +97,7 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice
 from foundation.changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
-from utilities.Log import orangemsg, redmsg
+from utilities.Log import orangemsg, redmsg, greenmsg
 
 from utilities.constants import genKey
 from utilities.constants import gensym
@@ -2725,6 +2725,30 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         msg = atom.dna_updater_error_string(newline = '<br>')
         if msg:
             atomInfoStr += "<br>" + orangemsg(msg)
+
+        if debug_pref("DNA: show wholechain baseindices in atom tooltips?",
+                      Choice_boolean_False,
+                      prefs_key = True ): #bruce 080421 (not in rc2)
+            try:
+                wholechain = atom.molecule.wholechain
+                    # only works for some atoms; might be None
+            except AttributeError:
+                wholechain = None
+            if wholechain: # also check whether it's valid??
+                try:
+                    rail = atom.molecule.get_ladder_rail()
+                    whichrailjunk, baseindex = atom.molecule.ladder.whichrail_and_index_of_baseatom(self)
+                    bi_min, bi_max = wholechain.wholechain_baseindex_range()
+                    bi_rail0, bi_rail1 = wholechain.wholechain_baseindex_range_for_rail(rail)
+                    bi_self = wholechain.wholechain_baseindex(rail, baseindex)
+                    msg = "wholechain baseindices: (%d, %d), (%d, %d), %d" % \
+                          (bi_min, bi_max, bi_rail0, bi_rail1, bi_self)
+                    atomInfoStr += "<br>" + greenmsg(msg)
+                except:
+                    print_compact_traceback("exception in show wholechain baseindices: ")
+                    pass
+                pass
+            pass
         
         if isAtomPosition:
             xyz = atom.posn()
