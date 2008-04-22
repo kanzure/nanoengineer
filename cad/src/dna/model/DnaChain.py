@@ -145,9 +145,9 @@ class DnaChain(object):
         If self has a known, consistently set bond direction,
         throughout its length and also in the directional bonds
         to the next strand base atoms just outside it
-        (which can be two actua bonds each if a PAM5 Pl intervenes),
+        (which can be two actual bonds each if a PAM5 Pl intervenes),
         return that direction; 1 means left to right, -1 means right to left,
-        treating base_index as growing from left to right
+        treating baseindex as growing from left to right
         (self.index_direction is ignored).
 
         Otherwise set self._bond_direction_error and return 0.
