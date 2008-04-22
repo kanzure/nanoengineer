@@ -661,6 +661,139 @@ class WholeChain(object):
         assert 0 # not reached
         pass
 
+    _rail_to_wholechain_baseindex_data = None
+    _wholechain_baseindex_range = None
+
+    def wholechain_baseindex(self, rail, baseindex): #bruce 080421 (not in rc2)
+        """
+        @param rail: one of our rails.
+
+        @param baseindex: a baseindex within rail
+        @type baseindex: int, from 0 to len(rail) - 1
+
+        @return: the corresponding baseindex within self as a whole
+        @rtype: int
+
+        @note: this function is expensive on the first call for self,
+               and cheap thereafter.
+               
+        @note: if self is a ring, the baseindex origin and direction
+               is determined by self's controlling marker.
+               (WARNING: in initial implem this origin might be arbitrary, instead)
+
+        @see: len(self) gives the total number of bases in self, but their
+              indices don't necessarily start at 0
+
+        @see: self.wholechain_baseindex_range()
+        """
+        if not self._rail_to_wholechain_baseindex_data:
+            self._compute_wholechain_baseindices()
+        baseindex_0, increment = self._rail_to_wholechain_baseindex_data[rail]
+        return baseindex_0 + increment * baseindex
+
+    def wholechain_baseindex_range(self): #bruce 080421 (not in rc2)
+        """
+        Return the minimum and maximum wholechain_baseindex of all bases
+        in all rails in self.
+
+        @return: (min_baseindex, max_baseindex), where min_baseindex <= max_baseindex
+        @rtype: a tuple of two ints
+
+        @note: this function might be expensive on the first call for self,
+               but is cheap thereafter.
+
+        @see: self.wholechain_baseindex(rail, baseindex)
+        """
+        if not self._wholechain_baseindex_range:
+            self._compute_wholechain_baseindices()
+        min_baseindex, max_baseindex = self._wholechain_baseindex_range
+        return min_baseindex, max_baseindex
+
+    def wholechain_baseindex_range_for_rail(self, rail): #bruce 080421 (not in rc2)
+        """
+        @param rail: one of our rails.
+
+        @return: the first and last wholechain_baseindex within rail
+        @rtype: a tuple of two ints
+
+        @see: self.wholechain_baseindex_range()
+        """
+        first = self.wholechain_baseindex(rail, 0)
+        last  = self.wholechain_baseindex(rail, len(rail) - 1)
+        return first, last
+    
+    def _compute_wholechain_baseindices(self): #bruce 080421 (not in rc2)
+        """
+        Compute and assign the correct values to
+        self._rail_to_wholechain_baseindex_data
+        and self._wholechain_baseindex_range.
+        """
+        self._rail_to_wholechain_baseindex_data = {} # modified herein
+        marker = self._controlling_marker
+            # for now, its marked_atom and next_atom will be treated as having
+            # wholechain_baseindices of 0 and 1 respectively. In the future,
+            # marker properties would specify this.
+        min_so_far = 2 * len(self) # bigger than any possible wholechain_baseindex in self
+        max_so_far = -2 * len(self) # smaller than any ...
+        for direction_of_slide in (1, -1):
+            if self.ringQ and direction_of_slide == -1:
+                break
+            pos_holder = marker._position_holder ### kluge
+            assert pos_holder.wholechain is self
+            pos_generator = pos_holder.yield_rail_index_direction_counter(
+                                relative_direction = direction_of_slide,
+                                counter = 0,
+                                countby = direction_of_slide,
+                             )
+                # TODO: optimization: pass a new option to skip from each
+                # position returned to a position in the next rail.
+                # (implem note: be sure to still return the precise initial
+                #  pos at the end, for a ring.)
+            old_atom1, old_atom2 = marker.marked_atom, marker.next_atom
+            if direction_of_slide == 1:
+                _check_atoms = [old_atom1, old_atom2]
+                    # for assertions only -- make sure we hit these atoms first,
+                    # in this order
+            else:
+                _check_atoms = [old_atom1] # if we knew pos of atom2 we could
+                    # start there, and we could save it from when we go to the
+                    # right, but there's no need.
+            last_rail = None
+            for pos in pos_generator: 
+                rail, index, direction, counter = pos
+                atom = rail.baseatoms[index]
+                if _check_atoms:
+                    popped = _check_atoms.pop(0)
+                    if not (atom is popped):
+                        # FIX: remove this code once it works, and certainly
+                        # before implementing the optim in pos_generator
+                        # to return each rail only once.
+                        print "\n*** BUG: not (atom %r is _check_atoms.pop(0) %r), remaining _check_atoms %r, other data %r" % \
+                              (atom, popped, _check_atoms, (marker, pos_holder))
+                # define the wholechain_baseindex of pos to be counter;
+                # from this and direction, infer the index range for rail
+                # and record it, also tracking min and max wholechain indices.
+                if rail is not last_rail: # optim, until pos_generator can return each rail only once
+                    last_rail = rail
+                    def rail_index_to_whole_index(baseindex):
+                        return (baseindex - index) * direction + counter
+                    self._rail_to_wholechain_baseindex_data[rail] = (
+                        rail_index_to_whole_index(0),
+                        direction
+                    )
+                    for index in (rail_index_to_whole_index(0),
+                                  rail_index_to_whole_index(len(rail) - 1) ):
+                        if index < min_so_far:
+                            min_so_far = index
+                        if index > max_so_far:
+                            max_so_far = index
+                        continue
+                    pass # if rail was not yet seen
+                continue # next pos from pos_generator
+            continue # next direction_of_slide
+        self._wholechain_baseindex_range = ( min_so_far, max_so_far )
+        return # from _compute_wholechain_baseindices
+    
     pass # end of class WholeChain
 
 # ==
