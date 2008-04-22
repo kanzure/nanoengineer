@@ -104,7 +104,7 @@ def drawDnaRibbons(endCenter1,
     """
 
     #Try to match the rubberband display style as closely as possible to 
-    #either the glapan's current display or the chunk display of the segment 
+    #either the glpane's current display or the chunk display of the segment 
     #being edited. The caller should do the job of specifying the display style
     #it desires. As of 2008-02-20, this method only supports following display 
     #styles --Tubes, Ball and Stick, CPK and lines. the sphere radius 
@@ -333,48 +333,64 @@ def drawDnaRibbons(endCenter1,
 
     glPopMatrix()
     glEnable(GL_LIGHTING)
+    return
 
-def compute_ribbon_point(endCenter1,
-                              basesPerTurn, 
-                              duplexRise, 
-                              unitVectorAlongLength,
-                              unitVectorAlongLadderStep,
-                              unitDepthVector,
-                              peakDeviationFromCenter,
-                              numberOfBasesDrawn , 
-                              theta_offset
-                              ):
+# ==
+
+def draw_debug_text(glpane, point, text): #bruce 080422, should refile
     """
-    EXPERIMENTAL
+    """
+    from graphics.drawing.drawer import drawline, drawtext
+    from geometry.VQT import V
+    from utilities.constants import white, red
+    
+    if point is None:
+        point = - glpane.pov
+    # todo: randomize offset using hash of text
+    offset = glpane.right * glpane.scale / 2.0 + \
+             glpane.up    * glpane.scale / 2.0
+                 # todo: correct for aspect ratio, use min scale in each dimension
+    offset2 = V( - offset[0], offset[1], 0.0 ) / 3.0
+    drawline( white, point, point + offset, width = 2)
+    drawline( white, point - offset2, point + offset2 )
+    point_size = 12
+    drawtext( text, red, point + offset, point_size, glpane )
+    return
+
+def _compute_ribbon_point(origin, # this needs to include axial offset from caller
+                          basesPerTurn, 
+                          duplexRise, 
+                          unitVectorAlongLength,
+                          unitVectorAlongLadderStep,
+                          unitDepthVector,
+                          peakDeviationFromCenter,
+                          numberOfBasesDrawn , 
+                          theta_offset
+                          ):
+    """
     """
     ##handedness = -1    
     ##theta_offset = 0.0
     #turn_angle = twistPerBase
     ##turn_angle = (handedness * 2 * pi) / basesPerTurn
     turn_angle = (2 * pi) / basesPerTurn
-    end1 = endCenter1
-    axial_offset = unitVectorAlongLength * duplexRise 
+##    axial_offset = unitVectorAlongLength * duplexRise 
     cY = unitVectorAlongLadderStep 
     cZ = unitDepthVector
-    p0 = end1
 
-    i = numberOfBasesDrawn
-    radius = peakDeviationFromCenter
-
-    theta = turn_angle * i + theta_offset # in radians
-    y = cos(theta) * radius 
-    z = sin(theta) * radius
-    vx = axial_offset # a Vector
-    ##p = p0 + vx + y * cY + z * cZ
-    p = p0 + y * cY + z * cZ
+    theta = turn_angle * numberOfBasesDrawn + theta_offset # in radians
+    y = cos(theta) * peakDeviationFromCenter 
+    z = sin(theta) * peakDeviationFromCenter
+##    vx = axial_offset # a Vector
+    p = origin + y * cY + z * cZ
     return p
 
-
-def drawDnaSingleRibbon(endCenter1,  
+def drawDnaSingleRibbon(glpane,
+                             endCenter1,  
                              endCenter2,
                              basesPerTurn,
                              duplexRise, 
-                             glpaneScale,                   
+                             glpaneScale, # maybe: don't pass these three args, get from glpane instead? [bruce 080422 comment]             
                              lineOfSightVector,
                              displayStyle,
                              ribbon1_start_point = None,
@@ -382,13 +398,19 @@ def drawDnaSingleRibbon(endCenter1,
                              ribbonThickness = 2.0,
                              ribbon1Color = None, 
                              stepColor = None):
+    # only defined in this file, only called from DnaStrand_GraphicsMode (in _drawHandles), as of 080422
     """
-    EXPERIMENTAL. Doesn't work well. 
     @see: DnaStrand_GraphicsMode._drawHandles()
     """
 
+    if 0:
+        # debug code, useful to see where the argument points are located [bruce 080422]
+        draw_debug_text(glpane, endCenter1, "endCenter1")
+        draw_debug_text(glpane, endCenter2, "endCenter2")
+        draw_debug_text(glpane, ribbon1_start_point, "ribbon1_start_point")
+    
     #Try to match the rubberband display style as closely as possible to 
-    #either the glapan's current display or the chunk display of the segment 
+    #either the glpane's current display or the chunk display of the segment 
     #being edited. The caller should do the job of specifying the display style
     #it desires. As of 2008-02-20, this method only supports following display 
     #styles --Tubes, Ball and Stick, CPK and lines. the sphere radius 
@@ -416,22 +438,45 @@ def drawDnaSingleRibbon(endCenter1,
     #the ribbonLength is at least equal to the duplexRise. 
     # i.e. do the drawing only when there are at least two ladder steps. 
     # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint 
+    # the first endpoint. It also means the dna duplex axis can be determined below
+    # from the two endpoints.
     if ribbonLength < duplexRise:
         return
 
     unitVectorAlongLength = norm(endCenter2 - endCenter1)
 
-    glDisable(GL_LIGHTING) 
+    glDisable(GL_LIGHTING)
     ##glPushMatrix()
     ##glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
     ##pointOnAxis = V(0, 0, 0)
     pointOnAxis = endCenter1
 
+    axial_shift = V(0.0, 0.0, 0.0) # might be changed below
+    
+    # [these might be discarded and recomputed just below;
+    #  the case where they aren't is (and I think was) untested.
+    #  -- bruce 080422 comment]
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) * -1 #bruce 080216
+    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) ## * -1 
 
+    if ribbon1_start_point is not None:
+        # [revise the meaning of these values to give the coordinate system
+        #  with the right phase in which to draw the ribbon. bruce 080422 bugfix]
+        vectorAlongLadderStep0 = ribbon1_start_point - endCenter1
+            # note: this might not be perpendicular to duplex axis.
+            # fix by subtracting off the parallel component.
+            # but add the difference back to every point below.
+        vectorAlongLadderStep = vectorAlongLadderStep0 - \
+            dot( unitVectorAlongLength, vectorAlongLadderStep0 ) * unitVectorAlongLength
+        axial_shift = (vectorAlongLadderStep0 - vectorAlongLadderStep)
+            # note: even using this, there is still a small glitch in the location of the first
+            # drawn sphere vs. the ribbon point... don't know why. [bruce 080422]
+        unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+        unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) ## * -1 
+        pass
+    del vectorAlongLadderStep
+    
     #####################################################################
     #Following limits the arrowHead Size to the given value. When you zoom out, 
     #the rest of ladder drawing becomes smaller (expected) and the following
@@ -452,83 +497,34 @@ def drawDnaSingleRibbon(endCenter1,
     #      x = the x coordinate
     # phase_angle is computed for each wave. We know y at x =0. For example, 
     # for ribbon_1, , at x = 0, y = A. Putting these values in equation [1] 
-    # we get the phase_angle. Similarly, for ribbon_2, at x = 0, y = -6 
-    # Putting these values will give use the phase_angle_2. 
-    # Note that for ribbon2_point, we subtract the value of equation [1] from 
-    # the point on axis. 
+    # we get the phase_angle.
 
     x = 0.0
     T =  duplexRise * basesPerTurn 
         # The 'Period' of the sine wave
         # (i.e. peak to peak distance between consecutive crests)
 
-    amplitude = peakDeviationFromCenter
-    amplitudeVector = unitVectorAlongLadderStep * amplitude
-    depthVector = unitDepthVector * amplitude
-        # Note: to reduce the effect of perspective view on rung direction,
-        # we could multiply depthVector by 0.1 or 0.01. But this would lessen
-        # the depth realism of line/sphere intersections. [bruce 080216]
-
     numberOfBasesDrawn = 0
     theta_offset = 0
 
-    if ribbon1_start_point is not None:
+##    phase_angle_ribbon_1 = HALF_PI
+##    theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
 
-        height_ribbon1, width1_junk = orthodist(endCenter1, 
-                                                unitVectorAlongLadderStep, 
-                                                ribbon1_start_point)
-
-
-        i = numberOfBasesDrawn
-        radius = peakDeviationFromCenter
-
-        y = height_ribbon1
-        theta_temp = acos(y/radius)
-        turn_angle = (2 * pi) / basesPerTurn
-
-        theta_offset = theta_temp - turn_angle*i 
-
-        ##print "~~~~~~~~~~~~~~~~~~~~"
-        ##print "****height_ribbon1 = ", height_ribbon1
-        ##print "***original theta offset = ", theta_temp*180/pi       
-        ##print "***new thta_offset = ", theta_offset*180.0/pi
-
-
-        ribbon1_point = compute_ribbon_point(pointOnAxis,
-                                             basesPerTurn, 
-                                             duplexRise, 
-                                             unitVectorAlongLength,
-                                             unitVectorAlongLadderStep,
-                                             unitDepthVector,
-                                             peakDeviationFromCenter,
-                                             numberOfBasesDrawn,
-                                             theta_offset
-                                         )
-
-
-
-    else:              
-        phase_angle_ribbon_1 = HALF_PI    
-        theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
-
-
-        #Initialize ribbon1_point and ribbon2_point
-        ribbon1_point = compute_ribbon_point(pointOnAxis,
-                                             basesPerTurn, 
-                                             duplexRise, 
-                                             unitVectorAlongLength,
-                                             unitVectorAlongLadderStep,
-                                             unitDepthVector,
-                                             peakDeviationFromCenter,
-                                             numberOfBasesDrawn, 
-                                             theta_offset
-                                         )
-
-
-
-    #####################################################################
-
-
+    #Initialize ribbon1_point
+    # [note: might not be needed, since identical to first point
+    #  computed during loop, but present code uses it to initialize
+    #  previous_ribbon1_point during loop [bruce 080422 comment]]
+    ribbon1_point = _compute_ribbon_point(pointOnAxis + axial_shift,
+                                         basesPerTurn, 
+                                         duplexRise, 
+                                         unitVectorAlongLength,
+                                         unitVectorAlongLadderStep,
+                                         unitDepthVector,
+                                         peakDeviationFromCenter,
+                                         numberOfBasesDrawn, 
+                                         theta_offset
+                                     )
+    
     while x < ribbonLength:          
         #Draw the axis point.
         drawPoint(stepColor, pointOnAxis)       
@@ -536,8 +532,7 @@ def drawDnaSingleRibbon(endCenter1,
         previousPointOnAxis = pointOnAxis        
         previous_ribbon1_point = ribbon1_point
 
-
-        ribbon1_point = compute_ribbon_point(pointOnAxis,
+        ribbon1_point = _compute_ribbon_point(pointOnAxis + axial_shift,
                                              basesPerTurn, 
                                              duplexRise, 
                                              unitVectorAlongLength,
@@ -546,20 +541,16 @@ def drawDnaSingleRibbon(endCenter1,
                                              peakDeviationFromCenter,
                                              numberOfBasesDrawn, 
                                              theta_offset
-
                                          )
 
-
-        #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
-        # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 
-        #an arrowhead. (that arrow head is drawn later , after the while loop) 
+        # Draw sphere over previous_ribbon1_point and not ribbon1_point.
+        # This is so we don't draw a sphere over the last point on ribbon1
+        # (instead, it is drawn as an arrowhead after the while loop).
         drawsphere(ribbon1Color, 
                    previous_ribbon1_point, 
                    SPHERE_RADIUS,
                    SPHERE_DRAWLEVEL,
-                   opacity = SPHERE_OPACITY)       
-
-
+                   opacity = SPHERE_OPACITY)
 
         #Increment the pointOnAxis and x
         pointOnAxis = pointOnAxis + unitVectorAlongLength * duplexRise        
@@ -574,6 +565,9 @@ def drawDnaSingleRibbon(endCenter1,
                      isSmooth = True )
             arrowLengthVector1  = norm(ribbon1_point - previous_ribbon1_point)
             arrowHeightVector1 = cross(-lineOfSightVector, arrowLengthVector1)
+            pass
+
+        continue # while x < ribbonLength
 
 
     #Arrow head for endpoint of ribbon_1. 
@@ -586,289 +580,17 @@ def drawDnaSingleRibbon(endCenter1,
     #The second axis endpoint of the dna is drawn as a transparent sphere. 
     #Note that the second axis endpoint is NOT NECESSARILY endCenter2 . In fact 
     # those two are equal only at the ladder steps. In other case (when the
-    # ladder step is not completed, the endCenter1 is ahead of the 
+    # ladder step is not completed), the endCenter1 is ahead of the 
     #'second axis endpoint of the dna' 
     drawsphere(AXIS_ENDPOINT_SPHERE_COLOR, 
                previousPointOnAxis, 
                AXIS_ENDPOINT_SPHERE_RADIUS,
                AXIS_ENDPOINT_SPHERE_DRAWLEVEL,
                opacity = AXIS_ENDPOINT_SPHERE_OPACITY)
-
 
     ##glPopMatrix()
     glEnable(GL_LIGHTING)
+    return # from drawDnaSingleRibbon
 
-######################START EXPERIMENTAL STUFF FOR BRUCE #######################
-
-def EXPERIMENTAL_drawDnaSingleRibbon(endCenter1,  
-                        endCenter2,
-                        basesPerTurn,
-                        duplexRise, 
-                        glpaneScale,                   
-                        lineOfSightVector,
-                        displayStyle,
-                        ribbon1_start_point = None,
-                        peakDeviationFromCenter = 9.5,
-                        ribbonThickness = 2.0,
-                        ribbon1Color = None, 
-                        stepColor = None):
-    """
-    EXPERIMENTAL. Doesn't work well. 
-    @see: DnaStrand_GraphicsMode._drawHandles()
-    """
-
-    #Try to match the rubberband display style as closely as possible to 
-    #either the glapan's current display or the chunk display of the segment 
-    #being edited. The caller should do the job of specifying the display style
-    #it desires. As of 2008-02-20, this method only supports following display 
-    #styles --Tubes, Ball and Stick, CPK and lines. the sphere radius 
-    #for ball and stick or CPK is calculated approximately. 
-
-    if displayStyle == diTrueCPK:
-        SPHERE_RADIUS = 3.5
-        ribbonThickness = 2.0
-    elif displayStyle == diTUBES:
-        SPHERE_RADIUS = 0.01
-        ribbonThickness = 5.0
-    elif displayStyle == diLINES:
-        #Lines display and all other unsupported display styles
-        SPHERE_RADIUS = 0.01
-        ribbonThickness = 1.0
-    else:
-        #ball and stick display style. All other unsupported displays 
-        #will be rendered in ball and stick display style
-        SPHERE_RADIUS = 1.0
-        ribbonThickness = 3.0
-
-    ribbonLength = vlen(endCenter1 - endCenter2)
-
-    #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ribbonLength is at least equal to the duplexRise. 
-    # i.e. do the drawing only when there are at least two ladder steps. 
-    # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint 
-    if ribbonLength < duplexRise:
-        return
-
-    unitVectorAlongLength = norm(endCenter2 - endCenter1)
-    
-    pointOnAxis = endCenter1
-
-    vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
-    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) * -1 #bruce 080216
-
-    #####################################################################
-    #Following limits the arrowHead Size to the given value. When you zoom out, 
-    #the rest of ladder drawing becomes smaller (expected) and the following
-    #check ensures that the arrowheads are drawn proportionately. 
-    # (Not using a 'constant' to do this as using glpaneScale gives better 
-    #results)
-    if glpaneScale > 40:
-        arrowDrawingScale = 40
-    else:
-        arrowDrawingScale = glpaneScale
-
-    x = 0.0
-    amplitude = peakDeviationFromCenter
-    amplitudeVector = unitVectorAlongLadderStep * amplitude
-    depthVector = unitDepthVector * amplitude
-        # Note: to reduce the effect of perspective view on rung direction,
-        # we could multiply depthVector by 0.1 or 0.01. But this would lessen
-        # the depth realism of line/sphere intersections. [bruce 080216]
-
-    numberOfBasesDrawn = 0
-
-    if ribbon1_start_point is not None:
-
-        height_ribbon1, width1_junk = orthodist(endCenter1, 
-                                                unitVectorAlongLadderStep, 
-                                                ribbon1_start_point)        
-
-        ribbon1_point = ribbon1_start_point  
-
-
-    while x < ribbonLength:          
-        #Draw the axis point.
-        drawPoint(stepColor, pointOnAxis)       
-
-        previousPointOnAxis = pointOnAxis        
-        previous_ribbon1_point = ribbon1_point
-
-        ribbon1_point = compute_ribbon_point(pointOnAxis,
-                                             endCenter1,
-                                             ribbon1_start_point,
-                                             basesPerTurn, 
-                                             duplexRise, 
-                                             unitVectorAlongLength,
-                                             numberOfBasesDrawn )
-
-
-        #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
-        # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 
-        #an arrowhead. (that arrow head is drawn later , after the while loop) 
-        drawsphere(ribbon1Color, 
-                   previous_ribbon1_point, 
-                   SPHERE_RADIUS,
-                   SPHERE_DRAWLEVEL,
-                   opacity = SPHERE_OPACITY)       
-
-
-
-        #Increment the pointOnAxis and x
-        pointOnAxis = pointOnAxis + unitVectorAlongLength * duplexRise        
-        x += duplexRise
-        numberOfBasesDrawn += 1
-
-        if previous_ribbon1_point:
-            drawline(ribbon1Color, 
-                     previous_ribbon1_point, 
-                     ribbon1_point,
-                     width = ribbonThickness,
-                     isSmooth = True )
-            arrowLengthVector1  = norm(ribbon1_point - previous_ribbon1_point)
-            arrowHeightVector1 = cross(-lineOfSightVector, arrowLengthVector1)
-
-
-    #Arrow head for endpoint of ribbon_1. 
-    drawArrowHead(ribbon1Color, 
-                  ribbon1_point,
-                  arrowDrawingScale,
-                  arrowHeightVector1, 
-                  arrowLengthVector1) 
-
-    #The second axis endpoint of the dna is drawn as a transparent sphere. 
-    #Note that the second axis endpoint is NOT NECESSARILY endCenter2 . In fact 
-    # those two are equal only at the ladder steps. In other case (when the
-    # ladder step is not completed, the endCenter1 is ahead of the 
-    #'second axis endpoint of the dna' 
-    drawsphere(AXIS_ENDPOINT_SPHERE_COLOR, 
-               previousPointOnAxis, 
-               AXIS_ENDPOINT_SPHERE_RADIUS,
-               AXIS_ENDPOINT_SPHERE_DRAWLEVEL,
-               opacity = AXIS_ENDPOINT_SPHERE_OPACITY)
-
-    glEnable(GL_LIGHTING)
-
-
-def EXPERIMENTAL_compute_ribbon_point(pointOnAxis,
-                         endCenter1,
-                         ribbon1_start_point,
-                         basesPerTurn, 
-                         duplexRise, 
-                         unitVectorAlongLength,                    
-                         numberOfBasesDrawn                          
-                         ): 
-    
-    #pointOnAxis and endCenter1 one of them is reduendent (may as well be a bug)
-    #only pointOnAxis is probably what it needs.
-
-    handedness = -1 #Right handed
-    twistPerBase = (handedness * 2 * pi) / basesPerTurn
-
-    a = V(0.0, 0.0, -1.0)
-    # <a> is the unit vector pointing down the center axis of the default
-    # DNA structure which is aligned along the Z axis.
-
-    axis = cross(a, unitVectorAlongLength)
-    # <axis> is the axis of rotation.
-
-    theta_2 = angleBetween(a, unitVectorAlongLength)
-    # <theta> is the angle (in degress) to rotate about <axis>.
-    ##scalar = duplexRise * (numberOfBasesDrawn - 1) * 0.5
-    scalar = -duplexRise * (numberOfBasesDrawn)
-    rawOffset = unitVectorAlongLength * scalar
-
-
-    if theta_2 == 0.0 or theta_2 == 180.0:
-        axis = V(0, 1, 0)
-
-    rot =  (pi / 180.0) * theta_2  # Convert to radians
-    q_orient_1 = Q(axis, rot) # Quat for rotation delta.
-
-    z = - numberOfBasesDrawn*duplexRise
-    theta = numberOfBasesDrawn*twistPerBase
-    def tfm(v, theta = theta, z1 = z):
-        return _rotateTranslateXYZ(v, theta, z1)
-
-    strand_point = V(0, 8.69, 0)
-    axis_point = V(0, 0, 0)
-    strand_point = tfm(strand_point)
-    axis_point = tfm(axis_point)
-
-    #All of the following needs to be reworked. It is WRONG. comment can be deleted
-    #after fix -- Ninad 2008 -04- 21
-    offset =  q_orient_1.rot(strand_point) - strand_point + rawOffset + pointOnAxis    
-    axis_offset = q_orient_1.rot(axis_point) - axis_point + rawOffset + pointOnAxis
-
-    strand_point += offset
-    axis_point   += axis_offset
-
-    if 0:
-        strand_point =  q_orient_1.rot(strand_point)       
-        axis_point = q_orient_1.rot(axis_point) 
-        
-    ########
-    #For debug only
-    drawsphere(darkgreen, 
-               strand_point, 
-               2.0,
-               AXIS_ENDPOINT_SPHERE_DRAWLEVEL,
-               opacity = AXIS_ENDPOINT_SPHERE_OPACITY)
-        #########
-    if 0:  
-        ##vec_1 = (strand_point - axis_point)
-        ##vec_2 = (ribbon1_start_point - pointOnAxis) 
-
-        vec_1 = (strand_point - pointOnAxis)
-        vec_2 = (ribbon1_start_point - endCenter1)
-
-        drawline(blue, strand_point, pointOnAxis)
-        drawline(darkgreen, ribbon1_start_point, endCenter1)
-        drawsphere(darkgreen, 
-                   ribbon1_start_point, 
-                   2.0,
-                   AXIS_ENDPOINT_SPHERE_DRAWLEVEL,
-                   opacity = AXIS_ENDPOINT_SPHERE_OPACITY)
-
-
-        q_orient_2 = Q(vec_1, vec_2)
-
-        if dot(vec_1, cross(vec_2, unitVectorAlongLength)) < 0:
-            q_new2 = Q(unitVectorAlongLength, -q_orient_2.angle)
-        else:     
-            q_new2 = Q(unitVectorAlongLength, q_orient_2.angle) 
-
-
-        rotOff =  q_new2.rot(strand_point) - strand_point + rawOffset + pointOnAxis
-        strand_point += rotOff
-        ##strand_point = q_new2.rot(strand_point)  
-
-    return strand_point
-
-
-def _rotateTranslateXYZ( inXYZ, theta, z):
-    """
-        Returns the new XYZ coordinate rotated by I{theta} and 
-        translated by I{z}.
-
-        @param inXYZ: The original XYZ coordinate.
-        @type  inXYZ: V
-
-        @param theta: The base twist angle.
-        @type  theta: float
-
-        @param z: The base rise.
-        @type  z: float
-
-        @return: The new XYZ coordinate.
-        @rtype:  V
-        """
-    c, s = cos(theta), sin(theta)
-    x = c * inXYZ[0] + s * inXYZ[1]
-    y = -s * inXYZ[0] + c * inXYZ[1]
-    return V(x, y, inXYZ[2] + z)
-
-######################START EXPERIMENTAL STUFF FOR BRUCE #######################
-
+# end
 

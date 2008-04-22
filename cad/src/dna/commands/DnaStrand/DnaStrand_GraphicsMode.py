@@ -145,7 +145,8 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if params:
                 end1, end2, basesPerTurn, duplexRise, \
                     ribbon1_start_point, ribbon1Color = params
-                drawDnaSingleRibbon(end1,
+                drawDnaSingleRibbon(self.glpane,
+                               end1,
                                end2,
                                basesPerTurn,
                                duplexRise,
