@@ -14,7 +14,8 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXAtomData.h \
  ../../../include/Nanorex/Interface/NXSceneGraph.h \
  ../../../include/Nanorex/Interface/NXBondData.h \
- ../../../include/Nanorex/Interface/NXNamedView.h
+ ../../../include/Nanorex/Interface/NXNamedView.h \
+ ../../../include/Nanorex/Interface/NXDNARenderOptions.h
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
  ../../../src \
@@ -42,23 +43,28 @@ CONFIG += stl \
 
 TARGET = NanorexInterface
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
-}
-
 win32 : CONFIG -= dll
 win32 : CONFIG += staticlib
 
-DESTDIR = ../../../lib
+DESTDIR = ../../../lib/
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
 
 QT -= gui
 
+PROJECT_LIBS = -lNanorexUtility
+
+CONFIG(debug,debug|release){
+    TARGET = $$join(TARGET,,,_d)
+	TARGETDEPS ~= s/(.*).so/\1_d.so/g
+	PROJECT_LIBS ~= s/(.+)/\1_d/g
+}
+
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
+
 LIBS += -L../../../lib \
-  -lNanorexUtility_d \
+  $$PROJECT_LIBS \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 
@@ -67,5 +73,5 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
   -O0 \
   -fno-inline
 
-QMAKE_CXXFLAGS_RELEASE += -DNX_DEBUG
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 

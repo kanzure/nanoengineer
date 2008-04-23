@@ -3,9 +3,11 @@
 #include "NXBallAndStickOpenGLRenderer.h"
 #include <Nanorex/Interface/NXBondData.h>
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
+#include "../GLT/guarded_gl_ops.h"
 #include "../GLT/glt_error.h"
 
 #include <iostream>
+
 
 
 using namespace std;
@@ -35,7 +37,7 @@ canonicalSphereNodeGuard(),
 canonicalCylinderNode(NULL),
 canonicalCylinderNodeGuard()
 {
-	for(int bondType=SINGLE_BOND; bondType<(int)NUM_BOND_TYPES; ++bondType)
+	for(int bondType=SINGLE_BOND; bondType<NUM_BOND_TYPES; ++bondType)
 		canonicalBondNode[bondType] = (NXSGOpenGLNode*) NULL;
 }
 
@@ -78,10 +80,11 @@ NXCommandResult const *const NXBallAndStickOpenGLRenderer::initialize(void)
 			    ++bondType)
 			{
 				bool const addedChild =
-					canonicalBondNodeGuard[bondType].addChild(canonicalBondNode[SINGLE_BOND]);
+					canonicalBondNodeGuard[bondType].
+						addChild(canonicalBondNode[bondType]);
+				assert(canonicalBondNodeGuard[bondType].getRefCount() == 0);
 				assert(canonicalBondNodeGuard[bondType].getNumChildren() == 1);
-	            /// @todo check the indices above!
-				initialized = initialized && addedChild;
+	            initialized = initialized && addedChild;
 			}
 		}
 	}
@@ -209,13 +212,13 @@ void NXBallAndStickOpenGLRenderer::drawOpenGLCanonicalSphere(void)
 	const int ALPHA = 5;
 	
     /* Automatic normalization of normals */
-	glEnable(GL_NORMALIZE);
+	GUARDED_GL_OP(glEnable(GL_NORMALIZE));
 	
     /* Top cap - draw triangles instead of quads */
-	glBegin(GL_TRIANGLE_FAN);
+	GUARDED_GL_OP(glBegin(GL_TRIANGLE_FAN));
     /* Top pole */
-	glNormal3d(0,0,1);
-	glVertex3d(0,0,r);
+	GUARDED_GL_OP(glNormal3d(0,0,1));
+	GUARDED_GL_OP(glVertex3d(0,0,r));
 	theta = ALPHA * M_PI/180.0;
 	rSinTheta = r*sin(theta);
 	z = r*cos(theta);
@@ -225,10 +228,10 @@ void NXBallAndStickOpenGLRenderer::drawOpenGLCanonicalSphere(void)
 		x = rSinTheta*cos(phi);
 		y = rSinTheta*sin(phi);
         /* normal to point on sphere is ray from center to point */
-		glNormal3d(x, y, z);
-		glVertex3d(x, y, z);
+		GUARDED_GL_OP(glNormal3d(x, y, z));
+		GUARDED_GL_OP(glVertex3d(x, y, z));
 	}
-	glEnd();
+	GUARDED_GL_OP(glEnd());
 	
     /* Sphere body - draw quad strips */
 	for(iTheta = ALPHA; iTheta <= 180-(2*ALPHA); iTheta += ALPHA) {
@@ -238,21 +241,21 @@ void NXBallAndStickOpenGLRenderer::drawOpenGLCanonicalSphere(void)
 		z2 = (GLdouble) (r*cos(theta2));
 		rSinTheta = r*sin(theta);
 		rSinTheta2 = r*sin(theta2);
-		glBegin(GL_QUAD_STRIP);
+		GUARDED_GL_OP(glBegin(GL_QUAD_STRIP));
 		for(iPhi = 0; iPhi <= 360; iPhi += 10) {
 			phi = M_PI/180.00 * (double)(iPhi);
 			cosPhi = cos(phi);
 			sinPhi = sin(phi);
 			x = (GLdouble) (rSinTheta*cosPhi);
 			y = (GLdouble) (rSinTheta*sinPhi);
-			glNormal3d(x, y, z1);
-			glVertex3d(x, y, z1);
+			GUARDED_GL_OP(glNormal3d(x, y, z1));
+			GUARDED_GL_OP(glVertex3d(x, y, z1));
 			x = (GLdouble) (rSinTheta2*cosPhi);
 			y = (GLdouble) (rSinTheta2*sinPhi);
-			glNormal3d(x, y, z2);
-			glVertex3d(x, y, z2);
+			GUARDED_GL_OP(glNormal3d(x, y, z2));
+			GUARDED_GL_OP(glVertex3d(x, y, z2));
 		}
-		glEnd();
+		GUARDED_GL_OP(glEnd());
 	}
 	
     /* Bottom cap - draw triangle fan */
@@ -260,18 +263,18 @@ void NXBallAndStickOpenGLRenderer::drawOpenGLCanonicalSphere(void)
 	theta = M_PI/180.0 * (GLdouble) iTheta;
 	z = r*cos(theta);
 	rSinTheta = r*sin(theta);
-	glBegin(GL_TRIANGLE_FAN);
+	GUARDED_GL_OP(glBegin(GL_TRIANGLE_FAN));
     /* Bottom pole */
-	glNormal3d(0,0,-1);
-	glVertex3d(0,0,-r);
+	GUARDED_GL_OP(glNormal3d(0,0,-1));
+	GUARDED_GL_OP(glVertex3d(0,0,-r));
 	for(iPhi = 0; iPhi <= 360; iPhi += ALPHA) {
 		phi = M_PI/180.0 * (GLdouble) iPhi;
 		x = rSinTheta*cos(phi);
 		y = rSinTheta*sin(phi);
-		glNormal3d(x, y, z);
-		glVertex3d(x, y, z);
+		GUARDED_GL_OP(glNormal3d(x, y, z));
+		GUARDED_GL_OP(glVertex3d(x, y, z));
 	}
-	glEnd();
+	GUARDED_GL_OP(glEnd());
 	
 	
 	ostringstream errMsgStream;
@@ -386,50 +389,50 @@ void NXBallAndStickOpenGLRenderer::drawOpenGLCanonicalCylinder(void)
 	
 	
     /* Automatic normalization of normals */
-	glEnable(GL_NORMALIZE);
+	GUARDED_GL_OP(glEnable(GL_NORMALIZE));
 	
     /* Fill polygons */
-	glShadeModel(GL_SMOOTH);
-	glPolygonMode(GL_FRONT, GL_FILL);
+	GUARDED_GL_OP(glShadeModel(GL_SMOOTH));
+	GUARDED_GL_OP(glPolygonMode(GL_FRONT, GL_FILL));
 	
     /* Top cap - draw triangles instead of quads */
-	glBegin(GL_TRIANGLE_FAN);
-	glNormal3d(0,0,1);
-	glVertex3d(0.0, 0.0, 1.0);
+	GUARDED_GL_OP(glBegin(GL_TRIANGLE_FAN));
+	GUARDED_GL_OP(glNormal3d(0,0,1));
+	GUARDED_GL_OP(glVertex3d(0.0, 0.0, 1.0));
 	for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
-		glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0);
+		GUARDED_GL_OP(glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0));
 	}
     // close top-cap
-	glVertex3d(vertex[0][0], vertex[0][1], 1.0);
-	glEnd();
+	GUARDED_GL_OP(glVertex3d(vertex[0][0], vertex[0][1], 1.0));
+	GUARDED_GL_OP(glEnd());
 	
 	
     /* Cylinder body - draw triangle strips */
-	glBegin(GL_TRIANGLE_STRIP);
+	GUARDED_GL_OP(glBegin(GL_TRIANGLE_STRIP));
 	for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
-		glNormal3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
-		glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0);
-		glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
+		GUARDED_GL_OP(glNormal3d(vertex[iFacet][0], vertex[iFacet][1], 0.0));
+		GUARDED_GL_OP(glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0));
+		GUARDED_GL_OP(glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0));
 	}
     // close the side surface
-	glNormal3d(vertex[0][0], vertex[0][1], 0.0);
-	glVertex3d(vertex[0][0], vertex[0][1], 1.0);
-	glVertex3d(vertex[0][0], vertex[0][1], 0.0);
-	glEnd();
+	GUARDED_GL_OP(glNormal3d(vertex[0][0], vertex[0][1], 0.0));
+	GUARDED_GL_OP(glVertex3d(vertex[0][0], vertex[0][1], 1.0));
+	GUARDED_GL_OP(glVertex3d(vertex[0][0], vertex[0][1], 0.0));
+	GUARDED_GL_OP(glEnd());
 	
 	
 	
     /* Bottom cap - draw triangle fan */
-	glBegin(GL_TRIANGLE_FAN);
-        /* Bottom pole */
-	glNormal3d(0,0,-1);
-	glVertex3d(0.0, 0.0, 0.0);
+	GUARDED_GL_OP(glBegin(GL_TRIANGLE_FAN));
+	/* Bottom pole */
+	GUARDED_GL_OP(glNormal3d(0,0,-1));
+	GUARDED_GL_OP(glVertex3d(0.0, 0.0, 0.0));
 	for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
-		glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
+		GUARDED_GL_OP(glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0));
 	}
     // close bottom-cap
-	glVertex3d(vertex[0][0], vertex[0][1], 0.0);
-	glEnd();
+	GUARDED_GL_OP(glVertex3d(vertex[0][0], vertex[0][1], 0.0));
+	GUARDED_GL_OP(glEnd());
 	
 	
 	ostringstream errMsgStream;
@@ -471,7 +474,7 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalSingleBondNode(void)
             canonicalBondNode[SINGLE_BOND] =
                 new NXSGOpenGLScale(BOND_WIDTH, BOND_WIDTH, 1.0);
 #ifdef NX_DEBUG
-	        canonicalBondNode[SINGLE_BOND]->setName("SingleBond");
+	        canonicalBondNode[SINGLE_BOND]->setName("SingleBond_Scale");
 #endif
         }
         catch(...) {
@@ -536,6 +539,11 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalDoubleBondNode(void)
             }
         }
         
+#ifdef NX_DEBUG
+	    translateNode1->setName("DoubleBond_TranslateSingle1");
+	    translateNode2->setName("DoubleBond_TranslateSingle2");
+#endif
+	    
 	    // if any of the above steps failed, release partially allocated mem
         if(!doubleBondOK) {
             if(translateNode1 != NULL)
@@ -574,7 +582,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalTripleBondNode(void)
 		        new NXSGOpenGLTranslate(1.5*(-BOND_WIDTH), 0.0, 0.0);
             canonicalBondNode[TRIPLE_BOND] = new NXSGOpenGLNode;
 #ifdef NX_DEBUG
-	        canonicalBondNode[TRIPLE_BOND]->setName("TripleBond");
+	        canonicalBondNode[TRIPLE_BOND]->setName("TripleBond_Group");
+	        translateNode1->setName("TripleBond_TranslateSingle1");
+	        translateNode2->setName("TripleBond_TranslateSingle2");
 #endif
         }
         catch(...) {
@@ -604,9 +614,9 @@ bool NXBallAndStickOpenGLRenderer::initializeCanonicalTripleBondNode(void)
                 delete translateNode1;
             if(translateNode2 != NULL)
                 delete translateNode2;
-            if(canonicalBondNode[2] != NULL) {
-                delete canonicalBondNode[2];
-                canonicalBondNode[2] = NULL;
+            if(canonicalBondNode[TRIPLE_BOND] != NULL) {
+                delete canonicalBondNode[TRIPLE_BOND];
+                canonicalBondNode[TRIPLE_BOND] = NULL;
             }
         }
     }
@@ -723,11 +733,17 @@ NXCommandResult const *const NXBallAndStickOpenGLRenderer::cleanup(void)
 	if(initialized) {
 		// guarded_delete(canonicalSphereNode);
 		// guarded_delete(canonicalCylinderNode);
-		for(int bondType = (int)SINGLE_BOND;
-		    bondType < (int)NUM_BOND_TYPES;
-		    ++bondType)
+		
+		/// @note no need to delete bond pointers because bond-guards will
+		/// delete them when they get destructed. The single-bond node is 
+		/// heavily referenced by all other bond-nodes and therefore it alone
+		/// will have a ref-count > 1. All other should have a ref-count == 1
+		for(int bondType = (int)GRAPHITIC_BOND;
+		    bondType > (int)SINGLE_BOND;
+		    --bondType)
 		{
-			guarded_delete(canonicalBondNode[bondType]);
+			// guarded_delete(canonicalBondNode[bondType]);
+			assert(canonicalBondNode[bondType]->getRefCount() == 1);
 		}
 		initialized = false;
 	}
@@ -756,7 +772,7 @@ NXSGOpenGLNode*
 	NXSGOpenGLScale *atomScaleNode;
 	try {
 		// Atoms of radius 0.25 Angstrom
-		atomScaleNode = new NXSGOpenGLScale(2.5e-11, 2.5e-11, 2.5e-11);
+		atomScaleNode = new NXSGOpenGLScale(0.25, 0.25, 0.25);
 	}
 	catch (...) { 
 		SetError(commandResult, "Could not create node for rendering atom");
@@ -801,8 +817,8 @@ NXSGOpenGLNode*
     NXSGOpenGLScale *bondScale = NULL;
     try {
 	    double const bondLength = info.getLength();
-	    cerr << "bond-length = " << bondLength << endl;
-        bondScale = new NXSGOpenGLScale(1.0e-11,1.0e-11, bondLength);
+	    // cerr << "bond-length = " << bondLength << endl;
+        bondScale = new NXSGOpenGLScale(0.1,0.1, bondLength);
     }
     catch(...) {
         SetError(commandResult,
@@ -829,6 +845,26 @@ NXSGOpenGLNode*
     }
     return bondNode;
 }
+
+// .............................................................................
+#if 0
+/// @fixme r1.0.0 hacks
+	// -- begin hacks --
+NXSGOpenGLNode* NXBallAndStickOpenGLRenderer::renderDnaSegment(/*TODO*/)
+{
+	/// @todo implement
+}
+#endif
+// .............................................................................
+
+#if 0
+NXSGOpenGLNode* NXBallAndStickOpenGLRenderer::renderDnaStrand(/*TODO*/)
+{
+	/// @todo implement
+}
+#endif
+
+// -- end hacks --
 
 
 Q_EXPORT_PLUGIN2(NXBallAndStickOpenGLRenderer, NXBallAndStickOpenGLRenderer)

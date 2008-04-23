@@ -10,11 +10,6 @@ rtti \
 debug_and_release \
 build_all
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
-}
-
-
 QT += opengl
 
 HEADERS += ../../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
@@ -33,7 +28,7 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
-
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 
 TARGETDEPS += ../../../../../../../lib/libNXOpenGLSceneGraph.a \
   ../../../../../../../lib/libGLT.a \
@@ -44,37 +39,42 @@ TARGETDEPS += ../../../../../../../lib/libNXOpenGLSceneGraph.a \
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
   ../../../../../../../include
 
-unix {
-# Remove the "lib" from the start of the library
-	QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
-	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so $${DESTDIR}lib$${TARGET}.so
-}
-
-macx {
-	TARGETDEPS ~= s/.so/.dylib/g
-	QMAKE_POST_LINK ~= s/.so/.dylib/g
-	QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
-}
-
-win32 {
-	CONFIG -= dll
-	CONFIG += staticlib
-	TARGETDEPS ~= s/.so/.a/g
-# qmake puts these library declarations too early in the g++ command on win32
-	LIBS += -lopengl32 -lglu32 -lgdi32 -luser32 
-}
-
-
 PROJECTLIBS = -lNanorexUtility \
   -lNanorexInterface \
   -lNXOpenGLSceneGraph \
   -lGLT
 
-CONFIG(debug,debug|release) {
-	PROJECTLIBS ~= s/(.+)/\1_d/g
+CONFIG(debug,debug|release){
+    TARGET = $$join(TARGET,,,_d)
+    PROJECTLIBS ~= s/(.+)/\1_d/g
+	TARGETDEPS ~= s/(.+).(a|so)/\1_d.\2/g
 }
 
-LIBS += -L../../../../../../../lib \
-$$PROJECTLIBS
+
+LIBS += -L../../../../../../../lib/ \
+  $$PROJECTLIBS \
+  -lgle
+
+
+unix {
+    # Remove the "lib" from the start of the library
+    QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so $${DESTDIR}lib$${TARGET}.so
+}
+
+macx {
+    TARGETDEPS ~= s/.so/.dylib/g
+    QMAKE_POST_LINK ~= s/.so/.dylib/g
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+}
+
+win32 {
+    CONFIG -= dll
+    CONFIG += staticlib
+    TARGETDEPS ~= s/.so/.a/g
+    # qmake puts these library declarations too early in the g++ command on win32
+    LIBS += -lopengl32 -lglu32 -lgdi32 -luser32 
+}
+
 
 

@@ -22,6 +22,7 @@ class NanorexMMPImportExportRagelTest: public CPPUNIT_NS::TestFixture {
 	// CPPUNIT_TEST(atomStmtTest);
 	CPPUNIT_TEST(multipleAtomStmtTest);
 	CPPUNIT_TEST(molLineTest);
+	CPPUNIT_TEST(csysLineTest);
 	CPPUNIT_TEST(groupLineTest);
 	CPPUNIT_TEST(uncheckedParseTest);
 	CPPUNIT_TEST(checkedParseTest);
@@ -63,6 +64,7 @@ public:
 	void atomStmtTest(void);
 	void multipleAtomStmtTest(void);
 	void molLineTest(void);
+	void csysLineTest(void);
 	void groupLineTest(void);
 	void uncheckedParseTest(void);
 	void checkedParseTest(void);
@@ -96,6 +98,12 @@ private:
 	// variables used in mol_decl_line tests
 	std::string currentMolName, currentMolStyle;
 	
+	// variables used in csys_line tests
+	std::string csysViewName;
+	double csysQw, csysQx, csysQy, csysQz;
+	double csysScale, csysZoomFactor;
+	double csysPovX, csysPovY, csysPovZ;
+	
 	// variables used in group tests
 	std::vector<std::string> groupNameStack;
 	std::string currentGroupName, currentGroupStyle;
@@ -120,6 +128,13 @@ private:
 	void atomStmtTestHelper(char const *const testInput);
 	void multipleAtomStmtTestHelper(char const *const testInput);
 	void molLineTestHelper(char const *const testInput);
+	void csysLineTestHelper(char const *const testInput);
+	void cppunit_assert_csys(std::string const& name,
+	                         double const& qw, double const& qx,
+	                         double const& qy, double const& qz,
+	                         double const& scale,
+	                         double const& povX, double const& povY,
+	                         double const& povZ, double const& zoomFactor);
 	void groupLineTestHelper(char const *const testInput);
 	void uncheckedParseTestHelper(char const *const testInput);
 	void checkedParseTestHelper(char const *const testInput);
@@ -147,6 +162,11 @@ private:
 	void newChunkInfo(std::string const& key, std::string const& value);
 	
 	void newViewDataGroup(void);
+	void newNamedView(std::string const& name,
+	                  double const& qw, double const& qx, double const& qy, double const& qz,
+	                  double const& scale,
+	                  double const& povX, double const& povY, double const& povZ,
+	                  double const& zoomFactor);
 	void newMolStructGroup(std::string const& name,
 	                       std::string const& classification);
 	void newClipboardGroup(void);

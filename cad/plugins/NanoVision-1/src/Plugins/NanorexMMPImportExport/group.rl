@@ -25,10 +25,37 @@
 		nonNEWLINEspace*
 		> { lineStart = p; }
 		'(' nonNEWLINEspace* 'View' nonNEWLINEspace+ 'Data' nonNEWLINEspace* ')'
+		nonNEWLINEspace*
 		EOL
 		@ { newViewDataGroup(); }
 	;
 
+	csys_line =
+		'csys'
+		nonNEWLINEspace*
+		'(' nonNEWLINEspace* char_string_with_space nonNEWLINEspace* ')'
+		@ {csysViewName = stringVal;} # stringVal is reused in real_number patterns below
+		nonNEWLINEspace*
+		'('
+		nonNEWLINEspace* real_number nonNEWLINEspace* ',' @{csysQw=doubleVal;}
+		nonNEWLINEspace* real_number nonNEWLINEspace* ',' @{csysQx=doubleVal;}
+		nonNEWLINEspace* real_number nonNEWLINEspace* ',' @{csysQy=doubleVal;}
+		nonNEWLINEspace* real_number nonNEWLINEspace* ')' @{csysQz=doubleVal;}
+		nonNEWLINEspace*
+		'(' nonNEWLINEspace* real_number nonNEWLINEspace* ')' @{csysScale=doubleVal;}
+		nonNEWLINEspace*
+		'('nonNEWLINEspace* real_number nonNEWLINEspace* ',' @{csysPovX=doubleVal;}
+		nonNEWLINEspace* real_number nonNEWLINEspace* ',' @{csysPovY=doubleVal;}
+		nonNEWLINEspace* real_number nonNEWLINEspace* ')' @{csysPovZ=doubleVal;}
+		nonNEWLINEspace*
+		'(' nonNEWLINEspace* real_number nonNEWLINEspace* ')' @{csysZoomFactor=doubleVal;}
+		nonNEWLINEspace*
+		EOL
+		@ { newNamedView(csysViewName, csysQw, csysQx, csysQy, csysQz, csysScale,
+		                 csysPovX, csysPovY, csysPovZ, csysZoomFactor);
+		}
+	;
+	
 	group_mol_struct_stmt_begin_line =
 		'group'
 		% { stringVal2.clear(); }
@@ -86,7 +113,9 @@ group_scanner :=
 		#WHITESPACE* group_view_data_stmt_begin_line @(group,2);
 		#WHITESPACE* group_clipboard_stmt_begin_line @(group,2);
 		#WHITESPACE* group_mol_struct_stmt_begin_line @(group,1);
-		WHITESPACE* group_mol_struct_stmt_begin_line;
+		WHITESPACE* csys_line;
+		WHITESPACE* group_mol_struct_stmt_begin_line =>
+			{ fhold; fcall group_scanner; } ;
 		WHITESPACE* info_opengroup_line;
 		WHITESPACE* egroup_line => {fret;} ;
 		WHITESPACE* mol_decl_line;

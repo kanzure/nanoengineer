@@ -3,15 +3,13 @@ TARGET = MMPOpenGLRendererTest
 DESTDIR = ../../../../../bin/
 
 
-CONFIG += debug_and_release \
+CONFIG += debug \
 stl \
 rtti \
-opengl \
-build_all
+opengl 
 
 QT += opengl
 
-CONFIG(debug,debug|release) : TARGET = $${TARGET}_d
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
   -g \
@@ -26,29 +24,29 @@ INCLUDEPATH += ../../../../../src/Plugins/RenderingEngines/OpenGL \
 
 SOURCES += ../../../../Plugins/NanorexMMPImportExport/MMPOpenGLRendererTest.cpp
 
-PROJECTLIBS = -lNanorexUtility \
-  -lNanorexInterface \
-  -lNanorexMMPImportExport \
-  -lNXOpenGLRenderingEngine \
-  -lNXBallAndStickOpenGLRenderer
+PROJECTLIBS = -lNanorexUtility_d \
+  -lNanorexInterface_d \
+  -lNanorexMMPImportExport_d \
+  -lNXOpenGLRenderingEngine_d \
+  -lNXBallAndStickOpenGLRenderer_d
 
-CONFIG(debug,debug|release) : PROJECTLIBS ~= s/(.+)/\1_d/g
 
 LIBS += -L../../../../../lib \
   $$PROJECTLIBS \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 
-TARGETDEPS += ../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
-  ../../../../../lib/libNXOpenGLRenderingEngine.so \
-  ../../../../../lib/libNXOpenGLSceneGraph.a \
-  ../../../../../lib/libGLT.a \
-  ../../../../../lib/libNanorexMMPImportExport.so \
-  ../../../../../lib/libNanorexInterface.so \
-  ../../../../../lib/libNanorexUtility.so
+TARGETDEPS += ../../../../../lib/libNXBallAndStickOpenGLRenderer_d.so \
+  ../../../../../lib/libNXOpenGLRenderingEngine_d.so \
+  ../../../../../lib/libNXOpenGLSceneGraph_d.a \
+  ../../../../../lib/libGLT_d.a \
+  ../../../../../lib/libNanorexMMPImportExport_d.so \
+  ../../../../../lib/libNanorexInterface_d.so \
+  ../../../../../lib/libNanorexUtility_d.so
 
 macx: TARGETDEPS ~= s/.so/.dylib/g
 win32: TARGETDEPS ~= s/.so/.dll/g
 
 # make clean targets
 QMAKE_CLEAN += $${DESTDIR}$${TARGET}
+

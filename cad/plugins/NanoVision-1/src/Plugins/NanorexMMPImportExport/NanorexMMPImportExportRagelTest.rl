@@ -621,7 +621,7 @@ void NanorexMMPImportExportRagelTest::molLineTest(void)
 main := mol_decl_line
 		$lerr { CPPUNIT_ASSERT_MESSAGE(false,
 		                               "Error encountered in "
-		                               "multiple_atom_stmt_test state machine");
+		                               "mol_decl_line_test state machine");
 		};
 }%%
 
@@ -657,6 +657,103 @@ NanorexMMPImportExportRagelTest::newChunkInfo(string const& key,
 	++infoChunkCount;
 	CERR("info chunk " << key << " = " << value);
 /// @todo
+}
+
+
+void NanorexMMPImportExportRagelTest::csysLineTest(void)
+{
+	char const *testInput = NULL;
+	
+	testInput = "csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) "
+		"(10.000000) (0.000000, 0.000000, 0.000000) (1.000000)\n";
+	csysLineTestHelper(testInput);
+	cppunit_assert_csys("HomeView", 1.0, 0.0, 0.0, 0.0,
+	                    10.0, 0.0, 0.0, 0.0, 1.0);
+	
+	testInput = "csys (Last View) (\t1.000000, 0.000000  , 0.200000, 0.030000\t)"
+		"( 27.182818)(-3.805800, -0.970371, -0.587506) (1.780000) "
+		"# with a comment\n";
+	csysLineTestHelper(testInput);
+	cppunit_assert_csys("Last View", 1.0, 0.0, 0.2, 0.03, 27.182818,
+	                    -3.805800, -0.970371, -0.587506, 1.78);
+}
+
+
+%%{
+	machine csys_line_test;
+	include group "group.rl";
+	
+main := csys_line
+		$lerr { CPPUNIT_ASSERT_MESSAGE(false,
+		                               "Error encountered in "
+		                               "csys_line_test state machine");
+		};
+}%%
+
+
+void
+NanorexMMPImportExportRagelTest::csysLineTestHelper(char const *const testInput)
+{
+	char const *p   = testInput;
+	char const *pe  = p + strlen(p);
+	char const *eof = 0;
+	char const *ts, *te;
+	int cs, stack[128], top, act;
+	
+	%% machine csys_line_test;
+	%% write data;
+	%% write init;
+	%% write exec;
+}
+
+
+void
+NanorexMMPImportExportRagelTest::
+cppunit_assert_csys(string const& name,
+                    double const& qw, double const& qx, double const& qy, double const& qz,
+                    double const& scale,
+                    double const& povX, double const& povY, double const& povZ,
+                    double const& zoomFactor)
+{
+	CPPUNIT_ASSERT(csysViewName == name);
+	CPPUNIT_ASSERT(csysQw == qw);
+	CPPUNIT_ASSERT(csysQx == qx);
+	CPPUNIT_ASSERT(csysQy == qy);
+	CPPUNIT_ASSERT(csysQz == qz);
+	CPPUNIT_ASSERT(csysScale == scale);
+	CPPUNIT_ASSERT(csysPovX == povX);
+	CPPUNIT_ASSERT(csysPovY == povY);
+	CPPUNIT_ASSERT(csysPovZ == povZ);
+	CPPUNIT_ASSERT(csysZoomFactor == zoomFactor);
+}
+
+
+void
+NanorexMMPImportExportRagelTest::
+newNamedView(std::string const& name,
+             double const& qw, double const& qx, double const& qy, double const& qz,
+             double const& scale,
+             double const& povX, double const& povY, double const& povZ,
+             double const& zoomFactor)
+{
+	csysViewName = name;
+	csysQw = qw;
+	csysQx = qx;
+	csysQy = qy;
+	csysQz = qz;
+	csysScale = scale;
+	csysPovX = povX;
+	csysPovY = povY;
+	csysPovZ = povZ;
+	csysZoomFactor = zoomFactor;
+	
+	CERR("csys (" + name + ") " +
+	     '(' + NXUtility::dtos(qw) + ',' + NXUtility::dtos(qx) + ',' +
+	     NXUtility::dtos(qz) + ',' + NXUtility::dtos(qz) + ") " +
+	     '(' + NXUtility::dtos(scale) + ") " +
+	     '(' + NXUtility::dtos(povX) + ',' + NXUtility::dtos(povY) + ',' +
+	     NXUtility::dtos(povZ) + ") " +
+	     '(' + NXUtility::dtos(zoomFactor) + ')');
 }
 
 
@@ -1293,5 +1390,4 @@ fileParseTestHelper(RagelIstreamPtr& p, RagelIstreamPtr& pe)
 	%% write init;
 	%% write exec;
 }
-
 

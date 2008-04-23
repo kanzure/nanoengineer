@@ -153,7 +153,7 @@ class StructureGraphicsTreeItem : public DataWindowTreeItem {
 	
 public:
 	StructureGraphicsTreeItem(NXMoleculeSet *theMolSetPtr,
-	                          ResultsWindow* resultsWindow,
+	                          ResultsWindow* theResultsWindow,
 	                          QTreeWidgetItem* treeWidgetItem);
 	StructureGraphicsTreeItem(OBMol *theMolPtr,
 	                          ResultsWindow* resultsWindow,
@@ -164,6 +164,7 @@ public:
 	
 private:
 	NXMoleculeSet *molSetPtr;
+	ResultsWindow *resultsWindow;
 	bool const deleteOnDestruct;
 	StructureGraphicsWindow* structureWindow;
 };
@@ -174,7 +175,7 @@ class TrajectoryGraphicsTreeItem : public DataWindowTreeItem {
 	
 public:
 	TrajectoryGraphicsTreeItem(const string& trajectoryName,
-	                           ResultsWindow* resultsWindow,
+	                           ResultsWindow* theResultsWindow,
 	                           QTreeWidgetItem* treeWidgetItem);
 	~TrajectoryGraphicsTreeItem();
 	
@@ -182,6 +183,7 @@ public:
 	
 private:
 	string trajectoryName;
+	ResultsWindow *resultsWindow;
 	TrajectoryGraphicsWindow* trajWindow;
 };
 

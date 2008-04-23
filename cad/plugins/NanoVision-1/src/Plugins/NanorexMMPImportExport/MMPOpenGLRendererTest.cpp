@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	NanorexMMPImportExport importer;
 	NXCommandResult const *result =
 		importer.importFromFile(&theMoleculeSet, &dataStoreInfo,
-		                        "../src/Testing/MMP_TestFiles/H2.mmp", 0,0);
+		                        "PAM3.mmp", 0,0);
 	if(result->getResult() != (int) NX_CMD_SUCCESS) {
 		vector<QString> const params = result->getParamVector();
 		cerr << "Error: ";
@@ -60,7 +60,30 @@ int main(int argc, char *argv[])
 	// renderingEngine->frames[0]->writeDotGraph(cout);
 	
 	renderingEngine->setCurrentFrame(0);
-	renderingEngine->resetView();
+	// renderingEngine->resetView();
+// 	if(dataStoreInfo.hasLastView()) {
+// 		NXNamedView view = dataStoreInfo.getLastView();
+// 		cerr << "Setting last view:\n" << view << endl;
+// 		renderingEngine->setNamedView(view);
+// 	}
+// 	else if(dataStoreInfo.hasHomeView()) {
+// 		NXNamedView view = dataStoreInfo.getHomeView();
+// 		renderingEngine->setNamedView(view);
+// 		cerr << "Setting home view:\n" << view << endl;
+// 	}
+// 	else {
+// 		cerr << "Resetting view" << endl;
+// 		renderingEngine->resetView();
+// 	}
+	
+	NXNamedView view("ExptView",
+	                 NXQuaternion<double>(1.0, 0.0, 0.0, 0.0),
+	                 // NXQuaternion<double>(0.361988,-0.405373,0.362853,0.362853),
+	                 3.134019,
+	                 NXVector3d(1.713500, -0.638500, -0.232000),
+	                 1.0);
+	cerr << "Setting " << view << endl;
+	renderingEngine->setNamedView(view);
 	
 	return app.exec();
 }

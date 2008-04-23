@@ -16,7 +16,7 @@ extern "C" {
 #include "../NXOpenGLRendererPlugin.h"
 
 
-/* CLASS: BallAndStickOpenGLRenderer */
+/* CLASS: NXBallAndStickOpenGLRenderer */
 /**
  * Renders atoms and bonds using balls and sticks
  */
@@ -41,7 +41,14 @@ public:
     /// Must set commandResult to indicate success or failure
 	NXSGOpenGLNode* renderBond(Nanorex::NXBondData const&);
     
-    
+#if 0
+	/// @fixme r1.0.0 hacks
+	// -- begin hacks --
+	NXSGOpenGLNode* renderDnaSegment(/*TODO*/);
+	NXSGOpenGLNode* renderDnaStrand(/*TODO*/);
+	// -- end hacks --
+#endif
+	
 private:
     static double const BOND_WIDTH;
     static int const MAX_BONDS = 6;

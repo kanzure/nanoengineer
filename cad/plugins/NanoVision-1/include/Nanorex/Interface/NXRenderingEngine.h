@@ -6,12 +6,14 @@
 #include <Nanorex/Utility/NXCommandResult.h>
 #include <Nanorex/Interface/NXSceneGraph.h>
 #include <Nanorex/Interface/NXMoleculeSet.h>
+#include <Nanorex/Interface/NXNamedView.h>
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
 #include <openbabel/mol.h>
 #include <vector>
 #include <map>
 #include <string>
 #include <iostream>
+#include <cassert>
 
 #include <QtPlugin>
 
@@ -135,6 +137,9 @@ public:
 	/// molecule-set
 	virtual void resetView(void) { }
 	
+	virtual void setNamedView(NXNamedView const& view) { }
+	// virtual NXNamedView const& getNamedView(void) const { }
+	
 	/// Result of the last command
 	NXCommandResult const* getCommandResult(void) const
 	{ return &commandResult; }
@@ -150,7 +155,8 @@ protected:
 	// std::vector<NXRendererPlugin*> rendererSet;
 	
 	/// Local map render-style to plugin
-	std::map<std::string, NXRendererPlugin*> renderStyleMap;
+	typedef std::map<std::string, NXRendererPlugin*> RenderStyleMap;
+	RenderStyleMap renderStyleMap;
 	
 	NXGraphicsManager *graphicsManager;
 	
@@ -162,6 +168,8 @@ protected:
 	/// Current-frame indexer, initialized to -1
 	int currentFrameIndex;
 	bool pluginsInitialized;
+	
+	// NXNamedView namedView; /// @note does this have to be stored?
 	
 	/// Result of the last public method call
 	NXCommandResult commandResult;
@@ -210,8 +218,11 @@ protected:
 
 inline void NXRenderingEngine::deleteFrames(void) {
 	std::vector<NXSGNode*>::iterator frameIter;
-	for(frameIter=frames.begin(); frameIter!=frames.end(); ++frameIter)
-		delete *frameIter;
+	for(frameIter=frames.begin(); frameIter!=frames.end(); ++frameIter) {
+		NXSGNode *frameTopLevelNode = *frameIter;
+		assert(frameTopLevelNode->getRefCount() == 0);
+		delete frameTopLevelNode;
+	}
 	frames.clear();
 }
 

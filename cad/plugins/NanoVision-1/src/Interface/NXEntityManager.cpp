@@ -346,7 +346,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				emit dataStoreComplete();
 				storeIsComplete_Emitted[frameSetId] = true;
 			}
-
+	
 		} catch (...) {
 			if (!moleculeSetRegistered)
 				delete moleculeSet;

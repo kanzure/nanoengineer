@@ -92,10 +92,11 @@ main := WHITESPACE*
 	
 # dynamic stack re-sizing
 	prepush {
+		cerr << "Ragel stack prepush: top = " << top << ", stackSize = " << stackSize << endl;
 		if(top == stackSize) {
 			stackSize += stackSize;
 			stack.resize(stackSize, 0);
-		// cerr << "Resized stack" << endl;
+			cerr << "Resized stack to " << stackSize << endl;
 		}
 	}
 	
@@ -150,7 +151,7 @@ void NanorexMMPImportExport::ClearResult(NXCommandResult& commandResult)
 /* CONSTRUCTOR */
 NanorexMMPImportExport::NanorexMMPImportExport()
 {
-reset();
+	reset();
 }
 
 /* DESTRUCTOR */
@@ -276,19 +277,23 @@ void NanorexMMPImportExport::newAtom(int id, int atomicNum, int x, int y, int z,
 	
 	atomPtr = molPtr->NewAtom();
 	atomPtr->SetAtomicNum(atomicNum);
+	/// @todo set implicit valence based on role (axis, strand etc)
+	if(atomicNum >= 200)
+		atomPtr->SetImplicitValence(4);
 	NXAtomData *atomDataPtr = new NXAtomData(atomicNum);
 	atomDataPtr->setIdx(id);
 	atomDataPtr->setRenderStyleCode(style);
 	assert(atomDataPtr->GetDataType() == NXAtomDataType);
 	atomPtr->SetData(atomDataPtr); // atomic number
 	assert(atomPtr->HasData(NXAtomDataType));
-	
-	foundAtomList[id] = atomPtr;
-	
-	double const LENGTH_SCALE = 1.0e-13;
+	// convert to Angstroms
+	double const LENGTH_SCALE = 1.0e-3;
 	atomPtr->SetVector(double(x) * LENGTH_SCALE,
 	                   double(y) * LENGTH_SCALE,
 	                   double(z) * LENGTH_SCALE);
+	
+	foundAtomList[id] = atomPtr;
+	
 	bondPtr = NULL;	
 	
 	CDEBUG("atom " + NXUtility::itos(atomId) + " (" + NXUtility::itos(atomicNum)
@@ -386,7 +391,8 @@ int NanorexMMPImportExport::GetBondOrderFromType(string const& type)
 /* FUNCTION: newBondDirection */
 void NanorexMMPImportExport::newBondDirection(int atomId1, int atomId2)
 {
-	assert(false);
+	/// @todo Implement post-FNANO08
+	// no-op for FNANO08
 }
 
 
@@ -412,13 +418,49 @@ NanorexMMPImportExport::newMolecule(string const& name, string const& style)
 /* FUNCTION: newViewDataGroup */
 void NanorexMMPImportExport::newViewDataGroup(void)
 {
-insideViewDataGroup = true;
+	insideViewDataGroup = true;
 	CDEBUG("[special] group (View Data)");
 }
 
 
+void
+NanorexMMPImportExport::
+newNamedView(std::string const& name,
+             double const& qw, double const& qx, double const& qy,
+             double const& qz, double const& scale,
+             double const& povX, double const& povY,
+             double const& povZ, double const& zoomFactor)
+{
+	// No need to convert to Angstroms - already NV1's internal units
+	double const TO_ANG = 1.0 /*1.0e-10*/;
+	if(insideViewDataGroup) {
+		NXNamedView view(name,
+		                 NXQuaternion<double>(qw, qx*TO_ANG,
+		                                      qy*TO_ANG, qz*TO_ANG),
+		                 scale*TO_ANG,
+		                 NXVector3d(povX*TO_ANG, povY*TO_ANG, povZ*TO_ANG),
+		                 zoomFactor);
+		if(name == "HomeView")
+			dataStoreInfo->setHomeView(view);
+		else if(name == "LastView")
+			dataStoreInfo->setLastView(view);
+		else
+			dataStoreInfo->addOtherView(view);
+	}
+	
+	CDEBUG("csys (" + name + ") " +
+	       '(' + NXUtility::dtos(qw) + ',' + NXUtility::dtos(qx) + ',' +
+	       NXUtility::dtos(qz) + ',' + NXUtility::dtos(qz) + ") " +
+	       '(' + NXUtility::dtos(scale) + ") " +
+	       '(' + NXUtility::dtos(povX) + ',' + NXUtility::dtos(povY) + ',' +
+	       NXUtility::dtos(povZ) + ") " +
+	       '(' + NXUtility::dtos(zoomFactor) + ')');
+}
+
+
 /* FUNCTION: newMolStructGroup */
-void NanorexMMPImportExport::newMolStructGroup(string const& name)
+void NanorexMMPImportExport::newMolStructGroup(string const& name,
+                                               string const& classification)
 {
 // 	if(insideClipboardGroup && molSetPtr == NULL) {
 // 		// no active top-level group
@@ -452,11 +494,12 @@ void NanorexMMPImportExport::newMolStructGroup(string const& name)
 			molSetPtr = newMolSetPtr;
 		}
 		molSetPtr->setTitle(name);
+		molSetPtr->setGroupClassificationString(classification);
 	}
 	
 	// ++molStructGroupLevel;
 	
-	CDEBUG("group (" + name + ")");
+	CDEBUG("group (" + name + ") " + classification);
 }
 
 

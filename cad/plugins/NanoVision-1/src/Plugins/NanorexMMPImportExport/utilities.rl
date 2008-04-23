@@ -49,8 +49,8 @@
     integer = ('+'? whole_number ) | ('-' whole_number %{intVal=-intVal;}) ;
     
     
-    real_number = [+\-]? digit digit** ( '.' digit** ([eE] [+\-]? digit digit**)? )?
-        >{stringVal.clear(); stringVal = stringVal + fc; doubleVal = DBL_MAX;}
+	real_number = ([+\-]? digit digit** ( '.' digit** ([eE] [+\-]? digit digit**)? )?)
+        >{stringVal.clear(); /*stringVal = stringVal + fc;*/ doubleVal = HUGE_VAL;}
         ${stringVal = stringVal + fc;}
         %{doubleVal = atof(stringVal.c_str());}
     ;
@@ -69,8 +69,8 @@
     # Character string with spaces in between
     # - must be at least 1 character long, and must end in a non-whitespace char
     char_string_with_space_pattern =
-		('_' | alnum)  ((nonNEWLINEspace | [_.\-] | alnum)** ('_' | alnum))?
-		>{ charStringWithSpaceStart = p-1; }
+		('_' | alnum) >{ charStringWithSpaceStart = p; charStringWithSpaceStop = p;}
+		((nonNEWLINEspace | [_.\-] | alnum)** ('_' | alnum))?
 		@{ charStringWithSpaceStop = p; }
 	;
 		
@@ -80,7 +80,9 @@
 	char_string_with_space = char_string_with_space_pattern
 #>to{stringVal.clear();}
 #${stringVal = stringVal + fc; }
-		% { stringVal.resize(charStringWithSpaceStop - charStringWithSpaceStart + 1);
+		% { int stringVal_newSize = charStringWithSpaceStop - charStringWithSpaceStart + 1;
+			assert(stringVal_newSize >= 0);
+			stringVal.resize(stringVal_newSize);
 			std::copy(charStringWithSpaceStart, charStringWithSpaceStop+1, stringVal.begin());
 		}
 	;
@@ -91,7 +93,14 @@
 	char_string_with_space2 = char_string_with_space_pattern
 #>to{stringVal2.clear();}
 #${stringVal2 = stringVal2 + fc; }
-		% { stringVal2.resize(charStringWithSpaceStop - charStringWithSpaceStart + 1);
+		% { int stringVal2_newSize = charStringWithSpaceStop - charStringWithSpaceStart + 1;
+			// cerr << "stringVal2_newSize = " << stringVal2_newSize << endl;
+			if(stringVal2_newSize < 0) {
+				cerr << "*charStringWithSpaceStart = " << *charStringWithSpaceStart
+					<< ",  *charStringWithSpaceStop = " << *charStringWithSpaceStop << endl;
+				assert(0);
+			}
+			stringVal2.resize(stringVal2_newSize);
 			std::copy(charStringWithSpaceStart, charStringWithSpaceStop+1, stringVal2.begin());
 		}
 	;

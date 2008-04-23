@@ -3,13 +3,13 @@ TARGET = CppUnit
 DESTDIR = ../../../../bin/
 
 CONFIG += stl \
- debug_and_release \
- build_all
+ debug
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
+CONFIG(debug,debug|release){
+    TARGET = $$join(TARGET,,,_d)
 }
 
+QT += gui
 
 SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Interface/NXEntityManagerTest.cpp \
@@ -20,10 +20,10 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
- ../../../Utility/NXPointTest.cpp \
  ../../../Interface/NXSceneGraphTest.cpp \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp \
+ ../../../Utility/NXVectorTest.cpp
 
 
 INCLUDEPATH += ../../../../include \
@@ -44,7 +44,8 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
  ../../../Interface/NXSceneGraphTest.h \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.h \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.h
+ ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.h \
+ ../../../Utility/NXVectorTest.h
 
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
@@ -62,8 +63,6 @@ QMAKE_CXXFLAGS_RELEASE += -DNX_DEBUG
 TARGETDEPS += ../../../../lib/libNanorexInterface.so \
   ../../../../lib/libNanorexUtility.so
 
-QT -= gui
-
 
 DISTFILES += ../../../Plugins/NanorexMMPImportExport/molecule.rl \
  ../../../Plugins/NanorexMMPImportExport/atom.rl \
@@ -75,7 +74,9 @@ PROJECTLIBS = -lNanorexMMPImportExport \
   -lNanorexUtility \
   -lNanorexInterface
 
-CONFIG(debug,debug|release): PROJECTLIBS ~= s/(.+)/\1_d/g
+CONFIG(debug,debug|release) {
+	 PROJECTLIBS ~= s/(.+)/\1_d/g
+}
 
 LIBS += -L../../../../lib \
   $$PROJECTLIBS \

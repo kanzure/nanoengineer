@@ -17,13 +17,14 @@ using namespace OpenBabel;
 using namespace std;
 
 void initializeEntityManager(NXEntityManager *const entityManager,
-                             NXMoleculeSet theMoleculeSet[],
+                             NXMoleculeSet *theMoleculeSet[],
                              int const NUM_FRAMES);
-void createMoleculeSets(NXMoleculeSet molSetArray[], int const NUM_FRAMES);
+void createMoleculeSets(NXMoleculeSet *molSetArray[], int const NUM_FRAMES);
 
 int const NUM_FRAMES = 6;
 int const NUM_ATOMS = 5;
 
+// atom coordinates in Angstroms
 double atomCoords[NUM_FRAMES][NUM_ATOMS][3] = {
 	// frame-1
 	{ { 0, 4}, { 0, 0}, { 2, 2}, { 4, 0}, { 4, 4} },
@@ -56,7 +57,8 @@ int main(int argc, char *argv[])
 	mainWindow.setCentralWidget(trajectoryWindow);
 	mainWindow.show();
 	
-	NXMoleculeSet *theMoleculeSet = new NXMoleculeSet[NUM_FRAMES];
+	NXMoleculeSet *theMoleculeSet[NUM_FRAMES];
+	assert(theMoleculeSet != NULL);
 	createMoleculeSets(theMoleculeSet, NUM_FRAMES);
 	initializeEntityManager(&entityManager, theMoleculeSet, NUM_FRAMES);
 	trajectoryWindow->setFrameSetId(0);
@@ -65,20 +67,22 @@ int main(int argc, char *argv[])
 	
 	int retval = app.exec();
 	
-	delete[] theMoleculeSet;
+	// for(int iFrame = 0; iFrame < NUM_FRAMES; ++iFrame)
+	//	delete theMoleculeSet[iFrame];
+	
 	return retval;
 }
 
 
 void initializeEntityManager(NXEntityManager *const entityManager,
-                             NXMoleculeSet theMoleculeSet[],
+                             NXMoleculeSet *theMoleculeSet[],
                              int const NUM_FRAMES)
 {
 	// assert(entityManager->getFrameCount(0) == 0);
 	int frameSetId = entityManager->addFrameSet();
 	for(int iFrame = 0; iFrame < NUM_FRAMES; ++iFrame) {
 		int lastFrameId =
-			entityManager->addFrame(frameSetId, &theMoleculeSet[iFrame]);
+			entityManager->addFrame(frameSetId, theMoleculeSet[iFrame]);
 		assert(lastFrameId == iFrame);
 	}
 	assert((int)entityManager->getFrameCount(frameSetId) == NUM_FRAMES);
@@ -88,6 +92,7 @@ void initializeEntityManager(NXEntityManager *const entityManager,
 void bond(OBMol *molPtr, OBAtom *atom1Ptr, OBAtom *atom2Ptr, int bondOrder)
 {
 	OBBond *bondPtr = molPtr->NewBond();
+	assert(bondPtr != NULL);
 	bondPtr->SetBegin(atom1Ptr);
 	bondPtr->SetEnd(atom2Ptr);
 	atom1Ptr->AddBond(bondPtr);
@@ -97,21 +102,26 @@ void bond(OBMol *molPtr, OBAtom *atom1Ptr, OBAtom *atom2Ptr, int bondOrder)
 
 
 
-void createMoleculeSets(NXMoleculeSet molSetArray[], int const NUM_FRAMES)
+void createMoleculeSets(NXMoleculeSet *molSetArray[], int const NUM_FRAMES)
 {
 	for(int iFrame = 0; iFrame < NUM_FRAMES; ++iFrame) {
-		OBMol *mol = molSetArray[iFrame].newMolecule();
+		molSetArray[iFrame] = new NXMoleculeSet;
+		assert(molSetArray[iFrame] != NULL);
+		OBMol *mol = molSetArray[iFrame]->newMolecule();
+		assert(mol != NULL);
 		OBAtom *atom[NUM_ATOMS];
 		for(int iAtom = 0; iAtom < NUM_ATOMS; ++iAtom) {
 			atom[iAtom] = mol->NewAtom();
+			assert(atom[iAtom] != NULL);
 			atom[iAtom]->SetAtomicNum(atomicNums[iAtom]);
 			NXAtomData *atomData = new NXAtomData(atomicNums[iAtom]);
+			assert(atomData != NULL);
 			atomData->setRenderStyleCode("def");
 			atomData->setIdx(iAtom);
 			atom[iAtom]->SetData(atomData);
-			atom[iAtom]->SetVector(atomCoords[iFrame][iAtom][0] * 1.0e-10,
-			                       atomCoords[iFrame][iAtom][1] * 1.0e-10,
-			                       atomCoords[iFrame][iAtom][2] * 1.0e-10);
+			atom[iAtom]->SetVector(atomCoords[iFrame][iAtom][0],
+			                       atomCoords[iFrame][iAtom][1],
+			                       atomCoords[iFrame][iAtom][2]);
 		}
 		
 		bond(mol, atom[0], atom[1], 1);

@@ -22,6 +22,7 @@ PROJECTLIBS = -lNanorexInterface \
 CONFIG(debug,debug|release) {
     TARGET = $$join(TARGET,,,_d)
     PROJECTLIBS ~= s/(.+)/\1_d/g
+	TARGETDEPS ~= s/(.+).so/\1_d.so/g
 }
 
 unix {

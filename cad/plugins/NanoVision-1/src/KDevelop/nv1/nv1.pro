@@ -9,10 +9,7 @@ debug_and_release \
 rtti \
 build_all
 
-CONFIG(debug,debug|release) : TARGET = $${TARGET}_d
-
 QT += opengl
-
 
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
@@ -76,23 +73,27 @@ INCLUDEPATH += ../../../include \
 # This tells qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle 
 
-#macx : TARGETDEPS ~= s/.so/.dylib/g
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
 
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
-
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 
 TARGETDEPS += ../../../lib/libNanorexInterface.so \
   ../../../lib/libNanorexUtility.so
 
 PROJECTLIBS = -lNanorexUtility -lNanorexInterface
 
-CONFIG(debug,debug|release): PROJECTLIBS ~= s/(.+)/\1_d/g
+CONFIG(debug,debug|release) {
+	TARGET = $${TARGET}_d
+	PROJECTLIBS ~= s/(.+)/\1_d/g
+	TARGETDEPS ~= s/(.+).so/\1_d.so/g
+}
+
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
 LIBS += -L../../../lib \
   $$PROJECTLIBS \
@@ -101,3 +102,4 @@ LIBS += -L../../../lib \
 
 # make clean target
 QMAKE_CLEAN += $${DESTDIR}$${TARGET}
+

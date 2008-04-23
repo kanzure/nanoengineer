@@ -16,8 +16,11 @@ HEADERS += ../../../include/Nanorex/Utility/NXCommandLine.h \
 ../../../include/Nanorex/Utility/NXProperties.h \
 ../../../include/Nanorex/Utility/NXStringTokenizer.h \
 ../../../include/Nanorex/Utility/NXUtility.h \
- ../../../include/Nanorex/Utility/NXPoint.h \
- ../../../include/Nanorex/Utility/NXRGBColor.h
+ ../../../include/Nanorex/Utility/NXRGBColor.h \
+ ../../../include/Nanorex/Utility/NXVector.h \
+ ../../../include/Nanorex/Utility/NXQuaternion.h \
+ ../../../include/Nanorex/Utility/NXTrackball.h \
+ ../../../include/Nanorex/Utility/NXMatrix.h
 
 SOURCES += ../../../src/Utility/NXCommandLine.cpp \
 ../../../src/Utility/NXCommandResult.cpp \
@@ -28,8 +31,8 @@ SOURCES += ../../../src/Utility/NXCommandLine.cpp \
 
 TARGET = NanorexUtility
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
+CONFIG(debug,debug|release){
+    TARGET = $$join(TARGET,,,_d)
 }
 
 DESTDIR = ../../../lib
@@ -41,4 +44,5 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 

@@ -63,5 +63,15 @@ std::string NXUtility::PaddedString(int i, int length) {
 	return bufferStr;
 }
 
+/**
+ * Returns a std::string for the given double
+ */
+std::string NXUtility::dtos(double d) {
+	char buffer[20];
+	sprintf(buffer, "%lf", d);
+	std::string s = buffer;
+	
+	return s;
+}
 
 } // Nanorex::

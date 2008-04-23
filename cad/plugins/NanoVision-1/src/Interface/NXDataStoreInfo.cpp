@@ -39,6 +39,9 @@ void NXDataStoreInfo::reset(void)
     _inputParameters = _resultsSummary = NULL;
 	if(_clipboardStructure != NULL) delete _clipboardStructure;
 	_clipboardStructure = NULL;
+	homeView.setName("");
+	lastView.setName("");
+	otherViews.clear();
 }
 
 

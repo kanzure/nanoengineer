@@ -1,19 +1,23 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 080327 required; 080412 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (3.880744) (0.082000, 0.076500, 0.072500) (1.000000)
+csys (LastView) (0.361988, -0.405373, 0.756951, 0.362853) (3.134019) (1.714184, -0.638757, -0.231517) (1.000000)
 egroup (View Data)
-group (CO)
+group (Untitled)
 info opengroup open = True
-mol (CO.pdb) def
-atom 1 (6) (82, 207, 197) def
-atom 2 (8) (655, -360, -342) def
+mol (Chunk1) def
+atom 1 (6) (-1945, 407, 0) bas #BallAndStick
+info atom atomtype = sp
+atom 2 (8) (-1101, 1251, 844) bas #BallAndStick
+info atom atomtype = sp2
 bond2 1
-egroup (CO)
+atom 3 (0) (-2326, 26, -380) def
+bond1 1
+egroup (Untitled)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part CO
+end molecular machine part Untitled

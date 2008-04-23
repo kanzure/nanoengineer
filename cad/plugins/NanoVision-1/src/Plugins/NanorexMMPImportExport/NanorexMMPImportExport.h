@@ -10,6 +10,7 @@
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 #include <Nanorex/Interface/NXAtomData.h>
 #include <Nanorex/Interface/NXMoleculeSet.h>
+#include <Nanorex/Interface/NXNamedView.h>
 
 #include "RagelIstreamPtr.h"
 #include <fstream>
@@ -17,6 +18,7 @@
 #include <sstream>
 #include <set>
 #include <map>
+#include <cmath>
 // #include <stack>
 
 using namespace std;
@@ -87,6 +89,12 @@ private:
 	string stringVal, stringVal2;
 	int intVal, intVal2;
 	double doubleVal;
+	// named-view temporaries
+	std::string csysViewName;
+	double csysQw, csysQx, csysQy, csysQz;
+	double csysScale, csysZoomFactor;
+	double csysPovX, csysPovY, csysPovZ;
+	
     // molecule-set 'stack' to help with recursive 'group' specification
 	NXMoleculeSet *rootMoleculeSetPtr;
 	std::vector<NXMoleculeSet*> molSetPtrStack;
@@ -126,7 +134,13 @@ private:
 	void newBondDirection(int atomId1, int atomId2);
 	void newMolecule(string const& name, string const& style);
 	void newViewDataGroup();
-	void newMolStructGroup(std::string const& name);
+	void newNamedView(std::string const& name,
+	                  double const& qw, double const& qx, double const& qy,
+	                  double const& qz, double const& scale,
+	                  double const& povX, double const& povY,
+	                  double const& povZ, double const& zoomFactor);
+	void newMolStructGroup(std::string const& name,
+	                       std::string const& classification);
 	void endMolStructGroup(std::string const& name);
 	void newClipboardGroup();
 	void endGroup(std::string const& groupName);

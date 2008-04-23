@@ -7,8 +7,14 @@ UserSettings* UserSettings::ThisInstance = 0;
 
 /* CONSTRUCTOR */
 UserSettings::UserSettings()
-	: QSettings(QSettings::IniFormat, QSettings::UserScope,
-				"Nanorex", "NanoVision-1") {
+#ifdef NX_DEBUG	
+: QSettings(QSettings::IniFormat, QSettings::UserScope,
+				"Nanorex", "NanoVision-1_d")
+#else
+: QSettings(QSettings::IniFormat, QSettings::UserScope,
+            "Nanorex", "NanoVision-1")
+#endif
+{
 }
 
 

@@ -4,16 +4,16 @@ DESTDIR = ../../../../../../../bin/
 
 CONFIG += stl \
 opengl \
- debug_and_release \
- rtti \
- build_all
+ debug \
+ rtti 
 
 QT += opengl
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+QMAKE_CXXFLAGS_DEBUG += -DGENERATE_MMP -DNX_DEBUG \
 -g \
 -O0 \
 -fno-inline
+
 
 INCLUDEPATH += ../../../../../../../include \
 ../../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
@@ -24,29 +24,22 @@ INCLUDEPATH += ../../../../../../../include \
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngineTest.cpp
 
 
-TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
-  ../../../../../../../lib/libNXOpenGLRenderingEngine.so \
-  ../../../../../../../lib/libNXOpenGLSceneGraph.a \
-  ../../../../../../../lib/libGLT.a \
-  ../../../../../../../lib/libNanorexInterface.so \
-  ../../../../../../../lib/libNanorexUtility.so
+TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer_d.so \
+  ../../../../../../../lib/libNXOpenGLRenderingEngine_d.so \
+  ../../../../../../../lib/libNXOpenGLSceneGraph_d.a \
+  ../../../../../../../lib/libGLT_d.a \
+  ../../../../../../../lib/libNanorexInterface_d.so \
+  ../../../../../../../lib/libNanorexUtility_d.so
 
 macx: TARGETDEPS ~= s/.so/.dylib/g
 
-PROJECTLIBS =  -lNXBallAndStickOpenGLRenderer \
-  -lNXOpenGLRenderingEngine \
-  -lNanorexInterface \
-  -lNanorexUtility \
-  -lNXOpenGLSceneGraph \
-  -lGLT
-
-CONFIG(debug,debug|release) {
-	TARGET = $${TARGET}_d
-	PROJECTLIBS ~= s/(.+)/\1_d/g
-}
-
 LIBS += -L../../../../../../../lib \
-  $$PROJECTLIBS \
+  -lNXBallAndStickOpenGLRenderer_d \
+  -lNXOpenGLRenderingEngine_d \
+  -lNanorexInterface_d \
+  -lNanorexUtility_d \
+  -lNXOpenGLSceneGraph_d \
+  -lGLT_d \
   -L$(OPENBABEL_INCPATH) \
   -lopenbabel
 

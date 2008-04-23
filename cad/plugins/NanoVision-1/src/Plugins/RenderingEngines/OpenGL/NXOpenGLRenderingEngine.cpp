@@ -8,6 +8,7 @@
 
 #include <Nanorex/Interface/NXEntityManager.h>
 #include <Nanorex/Interface/NXAtomData.h>
+#include <Nanorex/Utility/NXUtility.h>
 #include "NXOpenGLRenderingEngine.h"
 
 using namespace std;
@@ -21,6 +22,48 @@ using namespace OpenBabel;
 #endif
 
 
+int get_atom_id(OBAtom *atomPtr)
+{
+	NXAtomData *atomData = static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
+	assert(atomData != NULL);
+	int id = atomData->getIdx();
+	return id;
+}
+
+
+#ifdef NX_DEBUG
+string get_atom_scenegraph_name(OBAtom *const atomPtr)
+{
+	string name = "atom_";
+	name += NXUtility::itos(get_atom_id(atomPtr));
+	name += "_(" + NXUtility::itos(atomPtr->GetAtomicNum()) + ')';
+	return name;
+}
+
+string get_bond_scenegraph_name(OBBond *const bondPtr)
+{
+	return ("bond_" +
+	        NXUtility::itos(get_atom_id(bondPtr->GetBeginAtom())) +
+	        NXUtility::itos(get_atom_id(bondPtr->GetEndAtom()))
+	       );
+}
+#endif
+
+
+#ifdef NX_DEBUG
+#define SET_ATOM_SCENEGRAPH_NAME(atomNode, atomPtr) \
+(atomNode)->setName(get_atom_scenegraph_name(atomPtr))
+#define SET_BOND_SCENEGRAPH_NAME(bondNode, bondPtr) \
+(bondNode)->setName(get_bond_scenegraph_name(bondPtr))
+#define SET_SCENEGRAPH_NAME(node, name) \
+(node)->setName(name)
+#else
+#define SET_ATOM_SCENEGRAPH_NAME(atomNode, atomPtr)
+#define SET_BOND_SCENEGRAPH_NAME(bondNode, bondPtr)
+#define SET_SCENEGRAPH_NAME(node, name)
+#endif
+
+
 NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
 : QGLWidget(parent), NXRenderingEngine(), camera(this)
 {
@@ -31,6 +74,9 @@ NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
 
 NXOpenGLRenderingEngine::~NXOpenGLRenderingEngine()
 {
+	// clear top-level scenegraph nodes
+	NXRenderingEngine::deleteFrames();
+	// clear lower-level scenegraph nodes
 	cleanupPlugins();
 }
 
@@ -122,14 +168,33 @@ bool NXOpenGLRenderingEngine::initializeElementColorMap(void)
 	elementColorMap[52] = NXRGBColor(230,89,0,255);
 	elementColorMap[53] = NXRGBColor(0,128,0,255);
 	elementColorMap[54] = NXRGBColor(102,115,140,255);
-	elementColorMap[200] = NXRGBColor(102,102,204,255);
-	elementColorMap[201] = NXRGBColor(102,204,102,255);
-	elementColorMap[202] = NXRGBColor(102,26,128,255);
-	elementColorMap[203] = NXRGBColor(102,204,204,255);
-	elementColorMap[204] = NXRGBColor(102,102,204,255);
-	elementColorMap[205] = NXRGBColor(102,26,128,255);
-	elementColorMap[206] = NXRGBColor(102,204,102,255);
-	elementColorMap[207] = NXRGBColor(77,179,77,255);
+	
+	elementColorMap[200] = NXRGBColor(102,102,204,255); // Ax5
+	elementColorMap[201] = NXRGBColor(102,204,102,255); // Ss5
+	elementColorMap[202] = NXRGBColor(102, 26,128,255); // Pl5
+	elementColorMap[203] = NXRGBColor(102,204,204,255); // Sj5
+	elementColorMap[204] = NXRGBColor(102,102,204,255); // Ae5
+	elementColorMap[205] = NXRGBColor(102, 26,128,255); // Pe5
+	elementColorMap[206] = NXRGBColor(102,204,102,255); // Sh5
+	elementColorMap[207] = NXRGBColor( 77,179, 77,255); // Hp5
+	elementColorMap[208] = NXRGBColor(156, 83,  8,255); // Gv5
+	elementColorMap[209] = NXRGBColor(156, 83,  8,255); // Gr5
+	elementColorMap[210] = NXRGBColor(109,207,206,255); // Ub5
+	elementColorMap[211] = NXRGBColor(109,207,206,255); // Ux5
+	elementColorMap[212] = NXRGBColor(207,109,206,255); // Uy5
+	
+	elementColorMap[300] = NXRGBColor(102,102,204,255); // Ax3
+	elementColorMap[301] = NXRGBColor(102,204,102,255); // Ss3
+	elementColorMap[302] = NXRGBColor(102, 26,128,255); // Pl3
+	elementColorMap[303] = NXRGBColor(102,204,204,255); // Sj3
+	elementColorMap[304] = NXRGBColor( 26, 26,128,255); // Ae3
+	elementColorMap[305] = NXRGBColor(102,204,102,255); // Se3
+	elementColorMap[306] = NXRGBColor(153, 51,153,255); // Sh3
+	elementColorMap[307] = NXRGBColor( 77,179, 77,255); // Hp3
+	elementColorMap[310] = NXRGBColor(109,207,206,255); // Ub3
+	elementColorMap[311] = NXRGBColor(109,207,206,255); // Ux3
+	elementColorMap[312] = NXRGBColor(207,109,206,255); // Uy3
+	
 	return true;
 	
 #if 0 // read from file - sensitive to location
@@ -221,11 +286,18 @@ void NXOpenGLRenderingEngine::initializeGL(void)
 	lightModel.set();
 	setupDefaultLights();
 	
-	camera.gluLookAt(0.0, 0.0, 1.0,
-	                 0.0, 0.0, 0.0,
-	                 0.0, 1.0, 0.0);
+// 	camera.gluLookAt(0.0, 0.0, 1.0,
+// 	                 0.0, 0.0, 0.0,
+// 	                 0.0, 1.0, 0.0);
+// 	camera.gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
+	
+	NXNamedView defaultView("DefaultView",
+	                        NXQuaternion<double>(1.0, 0.0, 0.0, 0.0),
+	                        10.0,
+	                        NXVector3d(0.0, 0.0, 0.0),
+	                        1.0);
+	camera.setNamedView(defaultView);
 	camera.glViewport(0, 0, width(), height());
-	camera.gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
 	
 	// initializePlugins();
 	
@@ -282,8 +354,8 @@ void NXOpenGLRenderingEngine::setupDefaultLights(void)
 void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 {
 	camera.resizeViewport(width, height);
-	camera.glSetViewport();
-	camera.glSetProjection();
+	// camera.glSetViewport();
+	// camera.glSetProjection();
     // glMatrixMode(GL_PROJECTION);
     // glLoadIdentity();
     // gluPerspective(55, (GLdouble)width/(GLdouble)height, 0.1, 50);
@@ -293,9 +365,9 @@ void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 /*    if(isOrthographicProjection)
         orthographicProjection.set();
     else
-        perspectiveProjection.set();
+        perspectiveProjection.set(); */
 	
-    viewport.set((GLint) width, (GLint) height);*/
+	// viewport.set((GLint) width, (GLint) height);*/
 }
 
 
@@ -401,6 +473,8 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 	NXSGOpenGLNode *moleculeSetNode = NULL;
 	try {
 		moleculeSetNode = new NXSGOpenGLNode; 
+		SET_SCENEGRAPH_NAME(moleculeSetNode,
+		                    "Molecule_set_" + molSetPtr->getTitle());
 	}
 	catch(...) {
 		SetResult(commandResult, NX_INTERNAL_ERROR,
@@ -408,6 +482,47 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 		          molSetPtr->getTitle());
 		return (NXSGOpenGLNode*) NULL;
 	}
+	
+#if 0 /// @todo Post-FNANO08 (Dna rendering)
+	/// @fixme r1.0.0 hacks
+	// -- begin hacks --
+	NXMoleculeSet::GroupClassification molSetClassification = 
+		molSetPtr->getGroupClassification();
+	switch(molSetClassification) {
+	case NXMoleculeSet::DNA_GROUP :
+		inDnaGroup = true;
+		// reset child-group flags
+		inDnaSegment = false;
+		inDnaStrand = false;
+		break;
+	case NXMoleculeSet::DNA_SEGMENT :
+		assert(inDnaGroup);
+		inDnaSegment = true;
+		// force strand mol-sets to follow corresponding segment
+		inDnaStrand = false;
+		dnaSegmentMolSetPtr = molSetPtr;
+		break;
+	case NXMoleculeSet::DNA_STRAND :
+		assert(inDnaGroup);
+		inDnaStrand = true;
+		inDnaSegment = false;
+		dnaStrandMolSetPtr = molSetPtr;
+		break;
+	case NXMoleculeSet::NONE:
+		inDnaGroup = false;
+		inDnaSegment = false;
+		inDnaStrand = false;
+		break;
+	default:
+		NXLOG_WARNING("NXOpenGLRenderingEngine",
+		              string("Unknown group classification '") +
+		              molSetPtr->getGroupClassificationString() +
+		              "' - reverting to default");
+		break;
+	}
+	// -- end hacks --
+#endif
+	
 	
 	OBMolIterator molIter;
 	for(molIter = molSetPtr->moleculesBegin();
@@ -463,6 +578,24 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 {
 	assert(!molPtr->Empty());
 	
+#if 0 /// @todo Post-FNANO08 (Dna rendering)
+	/// @fixme r1.0.0 hacks
+	// -- begin hacks --
+	if(inDnaGroup && inDnaSegment) {
+		NXSGOpenGLNode *molSceneGraphNode =
+			createOpenGLDnaSegmentSceneGraph(molPtr);
+		if(molSceneGraphNode != NULL)
+			return molSceneGraphNode;
+	}
+	else if(inDnaGroup && inDnaStrand) {
+		NXSGOpenGLNode *molSceneGraphNode =
+			createOpenGLDnaStrandSceneGraph(molPtr);
+		if(molSceneGraphNode != NULL)
+			return molSceneGraphNode;
+	}
+	// -- end hacks --
+#endif
+	
 	Vector const canonicalZAxis(0.0, 0.0, 1.0);
 	OBAtomIterator atomIter;
 	
@@ -484,8 +617,11 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 	while(firstAtomPtr != (OBAtom*) NULL && isRendered(firstAtomPtr))
 		firstAtomPtr = molPtr->NextAtom(atomIter);
 	
-	if(firstAtomPtr == (OBAtom*) NULL)
-		return new NXSGOpenGLNode;
+	if(firstAtomPtr == (OBAtom*) NULL) {
+		NXSGOpenGLNode *nullFirstAtomNode = new NXSGOpenGLNode;
+		SET_SCENEGRAPH_NAME(nullFirstAtomNode, "Null_first_atom");
+		return nullFirstAtomNode;
+	}
 	
 	Vector const firstAtomPosition(firstAtomPtr->GetX(),
 	                               firstAtomPtr->GetY(),
@@ -497,6 +633,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 			new NXSGOpenGLTranslate(firstAtomPosition.x(),
 			                        firstAtomPosition.y(),
 			                        firstAtomPosition.z());
+		SET_SCENEGRAPH_NAME(rootMoleculeNode, "First_atom_position");
 	}
 	catch(...) {
 		if(rootMoleculeNode != NULL)
@@ -551,6 +688,8 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 				new NXSGOpenGLTranslate(atomRelativePosition.x(),
 				                        atomRelativePosition.y(),
 				                        atomRelativePosition.z());
+			SET_SCENEGRAPH_NAME(translateToAtomNode,
+			                    "Translate_to_" + get_atom_scenegraph_name(atomPtr));
 		}
 		catch(...) {
 			if(translateToAtomNode != NULL)
@@ -596,6 +735,57 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr)
 	return rootMoleculeNode;
 }
 
+#if 0 /// @todo Post-FNANO08
+/// @fixme r1.0.0 hacks
+// -- begin hacks --
+NXSGOpenGLNode*
+NXOpenGLRenderingEngine::createOpenGLDnaSegmentSceneGraph(OBMol *const molPtr)
+{
+	RenderStyleMap::const_iterator pluginIter = renderStyleMap.find("dna");
+	if(pluginIter == renderStyleMap.end()) {
+		NXLOG_WARNING("NXOpenGLRenderingEngine",
+		              "No plugin found to render DNA segment - "
+		              "reverting to default");
+		return NULL;
+	}
+	
+	NXOpenGLRendererPlugin *const dnaPlugin =
+		static_cast<NXOpenGLRendererPlugin *const>(pluginIter->second);
+	
+	NXSGOpenGLNode *molSceneGraphNode = dnaPlugin->renderDnaSegment(molPtr);
+	return molSceneGraphNode;
+}
+
+
+/// Precondition: The strand molecule-set comes after the segment molecule-set
+/// in their mutual parent molecule-set. This is the case for NE1-GUI-generated
+/// MMP files. Any other means of generation will have to be aware of this fact.
+NXSGOpenGLNode*
+NXOpenGLRenderingEngine::createOpenGLDnaStrandSceneGraph(OBMol *const molPtr)
+{
+	RenderStyleMap::const_iterator pluginIter = renderStyleMap.find("dna");
+	if(pluginIter == renderStyleMap.end()) {
+		NXLOG_WARNING("NXOpenGLRenderingEngine",
+		              "No plugin found to render DNA strand - "
+		              "reverting to default");
+		return NULL;
+	}
+	
+	NXOpenGLRendererPlugin *const dnaPlugin =
+		static_cast<NXOpenGLRendererPlugin *const>(pluginIter->second);
+	
+	assert(dnaSegmentMolSetPtr->moleculeCount() == 1);
+	assert(dnaSegmentMolSetPtr->childCount() == 0);
+	
+	// locate segment molecule
+	OBMol *const dnaSegmentMolPtr = *dnaSegmentMolSetPtr->moleculesBegin();
+	NXSGOpenGLNode *molSceneGraphNode =
+		dnaPlugin->renderDnaStrand(molPtr, dnaSegmentMolPtr);
+	return molSceneGraphNode;
+}
+// -- end hacks --
+#endif
+
 
 NXSGOpenGLNode*
 NXOpenGLRenderingEngine::getRotationNode(Vector const& zAxis,
@@ -619,6 +809,8 @@ NXOpenGLRenderingEngine::getRotationNode(Vector const& zAxis,
 				                     rotationAxis.x(),
 				                     rotationAxis.y(),
 				                     rotationAxis.z());
+			SET_SCENEGRAPH_NAME(rotateZAxisNode,
+			                    "Rotate_Z_Axis");
 		}
 		catch(...) {
 			SetResult(commandResult, NX_INTERNAL_ERROR,
@@ -648,6 +840,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 {
 	// Precondition: *atomPtr shouldn't have been rendered
 	assert(renderedAtoms.find(atomPtr) == renderedAtoms.end());
+	assert(atomPtr->GetParent() == molPtr);
 	
     // Do nothing if no rendering plugins
 	if(!pluginsInitialized) {
@@ -715,6 +908,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 		NX_DEBUG_FAIL;
 		return NULL;
 	}
+	SET_ATOM_SCENEGRAPH_NAME(atomNode, atomPtr);
 	renderedAtoms.insert(atomPtr); // mark as rendered
 	
 	// render outgoing bonds and neighbouring atoms (if applicable) as children
@@ -763,6 +957,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 				NX_DEBUG_FAIL;
 				return atomNode;
 			}
+			SET_BOND_SCENEGRAPH_NAME(bondNode, bondPtr);
 			bool const childAdded = rotateZAxisNode->addChild(bondNode);
 			if(!childAdded) {
 				SetResult(commandResult, NX_INTERNAL_ERROR,
@@ -776,7 +971,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 		} // if bond not already rendered
 		
 		
-		if(!isRendered(nbrAtomPtr)) {
+		if(!isRendered(nbrAtomPtr) && nbrAtomPtr->GetParent() == molPtr) {
 			
             // translate to neighbouring atom center
 			// double const bondLength = bondPtr->GetLength();
@@ -786,6 +981,8 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 					new NXSGOpenGLTranslate(nbrAtomRelativePosition.x(),
 					                        nbrAtomRelativePosition.y(),
 					                        nbrAtomRelativePosition.z());
+				SET_SCENEGRAPH_NAME(translateToNbrAtomNode,
+				                    "Translate_to_" + get_atom_scenegraph_name(nbrAtomPtr));
 			}
 			catch(...) {
 				SetResult(commandResult, NX_INTERNAL_ERROR,
@@ -882,10 +1079,10 @@ void NXOpenGLRenderingEngine::resetView(void)
 	real const bboxZDepth = 1.0*(bboxMax.z() - bboxMin.z());
 	
 	real const projCubeWidth = max(bboxXWidth, max(bboxYWidth, bboxZDepth));
-	real const circumSphereRad = // sqrt(3.0*0.25*projCubeWidth*projCubeWidth);
-		sqrt(sqr(max(bboxMax.x(), bboxMin.x())) +
-		     sqr(max(bboxMax.y(), bboxMin.y())) +
-		     sqr(max(bboxMax.z(), bboxMin.z())) );
+	real const circumSphereRad = sqrt(3.0*0.25*projCubeWidth*projCubeWidth);
+// 		sqrt(sqr(max(bboxMax.x(), bboxMin.x())) +
+// 		     sqr(max(bboxMax.y(), bboxMin.y())) +
+// 		     sqr(max(bboxMax.z(), bboxMin.z())) );
 	real const circumSphereDia = 2.0 * circumSphereRad;
 	Vector const bboxCenter = bbox.center();
 	
@@ -914,17 +1111,27 @@ void NXOpenGLRenderingEngine::resetView(void)
 		t = -b;
 	}
 	
-	makeCurrent();
+	// makeCurrent();
 // 	camera.gluLookAt(bboxCenter.x(), bboxCenter.y(),
 // 	                 bboxCenter.z()+circumSphereDia,
 // 	                 bboxCenter.x(), bboxCenter.y(), bboxCenter.z(),
 // 	                 0.0, 1.0, 0.0);
     // camera.gluPerspective(60.0, double(width())/double(height()), n, f);
 	
-	camera.gluLookAt(0.0, 0.0, circumSphereRad,
-	                 0.0, 0.0, 0.0,
-	                 0.0, 1.0, 0.0);
-	camera.glOrtho(l, r, b, t, n, f);
+// 	camera.gluLookAt(0.0, 0.0, circumSphereRad,
+// 	                 0.0, 0.0, 0.0,
+// 	                 0.0, 1.0, 0.0);
+// 	camera.glOrtho(l, r, b, t, n, f);
+	
+	NXNamedView defaultView("DefaultView",
+	                        NXQuaternion<double>(1.0, 0.0, 0.0, 1.0),
+	                        0.5 * bboxYWidth,
+	                        NXVector3d(-bboxCenter.x(),
+	                                   -bboxCenter.y(),
+	                                   -bboxCenter.z()),
+	                        1.0);
+	cerr << defaultView << endl;
+	camera.setNamedView(defaultView);
 	
 	// default HomeView: (1, 0, 0, 0) (10) (0, 0, 0) (1)
 	// orthographic projection as in GLPane.py::_setup_projection()
@@ -943,6 +1150,14 @@ void NXOpenGLRenderingEngine::resetView(void)
 }
 
 
+void NXOpenGLRenderingEngine::setNamedView(NXNamedView const& view)
+{
+	makeCurrent();
+	camera.setNamedView(view);
+	updateGL();
+}
+
+
 void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
 {
 	if(mouseEvent->button() == Qt::MidButton &&
@@ -954,7 +1169,7 @@ void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
 	else if(mouseEvent->button() == Qt::LeftButton &&
 	        mouseEvent->modifiers() == Qt::NoModifier)
 	{
-		camera.translateStartEvent(mouseEvent->x(), mouseEvent->y());
+		camera.panStartEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
 	}
 	else
@@ -978,7 +1193,7 @@ void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
 	else if((buttons & Qt::LeftButton) &&
 	        mouseEvent->modifiers() == Qt::NoModifier)
 	{
-		camera.translatingEvent(mouseEvent->x(), mouseEvent->y());
+		camera.panEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
 	}
 	else
@@ -997,7 +1212,7 @@ void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
 	}
 	else if(mouseEvent->button() == Qt::LeftButton)
 	{
-		camera.translateStopEvent(mouseEvent->x(), mouseEvent->y());
+		camera.panStopEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
 	}
 	else

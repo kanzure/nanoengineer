@@ -11,10 +11,6 @@ CONFIG += stl \
  debug_and_release \
  build_all
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
-}
-
 QT += opengl
 
 
@@ -52,11 +48,31 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 
 TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a \
   ../../../../../../lib/libGLT.a \
   ../../../../../../lib/libNanorexInterface.so \
   ../../../../../../lib/libNanorexUtility.so
+
+
+PROJECTLIBS = -lNXOpenGLSceneGraph \
+  -lGLT \
+  -lNanorexInterface \
+  -lNanorexUtility \
+
+CONFIG(debug,debug|release) {
+	TARGET = $$join(TARGET,,,_d)
+	PROJECTLIBS ~= s/(.+)/\1_d/g
+	TARGETDEPS ~= s/(.+).(a|so)/\1_d.\2/g
+}
+
+# message($$PROJECTLIBS)
+
+LIBS += -L../../../../../../lib \
+  $$PROJECTLIBS \
+  -L$(OPENBABEL_LIBPATH) \
+  -lopenbabel
 
 unix {
     QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so $${DESTDIR}lib$${TARGET}.so
@@ -79,20 +95,4 @@ win32 {
 	LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
 }
 
-
-PROJECTLIBS = -lNXOpenGLSceneGraph \
-  -lGLT \
-  -lNanorexInterface \
-  -lNanorexUtility \
-
-CONFIG(debug,debug|release) {
-	PROJECTLIBS ~= s/(.+)/\1_d/g
-}
-
-# message($$PROJECTLIBS)
-
-LIBS += -L../../../../../../lib \
-  $$PROJECTLIBS \
-  -L$(OPENBABEL_LIBPATH) \
-  -lopenbabel
 

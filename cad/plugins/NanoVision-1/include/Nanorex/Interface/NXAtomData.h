@@ -3,10 +3,17 @@
 #ifndef NX_ATOMDATA_H
 #define NX_ATOMDATA_H
 
-#include <string>
 #include <openbabel/generic.h>
 #define NXAtomDataType OBGenericDataType::CustomData1
+
+#ifndef OB_ATOM_H
+#include <openbabel/atom.h>
+#endif
+
 using namespace OpenBabel;
+
+#include <string>
+#include <cassert>
 
 namespace Nanorex {
 
@@ -41,6 +48,9 @@ public:
 		return _renderStyleCode;
 	}
 	
+	void setDnaBaseName(char const& name) { dnaBaseName = name; }
+	char const& getDnaBaseName(void) const { return dnaBaseName; }
+	
 	std::vector<void const*> const& getSupplementalData(void) const
 	{ return supplementalData; }
 	
@@ -58,10 +68,22 @@ private:
 	int _atomicNum;
 	int _idx;
 	std::string _renderStyleCode;
+	char dnaBaseName;
 	std::vector<void const*> supplementalData;
 	
 	// static char const *const _s_renderStyleNames[NUM_STYLES];
 };
+
+
+/// @fixme relocate to a better place
+inline int get_NV1_atom_idx(OBAtom *const atomPtr)
+{
+	assert(atomPtr->HasData(NXAtomDataType));
+	NXAtomData *atomData = static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
+	int idx = atomData->getIdx();
+	return idx;
+}
+
 
 
 } // Nanorex::

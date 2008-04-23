@@ -7,6 +7,7 @@
 #include "Nanorex/Interface/NXGraphicsManager.h"
 #include "Nanorex/Interface/NXRenderingEngine.h"
 #include "Nanorex/Interface/NXSceneGraph.h"
+#include "Nanorex/Interface/NXNamedView.h"
 #include "DataWindow.h"
 
 using namespace Nanorex;
@@ -55,6 +56,12 @@ public:
 	// }
     
     void setFrameSetId(int frameSetId);
+	
+	void setNamedView(Nanorex::NXNamedView const& view) {
+		renderingEngine->setNamedView(view);
+	}
+	
+	void resetView(void) { renderingEngine->resetView(); }
     
 signals:
     void beginFrameChanged(int);

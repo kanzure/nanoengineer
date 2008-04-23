@@ -9,7 +9,7 @@
 class Trackball;
 class Trackball_Initial;
 class Trackball_Rotating;
-class Trackball_Translating;
+class Trackball_Panning;
 class Trackball_Default;
 class NXOpenGLCameraState;
 class NXOpenGLCameraContext;
@@ -27,12 +27,12 @@ public:
     virtual void Entry(NXOpenGLCameraContext&) {};
     virtual void Exit(NXOpenGLCameraContext&) {};
 
+    virtual void panEvent(NXOpenGLCameraContext& context, int x, int y);
+    virtual void panStartEvent(NXOpenGLCameraContext& context, int x, int y);
+    virtual void panStopEvent(NXOpenGLCameraContext& context, int x, int y);
     virtual void rotateStartEvent(NXOpenGLCameraContext& context, int x, int y);
     virtual void rotateStopEvent(NXOpenGLCameraContext& context, int x, int y);
     virtual void rotatingEvent(NXOpenGLCameraContext& context, int x, int y);
-    virtual void translateStartEvent(NXOpenGLCameraContext& context, int x, int y);
-    virtual void translateStopEvent(NXOpenGLCameraContext& context, int x, int y);
-    virtual void translatingEvent(NXOpenGLCameraContext& context, int x, int y);
 
 protected:
 
@@ -45,7 +45,7 @@ public:
 
     static Trackball_Initial Initial;
     static Trackball_Rotating Rotating;
-    static Trackball_Translating Translating;
+    static Trackball_Panning Panning;
 };
 
 class Trackball_Default :
@@ -68,8 +68,8 @@ public:
     {};
 
     void Default(NXOpenGLCameraContext& context);
+    void panStartEvent(NXOpenGLCameraContext& context, int x, int y);
     void rotateStartEvent(NXOpenGLCameraContext& context, int x, int y);
-    void translateStartEvent(NXOpenGLCameraContext& context, int x, int y);
 };
 
 class Trackball_Rotating :
@@ -85,17 +85,17 @@ public:
     void rotatingEvent(NXOpenGLCameraContext& context, int x, int y);
 };
 
-class Trackball_Translating :
+class Trackball_Panning :
     public Trackball_Default
 {
 public:
-    Trackball_Translating(const char *name, int stateId)
+    Trackball_Panning(const char *name, int stateId)
     : Trackball_Default(name, stateId)
     {};
 
     void Default(NXOpenGLCameraContext& context);
-    void translateStopEvent(NXOpenGLCameraContext& context, int x, int y);
-    void translatingEvent(NXOpenGLCameraContext& context, int x, int y);
+    void panEvent(NXOpenGLCameraContext& context, int x, int y);
+    void panStopEvent(NXOpenGLCameraContext& context, int x, int y);
 };
 
 class NXOpenGLCameraContext :
@@ -125,6 +125,21 @@ public:
         return (dynamic_cast<NXOpenGLCameraState&>(*_state));
     };
 
+    void panEvent(int x, int y)
+    {
+        (getState()).panEvent(*this, x, y);
+    };
+
+    void panStartEvent(int x, int y)
+    {
+        (getState()).panStartEvent(*this, x, y);
+    };
+
+    void panStopEvent(int x, int y)
+    {
+        (getState()).panStopEvent(*this, x, y);
+    };
+
     void rotateStartEvent(int x, int y)
     {
         (getState()).rotateStartEvent(*this, x, y);
@@ -138,21 +153,6 @@ public:
     void rotatingEvent(int x, int y)
     {
         (getState()).rotatingEvent(*this, x, y);
-    };
-
-    void translateStartEvent(int x, int y)
-    {
-        (getState()).translateStartEvent(*this, x, y);
-    };
-
-    void translateStopEvent(int x, int y)
-    {
-        (getState()).translateStopEvent(*this, x, y);
-    };
-
-    void translatingEvent(int x, int y)
-    {
-        (getState()).translatingEvent(*this, x, y);
     };
 
 private:

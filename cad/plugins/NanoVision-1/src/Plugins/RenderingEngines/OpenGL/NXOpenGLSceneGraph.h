@@ -10,6 +10,7 @@
 #else
 #include <GL/gl.h>
 #endif
+#include <GL/gle.h>
 
 #include <cstring>
 
@@ -266,10 +267,45 @@ public:
     bool apply(void) const throw ();
 #ifdef NX_DEBUG
     std::string const getName(void) const;
-#endif
-    
-    
+#endif    
 };
 
+
+class NXSGGleSetJoinStyle : public NXSGOpenGLNode {
+public:
+	NXSGGleSetJoinStyle(int _style=0) throw() : style(_style) {}
+	~NXSGGleSetJoinStyle() {}
+	bool apply(void) const throw() { gleSetJoinStyle(style); return true; }
+	int style;
+#ifdef NX_DEBUG
+	std::string const getName(void) const;
+#endif
+};
+
+
+class NXSGGlePolyCone : public NXSGOpenGLNode {
+public:
+	/// GLE prototype-based constructor
+	NXSGGlePolyCone(int npoints,
+	                gleDouble point_array[][3],
+	                float color_array[][3],
+	                gleDouble radius_array[]);
+	NXSGGlePolyCone(int npoints);
+	~NXSGGlePolyCone();
+	
+	bool apply(void) const throw() { glePolyCone(n, points, colors, radii); return true; }
+	
+	int n;
+	gleDouble (*points)[3];
+	float (*colors)[3];
+	gleDouble *radii;
+#ifdef NX_DEBUG
+	std::string const getName(void) const;
+#endif
+	
+private:
+	void allocate(void);
+	void deallocate(void);
+};
 
 #endif // NX_SCENEGRAPH_OPENGL_H

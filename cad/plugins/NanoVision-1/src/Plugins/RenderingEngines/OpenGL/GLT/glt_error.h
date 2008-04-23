@@ -45,15 +45,9 @@
 	\note    Does nothing if NDEBUG is defined
 */
 
-#if defined(NDEBUG)
-// #define GLERROR
-#else
-	#include "glt_config.h"
-	#include "glt_gl.h"
-	#include "glt_glu.h"
-
-
-#endif
+#include "glt_config.h"
+#include "glt_gl.h"
+#include "glt_glu.h"
 
 
 inline GLenum GLERROR(std::ostream& strm)

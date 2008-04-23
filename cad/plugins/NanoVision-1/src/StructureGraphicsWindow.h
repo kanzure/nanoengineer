@@ -5,7 +5,8 @@
 
 #include "Nanorex/Interface/NXEntityManager.h"
 #include "Nanorex/Interface/NXGraphicsManager.h"
-#include <Nanorex/Interface/NXRenderingEngine.h>
+#include "Nanorex/Interface/NXRenderingEngine.h"
+#include "Nanorex/Interface/NXNamedView.h"
 
 using namespace Nanorex;
 
@@ -23,6 +24,12 @@ public:
     ~StructureGraphicsWindow();
     
 	NXCommandResult const *const setMoleculeSet(NXMoleculeSet *theMolSetPtr);
+	
+	void setNamedView(Nanorex::NXNamedView const& view) {
+		renderingEngine->setNamedView(view);
+	}
+	
+	void resetView(void) { renderingEngine->resetView(); }
 	
 	// Mouse-event handlers
 // 	void mousePressEvent(QMouseEvent *mouseEvent);

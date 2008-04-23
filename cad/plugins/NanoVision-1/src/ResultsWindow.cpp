@@ -522,10 +522,11 @@ void ResultsSummaryTreeItem::refresh() {
 /* CONSTRUCTOR */
 StructureGraphicsTreeItem::StructureGraphicsTreeItem
 (NXMoleculeSet* theMolSetPtr,
- ResultsWindow* resultsWindow,
+ ResultsWindow* theResultsWindow,
  QTreeWidgetItem* treeWidgetItem)
 : DataWindowTreeItem(resultsWindow, treeWidgetItem),
 molSetPtr(theMolSetPtr),
+resultsWindow(theResultsWindow),
 deleteOnDestruct(false),
 structureWindow(NULL)
 {
@@ -535,16 +536,18 @@ structureWindow(NULL)
 /* CONSTRUCTOR */
 StructureGraphicsTreeItem::StructureGraphicsTreeItem
 (OBMol* theMolPtr,
- ResultsWindow* resultsWindow,
+ ResultsWindow* theResultsWindow,
  QTreeWidgetItem* treeWidgetItem)
 : DataWindowTreeItem(resultsWindow, treeWidgetItem),
 molSetPtr(NULL),
+resultsWindow(theResultsWindow),
 deleteOnDestruct(true),
 structureWindow(NULL)
 {
 	// Encapsulate molecule in a non-destructive molecule-set
 	molSetPtr = new NXMoleculeSet(false);
 	molSetPtr->addMolecule(theMolPtr);
+	molSetPtr->setTitle(theMolPtr->GetTitle());
 }
 
 
@@ -564,6 +567,7 @@ void StructureGraphicsTreeItem::showWindow() {
 			new StructureGraphicsWindow(NULL,
 			                            resultsWindow->graphicsManager);
 		assert(structureWindow != NULL);
+		structureWindow->setWindowTitle(QString((molSetPtr->getTitle()).c_str()));
 		structureWindow->show();
 		
 		NXCommandResult const *const addMolSetFrameResult =
@@ -581,6 +585,26 @@ void StructureGraphicsTreeItem::showWindow() {
 			NXLOG_SEVERE("StructureGraphicsWindow", logMsgStream.str());
 		}
 		
+		// set initial view
+		NXEntityManager *entityManager = resultsWindow->entityManager;
+		NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
+		if(dataStoreInfo->hasLastView()) {
+			NXNamedView const& lastView = dataStoreInfo->getLastView();
+			structureWindow->setNamedView(lastView);
+			NXLOG_DEBUG("StructureGraphicsWindow", "Setting NE1 last-view");
+		}
+		else if(dataStoreInfo->hasHomeView()) {
+			NXNamedView const& homeView = dataStoreInfo->getHomeView();
+			structureWindow->setNamedView(homeView);
+			NXLOG_DEBUG("StructureGraphicsWindow", "Setting NE1 home-view");
+		}
+		else {
+			structureWindow->resetView();
+			NXLOG_DEBUG("StructureGraphicsWindow",
+			            "Inferring default view from atom layout");
+		}
+		
+		// re-parent and display
 		resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
 		structureWindow->show();
 	}
@@ -598,10 +622,11 @@ void StructureGraphicsTreeItem::showWindow() {
 /* CONSTRUCTOR */
 TrajectoryGraphicsTreeItem::
 TrajectoryGraphicsTreeItem(const string& trajName,
-                           ResultsWindow* resultsWindow,
+                           ResultsWindow* theResultsWindow,
                            QTreeWidgetItem* treeWidgetItem)
 : DataWindowTreeItem(resultsWindow, treeWidgetItem),
 trajectoryName(trajName),
+resultsWindow(theResultsWindow),
 trajWindow(NULL)
 {
 }
@@ -626,7 +651,26 @@ void TrajectoryGraphicsTreeItem::showWindow() {
 			                             entityManager,
 			                             graphicsManager);
 		trajWindow->show();
+		trajWindow->setWindowTitle(QString(trajectoryName.c_str()));
 		trajWindow->setFrameSetId(trajId);
+		
+		// set initial view
+		if(dataStoreInfo->hasLastView()) {
+			NXNamedView const& lastView = dataStoreInfo->getLastView();
+			trajWindow->setNamedView(lastView);
+			NXLOG_DEBUG("TrajectoryGraphicsWindow", "Setting NE1 last-view");
+		}
+		else if(dataStoreInfo->hasHomeView()) {
+			NXNamedView const& homeView = dataStoreInfo->getHomeView();
+			trajWindow->setNamedView(homeView);
+			NXLOG_DEBUG("TrajectoryGraphicsWindow", "Setting NE1 home-view");
+		}
+		else {
+			trajWindow->resetView();
+			NXLOG_DEBUG("TrajectoryGraphicsWindow",
+			            "Inferring default view from atom layout");
+		}
+		
 		resultsWindow->workspace->addWindow(trajWindow);
 		if (!dataStoreInfo->storeIsComplete(trajId)) {
 			QObject::connect(entityManager,

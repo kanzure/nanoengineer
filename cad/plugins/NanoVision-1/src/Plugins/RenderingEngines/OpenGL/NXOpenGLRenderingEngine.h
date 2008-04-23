@@ -79,6 +79,8 @@ public:
 	/// current frame's molecule-set
 	void resetView (void);
 	
+	void setNamedView(Nanorex::NXNamedView const& view);
+	
     // Mouse-event handlers
 	void mousePressEvent(QMouseEvent *mouseEvent);
 	void mouseReleaseEvent(QMouseEvent *mouseEvent);
@@ -133,6 +135,23 @@ private:
 		createOpenGLSceneGraph(OpenBabel::OBMol *const molPtr,
 		                       OpenBabel::OBAtom *const atomPtr,
 		                       Vector const& zAxis);
+	
+#if 0 /// @todo Post-FNANO08
+	/// @fixme r1.0.0 hacks
+	// -- begin hacks
+	/// @todo initialize these in reset()
+	bool inDnaGroup, inDnaSegment, inDnaStrand;
+	NXMoleculeSet *dnaSegmentMolSetPtr, *dnaStrandMolSetPtr;
+	
+	NXSGOpenGLNode*
+		createOpenGLDnaSegmentSceneGraph(OpenBabel::OBMol *const molPtr);
+	
+	NXSGOpenGLNode*
+		createOpenGLDnaStrandSceneGraph(OpenBabel::OBMol *const molPtr);
+
+	// -- end hacks --
+#endif
+	
 	
 	NXSGOpenGLNode* getRotationNode(Vector const& zAxis,
 	                                Vector const& newZAxis);

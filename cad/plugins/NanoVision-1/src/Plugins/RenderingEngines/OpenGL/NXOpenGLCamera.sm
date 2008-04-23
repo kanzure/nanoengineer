@@ -17,9 +17,9 @@ Initial
         Rotating
         { rotateStart(x,y); }
 
-    translateStartEvent(x: int, y: int)
-        Translating
-        { translateStart(x,y); }
+    panStartEvent(x: int, y: int)
+        Panning
+        { panStart(x,y); }
 }
 
 Rotating
@@ -38,20 +38,20 @@ Rotating
         { rotateStop(x, y); }
 }
 
-Translating
+Panning
 {
     // trap meaningless actions
     Default
-        Translating
+        Panning
         { }
 
-    translatingEvent(x: int, y: int)
-        Translating
-        { translate(x,y); }
+    panEvent(x: int, y: int)
+        Panning
+        { pan(x,y); }
 
-    translateStopEvent(x: int, y: int)
+    panStopEvent(x: int, y: int)
         Initial
-        { translateStop(x,y); }
+        { panStop(x,y); }
 }
 
 %%

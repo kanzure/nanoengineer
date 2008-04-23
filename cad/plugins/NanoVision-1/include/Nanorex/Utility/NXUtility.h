@@ -30,7 +30,7 @@ class NXUtility {
 		static std::string itos(unsigned int i);
 		static std::string itos(unsigned long i);
 		static std::string PaddedString(int i, int length);
-
+		static std::string dtos(double d);
 	private:
 };
 

@@ -37,18 +37,19 @@ PROJECTLIBS = -lNanorexInterface -lNanorexUtility
 CONFIG(debug,debug|release) {
 	TARGET = $$join(TARGET,,,_d)
 	PROJECTLIBS ~= s/(.+)/\1_d/g
+	TARGETDEPS ~= s/(.+).(a|so)/\1_d.\2/g
 }
 
 # message ($$PROJECTLIBS)
 
 unix {
-    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so   $${DESTDIR}lib$${TARGET}.so
 # Remove the "lib" from the start of the library
     QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs cp $(DESTDIR)$(TARGET)
 }
 
 macx {
-    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib
+    QMAKE_CLEAN += $${DESTDIR}$${TARGET}.dylib  $${DESTDIR}lib$${TARGET}.dylib
     TARGETDEPS ~= s/.so/.dylib/g
     QMAKE_POST_LINK ~= s/.so/.dylib/g
 }
@@ -58,17 +59,17 @@ win32 {
     TARGETDEPS ~= s/.so/.a/g
 }
 
-
+message($$QMAKE_CLEAN)
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
 
 LIBS += -L../../../../lib \
   $$PROJECTLIBS \
-  -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 

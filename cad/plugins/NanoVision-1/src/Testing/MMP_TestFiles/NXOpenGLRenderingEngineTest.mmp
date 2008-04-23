@@ -1,0 +1,144 @@
+# This file is generated in NXOpenGLRenderingEngineTest
+# The display from this file should be the same as that in the test upto a difference in view
+
+mmpformat 050920 required; 080321 preferred
+kelvin 300
+group (View Data)
+egroup (View Data)
+group (Untitled)
+group (The Molecule Set)
+mol (Benzene) def
+atom 1 (6) (0, 2000, 0) def
+atom 2 (1) (0, 3000, 0) def
+bond1 1
+atom 3 (6) (0, 1000, 1732) def
+bond1 1
+atom 4 (1) (0, 1500, 2598) def
+bond1 3
+atom 5 (6) (0, -999, 1732) def
+bond2 3
+atom 6 (1) (0, -1499, 2598) def
+bond1 5
+atom 7 (6) (0, -2000, 0) def
+bond1 5
+atom 8 (1) (0, -3000, 0) def
+bond1 7
+atom 9 (6) (0, -1000, -1732) def
+bond2 7
+atom 10 (1) (0, -1500, -2598) def
+bond1 9
+atom 11 (6) (0, 1000, -1732) def
+bond1 9
+bond2 1
+atom 12 (1) (0, 1500, -2598) def
+bond1 11
+mol (Sulphur Hexafluoride) def
+atom 13 (16) (0, 0, 0) def
+atom 14 (9) (1000, 0, 0) def
+bond1 13
+atom 15 (9) (-1000, 0, 0) def
+bond1 13
+atom 16 (9) (0, 1000, 0) def
+bond1 13
+atom 17 (9) (0, -1000, 0) def
+bond1 13
+atom 18 (9) (0, 0, 1000) def
+bond1 13
+atom 19 (9) (0, 0, -1000) def
+bond1 13
+group (Hydrocarbons and Triatomics)
+group (Triatomics)
+mol (Water) def
+atom 20 (8) (3000, 3000, -3000) def
+atom 21 (1) (3790, 2387, -3000) def
+bond1 20
+atom 22 (1) (2209, 2387, -3000) def
+bond1 20
+group (Dioxides)
+mol (Carbon dioxide) def
+atom 23 (6) (3000, 3000, 3000) def
+atom 24 (8) (4000, 4000, 4000) def
+bond2 23
+atom 25 (8) (2000, 2000, 2000) def
+bond2 23
+mol (Nitrous Oxide) def
+atom 26 (7) (3000, -3000, 3000) def
+atom 27 (8) (3921, -3388, 3000) def
+bond1 26
+atom 28 (8) (2078, -3388, 3000) def
+bond1 26
+egroup (Dioxides)
+egroup (Triatomics)
+group (Hydrocarbons)
+group (Paraffins)
+mol (Ethane) def
+atom 29 (6) (-3000, -2500, -3000) def
+atom 30 (1) (-3000, -2000, -2500) def
+bond1 29
+atom 31 (1) (-2566, -2000, -3250) def
+bond1 29
+atom 32 (1) (-3433, -2000, -3250) def
+bond1 29
+atom 33 (6) (-3000, -3500, -3000) def
+bond1 29
+atom 34 (1) (-3000, -4000, -3500) def
+bond1 33
+atom 35 (1) (-2566, -4000, -2750) def
+bond1 33
+atom 36 (1) (-3433, -4000, -2750) def
+bond1 33
+egroup (Paraffins)
+group (Olefins)
+group (Alkenes)
+mol (Ethene) def
+atom 37 (6) (-3000, -2500, 3000) def
+atom 38 (1) (-3000, -2000, 3500) def
+bond1 37
+atom 39 (1) (-3000, -2000, 2500) def
+bond1 37
+atom 40 (6) (-3000, -3500, 3000) def
+bond2 37
+atom 41 (1) (-3000, -4000, 3500) def
+bond1 40
+atom 42 (1) (-3000, -4000, 2500) def
+bond1 40
+egroup (Alkenes)
+group (Alkynes)
+mol (Ethyne) def
+atom 43 (6) (-3000, 3500, -3000) def
+atom 44 (6) (-3000, 2500, -3000) def
+bond3 43
+atom 45 (1) (-3000, 4500, -3000) def
+bond1 43
+atom 46 (1) (-3000, 1500, -3000) def
+bond1 44
+egroup (Alkynes)
+egroup (Olefins)
+egroup (Hydrocarbons)
+egroup (Hydrocarbons and Triatomics)
+group (Pyramidal)
+mol (Ammonia) def
+atom 47 (7) (3000, -3000, -3000) def
+atom 48 (1) (3000, -4000, -2000) def
+bond1 47
+atom 49 (1) (3866, -4000, -3500) def
+bond1 47
+atom 50 (1) (2133, -4000, -3500) def
+bond1 47
+mol (Methane) def
+atom 51 (6) (-3000, 3000, 3000) def
+atom 52 (1) (-2000, 4000, 4000) def
+bond1 51
+atom 53 (1) (-4000, 2000, 4000) def
+bond1 51
+atom 54 (1) (-4000, 4000, 2000) def
+bond1 51
+atom 55 (1) (-2000, 2000, 2000) def
+bond1 51
+egroup (Pyramidal)
+egroup (The Molecule Set)
+egroup (Untitled)
+end1
+group (Clipboard)
+egroup (Clipboard)
+end

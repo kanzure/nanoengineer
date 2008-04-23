@@ -43,6 +43,14 @@ public:
     /// Call to render the bond display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure.
 	virtual NXSGOpenGLNode* renderBond(Nanorex::NXBondData const&) = 0;
+	
+#if 0 /// @todo Post-FNANO08
+	/// @fixme r1.0.0 hacks
+	// -- begin hacks --
+	virtual NXSGOpenGLNode* renderDnaSegment(/*TODO*/) = 0;
+	virtual NXSGOpenGLNode* renderDnaStrand(/*TODO*/) = 0;
+	// -- end hacks --
+#endif
 };
 
 // .............................................................................

@@ -9,8 +9,8 @@ opengl \
  stl \
  build_all
 
-CONFIG(debug,debug|release) {
-	TARGET = $$join(TARGET,,,_d)
+CONFIG(debug,debug|release){
+    TARGET = $$join(TARGET,,,_d)
 }
 
 QT += opengl
@@ -35,9 +35,13 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
+
 # make clean targets
 unix : QMAKE_CLEAN += $${DESTDIR}lib$${TARGET}.a
 macx : QMAKE_CLEAN += $${DESTDIR}lib$${TARGET}.a
-win32: QMAKE_CLEAN += $${DESTDIR}$${TARGET}.a
+win32 : QMAKE_CLEAN += $${DESTDIR}$${TARGET}.a
 
+
+LIBS += -lgle
 

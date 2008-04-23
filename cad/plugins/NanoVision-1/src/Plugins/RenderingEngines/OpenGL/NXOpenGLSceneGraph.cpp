@@ -3,12 +3,23 @@
 #include "NXOpenGLSceneGraph.h"
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
 #include <Nanorex/Utility/NXUtility.h>
+#include "GLT/guarded_gl_ops.h"
 #include "GLT/glt_error.h"
 #include <sstream>
 #include <cassert>
 
 using namespace std;
 using namespace Nanorex;
+
+// utility functions
+template<typename T>
+inline void guarded_delete_array(T* &ptr)
+{
+	if(ptr != (T*) NULL)
+		delete[] ptr;
+	ptr = (T*) NULL;
+}
+
 
 // static data
 GLint NXSGOpenGLNode::_s_maxModelViewStackDepth;
@@ -142,9 +153,10 @@ NXSGOpenGLModelViewTransform::newParentModelViewStackDepth(int parentMVStackDept
 bool NXSGOpenGLModelViewTransform::applyRecursive(void) const throw()
 {
     // Save the modelview matrix
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    // trap stack overflow/underflow
+	GUARDED_GL_OP(glMatrixMode(GL_MODELVIEW));
+	glPushMatrix();
+	
+	// trap stack overflow/underflow
     GLenum glError = glGetError();
     bool ok = (glError == GL_NO_ERROR);
     if(!ok) {
@@ -168,7 +180,7 @@ bool NXSGOpenGLModelViewTransform::applyRecursive(void) const throw()
 	}
 	
     // Restore model-view matrix
-    glPopMatrix();
+	GUARDED_GL_OP(glPopMatrix());
     
     return appliedOK;
 }
@@ -220,35 +232,38 @@ bool NXSGOpenGLScale::apply(void) const throw ()
 
 NXSGOpenGLRenderable::NXSGOpenGLRenderable() throw (NXException)
 {
-    display_list_id = glGenLists(1);
-    GLenum const err = glGetError();
-    if(err != GL_NO_ERROR || !glIsList(display_list_id))
-        throw NXException("Error calling glGenLists");
+	GLenum err = GL_NO_ERROR;
+	ostringstream errStream;
+	GUARDED_GL_OP_WITH_GLERROR(display_list_id = glGenLists(1),
+	                           err, errStream);
+	if(err != GL_NO_ERROR || !glIsList(display_list_id))
+		throw NXException("Error calling glGenLists");
 }
 
 // .............................................................................
 
 NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
 {
-    glDeleteLists(display_list_id, 1);
-    GLenum const err = glGetError();
-    if(err != GL_NO_ERROR)
-        throw NXException("Error calling glDeleteLists");
+	GLenum err = GL_NO_ERROR;
+	ostringstream errStream;
+	GUARDED_GL_OP_WITH_GLERROR(glDeleteLists(display_list_id, 1),
+	                           err, errStream);
+	if(err != GL_NO_ERROR)
+		throw NXException("Error calling glDeleteLists");
 }
 
 // .............................................................................
 
 bool NXSGOpenGLRenderable::beginRender(void) const throw ()
 {
-    glNewList(display_list_id, GL_COMPILE);
-    ostringstream errMsgStream;
-    GLenum const err = GLERROR(errMsgStream);
-    if(err != GL_NO_ERROR) {
-        SetError(NX_INTERNAL_ERROR,
-                 errMsgStream.str().c_str());
+	GLenum err = GL_NO_ERROR;
+	ostringstream errStream;
+	GUARDED_GL_OP_WITH_GLERROR(glNewList(display_list_id, GL_COMPILE),
+	                           err, errStream);
+	if(err != GL_NO_ERROR) {
+        SetError(NX_INTERNAL_ERROR, errStream.str().c_str());
         return false;
     }
-    
     return true;
 }
 
@@ -256,15 +271,14 @@ bool NXSGOpenGLRenderable::beginRender(void) const throw ()
 
 bool NXSGOpenGLRenderable::endRender(void) const throw ()
 {
-    glEndList();
-    ostringstream errMsgStream;
-    GLenum const err = GLERROR(errMsgStream);
+	GLenum err = GL_NO_ERROR;
+	ostringstream errStream;
+	GUARDED_GL_OP_WITH_GLERROR(glEndList(),
+	                           err, errStream);
     if(err != GL_NO_ERROR) {
-        SetError(NX_INTERNAL_ERROR,
-                 errMsgStream.str().c_str());
+        SetError(NX_INTERNAL_ERROR, errStream.str().c_str());
         return false;
     }
-    
     return true;
 }
 
@@ -288,7 +302,12 @@ NXSGOpenGLMaterial& NXSGOpenGLMaterial::operator = (NXOpenGLMaterial const& mat)
 
 bool NXSGOpenGLMaterial::apply(void) const throw ()
 {
-    glMaterialfv(face, GL_AMBIENT, ambient);
+#ifdef NX_DEBUG
+	GLenum err = GL_NO_ERROR;
+	err = glGetError();
+	assert(err == GL_NO_ERROR);
+#endif
+	glMaterialfv(face, GL_AMBIENT, ambient);
     bool const ok_ambient = (glGetError() == GL_NO_ERROR);
     glMaterialfv(face, GL_DIFFUSE, diffuse);
     bool const ok_diffuse = (glGetError() == GL_NO_ERROR);
@@ -308,9 +327,58 @@ bool NXSGOpenGLMaterial::apply(void) const throw ()
                  "Error applying OpenGL material in scenegraph context");
     }
     return ok;
-    
 }
 
+// .............................................................................
+
+NXSGGlePolyCone::NXSGGlePolyCone(int npoints,
+                                 gleDouble point_array[][3],
+                                 float color_array[][3],
+                                 gleDouble radius_array[])
+: n(npoints), points(NULL), colors(NULL), radii(NULL)
+{
+	allocate();
+	memcpy((void*) points, (void*) point_array, n * sizeof(gleDouble[3]));
+	memcpy((void*) colors, (void*) color_array, n * sizeof(float[3]));
+	memcpy((void*) radii, (void*) radius_array, n * sizeof(gleDouble));
+}
+
+// .............................................................................
+
+NXSGGlePolyCone::NXSGGlePolyCone(int npoints)
+: n(npoints), points(NULL), colors(NULL), radii(NULL)
+{
+	allocate();
+}
+
+// .............................................................................
+
+NXSGGlePolyCone::~NXSGGlePolyCone() { deallocate(); }
+
+// .............................................................................
+
+void NXSGGlePolyCone::allocate(void)
+{
+	try {
+		points = new gleDouble[n][3];
+		colors = new float[n][3];
+		radii  = new gleDouble[n];
+	}
+	catch(...) {
+		throw NXException(/** @todo */);
+	}
+	
+}
+
+// .............................................................................
+
+void NXSGGlePolyCone::deallocate(void)
+{
+	guarded_delete_array(points);
+	guarded_delete_array(colors);
+	guarded_delete_array(radii);
+	n = 0;
+}
 
 // .............................................................................
 
@@ -398,6 +466,20 @@ string const NXSGOpenGLMaterial::getName() const
 //     return strm.str();
 	
 	return "OGLMat_"  + name + "_" + NXUtility::itos(id);
+}
+
+// .............................................................................
+
+string const NXSGGleSetJoinStyle::getName() const
+{
+	return "GLESetJoinStyle_" + name + "_" + NXUtility::itos(id);
+}
+
+// .............................................................................
+
+string const NXSGGlePolyCone::getName() const
+{
+	return "GLEPolyCone_" + name + "_" + NXUtility::itos(id);
 }
 
 

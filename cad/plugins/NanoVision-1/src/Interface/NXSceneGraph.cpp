@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
@@ -23,12 +24,17 @@ NXSGNode::NXSGNode() throw() :
 	,id(idSource++), name()
 #endif
 {
+#ifdef NX_DEBUG
+// 	cerr << "creating " << getName()
+// 		<< " [ref = " << getRefCount() << ']' << endl;
+#endif
 }
 	
 NXSGNode::~NXSGNode()
 {
+	assert(ref_count == 0);
 #ifdef NX_DEBUG
-	cerr << "deleting " << this->getName()
+	cerr << "deleting " << getName()
 		<< " [ref = " << getRefCount() << ']' << endl;
 #endif
 	removeAllChildren(); 

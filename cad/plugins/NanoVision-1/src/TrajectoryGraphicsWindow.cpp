@@ -400,7 +400,7 @@ void TrajectoryGraphicsWindow::on_trajectoryLastButton_clicked(bool)
 void TrajectoryGraphicsWindow::on_playbackSpeedSpinBox_valueChanged(int newSpeed)
 {
 	double scale = double(newSpeed)/100.0;
-	int newTimerInterval = int(1.0 / (scale*BASE_FPS));
+	int newTimerInterval = int(1.0 / (scale*BASE_FPS)) * 1000; // in msec
 	autoPlayTimer->setInterval(newTimerInterval);
 }
 
@@ -514,8 +514,11 @@ void TrajectoryGraphicsWindow::onEndFrameReached(void)
     // the current value
 }
 
+
 void TrajectoryGraphicsWindow::setCurrentFrameIndex(int frameIndex)
 {
 	currentFrameIndex = frameIndex;
 	renderingEngine->setCurrentFrame(frameIndex-1);
+	/// @todo Post-FNANO resetView() shouldn't be a part of setCurrentFrameIndex() - set lastView instead
+	renderingEngine->resetView();
 }

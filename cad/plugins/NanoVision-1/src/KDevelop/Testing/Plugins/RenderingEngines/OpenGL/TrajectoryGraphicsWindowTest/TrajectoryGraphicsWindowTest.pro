@@ -6,10 +6,7 @@ DESTDIR = ../../../../../../../bin/
 CONFIG += stl \
 rtti \
 opengl \
-debug_and_release \
-build_all
-
-CONFIG(debug,debug|release) : TARGET = $${TARGET}_d
+debug 
 
 QT += opengl
 
@@ -22,12 +19,12 @@ SOURCES += ../../../../../../Testing/OpenGL/TrajectoryGraphicsWindowTest.cpp \
  ../../../../../../TrajectoryGraphicsWindow.cpp \
  ../../../../../../DataWindow.cpp
 
-TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer.so \
-  ../../../../../../../lib/libNXOpenGLRenderingEngine.so \
-  ../../../../../../../lib/libNXOpenGLSceneGraph.a \
-  ../../../../../../../lib/libGLT.a \
-  ../../../../../../../lib/libNanorexInterface.so \
-  ../../../../../../../lib/libNanorexUtility.so
+TARGETDEPS += ../../../../../../../lib/libNXBallAndStickOpenGLRenderer_d.so \
+  ../../../../../../../lib/libNXOpenGLRenderingEngine_d.so \
+  ../../../../../../../lib/libNXOpenGLSceneGraph_d.a \
+  ../../../../../../../lib/libGLT_d.a \
+  ../../../../../../../lib/libNanorexInterface_d.so \
+  ../../../../../../../lib/libNanorexUtility_d.so
 
 INCLUDEPATH += ../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer \
   ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine \
@@ -38,17 +35,13 @@ INCLUDEPATH += ../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAn
 
 FORMS += ../../../../../../TrajectoryGraphicsWindow.ui
 
-PROJECTLIBS = -lNanorexInterface \
--lNanorexUtility \
--lGLT \
--lNXOpenGLSceneGraph \
--lNXOpenGLRenderingEngine \
--lNXBallAndStickOpenGLRenderer
-
-CONFIG(debug,debug|release): PROJECTLIBS ~= s/(.+)/\1_d/g
-
 LIBS += -L../../../../../../../lib \
-   $$PROJECTLIBS \
+  -lNanorexInterface_d \
+  -lNanorexUtility_d \
+  -lGLT_d \
+  -lNXOpenGLSceneGraph_d \
+  -lNXOpenGLRenderingEngine_d \
+  -lNXBallAndStickOpenGLRenderer_d \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 

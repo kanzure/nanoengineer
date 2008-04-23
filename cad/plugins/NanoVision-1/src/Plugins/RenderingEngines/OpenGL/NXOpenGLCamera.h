@@ -15,6 +15,8 @@
 #include "GLT/glt_matrix4.h"
 #include "GLT/glt_viewport.h"
 
+#include <Nanorex/Interface/NXNamedView.h>
+#include <Nanorex/Utility/NXTrackball.h>
 #include "NXOpenGLCamera_sm.h"
 
 class QGLWidget;
@@ -56,18 +58,21 @@ public:
     
     void reset(void);
     
+	void setNamedView(Nanorex::NXNamedView const& view);
+	Nanorex::NXNamedView const& getNamedView(void) const { return namedView; }
+	
     Vector eye(void) const;
     
-    Vector unproject(real x, real y, real z=0.0);
+	Nanorex::NXVector3d unproject(int x, int y/*, real z=0.0*/);
     
     // mouse-input effectors
     void rotateStart(int x, int y);
     void rotate(int x, int y);
     void rotateStop(int x, int y);
     
-    void translateStart(int x, int y);
-    void translate(int x, int y);
-    void translateStop(int x, int y);
+    void panStart(int x, int y);
+    void pan(int x, int y);
+    void panStop(int x, int y);
     
     void resizeViewport(int w, int h);
     
@@ -76,16 +81,16 @@ public:
     // void glGetProjection(void);
     // void glGetViewport(void) { viewport.get(); }
     
-    void glSetPosition(void);
-    void glSetProjection(void);
+	void glSetPosition(void);
+	void glSetProjection(void);
     void glSetViewport(void) { viewport.set(); }
     
-    void gluLookAt(real eyeX, real eyeY, real eyeZ,
-                   real centerX, real centerY, real centerZ,
-                   real upX, real upY, real upZ);
-    void glOrtho(real l, real r, real b, real t, real n, real f);
+//     void gluLookAt(real eyeX, real eyeY, real eyeZ,
+//                    real centerX, real centerY, real centerZ,
+//                    real upX, real upY, real upZ);
+	// void glOrtho(real l, real r, real b, real t, real n, real f);
     // void glFrustum(real l, real r, real b, real t, real n, real f);
-    void gluPerspective(real fovy, real aspect, real n, real f);
+	// void gluPerspective(real fovy, real aspect, real n, real f);
     void glViewport(int x, int y, int w, int h);
     void zoom(GLdouble d);
     
@@ -93,32 +98,37 @@ public:
     void rotatingEvent(int x, int y) { fsm.rotatingEvent(x,y); }
     void rotateStopEvent(int x, int y) { fsm.rotateStopEvent(x,y); }
     
-    void translateStartEvent(int x, int y) { fsm.translateStartEvent(x,y); }
-    void translatingEvent(int x, int y) { fsm.translatingEvent(x,y); }
-    void translateStopEvent(int x, int y) { fsm.translateStopEvent(x,y); }
+    void panStartEvent(int x, int y) { fsm.panStartEvent(x,y); }
+    void panEvent(int x, int y) { fsm.panEvent(x,y); }
+    void panStopEvent(int x, int y) { fsm.panStopEvent(x,y); }
     
 private:
     QGLWidget *parent;
     NXOpenGLCameraContext fsm;
     
-    Vector translation;
-    Vector4 viewingQuaternion;
-    GltMatrix modelViewMatrix;
+	Nanorex::NXNamedView namedView;
+	
+	// Vector translation;
+    /*Vector4*/ Nanorex::NXQuaternion<double> viewingQuaternion;
+	// GltMatrix modelViewMatrix;
     // GltMatrix projectionMatrix;
     bool isPerspectiveProjection;
-    OrthographicProjection orthographicProjection;
-    PerspectiveProjection perspectiveProjection;
+	// OrthographicProjection orthographicProjection;
+	// PerspectiveProjection perspectiveProjection;
     GltViewport viewport;
     
     // for mouse-rotations
-    int oldMouseX, oldMouseY;
-    Vector4 oldViewingQuaternion;
+	// int oldMouseX, oldMouseY;
+	/*Vector4*/ Nanorex::NXQuaternion<double> oldViewingQuaternion;
+	Nanorex::NXTrackball trackball;
 
-    // for mouse-translations
-    Vector translationInitialWpt;
+    // for mouse-panning
+	Nanorex::NXVector3d panInitialWpt;
     
-    void parseModelViewMatrix(void);
-    void buildModelViewMatrix(void);
+	// void parseModelViewMatrix(void);
+	// void buildModelViewMatrix(void);
+	
+	double getPixelDepth(int x, int y);
 };
 
 #endif // NXOPENGLCAMERA_H
