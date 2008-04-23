@@ -142,39 +142,46 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/bin/nv1</mainprogram>
+      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
       <programargs/>
       <directoryradio>executable</directoryradio>
       <globaldebugarguments/>
       <globalcwd>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/bin/</globalcwd>
-      <useglobalprogram>true</useglobalprogram>
+      <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars>
         <envvar value="/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/lib:/usr/local/lib" name="LD_LIBRARY_PATH" />
-        <envvar value="/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop/count1" name="QMAKEFEATURES" />
       </envvars>
       <runarguments>
         <HDF5_SimResultsImportExport/>
         <GLT/>
-        <CppUnit/>
+        <CppUnit>NXSceneGraphTestSuite</CppUnit>
         <NXOpenGLRenderingEngineTest/>
         <HDF5_Consumer/>
         <nv1/>
         <NXBallAndStickOpenGLRendererTest/>
         <count1/>
+        <QTestLib/>
+        <QtTests/>
+        <MMPOpenGLRendererTest/>
+        <TrajectoryGraphicsWindowTest/>
       </runarguments>
       <cwd>
         <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
         <GLT>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</GLT>
-        <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop/../../../..</CppUnit>
+        <CppUnit>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop/../../../../</CppUnit>
         <HDF5_Consumer>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</HDF5_Consumer>
         <nv1>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</nv1>
         <NXBallAndStickOpenGLRendererTest>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</NXBallAndStickOpenGLRendererTest>
         <count1>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</count1>
         <NXOpenGLRenderingEngineTest>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</NXOpenGLRenderingEngineTest>
+        <QTestLib>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/bin/</QTestLib>
+        <QtTests>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop/../../../..</QtTests>
+        <MMPOpenGLRendererTest>../../../../../bin/</MMPOpenGLRendererTest>
+        <TrajectoryGraphicsWindowTest>../../../../../../../bin/</TrajectoryGraphicsWindowTest>
       </cwd>
       <debugarguments>
         <HDF5_SimResultsImportExport/>
@@ -185,10 +192,14 @@
         <nv1/>
         <NXBallAndStickOpenGLRendererTest/>
         <count1/>
+        <QTestLib/>
+        <QtTests/>
+        <MMPOpenGLRendererTest/>
+        <TrajectoryGraphicsWindowTest/>
       </debugarguments>
     </run>
     <general>
-      <activedir>nv1</activedir>
+      <activedir>Testing/Plugins/RenderingEngines/OpenGL/TrajectoryGraphicsWindowTest</activedir>
     </general>
     <make>
       <abortonerror>false</abortonerror>
@@ -204,6 +215,8 @@
       <replacePaths>false</replacePaths>
       <disableDefaultOpts>true</disableDefaultOpts>
       <enableFilenamesOnly>false</enableFilenamesOnly>
+      <showVariablesInTree>true</showVariablesInTree>
+      <showParseErrors>true</showParseErrors>
     </qmake>
     <subclassing/>
   </kdevtrollproject>
