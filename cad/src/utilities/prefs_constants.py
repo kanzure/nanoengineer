@@ -38,7 +38,7 @@ getDefaultWorkingDirectory.
 from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, lightgray, lightgreen
 from utilities.constants import orange
-from utilities.constants import ave_colors, diTUBES
+from utilities.constants import ave_colors, diTUBES, diBALL
 
 import sys, os # for getDefaultWorkingDirectory
 
@@ -449,7 +449,7 @@ prefs_table = (
     ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
     ('background_color', 'color', backgroundColor_prefs_key, white),
     ('background_gradient', 'int', backgroundGradient_prefs_key, 1), # 1 = Sky Blue . Mark 060814.
-    ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diTUBES), # Mark 060815.
+    ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diBALL), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
 
