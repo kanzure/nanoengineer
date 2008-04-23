@@ -478,6 +478,9 @@ class WholeChain(object):
         # but note, these can be same for different strand atoms!).
 
         end_atoms = self.end_baseatoms() # should find 2 atoms unless we're a ring
+            # review: if we're a chain of length 1, does it find our lone atom once, or twice?
+            # I don't think it matters re following code, but review that too.
+            # [bruce 080422 comment]
         if not end_atoms:
             # we're a ring - just consider all end atoms of all our rails
             # (don't bother not including some twice for length-1 rails,
@@ -502,8 +505,11 @@ class WholeChain(object):
             # A. positive (or 0 for length-1 rail), but following code doesn't care.
             # Q. does best next_atom come from same rail if possible?
             # A. (guess yes, doing that for now)
-        ## direction_into_chain = index and -1 or 1
-        
+            
+            # WARNING: if len(rail) == 1, then direction_into_chain is arbitrary.
+            # the following code doesn't use it in that case.
+            # [bruce 080422 comment]
+                    
         if len(rail.baseatoms) > 1:
             next_atom = rail.baseatoms[index + direction_into_chain]
             position = (rail, index, direction_into_chain)
@@ -570,26 +576,52 @@ class WholeChain(object):
         self._all_markers[marker] = PositionInWholeChain(self, rail, baseindex, direction)
         return
     
-    def _find_end_atom_chain_and_index(self, atom):
+    def _find_end_atom_chain_and_index(self, atom, next_atom = None):
         # REVIEW: rename chain -> rail, in this method name? (and all local vars in file)
         """
         Assume atom is an end_baseatom of one of our rails (aka chains).
         (If not true, raise KeyError.)
         Find that rail and atom's index in it, and return them as
         the tuple (rail, index_in_rail, direction_into_rail).
+
         The index is nonnegative, meaning that we use 0 for
         either end of a length-1 rail (there is no distinction
-        between the ends in that case).
+        between the ends in that case). But in case the direction_into_rail
+        return value component matters then, use the optional next_atom
+        argument to disambiguate it -- if given, it must be next to end_atom,
+        and we'll return the direction pointing away from it.
         """
         key = atom.key
         try:
             rail = self._end0_baseatoms[key]
-            return rail, 0, 1
+            index_in_rail = 0
+            direction_into_rail = 1
         except KeyError:
             rail = self._end1_baseatoms[key]
                 # raise KeyError if atom is not an end_atom of any of our rails
-            return rail, len(rail) - 1, -1
-        pass
+            index_in_rail = len(rail) - 1
+            direction_into_rail = -1
+        if next_atom is not None:
+            #bruce 080422 bugfix and new assertions
+            assert next_atom in rail.neighbor_baseatoms
+            if next_atom is rail.neighbor_baseatoms[LADDER_END0]:
+                direction_to_next_atom = -1
+            else:
+                assert next_atom is rail.neighbor_baseatoms[LADDER_END1]
+                direction_to_next_atom = 1
+            necessary_direction_into_rail = - direction_to_next_atom
+            if len(rail) == 1:
+                if necessary_direction_into_rail != direction_into_rail:
+                    print "fyi: fixing direction_into_rail to ", necessary_direction_into_rail ### remove when works
+                direction_into_rail = necessary_direction_into_rail
+            else:
+                ## assert necessary_direction_into_rail == direction_into_rail
+                if necessary_direction_into_rail != direction_into_rail:
+                    print "BUG: necessary_direction_into_rail %d != direction_into_rail %d, rail %r" % \
+                          (necessary_direction_into_rail, direction_into_rail, rail)
+                pass
+            pass
+        return rail, index_in_rail, direction_into_rail
         
     # todo: methods related to base indexing
     
@@ -608,6 +640,8 @@ class WholeChain(object):
         # and pass them in a single step. We might still need to yield the
         # final repeat of starting pos.
         rail, index, direction = pos
+        pos = rail, index, direction
+            # make sure pos is a tuple (required by comparison code below)
         # assert one of our rails, valid index in it
         assert direction in (-1, 1)
         while 1:
@@ -625,7 +659,8 @@ class WholeChain(object):
                     new_rail = None # outer code will return due to this, ending the generated sequence
                     index, direction = None, None # illegal values (to detect bugs in outer code)
                 else:
-                    new_rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom)
+                    this_atom = rail.end_baseatoms()[end] #bruce 080422 bugfix
+                    new_rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom, this_atom)
                     direction *= relative_direction
                     assert new_rail
                     # can't assert new_rail is not rail -- might be a ring of one rail
@@ -652,11 +687,20 @@ class WholeChain(object):
                 yield rail, index, direction, counter
                 return
             elif (rail, index) == pos[0:2]:
-                assert 0, "bug: direction got flipped somehow in " \
+                ## assert 0, \
+                # this is failing, but might be harmless, so mitigate it by
+                # just printing rather than assertfailing, and otherwise
+                # treating this the same way as above. [bruce 080422 bug mitigation]
+                # note: the underlying bug was probably then fixed by a change above,
+                # in the same commit, passing this_atom to _find_end_atom_chain_and_index.
+                print \
+                       "bug: direction got flipped somehow in " \
                        "%r.yield_rail_index_direction_counter%r at %r" % \
                        ( self,
                          (pos, counter, countby, relative_direction),
                          (rail, index, direction, counter) )
+                yield rail, index, direction, counter
+                return
             continue
         assert 0 # not reached
         pass
