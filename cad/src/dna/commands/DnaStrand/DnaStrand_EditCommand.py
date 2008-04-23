@@ -699,10 +699,19 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #strandEndAtom is None. 
         dnaSegment = self.struct.get_DnaSegment_with_content_atom(strandEndAtom)
         
+        ribbon1_direction = None
+        
         if dnaSegment:     
             basesPerTurn = dnaSegment.getBasesPerTurn()
             duplexRise = dnaSegment.getDuplexRise()        
             ribbon1_start_point = strandEndAtom.posn()
+            
+            if strandEndAtom:
+                ribbon1_start_point = strandEndAtom.posn()
+                for bond_direction, neighbor in strandEndAtom.bond_directions_to_neighbors():
+                    if neighbor and neighbor.is_singlet():
+                        ribbon1_direction = bond_direction
+                        break
             
             ribbon1Color = strandEndAtom.molecule.color
             if not ribbon1Color:
@@ -713,6 +722,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                     basesPerTurn, 
                     duplexRise, 
                     ribbon1_start_point,
+                    ribbon1_direction,
                     ribbon1Color
                 )
         

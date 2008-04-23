@@ -507,6 +507,7 @@ steelblue = (0.3, 0.4, 0.5)
 brass = (0.5, 0.5, 0.0)
 copper = (0.3, 0.3, 0.1)
 mustard = (0.78, 0.78, 0.0)
+applegreen = (0.4, 0.8, 0.4)
 
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue)

@@ -37,6 +37,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         """
         """
         LineMode.GraphicsMode_class.__init__(self, command)
+        
     
     def leftUp(self, event):
         """
@@ -141,7 +142,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                               stepColor = black )
             elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
                 #Default dna rubberband line display style       
-                drawDnaRibbons(self.endPoint1,
+                drawDnaRibbons(self.glpane,
+                               self.endPoint1,
                                self.endPoint2, 
                                self.command.basesPerTurn,
                                self.command.duplexRise,

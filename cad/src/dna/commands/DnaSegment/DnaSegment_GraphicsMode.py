@@ -506,7 +506,11 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                     
             params = self.command.getDnaRibbonParams()
             if params:
-                end1, end2, basesPerTurn, duplexRise = params            
+                end1, end2, basesPerTurn, duplexRise, ribbon1_start_point, \
+                    ribbon2_start_point, ribbon1_direction, ribbon2_direction,\
+                    ribbon1Color, ribbon2Color = params    
+                
+                
                 #Note: The displayStyle argument for the rubberband line should 
                 #really be obtained from self.command.struct. But the struct 
                 #is a DnaSegment (a Group) and doesn't have attr 'display'
@@ -514,7 +518,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 #but what if two strand chunks and axis chunk are rendered 
                 #in different display styles? since situation may vary, lets 
                 #use self.glpane.displayMode for rubberbandline displayMode
-                drawDnaRibbons(end1,
+                drawDnaRibbons(self.glpane,
+                               end1,
                                end2,
                                basesPerTurn,
                                duplexRise,
@@ -522,8 +527,12 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                self.glpane.lineOfSight,
                                self.glpane.displayMode,
                                ribbonThickness = 4.0,
-                               ribbon1Color = darkred,
-                               ribbon2Color = blue,
+                               ribbon1_start_point = ribbon1_start_point,
+                               ribbon2_start_point = ribbon2_start_point,
+                               ribbon1_direction = ribbon1_direction,
+                               ribbon2_direction = ribbon2_direction,
+                               ribbon1Color = ribbon1Color,
+                               ribbon2Color = ribbon2Color,
                                stepColor = black )
           
             #Draw the text next to the cursor that gives info about 

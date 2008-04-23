@@ -144,7 +144,7 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             params = self.command.getDnaRibbonParams()
             if params:
                 end1, end2, basesPerTurn, duplexRise, \
-                    ribbon1_start_point, ribbon1Color = params
+                    ribbon1_start_point, ribbon1_direction, ribbon1Color = params
                 drawDnaSingleRibbon(self.glpane,
                                end1,
                                end2,
@@ -154,6 +154,7 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                self.glpane.lineOfSight,
                                self.glpane.displayMode,
                                ribbon1_start_point = ribbon1_start_point,
+                               ribbon1_direction = ribbon1_direction,
                                ribbonThickness = 4.0,
                                ribbon1Color = ribbon1Color,
                                stepColor = black )

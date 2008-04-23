@@ -58,7 +58,7 @@ from model.bonds import Bond
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities.constants   import noop
 from utilities.Comparison  import same_vals
-from utilities.constants    import red, black, darkgreen
+from utilities.constants    import red, black, applegreen
 
 from graphics.drawables.RotationHandle  import RotationHandle
 
@@ -925,11 +925,55 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         basesPerTurn = self.struct.getBasesPerTurn()
         duplexRise = self.struct.getDuplexRise()
         
+        ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
+        ladder = ladderEndAxisAtom.molecule.ladder                        
+        endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(ladderEndAxisAtom)
+        ribbon1_start_point = None
+        ribbon2_start_point = None  
+        ribbon1_direction = None
+        ribbon2_direction = None
         
-        return (self.grabbedHandle.fixedEndOfStructure,
+        ribbon1Color = applegreen
+        ribbon2Color = applegreen
+        
+        if endBaseAtomList and len(endBaseAtomList) > 2: 
+            strand_atom1 = endBaseAtomList[0]
+            strand_atom2 = endBaseAtomList[2]
+            
+            if strand_atom1:
+                ribbon1_start_point = strand_atom1.posn()
+                for bond_direction, neighbor in strand_atom1.bond_directions_to_neighbors():
+                    if neighbor and neighbor.is_singlet():
+                        ribbon1_direction = bond_direction
+                        break
+                
+                ribbon1Color = strand_atom1.molecule.color
+                if not ribbon1Color:
+                    ribbon1Color = strand_atom1.element.color
+                
+            if strand_atom2:
+                ribbon2_start_point = strand_atom2.posn()
+                for bond_direction, neighbor in strand_atom2.bond_directions_to_neighbors():
+                    if neighbor and neighbor.is_singlet():
+                        ribbon2_direction = bond_direction
+                        break
+                ribbon2Color = strand_atom2.molecule.color
+                if not ribbon2Color:
+                    ribbon2Color = strand_atom2.element.color
+        
+        
+        return (self.grabbedHandle.origin,
                 self.grabbedHandle.currentPosition,
                 basesPerTurn,
-                duplexRise )
+                duplexRise, 
+                ribbon1_start_point,
+                ribbon2_start_point,
+                ribbon1_direction,
+                ribbon2_direction,
+                ribbon1Color,
+                ribbon2Color
+                
+            )
     
     
     def modifyStructure(self):
