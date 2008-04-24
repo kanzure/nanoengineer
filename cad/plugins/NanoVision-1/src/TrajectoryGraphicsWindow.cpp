@@ -96,6 +96,7 @@ bool TrajectoryGraphicsWindow::createRenderingEngine(void)
 
 bool TrajectoryGraphicsWindow::createAnimation(void)
 {
+	cerr << "In TrajectoryGraphicsWindow::createAnimation()" << endl;
 	assert(entityManager != NULL);
 	assert(graphicsManager != NULL);
 	assert(frameSetId >= 0);
@@ -139,7 +140,8 @@ bool TrajectoryGraphicsWindow::createAnimation(void)
 		setCurrentFrameIndex(1);
 		renderingEngine->resetView();
 		setSpinBoxValues(1, 1, numFrames, 1, 1, numFrames, numFrames);
-		renderingEngine->asQWidget()->update();
+		// renderingEngine->asQWidget()->update();
+		update();
 	}
 	
 	return success;
@@ -188,6 +190,9 @@ void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
                                                 int beginMax, int current,
                                                 int endMin, int endVal, int endMax)
 {
+	cerr << "setSpinBoxValues: "
+		<< beginMin << ", " << beginVal << ", " << beginMax << ", " << current
+		<< ", " << endMin << ", " << endVal << ", " << endMax << endl;
 	beginFrameSpinBox->setRange(beginMin, beginMax);
 	beginFrameSpinBox->setValue(beginVal);
 	currentFrameSpinBox->setRange(beginVal, endVal);
@@ -195,6 +200,8 @@ void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
 	currentFrameSpinBox->setValue(current); // will also set slider
 	endFrameSpinBox->setMinimum(endMin);
 	setMaxFrameNumber(endMax); // will set endFrameSpinBox->maximum
+	endFrameSpinBox->setValue(endVal);
+	// update();
 }
 
 
@@ -227,6 +234,7 @@ void TrajectoryGraphicsWindow::connectSignalsAndSlots(void)
 void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
                                         NXMoleculeSet* newMoleculeSet)
 {
+	cerr << "In TrajectoryGraphicsWindow::newFrame(), numFrames = " << numFrames << endl;
 #if 0
 	// Start printing all frames available from the first render() call
 	unsigned int frameCount = entityManager->getFrameCount(frameSetId);;
@@ -251,13 +259,18 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 			entityManager->getRootMoleculeSet(frameSetId, frameIndex);
 	}
 #endif
-	
+	// bool const firstFrames = (numFrames == 0);
+
 	// Generate frames for each molecule-sets in each new frame
 	if(frameSetId == this->frameSetId && newFrameIndex > numFrames) {
 		for(int frameId=numFrames+1; frameId <= newFrameIndex; ++frameId) {
 			NXMoleculeSet *molSetPtr =
 				entityManager->getRootMoleculeSet(frameSetId, frameId);
 			renderingEngine->addFrame(molSetPtr);
+			if(frameId == 1) {
+				setCurrentFrameIndex(frameId);
+				assert(0);
+			}
 		}
 		
 		bool const endFrameIsLast =
@@ -280,6 +293,10 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 			if(showingLastFrame)
 				currentFrameSpinBox->setValue(numFrames);
 		}
+// 		if(firstFrames) {
+// 			cerr << "First frames" << endl;
+// 			setCurrentFrameIndex(1);
+// 		}
 		update();
 	}
 	// Stop once the data store is complete
@@ -292,7 +309,7 @@ void TrajectoryGraphicsWindow::setFrameSetId(int frameSetId)
 {
 	this->frameSetId = frameSetId;
 	createAnimation();
-	// on_trajectoryPlayButton_toggled(true); // autoplay
+	on_trajectoryPlayButton_toggled(true); // autoplay
 	
 #if 0
 	int frameCount = entityManager->getFrameCount(frameSetId);

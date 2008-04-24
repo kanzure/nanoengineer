@@ -896,7 +896,7 @@ NXSGOpenGLNode*
     try {
 	    double const bondLength = info.getLength();
 	    // cerr << "bond-length = " << bondLength << endl;
-        bondScale = new NXSGOpenGLScale(0.5, 0.5, bondLength);
+        bondScale = new NXSGOpenGLScale(0.25, 0.25, bondLength);
     }
     catch(...) {
         SetError(commandResult,

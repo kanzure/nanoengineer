@@ -393,7 +393,7 @@ void NXOpenGLRenderingEngine::paintGL(void)
 	
 	if(currentFrameIndex >= 0) {
 		NXSGOpenGLNode *currentFrameSGNode =
-			dynamic_cast<NXSGOpenGLNode*>(frames[currentFrameIndex]);
+			static_cast<NXSGOpenGLNode*>(frames[currentFrameIndex]);
 		currentFrameSGNode->applyRecursive();
 	}
 	glFlush();
@@ -548,7 +548,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 	// -- end hacks --
 #endif
 	
-	cerr << "Creating OpenGL scenegraph for molecule-set " << molSetPtr->getTitle() << endl;
+	// cerr << "Creating OpenGL scenegraph for molecule-set " << molSetPtr->getTitle() << endl;
 	OBMolIterator molIter;
 	for(molIter = molSetPtr->moleculesBegin();
 	    molIter != molSetPtr->moleculesEnd();
