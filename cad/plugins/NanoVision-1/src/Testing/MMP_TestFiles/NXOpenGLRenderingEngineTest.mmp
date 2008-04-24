@@ -1,5 +1,5 @@
-# This file is generated in NXOpenGLRenderingEngineTest
-# The display from this file should be the same as that in the test upto a difference in view
+# Generated from NXOpenGLRenderingEngineTest when compiled
+# with -DGENERATE_MMP
 
 mmpformat 050920 required; 080321 preferred
 kelvin 300

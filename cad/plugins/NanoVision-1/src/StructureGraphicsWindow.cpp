@@ -43,7 +43,7 @@ StructureGraphicsWindow::setMoleculeSet(NXMoleculeSet *theMolSetPtr)
 	if(result->getResult() == (int) NX_CMD_SUCCESS) {
 		molSetPtr = theMolSetPtr;
 		renderingEngine->setCurrentFrame(0);
-		renderingEngine->resetView();
+		// renderingEngine->resetView();
 	}
 	return result;
 }

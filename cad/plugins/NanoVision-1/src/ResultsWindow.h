@@ -29,6 +29,9 @@ using namespace Nanorex;
 #include "TrajectoryGraphicsWindow.h"
 
 
+// forward decl
+class StructureGraphicsTreeItem;
+
 /* CLASS: ResultsWindow */
 class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 	Q_OBJECT;
@@ -77,8 +80,9 @@ public:
         void setupResultsTree(void);
 		void setupSingleStructureTree(void);
 		void setupSimulationResultsTree(void);
-		void setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
-                                            QTreeWidgetItem *const molSetItem);
+		StructureGraphicsTreeItem*
+		setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
+		                               QTreeWidgetItem *const molSetItem);
     // void setupMoleculeSetResultsSubtree_helper
     // 	(NXMoleculeSet *molSetPtr, QTreeWidgetItem *const molSetItem);	
 };

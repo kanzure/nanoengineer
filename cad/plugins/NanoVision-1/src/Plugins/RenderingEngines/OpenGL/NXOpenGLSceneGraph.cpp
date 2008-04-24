@@ -254,6 +254,14 @@ NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
 
 // .............................................................................
 
+bool NXSGOpenGLRenderable::apply(void) const throw ()
+{
+	GUARDED_GL_OP(glCallList(display_list_id));
+	return true;
+}
+
+// .............................................................................
+
 bool NXSGOpenGLRenderable::beginRender(void) const throw ()
 {
 	GLenum err = GL_NO_ERROR;

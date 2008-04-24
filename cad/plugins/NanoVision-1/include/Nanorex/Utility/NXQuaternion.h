@@ -380,15 +380,17 @@ template<typename T>
 
 template<typename T>
 	inline
-	NXVector<T,3> unrot(NXVectorRef<T,3> v)
+	NXVector<T,3> NXQuaternion<T>::unrot(NXVectorRef<T,3> v)
 {
 	NXMatrix<T,4,4> R;
 	NXVector<T,3> result;
 	
 	// compute R^T v
 	buildMatrix(R);
-	for(int m=0; m<3; ++m)
-		result[m] = dot(R.col(m), v);
+	for(int m=0; m<3; ++m) {
+		NXVectorRef<T,3> R_col_m(R.col(m).data());
+		result[m] = dot(R_col_m, v);
+	}
 	
 	return result;
 }

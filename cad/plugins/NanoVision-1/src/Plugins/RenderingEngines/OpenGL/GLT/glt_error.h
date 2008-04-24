@@ -50,17 +50,21 @@
 #include "glt_glu.h"
 
 
-inline GLenum GLERROR(std::ostream& strm)
+inline GLenum _GLERROR(std::ostream& strm, char *file, int line)
 {
     GLenum firstCode = glGetError();
     for(GLenum code = firstCode; code!=GL_NO_ERROR; code = glGetError())
     {
-        strm << __FILE__;
-        strm << ':' << __LINE__;
+        strm << file;
+        strm << ':' << line;
         strm << ' ' << (char *) gluErrorString(code) << std::endl;
     }
     return firstCode;
 }
+
+#define GLERROR(s) _GLERROR(s, __FILE__, __LINE__)
+
+
 
 /// Display warning 
 void gltError(const std::string &message);

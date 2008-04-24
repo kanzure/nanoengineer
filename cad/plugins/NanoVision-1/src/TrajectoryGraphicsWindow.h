@@ -135,7 +135,7 @@ protected:
 	int endFrameIndex; ///< index of last frame in user-defined view-interval
 	int numFrames; ///< Total number of frames
     
-    static double const BASE_FPS = 10.0 / 3.0;
+    static double const BASE_FPS = 5.0;
 
     void enablePlayButton(void) { trajectoryPlayButton->setEnabled(true); }
     void disablePlayButton(void) { trajectoryPlayButton->setEnabled(false); }
@@ -150,6 +150,7 @@ protected:
     
     void setSpinBoxValues(int beginMin, int beginVal, int beginMax,
                         int current, int endMin, int endVal, int endMax);
+	void setMaxFrameNumber(int maxFrameNumber);
 	
 private:
     void connectSignalsAndSlots(void);

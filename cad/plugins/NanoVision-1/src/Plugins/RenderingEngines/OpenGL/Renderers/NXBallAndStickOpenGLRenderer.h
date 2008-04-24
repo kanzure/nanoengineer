@@ -3,6 +3,7 @@
 #ifndef NX_BALLANDSTICKOPENGLRENDERER_H
 #define NX_BALLANDSTICKOPENGLRENDERER_H
 
+#include <map>
 #include <cassert>
 
 extern "C" {
@@ -72,7 +73,10 @@ private:
 	NXSGOpenGLNode *canonicalBondNode[MAX_BONDS];
 	Nanorex::NXSGNode canonicalBondNodeGuard[MAX_BONDS];
     
+	std::map<int,double> atomicRadiusMap;
+	
 	// initialization helpers
+	void initializeAtomicRadiusMap(void);
 	bool initializeCanonicalGeometryNodes(void);
 	bool initializeCanonicalSphereNode(void);
 	void drawOpenGLCanonicalSphere(void);

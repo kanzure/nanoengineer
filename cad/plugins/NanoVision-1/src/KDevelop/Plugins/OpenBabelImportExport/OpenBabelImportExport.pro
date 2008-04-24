@@ -47,11 +47,12 @@ INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
 
 
-MAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
 
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
 LIBS += -L../../../../lib \
   $$PROJECTLIBS \

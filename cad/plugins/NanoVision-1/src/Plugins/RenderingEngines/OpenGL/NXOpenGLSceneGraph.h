@@ -236,7 +236,7 @@ public:
     
 	~NXSGOpenGLRenderable() throw (Nanorex::NXException);
     
-    bool apply(void) const throw () {glCallList(display_list_id); return true;}
+	bool apply(void) const throw ();
     
     /// Calls glNewList(). Call the plugin's render-method after this so that
     /// what the plugin draws using OpenGL becomes part of this display list

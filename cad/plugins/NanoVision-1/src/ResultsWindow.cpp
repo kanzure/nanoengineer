@@ -286,7 +286,7 @@ setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem)
 #endif
 
 /* FUNCTION: setupMoleculeSetResultsSubtree */
-void
+StructureGraphicsTreeItem*
 ResultsWindow::
 setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
                                QTreeWidgetItem *const parentItem)
@@ -328,8 +328,10 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
             (childMolSetPtr->getTitle()).c_str();
         childMolSetNode->setText(0, tr(childMolSetTitle));
         childMolSetNode->setFlags(Qt::ItemIsEnabled);*/
-		setupMoleculeSetResultsSubtree(childMolSetPtr, molSetItem);
+	    (void) setupMoleculeSetResultsSubtree(childMolSetPtr, molSetItem);
 	}
+	
+	return molSetItem;
 }
 
 
@@ -357,7 +359,11 @@ void ResultsWindow::setupSingleStructureTree(void)
         NXMoleculeSet *rootMoleculeSet = 
             entityManager->getRootMoleculeSet(frameSetID, 0);
 	    assert(rootMoleculeSet != 0);
-        setupMoleculeSetResultsSubtree(rootMoleculeSet, fileItem);
+	    StructureGraphicsTreeItem *rootMoleculeSetItem =
+		    setupMoleculeSetResultsSubtree(rootMoleculeSet, fileItem);
+	    // show top-level group right away
+	    if(rootMoleculeSetItem != NULL)
+		    rootMoleculeSetItem->showWindow();
     
 	    if(dataStoreInfo->hasClipboardStructure()) {
 		    NXMoleculeSet *clipboardGroup =
@@ -561,17 +567,28 @@ StructureGraphicsTreeItem::~StructureGraphicsTreeItem() {
 
 
 /* FUNCTION: showWindow */
-void StructureGraphicsTreeItem::showWindow() {
+void StructureGraphicsTreeItem::showWindow()
+{
+// 	QWidget *activeWidget = resultsWindow->workspace->activeWindow();
+// 	bool activeWidgetIsMaximized =
+// 		(activeWidget != 0) && (activeWidget->isMaximized());
+// 	if(activeWidgetIsMaximized)
+// 		activeWidget->showNormal();
+	
 	if (structureWindow == NULL) {
+		
 		structureWindow =
 			new StructureGraphicsWindow(NULL,
 			                            resultsWindow->graphicsManager);
+		/// @fixme - trap errors
 		assert(structureWindow != NULL);
+		// re-parent and display
 		structureWindow->setWindowTitle(QString((molSetPtr->getTitle()).c_str()));
-		structureWindow->show();
+		structureWindow->show(); // creates OpenGL context
 		
 		NXCommandResult const *const addMolSetFrameResult =
 			structureWindow->setMoleculeSet(molSetPtr);
+		// structureWindow->show();
 		
 		if(addMolSetFrameResult->getResult() != (int) NX_CMD_SUCCESS) {
 			ostringstream logMsgStream;
@@ -589,27 +606,41 @@ void StructureGraphicsTreeItem::showWindow() {
 		NXEntityManager *entityManager = resultsWindow->entityManager;
 		NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
 		if(dataStoreInfo->hasLastView()) {
-			NXNamedView const& lastView = dataStoreInfo->getLastView();
+			NXNamedView lastView = dataStoreInfo->getLastView();
 			structureWindow->setNamedView(lastView);
 			NXLOG_DEBUG("StructureGraphicsWindow", "Setting NE1 last-view");
+			cerr << "StructureGraphicsWindow: Setting NE1 last-view\n\t"
+				<< lastView << endl;
 		}
 		else if(dataStoreInfo->hasHomeView()) {
-			NXNamedView const& homeView = dataStoreInfo->getHomeView();
+			NXNamedView homeView = dataStoreInfo->getHomeView();
 			structureWindow->setNamedView(homeView);
 			NXLOG_DEBUG("StructureGraphicsWindow", "Setting NE1 home-view");
+			cerr << "StructureGraphicsWindow Setting NE1 home-view\n\t"
+				<< homeView << endl;
 		}
 		else {
 			structureWindow->resetView();
 			NXLOG_DEBUG("StructureGraphicsWindow",
 			            "Inferring default view from atom layout");
+			cerr << "StructureGraphicsWindow: Inferring default view from atom layout"<< endl;
 		}
 		
-		// re-parent and display
-		resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
+		resultsWindow->workspace->addWindow((DataWindow*) structureWindow);
 		structureWindow->show();
+		// resultsWindow->workspace->setActiveWindow((DataWindow*)structureWindow);
+		// structureWindow->move(QPoint(10,10));
+		// structureWindow->resize((resultsWindow->workspace->size()) *= 0.75);
+		// resultsWindow->workspace->update(); // structureWindow->show();
 	}
 	else
 		structureWindow->show();
+	
+// 	if(activeWidgetIsMaximized)
+// 		structureWindow->showMaximized();
+// 	else
+// 		structureWindow->showNormal();
+	
 	
 	// structureWindow->update();
 }
@@ -640,18 +671,33 @@ TrajectoryGraphicsTreeItem::~TrajectoryGraphicsTreeItem() {
 
 
 /* FUNCTION: showWindow */
-void TrajectoryGraphicsTreeItem::showWindow() {
+void TrajectoryGraphicsTreeItem::showWindow()
+{
+	QWidget *activeWidget = resultsWindow->workspace->activeWindow();
+	bool activeWidgetIsMaximized =
+		(activeWidget != 0) && (activeWidget->isMaximized());
+	if(activeWidgetIsMaximized)
+		activeWidget->showNormal();
+	
 	if (trajWindow == NULL) {
 		NXEntityManager* entityManager = resultsWindow->entityManager;
 		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
 		NXGraphicsManager* graphicsManager = resultsWindow->graphicsManager;
+		
 		int trajId = dataStoreInfo->getTrajectoryId(trajectoryName);
 		trajWindow =
 			new TrajectoryGraphicsWindow((QWidget*)0,
 			                             entityManager,
 			                             graphicsManager);
-		trajWindow->show();
+		/// @fixme Trap errors
+		resultsWindow->workspace->addWindow(trajWindow);
+		
+		trajWindow->resize((resultsWindow->workspace->size()) *= 0.75);
 		trajWindow->setWindowTitle(QString(trajectoryName.c_str()));
+		
+		resultsWindow->workspace->setActiveWindow(trajWindow);
+		trajWindow->show();
+		
 		trajWindow->setFrameSetId(trajId);
 		
 		// set initial view
@@ -671,14 +717,21 @@ void TrajectoryGraphicsTreeItem::showWindow() {
 			            "Inferring default view from atom layout");
 		}
 		
-		resultsWindow->workspace->addWindow(trajWindow);
 		if (!dataStoreInfo->storeIsComplete(trajId)) {
 			QObject::connect(entityManager,
 			                 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
 			                 trajWindow,
 			                 SLOT(newFrame(int, int, NXMoleculeSet*)));
 		}
+		// resultsWindow->workspace->update();
 	}
-	trajWindow->show();
+// 	else
+// 		trajWindow->show();
+	
+	if(activeWidgetIsMaximized)
+		trajWindow->showMaximized();
+	else
+		trajWindow->showNormal();
+	
 }
 

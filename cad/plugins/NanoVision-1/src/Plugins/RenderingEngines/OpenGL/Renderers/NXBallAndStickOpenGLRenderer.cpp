@@ -35,10 +35,13 @@ NXBallAndStickOpenGLRenderer(NXRenderingEngine *parentEngine)
 canonicalSphereNode(NULL),
 canonicalSphereNodeGuard(),
 canonicalCylinderNode(NULL),
-canonicalCylinderNodeGuard()
+canonicalCylinderNodeGuard(),
+atomicRadiusMap()
 {
 	for(int bondType=SINGLE_BOND; bondType<NUM_BOND_TYPES; ++bondType)
 		canonicalBondNode[bondType] = (NXSGOpenGLNode*) NULL;
+	
+	initializeAtomicRadiusMap();
 }
 
 // .............................................................................
@@ -48,6 +51,79 @@ NXBallAndStickOpenGLRenderer::~NXBallAndStickOpenGLRenderer()
 {
 	if(isInitialized())
 		cleanup(); // will reset the 'initialize' flag
+}
+
+// .............................................................................
+
+void NXBallAndStickOpenGLRenderer::initializeAtomicRadiusMap(void)
+{
+	atomicRadiusMap[0] = 1.1;
+	atomicRadiusMap[1] = 1.2;
+	atomicRadiusMap[2] = 1.4;
+	atomicRadiusMap[3] = 4.0;
+	atomicRadiusMap[4] = 3.0;
+	atomicRadiusMap[5] = 2.0;
+	atomicRadiusMap[6] = 1.84;
+	atomicRadiusMap[7] = 1.55;
+	atomicRadiusMap[8] = 1.74;
+	atomicRadiusMap[9] = 1.65;
+	atomicRadiusMap[10] = 1.82;
+	atomicRadiusMap[11] = 4.0;
+	atomicRadiusMap[12] = 3.0;
+	atomicRadiusMap[13] = 2.5;
+	atomicRadiusMap[14] = 2.25;
+	atomicRadiusMap[15] = 2.11;
+	atomicRadiusMap[16] = 2.11;
+	atomicRadiusMap[17] = 2.03;
+	atomicRadiusMap[18] = 1.88;
+	atomicRadiusMap[19] = 5.0;
+	atomicRadiusMap[20] = 4.0;
+	atomicRadiusMap[21] = 3.7;
+	atomicRadiusMap[22] = 3.5;
+	atomicRadiusMap[23] = 3.3;
+	atomicRadiusMap[24] = 3.1;
+	atomicRadiusMap[25] = 3.0;
+	atomicRadiusMap[26] = 3.0;
+	atomicRadiusMap[27] = 3.0;
+	atomicRadiusMap[28] = 3.0;
+	atomicRadiusMap[29] = 3.0;
+	atomicRadiusMap[30] = 2.9;
+	atomicRadiusMap[21] = 2.7;
+	atomicRadiusMap[32] = 2.5;
+	atomicRadiusMap[33] = 2.2;
+	atomicRadiusMap[34] = 2.1;
+	atomicRadiusMap[35] = 2.0;
+	atomicRadiusMap[36] = 1.9;
+	atomicRadiusMap[51] = 2.2;
+	atomicRadiusMap[52] = 2.1;
+	atomicRadiusMap[53] = 2.0;
+	atomicRadiusMap[54] = 1.9;
+	
+	atomicRadiusMap[200] = 5.0;
+	atomicRadiusMap[201] = 4.0;
+	atomicRadiusMap[202] = 3.2;
+	atomicRadiusMap[203] = 4.0;
+	atomicRadiusMap[204] = 3.5;
+	atomicRadiusMap[205] = 3.0;
+	atomicRadiusMap[206] = 2.5;
+	atomicRadiusMap[207] = 4.0;
+	atomicRadiusMap[208] = 5.0;
+	atomicRadiusMap[209] = 5.0;
+	atomicRadiusMap[210] = 2.5;
+	atomicRadiusMap[211] = 2.5;
+	atomicRadiusMap[212] = 2.5;
+	
+	atomicRadiusMap[300] = 4.5;
+	atomicRadiusMap[301] = 4.5;
+	atomicRadiusMap[302] = 3.0;
+	atomicRadiusMap[303] = 4.5;
+	atomicRadiusMap[304] = 4.5;
+	atomicRadiusMap[305] = 4.5;
+	atomicRadiusMap[306] = 3.0;
+	atomicRadiusMap[307] = 4.5;
+	atomicRadiusMap[310] = 2.3;
+	atomicRadiusMap[311] = 2.3;
+	atomicRadiusMap[312] = 2.3;
 }
 
 // .............................................................................
@@ -764,17 +840,19 @@ NXSGOpenGLNode*
     try {
         atomNode = new NXSGOpenGLMaterial(defaultMaterial);
     }
-    catch (...) { 
+    catch (...) {
         SetError(commandResult, "Could not create node for rendering atom");
         return NULL;
     } // fail silently
     
 	NXSGOpenGLScale *atomScaleNode;
 	try {
-		// Atoms of radius 0.25 Angstrom
-		atomScaleNode = new NXSGOpenGLScale(0.25, 0.25, 0.25);
+		int atomicNum = info.getAtomicNum();
+		// cerr << "NXBallAndStickOpenGLRenderer: rendering atomicNum = " << atomicNum << endl;
+		double radius = atomicRadiusMap[atomicNum] * 0.25;
+		atomScaleNode = new NXSGOpenGLScale(radius, radius, radius);
 	}
-	catch (...) { 
+	catch (...) {
 		SetError(commandResult, "Could not create node for rendering atom");
 		return NULL;
 	} // fail silently
@@ -818,7 +896,7 @@ NXSGOpenGLNode*
     try {
 	    double const bondLength = info.getLength();
 	    // cerr << "bond-length = " << bondLength << endl;
-        bondScale = new NXSGOpenGLScale(0.1,0.1, bondLength);
+        bondScale = new NXSGOpenGLScale(0.5, 0.5, bondLength);
     }
     catch(...) {
         SetError(commandResult,

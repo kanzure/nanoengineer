@@ -85,6 +85,7 @@ public:
 	void mousePressEvent(QMouseEvent *mouseEvent);
 	void mouseReleaseEvent(QMouseEvent *mouseEvent);
 	void mouseMoveEvent(QMouseEvent *mouseEvent);
+	void wheelEvent(QWheelEvent *event);
     
 private:
     

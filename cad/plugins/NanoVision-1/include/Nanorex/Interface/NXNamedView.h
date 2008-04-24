@@ -30,6 +30,7 @@ public:
 	void setName(std::string const& theName) { name = theName; }
 	
 	NXQuaternion<double> const& getQuat(void) const { return rotationQuat; }
+	NXQuaternion<double>& getQuat(void) { return rotationQuat; }
 	void setQuat(NXQuaternion<double> const& quat) { rotationQuat = quat; }
 	
 	double const& getScale(void) const { return scale; }

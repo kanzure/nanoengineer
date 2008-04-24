@@ -74,6 +74,8 @@ public:
     void pan(int x, int y);
     void panStop(int x, int y);
     
+	void advance(int numSteps);
+	
     void resizeViewport(int w, int h);
     
     // void glGet(void);

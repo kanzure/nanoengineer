@@ -175,6 +175,15 @@ void TrajectoryGraphicsWindow::setupButtonGroups(void)
 }
 
 
+void TrajectoryGraphicsWindow::setMaxFrameNumber(int maxFrameNumber)
+{
+	QString numFramesString;
+	numFramesString.setNum(maxFrameNumber);
+	numFramesLineEdit->setText(numFramesString);
+	endFrameSpinBox->setMaximum(maxFrameNumber);
+}
+
+
 void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
                                                 int beginMax, int current,
                                                 int endMin, int endVal, int endMax)
@@ -184,11 +193,8 @@ void TrajectoryGraphicsWindow::setSpinBoxValues(int beginMin, int beginVal,
 	currentFrameSpinBox->setRange(beginVal, endVal);
 	currentFrameHSlider->setRange(beginVal, endVal);
 	currentFrameSpinBox->setValue(current); // will also set slider
-	endFrameSpinBox->setRange(endMin, endMax);
-	endFrameSpinBox->setValue(endVal);
-	QString numFramesString;
-	numFramesString.setNum(endMax);
-	numFramesLineEdit->setText(numFramesString);
+	endFrameSpinBox->setMinimum(endMin);
+	setMaxFrameNumber(endMax); // will set endFrameSpinBox->maximum
 }
 
 
@@ -254,22 +260,31 @@ void TrajectoryGraphicsWindow::newFrame(int frameSetId, int newFrameIndex,
 			renderingEngine->addFrame(molSetPtr);
 		}
 		
-		// If the end-frame happens to be the last frame then user probably
-		// wants to play till the end so revise that value
-		if(endFrameSpinBox->value() == endFrameSpinBox->maximum()) {
-			endFrameSpinBox->setMaximum(newFrameIndex);
-			endFrameSpinBox->setValue(newFrameIndex);
-			//< will emit signals to update rest of GUI
-		}
-		else {
-			endFrameSpinBox->setMaximum(newFrameIndex);
-		}
+		bool const endFrameIsLast =
+			endFrameSpinBox->value() == endFrameSpinBox->maximum();
+		
+		bool const showingLastFrame =
+			(currentFrameSpinBox->value() == endFrameSpinBox->maximum());
 		
 		numFrames = newFrameIndex;
+		setMaxFrameNumber(numFrames);
+		
+		// If the end-frame happens to be the last frame then user probably
+		// wants to play till the end so revise that value
+		if(endFrameIsLast) {
+			
+			endFrameSpinBox->setValue(numFrames);
+			//< will emit signals to update rest of GUI
+			
+			// If current-frame is the last frame then user wants to update to end
+			if(showingLastFrame)
+				currentFrameSpinBox->setValue(numFrames);
+		}
+		update();
 	}
 	// Stop once the data store is complete
-	//if (entityManager->getDataStoreInfo()->storeIsComplete(frameSetId))
-	//	exit(0);
+	// if (entityManager->getDataStoreInfo()->storeIsComplete(frameSetId))
+	// 	exit(0);
 }
 
 
@@ -277,7 +292,7 @@ void TrajectoryGraphicsWindow::setFrameSetId(int frameSetId)
 {
 	this->frameSetId = frameSetId;
 	createAnimation();
-	
+	// on_trajectoryPlayButton_toggled(true); // autoplay
 	
 #if 0
 	int frameCount = entityManager->getFrameCount(frameSetId);
@@ -400,7 +415,7 @@ void TrajectoryGraphicsWindow::on_trajectoryLastButton_clicked(bool)
 void TrajectoryGraphicsWindow::on_playbackSpeedSpinBox_valueChanged(int newSpeed)
 {
 	double scale = double(newSpeed)/100.0;
-	int newTimerInterval = int(1.0 / (scale*BASE_FPS)) * 1000; // in msec
+	int newTimerInterval = int(1.0 / (scale*BASE_FPS) * 1000); // in msec
 	autoPlayTimer->setInterval(newTimerInterval);
 }
 
@@ -408,14 +423,17 @@ void TrajectoryGraphicsWindow::on_playbackSpeedSpinBox_valueChanged(int newSpeed
 void TrajectoryGraphicsWindow::on_trajectoryPlayButton_toggled(bool checked)
 {
 	if(checked) { // user pressed play
+		// cerr << "Play button pressed" << endl;
 		disablePlayButton();
-		if(playing)
+		reversed = false;
+		if(playing) {
+			enablePlayReverseButton();
 			releasePlayReverseButton();
+		}
 		else {
 			playing = true;
 			autoPlayTimer->start();
 		}
-		reversed = false;
 	}
 }
 
@@ -423,14 +441,17 @@ void TrajectoryGraphicsWindow::on_trajectoryPlayButton_toggled(bool checked)
 void TrajectoryGraphicsWindow::on_trajectoryPlayRevButton_toggled(bool checked)
 {
 	if(checked) { // user pressed play-reverse
+		// cerr << "Play-reverse button pressed" << endl;
 		disablePlayReverseButton();
-		if(playing)
+		reversed = true;
+		if(playing) {
+			enablePlayButton();
 			releasePlayButton();
+		}
 		else {
 			playing = true;
 			autoPlayTimer->start();
 		}
-		reversed = true;
 	}
 }
 
@@ -438,14 +459,12 @@ void TrajectoryGraphicsWindow::on_trajectoryPlayRevButton_toggled(bool checked)
 void TrajectoryGraphicsWindow::on_trajectoryStopButton_clicked(bool)
 {
 	if(playing) {
-		if(reversed) {
-			enablePlayReverseButton();
-			releasePlayReverseButton();
-		}
-		else {
-			enablePlayButton();
-			releasePlayButton();
-		}
+		// release all play buttons because we don't know which one
+		// started the motion because we have oscillate mode which reverses dir
+		enablePlayReverseButton();
+		releasePlayReverseButton();
+		enablePlayButton();
+		releasePlayButton();
 		autoPlayTimer->stop();
 		playing = false;
 	}
@@ -455,6 +474,10 @@ void TrajectoryGraphicsWindow::on_trajectoryStopButton_clicked(bool)
 // slot called by autoPlayTimer->timeout()
 void TrajectoryGraphicsWindow::autoPlayFrameAdvance(void)
 {
+	if(!playing) {
+		autoPlayTimer->stop();
+		assert(0);
+	}
 	if(reversed)
 		currentFrameSpinBox->stepDown();
 	else
@@ -477,7 +500,8 @@ void TrajectoryGraphicsWindow::onBeginFrameReached(void)
 			break; // no-op
 		case OSCILLATE_REPETITION:
 			assert(reversed);
-			reversed = false; // change direction of animation
+			// reversed = false; // change direction of animation
+			on_trajectoryPlayButton_toggled(true);
 			break;
 		}
 	}
@@ -503,7 +527,8 @@ void TrajectoryGraphicsWindow::onEndFrameReached(void)
 		case LOOP_REPETITION:
 			break; // no-op
 		case OSCILLATE_REPETITION:
-			reversed = true;
+			// reversed = true;
+			on_trajectoryPlayRevButton_toggled(true);
 			break;
 		}
 	}

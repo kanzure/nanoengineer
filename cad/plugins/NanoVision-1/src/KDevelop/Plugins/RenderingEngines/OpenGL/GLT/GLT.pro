@@ -61,7 +61,7 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 -O0 \
 -fno-inline
 
-QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
 # make clean targets
 unix : QMAKE_CLEAN += $${DESTDIR}lib$${TARGET}.a

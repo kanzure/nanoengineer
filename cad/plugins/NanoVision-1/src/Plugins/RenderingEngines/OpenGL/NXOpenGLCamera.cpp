@@ -15,7 +15,7 @@ NXOpenGLCamera::NXOpenGLCamera(QGLWidget *theParent)
 : parent(theParent), fsm(*this),
 /*translation(),*/ namedView(), viewingQuaternion(),
 // modelViewMatrix(), projectionMatrix(),
-isPerspectiveProjection(false),
+isPerspectiveProjection(true),
 // orthographicProjection(), perspectiveProjection(),
 viewport(),
 // oldMouseX(0), oldMouseY(0),
@@ -132,6 +132,27 @@ void NXOpenGLCamera::panStop(int x, int y)
 {
 	// cerr << "panStop @(" << x << ',' << y << ')' << endl;
 }
+
+
+void NXOpenGLCamera::advance(int numSteps)
+{
+	double const& POVDistance = namedView.getPOVDistanceFromEye();
+	
+	// assuming mouse wheel to have 24 steps per cycle
+	// http://doc.trolltech.com/4.2/qwheelevent.html
+	// int QWheelEvent::delta () const
+	
+	double const distanceToAdvance = double(numSteps)/24.0 * POVDistance;
+	NXVector3d zDir(0.0, 0.0, 1.0);
+	NXQuaternion<double>& quat = namedView.getQuat();
+	NXVector3d advanceDirection = quat.unrot(zDir);
+	advanceDirection.normalizeSelf();
+	NXVector3d advanceVector = distanceToAdvance * advanceDirection;
+	NXVectorRef3d POV = namedView.getPOV();
+	NXVector3d newPOV = POV - advanceVector;
+	namedView.setPOV(newPOV);
+}
+
 
 
 #if 0
@@ -358,14 +379,14 @@ double NXOpenGLCamera::getPixelDepth(int x, int y)
 /// world-space point and returns it
 NXVector3d NXOpenGLCamera::unproject(int x, int y/*, real z*/)
 {
-	real z = getPixelDepth(x,y);
+	// real z = getPixelDepth(x,y);
     GLdouble worldX, worldY, worldZ;
     GLdouble temp_projectionMatrix[16];
     glGetDoublev(GL_PROJECTION_MATRIX, temp_projectionMatrix);
 	GLdouble temp_modelViewMatrix[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, temp_modelViewMatrix);
 	
-	gluUnProject(x, y, z,
+	gluUnProject(x, y, 0.0,
 	             temp_modelViewMatrix,
 	             temp_projectionMatrix,
 	             viewport,

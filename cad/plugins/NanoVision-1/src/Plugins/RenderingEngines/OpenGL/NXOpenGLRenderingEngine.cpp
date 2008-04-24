@@ -1,5 +1,5 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
-
+#include <QCursor>
 #include <fstream>
 #include <sstream>
 #include <cassert>
@@ -22,7 +22,8 @@ using namespace OpenBabel;
 #endif
 
 
-int get_atom_id(OBAtom *atomPtr)
+/// Bypass OpenBabel's atom indexing
+int get_nv1_atom_id(OBAtom *atomPtr)
 {
 	NXAtomData *atomData = static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
 	assert(atomData != NULL);
@@ -31,11 +32,21 @@ int get_atom_id(OBAtom *atomPtr)
 }
 
 
+/// Hack to bypass OpenBabel's atomicNum which is stored modulo 256 in a 'char'
+int get_atomic_num(OBAtom *atomPtr)
+{
+	NXAtomData *atomData = static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType));
+	assert(atomData != NULL);
+	int atomicNum = atomData->getAtomicNum();
+	return atomicNum;
+}
+
+
 #ifdef NX_DEBUG
 string get_atom_scenegraph_name(OBAtom *const atomPtr)
 {
 	string name = "atom_";
-	name += NXUtility::itos(get_atom_id(atomPtr));
+	name += NXUtility::itos(get_nv1_atom_id(atomPtr));
 	name += "_(" + NXUtility::itos(atomPtr->GetAtomicNum()) + ')';
 	return name;
 }
@@ -43,8 +54,8 @@ string get_atom_scenegraph_name(OBAtom *const atomPtr)
 string get_bond_scenegraph_name(OBBond *const bondPtr)
 {
 	return ("bond_" +
-	        NXUtility::itos(get_atom_id(bondPtr->GetBeginAtom())) +
-	        NXUtility::itos(get_atom_id(bondPtr->GetEndAtom()))
+	        NXUtility::itos(get_nv1_atom_id(bondPtr->GetBeginAtom())) +
+	        NXUtility::itos(get_nv1_atom_id(bondPtr->GetEndAtom()))
 	       );
 }
 #endif
@@ -299,6 +310,7 @@ void NXOpenGLRenderingEngine::initializeGL(void)
 	camera.setNamedView(defaultView);
 	camera.glViewport(0, 0, width(), height());
 	
+	(void) glGetError(); // clear errors
 	// initializePlugins();
 	
 }
@@ -434,12 +446,23 @@ NXOpenGLRenderingEngine::createSceneGraph (NXMoleculeSet *const molSetPtr)
 		return NULL;
 	}
 	
+	QCursor originalCursor = cursor();
+	setCursor(QCursor(Qt::BusyCursor));
+	
 	renderedAtoms.clear();
 	renderedBonds.clear();
 	NXSGOpenGLNode *node = createOpenGLSceneGraph(molSetPtr);
 
+	NXSGOpenGLRenderable *renderableNode = new NXSGOpenGLRenderable;
+	makeCurrent();
+	assert(renderableNode->beginRender());
+	assert(node->applyRecursive());
+	assert(renderableNode->endRender());
+	delete node;
+	node = NULL;
+	
 #ifdef NX_DEBUG
-	NXSGNode const *const node1 = node;
+	NXSGNode const *const node1 = renderableNode;
 	ofstream sgFile((molSetPtr->getTitle() + ".sg").c_str(), ios::out);
 	sgFile << "digraph SG {" << endl;
 	if(sgFile)
@@ -447,7 +470,9 @@ NXOpenGLRenderingEngine::createSceneGraph (NXMoleculeSet *const molSetPtr)
 	sgFile << "}" << endl;
 #endif
 
-	return static_cast<NXSGNode*>(node);
+	setCursor(originalCursor);
+	
+	return static_cast<NXSGNode*>(renderableNode);
 }
 
 
@@ -523,7 +548,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(NXMoleculeSet *const molSetPtr)
 	// -- end hacks --
 #endif
 	
-	
+	cerr << "Creating OpenGL scenegraph for molecule-set " << molSetPtr->getTitle() << endl;
 	OBMolIterator molIter;
 	for(molIter = molSetPtr->moleculesBegin();
 	    molIter != molSetPtr->moleculesEnd();
@@ -853,12 +878,29 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
     // translate origin to atom center
 	Vector atomPosition(atomPtr->GetX(), atomPtr->GetY(), atomPtr->GetZ());
 	
-    // default color
+	
+    // create scenegraph node and mark atom as rendered
+	// NXAtomRenderData atomRenderData(atomPtr->GetAtomicNum());
+	// atomRenderData.addData(static_cast<void const *>(&defaultAtomMaterial));
+	assert(atomPtr->HasData(NXAtomDataType));
+	NXAtomData *atomData =
+		static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType)); 
+	assert(atomData->GetDataType() == NXAtomDataType);
+	assert(atomData != NULL);
+	
+	// default color
 	NXRGBColor defaultElementColor(0.0, 0.0, 0.0);
+	// Bypass OpenBabel's atomicNum because it is stored modulo 256 in a 'char'
+	int atomicNum = get_atomic_num(atomPtr);
 	map<uint, NXRGBColor>::iterator defaultElementColorIter =
-		elementColorMap.find(atomPtr->GetAtomicNum());
-	if(defaultElementColorIter != elementColorMap.end())
+		elementColorMap.find(atomicNum);
+	if(defaultElementColorIter != elementColorMap.end()) {
 		defaultElementColor = defaultElementColorIter->second;
+	}
+	else {
+		cerr << "NXOpenGLRenderingEngine: no color found for atom with atomic num = "
+			<< atomicNum << endl;
+	}
 	
     // set default material parameters
 	defaultAtomMaterial.ambient[0] = defaultElementColor.r;
@@ -874,14 +916,7 @@ NXOpenGLRenderingEngine::createOpenGLSceneGraph(OBMol *const molPtr,
 	defaultAtomMaterial.specular[2] = defaultElementColor.b;
 	defaultAtomMaterial.specular[3] = 1.0;
 	
-    // create scenegraph node and mark atom as rendered
-	// NXAtomRenderData atomRenderData(atomPtr->GetAtomicNum());
-	// atomRenderData.addData(static_cast<void const *>(&defaultAtomMaterial));
-	assert(atomPtr->HasData(NXAtomDataType));
-	NXAtomData *atomData =
-		static_cast<NXAtomData*>(atomPtr->GetData(NXAtomDataType)); 
-	assert(atomData->GetDataType() == NXAtomDataType);
-	assert(atomData != NULL);
+	
 	string const& atomRenderStyleCode = atomData->getRenderStyleCode();
 	atomData->addSupplementalData(static_cast<void const*>(&defaultAtomMaterial));
 	/// @todo consider if supplemental data can be added repeatedly and the
@@ -1125,7 +1160,7 @@ void NXOpenGLRenderingEngine::resetView(void)
 	
 	NXNamedView defaultView("DefaultView",
 	                        NXQuaternion<double>(1.0, 0.0, 0.0, 1.0),
-	                        0.5 * bboxYWidth,
+	                        bboxYWidth,
 	                        NXVector3d(-bboxCenter.x(),
 	                                   -bboxCenter.y(),
 	                                   -bboxCenter.z()),
@@ -1218,6 +1253,15 @@ void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
 	else
 		mouseEvent->ignore();
 	
+	updateGL();
+}
+
+
+void NXOpenGLRenderingEngine::wheelEvent(QWheelEvent *event)
+{
+	int numDegrees = event->delta() / 8;
+	int numSteps = numDegrees / 15;
+	camera.advance(numSteps);
 	updateGL();
 }
 

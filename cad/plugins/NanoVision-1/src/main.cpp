@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 	if (settings->value("Logging/EnableConsoleLogging", true).toBool()) {
 		logLevel =
 			settings->value("Logging/ConsoleLoggingLevel",
-						   NXLogLevel_Config).toInt();
+						   NXLogLevel_Debug).toInt();
 		logger->addHandler(new NXConsoleLogHandler((NXLogLevel)logLevel));
 	}
 	

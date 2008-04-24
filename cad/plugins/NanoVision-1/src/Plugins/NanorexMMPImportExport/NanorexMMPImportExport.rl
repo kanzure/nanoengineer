@@ -69,7 +69,7 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 	end_line = 'end' nonNEWLINEspace+;
 	
 	
-main := WHITESPACE*
+main := (nonNEWLINEspace* EOL)*
 		mmpformat_line
 		WHITESPACE*
 		( kelvin_line
@@ -276,6 +276,7 @@ void NanorexMMPImportExport::newAtom(int id, int atomicNum, int x, int y, int z,
 	
 	
 	atomPtr = molPtr->NewAtom();
+	/// @note OpenBabel assigns atomicNum to a 'char' variable so modulo 256
 	atomPtr->SetAtomicNum(atomicNum);
 	/// @todo set implicit valence based on role (axis, strand etc)
 	if(atomicNum >= 200)

@@ -198,6 +198,9 @@
                  <property name="singleStep" >
                   <number>10</number>
                  </property>
+                 <property name="value" >
+                  <number>100</number>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -428,6 +431,15 @@
                  <layout class="QHBoxLayout" >
                   <item>
                    <widget class="QPushButton" name="trajectoryFirstButton" >
+                    <property name="toolTip" >
+                     <string>First frame</string>
+                    </property>
+                    <property name="statusTip" >
+                     <string>Go to first frame</string>
+                    </property>
+                    <property name="whatsThis" >
+                     <string>Go to first frame</string>
+                    </property>
                     <property name="text" >
                      <string/>
                     </property>
@@ -462,11 +474,23 @@
                     <height>26</height>
                    </rect>
                   </property>
+                  <property name="toolTip" >
+                   <string>Play reverse</string>
+                  </property>
+                  <property name="statusTip" >
+                   <string>Begins playing in reverse order of frames</string>
+                  </property>
+                  <property name="whatsThis" >
+                   <string>Begins playing in reverse order of frames</string>
+                  </property>
                   <property name="text" >
                    <string/>
                   </property>
                   <property name="icon" >
-                   <iconset/>
+                   <iconset resource="application.qrc" >:/Icons/trajectory_play_rev.png</iconset>
+                  </property>
+                  <property name="checkable" >
+                   <bool>true</bool>
                   </property>
                  </widget>
                  <widget class="QPushButton" name="trajectoryStopButton" >
@@ -493,6 +517,15 @@
                     <width>30</width>
                     <height>26</height>
                    </rect>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Play forward</string>
+                  </property>
+                  <property name="statusTip" >
+                   <string>Begin playing forward</string>
+                  </property>
+                  <property name="whatsThis" >
+                   <string>Begins playing forward</string>
                   </property>
                   <property name="text" >
                    <string/>
@@ -560,6 +593,15 @@
                  <layout class="QHBoxLayout" >
                   <item>
                    <widget class="QPushButton" name="trajectoryLastButton" >
+                    <property name="toolTip" >
+                     <string>Last frame</string>
+                    </property>
+                    <property name="statusTip" >
+                     <string>Go to last frame</string>
+                    </property>
+                    <property name="whatsThis" >
+                     <string>Go to last frame</string>
+                    </property>
                     <property name="text" >
                      <string/>
                     </property>

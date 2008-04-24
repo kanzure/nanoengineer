@@ -11,7 +11,7 @@ CONFIG += stl \
  debug_and_release \
  build_all
 
-QT += opengl
+QT += opengl gui
 
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomData.h \
@@ -48,7 +48,7 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
-QMAKE_CXXFLAGS_RELEASE += -DNDEBUG
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
 TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a \
   ../../../../../../lib/libGLT.a \

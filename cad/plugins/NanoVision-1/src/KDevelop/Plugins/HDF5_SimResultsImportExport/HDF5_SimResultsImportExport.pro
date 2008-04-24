@@ -48,7 +48,7 @@ win32 {
 
 # message($$QMAKE_CLEAN)
 
-
+QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
 LIBS += -L../../../../lib \
   $$PROJECTLIBS \
