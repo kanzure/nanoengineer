@@ -1591,6 +1591,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
     
+    
     return grouplist, listOfAtomsInFileOrder # from _readmmp
 
 def readmmp(assy,
@@ -1785,7 +1786,14 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     assert kluge_main_assy.assy_valid
     kluge_main_assy.assy_valid = False # disable updaters during insert [bruce 080117]
     try:
-        grouplist  = _readmmp(assy, filename, isInsert = True)
+        #Fixes bug 2825 (_readmmp returns 2 vals so added 'listOfAtomsInFileOrder'
+        #below.
+        grouplist, listOfAtomsInFileOrder = _readmmp(assy, 
+                                                     filename, 
+                                                     isInsert = True)
+        
+        del listOfAtomsInFileOrder        
+        
             # isInsert = True prevents most side effects on assy;
             # a better design would be to let the caller do them (or not)
         if grouplist:
@@ -1812,6 +1820,7 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
             #e in future -- set up special history-message behavior for jigs killed by this:
             
             shelf.kill()
+        
 
             #e in future -- end of that special history-message behavior
 
@@ -1824,7 +1833,7 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
             # note: for readmmp this is done in _reset_grouplist, in a call
             # of update_parts which is always required.
             # [bruce 080319]
-            if will_special_updates_after_readmmp_do_anything():
+            if will_special_updates_after_readmmp_do_anything(assy):
                 assy.update_parts( do_special_updates_after_readmmp = True)
             pass
         pass
