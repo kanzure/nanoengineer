@@ -112,10 +112,6 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 
 vdw 700.0 10.0 100.0 7.2 Pl5-v-Pl5
 
-vdw 7.2 10.0 100.0 7.2 Pl3-v-Pl3
-vdw 7.2 10.0 100.0 7.2 Pl3-v-Se3
-vdw 7.2 10.0 100.0 7.2 Se3-v-Se3
-
 # format for stretch lines
 #
 #          ks (double) in N/m
@@ -138,16 +134,18 @@ stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax5-1-Ax5
 stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax5-1-Ss5
 stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax5-1-Sj5
 stretch   4.00  400.00  1.0000   -1         -1       9    1   Pl5-1-Sj5
-stretch   4.00  180.00  1.0000   -1         -1       9    1   H-1-Ax5
-stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Ss5
-stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Pl5
 stretch   4.00  180.00  1.0000   -1         -1       9    1   Ax5-1-Ae5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   Ss5-1-Sh5
 stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss5-1-Pe5
 stretch   4.00  357.00  1.0000   -1         -1       9    1   Pl5-1-Hp5
 stretch   4.00  357.00  1.0000   -1         -1       9    1   Pe5-1-Hp5
 stretch   4.00  200.00  1.0000   -1         -1       9    1   Sh5-1-Hp5
-stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
+
+stretch   0.00  180.00  1.0000   -1         -1       9    1   H-1-Ax5
+stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Ss5
+stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Gv5
+stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Pl5
+stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
 
 stretch  10.00 1075.00  1.0000   -1         -1       9    6   Ss5-1-Ss5
 stretch  10.00  923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
