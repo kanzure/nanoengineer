@@ -33,6 +33,9 @@ tubes with per-vertex colors (necessary for DNA display style)
 
 080313 russ Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
 
+080420 piotr Solved highlighting and selection problems for multi-colored
+objects (e.g. rainbow colored DNA structures).
+
 """
 
 import os
@@ -1695,12 +1698,21 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         if (self.dl is not self.color_dl and
             self.dl is not self.selected_dl):
             glDeleteLists(self.dl, 1)
-        for dl in [self.color_dl, self.nocolor_dl, self.selected_dl] + \
-            [dl for clr, dl in self.per_color_dls]: # Second-level dl's.
+        for dl in [self.color_dl, self.nocolor_dl, self.selected_dl]:
             if dl != 0:
-                glDeleteLists(dl, 1)
+                glDeleteLists(dl, 1) 
                 pass
             continue
+        # piotr 080420: The second level dl's are 2-element lists of DL ids 
+        # rather than just a list of ids. The secod DL is used in case
+        # of multi-color objects and is required for highlighting 
+        # and selection (not in rc1)
+        for clr, dls in self.per_color_dls: # Second-level dl's.
+            for dl in dls: # iterate over DL pairs.
+                if dl != 0:
+                    glDeleteLists(dl, 1) 
+                    pass
+                continue
         self.clear()
         return
 
@@ -1819,7 +1831,12 @@ class ColorSorter:
                 glDepthMask(GL_FALSE)
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            elif opacity < 0:
+            elif opacity == -1: 
+                # piotr 080429: I replaced the " < 0" condition with " == -1"
+                # to make sure this is the case of "unshaded colors"
+                # so the Russ'es comment below is now partially obsolete. 
+                # The opacity flag is now used to sigal either "unshaded colors"
+                # (opacity == -1) or "multicolor object" (opacity == -2)
                 #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
                 glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
                 glColor3fv(color[:3])
@@ -1831,7 +1848,8 @@ class ColorSorter:
             if opacity > 0.0 and opacity != 1.0:
                 glDisable(GL_BLEND)
                 glDepthMask(GL_TRUE)
-            elif opacity < 0:
+            elif opacity == -1: 
+                # piotr 080429: See my comment above.
                 glEnable(GL_LIGHTING)
 
             if name:
@@ -2088,18 +2106,21 @@ class ColorSorter:
 
                 # First build the lower level per-color sublists of primitives.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
-                    sublist = glGenLists(1)
+                    sublists = [glGenLists(1), 0]
+                    
                     # Remember the display list ID for this color.
-                    parent_csdl.per_color_dls.append([color, sublist])
+                    parent_csdl.per_color_dls.append([color, sublists])
 
-                    glNewList(sublist, GL_COMPILE)
+                    glNewList(sublists[0], GL_COMPILE)
                     opacity = color[3]
-                    if opacity < 0:
+
+                    if opacity == -1:
                         #russ 080306: "Unshaded colors" for lines are signaled
                         # by a negative opacity (4th component of the color.)
                         glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                         pass
-
+                    
+                    
                     for func, params, name in funcs:
                         objects_drawn += 1
                         if name != 0:
@@ -2110,36 +2131,83 @@ class ColorSorter:
                             pass
                         continue
 
-                    if opacity < 0:
+                    if opacity == -1:
+                        # Enable lighting after drawing "unshaded" objects.
                         glEnable(GL_LIGHTING)
                         pass
                     glEndList()
-                    continue
 
+                    if opacity == -2:
+                        # piotr 080419: Special case for drawpolycone_multicolor
+                        # create another display list that ignores
+                        # the contents of color_array.
+                        # Remember the display list ID for this color.
+                        
+                        sublists[1] = glGenLists(1)
+                        
+                        glNewList(sublists[1], GL_COMPILE)
+                        
+                        for func, params, name in funcs:
+                            objects_drawn += 1
+                            if name != 0:
+                                glPushName(name)
+                            pos_array, color_array, rad_array = params
+                            if func == drawpolycone_multicolor_worker:
+                                # Just to be sure, check if the func
+                                # is drawpolycone_multicolor_worker
+                                # and call drawpolycone_worker instead.
+                                # I think in the future we can figure out 
+                                # a more general way of handling the 
+                                # GL_COLOR_MATERIAL objects. piotr 080420
+                                drawpolycone_worker((pos_array, rad_array))
+                            if name != 0:
+                                glPopName()
+                                pass
+                            continue
+                        glEndList()
+                        
+                    continue
+                
                 # Now the upper-level lists call all of the per-color sublists.
                 # One with colors.
                 color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
-                for color, dl in parent_csdl.per_color_dls:
-
+                
+                for color, dls in parent_csdl.per_color_dls:
+                    
                     opacity = color[3]
                     if opacity < 0:
                         #russ 080306: "Unshaded colors" for lines are signaled
                         # by a negative alpha.
                         glColor3fv(color[:3])
+                        # piotr 080417: for opacity == -2, i.e. if
+                        # GL_COLOR_MATERIAL is enabled, the color is going 
+                        # to be ignored, anyway, so it is not necessary
+                        # to be tested here
                     else:
                         apply_material(color)
-
-                    glCallList(dl)
+                    
+                    glCallList(dls[0])
+                        
                     continue
                 glEndList()
-
+                
                 # A second one without any colors.
                 nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
                 glNewList(nocolor_dl, GL_COMPILE)
-                for color, dl in parent_csdl.per_color_dls:
-                    glCallList(dl)
-                    continue
+                for color, dls in parent_csdl.per_color_dls:                    
+                    opacity = color[3]
+
+                    if opacity == -2 \
+                       and dls[1] > 0:
+                        # piotr 080420: If GL_COLOR_MATERIAL is enabled,
+                        # use a regular, single color dl rather than the
+                        # multicolor one. Btw, dls[1] == 0 should never 
+                        # happen.
+                        glCallList(dls[1])
+                    else:
+                        glCallList(dls[0])
+                    
                 glEndList()
 
                 # A third overlays the second with a single color for selection.
@@ -2173,9 +2241,11 @@ class ColorSorter:
         for color, funcs in sorted_by_color.iteritems():
 
             opacity = color[3]
-            if opacity < 0:
+            if opacity == -1:
                 #russ 080306: "Unshaded colors" for lines are signaled
                 # by a negative opacity (4th component of the color.)
+                #piotr 080429: Opacity == -1 signals the "unshaded color".
+                # Also, see my comment in "schedule".
                 glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                 glColor3fv(color[:3])
             else:
@@ -2192,7 +2262,7 @@ class ColorSorter:
                     pass
                 continue
 
-            if opacity < 0:
+            if opacity == -1:
                 glEnable(GL_LIGHTING)
 
             continue
