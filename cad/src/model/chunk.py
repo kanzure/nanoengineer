@@ -2139,7 +2139,12 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                             # when the is_lozenge_visible method is fully
                             # implemented. piotr 080401
                             continue # skip the bond drawing if culled
-                    bond.draw(glpane, disp, bondcolor, drawLevel)
+                    if bond.atom1.molecule.picked and bond.atom2.molecule.picked:
+                        color = darkgreen #bruce 080430 cosmetic improvement
+                            # REVIEW: not sure this color is correct; it needs to be a named constant
+                    else:
+                        color = bondcolor
+                    bond.draw(glpane, disp, color, drawLevel)
             ColorSorter.finish() # grantham 20051205
         return # from _draw_external_bonds
 
