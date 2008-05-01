@@ -749,17 +749,6 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # We rely on merge() to check that mols are not the same.
             # merge also results in making the strand colors the same.
             
-            a1.molecule.merge(a2.molecule) 
-   
-            # ... now bond the highlighted singlet <s2> to the first 
-            # singlet <s1>
-            self.bond_singlets(s1, s2)
-            #Run the dna updater -- important to do it otherwise it won't update
-            #the whole strand group color
-            #
-            self.win.assy.update_parts()       
-            self.set_cmdname('Create Bond')
-            
             #The following fixes bug 2770
             #Set the color of the whole dna strandGroup to the color of the
             #strand, whose bondpoint, is dropped over to the bondboint of the 
@@ -767,6 +756,32 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #a single dna strand group) - Ninad 2008-04-09
             color = a1.molecule.color 
             strandGroup1 = a1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
+            
+            #Temporary fix for bug 2829 that Damian reported. 
+            #Bruce is planning to fix the underlying bug in the dna updater 
+            #code. Once its fixed, The following block of code under 
+            #"if DEBUG_BUG_2829" can be deleted -- Ninad 2008-05-01
+            
+            DEBUG_BUG_2829 = True
+            
+            if DEBUG_BUG_2829:            
+                strandGroup2 = a2.molecule.parent_node_of_class(
+                    self.win.assy.DnaStrand)                
+                if strandGroup2 is not None:
+                    ##strandGroup2.setStrandColor(color)                     
+                    strandChunkList = strandGroup2.getStrandChunks()
+                    c1 = strandChunkList[0] 
+                    for c in strandChunkList[1:]:
+                        c1.merge(c)
+                
+            a1.molecule.merge(a2.molecule)    
+            # ... now bond the highlighted singlet <s2> to the first 
+            # singlet <s1>
+            self.bond_singlets(s1, s2)
+            #Run the dna updater -- important to do it otherwise it won't update
+            #the whole strand group color
+            self.win.assy.update_parts()       
+            self.set_cmdname('Create Bond')
             
             if strandGroup1 is not None and color is not None:
                 strandGroup1.setStrandColor(color) 
