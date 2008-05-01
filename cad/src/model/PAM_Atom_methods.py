@@ -205,7 +205,11 @@ class PAM_Atom_methods:
             pass
         return res
 
-    def reposition_baggage_using_DnaLadder(self): #bruce 080404
+    def reposition_baggage_using_DnaLadder(self,
+                                           dont_use_ladder = False,
+                                           only_bondpoints = False
+                                          ):
+        #bruce 080404; added options, bruce 080501
         """
         Reposition self's bondpoints (or other monovalent "baggage" atoms
         if any), making use of structural info from self.molecule.ladder.
@@ -219,11 +223,25 @@ class PAM_Atom_methods:
                ever happen, it might be arbitrary which baggage element ended
                up at what position. This can easily be fixed if necessary.
         
-        @warning: it's only safe to call this when self.molecule.ladder
+        @warning: by default, it's only safe to call this when self.molecule.ladder
                   is correct (including all its chunks and rails --
                   no need for its parent Group structure or markers),
                   which if the dna updater is running means after self's
                   new ladder's chunks were remade.
+
+        @param dont_use_ladder: if true, don't assume self.molecule.ladder is
+                                correct. (As of 080501, this option has no
+                                effect, since the current implem doesn't use
+                                self.molecule.ladder or anything else fixed
+                                by the dna updater, except possibly bond
+                                directions on open bonds.)
+                                
+        @type dont_use_ladder: boolean
+
+        @param only_bondpoints: if true, only reposition bondpoints, not other
+                                baggage.
+                                
+        @type only_bondpoints: boolean
         """
         # And, if it turns out this ever needs to look inside
         # neighbor atom dnaladders (not in the same base pair),
@@ -245,7 +263,18 @@ class PAM_Atom_methods:
         self._f_dna_updater_should_reposition_baggage = False
             # even in case of exceptions (also simplifies early return)
 
+        del dont_use_ladder # correct, since present implem never uses it
+
         baggage, others = self.baggage_and_other_neighbors()
+
+        if only_bondpoints: # bruce 080501
+            for n in baggage[:]:
+                if not n.is_singlet():
+                    baggage.remove(n)
+                    other.append(n)
+                continue
+            pass
+        
         if not baggage:
             return # optimization and for safety; might simplify following code
 
@@ -253,6 +282,7 @@ class PAM_Atom_methods:
         #
         # - If baggage might not be all bondpoints, we might want to filter
         #   it here and only look at the bondpoints. (See docstring.)
+        #   [Now this is done by the only_bondpoints option. [bruce 080501]]
         #
         # - I'm assuming that Ax, Pl, Ss neighbors can never be baggage.
         #   This depends on their having correct valence, since the test

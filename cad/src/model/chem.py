@@ -3441,26 +3441,35 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return 0
         pass
 
-    def snuggle(self): #bruce 051221 revised docstring re bug 1239
+    def snuggle(self):
         """
-        self is a Singlet and the simulator has moved it out to the
-        radius of an H. Move it back. The molecule may or may not be still
-        in frozen mode. Do all needed invals.
+        self is a bondpoint and the simulator has moved it out to the radius of
+        an H (or moved it to a nonsensical position, and/or not moved it at all,
+        if it's next to a PAM atom). Move it to a reasonable position.
+
+        self.molecule may or may not be still in frozen mode. If self's neighbor
+        is a PAM atom, the dna updater may or may not have ever run on it,
+        and/or have run since it was last modified.
+
+        Do all needed invals.
 
         @warning: if you are moving several atoms at once, first move them all,
-        then snuggle them all, since snuggling self is only correct after self's
-        real neighbor has already been moved to its final position. [Ignorance of
-        this issue was the cause of bug 1239.]
+        then snuggle them all, since snuggling self is only correct after
+        self's real neighbor has already been moved to its final position.
+        [Ignorance of this issue was the cause of bug 1239.]
 
-        @see: methods Bond.ubp, Atom.ideal_posn_re_neighbor, move_closest_baggage_to
+        @see: methods Bond.ubp, Atom.ideal_posn_re_neighbor,
+              move_closest_baggage_to
         """
+        #bruce 051221 revised docstring re bug 1239
+        #bruce 080501 revised behavior for PAM atoms
         if not self.bonds:
             #bruce 050428: a bug, but probably just means we're a killed singlet.
-            # The caller should be fixed, and maybe is_singlet should check this too,
-            # but for now let's also make it harmless here:
+            # The caller should be fixed, and maybe is_singlet should check this
+            # too, but for now let's also make it harmless here:
             if debug_flags.atom_debug:
                 print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet of atomkey %r: " %
-                                     self.key )#bruce 051221 revised this; untested
+                                     self.key ) #bruce 051221 revised this; untested
             return
         #bruce 050406 revised docstring to say mol needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
@@ -3468,8 +3477,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         other = self.bonds[0].other(self)
         op = other.posn()
         sp = self.posn()
-        np = norm(sp - op) * other.atomtype.rcovalent + op
+        np = op + norm(sp - op) * other.atomtype.rcovalent
         self.setposn(np) # bruce 041112 rewrote last line
+        if other.element.pam: #bruce 080501 bugfix/nfr for v1.0.1
+            # print "fyi: fixing posn of %r on %r" % (self, other) # seems to work
+            other.reposition_baggage_using_DnaLadder( dont_use_ladder = True,
+                                                      only_bondpoints = True )
+            pass
         return
 
     def move_closest_baggage_to(self,
