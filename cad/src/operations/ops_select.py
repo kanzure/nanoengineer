@@ -363,6 +363,10 @@ class ops_select_Mixin:
             self._expandDnaStrandSelection(dnaStrandOrSegment)
         elif isinstance(dnaStrandOrSegment, self.win.assy.DnaSegment):
             self._expandDnaSegmentSelection(dnaStrandOrSegment)
+                
+        currentCommand = self.w.commandSequencer.currentCommand
+        currentCommand.graphicsMode.end_selection_from_GLPane()
+        self.win.win_update()
 
     
     def _expandDnaSegmentSelection(self, dnaSegment):
