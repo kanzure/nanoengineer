@@ -59,8 +59,9 @@ Mol::Mol()
     //DL_bonds = DL_atoms = 666;
     colMode=1.0;
     
-    // Support a thousand chains for now
-    for (int i = 0; i < 1000; i++)
+    // Support a ten thousand chains for now
+    // piotr 080501: increased the array size from 1000 to 10000
+    for (int i = 0; i < 10000; i++)
         chainColors[i] = 1; // 1 is used to indicate no set chain color
     
     // View related

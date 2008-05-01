@@ -236,7 +236,9 @@ public:
   
 private:
     
-    int chainColors[1000]; // Support a thousand chains for now.
+    int chainColors[10000]; // Support a ten thousand chains for now.
+                            // piotr 080501 increased the array size
+                            // It is a temporary fix for large models.
 
     // unsigned int DL_bonds, DL_atoms; // display lists (UNUSED)
     
