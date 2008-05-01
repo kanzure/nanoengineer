@@ -384,7 +384,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         drawer.drawpolycone(colors[1], 
                                             points,
                                             radii)
-                elif shape==2: # draw spline tube
+                elif shape == 2: # draw spline tube
                     gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                                     | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
 
@@ -396,9 +396,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         new_colors[p] = [ 0.0 ] * 3
 
                     o = 1
-                    for p in range (1,n-2):
-                        for m in range (0,4):
-                            t = float(m)/4.0
+                    for p in range (1, n-2):
+                        for m in range (0, 4):
+                            t = 0.25 * m
                             new_points[o] = self.spline(points, p, t)
                             new_colors[o] = self.spline(colors, p, t)
                             new_radii[o] = self.spline(radii, p, t)
@@ -639,12 +639,15 @@ class DnaCylinderChunks(ChunkDisplayMode):
             return
 
         strand_atoms, axis_atoms, \
-                    five_prime_atom, three_prime_atom, strand_direction, \
-                    start_index, end_index, total_strand_length, \
-                    chunk_color, group_color, current_strand = memo
+        five_prime_atom, three_prime_atom, strand_direction, \
+        start_index, end_index, total_strand_length, \
+        chunk_color, group_color, current_strand = memo
 
         # render the axis cylinder        
-        if chunk.isAxisChunk(): # this is the DNA axis
+        if chunk.isAxisChunk() \
+           and len(chunk.ladder.strand_rails) > 1: 
+            # make sure there are two strands present in the rail
+            # piotr 080430 (fixed post-FNANO Top 20 bugs)
             axis_positions = get_axis_positions(
                 axis_atoms, self.dnaStyleAxisColor)
             axis_colors = get_axis_colors(
@@ -668,7 +671,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                                 | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
                 # draw the polycone                
-                if self.dnaStyleAxisColor==1 or self.dnaStyleAxisColor==2 \
+                if self.dnaStyleAxisColor==1 \
+                   or self.dnaStyleAxisColor==2 \
                    or self.dnaStyleAxisColor==3: # render discrete colors                
                     drawer.drawpolycone_multicolor([0, 0, 0, -2], 
                                                    axis_positions, 
@@ -725,11 +729,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         else:
                             color = self.getBaseColor(atom1.getDnaBaseName())
                         drawer.drawcylinder(
-                            color, chunk.abs_to_base(atom1.posn()), atom2_pos, 
+                            color, 
+                            chunk.abs_to_base(atom1.posn()), 
+                            atom2_pos, 
                             0.5*self.dnaStyleStrutsScale, True)
 
             # render bases
-            if self.dnaStyleBasesShape>0:
+            if self.dnaStyleBasesShape > 0:
                 num_strands = len(strand_atoms)
                 for pos in range(0, n_atoms):
                     atom = strand_atoms[current_strand][pos]
@@ -744,7 +750,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if self.dnaStyleBasesShape==1: # draw spheres
                         drawer.drawsphere(color, chunk.abs_to_base(atom.posn()),
                                           self.dnaStyleBasesScale, 2)
-                    elif self.dnaStyleBasesShape==2 and num_strands>1: # draw a schematic 'cartoon' shape
+                    elif self.dnaStyleBasesShape==2 \
+                         and num_strands > 1: # draw a schematic 'cartoon' shape
                         atom1_pos = chunk.abs_to_base(strand_atoms[current_strand][pos].posn())
                         atom3_pos = chunk.abs_to_base(strand_atoms[1-current_strand][pos].posn())                        
                         atom2_pos = chunk.abs_to_base(axis_atoms[pos].posn())                        
@@ -1060,9 +1067,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if font_scale>50: font_scale = 50
 
                     if chunk.isStrandChunk():                
-                        if self.dnaStyleStrandsShape>0 or \
-                           self.dnaStyleBasesShape>0 or \
-                           self.dnaStyleStrutsShape>0:                   
+                        if self.dnaStyleStrandsShape > 0 or \
+                           self.dnaStyleBasesShape > 0 or \
+                           self.dnaStyleStrutsShape > 0:                   
 
                             # the following is copied from DnaStrand.py
                             # I need to find a 5' sugar atom of the strand
@@ -1627,7 +1634,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         strand_colors = [None] * num_strands
         for i in range(0, num_strands):
             strand_atoms[i] = chunk.ladder.strand_rails[i].baseatoms
-            if chunk.ladder.strand_rails[i].baseatoms[0].molecule==chunk:
+            if chunk.ladder.strand_rails[i].baseatoms[0].molecule == chunk:
                 current_strand = i
 
         axis_atoms = None
@@ -1645,7 +1652,62 @@ class DnaCylinderChunks(ChunkDisplayMode):
         if chunk.isAxisChunk() \
            and axis_atoms \
            and self.dnaStyleAxisColor == 4: # axis chunk
+
+            #strands = chunk.getStrands()
+
+            #print "strands = ", strands
             
+            #longest_strand = None
+            #longest_length = 0
+            """
+            for strand in strands:
+                found = False
+                for c in strand.members:
+                    if isinstance(c, DnaStrandChunk):
+                        if c.ladder.axis_rail:
+                            if c.ladder.axis_rail.baseatoms[0].molecule == chunk:
+                                found = True
+                                break
+                if found:
+                    n_atoms = len(strand.get_strand_wholechain())
+                    if n_atoms > longest_length:
+                        longest_length = n_atoms
+                        longest_strand = strand
+            """
+            
+            longest_rail = None
+            longest_wholechain = None
+            longest_length = 0
+            
+            strand_rails = chunk.ladder.strand_rails      
+            for rail in strand_rails:
+                length = len(rail.baseatoms[0].molecule.wholechain)
+                if length > longest_length:
+                    longest_length = length
+                    longest_rail = rail
+                    longest_wholechain = rail.baseatoms[0].molecule.wholechain
+                    
+            #print "longest_rail: ", (longest_rail, longest_length)
+            
+            wholechain = longest_wholechain
+            
+            #print "wholechain = ", wholechain
+            
+            pos0, pos1 = wholechain.wholechain_baseindex_range()
+            
+            #print "baseindex_range = ", (pos0, pos1)
+            
+            idx = wholechain.wholechain_baseindex(longest_rail, 0)
+            
+            #print "idx = ", idx
+            
+            group_color = self.getNiceRainbowColorInRange(
+                idx - pos0, 
+                pos1 - pos0, 
+                0.75,
+                1.0)
+            
+            """
             sorted_axis_chunks = []
             strands = chunk.getDnaGroup().getStrands()
             
@@ -1665,9 +1727,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if n_atoms > longest_length:
                         longest_length = n_atoms
                         longest_strand = strand
-                    
+            
+            
+            strands = c.ladder.wholechain
+            
             if longest_strand:
-
+                
                 rawAtomList = []
                 
                 for c in longest_strand.members:
@@ -1696,41 +1761,44 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 group_color = self.getRainbowColorInRange(
                     axis_chunks.index(chunk), 
                     len(axis_chunks), 
-                    0.75, 
-                    1.0)                             
+                    0.75,
+                    1.0) 
+            """
         elif chunk.isStrandChunk(): # strand chunk
-            strands = chunk.getDnaGroup().getStrands()
-            group_color = self.getRainbowColorInRange(
-                strands.index(chunk.dad), len(strands), 0.75, 1.0)
-            strand = chunk.parent_node_of_class(chunk.assy.DnaStrand)
-            if strand:
-                five_prime_atom = strand.get_five_prime_end_base_atom()
-                three_prime_atom = strand.get_three_prime_end_base_atom()
-                strand_direction = chunk.idealized_strand_direction()
-                wholechain = chunk.wholechain
-
-                # determine strand and end atom indices
-                # within the entire strand.
-
-                # this doesn't work with PAM5 models
-                ### all_atoms = chunk.get_strand_atoms_in_bond_direction()
-
-                rawAtomList = []
-                for c in strand.members:
-                    if isinstance(c, DnaStrandChunk):
-                        rawAtomList.extend(c.atoms.itervalues())
-
-                all_atoms = strand.get_strand_atoms_in_bond_direction(rawAtomList)
-
-                start_atom = strand_atoms[current_strand][0]
-                end_atom = strand_atoms[current_strand][len(strand_atoms[0])-1]
-                if  start_atom in all_atoms and \
-                    end_atom in all_atoms:
-                    start_index = all_atoms.index(start_atom) - 1
-                    end_index = all_atoms.index(end_atom) - 1
-                    total_strand_length = len(all_atoms) - 2           
-
-            n_atoms = len(strand_atoms)
+            strand_group = chunk.getDnaGroup()
+            if strand_group:
+                strands = strand_group.getStrands()
+                group_color = self.getRainbowColorInRange(
+                    strands.index(chunk.dad), len(strands), 0.75, 1.0)
+                strand = chunk.parent_node_of_class(chunk.assy.DnaStrand)
+                if strand:
+                    five_prime_atom = strand.get_five_prime_end_base_atom()
+                    three_prime_atom = strand.get_three_prime_end_base_atom()
+                    strand_direction = chunk.idealized_strand_direction()
+                    wholechain = chunk.wholechain
+    
+                    # determine strand and end atom indices
+                    # within the entire strand.
+    
+                    # this doesn't work with PAM5 models
+                    ### all_atoms = chunk.get_strand_atoms_in_bond_direction()
+    
+                    rawAtomList = []
+                    for c in strand.members:
+                        if isinstance(c, DnaStrandChunk):
+                            rawAtomList.extend(c.atoms.itervalues())
+    
+                    all_atoms = strand.get_strand_atoms_in_bond_direction(rawAtomList)
+    
+                    start_atom = strand_atoms[current_strand][0]
+                    end_atom = strand_atoms[current_strand][len(strand_atoms[0])-1]
+                    if  start_atom in all_atoms and \
+                        end_atom in all_atoms:
+                        start_index = all_atoms.index(start_atom) - 1
+                        end_index = all_atoms.index(end_atom) - 1
+                        total_strand_length = len(all_atoms) - 2           
+    
+                n_atoms = len(strand_atoms)
 
         return (strand_atoms,
                 axis_atoms, 
