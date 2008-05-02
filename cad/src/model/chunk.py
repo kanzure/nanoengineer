@@ -2056,12 +2056,16 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         return # from Chunk.draw()
 
-    def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible=True): #bruce 080215 split this out, added debug_pref
+    def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible = True):
+        """
+        Draw self's external bonds (if debug_prefs and frustum culling permit).
+        """
+        #bruce 080215 split this out, added debug_pref
         # piotr 080320: if this debug_pref is set, the external bonds 
-        # are hidden whenever mouse is dragged. this speeds up interactive 
+        # are hidden whenever the mouse is dragged. this speeds up interactive 
         # manipulation of DNA segments by a factor of 3-4x in tube 
-        # or balls-and-sticks display styles.
-        # this extends the prevoius condition to suppress the external
+        # or ball-and-sticks display styles.
+        # this extends the previous condition to suppress the external
         # bonds during animation.
         # piotr 080401: Added the 'is_chunk_visible' parameter default to True
         # to indicate if the chunk is culled or not. Assume that if the chunk
@@ -3164,7 +3168,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
-
+        if 0:
+            #### bruce 080502 debug code for undo/redo loses pam dna picked state bug
+            print "debug fyi: picking %r, already picked = %r" % (self, self.picked)
+            
         if not self.picked:
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
@@ -3209,6 +3216,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
+        if 0:
+            #### bruce 080502 debug code for undo/redo loses pam dna picked state bug
+            print "debug fyi: unpicking %r, already picked = %r" % (self, self.picked)
+
         if self.picked:
             _superclass.unpick(self)
             # bruce 050308 comment: following probably needs no change for assy/part.

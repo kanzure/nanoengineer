@@ -260,21 +260,26 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             #highlighting of individual strands and segments is allowed)             
             #-- Ninad 2008-03-14
             strandOrSegment = a_chunk.parent_node_of_class(
-                self.win.assy.DnaStrandOrSegment)           
+                self.win.assy.DnaStrandOrSegment)
+            if 0:
+                print "debug fyi: chunk %r .picked %r is in DnaStrandOrSegment %r .picked %r" % \
+                  (a_chunk, a_chunk.picked,
+                   strandOrSegment, strandOrSegment.picked) ###### @@@@@@ bruce 080430 debug code
+                        ##### for 'rapid click selects subset of strand chunks' bug
             if strandOrSegment is not None:
                 m = strandOrSegment
                     
         if not m.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             m.pick()
-            self.o.selobj =  None
+            self.o.selobj = None
         elif not m.picked and self.o.modkeys == 'Shift':
             m.pick()
-            self.o.selobj =  None
+            self.o.selobj = None
         elif self.o.modkeys == 'Control':
             if m.picked:
                 m.unpick()
-            self.o.selobj =  None
+            self.o.selobj = None
         else:
             pass
         
@@ -503,18 +508,18 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                     chunk1.pick()     
                 if not chunk2.picked:
                     chunk2.pick()                
-            self.o.selobj =  None  
+            self.o.selobj = None  
         elif self.o.modkeys == 'Shift':
             if not chunk1.picked:
                 chunk1.pick()     
             if not chunk2.picked:
                 chunk2.pick() 
-            self.o.selobj =  None 
+            self.o.selobj = None 
         elif self.o.modkeys == 'Control':
             chunk1.unpick()            
             chunk2.unpick()
             self.set_cmdname('Unselect Chunks')
-            self.o.selobj =  None 
+            self.o.selobj = None 
         else:
             pass
 
@@ -592,11 +597,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             if dnaStrandOrSegment2 is not None:
                 chunk2 = dnaStrandOrSegment2
             
+            pass
+        
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             chunk1.pick() 
             chunk2.pick()  
-            self.o.selobj =  None
+            self.o.selobj = None
         elif self.o.modkeys == 'Shift+Control':   
             self.leftShiftCntlUp(event, 
                                  parentNodesOfObjUnderMouse = (chunk1, chunk2))

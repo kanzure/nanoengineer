@@ -1862,7 +1862,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if self.modkeys != oldmodkeys:
 
             ## This would be a good place to tell the GraphicsMode it might want to update the cursor,
-            ## based on all state it knows about, including self.modkeys and what mouse is over,
+            ## based on all state it knows about, including self.modkeys and what the mouse is over,
             ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
             ## where we need that even if modkeys didn't change. [bruce 060220]
             self.graphicsMode.update_cursor()
@@ -1919,7 +1919,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #
         # Note: This does not fully implement a triple-click event handler
         # (i.e. include mode.left/middle/rightTriple() methods),
-        # but it does provides the guts for one. I intent to discuss this with
+        # but it does provides the guts for one. I intend to discuss this with
         # Bruce to see if it would be worth adding these mode methods.
         # Since we only need this to implement NFR 2516 (i.e. select all 
         # connected PAM5 atoms when the user triple-clicks a PAM5 atom), 
