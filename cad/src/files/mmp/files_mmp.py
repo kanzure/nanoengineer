@@ -1444,7 +1444,6 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
 
 # ==
 
-#bruce 050405 revised code & docstring
 def _readmmp(assy, filename, isInsert = False, showProgressDialog = False): 
     """
     Read an mmp file, print errors and warnings to history,
@@ -1473,7 +1472,13 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     @param showProgressDialog: if True, display a progress dialog while reading
                                a file. Default is False.
     @type  showProgressDialog: boolean
+
+    @return: the tuple (grouplist or None, listOfAtomsInFileOrder)
     """
+    #bruce 050405 revised code & docstring
+    #ericm 080409 revised return value to contain listOfAtomsInFileOrder
+    #bruce 080502 documented return value; fixed it when file is empty
+    
     state = _readmmp_state( assy, isInsert)
     
     # The following code is experimental. It reads an mmp file that is contained
@@ -1566,7 +1571,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             break
     if len(grouplist) == 0:
         state.format_error("nothing in file")
-        return None
+        return None, []
     elif len(grouplist) == 1:
         state.guess_sim_input('one_part')
             # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
@@ -1590,7 +1595,6 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
-    
     
     return grouplist, listOfAtomsInFileOrder # from _readmmp
 
