@@ -507,7 +507,11 @@ class Group(NodeWithAtomContents):
                 # Fall thru to removing newchild from prior home (in this case, self),
                 # before re-adding it in a new place.
             # remove newchild from its prior home (which may or may not be self):
-            newchild.dad.delmember(newchild) # this sets newchild.dad to None, but doesn't mess with its .part, .assy, etc
+            newchild.dad.delmember(newchild, unpick = False)
+                # this sets newchild.dad to None, but doesn't mess with its .part, .assy, etc
+                #bruce 080502 bugfix (of undo/redo losing selectedness of
+                # PAM DNA chunks when this is called by dna updater to put
+                # them in possibly different groups): unpick = False
         # Only now will we actually insert newchild into self.
         # [end of this part of bruce 050205 changes]
 
@@ -538,11 +542,12 @@ class Group(NodeWithAtomContents):
         # related subscriber funcs so callers are aware of it. [bruce 050205]
         return
 
-    def delmember(self, obj):
+    def delmember(self, obj, unpick = True):
         if obj.dad is not self: # bruce 050205 new feature -- check for this (but do nothing about it)
             if debug_flags.atom_debug:
                 print_compact_stack( "atom_debug: fyi: delmember finds obj.dad is not self: ") #k does this ever happen?
-        obj.unpick() #bruce 041029 fix bug 145 [callers should not depend on this happening! see below]
+        if unpick: #bruce 080502 new feature: let this be optional (before now, it was always done)
+            obj.unpick() #bruce 041029 fix bug 145 [callers should not depend on this happening! see below]
             #k [bruce 050202 comment, added 050205]: review this unpick again sometime, esp re DND drag_move
             # (it might be more relevant for addchild than for here; more likely it should be made not needed by callers)
             # [bruce 050203 review: still needed, to keep killed obj out of selmols,

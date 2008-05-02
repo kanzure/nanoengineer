@@ -3168,10 +3168,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
-        if 0:
-            #### bruce 080502 debug code for undo/redo loses pam dna picked state bug
-            print "debug fyi: picking %r, already picked = %r" % (self, self.picked)
-            
         if not self.picked:
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
@@ -3216,10 +3212,6 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
         [extends Node method]
         """
-        if 0:
-            #### bruce 080502 debug code for undo/redo loses pam dna picked state bug
-            print "debug fyi: unpicking %r, already picked = %r" % (self, self.picked)
-
         if self.picked:
             _superclass.unpick(self)
             # bruce 050308 comment: following probably needs no change for assy/part.
