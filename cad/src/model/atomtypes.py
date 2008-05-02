@@ -33,7 +33,8 @@ import foundation.env as env
 from model.bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_GRAPHITE, V_CARBOMERIC
 
 class AtomType(IdentityCopyMixin):
-    """An atom type includes an element and its bonding pattern (and maybe more) --
+    """
+    An atom type includes an element and its bonding pattern (and maybe more) --
     enough info to know how to construct things in Build mode using this element in this bonding pattern,
     something about how the user wants to simulate them or minimize them (externally or wirthin Build mode),
     etc.
@@ -51,9 +52,12 @@ class AtomType(IdentityCopyMixin):
     but the atomtype itself is element-specific. (Related atomtype objects might share code or data, of course.)
     """
     def __init__(self, elem, bn_triple, valence):
-        """#doc... Set some public members, including element, name, fullname,
+        """
+        #doc...
+        Set some public members, including element, name, fullname,
         numbonds, valence, rcovalent, bondvectors, base, and quats.
-        Also spX, openbond; and for some elements, num_lonepairs (etc), num_pi_electrons.
+        Also spX, openbond; and for some elements, num_lonepairs (etc),
+        num_pi_electrons.
         """
         self.element = elem
         self.valence = valence
@@ -113,7 +117,11 @@ class AtomType(IdentityCopyMixin):
         return # from __init__
 
     def _init_electronic_structure(self): #bruce 050707
-        "[private method] Figure out situation with valence electrons, etc, and store it in attributes. Only works for low elements."
+        """
+        [private method]
+        Figure out situation with valence electrons, etc, and store it in
+        attributes. Only works for low-enough-atomic-number elements.
+        """
         # Figure out situation with valence electrons (available for pi orbitals), lone pairs, etc.
         # This might be only supported for non-sp3 atomtypes (which presently go no higher than sulfur) so far.
         # And for now it might be mostly hardcoded rather than principled. [bruce 050706]
@@ -213,7 +221,10 @@ class AtomType(IdentityCopyMixin):
         return # from _init_electronic_structure
         
     def apply_to(self, atom): # how is this used? do we transmute the elt too? (why not? why? when would that be called?)
-        "change atom to have this atomtype (or emit history warning saying why you can't)"
+        """
+        change atom to have this atomtype
+        (or emit history warning saying why you can't)
+        """
         ###e need to split out the check for transmute being legal and do it first
         # (so our caller, making menu, can disable illegal cmds)
         ##print "apply_to for self = %r" % self
@@ -241,7 +252,8 @@ class AtomType(IdentityCopyMixin):
     
     def permits_v6(self, v6):
         ###@@@ see also bond_utils.possible_bond_types; maybe they should share some common knowledge
-        """Is it permissible for a bond of the given v6 to connect to this atomtype, ignoring valence issues?
+        """
+        Is it permissible for a bond of the given v6 to connect to this atomtype, ignoring valence issues?
         Note: this method should be fast -- it's called (at least) for every non-single bond of every changed atom.
            BTW [#obs, WRONG],
         an order of bond types from most to least permissible is (ignoring special rules for graphite, and sp2 O or S):
@@ -307,7 +319,71 @@ class AtomType(IdentityCopyMixin):
         res.sort()
         self.permitted_v6_list = tuple(res) # in case tuple can be searched faster
         return
-    
+
+    def _classify(self): #bruce 080502
+        """
+        [private helper for can_bond_to]
+        
+        @return: one of the following strings, as appropriate for self.
+        - 'bondpoint'
+        - 'Pl'
+        - 'sugar'  (not including Pl)
+        - 'axis'
+        - 'unpaired-base'
+        - 'chem'
+
+        @note: it would be better if our legal return values were int-valued
+               named constants for fast lookup in a table of legal pairs,
+               and if the classification of self was an attribute of self.
+        """
+        if self.element.symbol == 'X': # kluge
+            return 'bondpoint'
+        elif self.element.role == 'strand':
+            if self.element.symbol == 'Pl5':
+                return 'Pl'
+            return 'sugar'
+        else:
+            return self.element.role or 'chem' # 'axis' or 'unpaired-base' or 'chem'
+        pass
+
+    def can_bond_to(self, atom, bondpoint = None, auto = False): #bruce 080502
+        """
+        Some tool in the UI wants to bond a new atom of atomtype self
+        to the given existing atom, in place of the given bondpoint
+        if one is provided. If auto is true, this is an "autobonding"
+        (just due to nearness of a new atom to an existing bondpoint);
+        otherwise it's an explicit bonding attempt by the user.
+
+        Return True if this should be allowed, False if not.
+
+        @note: it would be desirable to improve this API so that the reason
+               why not could also be returned.
+        """
+        # note: this is not yet modular; and it is partly redundant with
+        # _fix_atom_or_return_error_info in fix_bond_directions.py.
+        
+        del bondpoint, auto # not yet used
+        
+        def check_by_class1(class1, class2):
+            # Note: pairs of _classify return values can be made illegal
+            # by making this function return false for them in either order.
+            # The outer function only returns true if this function
+            # accepts a pair in both orders.
+            if class1 == 'chem':
+                return class2 in ('chem', 'bondpoint')
+            elif class1 == 'Pl':
+                return class2 in ('sugar', 'bondpoint')
+            elif class1 == 'bondpoint':
+                return class2 != 'bondpoint'
+            return True
+        class1 = self._classify()
+        class2 = atom.atomtype._classify()
+        if not check_by_class1(class1, class2):
+            return False
+        if not check_by_class1(class2, class1):
+            return False
+        return True
+        
     pass # end of class AtomType
 
 # end

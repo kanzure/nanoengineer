@@ -68,7 +68,10 @@ class AtomTypeDepositionTool(DepositionTool):
         Deposit a new atom of self.atomtype onto the given singlet,
         and (if autobond is true) make other bonds (to other near-enough atoms with singlets)
         as appropriate. (But never more than one bond per other real atom.)
-           Return the new atom and a description of it, or None and the reason we made nothing. #k
+
+        @return: a 2-tuple consisting of either the new atom and a description
+                 of it, or None and the reason we made nothing.
+        
         ###@@@ should worry about bond direction! at least as a filter!
            If autobond_msg is true, mention the autobonding done or not done (depending on autobond option),
         in the returned message, if any atoms were near enough for autobonding to be done.
@@ -77,7 +80,13 @@ class AtomTypeDepositionTool(DepositionTool):
         """
         atype = self.atomtype
         if not atype.numbonds:
-            return (None, "%s makes no bonds; can't attach one to an open bond" % atype.fullname_for_msg())
+            whynot = "%s makes no bonds; can't attach one to an open bond" % atype.fullname_for_msg()
+            return None, whynot
+        if not atype.can_bond_to(singlet.singlet_neighbor(), singlet):
+            #bruce 080502 new feature
+            whynot = "%s bond to %r is not allowed" % (atype.fullname_for_msg(), singlet.singlet_neighbor())
+                # todo: return whynot from same routine
+            return None, whynot
         spot = self.findSpot(singlet)
         pl = [(singlet, spot)] # will grow to a list of pairs (s, its spot)
             # bruce change 041215: always include this one in the list
@@ -125,7 +134,8 @@ class AtomTypeDepositionTool(DepositionTool):
                     print_compact_traceback("bug 372 caught red-handed: ")
                     print "bug 372-related data: mol = %r, mol.singlets = %r" % (mol, mol.singlets)
                     continue
-                if real not in rl:
+                if real not in rl and atype.can_bond_to(real, s, auto = True):
+                    # checking can_bond_to is bruce 080502 new feature
                     pl += [(s, self.findSpot(s))]
                     rl += [real]
               # after we're done with each mol (but not in the middle of any mol),
