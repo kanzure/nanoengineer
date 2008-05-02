@@ -83,7 +83,7 @@ YC = 1.180059331
 
 def yukawa(r):
     if (r < 0.04):
-        return 0.0
+        return yukawa(0.04) + 0.04 - r ;
     return (YA / r) * math.exp(-(r - YB) / YC)
 
 def d_yukawa(r):
