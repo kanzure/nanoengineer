@@ -7,7 +7,7 @@ static char const rcsid[] = "$Id$";
 static int debugMatch = 0;
 
 static struct patternMatch *
-makeMatch(struct part *part, struct compiledPattern *pattern)
+makeMatch(struct part *part, struct compiledPattern *pattern, int sequenceNumber)
 {
   struct patternMatch *match;
   int i;
@@ -19,6 +19,7 @@ makeMatch(struct part *part, struct compiledPattern *pattern)
   match->atomIndices = (int *)allocate(sizeof(int) * pattern->numberOfAtoms);
   match->introducedAtTraversal =
     (int *)allocate(sizeof(int) * pattern->numberOfAtoms);
+  match->sequenceNumber = sequenceNumber;
   for (i=pattern->numberOfAtoms-1; i>=0; i--) {
     match->atomIndices[i] = -1;
     match->introducedAtTraversal[i] = pattern->numberOfTraversals + 1;
@@ -50,9 +51,28 @@ printMatch(struct patternMatch *match)
   
   printf("match for pattern %s\n", match->patternName);
   for (i=0; i<match->numberOfAtoms; i++) {
-    //printf("pattern index: %d, atomid: %d\n", i, match->atomIndices[i]);
     printAtom(stdout, match->p, match->p->atoms[match->atomIndices[i]]);
   }
+}
+
+void
+traceMatch(struct patternMatch *match)
+{
+  char buf[1024]; // relatively safe, as the length is based on the pattern
+  char buf1[32];
+  int i;
+  struct atom *a;
+
+  buf[0] = '\0';
+  sprintf(buf, "# Pattern match: [%d] (%s)", match->sequenceNumber, match->patternName);
+  
+  for (i=0; i<match->numberOfAtoms; i++) {
+    a = match->p->atoms[match->atomIndices[i]];
+    sprintf(buf1, " %d", a->atomID);
+    strcat(buf, buf1);
+  }
+  strcat(buf, "\n");
+  write_traceline(buf);
 }
 
 // debug routine
@@ -320,7 +340,9 @@ matchOneTraversal(struct patternMatch *match,
       printMatch(match);
     }
     if (checkForDuplicateMatch(match)) {
+      traceMatch(match);
       pattern->matchFunction(match);
+      match->sequenceNumber++;
     }
     return;
   }
@@ -390,19 +412,20 @@ matchOneTraversal(struct patternMatch *match,
 
 // Housekeeping that has to happen around the recursive
 // matchOneTraversal() routine.
-static void
-matchPartToPattern(struct part *part, struct compiledPattern *pattern)
+static int
+matchPartToPattern(struct part *part, struct compiledPattern *pattern, int sequenceNumber)
 {
   struct patternMatch *match;
 
-  match = makeMatch(part, pattern);
+  match = makeMatch(part, pattern, sequenceNumber);
   matchSet = hashtable_new(64);
   matchOneTraversal(match, pattern, 0);
   destroyMatch(match);
   hashtable_destroy(matchSet, NULL);
   matchSet = NULL;
-  BAIL();
+  BAILR(sequenceNumber);
   addQueuedComponents(part);
+  return match->sequenceNumber;
 }
 
 
@@ -497,12 +520,13 @@ void
 matchPartToAllPatterns(struct part *part)
 {
   int i;
+  int sequenceNumber = 1;
 
   for (i=0; i<numPatterns; i++) {
     if (debugMatch) {
       printf("matching part to pattern %d\n", i);
     }
-    matchPartToPattern(part, allPatterns[i]); BAIL();
+    sequenceNumber = matchPartToPattern(part, allPatterns[i], sequenceNumber); BAIL();
   }
 }
 

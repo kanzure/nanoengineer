@@ -24,6 +24,7 @@ struct patternMatch
   int numberOfAtoms;
   int *atomIndices;
   int *introducedAtTraversal;
+  int sequenceNumber;
 };
 
 struct compiledPattern
@@ -36,6 +37,8 @@ struct compiledPattern
 };
 
 extern void printMatch(struct patternMatch *match);
+
+extern void traceMatch(struct patternMatch *match);
 
 extern int atomIsType(struct atom *a, struct atomType *type);
 

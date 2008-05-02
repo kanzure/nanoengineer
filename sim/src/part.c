@@ -1942,6 +1942,7 @@ queueComponent(struct part *p, enum componentType type, void *component)
 void
 queueAtom(struct part *p, struct atom *a)
 {
+    a->atomID = (p->max_atom_id++) + 1 ;
     queueComponent(p, componentAtom, (void *)a);
 }
 

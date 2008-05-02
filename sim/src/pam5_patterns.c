@@ -4,70 +4,80 @@
 
 static char const rcsid[] = "$Id$";
 
-/*
-static struct bendData *pam5_Ax_Ax_Ss_low = NULL;
-static struct bendData *pam5_Ax_Ax_Ss_high = NULL;
+static char *
+trace_atomID(struct atom *a)
+{
+  static char buf[16];
+  if (a == NULL) {
+    return "x";
+  }
+  if (a->virtualConstructionAtoms != 0) {
+    sprintf(buf, "{%d}", a->atomID);
+  } else {
+    sprintf(buf, "%d", a->atomID);
+  }
+  return buf;
+}
 
 static void
-pam5_ring_match(struct patternMatch *match)
+trace_makeBond(struct patternMatch *match, struct bond *b)
 {
-  struct part *p = match->p;
-  struct atom *aA1 = p->atoms[match->atomIndices[0]];
-  struct atom *aA2 = p->atoms[match->atomIndices[1]];
-  struct atom *aS2 = p->atoms[match->atomIndices[2]];
-  struct atom *aP  = p->atoms[match->atomIndices[3]];
-  struct atom *aS1 = p->atoms[match->atomIndices[4]];
-  struct atom *aE;
-  struct bond *b = getBond(p, aP, aS1);
-  struct atom *t;
-  struct bend *bend1;
-  struct bend *bend2;
-  int reverse = 0;
+  char buf[1024];
+  char buf1[64];
+  struct bondStretch *stretchType;
 
-  BAIL();
-  if (match->numberOfAtoms == 6) {
-    aE = p->atoms[match->atomIndices[5]];
-  }
-  // here is the layout we're looking for:
-  //
-  //  aS2->aP->aS1
-  //   |        |
-  //  aA2------aA1 (- - - Ae)
-  //
-  // reverse means the bond directions are flipped from that layout
+  sprintf(buf, "# Pattern makeBond: [%d] %s ", match->sequenceNumber, trace_atomID(b->a1));
+  strcat(buf, trace_atomID(b->a2));
 
-  switch (b->direction) {
-  case 'F':
-    reverse = (b->a1 == aS1);
-    break;
-  case 'R':
-    reverse = (b->a1 == aP);
-    break;
-  default:
-    ERROR2("pam5_ring_match: bond between ids %d and %d has no direction", aP->atomID, aS1->atomID);
-    p->parseError(p->stream);
-    return;
-  }
-  if (match->numberOfAtoms == 5) {
-    if (reverse) {
-      t = aA1;
-      aA1 = aA2;
-      aA2 = t;
-      t = aS1;
-      aS1 = aS2;
-      aS2 = t;
-    }
-    bend1 = getBend(p, aA2, aA1, aS1); BAIL();
-    bend2 = getBend(p, aA1, aA2, aS2); BAIL();
-    bend1->bendType = pam5_Ax_Ax_Ss_low;
-    bend2->bendType = pam5_Ax_Ax_Ss_high;
-  } else {
-    bend1 = getBend(p, aE, aA1, aS1); BAIL();
-    bend1->bendType = reverse ? pam5_Ax_Ax_Ss_high : pam5_Ax_Ax_Ss_low;
-  }
-  //printMatch(match);
+  stretchType = getBondStretch(b->a1->type->protons,
+                               b->a2->type->protons,
+                               b->order);
+
+  sprintf(buf1, " %f %f\n", stretchType->ks, stretchType->r0);
+  
+  strcat(buf, buf1);
+  write_traceline(buf);
 }
-*/
+
+static void
+trace_makeVirtualAtom(struct patternMatch *match, struct atom *a)
+{
+  char buf[1024];
+  char buf1[64];
+
+  sprintf(buf, "# Pattern makeVirtualAtom: [%d] %s %d %d ",
+          match->sequenceNumber,
+          trace_atomID(a),
+          a->virtualConstructionAtoms,
+          a->virtualFunction);
+  strcat(buf, trace_atomID(a->creationParameters.v.virtual1));
+  strcat(buf, " ");
+  strcat(buf, trace_atomID(a->creationParameters.v.virtual2));
+  strcat(buf, " ");
+  strcat(buf, trace_atomID(a->creationParameters.v.virtual3));
+  strcat(buf, " ");
+  strcat(buf, trace_atomID(a->creationParameters.v.virtual4));
+  sprintf(buf1, " %f %f %f\n",
+          a->creationParameters.v.virtualA,
+          a->creationParameters.v.virtualB,
+          a->creationParameters.v.virtualC);
+  strcat(buf, buf1);
+  write_traceline(buf);
+}
+
+static void
+trace_setStretchType(struct patternMatch *match, struct stretch *s)
+{
+  char buf[1024];
+  char buf1[64];
+
+  sprintf(buf, "# Pattern setStretchType: [%d] %s ", match->sequenceNumber, trace_atomID(s->a1));
+  strcat(buf, trace_atomID(s->a2));
+  sprintf(buf1, " %f %f\n", s->stretchType->ks, s->stretchType->r0);
+  strcat(buf, buf1);
+  write_traceline(buf);
+}
+
 
 static void
 pam5_requires_gromacs(struct part *p)
@@ -183,6 +193,7 @@ pam5_basepair_match(struct patternMatch *match)
   init_stack_match();
   bond = makeBond(match->p, aS1, aS2, '1');
   queueBond(match->p, bond);
+  trace_makeBond(match, bond);
   //printMatch(match);
 }
 
@@ -228,8 +239,11 @@ pam5_stack_match(struct patternMatch *match)
                          vDbx_p[i], vDbx_q[i], 0.0);
     bond = makeBond(match->p, vA, vB, '1');
     queueAtom(match->p, vA);
+    trace_makeVirtualAtom(match, vA);
     queueAtom(match->p, vB);
+    trace_makeVirtualAtom(match, vB);
     queueBond(match->p, bond);
+    trace_makeBond(match, bond);
   }
   //printMatch(match);
 }
@@ -263,6 +277,7 @@ pam5_phosphate_sugar_match(struct patternMatch *match)
     return;
   }
   s->stretchType = reverse ? stretch_5_Ss_Pl_3 : stretch_5_Pl_Ss_3 ;
+  trace_setStretchType(match, s);
   //printMatch(match);
 }
 
@@ -280,6 +295,7 @@ pam5_phosphate_phosphate_match(struct patternMatch *match)
 
   bond = makeBond(p, aPl1, aPl2, '1');
   queueBond(p, bond);
+  trace_makeBond(match, bond);
   //printMatch(match);
 }
 
@@ -316,51 +332,21 @@ pam5_groove_phosphate_match(struct patternMatch *match)
   
   bond = makeBond(p, aPl, aGv, '1');
   queueBond(p, bond);
+  trace_makeBond(match, bond);
   //printMatch(match);
 }
 
 void
 createPam5Patterns(void)
 {
-  //double ktheta;
-  //double theta0;
   struct compiledPatternTraversal *t[10];
   struct compiledPatternAtom *a[10];
-  //struct patternParameter *param;
 
   if (VanDerWaalsCutoffRadius < 0.0) {
     // this indicates that the model has no pam5 atoms
     return;
   }
   stack_match_initialized = 0;
-  
-  /*
-  a[0] = makePatternAtom(0, "Ax5");
-  a[1] = makePatternAtom(1, "Ax5");
-  a[2] = makePatternAtom(2, "Ss5");
-  a[3] = makePatternAtom(3, "Pl5");
-  a[4] = makePatternAtom(4, "Ss5");
-  t[0] = makeTraversal(a[0], a[1], '1');
-  t[1] = makeTraversal(a[1], a[2], '1');
-  t[2] = makeTraversal(a[2], a[3], '1');
-  t[3] = makeTraversal(a[3], a[4], '1');
-  t[4] = makeTraversal(a[4], a[0], '1');
-  makePattern("PAM5-ring", pam5_ring_match, 5, 5, t);
-
-  a[0] = makePatternAtom(0, "Ax5");
-  a[1] = makePatternAtom(1, "Ax5");
-  a[2] = makePatternAtom(2, "Ss5");
-  a[3] = makePatternAtom(3, "Pl5");
-  a[4] = makePatternAtom(4, "Ss5");
-  a[5] = makePatternAtom(5, "Ae5");
-  t[0] = makeTraversal(a[5], a[0], '1');
-  t[1] = makeTraversal(a[0], a[1], '1');
-  t[2] = makeTraversal(a[1], a[2], '1');
-  t[3] = makeTraversal(a[2], a[3], '1');
-  t[4] = makeTraversal(a[3], a[4], '1');
-  t[5] = makeTraversal(a[4], a[0], '1');
-  makePattern("PAM5-ring-end", pam5_ring_match, 6, 6, t);
-  */
   
   a[0] = makePatternAtom(0, "P5G");
   a[1] = makePatternAtom(1, "P5S");
@@ -400,18 +386,4 @@ createPam5Patterns(void)
   t[0] = makeTraversal(a[0], a[1], '1');
   t[1] = makeTraversal(a[1], a[2], '1');
   makePattern("PAM5-groove-phosphate", pam5_groove_phosphate_match, 3, 2, t);
-  
-  /*
-  param = getPatternParameter("PAM5:Ax-Ax-Ss_low_ktheta"); BAIL();
-  ktheta = param->value * 1e6;
-  param = getPatternParameter("PAM5:Ax-Ax-Ss_low_theta0"); BAIL();
-  theta0 = param->value * param->angleUnits;
-  pam5_Ax_Ax_Ss_low = newBendData("Ax-Ax-Ss_low", ktheta, theta0, 9);
-
-  param = getPatternParameter("PAM5:Ax-Ax-Ss_high_ktheta"); BAIL();
-  ktheta = param->value * 1e6;
-  param = getPatternParameter("PAM5:Ax-Ax-Ss_high_theta0"); BAIL();
-  theta0 = param->value * param->angleUnits;
-  pam5_Ax_Ax_Ss_high = newBendData("Ax-Ax-Ss_high", ktheta, theta0, 9);
-  */
 }
