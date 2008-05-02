@@ -3256,7 +3256,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         if dnaSegment and self.isAxisChunk():
             axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
             if axisVector is not None:
-                return axisVector
+                return axisVector, dnaSegment
         
         dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
         if dnaStrand and self.isStrandChunk():
@@ -3266,20 +3266,18 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             if dnaSegment:
                 axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
                 if axisVector is not None:
-                    return axisVector
+                    return axisVector, dnaSegment
             
         nanotube = self.parent_node_of_class(self.assy.NanotubeSegment)
         if nanotube:
-            axisVector = nanotube.getAxisVector()
+            axisVector = nanotube.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
             if axisVector is not None:
-                return axisVector
+                return axisVector, nanotube
             
         #If no eligible parent node with an axis is found, return self's 
         #axis.
-        return self.getaxis() 
-            
-            
-        
+        return self.getaxis(), self
+
 
     def is_glpane_content_itself(self): #bruce 080319
         # note: some code which tests for "Chunk or Jig" might do better

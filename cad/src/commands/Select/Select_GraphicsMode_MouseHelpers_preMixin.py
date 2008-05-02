@@ -231,7 +231,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         #those methods or always call the superclass method at the beginning. 
         # In case of selectMolsMode, the 'objects' are 
         # really the  selectedMovable. so it makes sense to set it in 
-        #selectMolsMode.pseudoMoveModeLeftDrag or call doObjectSpecificLeftDrag 
+        #selectMolsMode.leftDragTranslation or call doObjectSpecificLeftDrag 
         #somewhere -- Ninad 2007-11-15
         
         #UPDATE 2007-11-15:
@@ -384,8 +384,58 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         """
         pass
     
-        
     def bondDelete(self, event):
+        """
+        If the object under the cursor is a bond, delete it.
+        
+        @param event: A left mouse up event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
+        # see also: bond_utils.delete_bond
+        
+        #bruce 041130 in case no update_selatom happened yet
+        self.update_selatom(event)             
+            # see warnings about update_selatom's delayed effect, 
+            # in its docstring or in leftDown. [bruce 050705 comment]
+        selobj = self.o.selobj
+        if isinstance( selobj, Bond) and not selobj.is_open_bond():
+            _busted_strand_bond = False
+            if selobj.isStrandBond(): 
+                
+                _busted_strand_bond = True
+                msg = "breaking strand %s" % selobj.getStrandName()
+            else:
+                msg = "breaking bond %s" % selobj
+            env.history.message_no_html(msg)
+                # note: %r doesn't show bond type, but %s needs _no_html 
+                # since it contains "<-->" which looks like HTML.
+            self.o.selobj = None 
+                # without this, the bond remains highlighted 
+                # even after it's broken (visible if it's toolong)
+                ###e shouldn't we use set_selobj instead?? 
+                ##[bruce 060726 question]
+            x1, x2 = selobj.bust() 
+                # this fails to preserve the bond type on the open bonds 
+                # -- not sure if that's bad, but probably it is
+
+            if 1:
+                # Note: this should be removed once the dna updater becomes
+                # turned on by default. (It will cause no harm, but will be a slowdown
+                # since everything it does will be undone or redone differently
+                # by the updater.) [bruce 080228 comment]
+                
+                # After bust() selobj.isStrandBond() is too fragile, so I set
+                # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
+                if _busted_strand_bond: # selobj.isStrandBond():
+                    self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
+
+            self.set_cmdname('Delete Bond')
+            self.o.assy.changed() #k needed?
+            self.w.win_update() #k wouldn't gl_update be enough? 
+                                #[bruce 060726 question]
+    
+        
+    def ORIG_bondDelete(self, event):
         """
                 
         If the object under the cursor is a bond, delete it. Subclasses should 

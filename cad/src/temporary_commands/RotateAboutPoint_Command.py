@@ -38,7 +38,7 @@ class RotateAboutPoint_GraphicsMode(LineMode_GM):
     def resetVariables(self):
         _superclass_for_GM.resetVariables(self)
         self.pivotAtom = None
-           
+                   
     
     def leftDown(self, event):
         """
@@ -141,8 +141,9 @@ class RotateAboutPoint_Command(LineMode):
         reference_vec = self.glpane.right 
         if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
             mol = pivotAtom.molecule
-            reference_vec = mol.getAxis_of_self_or_eligible_parent_node(
+            reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
                 atomAtVectorOrigin = pivotAtom)
+            del node_junk
         else:
             reference_vec = self.glpane.right
         

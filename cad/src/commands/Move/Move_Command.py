@@ -113,7 +113,8 @@ class Move_basicCommand(SelectChunks_basicCommand):
             #rotated by the angle between this vector and the lineVector
             reference_vec = self.glpane.right 
             if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk() :
-                reference_vec = pivotAtom.molecule.getAxis_of_self_or_eligible_parent_node()
+                reference_vec, node_junk = pivotAtom.molecule.getAxis_of_self_or_eligible_parent_node()
+                del node_junk
             else:
                 reference_vec = self.glpane.right
             
@@ -182,8 +183,9 @@ class Move_basicCommand(SelectChunks_basicCommand):
                 reference_vec = self.glpane.right 
                 if isinstance(pivotAtom, Atom) and not pivotAtom.molecule.isNullChunk():
                     mol = pivotAtom.molecule
-                    reference_vec = mol.getAxis_of_self_or_eligible_parent_node(
+                    reference_vec, node_junk = mol.getAxis_of_self_or_eligible_parent_node(
                         atomAtVectorOrigin = pivotAtom)
+                    del node_junk
                 else:
                     reference_vec = self.glpane.right
                 

@@ -51,7 +51,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
     
         return
     
-    def _leftDown_preparation_for_dragging(self, event):
+    def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """ 
 	Handle left down event. Preparation for translation and/or selection
         This method is called inside of self.leftDown. 
@@ -61,7 +61,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
 	@see: self.leftDragTranslation
         Overrides _superclass._leftDown_preparation_for_dragging
 	"""
-        _superclass._leftDown_preparation_for_dragging(self, event)
+        _superclass._leftDown_preparation_for_dragging(self, objectUnderMouse, event)
         
         self.o.SaveMouse(event)
         self.picking = True
@@ -94,7 +94,7 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                     print_compact_stack("bug: _leftDown_preparation_for_dragging"\
                                         " called for translate option"\
                                         "'ROT_TRANS_ALONG_AXIS'")
-                self.leftADown(event)
+                self.leftADown(objectUnderMouse, event)
                 return
             else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
 
@@ -145,10 +145,10 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
                     msg5 = "Rotate groupbox. Aborting drag operation"
                     print_compact_traceback(msg3 + msg4 + msg5)
                     
-    def leftADown(self, event):
+    def leftADown(self, objectUnderMouse, event):
         """
         """
-        _superclass.leftADown(self, event)
+        _superclass.leftADown(self, objectUnderMouse, event)
         self.leftDownType = 'A_TRANSLATE'
         
     def leftDragTranslation(self, event):
@@ -158,12 +158,12 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
         - or slide and rotate along the an axis
 
 	@param event: The mouse left drag event. 
-	@note : This method is partially duplicated (free drag translate code)
-	in _superclass.pseudoMoveModeLeftDrag 
-	@see : self.leftDrag
+	@see : self.leftDrag()
+        @see: self._leftDragFreeTranslation()
+        @see: self._leftDragConstrainedTranslation()
 	"""
         #TODO: Further cleanup of this method and also for
-        # _superclass.pseudoMoveModeLeftDrag. Need to move some common code
+        # _superclass.leftDragTranslation. Need to move some common code
         #in this method to self.leftDrag. Lower priority -- ninad 20070727
         
         if self.command and self.command.propMgr and \
@@ -184,48 +184,40 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
             return	
         # Move section
         if self.moveOption == 'MOVEDEFAULT':	    
-            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                           self.o.MousePos[1] - event.pos().y(), 0.0)
-
-            #bruce 060316 replaced old code with dragto (equivalent)
-            point = self.dragto( self.movingPoint, event) 
-            # Print status bar msg indicating the current move delta.
-            self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
-            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], 
-                                                             self.moveOffset[1], 
-                                                             self.moveOffset[2])
-
-            env.history.statusbar_msg(msg)
-            
-            offset = point - self.movingPoint
-            self.win.assy.translateSpecifiedMovables(offset, 
-                                                     movables = self._leftDrag_movables)
-            
-            self.movingPoint = point    
+            self._leftDragFreeTranslation(event) 
+            return
             # end of Move section
+            
+        self._leftDragConstrainedTranslation(event)
+        return        
+    
+    def _leftDragConstrainedTranslation(self, event):
+        """
+        Constrained translation during the left drag. 
+        @see: self.leftDragTranslation()
+        @see: self._leftDragFreeTranslation()
+        """
+        # Constrained translation 
+        w=self.o.width+0.0
+        h=self.o.height+0.0
+        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y())
+        a =  dot(self.Zmat, deltaMouse)
+        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
+        if self.moveOption == 'TRANSX':
+            ma = V(1,0,0) # X Axis
+        elif self.moveOption == 'TRANSY':
+            ma = V(0,1,0) # Y Axis
+        elif self.moveOption == 'TRANSZ':
+            ma = V(0,0,1) # Z Axis
+        else: 
+            print "_leftDragConstrainedTranslation Error: unknown moveOption value:", \
+                  self.moveOption                
+            return
 
-        # Translate section
-        else:
-            w=self.o.width+0.0
-            h=self.o.height+0.0
-            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                           self.o.MousePos[1] - event.pos().y())
-            a =  dot(self.Zmat, deltaMouse)
-            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
-            if self.moveOption == 'TRANSX':
-                ma = V(1,0,0) # X Axis
-            elif self.moveOption == 'TRANSY':
-                ma = V(0,1,0) # Y Axis
-            elif self.moveOption == 'TRANSZ':
-                ma = V(0,0,1) # Z Axis
-            else: 
-                print "modifyMode.leftDrag Error: unknown moveOption value:", \
-                      self.moveOption                
-                return
-
-            self.transDelta += dx # Increment translation delta 
-            self.win.assy.translateSpecifiedMovables(dx*ma, 
-                                                     movables = self._leftDrag_movables)
+        self.transDelta += dx # Increment translation delta 
+        self.win.assy.translateSpecifiedMovables(dx*ma, 
+                                                 movables = self._leftDrag_movables)
 
         # Print status bar msg indicating the current translation delta
         if self.o.assy.selmols:
@@ -239,4 +231,5 @@ class TranslateChunks_GraphicsMode(Move_GraphicsMode):
         self.o.gl_update()
 
         return
+        
     

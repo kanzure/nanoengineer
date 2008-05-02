@@ -119,8 +119,8 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         will move all the axischunk members of the dna segment and also 
         its logical content chunks. 
         @see: self._leftDrag_movables #attr
-        @see: self.pseudoMoveModeLeftDown()
-        @see: self.pseudoMoveModeLeftDrag()
+        @see: self._leftDown_preparation_for_dragging()
+        @see: self.leftDragTranslation()
         @see:BuildDna_GraphicsMode.getMovablesForLeftDragging()
         @Note: Not implemented in SelectAtoms_GraphicsMode
 	"""
@@ -502,7 +502,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         # Do not change the order of the following conditionals unless you know
         # what you're doing.  mark 060208.
-
+        
         if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             # [let this happen even for drag_handlers -- bruce 060728]
             return
@@ -542,6 +542,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             return
 
         obj = self.current_obj
+        
 
         if obj is None: # Nothing dragged (or clicked); return.
             return

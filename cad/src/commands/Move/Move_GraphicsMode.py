@@ -161,14 +161,15 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         # during refactoring and major cleanup of the old modifyMode class code. 
         # --Ninad 2008-04-09
         
+        # Permit movable object picking upon left down.  
+        obj = self.get_obj_under_cursor(event)
+        
         if self.isConstrainedDragAlongAxis or \
            self.moveOption == 'ROT_TRANS_ALONG_AXIS' or \
            self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
-            self.leftADown(event)
+            self.leftADown(obj, event)
             return
         
-        # Permit movable object picking upon left down.  
-        obj = self.get_obj_under_cursor(event)
         
         # If highlighting is turned on, get_obj_under_cursor() returns atoms, 
         # singlets, bonds, jigs,
@@ -184,12 +185,12 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
                 
         #Subclasses should override one of the following method if they need 
         #to do additional things to prepare for dragging. 
-        self._leftDown_preparation_for_dragging(event)
+        self._leftDown_preparation_for_dragging(obj, event)
         
         self.w.win_update()
         return
            
-    def _leftDown_preparation_for_dragging(self, event):
+    def _leftDown_preparation_for_dragging(self,  objectUnderMouse, event):
         """
         Subclasses should override this (AND ALSO CALLING THIS method in 
         the overridden method)
@@ -317,7 +318,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         self._leftADown_error = True # prevent more from happening in leftADrag
         return
     
-    def leftADown(self, event):
+    def leftADown(self, objectUnderMouse, event):
         """ 
         Set up for sliding and/or rotating the selected chunk(s) 
         along/around its own axis when left mouse and key 'A' is pressed.
@@ -336,7 +337,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
             self._leftADown_rotateAsUnit = True
 
 
-        obj = self.get_obj_under_cursor(event)
+        obj = objectUnderMouse
         
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)

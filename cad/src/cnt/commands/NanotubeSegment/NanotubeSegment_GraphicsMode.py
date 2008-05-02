@@ -216,7 +216,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         # since this is only used for drag distance within single drags.
         #Subclasses should override one of the following method if they need 
         #to do additional things to prepare for dragging. 
-        self._leftDown_preparation_for_dragging(event)
+        self._leftDown_preparation_for_dragging(obj, event)
         
     def clear_leftA_variables(self):
         self._movablesForLeftDrag = []
@@ -226,7 +226,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         _rotateAboutAxis = False
         _freeDragWholeStructure = False
 
-    def _leftDown_preparation_for_dragging(self, event):
+    def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """ 
 	Handle left down event. Preparation for rotation and/or selection
         This method is called inside of self.leftDown. 
@@ -240,10 +240,10 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         self.picking = True
         self.dragdist = 0.0
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
-        self.leftADown(event)
+        self.leftADown(objectUnderMouse, event)
         
         
-    def leftADown(self, event):
+    def leftADown(self, objectUnderMouse, event):
         """
         Method called during mouse left down . It sets some parameters 
         necessary for rotating the structure around its own axis (during 
@@ -271,7 +271,7 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         
         self.Zmat = A([ma,[-ma[1],ma[0]]])
 
-        obj = self.get_obj_under_cursor(event)
+        obj = objectUnderMouse
 
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)

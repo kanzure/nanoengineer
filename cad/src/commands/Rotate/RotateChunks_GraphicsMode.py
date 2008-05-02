@@ -54,7 +54,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
 
         return
     
-    def _leftDown_preparation_for_dragging(self, event):
+    def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """ 
 	Handle left down event. Preparation for rotation and/or selection
         This method is called inside of self.leftDown. 
@@ -65,7 +65,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         Overrides _superclass._leftDown_preparation_for_dragging
 	"""
         
-        _superclass._leftDown_preparation_for_dragging(self, event)
+        _superclass._leftDown_preparation_for_dragging(self, objectUnderMouse, event)
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0	
@@ -94,7 +94,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                                         " called for rotate option"\
                                         "'ROT_TRANS_ALONG_AXIS'")
                     
-                self.leftADown(event)
+                self.leftADown(objectUnderMouse, event)
                 return
 
             else: 
@@ -275,13 +275,13 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                
         self.o.gl_update()
     
-    def leftADown(self, event):
+    def leftADown(self, objectUnderMouse, event):
         """
         Set up for sliding and/or rotating the selected chunk(s) 
         along/around its own axis when left mouse and key 'A' is pressed.
         Overrides _sperclass.leftADown
         @see: Move_GraphicsMode.leftADown
         """
-        _superclass.leftADown(self, event)
+        _superclass.leftADown(self, objectUnderMouse, event)
         self.leftDownType = 'A_ROTATE'
     

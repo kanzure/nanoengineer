@@ -310,8 +310,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         #  which I've commented out below.]
         from simulation.movie import _checkMovieFile
         r = _checkMovieFile(self.w.assy.part, fn)
-        print "***opening movie file r =", r
-
+        
         if r == 1:
             
 ##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
@@ -328,7 +327,6 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         #bruce 050427 rewrote the following to use a new Movie object
         from simulation.movie import find_saved_movie
         new_movie = find_saved_movie( self.w.assy, fn )
-        print "*** new_movie = ", new_movie
         if new_movie:
             new_movie.set_alist_from_entire_part(self.w.assy.part) # kluge? might need changing...
             if self.w.assy.current_movie: #bruce 050427 no longer checking isOpen here

@@ -82,6 +82,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Handles LMB doubleclick event.
         @see:self.chunkLeftDouble()
 	"""
+                
         self.ignore_next_leftUp_event = True
         
         if not self.obj_doubleclicked:
@@ -124,6 +125,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: DnaSegment.get_DnaSegments_reachable_thru_crossovers()
         @see: NFR bug 2749 for details.
 	"""
+        
         if self.selection_locked():
             return
         
@@ -228,6 +230,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
         """
+        
         #Don't select anything if the selection is locked. 
         #see self.selection_locked() for more comments. 
         if self.selection_locked():
@@ -298,9 +301,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                       is an atom, then it is atom.molecule
         @type a_chunk: B{Chunk}
         @param event: MouseLeftUp event
-        @see: self.atomLeftUp
-        @see: self.chunkLeftDown
-        
+        @see: self.atomLeftUp()
+        @see: self.chunkLeftDown()
+        @see: self.leftShiftCntlUp()
         """        
         #Note: The following check is already done in 
         #selectMode.doObjectspecificLeftUp. 
@@ -356,11 +359,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.o.assy.unpickall_in_GLPane()
             m.pick()     
         elif self.o.modkeys == 'Shift+Control':
-            obj = self.get_obj_under_cursor(event)
-            ##if not obj is self.obj_doubleclicked:
-            if obj is self.o.selobj:
-                m.kill()                
-            self.o.selobj =  None        
+            #REVIEW/ TODO: leftShiftCntl* need to be an API method
+            parentNodesOfObjUnderMouse = [m]
+            self.leftShiftCntlUp(event, 
+                                 parentNodesOfObjUnderMouse = parentNodesOfObjUnderMouse)
         
         #Fixes bug because of which Nanotube segment is not selected from the
         #MT if the correspoinding chunk is selected from GLPane. 
@@ -372,6 +374,66 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.end_selection_from_GLPane()
         
         self.w.win_update()
+        
+    def leftShiftCntlUp(self, event, parentNodesOfObjUnderMouse = ()):
+        """
+        Do operations when Shift + control left up event occurs 
+        (As of 2008-05-02, this is now only implemented for and called from 
+        self.chunkLeftUp())
+        
+        @param parentNodesOfObjUnderMouse: Parent chunk, of which, the object 
+                under mouse is a part of.or some other node such as a 
+                DnaStrand Or DnaSegment etc which the user probably wants to 
+                operate on.
+         
+        @see: self.chunkLeftUp()
+        @see: self._do_leftShiftCntlUp_delete_operations()
+	"""
+        #TODO: This is a new method written on 2008-05-02 , especially to permit
+        #some custom deleting in BuildDna graphicsMode (a subclass of this 
+        #class) . This method should also consider other possibilities 
+        #such as 'what if the object under mouse is a Jig or something else' 
+        #there is some code that already exists which needs to use this new 
+        #method (and this method needs to take care of that) . -- Ninad
+        print "parentNodesOfObjUnderMouse =", parentNodesOfObjUnderMouse
+        obj = self.get_obj_under_cursor(event)     
+        self._do_leftShiftCntlUp_delete_operations(
+            event,
+            obj, 
+            parentNodesOfObjUnderMouse = parentNodesOfObjUnderMouse)
+
+        self.o.selobj =  None  
+    
+    def _do_leftShiftCntlUp_delete_operations(self, 
+                                              event,
+                                              objUnderMouse, 
+                                              parentNodesOfObjUnderMouse = ()):
+        """
+        Overridden in subclasses, default implementation just deletes the 
+        parent node of the object under cursor (provides as an argument)
+        
+        @param parentNodesOfObjUnderMouse: Tuple containing the 
+                parent chunk(s), of which, the object 
+                under mouse  is a part of,  or, some other node such as a 
+                DnaStrand Or DnaSegment etc which the user probably wants to 
+                operate on.
+        @type: Tuple
+         
+        @see: self.chunkLeftUp()
+        @see: self.leftShiftCntlUp() which calls this method. 
+        
+        @see: BuildDna_GraphicsMode._do_leftShiftCntlUp_delete_operations() 
+        """
+        obj = objUnderMouse
+        if obj is self.o.selobj:            
+            if parentNodesOfObjUnderMouse:  
+                try:
+                    for node in parentNodesOfObjUnderMouse:
+                        node.kill()   
+                except:
+                    print_compact_traceback(
+                        "Error deleting objects %r" % parentNodesOfObjUnderMouse)
+        
 
     def bondLeftDown(self, b, event):
         """
@@ -516,8 +578,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             
             if dnaStrandOrSegment1 is not None and \
                dnaStrandOrSegment1 is dnaStrandOrSegment2:
-                self.chunkLeftDown(chunk1, event)
-                return 
+                if self.o.modkeys != 'Shift+Control':
+                    self.chunkLeftDown(chunk1, event)                     
+                else:
+                    self.leftShiftCntlUp(event, 
+                                         parentNodesOfObjUnderMouse = (chunk1))
+                return
+                    
             
             if dnaStrandOrSegment1 is not None:
                 chunk1 = dnaStrandOrSegment1
@@ -525,17 +592,15 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             if dnaStrandOrSegment2 is not None:
                 chunk2 = dnaStrandOrSegment2
             
-            
-        
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             chunk1.pick() 
             chunk2.pick()  
             self.o.selobj =  None
-        elif self.o.modkeys == 'Shift+Control':         
-            chunk1.kill()
-            chunk2.kill()
-            self.o.selobj =  None
+        elif self.o.modkeys == 'Shift+Control':   
+            self.leftShiftCntlUp(event, 
+                                 parentNodesOfObjUnderMouse = (chunk1, chunk2))
+           
         
         #call API method to do any special selection (e.g. select the whole 
         #DnaStrand if all its chunks are selected)
@@ -601,13 +666,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 #the psuedoMoveMode left down might still be needed even when 
                 #drag handler is not None 
                 #(especially to get the self._leftDrag_movables)
-                self.pseudoMoveModeLeftDown(event) 
+                self._leftDown_preparation_for_dragging(obj, event) 
                 self.dragHandlerSetup(self.drag_handler, event) 
                 return
 
         self.doObjectSpecificLeftDown(obj, event)
         
-        self.pseudoMoveModeLeftDown(event) 
+        if self.glpane.modkeys is None:        
+            self._leftDown_preparation_for_dragging(obj, event) 
 
         self.w.win_update()
 
@@ -628,18 +694,21 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
 	@param  event: mouse left drag event
 	@see : selectMode.leftDrag
-	@see : selectMolsMode.pseudoMoveModeLeftDown
-	@see : selectMolsMode.pseudoMoveModeLeftDrag
+	@see : selectMolsMode._leftDown_preparation_for_dragging
+	@see : selectMolsMode.leftDragTranslation
 
 	"""
         
         if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             return
+        
+        self.current_obj_clicked = False 
 
         # Copying some drag_handler checker code from selectAtomsMode (with some
         # modifications) -- Ninad20070601
         # [bruce 071022 removed some comments redundant with the
         #  leftDrag method of selectAtomsMode]
+        
 
         if self.cursor_over_when_LMB_pressed == 'Empty Space': 
             if self.drag_handler is not None:
@@ -669,17 +738,15 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                     return                   
 
         #Free Drag Translate the selected (movable) objects.
-        self.pseudoMoveModeLeftDrag(event)
+        self.leftDragTranslation(event)
         
-            
-    
-    
 
-    def pseudoMoveModeLeftDown(self, event):
+    def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """
 	Initialize variables required for translating the selection during
-	leftDrag method (pseudoMoveModeLeftDrag) . 
+	leftDrag method (leftDragTranslation) . 
 	@param event: Mouse left down event	
+        @param objectUnderMouse: Object under the mouse during left down event.
 	@see : self.leftDown()
         @see: self.getMovablesForLeftDragging()
 	"""
@@ -703,7 +770,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self._leftDrag_movables = self.getMovablesForLeftDragging()
         return
 
-    def pseudoMoveModeLeftDrag(self, event):
+    def leftDragTranslation(self, event):
         """
 	Translate the selected object(s) in the plane of the screen 
 	following the mouse. This is a free drag translate.
@@ -716,7 +783,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 	from modifyMode.leftDrag 
         
         """
-
+        self._leftDragFreeTranslation(event)
+        
+    def _leftDragFreeTranslation(self, event):
+        """
+        @see : self.leftDrag()
+        @see: self._leftDragFreeTranslation()
+        @see: self._leftDragConstrainedTranslation()
+	"""
         if not self.picking:
             return
 
@@ -756,13 +830,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         self.win.assy.translateSpecifiedMovables(offset, 
                                                  self._leftDrag_movables)
 
-        ##self.o.assy.movesel(point - self.movingPoint)
         self.movingPoint = point    
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
-
-
+    
     def leftUp(self, event):
         """
         Event handler for all LMB release events.
@@ -786,7 +858,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         ##if not self.hover_highlighting_enabled:
             ##self.hover_highlighting_enabled = True
         
-                
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
             return
@@ -884,6 +955,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.hover_highlighting_enabled = True
         
         _superclass.bareMotion(self, event)
+    
         
     def update_cursor_for_no_MB(self):
         """
