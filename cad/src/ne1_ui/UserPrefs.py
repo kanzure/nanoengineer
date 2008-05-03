@@ -108,6 +108,8 @@ from utilities.prefs_constants import dnaStrutScaleFactor_prefs_key
 from utilities.prefs_constants import arrowsOnBackBones_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from utilities.prefs_constants import useCustomColorForDnaStrandArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandArrowheadsCustomColor_prefs_key
 
 # DNA Minor Groove Error Indicator prefs
 from utilities.prefs_constants import dnaDisplayMinorGrooveErrorIndicators_prefs_key
@@ -593,6 +595,12 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
         self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
         self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
+        self.connect(self.strandArrowheadsCustomColorPushButton,
+                     SIGNAL("clicked()"),
+                     self.change_dnaStrandArrowheadCustomColor)
+        self.connect(self.strandArrowheadsCustomColorCheckBox,
+                     SIGNAL("toggled(bool)"),
+                     self.update_dnaStrandArrowheadCustomColorWidgets)
 
         # DNA Minor Groove Error Indicator signal/slot connections.
         self.connect(self.dnaMinGrooveAngleSpinBox,
@@ -1602,7 +1610,7 @@ restored when the user undoes a structural change.</p>
         #self.dnaStrutScaleFactorSpinBox.setEnabled(False) # Not implemented yet.
 
 
-        # DNA backbone arrow preferences 
+        # DNA strand arrowheads preferences 
         connect_checkbox_with_boolean_pref(
             self.arrowsOnBackBones_checkBox,
             arrowsOnBackBones_prefs_key)
@@ -1614,6 +1622,17 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.strandArrowheadsCustomColorCheckBox,
+            useCustomColorForDnaStrandArrowheads_prefs_key)
+        
+        connect_colorpref_to_colorframe( 
+            dnaStrandArrowheadsCustomColor_prefs_key, 
+            self.strandArrowheadsColorFrame)
+        
+        self.update_dnaStrandArrowheadCustomColorWidgets(
+            env.prefs[useCustomColorForDnaStrandArrowheads_prefs_key])
 
         # Display Minor Groove Error Indicator groupbox widgets.
 
@@ -2454,6 +2473,28 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
         self.update_dnaStrutScaleWidgets()
+    
+    def update_dnaStrandArrowheadCustomColorWidgets(self, enabled_flag):
+        """
+        Slot for the "Custom color" checkbox, used to disable/enable the
+        color related widgets (frame and choose button).
+        
+        @note: This slot is a no-op.
+        """
+        if 0: # Set to 1 (true) to enable this slot.
+            # I thought it would be a good idea to disable the frame and Choose
+            # button when the "Custom color" checkbox was unchecked, but I
+            # decided against it. --Mark 2008-05-03
+            #self.strandArrowheadsCustomColorFrame.setEnabled(enabled_flag)
+            self.strandArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
+        return
+    
+    def change_dnaStrandArrowheadCustomColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA strand arrowhead color.
+        """
+        self.usual_change_color( dnaStrandArrowheadsCustomColor_prefs_key )
 
     def save_dnaMinMinorGrooveAngles(self, minAngle):
         """
