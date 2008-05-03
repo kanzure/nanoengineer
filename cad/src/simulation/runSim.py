@@ -440,7 +440,8 @@ class SimRunner:
                         tableFile = \
                             os.path.join(gromacs_plugin_path,
                                          "Pam5Potential.xvg")
-                        mdrunArgs += [ "-table", tableFile ]
+                        mdrunArgs += [ "-table", tableFile,
+                                       "-tablep", tableFile ]
                         
                     if (self.background):
                         abortHandler = None

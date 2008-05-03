@@ -78,6 +78,17 @@ trace_setStretchType(struct patternMatch *match, struct stretch *s)
   write_traceline(buf);
 }
 
+static void
+trace_makeVanDerWaals(struct patternMatch *match, struct atom *a1, struct atom *a2)
+{
+  char buf[1024];
+
+  sprintf(buf, "# Pattern makeVanDerWaals: [%d] %s ", match->sequenceNumber, trace_atomID(a1));
+  strcat(buf, trace_atomID(a2));
+  strcat(buf, "\n");
+  write_traceline(buf);
+}
+
 
 static void
 pam5_requires_gromacs(struct part *p)
@@ -336,11 +347,40 @@ pam5_groove_phosphate_match(struct patternMatch *match)
   //printMatch(match);
 }
 
+static void
+pam5_crossover_match(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *aP5 = p->atoms[match->atomIndices[5]];
+  struct atom *aP7 = p->atoms[match->atomIndices[7]];
+  struct atom *aP8 = p->atoms[match->atomIndices[8]];
+  struct atom *aP10 = p->atoms[match->atomIndices[10]];
+
+  // P7    P5    P2    P8    P10
+  //   \  /  \  /  \  /  \  /
+  //    S6    S1    S3    S9
+  //          |     |
+  //          G0 xx G4
+  //
+  // Note that since groove G0 is not bonded to G4, they are in
+  // different duplexes, which is what makes this a crossover.  Since
+  // we've created direct bonds between neighboring phosphates, the
+  // only non-bonded interaction which is not automatically excluded
+  // is P7-P10.  We want to add P7-P8, P5-P10, and P5-P8.
+
+  makeVanDerWaals(p, aP7->atomID, aP8->atomID);
+  trace_makeVanDerWaals(match, aP7, aP8);
+  makeVanDerWaals(p, aP5->atomID, aP10->atomID);
+  trace_makeVanDerWaals(match, aP5, aP10);
+  makeVanDerWaals(p, aP5->atomID, aP8->atomID);
+  trace_makeVanDerWaals(match, aP5, aP8);
+}
+
 void
 createPam5Patterns(void)
 {
-  struct compiledPatternTraversal *t[10];
-  struct compiledPatternAtom *a[10];
+  struct compiledPatternTraversal *t[15];
+  struct compiledPatternAtom *a[15];
 
   if (VanDerWaalsCutoffRadius < 0.0) {
     // this indicates that the model has no pam5 atoms
@@ -386,4 +426,28 @@ createPam5Patterns(void)
   t[0] = makeTraversal(a[0], a[1], '1');
   t[1] = makeTraversal(a[1], a[2], '1');
   makePattern("PAM5-groove-phosphate", pam5_groove_phosphate_match, 3, 2, t);
+
+  a[0] = makePatternAtom(0, "P5G");
+  a[1] = makePatternAtom(1, "P5S");
+  a[2] = makePatternAtom(2, "P5P");
+  a[3] = makePatternAtom(3, "P5S");
+  a[4] = makePatternAtom(4, "P5G");
+  a[5] = makePatternAtom(5, "P5P");
+  a[6] = makePatternAtom(6, "P5S");
+  a[7] = makePatternAtom(7, "P5P");
+  a[8] = makePatternAtom(8, "P5P");
+  a[9] = makePatternAtom(9, "P5S");
+  a[10] = makePatternAtom(10, "P5P");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  t[2] = makeTraversal(a[2], a[3], '1');
+  t[3] = makeTraversal(a[3], a[4], '1');
+  t[4] = makeTraversal(a[4], a[0], '0');
+  t[5] = makeTraversal(a[1], a[5], '1');
+  t[6] = makeTraversal(a[5], a[6], '1');
+  t[7] = makeTraversal(a[6], a[7], '1');
+  t[8] = makeTraversal(a[3], a[8], '1');
+  t[9] = makeTraversal(a[8], a[9], '1');
+  t[10] = makeTraversal(a[9], a[10], '1');
+  makePattern("PAM5-crossover", pam5_crossover_match, 11, 11, t);
 }

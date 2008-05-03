@@ -169,7 +169,13 @@ def d2_switch_yukawa(r):
     return d2_switch(r) * yukawa(r) + 2.0 * d_switch(r) * d_yukawa(r) + switch(r) * d2_yukawa(r)
 
 r = 0.0
-while (r < RVDW + CUTOFF_EXTRA + (DELTA_R / 2.0)):
+# We go to 2 * RVDW because GROMACS reuses the mdp option
+# table-extension (how far past RVDW we need to extend the table) as
+# the length of the 1-4 interaction table.  Since we want 1-4
+# interactions to go to RVDW as well, we need table-extension to be
+# RVDW, which results in the normal table being 2 * RVDW.  Silly,
+# really.
+while (r < 2 * RVDW + (DELTA_R / 2.0)):
     print "%6.3f %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e" % (r,
                                                                r_1(r), d2_r_1(r),
                                                                switch_yukawa(r), d2_switch_yukawa(r),

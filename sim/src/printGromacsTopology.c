@@ -242,6 +242,43 @@ static struct part *closure_part;
 static int nonbonded_function; // 1=Lennard-Jones, 2=Buckingham
 
 static void
+writeGromacsNonBonded(FILE *top, struct part *p, struct vanDerWaals *vdw)
+{
+    struct atom *a1 = vdw->a1;
+    struct atom *a2 = vdw->a2;
+    struct vanDerWaalsParameters *params = vdw->parameters;
+    double rvdW; // nm
+    double evdW; // kJ mol^-1
+    double A;
+    double B;
+    double C;
+
+    rvdW = params->rvdW * 1e-3; // convert pm to nm
+    if (rvdW > 1e-8) {
+        evdW = zJ_to_kJpermol(params->evdW);
+
+        if (nonbonded_function == 1) {
+            // Lennard-Jones
+            //A = 2.0 * evdW * pow(rvdW, 6.0);
+            //B = evdW * pow(rvdW, 12.0);
+
+            // Yukawa (user defined table)
+            A = 1.0;
+            B = 0.0;
+            if (EnableElectrostatic) {
+                fprintf(closure_topologyFile, "%4d %4d    1 %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), A, B);
+            }
+        } else {
+            A = 2.48e5 * evdW;                 // kJ mol^-1
+            B = 12.5 / rvdW;                   // nm^-1
+            C = evdW * 1.924 * pow(rvdW, 6.0); // kJ mol^-1 nm^6
+
+            fprintf(closure_topologyFile, "%4d %4d    2 %12.5e %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), A, B, C);
+        }
+    }
+}
+
+static void
 allNonBondedAtomtypesPass2(char *symbol, void *value)
 {
     struct atomType *at = (struct atomType *)value;
@@ -252,7 +289,7 @@ allNonBondedAtomtypesPass2(char *symbol, void *value)
     double A;
     double B;
     double C;
-    
+
     if (at != NULL) {
         element = at->protons;
         if (element >= closure_nonbondedPass1Number) {
@@ -384,6 +421,7 @@ printGromacsToplogy(char *basename, struct part *p)
         vdwCutoff = VanDerWaalsCutoffRadius;
         fprintf(mdp, "coulombtype         =  User\n");
         fprintf(mdp, "vdwtype             =  User\n");
+        fprintf(mdp, "table-extension     =  %f\n", vdwCutoff);
         nonbonded_function = 1;
     }
 
@@ -406,7 +444,7 @@ printGromacsToplogy(char *basename, struct part *p)
     
     fprintf(top, "[ defaults ]\n");
     fprintf(top, "; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ\n");
-    fprintf(top, "  %d             1               no              1.0     1.0\n", nonbonded_function);
+    fprintf(top, "  %d             1              no               1.0     1.0\n", nonbonded_function);
     fprintf(top, "\n");
 
     fprintf(top, "[ atomtypes ]\n");
@@ -460,6 +498,14 @@ printGromacsToplogy(char *basename, struct part *p)
     for (i=0; i<p->num_stretches; i++) {
 	writeGromacsBond(top, p, &p->stretches[i]);
     }
+    fprintf(top, "\n");
+    
+    fprintf(top, "[ pairs ]\n");
+    fprintf(top, "; ai   aj   func        A            B            C\n");
+    for (i=0; i<p->num_static_vanDerWaals; i++) {
+	writeGromacsNonBonded(top, p, p->vanDerWaals[i]);
+    }
+    fprintf(top, "\n");
 
     fprintf(top, "[ angles ]\n");
     fprintf(top, ";  ai    aj    ak func       theta0     ktheta\n");
