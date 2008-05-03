@@ -41,7 +41,7 @@ from model.elements import PeriodicTable
 from model.bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 
 ntTypes = ["Carbon", "Boron Nitride"]
-ntEndings = ["None", "Hydrogen", "Nitrogen"] # "Capped" NIY.
+ntEndings = ["Hydrogen", "None"] # "Capped" NIY. "Nitrogen" removed. --mark
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 sqrt3 = 3 ** 0.5
 
@@ -59,7 +59,7 @@ class Nanotube:
     type = "Carbon"
     endPoint1 = None
     endPoint2 = None
-    endings = "None" # "None", "Hydrogen" or "Nitrogen". "Capped" NIY.
+    endings = "Hydrogen" # "Hydrogen" or "None". "Capped" NIY.
     
     zdist  = 0.0 # Angstroms
     xydist = 0.0 # Angstroms
@@ -282,7 +282,7 @@ class Nanotube:
         """
         Sets the type of I{endings} of the nanotube self.
         
-        @param endings: Either "None", "Hydrogen", or "Nitrogen".
+        @param endings: Either "Hydrogen" or "None".
         @type  endings: string
         
         @note: "Capped" endings are not implemented yet.
@@ -294,7 +294,7 @@ class Nanotube:
         """
         Returns the type of I{endings} of the nanotube self.
         
-        @return: Either "None", "Hydrogen", or "Nitrogen".
+        @return: Either "Hydrogen" or "None".
         @rtype : string
         
         @note: "Capped" endings are not implemented yet.
@@ -418,7 +418,8 @@ class Nanotube:
         endings = self.getEndings()
         if endings == "Hydrogen":
             return 0.8 
-        elif endings == "Nitrogen":
+        elif endings == "Nitrogen": 
+            # Nitrogen endings option removed from PM. 2008-05-02 --Mark
             return 1.1
         else:
             return 0.5
@@ -657,7 +658,9 @@ class Nanotube:
             for atm in atoms.values():
                 atm.Hydrogenate()
         elif self.endings == "Nitrogen":
-            # nitrogen terminations
+            # nitrogen terminations. 
+            # This option has been removed from the "Endings" combo box
+            # in the PM. 2008-05-02 --mark
             dstElem = PeriodicTable.getElement('N')
             atomtype = dstElem.find_atomtype('sp2')
             for atm in atoms.values():

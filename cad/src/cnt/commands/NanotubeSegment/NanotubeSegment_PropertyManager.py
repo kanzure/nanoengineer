@@ -189,10 +189,14 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         """
         if self.editCommand is not None and self.editCommand.hasValidStructure():
-            self.n, self.m = self.editCommand.struct.nanotube.getChirality()
-            self.type = self.editCommand.struct.nanotube.getType()
-            self.endings = self.editCommand.struct.nanotube.getEndings()
-            self.endPoint1, self.endPoint2 = self.editCommand.struct.nanotube.getEndPoints()
+            
+            self.nanotube = self.editCommand.struct.nanotube
+            
+            self.n, self.m = self.nanotube.getChirality()
+            self.type = self.nanotube.getType()
+            self.endings = self.nanotube.getEndings()
+            self.endPoint1, self.endPoint2 = self.nanotube.getEndPoints()
+            
             # Note that _update_widgets_in_PM_before_show() is called in 
             # self.show, before you connect the signals. So, for the 
             # 'first show' we will need to manually set the value of any
@@ -201,6 +205,8 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             # NanotubeSegment_EditCommand, the propMgr will already be connected 
             # so any calls in that case is redundant.
             self.updateLength()
+            self.updateNanotubeDiameter()
+            self.updateChirality()
         
     def _addGroupBoxes( self ):
         """
@@ -216,7 +222,7 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         self.nameLineEdit = PM_LineEdit( pmGroupBox,
-                         label         =  "Segment name:",
+                         label         =  "Name:",
                          text          =  "",
                          setAsDefault  =  False)
     
@@ -228,6 +234,31 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          setAsDefault  =  False)
 
         self.ntLengthLineEdit.setDisabled(True)  
+        
+        # Nanotube Radius
+        self.ntDiameterLineEdit  =  \
+            PM_LineEdit( pmGroupBox,
+                         label         =  "Nanotube Diameter: ",
+                         setAsDefault  =  False)
+
+        self.ntDiameterLineEdit.setDisabled(True)
+        
+        # Nanotube chirality. These are disabled (read-only) for now. --Mark
+        self.chiralityNSpinBox = \
+            PM_SpinBox( pmGroupBox, 
+                        label        = "Chirality (n) :", 
+                        minimum      =  2,
+                        maximum      =  100,
+                        setAsDefault = True )
+        self.chiralityNSpinBox.setDisabled(True)
+        
+        self.chiralityMSpinBox = \
+            PM_SpinBox( pmGroupBox, 
+                        label        = "Chirality (m) :", 
+                        minimum      =  0,
+                        maximum      =  100,
+                        setAsDefault = True )
+        self.chiralityMSpinBox.setDisabled(True)
     
     def _addWhatsThisText(self):
         """
@@ -250,4 +281,19 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.ntLengthLineEdit.setText(text)
         return
     
+    def updateNanotubeDiameter(self):
+        """
+        Update the nanotube Diameter lineEdit widget.
+        """
+        diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
+        self.ntDiameterLineEdit.setText(diameterText)
+    
+    def updateChirality( self ):
+        """
+        Update the nanotube chirality spinboxes (read-only).
+        """
+        n, m = self.nanotube.getChirality()
+        self.chiralityNSpinBox.setValue(n)
+        self.chiralityMSpinBox.setValue(m)
+        return
         

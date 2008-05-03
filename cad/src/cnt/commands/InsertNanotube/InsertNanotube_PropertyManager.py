@@ -325,7 +325,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         #self.bondLengthDoubleSpinBox.hide()
         
-        endingChoices = ["None", "Hydrogen", "Nitrogen"]
+        endingChoices = ["Hydrogen", "None"] # Removed:, "Nitrogen"]
         
         self.endingsComboBox= \
             PM_ComboBox( pmGroupBox,
