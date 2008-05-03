@@ -1629,7 +1629,7 @@ restored when the user undoes a structural change.</p>
         
         connect_colorpref_to_colorframe( 
             dnaStrandArrowheadsCustomColor_prefs_key, 
-            self.strandArrowheadsColorFrame)
+            self.strandArrowheadsCustomColorFrame)
         
         self.update_dnaStrandArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForDnaStrandArrowheads_prefs_key])
@@ -2478,15 +2478,9 @@ restored when the user undoes a structural change.</p>
         """
         Slot for the "Custom color" checkbox, used to disable/enable the
         color related widgets (frame and choose button).
-        
-        @note: This slot is a no-op.
         """
-        if 0: # Set to 1 (true) to enable this slot.
-            # I thought it would be a good idea to disable the frame and Choose
-            # button when the "Custom color" checkbox was unchecked, but I
-            # decided against it. --Mark 2008-05-03
-            #self.strandArrowheadsCustomColorFrame.setEnabled(enabled_flag)
-            self.strandArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
+        self.strandArrowheadsCustomColorFrame.setEnabled(enabled_flag)
+        self.strandArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
         return
     
     def change_dnaStrandArrowheadCustomColor(self):

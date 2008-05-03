@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Sat May 03 15:59:18 2008
+# Created: Sat May 03 16:36:50 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1245,19 +1245,19 @@ class Ui_UserPrefsDialog(object):
         self.hboxlayout26.setSpacing(6)
         self.hboxlayout26.setObjectName("hboxlayout26")
 
-        self.strandArrowheadsColorFrame = QtGui.QFrame(self.dna_reduced_model_options_grpbox)
+        self.strandArrowheadsCustomColorFrame = QtGui.QFrame(self.dna_reduced_model_options_grpbox)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.strandArrowheadsColorFrame.sizePolicy().hasHeightForWidth())
-        self.strandArrowheadsColorFrame.setSizePolicy(sizePolicy)
-        self.strandArrowheadsColorFrame.setMinimumSize(QtCore.QSize(23,23))
-        self.strandArrowheadsColorFrame.setMaximumSize(QtCore.QSize(23,23))
-        self.strandArrowheadsColorFrame.setFrameShape(QtGui.QFrame.Box)
-        self.strandArrowheadsColorFrame.setFrameShadow(QtGui.QFrame.Plain)
-        self.strandArrowheadsColorFrame.setObjectName("strandArrowheadsColorFrame")
-        self.hboxlayout26.addWidget(self.strandArrowheadsColorFrame)
+        sizePolicy.setHeightForWidth(self.strandArrowheadsCustomColorFrame.sizePolicy().hasHeightForWidth())
+        self.strandArrowheadsCustomColorFrame.setSizePolicy(sizePolicy)
+        self.strandArrowheadsCustomColorFrame.setMinimumSize(QtCore.QSize(23,23))
+        self.strandArrowheadsCustomColorFrame.setMaximumSize(QtCore.QSize(23,23))
+        self.strandArrowheadsCustomColorFrame.setFrameShape(QtGui.QFrame.Box)
+        self.strandArrowheadsCustomColorFrame.setFrameShadow(QtGui.QFrame.Plain)
+        self.strandArrowheadsCustomColorFrame.setObjectName("strandArrowheadsCustomColorFrame")
+        self.hboxlayout26.addWidget(self.strandArrowheadsCustomColorFrame)
 
         self.strandArrowheadsCustomColorPushButton = QtGui.QPushButton(self.dna_reduced_model_options_grpbox)
         self.strandArrowheadsCustomColorPushButton.setAutoDefault(False)
