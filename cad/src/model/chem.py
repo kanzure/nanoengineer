@@ -83,6 +83,7 @@ import model.global_model_changedicts as global_model_changedicts
 # but that fails, so we have to do a relative import to satisfy the cycle:
 import chunk # from model
 
+
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
 
@@ -138,6 +139,8 @@ from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 
 from utilities.prefs_constants import dnaMinMinorGrooveAngle_prefs_key
 from utilities.prefs_constants import dnaMaxMinorGrooveAngle_prefs_key
+from utilities.prefs_constants import dnaStrandArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForDnaStrandArrowheads_prefs_key
 
 from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
@@ -1750,7 +1753,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # thus cone tip at pos + 3 * axis.
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
-            drawpolycone(color,
+            
+            #Following implements custom arrowhead colors for the 3' and 5' end
+            #(can be changed using Preferences > Dna page) Feature implemented 
+            #for Rattlesnake v1.0.1
+            bool_custom_arrowhead_color = env.prefs[
+                useCustomColorForDnaStrandArrowheads_prefs_key]
+            
+            if bool_custom_arrowhead_color:
+                arrowColor = env.prefs[dnaStrandArrowheadsCustomColor_prefs_key]
+            else:
+                arrowColor = color
+            
+            drawpolycone(arrowColor,
                          [[pos[0] - 2 * axis[0], 
                           pos[1] - 2 * axis[1],
                           pos[2] - 2 * axis[2]],
