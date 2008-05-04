@@ -3097,8 +3097,8 @@ restored when the user undoes a structural change.</p>
         else:
             self.gamess_path_lineedit.setEnabled(0)
             self.gamess_choose_btn.setEnabled(0)
-            self.gamess_path_lineedit.setText("")
-            env.prefs[gmspath_prefs_key] = ''
+            #self.gamess_path_lineedit.setText("")
+            #env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
 
     # GROMACS slots #######################################
@@ -3109,9 +3109,9 @@ restored when the user undoes a structural change.</p>
         """
 
         mdrun_executable = \
-                         get_filename_and_save_in_prefs(self,
-                                                        gromacs_path_prefs_key,
-                                                        'Choose mdrun executable (GROMACS)')
+            get_filename_and_save_in_prefs(self,
+                                           gromacs_path_prefs_key,
+                                           'Choose mdrun executable (GROMACS)')
 
         if mdrun_executable:
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
@@ -3141,7 +3141,7 @@ restored when the user undoes a structural change.</p>
             # Sets the GROMACS (executable) path to the standard location, if it exists.
             if not env.prefs[gromacs_path_prefs_key]:
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS\\bin\\mdrun.exe", \
+                    "C:\\GROMACS_3.3.2+HDF5_p2\\bin\\mdrun.exe", \
                     "/usr/bin/mdrun",
                     "/usr/bin/mdrun")
 
@@ -3152,8 +3152,8 @@ restored when the user undoes a structural change.</p>
                 self.gromacs_checkbox.setCheckState(Qt.Unchecked)
             self.gromacs_path_lineedit.setEnabled(False)
             self.gromacs_choose_btn.setEnabled(False)
-            self.gromacs_path_lineedit.setText("")
-            env.prefs[gromacs_path_prefs_key] = ''
+            #self.gromacs_path_lineedit.setText("")
+            #env.prefs[gromacs_path_prefs_key] = ''
             env.prefs[gromacs_enabled_prefs_key] = False
 
     # cpp slots #######################################
@@ -3194,7 +3194,7 @@ restored when the user undoes a structural change.</p>
             # Sets the cpp path to the standard location, if it exists.
             if not env.prefs[cpp_path_prefs_key]:
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS\\cpp.exe", \
+                    "C:\\GROMACS_3.3.2+HDF5_p2\\MCPP\\bin\\mcpp.exe", \
                     "/usr/bin/cpp", \
                     "/usr/bin/cpp")
 
@@ -3205,8 +3205,8 @@ restored when the user undoes a structural change.</p>
                 self.cpp_checkbox.setCheckState(Qt.Unchecked)
             self.cpp_path_lineedit.setEnabled(False)
             self.cpp_choose_btn.setEnabled(False)
-            self.cpp_path_lineedit.setText("")
-            env.prefs[cpp_path_prefs_key] = ''
+            #self.cpp_path_lineedit.setText("")
+            #env.prefs[cpp_path_prefs_key] = ''
             env.prefs[cpp_enabled_prefs_key] = False
 
     # NanoVision-1 slots #######################################
@@ -3259,8 +3259,8 @@ restored when the user undoes a structural change.</p>
                 self.nv1_checkbox.setCheckState(Qt.Unchecked)
             self.nv1_path_lineedit.setEnabled(False)
             self.nv1_choose_btn.setEnabled(False)
-            self.nv1_path_lineedit.setText("")
-            env.prefs[nv1_path_prefs_key] = ''
+            #self.nv1_path_lineedit.setText("")
+            #env.prefs[nv1_path_prefs_key] = ''
             env.prefs[nv1_enabled_prefs_key] = False
 
     # QuteMolX slots #######################################
@@ -3306,8 +3306,8 @@ restored when the user undoes a structural change.</p>
         else:
             self.qutemol_path_lineedit.setEnabled(0)
             self.qutemol_choose_btn.setEnabled(0)
-            self.qutemol_path_lineedit.setText("")
-            env.prefs[qutemol_path_prefs_key] = ''
+            #self.qutemol_path_lineedit.setText("")
+            #env.prefs[qutemol_path_prefs_key] = ''
             env.prefs[qutemol_enabled_prefs_key] = False
 
     # NanoHive-1 slots #####################################
@@ -3367,8 +3367,8 @@ restored when the user undoes a structural change.</p>
             self.nanohive_choose_btn.setEnabled(0)
             self.w.nanohive = None
             self.w.simNanoHiveAction.setVisible(0)
-            self.nanohive_path_lineedit.setText("")
-            env.prefs[nanohive_path_prefs_key] = ''
+            #self.nanohive_path_lineedit.setText("")
+            #env.prefs[nanohive_path_prefs_key] = ''
             env.prefs[nanohive_enabled_prefs_key] = False
 
     # POV-Ray slots #####################################
@@ -3414,8 +3414,8 @@ restored when the user undoes a structural change.</p>
         else:
             self.povray_path_lineedit.setEnabled(0)
             self.povray_choose_btn.setEnabled(0)
-            self.povray_path_lineedit.setText("")
-            env.prefs[povray_path_prefs_key] = ''
+            #self.povray_path_lineedit.setText("")
+            #env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
 
@@ -3460,8 +3460,8 @@ restored when the user undoes a structural change.</p>
         else:
             self.megapov_path_lineedit.setEnabled(0)
             self.megapov_choose_btn.setEnabled(0)
-            self.megapov_path_lineedit.setText("")
-            env.prefs[megapov_path_prefs_key] = ''
+            #self.megapov_path_lineedit.setText("")
+            #env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
 
