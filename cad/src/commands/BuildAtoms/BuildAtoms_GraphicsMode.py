@@ -783,13 +783,14 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 strandGroup2 = a2.molecule.parent_node_of_class(
                     self.win.assy.DnaStrand)                
                 if strandGroup2 is not None:
-                    ##strandGroup2.setStrandColor(color)                     
                     strandChunkList = strandGroup2.getStrandChunks()
-                    c1 = strandChunkList[0] 
-                    for c in strandChunkList[1:]:
-                        c1.merge(c)
-                
-            a1.molecule.merge(a2.molecule)    
+                    for c in strandChunkList:
+                        if hasattr(c, 'invalidate_ladder'):
+                            c.invalidate_ladder()
+            if not DEBUG_BUG_2829:    
+                #merging molecules is not required if you invalidate the ladders
+                #in DEBUG_BUG_2829 block
+                a1.molecule.merge(a2.molecule)    
             # ... now bond the highlighted singlet <s2> to the first 
             # singlet <s1>
             self.bond_singlets(s1, s2)
