@@ -47,6 +47,7 @@ from utilities.icon_utilities import geticon
 
 from utilities.debug import print_compact_stack
 from utilities.debug import print_compact_traceback
+from model.elements import Singlet
 
 from utilities.prefs_constants import buildModeHighlightingEnabled_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
@@ -57,7 +58,7 @@ from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_basicCommand
 from command_support.GraphicsMode_API import GraphicsMode_API
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 
-
+from utilities.Log import orangemsg
 _superclass = SelectAtoms_basicCommand
 
 class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
@@ -82,6 +83,12 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             
         #Initialize some more attributes. 
         self._pastable_atomtype = None
+        
+        #The following flag, if set to True, doesn't allow converting
+        #bonds between the selected atoms to the bondtyp specified in the 
+        #flyout toolbar. This is used only while activating the 
+        #bond tool. See self._convert_bonds_bet_selected_atoms() for details
+        self._supress_convert_bonds_bet_selected_atoms = False
         
         self.hover_highlighting_enabled = \
             env.prefs[buildModeHighlightingEnabled_prefs_key]
@@ -237,21 +244,113 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         and graphitic) depending upon the checked action.
         @param: action is the checked bond tool action in the 
         bondToolsActionGroup
-        """
+        """       
+        bondTypeString = ''
+        delete_bonds_bet_selected_atoms = False
         state = action.isChecked()
         if action ==  self.bond1Action:
             self.graphicsMode.setBond1(state)
+            bondTypeString = 'single bonds.'
         elif action == self.bond2Action:
             self.graphicsMode.setBond2(state)
+            bondTypeString = 'double bonds.'
         elif action == self.bond3Action:
             self.graphicsMode.setBond3(state)
+            bondTypeString = 'triple bonds.'
         elif action == self.bondaAction:
             self.graphicsMode.setBonda(state)
         elif action == self.bondgAction:
             self.graphicsMode.setBondg(state)
+            bondTypeString = 'graphitic bonds.'
         elif action == self.cutBondsAction:
+            delete_bonds_bet_selected_atoms = True
             self.graphicsMode.update_cursor()
             self.propMgr.updateMessage()
+        
+        #When the bond tool is changed, also make sure to apply the new 
+        #bond tool, to the bonds between the selected atoms if any.        
+        self._convert_bonds_bet_selected_atoms(
+            delete_bonds_bet_selected_atoms = delete_bonds_bet_selected_atoms,
+            bondTypeString = bondTypeString
+        )
+        
+    def _convert_bonds_bet_selected_atoms(self, 
+                                          delete_bonds_bet_selected_atoms = False,
+                                          bondTypeString = ''):
+        """
+        Converts the bonds between the selected atoms to one specified by
+        self.graphicsMode..bondclick_v6. Example: When user selects all atoms in 
+        a nanotube and clicks 'graphitic' bond button, it converts all the 
+        bonds between the selected atoms to graphitic bonds. 
+        @see: self.activateBondsTool()
+        @see: self.changeBondTool()
+        @see: bond_utils.apply_btype_to_bond()
+        @see: BuildAtoms_GraphicsMode.bond_change_type()
+        """
+        #Method written on 2008-05-04 to support NFR bug 2832. This need to 
+        #be reviewed for further optimization (not urgent) -- Ninad
+        #This flag is set while activating the bond tool. 
+        #see self.activateBondsTool()
+        if self._supress_convert_bonds_bet_selected_atoms:
+            return
+        
+        #For the history message
+        converted_bonds = 0
+        non_converted_bonds = 0
+        deleted_bonds = 0
+        #We wil check the bond dictionary to see if a bond between the 
+        #selected atoms is already operated on.
+        bondDict = {}
+        #MAke sure that the bond tool on command toolbar is active
+        if self.isBondsToolActive():
+            bondList = [] 
+            #all selected atoms 
+            atoms = self.win.assy.selatoms.values()
+            for a in atoms:
+                for b in a.bonds[:]:
+                    #If bond 'b' is already in the bondDict, skip this 
+                    #iteration.
+                    if bondDict.has_key(id(b)):
+                        continue
+                    else:
+                        bondDict[id(b)] = b
+                    #neigbor atom of the atom 'a'    
+                    neighbor = b.other(a)
+                    
+                    if neighbor.element != Singlet and neighbor.picked:  
+                        if delete_bonds_bet_selected_atoms:
+                            b.bust()
+                            deleted_bonds += 1
+                        else:
+                            bond_type_changed = self.graphicsMode.bond_change_type(
+                                b, 
+                                allow_remake_bondpoints = True,
+                                supress_history_message = True
+                            )
+                            if bond_type_changed:
+                                converted_bonds += 1
+                            else:
+                                non_converted_bonds += 1
+                            
+            msg = ''                        
+            if delete_bonds_bet_selected_atoms:                
+                msg = "Deleted %d bonds between selected atoms"%deleted_bonds
+            else:
+                if bondTypeString:                        
+                    msg = "%d bonds between selected atoms "\
+                        "converted to %s" %(converted_bonds, 
+                                            bondTypeString)
+                    msg2 = ''
+                    if non_converted_bonds:
+                        msg2 = orangemsg(" [Unable to convert %d "\
+                                         "bonds to %s]"%(non_converted_bonds, 
+                                                         bondTypeString))
+                    if msg2:
+                        msg += msg2
+            if msg:
+                env.history.message(msg)
+                
+            self.glpane.gl_update()
 
     def update_gui(self): #bruce 050121 heavily revised this 
         #[called by basicMode.UpdateDashboard]
@@ -765,9 +864,15 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         Activate the bond tool of the build chunks mode 
         Show only the Bond Tools groupbox in the Build chunks Property manager
         and hide the others.
-        """                
+        @see:self._convert_bonds_bet_selected_atoms()
+        """        
+        #Temporarily set the following flag to True while activating the 
+        #bond tool. @see:self._convert_bonds_bet_selected_atoms()
+        self._supress_convert_bonds_bet_selected_atoms = True
         self.bond1Action.setChecked(True)
         self.changeBondTool(self.bond1Action)
+        #Set this flag to False now.
+        self._supress_convert_bonds_bet_selected_atoms = False
                         
         for grpbox in self.propMgr.previewGroupBox, self.propMgr.elementChooser:
             grpbox.hide()

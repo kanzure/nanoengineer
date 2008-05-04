@@ -249,29 +249,45 @@ def delete_bond(bond): #bruce 080228 to fix update bug reported by EricM
 #   (possible implem of that: maybe remove it, set_atomtype, then add it back, then remake singlets?)
 # - then it's safe to let bond cmenu have more entries (since they might be open bonds)
 
-def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060703 added allow_remake_bondpoints for bug 833-1
+def apply_btype_to_bond(btype, 
+                        bond, 
+                        allow_remake_bondpoints = True,
+                        supress_history_message = False): #bruce 060703 added allow_remake_bondpoints for bug 833-1
     """
     Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes
     (or, new feature 060523, if it's permitted by its real atoms' possible atomtypes and their number of real bonds),
     and do whatever inferences are presently allowed [none are implemented as of 050727].
     Emit an appropriate history message. Do appropriate invals/updates.
     [#e should the inference policy and/or some controlling object be another argument? Maybe even a new first arg 'self'?]
+    
+    @param supress_history_message: If True, it quietly converts the bondtypes 
+            without printing any history message. 
     """
     # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
     # (or bondpoints as of 060702) and immediately change their types.
+    
+    #This flag will be returned by this function to tell the caller whether the
+    #bond type of the given bond was changed
+    bond_type_changed = True
+    
     v6 = v6_from_btype(btype)
     oldname = quote_html( str(bond) )
     def changeit(also_atypes = None):
         if v6 == bond.v6:
-            env.history.message( "bond type of %s is already %s" % (oldname, btype))
+            bond_type_changed = False
+            if not supress_history_message:
+                env.history.message( "bond type of %s is already %s" % (oldname, btype))
         else:
             if also_atypes:
                 # change atomtypes first (not sure if doing this first matters)
                 atype1, atype2 = also_atypes
                 def changeatomtype(atom, atype):
                     if atom.atomtype is not atype:
-                        msg = "changed %r from %s to %s" % (atom, atom.atomtype.name, atype.name )
-                        env.history.message(msg)
+                        if not supress_history_message:
+                            msg = "changed %r from %s to %s" % (atom, 
+                                                                atom.atomtype.name, 
+                                                                atype.name )
+                            env.history.message(msg)
                         atom.set_atomtype(atype)
                         ### note[ probably 060523]:
                         # if we're an open bond, we have to prevent this process from removing us!
@@ -284,13 +300,15 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
             bond.set_v6(v6) # this doesn't affect anything else or do any checks ####k #####@@@@@ check that
             ##e now do inferences on other bonds
             bond.changed() ###k needed?? maybe it's now done by set_v6??
-            env.history.message( "changed bond type of %s to %s" % (oldname, btype))
+            if not supress_history_message:
+                env.history.message( "changed bond type of %s to %s" % (oldname,
+                                                                        btype))
             ###k not sure if it does gl_update when needed... how does menu use of this do that?? ###@@@
         return # from changeit
     poss = poss1 = possible_bond_types(bond) # only includes the ones which don't change the atomtypes -- try these first
     if btype in poss1:
         changeit()
-        return
+        return bond_type_changed
     # otherwise figure out if we can change the atomtypes to make this work.
     # (The following code is predicted to work for either real or open bonds,
     #  but it is not safe to offer on open bonds for other reasons (commented above in changeatomtype).
@@ -308,18 +326,20 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
         poss = poss2 # poss is whichever of poss1 or poss2 was actually allowed
         if btype in poss2:
             changeit((atype1, atype2))
-            return
+            return bond_type_changed
     # It failed, but a variety of situations should be handled in the error message.
     # For error messages, sort them all the same way.
     poss1.sort()
     poss2.sort()
     poss.sort() #k not really needed, it's same mutable list, but keep this in case someone changes that
-    if poss2 == poss: # note, this happens if poss2 == poss1, or if they differ but allow_remake_bondpoints is true
+    if poss2 == poss : # note, this happens if poss2 == poss1, or if they differ but allow_remake_bondpoints is true
         # permitting changing of atomtypes wouldn't make any difference
-        msg = "can't change bond type of %s to %s" % (oldname, btype)
-        msg2 = " -- permitted types are %s" % (poss)
-            #e improve message -- %s of list looks like repr (for strings too)
-        env.history.message( orangemsg( msg) + msg2 )
+        if not supress_history_message:
+            msg = "can't change bond type of %s to %s" % (oldname, btype)
+            msg2 = " -- permitted types are %s" % (poss)
+                #e improve message -- %s of list looks like repr (for strings too)
+            env.history.message( orangemsg( msg) + msg2 )
+        bond_type_changed = False
     elif btype in poss2:
         if allow_remake_bondpoints:
             print_compact_stack( "bug: allow_remake_bondpoints should not be true here: " )
@@ -340,11 +360,15 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
                     # this is not expected to ever happen, when called from UI as of 060703; it's untested ##@@
                     unless += ", and of %s to %s" % (atom, atype.name)
         msg = "can't change bond type of %s to %s, " % (oldname, btype,)
+        bond_type_changed = False
         if unless:
             unless_msg = greenmsg( "unless you %s" % (unless,) )
         else:
             unless_msg = redmsg( "due to a bug")
-        env.history.message( orangemsg( msg) + ( unless_msg) )
+        if not supress_history_message:
+            env.history.message( orangemsg( msg) + ( unless_msg) )
+            
+        
     else:
         # changing atomtypes makes a difference, but either way you're not allowed to change to this bond type
         if allow_remake_bondpoints:
@@ -352,11 +376,16 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
         extra = complement_sequences(poss2, poss1)
         if not extra:
             print_compact_stack( "bug: extra should not be empty here: " )
+            
+        
         msg = "can't change bond type of %s to %s" % (oldname, btype)
         msg2 = " -- permitted types are %s, or %s if you change atomtypes" % (poss1, extra)
             #e improve message -- %s of list looks like repr (for strings too)
-        env.history.message( orangemsg( msg) + msg2 )
-    return # from apply_btype_to_bond
+        bond_type_changed = False
+        if not supress_history_message:
+            env.history.message( orangemsg( msg) + msg2 )
+            
+    return bond_type_changed # from apply_btype_to_bond
 
 def best_atype(atom, atomtypes = None): #bruce 060523
     """

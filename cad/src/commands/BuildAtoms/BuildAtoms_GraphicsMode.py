@@ -258,12 +258,22 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         return
     
     
-    def bond_change_type(self, b, allow_remake_bondpoints = True): 
+    def bond_change_type(self, 
+                         b, 
+                         allow_remake_bondpoints = True,
+                         supress_history_message = False): 
         #bruce 050727; revised 060703
         """
         Change bondtype of bond <b> to new bondtype determined by the dashboard 
         (if allowed).
+        @see: BuildAtoms_Command._convert_bonds_bet_selected_atoms()
         """
+        #This value is later changed based on what apply_btype_to_bond returns
+        #the caller of this function can then use this further to determine
+        #various things.
+        #@see: BuildAtoms_Command._convert_bonds_bet_selected_atoms()
+        
+        bond_type_changed = True
         # renamed from clicked_on_bond() mark 060204.
         v6 = self.bondclick_v6
         if v6 is not None:
@@ -271,16 +281,18 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             btype = btype_from_v6( v6)
             from operations.bond_utils import apply_btype_to_bond
             
-            apply_btype_to_bond( 
+            bond_type_changed = apply_btype_to_bond( 
                 btype, 
                 b, 
-                allow_remake_bondpoints = allow_remake_bondpoints)
+                allow_remake_bondpoints = allow_remake_bondpoints,
+                supress_history_message = supress_history_message
+            )
                 # checks whether btype is ok, and if so, new; emits history 
                 #message; does [#e or should do] needed invals/updates
             ###k not sure if that subr does gl_update when needed... this method
             ##does it, but not sure how
             # [or maybe only its caller does?]
-        return
+        return bond_type_changed
     
     def bond_singlets(self, s1, s2):
         """
@@ -347,6 +359,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 env.history.statusbar_msg("click bonds to make them %s" % name)
                 if self.command.propMgr:
                     self.command.propMgr.updateMessage() # Mark 2007-06-01
+                  
             else:
                 # this never happens (as explained above)
                 #####@@@@@ see also setAtom, which runs when Atom Tool is 
@@ -359,9 +372,11 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) 
                  # happens for the one that was just on,unless you click sameone
+        
         self.update_cursor()
         
         return
+    
     
     #==== Water ====
     def setWater(self, bool_enable):
