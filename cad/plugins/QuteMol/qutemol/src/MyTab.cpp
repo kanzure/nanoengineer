@@ -35,7 +35,7 @@ const float MAX_BLEND = 0.25; // maximal blend factor for colors (when per chain
 ////////////
 
 enum{ ID_SetBallnstick=500, ID_SetSpacefill, ID_SetLicorice,
-      ID_SetLicoriceRadius, ID_SetBallnstickRadius, 
+      ID_SetLicoriceRadius, ID_SetBallnstickRadius, ID_SetBallnstickBallRadius,
       
       ID_SetBallnstickSmoothcolor,ID_SetBallnstickBicolor, ID_SetBallnstickConstantcolor,
       
@@ -101,7 +101,7 @@ static wxCheckBox  *buttonDoubleShadows;
 static wxCheckBox  *buttonSem;
 static wxCheckBox  *buttonSetHetatm;
 
-static wxSlider *sliderLicorice, *sliderBallnstick,
+static wxSlider *sliderLicorice, *sliderBallnstick, *sliderBallnstickBall,
                 *sliderSetBaseColor , *sliderShineSize,
                 *sliderAwaren , 
                 *sliderSetBgbrightness,
@@ -111,7 +111,7 @@ static wxSlider *sliderLicorice, *sliderBallnstick,
         
         
                 
-static wxStaticText *textLicorice, *textBallnstick, *textShadowStr, 
+static wxStaticText *textLicorice, *textBallnstick, *textShadowStr, *textBallnstickBall,
                     *textBallnstick2, *textShineSize, *textDoubleShadows, 
                     *textAwaren, *textSem, *textLightBase, *textSetHetatm,
                     *textHaloSize, *textHaloStr, *textHaloAware, *textHaloColor,
@@ -317,6 +317,13 @@ void MyTab::OnSlider(wxScrollEvent & event){
     SceneChanged();
     break;
   }
+
+  case ID_SetBallnstickBallRadius: {
+    geoSettings.SetBallRadiusPercentage( sliderBallnstickBall->GetValue() );
+    geoSettings.Apply();
+    SceneChanged();
+    break;
+  }
   
   case ID_SetColorBlend: {
     SetColMode( sliderColorBlend->GetValue()*0.01f* MAX_BLEND );
@@ -512,7 +519,12 @@ void MyTab::OnButton(wxCommandEvent & event){
     presetsPath = fileName.GetPath(wxPATH_GET_SEPARATOR);
     
     if ( (pid>=0) && (pid<NPreset) ) {
-      if (!cgSettings.Load( presetsPath + presetFile[pid] )) {
+#ifdef __DARWIN__
+                        wxString presetPath = wxStandardPaths::Get().GetResourcesDir() + "/" + presetFile[pid];
+                        if (!cgSettings.Load( presetPath.c_str() )) {
+#else
+      if (!cgSettings.Load( presetFile[pid] )) {
+#endif
         wxMessageBox(_T("Unable to load presets!"), _T(":-("), wxOK | wxICON_EXCLAMATION, this);
       }
       emphCurrentPreset(pid);
@@ -638,6 +650,8 @@ void MyTab::EnableGeom(){
   buttonSetBallnstick->SetValue(bns);
   sliderBallnstick->Enable(bns);
   textBallnstick->Enable(bns);
+  sliderBallnstickBall->Enable(bns);
+  textBallnstickBall->Enable(bns);
   textBallnstick2->Enable(bns);
   sliderLicorice->Enable(lico);
   textLicorice->Enable(lico);
@@ -926,6 +940,14 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
         geoSettings.GetStickRadiusPercentage(),
         sliderBallnstick, 
         textBallnstick
+      ) );
+
+      sizer2r->Add( newLabelledSlider( 
+        this, ID_SetBallnstickBallRadius,
+        _T("Ball size:"), 
+        geoSettings.GetBallRadiusPercentage(),
+        sliderBallnstickBall, 
+        textBallnstickBall
       ) );
 
       {

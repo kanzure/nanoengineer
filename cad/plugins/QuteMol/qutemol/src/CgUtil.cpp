@@ -63,12 +63,14 @@ float CgUtil::_border_inside(){
 }
 
 void CgUtil::setGeoSettings(const GeoSettings &gs){
+   P_ball_radius = 1.0; // piotr 080501
    if (gs.mode==GeoSettings::BALL_N_STICKS) {
      P_cyl_const_color=gs.use_stick_const_color;
      P_cyl_smooth_color=gs.stick_smooth_color;
      P_cyl_const_color_R = gs.stick_const_color_R;
      P_cyl_const_color_G = gs.stick_const_color_G;
      P_cyl_const_color_B = gs.stick_const_color_B;
+     P_ball_radius = 3.0 * gs.ballRadius; // piotr 080501
    }
    if (gs.mode==GeoSettings::LICORICE) {
      P_cyl_const_color=false;
@@ -615,13 +617,15 @@ MAD dataout.w,  dataout.w, dataout.w, -1;\n\
 ",
  vp, _border_outside()   ); 
   
+ float rad = P_ball_radius; // piotr 080501
+ 
  sprintf(vp,"%s\
 \n\
 MUL disp, dataout, dataout.z; \n\
 #MUL disp.x, disp.x, matP[0].x;\n\
 #MUL disp.y, disp.y, matP[1].y;\n\
-MAD p, {1,1,0,0},  disp, p;\n\
-", vp);
+MAD p, {%f,%f,0,0},  disp, p;\n\
+", vp, rad, rad);
 
  
  sprintf(vp,"%s\

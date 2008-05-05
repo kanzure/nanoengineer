@@ -6,6 +6,7 @@ public:
   GeoMode mode;
   
   float stickRadius;
+  float ballRadius;
   float licoRadius;
 
   bool stick_smooth_color;
@@ -19,6 +20,7 @@ public:
     //stickRadius=0.2;
     SetLicoRadiusPercentage(50);
     SetStickRadiusPercentage(100);
+    SetBallRadiusPercentage(100);
     //licoRadius=0.6;
     
     stick_smooth_color = false;
@@ -52,12 +54,22 @@ public:
 
   void SetStickRadiusPercentage(int percentage){
     const float tmp=0.32 * 0.85-0.16;
-    stickRadius = 0.16 + percentage/100.0*tmp;
+    stickRadius = 0.16 + percentage/10.0*tmp;
   }
 
   int GetStickRadiusPercentage(){
     const float tmp=0.32 * 0.85-0.16;
-    return int(100.0*((stickRadius - 0.16)/tmp));
+    return int(10.0*((stickRadius - 0.16)/tmp));
+  }
+  
+  void SetBallRadiusPercentage(int percentage){
+    const float tmp=0.32 * 0.85-0.16;
+    ballRadius = 0.16 + percentage/10.0*tmp;
+  }
+
+  int GetBallRadiusPercentage(){
+    const float tmp=0.32 * 0.85-0.16;
+    return int(10.0*((ballRadius - 0.16)/tmp));
   }
   
 };
@@ -125,7 +137,8 @@ public:
   bool P_cyl_smooth_color;
   bool P_cyl_const_color;
   float P_cyl_const_color_R,P_cyl_const_color_G,P_cyl_const_color_B;
-
+  float P_ball_radius;
+  
   void setGeoSettings(const GeoSettings &gs);
 
   // Error messages

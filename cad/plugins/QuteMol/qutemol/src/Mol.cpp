@@ -60,7 +60,6 @@ Mol::Mol()
     colMode=1.0;
     
     // Support a ten thousand chains for now
-    // piotr 080501: increased the array size from 1000 to 10000
     for (int i = 0; i < 10000; i++)
         chainColors[i] = 1; // 1 is used to indicate no set chain color
     
@@ -467,7 +466,7 @@ bool Mol::ReadPdb(const char* _filename){
     
     atom.clear();
     bond.clear();
-    
+
     while (1) {
         if (!fgets(buf,81,f))
             break;
@@ -475,10 +474,10 @@ bool Mol::ReadPdb(const char* _filename){
         if ((lineN % 1000) == 0) if (size!=0) if (showprogress) {  
             if (!UpdateProgress((int)ftell(f))) return false;  
         }
-        string st(buf);
+        wxString st(buf); // piotr 080318
         if ( (strcmp( st.substr(0,6).c_str(), "ATOM  ") == 0 ) || 
              (strcmp( st.substr(0,6).c_str(), "HETATM") == 0 ) ) {
-            atom.push_back(QAtom(st, chainIndex));
+            atom.push_back(QAtom(std::string(st.c_str()), chainIndex)); // piotr 080318
             if (QAtom::readError) {
                 sprintf(QAtom::lastReadError,"Error reading %s!\nLine %d: %s",filename,lineN,&(st[0]));
                 if (showprogress) EndProgress();
@@ -493,7 +492,8 @@ bool Mol::ReadPdb(const char* _filename){
                 chainIndex++;
         
         if (strcmp(st.substr(0, 6).c_str(), "CONECT") == 0)
-            AddTmpBonds(st, tmpBondVec);
+            AddTmpBonds(std::string(st.c_str()), tmpBondVec); // piotr 080318
+
 
         if ((st.length() > 10) && (st.substr(0, 10) == "REMARK   7")) {
             
@@ -502,7 +502,7 @@ bool Mol::ReadPdb(const char* _filename){
             //
             if ((st.length() > 22) &&
                 (st.substr(11, 12) == "ORIENTATION:")) {
-                wxString dataLine = st.substr(23);
+                wxString dataLine = st.substr(23).c_str();
                 wxStringTokenizer tokenizer(dataLine);
                 if (tokenizer.CountTokens() == 4) {
                     defaultViewRotation[0] =
@@ -531,7 +531,7 @@ bool Mol::ReadPdb(const char* _filename){
             //
             if ((st.length() > 24) &&
                 (st.substr(11, 14) == "POINT_OF_VIEW:")) {
-                wxString dataLine = st.substr(25);
+                wxString dataLine = st.substr(25).c_str();
                 wxStringTokenizer tokenizer(dataLine);
                 if (tokenizer.CountTokens() == 3) {
                     px = -1 * atof(tokenizer.GetNextToken().c_str());
@@ -659,8 +659,8 @@ bool Mol::ReadPdb(const char* _filename){
                     int blue = atoi(tokenizer.GetNextToken().c_str());
 
                     // Prepend single letter atom names with a space.
-                    if (atomName.length() == 1)
-                        atomName = string(" ").append(atomName);
+                    if (atomName.length() == 1) 
+                        atomName = wxString(" ").append(atomName); // piotr 080318
 
                     addAtomType((char*)(atomName.c_str()), atomNumber,
                                 cpkRadius, ballStickRadius,
@@ -669,13 +669,14 @@ bool Mol::ReadPdb(const char* _filename){
             }
         }
     }
-    //printf("Found %d atoms!\n", atom.size() );
     
     nhetatm=0;  natm=0;
     for (int i=0; i<atom.size(); i++){
       if (atom[i].hetatomFlag)  nhetatm++; else natm++;
     }
 
+	haveDefaultView = false;
+	
     if (!haveDefaultView)
         ComputeSize();
 
@@ -685,8 +686,6 @@ bool Mol::ReadPdb(const char* _filename){
       AddBond(tmpBondVec[i],tmpBondVec[i+1]);
     }
 
-
-    
     if (showprogress) EndProgress();
     //if (sticks) FindBonds();
     
@@ -754,7 +753,6 @@ void Mol::ComputeSize(){
     r*=0.5;
     
     //printf("pos=(%f %f %f) size=%f\n",px,py,pz,r);
-    
 
 }
 
@@ -910,8 +908,7 @@ void Mol::getDefaultViewRotation
         sqrt(defaultViewRotation[1] * defaultViewRotation[1] +
              defaultViewRotation[2] * defaultViewRotation[2] +
              defaultViewRotation[3] * defaultViewRotation[3]);
-        // piotr 080318 added a workaround for scale==0.0 case:
-        if (scale<1e-6) scale = 1.0f;
+	if (scale<1e-8) scale = 1.0;		 
 	*axisX = defaultViewRotation[1] / scale;
 	*axisY = defaultViewRotation[2] / scale;
 	*axisZ = defaultViewRotation[3] / scale;
