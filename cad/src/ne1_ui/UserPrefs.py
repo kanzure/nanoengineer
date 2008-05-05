@@ -108,8 +108,10 @@ from utilities.prefs_constants import dnaStrutScaleFactor_prefs_key
 from utilities.prefs_constants import arrowsOnBackBones_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
-from utilities.prefs_constants import useCustomColorForDnaStrandArrowheads_prefs_key
-from utilities.prefs_constants import dnaStrandArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 
 # DNA Minor Groove Error Indicator prefs
 from utilities.prefs_constants import dnaDisplayMinorGrooveErrorIndicators_prefs_key
@@ -595,12 +597,22 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
         self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
         self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
-        self.connect(self.strandArrowheadsCustomColorPushButton,
+        self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton,
                      SIGNAL("clicked()"),
-                     self.change_dnaStrandArrowheadCustomColor)
-        self.connect(self.strandArrowheadsCustomColorCheckBox,
+                     self.change_dnaStrandThreePrimeArrowheadCustomColor)
+        
+        self.connect(self.strandFivePrimeArrowheadsCustomColorPushButton,
+                     SIGNAL("clicked()"),
+                     self.change_dnaStrandFivePrimeArrowheadCustomColor)
+        
+        self.connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
                      SIGNAL("toggled(bool)"),
-                     self.update_dnaStrandArrowheadCustomColorWidgets)
+                     self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets)
+        
+        self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox,
+                     SIGNAL("toggled(bool)"),
+                     self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
+        
 
         # DNA Minor Groove Error Indicator signal/slot connections.
         self.connect(self.dnaMinGrooveAngleSpinBox,
@@ -1624,15 +1636,27 @@ restored when the user undoes a structural change.</p>
             arrowsOnFivePrimeEnds_prefs_key)
         
         connect_checkbox_with_boolean_pref(
-            self.strandArrowheadsCustomColorCheckBox,
-            useCustomColorForDnaStrandArrowheads_prefs_key)
+            self.strandThreePrimeArrowheadsCustomColorCheckBox,
+            useCustomColorForThreePrimeArrowheads_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.strandFivePrimeArrowheadsCustomColorCheckBox,
+            useCustomColorForFivePrimeArrowheads_prefs_key)
         
         connect_colorpref_to_colorframe( 
-            dnaStrandArrowheadsCustomColor_prefs_key, 
-            self.strandArrowheadsCustomColorFrame)
+            dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, 
+            self.strandThreePrimeArrowheadsCustomColorFrame)
         
-        self.update_dnaStrandArrowheadCustomColorWidgets(
-            env.prefs[useCustomColorForDnaStrandArrowheads_prefs_key])
+        connect_colorpref_to_colorframe( 
+            dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, 
+            self.strandFivePrimeArrowheadsCustomColorFrame)
+        
+        
+        self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
+            env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
+        
+        self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets(
+            env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key])
 
         # Display Minor Groove Error Indicator groupbox widgets.
 
@@ -2474,21 +2498,37 @@ restored when the user undoes a structural change.</p>
         env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
         self.update_dnaStrutScaleWidgets()
     
-    def update_dnaStrandArrowheadCustomColorWidgets(self, enabled_flag):
+    def update_dnaStrandThreePrimeArrowheadCustomColorWidgets(self, enabled_flag):
+        """
+        Slot for the "Custom color" checkbox,for three prime arrowhead
+        used to disable/enable thecolor related widgets (frame and choose button).
+        """
+        self.strandThreePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
+        self.strandThreePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
+        return
+    
+    def update_dnaStrandFivePrimeArrowheadCustomColorWidgets(self, enabled_flag):
         """
         Slot for the "Custom color" checkbox, used to disable/enable the
         color related widgets (frame and choose button).
         """
-        self.strandArrowheadsCustomColorFrame.setEnabled(enabled_flag)
-        self.strandArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
+        self.strandFivePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
+        self.strandFivePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
         return
     
-    def change_dnaStrandArrowheadCustomColor(self):
+    def change_dnaStrandThreePrimeArrowheadCustomColor(self):
         """
         Slot for the I{Choose...} button for changing the 
-        DNA strand arrowhead color.
+        DNA strand three prime arrowhead color.
         """
-        self.usual_change_color( dnaStrandArrowheadsCustomColor_prefs_key )
+        self.usual_change_color( dnaStrandThreePrimeArrowheadsCustomColor_prefs_key )
+        
+    def change_dnaStrandFivePrimeArrowheadCustomColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA strand five prime arrowhead color.
+        """
+        self.usual_change_color( dnaStrandFivePrimeArrowheadsCustomColor_prefs_key )
 
     def save_dnaMinMinorGrooveAngles(self, minAngle):
         """

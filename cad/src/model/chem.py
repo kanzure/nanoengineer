@@ -139,8 +139,10 @@ from utilities.prefs_constants import diBALL_AtomRadius_prefs_key
 
 from utilities.prefs_constants import dnaMinMinorGrooveAngle_prefs_key
 from utilities.prefs_constants import dnaMaxMinorGrooveAngle_prefs_key
-from utilities.prefs_constants import dnaStrandArrowheadsCustomColor_prefs_key
-from utilities.prefs_constants import useCustomColorForDnaStrandArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
 
 from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
@@ -1646,17 +1648,24 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
         if self.element.bonds_can_be_directional: #bruce 070415, correct end-arrowheads
             # note: as of mark 071014, this can happen for self being a Singlet
+            bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
+            bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
+                
+            if self.isFivePrimeEndAtom() and not bool_arrowsOnFivePrimeEnds:
+                return 'five_prime_end_atom'
+            elif self.isThreePrimeEndAtom() and not bool_arrowsOnThreePrimeEnds:
+                return 'three_prime_end_atom'
+            
             bond = self.strand_end_bond()
             if bond is not None:
-                bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
-                bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
+                
                 # Determine how singlets of strand open bonds should be drawn.
                 # draw_bond_main() takes care of drawing bonds accordingly.
                 # - mark 2007-10-20.
                 if bond.isFivePrimeOpenBond() and bool_arrowsOnFivePrimeEnds:
-                    return 'arrowhead-in'
+                        return 'arrowhead-in'                        
                 elif bond.isThreePrimeOpenBond() and bool_arrowsOnThreePrimeEnds:
-                    return 'arrowhead-out'
+                        return 'arrowhead-out'              
                 else:
                     return 'do not draw'
                 #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
@@ -1707,17 +1716,36 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
             drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
         elif style.startswith('arrowhead-'):
+            #arrowColor will be changed later
+            arrowColor = color                    
             # two options, bruce 070415:
             # - arrowhead-in means pointing in along the strand_end_bond
             # - arrowhead-out means pointing outwards from the strand_end_bond
             if style == 'arrowhead-in':
                 bond = self.strand_end_bond()
                 other = bond.other(self)
-                otherdir = 1
+                otherdir = 1 
+                #Following implements custom arrowhead colors for the 3' and 5' end
+                #(can be changed using Preferences > Dna page) Feature implemented 
+                #for Rattlesnake v1.0.1
+                bool_custom_arrowhead_color = env.prefs[
+                    useCustomColorForFivePrimeArrowheads_prefs_key]                
+                if bool_custom_arrowhead_color:
+                    arrowColor = env.prefs[
+                        dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
+                
             elif style == 'arrowhead-out':
                 bond = self.strand_end_bond()
                 other = bond.other(self)
                 otherdir = -1
+                #Following implements custom arrowhead colors for the 3' and 5' end
+                #(can be changed using Preferences > Dna page) Feature implemented 
+                #for Rattlesnake v1.0.1
+                bool_custom_arrowhead_color = env.prefs[
+                    useCustomColorForThreePrimeArrowheads_prefs_key]                
+                if bool_custom_arrowhead_color:
+                    arrowColor = env.prefs[
+                        dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
             else:
                 assert 0
             if abs_coords:
@@ -1754,16 +1782,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
             
-            #Following implements custom arrowhead colors for the 3' and 5' end
-            #(can be changed using Preferences > Dna page) Feature implemented 
-            #for Rattlesnake v1.0.1
-            bool_custom_arrowhead_color = env.prefs[
-                useCustomColorForDnaStrandArrowheads_prefs_key]
             
-            if bool_custom_arrowhead_color:
-                arrowColor = env.prefs[dnaStrandArrowheadsCustomColor_prefs_key]
-            else:
-                arrowColor = color
             
             drawpolycone(arrowColor,
                          [[pos[0] - 2 * axis[0], 
@@ -1781,6 +1800,23 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                                                   # points not drawn)
                         [arrowRadius, arrowRadius, 0, 0] # Radius array
                        )
+        elif style == 'five_prime_end_atom':
+            sphereColor = color
+            bool_custom_color = env.prefs[
+                    useCustomColorForFivePrimeArrowheads_prefs_key]                
+            if bool_custom_color:
+                sphereColor = env.prefs[
+                    dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
+                    
+            drawsphere(sphereColor, pos, drawrad, level)
+        elif style == 'three_prime_end_atom':
+            sphereColor = color
+            bool_custom_color = env.prefs[
+                    useCustomColorForThreePrimeArrowheads_prefs_key]                
+            if bool_custom_color:
+                sphereColor = env.prefs[
+                    dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
+            drawsphere(sphereColor, pos, drawrad, level)
         else:
             if style:
                 print "bug (ignored): unknown _draw_atom_style return value for %r: %r" % (self, style,)

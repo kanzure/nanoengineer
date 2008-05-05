@@ -1019,6 +1019,44 @@ class PAM_Atom_methods:
                 return DIRBOND_ERROR, None, None
         pass
     
+    def isThreePrimeEndAtom(self):
+        """
+        Returns True if self is a three prime end atom of a DnaStrand
+        """
+        if not self.element.bonds_can_be_directional:
+            return False # optimization
+        
+        dnaStrand = self.molecule.parent_node_of_class(self.molecule.assy.DnaStrand)
+        if dnaStrand is None:
+            return False
+        
+        threePrimeEndAtom = dnaStrand.get_three_prime_end_base_atom()
+        
+        if self is threePrimeEndAtom:
+            return True
+        else:
+            return False
+    
+    
+    def isFivePrimeEndAtom(self):
+        """
+        Returns True if self is a five prime end atom of a DnaStrand
+        """
+        if not self.element.bonds_can_be_directional:
+            return False # optimization
+        
+        dnaStrand = self.molecule.parent_node_of_class(self.molecule.assy.DnaStrand)
+        if dnaStrand is None:
+            return False
+        
+        fivePrimeEndAtom = dnaStrand.get_five_prime_end_base_atom()
+        
+        if self is fivePrimeEndAtom:
+            return True
+        else:
+            return False
+        
+    
     def strand_end_bond(self): #bruce 070415, revised 071016 ### REVIEW: rename?
         """
         For purposes of possibly drawing self as an arrowhead,

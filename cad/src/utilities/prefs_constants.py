@@ -218,8 +218,10 @@ dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
-useCustomColorForDnaStrandArrowheads_prefs_key = 'A101/ Use custom color for strand arrowheads'
-dnaStrandArrowheadsCustomColor_prefs_key = 'A101/ Custom color for strand arrowheads'
+useCustomColorForThreePrimeArrowheads_prefs_key = 'A101/ Use custom color for three-prime arrowheads/spheres'
+dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for strand three-prime arrowheads/spheres'
+useCustomColorForFivePrimeArrowheads_prefs_key = 'A101/ Use custom color for five-prime arrowheads/spheres'
+dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for five-prime strand arrowheads/spheres'
 
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
@@ -568,8 +570,10 @@ prefs_table = (
         ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
         ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
         ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
-        ('', 'boolean', useCustomColorForDnaStrandArrowheads_prefs_key, False),
-        ('', 'color', dnaStrandArrowheadsCustomColor_prefs_key, red), 
+        ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, False),
+        ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, red),
+        ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, False),
+        ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
 
         # DNA minor groove error indicator prefs.
         ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),

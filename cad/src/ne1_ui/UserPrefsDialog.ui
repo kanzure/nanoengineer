@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>737</width>
-    <height>606</height>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -2796,9 +2796,9 @@
                <number>6</number>
               </property>
               <item>
-               <widget class="QCheckBox" name="strandArrowheadsCustomColorCheckBox" >
+               <widget class="QCheckBox" name="strandThreePrimeArrowheadsCustomColorCheckBox" >
                 <property name="text" >
-                 <string>Custom color:</string>
+                 <string>3' End Custom color:</string>
                 </property>
                </widget>
               </item>
@@ -2811,7 +2811,7 @@
                  <number>6</number>
                 </property>
                 <item>
-                 <widget class="QFrame" name="strandArrowheadsCustomColorFrame" >
+                 <widget class="QFrame" name="strandThreePrimeArrowheadsCustomColorFrame" >
                   <property name="sizePolicy" >
                    <sizepolicy>
                     <hsizetype>0</hsizetype>
@@ -2841,7 +2841,87 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="strandArrowheadsCustomColorPushButton" >
+                 <widget class="QPushButton" name="strandThreePrimeArrowheadsCustomColorPushButton" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>21</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="strandFivePrimeArrowheadsCustomColorCheckBox" >
+                <property name="text" >
+                 <string>5' End Custom color:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="strandFivePrimeArrowheadsCustomColorFrame" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="strandFivePrimeArrowheadsCustomColorPushButton" >
                   <property name="text" >
                    <string>Choose...</string>
                   </property>
