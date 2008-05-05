@@ -1631,6 +1631,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                  - "arrowhead-out" means to draw a 3' arrowhead.
                  - "do not draw" means don't draw anything.
                  - "bondpoint-stub" means to draw a stub.
+                 - 'five_prime_end_atom' means draw 5' end base atom in a special 
+                   color if arrows are not drawn at 5' end
+                 - 'five_prime_end_atom' means draw 3' end base atom in a special 
+                   color if arrows are not drawn at 3' end
 
         @note: We check not only the desirability of the special cases, but all 
         their correctness conditions, making sure that those don't depend on
@@ -1651,9 +1655,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
             bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
                 
-            if self.isFivePrimeEndAtom() and not bool_arrowsOnFivePrimeEnds:
+            if not bool_arrowsOnFivePrimeEnds and self.isFivePrimeEndAtom():
                 return 'five_prime_end_atom'
-            elif self.isThreePrimeEndAtom() and not bool_arrowsOnThreePrimeEnds:
+            elif not bool_arrowsOnThreePrimeEnds and self.isThreePrimeEndAtom():
                 return 'three_prime_end_atom'
             
             bond = self.strand_end_bond()
