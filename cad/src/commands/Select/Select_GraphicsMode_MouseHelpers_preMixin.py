@@ -434,17 +434,6 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
             self.w.win_update() #k wouldn't gl_update be enough? 
                                 #[bruce 060726 question]
     
-        
-    def ORIG_bondDelete(self, event):
-        """
-                
-        If the object under the cursor is a bond, delete it. Subclasses should 
-        override this method. The default implementation does nothing. 
-        
-        @param event: A left mouse up event.
-        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
-        """
-        pass
     
     def bondDrag(self, obj, event):
         """
