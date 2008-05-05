@@ -1391,13 +1391,22 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         atom_preferred_scale = float(
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
         
+        numberOfMembers = 0 
+        #hasattr test fixes bug 2813
+        if hasattr(self.assy.part.topnode, 'members'):
+            numberOfMembers = len(self.assy.part.topnode.members)
+        else:
+            #Its a clipboard part, probably a chunk or a jig not contained in 
+            #a group.
+            numberOfMembers = 1
+        
         if self.currentCommand.commandName in dnaCommands:
             if self.scale ==  startup_scale and \
-               len(self.assy.part.topnode.members) == 0:                
+               numberOfMembers == 0:                
                 self.scale = dna_preferred_scale
         else:
             if self.scale == dna_preferred_scale and \
-               len(self.assy.part.topnode.members) == 0:
+               numberOfMembers == 0:
                 self.scale = atom_preferred_scale
 
     # ==
