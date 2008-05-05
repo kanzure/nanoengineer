@@ -1633,7 +1633,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                  - "bondpoint-stub" means to draw a stub.
                  - 'five_prime_end_atom' means draw 5' end base atom in a special 
                    color if arrows are not drawn at 5' end
-                 - 'five_prime_end_atom' means draw 3' end base atom in a special 
+                 - 'three_prime_end_atom' means draw 3' end base atom in a special 
                    color if arrows are not drawn at 3' end
 
         @note: We check not only the desirability of the special cases, but all 

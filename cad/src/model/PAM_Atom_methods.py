@@ -1023,38 +1023,64 @@ class PAM_Atom_methods:
         """
         Returns True if self is a three prime end atom of a DnaStrand
         """
+        if self.is_singlet():
+            return False
+        
         if not self.element.bonds_can_be_directional:
             return False # optimization
-        
-        dnaStrand = self.molecule.parent_node_of_class(self.molecule.assy.DnaStrand)
-        if dnaStrand is None:
-            return False
-        
-        threePrimeEndAtom = dnaStrand.get_three_prime_end_base_atom()
-        
-        if self is threePrimeEndAtom:
-            return True
-        else:
-            return False
+	
+	nextatom = self.next_atom_in_bond_direction(1) 
+	if nextatom is None or nextatom.is_singlet():
+	      return True # self is an end atom
+	  
+	return False
+	
+	if 0:
+	    #Other implementation. This could be slower than the one implemented
+	    #above        
+	    dnaStrand = self.molecule.parent_node_of_class(
+		self.molecule.assy.DnaStrand)
+	    if dnaStrand is None:
+		return False
+	    
+	    threePrimeEndAtom = dnaStrand.get_three_prime_end_base_atom()
+	    
+	    if self is threePrimeEndAtom:
+		return True
+	    else:
+		return False
     
     
     def isFivePrimeEndAtom(self):
         """
         Returns True if self is a five prime end atom of a DnaStrand
         """
+        if self.is_singlet():
+            return False
+        
         if not self.element.bonds_can_be_directional:
             return False # optimization
         
-        dnaStrand = self.molecule.parent_node_of_class(self.molecule.assy.DnaStrand)
-        if dnaStrand is None:
-            return False
-        
-        fivePrimeEndAtom = dnaStrand.get_five_prime_end_base_atom()
-        
-        if self is fivePrimeEndAtom:
-            return True
-        else:
-            return False
+        nextatom = self.next_atom_in_bond_direction(-1) 
+	if nextatom is None or nextatom.is_singlet():
+	      return True # self is an end atom
+	  
+	return False
+
+        if 0:
+	    #Other implementation. This could be slower than the one implemented
+	    #above
+	    dnaStrand = self.molecule.parent_node_of_class(
+		self.molecule.assy.DnaStrand)
+	    if dnaStrand is None:
+		return False
+	    
+	    fivePrimeEndAtom = dnaStrand.get_five_prime_end_base_atom()
+	    
+	    if self is fivePrimeEndAtom:
+		return True
+	    else:
+		return False
         
     
     def strand_end_bond(self): #bruce 070415, revised 071016 ### REVIEW: rename?
