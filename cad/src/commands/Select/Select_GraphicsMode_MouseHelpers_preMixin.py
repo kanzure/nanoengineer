@@ -242,7 +242,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         # won't be formed....Then should this check be done in each of the 
         #objectLeftUp methods? But that would be too many methods in various 
         #subclasses and it may cause bugs if someone forgets to add this check.
-                
+    
         if not self.current_obj_clicked:
             if isinstance(obj, Atom) and obj.is_singlet():
                 pass
@@ -296,6 +296,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
                                #to do [bruce 060727 comment]]
         self.obj_doubleclicked = obj # [used by leftDouble and class-specific 
                                      #leftDouble methods [bruce 060727 comment]]
+        
         if obj is None:
             self.current_obj_clicked = False
         else:
@@ -311,7 +312,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
             _count = _count + 1
             self.current_obj_start = _count # used in transient_id argument 
                                             #to env.history.message
-        
+                                        
          
     def atomSetup(self, a, event):
         """
@@ -452,6 +453,16 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
     # == End of bond selection helper methods
     
     #== Chunk helper methods
+    
+    def chunkSetUp(self, a_chunk, event):
+        """
+        Chunk setup (called from self.chunkLeftDown()
+        @see: SelectChunks_GraphicsMode.chunkLeftDown()
+        @see: BuildDna_GraphicsMode.chunkLeftDown()
+        @see:self.objectSetup()
+        """
+        
+        self.objectSetup(a_chunk)
     
     def chunkLeftDown(self, a_chunk, event):
         """

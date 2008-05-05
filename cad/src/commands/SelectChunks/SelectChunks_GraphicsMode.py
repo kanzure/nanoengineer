@@ -193,11 +193,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @param event: QMouseLeftDown event
         """
         m = a.molecule
+        #chunkLeftDown in turn calls self.objectSetUp()..
         self.chunkLeftDown(m, event)
-        
-        #calling atom setup is needed as it calls 'objectSetup' , which in turn 
-        #sets an appropriate flag for leftUp methods 
-        self.atomSetup(a, event)
+    
     
     def atomLeftUp(self, a, event):
         """
@@ -228,16 +226,17 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @type a_chunk: B{Chunk}
         @param event: MouseLeftDown event
         @see: self.atomLeftDown
-        @see: self.chunkLeftDown
-        """
+        @see: BuildDna_GraphicsMode.chunkLeftDown() (overrides this method)
+        @see: self.chunkSetUp()
         
+        """
         #Don't select anything if the selection is locked. 
         #see self.selection_locked() for more comments. 
         if self.selection_locked():
             return
-        
+                
         assert isinstance(a_chunk, Chunk)
-        
+            
         m = a_chunk
         
         #@REVIEW: The following code that checks if its a dna segment or strand 
@@ -287,6 +286,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.cursor_over_when_LMB_pressed = 'Picked Chunk'
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
+            
+        self.chunkSetUp(m, event)
             
         #Fixes bug because of which Nanotube segment is not selected from the
         #MT if the correspoinding chunk is selected from GLPane. 

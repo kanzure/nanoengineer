@@ -202,16 +202,21 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
         @param event: MouseLeftDown event
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
+        @see:self.objectSetUp()
         """
 
         strandOrSegment = a_chunk.parent_node_of_class(
             self.win.assy.DnaStrandOrSegment)   
 
         if strandOrSegment is not None:
+            #Make sure to call chunkSetUp if you are not calling the 
+            #chunkLeftDown method of superclass. This in turn,
+            #calls self.objectSetUp(). Fixes a problem in selecting a 
+            #DnaClynder chunk (selobj = Chunk) 
+            self.chunkSetUp(a_chunk, event)
             return
 
         _superclass.chunkLeftDown(self, a_chunk, event)
-
 
 
     def chunkLeftUp(self, aChunk, event):
