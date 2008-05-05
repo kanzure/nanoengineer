@@ -53,7 +53,9 @@ writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a
 }
 
 struct atomType *Gv5_type = NULL;
+struct atomType *Ax3_type = NULL;
 struct atomType *Pl5_type = NULL;
+struct atomType *Ss3_type = NULL;
 
 //   Pl   Pl   Pl
 //   |    |    |
@@ -75,9 +77,11 @@ writeExclusionsOnOneGroove(FILE *top,
     for (i=0; i<groove->num_bonds; i++) {
         b = groove->bonds[i];
         toExclude = NULL;
-        if (b->a1 == groove && b->a2 != first && atomIsType(b->a2, Pl5_type)) {
+        if (b->a1 == groove && b->a2 != first && (atomIsType(b->a2, Pl5_type) ||
+                                                  atomIsType(b->a2, Ss3_type))) {
             toExclude = b->a2;
-        } else if (b->a2 == groove && b->a1 != first && atomIsType(b->a1, Pl5_type)) {
+        } else if (b->a2 == groove && b->a1 != first && (atomIsType(b->a1, Pl5_type) ||
+                                                         atomIsType(b->a1, Ss3_type))) {
             toExclude = b->a1;
         }
         if (toExclude != NULL) {
@@ -109,9 +113,11 @@ writeExclusion(FILE *top,
     }
     for (i=0; i<groove2->num_bonds; i++) {
         b = groove2->bonds[i];
-        if (b->a1 == groove2 && b->a2 != groove1 && atomIsType(b->a2, Gv5_type)) {
+        if (b->a1 == groove2 && b->a2 != groove1 && (atomIsType(b->a2, Gv5_type) ||
+                                                     atomIsType(b->a2, Ax3_type))) {
             gotOne |= writeExclusion(top, p, first, groove2, b->a2, gotOne, depth);
-        } else if (b->a2 == groove2 && b->a1 != groove1 && atomIsType(b->a1, Gv5_type)) {
+        } else if (b->a2 == groove2 && b->a1 != groove1 && (atomIsType(b->a1, Gv5_type) ||
+                                                            atomIsType(b->a1, Ax3_type))) {
             gotOne |= writeExclusion(top, p, first, groove2, b->a1, gotOne, depth);
         }
     }
@@ -131,25 +137,29 @@ writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
     int i;
     int j;
     int gotOne = 0;
-    
-    if (!atomIsType(a, Gv5_type)) {
+
+    if (!(atomIsType(a, Gv5_type) || atomIsType(a, Ax3_type))) {
         return;
     }
     for (i=0; i<a->num_bonds; i++) {
         b = a->bonds[i];
         first = NULL;
-        if (b->a1 == a && atomIsType(b->a2, Pl5_type)) {
+        if (b->a1 == a && (atomIsType(b->a2, Pl5_type) ||
+                           atomIsType(b->a2, Ss3_type))) {
             first = b->a2;
-        } else if (b->a2 == a && atomIsType(b->a1, Pl5_type)) {
+        } else if (b->a2 == a && (atomIsType(b->a1, Pl5_type) ||
+                                  atomIsType(b->a1, Ss3_type))) {
             first = b->a1;
         }
         if (first != NULL) {
             gotOne = writeExclusionsOnOneGroove(top, p, first, a, 0);
             for (j=0; j<a->num_bonds; j++) {
                 b = a->bonds[j];
-                if (b->a1 == a && atomIsType(b->a2, Gv5_type)) {
+                if (b->a1 == a && (atomIsType(b->a2, Gv5_type) ||
+                                   atomIsType(b->a2, Ax3_type))) {
                     gotOne |= writeExclusion(top, p, first, a, b->a2, gotOne, DEPTH_TO_EXCLUDE);
-                } else if (b->a2 == a && atomIsType(b->a1, Gv5_type)) {
+                } else if (b->a2 == a && (atomIsType(b->a1, Gv5_type) ||
+                                          atomIsType(b->a1, Ax3_type))) {
                     gotOne |= writeExclusion(top, p, first, a, b->a1, gotOne, DEPTH_TO_EXCLUDE);
                 }
             }
@@ -399,7 +409,9 @@ printGromacsToplogy(char *basename, struct part *p)
     free(fileName);
 
     Gv5_type = getAtomTypeByName("Gv5");
+    Ax3_type = getAtomTypeByName("Ax3");
     Pl5_type = getAtomTypeByName("Pl5");
+    Ss3_type = getAtomTypeByName("Ss3");
     
     fprintf(mdp, "title               =  NE1-minimize\n");
     fprintf(mdp, "constraints         =  none\n");

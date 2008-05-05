@@ -376,6 +376,35 @@ pam5_crossover_match(struct patternMatch *match)
   trace_makeVanDerWaals(match, aP5, aP8);
 }
 
+static void
+pam3_crossover_match(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *aS1 = p->atoms[match->atomIndices[1]];
+  struct atom *aS2 = p->atoms[match->atomIndices[2]];
+  struct atom *aS4 = p->atoms[match->atomIndices[4]];
+  struct atom *aS5 = p->atoms[match->atomIndices[5]];
+  struct atom *aS6 = p->atoms[match->atomIndices[6]];
+  struct atom *aS7 = p->atoms[match->atomIndices[7]];
+
+  // S5--S4--S1--S2--S6--S7
+  //         |   |
+  //         A0xxA3
+  //
+  // Note that since Axis Z0 is not bonded to A3, they are in
+  // different duplexes, which is what makes this a crossover.  Since
+  // there are direct bonds between neighboring sugars, the only
+  // non-bonded interactions which are not automatically excluded are
+  // S4-S7 and S5-S6.  We want to add S1-S7, S2-S5, and S4-S6.
+
+  makeVanDerWaals(p, aS1->atomID, aS7->atomID);
+  trace_makeVanDerWaals(match, aS1, aS7);
+  makeVanDerWaals(p, aS2->atomID, aS5->atomID);
+  trace_makeVanDerWaals(match, aS2, aS5);
+  makeVanDerWaals(p, aS4->atomID, aS6->atomID);
+  trace_makeVanDerWaals(match, aS4, aS6);
+}
+
 void
 createPam5Patterns(void)
 {
@@ -450,4 +479,22 @@ createPam5Patterns(void)
   t[9] = makeTraversal(a[8], a[9], '1');
   t[10] = makeTraversal(a[9], a[10], '1');
   makePattern("PAM5-crossover", pam5_crossover_match, 11, 11, t);
+
+  a[0] = makePatternAtom(0, "Ax3");
+  a[1] = makePatternAtom(1, "Ss3");
+  a[2] = makePatternAtom(2, "Ss3");
+  a[3] = makePatternAtom(3, "Ax3");
+  a[4] = makePatternAtom(4, "Ss3");
+  a[5] = makePatternAtom(5, "Ss3");
+  a[6] = makePatternAtom(6, "Ss3");
+  a[7] = makePatternAtom(7, "Ss3");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  t[2] = makeTraversal(a[2], a[3], '1');
+  t[3] = makeTraversal(a[3], a[0], '0');
+  t[4] = makeTraversal(a[1], a[4], '1');
+  t[5] = makeTraversal(a[4], a[5], '1');
+  t[6] = makeTraversal(a[2], a[6], '1');
+  t[7] = makeTraversal(a[6], a[7], '1');
+  makePattern("PAM3-crossover", pam3_crossover_match, 8, 8, t);
 }

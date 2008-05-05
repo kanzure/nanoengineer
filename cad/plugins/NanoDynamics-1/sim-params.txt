@@ -112,6 +112,13 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 
 vdw 700.0 10.0 100.0 7.2 Pl5-v-Pl5
 
+vdw 700.0 10.0 100.0 7.2 Ss3-v-Ss3
+vdw 700.0 10.0 100.0 7.2 Ss3-v-Sj3
+vdw 700.0 10.0 100.0 7.2 Ss3-v-Se3
+vdw 700.0 10.0 100.0 7.2 Sj3-v-Sj3
+vdw 700.0 10.0 100.0 7.2 Sj3-v-Se3
+vdw 700.0 10.0 100.0 7.2 Se3-v-Se3
+
 # format for stretch lines
 #
 #          ks (double) in N/m

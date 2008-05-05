@@ -87,6 +87,7 @@ parseBondName(char *bondName, int *element1, int *element2, char *bondOrder)
     case '3':
     case 'a':
     case 'g':
+    case 'v':
       *bondOrder = tok[0];
       if ((tok = strtok(NULL, "-")) == NULL) {
         return 0;
@@ -245,6 +246,7 @@ generateBendName(char *bendName,
           bondOrder2, getAtomTypeByIndex(element2)->symbol);
 }
 
+// returns a static string which needs to be copied for storage
 static char *
 canonicalizeBondName(char *bondName)
 {
@@ -252,12 +254,18 @@ canonicalizeBondName(char *bondName)
   int element2;
   char bondOrder;
   static char newName[256]; // XXX Can overflow for long atom type names
+  char *bn = copy_string(bondName);
   
-  if (parseBondName(bondName, &element1, &element2, &bondOrder)) {
+  if (parseBondName(bn, &element1, &element2, &bondOrder)) {
     generateBondName(newName, element1, element2, bondOrder);
+    free(bn);
     return newName;
   }
-  return NULL;
+  free(bn);
+  fprintf(stderr, "malformed bond name: %s\n", bondName);
+  // we need a name, so we use the bad one -- this entry will
+  // probably never be found.
+  return bondName;
 }
 
 static char *
@@ -383,18 +391,9 @@ addInitialBondStretch(double ks,
 {
   struct bondStretch *stretch;
   struct bondStretch *old;
-  char *bn;
   char *canonicalName;
   
-  bn = copy_string(bondName);
-  canonicalName = canonicalizeBondName(bn);
-  if (canonicalName == NULL) {
-    fprintf(stderr, "malformed bond name: %s\n", bondName);
-    // we need a name, so we use the bad one -- this entry will
-    // probably never be found.
-    canonicalName = bondName;
-  }
-    
+  canonicalName = canonicalizeBondName(bondName);
   if (beta < 0) {
     beta = sqrt(ks / (2.0 * de)) / 10.0 ;
   }
@@ -459,9 +458,11 @@ addVanDerWaalsInteraction(char *bondName, double rvdW, double evdW,
 {
   struct vanDerWaalsParameters *vdw;
   struct vanDerWaalsParameters *old;
+  char *canonicalName;
   
+  canonicalName = canonicalizeBondName(bondName);
   vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
-  vdw->vdwName = copy_string(bondName);
+  vdw->vdwName = copy_string(canonicalName);
   vdw->rvdW = rvdW;
   vdw->evdW = evdW;
 

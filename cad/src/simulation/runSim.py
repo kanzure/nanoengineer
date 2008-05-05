@@ -198,7 +198,7 @@ class SimRunner:
                  cmd_type = 'Minimize',
                  useGromacs = False,
                  background = False,
-                 hasPAM5 = False ):
+                 hasPAM = False ):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         """
         set up external relations from the part we'll operate on;
@@ -218,7 +218,7 @@ class SimRunner:
             #wware 060323, bug 1725, if interrupted we don't need so many warnings
         self.useGromacs = useGromacs
         self.background = background
-        self.hasPAM5 = hasPAM5
+        self.hasPAM = hasPAM
 
         prefer_standalone_sim = \
             debug_pref("force use of standalone sim",
@@ -436,7 +436,7 @@ class SimRunner:
                             "-c", "%s-out.gro" % gromacsFullBaseFileName,
                             "-g", "%s-mdrun.log" % gromacsFullBaseFileName,
                             ]
-                    if (self.hasPAM5):
+                    if (self.hasPAM):
                         tableFile = \
                             os.path.join(gromacs_plugin_path,
                                          "Pam5Potential.xvg")
@@ -1000,12 +1000,12 @@ class SimRunner:
                                    ]
                 else:
                     gromacsArgs = []
-                if (self.hasPAM5):
+                if (self.hasPAM):
                     # vdw-cutoff-radius in nm, and must match the
                     # user potential function table passed to
                     # mdrun.  See GROMACS user manual section
                     # 6.6.2
-                    gromacsArgs += [ "--vdw-cutoff-radius=10.0" ]
+                    gromacsArgs += [ "--vdw-cutoff-radius=3.0" ]
 
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
@@ -1087,7 +1087,7 @@ class SimRunner:
                 if (self.useGromacs):
                     simopts.GromacsOutputBaseName = moviefile
                     simopts.PathToCpp = self.cpp_executable_path
-                if (self.hasPAM5):
+                if (self.hasPAM):
                     # vdw-cutoff-radius in nm, and must match the
                     # user potential function table passed to
                     # mdrun.  See GROMACS user manual section
@@ -2113,32 +2113,42 @@ except:
 else:
     pass
 
-def _part_contains_pam5_atoms(part): # probably by EricM
+def _part_contains_pam_atoms(part): # probably by EricM
     """
-    Returns non-zero if the given part contains any pam5 atoms.
-    Returns less than zero if the part contains both pam5 and other atoms.
+    Returns non-zero if the given part contains any pam atoms.
+    Returns less than zero if the part contains a mixture of pam and
+    other atoms, or more than one type of pam atom.
     """
-    from utilities.constants import MODEL_PAM5
+    from utilities.constants import MODEL_PAM5, MODEL_PAM3
 
-    contents = [ False, False ]
+    #             PAM3   PAM5  other
+    contents = [ False, False, False ]
 
-    def check_for_pam5(n):
+    def check_for_pam(n):
         if (isinstance(n, Chunk)):
             for a in n.atoms.itervalues():
                 elt = a.element
-                if (elt.pam == MODEL_PAM5):
+                if (elt.pam == MODEL_PAM3):
                     contents[0] = True
+                elif (elt.pam == MODEL_PAM5):
+                    contents[1] = True
                 else:
                     # REVIEW: if elt is Singlet, should we skip this atom?
                     # I think so. Not changing it now. [bruce 080321 comment]
-                    contents[1] = True
+                    contents[2] = True
 
-    part.topnode.apply2all(check_for_pam5)
-    if (contents[0]):
-        if (contents[1]):
-            return -1
-        return 1
-    return 0
+    part.topnode.apply2all(check_for_pam)
+    if (contents[0]):     # has PAM3
+        if (contents[1]): # has PAM5
+            return -2     # mixture of PAM3 and PAM5
+        if (contents[2]): # has other
+            return -1     # mixture of PAM3 and other
+        return 1          # just PAM3
+    if (contents[1]):     # has PAM5
+        if (contents[2]): # has other
+            return -1     # mixture of PAM5 and other
+        return 1          # just PAM5
+    return 0              # just other (or empty)
 
 # ==
 
@@ -2194,12 +2204,15 @@ def writemovie(part,
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    hasPAM5 = _part_contains_pam5_atoms(part)
-    if (hasPAM5 < 0):
-        msg = "calculations with mixed PAM5 and other atoms are not supported"
+    hasPAM = _part_contains_pam_atoms(part)
+    if (hasPAM < 0):
+        if (hasPAM < -1):
+            msg = "calculations with mixed PAM3 and PAM5 atoms are not supported"
+        else:
+            msg = "calculations with mixed PAM and other atoms are not supported"
         env.history.message(orangemsg(msg))
         # note: no return statement (intentional?)
-    hasPAM5 = not not hasPAM5
+    hasPAM = not not hasPAM
     simrun = SimRunner(part,
                        mflag,
                        simaspect = simaspect,
@@ -2207,7 +2220,7 @@ def writemovie(part,
                        cmd_type = cmd_type,
                        useGromacs = useGromacs,
                        background = background,
-                       hasPAM5 = hasPAM5)
+                       hasPAM = hasPAM)
         #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
