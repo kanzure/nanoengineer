@@ -564,7 +564,7 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
                     #singlet. This special highlighting will be used to do
                     #various stuff like rotating the Dna duplex around its axis
                     #etc. 
-                    if not isinstance(selobj, Bond):
+                    if isinstance(selobj, Atom):
                         return False
 
         #For all other cases , do what superclass does for highlighting
