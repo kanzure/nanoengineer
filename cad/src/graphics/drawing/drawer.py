@@ -236,12 +236,10 @@ import numpy
 
 # ColorSorter control
 #bruce 060323 changed this to False for A7 release. russ 080314: default on.
-global allow_color_sorting
 allow_color_sorting = allow_color_sorting_default = True
 #bruce 060323 changed this to disconnect it from old pref setting
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
 #russ 080225: Added, 080314: default on.
-global use_color_sorted_dls
 use_color_sorted_dls = use_color_sorted_dls_default = True
 use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
 #russ 080320: Added.
@@ -1105,7 +1103,6 @@ class BufferObj(object):
 # ==
 
 #russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
-global cache_ColorSorter
 cache_ColorSorter = False ## True
 
 ### Substitute this for drawsphere_worker to test drawing a lot of spheres.
