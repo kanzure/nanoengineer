@@ -607,7 +607,8 @@ class HistoryWidget:
         return
     
     def progress_msg(self, msg_text): # Bug 1343, wware 060310
-        statusBar = self.widget.topLevelWidget().statusBar()
+        win = env.mainwindow()
+        statusBar = win.statusBar()
         statusBar.statusMsgLabel.setText(msg_text)
     
     def widget_msg(self, msg, options):
