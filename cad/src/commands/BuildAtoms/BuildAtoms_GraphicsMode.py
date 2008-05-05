@@ -770,6 +770,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #other strandchunk (thus joining the two strands together into
             #a single dna strand group) - Ninad 2008-04-09
             color = a1.molecule.color 
+            if color is None:
+                color = a1.element.color
             strandGroup1 = a1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
             
             #Temporary fix for bug 2829 that Damian reported. 
@@ -783,23 +785,34 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 strandGroup2 = a2.molecule.parent_node_of_class(
                     self.win.assy.DnaStrand)                
                 if strandGroup2 is not None:
+                    #set the strand color of strandGroup2 to the one for 
+                    #strandGroup1. 
+                    strandGroup2.setStrandColor(color)
                     strandChunkList = strandGroup2.getStrandChunks()
                     for c in strandChunkList:
                         if hasattr(c, 'invalidate_ladder'):
                             c.invalidate_ladder()
+                            
             if not DEBUG_BUG_2829:    
                 #merging molecules is not required if you invalidate the ladders
                 #in DEBUG_BUG_2829 block
-                a1.molecule.merge(a2.molecule)    
+                a1.molecule.merge(a2.molecule)   
+                
             # ... now bond the highlighted singlet <s2> to the first 
             # singlet <s1>
             self.bond_singlets(s1, s2)
-            #Run the dna updater -- important to do it otherwise it won't update
-            #the whole strand group color
-            self.win.assy.update_parts()       
+            
+            if not DEBUG_BUG_2829:
+                #No need to call update_parts() if you invalidate ladders 
+                #of strandGroup2 as done in DEBUG_BUG_2829 fix (Tested)
+                
+                #Run the dna updater -- important to do it otherwise it won't update
+                #the whole strand group color
+                self.win.assy.update_parts()  
+                
             self.set_cmdname('Create Bond')
             
-            if strandGroup1 is not None and color is not None:
+            if strandGroup1 is not None:
                 strandGroup1.setStrandColor(color) 
             
             self.o.gl_update()
