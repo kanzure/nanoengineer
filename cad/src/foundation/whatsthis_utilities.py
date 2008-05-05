@@ -89,14 +89,17 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0):
             if debug_cutoff: 
                 print "ao %d, obj" % ao, obj
             text = str(obj.whatsThis())
+            tooltip = str(obj.toolTip())
             if mac:
                 text = replace_ctrl_with_cmd(text)
+                tooltip = replace_ctrl_with_cmd(tooltip)
                 if debug_cutoff and 'Undo' in str(text):
                     print 'undo in', ao, obj, text
             if enable_whatsthis_links:
                 text = turn_featurenames_into_links(text, savekey = id(obj), \
                                                     saveplace = _actions )
             obj.setWhatsThis(text)
+            obj.setToolTip(tooltip)
             ao += 4
             if ao == debug_cutoff:
                 break
@@ -193,12 +196,15 @@ def fix_QAction_whatsthis(obj, mac):
     [only used in this file]
     """
     text = str(obj.whatsThis())
+    tooltip = str(obj.toolTip())
     if mac:
         text = replace_ctrl_with_cmd(text)
+        tooltip = replace_ctrl_with_cmd(tooltip)
     if enable_whatsthis_links:
         text = turn_featurenames_into_links\
              (text, savekey = id(obj), saveplace = _actions )
     obj.setWhatsThis(text)
+    obj.setToolTip(tooltip)
     return
 
 def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
