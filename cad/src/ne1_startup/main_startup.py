@@ -72,11 +72,11 @@ def startup_script( main_globals):
         # window rather than before creating the app? [bruce 071008 comment]
     
 
-    # create the application object (an instance of QApplication).
-    
+    # Create the application object (an instance of QApplication).
     QApplication.setColorSpec(QApplication.CustomColor)
+    #russ 080505: Make it global so it can be run under debugging below.
+    global app
     app = QApplication(sys.argv)
-    
 
     # do some imports used for putting up splashscreen
     
@@ -231,11 +231,13 @@ def startup_script( main_globals):
     try:
         # user can set this to a filename in .atom-debug-rc,
         # to enable profiling into that file
-        atom_debug_profile_filename 
+        atom_debug_profile_filename = main_globals['atom_debug_profile_filename']
         if atom_debug_profile_filename:
-            print "user's .atom-debug-rc requests profiling into file %r" % (atom_debug_profile_filename,)
+            print ("\nUser's .atom-debug-rc requests profiling into file %r" %
+                   (atom_debug_profile_filename,))
             if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
-                print "error: atom_debug_profile_filename must be a string; running without profiling"
+                print ("error: atom_debug_profile_filename must be a string;" +
+                       "running without profiling")
                 assert 0 # caught and ignored, turns off profiling
             if PROFILE_WITH_HOTSHOT:
                 try:
@@ -245,7 +247,7 @@ def startup_script( main_globals):
                     raise # caught and ignored, turns off profiling
             else:
                 try:
-                    import profile
+                    import cProfile
                 except:
                     print "error during 'import profile'; running without profiling"
                     raise # caught and ignored, turns off profiling
@@ -290,8 +292,10 @@ def startup_script( main_globals):
             profile = hotshot.Profile(atom_debug_profile_filename)
             profile.run('app.exec_()')
         else:
-            profile.run('app.exec_()', atom_debug_profile_filename)
-        print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
+            cProfile.run('from ne1_startup.main_startup import app; app.exec_()',
+                         atom_debug_profile_filename)
+        print ("\nProfile data was presumably saved into %r" %
+               (atom_debug_profile_filename,))
     else:
         # if you change this code, also change the string literal just above
         app.exec_() 
