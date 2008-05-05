@@ -53,7 +53,6 @@ from Numeric import dot
 from Numeric import PyObject
 from Numeric import argsort
 from Numeric import compress
-from Numeric import sum
 from Numeric import take
 from Numeric import argmax
 
@@ -143,7 +142,7 @@ from dna.model.Dna_Constants import getComplementSequence
 from operations.bond_chains import grow_directional_bond_chain
 
 from graphics.drawing.drawer import apply_material, allow_color_sorting
-from graphics.drawing.drawer import use_color_sorted_dls, use_color_sorted_vbos
+from graphics.drawing.drawer import use_color_sorted_dls
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -2348,6 +2347,16 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                                             bool_fullBondLength)
                     continue
                 continue
+            pass
+
+        if 0: ## Debugging print.
+            print ("Highlighting %s, dl's %r" %
+                   (self.name,
+                    # Best to list in order of allocation by glGenLists.
+                    ([dl for color, dl in self.displist.per_color_dls],
+                     self.displist.color_dl,
+                     self.displist.nocolor_dl,
+                     self.displist.selected_dl)))
             pass
 
         return

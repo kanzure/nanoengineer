@@ -48,9 +48,6 @@ import Numeric
 from Numeric import sin, cos, sqrt, pi
 degreesPerRadian = 180.0 / pi
 
-from OpenGL.raw import GL           # The current graphics context.
-from OpenGL.arrays import ArrayDatatype as ADT
-
 from OpenGL.GL import GL_AMBIENT
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
 from OpenGL.GL import glAreTexturesResident
@@ -239,10 +236,12 @@ import numpy
 
 # ColorSorter control
 #bruce 060323 changed this to False for A7 release. russ 080314: default on.
+global allow_color_sorting
 allow_color_sorting = allow_color_sorting_default = True
 #bruce 060323 changed this to disconnect it from old pref setting
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
 #russ 080225: Added, 080314: default on.
+global use_color_sorted_dls
 use_color_sorted_dls = use_color_sorted_dls_default = True
 use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
 #russ 080320: Added.
@@ -1069,8 +1068,19 @@ class BufferObj(object):
         return
 
     def __del__(self):
-        if GL:                # The graphics context may have gone away already.
-            glDeleteBuffersARB(1, self.buffer)
+        """
+        Delete a BufferObj.  We don't expect that there will be a lot of
+        deleting of BufferObjs, but don't want them to sit on a lot of graphics
+        card RAM if we did.
+        """
+
+        # Since may be too late to clean up buffer objects through the Graphics
+        # Context while exiting, we trust that OpenGL or the device driver will
+        # deallocate the graphics card RAM when the Python process exits.
+        try:
+            glDeleteBuffersARB(1, [self.buffer])
+        except:
+            ##print "Exception in glDeleteBuffersARB."
             pass
         return
 
@@ -1616,7 +1626,6 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     def __init__(self):
         self.clear()
         self.selected = False   # Whether to draw in the selection over-ride color.
-        self.activate()
         return
 
     def clear(self):
@@ -1677,7 +1686,6 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         Change to either the normal-color display list or the selected one.
         """
         self.dl = self.selected and self.selected_dl or self.color_dl
-        assert self.dl != 0
         return
 
     def reset(self):
@@ -1833,11 +1841,8 @@ class ColorSorter:
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             elif opacity == -1: 
                 # piotr 080429: I replaced the " < 0" condition with " == -1"
-                # to make sure this is the case of "unshaded colors"
-                # so the Russ'es comment below is now partially obsolete. 
-                # The opacity flag is now used to sigal either "unshaded colors"
+                # The opacity flag is now used to signal either "unshaded colors"
                 # (opacity == -1) or "multicolor object" (opacity == -2)
-                #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
                 glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
                 glColor3fv(color[:3])
                 pass
@@ -2013,12 +2018,12 @@ class ColorSorter:
         """
 
         #russ 080225: Moved glNewList here for displist re-org.
-        ColorSorter.parent_csdl = csdl # Remember, used by finish().
+        ColorSorter.parent_csdl = csdl  # Remember, used by finish().
         if pickstate is not None:
             csdl.selectPick(pickstate)
+            pass
 
         if csdl != None:
-            parent_top = csdl.dl
             if not (allow_color_sorting and (use_color_sorted_dls
                                              or use_color_sorted_vbos)): #russ 080320
                 # This is the beginning of the single display list created when color
@@ -2027,9 +2032,12 @@ class ColorSorter:
                 # through ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display list.
                 try:
-                    glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
+                    if csdl.dl is 0:
+                        csdl.activate()             # Allocate a display list for our use.
+                        pass
+                    glNewList(csdl.dl, GL_COMPILE_AND_EXECUTE) # Start a single-level list.
                 except:
-                    print "data related to following exception: parent_top = %r" % (parent_top,) #bruce 070521
+                    print "data related to following exception: csdl.dl = %r" % (csdl.dl,) #bruce 070521
                     raise
 
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
@@ -2116,10 +2124,9 @@ class ColorSorter:
 
                     if opacity == -1:
                         #russ 080306: "Unshaded colors" for lines are signaled
-                        # by a negative opacity (4th component of the color.)
+                        # by an opacity of -1 (4th component of the color.)
                         glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                         pass
-                    
                     
                     for func, params, name in funcs:
                         objects_drawn += 1
@@ -2242,8 +2249,6 @@ class ColorSorter:
 
             opacity = color[3]
             if opacity == -1:
-                #russ 080306: "Unshaded colors" for lines are signaled
-                # by a negative opacity (4th component of the color.)
                 #piotr 080429: Opacity == -1 signals the "unshaded color".
                 # Also, see my comment in "schedule".
                 glDisable(GL_LIGHTING) # Don't forget to re-enable it!
