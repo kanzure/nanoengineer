@@ -3182,8 +3182,8 @@ restored when the user undoes a structural change.</p>
             if not env.prefs[gromacs_path_prefs_key]:
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS_3.3.2+HDF5_p2\\bin\\mdrun.exe", \
-                    "/usr/bin/mdrun",
-                    "/usr/bin/mdrun")
+                    "/Applications/GROMACS_3.3.2+HDF5_p2/bin/mdrun",
+                    "/usr/local/GROMCAS_3.3.2+HDF5_p2/bin/mdrun")
 
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
 
@@ -3235,8 +3235,8 @@ restored when the user undoes a structural change.</p>
             if not env.prefs[cpp_path_prefs_key]:
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS_3.3.2+HDF5_p2\\MCPP\\bin\\mcpp.exe", \
-                    "/usr/bin/cpp", \
-                    "/usr/bin/cpp")
+                    "/Applications/GROMACS_3.3.2+HDF5_p2/mcpp/bin/mcpp", \
+                    "/usr/local/GROMACS_3.3.2+HDF5_p2/mcpp/bin/mcpp")
 
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
 
@@ -3289,8 +3289,8 @@ restored when the user undoes a structural change.</p>
             if not env.prefs[nv1_path_prefs_key]:
                 env.prefs[nv1_path_prefs_key] = get_default_plugin_path( \
                     "C:\\Program Files\\Nanorex\\NanoVision-1\\NanoVision-1.exe", \
-                    "/usr/local/bin/NanoVision-1", \
-                    "/usr/local/bin/NanoVision-1")
+                    "/Applications/Nanorex/NanoVision-1 0.1.0/NanoVision-1.app", \
+                    "/usr/local/Nanorex/NanoVision-1 0.1.0/NanoVision-1")
 
             self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
 
@@ -3338,8 +3338,8 @@ restored when the user undoes a structural change.</p>
             if not env.prefs[qutemol_path_prefs_key]:
                 env.prefs[qutemol_path_prefs_key] = get_default_plugin_path( \
                     "C:\\Program Files\\Nanorex\\QuteMolX\\QuteMolX.exe", \
-                    "/usr/local/bin/QuteMolX", \
-                    "/usr/local/bin/QuteMolX")
+                    "/Applications/Nanorex/QuteMolX 0.5.0/QuteMolX.app", \
+                    "/usr/local/Nanorex/QuteMolX 0.5.0/QuteMolX")
 
             self.qutemol_path_lineedit.setText(env.prefs[qutemol_path_prefs_key])
 
