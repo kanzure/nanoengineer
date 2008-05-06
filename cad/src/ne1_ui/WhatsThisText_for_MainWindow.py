@@ -267,11 +267,17 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Edit/Redo.png\"> <br>"\
         "Restores a change which was undone using the Undo command."\
         "<br><font color=\"#808080\">"\
-        "Known bug: the link to wiki help for Redo "\
-        "only works if you got this popup from the Edit menu item "\
-        "for Redo, not from the Redo toolbutton. </font>"\
         "</p>" \
         % redo_accel
+    
+    # This "known bug" (below) is no longer a bug, at least it works on Windows.
+    # I'll ask someone with a MacOSX machine to test. --Mark 2008-05-05.
+    
+        #"Known bug: the link to wiki help for Redo "\
+        #"only works if you got this popup from the Edit menu item "\
+        #"for Redo, not from the Redo toolbutton. </font>"\
+        #"</p>" \
+        #% redo_accel
         #bruce 060317 revised this text to be more accurate, and split 
         #out redo_accel; 060320 added 1421-not-fixed warning
 

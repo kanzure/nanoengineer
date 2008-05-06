@@ -1016,13 +1016,25 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Redo", 
             None, QtGui.QApplication.UnicodeUTF8))
+    
+    # Redo is a special case between Mac OS X and the other platforms:
+    # - Cmd+Shift+Z on Mac
+    # - Ctrl+Y on Windows and Linux
+    # We take care of tooltips and keyboard shortcut settings here.
+    # -Mark 2008-05-05.
+    from platform.PlatformDependent import is_macintosh
+    if is_macintosh():
+        redo_accel = "Cmd+Shift+Z"
+    else:
+        redo_accel = "Ctrl+Y"
     win.editRedoAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+Y", 
+            "MainWindow", redo_accel, 
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRedoAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Redo (Ctrl+Y)", None, QtGui.QApplication.UnicodeUTF8))    
+            "MainWindow", "Redo (" + redo_accel + ")", 
+            None, QtGui.QApplication.UnicodeUTF8))    
     win.editCutAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Cut", 
