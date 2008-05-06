@@ -299,18 +299,21 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             params_for_propMgr = (None,
                                   None, 
                                   None,
-                                  None,
                                   basesPerTurn, 
                                   duplexRise, 
                                   endPoint1, 
                                   endPoint2)
             
+                        
             #TODO 2008-03-25: better to get all parameters from self.struct and
             #set it in propMgr?  This will mostly work except that reverse is 
             #not true. i.e. we can not specify same set of params for 
             #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
             #by the structure when needed. Commenting out following line of code
-            ##self.propMgr.setParameters(self.struct.getProps())
+            #UPDATE 2008-05-06 Fixes a bug due to which the parameters in propMGr
+            #of DnaSegment_EditCommand are not same as the original structure
+            #(e.g. bases per turn and duplexrise)
+            self.propMgr.setParameters(params_for_propMgr)
             
             
             #Store the previous parameters. Important to set it after you 
