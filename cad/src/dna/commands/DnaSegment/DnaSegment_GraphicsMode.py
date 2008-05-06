@@ -212,9 +212,10 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                ribbon1Color = ribbon1Color,
                                ribbon2Color = ribbon2Color,
                                stepColor = black )
-                #Draw the text next to the cursor that gives info about 
-                #number of base pairs etc
-                self._drawCursorText()
+                
+            #Draw the text next to the cursor that gives info about 
+            #number of base pairs etc
+            self._drawCursorText()
           
             
     

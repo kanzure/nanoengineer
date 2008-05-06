@@ -67,12 +67,8 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                ribbonThickness = 4.0,
                                ribbon1Color = ribbon1Color,
                                stepColor = black )
+                
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
-            if self.command:
-                text , textColor = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text, 
-                                                 offset = 30,
-                                                 color = textColor
-                                             )
+            self._drawCursorText()
         
