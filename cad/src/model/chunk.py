@@ -462,16 +462,12 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                     # A graphene sheet or a simple chunk that thinks its a nanotube.
                     return
                 if segment is not None:
-                    try:
-                        nanotubeGroup = segment.parent_node_of_class(self.assy.NanotubeGroup)
-                    except:
-                        pass
-                    else:
-                        # Self is a member of a Nanotube group, so add this 
-                        # info to a disabled menu item in the context menu.
-                        item = (("%s of [%s]" % (segment.name, nanotubeGroup.name)),
-                                noop, 'disabled')
-                        contextMenuList.append(item)
+                   
+                    # Self is a member of a Nanotube group, so add this 
+                    # info to a disabled menu item in the context menu.
+                    item = (("%s" % (segment.name)),
+                            noop, 'disabled')
+                    contextMenuList.append(item)
 
                     item = (("Edit Nanotube Properties..."), 
                             segment.edit)
