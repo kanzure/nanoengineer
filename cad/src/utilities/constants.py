@@ -508,13 +508,16 @@ brass = (0.5, 0.5, 0.0)
 copper = (0.3, 0.3, 0.1)
 mustard = (0.78, 0.78, 0.0)
 applegreen = (0.4, 0.8, 0.4)
-
+banana = (0.8901, 0.8117, 0.3411)
+silver = (0.7529, 0.7529, 0.7529)
+gold = (1, 0.843, 0)
+ivory = (1, 1, 0.9411)
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue)
     # Note: that color is misnamed -- it's essentially just blue.
     # Or maybe the definition has a typo?
     # This needs cleanup... in the meantime,
-    # consider also lighterblue:
+    # consider also lighterblue
 lighterblue = ave_colors( 0.5, white, blue)
 
 # Following color is used to draw the back side of a reference plane. 
