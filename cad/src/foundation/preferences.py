@@ -2,7 +2,7 @@
 """
 preferences.py -- Preferences system.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -71,6 +71,13 @@ from utilities.debug import print_compact_traceback
 from foundation.changes import UsageTracker
 
 from utilities.prefs_constants import prefs_table
+
+DEFAULT_PREFS_BASENAME = "default_prefs_v1-0-1.txt" #bruce 080505
+    # note: this name is also hardcoded into packaging/Pref_Mod/pref_modifier.py
+    # todo: should derive name from current version number.
+    # review: should we only read the one from the current version's installer,
+    # or do we want to know a list of all prior names used for this file
+    # and in some cases read from older ones? Guess: current one is enough.
 
 # some imports remain lower down, for now: bsddb and shelve
 
@@ -216,7 +223,8 @@ _shelfname = _shelf = _cache = None
 _defaults = _trackers = None #bruce 050804 new features
 
 def _make_prefs_shelf():
-    """[private function]
+    """
+    [private function]
     call this once per session,
     to create or find the shelf (whose name depends only on the dbm format we'll use for it),
     and create the cache of its contents,
@@ -230,13 +238,18 @@ def _make_prefs_shelf():
         # This name should differ when db format differs.
         # Note: the actual filename used might have an extension added
         # by the db module (in theory, it might even create two files
-        # with different extentions from the given basename).
+        # with different extensions from the given basename).
         # By experiment, on the Mac, with bsddb there is no extension added,
         # and without it there is '.db' added. [bruce 050105]
     mkdirs_in_filename(_shelfname)
     _shelf = shelve.open(_shelfname)
     _cache = {}
     _cache.update(_shelf) # will this work?
+    was_just_made = (not _cache) #bruce 080505
+    if was_just_made:
+        print "made prefs db, basename", _shelfname
+    else:
+        print "prefs db already existed, basename", _shelfname
     _defaults = {}
     _trackers = {}
     # zap obsolete contents
@@ -259,6 +272,74 @@ def _make_prefs_shelf():
     proc_info = "process: pid = %d, starttime = %r" % (os.getpid(), time.asctime())
     _store_while_open( '_fyi/last_proc', proc_info ) # (nothing yet looks at this)
     _close()
+    
+    if was_just_made:
+        # use DEFAULT_PREFS_BASENAME [bruce 080505 new feature];
+        # file format must correspond with that written by
+        # packaging/Pref_Mod/pref_modifier.py
+        default_prefs_values = {}
+        # read the values from DEFAULT_PREFS_BASENAME
+        # (while shelf is closed, in case this takes time)
+        try:
+            filename = os.path.join( nanorex, "Preferences", DEFAULT_PREFS_BASENAME )
+            if not os.path.exists(filename):
+                lines = []
+                print "didn't find", filename
+            else:
+                file = open( filename, "rU")
+                lines = file.readlines()
+                file.close()
+                print "reading from", filename
+            for line in lines:
+                line0 = line
+                try:
+                    # try/except so corrupted lines don't break good ones added later
+                    # assume line has the correct format: key = val\n
+                    while line[-1] in ('\r', '\n'):
+                        # 'while' is to handle Windows newlines
+                        # (probably not needed due to 'rU')
+                        line = line[:-1]
+                    key, val = line.split(" = ")
+                        # don't strip key or val -- they might end with spaces
+                    def decode(string1):
+                        words = string1.split(r'\\')
+                        for i in range(len(words)):
+                            word = words[i]
+                            word = word.replace(r'\=', '=')
+                            word = word.replace(r'\n', '\n')
+                            word = word.replace(r'\r', '\r')
+                            words[i] = word
+                            continue
+                        return '\\'.join(words)                        
+                    key = decode(key)
+                    val = decode(val)
+                    if val == 'True':
+                        val = True
+                    elif val == 'False':
+                        val = False
+                    default_prefs_values[key] = val
+                    # print "read key, val = (%r, %r)" % (key, val)
+                    pass
+                except:
+                    print "ignoring exception in this line: %r" % (line0,)
+                    pass
+                continue
+            pass
+        except:
+            print "ignoring exception reading from", DEFAULT_PREFS_BASENAME
+            default_prefs_values = {}
+            pass
+        items = default_prefs_values.items()
+        items.sort() # just to make the following console prints look nicer
+        # now open, store the values, and close
+        _shelf = shelve.open(_shelfname)
+        for key, val in items:
+            pkey = _PREFS_KEY_TO_SHELF_KEY(key)
+            _store_while_open( pkey, val)
+            print "stored key, val = (%r, %r)" % (key, val)
+        _close()
+        pass
+    
     return
 
 def _close():
@@ -312,7 +393,10 @@ def _tracker_for_pkey(pkey):
     pass
 
 def _get_pkey_key(pkey, key): #bruce 050804 split this out of __getitem__ so I can also use it in get (both methods)
-    "[#doc better; note: pkey and key args are redundant; they're both provided just for this implem's convenience]"
+    """
+    [#doc better; note: pkey and key args are redundant;
+     they're both provided just for this implem's convenience]
+    """
     _track_use(pkey) # note, this is done even if we raise KeyError below (which is good)
     try:
         return _cache[pkey]
@@ -325,7 +409,8 @@ def _get_pkey_faster(pkey): # optimization of _get_pkey_key(pkey, key) when the 
     return _cache[pkey]
 
 def _record_default( pkey, dflt):
-    """Record this default value (if none is yet known for pkey),
+    """
+    Record this default value (if none is yet known for pkey),
     so other code can find out what the default value is,
     for use in "restore defaults" buttons in prefs UI.
     In debug version, also ensure this is the same as any previously recorded default value.
@@ -341,7 +426,8 @@ def _record_default( pkey, dflt):
     return
 
 def _restore_default_while_open( pkey): #bruce 050805
-    """Remove the pref for pkey from the prefs db (but no error if it's not present there).
+    """
+    Remove the pref for pkey from the prefs db (but no error if it's not present there).
     As for the internal value of the pref (in _cache, and for track_change, and for subscriptions to its value):
     If a default value has been recorded, change the cached value to that value
     (as it would be if this pref had originally been missing from the db, and a default value was then recorded).
@@ -368,7 +454,8 @@ def _restore_default_while_open( pkey): #bruce 050805
     return
 
 def keys_list( keys): #bruce 050805
-    """Given a key or a list of keys (or a nested list), return an equivalent list of keys.
+    """
+    Given a key or a list of keys (or a nested list), return an equivalent list of keys.
     Note: tuples of keys are not allowed (someday they might be a new kind of primitive key).
     """
     res = []
@@ -390,15 +477,24 @@ def keys_list( keys): #bruce 050805
 _NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
     # (note, the same global name is used for different objects in preferences.py and debug_prefs.py)
 
+def _PREFS_KEY_TO_SHELF_KEY(prefs_key):
+    """
+    Translate a prefs_key string (used in external code)
+    to a shelf database key string (called "pkey" in some local variables).
+    """
+    #bruce 080505 split this out of _prefs_context._attr2key
+    return "k " + prefs_key
+
 class _prefs_context:
-    """Represents a symbol context for prefs names, possibly [someday] customized for one module.
+    """
+    Represents a symbol context for prefs names, possibly [someday] customized for one module.
     """
     def __init__(self, modname):
         # modname is not presently used
         _ensure_shelf_exists() # needed before __getattr__ and __getitem__ are called
         self.trackers = {}
-    def _attr2key(self, attr):
-        return "k " + attr # stub! (i guess)
+    def _attr2key(self, attr): # note: method and its arg are misnamed.
+        return _PREFS_KEY_TO_SHELF_KEY(attr)
     #e Someday we will support more complex keys,
     # which are like exprs whose heads (at all levels) are in our context.
     # For now, just support arbitrary strings as items.
@@ -489,7 +585,8 @@ class _prefs_context:
                 _close()
         return
     def suspend_saving_changes(self): #bruce 051205 new feature
-        """Let prefs changes after this point be saved in RAM and take full effect
+        """
+        Let prefs changes after this point be saved in RAM and take full effect
         (including notifying subscribers),
         but not be saved to disk until the next call to resume_saving_changes
         (which should be called within the same user command or mouse drag,
@@ -507,7 +604,8 @@ class _prefs_context:
         _reopen()
         return
     def resume_saving_changes(self, redundant_is_ok = False): #bruce 051205 new feature
-        """Resume saving changes, after a call of suspend_saving_changes.
+        """
+        Resume saving changes, after a call of suspend_saving_changes.
         Optional redundant_is_ok = True prevents a warning about a redundant call;
         this is useful for letting callers make sure changes are being saved
         when they should be (and probably already are).
@@ -522,7 +620,8 @@ class _prefs_context:
                 print "warning: redundant resume_saving_changes ignored"
         return
     def restore_defaults(self, keys): #bruce 050805
-        """Given a key or a list of keys,
+        """
+        Given a key or a list of keys,
         restore the default value of each given preference
         (if one has yet been recorded, e.g. if prefs.get has been provided with one),
         with all side effects as if the user set it to that value,
