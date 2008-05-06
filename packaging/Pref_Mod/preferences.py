@@ -290,6 +290,7 @@ try:
     import bsddb3 as _junk
     _junk # try to tell pylint we need this import [bruce 071023]
 except:
+    print "error: import bsddb3 failed" #bruce 080505 added this line
     sys.exit(1)
 else:
     dbname = "bsddb"
