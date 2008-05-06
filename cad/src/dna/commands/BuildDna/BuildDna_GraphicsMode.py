@@ -579,4 +579,24 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
                                                 selobj, 
                                                 hicolor, 
                                                 hicolor2)
+    
+    
+    def _drawCursorText(self):
+        """
+        Draw the text near the cursor. It gives information about number of 
+        basepairs/bases being added or removed, length of the segment (if self.struct
+        is a strand etc. 
+        @see: DnaSegment_GraphicsMode,  DnaStrand_GraphicsMode  (subclasses of
+        this class where this is being used.
+        """
+        if hasattr(self.command, 'grabbedHandle') and hasattr(self.command, 
+                                                              'getCursorText'):
+            if self.command.grabbedHandle is not None:
+                #Draw the text next to the cursor that gives info about 
+                #number of base pairs etc
+                
+                text , textColor = self.command.getCursorText()
+                self.glpane.renderTextNearCursor(text, 
+                                                 offset = 30,
+                                                 color = textColor)
 

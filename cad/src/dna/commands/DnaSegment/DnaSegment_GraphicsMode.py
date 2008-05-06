@@ -148,15 +148,23 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         
     def Draw(self):
         """
+        Draw glpane contents and its contents including handles (if any.) of 
+        DnaSegment
+        @see:self._drawCursorText()
+        @see:self._drawHandles()
         """
+        
+        _superclass.Draw(self)
         if self._handleDrawingRequested:
             self._drawHandles() 
-        _superclass.Draw(self)
+            
               
     def _drawHandles(self):
         """
         Draw the handles for the command.struct 
-        #@see: DnaSegment_EditCommand.getDnaRibbonParams()
+        @see: DnaSegment_EditCommand.getDnaRibbonParams()
+        @see:self._drawCursorText()
+        @see:self.Draw()
         """    
         if self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:
@@ -204,23 +212,10 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                ribbon1Color = ribbon1Color,
                                ribbon2Color = ribbon2Color,
                                stepColor = black )
+                #Draw the text next to the cursor that gives info about 
+                #number of base pairs etc
+                self._drawCursorText()
           
-            #Draw the text next to the cursor that gives info about 
-            #number of base pairs etc
-            if self.command:
-                text , textColor = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text, 
-                                                 offset = 30,
-                                                 color = textColor)
-        ##else: 
-        #UPDATE 2008-04-12: Updating the handle positions is now called in 
-        #DnaSegment_EditCommand.model_changed().(calling it there provides 
-        #minor optimization. See also bug 2729 for remaining issue) 
-        #Commenting out the following line of code
-            ###No handle is grabbed. But may be the structure changed 
-            ###(e.g. while dragging it ) and as a result, the endPoint positions 
-            ###are modified. So we must update the handle positions because 
-            ###during left drag (when handle is not dragged) we skip the 
-            ###handle drawing code and computation to update the handle positions
-            ###TODO: see bug 2729 for planned optimization. 
-            ##self.command.updateHandlePositions()
+            
+    
+    

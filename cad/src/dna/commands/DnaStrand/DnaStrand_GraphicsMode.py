@@ -27,15 +27,20 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         Draw this DnaStrand object and its contents including handles (if any.)
+        @see:self._drawCursorText()
+        @see:self._drawHandles()
         """
-        if self._handleDrawingRequested:
-            self._drawHandles()     
+             
         _superclass.Draw(self)
+        if self._handleDrawingRequested:
+            self._drawHandles()
         
     def _drawHandles(self):
         """
         Draw the handles for the command.struct 
         @see: DnaStrand_ResizeHandle.hasValidParamsForDrawing ()
+        @see:self._drawCursorText()
+        @see:self.Draw()
         """    
         if self.command and self.command.hasValidStructure():            
             for handle in self.command.handles:
