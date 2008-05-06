@@ -55,6 +55,7 @@ from foundation.env import seen_before
 from geometry.VQT import A
 import re
 from model.chunk import Chunk
+from model.elements import Singlet
 from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 from utilities.constants import filesplit
 from processes.Process import Process
@@ -2117,7 +2118,8 @@ def _part_contains_pam_atoms(part): # probably by EricM
     """
     Returns non-zero if the given part contains any pam atoms.
     Returns less than zero if the part contains a mixture of pam and
-    other atoms, or more than one type of pam atom.
+    other atoms, or more than one type of pam atom.  Singlets don't
+    count.
     """
     from utilities.constants import MODEL_PAM5, MODEL_PAM3
 
@@ -2128,13 +2130,13 @@ def _part_contains_pam_atoms(part): # probably by EricM
         if (isinstance(n, Chunk)):
             for a in n.atoms.itervalues():
                 elt = a.element
+                if (elt is Singlet):
+                    continue
                 if (elt.pam == MODEL_PAM3):
                     contents[0] = True
                 elif (elt.pam == MODEL_PAM5):
                     contents[1] = True
                 else:
-                    # REVIEW: if elt is Singlet, should we skip this atom?
-                    # I think so. Not changing it now. [bruce 080321 comment]
                     contents[2] = True
 
     part.topnode.apply2all(check_for_pam)

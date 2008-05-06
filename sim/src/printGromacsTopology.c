@@ -369,7 +369,25 @@ printGromacsToplogy(char *basename, struct part *p)
     double vdwCutoff;
     char *fileName;
     char *ret = NULL;
+    struct jig *jig;
 
+    for (i=0; i<p->num_jigs; i++) {
+        jig = p->jigs[i];
+        switch (jig->type) {
+        case Ground:         // supported
+        case Thermometer:    // measurement
+        case DihedralMeter:  // measurement
+        case AngleMeter:     // measurement
+        case RadiusMeter:    // measurement
+        case Thermostat:     // questionable, but meaningless
+            break; // these are allowed in gromacs minimize
+        default:
+            WARNING("Part contains active jig, ignored in GROMACS minimize.");
+            i = p->num_jigs ; // only warn once
+            break;
+        }
+    }
+    
     len = strlen(basename) + 5;
     fileName = allocate(len);
     sprintf(fileName, "%s.top", basename);
