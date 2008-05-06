@@ -63,10 +63,10 @@ class Version:
     __shared_state = {
         "major": 1,
         "minor": 0,
-        "tiny": 0,     # tiny and teensy are optional
+        "tiny": 1,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "",
-        "releaseDate": "April 24, 2008",
+        "releaseDate": "May 6, 2008",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
