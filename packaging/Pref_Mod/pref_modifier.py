@@ -2,7 +2,7 @@ import os
 from preferences import prefs_context
 import sys
 import getopt
-  
+
 prefs = prefs_context()
 
 if os.name=="nt":  #Windows machines spawn and remove the shell, so no info is normally captured
@@ -97,5 +97,35 @@ print valueset
 print key
 
 prefstmp={}
-prefstmp[key]=valueset  #set up the dict for the database update funtion
-prefs.update(prefstmp)
+prefstmp[key]=valueset  #set up the dict for the database update function
+    # valueset will be a string or a boolean
+
+prefs.update(prefstmp) # modifies bsddb-shelf
+
+# also write the key/value pair to a text file next to the prefs db
+# for later use by NE1 [bruce 080505 for v1.0.1]
+
+DEFAULT_PREFS_BASENAME = "default_prefs_v1-0-1.txt"
+    # should derive name from current version number
+    # note: this name will also be hardcoded into cad/src/preferences.py
+
+try:
+    from preferences import find_or_make_Nanorex_directory
+    nanorex = find_or_make_Nanorex_directory()
+    filename = os.path.join( nanorex, "Preferences", DEFAULT_PREFS_BASENAME )
+    # assume this file's directory exists, since the prefs db (in the same
+    # directory) has been created and written to by the code above
+    file = open(filename, "a")
+    def encode(string1):
+        string1 = string1.replace('\\', r'\\')
+        string1 = string1.replace('=', r'\=')
+        string1 = string1.replace('\n', r'\n')
+        string1 = string1.replace('\r', r'\r')
+        return string1
+    file.write("%s = %s\n" % (encode(key), encode(str(valueset))))
+    print "appended to", filename
+except:
+    print "ignoring exception while appending to", DEFAULT_PREFS_BASENAME
+    pass
+
+# end
