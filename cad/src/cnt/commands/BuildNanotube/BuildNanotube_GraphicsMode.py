@@ -7,7 +7,12 @@
 
 History:
 
-TODO:
+TODO as of 2008-05-06:
+Needs Refactoring. It was originally duplicated from BuildDna_GraphicsMode
+(for an experimental implementation of new Nanotube command)
+There needs to be a common superclass for Build'Structure' mode and 
+all the edit structure modes (commands) such as DnaSegment, 
+DnaStrand_GraphicsMode, NanotubeSegment_GraphicsMode etc
 """
 
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
@@ -54,6 +59,26 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
         @see : self.drawHighlightedObjectUnderMouse()
 	"""
         return False
+    
+    
+    def _drawCursorText(self):
+        """
+        Draw the text near the cursor. It gives information about number of 
+        basepairs/bases being added or removed, length of the segment (if self.struct
+        is a strand etc. 
+        @see: DnaSegment_GraphicsMode,  DnaStrand_GraphicsMode  (subclasses of
+        this class where this is being used.
+        """
+        if hasattr(self.command, 'grabbedHandle') and hasattr(self.command, 
+                                                              'getCursorText'):
+            if self.command.grabbedHandle is not None:
+                #Draw the text next to the cursor that gives info about 
+                #number of base pairs etc
+                
+                text , textColor = self.command.getCursorText()
+                self.glpane.renderTextNearCursor(text, 
+                                                 offset = 30,
+                                                 color = textColor)
 
 
 

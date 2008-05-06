@@ -474,10 +474,10 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
     def Draw(self):
         """
         """
-        if self._handleDrawingRequested: # and \
-           #self.command.handles_have_valid_centers:
-            self._drawHandles()     
+           
         _superclass.Draw(self)
+        if self._handleDrawingRequested:
+            self._drawHandles()  
               
     def _drawHandles(self):
         """
@@ -519,13 +519,8 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                           beam1Color = gray,
                           beam2Color = gray,
                           stepColor = black )
-            #Draw the text next to the cursor that gives info about 
-            #number of base pairs etc
-            if self.command:
-                text, textColor = self.command.getCursorText()
-                self.glpane.renderTextNearCursor(text, 
-                                                 offset = 30, 
-                                                 color = textColor)
+            
+            self._drawCursorText()
         else: 
             #No handle is grabbed. But may be the structure changed 
             #(e.g. while dragging it ) and as a result, the endPoint positions 
