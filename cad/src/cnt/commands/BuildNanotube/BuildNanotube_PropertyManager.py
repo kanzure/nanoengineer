@@ -84,7 +84,6 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
-                                pmCancelButton | \
                                 pmWhatsThisButton)
     
     def connect_or_disconnect_signals(self, isConnect):
@@ -216,8 +215,9 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
          
         selectedSegments = []
-        if self.editCommand is not None and self.editCommand.hasValidStructure():
-            selectedSegments = self.editCommand.struct.getSelectedSegments()             
+        selectedSegments = self.win.assy.getSelectedNanotubeSegments()
+        ##if self.editCommand is not None and self.editCommand.hasValidStructure():
+            ##selectedSegments = self.editCommand.struct.getSelectedSegments()             
                     
         return (selectedSegments)
     
@@ -249,14 +249,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand:
             self.editCommand.preview_or_finalize_structure(previewing = False)
         self.win.toolsDone()
-    
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        if self.editCommand:
-            self.editCommand.cancelStructure()            
-        self.win.toolsCancel()
+  
     
     def close(self):
         """
@@ -279,11 +272,18 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     
     def _editNanotubeSegment(self):
         """
+        Edit the Nanotube segment. If multiple segments are selected, it 
+        edits the first segment in the MT order which is selected
         """
-        if self.editCommand is not None and self.editCommand.hasValidStructure(): 
-            selectedSegments = self.editCommand.struct.getSelectedSegments()
-            if len(selectedSegments) == 1:
-                selectedSegments[0].edit()
+        selectedSegments = self.win.assy.getSelectedNanotubeSegments()
+        if len(selectedSegments) == 1:
+            selectedSegments[0].edit()
+        #Earlier implementation which used the segments in the 
+        #'current Nanotube Group'. Deprecated as of 2008-05-05
+        ##if self.editCommand is not None and self.editCommand.hasValidStructure(): 
+            ##selectedSegments = self.editCommand.struct.getSelectedSegments()
+            ##if len(selectedSegments) == 1:
+                ##selectedSegments[0].edit()
     
     def _update_widgets_in_PM_before_show(self):
         """
@@ -312,18 +312,16 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         segmentList = []
-        if self.editCommand and self.editCommand.hasValidStructure(): 
-            def func(node):
-                if isinstance(node, NanotubeSegment):
-                    segmentList.append(node)    
+         
+        def func(node):
+            if isinstance(node, NanotubeSegment):
+                segmentList.append(node)    
                     
-            self.editCommand.struct.apply2all(func)
-            self.segmentListWidget.insertItems(
-                row = 0,
-                items = segmentList)
-        else:
-            self.segmentListWidget.clear()
-             
+        self.win.assy.part.topnode.apply2all(func)
+        self.segmentListWidget.insertItems(
+            row = 0,
+            items = segmentList)
+
             
     def _addGroupBoxes( self ):
         """
@@ -357,7 +355,7 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.segmentListWidget = PM_SelectionListWidget(pmGroupBox,
                                                        self.win,
                                                        label = "",
-                                                       heightByRows = 4 )
+                                                       heightByRows = 12)
         self.segmentListWidget.setObjectName('Segment_list_widget')
         self.segmentListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
         

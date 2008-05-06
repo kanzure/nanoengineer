@@ -231,6 +231,19 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedNanotubeGroup)
         return selNanotubeGroupList
+    
+    def getSelectedNanotubeSegments(self):
+        """
+        Returns a list of the currently selected NanotubeSegment(s).
+        
+        """        
+        selNanotubeSegmentList = []
+        def addSelectedNanotubeSegment(obj, nanotubeList = selNanotubeSegmentList):
+            if obj.picked and isinstance(obj, self.win.assy.NanotubeSegment):
+                nanotubeList += [obj]
+
+        self.topnode.apply2all(addSelectedNanotubeSegment)
+        return selNanotubeSegmentList
         
 
     def getNumberOfSelectedChunks(self):

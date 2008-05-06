@@ -13,7 +13,7 @@ Ninad 2008-01-11: Created
 TODO: as of 2008-01-11
 - Needs more documentation and the file is subjected to heavy revision. 
 This is an initial implementation of default Cnt edit mode.
-- Methods such as callback_addSegments might be renamed.
+
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
   BuildNanotube_EditCommand from a a temporary command. 
@@ -385,76 +385,7 @@ class BuildNanotube_EditCommand(EditCommand):
             #'None' for 'self.struct'!
             self.struct.open = False
 
-    def cancelStructure(self):
-        """
-        Cancel the structure
-	"""
-        EditCommand.cancelStructure(self) 
-        if self.struct is not None:
-            if self.struct.isEmpty():
-                self._removeStructure()
-
-
-    def provideParamsForTemporaryMode(self, temporaryModeName):
-        """
-        NOTE: This needs to be a general API method. There are situations when 
-	user enters a temporary mode , does something there and returns back to
-	the previous mode he was in. He also needs to send some data from 
-	previous mode to the temporary mode .	 
-	@see: B{NanotubeLineMode}
-	@see: self.acceptParamsFromTemporaryMode 
-
-        @see CntDuplex_EditCommand._createSegment(), 
-        @see: CntDuplex_EditCommand.createStructure()
-        @see: CntDuplex_EditCommand.restore_gui()
-        """
-        params = None
-
-        if temporaryModeName == 'INSERT_NANOTUBE':
-            #Pass the self.struct to the CntDuplex_EdiCommand
-            #This deprecates use of self.callback_addSegments (in which 
-            #segments created while in CntDuplex command are added after 
-            #returning to BuildNanotube mode) The new implementation provides the 
-            #NanotubeGroup to the CntDuplex command and then adds the created 
-            #segments directly to it. 
-            #See: CntDuplex_EditCommand._createSegment(), 
-            #    CntDuplex_EditCommand.createStructure(), and
-            #    CntDuplex_EditCommand.restore_gui()
-
-            if self.struct is None:
-                self.struct = self._createStructure()
-            params = (self.callback_addSegments, self.struct)
-
-        return params    
-
-    def callback_addSegments(self, segmentList):
-        """
-        Call back method supplied to the temporary command CntDuplex_EditCommand. 
-        The CntDuplex_EditCommand gives it a list of segments created 
-        while that command was active.
-        To be revised and renamed. 
-
-        @see: CntDuplex_EditCommand.restore_gui
-
-        @TODO: Remove this method when safe. DEPRECATED AS OF 2008-02-24
-               See self.provideParametersForTemporaryMode which pass on 
-               self.struct (a NanotubeGroup) to be used in CntDuplex_EditCommand 
-               (which adds created NanotubeSegments to it ) 
-        """      
-
-        if self.struct is None:
-            self.struct = self._createStructure()  
-
-        assert self.struct is not None   
-        for segment in segmentList:
-            self.struct.addSegment(segment)
-        ##self.win.assy.place_new_geometry(cntGroup)
-        self.propMgr.updateListWidgets()
-
-        self.previousParams = self._gatherParameters() 
-
-        self.win.win_update()
-
+   
     def makeMenus(self): 
         """
         Create context menu for this command. (Build Nanotube mode)

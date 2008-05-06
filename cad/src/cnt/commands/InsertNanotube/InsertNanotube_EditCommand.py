@@ -74,14 +74,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
     #required by NanotubeLine_GM
     mouseClickPoints = []
-    #This is the callback method that the previous command 
-    #(which is InsertNanotube_Editcommand as of 2008-01-11) provides. When user exits
-    #this command and returns back to the previous one (InsertNanotube_EditCommand),
-    #it calls this method and provides a list of segments created while this 
-    #command was  running. (the segments are stored within a temporary cnt group
-    #see self._fallbackNanotubeGroup
-    callback_addSegments  = None
-
+    
     #This is set to InsertNanotube_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
@@ -93,47 +86,12 @@ class InsertNanotube_EditCommand(EditCommand):
 
         EditCommand.__init__(self, commandSequencer)        
 
-        #_fallbackNanotubeGroup stores the NanotubeSegments created while in 
-        #this command. This temporary ntGroup is created IF AND ONLY IF 
-        #InsertNanotube_EditCommand is unable to access the ntGroup object of the 
-        #parent InsertNanotube_EditCommand. (so if this group gets created, it should
-        #be considered as a bug. While exiting the command the list of segments 
-        #of this group is given to the InsertNanotube_EditCommand where they get 
-        #their new parent. @see self.restore_gui
-        self._fallbackNanotubeGroup = None
-
-        #_parentNanotubeGroup is the cntgroup of InsertNanotube_EditCommand 
-        self._parentNanotubeGroup = None
-
         #Maintain a list of segments created while this command was running. 
-        #Note that the segments , when created will be added directly to the 
-        # self._parentNanotubeGroup (or self._fallbackNanotubeGroup if there is a bug) 
-        # But self._parentNanotubeGroup (which must be = the ntGroup of 
-        # InsertNanotube_EditCommand.) may already contain NanotubeSegments (added earlier)
-        # so, we can not use group.steal_members() in case user cancels the 
-        #structure creation (segment addition). 
         self._segmentList = []
 
         self.struct = struct
 
-    def _createFallbackNanotubeGroup(self):
-        """
-        Creates a temporary NanotubeGroup object in which all the NanotubeSegments 
-        created while in this command will be added as members. 
-        While exiting this command, these segments will be added first taken 
-        away from the temporary group and then added to the NanotubeGroup of
-        InsertNanotube_EditCommand 
-        @see: self.restore_gui
-        @see: InsertNanotube_EditCommand.callback_addSegments()
-        """
-        if self._fallbackNanotubeGroup is None:
-            self.win.assy.part.ensure_toplevel_group()
-            self._fallbackNanotubeGroup = \
-                NanotubeGroup("Fallback Cnt", 
-                              self.win.assy,
-                              self.win.assy.part.topnode )
-
-
+   
     def init_gui(self):
         """
         Do changes to the GUI while entering this command. This includes opening 
@@ -146,8 +104,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
         @see: L{self.restore_gui}
         """
-        EditCommand.init_gui(self)        
-
+        EditCommand.init_gui(self)  
 
         if isinstance(self.graphicsMode, NanotubeLine_GM):
             self._setParamsForCntLineGraphicsMode()
@@ -159,14 +116,6 @@ class InsertNanotube_EditCommand(EditCommand):
 
         prevMode = self.commandSequencer.prevMode 
         if prevMode.commandName == 'BUILD_NANOTUBE':
-            params = prevMode.provideParamsForTemporaryMode(self.commandName)
-            self.callback_addSegments, self._parentNanotubeGroup = params
-            
-            #@TODO: self.callback_addSegments is not used as of 2008-02-24 
-            #due to change in implementation. Not removing it for now as the 
-            #new implementation (which uses the ntGroup object of 
-            #InsertNanotube_EditCommand is still being tested) -- Ninad 2008-02-24
-
             #Following won't be necessary after Command Toolbar is 
             #properly integrated into the Command/CommandSequencer API
             try:
@@ -178,15 +127,10 @@ class InsertNanotube_EditCommand(EditCommand):
             except AttributeError:
                 self.flyoutToolbar = None
 
-
             if self.flyoutToolbar:
                 if not self.flyoutToolbar.insertNanotubeAction.isChecked():
                     self.flyoutToolbar.insertNanotubeAction.setChecked(True)
-        else:
-            #Should this be an assertion? Should we always kill _parentNanotubeGroup
-            #if its not None? ..not a good idea. Lets just make it to None. 
-            self._parentNanotubeGroup = None             
-            self._createFallbackNanotubeGroup()
+        
 
     def restore_gui(self):
         """
@@ -205,9 +149,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
         if self.flyoutToolbar:
             self.flyoutToolbar.insertNanotubeAction.setChecked(False)
-
-        self._parentNanotubeGroup = None 
-        self._fallbackNanotubeGroup = None
+            
         self._segmentList = []
 
 
@@ -277,23 +219,6 @@ class InsertNanotube_EditCommand(EditCommand):
         ntLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
 
         self.preview_or_finalize_structure(previewing = True)
-
-        #Unpick the cnt segments (while this command was still 
-        #running. ) This is necessary , so that when you strat drawing 
-        #rubberband line, it matches the display style of the glpane. 
-        #If something was selected, and while in NanotubeLineMode you changed the
-        #display style, it will be applied only to the selected chunk. 
-        #(and the glpane's display style will not change. This , in turn 
-        #won't change the display of the rubberband line being drawn. 
-        #Another bug: What if something else in the glpane is selected? 
-        #complete fix would be to call unpick_all_in_the_glpane. But 
-        #that itself is undesirable. Okay for now -- Ninad 2008-02-20
-        #UPDATE 2008-02-21: The following code is commented out. Don't 
-        #change the selection state of the 
-        ##if self._fallbackNanotubeGroup is not None:
-            ##for segment in self._fallbackNanotubeGroup.members:
-                ##segment.unpick()
-
 
         #Now append this ntSegment  to self._segmentList 
         self._segmentList.append(self.struct)
@@ -410,18 +335,12 @@ class InsertNanotube_EditCommand(EditCommand):
 
     def _removeSegments(self):
         """
-        Remove the segments created while in this command self._fallbackNanotubeGroup 
-        (if one exists its a bug).
+        Remove the segments created while in this command 
 
         This deletes all the segments created while this command was running
         @see: L{self.cancelStructure}
         """
-        segmentList = []
-
-        if self._parentNanotubeGroup is not None:
-            segmentList = self._segmentList
-        elif self._fallbackNanotubeGroup is not None:
-            segmentList = self._fallbackNanotubeGroup.get_segments()
+        segmentList = self._segmentList
         
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 
@@ -430,9 +349,6 @@ class InsertNanotube_EditCommand(EditCommand):
                 segment.kill_with_contents()
             self._revertNumber()
         
-        if self._fallbackNanotubeGroup is not None:
-            self._fallbackNanotubeGroup.kill()
-            self._fallbackNanotubeGroup = None
         
         self._segmentList = []	
         self.win.win_update()
@@ -465,21 +381,10 @@ class InsertNanotube_EditCommand(EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-
-        if self._parentNanotubeGroup is None:
-            print_compact_stack("bug: Parent NanotubeGroup in InsertNanotube_EditCommand"\
-                                "is None. This means the previous command "\
-                                "was not 'InsertNanotube_EditCommand' Ignoring for now")
-            if self._fallbackNanotubeGroup is None:
-                self._createFallbackNanotubeGroup()
-
-            ntGroup = self._fallbackNanotubeGroup
-        else:
-            ntGroup = self._parentNanotubeGroup
 	    
         ntSegment = NanotubeSegment(self.name, 
                                     self.win.assy,
-                                    ntGroup,
+                                    self.win.assy.part.topnode,
                                     editCommand = self)
         try:
             # Make the nanotube. <ntGroup> will contain one chunk:

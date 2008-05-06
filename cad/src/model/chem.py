@@ -1734,7 +1734,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #for Rattlesnake v1.0.1
                 bool_custom_arrowhead_color = env.prefs[
                     useCustomColorForFivePrimeArrowheads_prefs_key]                
-                if bool_custom_arrowhead_color:
+                if bool_custom_arrowhead_color and not abs_coords:
                     arrowColor = env.prefs[
                         dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
                 
@@ -1747,7 +1747,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #for Rattlesnake v1.0.1
                 bool_custom_arrowhead_color = env.prefs[
                     useCustomColorForThreePrimeArrowheads_prefs_key]                
-                if bool_custom_arrowhead_color:
+                if bool_custom_arrowhead_color and not abs_coords:
                     arrowColor = env.prefs[
                         dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
             else:
@@ -1808,7 +1808,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             sphereColor = color
             bool_custom_color = env.prefs[
                     useCustomColorForFivePrimeArrowheads_prefs_key]                
-            if bool_custom_color:
+            if bool_custom_color and not abs_coords:
                 sphereColor = env.prefs[
                     dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
                     
@@ -1817,7 +1817,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             sphereColor = color
             bool_custom_color = env.prefs[
                     useCustomColorForThreePrimeArrowheads_prefs_key]                
-            if bool_custom_color:
+            if bool_custom_color and not abs_coords:
                 sphereColor = env.prefs[
                     dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
             drawsphere(sphereColor, pos, drawrad, level)
