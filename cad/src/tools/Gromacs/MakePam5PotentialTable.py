@@ -81,10 +81,12 @@ YA = 0.522281489
 YB = 0.4
 YC = 1.180059331
 
+YShift = 0.019
+
 def yukawa(r):
     if (r < 0.04):
         return yukawa(0.04) + 0.04 - r ;
-    return (YA / r) * math.exp(-(r - YB) / YC)
+    return (YA / r) * math.exp(-(r - YB) / YC) - YShift
 
 def d_yukawa(r):
     if (r < 0.04):
