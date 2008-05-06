@@ -2293,6 +2293,24 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             res = None
         return res
 
+    #russ 080505: Treat focusIn/focusOut events the same as enter/leave events.
+    # On the Mac at least, Cmd-Tabbing to another app window that pops up on top
+    # of our pane doesn't deliver a leave event, but does deliver a focusOut.
+    # Unless we handle it as a leave, the timer is left active, and a highlight
+    # draw can occur.  This steals the focus from the upper window, popping NE1
+    # on top of it, which is very annoying to the user.
+    def focusInEvent(self, event):
+        if DEBUG_BAREMOTION:
+            print "focusInEvent"
+            pass
+        self.enterEvent(event)
+
+    def focusOutEvent(self, event):
+        if DEBUG_BAREMOTION:
+            print "focusOutEvent"
+            pass
+        self.leaveEvent(event)
+
     def enterEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
         """
         Event handler for when the cursor enters the GLPane.
@@ -2300,16 +2318,28 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @param event: The mouse event after entering the GLpane.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
+        if DEBUG_BAREMOTION:
+            print "enterEvent"
+            pass
         choice = self._timer_debug_pref()
         if choice is None:
             if not env.seen_before("timer is turned off"):
                 print "warning: GLPane's timer is turned off by a debug_pref"
             if self.highlightTimer:
                 self.killTimer(self.highlightTimer)
+                if DEBUG_BAREMOTION:
+                    print "  Killed highlight timer %r"% self.highlightTimer
+                    pass
+                pass
             self.highlightTimer = None
             return
-        interval = int( choice)
-        self.highlightTimer = self.startTimer(interval) # 100-millisecond repeating timer
+        if not self.highlightTimer:
+            interval = int(choice)
+            self.highlightTimer = self.startTimer(interval) # Milliseconds interval.
+            if DEBUG_BAREMOTION:
+                print "  Started highlight timer %r"% self.highlightTimer
+                pass
+            pass
         return
 
     def leaveEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
@@ -2319,14 +2349,24 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @param event: The last mouse event before leaving the GLpane.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
+        if DEBUG_BAREMOTION:
+            print "leaveEvent"
+            pass
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
         if self.selobj is not None:
             self.selobj = None # REVIEW: why not set_selobj?
             self.gl_update_highlight() # REVIEW: this redraw can be slow -- is it worthwhile?
+            pass
 
-        # Kill timer when the cursor leaves the GLpane. It is (re)started in enterEvent() above.
+        # Kill timer when the cursor leaves the GLpane.
+        # It is (re)started in enterEvent() above.
         if self.highlightTimer:
             self.killTimer(self.highlightTimer)
+            if DEBUG_BAREMOTION:
+                print "  Killed highlight timer %r"% self.highlightTimer
+                pass
+            self.highlightTimer = None
+            pass
         return
 
     def timerEvent(self, e): # Mark 060806.
