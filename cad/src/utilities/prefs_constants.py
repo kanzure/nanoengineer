@@ -570,9 +570,9 @@ prefs_table = (
         ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
         ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
         ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
-        ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, False),
+        ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, True),
         ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, red),
-        ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, False),
+        ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, True),
         ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
 
         # DNA minor groove error indicator prefs.
