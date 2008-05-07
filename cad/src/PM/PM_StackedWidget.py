@@ -34,7 +34,7 @@ class PM_StackedWidget( QStackedWidget ):
     provided by QTabWidget. It is a convenience layout widget built on top 
     of the QStackedLayout class.
     
-    Like PM_StackedWidget can be constructed and populated with a number of
+    PM_StackedWidget can be constructed and populated with a number of
     child widgets ("pages").
     
     PM_StackedWidget can be supplied with a I{switchPageWidget} as a means 
@@ -67,6 +67,7 @@ class PM_StackedWidget( QStackedWidget ):
     
     labelWidget = None # Needed by the parentWidget (PM_GroupBox).
     _groupBoxCount = 0
+    switchPageWidget = None
     
     def __init__(self, 
                  parentWidget,
@@ -83,7 +84,9 @@ class PM_StackedWidget( QStackedWidget ):
         @param parentWidget: the parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param switchPageWidget: the widget that is used to switch between pages.
+        @param switchPageWidget: The widget that is used to switch between
+                                 pages. If None (the default), it is up to the
+                                 caller to manage page switching.
         @type  switchPageWidget: PM_ComboBox or PM_ListWidget
         
         @param childWidgetList: a list of child widgets (pages), typically a
@@ -121,6 +124,22 @@ class PM_StackedWidget( QStackedWidget ):
         for widget in childWidgetList:
             self.addWidget(widget)
         
+        self.setSwitchPageWidget(switchPageWidget)
+        
+        parentWidget.addPmWidget(self)
+        
+    def setSwitchPageWidget(self, switchPageWidget):
+        """
+        Sets the switch page widget to I{switchPageWidget}. This is the widget
+        that controls switching between pages (child widgets) added to self.
+        
+        @param switchPageWidget: The widget to control switching between pages.
+        @type switchPageWidget: PM_ComboBox or PM_ListWidget
+        
+        @note: Currently, we are only allowing PM_ComboBox or PM_ListWidget
+        widgets to be switch page widgets. It would be straight forward to 
+        add support for other widgets if needed. Talk to me. --Mark.
+        """
         if switchPageWidget:
             
             assert isinstance(switchPageWidget, PM_ComboBox) or \
@@ -129,7 +148,7 @@ class PM_StackedWidget( QStackedWidget ):
             self.connect(switchPageWidget, 
                          SIGNAL("activated(int)"),
                          self.setCurrentIndex)
+            
+            self.switchPageWidget = switchPageWidget
         
-        parentWidget.addPmWidget(self)
-
 # End of PM_StackedWidget ############################
