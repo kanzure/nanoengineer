@@ -10,6 +10,13 @@ DIST_CONTENTS=$DIST_ROOT
 
 # Build the base .exe and directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
+
+
+# Modifying the foundation/preferences.py file for bsddb3
+cd $TOP_LEVEL
+cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
+mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
+
 cd $TOP_LEVEL/cad/src
 rm -rf dist build
 cp $TOP_LEVEL/packaging/Win32/setup.py .
@@ -48,9 +55,9 @@ if [ ! -e "$DIST_CONTENTS/bin/wgnuplot.exe" ]; then exit; fi
 
 # Copy the OpenBabel binaries
 
-#unzip $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.zip -d $DIST_CONTENTS/bin
+unzip $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.zip -d $DIST_CONTENTS/bin
 cd $DIST_CONTENTS/bin
-tar -xzvf $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.tgz
+#tar -xzvf $TOP_LEVEL/packaging/Win32/OpenBabel.MMP.win32.tgz
 cd $TOP_LEVEL
 #cp $TOP_LEVEL/packaging/Win32/openbabel/* $DIST_CONTENTS/bin
 
@@ -66,23 +73,24 @@ cp -R $TOP_LEVEL/cad/partlib $DIST_ROOT/
 # Copy images
 DIST_IMAGES_DIR=$DIST_ROOT/src/ui/
 mkdir -p $DIST_IMAGES_DIR/actions
-cp -R cad/src/ui/actions/Edit $DIST_IMAGES_DIR/actions/ 
-cp -R cad/src/ui/actions/File $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Help $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Insert $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Properties\ Manager $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Simulation $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Toolbars $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Tools $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/View $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/actions/Command\ Toolbar $DIST_IMAGES_DIR/actions/
-cp -R cad/src/ui/border $DIST_IMAGES_DIR
-cp -R cad/src/ui/confcorner $DIST_IMAGES_DIR
-cp -R cad/src/ui/cursors $DIST_IMAGES_DIR
-cp -R cad/src/ui/dialogs $DIST_IMAGES_DIR
-cp -R cad/src/ui/exprs $DIST_IMAGES_DIR
-cp -R cad/src/ui/images $DIST_IMAGES_DIR
-cp -R cad/src/ui/modeltree $DIST_IMAGES_DIR
+#cp -R cad/src/ui/actions/Edit $DIST_IMAGES_DIR/actions/ 
+#cp -R cad/src/ui/actions/File $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Help $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Insert $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Properties\ Manager $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Simulation $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Toolbars $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Tools $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/View $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/actions/Command\ Toolbar $DIST_IMAGES_DIR/actions/
+#cp -R cad/src/ui/border $DIST_IMAGES_DIR
+#cp -R cad/src/ui/confcorner $DIST_IMAGES_DIR
+#cp -R cad/src/ui/cursors $DIST_IMAGES_DIR
+#cp -R cad/src/ui/dialogs $DIST_IMAGES_DIR
+#cp -R cad/src/ui/exprs $DIST_IMAGES_DIR
+#cp -R cad/src/ui/images $DIST_IMAGES_DIR
+#cp -R cad/src/ui/modeltree $DIST_IMAGES_DIR
+cp -R cad/src/ui/* $DIST_IMAGES_DIR
 cd $TOP_LEVEL
 
 # Copy the ReadeMe.html file and Licenses/ files
@@ -126,6 +134,7 @@ mkdir $DIST_CONTENTS/plugins/GROMACS
 cp -R $TOP_LEVEL/cad/plugins/GROMACS/Pam5Potential.xvg $DIST_CONTENTS/plugins/GROMACS/
 cp $TOP_LEVEL/cad/plugins/GROMACS/mdrunner.bat $DIST_CONTENTS/plugins/GROMACS/
 cd $TOP_LEVEL
+tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 
 #
 # End Plugins
@@ -139,6 +148,11 @@ rm -rf `find $DIST_ROOT -name .svn`
 rm -rf $DIST_ROOT/partlib/*/.svn
 rm -rf $DIST_ROOT/partlib/*/*/.svn
 rm -rf $DIST_ROOT/src/ui/*/*/.svn
+mkdir $DIST_ROOT/source
+cd $DIST_ROOT/source
+tar -xzf /c/NE1_source.tar.gz
+rm /c/NE1_source.tar.gz
+cd $TOP_LEVEL
 
 # Create the installer
 "c:/program files/nsis/makensis.exe" packaging/Win32/installer.nsi
