@@ -512,9 +512,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                 dnaGroup = segment.parent_node_of_class(self.assy.DnaGroup)
                 if segment is not None:
                     contextMenuList.append(None)#adds a separator in the contextmenu
-                    item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
-                            noop,
-                            'disabled')
+                    if dnaGroup is not None:
+                        item = (("%s of [%s]" % (segment.name, dnaGroup.name)),
+                                noop,
+                                'disabled')
+                    else:
+                        item = (("%s " % segment.name),
+                                noop,
+                                'disabled')
+                        
                     contextMenuList.append(item)
                     item = (("Edit DnaSegment Properties..."), 
                             segment.edit)
