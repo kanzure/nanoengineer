@@ -1794,7 +1794,7 @@ class MT_View(QtGui.QWidget):
                 next_line_to_pos = y0 + ITEM_HEIGHT
         return y
 
-    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def repaint_some_nodes_NOT_YET_USED(self, nodes): #bruce 080507 experimental, for cross-highlighting; maybe not used; rename?
         """
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (If it wasn't, it might not be an
@@ -1817,7 +1817,7 @@ class MT_View(QtGui.QWidget):
         # nodes to repaint incrementally, and do the necessary update calls
         # so that a paintEvent can occur, and set enough new flags to make it
         # incremental, so its main effect will just be to call this method.
-        # The danger is that other update calls (not via our mt_update method)
+        # The danger is that other update calls (not via our modelTreeGui's mt_update method)
         # are coming from Qt and need to be non-incremental. (Don't know, should find out.)
         # So an initial fix might just ignore the "incremental" issue
         # except for deferring the mt_update effects themselves
@@ -1844,6 +1844,23 @@ class MT_View(QtGui.QWidget):
         finally:
             painter.end()
         return
+
+    def any_of_these_nodes_are_painted(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        """
+        @return: whether any of the given nodes were painted during the last
+        full repaint of self.
+
+        @rtype: boolean
+        """
+        if not self._painted:
+            # called too early; not an error
+            return False
+        for node in nodes:
+            where = self._painted.get(node) # (x, y) or None
+            if where is not None:
+                return True
+            continue
+        return False
     
     def look_for_y(self, y):
         """
@@ -2017,7 +2034,10 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     
     def mt_update(self):
         """
-        part of the public API
+        part of the public API:
+        - recompute desired size for scroll area based on visible nodes
+        - resize scroll area if needed
+        - _do_widget_updates to make sure we get redrawn soon
         """
         if self.MT_debug_prints():
             print "mt_update", time.asctime()
@@ -2053,11 +2073,21 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
                 # NFR: I don't know how to set a "motion quantum" which affects user-set positions too.
         
 ##        self._debug_scrollbars("mt_update post-correct")
-        
-        self.view.update() # this works
-        self.update() # this alone doesn't update the contents, but do it anyway to be sure we get the scrollbars (will it be enough?)
 
+        self._do_widget_updates()
+        
 ##        self._debug_scrollbars("mt_update post-update")
+        return
+    
+    def _do_widget_updates(self): #bruce 080507 split this out
+        """
+        [private]
+
+        Call QWidget.update on our widgets, so that Qt will redraw us soon.
+        """
+        self.view.update() # this works
+        self.update() # this alone doesn't update the contents, but do it anyway
+            # to be sure we get the scrollbars (will it be enough?)
         return
     
     def update_item_tree(self, unpickEverybody = False):
@@ -2079,7 +2109,10 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)
         """
-        self.view.repaint_some_nodes(nodes)
+        # we can't do it this way, since we're not inside paintEvent:
+        ## self.view.repaint_some_nodes(nodes)
+        if self.view.any_of_these_nodes_are_painted(nodes):
+            self._do_widget_updates() # also called by mt_update
         return
     
     def item_and_rect_at_event_pos(self, event):
