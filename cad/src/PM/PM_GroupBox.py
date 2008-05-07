@@ -144,22 +144,22 @@ class PM_GroupBox( QGroupBox ):
         """
       
         QGroupBox.__init__(self)
-                
+        
         self.parentWidget = parentWidget
-        parentWidget._groupBoxCount += 1
-        _groupBoxCount = 0
-    
-        self._title = title
-        self.setAsDefault = setAsDefault
         
         # Calling addWidget() here is important. If done at the end,
         # the title button does not get assigned its palette for some 
         # unknown reason. Mark 2007-05-20.
         # Add self to PropMgr's vBoxLayout
-        parentWidget.vBoxLayout.addWidget(self) 
-        
+        if parentWidget:
+            parentWidget._groupBoxCount += 1
+            parentWidget.vBoxLayout.addWidget(self)
+            parentWidget._widgetList.append(self)
+            
+        _groupBoxCount = 0
         self._widgetList = []
-        parentWidget._widgetList.append(self)
+        self._title = title
+        self.setAsDefault = setAsDefault
         
         self.setAutoFillBackground(True) 
         self.setPalette(self._getPalette())
@@ -193,7 +193,7 @@ class PM_GroupBox( QGroupBox ):
         self.vBoxLayout.addLayout(self.gridLayout)
         
         # Add title button (or just a title if the parent is not a PM_Dialog).
-        if isinstance(parentWidget, PM_GroupBox):
+        if not parentWidget or isinstance(parentWidget, PM_GroupBox):
             self.setTitle(title)
         else: # Parent is a PM_Dialog, so add a title button.
             if not self.titleButtonRequested:
@@ -228,7 +228,7 @@ class PM_GroupBox( QGroupBox ):
 ##        from PM.PM_Dialog import PM_Dialog
 ##        if not isinstance(self.parentWidget, PM_Dialog):
         
-        if isinstance(self.parentWidget, PM_GroupBox):
+        if not self.parentWidget or isinstance(self.parentWidget, PM_GroupBox):
             #bruce 071103 revised test to remove import cycle; I assume that
             # self.parentWidget is either a PM_GroupBox or a PM_Dialog, since
             # comments about similar code in __init__ imply that.
@@ -521,7 +521,7 @@ class PM_GroupBox( QGroupBox ):
         """
         self._rowCount += increment
         
-    def addQtWidget(self, qtWidget, column, spanWidth):
+    def addQtWidget(self, qtWidget, column = 0, spanWidth = False):
         """
         Add a Qt widget to this group box.
         
