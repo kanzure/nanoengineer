@@ -92,7 +92,8 @@ class ops_rechunk_Mixin:
                     a.hopmol(numol)
             if numol.atoms:
                 numol.setDisplay(mol.display) # Fixed bug 391.  Mark 050710
-                numol.setcolor(mol.color) #bruce 070425, fix Extrude bug 2331 (also good for Separate in general), "nice to have" for A9
+                numol.setcolor(mol.color, repaint_in_MT = False)
+                    #bruce 070425, fix Extrude bug 2331 (also good for Separate in general), "nice to have" for A9
                 self.addmol(numol) ###e move it to just after the one it was made from? or, end of same group??
                 numolist+=[numol]
                 if new_old_callback:
@@ -221,7 +222,7 @@ class ops_rechunk_Mixin:
         else:
             self.addnode(newChunk)
             
-        newChunk.setcolor(color)
+        newChunk.setcolor(color, repaint_in_MT = False)
         
         return newChunk 
 

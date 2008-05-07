@@ -131,6 +131,7 @@ from utilities.constants import noop
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
 from utilities.GlobalPreferences import use_frustum_culling #piotr 080402
+from utilities.GlobalPreferences import pref_show_node_color_in_MT
 
 from model.elements import PeriodicTable
 
@@ -2571,7 +2572,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # val should be 3 decimal ints from 0-255; colors of None are not saved since they're the default
             r,g,b = map(int, val.split())
             color = r/255.0, g/255.0, b/255.0
-            self.setcolor(color)
+            self.setcolor(color, repaint_in_MT = False)
         elif key == ['display_as_pam']:
             # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""
@@ -3003,14 +3004,20 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
     def getaxis(self):
         return self.quat.rot(self.axis)
 
-    def setcolor(self, color):
+    def setcolor(self, color, repaint_in_MT = True):
         """
-        change self's color;
-        new color should be None (let atom colors use their element colors)
-        or a 3-tuple.
+        change self's color to the specified color. A color of None
+        means self's atoms are drawn with their element colors.
+        
+        @param color: None, or a standard color 3-tuple.
+
+        @param repaint_in_MT: True by default; callers can optimize by passing
+                              False if they know self is too new to have ever
+                              been drawn into any model tree widget.
         """
-        # None or a 3-tuple; it matters that the 3-tuple is never boolean False,
-        # so don't use a Numeric array! As a precaution, let's enforce this now. [bruce 050505]
+        #bruce 080507 added repaint_in_MT option
+        # color is None or a 3-tuple; it matters that the 3-tuple is never boolean False,
+        # so don't use a Numeric array! As a precaution, enforce this now. [bruce 050505]
         if color is not None:
             r,g,b = color
             color = r,g,b
@@ -3018,6 +3025,10 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # warning: some callers (ChunkProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
         self.havelist = 0
         self.changed()
+        if repaint_in_MT and pref_show_node_color_in_MT():
+            #bruce 080507, mainly for testing new method repaint_some_nodes
+            self.assy.win.mt.repaint_some_nodes([self])
+        return
 
     def setDisplay(self, disp):
         # TODO: optimize when self.display == disp, since I just reviewed

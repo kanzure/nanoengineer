@@ -81,6 +81,9 @@ from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
 from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
 
+from utilities.GlobalPreferences import pref_show_node_color_in_MT
+from widgets.widget_helpers import RGBf_to_QColor
+
 DEBUG0 = False # debug api compliance
 DEBUG = False # debug selection stuff
 DEBUG2 = False # mouse press event details
@@ -254,6 +257,13 @@ class Ne1Model_api(Api):
         from operations.ops_select import topmost_selected_nodes
         return topmost_selected_nodes(nodes)
 
+    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (Not an error if it wasn't.)
+        """
+        raise Exception("overload me")
+
     pass # end of class Ne1Model_api
 
 class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit from Node?? [bruce 080107 comment]
@@ -424,6 +434,14 @@ class ModelTreeGui_api(Api):
                   to) the nodetree optional argument.
         """
         raise Exception("overload me")
+
+    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (Not an error if it wasn't.)
+        """
+        raise Exception("overload me")
+
     pass
 
 ####################### End of the API #############################
@@ -456,7 +474,12 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     disabled = node.is_disabled() ### might be slow!
     display_prefs = display_prefs_for_node(node)
         # someday these might also depend on parent node and/or on ModelTreeGui (i.e. widget)
-    
+
+    color = None
+    if pref_show_node_color_in_MT(): ### test too slow? if it is, so is the debug_pref lower down...
+        # note: this implem works for all nodes with a .color attribute, not just for chunks
+        color = getattr(node, 'color', None) # node.color
+        
     node_icon = node.node_icon(display_prefs) # a QPixmap object
     
     try:
@@ -474,7 +497,7 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     #  when this function was called. For example, it may be useful to call QPainter::save()
     #  before painting and QPainter::restore() afterwards.
 
-    need_save = disabled or selected #bruce 070529 presumed optimization
+    need_save = disabled or selected or (color is not None) #bruce 070529 presumed optimization
 
     if need_save:
         painter.save()
@@ -559,6 +582,9 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
 ##        backgroundMode = painter.backgroundMode()
         painter.setBackground(widget.palette().highlight())
         painter.setBackgroundMode(Qt.OpaqueMode)
+
+    if color is not None:
+        painter.setPen(RGBf_to_QColor(color))
 
     yoffset = _ICONSIZE[1] / 2 + 4
     painter.drawText(x + _ICONSIZE[0] + 4, y + yoffset, node.name)
@@ -819,6 +845,7 @@ class ModelTreeGui_common(ModelTreeGui_api):
     statusbar_message = statusbar_msg #bruce 070531; we should rename all methods of that name like this, after A9 goes out
     
     # == Qt3 code for drag graphic, not yet ported, used only if debug_pref set [copied from Qt3/TreeWidget.py, bruce 070511]
+    # == [update: I think this is now fully ported and used by default, long before 080507]
 
     def get_pixmap_for_dragging_nodes_Qt3(self, drag_type, nodes):        
         #e [also put the drag-text-making code in another method near here? or even the dragobj maker?
@@ -1667,6 +1694,10 @@ class MT_View(QtGui.QWidget):
     def sizeHint(self):
         # Note: this probably has no effect, since it's overridden by a resize in every mt_update.
         return QtCore.QSize(MT_CONTENT_WIDTH, 700)
+
+    _painted = None # not {}, so not mutable; after first paintEvent will be a
+        # dictionary, which maps node to (x, y) for whatever nodes were painted
+        # during the last full repaint [bruce 080507]
     
     def paintEvent(self, event):
         # Note: if this paintEvent was in QAbstractScrollArea, Qt doc for that warns:
@@ -1678,6 +1709,7 @@ class MT_View(QtGui.QWidget):
         if self.modeltreegui.MT_debug_prints():
             print 'paint' # note: this worked once we called update (it didn't require sizeHint to be defined)
         self._setup_openclose_style()
+        self._painted = {}
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
@@ -1739,6 +1771,7 @@ class MT_View(QtGui.QWidget):
                 painter.restore()
         # node type icon and node name text (possibly looking selected and/or disabled)
         _paintnode(node, painter, x, y, self.palette_widget)
+        self._painted[node] = (x, y)
         # openclose decoration -- uses style set up by _setup_openclose_style for Mac or Win
         if openable:
             if open:
@@ -1761,6 +1794,57 @@ class MT_View(QtGui.QWidget):
                 next_line_to_pos = y0 + ITEM_HEIGHT
         return y
 
+    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (If it wasn't, it might not be an
+        error, if it was due to that node being inside a closed group, or to
+        a future optim for nodes not visible due to scrolling, or if we're being
+        called on a new node before it got painted here the first time; so we
+        print no warning unless debug flags are set.)
+
+        Optimization for non-visible nodes (outside scrollarea viewport) is
+        permitted, but not implemented as of 080507.
+
+        @warning: this can only legally be called during a paintEvent on self.
+                  Otherwise it doesn't paint (but causes no harm, I think)
+                  and Qt prints errors to the console. THE INITIAL IMPLEM IN
+                  THE CALLERS IGNORES THIS ISSUE AND THEREFORE DOESN'T YET WORK.
+                  See code comments for likely fix.
+        """
+        # See docstring comment about the caller implem not yet working.
+        # The fix will probably be for the outer-class methods to queue up the
+        # nodes to repaint incrementally, and do the necessary update calls
+        # so that a paintEvent can occur, and set enough new flags to make it
+        # incremental, so its main effect will just be to call this method.
+        # The danger is that other update calls (not via our mt_update method)
+        # are coming from Qt and need to be non-incremental. (Don't know, should find out.)
+        # So an initial fix might just ignore the "incremental" issue
+        # except for deferring the mt_update effects themselves
+        # (but I'm not sure if those effects are legal inside paintEvent!).
+        
+        if not self._painted:
+            # called too early; not an error
+            return
+        # (Possible optim: it will often happen that none of the passed nodes
+        #  have stored positions. We could check for this first and not bother
+        #  to set up the painter in that case. I'm guessing this is not needed.)
+        painter = QtGui.QPainter()
+        painter.begin(self)
+        try:
+            for node in nodes:
+                where = self._painted.get(node) # (x, y) or None
+                if where:
+                    print "mt debug fyi: repainting %r" % (node,) #### remove when works
+                    x, y = where
+                    _paintnode(node, painter, x, y, self.palette_widget)
+                else:
+                    print "mt debug fyi: NOT repainting %r" % (node,) #### remove when works
+                continue
+        finally:
+            painter.end()
+        return
+    
     def look_for_y(self, y):
         """
         Given y (in contents coordinates), find the node drawn under it,
@@ -1902,7 +1986,6 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         
         # Model Tree background color. Mark 2007-06-04
         from utilities.prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
-        from widgets.widget_helpers import RGBf_to_QColor
         mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
         from PM.PM_Colors  import getPalette
         self.setPalette(getPalette(None, QPalette.Window, mtColor))
@@ -1983,7 +2066,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         """
         self.mt_update()
 
-    def paint_item(self, painter, item):
+    def paint_item(self, painter, item): # probably only used for DND drag graphic (in superclass)
         x,y = 0,0
         node = item.node
         _paintnode(node, painter, x, y, self.view) # self.view is a widget used for its palette
@@ -1991,6 +2074,14 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         width = 160 ###k guess; should compute in paint and return, or in an aux subr if Qt would not like that
         return width
 
+    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        """
+        For each node in nodes, repaint that node, if it was painted the last
+        time we repainted self as a whole. (Not an error if it wasn't.)
+        """
+        self.view.repaint_some_nodes(nodes)
+        return
+    
     def item_and_rect_at_event_pos(self, event):
         """
         Given a mouse event, return the item under it (or None if no item),
@@ -2087,7 +2178,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
 #   - cross-highlighting with GLPane
 #   - DND:
 #     - autoscrolling during DND
-#     - drop on group puts node before other members
+#     - drop on group puts node before other members [done, in another file, for NE1 v1.0.0, bruce 080414]
 #     - drop-point highlighting, between nodes
 
 

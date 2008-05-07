@@ -272,4 +272,29 @@ pref_drop_onto_Group_puts_nodes_at_top()
     # TODO: have an init function in this file, run after history is available ###
     # (not sure if first import of this file is after that)
 
+# ==
+
+def _kluge_global_mt_update():
+    from foundation import env
+        # note: this doesn't cause a module import cycle,
+        # but it might be an undesirable inter-package import.
+        # (it's also done in a few other places in this file.)
+    win = env.mainwindow()
+    win.mt.mt_update()
+    return
+    
+def pref_show_node_color_in_MT():
+    #bruce 080507, mainly for testing new MT method repaint_some_nodes;
+    # won't yet work for internal groups that act like MT leaf nodes
+    # such as DnaStrand
+    """
+    If enabled, show node colors in the Model Tree.
+    """
+    res = debug_pref("Model Tree: show node colors?",
+                     Choice_boolean_False,
+                     prefs_key = True,
+                     call_with_new_value = (lambda val: _kluge_global_mt_update())
+                    )
+    return res
+
 # end

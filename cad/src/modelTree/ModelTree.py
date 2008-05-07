@@ -301,6 +301,10 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # note: bruce 070511 removed all direct sets here of mt_update_needed, since mt_update now sets it.
         return self.modelTreeGui.mt_update()
 
+    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+        self.modelTreeGui.repaint_some_nodes(nodes)
+        return
+    
     def setMinimumSize(self, h, w):
         return self.modelTreeGui.setMinimumSize(h, w)
     
