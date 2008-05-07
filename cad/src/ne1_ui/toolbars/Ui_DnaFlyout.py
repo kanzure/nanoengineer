@@ -80,6 +80,7 @@ class DnaFlyout:
         self.subControlActionGroup.addAction(self.dnaDuplexAction)
         self.subControlActionGroup.addAction(self.breakStrandAction) 
         self.subControlActionGroup.addAction(self.joinStrandsAction)
+        self.subControlActionGroup.addAction(self.displayStyleAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -93,6 +94,7 @@ class DnaFlyout:
         subControlAreaActionList.append(self.convertPAM3to5Action)
         subControlAreaActionList.append(self.convertPAM5to3Action)
         subControlAreaActionList.append(self.orderDnaAction)
+        subControlAreaActionList.append(self.displayStyleAction)
 
         allActionsList.extend(subControlAreaActionList)
 
@@ -151,6 +153,12 @@ class DnaFlyout:
         self.orderDnaAction.setText("Order DNA")
         self.orderDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/Order_DNA.png"))
+        
+        self.displayStyleAction = QtGui.QWidgetAction(parentWidget)
+        self.displayStyleAction.setText("DNA Display")
+        self.displayStyleAction.setCheckable(True)        
+        self.displayStyleAction.setIcon(
+            geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
         
     def _addWhatsThisText(self):
         """
@@ -214,6 +222,10 @@ class DnaFlyout:
         change_connect(self.orderDnaAction, 
                              SIGNAL("triggered()"),
                              self.orderDnaCommand)
+        
+        change_connect(self.displayStyleAction, 
+                             SIGNAL("triggered(bool)"),
+                             self.activateDisplayStyle_Command)
     
     
     def activateFlyoutToolbar(self):
@@ -381,3 +393,19 @@ class DnaFlyout:
         @see: MWSemantics.orderDna
         """
         self.win.orderDna()
+        
+    def activateDisplayStyle_Command(self, isChecked):
+        """
+        Call the method that enters DisplayStyle_Command. 
+        (After entering the command) Also make sure that 
+        all the other actions on the DnaFlyout toolbar are unchecked AND 
+        the DisplayStyle Action is checked. 
+        """
+        
+        self.win.enterDnaDisplayStyleCommand(isChecked)
+        
+        #Uncheck all the actions except the (DNA) display style action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.displayStyleAction and action.isChecked():
+                action.setChecked(False)
