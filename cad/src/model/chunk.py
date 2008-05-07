@@ -3180,6 +3180,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         [extends Node method]
         """
         if not self.picked:
+            if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
+                print_compact_stack( "debug fyi: chunk.pick picks %r: " % self)
+
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
                 # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
