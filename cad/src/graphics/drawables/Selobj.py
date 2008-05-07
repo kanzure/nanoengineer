@@ -128,6 +128,19 @@ class Selobj_API:
 
     ### see list of methods below -- but don't add any method stubs here
     # for now, or some code will break (as explained in module docstring).
+
+    # some *new* api methods can safely be added here:
+
+    def nodes_containing_selobj(self): #bruce 080507
+        """
+        Return a list (not a tuple) of all nodes that contain self,
+        in innermost-to-outermost order if convenient. If self bridges
+        multiple leaf nodes (e.g. if self is an external bond), include
+        all those leaf nodes (and all their containing nodes) in the result,
+        but in that case, the order of nodes within the result is undefined,
+        and whether the result might contain some nodes twice is undefined.
+        """
+        return []
     
     pass
 

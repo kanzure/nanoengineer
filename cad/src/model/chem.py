@@ -78,11 +78,17 @@ from model.bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 import model.global_model_changedicts as global_model_changedicts
 
 # note: chunk and chem form a two element import cycle.
-# this should be:
-#   import model.chunk as chunk
-# but that fails, so we have to do a relative import to satisfy the cycle:
-import chunk # from model
 
+#bruce 080507 removed this, using assy.Chunk as needed;
+# but there are still runtime imports from model.chunk, below.
+# Those would be easy to fix, which would break that particular cycle
+# (at least the direct one which was present for a long time --
+#  it got much worse recently, so an indirect cycle might remain).
+#
+### this should be:
+###   import model.chunk as chunk
+### but that fails, so we have to do a relative import to satisfy the cycle:
+##import chunk # from model
 
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
@@ -233,7 +239,7 @@ def _undo_update_Atom_jigs(archive, assy):
         # an argument, unique per prekill/kill event, or to ensure the global counter (acting as if it was that argument)
         # was unique by again incrementing it after the kill call returns within the same code that had initiated the prekill.
         Utility._will_kill_count += 1
-    mols = assy.allNodes(chunk.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
+    mols = assy.allNodes(assy.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
         # Note: if we wanted to avoid those imports of Chunk and Jig,
         # then what we really want instances of is:
@@ -740,7 +746,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         return
 
-    def _assy_may_have_changed(self): #bruce 080220; UNFINISHED, not yet used, see comment
+    def _assy_may_have_changed(self): #bruce 080220; UNTESTED & not yet used, see comment
         """
         [private method, for _undo_update or similar code]
         See if our assy changed, and if so, call _f_set_assy.
@@ -756,11 +762,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # So I did not yet figure out where to add a call to it for
         # Undo (I'm not sure if .molecule has changed when _undo_update
         # is called, since IIRC it's changed in a special case step in
-        # undo). So, it is not yet being called, and is UNFINISHED
-        # (since is_nullMol needs implem) and UNTESTED.
+        # undo). So, it is not yet being called, and it's UNTESTED.
         # [bruce 080220/080223]
         chunk = self.molecule
-        if chunk is not None and not chunk.is_nullMol(): # IMPLEM, and rename to is_FakeChunkForDeadAtoms()
+        if chunk is not None and not chunk.isNullChunk():
             assy = chunk.assy
             if self._f_assy is not assy:
                 self._f_set_assy(assy)
@@ -983,6 +988,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             menu_spec.append(item)
         return
 
+    def nodes_containing_selobj(self): #bruce 080507
+        """
+        @see: interface class Selobj_API for documentation
+        """
+        # include a lot of safety conditions in case of calls
+        # on out of date selobj...
+        if self.killed():
+            # note: includes check of chunk is None or chunk.isNullChunk()
+            return []
+        chunk = self.molecule
+        return chunk.containing_nodes()
+        
     def set_as_undo_debug_obj(self):
         undo_archive._undo_debug_obj = self
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
@@ -3074,7 +3091,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if at2.element is Singlet:
             return None
         if 1:
-            #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint
+            #bruce 060327 optim of Chunk.kill: if we're being killed right now, don't make a new bondpoint
             if self._will_kill == Utility._will_kill_count:
                 if debug_1779:
                     print "debug_1779: self._will_kill %r == Utility._will_kill_count %r" % \
@@ -3229,10 +3246,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     def changed(self): #bruce 050509; perhaps should use more widely
-        mol = self.molecule
-        if mol is None:
+        chunk = self.molecule
+        if chunk is None:
             return #k needed??
-        mol.changed()
+        chunk.changed()
         return
 
     def killed(self): #bruce 041029; totally revised 050702; revised 080227
@@ -3249,11 +3266,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Undo can be too lazy to set __killed, but then it clears .molecule.
         # And, break_interpart_bonds can then dislike .molecule being None
         # and set it back to _nullMol. So test for these values too. 
-        mol = self.molecule
-        from model.chunk import _nullMol
-        res = self.__killed or mol is None or mol is _nullMol
+        chunk = self.molecule
+        from model.chunk import _nullMol # TODO: use isNullChunk method to avoid this import
+        res = self.__killed or chunk is None or chunk is _nullMol
         if debug_flags.atom_debug: # this cond is for speed
-            better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed??
+            better_alive_answer = chunk is not None and self.key in chunk.atoms and chunk is not _nullMol ##e and chunk is not killed??
             if (not not better_alive_answer) != (not self.__killed):
                 #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
                 #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
@@ -3278,7 +3295,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if killed:
                 assert self.__killed == 1
                 assert not self.picked
-                from model.chunk import _nullMol
+                from model.chunk import _nullMol # TODO: use isNullChunk method to avoid this import
                 assert self.molecule is _nullMol or self.molecule is None
                 # thus don't do this: assert not self.key in self.molecule.assy.selatoms
                 assert not self.bonds
@@ -3317,9 +3334,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
             else:
-                # Note: killing a selected mol, using Delete key, kills a lot of
+                # Note: killing a selected chunk, using Delete key, kills a lot of
                 # singlets twice; I guess it's because we kill every atom
-                # and singlet in mol, but also kill singlets of killed atoms.
+                # and singlet in chunk, but also kill singlets of killed atoms.
                 # So I'll declare this legal, for singlets only. [bruce 041115]
                 pass
             return
@@ -3385,7 +3402,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         try:
             ## del self.molecule.atoms[self.key]
             self.molecule.delatom(self) # bruce 041115
-            # delatom also kills the mol if it becomes empty (as of bruce 041116)
+            # delatom also kills the chunk if it becomes empty (as of bruce 041116)
         except KeyError:
             print "fyi: Atom.kill: atom %r not in its molecule (killed twice?)" % self
             pass
@@ -3484,7 +3501,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 041029 added self.killed() check above to fix bug 152
             self.kill()
             # note that the new singlet produced by killing self might be in a
-            # different mol (since it needs to be in our neighbor atom's mol)
+            # different chunk (since it needs to be in our neighbor atom's chunk)
             #bruce 050406 comment: if we reused the same atom (as in Hydrogenate)
             # we'd be better for movies... just reusing its .key is not enough
             # if we've internally stored alists. But, we'd like to fix the direction
@@ -3526,7 +3543,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet of atomkey %r: " %
                                      self.key ) #bruce 051221 revised this; untested
             return
-        #bruce 050406 revised docstring to say mol needn't be frozen.
+        #bruce 050406 revised docstring to say chunk needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
         # but we'll still use it since it's better tested and faster.
         other = self.bonds[0].other(self)
@@ -3878,7 +3895,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     # debugging methods (not yet fully tested; use at your own risk)
     
-    def invalidate_everything(self): # for an atom, remove it and then readd it to its mol
+    def invalidate_everything(self): # for an atom, remove it and then readd it to its chunk
         """
         debugging method
         """
@@ -3888,7 +3905,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         else:
             #bruce 080318 bugfix: don't do this if only one atom; revise print above to say so
             # note: delatom invals self.bonds
-            self.molecule.delatom(self) # note: this kills the mol if it becomes empty!
+            self.molecule.delatom(self) # note: this kills the chunk if it becomes empty!
             self.molecule.addatom(self)
         return
 
@@ -4184,9 +4201,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if atype.bondvectors:
             r = atype.rcovalent
             pos = self.posn()
-            mol = self.molecule
+            chunk = self.molecule
             for dp in atype.bondvectors:
-                x = Atom('X', pos + r * dp, mol)
+                x = Atom('X', pos + r * dp, chunk)
                 bond_atoms(self, x) ###@@@ set valence? or update it later?
         return
     
@@ -4272,7 +4289,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 else:
                     spin = spin + Q(r, math.pi/3.0) # 60 degrees of extra spin
             else: spin = Q(1,0,0,0)
-            mol = self.molecule
+            chunk = self.molecule
             if 1: # see comment below [bruce 050614]
                 spinsign = debug_pref("spinsign", Choice([1,-1]))
             for q in atype.quats:
@@ -4284,7 +4301,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # with the default pref value giving the correct behavior (moved just above, outside of this loop).
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
-                x = Atom('X', xpos, mol)
+                x = Atom('X', xpos, chunk)
                 bond_atoms(self, x)
         return
         
@@ -4316,10 +4333,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         tw = twistor(r, b2p, s2pos - pos)
         # now for all the rest
         # (I think this should work for any number of new bonds [bruce 041215])
-        mol = self.molecule
+        chunk = self.molecule
         for q in atype.quats[1:]:
             q = rq + q - rq + tw
-            x = Atom('X', pos + q.rot(r), mol)
+            x = Atom('X', pos + q.rot(r), chunk)
             bond_atoms(self, x)
         return
 
@@ -4354,8 +4371,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 dir = norm(cross(s1pos - pos, s2pos - pos))
                     # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
             opos = pos + atype.rcovalent * dir
-            mol = self.molecule
-            x = Atom('X', opos, mol)
+            chunk = self.molecule
+            x = Atom('X', opos, chunk)
             bond_atoms(self, x)
         return
 
@@ -4396,7 +4413,7 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     """
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
-    mol = chunk.Chunk(assy, 'bug') # name is reset below!
+    mol = assy.Chunk(assy, 'bug') # name is reset below!
     atom = Atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.

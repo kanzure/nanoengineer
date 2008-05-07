@@ -189,6 +189,7 @@ from utilities.debug_prefs import debug_pref
 
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
+from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import gray, darkgray, black, lightgray
@@ -387,7 +388,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     assy = None #bruce 080314
 
     def __init__(self, assy, parent = None, name = None, win = None):
-
+        """
+        """
+        
         shareWidget = None
         useStencilBuffer = True
 
@@ -398,6 +401,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.partWindow = parent
 
+        self._nodes_containing_selobj = []
+            # will be set during set_selobj to a list of 0 or more nodes
+            # [bruce 080507 new feature]
+        self._nodes_containing_selobj_is_from_selobj = None
+            # records which selobj was used to set _nodes_containing_selobj
+        
         self.stencilbits = 0 # conservative guess, will be set to true value below
 
         if not self.format().stencil():
@@ -443,8 +452,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # The only thing we're sure self.part must be used for is to know in which
         # part the view attributes belong.
         self.part = None
-
-
 
         # Other "current preference" attributes. ###e Maybe some of these should
         # also be part-specific and/or saved in the mmp file? [bruce 050418]
@@ -506,7 +513,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
 
         self.cursorMotionlessStartTime = time.time() #bruce 070110 fix bug when debug_pref turns off glpane timer from startup
-
 
         ###### User Preference initialization ##############################
 
@@ -3850,13 +3856,23 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         return # from draw_highlighted_objectUnderMouse
 
     def set_selobj(self, selobj, why = "why?"):
+        """
+        Set self.selobj to selobj (might be None) and do appropriate updates.
+        
+        @warning: some sets of self.selobj to None don't call this method.
+                  (We should add options to avoid side effects so that they
+                   all can call it.)
+        """
         if selobj is not self.selobj:
+            previous_selobj = self.selobj
+            self.selobj = selobj #bruce 080507 moved this here
+            
             # Note: we don't call gl_update_highlight here, so the caller needs to
             # if there will be a net change of selobj. I don't know if we should call it here --
             # if any callers call this twice with no net change (i.e. use this to set selobj to None
             # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
             if debug_set_selobj:
-                print_compact_stack("debug_set_selobj: %r -> %r: " % (self.selobj, selobj))
+                print_compact_stack("debug_set_selobj: %r -> %r: " % (previous_selobj, selobj))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
             if selobj is not None:
@@ -3880,11 +3896,119 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 msg = " "
 
             env.history.statusbar_msg(msg)
-        self.selobj = selobj
-        #e notify some observers?
+
+            if pref_show_highlighting_in_MT():
+                # help the model tree highlight the nodes containing selobj
+                # [bruce 080507 new feature]
+                self._update_nodes_containing_selobj(
+                    selobj, # might be None, and we do need to call this then
+                    repaint_nodes = True,
+                        # this causes a side effect which is the only reason we're called here
+                    even_if_selobj_unchanged = False
+                        # optimization;
+                        # should be safe, since changes to selobj parents or node parents
+                        # which would otherwise require this to be passed as true
+                        # should also call mt_update separately, thus doing a full
+                        # MT redraw soon enough
+                 )
+            pass # if selobj is not self.selobj
+        
+        self.selobj = selobj # redundant (as of bruce 080507), but left in for now
+        
+        #e notify more observers?
         return
 
+    def _update_nodes_containing_selobj(self,
+                                        selobj,
+                                        repaint_nodes = False,
+                                        even_if_selobj_unchanged = False
+                                       ): #bruce 080507
+        """
+        private; recompute self._nodes_containing_selobj from the given selobj,
+        optimizing when selobj and/or our result has not changed,
+        and do updates as needed and as options specify.
 
+        @return: None
+
+        @param repaint_nodes: if this is true and we change our cached value of
+                              self._nodes_containing_selobj, then also call the
+                              model tree method repaint_some_nodes.
+
+        @param even_if_selobj_unchanged: if this is true, assume that our
+                                         result might differ even if selobj
+                                         itself has not changed since our
+                                         last call.
+                                        
+        @note: called in two circumstances:
+        - when we know selobj has changed (repaint_nodes should be True then)
+        - when the MT explicitly calls get_nodes_containing_selobj
+          (repaint_nodes should probably be False then)
+
+        @note: does not use or set self.selobj (assuming external code it calls
+               doesn't do so).
+        """
+        # review: are there MT update bugs related to dna updater moving nodes
+        # into new groups?
+        if selobj is self._nodes_containing_selobj_is_from_selobj and \
+           not even_if_selobj_unchanged:
+            # optimization: nothing changed, no updates needed
+            return
+
+        # recompute and perhaps update
+        nodes = []
+        if selobj is not None:
+            try:
+                method = selobj.nodes_containing_selobj
+            except AttributeError:
+                # should never happen, since Selobj_API defines this method
+                print "bug: no method nodes_containing_selobj in %r" % (selobj,)
+                pass
+            else:
+                try:
+                    nodes = method()
+                    assert type(nodes) == type([])
+                except:
+                    msg = "bug in %r.nodes_containing_selobj " \
+                          "(or invalid return value from it)" % (selobj,)
+                    print_compact_traceback( msg + ": ")
+                    nodes = []
+                pass
+            pass
+        if self._nodes_containing_selobj != nodes:
+            # assume no need to sort, since they'll typically be
+            # returned in inner-to-outer order
+            all_changed_nodes = self._nodes_containing_selobj + nodes
+                # assume duplications are ok;
+                # could optim by leaving out any nodes that appear
+                # in both lists, assuming the way they're highlighted in
+                # the MT doesn't depend on anything but their presence
+                # in the list; doesn't matter for now, since the MT
+                # redraw is not yet incremental [as of 080507]
+            self._nodes_containing_selobj = nodes
+            if repaint_nodes:
+                ## self._nodes_containing_selobj_has_changed(all_changed_nodes)
+                self.assy.win.mt.repaint_some_nodes( all_changed_nodes)
+                    # review: are we sure self.assy.win.mt.repaint_some_nodes will never
+                    # use self.selobj by accessing it externally?
+        self._nodes_containing_selobj_is_from_selobj = selobj
+        return
+
+    def get_nodes_containing_selobj(self): #bruce 080507
+        """
+        @return: a list of nodes that contain self.selobj
+                 (possibly containing some nodes more than once).
+        
+        @warning: repeated calls with self.selobj unchanged are *not* optimized.
+                  (Doing so correctly would be difficult.)
+                  Callers should temporarily store our return value as needed.
+        """
+        self._update_nodes_containing_selobj(
+                self.selobj,
+                repaint_nodes = False,
+                even_if_selobj_unchanged = True
+         )
+        return self._nodes_containing_selobj
+    
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
         # (when some display list was being compiled), so they can notice they're in that dict.

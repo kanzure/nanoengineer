@@ -900,6 +900,15 @@ class Jig(NodeWith3DContents, Selobj_API):
         item = ('Edit Properties...', self.edit)
         menu_spec.append(item)
 
+    def nodes_containing_selobj(self): #bruce 080507
+        """
+        @see: interface class Selobj_API for documentation
+        """
+        # safety check in case of calls on out of date selobj:
+        if self.killed():
+            return []
+        return self.containing_nodes()
+
     #e there might be other common methods to pull into here
 
     pass # end of class Jig

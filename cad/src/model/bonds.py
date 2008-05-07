@@ -1815,6 +1815,29 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 #bruce 080406 bugfix: pass highlighted, bool_fullBondLength (lost recently??)
         return
 
+    def nodes_containing_selobj(self): #bruce 080507
+        """
+        @see: interface class Selobj_API for documentation
+        """
+        atom1 = self.atom1
+        atom2 = self.atom2
+        # safety check in case of calls on out of date selobj
+        if atom1.killed() or atom2.killed():
+            return []
+        if atom1.molecule is atom2.molecule:
+            # optimization
+            res = atom1.nodes_containing_selobj()
+        else:
+            res = atom1.nodes_containing_selobj() + \
+                  atom2.nodes_containing_selobj()
+            # note: this includes some nodes twice, which we might want to
+            # remove as an optimization in principle, 
+            # but I think it's faster to ignore that than to detect which ones
+            # to remove, especially since current code elsewhere only uses
+            # this list for whether it includes any nodes currently
+            # showing in the model tree.
+        return res
+
     def killed(self): #bruce 050702
         try:
             return self.atom1.killed() or self.atom2.killed()

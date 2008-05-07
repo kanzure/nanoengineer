@@ -401,11 +401,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     # ==
     
-    def isNullChunk(self):
+    def isNullChunk(self): # by Ninad
         """
-        If chunk is a Null molecule (can happen in certain cases if the chunk 
-        gets killed. By default, it returns False. This is overridden in subclass
-        _nullMol_Chunk ONLY.
+        @return: whether chunk is a "null object" (used as atom.molecule for some
+        killed atoms).
+
+        This is overridden in subclass _nullMol_Chunk ONLY.
+        
         @see: _nullMol_Chunk.isNullChunk()
         """
         return False
@@ -4134,11 +4136,6 @@ class _nullMol_Chunk(Chunk):
     [private]
     subclass for _nullMol
     """
-    # todo:
-    # - IMPLEM chunk.is_nullMol() to replace comparisons to _nullMol
-    #   (helps with imports, replaces set_undo_nullMol, permits per-assy _nullMol if desired),
-    # - rename is_nullMol to is_FakeChunkForDeadAtoms etc
-    # [bruce comment 080223]
     def changed_selection(self):
         msg = "bug: _nullMol.changed_selection() should never be called"
         if env.debug():
@@ -4147,11 +4144,12 @@ class _nullMol_Chunk(Chunk):
             print msg
         return
     
-    def isNullChunk(self):
+    def isNullChunk(self): # by Ninad, implementing old suggestion by Bruce for is_nullMol
         """
-        If chunk is a Null molecule (can happen in certain cases if the chunk 
-        gets killed. By default, it returns False. This is overridden in subclass
-        _nullMol_Chunk ONLY.
+        @return: whether chunk is a "null object" (used as atom.molecule for some
+        killed atoms).
+
+        Overrides Chunk method.
         
         This method helps replace comparisons to _nullMol (helps with imports, 
         replaces set_undo_nullMol, permits per-assy _nullMol if desired)

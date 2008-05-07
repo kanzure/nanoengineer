@@ -296,5 +296,21 @@ def pref_show_node_color_in_MT():
                      call_with_new_value = (lambda val: _kluge_global_mt_update())
                     )
     return res
+    
+def pref_show_highlighting_in_MT():
+    #bruce 080507
+    """
+    If enabled, highlighting objects in GLPane causes corresponding
+    highlighting in the MT of their containing nodes,
+    and (in future) mouseovers in MT may also cause highlighting
+    in both places.
+    """
+    res = debug_pref("Model Tree: show highlighted objects?",
+                     Choice_boolean_True,
+                     non_debug = True,
+                     prefs_key = True,
+                     call_with_new_value = (lambda val: _kluge_global_mt_update())
+                    )
+    return res
 
 # end

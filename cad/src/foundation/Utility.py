@@ -366,8 +366,33 @@ class Node( StateMixin):
                 return node
             node = node.dad
         return None
-    
 
+    def containing_groups(self): #bruce 080507
+        """
+        Return a list of the 0 or more group nodes which contain this node,
+        in innermost to outermost order, not including self.assy.root.
+        """
+        # review: would this be safe for a node in a thumbview?
+        # maybe: add an option, within_same_part (default False like now??)
+        res = []
+        group = self.dad
+        limit = self.assy.root
+        while group is not None and group is not limit:
+            res.append(group)
+            group = group.dad
+        return res
+
+    def containing_nodes(self): #bruce 080507
+        """
+        Return a list of the 1 or more nodes which contain self
+        (including self in the result),
+        in innermost to outermost order, not including self.assy.root.
+
+        @warning: it's an error for self to *be* self.assy.root.
+        """
+        assert self is not self.assy.root
+        return [self] + self.containing_groups()
+    
     def node_depth(self): #bruce 080116
         """
         Return self's depth in its node tree

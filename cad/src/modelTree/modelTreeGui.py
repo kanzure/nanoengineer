@@ -7,7 +7,7 @@ inherited by modelTree.py to provide NE1's Model Tree of Nodes.
 @version: $Id$
 @copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
-Goals:
+Goals (of Will's refactoring, as part of the Qt3 -> Qt4 port):
 
 There is now a clear simple API for the model tree, which amounts to a refactoring of the code
 previously appearing in TreeView.py, TreeWidget.py, and modelTree.py. [For history, see the
@@ -39,6 +39,10 @@ removed includes the classes:
   class _QtTreeModel(QAbstractItemModel): # removed
   class ModelTreeGui_QTreeView(QTreeView, ModelTreeGui_common): # removed
 
+late 2007 and/or early 2008: Mark and Bruce implemented atom content indicators,
+though some bugs remain
+
+080507: Bruce partly implemented GLPane -> MT cross-highlighting
 """
 
 import sys
@@ -82,6 +86,7 @@ from modelTree.Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 from utilities.constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
 
 from utilities.GlobalPreferences import pref_show_node_color_in_MT
+
 from widgets.widget_helpers import RGBf_to_QColor
 
 DEBUG0 = False # debug api compliance
@@ -177,6 +182,13 @@ class Ne1Model_api(Api):
         """
         raise Exception("overload me")
 
+    def get_nodes_to_highlight(self): #bruce 080507
+        """
+        Return a dictionary of nodes which should be drawn as highlighted right now.
+        (The keys are those nodes, and the values are arbitrary.)
+        """
+        return {}
+    
     def make_cmenuspec_for_set(self, nodeset, optflag):
         """
         Return a Menu_spec list (of a format suitable for makemenu_helper)
@@ -257,7 +269,7 @@ class Ne1Model_api(Api):
         from operations.ops_select import topmost_selected_nodes
         return topmost_selected_nodes(nodes)
 
-    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
         """
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)
@@ -435,7 +447,7 @@ class ModelTreeGui_api(Api):
         """
         raise Exception("overload me")
 
-    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
         """
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)
@@ -455,16 +467,24 @@ class ModelTreeGui_api(Api):
 
 _ICONSIZE = (22, 22)
 
-ITEM_HEIGHT = _ICONSIZE[1] # in theory, these need not be the same, but other values are untested [bruce 070529 guess]
+ITEM_HEIGHT = _ICONSIZE[1] # in theory, these need not be the same,
+    # but other values are untested [bruce 070529 guess]
 
 _cached_icons = {} #bruce 070529 presumed optimization
 
-def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
+def _paintnode(node, painter, x, y, widget, option_holder = None):
     """
     Draw node in painter.
     x,y are coords for topleft of type-icon.
     widget (the modelTreeGui) is used for palette.
+    @param option_holder: the MT_View, used for dictionary attribute
+                          _f_nodes_to_highlight and (in future)
+                          for some prefs flags.
     """
+    #bruce 070529 split this out
+    #bruce 080507 added option_holder
+    ### todo: revise appearance of highlighted nodes
+    
     ## print "_paintnode",node, painter, x, y, widget
         # x is 20, 40, etc (indent level)
         # y is 0 for the top item, incrs by 22 for other items -- but this varies as we scroll.
@@ -475,11 +495,26 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     display_prefs = display_prefs_for_node(node)
         # someday these might also depend on parent node and/or on ModelTreeGui (i.e. widget)
 
-    color = None
-    if pref_show_node_color_in_MT(): ### test too slow? if it is, so is the debug_pref lower down...
-        # note: this implem works for all nodes with a .color attribute, not just for chunks
-        color = getattr(node, 'color', None) # node.color
+    text_color = None
+    if pref_show_node_color_in_MT():
+        # [bruce 080507 new feature, mainly for testing]
+        # review: should the modelTree itself (ne1model) test this pref
+        # and tell us the text_color for each node?
+        ### is this debug_pref test too slow? if it is, so is the debug_pref lower down...
+        # could fix using option_holder to know the pref values
         
+        # note: this should work for all nodes with a .color attribute,
+        # not just chunks, but to work with Groups (including DnaStrand etc)
+        # it would need some revisions, e.g. call a new Node method
+        # get_node_color_for_MT (which would be a good refactoring anyway)
+        text_color = getattr(node, 'color', None) # node.color
+
+    highlighted = option_holder and node in option_holder._f_nodes_to_highlight
+        # fyi: for now, this means "highlighted in glpane",
+        # but in the future we'll also use it for MT mouseover highlighting
+    
+    # draw it
+    
     node_icon = node.node_icon(display_prefs) # a QPixmap object
     
     try:
@@ -497,7 +532,8 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     #  when this function was called. For example, it may be useful to call QPainter::save()
     #  before painting and QPainter::restore() afterwards.
 
-    need_save = disabled or selected or (color is not None) #bruce 070529 presumed optimization
+    need_save = disabled or selected or (text_color is not None) or highlighted
+        #bruce 070529 presumed optimization (not usually set for most nodes)
 
     if need_save:
         painter.save()
@@ -573,18 +609,26 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
             painter.drawPixmap(x, y, 
                                imagename_to_pixmap("modeltree/yellow_dot.png"))
 
-    if selected: # before
-        # draw a selection color as text bg color
-        ###BUG: should use color role so it depends on app being in bg or fg (like it does for native QTreeView selectedness)
+    if highlighted:
+        background = Qt.yellow # initial test, NOT IDEAL since obscures selectedness ######
+    elif selected:
+        background = widget.palette().highlight() #k what type is this? QColor or something else?
+    else:
+        background = None
+    
+    if background is not None:
+        # draw a selection or highlight color as text bg color
+        ###BUG: should use color role so it depends on app being in bg or fg
+        ###     (like it does for native QTreeView selectedness)
         # (note: this used to be done before drawing the icon, but even then it did not affect the icon.
         #  so it would be ok in either place.)
 ##        background = painter.background()
 ##        backgroundMode = painter.backgroundMode()
-        painter.setBackground(widget.palette().highlight())
+        painter.setBackground(background)
         painter.setBackgroundMode(Qt.OpaqueMode)
 
-    if color is not None:
-        painter.setPen(RGBf_to_QColor(color))
+    if text_color is not None:
+        painter.setPen(RGBf_to_QColor(text_color))
 
     yoffset = _ICONSIZE[1] / 2 + 4
     painter.drawText(x + _ICONSIZE[0] + 4, y + yoffset, node.name)
@@ -601,9 +645,12 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     ##    dotcolor = Qt.red
     ##    if 1: ### sg == node and node != assy.tree:
     ##        painter.save()
-    ##        painter.setPen(QPen(dotcolor, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
+    ##        painter.setPen(QPen(dotcolor, 3)) # 3 is pen thickness;
+    ##            # btw, this also sets color of the "moving 1 item"
+    ##            # at bottom of DND graphic!
     ##        h = 9
-    ##        dx,dy = -38,8 # topleft of what we draw; 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
+    ##        dx,dy = -38,8 # topleft of what we draw;
+    ##            # 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
     ##        painter.drawEllipse(x + dx, y + dy, h, h)
     ##        painter.restore()
     return
@@ -791,7 +838,8 @@ class ModelTreeGui_common(ModelTreeGui_api):
         
         return # nodes
 
-    def filter_drag_nodes(self, drag_type, nodes): #bruce 070509 copied this from Qt3 TreeWidget.py [#k same as in Qt4 TreeWidget??]
+    def filter_drag_nodes(self, drag_type, nodes):
+        #bruce 070509 copied this from Qt3 TreeWidget.py [#k same as in Qt4 TreeWidget??]
         """
         See which of the given nodes can be dragged (as a group) in the given way.
         Return a subset of them to be actually dragged
@@ -807,22 +855,28 @@ class ModelTreeGui_common(ModelTreeGui_api):
         oops = len(nodes) - len(nodes_ok)
         if oops:
             ## msg = "some selected nodes can't be dragged that way -- try again" ###e improve msg
-##            msg = "The Part can't be moved" # kluge: this is the only known case! (that I can remember...) #e generalize this
+##            msg = "The Part can't be moved"
+##                # kluge: this is the only known case! (that I can remember...) #e generalize this
 ##            self.redmsg(msg)
-            #bruce 070509 commented that out, since I think it will often happen by accident for "small move onto self"
+            #bruce 070509 commented that out, since I think it will often
+            # happen by accident for "small move onto self"
             # note: self.redmsg is probably not yet defined
             return None
         return nodes_ok # same as nodes for now, but we might change above code so it's not
 
     def debug_pref_use_fancy_DND_graphic(self):
-        return debug_pref("Model Tree: use fancy DND graphic?", Choice_boolean_True, non_debug = True, prefs_key = True)
+        return debug_pref("Model Tree: use fancy DND graphic?",
+                          Choice_boolean_True,
+                          non_debug = True,
+                          prefs_key = True)
     
     def get_pixmap_for_dragging_nodes(self, drag_type, nodes):
         if self.debug_pref_use_fancy_DND_graphic():
             pixmap = self.get_pixmap_for_dragging_nodes_Qt3(drag_type, nodes)
         else:
             # stub version, just the icon from the first node
-            display_prefs = self.display_prefs_for_node(nodes[0]) #bruce 070504 bugfix (partial fix only)
+            display_prefs = self.display_prefs_for_node(nodes[0])
+                #bruce 070504 bugfix (partial fix only)
             pixmap = nodes[0].node_icon(display_prefs)
         return pixmap
 
@@ -1708,8 +1762,9 @@ class MT_View(QtGui.QWidget):
         ## painter.setViewport(0, 0, self.width(), self.height())
         if self.modeltreegui.MT_debug_prints():
             print 'paint' # note: this worked once we called update (it didn't require sizeHint to be defined)
-        self._setup_openclose_style()
-        self._painted = {}
+        self._setup_full_repaint_variables()
+            # needed before _paintnode can use us as its option_holder,
+            # and for other reasons
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
@@ -1721,7 +1776,17 @@ class MT_View(QtGui.QWidget):
         finally:
             painter.end()
         return
-    
+
+    def _setup_full_repaint_variables(self): #bruce 080507 split this out, extended it
+        self._setup_openclose_style()
+        # todo: optim: implem this: self._setup_prefs(),
+        # so _paintnode needn't repeatedly test the same debug_prefs for each node
+        self._f_nodes_to_highlight = self.ne1model.get_nodes_to_highlight()
+            # a dictionary from node to an arbitrary value;
+            # in future, could store highlight color, etc
+        self._painted = {} # modified in paint_subtree when we call _paintnode
+        return
+        
     def paint_subtree(self, node, painter, x, y, line_to_pos = None, last_child = True):
         """
         Paint node and its visible subtree (at x,y in painter);
@@ -1770,7 +1835,7 @@ class MT_View(QtGui.QWidget):
             if doanything:
                 painter.restore()
         # node type icon and node name text (possibly looking selected and/or disabled)
-        _paintnode(node, painter, x, y, self.palette_widget)
+        _paintnode(node, painter, x, y, self.palette_widget, option_holder = self)
         self._painted[node] = (x, y)
         # openclose decoration -- uses style set up by _setup_openclose_style for Mac or Win
         if openable:
@@ -1837,7 +1902,8 @@ class MT_View(QtGui.QWidget):
                 if where:
                     print "mt debug fyi: repainting %r" % (node,) #### remove when works
                     x, y = where
-                    _paintnode(node, painter, x, y, self.palette_widget)
+                    _paintnode(node, painter, x, y, self.palette_widget,
+                               option_holder = self)
                 else:
                     print "mt debug fyi: NOT repainting %r" % (node,) #### remove when works
                 continue
@@ -1845,7 +1911,7 @@ class MT_View(QtGui.QWidget):
             painter.end()
         return
 
-    def any_of_these_nodes_are_painted(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def any_of_these_nodes_are_painted(self, nodes): #bruce 080507, for cross-highlighting
         """
         @return: whether any of the given nodes were painted during the last
         full repaint of self.
@@ -2099,12 +2165,15 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     def paint_item(self, painter, item): # probably only used for DND drag graphic (in superclass)
         x,y = 0,0
         node = item.node
-        _paintnode(node, painter, x, y, self.view) # self.view is a widget used for its palette
-
+        _paintnode(node, painter, x, y,
+                   self.view, # self.view is a widget used for its palette
+                   option_holder = None # could be self.view,
+                       # but only if we told it to _setup_full_repaint_variables
+                  )
         width = 160 ###k guess; should compute in paint and return, or in an aux subr if Qt would not like that
         return width
 
-    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
         """
         For each node in nodes, repaint that node, if it was painted the last
         time we repainted self as a whole. (Not an error if it wasn't.)

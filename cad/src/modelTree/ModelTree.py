@@ -51,6 +51,7 @@ from foundation.Group import Group
 from utilities.debug import print_compact_traceback
 
 from utilities.GlobalPreferences import permit_atom_chunk_coselection
+from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 
 from utilities.constants import gensym
 from utilities.constants import SELWHAT_ATOMS
@@ -301,7 +302,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # note: bruce 070511 removed all direct sets here of mt_update_needed, since mt_update now sets it.
         return self.modelTreeGui.mt_update()
 
-    def repaint_some_nodes(self, nodes): #bruce 080507 experimental, for cross-highlighting
+    def repaint_some_nodes(self, nodes): #bruce 080507, for cross-highlighting
         self.modelTreeGui.repaint_some_nodes(nodes)
         return
     
@@ -317,7 +318,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
     def setGeometry(self, w, h): #k might not be needed
         return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 
-    # callbacks from superclass to help it update the display
+    # callbacks from self.modelTreeGui to help it update the display
     
     def get_topnodes(self):
         self.assy = self.win.assy #k need to save it like this?
@@ -345,6 +346,29 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 print_compact_traceback("error importing prefsTree or making one: ")
         return topnodes
 
+    def get_nodes_to_highlight(self): #bruce 080507
+        """
+        Return a dictionary of nodes which should be drawn as highlighted right now.
+        (The keys are those nodes, and the values are arbitrary.)
+        """
+        if not pref_show_highlighting_in_MT():
+            return {}
+        glpane = self.win.glpane
+        nodes_containing_selobj = glpane.get_nodes_containing_selobj()
+            # note: can contain duplicate nodes
+        topnodes = self.get_topnodes()
+            # these happen to be the nodes we consider to be
+            # too high in the tree to show highlighted
+            # (at least when the highlighting comes from
+            #  them containing glpane.selobj -- for mouseover
+            #  of these nodes in MT iself, we'd still show them
+            #  as highlighted, once that's implemented)
+        res = {}
+        for node in nodes_containing_selobj:
+            if not node in topnodes:
+                res[node] = True
+        return res
+    
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
     
