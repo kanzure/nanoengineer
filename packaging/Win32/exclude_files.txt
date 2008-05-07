@@ -1,0 +1,6 @@
+cad/plugins/GROMACS/gromacs-*
+cad/plugins/HDF5_SimResults/*
+cad/plugins/NanoVision-1/*
+cad/plugins/QuteMol/*
+packaging/*
+*.svn*
