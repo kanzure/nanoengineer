@@ -1980,6 +1980,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
             # Update, 060326: reverting the most_of_paintGL checkpointing, since it caused bug 1759 (more info there).
 
+        if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
+            print "debug fyi: GLPane.mouseDoubleClickEvent sees selobj", self.selobj
+        
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mouseDoubleClickEvent(event)
@@ -2071,6 +2074,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.checkpoint_before_drag(event, but)
 
+        if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
+            print "debug fyi: GLPane.mousePressEvent sees selobj", self.selobj
+        
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mousePressEvent(event)
