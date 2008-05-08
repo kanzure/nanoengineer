@@ -3,20 +3,41 @@
 # Usage: Run ./buildWin.sh from the packaging directory.
 
 # Set up path variables
+echo $PATH | grep "Qt/[0-9]*\.[0-9]*\.[0-9]*/bin"
+if [ "$?" != "0" ]; then
+  export PATH=$PATH:/c/Qt/4.2.3/bin
+fi
+
 cd ..
 TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT
 
-# Build the base .exe and directory contents
-if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
+#Make a tarball of the uncompiled source for later.
+tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 
+# Do a basic check on the directory structure
+if [ ! -e "$TOP_LEVEL/cad/src" ]; then
+  echo "Incompatible directory structure."
+  exit 1
+fi
 
 # Modifying the foundation/preferences.py file for bsddb3
 cd $TOP_LEVEL
 cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
 mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
 
+# Modify the main.py file to find the pyopengl egg file for Win
+cat cad/src/main.py | grep "sys.path.insert" | grep "pyopengl"
+if [ "$?" != "0" ]; then
+  cat cad/src/main.py | sed -e "/import sys, os, time/a\\
+sys.path.insert(0, os.path.dirname(sys.argv[0]) + \'\\\\\\\\pyopengl-3.0.0a6-py2.4.egg\')" > cad/src/main.py.btmp
+  mv cad/src/main.py.btmp cad/src/main.py || exit 1
+fi
+
+
+# Start with the main build
+# Build the base .exe and directory contents
 cd $TOP_LEVEL/cad/src
 rm -rf dist build
 cp $TOP_LEVEL/packaging/Win32/setup.py .
@@ -134,7 +155,6 @@ mkdir $DIST_CONTENTS/plugins/GROMACS
 cp -R $TOP_LEVEL/cad/plugins/GROMACS/Pam5Potential.xvg $DIST_CONTENTS/plugins/GROMACS/
 cp $TOP_LEVEL/cad/plugins/GROMACS/mdrunner.bat $DIST_CONTENTS/plugins/GROMACS/
 cd $TOP_LEVEL
-tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
 
 #
 # End Plugins
