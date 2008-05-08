@@ -2366,7 +2366,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             pass
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
         if self.selobj is not None:
-            self.selobj = None # REVIEW: why not set_selobj?
+            ## self.selobj = None # REVIEW: why not set_selobj?
+            self.set_selobj(None) #bruce 080508 bugfix (turn off MT highlight)
             self.gl_update_highlight() # REVIEW: this redraw can be slow -- is it worthwhile?
             pass
 
@@ -3858,10 +3859,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def set_selobj(self, selobj, why = "why?"):
         """
         Set self.selobj to selobj (might be None) and do appropriate updates.
+        Possible updates include:
+
+        - env.history.statusbar_msg( selobj.mouseover_statusbar_message(),
+                                     or "" if selobj is None )
+
+        - help the model tree highlight the nodes containing selobj
         
         @warning: some sets of self.selobj to None don't call this method.
-                  (We should add options to avoid side effects so that they
-                   all can call it.)
+                  (Maybe we should add options to avoid side effects so that
+                   they all can call it.)
         """
         if selobj is not self.selobj:
             previous_selobj = self.selobj
@@ -3872,6 +3879,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # if any callers call this twice with no net change (i.e. use this to set selobj to None
             # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
             if debug_set_selobj:
+                # todo: also include "why" argument, and make more calls pass one
                 print_compact_stack("debug_set_selobj: %r -> %r: " % (previous_selobj, selobj))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
