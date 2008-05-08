@@ -145,6 +145,8 @@ from operations.bond_chains import grow_directional_bond_chain
 from graphics.drawing.drawer import apply_material, allow_color_sorting
 from graphics.drawing.drawer import use_color_sorted_dls
 
+from graphics.drawables.Selobj import Selobj_API
+
 _inval_all_bonds_counter = 1 #bruce 050516
 
 
@@ -179,8 +181,11 @@ _inval_all_bonds_counter = 1 #bruce 050516
 
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 
-class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
+class Chunk(NodeWithAtomContents, InvalMixin,
+            SelfUsageTrackingMixin, SubUsageTrackingMixin,
+            Selobj_API):
     """
+    A set of atoms treated as a unit.
     """
     #bruce 071114 renamed this from class molecule -> class Chunk
 
@@ -536,6 +541,15 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
                             contextMenuList.extend(menu_spec)
 
         return # from make_glpane_context_menu_items
+
+    def nodes_containing_selobj(self): #bruce 080508 bugfix
+        """
+        @see: interface class Selobj_API for documentation
+        """
+        # safety check in case of calls on out of date selobj:
+        if self.killed():
+            return []
+        return self.containing_nodes()
 
     # START of Dna-Strand-or-Axis chunk specific code ==========================
 
