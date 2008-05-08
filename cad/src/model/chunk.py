@@ -64,7 +64,8 @@ from OpenGL.GL import glCallList
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
-# chunk and chem form a two element import cycle
+# chunk and chem formed a two element import cycle -- as of 080508 that's fixed,
+# but they are still both part of larger cycles involving the dna package.
 # (chem is used here only for class Atom and one global changedict,
 #  as of before 071113)
 import model.chem as chem

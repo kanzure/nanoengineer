@@ -77,19 +77,6 @@ from model.bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
 import model.global_model_changedicts as global_model_changedicts
 
-# note: chunk and chem form a two element import cycle.
-
-#bruce 080507 removed this, using assy.Chunk as needed;
-# but there are still runtime imports from model.chunk, below.
-# Those would be easy to fix, which would break that particular cycle
-# (at least the direct one which was present for a long time --
-#  it got much worse recently, so an indirect cycle might remain).
-#
-### this should be:
-###   import model.chunk as chunk
-### but that fails, so we have to do a relative import to satisfy the cycle:
-##import chunk # from model
-
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
 
@@ -98,7 +85,6 @@ from graphics.rendering.povray.povheader import povpoint
 
 from utilities.debug import reload_once_per_event
 from utilities.debug import print_compact_stack, print_compact_traceback
-##from debug import compact_stack
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice
 
 from foundation.changedicts import register_changedict, register_class_changedicts
@@ -124,7 +110,6 @@ from utilities.constants import TubeRadius
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
 from utilities.constants import pink, yellow
-##from utilities.constants import orange
 
 from utilities.constants import ErrorPickedColor
 from utilities.constants import PickedColor
@@ -168,7 +153,7 @@ from foundation.state_utils import register_instancelike_class
 import foundation.undo_archive as undo_archive
 from foundation.undo_archive import register_undo_updater
 
-from foundation.inval import InvalMixin #bruce 050510
+from foundation.inval import InvalMixin
 
 import foundation.Utility as Utility
 from model.jigs import Jig
@@ -3267,10 +3252,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # And, break_interpart_bonds can then dislike .molecule being None
         # and set it back to _nullMol. So test for these values too. 
         chunk = self.molecule
-        from model.chunk import _nullMol # TODO: use isNullChunk method to avoid this import
-        res = self.__killed or chunk is None or chunk is _nullMol
+        res = self.__killed or chunk is None or chunk.isNullChunk()
         if debug_flags.atom_debug: # this cond is for speed
-            better_alive_answer = chunk is not None and self.key in chunk.atoms and chunk is not _nullMol ##e and chunk is not killed??
+            better_alive_answer = chunk is not None and self.key in chunk.atoms and not chunk.isNullChunk()
+                ##e and chunk is not killed??
             if (not not better_alive_answer) != (not self.__killed):
                 #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
                 #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
@@ -3295,9 +3280,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if killed:
                 assert self.__killed == 1
                 assert not self.picked
-                from model.chunk import _nullMol # TODO: use isNullChunk method to avoid this import
-                assert self.molecule is _nullMol or self.molecule is None
-                # thus don't do this: assert not self.key in self.molecule.assy.selatoms
+                chunk = self.molecule
+                assert chunk is None or chunk.isNullChunk()
+                # thus don't do this: assert not self.key in chunk.assy.selatoms
                 assert not self.bonds
                 assert not self.jigs
             else:
