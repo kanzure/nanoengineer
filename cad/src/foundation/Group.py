@@ -162,23 +162,9 @@ class Group(NodeWithAtomContents):
                 self.open_specified_by_mmp_file = True
             elif debug_flags.atom_debug:
                 print "atom_debug: maybe not an error: \"info opengroup open\" ignoring unrecognized val %r" % (val,)
-        elif key == ['nanotube-parameters']:
-            # val includes all the parameters, separated by commas.
-            n, m, type, endings = val.split(",")
-            self.n = int(n)
-            self.m = int(m)
-            self.type = type.lstrip()
-            self.endings = endings.lstrip()
-            # Create the nanotube.
-            from cnt.model.Nanotube import Nanotube
-            self.nanotube = Nanotube() # Returns a 5x5 CNT.
-            self.nanotube.setChirality(self.n, self.m)
-            self.nanotube.setType(self.type)
-            self.nanotube.setEndings(self.endings)
-            # The endpoints are recomputed every time it is edited.
         else:
             if debug_flags.atom_debug:
-                print "atom_debug: fyi: info opengroup (in Group) with unrecognized key %r (not an error)" % (key,)
+                print "atom_debug: fyi: info opengroup (in %r) with unrecognized key %r (not an error)" % (self, key,)
         return
 
     def drag_move_ok(self):
@@ -1253,6 +1239,7 @@ class Group(NodeWithAtomContents):
             encoded_classifications and
             (" " + encoded_classifications) or ""
         ))
+        
         # someday: we might optimize by skipping info opengroup open if it has
         # the default value, but it's hard to find out what that is reliably
         # for the various special cases. It's not yet known if it will be
@@ -1261,16 +1248,9 @@ class Group(NodeWithAtomContents):
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False"))
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
-        if encoded_classifications == "NanotubeSegment":
-            # This is a nanotube segment, so write the parameters into an info
-            # record so we can read and restore them in the next session. 
-            # --Mark 2008-04-12
-            assert self.nanotube
-            mapping.write("info opengroup nanotube-parameters = %d, %d, %s, %s\n" \
-                          % (self.nanotube.getChiralityN(),
-                             self.nanotube.getChiralityM(),
-                             self.nanotube.getType(),
-                             self.nanotube.getEndings()))
+        
+        self.writemmp_other_info_opengroup(mapping) #bruce 080507 refactoring
+        
         # [bruce 050422: this is where we'd write out "jigs moved forward" if they should come at start of this group...]
         for xx in mapping.pop_forwarded_nodes_after_opengroup(self):
             mapping.write_forwarded_node_for_real(xx)
@@ -1294,6 +1274,14 @@ class Group(NodeWithAtomContents):
             classifications.extend( self._extra_classifications)
         return " ".join(classifications)
 
+    def writemmp_other_info_opengroup(self, mapping): #bruce 080507 refactoring
+        """
+        [subclasses which want to write more kinds of "info opengroup" records
+         should override this to do so.]
+        """
+        del mapping
+        return
+    
     def writepov(self, f, dispdef):
         if self.hidden:
             return

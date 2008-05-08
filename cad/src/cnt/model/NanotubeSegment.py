@@ -63,7 +63,50 @@ class NanotubeSegment(Group):
         # to figure out on demand which editCommand would be appropriate.
         # [bruce 080227 comment]
         return
-        
+
+    def writemmp_other_info_opengroup(self, mapping): #bruce 080507 refactoring
+        """
+        """
+        #bruce 080507 refactoring (split this out of Group.writemmp)
+        # (I think the following condition is always true, but I didn't
+        #  prove this just now, so I left in the test for now.)
+        encoded_classifications = self._encoded_classifications()
+        if encoded_classifications == "NanotubeSegment":
+            # This is a nanotube segment, so write the parameters into an info
+            # record so we can read and restore them in the next session. 
+            # --Mark 2008-04-12
+            assert self.nanotube
+            mapping.write("info opengroup nanotube-parameters = %d, %d, %s, %s\n" \
+                          % (self.nanotube.getChiralityN(),
+                             self.nanotube.getChiralityM(),
+                             self.nanotube.getType(),
+                             self.nanotube.getEndings()))
+            pass
+        return
+
+    def readmmp_info_opengroup_setitem( self, key, val, interp ):
+        """
+        [extends superclass method]
+        """
+        #bruce 080507 refactoring (split this out of the superclass method)
+        if key == ['nanotube-parameters']:
+            # val includes all the parameters, separated by commas.
+            n, m, type, endings = val.split(",")
+            self.n = int(n)
+            self.m = int(m)
+            self.type = type.lstrip()
+            self.endings = endings.lstrip()
+            # Create the nanotube.
+            from cnt.model.Nanotube import Nanotube
+            self.nanotube = Nanotube() # Returns a 5x5 CNT.
+            self.nanotube.setChirality(self.n, self.m)
+            self.nanotube.setType(self.type)
+            self.nanotube.setEndings(self.endings)
+            # The endpoints are recomputed every time it is edited.
+        else:
+            Group.readmmp_info_opengroup_setitem( self, key, val, interp)
+        return
+    
     def edit(self):
         """
         Edit this NanotubeSegment. 
@@ -160,6 +203,9 @@ class NanotubeSegment(Group):
         @see: self.get_all_content_chunks()
         @see: NanotubeSegment_GraphicsMode.leftDrag
         """
+        # TODO: this needs cleanup (it looks like it's made of two alternative
+        # implems, one after the other), and speedup. [bruce 080507 comment]
+        
         c = None
         if isinstance(obj, Atom):       
             c = obj.molecule                 
@@ -295,28 +341,6 @@ class NanotubeSegment(Group):
             # bruce 080318
             return self.members
         return ()
-
-    def move_into_your_members(self, node):
-        """
-        Move node into self's Group members, and if node was not
-        already there but left some other existing Group,
-        return that Group.
-        
-        @param node: a node of a suitable type for being our direct child
-        @type node: a DnaLadderRailChunk or DnaMarker
-
-        @return: Node's oldgroup (if we moved it out of a Group other than self)
-                 or None
-        @rtype: Group or None
-        """
-        oldgroup = node.dad # might be None
-        self.addchild(node)
-        newgroup = node.dad
-        assert newgroup is self
-        if oldgroup and oldgroup is not newgroup:
-            if oldgroup.part is newgroup.part: #k guess
-                return oldgroup
-        return None
     
     pass # end of class NanotubeSegment
                 
