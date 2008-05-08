@@ -313,4 +313,24 @@ def pref_show_highlighting_in_MT():
                     )
     return res
 
+# ==
+
+def pref_minimize_leave_out_PAM_bondpoints():
+    #bruce 080507
+    """
+    If enabled, bondpoints on PAM atoms are left out of simulations
+    and minimizations, rather than being converted to H (as always occurred
+    until now) or anchored or left unchanged (not yet possible).
+
+    @warning: not yet fully implemented.
+    """
+    res = debug_pref("Minimize: leave out PAM bondpoints? (partly nim)",
+                     Choice_boolean_False, # not yet safe or tested (and partly nim)
+                     non_debug = True, # should be easy to test
+                     prefs_key = True
+                    )
+    return res
+
+pref_minimize_leave_out_PAM_bondpoints()
+
 # end

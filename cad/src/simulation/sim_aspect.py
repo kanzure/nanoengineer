@@ -18,6 +18,8 @@ from model.chem import AtomDict
 
 from model.elements import Singlet
 
+from utilities.GlobalPreferences import pref_minimize_leave_out_PAM_bondpoints
+
 # has some non-toplevel imports too
 
 # ==
@@ -48,6 +50,36 @@ def atom_is_anchored(atom):
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
 
+BONDPOINT_LEFT_OUT = "BONDPOINT_LEFT_OUT"
+BONDPOINT_UNCHANGED = "BONDPOINT_UNCHANGED" # not yet specifiable
+BONDPOINT_ANCHORED = "BONDPOINT_ANCHORED" # not yet specifiable
+BONDPOINT_REPLACED_WITH_HYDROGEN = "BONDPOINT_REPLACED_WITH_HYDROGEN"
+
+def bondpoint_policy(bondpoint): #bruce 080507; also review uses of nsinglets_leftout ###@@@
+    """
+    Determine how to treat the given bondpoint,
+    and return one of the codes BONDPOINT_LEFT_OUT,
+    BONDPOINT_UNCHANGED, BONDPOINT_ANCHORED,
+    BONDPOINT_REPLACED_WITH_HYDROGEN.
+
+    @see: nsinglets_leftout
+    """
+    assert bondpoint.element is Singlet
+    if len(bondpoint.bonds) != 1:
+        # should never happen
+        print "bug: %r has %d bonds, namely %r" % \
+              (bondpoint, len(bondpoint.bonds), bondpoint.bonds)
+        return BONDPOINT_LEFT_OUT
+    other = bondpoint.bonds[0].other(bondpoint)
+    if other.element.pam:
+        if pref_minimize_leave_out_PAM_bondpoints():
+            return BONDPOINT_LEFT_OUT
+        else:
+            return BONDPOINT_REPLACED_WITH_HYDROGEN
+    else:
+        return BONDPOINT_REPLACED_WITH_HYDROGEN
+    pass
+    
 class sim_aspect:
     # Note: as of 051115 this is used for Adjust Selection and/or Adjust All
     # and/or possibly Minimize, but not for Run Dynamics [using modern names
@@ -102,50 +134,90 @@ class sim_aspect:
             print "making sim_aspect for %d atoms (maybe this only counts real atoms??)" % len(atoms) ###@@@ only counts real atoms??
         self.part = part
         self.cmdname_for_messages = cmdname_for_messages
-        self.moving_atoms = AtomDict()
-        self.boundary1_atoms = AtomDict()
-        self.boundary2_atoms = AtomDict()
+        # (note: the following atomdicts are only used in this method
+        #  so they don't really need to be attributes of self)
+        self._moving_atoms = AtomDict()
+        self._boundary1_atoms = AtomDict()
+        self._boundary2_atoms = AtomDict()
+        self._boundary3_atoms = AtomDict()
         assert atoms, "no atoms in sim_aspect"
         for atom in atoms:
             assert atom.molecule.part == part
             assert atom.element is not Singlet # when singlets are selectable, this whole thing needs rethinking
             if atom_is_anchored(atom):
-                self.boundary1_atoms[atom.key] = atom
+                self._boundary1_atoms[atom.key] = atom
             else:
-                self.moving_atoms[atom.key] = atom
+                self._moving_atoms[atom.key] = atom
             # pretend that all singlets of selected atoms were also selected
             # (but were not grounded, even if atom was)
             for sing in atom.singNeighbors():
-                self.moving_atoms[sing.key] = sing
+                self._moving_atoms[sing.key] = sing
+            ### REVIEW: also include all atoms in the same PAM basepair as atom??
         del atoms
-        # now find the boundary1 of the moving_atoms
-        for moving_atom in self.moving_atoms.values():
+        # now find the boundary1 of the _moving_atoms
+        for moving_atom in self._moving_atoms.values():
             for atom2 in moving_atom.realNeighbors():
-                # (not covering singlets is just an optim, since they're already in moving_atoms)
+                # (not covering singlets is just an optim, since they're already in _moving_atoms)
                 # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
-                if atom2.key not in self.moving_atoms:
-                    self.boundary1_atoms[atom2.key] = atom2 # might already be there, that's ok
-        # now find the boundary2 of the boundary1_atoms;
+                if atom2.key not in self._moving_atoms:
+                    self._boundary1_atoms[atom2.key] = atom2 # might already be there, that's ok
+        # now find the boundary2 of the _boundary1_atoms;
         # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
         # no need to re-explore moving atoms since we already covered their real and singlet neighbors
-        for b1atom in self.boundary1_atoms.values():
+        for b1atom in self._boundary1_atoms.values():
             for atom2 in b1atom.neighbors():
-                if (atom2.key not in self.moving_atoms) and (atom2.key not in self.boundary1_atoms):
-                    self.boundary2_atoms[atom2.key] = atom2 # might be added more than once, that's ok
-        # no need to explore further -- not even for singlets on boundary2 atoms.
+                if (atom2.key not in self._moving_atoms) and \
+                   (atom2.key not in self._boundary1_atoms):
+                    self._boundary2_atoms[atom2.key] = atom2 # might be added more than once, that's ok
+        # now find the boundary3 of the boundary2 atoms
+        # (not just PAM atoms, since even regular atoms might need this due to torsion terms)
+        # [finding boundary3 is a bugfix, bruce 080507]
+        for b2atom in self._boundary2_atoms.values():
+            for atom3 in b2atom.neighbors():
+                if (atom3.key not in self._moving_atoms) and \
+                   (atom3.key not in self._boundary1_atoms) and \
+                   (atom3.key not in self._boundary2_atoms):
+                    self._boundary3_atoms[atom3.key] = atom3 # might be added more than once, that's ok
+
+        # remove singlets which we don't want to simulate
+        # [bruce 080507 new feature, not fully implemented or tested]
+        def fix_dict_for_singlets( dict1):
+            """
+            Remove atoms from dict1 which are bondpoints we want to leave out
+            of this minimization or simulation.
+            """
+            for atom in dict1.values():
+                if atom.element is Singlet:
+                    policy = bondpoint_policy(atom)
+                    if policy == BONDPOINT_LEFT_OUT:
+                        ### todo: keep a count of these, or even a list
+                        del dict1[atom.key]
+                        pass
+                    # todo: also record lists of bondpoints to handle later
+                    # in various ways, or a list of atoms whose bondpoints need repositioning
+                    pass
+                continue
+            return
+        fix_dict_for_singlets(self._moving_atoms)
+        fix_dict_for_singlets(self._boundary1_atoms)
+        fix_dict_for_singlets(self._boundary2_atoms)
+        fix_dict_for_singlets(self._boundary3_atoms)
 
         # Finally, come up with a global atom order, and enough info to check our validity later if the Part changes.
         # We include all atoms (real and singlet, moving and boundary) in one list, sorted by atom key,
         # so later singlet<->H conversion by user wouldn't affect the order.
-        items = self.moving_atoms.items() + self.boundary1_atoms.items() + self.boundary2_atoms.items()
+        items = self._moving_atoms.items() + \
+                self._boundary1_atoms.items() + \
+                self._boundary2_atoms.items() + \
+                self._boundary3_atoms.items()
         items.sort()
         self._atoms_list = [atom for key, atom in items]
             # make that a public attribute? nah, use an access method
-        for i in range(1,len(self._atoms_list)):
-            assert self._atoms_list[i-1] != self._atoms_list[i]
+        for i in range(1, len(self._atoms_list)):
+            assert self._atoms_list[i-1] is not self._atoms_list[i]
             # since it's sorted, that proves no atom or singlet appears twice
         # anchored_atoms alone (for making boundary jigs each time we write them out)
-        items = self.boundary1_atoms.items() + self.boundary2_atoms.items()
+        items = self._boundary1_atoms.items() + self._boundary2_atoms.items() + self._boundary3_atoms.items()
         items.sort()
         self.anchored_atoms_list = [atom for key, atom in items]
         #e validity checking info is NIM, except for the atom lists themselves
@@ -166,6 +238,8 @@ class sim_aspect:
         """
         return number of singlets to be entirely left out of the sim input file
         """
+        # review: should this just be the number that were in _moving_atoms
+        # (guess yes), or in other dicts too? [bruce 080507 Q]
         return 0 # for now
     def writemmpfile(self, filename, **mapping_options):
         #bruce 050404 (for most details).

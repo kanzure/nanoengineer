@@ -277,7 +277,7 @@ class Minimize_CommandRun(CommandRun):
             # monovalent atoms to a selection? Let's look at what happens during a
             # local minimization.
             #
-            # While minimiziing, we want to simulate as if the entire rest of the
+            # While minimizing, we want to simulate as if the entire rest of the
             # part is grounded, and only our selection of atoms is free to move. The
             # most obvious approach would be to minimize all the atoms in the part
             # while applying anchors to the atoms that aren't in the selection. But
@@ -289,7 +289,7 @@ class Minimize_CommandRun(CommandRun):
             # out from the selection. The reason for going out two layers, and not just
             # one layer, is that we need bond angle terms to simulate accurately. When
             # we get torsion angles we will probably want to bump this up to three
-            # layers.
+            # layers. [Now we're doing three layers -- bruce 080507]
             #
             # Imagine labeling all the atoms in the selection with zero. Then take the
             # set of unlabeled atoms that are bonded to a zero-labeled atom, and label
@@ -299,8 +299,8 @@ class Minimize_CommandRun(CommandRun):
             # layers, and we anchor them during the minimization.
             #
             # In sim_aspect.__init__, the labels for zero, one and two correspond
-            # respectively to membership in the dictionaries self.moving_atoms,
-            # self.boundary1_atoms, and self.boundary2_atoms.
+            # respectively to membership in the dictionaries self._moving_atoms,
+            # self._boundary1_atoms, and self._boundary2_atoms.
             #
             # If an atom in the selection is anchored, we don't need to go two layers
             # out from that atom, only one layer. So we can label it with one, even
