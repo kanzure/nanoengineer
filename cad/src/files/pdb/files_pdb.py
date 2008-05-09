@@ -80,6 +80,7 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
         # if that was intended.
         # Guess for now: include it for ATOM but not HETATM. (So it's 
         # specialcased below, rather than being included in this table.)
+        # (Later: can't we use the case of the 'E' to distinguish it from He?)
         "HN":"H",
      }
     
@@ -101,30 +102,58 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
         key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             ## sym = capitalize(card[12:14].replace(" ", "").replace("_", "")) 
-            # bruce 070410 revised this to also discard digits, 
-            # handle HB, HE, HN (guesses)
-            atomname = card[12:14] # column numbers 13-14 in pdb format
-                # (though full atom name is 13-16; 
-                # see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf
-                #     page 156)
-            for bad in "_ 0123456789":
-                atomname = atomname.replace(bad, "")
-            atomname = atomname_exceptions.get(atomname, atomname)
-            if atomname == "HE" and key == "atom":
-                atomname = "H" # see comment in atomname_exceptions
-            sym = capitalize(atomname) 
-            try:
-                PeriodicTable.getElement(sym)
-            except:
-                # note: this typically fails with AssertionError 
-                # (not e.g. KeyError) [bruce 050322]
-                msg = "Warning: Pdb file: unknown element %s in: %s" \
-                    % (sym, card)
+            # bruce 080508 revision (guess at a bugfix for reading NE1-saved
+            # pdb files):
+            # get a list of atomnames to try; use the first one we recognize.
+            # Note that full atom name is in columns 13-16 i.e. card[12:16];
+            # see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf,
+            # page 156. The old code only looked at two characters,
+            # card[12:14] == columns 13-14, and discarded ' ' and '_',
+            # and capitalized (the first character only). The code as I revised
+            # it on 070410 also discarded digits, and handled HB, HE, HN
+            # (guesses) using the atomname_exceptions dict.
+            name4 = card[12:16].replace(" ", "").replace("_", "")
+            name3 = card[12:15].replace(" ", "").replace("_", "")
+            name2 = card[12:14].replace(" ", "").replace("_", "")
+            def nodigits(name):
+                for bad in "0123456789":
+                    name = name.replace(bad, "")
+                return name
+            atomnames_to_try = [
+                name4, # as seems best according to documentation
+                name3,
+                name2, # like old code
+                nodigits(name4),
+                nodigits(name3),
+                nodigits(name2) # like code as revised on 070410
+             ]
+            foundit = False
+            for atomname in atomnames_to_try:
+                atomname = atomname_exceptions.get(atomname, atomname)
+                if atomname == "HE" and key == "atom":
+                    atomname = "H" # see comment in atomname_exceptions
+                sym = capitalize(atomname) # turns either 'he' or 'HE' into 'He'
+                try:
+                    PeriodicTable.getElement(sym)
+                except:
+                    # note: this typically fails with AssertionError 
+                    # (not e.g. KeyError) [bruce 050322]
+                    continue
+                else:
+                    foundit = True
+                    break
+                pass
+            if not foundit:
+                msg = "Warning: Pdb file: will use Carbon in place of unknown element %s in: %s" \
+                    % (name4, card)
                 print msg #bruce 070410 added this print
                 env.history.message( redmsg( msg ))
 
                 ##e It would probably be better to create a fake atom, so the 
                 # CONECT records would still work.
+                #bruce 080508 let's do that:
+                sym = "C"
+                
                 # Better still might be to create a fake element, 
                 # so we could write out the pdb file again
                 # (albeit missing lots of info). [bruce 070410 comment]
@@ -134,16 +163,17 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
                 #   using C_R instead of C, for example, to represent sp2 
                 #   carbons.
                 # That particular case won't trigger this exception, since we
-                # only look at 2 characters,
+                # only look at 2 characters [eventually, after trying more, as of 080508],
                 # i.e. C_ in that case. It would be better to realize this means
                 # sp2 and set the atomtype here (and perhaps then use it when
                 # inferring bonds,  which we do later if the file doesn't have 
                 # any bonds). [bruce 060614/070410 comment]
-            else:
-                xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
-                n = int(card[6:11])
-                a = Atom(sym, A(xyz), mol)
-                ndix[n] = a
+
+            # Now the element name is in sym.
+            xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
+            n = int(card[6:11])
+            a = Atom(sym, A(xyz), mol)
+            ndix[n] = a
         elif key == "conect":
             try:
                 a1 = ndix[int(card[6:11])]
