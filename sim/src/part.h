@@ -91,7 +91,7 @@ struct atom
         } v; // virtual (virtualConstructionAtoms != 0)
 
         struct {
-            struct xyz initialPosition;
+            struct xyz initialPosition; // pm
 
             // A PAM5 groove atom can have an associatedAtom, a vDn
             // type atom.  That vDn atom will have this atom as one of
@@ -443,7 +443,7 @@ struct part
     int num_outOfPlanes;
     struct outOfPlane *outOfPlanes;
     
-    struct xyz *positions;
+    struct xyz *positions; // pm
     struct xyz *velocities;
     
     struct atom *vdwHash[GRID_SIZE][GRID_SIZE][GRID_SIZE];

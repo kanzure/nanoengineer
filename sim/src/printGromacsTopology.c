@@ -26,7 +26,7 @@ atomNumber(struct part *p, struct atom *a)
 }
 
 static void
-writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a)
+writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a, struct xyz translate)
 {
     int residueNumber = 1;
     char *residueName = "xxx";
@@ -44,9 +44,10 @@ writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a
         pos.z = 0.0;
     } else {
         pos = p->positions[a->index];
+        vdivc(pos, 1000.0); // convert pm to nm
+        vsub(pos, translate); // shift to new bounding volume
     }
-    // positions in pm, gromacs wants nm
-    fprintf(gro, "%5d%5s%5s%5d%8.3f%8.3f%8.3f\n", residueNumber, residueName, atomName, atom_num, pos.x/1000.0, pos.y/1000.0, pos.z/1000.0);
+    fprintf(gro, "%5d%5s%5s%5d%8.3f%8.3f%8.3f\n", residueNumber, residueName, atomName, atom_num, pos.x, pos.y, pos.z);
     if (a->isGrounded) {
         fprintf(ndx, "%d\n", atom_num);
     }
@@ -356,6 +357,86 @@ io_error(char *fileName)
     return ret;
 }
 
+static void
+getBoundingVolume(struct part *p, struct xyz *minp, struct xyz *maxp, double vdwCutoff)
+{
+    int i;
+    double delta;
+    struct xyz min;
+    struct xyz max;
+    struct xyz pos;
+    struct xyz boxsize;
+    
+#define MAX_FLOAT 3e38
+    min.x = min.y = min.z = MAX_FLOAT;
+    max.x = max.y = max.z = -MAX_FLOAT;
+
+    for (i=0; i<p->num_atoms; i++) {
+	pos = p->atoms[i]->creationParameters.r.initialPosition;
+        if (min.x > pos.x) {
+            min.x = pos.x;
+        }
+        if (min.y > pos.y) {
+            min.y = pos.y;
+        }
+        if (min.z > pos.z) {
+            min.z = pos.z;
+        }
+        if (max.x < pos.x) {
+            max.x = pos.x;
+        }
+        if (max.y < pos.y) {
+            max.y = pos.y;
+        }
+        if (max.z < pos.z) {
+            max.z = pos.z;
+        }
+    }
+    max.x /= 1000.0 ; // convert pm to nm
+    max.y /= 1000.0 ;
+    max.z /= 1000.0 ;
+    min.x /= 1000.0 ;
+    min.y /= 1000.0 ;
+    min.z /= 1000.0 ;
+    
+    // Expand the bounding volume to allow for expansion during
+    // minimization.  The bounding volume must be at least vdwCutoff
+    // in each direction, so objects don't show up more than once in
+    // the non-bonded calculations.  Make it be at least that size,
+    // then grow it by a constant factor.
+    vsub2(boxsize, max, min);
+    if (boxsize.x < vdwCutoff) {
+        delta = (vdwCutoff - boxsize.x) / 2.0;
+        max.x += delta;
+        min.x -= delta;
+    }
+    if (boxsize.y < vdwCutoff) {
+        delta = (vdwCutoff - boxsize.y) / 2.0;
+        max.y += delta;
+        min.y -= delta;
+    }
+    if (boxsize.z < vdwCutoff) {
+        delta = (vdwCutoff - boxsize.z) / 2.0;
+        max.z += delta;
+        min.z -= delta;
+    }
+#define EXPANSION_FACTOR 1.3
+    vsub2(boxsize, max, min);
+    delta = (boxsize.x * EXPANSION_FACTOR) / 2.0;
+    max.x += delta;
+    min.x -= delta;
+    delta = (boxsize.y * EXPANSION_FACTOR) / 2.0;
+    max.y += delta;
+    min.y -= delta;
+    delta = (boxsize.z * EXPANSION_FACTOR) / 2.0;
+    max.z += delta;
+    min.z -= delta;
+
+    *minp = min;
+    *maxp = max;
+}
+
+
 // returns NULL for success, or an error string.
 char *
 printGromacsToplogy(char *basename, struct part *p)
@@ -365,11 +446,16 @@ printGromacsToplogy(char *basename, struct part *p)
     FILE *gro; // Gromacs coordinate file (basename.gro)
     FILE *mdp; // Gromacs configuration file (basename.mdp)
     FILE *ndx; // Gromacs group (index) file (basename.ndx)
+    FILE *translate; // Add this to each .gro position to get .mmp positions (basename.translate)
     int len;
     double vdwCutoff;
     char *fileName;
     char *ret = NULL;
     struct jig *jig;
+    struct xyz boxsize; // far corner of bounding volume starting at origin
+    struct xyz min; // most negative corner of bounding volume
+    struct xyz max; // most positive corner of bounding volume
+    int EnableNeighborSearchGrid = 0;
 
     for (i=0; i<p->num_jigs; i++) {
         jig = p->jigs[i];
@@ -388,7 +474,7 @@ printGromacsToplogy(char *basename, struct part *p)
         }
     }
     
-    len = strlen(basename) + 5;
+    len = strlen(basename) + 12;
     fileName = allocate(len);
     sprintf(fileName, "%s.top", basename);
     top = fopen(fileName, "w");
@@ -424,6 +510,17 @@ printGromacsToplogy(char *basename, struct part *p)
         fclose(mdp);
         return ret;
     }
+    sprintf(fileName, "%s.translate", basename);
+    translate = fopen(fileName, "w");
+    if (translate == NULL) {
+        ret = io_error(fileName);
+        free(fileName);
+        fclose(top);
+        fclose(gro);
+        fclose(mdp);
+        fclose(ndx);
+        return ret;
+    }
     free(fileName);
 
     Gv5_type = getAtomTypeByName("Gv5");
@@ -436,12 +533,12 @@ printGromacsToplogy(char *basename, struct part *p)
     if (PathToCpp != NULL) {
         fprintf(mdp, "cpp                 =  %s\n", PathToCpp);
     }
-    fprintf(mdp, "pbc                 =  no\n"); // disable periodic boundary conditions
+    fprintf(mdp, "pbc                 =  %s\n", EnableNeighborSearchGrid ? "xyz" : "no"); // periodic boundary conditions
     fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
     fprintf(mdp, "nsteps              =  100000\n"); // max number of iterations
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
-    fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
-    fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
+    fprintf(mdp, "nstlist             =  %d\n", EnableElectrostatic ? 10 : 0); // update frequency for neighbor list
+    fprintf(mdp, "ns_type             =  %s\n", EnableNeighborSearchGrid ? "grid" : "simple"); // neighbor search type, must be simple for pbc=no
     fprintf(mdp, "nstxout             =  10\n"); // frequency to write coordinates to output trajectory file
 
     if (VanDerWaalsCutoffRadius < 0) {
@@ -502,16 +599,31 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(gro, "Generated by NanoEngineer-1\n");
     fprintf(gro, "%3d\n", p->num_atoms + p->num_virtual_atoms);
 
-    fprintf(ndx, "[ Anchor ]\n");
+    if (EnableNeighborSearchGrid) {
+        getBoundingVolume(p, &min, &max, vdwCutoff);
+        vsub2(boxsize, max, min);
+    } else {
+        vsetc(min, 0.0);
+        vsetc(max, 0.0);
+        vsetc(boxsize, 0.0);
+    }
+
+    fprintf(translate, "%10.5f\n%10.5f\n%10.5f\n", min.x, min.y, min.z);
+    fprintf(translate, "X, Y, and Z offsets in nm between coordinates in .gro file\n");
+    fprintf(translate, "and those in .mmp file.  Add these offsets to the .gro\n");
+    fprintf(translate, "positions and multiply by 10000 to get .mmp positions (in 0.1pm)\n");
+    fclose(translate);
     
+    fprintf(ndx, "[ Anchor ]\n");
+
     for (i=0; i<p->num_atoms; i++) {
-	writeGromacsAtom(top, gro, ndx, p, p->atoms[i]);
+	writeGromacsAtom(top, gro, ndx, p, p->atoms[i], min);
     }
     for (i=0; i<p->num_virtual_atoms; i++) {
-	writeGromacsAtom(top, gro, ndx, p, p->virtual_atoms[i]);
+	writeGromacsAtom(top, gro, ndx, p, p->virtual_atoms[i], min);
     }
-#define BOXSIZE 0.0
-    fprintf(gro, "%10.5f%10.5f%10.5f\n", BOXSIZE, BOXSIZE, BOXSIZE); // periodic box size
+
+    fprintf(gro, "%10.5f%10.5f%10.5f\n", boxsize.x, boxsize.y, boxsize.z); // periodic box size
     fclose(gro);
     fclose(ndx);
     

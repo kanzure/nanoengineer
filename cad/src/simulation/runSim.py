@@ -2355,6 +2355,24 @@ def readGromacsCoordinates(filename, atomList):
        On success, return a list of atom new positions
     in the same order as in the xyz file (hopefully the same order as in alist).
     """
+    translateFileName = None
+    if (filename.endswith("-out.gro")):
+        translateFileName = filename[:-8] + ".translate"
+    elif (filename.endswith(".gro")):
+        translateFileName = filename[:-4] + ".translate"
+
+    try:
+        translateFile = open(translateFileName, "rU")
+        dX = float(translateFile.readline()) * 10.0
+        dY = float(translateFile.readline()) * 10.0
+        dZ = float(translateFile.readline()) * 10.0
+        translateFile.close()
+    except IOError:
+        # Ok for file not to exist, assume no translation
+        dX = 0.0
+        dY = 0.0
+        dZ = 0.0
+
     lines = open(filename, "rU").readlines()
 
     if len(lines) < 3: ##Invalid file format
@@ -2385,9 +2403,9 @@ def readGromacsCoordinates(filename, atomList):
         if (xstr == "     nan" or ystr == "     nan" or zstr == "     nan"):
             return "GROMACS minimize returned undefined results"
         try:
-            x = float(xstr) * 10.0
-            y = float(ystr) * 10.0
-            z = float(zstr) * 10.0
+            x = float(xstr) * 10.0 + dX
+            y = float(ystr) * 10.0 + dY
+            z = float(zstr) * 10.0 + dZ
         except ValueError, e:
             return "Error parsing GROMACS minimize results: [%s][%s][%s]" % (xstr, ystr, zstr)
         atomIndex += 1

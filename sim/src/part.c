@@ -1679,6 +1679,7 @@ addVirtualAtom(struct part *p, struct atom *a)
 // atom number as it appears in (for example) an mmp file.
 // ElementType is the number of protons (XXX should really be an
 // atomType).
+// position is in pm.
 struct atom *
 makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 {
