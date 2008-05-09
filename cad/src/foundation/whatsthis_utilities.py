@@ -12,142 +12,112 @@ from PyQt4.Qt import QWidget
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QMenuBar
 
+# more imports below; todo: move them to toplevel
+
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
 # (now finished enough for release, though needs testing and perhaps cleanup 
 # and documentation)
 
-enable_whatsthis_links = True # also used in an external file
+ENABLE_WHATSTHIS_LINKS = True # also used in an external file
 
-debug_whatsthis_links = False # DO NOT COMMIT with True # only used in this file
-
-debug_refix = False # DO NOT COMMIT with True # also used in an external file
-
-use_debug_refix_cutoff = False # DO NOT COMMIT with True  # only used in this file
-
-debug_refix_cutoff = 24  # only used in this file
-# vary this by binary search in a debugger; 
-# this value is large enough to not matter
+_DEBUG_WHATSTHIS_LINKS = False # DO NOT COMMIT with True # only used in this file
 
 # ===
 
-_actions = {} # map from id(QAction) to the featurenames in their whatsthis
-              #text [bruce 060121 to help with Undo]
-              # SHOULD RENAME (not private), since used in undo_internals.py
+map_from_id_QAction_to_featurename = {}
+    # map from id(QAction) to the featurenames in their whatsthis text
+    # [bruce 060121 to help with Undo; renamed, bruce 080509]
+    # note: also used in undo_internals.py
 
-_objects_and_text_that_need_fixing_later = [] ####@@@@ should make this less 
-####@@@@fragile re repeated calls of fix_whatsthis_text_and_links
-
-def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0):
+def fix_whatsthis_text_and_links(parent):
+    #bruce 080509 removed old debug code for bugs 1421 and 1721; other cleanup
     #bruce 060319 renamed this from fix_whatsthis_text_for_mac
-    #bruce 051227-29 revised this
     #bruce 060120 revised this as part of fixing bug 1295
+    #bruce 051227-29 revised this
     """
     [public]
-    Fix whatsthis text and objects (for all OSes, not just macs as it once 
-    did). This should be called after all widgets (and their whatsthis text) 
-    in the UI have been created. Its ok, but slow (up to 0.2 seconds per call 
-    or more), to call it more than once on the main window. If you call it again 
-    on something else, as of 060319 this will cause bugs by clearing 
-    _objects_and_text_that_need_fixing_later, but that can be easily fixed when
-    we need to support repeated calls on smaller widgets. Calling it on a 
-    single QAction works, but doesn't do enough to fix the text again for 
-    toolbuttons (and I think menuitems) made by Qt from that action
-    (re bug 1421). See also refix_whatsthis_text_and_links, which can be called
-    to restore whatsthis text which Qt messed up for some reason, as happens 
-    when you set tooltips or menutext for Undo and Redo actions (bug 1421).
+    Fix tooltips and whatsthis text and objects (for all OSes, not just macs
+    as this function once did).
+
     This function does two things:
-    1. If the system is a Mac, this replaces all occurrences of 'Ctrl' 
-    with 'Cmd' in all the whatsthis text for all QAction or QWidget objects 
-    that are children of parent.
-    2. For all systems, it replaces certain whatsthis text patterns with 
-    hyperlinks, and adds MyWhatsThis objects to widgets with text modified that
-    way (or that might contain hyperlinks) or that are QPopupMenus.
+    
+    1. If the system is a Mac, this replaces all occurrences of 'Ctrl'
+    with 'Cmd' in all the tooltip and whatsthis text for all QAction or
+    QWidget objects that are children of parent.
+    
+    2. For all systems, it replaces certain whatsthis text patterns with
+    hyperlinks, and adds MyWhatsThis objects to widgets with text modified
+    that way (or that might contain hyperlinks) or that are QPopupMenus.
+
+    This should be called after all widgets (and their whatsthis text) 
+    in the UI have been created. It's ok, but slow (up to 0.2 seconds per call
+    or more), to call it more than once on the main window. If you call it again
+    on something else, as of 060319 this would have caused bugs by clearing 
+    _objects_and_text_that_need_fixing_later, but that can be easily fixed when
+    we need to support repeated calls on smaller widgets. (As of the next day,
+    that global list was no longer used, and on 080509 the code to maintain it
+    is being removed -- whether repeated calls would still cause any bugs ought
+    to be reviewed. I notice that there *are* repeated calls -- the main call
+    in ne1_ui/Ui_MainWindow.py is followed immediately by another one on a
+    smaller widget. So it's probably ok.)
+
+    Calling this on a single QAction works, but doesn't do enough to fix the
+    text again for toolbuttons (and I think menuitems) made by Qt from that
+    action (re bug 1421).
+
+    See also refix_whatsthis_text_and_links, which can be called to restore
+    tooltips and/or whatsthis text which Qt messed up for some reason, as
+    happens when you set tooltips or menutext for Undo and Redo actions
+    (bug 1421). (Note that it hardcodes the set of actions which need this.)
     """
-    if debug_whatsthis_links or debug_refix or use_debug_refix_cutoff:
-        print "\nrunning fix_whatsthis_text_and_links\n"
-    if 0 and debug_cutoff:
-        print "returning immediately (sanity check, bug better be there or"\
-              "you're insane)" ####@@@@@ yes, bug is not fixed yet
-        return
+    if _DEBUG_WHATSTHIS_LINKS:
+        print "running fix_whatsthis_text_and_links"
     from platform.PlatformDependent import is_macintosh
     mac = is_macintosh()
-    if mac or enable_whatsthis_links:
+    if mac or ENABLE_WHATSTHIS_LINKS:
         # fix text in 1 or 2 ways for all QAction objects
-        #(which are not widgets)
+        # (which are not widgets)
         # ATTENTION:
         # objList only includes QAction widgets that appear in the Main Menu
         # bar. This is a bug since some widgets only appear in toolbars on the
         # Main Window, but not the main menu bar. --Mark and Tom 2007-12-19 
         objList = filter(lambda x: isinstance(x, QAction), parent.children())
-        if 0 and debug_cutoff:
-            print "returning after query list action" ####@@@@@ bug is not 
-            ####fixed yet; the illegal instr crash happens after reload 
-            ####whatsthis
-            return
-        ao = 0 # only matters when debug_cutoff is set
         for obj in objList:
-            if debug_cutoff: 
-                print "ao %d, obj" % ao, obj
-            text = str(obj.whatsThis())
-            tooltip = str(obj.toolTip())
-            if mac:
-                text = replace_ctrl_with_cmd(text)
-                tooltip = replace_ctrl_with_cmd(tooltip)
-                if debug_cutoff and 'Undo' in str(text):
-                    print 'undo in', ao, obj, text
-            if enable_whatsthis_links:
-                text = turn_featurenames_into_links(text, savekey = id(obj), \
-                                                    saveplace = _actions )
-            obj.setWhatsThis(text)
-            obj.setToolTip(tooltip)
-            ao += 4
-            if ao == debug_cutoff:
-                break
-    if debug_cutoff:
-        print "returning when ao got to %d; 1,2,3,4 are for obj 0" % ao 
-        # 24 doesn't fix, 25 does. hmm. 
-        return
-    if debug_cutoff:
-        print "returning before widgets" ####@@@@@ bug is fixed by this 
-        ####point if we let above loop run to completion
-        return
-    if enable_whatsthis_links:
+            fix_QAction_whatsthis(obj, mac)            
+            continue
+        pass
+    if ENABLE_WHATSTHIS_LINKS:
         # add MyWhatsThis objects to all widgets that might need them
         # (and also fix their text if it's not fixed already --
         #  needed in case it didn't come from a QAction; maybe that never
-        #happens as of 060120)
+        #  happens as of 060120)
         objList = filter(lambda x: isinstance(x, QWidget), parent.children())
             # this includes QMenuBar, QPopupMenu for each main menu and cmenu
-            #(I guess), but not menuitems themselves. (No hope of including 
+            # (I guess), but not menuitems themselves. (No hope of including 
             # dynamic cmenu items, but since we make those, we could set their
-            #whatsthis text and process it the same way using separate code 
-            #(nim ###@@@).) [bruce 060120] In fact there is no menu item 
-            #class in Qt that I can find! You add items as QActions or as 
-            #sets of attrs. QActions also don't show up in this list...
-        global _objects_and_text_that_need_fixing_later
-        if _objects_and_text_that_need_fixing_later:
-            print "bug warning: _objects_and_text_that_need_fixing_later "\
-                  "being remade from scratch; causes bug 1421 if not"\
-                  "reviewed"###@@@
-        _objects_and_text_that_need_fixing_later = []
-        objcount = 0 # only matters when debug_cutoff is set and when code 
-                     #above this to use it earlier is removed
+            # whatsthis text and process it the same way using separate code 
+            # (nim ###@@@).) [bruce 060120] In fact there is no menu item 
+            # class in Qt that I can find! You add items as QActions or as 
+            # sets of attrs. QActions also don't show up in this list...
         for obj in objList:
+            # note: the following code is related to
+            # fix_QAction_whatsthis(obj, mac)
+            # but differs in several ways
             text = whatsthis_text_for_widget(obj) # could be either "" or None
             if text:
                 # in case text doesn't come from a QAction, modify it in the 
-                #same ways as above, and store it again or pass it to the
-                #MyWhatsThis object; both our mods are ok if they happen 
-                #twice -- if some hyperlink contains 'ctrl', so did the text
-                #before it got command names converted to links.
+                # same ways as above, and store it again or pass it to the
+                # MyWhatsThis object; both our mods are ok if they happen 
+                # twice -- if some hyperlink contains 'ctrl', so did the text
+                # before it got command names converted to links.
                 if mac:
                     text = replace_ctrl_with_cmd(text)
                 text = turn_featurenames_into_links(text)
                 assert text # we'll just feed it to a MyWhatsThis object so we 
-                #don't have to store it here
+                    # don't have to store it here
             else:
                 text = None # turn "" into None
-            #ismenu = isinstance(obj, QPopupMenu)
+            ## ismenu = isinstance(obj, QPopupMenu)
             ismenu = isinstance(obj, QMenu)
             try:
                 ismenubar = isinstance(obj, QMenuBar)
@@ -156,53 +126,37 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0):
                 ismenubar = False
             if text is not None and (ismenu or ismenubar):
                 # assume any text (even if not changed here) might contain 
-                #hyperlinks, so any widget with text might need a MyWhatsThis 
-                #object; the above code (which doesn't bother storing 
-                #mac-modified text) also assumes we're doing this
+                # hyperlinks, so any widget with text might need a MyWhatsThis 
+                # object; the above code (which doesn't bother storing 
+                # mac-modified text) also assumes we're doing this
+                # [REVIEW: what code creates such an object? Is the above
+                #  old comment still accurate? bruce 080509 questions]
                 print text
                 obj.setWhatsThis(text)
-                #bruce 060319 part of fixing bug 1421
-                ts = str(text)
-                if "Undo" in ts or "Redo" in ts or obj in refix_later or \
-                   ismenu or ismenubar:
-                    # hardcoded cases cover ToolButtons whose actions are 
-                    #Undo or Redo (or a few others included by accident)
-                    _objects_and_text_that_need_fixing_later.append\
-                                                            (( obj, text))
-                    if debug_refix:
-                        if obj in refix_later:
-                            print "got from refix_later:", obj 
-                            ####@@@@ we got a menu from caller, but editmenu 
-                            ####bug 1421 still not fixed!
-                        if ismenu:
-                            print "ismenu", obj
-                        if ismenubar:
-                            print "ismenubar", obj
-            objcount += 1
-            if objcount == debug_cutoff: # debug code for bug 1421
-                break
+                pass
             continue
-        if debug_refix or use_debug_refix_cutoff:
-            print len(_objects_and_text_that_need_fixing_later), \
-                  "_objects_and_text_that_need_fixing_later" ####@@@@ 
-            print "debug_cutoff was %d, objcount reached %d" % \
-                  (debug_cutoff, objcount) # we did the first objcount objects
-            if objcount:
-                print "last obj done was", objList[objcount - 1]
     return # from fix_whatsthis_text_and_links
 
 def fix_QAction_whatsthis(obj, mac):
     """
-    [only used in this file]
+    Modify the Qt whatsthis and tooltip text assigned to obj
+    (which should be a QAction; not sure if that's required)
+    based on the mac flag (an argument) and on the global flag
+    ENABLE_WHATSTHIS_LINKS.
+
+    Also save info into the global map_from_id_QAction_to_featurename.
     """
+    # fyi: only used in this file, as of 080509
     text = str(obj.whatsThis())
     tooltip = str(obj.toolTip())
     if mac:
         text = replace_ctrl_with_cmd(text)
         tooltip = replace_ctrl_with_cmd(tooltip)
-    if enable_whatsthis_links:
-        text = turn_featurenames_into_links\
-             (text, savekey = id(obj), saveplace = _actions )
+    if ENABLE_WHATSTHIS_LINKS:
+        text = turn_featurenames_into_links( text,
+                   savekey = id(obj),
+                   saveplace = map_from_id_QAction_to_featurename
+                )
     obj.setWhatsThis(text)
     obj.setToolTip(tooltip)
     return
@@ -211,31 +165,16 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
     """
     [public]
     """
-##    if use_debug_refix_cutoff:
-##        # debug code for bug 1421
-##        print "\nuse_debug_refix_cutoff is true"
-##        import env
-##        win = env.mainwindow()
-##        fix_whatsthis_text_and_links( win, refix_later = (win.editMenu,), 
-##        debug_cutoff = debug_refix_cutoff )
-##        return
     import foundation.env as env
     win = env.mainwindow()
     from platform.PlatformDependent import is_macintosh
     mac = is_macintosh()
     fix_QAction_whatsthis(win.editUndoAction, mac)
     fix_QAction_whatsthis(win.editRedoAction, mac)
-    if use_debug_refix_cutoff:
-        print "returning from refix_whatsthis_text_and_links "\
-              "w/o using laterones"
-#bruce 060320 zapping this for bug 1721 (leaving it in was an oversight, 
-#though I didn't know it'd cause any bug)
-##    for obj, text in _objects_and_text_that_need_fixing_later:
-##        give_widget_MyWhatsThis_and_text( obj, text)
     return
 
 def replace_ctrl_with_cmd(text):
-    # by mark; might modify too much for text which uses Ctrl in unexpected ways
+    # by Mark; might modify too much for text which uses Ctrl in unexpected ways
     # (e.g. as part of longer words, or in any non-modifier-key usage)
     """
     Replace all occurrences of Ctrl with Cmd in the given string.
@@ -244,27 +183,26 @@ def replace_ctrl_with_cmd(text):
     text = text.replace('ctrl', 'cmd')
     return text
 
-def whatsthis_text_for_widget(widget): #bruce 060120 split 
+def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other code
     """
     Return a Python string containing the WhatsThis text for 
     widget (perhaps ""), or None if we can't find that.
     """
-    #this out of other code
     try:
         ## original_text = widget.whatsThis() # never works for 
-        ##widgets (though it would work for QActions)
+        ##     # widgets (though it would work for QActions)
         text = str(widget.whatsThis()) 
         #exception; don't know if it can be a QString
     except:
-        # this happens for a lot of QObjects (don't know what they are), e.g. 
-        #for <constants.qt.QObject object at 0xb96b750>
+        # this happens for a lot of QObjects (don't know what they are), e.g.
+        # for <constants.qt.QObject object at 0xb96b750>
         return None
     else:
         return str( text or "" )
-            #note: the 'or ""' above is in case we got None (probably never 
-            #needed, but might as well be safe)
-            #note: the str() (in case of QString) might not be needed; 
-            #during debug it seemed this was already a Python string
+            # note: the 'or ""' above is in case we got None (probably never 
+            #  needed, but might as well be safe)
+            # note: the str() (in case of QString) might not be needed; 
+            # during debug it seemed this was already a Python string
     pass
 
 def debracket(text, left, right): #bruce 051229 ##e refile this?
@@ -318,8 +256,8 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
                     return text
                 junk, featurename, junk2 = split2
             #e should verify featurename is one or more capitalized words 
-            #sep by ' '; could use split, isalpha (or so) ###@@@
-            if debug_whatsthis_links:
+            # separated by ' '; could use split, isalpha (or so) ###@@@
+            if _DEBUG_WHATSTHIS_LINKS:
                 if featurename != name:
                     print "web help name for %r: %r" % (name, featurename,)
                 else:
@@ -328,10 +266,10 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
                 saveplace[savekey] = featurename
             link = "Feature:" + featurename.replace(' ','_')
                 # maybe we can't let ' ' remain in it, otherwise replacement 
-                #not needed since will be done later anyway
-            #from wiki_help import wiki_prefix
-            #text = "<a href=\"%s%s\">%s</a>" % 
-            #(wiki_prefix(), link, name) + rest
+                # not needed since will be done later anyway
+            ## from wiki_help import wiki_prefix
+            ## text = "<a href=\"%s%s\">%s</a>" % \
+            ## (wiki_prefix(), link, name) + rest
             text = "<a href=\"%s\">%s</a>" % (link, name) + rest
             return text
     return text

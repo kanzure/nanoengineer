@@ -166,7 +166,7 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     # Only called for len(options) > 0, though it presumably works
     # just as well for len 0 (try it sometime).
     import types
-    from foundation.whatsthis_utilities import turn_featurenames_into_links, enable_whatsthis_links
+    from foundation.whatsthis_utilities import turn_featurenames_into_links, ENABLE_WHATSTHIS_LINKS
     if not raw_command:
         command = wrap_callable_for_undo(command, cmdname = undo_cmdname or menutext)
         import foundation.changes as changes
@@ -210,10 +210,10 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
             mitem.setEnabled(False)
         elif type(option) is types.TupleType:
             if option[0] == 'whatsThis':
-                txt = option[1]
-                if enable_whatsthis_links:
-                    txt = turn_featurenames_into_links(txt)
-                mitem.setWhatsThis(txt)
+                text = option[1]
+                if ENABLE_WHATSTHIS_LINKS:
+                    text = turn_featurenames_into_links(text)
+                mitem.setWhatsThis(text)
             elif option[0] == 'iconset':
                 pass # this was processed above
             else:

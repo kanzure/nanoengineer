@@ -306,18 +306,18 @@ class wrappedslot:
             # doesn't that mean the same as, this begin_op is the one that changed the boundary? (ie call came from event loop?)
             sender = self.__sender
             ##print "sender",sender # or could grab its icon for insertion into history
-            from foundation.whatsthis_utilities import _actions
-            fn = _actions.get(id(sender))
+            from foundation.whatsthis_utilities import map_from_id_QAction_to_featurename
+            fn = map_from_id_QAction_to_featurename.get(id(sender))
                 # When we used sender rather than id(sender), the UI seemed noticably slower!!
                 # Possible problem with using id() is for temporary items -- when they're gone,
                 # newly allocated ones with same id might seem to have those featurenames.
-                # Perhaps we need to verufy the name is still present in the whatsthis text?
+                # Perhaps we need to verify the name is still present in the whatsthis text?
                 # But we don't have the item itself here! We could keep it in the value, and then
-                # it would stick around forever anyway so its id wouldn't be reused
+                # it would stick around forever anyway so its id wouldn't be reused,
                 # but we'd have a memory leak for dynamic menus. Hmm... maybe we could add our own
                 # key attribute to these items? And also somehow remove temporary ones from this dict
                 # soon after they go away, or when new temp items are created for same featurename?
-                # ... Decision: use our own key attr, don't bother removing old items from dict,
+                # ... Decision [nim]: use our own key attr, don't bother removing old items from dict,
                 # the leak per-cmenu is smaller than others we have per-user-command. ####@@@@ DOIT
             if fn:
                 if 1: #experiment 060121
@@ -338,7 +338,8 @@ class wrappedslot:
                             # should be found in the same way (ie that one should sub to this too) -- could this just iterate over
                             # same list and call it differently, with a different flag?? ##e
                             assy.current_command_info(cmdname = fn) #e cmdname might be set more precisely by the slot we're wrapping
-                if 0: print " featurename =", fn
+                if 0:
+                    print " featurename =", fn
                     # This works! prints correct names for toolbuttons and main menu items.
                     # Doesn't work for glpane cmenu items, but I bet it will when we fix them to have proper WhatsThis text.
                     # Hmm, how will we do that? There is presently no formal connection between them and the usual qactions
