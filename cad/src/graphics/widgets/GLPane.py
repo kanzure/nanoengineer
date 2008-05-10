@@ -3156,7 +3156,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.wants_gl_update = False
         self.gl_update()
 
-    selobj = None #bruce 050609
+    ## selobj = None #bruce 050609
+
+    _selobj = None #bruce 080509 made this private
+
+    def __get_selobj(self): #bruce 080509
+        return self._selobj
+
+    def __set_selobj(self, val): #bruce 080509
+        self.set_selobj(val)
+            # this indirection means a subclass could override set_selobj,
+            # or that we could revise this code to pass it an argument
+        return
+
+    selobj = property( __get_selobj, __set_selobj)
+        #bruce 080509 bugfix for MT crosshighlight sometimes lasting too long
 
     # ** Note: all code between the two comments containing "changes merged in from exprs/GLPane_overrider.py"
     # ** was copied from here into that file by bruce 061208, modified somewhat in that file, then moved back here
@@ -3858,7 +3872,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def set_selobj(self, selobj, why = "why?"):
         """
-        Set self.selobj to selobj (might be None) and do appropriate updates.
+        Set self._selobj to selobj (might be None) and do appropriate updates.
         Possible updates include:
 
         - env.history.statusbar_msg( selobj.mouseover_statusbar_message(),
@@ -3866,13 +3880,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         - help the model tree highlight the nodes containing selobj
         
-        @warning: some sets of self.selobj to None don't call this method.
-                  (Maybe we should add options to avoid side effects so that
-                   they all can call it.)
+        @note: as of 080509, all sets of self.selobj call this method, via a
+               property. If some of them don't want all our side effects,
+               they will need to call this method directly and pass options
+               [nim] to prevent those.
         """
-        if selobj is not self.selobj:
-            previous_selobj = self.selobj
-            self.selobj = selobj #bruce 080507 moved this here
+        # note: this method should access and modify self._selobj,
+        # not self.selobj (setting that here would cause an infinite recursion).
+        if selobj is not self._selobj:
+            previous_selobj = self._selobj
+            self._selobj = selobj #bruce 080507 moved this here
             
             # Note: we don't call gl_update_highlight here, so the caller needs to
             # if there will be a net change of selobj. I don't know if we should call it here --
@@ -3919,9 +3936,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                         # should also call mt_update separately, thus doing a full
                         # MT redraw soon enough
                  )
-            pass # if selobj is not self.selobj
+            pass # if selobj is not self._selobj
         
-        self.selobj = selobj # redundant (as of bruce 080507), but left in for now
+        self._selobj = selobj # redundant (as of bruce 080507), but left in for now
         
         #e notify more observers?
         return
@@ -3952,8 +3969,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         - when the MT explicitly calls get_nodes_containing_selobj
           (repaint_nodes should probably be False then)
 
-        @note: does not use or set self.selobj (assuming external code it calls
+        @note: does not use or set self._selobj (assuming external code it calls
                doesn't do so).
+
+        @warning: if this method or code it calls sets self.selobj, that would
+                  cause infinite recursion, since self.selobj is a property
+                  whose setter calls this method.
         """
         # review: are there MT update bugs related to dna updater moving nodes
         # into new groups?
