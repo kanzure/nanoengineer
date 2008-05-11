@@ -173,7 +173,7 @@ _f_atom_to_ladder_location_dict = {}
     #bruce 080411, to permit finding ladder/rail/index of atoms in freshly
     # made ladders which didn't yet remake their chunks
     # (needn't store all end atoms, since those can be found using
-    #  _rail_end_atom_to_ladder -- important for bridging Pls
+    #  rail_end_atom_to_ladder -- important for bridging Pls
     #  between fresh and old-untouched ladders)
 
 DNALADDER_INVAL_IS_OK = 0
@@ -219,5 +219,35 @@ def restore_dnaladder_inval_policy(old): # bruce 080413
     global dnaladder_inval_policy
     dnaladder_inval_policy = old
     return
+
+# ==
+
+def rail_end_atom_to_ladder(atom):
+    """
+    Atom is believed to be the end-atom of a rail in a valid DnaLadder.
+    Return that ladder. If anything looks wrong, either console print an error message
+    and return None (which is likely to cause exceptions in the caller),
+    or raise some kind of exception (which is what we do now, since easiest).
+    """
+    #bruce 080510 moved this from DnaLadder.py to avoid import cycles
+    # various exceptions are possible from the following; all are errors
+    try:
+        ladder = atom._DnaLadder__ladder
+            # note: this attribute name is hardcoded in several files
+        ## assert isinstance(ladder, DnaLadder)
+            # (not worth the trouble, since we don't want the DnaLadder import)
+        assert ladder.valid, "%r not valid" % ladder
+            # note: changes in _ladder_set_valid mean this will become common for bugs, attrerror will be rare [080413]
+            # or: if not, print "likely bug: invalid ladder %r found on %r during merging" % (ladder, atom) #k
+            # REVIEW: it might be better to return an invalid ladder than no ladder or raise an exception,
+            # so we might change this to return one, provided the atom is in the end_baseatoms. ####
+        assert atom in ladder.rail_end_baseatoms()
+        return ladder
+    except:
+        error = atom._dna_updater__error and ("[%s]" % atom._dna_updater__error) or ""
+        print "\nfollowing exception is an error in rail_end_atom_to_ladder(%r%s): " % \
+              (atom, error)
+        raise
+    pass
 
 # end

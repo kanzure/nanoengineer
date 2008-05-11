@@ -15,6 +15,8 @@ from model.chunk import Chunk
 from model.elements import Singlet
 from model.elements import Pl5
 
+from files.mmp.files_mmp_writing import writemmp_mapping
+
 from utilities.constants import gensym
 from utilities.constants import black
 from utilities.constants import ave_colors
@@ -35,9 +37,7 @@ from PyQt4.Qt import QFont, QString # for debug code
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
-# see also:
-## from dna_model.DnaLadder import _rail_end_atom_to_ladder
-# (below, perhaps in a cycle)
+from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
 
 # ==
 
@@ -242,12 +242,7 @@ class DnaLadderRailChunk(Chunk):
                 # should print the missing atoms if we can, but for now print the present atoms:
                 print " present atoms are", self.atoms.values()
         
-        # following import is a KLUGE to avoid recursive import
-        # (still has import cycle, ought to ### FIX -- should refile that func somehow)
-        from dna.model.DnaLadder import _rail_end_atom_to_ladder
-            # todo: make not private... or get by without it here (another init arg??)
-            # review: make this import toplevel? right now it's probably in a cycle.
-        self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
+        self.ladder = rail_end_atom_to_ladder( chain.baseatoms[0] )
         self._set_properties_from_grab_atom_info( use_disp, use_picked,
                                                   use_display_as_pam, use_save_as_pam)
             # uses args and self attrs to set self.display and self.hidden
@@ -266,8 +261,7 @@ class DnaLadderRailChunk(Chunk):
             self.ladder.ladder_invalidate_and_assert_permitted()
         self.ladder = ladder
         # can't do this, no self.chain; could do it if passed the chain:
-        ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
-        ## assert self.ladder == _rail_end_atom_to_ladder( self.chain.baseatoms[0] )
+        ## assert self.ladder == rail_end_atom_to_ladder( self.chain.baseatoms[0] )
         return
 
     _counted_chunks = () # kluge, so len is always legal,
@@ -751,8 +745,6 @@ class DnaLadderRailChunk(Chunk):
             # since (if this happens to be a PAM5 chunk) we use the memo
             # to interleave the Pl atoms into the best order for writing
             # (one that permits an upcoming mmp format optimization).
-            from files.mmp.files_mmp_writing import writemmp_mapping
-                # might be import cycle, might be a problem if done at toplevel
             mapping = writemmp_mapping(self.assy)
         
         initial_atoms = self.indexed_atoms_in_order(mapping = mapping)

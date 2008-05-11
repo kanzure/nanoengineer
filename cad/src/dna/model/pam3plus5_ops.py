@@ -23,14 +23,22 @@ from utilities.constants import Pl_STICKY_BOND_DIRECTION
 from model.elements import Pl5, Singlet
 
 from utilities import debug_flags
-##from utilities.constants import MODEL_PAM5
-
-##from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
 import foundation.env as env
 from utilities.Log import redmsg, graymsg
 
 from model.bond_constants import find_bond, find_Pl_bonds
+from model.bond_constants import V_SINGLE
+
+from model.bonds import bond_atoms_faster
+
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
+from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
+from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
+from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
+
+from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
+from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
 
 # ==
 
@@ -116,14 +124,6 @@ def kill_Pl_and_rebond_neighbors(atom):
     assert not atom.killed()
     
     # could also assert no dna updater error
-
-    if 1:
-        # kluge: do these at runtime to avoid import recursion issues.
-        # clean this up asap after the release.
-        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
-        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
-        from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
-        from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
 
     _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_NOOP_BUT_OK)
         # REVIEW: can this ever be called outside dna updater?
@@ -312,14 +312,6 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
     @return: the Pl5 atom we made. (Never returns None. Errors are either
              not detected or cause exceptions.)
     """
-    if 1:
-        # kluge: do these at runtime to avoid import recursion issues.
-        # clean this up asap after the release.
-        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
-        from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
-        from dna.updater.dna_updater_globals import temporarily_set_dnaladder_inval_policy
-        from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
-
     _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_NOOP_BUT_OK)
         # REVIEW: can this ever be called outside dna updater?
         # If so, we might not want to change the policy then
@@ -377,9 +369,6 @@ def _insert_Pl_between_0(s1, s2):
         # tell caller it needs to, and is allowed to, correct pos
 
     # bond it to s1 and s2
-    from model.bonds import bond_atoms_faster
-    from model.bond_constants import V_SINGLE
-        # runtime imports, since we're imported indirectly by chem.py
     b1 = bond_atoms_faster(Pl, s1, V_SINGLE)
     b2 = bond_atoms_faster(Pl, s2, V_SINGLE)
 
@@ -478,24 +467,12 @@ def _f_find_new_ladder_location_of_baseatom(self):
     # that atom.molecule.ladder can find fresh ladders
     # that didn't yet remake their chunks
     
-##    # buggy version (the assert ladder.valid below will typically always fail)
-##    ladder = self.molecule.ladder
-##    assert ladder
-##    assert ladder.valid # routinely fails (for a known reason)...
-##    whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
-##        # TODO: pass index hint to optimize?
-    
-    # keep these as runtime imports for now, see comment at top of module;
-    # WARNING: these will freak out the import cycle graph; no trivial fix at the moment
-    from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
-    from dna.model.DnaLadder import _rail_end_atom_to_ladder # refile this sometime soon!
-    
     locator = _f_atom_to_ladder_location_dict
     data = locator.get(self.key)
     if data:
         return data # (ladder, whichrail, index)
     # otherwise it must be an end atom on a non-fresh ladder
-    ladder = _rail_end_atom_to_ladder(self)
+    ladder = rail_end_atom_to_ladder(self)
     whichrail, index = ladder.whichrail_and_index_of_baseatom(self)
         # by search in ladder, optimized to try the ends first
     return ladder, whichrail, index

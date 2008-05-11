@@ -104,6 +104,8 @@ from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_OK
 from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_ERROR
 from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_NOOP_BUT_OK
 
+from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
+
 # ==
 
 ### REVIEW: should a DnaLadder contain any undoable state?
@@ -420,7 +422,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             self.valid = val
             if val:
                 # tell the rail end atoms their ladder;
-                # see _rail_end_atom_to_ladder for how this hint is interpreted
+                # see rail_end_atom_to_ladder for how this hint is interpreted
                 for atom in self.rail_end_baseatoms():
                     # (could debug-warn if already set to a valid ladder)
                     if atom._DnaLadder__ladder is not None and atom._DnaLadder__ladder.valid:
@@ -730,7 +732,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                (strand1.bond_direction, self)
         end_atom = strand1.end_baseatoms()[end]
         assert not end_atom._dna_updater__error # otherwise we should not get this far with it
-        assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
+        assert self is rail_end_atom_to_ladder(end_atom) # sanity check
         bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
             # (note: strand_next_baseatom returns None if end_atom or the atom it
@@ -741,11 +743,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             # (report error in that case??)
             return None
         assert not next_atom._dna_updater__error
-        other = _rail_end_atom_to_ladder(next_atom)
+        other = rail_end_atom_to_ladder(next_atom)
             # other ladder (might be self in case of ring)
         if other.error:
             return None
-        # other.valid was checked in _rail_end_atom_to_ladder
+        # other.valid was checked in rail_end_atom_to_ladder
         if other is self:
             return None
         if len(self) + len(other) > MAX_LADDER_LENGTH:
@@ -1371,7 +1373,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             # (note: strand_next_baseatom returns None if end_atom or the atom it
             #  might return has ._dna_updater__error set, or if it reaches a non-Ss atom.)
         if next_atom is not None:            
-            return _rail_end_atom_to_ladder(next_atom)
+            return rail_end_atom_to_ladder(next_atom)
         return None
         
     pass # end of class DnaLadder
@@ -1464,31 +1466,6 @@ class DnaSingleStrandDomain(DnaLadder):
     pass
 
 # ==
-
-def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an import cycle (used here and in DnaLadderRailChunk).
-    """
-    Atom is believed to be the end-atom of a rail in a valid DnaLadder.
-    Return that ladder. If anything looks wrong, either console print an error message
-    and return None (which is likely to cause exceptions in the caller),
-    or raise some kind of exception (which is what we do now, since easiest).
-    """
-    # various exceptions are possible from the following; all are errors
-    try:
-        ladder = atom._DnaLadder__ladder
-        assert isinstance(ladder, DnaLadder)
-        assert ladder.valid, "%r not valid" % ladder
-            # note: changes in _ladder_set_valid mean this will become common for bugs, attrerror will be rare [080413]
-            # or: if not, print "likely bug: invalid ladder %r found on %r during merging" % (ladder, atom) #k
-            # REVIEW: it might be better to return an invalid ladder than no ladder or raise an exception,
-            # so we might change this to return one, provided the atom is in the end_baseatoms. ####
-        assert atom in ladder.rail_end_baseatoms()
-        return ladder
-    except:
-        error = atom._dna_updater__error and ("[%s]" % atom._dna_updater__error) or ""
-        print "\nfollowing exception is an error in _rail_end_atom_to_ladder(%r%s): " % \
-              (atom, error)
-        raise
-    pass
 
 def _end_to_end_bonded( atom1, atom2, strandQ):
     """

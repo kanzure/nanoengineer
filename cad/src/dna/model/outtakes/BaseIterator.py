@@ -96,10 +96,10 @@ class BaseIterator(object):
         assert next_atom != -1 # if this fails, prior dna updater run didn't do enough of its job
         # todo: handle exceptions in the following
 ##        next_chunk = next_atom.molecule ### BUG: invalid during updater, chunks get broken. ##### BIG LOGIC BUG, uhoh @@@@@@
-##            # can we use _rail_end_atom_to_ladder? i guess so, it got set by last updater run... ladder is still valid... ###DOIT
+##            # can we use rail_end_atom_to_ladder? i guess so, it got set by last updater run... ladder is still valid... ###DOIT
 ##        assert next_chunk
 ##        next_ladder = next_chunk.ladder
-##        next_ladder = _rail_end_atom_to_ladder(next_atom) # IMPORT - nevermind, see below
+##        next_ladder = rail_end_atom_to_ladder(next_atom) # IMPORT - nevermind, see below
 ##        assert next_ladder #k redundant?
         # now scan through whichrail and whichend until we find next_atom... what about len==1 case??
         # ah, in that case use new rail's neighbor_baseatoms to find our own... or can we use wholechain for all this? ###DECIDE
