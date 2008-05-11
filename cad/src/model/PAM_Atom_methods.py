@@ -12,6 +12,7 @@ in which these methods had been written
 TODO:
 
 fix the import cycle with chem.py due to _changed_otherwise_Atoms and atKey
+[perhaps fixed as of 080510? at least we no longer import those from chem.]
 
 REVIEW whether any of these methods are sometimes called on non-PAM atoms,
 always doing nothing or returning a null value, e.g. getDnaBaseName.
@@ -735,7 +736,8 @@ class PAM_Atom_methods:
 
         if self._dnaBaseName != dnaBaseName:
             self._dnaBaseName = dnaBaseName
-            from model.chem import _changed_otherwise_Atoms # import cycle, would fail if at toplevel; fix sometime
+            ## from model.chem import _changed_otherwise_Atoms # import cycle, would fail if at toplevel; fix sometime
+            from model.global_model_changedicts import _changed_otherwise_Atoms # not yet known whether this is still an import cycle
             _changed_otherwise_Atoms[self.key] = self #bruce 080319
             # todo: in certain display styles, self.molecule.changeapp(0)
             self.changed() # bruce 080319

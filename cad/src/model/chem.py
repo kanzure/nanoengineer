@@ -280,19 +280,23 @@ register_undo_updater( _undo_update_Atom_jigs,
 
 # ==
 
+# changedicts for class Atom, used by Undo and by dna updater
+# [definitions moved from this file to global_model_changedicts.py, bruce 080510]
+
 # These global dicts all map atom.key -> atom, for atoms which change in various ways (different for each dict).
 # The dicts themselves (as opposed to their contents) never change (so other modules can permanently import them),
 # but they are periodically processed and cleared.
 # For efficiency, they're global and not weak-valued,
 # so it's important to delete items from them when destroying atoms
-# (which is itself nim, or calls to it are; destroying assy needs to do that ### TODO). 
-# (There's no need yet to use try/except to support reloads of this module by not replacing these dicts then.)
+# (which is itself nim, or calls to it are; destroying assy needs to do that ### TODO).
 
+# obsolete comment:
 # ###@@@ Note: These are not yet looked at, but the code to add atoms into them is supposedly completed circa bruce 060322.
 # update 071106: some of them are looked at (and have been since Undo worked), but maybe not all of them.
 
 
-_changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
+from model.global_model_changedicts import _changed_parent_Atoms
+    # record atoms w/ changed assy or molecule or liveness/killedness
     # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
     # related attributes: __killed, molecule ###@@@ declare these??
     # not yet sure if that should be per-attr or not, re subclasses...
@@ -306,8 +310,10 @@ register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed'
     #  is not yet used.)
 
 
-_changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set, bond direction (not bond order #k)
-    # WARNING: there is also a related but different global dict in global_model_changedicts.py,
+from model.global_model_changedicts import _changed_structure_Atoms
+    # tracks changes to element, atomtype, bond set, bond direction (not bond order #k)
+    # WARNING: there is also a related but different global dict
+    # earlier than this one in the same file (global_model_changedicts.py),
     # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore,
     # namely, changed_structure_atoms.
     #
@@ -326,28 +332,31 @@ _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set, b
 register_changedict( _changed_structure_Atoms, '_changed_structure_Atoms', ('bonds', 'element', 'atomtype', 'info', 'jigs') )
 
 
-_changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
+from model.global_model_changedicts import _changed_posn_Atoms
+    # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
     # related attributes: _posn
 
 register_changedict( _changed_posn_Atoms, '_changed_posn_Atoms', ('_posn',) )
 
 
-_changed_picked_Atoms = {} # tracks changes to atom.picked (for live or dead atoms)
+from model.global_model_changedicts import _changed_picked_Atoms
+    # tracks changes to atom.picked (for live or dead atoms)
     # (not to _pick_time etc, we don't cover that in Undo)
     # related attributes: picked
-    # WARNING: name is private, but it's directly accessed in
-    # ops_select.py [bruce 071106 comment]
+    # WARNING: name is private, but it's directly accessed in ops_select.py
 
 register_changedict( _changed_picked_Atoms, '_changed_picked_Atoms', ('picked',) )
 
 
-_changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display style, dnaBaseName)
+from model.global_model_changedicts import _changed_otherwise_Atoms
+    # tracks all other model changes to Atoms (display style, dnaBaseName)
     # related attributes: display, _dnaBaseName
 
 register_changedict( _changed_otherwise_Atoms, '_changed_otherwise_Atoms', ('display', '_dnaBaseName') )
 
 
-# Notes (design scratch): for which Atom attrs is the value mutable in practice? bonds, jigs, maybe _posn (probably not).
+# Notes (design scratch):
+# for which Atom attrs is the attr value mutable in practice? bonds, jigs, maybe _posn (probably not).
 # the rest could be handled by a setter in a new-style class, or by AtomBase
 # and i wonder if it's simpler to just have one dict for all attrs... certainly it's simpler, so is it ok?
 # The reason we have multiple dicts is so undo diff scanning is faster when (e.g.) lots of atoms change in _posn

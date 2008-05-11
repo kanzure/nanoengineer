@@ -13,7 +13,8 @@ from utilities import debug_flags
 from foundation.changedicts import refreshing_changedict_subscription
 from foundation.changedicts import _cdproc_for_dictid # but it's private!
 
-from model.chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're private! refactor sometime
+from model.global_model_changedicts import _changed_structure_Atoms # todo: rename to be non-private
+from model.global_model_changedicts import _changed_parent_Atoms
 
 from utilities.debug import print_compact_stack
 

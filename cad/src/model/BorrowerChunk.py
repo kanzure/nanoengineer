@@ -25,7 +25,7 @@ from utilities.debug import register_debug_menu_command
 
 from model.chunk import Chunk
 
-import model.chem as chem
+from model.global_model_changedicts import _changed_parent_Atoms
 
 import foundation.env as env
 
@@ -117,7 +117,7 @@ class BorrowerChunk(Chunk):
             harmedmols[id(mol)] = mol
             # inline part of mol.delatom(atom):
             #e do this later: mol.invalidate_atom_lists()
-            chem._changed_parent_Atoms[key] = atom
+            _changed_parent_Atoms[key] = atom
             del mol.atoms[key] # callers can check for KeyError, always an error
             # don't do this (but i don't think it prevents all harm from stealing all mol's atoms):
             ## if not mol.atoms:
@@ -170,7 +170,7 @@ class BorrowerChunk(Chunk):
         #e this has bugs if we added atoms to self -- that's not supported (#e could override addatom to support it)
         origmols = self.origmols
         for key, atom in self.atoms.iteritems():
-            chem._changed_parent_Atoms[key] = atom
+            _changed_parent_Atoms[key] = atom
             origmol = origmols[key]
             atom.molecule = origmol
             atom.index = -1 # illegal value

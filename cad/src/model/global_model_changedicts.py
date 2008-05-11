@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 global_model_changedicts.py - global changedicts needed by master_model_updater
 or the specific update functions it calls. These are public for access
@@ -8,7 +8,7 @@ low-level model-modification code.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -50,9 +50,32 @@ split into itself and master_model_updater.py).
 # (changing an atom's bond type does *not* itself update this dict -- see changed_bond_types for that)
 
 changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
-    # WARNING: there is also a related but different global dict in chem.py,
+    # WARNING: there is also a related but different global dict lower down in this file,
     # whose spelling differs only in 'A' vs 'a' in Atoms, and initial '_'.
     # See the comment there for more info. [bruce 060322]
+
+# ==
+
+# changedicts for class Atom, used by Undo and by dna updater
+# [moved from chem.py (near class Atom) to this file, bruce 080510;
+#  for comments and registrations, see chem.py]
+
+# TODO: rename these to not appear to be private. They're all used in chem.py,
+# and several of them are used in other files.
+
+_changed_parent_Atoms = {}
+
+_changed_structure_Atoms = {}
+    # WARNING: there is also a related but different global dict earlier in this file,
+    # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore,
+    # namely, changed_structure_atoms. For more info, see the comment under the import
+    # of this dict in chem.py.
+
+_changed_posn_Atoms = {}
+
+_changed_picked_Atoms = {}
+
+_changed_otherwise_Atoms = {}
 
 # ==
 

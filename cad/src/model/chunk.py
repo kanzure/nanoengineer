@@ -66,9 +66,10 @@ from OpenGL.GL import glPushName
 
 # chunk and chem formed a two element import cycle -- as of 080508 that's fixed,
 # but they are still both part of larger cycles involving the dna package.
-# (chem is used here only for class Atom and one global changedict,
-#  as of before 071113)
+# (chem is used here only for class Atom, as of 080510)
 import model.chem as chem
+
+from model.global_model_changedicts import _changed_parent_Atoms
 
 from geometry.VQT import V, Q, A, vlen
 
@@ -1261,7 +1262,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 ##        if atm._f_assy is not self.assy:
 ##            atm._f_set_assy(self.assy)
         atm.molecule = self
-        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         atm.index = -1 # illegal value
         # make Chunk self have atom
         self.atoms[atm.key] = atm
@@ -1275,7 +1276,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         (it can do invalidate_atom_lists once, for many calls of this)
         """
         atm.molecule = self
-        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         self.atoms[atm.key] = atm
         return
 
@@ -1304,7 +1305,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # this newer method might or might not have that problem
             _nullMol = _make_nullMol()
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
-        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
+        _changed_parent_Atoms[atm.key] = atm #bruce 060322
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
 
@@ -4055,7 +4056,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # should be a method in atom:
             atm.index = -1
             atm.molecule = self
-            chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
+            _changed_parent_Atoms[atm.key] = atm #bruce 060322
             #bruce 050516: changing atm.molecule is now enough in itself
             # to invalidate atm's bonds, since their validity now depends on
             # a counter stored in (and unique to) atm.molecule having

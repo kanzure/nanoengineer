@@ -19,7 +19,7 @@ as of 080414.
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from utilities.constants import diINVISIBLE, diDEFAULT
 from model.jigs import Jig
-from model.chem import _changed_picked_Atoms
+from model.global_model_changedicts import _changed_picked_Atoms
 from model.chunk import Chunk
 from model.elements import Singlet
 from geometry.VQT import V, A, norm, cross
