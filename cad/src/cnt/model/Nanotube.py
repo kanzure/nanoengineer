@@ -1,22 +1,21 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Nanotube.py -- Nanotube generator helper classes, based on empirical data.
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 Mark 2008-03-09:
-- Created.
+- Created (incorporating some code from Will's older file NanotubeGenerator.py).
 """
 
 import foundation.env as env
-import os
 
 from math import sin, cos, pi
-from math import atan2, asin
+from math import atan2
 from Numeric import dot, argmax, argmin, sqrt
 
 from model.chem import Atom
@@ -24,17 +23,11 @@ from model.bonds import bond_atoms
 from model.bond_constants import V_GRAPHITE, V_SINGLE
 from model.bond_constants import atoms_are_bonded
 
-from utilities.Log import orangemsg, greenmsg
+from utilities.Log import greenmsg
 from utilities.debug import Stopwatch
-from utilities.debug import print_compact_traceback
 
-from platform.PlatformDependent import find_plugin_dir
-from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen, norm
 from geometry.geometryUtilities import matrix_putting_axis_at_z
-from commands.Fuse.fusechunksMode import fusechunksBase
-from command_support.GeneratorBaseClass import PluginBug
-from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 from model.chunk import Chunk
 from model.elements import PeriodicTable
 
@@ -45,9 +38,10 @@ ntEndings = ["Hydrogen", "None"] # "Capped" NIY. "Nitrogen" removed. --mark
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 sqrt3 = 3 ** 0.5
 
-basepath_ok, basepath = find_plugin_dir("Nanotube")
-if not basepath_ok:
-    env.history.message(orangemsg("The cad/plugins/Nanotube directory is missing."))
+# no longer used:
+##basepath_ok, basepath = find_plugin_dir("Nanotube")
+##if not basepath_ok:
+##    env.history.message(orangemsg("The cad/plugins/Nanotube directory is missing."))
 
 class Nanotube:
     """
