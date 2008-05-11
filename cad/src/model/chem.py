@@ -92,7 +92,14 @@ from foundation.changedicts import register_changedict, register_class_changedic
 from utilities.Printing import Vector3ToString
 from utilities.Log import orangemsg, redmsg, greenmsg
 
-from utilities.constants import genKey
+from utilities.constants import atKey
+    # generator for atom.key attribute, also used for fake atoms.
+    # [moved from here to constants.py to remove import cycle, bruce 080510]
+    # As of bruce 050228, we now make use of the fact that this produces keys
+    # which sort in the same order as atoms are created (e.g. the order they're
+    # read from an mmp file), so we now require this in the future even if the
+    # key type is changed. [Note: this comment appears in two files.]
+
 from utilities.constants import gensym
 
 from utilities.constants import diDEFAULT
@@ -167,12 +174,6 @@ from model.PAM_Atom_methods import PAM_Atom_methods
 debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
 
 BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
-
-atKey = genKey(start = 1) # generator for atom.key attribute.
-    # As of bruce 050228, we now make use of the fact that this produces keys
-    # which sort in the same order as atoms are created (e.g. the order they're
-    # read from an mmp file), so we now require this in the future even if the
-    # key type is changed.
 
 # ==
 

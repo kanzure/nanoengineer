@@ -81,7 +81,8 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 
 def noop(*args,**kws): pass
 
-def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py, added start arg
+def genKey(start = 1):
+    #bruce 050922 moved this here from chem.py and Utility.py, added start arg
     """
     produces generators that count indefinitely
     """
@@ -90,6 +91,14 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
         yield i
         i += 1
     pass
+
+atKey = genKey(start = 1)
+    # generator for atom.key attribute, also used for fake atoms.
+    # [moved here from chem.py to remove import cycle, bruce 080510]
+    # As of bruce 050228, we now make use of the fact that this produces keys
+    # which sort in the same order as atoms are created (e.g. the order they're
+    # read from an mmp file), so we now require this in the future even if the
+    # key type is changed. [Note: this comment appears in two files.]
 
 # ==
 

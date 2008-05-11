@@ -11,9 +11,6 @@ in which these methods had been written
 
 TODO:
 
-fix the import cycle with chem.py due to _changed_otherwise_Atoms and atKey
-[perhaps fixed as of 080510? at least we no longer import those from chem.]
-
 REVIEW whether any of these methods are sometimes called on non-PAM atoms,
 always doing nothing or returning a null value, e.g. getDnaBaseName.
 

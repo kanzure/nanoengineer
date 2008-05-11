@@ -7,6 +7,10 @@ pam_conversion_mmp.py -- help dna model objects convert between PAM models durin
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
+# Note: this file is indirectly imported by chem.py via PAM_Atom_methods,
+# so its imports need to be kept fairly clean to avoid import cycles.
+# [bruce 080510 comment]
+
 from utilities.GlobalPreferences import dna_updater_is_enabled
 
 from utilities.constants import PAM_MODELS
@@ -14,6 +18,9 @@ from utilities.constants import MODEL_PAM3, MODEL_PAM5
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
 
 from utilities.constants import diDEFAULT
+
+from utilities.constants import average_value
+from utilities.constants import atKey
 
 import foundation.env as env
 from utilities.Log import orangemsg, redmsg
@@ -298,7 +305,6 @@ class Fake_Pl(object): #bruce 080327
         # usually (or always?) this is (- Pl_STICKY_BOND_DIRECTION)
     
     def __init__(self, owning_Ss_atom, bond_direction):
-        from model.chem import atKey # bad: helps cause import cycle with chem ###FIX
         self.key = atKey.next()
         self.owning_Ss_atom = owning_Ss_atom
             # reference cycle -- either destroy self when atom is destroyed,
@@ -308,7 +314,7 @@ class Fake_Pl(object): #bruce 080327
 
     def posn(self): # stub - average posn of Ss neighbors (plus offset in case only one!)
         print "should use Pl_pos_from_neighbor_PAM3plus5_data for %r" % self #####
-        from utilities.constants import average_value # seems to work here
+        # note: average_value seems to work here
         res = average_value( [n.posn() for n in self.neighbors()], V(0, 0, 0) )
         return res + V(0, 2, 0) # offset (kluge, wrong)
     

@@ -99,8 +99,8 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                       "rare bug due to that nonuniqueness.)" #bruce 080229
             bdkey = 'stub' # NIM
             self.key = bdkey.next() # FIX: Undefined variable 'bdkey'.
-                # This bdkey should be distinct from the atKey in chem.py, i think
-                # (and thus needs a different name, and no import of chem).
+                # This bdkey should be distinct from the atKey used by class Atom, i think
+                # (and thus needs a different name, and no import atKey).
                 # But first I need to see how it's used...
                 # maybe the (experimental) C code assumes all atom & bond keys
                 # are distinct in a single namespace.
