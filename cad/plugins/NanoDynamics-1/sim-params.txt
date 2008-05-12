@@ -392,56 +392,60 @@ pattern PAM5:5-Ss-Pl-3_ks              1.0
 # 6  3.424
 # 7  6.435
 
+#                upper ends            lower ends
+#      K (N/m)   X1 (nm)  Y1 (nm)      X2 (nm)  Y2 (nm)
+# 1  1.69474    0.17941  0.53496     -0.22256  0.35814
+# 2  1.69474   -0.22256 -0.35814      0.17941 -0.53496
+# 3  0.94669    0.33045 -0.24420      0.46175  0.16547
+# 4  0.94669    0.46175 -0.16547      0.33045  0.24420
+# 5  1.04685   -0.05386  0.42674     -0.05386 -0.42674
+# 6  0.57124   -0.20685  0.12986     -0.20685 -0.12986
+# 7  0.38792   -0.47384  0.09686     -0.47384 -0.09686
 
-pattern PAM5-Stack:vDa1-p             -0.284437
-pattern PAM5-Stack:vDa1-q              0.710930
+pattern PAM5:basis-x_o         0.4996
+pattern PAM5:basis-x_g         0.75075
+pattern PAM5:basis-y_m         0.53745
 
-pattern PAM5-Stack:vDb1-p              0.814144
-pattern PAM5-Stack:vDb1-q              0.147775
 
-pattern PAM5-Stack:vDa2-p              0.814144
-pattern PAM5-Stack:vDa2-q              0.147775
+pattern PAM5-Stack:vDa1-x      0.17941
+pattern PAM5-Stack:vDa1-y      0.53496
+pattern PAM5-Stack:vDb1-x     -0.22256
+pattern PAM5-Stack:vDb1-y      0.35814
 
-pattern PAM5-Stack:vDb2-p             -0.284437
-pattern PAM5-Stack:vDb2-q              0.710930
+pattern PAM5-Stack:vDa2-x     -0.22256
+pattern PAM5-Stack:vDa2-y     -0.35814
+pattern PAM5-Stack:vDb2-x      0.17941
+pattern PAM5-Stack:vDb2-y     -0.53496
 
-pattern PAM5-Stack:vDa3-p              0.339838
-pattern PAM5-Stack:vDa3-q             -0.114530
+pattern PAM5-Stack:vDa3-x      0.33045
+pattern PAM5-Stack:vDa3-y     -0.24420
+pattern PAM5-Stack:vDb3-x      0.46175
+pattern PAM5-Stack:vDb3-y      0.16547
 
-pattern PAM5-Stack:vDb3-p              0.179148
-pattern PAM5-Stack:vDb3-q             -0.128732
+pattern PAM5-Stack:vDa4-x      0.46175
+pattern PAM5-Stack:vDa4-y     -0.16547
+pattern PAM5-Stack:vDb4-x      0.33045
+pattern PAM5-Stack:vDb4-y      0.24420
 
-pattern PAM5-Stack:vDa4-p              0.179148
-pattern PAM5-Stack:vDa4-q             -0.128732
+pattern PAM5-Stack:vDa5-x     -0.05386
+pattern PAM5-Stack:vDa5-y      0.42674
+pattern PAM5-Stack:vDb5-x     -0.05386
+pattern PAM5-Stack:vDb5-y     -0.42674
 
-pattern PAM5-Stack:vDb4-p              0.339838
-pattern PAM5-Stack:vDb4-q             -0.114530
+pattern PAM5-Stack:vDa6-x     -0.20685
+pattern PAM5-Stack:vDa6-y      0.12986
+pattern PAM5-Stack:vDb6-x     -0.20685
+pattern PAM5-Stack:vDb6-y     -0.12986
 
-pattern PAM5-Stack:vDa5-p             -0.028400
-pattern PAM5-Stack:vDa5-q              0.765609
+pattern PAM5-Stack:vDa7-x     -0.47384
+pattern PAM5-Stack:vDa7-y      0.09686
+pattern PAM5-Stack:vDb7-x     -0.47384
+pattern PAM5-Stack:vDb7-y     -0.09686
 
-pattern PAM5-Stack:vDb5-p             -0.028400
-pattern PAM5-Stack:vDb5-q              0.765609
-
-pattern PAM5-Stack:vDa6-p              0.349685
-pattern PAM5-Stack:vDa6-q              0.591307
-
-pattern PAM5-Stack:vDb6-p              0.349685
-pattern PAM5-Stack:vDb6-q              0.591307
-
-pattern PAM5-Stack:vDa7-p              0.558201
-pattern PAM5-Stack:vDa7-q              0.738422
-
-pattern PAM5-Stack:vDb7-p              0.558201
-pattern PAM5-Stack:vDb7-q              0.738422
-
-pattern PAM5-Stack:vDa8-p              0.0
-pattern PAM5-Stack:vDa8-q              0.0
-
-pattern PAM5-Stack:vDb8-p              0.0
-pattern PAM5-Stack:vDb8-q              0.0
-
-pattern PAM5-Stack:vDn-pq              0.250
+pattern PAM5-Stack:vDa8-x      0.0
+pattern PAM5-Stack:vDa8-y      0.0
+pattern PAM5-Stack:vDb8-x      0.0
+pattern PAM5-Stack:vDb8-y      0.0
 
 #         ks       r0    de      beta    inflectionR qual quad bondName
 

@@ -341,7 +341,7 @@ matchOneTraversal(struct patternMatch *match,
     }
     if (checkForDuplicateMatch(match)) {
       traceMatch(match);
-      pattern->matchFunction(match);
+      pattern->matchFunction(match); BAIL();
       match->sequenceNumber++;
     }
     return;
@@ -419,7 +419,7 @@ matchPartToPattern(struct part *part, struct compiledPattern *pattern, int seque
 
   match = makeMatch(part, pattern, sequenceNumber);
   matchSet = hashtable_new(64);
-  matchOneTraversal(match, pattern, 0);
+  matchOneTraversal(match, pattern, 0); BAILR(sequenceNumber);
   destroyMatch(match);
   hashtable_destroy(matchSet, NULL);
   matchSet = NULL;

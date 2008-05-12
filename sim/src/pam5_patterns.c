@@ -146,6 +146,61 @@ static struct atomType *vDb_type[8];
 static struct bondStretch *stretch_5_Pl_Ss_3;
 static struct bondStretch *stretch_5_Ss_Pl_3;
 
+/*
+ The source frame is a rectalinear frame (basis vectors are
+ orthonormal).  The origin sits on the central axis of the DNA duplex,
+ at the location which would be occupied by an Ax3 pseudo-atom.
+ Positive X points towards the Gv5 major groove pseudo atom.  Positive
+ Y is orthogonal to X, in the plane of the two Ss5 pseudo atoms, and on
+ the side of the Ss5 pseudo atom which is closer to it's brother in the
+ neighboring base pair.
+
+ In the neighboring base pair, this frame would be rotated around Z
+ (based on the duplex twist), and rotated 180 degrees around X, so the
+ Z axes of the neighboring frames are anti-parallel.
+
+ The destination frame is neither orthogonal nor normalized.  The
+ origin is at the Gv5 pseudo atom.  The basis vectors will be called P
+ and Q.  Each extends from the origin to one of the Ss5 pseudo atoms in
+ the same base pair.  P in the negative Y direction, and Q in the
+ positive Y direction.
+
+   Q
+    \
+     \
+    y \
+    ox O
+      /
+     /
+    /
+   P
+
+  or, after translating the origins to be coincident:
+
+   Q
+    \  y
+     \ |
+      \|
+       O--x
+      /
+     /
+    /
+   P
+
+ x_o is the x shift of the origin
+ x_g is the negative of the x coordinate of q
+ y_m is the y coordinate of q
+ x and y are the source frame coordinates
+ *p and *q are the destination frame coordinates
+*/
+static void
+changeBasis(double x_o, double x_g, double y_m, double x, double y, double *p, double *q)
+{
+  x -= x_o;
+
+  *p = x * -0.5/x_g + y * -0.5/y_m ;
+  *q = x * -0.5/x_g + y *  0.5/y_m ;
+}
 
 static void
 init_stack_match(void)
@@ -155,28 +210,44 @@ init_stack_match(void)
   struct patternParameter *param;
   double r0;
   double ks;
+  double x_o;
+  double x_g;
+  double y_m;
+  double vDax;
+  double vDay;
+  double vDbx;
+  double vDby;
 
   if (stack_match_initialized) {
     return;
   }
+  param = getPatternParameter("PAM5:basis-x_o"); BAIL();
+  x_o = param->value;
+  param = getPatternParameter("PAM5:basis-x_g"); BAIL();
+  x_g = param->value;
+  param = getPatternParameter("PAM5:basis-y_m"); BAIL();
+  y_m = param->value;
+  
   for (i=0; i<8; i++) {
     sprintf(buf, "vDa%d", i+1);
     vDa_type[i] = getAtomTypeByName(buf);
     sprintf(buf, "vDb%d", i+1);
     vDb_type[i] = getAtomTypeByName(buf);
-
-    sprintf(buf, "PAM5-Stack:vDa%d-p", i+1);
+    
+    sprintf(buf, "PAM5-Stack:vDa%d-x", i+1);
     param = getPatternParameter(buf); BAIL();
-    vDax_p[i] = param->value;
-    sprintf(buf, "PAM5-Stack:vDa%d-q", i+1);
+    vDax = param->value;
+    sprintf(buf, "PAM5-Stack:vDa%d-y", i+1);
     param = getPatternParameter(buf); BAIL();
-    vDax_q[i] = param->value;
-    sprintf(buf, "PAM5-Stack:vDb%d-p", i+1);
+    vDay = param->value;
+    changeBasis(x_o, x_g, y_m, vDax, vDay, &vDax_p[i], &vDax_q[i]);
+    sprintf(buf, "PAM5-Stack:vDb%d-x", i+1);
     param = getPatternParameter(buf); BAIL();
-    vDbx_p[i] = param->value;
-    sprintf(buf, "PAM5-Stack:vDb%d-q", i+1);
+    vDbx = param->value;
+    sprintf(buf, "PAM5-Stack:vDb%d-y", i+1);
     param = getPatternParameter(buf); BAIL();
-    vDbx_q[i] = param->value;
+    vDby = -param->value;
+    changeBasis(x_o, x_g, y_m, vDbx, vDby, &vDbx_p[i], &vDbx_q[i]);
   }
   param = getPatternParameter("PAM5:5-Pl-Ss-3_r0"); BAIL();
   r0 = param->value; // pm
@@ -201,7 +272,7 @@ pam5_basepair_match(struct patternMatch *match)
   struct bond *bond;
 
   pam5_requires_gromacs(match->p); BAIL();
-  init_stack_match();
+  init_stack_match(); BAIL();
   bond = makeBond(match->p, aS1, aS2, '1');
   queueBond(match->p, bond);
   trace_makeBond(match, bond);
@@ -223,7 +294,7 @@ pam5_stack_match(struct patternMatch *match)
   int i;
   
   pam5_requires_gromacs(match->p); BAIL();
-  init_stack_match();
+  init_stack_match(); BAIL();
   
   // S1a    S2b
   //  |      |
@@ -273,7 +344,7 @@ pam5_phosphate_sugar_match(struct patternMatch *match)
   int reverse;
 
   pam5_requires_gromacs(match->p); BAIL();
-  init_stack_match();
+  init_stack_match(); BAIL();
 
   switch (b->direction) {
   case 'F':

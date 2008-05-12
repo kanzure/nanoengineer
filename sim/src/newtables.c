@@ -759,7 +759,7 @@ getPatternParameter(char *name)
   }
   fprintf(stderr, "getPatternParameter(%s): parameter not defined in sim-params.txt\n", name);
   ERROR("pattern parameter not defined in sim-params.txt");
-  return NULL;
+  RAISER("pattern parameter not defined in sim-params.txt", NULL);
 }
 
 static void
