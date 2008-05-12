@@ -183,9 +183,9 @@ from utilities.constants import bluesky
 from utilities.constants import white
 from utilities.constants import MULTIPANE_GUI
 
-from utilities.debug_prefs import Choice
-from utilities.debug_prefs import Choice_boolean_False
 from utilities.debug_prefs import debug_pref
+from utilities.debug_prefs import Choice
+from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
@@ -314,8 +314,12 @@ class GLPane_mixin_for_DisplayListChunk(object):
             # (Did I mean to put this into some other method? or into only certain uses of this method??
             # For now, do an info print, in case sometimes this does indicate an error, and since it's useful
             # for analyzing whether nested displists are behaving as expected. [bruce 070203]
-        if self.compiling_displist and debug_pref("GLPane: print nested displist compiles?", Choice_boolean_False, prefs_key = True):
-            print "debug: fyi: displist %r is compiling a call to displist %r" % (self.compiling_displist, listname)
+        if self.compiling_displist and \
+           debug_pref("GLPane: print nested displist compiles?",
+                      Choice_boolean_False,
+                      prefs_key = True):
+            print "debug: fyi: displist %r is compiling a call to displist %r" % \
+                  (self.compiling_displist, listname)
         assert listname # redundant with following?
         glCallList(listname)
         return
@@ -2873,9 +2877,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
 
         if debug_pref("GLPane: skip redraws requested only by Qt?",
-                      Choice_boolean_False,
+                      Choice_boolean_True,
+                          #bruce 080512 made this True, revised prefs_key
                       non_debug = True, #bruce 080130
-                      prefs_key = True):
+                      prefs_key = "GLPane: skip redraws requested only by Qt?"
+                     ):
 
             # if we don't think this redraw is needed,
             # skip it (but print '#' if atom_debug is set).
@@ -2897,7 +2903,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # Update, bruce 070414: so far I only found one bug this debug_pref
             # causes: MT clicks which change chunk selection don't cause redraws,
             # but need to (to show their selection wireframes). That could be
-            # easily fixed.
+            # easily fixed. [Bug no longer exists as of 080512; I don't recall
+            # why. But I have had this always on for a long time and don't
+            # recall noticing any bugs. So I'm turning it on by default, and
+            # disabling the printing of '#'; if we need it back for debugging
+            # we can add a debug_pref for it and/or for drawing redraw_counter
+            # as text in the frame. bruce 080512]
 
             if not self._needs_repaint: #bruce 050516 experiment
                 # This probably happens fairly often when Qt calls paintGL but
@@ -2913,11 +2924,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 # reasons as well (e.g. to optimize redraws in which only the
                 # selection or highlighting changes).
 
-                if debug_flags.atom_debug:
-                    sys.stdout.write("#") # indicate a repaint is being skipped
-                    sys.stdout.flush()
+                # disabling this debug print (see long comment above), bruce 080512
+                ## if debug_flags.atom_debug:
+                ##     sys.stdout.write("#") # indicate a repaint is being skipped
+                ##     sys.stdout.flush()
 
                 return # skip the following repaint
+            
             pass
 
         env.redraw_counter += 1 #bruce 050825
@@ -3593,11 +3606,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 drawer.drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
         # draw some test images related to the confirmation corner
-
-        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-
-        ccdp1 = debug_pref("Conf corner test: redraw at lower left", Choice_boolean_False, prefs_key = True)
-        ccdp2 = debug_pref("Conf corner test: redraw in-place", Choice_boolean_False, prefs_key = True) # default changed, same prefs_key
+        
+        ccdp1 = debug_pref("Conf corner test: redraw at lower left",
+                           Choice_boolean_False,
+                           prefs_key = True)
+        ccdp2 = debug_pref("Conf corner test: redraw in-place",
+                           Choice_boolean_False,
+                           prefs_key = True) # default changed, same prefs_key
 
         if ccdp1 or ccdp2:
             self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
