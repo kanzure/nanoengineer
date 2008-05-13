@@ -143,6 +143,11 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         pair sequences for the all strands in the <b>selected</b> node. 
         </p>""")
         
+    commandToolbar.displayStyleAction.setWhatsThis(
+        """<b>DNA Display</b>
+        <p>
+        Displays the DNA Display Property Manager 
+        </p>""")    
     return
 
 def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
