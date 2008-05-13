@@ -222,7 +222,8 @@ class movieMode(basicMode):
         self.exitMovieAction.setWhatsThis("Exits Movie Mode")
         self.exitMovieAction.setCheckable(True)
         self.exitMovieAction.setChecked(True)
-        self.exitMovieAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitMovieAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         subControlAreaActionList.append(self.exitMovieAction)
 
         separator = QAction(self.w)

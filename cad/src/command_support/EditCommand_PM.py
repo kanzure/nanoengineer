@@ -225,7 +225,8 @@ class EditCommand_PM(PM_Dialog):
         else:
             text = "Exit"
         self.exitEditCommandAction.setText(text)
-        self.exitEditCommandAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitEditCommandAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         self.exitEditCommandAction.setCheckable(True)
 
     def getFlyoutActionList(self): 

@@ -397,7 +397,8 @@ class extrudeMode(basicMode):
         self.exitExtrudeAction.setText("Exit Extrude")
         self.exitExtrudeAction.setCheckable(True)
         self.exitExtrudeAction.setChecked(True)
-        self.exitExtrudeAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitExtrudeAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         subControlAreaActionList.append(self.exitExtrudeAction)
 
         separator = QtGui.QAction(self.w)

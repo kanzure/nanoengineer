@@ -507,7 +507,8 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.exitMoveAction.setWhatsThis("Exits Move Mode")
         self.exitMoveAction.setCheckable(True)
         self.exitMoveAction.setChecked(True)
-        self.exitMoveAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitMoveAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         subControlAreaActionList.append(self.exitMoveAction)
 
         separator = QtGui.QAction(self.w)

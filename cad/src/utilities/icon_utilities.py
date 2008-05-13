@@ -89,9 +89,11 @@ def image_directory(): #bruce 070604
 
 def geticon(name, print_errors = True):
     """
-    Return the QIcon for the given image path name. 
+    Return the QIcon for the given image path name.
+    
     @param name: The image path name provided by the user. The path should start 
-           with 'ui/' directory inside the src directory.
+           with 'ui/' directory inside the src directory. If name is an 
+           empty string, a null icon is returned.
     @type  name: str
 
     @param print_errors: whether to report errors for missing icon files
@@ -99,13 +101,15 @@ def geticon(name, print_errors = True):
     @type print_errors: boolean
     
     @return: QIcon object for the given image path.
-    @rtype:  QIcon object. 
+    @rtype:  QIcon object.
     """
     
     root, ext = os.path.splitext(name)
+    
     if not ext:
-        if 0: # Mark 2008-05-09
-            msg = "No '.png' extension provided for [%s]." % name
+        if name: # 'name' can be an empty string. See docstring for details.
+            msg = "Warning: No '.png' extension provided for [%s]. " \
+                "\nPlease add the .png suffix to remove this warning.\n" % name
             print_compact_stack(msg)
         name = name + '.png'
     

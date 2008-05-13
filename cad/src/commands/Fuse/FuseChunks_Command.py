@@ -435,7 +435,8 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         self.exitFuseAction.setText("Exit Fuse")
         self.exitFuseAction.setCheckable(True)
         self.exitFuseAction.setChecked(True)
-        self.exitFuseAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitFuseAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         subControlAreaActionList.append(self.exitFuseAction)
 
         separator = QAction(self.w)
