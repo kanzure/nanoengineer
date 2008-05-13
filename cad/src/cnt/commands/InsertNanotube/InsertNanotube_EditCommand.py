@@ -422,31 +422,7 @@ class InsertNanotube_EditCommand(EditCommand):
             ntSegment.kill_with_contents()
             raise PluginBug("Internal error while trying to create Nanotube.")
 
-    def provideParamsForTemporaryMode(self, temporaryModeName):
-        """
-        NOTE: This needs to be a general API method. There are situations when 
-	user enters a temporary mode , does something there and returns back to
-	the previous mode he was in. He also needs to send some data from 
-	previous mode to the temporary mode .	 
-	@see: B{NanotubeLineMode}
-	@see: self.acceptParamsFromTemporaryMode 
-        """
-        assert temporaryModeName == 'NANOTUBE_LINE_MODE'
-
-        mouseClickLimit = None
-        ntRise =  self.nanotube.ntRise()
-
-        callback_cursorText = self.getCursorTextForTemporaryMode
-        callback_snapEnabled = self.isRubberbandLineSnapEnabled
-        callback_rubberbandLineDisplay = self.getDisplayStyleForNtRubberbandLine
-        
-        return (mouseClickLimit, 
-                ntRise, 
-                callback_cursorText, 
-                callback_snapEnabled, 
-                callback_rubberbandLineDisplay )
-
-    def getCursorTextForTemporaryMode(self, endPoint1, endPoint2):
+    def getCursorText(self, endPoint1, endPoint2):
         """
         This is used as a callback method in CntLine mode 
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
@@ -502,7 +478,7 @@ class InsertNanotube_EditCommand(EditCommand):
         self.jigList = self.win.assy.getSelectedJigs()
 
         self.callbackMethodForCursorTextString = \
-            self.getCursorTextForTemporaryMode
+            self.getCursorText
 
         self.callbackForSnapEnabled = self.isRubberbandLineSnapEnabled
 

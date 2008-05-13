@@ -107,8 +107,7 @@ class NanotubeLineMode(LineMode):
     @see: L{LineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs.
-    @see: InsertNanotube_EditCommand.provideParamsForTemporaryMode
-    @see: InsertNanotube_EditCommand.getCursorTextForTemporaryMode
+    @see: InsertNanotube_EditCommand.getCursorText()
     
     NOTE: [2008-01-11]
     The default NanotubeLineMode (command) part is not used as of 2008-01-11
