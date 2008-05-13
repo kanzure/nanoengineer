@@ -59,23 +59,21 @@ element 207  0  0   P5d Hp5   DNA-Pseudo-Hairpin        167.0   0.0    0.0   2  
 element 208  0  0   P5G Gv5   DNA-Pseudo-Groove         167.0   0.0    0.0   2   100   0    0   820
 element 209  0  0   P5G Gr5   DNA-Pseudo-Groove-End     167.0   0.0    0.0   2   100   0    0   820
 
-element 220  0  0   P5V vDa1  virtual-DNA-planeA-num1     0.0   0.0    0.0   1   100   0    1
-element 221  0  0   P5V vDa2  virtual-DNA-planeA-num2     0.0   0.0    0.0   1   100   0    1
-element 222  0  0   P5V vDa3  virtual-DNA-planeA-num3     0.0   0.0    0.0   1   100   0    1
-element 223  0  0   P5V vDa4  virtual-DNA-planeA-num4     0.0   0.0    0.0   1   100   0    1
-element 224  0  0   P5V vDa5  virtual-DNA-planeA-num5     0.0   0.0    0.0   1   100   0    1
-element 225  0  0   P5V vDa6  virtual-DNA-planeA-num6     0.0   0.0    0.0   1   100   0    1
-element 226  0  0   P5V vDa7  virtual-DNA-planeA-num7     0.0   0.0    0.0   1   100   0    1
-element 227  0  0   P5V vDa8  virtual-DNA-planeA-num8     0.0   0.0    0.0   1   100   0    1
+element 220  0  0   P5V vDa1  virtual-DNA-planeA-1        0.0   0.0    0.0   1   100   0    1
+element 221  0  0   P5V vDa1p virtual-DNA-planeA-1p       0.0   0.0    0.0   1   100   0    1
+element 222  0  0   P5V vDa2  virtual-DNA-planeA-2        0.0   0.0    0.0   1   100   0    1
+element 223  0  0   P5V vDa2p virtual-DNA-planeA-2p       0.0   0.0    0.0   1   100   0    1
+element 224  0  0   P5V vDa3  virtual-DNA-planeA-3        0.0   0.0    0.0   1   100   0    1
+element 225  0  0   P5V vDa4  virtual-DNA-planeA-4        0.0   0.0    0.0   1   100   0    1
+element 226  0  0   P5V vDa5  virtual-DNA-planeA-5        0.0   0.0    0.0   1   100   0    1
 
-element 230  0  0   P5V vDb1  virtual-DNA-planeB-num1     0.0   0.0    0.0   1   100   0    1
-element 231  0  0   P5V vDb2  virtual-DNA-planeB-num2     0.0   0.0    0.0   1   100   0    1
-element 232  0  0   P5V vDb3  virtual-DNA-planeB-num3     0.0   0.0    0.0   1   100   0    1
-element 233  0  0   P5V vDb4  virtual-DNA-planeB-num4     0.0   0.0    0.0   1   100   0    1
-element 234  0  0   P5V vDb5  virtual-DNA-planeB-num5     0.0   0.0    0.0   1   100   0    1
-element 235  0  0   P5V vDb6  virtual-DNA-planeB-num6     0.0   0.0    0.0   1   100   0    1
-element 236  0  0   P5V vDb7  virtual-DNA-planeB-num7     0.0   0.0    0.0   1   100   0    1
-element 237  0  0   P5V vDb8  virtual-DNA-planeB-num8     0.0   0.0    0.0   1   100   0    1
+element 230  0  0   P5V vDb1  virtual-DNA-planeB-1        0.0   0.0    0.0   1   100   0    1
+element 231  0  0   P5V vDb1p virtual-DNA-planeB-1p       0.0   0.0    0.0   1   100   0    1
+element 232  0  0   P5V vDb2  virtual-DNA-planeB-2        0.0   0.0    0.0   1   100   0    1
+element 233  0  0   P5V vDb2p virtual-DNA-planeB-2p       0.0   0.0    0.0   1   100   0    1
+element 234  0  0   P5V vDb3  virtual-DNA-planeB-3        0.0   0.0    0.0   1   100   0    1
+element 235  0  0   P5V vDb4  virtual-DNA-planeB-4        0.0   0.0    0.0   1   100   0    1
+element 236  0  0   P5V vDb5  virtual-DNA-planeB-5        0.0   0.0    0.0   1   100   0    1
 
 element 240  0  0   P5V vDn   virtual-DNA-non-bonded      0.0   0.0    0.0   0   100   0    1
 
@@ -359,104 +357,21 @@ pattern PAM5:5-Ss-Pl-3_ks              1.0
 # vectors labeled P and Q, corrosponding to the Ss at the tip of that
 # vector (the Ax is the tail for both).
 
-# The current PAM5 implementation (as of 2008/01/31) uses seven
-# struts.  These are illustrated by the file PAM5-struts.mmp in this
-# directory (plugins/NanoDynamics-1).  Referring to that diagram, the
-# struts are numbered as follows:
-
-# 1 and 7 are the longer of the pairs near the phosphates
-# 2 and 6 are the shorter of the pairs near the phosphates
-# 3 is along the axis
-# 4 is the longer of the pair past the major groove
-# 5 is the shorter of the pair past the major groove
-
-# Struts 1 and 2 are on the positive Y side.
-
-# The struts have the following stiffnesses and lengths:
-
-# # stiffness (N/m)
-# 1 1.6810
-# 2 1.0739
-# 3 1.7007
-# 4 0.4509
-# 5 0.2787
-# 6 1.0739
-# 7 1.6810
-
-# # length (Angstroms)
-# 1  6.435
-# 2  3.424
-# 3  3.366
-# 4 10.326
-# 5  3.938
-# 6  3.424
-# 7  6.435
-
-#                upper ends            lower ends
-#      K (N/m)   X1 (nm)  Y1 (nm)      X2 (nm)  Y2 (nm)
-# 1  1.69474    0.17941  0.53496     -0.22256  0.35814
-# 2  1.69474   -0.22256 -0.35814      0.17941 -0.53496
-# 3  0.94669    0.33045 -0.24420      0.46175  0.16547
-# 4  0.94669    0.46175 -0.16547      0.33045  0.24420
-# 5  1.04685   -0.05386  0.42674     -0.05386 -0.42674
-# 6  0.57124   -0.20685  0.12986     -0.20685 -0.12986
-# 7  0.38792   -0.47384  0.09686     -0.47384 -0.09686
-
 pattern PAM5:basis-x_o         0.4996
 pattern PAM5:basis-x_g         0.75075
 pattern PAM5:basis-y_m         0.53745
 
-
-pattern PAM5-Stack:vDa1-x      0.17941
-pattern PAM5-Stack:vDa1-y      0.53496
-pattern PAM5-Stack:vDb1-x     -0.22256
-pattern PAM5-Stack:vDb1-y      0.35814
-
-pattern PAM5-Stack:vDa2-x     -0.22256
-pattern PAM5-Stack:vDa2-y     -0.35814
-pattern PAM5-Stack:vDb2-x      0.17941
-pattern PAM5-Stack:vDb2-y     -0.53496
-
-pattern PAM5-Stack:vDa3-x      0.33045
-pattern PAM5-Stack:vDa3-y     -0.24420
-pattern PAM5-Stack:vDb3-x      0.46175
-pattern PAM5-Stack:vDb3-y      0.16547
-
-pattern PAM5-Stack:vDa4-x      0.46175
-pattern PAM5-Stack:vDa4-y     -0.16547
-pattern PAM5-Stack:vDb4-x      0.33045
-pattern PAM5-Stack:vDb4-y      0.24420
-
-pattern PAM5-Stack:vDa5-x     -0.05386
-pattern PAM5-Stack:vDa5-y      0.42674
-pattern PAM5-Stack:vDb5-x     -0.05386
-pattern PAM5-Stack:vDb5-y     -0.42674
-
-pattern PAM5-Stack:vDa6-x     -0.20685
-pattern PAM5-Stack:vDa6-y      0.12986
-pattern PAM5-Stack:vDb6-x     -0.20685
-pattern PAM5-Stack:vDb6-y     -0.12986
-
-pattern PAM5-Stack:vDa7-x     -0.47384
-pattern PAM5-Stack:vDa7-y      0.09686
-pattern PAM5-Stack:vDb7-x     -0.47384
-pattern PAM5-Stack:vDb7-y     -0.09686
-
-pattern PAM5-Stack:vDa8-x      0.0
-pattern PAM5-Stack:vDa8-y      0.0
-pattern PAM5-Stack:vDb8-x      0.0
-pattern PAM5-Stack:vDb8-y      0.0
+#                                 upper ends            lower ends
+#              Ks(N/m) r0(pm)   X1 (nm)  Y1 (nm)      X2 (nm)  Y2 (nm)
+strut PAM5-1  1.69474  381.6   0.17941  0.53496     -0.22256  0.35814
+strut PAM5-1p 1.69474  381.6  -0.22256 -0.35814      0.17941 -0.53496
+strut PAM5-2  0.94669  416.3   0.33045 -0.24420      0.46175  0.16547
+strut PAM5-2p 0.94669  416.3   0.46175 -0.16547      0.33045  0.24420
+strut PAM5-3  1.04685  834.1  -0.05386  0.42674     -0.05386 -0.42674
+strut PAM5-4  0.57124  339.8  -0.20685  0.12986     -0.20685 -0.12986
+strut PAM5-5  0.38792  324.6  -0.47384  0.09686     -0.47384 -0.09686
 
 #         ks       r0    de      beta    inflectionR qual quad bondName
-
-stretch  1.69474  381.6  1.0000   -1         -1       9    6   vDa1-1-vDb1
-stretch  1.69474  381.6  1.0000   -1         -1       9    6   vDa2-1-vDb2
-stretch  0.94669  416.3  1.0000   -1         -1       9    6   vDa3-1-vDb3
-stretch  0.94669  416.3  1.0000   -1         -1       9    6   vDa4-1-vDb4
-stretch  1.04685  834.1  1.0000   -1         -1       9    6   vDa5-1-vDb5
-stretch  0.57124  339.8  1.0000   -1         -1       9    6   vDa6-1-vDb6
-stretch  0.38792  324.6  1.0000   -1         -1       9    6   vDa7-1-vDb7
-stretch  0.00000    0.0  1.0000   -1         -1       9    6   vDa8-1-vDb8
 
 stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
 stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5

@@ -207,6 +207,7 @@ init_stack_match(void)
 {
   int i;
   char buf[256];
+  char *strutName;
   struct patternParameter *param;
   double r0;
   double ks;
@@ -228,23 +229,27 @@ init_stack_match(void)
   param = getPatternParameter("PAM5:basis-y_m"); BAIL();
   y_m = param->value;
   
-  for (i=0; i<8; i++) {
-    sprintf(buf, "vDa%d", i+1);
+  for (i=0; i<8 && i<numStruts; i++) {
+    sprintf(buf, "strut-%d", i+1);
+    param = getPatternParameter(buf); BAIL();
+    strutName = param->stringValue;
+    
+    sprintf(buf, "vDa%s", strutName);
     vDa_type[i] = getAtomTypeByName(buf);
-    sprintf(buf, "vDb%d", i+1);
+    sprintf(buf, "vDb%s", strutName);
     vDb_type[i] = getAtomTypeByName(buf);
     
-    sprintf(buf, "PAM5-Stack:vDa%d-x", i+1);
+    sprintf(buf, "PAM5-Stack:vDa%s-x", strutName);
     param = getPatternParameter(buf); BAIL();
     vDax = param->value;
-    sprintf(buf, "PAM5-Stack:vDa%d-y", i+1);
+    sprintf(buf, "PAM5-Stack:vDa%s-y", strutName);
     param = getPatternParameter(buf); BAIL();
     vDay = param->value;
     changeBasis(x_o, x_g, y_m, vDax, vDay, &vDax_p[i], &vDax_q[i]);
-    sprintf(buf, "PAM5-Stack:vDb%d-x", i+1);
+    sprintf(buf, "PAM5-Stack:vDb%s-x", strutName);
     param = getPatternParameter(buf); BAIL();
     vDbx = param->value;
-    sprintf(buf, "PAM5-Stack:vDb%d-y", i+1);
+    sprintf(buf, "PAM5-Stack:vDb%s-y", strutName);
     param = getPatternParameter(buf); BAIL();
     vDby = -param->value;
     changeBasis(x_o, x_g, y_m, vDbx, vDby, &vDbx_p[i], &vDbx_q[i]);
@@ -312,7 +317,7 @@ pam5_stack_match(struct patternMatch *match)
   // Atoms are now in canonical orientations.  The twist is such that
   // the S1a-S2a distance is greater than the S1b-S2b distance in
   // BDNA.
-  for (i=0; i<8; i++) {
+  for (i=0; i<8 && i < numStruts; i++) {
     vA = makeVirtualAtom(vDa_type[i], sp3, 3, 1,
                          aGv1, aS1a, aS1b, NULL,
                          vDax_p[i], vDax_q[i], 0.0);

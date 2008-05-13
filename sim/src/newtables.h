@@ -155,7 +155,10 @@ struct patternParameter
 {
   double value;
   double angleUnits;
+  char *stringValue;
 };
+
+extern int numStruts;
 
 extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
 

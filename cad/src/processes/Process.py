@@ -201,11 +201,13 @@ class Process(QProcess):
             err = ""
         return state + "[" + err + "]"
         
-    def wait_for_exit(self, abortHandler):
+    def wait_for_exit(self, abortHandler, pollFunction = None):
         """
-        Wait for the process to exit (sleeping by 0.05 seconds in a loop).
-        Return its exitcode.
-        Call this only after the process was successfully started using self.start() or self.launch().
+        Wait for the process to exit (sleeping by 0.05 seconds in a
+        loop).  Calls pollFunction each time around the loop if it is
+        specified.  Return its exitcode.  Call this only after the
+        process was successfully started using self.start() or
+        self.launch().
         """
         abortPressCount = 0
         while (not self.state() == QProcess.NotRunning):
@@ -220,22 +222,24 @@ class Process(QProcess):
             env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 #k is this required for us to get the slot calls for stdout / stderr ?
                 # I don't know, but we want it even if not.
+            if (pollFunction):
+                pollFunction()
             time.sleep(0.05)
         if (abortHandler):
             abortHandler.finish()
         return self.exitCode()
 
-    def getExitValue(self, abortHandler):
+    def getExitValue(self, abortHandler, pollFunction = None):
         """
         Return the exitcode, or -2 if it crashed or was terminated. Only call
         this after it exited.
         """
-        code = self.wait_for_exit(abortHandler)
+        code = self.wait_for_exit(abortHandler, pollFunction)
         if (self.exitStatus() == QProcess.NormalExit):
             return code
         return -2
 
-    def run(self, program, args = None, background = False, abortHandler = None):
+    def run(self, program, args = None, background = False, abortHandler = None, pollFunction = None):
         """
         Starts the program I{program} in a new process, passing the command 
         line arguments in I{args}.
@@ -256,6 +260,9 @@ class Process(QProcess):
         
         @param abortHandler: The abort handler.
         @type  abortHandler: L{AbortHandler}
+
+        @param pollFunction: Called once every 0.05 seconds while process is running.
+        @type  pollFunction: function.
         
         @return: 0 if the process starts successfully.
         @rtype:  int
@@ -280,7 +287,7 @@ class Process(QProcess):
                   % (self.processName, program, args)
             # Run 'program' as a child process.
             self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
-            rval = self.getExitValue(abortHandler)
+            rval = self.getExitValue(abortHandler, pollFunction)
         
         if 1:
             print "%s: started. Return val=%d" % (self.processName, rval)

@@ -738,15 +738,19 @@ destroyStaticBondTable(void)
 }
 
 static void
-addPatternParameter(char *name, double value, double angleUnits)
+addPatternParameter(char *name, double value, double angleUnits, char *stringValue)
 {
   struct patternParameter *param =
     (struct patternParameter *)allocate(sizeof(struct patternParameter));
   param->value = value;
   param->angleUnits = angleUnits;
+  param->stringValue = stringValue ? copy_string(stringValue) : NULL ;
   param = (struct patternParameter *)hashtable_put(patternParameterHashtable,
                                                    name, (void *)param);
-  free(param);
+  if (param) {
+    free(param->stringValue);
+    free(param);
+  }
 }
 
 struct patternParameter *
@@ -760,6 +764,33 @@ getPatternParameter(char *name)
   fprintf(stderr, "getPatternParameter(%s): parameter not defined in sim-params.txt\n", name);
   ERROR("pattern parameter not defined in sim-params.txt");
   RAISER("pattern parameter not defined in sim-params.txt", NULL);
+}
+
+int numStruts = 0;
+
+static void
+addStrutDefinition(char *name, double ks, double r0, double x1, double y1, double x2, double y2)
+{
+  char buf[256];
+  
+  if (!strncmp(name, "PAM5-", 5)) {
+    name += 5;
+  }
+  numStruts++;
+  sprintf(buf, "strut-%d", numStruts);
+  addPatternParameter(buf, 0.0, 0.0, name);
+
+  sprintf(buf, "PAM5-Stack:vDa%s-x", name);
+  addPatternParameter(buf, x1, 1.0, NULL);
+  sprintf(buf, "PAM5-Stack:vDa%s-y", name);
+  addPatternParameter(buf, y1, 1.0, NULL);
+  sprintf(buf, "PAM5-Stack:vDb%s-x", name);
+  addPatternParameter(buf, x2, 1.0, NULL);
+  sprintf(buf, "PAM5-Stack:vDb%s-y", name);
+  addPatternParameter(buf, y2, 1.0, NULL);
+
+  sprintf(buf, "vDa%s-1-vDb%s", name, name);
+  addInitialBondStretch(ks, r0, 1.0, -1.0, -1.0, 9, 6, buf);
 }
 
 static void
@@ -787,6 +818,10 @@ readBondTableOverlay(char *filename)
   double de;
   double beta;
   double inflectionR;
+  double x1;
+  double y1;
+  double x2;
+  double y2;
   int quality;
   int quadratic;
   double ktheta;
@@ -890,8 +925,23 @@ readBondTableOverlay(char *filename)
         if (err || name == NULL) {
           fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
         } else {
-          addPatternParameter(name, value, angleUnits);
+          addPatternParameter(name, value, angleUnits, NULL);
           DPRINT2(D_READER, "addPatternParameter: %s %f\n", name, value);
+        }
+      } else if (!strcmp(token, "strut")) {
+        err = 0;
+        name = strtok(NULL, " \n");
+        ks = tokenizeDouble(&err);
+        r0 = tokenizeDouble(&err);
+        x1 = tokenizeDouble(&err);
+        y1 = tokenizeDouble(&err);
+        x2 = tokenizeDouble(&err);
+        y2 = tokenizeDouble(&err);
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          addStrutDefinition(name, ks, r0, x1, y1, x2, y2);
+          DPRINT7(D_READER, "addStrutDefinition: %s %f %f %f %f %f %f\n", name, ks, r0, x1, y1, x2, y2);
         }
       } else {
         fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
@@ -1059,6 +1109,7 @@ initializeBondTable(void)
   if (reloadSystemOverlay || reloadUserOverlay) {
     initializeStaticBondTable();
 
+    numStruts = 0;    
     readBondTableOverlay(systemBondTableOverlayFileName);
     readBondTableOverlay(userBondTableOverlayFileName);
   }

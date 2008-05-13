@@ -298,6 +298,31 @@ class SimRunner:
         
         return True
 
+    def mdrunProcessLogLine(self, line):
+        #print "line: '%s'" % line.rstrip()
+        pass
+
+    def mdrunPollFunction(self):
+        if (not self.mdrunLogFile):
+            try:
+                logFile = open(self.mdrunLogFileName, 'rU')
+            except IOError:
+                # file hasn't been created by mdrun yet, just try
+                # again next time around.
+                return
+            self.mdrunLogFile = logFile
+            self.mdrunLogLineBuffer = ""
+        if (self.mdrunLogFile):
+            while (True):
+                line = self.mdrunLogFile.readline()
+                if (not line):
+                    return
+                self.mdrunLogLineBuffer = self.mdrunLogLineBuffer + line
+                if (self.mdrunLogLineBuffer.endswith('\n')):
+                    self.mdrunProcessLogLine(self.mdrunLogLineBuffer)
+                self.mdrunLogLineBuffer = ""
+
+
     def run_using_old_movie_obj_to_hold_sim_params(self, movie):
         self._movie = movie # general kluge for old-code compat
             # (lots of our methods still use this and modify it)
@@ -415,6 +440,10 @@ class SimRunner:
                     else:
                         if (not self.background):
                             progressBar.show()
+                            gromacsProcess.redirect_stdout_to_file("%s-mdrun-stdout.txt" %
+                                                                   gromacsFullBaseFileName)
+                            gromacsProcess.redirect_stderr_to_file("%s-mdrun-stderr.txt" %
+                                                                   gromacsFullBaseFileName)
                         trajectoryOutputFile = \
                             "%s.%s" % (gromacsFullBaseFileName, "trr")
                         
@@ -430,12 +459,14 @@ class SimRunner:
                             fullBaseFilename
                         ]
                     else:
+                        self.mdrunLogFile = None
+                        self.mdrunLogFileName = "%s-mdrun.log" % gromacsFullBaseFileName
                         mdrunArgs = [
                             "-s", "%s.tpr" % gromacsFullBaseFileName,
                             "-o", "%s" % trajectoryOutputFile,
                             "-e", "%s.edr" % gromacsFullBaseFileName,
                             "-c", "%s-out.gro" % gromacsFullBaseFileName,
-                            "-g", "%s-mdrun.log" % gromacsFullBaseFileName,
+                            "-g", self.mdrunLogFileName,
                             ]
                     if (self.hasPAM):
                         tableFile = \
@@ -462,7 +493,8 @@ class SimRunner:
                         errorCode = \
                                   gromacsProcess.run(mdrun, mdrunArgs,
                                                      self.background,
-                                                     abortHandler)
+                                                     abortHandler,
+                                                     self.mdrunPollFunction)
                     abortHandler = None
                     if (errorCode != 0):
                         msg = redmsg("GROMACS minimization failed, mdrun returned %d" % errorCode)
