@@ -141,7 +141,8 @@ class Ui_ESPImagePropDialog(object):
         self.hboxlayout3.addWidget(self.png_fname_linedit)
 
         self.choose_file_btn = QtGui.QToolButton(self.groupBox5)
-        self.choose_file_btn.setIcon(geticon("ui/actions/Properties Manager/Open"))
+        self.choose_file_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Open.png"))
         self.choose_file_btn.setObjectName("choose_file_btn")
         self.hboxlayout3.addWidget(self.choose_file_btn)
         self.gridlayout1.addLayout(self.hboxlayout3,2,0,1,1)

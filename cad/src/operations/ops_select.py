@@ -557,10 +557,10 @@ class ops_select_Mixin:
         """
         if lockState:
             self.w.selectLockAction.setIcon(
-                geticon("ui/actions/Tools/Select/Selection_Locked"))
+                geticon("ui/actions/Tools/Select/Selection_Locked.png"))
         else:
             self.w.selectLockAction.setIcon(
-                geticon("ui/actions/Tools/Select/Selection_Unlocked"))
+                geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
         
         self.o.mouse_selection_lock_enabled = lockState
         # Update the cursor and statusbar.

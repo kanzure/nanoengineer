@@ -8,7 +8,6 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QRect
 from utilities.icon_utilities import geticon
 
-
 class Ui_ViewOrientation:
     
     def setupUi(self, orientationWidget):        
@@ -26,14 +25,15 @@ class Ui_ViewOrientation:
         orientationWidget.setFloating(True)
         orientationWidget.setVisible(False)
         orientationWidget.setWindowTitle("Orientation" )
-        orientationWidget.setWindowIcon(QtGui.QIcon("ui/actions/View/Modify/Orientation"))
+        orientationWidget.setWindowIcon(
+            geticon("ui/actions/View/Modify/Orientation.png"))
         orientationWidget.setGeometry(QRect(0, 0, _width, _height))
         orientationWidget.setMaximumWidth(400)
                 
         x = max(0, win.geometry().x())
         y = max(0, win.geometry().y())
        
-        orientationWidget.move(x,y)
+        orientationWidget.move(x, y)
         
         self.orientationWindowContents = QtGui.QWidget(orientationWidget)
         
@@ -49,22 +49,23 @@ class Ui_ViewOrientation:
         self.pinOrientationWindowToolButton = QtGui.QToolButton(self.orientationWindowContents)    
         self.pinOrientationWindowToolButton.setCheckable(True)
 
-        self.pinOrientationWindowToolButton.setIcon(geticon("ui/dialogs/unpinned")) 
+        self.pinOrientationWindowToolButton.setIcon(
+            geticon("ui/dialogs/unpinned.png")) 
         hboxlayout.addWidget(self.pinOrientationWindowToolButton)
         
         self.saveNamedViewToolButton = QtGui.QToolButton(self.orientationWindowContents)    
-        self.saveNamedViewToolButton .setIcon(geticon("ui/actions/View/Modify/Save_Named_View"))  #@@ ninad 061115 dir path will be modified  
+        self.saveNamedViewToolButton.setIcon(
+            geticon("ui/actions/View/Modify/Save_Named_View.png"))  #@@ ninad 061115 dir path will be modified  
         hboxlayout.addWidget(self.saveNamedViewToolButton)
-        gridlayout.addLayout(hboxlayout, 0,0,1,1)
+        gridlayout.addLayout(hboxlayout, 0, 0, 1, 1)
         
         self.orientationViewList = QtGui.QListWidget(orientationWidget)
         self.orientationViewList.setFlow(QtGui.QListWidget.TopToBottom)
-        self.orientationViewList.setWindowIcon(QtGui.QIcon("ui/actions/View/Modify/Orientation"))
+        self.orientationViewList.setWindowIcon(
+            geticon("ui/actions/View/Modify/Orientation.png"))
                
-        gridlayout.addWidget(self.orientationViewList, 1,0,1,1)
+        gridlayout.addWidget(self.orientationViewList, 1, 0, 1, 1)
     
         orientationWidget.setWidget(self.orientationWindowContents)
         
         MainWindow.addDockWidget(Qt.BottomDockWidgetArea, orientationWidget)
-        
-        

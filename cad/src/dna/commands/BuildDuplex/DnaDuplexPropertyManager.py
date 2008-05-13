@@ -247,8 +247,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.specifyDnaLineButton = PM_ToolButton(
             pmGroupBox, 
             text = "Specify Endpoints",
-            iconPath  = "ui/actions/Properties Manager"\
-            "/Pencil.png",
+            iconPath  = "ui/actions/Properties Manager/Pencil.png",
             spanWidth = True                        
         )
         self.specifyDnaLineButton.setCheckable(True)

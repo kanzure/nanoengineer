@@ -213,48 +213,48 @@ class Ui_MoviePropertyManager(PM_Dialog):
         self.movieResetAction = QtGui.QAction(self)
         self.movieResetAction.setObjectName("movieResetAction")
         self.movieResetAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Reset"))
+            geticon("ui/actions/Properties Manager/Movie_Reset.png"))
         
         self.moviePlayRevActiveAction = QtGui.QAction(self)
         self.moviePlayRevActiveAction.setObjectName("moviePlayRevActiveAction")
         self.moviePlayRevActiveAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Play_Reverse_Active"))
+            geticon("ui/actions/Properties Manager/Movie_Play_Reverse_Active.png"))
         
         self.moviePlayRevAction = QtGui.QAction(self)
         self.moviePlayRevAction.setObjectName("moviePlayRevAction")
         self.moviePlayRevAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Play_Reverse"))
+            geticon("ui/actions/Properties Manager/Movie_Play_Reverse.png"))
         
         self.moviePauseAction = QtGui.QAction(self)
         self.moviePauseAction.setObjectName("moviePauseAction")
         self.moviePauseAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Pause"))
+            geticon("ui/actions/Properties Manager/Movie_Pause.png"))
         
         self.moviePlayAction = QtGui.QAction(self)
         self.moviePlayAction.setObjectName("moviePlayAction")
         self.moviePlayAction.setVisible(True)
         self.moviePlayAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Play_Forward"))
+            geticon("ui/actions/Properties Manager/Movie_Play_Forward.png"))
         
         self.moviePlayActiveAction = QtGui.QAction(self)
         self.moviePlayActiveAction.setObjectName("moviePlayActiveAction")
         self.moviePlayActiveAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Play_Forward_Active"))
+            geticon("ui/actions/Properties Manager/Movie_Play_Forward_Active.png"))
         
         self.movieMoveToEndAction = QtGui.QAction(self)
         self.movieMoveToEndAction.setObjectName("movieMoveToEndAction")
         self.movieMoveToEndAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Move_To_End"))
+            geticon("ui/actions/Properties Manager/Movie_Move_To_End.png"))
         
         self.fileOpenMovieAction = QtGui.QAction(self)
         self.fileOpenMovieAction.setObjectName("fileOpenMovieAction")
         self.fileOpenMovieAction.setIcon(
-            geticon("ui/actions/Properties Manager/Open"))
+            geticon("ui/actions/Properties Manager/Open.png"))
         
         self.fileSaveMovieAction = QtGui.QAction(self)
         self.fileSaveMovieAction.setObjectName("fileSaveMovieAction")
         self.fileSaveMovieAction.setIcon(
-            geticon("ui/actions/Properties Manager/Save"))
+            geticon("ui/actions/Properties Manager/Save.png"))
         
         self.fileSaveMovieAction.setText(
             QtGui.QApplication.translate("MainWindow", 
@@ -272,7 +272,7 @@ class Ui_MoviePropertyManager(PM_Dialog):
         self.movieInfoAction = QtGui.QAction(self)
         self.movieInfoAction.setObjectName("movieInfoAction")
         self.movieInfoAction.setIcon(
-            geticon("ui/actions/Properties Manager/Movie_Info"))
+            geticon("ui/actions/Properties Manager/Movie_Info.png"))
 
 
             

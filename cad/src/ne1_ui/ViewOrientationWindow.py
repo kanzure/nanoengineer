@@ -57,7 +57,8 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         
         for item in self.namedViewList:
             itemNamedView = QtGui.QListWidgetItem(item.name, self.orientationViewList)
-            itemNamedView.setIcon(geticon("ui/modeltree/csys"))
+            itemNamedView.setIcon(
+                geticon("ui/modeltree/csys.png"))
             win.namedViewMethodDict[itemNamedView] = item.change_view
             
         self.lastViewList = self.namedViewList       
@@ -151,7 +152,8 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         
         for item in self.namedViewList:
             itemNamedView = QtGui.QListWidgetItem(item.name, self.orientationViewList)
-            itemNamedView.setIcon(geticon("ui/modeltree/csys"))
+            itemNamedView.setIcon(
+                geticon("ui/modeltree/csys.png"))
             win.namedViewMethodDict[itemNamedView] = item.change_view
             
         self.lastViewList = self.namedViewList
@@ -193,9 +195,11 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         Change the icon of the Pinned button
         """
         if self.pinOrientationWindowToolButton.isChecked():
-            self.pinOrientationWindowToolButton.setIcon(geticon("ui/dialogs/pinned")) 
+            self.pinOrientationWindowToolButton.setIcon(
+                geticon("ui/dialogs/pinned.png")) 
         else:
-            self.pinOrientationWindowToolButton.setIcon(geticon("ui/dialogs/unpinned")) 
+            self.pinOrientationWindowToolButton.setIcon(
+                geticon("ui/dialogs/unpinned.png")) 
             
     def getLastNamedViewList(self, list):
         self.lastNamedViewList = list
