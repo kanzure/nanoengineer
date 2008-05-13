@@ -170,16 +170,17 @@ _MIN_ALL, _LOCAL_MIN, _MIN_SEL = range(3) # internal codes for minimize command 
 
 class Minimize_CommandRun(CommandRun):
     """
-    Class for single runs of the Minimize Selection or Minimize All commands
-    (which one is determined by an __init__ arg, stored in self.args by superclass);
-    create it when the command is invoked, to prep to run the command once;
-    then call self.run() to actually run it.
+    Class for single runs of the commands Minimize Selection, Minimize All,
+    Adjust Selection, or Adjust All (which one is determined by one or more
+    __init__ args, stored in self.args by superclass);
+    client code should create an instance when the command is invoked, to
+    prepare to run the command once; then call self.run() to actually run it.
     [#e A future code cleanup might split this into a Minimize superclass
      and separate subclasses for 'All' vs 'Sel' -- or it might not.]
     """
     def run(self):
         """
-        Minimize the Selection or the current Part
+        Minimize (or Adjust) the Selection or the current Part
         """
         #bruce 050324 made this method from the body of MWsemantics.modifyMinimize
         # and cleaned it up a bit in terms of how it finds the movie to use.
@@ -193,7 +194,7 @@ class Minimize_CommandRun(CommandRun):
         #bruce 051129 revising this to clarify it, though command-specific subclasses would be better
         assert len(self.args) >= 1
         cmd_subclass_code = self.args[0]
-        cmd_type = self.kws.get('type','Minimize')
+        cmd_type = self.kws.get('type', 'Minimize')
             # one of 'Minimize' or 'Adjust' or 'Adjust Atoms'; determines conv criteria, name [bruce 060705]
         self.cmd_type = cmd_type # kluge, see comment where used
 
@@ -211,21 +212,34 @@ class Minimize_CommandRun(CommandRun):
             self.useGromacs = False
             self.background = False
 
-        assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
+        assert cmd_subclass_code in ['All', 'Sel', 'Atoms'] #e and len(args) matches that?
 
         # These words and phrases are used in history messages and other UI text;
         # they should be changed by specific commands as needed.
         # See also some computed words and phrases, e.g. self.word_Minimize,
         # below the per-command if stamements. [bruce 060705]
-        if cmd_type.startswith('Adjust'):            
+        # Also set flags for other behavior which differs between these commands.
+        if cmd_type.startswith('Adjust'):
+
             self.word_minimize = "adjust"
             self.word_minimization = "adjustment"
             self.word_minimizing = "adjusting"
+            
+            anchor_all_nonmoving_atoms = False
+            pass
+        
         else:
+
             assert cmd_type.startswith('Minimize')
             self.word_minimize = "minimize"
             self.word_minimization = "minimization"
             self.word_minimizing = "minimizing"
+            
+            anchor_all_nonmoving_atoms = True
+                #bruce 080513 revision to implement nfr bug 2848 item 2
+                # (note: we might decide to add a checkbox for this into the UI,
+                #  and just change its default value for Minimize vs Adjust)
+            pass
 
         self.word_Minimize = _capitalize_first_word( self.word_minimize)
         self.word_Minimizing = _capitalize_first_word( self.word_minimizing)
@@ -284,6 +298,11 @@ class Minimize_CommandRun(CommandRun):
             # minimizing all the atoms, especially if the selection is small, is very
             # wasteful. Applying the simulator to atoms is expensive and we want to
             # minimize as few atoms as possible.
+            #
+            # [revision, bruce 080513: this discussion applies for Adjust,
+            #  but the policy for Minimize is being changed to always include
+            #  all atoms, even if most of them are anchored,
+            #  re nfr bug 2848 item 2.]
             #
             # A more economical approach is to anchor the atoms for two layers going
             # out from the selection. The reason for going out two layers, and not just
@@ -359,7 +378,11 @@ class Minimize_CommandRun(CommandRun):
         # Disable some QActions (menu items/toolbar buttons) during minimize.
         self.win.disable_QActions_for_sim(True)
         try:
-            simaspect = sim_aspect( self.part, selection.atomslist(), cmdname_for_messages = cmdname )
+            simaspect = sim_aspect( self.part,
+                                    selection.atomslist(),
+                                    cmdname_for_messages = cmdname,
+                                    anchor_all_nonmoving_atoms = anchor_all_nonmoving_atoms
+                                   )
                 #bruce 051129 passing cmdname
                 # note: atomslist gets atoms from selected chunks, not only selected atoms
                 # (i.e. it gets atoms whether you're in Select Atoms or Select Chunks mode)
@@ -379,10 +402,16 @@ class Minimize_CommandRun(CommandRun):
             info = fix_plurals( "(%s %d atom(s)" % (self.word_Minimizing, nmoving))
             if nfixed:
                 them_or_it = (nmoving == 1) and "it" or "them"
-                info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )
+                if anchor_all_nonmoving_atoms:
+                    msg2 = "holding remaining %d atom(s) fixed" % nfixed
+                else:
+                    msg2 = "holding %d atom(s) fixed around %s" % (nfixed, them_or_it)
+                info += ", " + fix_plurals(msg2 )
             info += ")"
             env.history.message( info) 
-            self.doMinimize(mtype = 1, simaspect = simaspect) # 1 = single-frame XYZ file. [this also sticks results back into the part]
+            self.doMinimize(mtype = 1, simaspect = simaspect)
+                # mtype = 1 means single-frame XYZ file.
+                # [this also sticks results back into the part]
             #self.doMinimize(mtype = 2) # 2 = multi-frame DPB file.
         finally:
             self.win.disable_QActions_for_sim(False)

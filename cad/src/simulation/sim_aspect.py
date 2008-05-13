@@ -94,8 +94,12 @@ class sim_aspect:
     Someday there might be other kinds, e.g. with some chunks treated
     as rigid bodies or jigs, with the sim not told about all their atoms.
     """
-    def __init__(self, part, atoms, cmdname_for_messages = "Minimize" ):
+    def __init__(self, part, atoms,
+                 cmdname_for_messages = "Minimize",
+                 anchor_all_nonmoving_atoms = False
+                ):
         #bruce 051129 passing cmdname_for_messages
+        #bruce 080513 passing anchor_all_nonmoving_atoms
         """
         atoms is a list of atoms within the part (e.g. the selected ones,
         for Minimize Selection); we copy it in case caller modifies it later.
@@ -108,16 +112,16 @@ class sim_aspect:
         starting from their current positions, with a "boundary layer" of other
         directly bonded atoms (if any) held fixed during the simulation.
         [As of 050408 this boundary will be changed from thickness 1 to thickness 2
-         and its own singlets, if any, will also be grounded rather than moving.
+         and its own singlets, if any, will also be anchored rather than moving.
          This is because we're approximating letting the entire rest of the Part
-         be grounded, and the 2nd layer of atoms will constrain bond angles on the
+         be anchored, and the 2nd layer of atoms will constrain bond angles on the
          first layer, so leaving it out would be too different from what we're
          approximating.]
         (If any given atoms have Anchor jigs, those atoms are also treated as
         boundary atoms and their own bonds are only explored to an additional depth
         of 1 (in terms of bonds) to extend the boundary.
         So if the user explicitly selects a complete boundary of Anchored atoms,
-        only their own directly bonded real atoms will be additionally grounded.)
+        only their own directly bonded real atoms will be additionally anchored.)
            All atoms not in our list or its 2-thick boundary are ignored --
         so much that our atoms might move and overlap them in space.
            We look at jigs which attach to our atoms,
@@ -149,35 +153,48 @@ class sim_aspect:
             else:
                 self._moving_atoms[atom.key] = atom
             # pretend that all singlets of selected atoms were also selected
-            # (but were not grounded, even if atom was)
+            # (but were not anchored, even if atom was)
             for sing in atom.singNeighbors():
                 self._moving_atoms[sing.key] = sing
             ### REVIEW: also include all atoms in the same PAM basepair as atom??
         del atoms
-        # now find the boundary1 of the _moving_atoms
-        for moving_atom in self._moving_atoms.values():
-            for atom2 in moving_atom.realNeighbors():
-                # (not covering singlets is just an optim, since they're already in _moving_atoms)
-                # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
-                if atom2.key not in self._moving_atoms:
-                    self._boundary1_atoms[atom2.key] = atom2 # might already be there, that's ok
-        # now find the boundary2 of the _boundary1_atoms;
-        # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
-        # no need to re-explore moving atoms since we already covered their real and singlet neighbors
-        for b1atom in self._boundary1_atoms.values():
-            for atom2 in b1atom.neighbors():
-                if (atom2.key not in self._moving_atoms) and \
-                   (atom2.key not in self._boundary1_atoms):
-                    self._boundary2_atoms[atom2.key] = atom2 # might be added more than once, that's ok
-        # now find the boundary3 of the boundary2 atoms
-        # (not just PAM atoms, since even regular atoms might need this due to torsion terms)
-        # [finding boundary3 is a bugfix, bruce 080507]
-        for b2atom in self._boundary2_atoms.values():
-            for atom3 in b2atom.neighbors():
-                if (atom3.key not in self._moving_atoms) and \
-                   (atom3.key not in self._boundary1_atoms) and \
-                   (atom3.key not in self._boundary2_atoms):
-                    self._boundary3_atoms[atom3.key] = atom3 # might be added more than once, that's ok
+        if anchor_all_nonmoving_atoms:
+            #bruce 080513 new feature:
+            # add all remaining atoms or singlets in part to _boundary1_atoms
+            # (the other boundary dicts are left empty;
+            #  they are used in later code but this causes no harm)
+            for mol in part.molecules:
+                for atom in mol.atoms.itervalues():
+                    if atom.key not in self._moving_atoms:
+                        # no need to check whether it's already in _boundary1_atoms
+                        self._boundary1_atoms[atom.key] = atom
+            pass
+        else:
+            # now find the boundary1 of the _moving_atoms
+            for moving_atom in self._moving_atoms.values():
+                for atom2 in moving_atom.realNeighbors():
+                    # (not covering singlets is just an optim, since they're already in _moving_atoms)
+                    # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
+                    if atom2.key not in self._moving_atoms:
+                        self._boundary1_atoms[atom2.key] = atom2 # might already be there, that's ok
+            # now find the boundary2 of the _boundary1_atoms;
+            # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
+            # no need to re-explore moving atoms since we already covered their real and singlet neighbors
+            for b1atom in self._boundary1_atoms.values():
+                for atom2 in b1atom.neighbors():
+                    if (atom2.key not in self._moving_atoms) and \
+                       (atom2.key not in self._boundary1_atoms):
+                        self._boundary2_atoms[atom2.key] = atom2 # might be added more than once, that's ok
+            # now find the boundary3 of the boundary2 atoms
+            # (not just PAM atoms, since even regular atoms might need this due to torsion terms)
+            # [finding boundary3 is a bugfix, bruce 080507]
+            for b2atom in self._boundary2_atoms.values():
+                for atom3 in b2atom.neighbors():
+                    if (atom3.key not in self._moving_atoms) and \
+                       (atom3.key not in self._boundary1_atoms) and \
+                       (atom3.key not in self._boundary2_atoms):
+                        self._boundary3_atoms[atom3.key] = atom3 # might be added more than once, that's ok
+            pass
 
         # remove singlets which we don't want to simulate
         # [bruce 080507 new feature, not fully implemented or tested]
@@ -269,7 +286,7 @@ class sim_aspect:
             mapping.write_header() ###e header should differ in this case
             ## node.writemmp(mapping)
             self.write_atoms(mapping)
-            self.write_grounds(mapping)
+            self.write_anchors(mapping)
             self.write_minimize_enabled_jigs(mapping)
             mapping.write("end mmp file for %s (%s)\n" % (self.cmdname_for_messages, assy.name) ) #bruce 051129 revised this
                 # sim & cad both ignore text after 'end'
@@ -288,7 +305,7 @@ class sim_aspect:
                 # therefore it will end up only writing bonds for which both atoms get written.
                 # That should be ok (within Adjust Selection) since atoms with two few bonds
                 # will be anchored. [bruce 080321 comment]
-    def write_grounds(self, mapping):
+    def write_anchors(self, mapping):
         from model.jigs import fake_Anchor_mmp_record
         atoms = self.anchored_atoms_list
         nfixed = len(atoms)
@@ -314,7 +331,7 @@ class sim_aspect:
         from model.jigs import Jig
         def func_write_jigs(nn):
             if isinstance(nn, Jig) and nn.enable_minimize:
-                #bruce 051031 comment: should we exclude the ones written by write_grounds?? doesn't matter for now. ####@@@@
+                #bruce 051031 comment: should we exclude the ones written by write_anchors?? doesn't matter for now. ####@@@@
                 if debug_sim_aspect:
                     print "The jig [", nn.name, "] was written to minimize MMP file.  It is enabled for minimize."
                 nn.writemmp(mapping)
