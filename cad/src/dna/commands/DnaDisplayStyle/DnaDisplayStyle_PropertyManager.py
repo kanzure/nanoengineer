@@ -55,6 +55,8 @@ from utilities.prefs_constants import dnaStyleBasesColor_prefs_key
 from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
 from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
+from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
+
 class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The DnaDisplayStyle_PropertyManager class provides a Property Manager 
@@ -176,6 +178,12 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.dnaStyleBasesDisplayLettersCheckBox,
             dnaStyleBasesDisplayLetters_prefs_key)
         
+        # Dna Strand labels
+        
+        change_connect( self.standLabelColorComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.change_dnaStrandLabelsDisplay )        
+            
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -208,8 +216,14 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Add the Property Manager group boxes.
         """        
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Display Options" )
+        self._pmGroupBox1 = PM_GroupBox( self, 
+                                         title = "DNA Display Style Options")
         self._loadGroupBox1( self._pmGroupBox1 )
+        self._pmGroupBox2 = PM_GroupBox( self, 
+                                         title = "DNA Display Style Favorites")
+        self._loadGroupBox2( self._pmGroupBox2 )
+        
+        self._pmGroupBox2.hide()
     
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -241,7 +255,31 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_StackedWidget( pmGroupBox,
                               self.dnaComponentComboBox,
                               widgetList )
+        
+        standLabelColorChoices = ['Hide',
+                                  'Show (in strand color)', 
+                                  'Black',
+                                  'White',
+                                  'Custom color...']
+
+        self.standLabelColorComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Strand labels:", 
+                         choices       =  standLabelColorChoices,
+                         setAsDefault  =  True)
     
+    def _loadGroupBox2(self, pmGroupBox):
+        """
+        Load widgets in group box.
+        """
+        
+        favoritesChoices = ['Default']
+
+        self.favoritesComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         choices       =  favoritesChoices,
+                         spanWidth  =  True)
+        
     def _loadAxisGroupBox(self):
         """
         Load the Axis group box.
@@ -288,7 +326,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.axisEndingStyleComboBox = \
             PM_ComboBox( axisGroupBox ,     
-                         label         =  "Ending Style:", 
+                         label         =  "Ending style:", 
                          choices       =  endingTypeChoices,
                          setAsDefault  =  True)
         
@@ -447,6 +485,37 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.nucleotidesScaleDoubleSpinBox.setValue(env.prefs[dnaStyleBasesScale_prefs_key])
         self.nucleotidesColorComboBox.setCurrentIndex(env.prefs[dnaStyleBasesColor_prefs_key])
         
+        # DNA Strand label combobox.
+        if env.prefs[dnaStrandLabelsEnabled_prefs_key]:
+            _dnaStrandColorItem = env.prefs[dnaStyleBasesColor_prefs_key] + 1
+        else:
+            _dnaStrandColorItem = 0
+        self.standLabelColorComboBox.setCurrentIndex(_dnaStrandColorItem)
+        
+    def change_dnaStrandLabelsDisplay(self, mode):
+        """
+        Changes DNA Strand labels display (and color) mode.
+
+        @param mode: The display mode:
+                    - 0 = hide all labels
+                    - 1 = show (same color as chunk)
+                    - 2 = show (black)
+                    - 3 = show (white)
+		    - 4 = show (custom color...)
+
+        @type mode: int
+        """
+        if mode == 4:
+            self.win.userPrefs.change_dnaStrandLabelsColor()
+            
+        if mode == 0:
+            #@ Fix this at the same time I (we) remove the DNA display style
+            #  prefs options from the Preferences dialog. --Mark 2008-05-13
+            self.win.userPrefs.toggle_dnaDisplayStrandLabelsGroupBox(False)
+        else:
+            self.win.userPrefs.toggle_dnaDisplayStrandLabelsGroupBox(True)
+            self.win.userPrefs.change_dnaStrandLabelsColorMode(mode - 1)
+            
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  
