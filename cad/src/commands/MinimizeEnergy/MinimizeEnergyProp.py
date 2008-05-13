@@ -1,6 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-MinimizeEnergyProp.py - the MinimizeEnergyProp class, including all methods needed by the Minimize Energy dialog.
+MinimizeEnergyProp.py - the MinimizeEnergyProp class, including all
+methods needed by the Minimize Energy dialog.
 
 @author: Mark
 @version: $Id$
@@ -115,6 +116,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         self.setup_ruc()
         self.setup_validators()
         self.seltype = 'All'
+        self.minimize_selection_enabled = True #bruce 080513
         self.sponsor_btn.setWhatsThis("""<b>NanoEngineer-1 Sponsor</b>
         <p>Click on the logo to learn more
         about this NanoEngineer-1 sponsor.</p>""")
@@ -189,12 +191,18 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         """
         # Get widget parameters, update widgets, save previous parameters (for Restore Defaults) and show dialog.
 
-        # use selection to decide if default is Sel or All
-        selection = self.win.assy.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
+        # set up default & enabled choices for Minimize Selection vs. Min All
+        # (details revised to fix nfr bug 2848, item 1, bruce 080513;
+        #  prior code used selection nonempty to determine default seltype)
+        selection = self.win.assy.selection_from_glpane()
+            # a compact rep of the currently selected subset of the Part's stuff
         if selection.nonempty():
-            self.seltype = 'Sel'
+            ## self.seltype = 'Sel'
+            self.seltype = 'All'
+            self.minimize_selection_enabled = True
         else:
             self.seltype = 'All'
+            self.minimize_selection_enabled = False
         self.update_widgets() # only the convergence criteria, for A8, plus All/Sel command from self.seltype
         self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them; only conv crit for A8
         self.show()
@@ -218,7 +226,11 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
             if self.seltype == 'All':
                 self.minimize_all_rbtn.setChecked(1)
             else:
+                # note: this case might no longer ever happen after today's
+                # change, but I'm not sure. Doesn't matter. [bruce 080513]
                 self.minimize_sel_rbtn.setChecked(1)
+            self.minimize_sel_rbtn.setEnabled( self.minimize_selection_enabled)
+            pass
 
         # WARNING: some of the following code is mostly duplicated by UserPrefs code
         self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
