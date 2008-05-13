@@ -725,8 +725,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 
         self.depositAtomsAction = QtGui.QWidgetAction(self.w)
         self.depositAtomsAction.setText("Atoms Tool")
-        self.depositAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Deposit_Atoms'))
+        self.depositAtomsAction.setIcon(
+            geticon('ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
         self.depositAtomsAction.setCheckable(True)
         self.depositAtomsAction.setChecked(True)
         self.depositAtomsAction.setWhatsThis(
@@ -738,8 +738,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 
         self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
         self.transmuteBondsAction.setText("Bonds Tool")
-        self.transmuteBondsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Bonds'))
+        self.transmuteBondsAction.setIcon(
+            geticon('ui/actions/Toolbars/Smart/Transmute_Bonds.png'))
         self.transmuteBondsAction.setCheckable(True)
         self.transmuteBondsAction.setWhatsThis(
         """<b>Bonds Tool</b>
@@ -759,7 +759,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 
         self.bond1Action = QtGui.QWidgetAction(self.w)  
         self.bond1Action.setText("Single")
-        self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
+        self.bond1Action.setIcon(
+            geticon("ui/actions/Toolbars/Smart/bond1.png"))
         self.bond1Action.setWhatsThis(
         """<b>Single Bond</b>
         <p>
@@ -768,7 +769,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             
         self.bond2Action = QtGui.QWidgetAction(self.w)  
         self.bond2Action.setText("Double")
-        self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
+        self.bond2Action.setIcon(
+            geticon("ui/actions/Toolbars/Smart/bond2.png"))
         self.bond2Action.setWhatsThis(
         """<b>Double Bond</b>
         <p>
@@ -777,7 +779,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.bond3Action = QtGui.QWidgetAction(self.w)  
         self.bond3Action.setText("Triple")
-        self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
+        self.bond3Action.setIcon(
+            geticon("ui/actions/Toolbars/Smart/bond3.png"))
         self.bond3Action.setWhatsThis(
         """<b>Triple Bond</b>
         <p>
@@ -786,7 +789,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.bondaAction = QtGui.QWidgetAction(self.w)  
         self.bondaAction.setText("Aromatic")
-        self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
+        self.bondaAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/bonda.png"))
         self.bondaAction.setWhatsThis(
         """<b>Aromatic Bond</b>
         <p>
@@ -796,7 +800,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.bondgAction = QtGui.QWidgetAction(self.w)  
         self.bondgAction.setText("Graphitic")
-        self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
+        self.bondgAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/bondg.png"))
         self.bondgAction.setWhatsThis(
         """<b>Graphitic Bond</b>
         <p>
@@ -805,7 +810,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.cutBondsAction = QtGui.QWidgetAction(self.w)  
         self.cutBondsAction.setText("Cut Bonds")
-        self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
+        self.cutBondsAction.setIcon(
+            geticon("ui/actions/Tools/Build Tools/Cut_Bonds.png"))
         self.cutBondsAction.setWhatsThis(
         """<b>Cut Bonds</b>
         <p>
@@ -826,8 +832,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         
         self.transmuteAtomsAction = QtGui.QWidgetAction(self.w)
         self.transmuteAtomsAction.setText("Transmute Atoms")
-        self.transmuteAtomsAction.setIcon(geticon(
-            'ui/actions/Toolbars/Smart/Transmute_Atoms'))       
+        self.transmuteAtomsAction.setIcon(
+            geticon('ui/actions/Toolbars/Smart/Transmute_Atoms.png'))       
         self.transmuteAtomsAction.setCheckable(False)
         self.transmuteAtomsAction.setWhatsThis(
         """<b>Transmute</b>
