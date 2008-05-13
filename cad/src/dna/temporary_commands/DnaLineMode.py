@@ -177,7 +177,7 @@ class DnaLineMode(LineMode):
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs.
     @see: DnaDuplex_EditCommand.provideParamsForTemporaryMode
-    @see: DnaDuplex_EditCommand.getCursorTextForTemporaryMode
+    @see: DnaDuplex_EditCommand.getCursorText
     
     NOTE: [2008-01-11]
     The default DnaLineMode (command) part is not used as of 2008-01-11

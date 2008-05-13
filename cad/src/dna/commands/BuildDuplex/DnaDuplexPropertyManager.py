@@ -44,6 +44,16 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
+
+
+_superclass = EditCommand_PM
 
 class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -72,17 +82,17 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         self.endPoint1 = None
         self.endPoint2 = None
-        
+
         self._conformation  = "B-DNA"
         self._numberOfBases = 0
         self._basesPerTurn  = getDuplexBasesPerTurn(self._conformation)
         self._duplexRise    = getDuplexRise(self._conformation)
         self._duplexLength  = getDuplexLength(self._conformation, 
                                               self._numberOfBases)
-    
-        EditCommand_PM.__init__( self, 
-                                 win,
-                                 editCommand)
+
+        _superclass.__init__( self, 
+                              win,
+                              editCommand)
 
 
         DebugMenuMixin._init1( self )
@@ -90,8 +100,8 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
                                 pmWhatsThisButton)
-        
-          
+
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -104,24 +114,39 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-         
-                
+
+
         change_connect( self.conformationComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
-                      self.conformationComboBoxChanged )
-        
+                        SIGNAL("currentIndexChanged(int)"),
+                        self.conformationComboBoxChanged )
+
         change_connect( self.numberOfBasePairsSpinBox,
-                      SIGNAL("valueChanged(int)"),
-                      self.numberOfBasesChanged )
-        
+                        SIGNAL("valueChanged(int)"),
+                        self.numberOfBasesChanged )
+
         change_connect( self.basesPerTurnDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.basesPerTurnChanged )
-        
+                        SIGNAL("valueChanged(double)"),
+                        self.basesPerTurnChanged )
+
         change_connect( self.duplexRiseDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.duplexRiseChanged )
-  
+                        SIGNAL("valueChanged(double)"),
+                        self.duplexRiseChanged )
+
+        change_connect(self.showCursorTextCheckBox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self._update_state_of_cursorTextGroupBox)
+
+
+    def show(self):
+        """
+        Overrides superclass method. 
+        Show this property manager
+        """
+        _superclass.show(self)
+        self._update_state_of_cursorTextGroupBox(
+            self.showCursorTextCheckBox.isChecked())
+
+
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -130,7 +155,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.editCommand.preview_or_finalize_structure(previewing = False)
             ##env.history.message(self.editCommand.logMessage)        
         self.win.toolsDone()
-    
+
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
@@ -138,7 +163,6 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand:
             self.editCommand.cancelStructure()            
         self.win.toolsCancel()
-        
 
     def _update_widgets_in_PM_before_show(self):
         """
@@ -147,14 +171,12 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         The various  widgets , (e.g. spinboxes) will get values from the 
         structure for which this propMgr is constructed for 
         (self.editcCntroller.struct)
-        
+
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
         """       
         pass     
-                          
-                   
-          
+
     def getFlyoutActionList(self): 
         """ returns custom actionlist that will be used in a specific mode 
 	or editing a feature etc Example: while in movie mode, 
@@ -202,20 +224,20 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Add the DNA Property Manager group boxes.
         """        
-       
+
         self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox1( self._pmGroupBox1 )
-        
+
         self._pmGroupBox1.hide()
-        
+
         self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
-        
-        self._pmGroupBox3 = PM_GroupBox( self, title = "Advanced Options" )
-        self._loadGroupBox3( self._pmGroupBox3 )
 
-    
-       
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
+
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box 3.
@@ -233,24 +255,24 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.specifyDnaLineButton.setAutoRaise(True)
         self.specifyDnaLineButton.setToolButtonStyle(
             Qt.ToolButtonTextBesideIcon)
-    
+
         #EndPoint1 and endPoint2 coordinates. These widgets are hidden 
         # as of 2007- 12 - 05
         self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
-                                                label = "End Point 1")
+                                                          label = "End Point 1")
         self.x1SpinBox = self._endPoint1SpinBoxes.xSpinBox
         self.y1SpinBox = self._endPoint1SpinBoxes.ySpinBox
         self.z1SpinBox = self._endPoint1SpinBoxes.zSpinBox
-        
+
         self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
-                                                label = "End Point 2")
+                                                          label = "End Point 2")
         self.x2SpinBox = self._endPoint2SpinBoxes.xSpinBox
         self.y2SpinBox = self._endPoint2SpinBoxes.ySpinBox
         self.z2SpinBox = self._endPoint2SpinBoxes.zSpinBox
-        
+
         self._endPoint1SpinBoxes.hide()
         self._endPoint2SpinBoxes.hide()
-       
+
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box 4.
@@ -268,8 +290,8 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                          label         =  "Model:", 
                          choices       =  dnaModelChoices,
                          setAsDefault  =  True)
-                                            
-        
+
+
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Bases per turn:",
@@ -279,7 +301,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-        
+
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
@@ -289,7 +311,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
-        
+
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
@@ -298,9 +320,9 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                         setAsDefault  =  False,
                         minimum       =  0,
                         maximum       =  10000 )
-        
+
         self.numberOfBasePairsSpinBox.setDisabled(True)   
-        
+
         # Duplex Length
         self.duplexLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
@@ -310,35 +332,112 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.duplexLengthLineEdit.setDisabled(True)        
 
-    def _loadGroupBox3(self, pmGroupBox):
+
+    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
-        Load widgets in group box 5.
+        Load widgets in group box 4.
         """
+
+        self.showCursorTextCheckBox = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Show Cursor Text",
+                widgetColumn = 0,
+                state        = Qt.Checked)
+
+        self._cursorTextGroupBox = PM_GroupBox(pmGroupBox, 
+                                               title = 'Cursor text options:')
+
+        self._loadCursorTextCheckBoxes(self._cursorTextGroupBox)
+        self._connect_cursorTextCheckBoxes()
+
+
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
             title = 'Rubber band line:')
-        
+
         dnaLineChoices = ['Ribbons', 'Ladder']
         self.dnaRubberBandLineDisplayComboBox = \
             PM_ComboBox( self._rubberbandLineGroupBox ,     
                          label         =  " Display as:", 
                          choices       =  dnaLineChoices,
                          setAsDefault  =  True)
-        
+
         self.lineSnapCheckBox = \
             PM_CheckBox(self._rubberbandLineGroupBox ,
                         text         = 'Enable line snap' ,
                         widgetColumn = 1,
                         state        = Qt.Checked
-                        )
-        
-                
+                    )
+
+    def _loadCursorTextCheckBoxes(self, pmGroupBox):
+        """
+         Load various checkboxes that allow custom cursor texts. Subclasses 
+         can override this method. Default implementation adds following 
+         checkboxes
+         """        
+        self.cursorTextCheckBox_numberOfBasePairs = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Number Of base pairs",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+        self.cursorTextCheckBox_numberOfTurns = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Number of turns",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+        self.cursorTextCheckBox_length = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Duplex Length",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+        self.cursorTextCheckBox_angle = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Angle information",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+
+    def _connect_cursorTextCheckBoxes(self):
+        """
+        Default implementation does nothing. Its overridden in subclasses
+        Connect the cursor text checkboxes with the preference keys. 
+        @see: self._loadDisplayOptionsGroupBox()        
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_numberOfBasePairs , 
+            dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_numberOfTurns , 
+            dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_length , 
+            dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_angle , 
+            dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key)
+
+
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
         pass
-        
+
     def conformationComboBoxChanged( self, inIndex ):
         """
         Slot for the Conformation combobox. It is called whenever the
@@ -373,7 +472,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
         return
-    
+
     def basesPerTurnChanged( self, basesPerTurn ):
         """
         Slot for the B{Bases per turn} spinbox.
@@ -381,7 +480,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.editCommand.basesPerTurn = basesPerTurn
         self._basesPerTurn = basesPerTurn
         return
-    
+
     def duplexRiseChanged( self, rise ):
         """
         Slot for the B{Rise} spinbox.
@@ -389,6 +488,13 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.editCommand.duplexRise = rise
         self._duplexRise = rise
         return
+
+    def _update_state_of_cursorTextGroupBox(self, enable):
+        if enable:
+            self._cursorTextGroupBox.setEnabled(True)
+        else:
+            self._cursorTextGroupBox.setEnabled(False)
+
 
     def getParameters(self):
         """
@@ -402,7 +508,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         dnaForm  = str(self.conformationComboBox.currentText())
         basesPerTurn = self.basesPerTurnDoubleSpinBox.value()
         duplexRise = self.duplexRiseDoubleSpinBox.value()
-        
+
         dnaModel = str(self.dnaModelComboBox.currentText())
 
         # First endpoint (origin) of DNA duplex
@@ -428,22 +534,6 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                 self.endPoint1, 
                 self.endPoint2)
 
-    def DISABLED_TEMPORARILY_updateCommandToolbar(self, bool_entering = True):
-        """
-	Update the flyout toolbar 
-	"""
-        #self.win.buildDnaAction is the action in Build menu in the control 
-        # area. So when the Build button is checked, the command toolbar will 
-        # show a custom flyout toolbar. 
-        # Note to Eric M:
-        # This needs cleanup. It's a temporary implementation --ninad20071025
-
-        action = self.win.buildDnaAction
-
-        obj = self  	    	    
-        self.win.commandToolbar.updateCommandToolbar(action,
-                                                     obj, 
-                                                     entering =bool_entering)
     def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  

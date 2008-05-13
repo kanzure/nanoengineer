@@ -29,6 +29,8 @@ TODO:
   necessary to correctly edit the dna structure ad this problem will
   be fixed -- Ninad 2007-12-20
 """
+
+import foundation.env as env
 from command_support.EditCommand import EditCommand
 
 from dna.model.DnaSegment import DnaSegment
@@ -53,6 +55,11 @@ from dna.model.Dna_Constants import getDuplexLength
 
 from dna.temporary_commands.DnaLineMode import DnaLine_GM
 
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
+from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
 
 class DnaDuplex_EditCommand(EditCommand):
     """
@@ -467,59 +474,6 @@ class DnaDuplex_EditCommand(EditCommand):
         self._segmentList = []	
         self.win.win_update()
 
-
-    def NOT_USED_acceptParamsFromTemporaryMode(self, commandName, params):
-        """
-        THIS METHOD IS NOT USED AS OF 2008-01-11 AND WILL BE REMOVED AFTER 
-        MORE TESTING. 
-
-        NOTE: This also needs to be a general API method. There are situations 
-        when user enters a temporary mode , does somethoing there and 
-        returns back to  the previous mode he was in. He also needs some data 
-        that he gathered in that temporary mode so as to use it in the original 
-        mode he was working on. Here is a good example: 
-	-  User is working in selectMolsMode, Now he enters a temporary mode 
-	called DnaLine mode, where, he clicks two points in the 3Dworkspace 
-	and expects to create a DNA using the points he clicked as endpoints. 
-	Internally, the program returns to the previous mode after two clicks. 
-	The temporary mode sends this information to the method defined in 
-	the previous mode called acceptParamsFromTemporaryMode and then the
-	previous mode (selectMolsMode) can use it further to create a dna 
-	@see: DnaLineMode
-	@see: selectMolsMode.acceptParamsFromTemporaryMode where this is called
-	TODO: 
-	- This needs to be a more general method in mode API. 
-	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplexEditCommand is invoked while in selectMolsMode. 
-	 If we decide to define a new DnaMode, then this method needs to go 
-	 there. 
-	 - Even better if the commandSequencer API starts supporting 
-	 commandSequencer.previousCommand (like it does for previous mode) 
-	 where, the previousCommand can be an editCommand or mode, then 
-	 it would be good to define this API method in that mode or 
-	 editCommand class  itself.  So, this method will be directly called 
-         by the temporary mode (instead of calling a method in mode which in 
-         turn calls this method         
-	 -- [Ninad 2007-10-25 comment]	
-
-        """
-        if len(params) < 2:
-            return
-        self.propMgr.endPoint1 = params[0]
-        self.propMgr.endPoint2 = params[1]
-        duplexLength = vlen(params[0] - params[1])
-
-        numberOfBasePairs = \
-                          getNumberOfBasePairsFromDuplexLength(
-                              'B-DNA', 
-                              duplexLength,
-                              duplexRise = self.duplexRise)
-
-        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
-        self.propMgr.specifyDnaLineButton.setChecked(False)
-        self.preview_or_finalize_structure(previewing = True)
-
-
     def _createSegment(self):
         """
         Creates and returns the structure (in this case a L{Group} object that 
@@ -659,54 +613,71 @@ class DnaDuplex_EditCommand(EditCommand):
             raise PluginBug("Internal error while trying to create DNA duplex.")
         
 
-    def provideParamsForTemporaryMode(self, temporaryModeName):
-        """
-        NOTE: This needs to be a general API method. There are situations when 
-	user enters a temporary mode , does something there and returns back to
-	the previous mode he was in. He also needs to send some data from 
-	previous mode to the temporary mode .	 
-	@see: B{DnaLineMode}
-	@see: self.acceptParamsFromTemporaryMode 
-        """
-        assert temporaryModeName == 'DNA_LINE_MODE'
-
-        mouseClickLimit = None
-        duplexRise =  self.getDuplexRise()
-
-        callback_cursorText = self.getCursorTextForTemporaryMode
-        callback_snapEnabled = self.isRubberbandLineSnapEnabled
-        callback_rubberbandLineDisplay = self.getDisplayStyleForRubberbandLine
-        
-        return (mouseClickLimit, 
-                duplexRise, 
-                callback_cursorText, 
-                callback_snapEnabled, 
-                callback_rubberbandLineDisplay )
-
-    def getCursorTextForTemporaryMode(self, endPoint1, endPoint2):
+    def getCursorText(self, endPoint1, endPoint2):
         """
         This is used as a callback method in DnaLine mode 
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
         if endPoint1 is None or endPoint2 is None:
-            return ''
+            return '', black
         
+        if not env.prefs[dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
+        
+        text = ''        
         textColor = black
+        
+        numberOfBasePairsString = ''
+        numberOfTurnsString = ''
+        duplexLengthString = ''
+        thetaString = ''
+        
 
         duplexLength = vlen(endPoint2 - endPoint1)
-        numberOfBasePairs = \
-                          getNumberOfBasePairsFromDuplexLength(
-                              'B-DNA', 
-                              duplexLength,
-                              duplexRise = self.duplexRise)
-        numberOfTurns = numberOfBasePairs / self.basesPerTurn
         
-        vec = endPoint2 - endPoint1
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength( 
+                'B-DNA', 
+                duplexLength,
+                duplexRise = self.duplexRise)
         
-        theta = self.glpane.get_angle_made_with_screen_right(vec)
+        numberOfBasePairsString = self._getCursorText_numberOfBasePairs(
+            numberOfBasePairs)
+        
+        numberOfTurnsString = self._getCursorText_numberOfTurns(
+            numberOfBasePairs)
 
-        text = '%db (%5.3ft), %5.3fA, %5.2f deg' \
-             % (numberOfBasePairs, numberOfTurns, duplexLength, theta)
+        if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key]:
+            lengthUnitString = 'A'
+            #change the unit of length to nanometers if the length is > 10A
+            #fixes part of bug 2856
+            if duplexLength > 10.0:
+                lengthUnitString = 'nm'
+                duplexLength = duplexLength * 0.1
+            duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
+                       
+        
+        if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key]:
+            vec = endPoint2 - endPoint1        
+            theta = self.glpane.get_angle_made_with_screen_right(vec)
+            thetaString = "%5.2f deg"%theta
+        
+        commaString = ", "
+        text = numberOfBasePairsString 
+        
+        if text and numberOfTurnsString:
+            text += commaString
+        
+        text += numberOfTurnsString
+        
+        if text and duplexLengthString:
+            text += commaString
+        
+        text += duplexLengthString
+        
+        if text and thetaString:
+            text += commaString
+        
+        text += thetaString
         
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
@@ -714,7 +685,30 @@ class DnaDuplex_EditCommand(EditCommand):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         return text , textColor
-
+    
+    def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
+        numberOfBasePairsString = ''
+        
+        if env.prefs[
+            dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key]:
+            numberOfBasePairsString = "%db"%numberOfBasePairs
+                    
+        return numberOfBasePairsString
+        
+    def _getCursorText_numberOfTurns(self, numberOfBasePairs):
+        numberOfTurnsString = '' 
+        if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key]:
+            numberOfTurns = numberOfBasePairs / self.basesPerTurn
+            numberOfTurnsString = '(%5.3ft)'%numberOfTurns
+       
+        return numberOfTurnsString
+    
+    def _getCursorText_length(self):
+        pass
+    
+    def _getCursorText_angle(self):
+        pass
+    
     def isRubberbandLineSnapEnabled(self):
         """
         This returns True or False based on the checkbox state in the PM.
@@ -763,7 +757,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self.jigList = self.win.assy.getSelectedJigs()
 
         self.callbackMethodForCursorTextString = \
-            self.getCursorTextForTemporaryMode
+            self.getCursorText
 
         self.callbackForSnapEnabled = self.isRubberbandLineSnapEnabled
 

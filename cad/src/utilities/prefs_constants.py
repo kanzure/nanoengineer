@@ -205,7 +205,7 @@ diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # abou
     #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
 diDNACYLINDER_BondCylinderRadius_prefs_key = 'A10/DNA Cylinder Bond Radius Percentage' 
 
-# DNA prefs
+#== DNA PREFERENCES ============================================================
 adnaBasesPerTurn_prefs_key = 'A10/A-DNA bases per turn' # Twist computed from this.
 adnaRise_prefs_key = 'A10/A-DNA rise step'
 bdnaBasesPerTurn_prefs_key = 'A10/B-DNA bases per turn' # Twist computed from this.
@@ -222,6 +222,15 @@ useCustomColorForThreePrimeArrowheads_prefs_key = 'A101/ Use custom color for th
 dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for strand three-prime arrowheads/spheres'
 useCustomColorForFivePrimeArrowheads_prefs_key = 'A101/ Use custom color for five-prime arrowheads/spheres'
 dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for five-prime strand arrowheads/spheres'
+
+
+#Various cursor text prefs =======================
+dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
+dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaDulex_Editcommand'
+dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key = 'A110/Show number of turns info in cursor text while in DnaDulex_Editcommand'
+dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaDulex_Editcommand'
+dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key = 'A110/Show angle info in cursor text while in DnaDulex_Editcommand'
+
 
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
@@ -574,6 +583,33 @@ prefs_table = (
         ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, red),
         ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, True),
         ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+        
+        
+        #DNA cursor text preferences 
+        
+        #Cursor text prefs while in DnaDuplex_EditCommand 
+        ('', 
+         'boolean',
+         dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key,
+         True),
+         
+        ('', 
+         'boolean',
+         dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key,
+         True),
+        ('', 
+         'boolean',
+         dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key, 
+         True),
+        ('', 
+         'boolean',
+         dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, 
+         True), 
+         
+        ('', 
+         'boolean',
+         dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, 
+         True), 
 
         # DNA minor groove error indicator prefs.
         ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
