@@ -140,16 +140,34 @@ class NanotubeSegment(Group):
         
         return all_content_chunk_list 
     
-    def getAxisVector(self):
+    def getAxisVector(self, atomAtVectorOrigin = None):
         """
         Returns the unit axis vector of the segment (vector between two axis 
         end points)
         """
         endPoint1, endPoint2 = self.nanotube.getEndPoints()
-        if endPoint1 is not None and endPoint2 is not None:
-            return norm(endPoint2 - endPoint1)
-        else:
+                
+        if endPoint1 is None or endPoint2 is None:
             return V(0, 0, 0)
+        
+        #@see: RotateAboutAPoint command. The following code is disabled 
+        #as it has bugs (not debugged but could be in 
+        #self.nanotube.getEndPoints). So, rotate about a point won't work for 
+        #rotating a nanotube. -- Ninad 2008-05-13
+      
+        ##if atomAtVectorOrigin is not None:
+            ###If atomAtVectorOrigin is specified, we will return a vector that
+            ###starts at this atom and ends at endPoint1 or endPoint2 . 
+            ###Which endPoint to choose will be dicided by the distance between
+            ###atomAtVectorOrigin and the respective endPoints. (will choose the 
+            ###frthest endPoint
+            ##origin = atomAtVectorOrigin.posn()
+            ##if vlen(endPoint2 - origin ) > vlen(endPoint1 - origin):
+                ##return norm(endPoint2 - endPoint1)
+            ##else:
+                ##return norm(endPoint1 - endPoint2)
+        
+        return norm(endPoint2 - endPoint1)
     
     def setProps(self, props):
         """
