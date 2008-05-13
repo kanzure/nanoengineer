@@ -341,7 +341,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.showCursorTextCheckBox = \
             PM_CheckBox( 
                 pmGroupBox,
-                text  = "Show Cursor Text",
+                text  = "Show cursor text",
                 widgetColumn = 0,
                 state        = Qt.Checked)
 
@@ -379,7 +379,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.cursorTextCheckBox_numberOfBasePairs = \
             PM_CheckBox( 
                 pmGroupBox,
-                text  = "Number Of base pairs",
+                text  = "Number of base pairs",
                 widgetColumn = 1,
                 state        = Qt.Checked)
 
@@ -393,7 +393,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.cursorTextCheckBox_length = \
             PM_CheckBox( 
                 pmGroupBox,
-                text  = "Duplex Length",
+                text  = "Duplex length",
                 widgetColumn = 1,
                 state        = Qt.Checked)
 
