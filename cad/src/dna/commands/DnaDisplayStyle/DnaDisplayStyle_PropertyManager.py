@@ -56,6 +56,7 @@ from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
 from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
 from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
+from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
 
 class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -487,7 +488,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         # DNA Strand label combobox.
         if env.prefs[dnaStrandLabelsEnabled_prefs_key]:
-            _dnaStrandColorItem = env.prefs[dnaStyleBasesColor_prefs_key] + 1
+            _dnaStrandColorItem = env.prefs[dnaStrandLabelsColorMode_prefs_key] + 1
         else:
             _dnaStrandColorItem = 0
         self.standLabelColorComboBox.setCurrentIndex(_dnaStrandColorItem)
