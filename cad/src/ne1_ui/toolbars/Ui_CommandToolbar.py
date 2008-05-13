@@ -146,7 +146,7 @@ class Ui_CommandToolbar( QWidget ):
             btn.setAutoRaise(True)
             btn.setCheckable(True)
             btn.setAutoExclusive(True)
-            iconpath = "ui/actions/Toolbars/Smart/" + name
+            iconpath = "ui/actions/Toolbars/Smart/" + name + ".png"
             btn.setIcon(geticon(iconpath))
             btn.setIconSize(QSize(22, 22))
             btn.setText(name)

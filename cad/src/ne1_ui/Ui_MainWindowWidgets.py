@@ -51,14 +51,14 @@ def setupUi(win):
     win.exportMenu.setObjectName("exportMenu")
 
     win.fileOpenAction = QtGui.QAction(MainWindow)
-    win.fileOpenAction.setIcon(geticon("ui/actions/File/Open"))
+    win.fileOpenAction.setIcon(geticon("ui/actions/File/Open.png"))
     win.fileOpenAction.setObjectName("fileOpenAction")
 
     win.fileCloseAction = QtGui.QAction(MainWindow)
     win.fileCloseAction.setObjectName("fileCloseAction")
 
     win.fileSaveAction = QtGui.QAction(MainWindow)
-    win.fileSaveAction.setIcon(geticon("ui/actions/File/Save"))
+    win.fileSaveAction.setIcon(geticon("ui/actions/File/Save.png"))
     win.fileSaveAction.setObjectName("fileSaveAction")
 
     win.fileSaveAsAction = QtGui.QAction(MainWindow)
@@ -108,19 +108,19 @@ def setupUi(win):
     win.editMenu.setObjectName("editMenu")
 
     win.editUndoAction = QtGui.QAction(MainWindow)
-    win.editUndoAction.setIcon(geticon("ui/actions/Edit/Undo"))
+    win.editUndoAction.setIcon(geticon("ui/actions/Edit/Undo.png"))
     win.editUndoAction.setVisible(True)
     win.editUndoAction.setObjectName("editUndoAction")
 
     win.editRedoAction = QtGui.QAction(MainWindow)
     win.editRedoAction.setChecked(False)
-    win.editRedoAction.setIcon(geticon("ui/actions/Edit/Redo"))
+    win.editRedoAction.setIcon(geticon("ui/actions/Edit/Redo.png"))
     win.editRedoAction.setVisible(True)
     win.editRedoAction.setObjectName("editRedoAction")
 
     win.editMakeCheckpointAction = QtGui.QAction(MainWindow)
     win.editMakeCheckpointAction.setIcon(
-        geticon("ui/actions/Edit/Make_Checkpoint"))
+        geticon("ui/actions/Edit/Make_Checkpoint.png"))
     win.editMakeCheckpointAction.setObjectName("editMakeCheckpointAction")
 
     win.editAutoCheckpointingAction = QtGui.QAction(MainWindow)
@@ -133,27 +133,27 @@ def setupUi(win):
 
     win.editCutAction = QtGui.QAction(MainWindow)
     win.editCutAction.setEnabled(True)
-    win.editCutAction.setIcon(geticon("ui/actions/Edit/Cut"))
+    win.editCutAction.setIcon(geticon("ui/actions/Edit/Cut.png"))
     win.editCutAction.setObjectName("editCutAction")
 
     win.editCopyAction = QtGui.QAction(MainWindow)
     win.editCopyAction.setEnabled(True)
-    win.editCopyAction.setIcon(geticon("ui/actions/Edit/Copy"))
+    win.editCopyAction.setIcon(geticon("ui/actions/Edit/Copy.png"))
     win.editCopyAction.setObjectName("editCopyAction")
 
     win.editPasteAction = QtGui.QAction(MainWindow)
-    win.editPasteAction.setIcon(geticon("ui/actions/Edit/Paste_Off"))
+    win.editPasteAction.setIcon(geticon("ui/actions/Edit/Paste_Off.png"))
     win.editPasteAction.setObjectName("editPasteAction")
 
     win.pasteFromClipboardAction = QtGui.QAction(MainWindow)
     win.pasteFromClipboardAction.setIcon(geticon(
-        "ui/actions/Properties Manager/clipboard-full"))
+        "ui/actions/Properties Manager/clipboard-full.png"))
 
     win.pasteFromClipboardAction.setObjectName("pasteFromClipboardAction")
     win.pasteFromClipboardAction.setText("Paste from clipboard...")
 
     win.editDeleteAction = QtGui.QAction(MainWindow)
-    win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete"))
+    win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete.png"))
     win.editDeleteAction.setObjectName("editDeleteAction")
     
     win.editRenameAction = QtGui.QAction(MainWindow)
@@ -161,7 +161,8 @@ def setupUi(win):
     win.editRenameAction.setObjectName("editRenameAction")
     
     win.editRenameObjectsAction = QtGui.QAction(MainWindow)
-    win.editRenameObjectsAction.setIcon(geticon("ui/actions/Edit/Rename_Objects.png"))
+    win.editRenameObjectsAction.setIcon(
+        geticon("ui/actions/Edit/Rename_Objects.png"))
     win.editRenameObjectsAction.setObjectName("editRenameObjectsAction")
     
     win.editAddSuffixAction = QtGui.QAction(MainWindow)
@@ -169,11 +170,12 @@ def setupUi(win):
     win.editAddSuffixAction.setObjectName("editAddSuffixAction")
 
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
-    win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color"))
+    win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color.png"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
     
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
-    win.resetChunkColorAction.setIcon(geticon("ui/actions/Edit/Reset_Chunk_Color"))
+    win.resetChunkColorAction.setIcon(
+        geticon("ui/actions/Edit/Reset_Chunk_Color.png"))
     win.resetChunkColorAction.setObjectName("resetChunkColorAction")
 
     #= View (menu and toolbar) actions.
@@ -196,47 +198,49 @@ def setupUi(win):
     win.viewOrientationAction = QtGui.QAction(MainWindow)
     win.viewOrientationAction.setCheckable(True)
     win.viewOrientationAction.setIcon(
-        geticon("ui/actions/View/Modify/Orientation"))
+        geticon("ui/actions/View/Modify/Orientation.png"))
     win.viewOrientationAction.setObjectName("viewOrientationAction")
 
     win.setViewFitToWindowAction = QtGui.QAction(MainWindow)
     win.setViewFitToWindowAction.setIcon(
-        geticon("ui/actions/View/Modify/Zoom_To_Fit"))
+        geticon("ui/actions/View/Modify/Zoom_To_Fit.png"))
     win.setViewFitToWindowAction.setObjectName("setViewFitToWindowAction")
 
     win.setViewZoomtoSelectionAction = QtGui.QAction(MainWindow)
     win.setViewZoomtoSelectionAction.setIcon(
-        geticon("ui/actions/View/Modify/Zoom_To_Selection"))
+        geticon("ui/actions/View/Modify/Zoom_To_Selection.png"))
     win.setViewZoomtoSelectionAction.setObjectName("setViewZoomtoSelectionAction")
 
     win.zoomToAreaAction = QtGui.QAction(MainWindow)
     win.zoomToAreaAction.setCheckable(True)
-    win.zoomToAreaAction.setIcon(geticon("ui/actions/View/Modify/ZoomToArea"))
+    win.zoomToAreaAction.setIcon(
+        geticon("ui/actions/View/Modify/ZoomToArea.png"))
     win.zoomToAreaAction.setObjectName("zoomToAreaAction")
     
     win.zoomInOutAction = QtGui.QAction(MainWindow)
     win.zoomInOutAction.setCheckable(True)
-    win.zoomInOutAction.setIcon(geticon("ui/actions/View/Modify/Zoom_In_Out"))
+    win.zoomInOutAction.setIcon(
+        geticon("ui/actions/View/Modify/Zoom_In_Out.png"))
     win.zoomInOutAction.setObjectName("zoomInOutAction")
 
     win.setViewRecenterAction = QtGui.QAction(MainWindow)
     win.setViewRecenterAction.setEnabled(True)
     win.setViewRecenterAction.setIcon(
-        geticon("ui/actions/View/Modify/Recenter"))
+        geticon("ui/actions/View/Modify/Recenter.png"))
     win.setViewRecenterAction.setObjectName("setViewRecenterAction")
 
     win.panToolAction = QtGui.QAction(MainWindow)
     win.panToolAction.setCheckable(True)
-    win.panToolAction.setIcon(geticon("ui/actions/View/Modify/Pan"))
+    win.panToolAction.setIcon(geticon("ui/actions/View/Modify/Pan.png"))
     win.panToolAction.setObjectName("panToolAction")
 
     win.rotateToolAction = QtGui.QAction(MainWindow)
     win.rotateToolAction.setCheckable(True)
-    win.rotateToolAction.setIcon(geticon("ui/actions/View/Modify/Rotate"))
+    win.rotateToolAction.setIcon(geticon("ui/actions/View/Modify/Rotate.png"))
     win.rotateToolAction.setObjectName("rotateToolAction")
 
     win.setViewHomeAction = QtGui.QAction(MainWindow)
-    win.setViewHomeAction.setIcon(geticon("ui/actions/View/Modify/Home"))
+    win.setViewHomeAction.setIcon(geticon("ui/actions/View/Modify/Home.png"))
     win.setViewHomeAction.setObjectName("setViewHomeAction")
 
     win.setViewHomeToCurrentAction = QtGui.QAction(MainWindow)
@@ -245,62 +249,62 @@ def setupUi(win):
     #= View toolbar QActions.
     win.viewNormalToAction = QtGui.QAction(MainWindow)
     win.viewNormalToAction.setIcon(
-        geticon("ui/actions/View/Set_View_Normal_To"))
+        geticon("ui/actions/View/Set_View_Normal_To.png"))
     win.viewNormalToAction.setObjectName("NormalTo")
 
     win.viewParallelToAction = QtGui.QAction(MainWindow)
     win.viewParallelToAction.setIcon(
-        geticon("ui/actions/View/Set_View_Parallel_To"))
+        geticon("ui/actions/View/Set_View_Parallel_To.png"))
     win.viewParallelToAction.setObjectName("ParallelTo")
 
     win.saveNamedViewAction = QtGui.QAction(MainWindow)
     win.saveNamedViewAction.setIcon(
-        geticon("ui/actions/View/Modify/Save_Named_View"))
+        geticon("ui/actions/View/Modify/Save_Named_View.png"))
     win.saveNamedViewAction.setObjectName("saveNamedViewAction")
 
     win.viewFrontAction = QtGui.QAction(MainWindow)
     win.viewFrontAction.setEnabled(True)
-    win.viewFrontAction.setIcon(geticon("ui/actions/View/Front"))
+    win.viewFrontAction.setIcon(geticon("ui/actions/View/Front.png"))
     win.viewFrontAction.setObjectName("Front")
 
     win.viewBackAction = QtGui.QAction(MainWindow)
-    win.viewBackAction.setIcon(geticon("ui/actions/View/Back"))
+    win.viewBackAction.setIcon(geticon("ui/actions/View/Back.png"))
     win.viewBackAction.setObjectName("Back")
 
     win.viewRightAction = QtGui.QAction(MainWindow)
-    win.viewRightAction.setIcon(geticon("ui/actions/View/Right"))
+    win.viewRightAction.setIcon(geticon("ui/actions/View/Right.png"))
     win.viewRightAction.setObjectName("Right")
 
     win.viewLeftAction = QtGui.QAction(MainWindow)
-    win.viewLeftAction.setIcon(geticon("ui/actions/View/Left"))
+    win.viewLeftAction.setIcon(geticon("ui/actions/View/Left.png"))
     win.viewLeftAction.setObjectName("Left")
 
     win.viewTopAction = QtGui.QAction(MainWindow)
-    win.viewTopAction.setIcon(geticon("ui/actions/View/Top"))
+    win.viewTopAction.setIcon(geticon("ui/actions/View/Top.png"))
     win.viewTopAction.setObjectName("Top")
 
     win.viewBottomAction = QtGui.QAction(MainWindow)
     win.viewBottomAction.setEnabled(True)
-    win.viewBottomAction.setIcon(geticon("ui/actions/View/Bottom"))
+    win.viewBottomAction.setIcon(geticon("ui/actions/View/Bottom.png"))
     win.viewBottomAction.setObjectName("Bottom")
 
     win.viewIsometricAction = QtGui.QAction(MainWindow)
-    win.viewIsometricAction.setIcon(geticon("ui/actions/View/Isometric"))
+    win.viewIsometricAction.setIcon(geticon("ui/actions/View/Isometric.png"))
     win.viewIsometricAction.setObjectName("Isometric")
 
     win.viewRotate180Action = QtGui.QAction(MainWindow)
     win.viewRotate180Action.setIcon(
-        geticon("ui/actions/View/Rotate_View_180"))
+        geticon("ui/actions/View/Rotate_View_180.png"))
     win.viewRotate180Action.setObjectName("Rotate180")
 
     win.viewRotatePlus90Action = QtGui.QAction(MainWindow)
     win.viewRotatePlus90Action.setIcon(
-        geticon("ui/actions/View/Rotate_View_+90"))
+        geticon("ui/actions/View/Rotate_View_+90.png"))
     win.viewRotatePlus90Action.setObjectName("RotatePlus90")
 
     win.viewRotateMinus90Action = QtGui.QAction(MainWindow)
     win.viewRotateMinus90Action.setIcon(
-        geticon("ui/actions/View/Rotate_View_-90"))
+        geticon("ui/actions/View/Rotate_View_-90.png"))
     win.viewRotateMinus90Action.setObjectName("RotateMinus90")
 
     win.viewDefviewAction = QtGui.QAction(MainWindow)
@@ -308,57 +312,66 @@ def setupUi(win):
 
     #== View > Display (menu and toolbar) actions.
     win.dispDefaultAction = QtGui.QAction(MainWindow)
-    win.dispDefaultAction.setIcon(geticon("ui/actions/View/Display/Default"))
+    win.dispDefaultAction.setIcon(
+        geticon("ui/actions/View/Display/Default.png"))
     win.dispDefaultAction.setObjectName("dispDefaultAction")
 
     win.dispInvisAction = QtGui.QAction(MainWindow)
-    win.dispInvisAction.setIcon(geticon("ui/actions/View/Display/Invisible"))
+    win.dispInvisAction.setIcon(
+        geticon("ui/actions/View/Display/Invisible.png"))
     win.dispInvisAction.setObjectName("dispInvisAction")
 
     win.dispLinesAction = QtGui.QAction(MainWindow)
-    win.dispLinesAction.setIcon(geticon("ui/actions/View/Display/Lines"))
+    win.dispLinesAction.setIcon(
+        geticon("ui/actions/View/Display/Lines.png"))
     win.dispLinesAction.setObjectName("dispLinesAction")
 
     win.dispTubesAction = QtGui.QAction(MainWindow)
     win.dispTubesAction.setEnabled(True)
-    win.dispTubesAction.setIcon(geticon("ui/actions/View/Display/Tubes"))
+    win.dispTubesAction.setIcon(
+        geticon("ui/actions/View/Display/Tubes.png"))
     win.dispTubesAction.setObjectName("dispTubesAction")
 
     win.dispCPKAction = QtGui.QAction(MainWindow)
-    win.dispCPKAction.setIcon(geticon("ui/actions/View/Display/CPK"))
+    win.dispCPKAction.setIcon(geticon("ui/actions/View/Display/CPK.png"))
     win.dispCPKAction.setObjectName("dispCPKAction")
 
     win.dispBallAction = QtGui.QAction(MainWindow)
-    win.dispBallAction.setIcon(geticon("ui/actions/View/Display/Ball_and_Stick"))
+    win.dispBallAction.setIcon(
+        geticon("ui/actions/View/Display/Ball_and_Stick.png"))
     win.dispBallAction.setObjectName("dispBallAction")
     
     #@ This QAction is unused. See comments at the top of Ui_ViewMenu.py.
     win.dispHybridAction = QtGui.QAction(MainWindow)
-    win.dispHybridAction.setIcon(geticon("ui/actions/View/Display/Hybrid"))
+    win.dispHybridAction.setIcon(
+        geticon("ui/actions/View/Display/Hybrid.png"))
     win.dispHybridAction.setCheckable(True)
     win.dispHybridAction.setObjectName("dispHybridAction")
 
     win.dispCylinderAction = QtGui.QAction(MainWindow)
-    win.dispCylinderAction.setIcon(geticon("ui/actions/View/Display/Cylinder"))
+    win.dispCylinderAction.setIcon(
+        geticon("ui/actions/View/Display/Cylinder.png"))
     win.dispCylinderAction.setObjectName("dispCylinderAction")
     
     win.dispDnaCylinderAction = QtGui.QAction(MainWindow)
-    win.dispDnaCylinderAction.setIcon(geticon("ui/actions/View/Display/DnaCylinder"))
+    win.dispDnaCylinderAction.setIcon(
+        geticon("ui/actions/View/Display/DnaCylinder.png"))
     win.dispDnaCylinderAction.setObjectName("dispDnaCylinderAction")
     
     win.dispHideAction = QtGui.QAction(MainWindow)
     win.dispHideAction.setIcon(
-        geticon("ui/actions/View/Display/Hide"))
+        geticon("ui/actions/View/Display/Hide.png"))
     win.dispHideAction.setObjectName("dispHideAction")
     
     win.dispUnhideAction = QtGui.QAction(MainWindow)
     win.dispUnhideAction.setIcon(
-        geticon("ui/actions/View/Display/Unhide"))
+        geticon("ui/actions/View/Display/Unhide.png"))
     win.dispUnhideAction.setObjectName("dispUnhideAction")
 
     # This is currently NIY. Mark 2007-12-28
     win.dispSurfaceAction = QtGui.QAction(MainWindow)
-    win.dispSurfaceAction.setIcon(geticon("ui/actions/View/Display/Surface"))
+    win.dispSurfaceAction.setIcon(
+        geticon("ui/actions/View/Display/Surface.png"))
     win.dispSurfaceAction.setObjectName("dispSurfaceAction")
     
     win.setViewPerspecAction = QtGui.QAction(MainWindow)
@@ -373,12 +386,13 @@ def setupUi(win):
     win.orthoPerpActionGroup.addAction(win.setViewOrthoAction)
 
     win.viewQuteMolAction = QtGui.QAction(MainWindow)
-    win.viewQuteMolAction.setIcon(geticon("ui/actions/View/Display/QuteMol"))
+    win.viewQuteMolAction.setIcon(
+        geticon("ui/actions/View/Display/QuteMol.png"))
     win.viewQuteMolAction.setObjectName("viewQuteMolAction")
 
     win.viewRaytraceSceneAction = QtGui.QAction(MainWindow)
     win.viewRaytraceSceneAction.setIcon(
-        geticon("ui/actions/View/Display/Raytrace_Scene"))
+        geticon("ui/actions/View/Display/Raytrace_Scene.png"))
     win.viewRaytraceSceneAction.setObjectName("viewRaytraceSceneAction")
 
     win.dispSetEltable1Action = QtGui.QAction(MainWindow)
@@ -395,13 +409,13 @@ def setupUi(win):
 
     win.changeBackgroundColorAction = QtGui.QAction(MainWindow)
     win.changeBackgroundColorAction.setIcon(
-        geticon("ui/actions/View/Display/Background_Color"))
+        geticon("ui/actions/View/Display/Background_Color.png"))
     win.changeBackgroundColorAction.setObjectName("changeBackgroundColorAction")
 
     win.dispElementColorSettingsAction = QtGui.QAction(MainWindow)
     win.dispElementColorSettingsAction.setObjectName("dispElementColorSettingsAction")
     win.dispElementColorSettingsAction.setIcon(
-        geticon("ui/actions/View/Display/Element_Color_Settings"))
+        geticon("ui/actions/View/Display/Element_Color_Settings.png"))
 
     win.dispLightingAction = QtGui.QAction(MainWindow)
     win.dispLightingAction.setObjectName("dispLightingAction")
@@ -439,7 +453,7 @@ def setupUi(win):
     #win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
     win.jigsAtomSetAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set"))
+    win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set.png"))
     win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
 
     win.fileInsertMmpAction = QtGui.QWidgetAction(MainWindow)
@@ -449,35 +463,35 @@ def setupUi(win):
     
     win.fileInsertPdbAction = QtGui.QWidgetAction(MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
-    win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB'))
+    win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB.png'))
 
     win.partLibAction = QtGui.QWidgetAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
-    win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library'))
+    win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library.png'))
     
     win.insertCommentAction = QtGui.QWidgetAction(MainWindow)
     win.insertCommentAction.setIcon(
-        geticon("ui/actions/Insert/Comment"))
+        geticon("ui/actions/Insert/Comment.png"))
     win.insertCommentAction.setObjectName("insertCommentAction")
 
     win.insertPovraySceneAction = QtGui.QWidgetAction(MainWindow)
     win.insertPovraySceneAction.setIcon(
-        geticon("ui/actions/Insert/POV-Ray_Scene"))
+        geticon("ui/actions/Insert/POV-Ray_Scene.png"))
     win.insertPovraySceneAction.setObjectName("insertPovraySceneAction")
 
     win.jigsGridPlaneAction = QtGui.QWidgetAction(MainWindow)
     win.jigsGridPlaneAction.setIcon(
-        geticon("ui/actions/Insert/Reference Geometry/Grid_Plane"))
+        geticon("ui/actions/Insert/Reference Geometry/Grid_Plane.png"))
     win.jigsGridPlaneAction.setObjectName("jigsGridPlaneAction")
 
     win.referencePlaneAction = QtGui.QWidgetAction(MainWindow)
-    win.referencePlaneAction.setIcon(geticon(
-        "ui/actions/Insert/Reference Geometry/Plane"))
+    win.referencePlaneAction.setIcon(
+        geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
 
     win.referenceLineAction = QtGui.QWidgetAction(MainWindow)
-    win.referenceLineAction.setIcon(geticon(
-        "ui/actions/Insert/Reference Geometry/Plane"))
+    win.referenceLineAction.setIcon(
+        geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
     win.referenceLineAction.setObjectName("referenceLineAction")
     win.referenceLineAction.setText("Line...")
 
@@ -504,46 +518,48 @@ def setupUi(win):
     win.selectionMenu.setObjectName("selectionMenu")
 
     win.editPrefsAction = QtGui.QWidgetAction(MainWindow)
-    win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options"))
+    win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options.png"))
     win.editPrefsAction.setObjectName("editPrefsAction")    
 
     win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
     win.modifyAdjustSelAction.setIcon(
-        geticon("ui/actions/Tools/Adjust_Selection"))
+        geticon("ui/actions/Tools/Adjust_Selection.png"))
     win.modifyAdjustSelAction.setObjectName("modifyAdjustSelAction")
 
     win.modifyAdjustAllAction = QtGui.QWidgetAction(MainWindow)
-    win.modifyAdjustAllAction.setIcon(geticon("ui/actions/Tools/Adjust_All"))
+    win.modifyAdjustAllAction.setIcon(
+        geticon("ui/actions/Tools/Adjust_All.png"))
     win.modifyAdjustAllAction.setObjectName("modifyAdjustAllAction")
 
     win.simMinimizeEnergyAction = QtGui.QWidgetAction(MainWindow)
     win.simMinimizeEnergyAction.setIcon(
-        geticon("ui/actions/Simulation/Minimize_Energy"))
+        geticon("ui/actions/Simulation/Minimize_Energy.png"))
     win.simMinimizeEnergyAction.setObjectName("simMinimizeEnergyAction")
 
     win.toolsExtrudeAction = QtGui.QWidgetAction(MainWindow)
     win.toolsExtrudeAction.setCheckable(True)
-    win.toolsExtrudeAction.setIcon(geticon("ui/actions/Insert/Features/Extrude"))
+    win.toolsExtrudeAction.setIcon(
+        geticon("ui/actions/Insert/Features/Extrude.png"))
 
     win.toolsFuseChunksAction = QtGui.QWidgetAction(MainWindow)
     win.toolsFuseChunksAction.setCheckable(1) # make the Fuse Mode button checkable
     win.toolsFuseChunksAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Fuse_Chunks"))
+        geticon("ui/actions/Tools/Build Tools/Fuse_Chunks.png"))
 
     win.modifyMirrorAction = QtGui.QWidgetAction(MainWindow)
     win.modifyMirrorAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Mirror"))
+        geticon("ui/actions/Tools/Build Tools/Mirror.png"))
     win.modifyMirrorAction.setObjectName("modifyMirrorAction")
 
     win.modifyInvertAction = QtGui.QWidgetAction(MainWindow)
     win.modifyInvertAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Invert"))
+        geticon("ui/actions/Tools/Build Tools/Invert.png"))
     win.modifyInvertAction.setObjectName("modifyInvertAction")
 
     win.modifyStretchAction = QtGui.QWidgetAction(MainWindow)
     win.modifyStretchAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Stretch"))
+        geticon("ui/actions/Tools/Build Tools/Stretch.png"))
     win.modifyStretchAction.setObjectName("modifyStretchAction")
 
     #== "Tools > Build Structures" (menu and toolbar) widgets.
@@ -551,21 +567,21 @@ def setupUi(win):
     win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Build Chunks"))
+        geticon("ui/actions/Tools/Build Structures/Build Chunks.png"))
 
     win.toolsCookieCutAction = QtGui.QWidgetAction(MainWindow)
     win.toolsCookieCutAction.setCheckable(1) # make the cookie button checkable
     win.toolsCookieCutAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Build Crystal"))
+        geticon("ui/actions/Tools/Build Structures/Build Crystal.png"))
 
     win.insertGrapheneAction = QtGui.QWidgetAction(MainWindow)
     win.insertGrapheneAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Graphene"))
+        geticon("ui/actions/Tools/Build Structures/Graphene.png"))
     win.insertGrapheneAction.setObjectName("insertGrapheneAction")
 
     win.nanotubeGeneratorAction = QtGui.QWidgetAction(MainWindow)
     win.nanotubeGeneratorAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Nanotube"))
+        geticon("ui/actions/Tools/Build Structures/Nanotube.png"))
     win.nanotubeGeneratorAction.setObjectName("nanotubeGeneratorAction")
 
     win.buildNanotubeAction = QtGui.QWidgetAction(MainWindow)
@@ -575,7 +591,7 @@ def setupUi(win):
     
     win.buildDnaAction = QtGui.QWidgetAction(MainWindow)
     win.buildDnaAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/DNA"))
+        geticon("ui/actions/Tools/Build Structures/DNA.png"))
     win.buildDnaAction.setObjectName("buildDnaAction")
 
     # Atom Generator (Developer Example). Mark 2007-06-08
@@ -587,50 +603,50 @@ def setupUi(win):
     # Peptide Generator, piotr 080304
     win.insertPeptideAction = QtGui.QWidgetAction(MainWindow)
     win.insertPeptideAction.setIcon(
-        geticon("ui/actions/Tools/Build Structures/Peptide"))
+        geticon("ui/actions/Tools/Build Structures/Peptide.png"))
     win.insertPeptideAction.setObjectName("insertPeptideAction")
 
     #== "Tools > Build Tools" (menu and toolbar) widgets.
     
     win.modifyHydrogenateAction = QtGui.QWidgetAction(MainWindow)
     win.modifyHydrogenateAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Hydrogenate"))
+        geticon("ui/actions/Tools/Build Tools/Hydrogenate.png"))
     win.modifyHydrogenateAction.setObjectName("modifyHydrogenateAction")
 
     win.modifyDehydrogenateAction = QtGui.QWidgetAction(MainWindow)
     win.modifyDehydrogenateAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Dehydrogenate"))
+        geticon("ui/actions/Tools/Build Tools/Dehydrogenate.png"))
     win.modifyDehydrogenateAction.setObjectName("modifyDehydrogenateAction")
 
     win.modifyPassivateAction = QtGui.QWidgetAction(MainWindow)
     win.modifyPassivateAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Passivate"))
+        geticon("ui/actions/Tools/Build Tools/Passivate.png"))
     win.modifyPassivateAction.setObjectName("modifyPassivateAction")
 
     win.modifyDeleteBondsAction = QtGui.QWidgetAction(MainWindow)
     win.modifyDeleteBondsAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Delete_Bonds"))
+        geticon("ui/actions/Tools/Build Tools/Delete_Bonds.png"))
     win.modifyDeleteBondsAction.setObjectName("modifyDeleteBondsAction")      
 
     win.modifySeparateAction = QtGui.QWidgetAction(MainWindow)
     win.modifySeparateAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/Separate"))
+        geticon("ui/actions/Tools/Build Tools/Separate.png"))
     win.modifySeparateAction.setObjectName("modifySeparateAction")
 
     win.modifyMergeAction = QtGui.QWidgetAction(MainWindow)
     win.modifyMergeAction.setIcon(geticon(
-        "ui/actions/Tools/Build Tools/Combine_Chunks"))
+        "ui/actions/Tools/Build Tools/Combine_Chunks.png"))
     win.modifyMergeAction.setObjectName("modifyMergeAction")
 
     win.makeChunkFromSelectedAtomsAction = QtGui.QWidgetAction(MainWindow)
     win.makeChunkFromSelectedAtomsAction.setIcon(geticon(
-        "ui/actions/Tools/Build Tools/New_Chunk"))
+        "ui/actions/Tools/Build Tools/New_Chunk.png"))
     win.makeChunkFromSelectedAtomsAction.setObjectName(
         "makeChunkFromSelectedAtomsAction")
 
     win.modifyAlignCommonAxisAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAlignCommonAxisAction.setIcon(
-        geticon("ui/actions/Tools/Build Tools/AlignToCommonAxis"))
+        geticon("ui/actions/Tools/Build Tools/AlignToCommonAxis.png"))
     win.modifyAlignCommonAxisAction.setObjectName("modifyAlignCommonAxisAction")
 
     win.modifyCenterCommonAxisAction = QtGui.QWidgetAction(MainWindow)
@@ -640,15 +656,18 @@ def setupUi(win):
     #= "Tools > Dimensions" (menu and toolbar) widgets.
     
     win.jigsDistanceAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsDistanceAction.setIcon(geticon("ui/actions/Tools/Dimensions/Measure_Distance"))
+    win.jigsDistanceAction.setIcon(
+        geticon("ui/actions/Tools/Dimensions/Measure_Distance.png"))
     win.jigsDistanceAction.setObjectName("jigsDistanceAction")
 
     win.jigsAngleAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsAngleAction.setIcon(geticon("ui/actions/Tools/Dimensions/Measure_Angle"))
+    win.jigsAngleAction.setIcon(
+        geticon("ui/actions/Tools/Dimensions/Measure_Angle.png"))
     win.jigsAngleAction.setObjectName("jigsAngleAction")
 
     win.jigsDihedralAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsDihedralAction.setIcon(geticon("ui/actions/Tools/Dimensions/Measure_Dihedral"))
+    win.jigsDihedralAction.setIcon(
+        geticon("ui/actions/Tools/Dimensions/Measure_Dihedral.png"))
     win.jigsDihedralAction.setObjectName("jigsDihedralAction")
 
     #= "Tools > Select" (menu and toolbar) widgets.
@@ -656,42 +675,42 @@ def setupUi(win):
     win.selectAllAction = QtGui.QAction(MainWindow)
     win.selectAllAction.setEnabled(True)
     win.selectAllAction.setIcon(
-        geticon("ui/actions/Tools/Select/Select_All"))
+        geticon("ui/actions/Tools/Select/Select_All.png"))
     win.selectAllAction.setObjectName("selectAllAction")
 
     win.selectNoneAction = QtGui.QAction(MainWindow)
     win.selectNoneAction.setIcon(
-        geticon("ui/actions/Tools/Select/Select_None"))
+        geticon("ui/actions/Tools/Select/Select_None.png"))
     win.selectNoneAction.setObjectName("selectNoneAction")
 
     win.selectInvertAction = QtGui.QAction(MainWindow)
     win.selectInvertAction.setIcon(
-        geticon("ui/actions/Tools/Select/Select_Invert"))
+        geticon("ui/actions/Tools/Select/Select_Invert.png"))
     win.selectInvertAction.setObjectName("selectInvertAction")
 
     win.selectConnectedAction = QtGui.QAction(MainWindow)
     win.selectConnectedAction.setIcon(
-        geticon("ui/actions/Tools/Select/Select_Connected"))
+        geticon("ui/actions/Tools/Select/Select_Connected.png"))
     win.selectConnectedAction.setObjectName("selectConnectedAction")
 
     win.selectDoublyAction = QtGui.QAction(MainWindow)
     win.selectDoublyAction.setIcon(
-        geticon("ui/actions/Tools/Select/Select_Doubly"))
+        geticon("ui/actions/Tools/Select/Select_Doubly.png"))
     win.selectDoublyAction.setObjectName("selectDoublyAction")
 
     win.selectExpandAction = QtGui.QAction(MainWindow)
     win.selectExpandAction.setIcon(
-        geticon("ui/actions/Tools/Select/Expand"))
+        geticon("ui/actions/Tools/Select/Expand.png"))
     win.selectExpandAction.setObjectName("selectExpandAction")
 
     win.selectContractAction = QtGui.QAction(MainWindow)
     win.selectContractAction.setIcon(
-        geticon("ui/actions/Tools/Select/Contract"))
+        geticon("ui/actions/Tools/Select/Contract.png"))
     win.selectContractAction.setObjectName("selectContractAction")
     
     win.selectLockAction = QtGui.QAction(MainWindow)
     win.selectLockAction.setIcon(
-        geticon("ui/actions/Tools/Select/Selection_Unlocked"))
+        geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
     win.selectLockAction.setObjectName("selectLockAction")
     win.selectLockAction.setCheckable(True)
 
@@ -704,45 +723,50 @@ def setupUi(win):
     # Create the "Measurements" menu. #@ Not used??? MAS
     win.measurementsMenu = QtGui.QMenu()
     win.measurementsMenu.setObjectName("measurementsMenu")
-    win.measurementsMenu.setIcon(geticon(
-        "ui/actions/Toolbars/Smart/Dimension"))
+    win.measurementsMenu.setIcon(
+        geticon("ui/actions/Toolbars/Smart/Dimension.png"))
     
     win.simSetupAction = QtGui.QWidgetAction(MainWindow)
     win.simSetupAction.setCheckable(True)
     win.simSetupAction.setChecked(False)
     win.simSetupAction.setEnabled(True)
-    win.simSetupAction.setIcon(geticon("ui/actions/Simulation/Run_Dynamics"))
+    win.simSetupAction.setIcon(
+        geticon("ui/actions/Simulation/Run_Dynamics.png"))
     win.simSetupAction.setObjectName("simSetupAction")
 
     win.simMoviePlayerAction = QtGui.QWidgetAction(MainWindow)
     win.simMoviePlayerAction.setIcon(
-        geticon("ui/actions/Simulation/Play_Movie"))
+        geticon("ui/actions/Simulation/Play_Movie.png"))
 
     win.simPlotToolAction = QtGui.QWidgetAction(MainWindow)
     win.simPlotToolAction.setEnabled(True)
-    win.simPlotToolAction.setIcon(geticon("ui/actions/Simulation/Make_Graphs"))
+    win.simPlotToolAction.setIcon(
+        geticon("ui/actions/Simulation/Make_Graphs.png"))
     win.simPlotToolAction.setObjectName("simPlotToolAction")
 
     win.jigsMotorAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsMotorAction.setIcon(geticon("ui/actions/Simulation/Rotary_Motor"))
+    win.jigsMotorAction.setIcon(
+        geticon("ui/actions/Simulation/Rotary_Motor.png"))
     win.jigsMotorAction.setObjectName("jigsMotorAction")
 
     win.jigsLinearMotorAction = QtGui.QWidgetAction(MainWindow)
     win.jigsLinearMotorAction.setIcon(
-        geticon("ui/actions/Simulation/Linear_Motor"))
+        geticon("ui/actions/Simulation/Linear_Motor.png"))
     win.jigsLinearMotorAction.setObjectName("jigsLinearMotorAction")
 
     win.jigsStatAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsStatAction.setIcon(geticon("ui/actions/Simulation/Thermostat"))
+    win.jigsStatAction.setIcon(
+        geticon("ui/actions/Simulation/Thermostat.png"))
     win.jigsStatAction.setObjectName("jigsStatAction")
 
     win.jigsThermoAction = QtGui.QWidgetAction(MainWindow)
     win.jigsThermoAction.setIcon(
-        geticon("ui/actions/Simulation/Measurements/Thermometer"))
+        geticon("ui/actions/Simulation/Measurements/Thermometer.png"))
     win.jigsThermoAction.setObjectName("jigsThermoAction")
 
     win.jigsAnchorAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsAnchorAction.setIcon(geticon("ui/actions/Simulation/Anchor"))
+    win.jigsAnchorAction.setIcon(
+        geticon("ui/actions/Simulation/Anchor.png"))
     win.jigsAnchorAction.setObjectName("jigsAnchorAction")
     
     win.simulationJigsAction = QtGui.QAction(win)
@@ -752,11 +776,13 @@ def setupUi(win):
 
     win.jigsGamessAction = QtGui.QWidgetAction(MainWindow)
     win.jigsGamessAction.setEnabled(True)
-    win.jigsGamessAction.setIcon(geticon("ui/actions/Simulation/GAMESS"))
+    win.jigsGamessAction.setIcon(
+        geticon("ui/actions/Simulation/GAMESS.png"))
     win.jigsGamessAction.setObjectName("jigsGamessAction")
 
     win.jigsESPImageAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsESPImageAction.setIcon(geticon("ui/actions/Simulation/ESP_Image"))
+    win.jigsESPImageAction.setIcon(
+        geticon("ui/actions/Simulation/ESP_Image.png"))
     win.jigsESPImageAction.setObjectName("jigsESPImageAction")
 
     # This only shows up if the user enables the NH1 plugin (via Preferences)
@@ -790,7 +816,7 @@ def setupUi(win):
     win.helpGraphicsCardAction.setObjectName("helpGraphicsCardAction")
 
     win.helpWhatsThisAction = QtGui.QAction(MainWindow)
-    win.helpWhatsThisAction.setIcon(geticon("ui/actions/Help/WhatsThis"))
+    win.helpWhatsThisAction.setIcon(geticon("ui/actions/Help/WhatsThis.png"))
     win.helpWhatsThisAction.setObjectName("helpWhatsThisAction")
 
     win.helpAboutAction = QtGui.QAction(MainWindow)
@@ -806,7 +832,8 @@ def setupUi(win):
     
     win.toolsSelectMoleculesAction = QtGui.QAction(MainWindow)
     win.toolsSelectMoleculesAction.setCheckable(1) # make the select chunks button checkable
-    win.toolsSelectMoleculesAction.setIcon(geticon("ui/actions/Toolbars/Standard/Select_Chunks"))
+    win.toolsSelectMoleculesAction.setIcon(
+        geticon("ui/actions/Toolbars/Standard/Select_Chunks.png"))
     
     # Define an action grop for move molecules (translate and rotate components)
     # actions ...to make them mutually exclusive. 
@@ -816,11 +843,13 @@ def setupUi(win):
     
     win.toolsMoveMoleculeAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
     win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
-    win.toolsMoveMoleculeAction.setIcon(geticon("ui/actions/Toolbars/Standard/Move_Chunks"))
+    win.toolsMoveMoleculeAction.setIcon(
+        geticon("ui/actions/Toolbars/Standard/Move_Chunks.png"))
        
     win.rotateComponentsAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
     win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
-    win.rotateComponentsAction.setIcon(geticon("ui/actions/Toolbars/Standard/Rotate_Components"))
+    win.rotateComponentsAction.setIcon(
+        geticon("ui/actions/Toolbars/Standard/Rotate_Components.png"))
 
     #= "View" toolbars.
     
@@ -838,7 +867,8 @@ def setupUi(win):
     
     win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
     win.standardViewsAction.setEnabled(True)
-    win.standardViewsAction.setIcon(geticon("ui/actions/View/Standard_Views"))
+    win.standardViewsAction.setIcon(
+        geticon("ui/actions/View/Standard_Views.png"))
     win.standardViewsAction.setObjectName("standardViews")
     win.standardViewsAction.setText("Standard Views")
     win.standardViewsAction.setMenu(win.standardViewsMenu)
@@ -865,8 +895,8 @@ def setupUi(win):
     # This needs to stay until I talk with Bruce about UpdateDashboard(),
     # which calls a method of toolsDoneAction in Command.py. Mark 2007-12-20
     win.toolsDoneAction = QtGui.QAction(MainWindow)
-    win.toolsDoneAction.setIcon(geticon(
-        "ui/actions/Properties Manager/Done"))
+    win.toolsDoneAction.setIcon(
+        geticon("ui/actions/Properties Manager/Done.png"))
     win.toolsDoneAction.setObjectName("toolsDoneAction")
     
     # Dock widgets

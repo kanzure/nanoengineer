@@ -565,7 +565,8 @@ class PM_GroupBox( QGroupBox ):
         # Mark 2007-05-20
         self.titleButton.setPalette(self._getTitleButtonPalette())
         self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
+            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
+                    print_errors = False))
         self._containerWidget.hide()
         self.expanded = False 
     
@@ -588,7 +589,8 @@ class PM_GroupBox( QGroupBox ):
         # Mark 2007-05-20
         self.titleButton.setPalette(self._getTitleButtonPalette())
         self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
+            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
+                    print_errors = False))
         self._containerWidget.show()
         self.expanded = True
            
@@ -673,7 +675,9 @@ class PM_GroupBox( QGroupBox ):
         # there is no way to left align the push button text but to subclass it.
         # (could means a lot of work for such a minor thing).  So OK for now.
         
-        button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON", print_errors = False))
+        button.setIcon(
+            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
+                    print_errors = False))
         
         return button
     

@@ -63,7 +63,8 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.exitCrystalAction.setText("Exit Crystal")
         self.exitCrystalAction.setCheckable(True)
         self.exitCrystalAction.setChecked(True)
-        self.exitCrystalAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+        self.exitCrystalAction.setIcon(
+            geticon('ui/actions/Toolbars/Smart/Exit.png'))
         self.subControlAreaActionList.append(self.exitCrystalAction)
         
         separator = QtGui.QAction(self.w)
@@ -178,7 +179,7 @@ class CookieCtrlPanel(CookiePropertyManager):
             if action.__class__.__name__ is QtGui.QWidgetAction.__name__:               
                 action.setCheckable(True)
                 self.cookieSelectionGroup.addAction(action)
-                iconpath = "ui/actions/Toolbars/Smart/" + str(action.text())
+                iconpath = "ui/actions/Toolbars/Smart/" + str(action.text()) + ".png"
                 action.setIcon(geticon(iconpath))
         
         if not self.cookieSelectionGroup.checkedAction():

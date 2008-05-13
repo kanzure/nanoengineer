@@ -39,7 +39,7 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         self.connect(self.help_tab,SIGNAL("currentChanged(int)"),self.setup_current_page)
         self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
         
-        self.setWindowIcon(geticon('ui/border/MainWindow'))
+        self.setWindowIcon(geticon('ui/border/MainWindow.png'))
         
         self._setup_mouse_controls_page()
         self.help_tab.setCurrentIndex(0)

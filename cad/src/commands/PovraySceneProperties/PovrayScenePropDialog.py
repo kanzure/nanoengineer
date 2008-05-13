@@ -76,27 +76,32 @@ class Ui_PovrayScenePropDialog(object):
         self.hboxlayout1.addItem(spacerItem)
 
         self.done_btn = QtGui.QToolButton(self.body_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done"))
+        self.done_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Done.png"))
         self.done_btn.setObjectName("done_btn")
         self.hboxlayout1.addWidget(self.done_btn)
 
         self.abort_btn = QtGui.QToolButton(self.body_frame)
-        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort"))
+        self.abort_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Abort.png"))
         self.abort_btn.setObjectName("abort_btn")
         self.hboxlayout1.addWidget(self.abort_btn)
 
         self.restore_btn = QtGui.QToolButton(self.body_frame)
-        self.restore_btn.setIcon(geticon("ui/actions/Properties Manager/Restore"))
+        self.restore_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Restore.png"))
         self.restore_btn.setObjectName("restore_btn")
         self.hboxlayout1.addWidget(self.restore_btn)
 
         self.preview_btn = QtGui.QToolButton(self.body_frame)
-        self.preview_btn.setIcon(geticon("ui/actions/Properties Manager/Preview"))
+        self.preview_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Preview.png"))
         self.preview_btn.setObjectName("preview_btn")
         self.hboxlayout1.addWidget(self.preview_btn)
 
         self.whatsthis_btn = QtGui.QToolButton(self.body_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis"))
+        self.whatsthis_btn.setIcon(
+            geticon("ui/actions/Properties Manager/WhatsThis.png"))
         self.whatsthis_btn.setObjectName("whatsthis_btn")
         self.hboxlayout1.addWidget(self.whatsthis_btn)
 
@@ -139,7 +144,8 @@ class Ui_PovrayScenePropDialog(object):
         sizePolicy.setHeightForWidth(self.grpbtn_1.sizePolicy().hasHeightForWidth())
         self.grpbtn_1.setSizePolicy(sizePolicy)
         self.grpbtn_1.setMaximumSize(QtCore.QSize(16,16))
-        self.grpbtn_1.setIcon(geticon("ui/actions/Properties Manager/Group_Button"))
+        self.grpbtn_1.setIcon(
+            geticon("ui/actions/Properties Manager/Group_Button.png"))
         self.grpbtn_1.setAutoDefault(False)
         self.grpbtn_1.setFlat(True)
         self.grpbtn_1.setObjectName("grpbtn_1")
@@ -197,7 +203,8 @@ class Ui_PovrayScenePropDialog(object):
         sizePolicy.setHeightForWidth(self.grpbtn_2.sizePolicy().hasHeightForWidth())
         self.grpbtn_2.setSizePolicy(sizePolicy)
         self.grpbtn_2.setMaximumSize(QtCore.QSize(16,16))
-        self.grpbtn_2.setIcon(geticon("ui/actions/Properties Manager/Group_Button"))
+        self.grpbtn_2.setIcon(
+            geticon("ui/actions/Properties Manager/Group_Button.png"))
         self.grpbtn_2.setAutoDefault(False)
         self.grpbtn_2.setFlat(True)
         self.grpbtn_2.setObjectName("grpbtn_2")

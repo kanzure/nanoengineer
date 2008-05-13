@@ -185,8 +185,10 @@ class Ui_PartWindow(QWidget):
         # Set the tab icon, too.
         self.modelTreeTab = QWidget()
         self.modelTreeTab.setObjectName("modelTreeTab")
-        self.pwProjectTabWidget.addTab(self.modelTreeTab,
-                                   geticon("ui/modeltree/Model_Tree"), "") 
+        self.pwProjectTabWidget.addTab(
+            self.modelTreeTab,
+            geticon("ui/modeltree/Model_Tree.png"),
+            "") 
 
         modelTreeTabLayout = QVBoxLayout(self.modelTreeTab)
         modelTreeTabLayout.setMargin(0)
@@ -215,8 +217,10 @@ class Ui_PartWindow(QWidget):
 
         # Add the property manager scroll area as a "tabbed" widget. 
         # Set the tab icon, too.
-        self.pwProjectTabWidget.addTab(self.propertyManagerScrollArea, 
-                                   geticon("ui/modeltree/Property_Manager"), "")
+        self.pwProjectTabWidget.addTab(
+            self.propertyManagerScrollArea, 
+            geticon("ui/modeltree/Property_Manager.png"),
+            "")
 
         # Finally, add the "pwProjectTabWidget" to the left channel layout.
         leftChannelVBoxLayout.addWidget(self.pwProjectTabWidget)
@@ -358,7 +362,8 @@ class Ui_PartWindow(QWidget):
 
         self.pwProjectTabWidget.addTab(
             self.propertyManagerScrollArea, 
-            geticon("ui/modeltree/Property_Manager"), "")
+            geticon("ui/modeltree/Property_Manager.png"),
+            "")
 
         self.pwProjectTabWidget.setCurrentIndex(
             self.pwProjectTabWidget.indexOf(self.propertyManagerScrollArea))

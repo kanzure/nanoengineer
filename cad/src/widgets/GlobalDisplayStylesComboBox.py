@@ -66,8 +66,9 @@ class GlobalDisplayStylesComboBox(QComboBox):
         
         for displayName in displayNames:
             
+            basename = displayIconsDict[displayName] + ".png"
             iconPath = os.path.join("ui/actions/View/Display/", 
-                                    displayIconsDict[displayName])
+                                    basename)
             self.addItem(geticon(iconPath), displayName)
 
         self.setCurrentIndex(displayIndexes.index(display_style))

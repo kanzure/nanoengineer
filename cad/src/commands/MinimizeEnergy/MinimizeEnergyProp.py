@@ -58,29 +58,57 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
                 self.update_btngrp_group.addButton(obj)
         
         #fix some icon problems
-        self.setWindowIcon(geticon('ui/border/MinimizeEnergy'))
-        self.done_btn.setIcon(geticon('ui/actions/Properties Manager/Done'))
-        self.abort_btn.setIcon(geticon('ui/actions/Properties Manager/Abort'))
-        self.restore_btn.setIcon(geticon('ui/actions/Properties Manager/Restore'))
-        self.whatsthis_btn.setIcon(geticon('ui/actions/Properties Manager/WhatsThis'))
+        self.setWindowIcon(
+            geticon('ui/border/MinimizeEnergy.png'))
+        self.done_btn.setIcon(
+            geticon('ui/actions/Properties Manager/Done.png'))
+        self.abort_btn.setIcon(
+            geticon('ui/actions/Properties Manager/Abort.png'))
+        self.restore_btn.setIcon(
+            geticon('ui/actions/Properties Manager/Restore.png'))
+        self.whatsthis_btn.setIcon(
+            geticon('ui/actions/Properties Manager/WhatsThis.png'))
         
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
-        self.connect(self.restore_btn,SIGNAL("clicked()"),self.restore_defaults_btn_clicked)
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
-        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.whatsthis_btn_clicked)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
-        self.connect(self.grpbtn_1,SIGNAL("clicked()"),self.toggle_grpbtn_1)
-        self.connect(self.grpbtn_2,SIGNAL("clicked()"),self.toggle_grpbtn_2)
-        self.connect(self.grpbtn_3,SIGNAL("clicked()"),self.toggle_grpbtn_3)
-        self.connect(self.grpbtn_4,SIGNAL("clicked()"),self.toggle_grpbtn_4)
+        self.connect(self.cancel_btn,
+                     SIGNAL("clicked()"),
+                     self.cancel_btn_clicked)
+        self.connect(self.done_btn,
+                     SIGNAL("clicked()"),
+                     self.ok_btn_clicked)
+        self.connect(self.ok_btn,
+                     SIGNAL("clicked()"),
+                     self.ok_btn_clicked)
+        self.connect(self.restore_btn,
+                     SIGNAL("clicked()"),
+                     self.restore_defaults_btn_clicked)
+        self.connect(self.sponsor_btn,
+                     SIGNAL("clicked()"),
+                     self.open_sponsor_homepage)
+        self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     self.whatsthis_btn_clicked)
+        self.connect(self.abort_btn,
+                     SIGNAL("clicked()"),
+                     self.cancel_btn_clicked)
+        self.connect(self.grpbtn_1,
+                     SIGNAL("clicked()"),
+                     self.toggle_grpbtn_1)
+        self.connect(self.grpbtn_2,
+                     SIGNAL("clicked()"),
+                     self.toggle_grpbtn_2)
+        self.connect(self.grpbtn_3,
+                     SIGNAL("clicked()"),
+                     self.toggle_grpbtn_3)
+        self.connect(self.grpbtn_4,
+                     SIGNAL("clicked()"),
+                     self.toggle_grpbtn_4)
         
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
             electrostaticsForDnaDuringMinimize_prefs_key)
 
-        self.minimize_engine_combobox.setCurrentIndex(env.prefs[Minimize_minimizationEngine_prefs_key])
+        self.minimize_engine_combobox.setCurrentIndex(
+            env.prefs[Minimize_minimizationEngine_prefs_key])
 
         self.win = win
         self.previousParams = None

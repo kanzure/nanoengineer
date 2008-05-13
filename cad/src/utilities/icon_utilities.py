@@ -28,6 +28,7 @@ from utilities import debug_flags
 from PyQt4 import QtGui
 import utilities.Initialize as Initialize
 import utilities.EndUser as EndUser
+from utilities.debug import print_compact_stack
 
 # This is the subdirectory component "ui" at the end of "cad/src/ui",
 # in which we store most icons and similar image files.
@@ -103,6 +104,9 @@ def geticon(name, print_errors = True):
     
     root, ext = os.path.splitext(name)
     if not ext:
+        if 0: # Mark 2008-05-09
+            msg = "No '.png' extension provided for [%s]." % name
+            print_compact_stack(msg)
         name = name + '.png'
     
     iconPath = os.path.join(_iconprefix, name)

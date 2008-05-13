@@ -231,7 +231,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         self.addLayerButton = PM_PushButton(inPmGroupBox)
         self.addLayerButton.setIcon(
-            geticon('ui/actions/Properties Manager/addlayer'))
+            geticon('ui/actions/Properties Manager/addlayer.png'))
         self.addLayerButton.setFixedSize(QSize(26, 26))
         self.addLayerButton.setIconSize(QSize(22, 22))
         

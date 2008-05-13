@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
         """
         self.setObjectName("MainWindow")
         self.setEnabled(True)
-        self.setWindowIcon(geticon("ui/border/MainWindow"))
+        self.setWindowIcon(geticon("ui/border/MainWindow.png"))
         self.setWindowTitle("NanoEngineer-1")
         
         # Set minimum width and height of the main window.
