@@ -224,6 +224,13 @@ def loadCursors(w):
         createCompositeCursor(w.rotateAboutPointCursor, verticalSymbol, 
                               offsetX = 22, offsetY = 22)
     
+    #Add a segment to a list of segments to be resized (in Multiple_DnaSegments
+    #command)
+    w.addSegmentToResizeSegmentListCursor = \
+     QCursor(getCursorPixmap("AddSegment_To_ResizeSegmentListCursor.png"), 0, 0)
+    w.removeSegmentFromResizeSegmentListCursor = \
+     QCursor(getCursorPixmap("RemoveSegment_From_ResizeSegmentList_Cursor.png"), 0, 0)
+    
     
     return # from loadCursors
 
