@@ -394,7 +394,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def __init__(self, assy, parent = None, name = None, win = None):
         """
         """
-        
+
         shareWidget = None
         useStencilBuffer = True
 
@@ -410,7 +410,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # [bruce 080507 new feature]
         self._nodes_containing_selobj_is_from_selobj = None
             # records which selobj was used to set _nodes_containing_selobj
-        
+
         self.stencilbits = 0 # conservative guess, will be set to true value below
 
         if not self.format().stencil():
@@ -547,9 +547,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         ## drawer.setup_drawer()
         self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
-        
+
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
-    
+
         self.loadLighting() #bruce 050311
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 
@@ -571,7 +571,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
 
         return # from GLPane.__init__ 
-    
+
 
     def should_draw_valence_errors(self):
         """
@@ -613,8 +613,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.setWhatsThis(glpaneText)
 
     # ==
-    
-    
+
+
 
     def renderTextNearCursor(self, 
                              textString, 
@@ -638,12 +638,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         if not textString:
             return 
-        
+
         #Extra precaution if the caller passes a junk value such as None
         #for the color
         if not isinstance(color, tuple) or isinstance(color, list):
             color = (0, 0, 0)
-         
+
 
         pos = self.cursor().pos()  
         # x, y coordinates need to be in window coordinate system. 
@@ -659,20 +659,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         glDisable(GL_LIGHTING)
         ############
         from utilities.constants import white
-        
+
         x = pos.x() + offset
         y = pos.y() - offset
-        
+
         deltas_for_bg_color = ((1, 1), (-1, -1), (-1, 1), (1, -1))
-        
+
         #background color
         bg_color = lightgray
         #Foreground color 
         fg_color = black
-        
+
         for dx, dy in deltas_for_bg_color: 
             self.qglColor(RGBf_to_QColor(bg_color)) 
-        
+
             ### Note: self.renderText is QGLWidget.renderText method.
             self.renderText(x + dx ,
                             y + dy,
@@ -681,11 +681,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.qglClearColor(RGBf_to_QColor(bg_color))
 
         # Note: It is necessary to set the font color, otherwise it may change!
-       
+
         self.qglColor(RGBf_to_QColor(fg_color))   
         x = pos.x() + offset
         y = pos.y() - offset
-        
+
         ### Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x ,
                         y ,
@@ -875,17 +875,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # logically I'd prefer to move this to just after set_part, but right now
             # I have no time to fully analyze whether set_part might depend on
             # this having been done, so I won't move it down for now. [bruce 080314]
-            
+
         self.set_part( mainpart)
-        
-        
+
+
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911
 
         return # from GLPane.setAssy
 
     # ==
-    
+
 
     def center_and_scale_from_bbox(self, bbox, klugefactor = 1.0):
         #bruce 070919 split this out of some other methods here.
@@ -1363,44 +1363,44 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # changed this to a full update (not just a glpane update),
         # though technically the non-glpane part is the job of our caller rather than us,
         # and changed MWsemantics to make that safe during our __init__.
-        
+
         self._adjust_GLPane_scale_if_needed()        
         self.win.win_update()
-    
+
     def _adjust_GLPane_scale_if_needed(self):
         """
         Adjust the glpane scale while in a certain command. 
-        
+
         Behavior --
-        
+
         Default scale remains the same (i.e. value of 
         startup_GLPane_scale_prefs_key) 
-        
+
         If user enters BuildDna command and if --
         a) there is no model in the assembly AND 
         b) user didn't change the zoom factor , the glpane.scale woud be 
         adjusted to 50.0 (GLPane_scale_for_dna_commands_prefs_key)
-        
+
         If User doesn't do anything in BuildDna AND also doesn't modify the zoom
         factor, exiting BuildDna and going into the defaultcommand
         (or any command such asBuildAtoms ), it should restore zoom scale to 
         10.0 (value for GLPane_scale_for_atom_commands_prefs_key)
-        
+
         @see: self.update_after_new_current_command() where it is called. This
               method in turn, gets called after you enter a new command.
         @see: Command.start_using_new_mode()
         """
         #Implementing this method fixes bug 2774
         dnaCommands = ('BUILD_DNA', 'DNA_DUPLEX', 'DNA_SEGMENT', 'DNA_STRAND')
-        
+
         startup_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
-        
+
         dna_preferred_scale = float(
             env.prefs[GLPane_scale_for_dna_commands_prefs_key])
-        
+
         atom_preferred_scale = float(
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
-        
+
         numberOfMembers = 0 
         #hasattr test fixes bug 2813
         if hasattr(self.assy.part.topnode, 'members'):
@@ -1409,7 +1409,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             #Its a clipboard part, probably a chunk or a jig not contained in 
             #a group.
             numberOfMembers = 1
-        
+
         if self.currentCommand.commandName in dnaCommands:
             if self.scale ==  startup_scale and \
                numberOfMembers == 0:                
@@ -1992,7 +1992,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
             print "debug fyi: GLPane.mouseDoubleClickEvent sees selobj", self.selobj
-        
+
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mouseDoubleClickEvent(event)
@@ -2086,7 +2086,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
             print "debug fyi: GLPane.mousePressEvent sees selobj", self.selobj
-        
+
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mousePressEvent(event)
@@ -2303,7 +2303,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                          # not just debug pref behavior.
                          ## non_debug = True,
                          prefs_key = "A10 devel/glpane timer interval"
-                     )
+                         )
         if res is not None and type(res) is not type(1):
             # support prefs values stored by future versions (or by a brief bug workaround which stored "None")
             res = None
@@ -2571,9 +2571,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 ##    
 ##    def getZoomFactor(self):
 ##        return self.zoomFactor
-    
+
     def get_angle_made_with_screen_right(self, vec):  
-        
+
         """
         Returns the angle (in degrees) between screen right direction
         and the given vector. It returns positive angles if the 
@@ -2587,17 +2587,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
         vec = norm(vec)        
         theta = angleBetween(vec, self.right)
-        
+
         if self.inThirdQuadrant(vec) or  self.inFourthQuadrant(vec):
             theta = - theta
-                   
+
         return theta
-    
+
     def inFourthQuadrant(self, vec):
         """
         Returns True if the vector lies in a fourth quadrant (with origin 
         located at vector start point)
-        
+
         The 'quadrants' are determined by checking the dot products between 
         the given vector and screen 'right' and 'up. 
         @see: self.get_angle_made_with_screen_right()
@@ -2605,12 +2605,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
         return ( dot(vec, self.right) > 0 and \
                  dot(vec, self.up) < 0)
-                   
+
     def inThirdQuadrant(self, vec):
         """
         Returns True if the vector lies in a third quadrant (with origin 
         located at vector start point)
-        
+
         The 'quadrants' are determined by checking the dot products between 
         the given vector and screen 'right' and 'up. 
         @see: self.get_angle_made_with_screen_right()
@@ -2618,7 +2618,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2. 
         return ( dot(vec, self.right) < 0 and \
                  dot(vec, self.up) < 0)
-    
+
 
     def dragstart_using_GL_DEPTH(self, 
                                  event, 
@@ -2645,7 +2645,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @param always_use_center_of_view: If True it always uses the depth of the
              center of view (returned by self.mousepoints) . This is used by
              LineMode_GM.leftDown(). 
-             
+
         """
         #@NOTE: Argument  always_use_center_of_view added on April 20, 2008 to 
         #fix a bug for Mark's Demo.
@@ -2693,10 +2693,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         point = intersection
 
         return point
-    
+
     def setScaleToDna(self):
         pass
-    
+
 
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
@@ -2878,10 +2878,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if debug_pref("GLPane: skip redraws requested only by Qt?",
                       Choice_boolean_True,
-                          #bruce 080512 made this True, revised prefs_key
+                      #bruce 080512 made this True, revised prefs_key
                       non_debug = True, #bruce 080130
                       prefs_key = "GLPane: skip redraws requested only by Qt?"
-                     ):
+                      ):
 
             # if we don't think this redraw is needed,
             # skip it (but print '#' if atom_debug is set).
@@ -2930,7 +2930,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 ##     sys.stdout.flush()
 
                 return # skip the following repaint
-            
+
             pass
 
         env.redraw_counter += 1 #bruce 050825
@@ -2992,10 +2992,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False)
 
         if fog_test_enable:
-            drawer.setup_fog(125, 170, self.backgroundColor)
-            # this next line really should be just before rendering
-            # the atomic model itself.  I dunno where that is.
-            drawer.enable_fog()
+            if hasattr(self, "fogColor"):
+                # piotr 080515 fixed fog
+                # I think that the bbox call can be expensive.
+                # I have to preserve this value or find another way
+                # of computing it.
+                bbox = self.assy.bbox_for_viewing_model()
+                scale = bbox.scale()
+                drawer.setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
+                # this next line really should be just before rendering
+                # the atomic model itself.  I dunno where that is.
+                drawer.enable_fog()
 
         glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs
             # (e.g. in exprs/Overlay.py)
@@ -3482,6 +3489,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
+        self.fogColor = (c[0], c[1], c[2], 1.0) # piotr 080515        
         del c
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
@@ -3494,6 +3502,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
             drawer.drawFullWindow(bluesky)
+            # fogColor is an average of the gradient components
+            # piotr 080515
+            self.fogColor = \
+                (0.25 * (bluesky[0][0] + bluesky[1][0] + bluesky[2][0] + bluesky[3][0]), \
+                 0.25 * (bluesky[0][1] + bluesky[1][1] + bluesky[2][1] + bluesky[3][1]), \
+                 0.25 * (bluesky[0][2] + bluesky[1][2] + bluesky[2][2] + bluesky[3][2]))
+
             # Note: it would be possible to optimize by not clearing the color buffer
             # when we'll call drawFullWindow, if we first cleared depth buffer (or got
             # drawFullWindow to ignore it and effectively clear it by writing its own
@@ -3606,7 +3621,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 drawer.drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
         # draw some test images related to the confirmation corner
-        
+
         ccdp1 = debug_pref("Conf corner test: redraw at lower left",
                            Choice_boolean_False,
                            prefs_key = True)
@@ -3894,7 +3909,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                                      or "" if selobj is None )
 
         - help the model tree highlight the nodes containing selobj
-        
+
         @note: as of 080509, all sets of self.selobj call this method, via a
                property. If some of them don't want all our side effects,
                they will need to call this method directly and pass options
@@ -3905,7 +3920,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if selobj is not self._selobj:
             previous_selobj = self._selobj
             self._selobj = selobj #bruce 080507 moved this here
-            
+
             # Note: we don't call gl_update_highlight here, so the caller needs to
             # if there will be a net change of selobj. I don't know if we should call it here --
             # if any callers call this twice with no net change (i.e. use this to set selobj to None
@@ -3943,18 +3958,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 self._update_nodes_containing_selobj(
                     selobj, # might be None, and we do need to call this then
                     repaint_nodes = True,
-                        # this causes a side effect which is the only reason we're called here
+                    # this causes a side effect which is the only reason we're called here
                     even_if_selobj_unchanged = False
-                        # optimization;
-                        # should be safe, since changes to selobj parents or node parents
-                        # which would otherwise require this to be passed as true
-                        # should also call mt_update separately, thus doing a full
-                        # MT redraw soon enough
-                 )
+                    # optimization;
+                    # should be safe, since changes to selobj parents or node parents
+                    # which would otherwise require this to be passed as true
+                    # should also call mt_update separately, thus doing a full
+                    # MT redraw soon enough
+                )
             pass # if selobj is not self._selobj
-        
+
         self._selobj = selobj # redundant (as of bruce 080507), but left in for now
-        
+
         #e notify more observers?
         return
 
@@ -3962,7 +3977,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                                         selobj,
                                         repaint_nodes = False,
                                         even_if_selobj_unchanged = False
-                                       ): #bruce 080507
+                                        ): #bruce 080507
         """
         private; recompute self._nodes_containing_selobj from the given selobj,
         optimizing when selobj and/or our result has not changed,
@@ -3978,7 +3993,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                                          result might differ even if selobj
                                          itself has not changed since our
                                          last call.
-                                        
+
         @note: called in two circumstances:
         - when we know selobj has changed (repaint_nodes should be True then)
         - when the MT explicitly calls get_nodes_containing_selobj
@@ -4013,7 +4028,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                     assert type(nodes) == type([])
                 except:
                     msg = "bug in %r.nodes_containing_selobj " \
-                          "(or invalid return value from it)" % (selobj,)
+                        "(or invalid return value from it)" % (selobj,)
                     print_compact_traceback( msg + ": ")
                     nodes = []
                 pass
@@ -4041,18 +4056,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         @return: a list of nodes that contain self.selobj
                  (possibly containing some nodes more than once).
-        
+
         @warning: repeated calls with self.selobj unchanged are *not* optimized.
                   (Doing so correctly would be difficult.)
                   Callers should temporarily store our return value as needed.
         """
         self._update_nodes_containing_selobj(
-                self.selobj,
-                repaint_nodes = False,
-                even_if_selobj_unchanged = True
-         )
+            self.selobj,
+            repaint_nodes = False,
+            even_if_selobj_unchanged = True
+        )
         return self._nodes_containing_selobj
-    
+
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
         # (when some display list was being compiled), so they can notice they're in that dict.

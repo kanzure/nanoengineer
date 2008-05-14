@@ -206,9 +206,11 @@ from OpenGL.GL import glScalef
 
 try:
     from OpenGL.GL import glFog
+    from OpenGL.GL import glFogv # piotr 080515
 except:
     # The installed version of OpenGL requires argument-typed glFog calls.
     from OpenGL.GL import glFogf as glFog	
+    from OpenGL.GL import glFogfv as glFogv
 
 from geometry.VQT import norm, vlen, V, Q, A
 import foundation.env as env #bruce 051126
@@ -464,11 +466,11 @@ def getSphereTriStrips(level):
                   [V(cylRad*cos((i-.5)*p2_5), -vert0[1], cylRad*sin((i-.5)*p2_5))
                    for i in range(5)],
 
-                   # North ring, first vertex *on* the Greenwich Meridian.
-                   [V(cylRad*cos(i*p2_5 ), vert0[1], cylRad*sin(i*p2_5))
-                    for i in range(5)],
+                  # North ring, first vertex *on* the Greenwich Meridian.
+                  [V(cylRad*cos(i*p2_5 ), vert0[1], cylRad*sin(i*p2_5))
+                   for i in range(5)],
 
-                    5 * [V(0.0, 1.0, 0.0)] ] # North Pole.
+                  5 * [V(0.0, 1.0, 0.0)] ] # North Pole.
 
 
     # Three bands, going from bottom to top (South to North.)
@@ -913,7 +915,7 @@ def setup_fog(fog_start, fog_end, fog_color):
     glFog(GL_FOG_END, fog_end)
     if len(fog_color) == 3:
         fog_color = (fog_color[0], fog_color[1], fog_color[2], 1.0)
-    glFog(GL_FOG_COLOR, fog_color)
+    glFogv(GL_FOG_COLOR, fog_color) # piotr 080515
 
 def enable_fog():
     glEnable(GL_FOG)
@@ -1278,12 +1280,12 @@ def drawpolycone_multicolor_worker(params):
     glEnable(GL_COLOR_MATERIAL) # have to enable GL_COLOR_MATERIAL for
                                 # the GLE function
     glPushAttrib(GL_CURRENT_BIT) # store current attributes in case glePolyCone
-                                 # modifies the (e.g. current color)
-                                 # piotr 080411
+                                    # modifies the (e.g. current color)
+                                    # piotr 080411
     glePolyCone(pos_array, color_array, rad_array)
     glPopAttrib() # This fixes the 'disappearing cylinder' bug
-                  # glPopAttrib doesn't take any arguments
-                  # piotr 080415
+                    # glPopAttrib doesn't take any arguments
+                    # piotr 080415
     glDisable(GL_COLOR_MATERIAL)    
     return
 
@@ -2112,7 +2114,7 @@ class ColorSorter:
                 # First build the lower level per-color sublists of primitives.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
                     sublists = [glGenLists(1), 0]
-                    
+
                     # Remember the display list ID for this color.
                     parent_csdl.per_color_dls.append([color, sublists])
 
@@ -2124,7 +2126,7 @@ class ColorSorter:
                         # by an opacity of -1 (4th component of the color.)
                         glDisable(GL_LIGHTING) # Don't forget to re-enable it!
                         pass
-                    
+
                     for func, params, name in funcs:
                         objects_drawn += 1
                         if name != 0:
@@ -2146,11 +2148,11 @@ class ColorSorter:
                         # create another display list that ignores
                         # the contents of color_array.
                         # Remember the display list ID for this color.
-                        
+
                         sublists[1] = glGenLists(1)
-                        
+
                         glNewList(sublists[1], GL_COMPILE)
-                        
+
                         for func, params, name in funcs:
                             objects_drawn += 1
                             if name != 0:
@@ -2169,16 +2171,16 @@ class ColorSorter:
                                 pass
                             continue
                         glEndList()
-                        
+
                     continue
-                
+
                 # Now the upper-level lists call all of the per-color sublists.
                 # One with colors.
                 color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
-                
+
                 for color, dls in parent_csdl.per_color_dls:
-                    
+
                     opacity = color[3]
                     if opacity < 0:
                         #russ 080306: "Unshaded colors" for lines are signaled
@@ -2190,12 +2192,12 @@ class ColorSorter:
                         # to be tested here
                     else:
                         apply_material(color)
-                    
+
                     glCallList(dls[0])
-                        
+
                     continue
                 glEndList()
-                
+
                 # A second one without any colors.
                 nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
                 glNewList(nocolor_dl, GL_COMPILE)
@@ -2211,7 +2213,7 @@ class ColorSorter:
                         glCallList(dls[1])
                     else:
                         glCallList(dls[0])
-                    
+
                 glEndList()
 
                 # A third overlays the second with a single color for selection.
@@ -2293,7 +2295,7 @@ def _makeLonsCell():
            [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
            [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
            [-ux, 4*uy, 2*(ul+dz)]
-       ]
+           ]
 
     res = [ # 2 outward vertical edges for layer 1
             [lVp[0], lVp[3]], [lVp[1], lVp[4]],
@@ -2307,7 +2309,7 @@ def _makeLonsCell():
             [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
             [lVp[11], lVp[13]], [lVp[11], lVp[12]],
             [lVp[13], lVp[15]]
-        ]
+            ]
     return res
 
 wiresphere1list = None
@@ -3327,19 +3329,19 @@ def drawDirectionArrow(color,
     drawpolycone(color, [[pos[0] - 1 * axis[0], 
                           pos[1] - 1 * axis[1],
                           pos[2] - 1 * axis[2]],
-                          [pos[0],# - axis[0], 
-                           pos[1], #- axis[1], 
-                           pos[2]], #- axis[2]],
-                           [pos[0] + arrowHeight * axis[0], 
-                            pos[1] + arrowHeight * axis[1],
-                            pos[2] + arrowHeight * axis[2]],
-                            [pos[0] + (arrowHeight + 1) * axis[0], 
-                             pos[1] + (arrowHeight + 1) * axis[1],
-                             pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
-                             # points not drawn)
-                             [arrowRadius, arrowRadius, 0, 0], # Radius array
-                             opacity = opacity
-                         )
+                         [pos[0],# - axis[0], 
+                          pos[1], #- axis[1], 
+                          pos[2]], #- axis[2]],
+                         [pos[0] + arrowHeight * axis[0], 
+                          pos[1] + arrowHeight * axis[1],
+                          pos[2] + arrowHeight * axis[2]],
+                         [pos[0] + (arrowHeight + 1) * axis[0], 
+                          pos[1] + (arrowHeight + 1) * axis[1],
+                          pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
+                 # points not drawn)
+                 [arrowRadius, arrowRadius, 0, 0], # Radius array
+                 opacity = opacity
+                 )
     #reset the gle number of sides to the gle default of '20'
     gleSetNumSides(20)
 
