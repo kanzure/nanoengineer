@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 attr_decl_macros.py -- Instance, Arg, Option, ArgOrOption, State
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 [was in Exprs.py when developed, before State;
  split into this file 061203 to ease recursive import issues with State]
@@ -36,18 +38,23 @@ from exprs.__Symbols__ import Anything
 # ==
 
 def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False, _noinstance = False, doc = None):
-    """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr (by default).
+    """
+    This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr (by default).
     Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
-       This function is also used internally to help implement the Arg and Option macros;
+
+    This function is also used internally to help implement the Arg and Option macros;
     for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance
     (which is used to suggest an ipath for the new instance, relative to that of self).
-       Similarly, it helps implement ArgExpr etc, for whose sake it has a private option _noinstance.
-       Devel scratch comment:
+
+    Similarly, it helps implement ArgExpr etc, for whose sake it has a private option _noinstance.
+
+    Devel scratch comment:
     Note that the Arg and Option macros may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated
     (with _self bound) to produce the expr to be instantiated. What should they pass?? eval_Expr of the expr they have.
     [#doc - reword this]
-       Other private options: _lvalue_flag, _noinstance (_noinstance is only supported when EVAL_REFORM is true)
+
+    Other private options: _lvalue_flag, _noinstance (_noinstance is only supported when EVAL_REFORM is true)
     """
     if doc:
         printnim("Instance doc is not saved anywhere; should turn into a note to formulascanner to save it as metainfo, maybe")#e
@@ -81,24 +88,31 @@ _arg_order_counter = 0 #k might not really be needed?
 def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _arglist = False, **moreopts):
     ### [update 061204: i think this cmt is obs, not sure:] IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
     ###e see new notes at end of file about how to reform Arg into a more coherent object, useful in wider contexts... [070321]
-    """To declare an Instance-argument in an expr class,
+    """
+    To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
-          attr = Arg( type, optional default value expr )
-       Order matters (specifically, execution order of the Arg macros, or maybe only
+
+      attr = Arg( type, optional default value expr )
+
+    Order matters (specifically, execution order of the Arg macros, or maybe only
     of the exprs containing them, while Python is executing a given class definition,
     before the metaclass's __new__ runs); those attrs which are not already defined
     as args in superclasses [nim] are appended to the inherited arglist, whose positions
     are counted from 0.
-       (Handling anything about args in superclasses is NIM. ##e)
-       The index of the instance made from this optional argument
+
+    (Handling anything about args in superclasses is NIM. ##e)
+
+    The index of the instance made from this optional argument
     will be its position in the arglist (whether or not the arg was supplied
     or the default value expr was used).
-       If the default value expr is not supplied, there is no default value (i.e. the arg is required).
+
+    If the default value expr is not supplied, there is no default value (i.e. the arg is required).
     If it is supplied, it is processed through canon_expr (as if Arg was an Expr constructor),
     unless it's one of the special case symbols (meant only for private use by this family of macros)
     _E_REQUIRED_ARG_ or the other _E_ one.##doc
-       [_attr_expr is a private option for use by ArgOrOption. So is _lvalue_flag and ###NIM _noinstance (in moreopts).]
-       [_arglist is a private option for use by ArgList.]
+    
+    [_attr_expr is a private option for use by ArgOrOption. So is _lvalue_flag and ###NIM _noinstance (in moreopts).]
+    [_arglist is a private option for use by ArgList.]
     """
     global _arg_order_counter
     _arg_order_counter += 1
@@ -122,24 +136,34 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _arglist = 
     return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _arglist = _arglist, **moreopts)
 
 def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental syntax, likely to be revised; #e might need Option variant too
-    "Declare an Arg which will be evaluated not as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
+    """
+    Declare an Arg which will be evaluated not as usual,
+    but to an lvalue object, so its value can be set using .set_to, etc.
+    """
     return Arg(type_expr, dflt_expr, _lvalue_flag = True)
 
 def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False, _arglist = False, **moreopts ):
-    """[private helper for Arg, Option, and maybe ArgOrOption]
+    """
+    [private helper for Arg, Option, and maybe ArgOrOption]
+
     attr_expr should be None, or some sort of expr (in practice always _E_ATTR so far)
       that will get replaced by a constant_Expr for the current attr (in ExprsMeta's FormulaScanner),
       according to whether the current attr should be part of the index and a public option-name for supplying the arg
       (we make sure those conditions are the same). [#e Note that if someday we wanted to include f(attr) in the index,
       but still use attr alone as an option name, we'd have to modify this to permit both f(attr) (or f) and attr to be passed.]
+
     argpos_expr should similarly be None, or some sort of expr (in practice a private subclass of internal_Expr)
       that will get replaced by a constant_Expr for the argument position (an int) that should be allocated to the current attr's arg
       (determined in ExprsMeta's FormulaScanner by allocating posns 0,1,2,etc to newly seen arg-attrs, whether or not the attr itself
       is public for that arg).
+
     type_expr ###doc, passed herein to canon_type
+
     dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or [handled in caller i think, but survives here unmatteringly] _E_REQUIRED_ARG_;
         will be passed through canon_expr
+
     _lvalue_flag is a private option used by LvalueArg.
+
     _arglist is a private option used by ArgList.
     """
     if _lvalue_flag:
@@ -212,7 +236,9 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
 def _type_coercion_expr( type_expr, thing_expr):
     ###e should we make this a full IorE (except when type_expr is Anything?) in order to let it memoize/track its argvals?
     # (can import at runtime if nec.)
-    """[private helper for Arg, etc] [#e stub]
+    """
+    [private helper for Arg, etc] [#e stub]
+
     Given an expr for a type and an expr [to be evalled to get an expr?? NO, caller use eval_Expr for that] for a thing,
     return an expr for a type-coerced version of the thing.
     """
@@ -235,7 +261,8 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
             # first arg not presently used, might be obs here and even in caller ##k
         self.attrs_ive_seen = {}
     def _e_override_replace(self, scanner):
-        """This gets called by a formula scanner when it hits this object in an expr...
+        """
+        This gets called by a formula scanner when it hits this object in an expr...
         it knows lots of private stuff about FormulaScanner.
         """
         attr = scanner.replacements[_E_ATTR] # a constant_Expr, or an indication of error if this happens (maybe missing then?)
@@ -262,14 +289,19 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
     pass
 
 def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
-    """To declare a named optional argument in an expr class,
+    """
+    To declare a named optional argument in an expr class,
     use an assignment like this, directly in the class namespace,
     and (by convention only?) after all the Arg macros:
-          attr = Option( type, optional default value)
-       Order probably doesn't matter.
-       The index of the instance made from this optional argument
+
+      attr = Option( type, optional default value)
+
+    Order probably doesn't matter.
+
+    The index of the instance made from this optional argument
     will be attr (the attribute name).
-       If the default value is needed and not supplied, it comes from the type.
+
+    If the default value is needed and not supplied, it comes from the type.
     """
     global _E_ATTR # fyi
     argpos_expr = None
@@ -277,7 +309,8 @@ def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
     return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, **moreopts)    
 
 def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
-    """means it can be given positionally or using its attrname [#doc better]
+    """
+    means it can be given positionally or using its attrname [#doc better]
     index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)
     """
     global _E_ATTR # fyi
@@ -355,7 +388,9 @@ StateArgOrOption = ArgOrOption ###STUB
 # ==
 
 def canon_type(type_expr):###stub [note: this is not canon_expr!]
-    "Return a symbolic expr representing a type for coercion"
+    """
+    Return a symbolic expr representing a type for coercion
+    """
 
     return Anything # for now! when we implement TypeCoerce, revise this
 
@@ -375,7 +410,9 @@ def canon_type(type_expr):###stub [note: this is not canon_expr!]
 
 def default_expr_from_type_expr(type_expr): #061115
     ## note [070115], this would be impossible for time-dependent types! and for self-dep ones, possible but harder than current code.
-    "#doc"
+    """
+    #doc
+    """
 ##    assert type_expr is Stub # only permitted for these ones; not even correct for all of them, but surely not for others like int
 # Stub is not defined here, never mind
     return canon_expr(None) # stub; only right for Action, wrong for int, str, etc ###e might need revision for ArgList?
@@ -441,12 +478,17 @@ class State(data_descriptor_Expr):
             continue
         return
     def _e_set_descriptor(self, descriptor):
-        """In general (ie part of API of this method, called by data_descriptor_Expr_descriptor):
+        """
+        In general (ie part of API of this method, called by data_descriptor_Expr_descriptor):
         storing the descriptor is optional, since it's also passed into the get and set calls.
         In this subclass, we have to store it, since _e_eval can be called without otherwise knowing descriptor.attr.
         """
         if self._e_descriptor is not None:
-            assert self._e_descriptor is descriptor
+            assert self._e_descriptor is descriptor, \
+                   "bug: %r is not None or %r in %r" % \
+                   ( self._e_descriptor, descriptor, self)
+                # bug: this failed for Ninad in class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand)
+                # (not yet committed, won't be in that form); see email he sent me today [bruce 080514]
         else:
             self._e_descriptor = descriptor
         return
