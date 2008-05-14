@@ -238,9 +238,8 @@ def drawDnaSingleRibbon(glpane,
                                          numberOfBasesDrawn, 
                                          theta_offset
                                      )
-    ribbonPointList = []
-    
-    while x < ribbonLength:          
+
+    while x < ribbonLength:  
         #Draw the axis point.
         drawPoint(stepColor, pointOnAxis)       
 
@@ -257,7 +256,6 @@ def drawDnaSingleRibbon(glpane,
                                              numberOfBasesDrawn, 
                                              theta_offset
                                          )
-        ribbonPointList.append(ribbon1_point)
         
         
         if x == duplexRise and ribbon1_direction == -1:   
@@ -324,7 +322,7 @@ def drawDnaSingleRibbon(glpane,
 
     ##glPopMatrix()
     glEnable(GL_LIGHTING)
-    return ribbonPointList # from drawDnaSingleRibbon
+    return # from drawDnaSingleRibbon
 
 
 def drawDnaRibbons(glpane,
