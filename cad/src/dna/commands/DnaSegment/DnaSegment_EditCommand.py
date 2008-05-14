@@ -111,9 +111,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
-    flyoutToolbar = None
-
-    _parentDnaGroup = None    
+    flyoutToolbar = None   
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
@@ -275,33 +273,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
-        if self.hasValidStructure():         
-            #When the structure (segment) is finalized (after the  modifications)
-            #it will be added to the original DnaGroup to which it belonged 
-            #before we began editing (modifying) it. 
-            self._parentDnaGroup = self.struct.getDnaGroup() 
-            #Set the duplex rise and number of bases
-            basesPerTurn, duplexRise = self.struct.getProps()
-            endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-            params_for_propMgr = (None,
-                                  None, 
-                                  None,
-                                  basesPerTurn, 
-                                  duplexRise, 
-                                  endPoint1, 
-                                  endPoint2)
-            
-                        
-            #TODO 2008-03-25: better to get all parameters from self.struct and
-            #set it in propMgr?  This will mostly work except that reverse is 
-            #not true. i.e. we can not specify same set of params for 
-            #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
-            #by the structure when needed. Commenting out following line of code
-            #UPDATE 2008-05-06 Fixes a bug due to which the parameters in propMGr
-            #of DnaSegment_EditCommand are not same as the original structure
-            #(e.g. bases per turn and duplexrise)
-            self.propMgr.setParameters(params_for_propMgr)
-            
+        if self.hasValidStructure():             
+            self._updatePropMgrParams()
             
             #Store the previous parameters. Important to set it after you 
             #set duplexRise and basesPerTurn attrs in the propMgr. 
@@ -318,6 +291,36 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             else:
                 self._updateHandleList()
                 self.updateHandlePositions()
+                
+    def _updatePropMgrParams(self):
+        """
+        Subclasses may override this method. 
+        Update some property manager parameters with the parameters of
+        self.struct (which is being edited)
+        @see: self.editStructure()
+        """
+        #Set the duplex rise and number of bases
+        basesPerTurn, duplexRise = self.struct.getProps()
+        endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+        params_for_propMgr = (None,
+                              None, 
+                              None,
+                              basesPerTurn, 
+                              duplexRise, 
+                              endPoint1, 
+                              endPoint2)
+        
+                    
+        #TODO 2008-03-25: better to get all parameters from self.struct and
+        #set it in propMgr?  This will mostly work except that reverse is 
+        #not true. i.e. we can not specify same set of params for 
+        #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
+        #by the structure when needed. Commenting out following line of code
+        #UPDATE 2008-05-06 Fixes a bug due to which the parameters in propMGr
+        #of DnaSegment_EditCommand are not same as the original structure
+        #(e.g. bases per turn and duplexrise)
+        self.propMgr.setParameters(params_for_propMgr)
+        
             
     def keep_empty_group(self, group):
         """
@@ -663,14 +666,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
-        """        
-        
-        #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
-        #to self._modifyStructure, after more testing
-        #This method is used for debug prefence: 
-        #'DNA Segment: resize without recreating whole duplex'
-        #see also self.modifyStructure_NEW_SEGMENT_RESIZE
-        
+        """                
         assert self.struct        
         
         self.dna = B_Dna_PAM3()
@@ -692,9 +688,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
                         
         ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
-        
-        
-        
+
         if numberOfBasePairsToAddOrRemove != 0:   
             
             resizeEnd_final_position = self._get_resizeEnd_final_position(

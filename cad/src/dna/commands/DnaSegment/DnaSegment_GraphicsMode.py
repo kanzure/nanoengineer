@@ -170,6 +170,11 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             for handle in self.command.handles:
                 if handle.hasValidParamsForDrawing():
                     handle.draw()
+                    
+        self._drawDnaRubberbandLine()
+        
+  
+    def _drawDnaRubberbandLine(self):
         
         handleType = ''
         if self.command.grabbedHandle is not None:
@@ -178,8 +183,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 handleType = 'ROTATION_HANDLE'
             else:
                 handleType = 'RESIZE_HANDLE'
-        
-        
+                
         if handleType and handleType == 'RESIZE_HANDLE': 
                                     
             params = self.command.getDnaRibbonParams()
@@ -216,6 +220,9 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             self._drawCursorText()
+            
+     
+    
           
             
     
