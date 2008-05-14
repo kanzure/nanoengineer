@@ -537,10 +537,20 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     contextMenuList.append(item)
                     contextMenuList.append(None) #adds a separator in the contextmenu
                     # add menu commands from our DnaLadder [bruce 080407]
+                    if segment.picked:       
+                        selectedDnaSegments = self.assy.getSelectedDnaSegments()
+                        if len(selectedDnaSegments) > 0:
+                            item = (("Resize Selected DnaSegments "\
+                                     "(%d)..."%len(selectedDnaSegments)), 
+                                self.assy.win.resizeSelectedDnaSegments)
+                            contextMenuList.append(item)
+                            contextMenuList.append(None)
                     if self.ladder:
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
                         if menu_spec:
                             contextMenuList.extend(menu_spec)
+                            
+                    
 
         return # from make_glpane_context_menu_items
 

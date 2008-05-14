@@ -57,8 +57,6 @@ from ne1_ui.Ui_PartWindow import Ui_PartWindow
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
-import ne1_ui.toolbars.Ui_NanotubeFlyout as Ui_NanotubeFlyout
-import ne1_ui.toolbars.Ui_DnaFlyout as Ui_DnaFlyout
 
 from operations.ops_files import fileSlotsMixin
 from operations.ops_view import viewSlotsMixin
@@ -71,8 +69,7 @@ import foundation.env as env
 import foundation.undo_internals as undo_internals
 
 from operations.ops_select import objectSelected
-from operations.ops_select import ATOMS, CHUNKS, JIGS
-from operations.ops_select import DNASTRANDS, DNASEGMENTS, DNAGROUPS
+from operations.ops_select import ATOMS
 
 from widgets.widget_helpers import TextMessageBox
 from widgets.simple_dialogs import grab_text_line_using_dialog
@@ -113,6 +110,7 @@ if debug_recent_files:
 else:
     def debug_fileList(fileList):
         pass
+    
 
 # #######################################################################
 
@@ -158,6 +156,7 @@ class MWsemantics(QMainWindow,
         self.planePropMgr = None
         self.dnaDuplexPropMgr = None
         self.dnaSegmentPropMgr = None
+        self.multipleDnaSegmentPropMgr = None
         self.dnaStrandPropMgr = None
         self.buildDnaPropMgr = None
         self.buildCntPropMgr = None
@@ -983,6 +982,25 @@ class MWsemantics(QMainWindow,
         self.assy.delete_sel()
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win_update()
+        
+    def resizeSelectedDnaSegments(self):
+        """
+        Invokes the MultipleDnaSegmentResize_EditCommand to resize the 
+        selected segments. 
+        @see: chunk.make_glpane_context_menu_items (a context menu that calls
+        this method) 
+        """
+        #TODO: need more ui options to invoke this command. 
+        selectedSegments = self.assy.getSelectedDnaSegments()
+        if len(selectedSegments) > 0:
+            commandSequencer = self.commandSequencer      
+        
+            if commandSequencer.currentCommand.commandName != "MULTIPLE_DNA_SEGMENT_RESIZE":
+                commandSequencer.userEnterTemporaryCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
+                
+            assert commandSequencer.currentCommand.commandName == 'MULTIPLE_DNA_SEGMENT_RESIZE'
+            commandSequencer.currentCommand.editStructure(list(selectedSegments))
+        
     
     def editAddSuffix(self):
         """
@@ -1063,6 +1081,7 @@ class MWsemantics(QMainWindow,
         _msg = "%d of %d selected objects renamed." \
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
+        
     
     def renameObject(self, object):
         """
@@ -1688,7 +1707,7 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'JOIN_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
-        
+                
     def enterDnaDisplayStyleCommand(self, isChecked = False):
         """
         """
@@ -1983,6 +2002,29 @@ class MWsemantics(QMainWindow,
             self.dnaSegmentPropMgr.setEditCommand(editCommand)
 
         return self.dnaSegmentPropMgr
+    
+    
+    def createMultipleDnaSegmentPropMgr_if_needed(self, editCommand):
+        """
+        Create the a Property manager object (if one doesn't exist)  for the
+        Multiple Dna Segment Resize command.
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{{MultipleDnaSegmentResize_EditCommand}
+        @see: B{MultipleDnaSegmentResize_EditCommand._createPropMgrObject}
+        """
+        
+        from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_PropertyManager import MultipleDnaSegmentResize_PropertyManager
+        if self.multipleDnaSegmentPropMgr is None:
+            self.multipleDnaSegmentPropMgr = \
+                MultipleDnaSegmentResize_PropertyManager(self, editCommand)
+            
+        else:
+            self.multipleDnaSegmentPropMgr.setEditCommand(editCommand)
+
+        return self.multipleDnaSegmentPropMgr
+    
     
     def createDnaStrandPropMgr_if_needed(self, editCommand):
         """
