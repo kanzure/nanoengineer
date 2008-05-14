@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
 and intended to be used for all or most classes in this module.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 ===
 
@@ -166,10 +166,13 @@ FAKE_ATTR = "<FAKE_ATTR>" # not a possible attr name, but a string in case used 
 FAKE_CLSNAME = "<FAKE_CLSNAME>"
 
 class ClassAttrSpecific_NonDataDescriptor(object):
-    """Abstract class for descriptors which cache class- and attr- specific info
+    """
+    Abstract class for descriptors which cache class- and attr- specific info
     (according to the scheme described in the ExprsMeta module's docstring).
-       Actually, there's a pair of abstract classes, one each for Data and NonData descriptors.
-       To make our implem of self.copy_for_subclass() correct in our subclasses (so they needn't
+
+    Actually, there's a pair of abstract classes, one each for Data and NonData descriptors.
+
+    To make our implem of self.copy_for_subclass() correct in our subclasses (so they needn't
     override it), we encourage them to not redefine __init__, but to rely on our implem of __init__
     which stores all its arguments in fixed attrs of self, namely clsname, attr, args, and kws,
     and then calls self._init1(). [self.cls itself is not yet known, but must be set before first use,
@@ -201,10 +204,15 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     def __repr__(self): #061205 moved this here from a subclass, and removed the worse ones in other subclasses
         return "<%s at %#x for %r in %r>" % (self.__class__.__name__, id(self), self.attr, self.clsname)
     def _init1(self):
-        "subclasses can override this"
+        """
+        #doc
+        [subclasses can override this]
+        """
         pass
     def _ExprsMeta__set_cls(self, cls):
-        "[private method for ExprsMeta to call when it knows the defining class]"
+        """
+        [private method for ExprsMeta to call when it knows the defining class]
+        """
         self.cls = cls
         if self.clsname == FAKE_CLSNAME:
             self.clsname = cls.__name__
@@ -239,7 +247,9 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             assert issubclass(cls2, cls), "cls2 should be subclass of cls (or same class): %r subclass of %r" % (cls2, cls)
         return
     def __get__(self, obj, cls):
-        "subclasses should NOT override this -- override get_for_our_cls instead"
+        """
+        [subclasses should NOT override this -- override get_for_our_cls instead]
+        """
         # WARNING: similar code to __set__ in a subclass
         self.check(cls) #e remove when works (need to optim)
         if obj is None:
@@ -284,7 +294,10 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         return self.get_for_our_cls(obj)
     # we have no __set__ or __delete__ methods, since we need to be a non-data descriptor.
     def get_for_our_cls(self, obj):
-        "Subclass should implement -- do the __get__ for our class (initializing our class-specific info if necessary)"
+        """
+        [Subclass should implement]
+        do the __get__ for our class (initializing our class-specific info if necessary)
+        """
         return None
     def copy_for_subclass(self, cls):
         if 0:
@@ -306,12 +319,15 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     pass # end of class ClassAttrSpecific_NonDataDescriptor
 
 class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
-    """Like our superclass, but has __set__ and __delete__ methods so as to be a data descriptor.
+    """
+    Like our superclass, but has __set__ and __delete__ methods so as to be a data descriptor.
     (Defining either method would be enough to make Python treat us as a data descriptor,
      but we'd rather complain equally about either one running, so we define both.)
-       Our implems of __set__ and __delete__ just assert 0; subclasses can override them
+
+    Our implems of __set__ and __delete__ just assert 0; subclasses can override them
     (with other errors or to make them work), but don't need to.
-       WARNING: if subclasses did intend to override them, most likely they'd need overhead code
+
+    WARNING: if subclasses did intend to override them, most likely they'd need overhead code
     like our superclass has in __get__, so in practice such overriding is not yet supported --
     to support it, we'd want to add that sort of code to this class (perhaps sharing common code
     with our superclass's __get__).
@@ -328,7 +344,9 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     ]
     """
     def __set__(self, obj, val):
-        "subclasses should NOT override this -- override set_for_our_cls instead"
+        """
+        [subclasses should NOT override this -- override set_for_our_cls instead]
+        """
         # WARNING: similar code to __get__ in our superclass
         if obj is None:
             print_compact_stack("fyi, __set__ direct from class of attr %r in obj %r: " % (self.attr, self)) ####@@@@ ever happens?
@@ -349,7 +367,10 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
             return copy.__set__(obj, val)
         return self.set_for_our_cls(obj, val)
     def set_for_our_cls(self, obj, val):
-        "Subclass should implement -- do the __set__ for our class (initializing our class-specific info if necessary)"
+        """
+        [Subclass should implement -- do the __set__ for our class
+         (initializing our class-specific info if necessary)]
+        """
         assert 0, "subclass %r of %r should implement set_for_our_cls" % (self.__class__, self)
     def __delete__(self, *args): # note: descriptor protocol wants __delete__, not __del__!
         print "note: ClassAttrSpecific_DataDescriptor.__delete__ is about to assert 0"
@@ -359,7 +380,8 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
 # ==
 
 class C_rule(ClassAttrSpecific_DataDescriptor):
-    """One of these should be stored on attr by ExprsMeta when it finds a _C_attr compute method,
+    """
+    One of these should be stored on attr by ExprsMeta when it finds a _C_attr compute method,
     formula (if supported #k), or constant,
     or when it finds a formula directly on attr.
     """
@@ -407,7 +429,8 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             # We could add one if needed, but I don't know the best way. Maybe find this property (self) and use a get_lval method,
             # which is passed the instance? Or, setattr(instance, '_lval_' + attr, lval).
     def compute_method_from_customized_instance(self, instance):
-        """See if we permit instance to customize self.attr's formula, and if instance has done so;
+        """
+        See if we permit instance to customize self.attr's formula, and if instance has done so;
         if so, return a compute method from that; else return None.
         """
         permit_override = self.kws.get('permit_override', False) #e do in __init__ with pop, so we can check for unknown options?
@@ -420,7 +443,10 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
         printfyi("DEPRECATED: compute_method_from_customized_instance (since _DEFAULT_ is); attr %r" % (self.attr,)) ##k 061103
         return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
-        "#doc; doesn't consider per-instance customized compute methods."
+        """
+        #doc;
+        doesn't consider per-instance customized compute methods.
+        """
         assert 0, "subclass should implement this"
     pass # end of class C_rule
 
@@ -443,7 +469,8 @@ class C_rule_for_formula(C_rule):
     pass
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
-    """return a new object made from the correct class out of
+    """
+    return a new object made from the correct class out of
     C_rule_for_method or C_rule_for_formula or a val-specified wrapper,
     depending on val
     """
@@ -480,13 +507,20 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
     pass
 
 class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - review all comments before done! ###OBS as of 061203
-    "#doc; used for obs-061117 version of State macro, not sure it'll ever be used as of newer 061203 version of it, maybe for its #e-refexpr"
+    """
+    #doc;
+    used for obs-061117 version of State macro,
+    not sure it'll ever be used as of newer 061203 version of it,
+    maybe for its #e-refexpr
+    """
     ###nim: type-formula
     def _init1(self):
         (self.lval_formula,) = self.args
         assert 0, "no one should be calling this yet...." #####@@@@@@
     def make_lval_for_instance(self, instance):
-        "return an lval (found or made by our formula) for this instance"
+        """
+        return an lval (found or made by our formula) for this instance
+        """
         print "make_lval_for_instance",(self, instance)#####@@@@@
         #e not sure what to do if this formula turns out to be time-dependent... what should be invalidated if it does?? ####
         # for now, just be safe and discard tracked usage, tho it might be better to replace the lval with a new one if it invals.#e
@@ -541,10 +575,13 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
     # which misguidely handled initval_expr itself, and a comment explaining why that was wrong.
 
 def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile into Exprs? #e see also other calls of call_but_discard_tracked_usage
-    """Evaluate a formula (for an instance, at an index) which is allowed to be time-dependent,
+    """
+    Evaluate a formula (for an instance, at an index) which is allowed to be time-dependent,
     but for which we don't want to recompute anything when its value changes.
-       This works by discarding tracked usage from the eval.
-       Usage advice: If ordinary eval is called instead of this (for formulas whose value changes
+
+    This works by discarding tracked usage from the eval.
+
+    Usage advice: If ordinary eval is called instead of this (for formulas whose value changes
     can occur but should not trigger recomputes of whatever our caller is computing),
     changes to this formula's value would incorrectly invalidate whatever our caller happens to be recomputing,
     which might be a bug, or more likely would just be a big performance hit
@@ -575,7 +612,8 @@ class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
 # ==
 
 class CV_rule(ClassAttrSpecific_NonDataDescriptor):
-    """One of these should be stored by ExprsMeta when it finds a _CV_attr compute method,
+    """
+    One of these should be stored by ExprsMeta when it finds a _CV_attr compute method,
     formula (if supported #k), or constant (if supported #k).
     """
     prefixV = '_CV_'
@@ -639,7 +677,9 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
 class CV_rule_for_val(CV_rule):pass ####k guess off top of head, much later than the code was written [061103]
 
 def choose_CV_rule_for_val(clsname, attr, val):
-    "return an appropriate CV_rule object, depending on val"
+    """
+    return an appropriate CV_rule object, depending on val
+    """
     if is_formula(val):
         assert 0, "formulas on _CV_attr are not yet supported"
         # when they are, we'll need _self and _i both passed to _e_compute_method
@@ -679,7 +719,10 @@ def prefix_nothing(clsname, attr0, val, **kws):
     return val0
 
 def prefix_DEFAULT_(clsname, attr0, val, **kws):
-    "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
+    """
+    #doc
+    WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option
+    """
     printfyi("_DEFAULT_ is deprecated and may soon be unsupported") #070121
     if 'kluge061103':
         assert val is canon_expr(val)
@@ -718,7 +761,11 @@ def attr_prefix(attr): # needn't be fast
     return ''
 
 def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, and revised, 061203 
-    "val needs_wrap_by_ExprsMeta if it's an Expr pyinstance (for now) [no longer has to contain _self as a free variable]"
+    """
+    #doc
+    val needs_wrap_by_ExprsMeta if it's an Expr pyinstance (for now)
+    [no longer has to contain _self as a free variable]
+    """
     if not is_Expr_pyinstance(val):
         return False
 ##    if not val._e_free_in('_self'):###WRONG I think, re State... changed now
@@ -752,7 +799,10 @@ def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, 
 is_formula = is_Expr #####e review these -- a lot of them need more cases anyway
 
 def is_attr_equals_self_attr_assignment(attr, val, classname = "?"): #070324 split out this predicate
-    "is the assignment attr = val of the exact form attr = _self.attr (for the same attr, ie recursive)?"
+    """
+    is the assignment attr = val of the exact form attr = _self.attr
+    (for the same attr, ie recursive)?
+    """
     if isinstance(val, getattr_Expr) \
        and val._e_args[0] is _self \
        and isinstance( val._e_args[1], constant_Expr) \
@@ -987,7 +1037,8 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         debug_name = self.debug_name
         return "<%s at %#x%s>" % (self.__class__.__name__, id(self), debug_name and (" (%s)" % debug_name) or "")
     def scan(self, formula, attr):
-        """Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
+        """
+        Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
         Return a modified copy in which replacements were done, .... #doc
         """
         self.linecounter += 1
@@ -1061,7 +1112,8 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
                 # don't do this before calling self.replacement_subexpr above, or it'll find this replacement immediately!
         return res
     def replacement_subexpr(self, subexpr): ###e arg to preclude replacing entire thing, to help detect a1=a2=Arg() error
-        """Map a subexpr found in a formula (perhaps a C_rule from a superclass, if that can happen and is supported)
+        """
+        Map a subexpr found in a formula (perhaps a C_rule from a superclass, if that can happen and is supported)
         into its replacement, which is usually the same subexpr.
         """
         assert not isinstance(subexpr, ClassAttrSpecific_NonDataDescriptor), "formula containing super C_rule is nim" #e more info
@@ -1098,14 +1150,17 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             return subexpr
         return subexpr._e_replace_using_subexpr_filter( self.replacement_subexpr ) ###IMPLEM in Expr #k does API survive lexscoping??
     def argpos(self, attr, required, arglist = False):
-        """An Arg or ArgOrOption macro has just been seen for attr, in the source line identified by self.linecounter.
+        """
+        An Arg or ArgOrOption macro has just been seen for attr, in the source line identified by self.linecounter.
         (It is a required arg iff required is true. It is an ArgList iff arglist is true [new feature 070321].)
         (In the future, if a superclass defines args, this might be one of those or a new one.)
         What argument position (numbered 0, 1, 2, etc) does this arg correspond to? Return the answer, and record it.
-           NIM: ASSUME NO ARGUMENTS COME FROM THE SUPERCLASSES. To fix that, we'll need to find out what they were,
+
+        NIM: ASSUME NO ARGUMENTS COME FROM THE SUPERCLASSES. To fix that, we'll need to find out what they were,
         then see if these are in that list (if so return old number), or not (and start new numbers after end of that list).
         Behavior when superclass has optional args and this class then defines required ones is not decided (might be an error).
-           NIM: any decl to override this, like _args.
+
+        NIM: any decl to override this, like _args.
         """
         try:
             res = self.argposns[attr]
@@ -1171,7 +1226,8 @@ class ConstantComputeMethodMixin:
     pass
         
 class DictFromKeysAndFunction(ConstantComputeMethodMixin):
-    """Act like a read-only dict with a fixed set of keys (computed from a supplied function when first needed;
+    """
+    Act like a read-only dict with a fixed set of keys (computed from a supplied function when first needed;
     if that func is not supplied, all keys are permitted and iteration over this dict is not supported),
     and with all values computed by another supplied function (not necessarily constant, thus not cached).
     """
@@ -1192,38 +1248,54 @@ class DictFromKeysAndFunction(ConstantComputeMethodMixin):
         return self.compute_value_at_key(key) # not cached in self
     # dict methods, only supported when compute_key_sequence was supplied
     def keys(self):
-        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        """
+        @note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered
+        """
         return self.key_sequence
     iterkeys = keys
     def values(self):
-        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        """
+        @note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered
+        """
         compval = self.compute_value_at_key
         return map( compval, self.key_sequence )
     itervalues = values
     def items(self):
-        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        """
+        @note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered
+        """
         compval = self.compute_value_at_key
         return [(key, compval(key)) for key in self.key_sequence]
     iteritems = items
     pass # end of class DictFromKeysAndFunction
 
 class RecomputableDict(Delegator):
-    """Act like a read-only dict with variable (invalidatable/recomputable) values,
+    """
+    Act like a read-only dict with variable (invalidatable/recomputable) values,
     and a fixed key sequence used only to support iteration
     (with iteration not supported if the key sequence compute function is not supplied).
-       If validate_keys is True, every __getitem__ verifies the supplied key is in the specified key sequence.
-       #e Someday, self.lvaldict might be a public attr -- not sure if this is needed;
+
+    If validate_keys is True, every __getitem__ verifies the supplied key is in the specified key sequence.
+
+    #e Someday, self.lvaldict might be a public attr -- not sure if this is needed;
     main use is "iterate over values defined so far".
-       [This class is used by ExprsMeta to help implement _CV_ dict-item compute methods.]
+
+    [This class is used by ExprsMeta to help implement _CV_ dict-item compute methods.]
     """
     def __init__(self, compute_methodV, compute_methodK = None, validate_keys = False):
         self.lvaldict = LvalDict2(compute_methodV)
-        Delegator.__init__( self, DictFromKeysAndFunction( self.compute_value_at_key, compute_methodK, validate_keys = validate_keys))
+        Delegator.__init__( self,
+                            DictFromKeysAndFunction(
+                                self.compute_value_at_key,
+                                compute_methodK,
+                                validate_keys = validate_keys ) )
         return
     def compute_value_at_key(self, key): #e should rename to be private?
         return self.lvaldict[key].get_value()
     def inval_at_key(self, key):#070207
-        """[public method, on a dictlike object whose other client code might treat it much like an ordinary dict]
+        """
+        [public method, on a dictlike object whose other client code might treat it much like an ordinary dict]
+
         Invalidate our lval at the given key. This has two effects:
         - force it to be recomputed when next asked for;
         - propogate this inval to anything which tracked a use of the value.
