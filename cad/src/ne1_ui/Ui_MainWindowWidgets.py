@@ -1117,13 +1117,8 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.editDeleteAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Delete (Ctrl+D)", 
-            None, QtGui.QApplication.UnicodeUTF8))
-    win.editDeleteAction.setShortcut(
-        QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+D", 
-            None, QtGui.QApplication.UnicodeUTF8))
-    
+            "MainWindow", "Delete (Del)", 
+            None, QtGui.QApplication.UnicodeUTF8))        
     win.editRenameAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Rename",
