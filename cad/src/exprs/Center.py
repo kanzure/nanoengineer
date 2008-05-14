@@ -129,6 +129,9 @@ class TopRight_buggy(AlignmentExpr): # with AlignmentExpr -- doesn't work yet
         # guess: ExprsMeta stores it, then stores these new ones, but doesn't know it needs to "revisit" that one (for delegate)
         # and remake it for subclass with revised dx/dy. (Ideally it would remake it afresh for each subclass, I guess... how hard??)
         # conclusion: debug that, but for now, don't use the AlignmentExpr superclass, just spell out each subclass.
+        # update, 080514: obvious in hindsight: when the delegate formula in AlignmentExpr is executed by Python,
+        # dx is 0 so it might as well be defining delegate = Translate(thing, V_expr(0,0,0)).
+        # So there is no fix without revising that definition or the defs of dx, dy.
 
 # pre-061211 version of Center, also worked fine:
 ##class Center(InstanceMacro):
