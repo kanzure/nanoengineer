@@ -19,6 +19,7 @@ DNA Cylinder *and* the global display style is not DNA Cylinder.
 - Add "Display Strand Labels" groupbox.
 - Add "Display Base Orientation Indicators" groupbox.
 """
+import os
 import foundation.env as env
 
 from widgets.DebugMenuMixin import DebugMenuMixin
@@ -33,6 +34,8 @@ from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_StackedWidget import PM_StackedWidget
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ToolButtonRow import PM_ToolButtonRow
+
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 
@@ -57,6 +60,28 @@ from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
 from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
+
+dnaDisplayStylePrefsList = \
+                         [dnaStyleAxisShape_prefs_key, 
+                          dnaStyleAxisScale_prefs_key,
+                          dnaStyleAxisColor_prefs_key,
+                          dnaStyleAxisTaper_prefs_key,
+                          
+                          dnaStyleStrandsShape_prefs_key,
+                          dnaStyleStrandsScale_prefs_key,
+                          dnaStyleStrandsColor_prefs_key,
+                          dnaStyleStrandsArrows_prefs_key,
+                          
+                          dnaStyleStrutsShape_prefs_key,
+                          dnaStyleStrutsScale_prefs_key,
+                          dnaStyleStrutsColor_prefs_key,
+                          
+                          dnaStyleBasesShape_prefs_key,
+                          dnaStyleBasesScale_prefs_key,
+                          dnaStyleBasesColor_prefs_key,
+                          
+                          dnaStrandLabelsEnabled_prefs_key,
+                          dnaStrandLabelsColorMode_prefs_key]
 
 class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -114,6 +139,27 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
+        
+        # Favorite buttons signal-slot connections.
+        change_connect( self.applyFavoriteButton,
+                        SIGNAL("clicked()"), 
+                       self.applyFavorite)
+        
+        change_connect( self.addFavoriteButton,
+                        SIGNAL("clicked()"), 
+                       self.addFavorite)
+        
+        change_connect( self.deleteFavoriteButton,
+                        SIGNAL("clicked()"), 
+                       self.deleteFavorite)
+        
+        change_connect( self.saveFavoriteButton,
+                        SIGNAL("clicked()"), 
+                       self.saveFavorite)
+        
+        change_connect( self.loadFavoriteButton,
+                        SIGNAL("clicked()"), 
+                       self.loadFavorite)
         
         # Axis groupbox.
         change_connect( self.axisShapeComboBox,
@@ -183,8 +229,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         change_connect( self.standLabelColorComboBox,
                       SIGNAL("currentIndexChanged(int)"),
-                      self.change_dnaStrandLabelsDisplay )        
-            
+                      self.change_dnaStrandLabelsDisplay )
+        
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -216,17 +262,76 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
-        """        
+        """
         self._pmGroupBox1 = PM_GroupBox( self, 
-                                         title = "DNA Display Style Options")
+                                         title = "Favorites")
         self._loadGroupBox1( self._pmGroupBox1 )
+        
         self._pmGroupBox2 = PM_GroupBox( self, 
-                                         title = "DNA Display Style Favorites")
+                                         title = "Current display settings")
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox2.hide()
-    
+        
+        #@ self._pmGroupBox1.hide()
+        
     def _loadGroupBox1(self, pmGroupBox):
+        """
+        Load widgets in group box.
+        """
+        
+        favoriteChoices = ['Factory default settings']
+
+        self.favoritesComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         choices       =  favoriteChoices,
+                         spanWidth  =  True)
+        
+        # PM_ToolButtonRow ===============
+        
+        # Button list to create a toolbutton row.
+        # Format: 
+        # - QToolButton, buttonId, buttonText, 
+        # - iconPath,
+        # - tooltip, shortcut, column
+        
+        BUTTON_LIST = [ 
+            ( "QToolButton", 1,  "APPLY_FAVORITE", 
+              "dna/commands/DnaDisplayStyle/ui/icons/ApplyFavorite.png",
+              "Apply Favorite", "", 0),
+            ( "QToolButton", 2,  "ADD_FAVORITE", 
+              "dna/commands/DnaDisplayStyle/ui/icons/AddFavorite.png",
+              "Add Favorite", "", 1),
+            ( "QToolButton", 3,  "DELETE_FAVORITE",  
+              "dna/commands/DnaDisplayStyle/ui/icons/DeleteFavorite.png",
+              "Delete Favorite", "", 2),
+            ( "QToolButton", 4,  "SAVE_FAVORITE",  
+              "dna/commands/DnaDisplayStyle/ui/icons/SaveFavorite.png",
+              "Save Favorite", "", 3),
+            ( "QToolButton", 5,  "LOAD_FAVORITE",  
+              "dna/commands/DnaDisplayStyle/ui/icons/LoadFavorite.png",
+              "Load Favorite", \
+              "", 4)  
+            ]
+            
+        self.favsButtonGroup = \
+            PM_ToolButtonRow( pmGroupBox, 
+                              title        = "",
+                              buttonList   = BUTTON_LIST,
+                              spanWidth    = True,
+                              isAutoRaise  = False,
+                              isCheckable  = False,
+                              setAsDefault = True,
+                              )
+        
+        self.favsButtonGroup.buttonGroup.setExclusive(False)
+        
+        self.applyFavoriteButton  = self.favsButtonGroup.getButtonById(1)
+        self.addFavoriteButton    = self.favsButtonGroup.getButtonById(2)
+        self.deleteFavoriteButton = self.favsButtonGroup.getButtonById(3)
+        self.saveFavoriteButton   = self.favsButtonGroup.getButtonById(4)
+        self.loadFavoriteButton   = self.favsButtonGroup.getButtonById(5)
+        
+    def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
         """
@@ -269,18 +374,6 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          choices       =  standLabelColorChoices,
                          setAsDefault  =  True)
     
-    def _loadGroupBox2(self, pmGroupBox):
-        """
-        Load widgets in group box.
-        """
-        
-        favoritesChoices = ['Default']
-
-        self.favoritesComboBox  = \
-            PM_ComboBox( pmGroupBox,
-                         choices       =  favoritesChoices,
-                         spanWidth  =  True)
-        
     def _loadAxisGroupBox(self):
         """
         Load the Axis group box.
@@ -516,7 +609,130 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             self.win.userPrefs.toggle_dnaDisplayStrandLabelsGroupBox(True)
             self.win.userPrefs.change_dnaStrandLabelsColorMode(mode - 1)
-            
+    
+    def applyFavorite(self):
+        """
+        Apply the DNA display style settings stored in the current favorites 
+        (selected in the combobox) to the DNA display style settings.
+        """
+        current_favorite = self.favoritesComboBox.currentText()
+        if current_favorite == 'Factory default settings':
+            env.prefs.restore_defaults(dnaDisplayStylePrefsList)
+        else:
+            msg = "Cannot apply favorite named [%s]. "\
+                "This feature is not implemented yet." % current_favorite
+            print msg
+        self.updateDnaDisplayStyleWidgets()
+        return
+    
+    def addFavorite(self):
+        """
+        Adds a new favorite to the user's list of favorites.
+        """
+        # Rules and other info:
+        # - The new favorite is defined by the current DNA display style 
+        #    settings.
+        # - If there is already a favorite with the current DNA display style 
+        #    settings, the user is notified by a message box and is given the 
+        #    name of the favorite.
+        # - The user is prompted to type in a (unique) name for the new 
+        #    favorite.
+        # - The DNA display style settings are written to a file in a special 
+        #    directory on the disk (i.e. $HOME/Nanorex/DNA/Favorites/$FAV_NAME.fav).
+        # - The name of the new favorite is added to the list of favorites in
+        #    the combobox, which becomes the current option. 
+        
+        # First, check if there is already a favorite with the current settings.
+        # ok = self.checkForDuplicateFavorite()
+        # if not ok:
+        #     return
+        
+        # Prompt user for a unique favorite name to add. 
+        from widgets.simple_dialogs import grab_text_line_using_dialog
+        
+        ok, name = \
+          grab_text_line_using_dialog(
+              title = "Add new favorite",
+              label = "favorite name:",
+              iconPath = "dna/commands/DnaDisplayStyle/ui/icons/AddFavorite.png",
+              default = "" )
+        if ok:
+            ok, text = self.writeDnaDisplayStyleSettingsToFavoritesFile(name)
+        if ok:
+            self.favoritesComboBox.addItem(name)
+            _lastItem = self.favoritesComboBox.count()
+            self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
+            msg = "New favorite [%s] added." % (text)
+        else:
+            msg = "Can't add favorite [%s]: %s" % (name, text) # text is reason why not
+        
+        print msg #@ Turn into a history msg.
+        
+        return
+        
+    def deleteFavorite(self):
+        """
+        Deletes the current favorite from the user's personal list of favorites
+        (and from disk).
+        
+        @note: Cannot delete "Factory default settings".
+        """
+        currentIndex = self.favoritesComboBox.currentIndex()
+        currentText = self.favoritesComboBox.currentText()
+        if currentIndex == 0:
+            msg = "Cannot delete '%s'." % currentText
+        else:
+            self.favoritesComboBox.removeItem(currentIndex)
+            msg = "Deleted favorite named [%s].\n" \
+                "Don't forget to delete the favorite file [%s.fav]." \
+                % (currentText, currentText)
+        print msg
+        return
+        
+    def saveFavorite(self):
+        """
+        Writes the current favorite (selected in the combobox) to a file that 
+        can be given to another NE1 user (i.e. as an email attachment).
+        """
+        print "saveFavorite(): Not implemented yet."
+        return
+        
+    def loadFavorite(self):
+        """
+        Prompts the user to choose a "favorite file" (i.e. *.fav) from disk to
+        be added to the personal favorites list.
+        """
+        print "loadFavorite(): Not implemented yet."
+        return
+    
+    def writeDnaDisplayStyleSettingsToFavoritesFile( self, basename ):
+        """
+        Writes a "favorite file" (with a .fav extension) to store all the 
+        DNA display style settings (pref keys and their current values).
+        
+        @param basename: The filename (without the .fav extension) to write.
+        @type  basename: string
+        
+        @note: The favorite file is written to the directory
+               $HOME/Nanorex/DnaFavorites.
+        """
+        
+        if not basename:
+            return 0, "No name given."
+        
+        _ext = ".fav"
+        
+        # Make favorite filename (i.e. ~/Nanorex/DnaFavorites/basename.fav)
+        from platform.PlatformDependent import find_or_make_Nanorex_subdir
+        _dir = find_or_make_Nanorex_subdir('DnaFavorites')
+        _favfilepath = os.path.join(_dir, "%s.%s" % (basename, _ext))
+        
+        #@ MORE TO DO HERE...
+        
+        msg = "Problem writing file [%s]" % _favfilepath
+        
+        return 1, basename
+        
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  
