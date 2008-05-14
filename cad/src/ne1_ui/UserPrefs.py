@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 UserPrefs.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -1386,8 +1386,9 @@ restored when the user undoes a structural change.</p>
         self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
 
-# Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
-    def _setup_lighting_page(self, lights=None): #mark 051124
+    # == Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
+
+    def _setup_lighting_page(self, lights = None): #mark 051124
         """
         Setup widgets to initial (default or defined) values on the Lighting page.
         """
@@ -1438,8 +1439,8 @@ restored when the user undoes a structural change.</p>
 
         self._setup_material_group()
 
-# _setup_material_group() should be folded back into _setup_lighting_page(). Mark 051204.
-    def _setup_material_group(self, reset=False):
+    # _setup_material_group() should be folded back into _setup_lighting_page(). Mark 051204.
+    def _setup_material_group(self, reset = False):
         """
         Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
         If reset = False, widgets are reset from the prefs db.
@@ -1494,15 +1495,8 @@ restored when the user undoes a structural change.</p>
         loditem = lod # index of corresponding spinbox item -- this is only correct for 0,1,2; other cases handled below
         if lod <= -1: # 'variable' (only -1 is used now, but other negative values might be used in future)
             # [bruce 060215 changed prefs value for 'variable' from 3 to -1, in case we have more LOD levels in the future]
+            # [bruce 060317 fixed bug 1551 (in two files) by removing lod == 3 case from if/elif statement.]
             loditem = 3 # index of the spinbox item that says "variable"
-        #bruce 060317 fix bug 1551 (in two files) by removing lod == 3 case. It should never be reactivated.
-        # This comment and commented-out code can be removed after A7 release.
-##        elif lod == 3:
-##            # 3 is an illegal value now -- fix it
-##            # (this case can be removed after a few days; in A7 3 or higher should be a legal value equivalent to 2)
-##            env.prefs[ levelOfDetail_prefs_key ] = -1
-##            loditem = 3
-##        elif lod > 3: # change this to compare to '2' for A7 (in a few days)
         elif lod > 2:
             loditem = 2
         self.level_of_detail_combox.setCurrentIndex(loditem)
@@ -1779,7 +1773,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
 
         # Update Display Font widgets
-        self.set_font_widgets(setFontFromPrefs=True) # Also sets the current display font.
+        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
 
         return
 
@@ -3079,7 +3073,7 @@ restored when the user undoes a structural change.</p>
         Slot for Reset button.
         """
         # This has issues.  I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
-        self._setup_material_group(reset=True)
+        self._setup_material_group(reset = True)
         self._setup_lighting_page(self.original_lights)
         self.glpane.saveLighting()
 
@@ -3370,7 +3364,7 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[nanohive_path_prefs_key] = str(newValue)
 
-    def enable_nanohive(self, enable=True):
+    def enable_nanohive(self, enable = True):
         """
         Enables/disables NanoHive-1 plugin.
 
@@ -3530,8 +3524,8 @@ restored when the user undoes a structural change.</p>
     def enable_povdir(self, enable = True): #bruce 060710
         """
         Slot method for povdir checkbox.
-        povdir is enabled when enable=True.
-        povdir is disabled when enable=False.
+        povdir is enabled when enable = True.
+        povdir is disabled when enable = False.
         """
         env.prefs[povdir_enabled_prefs_key] = not not enable
         self._update_povdir_enables()
@@ -3691,12 +3685,14 @@ restored when the user undoes a structural change.</p>
         font = self.w.defaultFont
         env.prefs[displayFont_prefs_key] = str(font.family())
         env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
-        self.set_font_widgets(setFontFromPrefs=True) # Also sets the current display font.
+        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
 
         if debug_flags.atom_debug: 
-            print "change_selected_font_to_default_font(): Button clicked. Default font: ", font.family(), ", size=", font.pointSize()        
+            print "change_selected_font_to_default_font(): " \
+                  "Button clicked. Default font: ", font.family(), \
+                  ", size=", font.pointSize()        
 
-    def set_font_widgets(self, setFontFromPrefs=True):
+    def set_font_widgets(self, setFontFromPrefs = True):
         """
         Update font widgets based on font prefs.
         Unconnects signals from slots, updates widgets, then reconnects slots.
@@ -3715,11 +3711,19 @@ restored when the user undoes a structural change.</p>
             # This code only called the first time NE1 is run (or the prefs db does not exist)
             font = self.w.defaultFont
             font_family = str(font.family())
+                # note: this str() prevents NE1 from running on some international systems.
+                # we should leave it in place until we can reproduce the bug,
+                # then fix it. (Not necessarily by replacing it with unicode(),
+                # since ideally we'd use str if it works, unicode if it doesn't.
+                # Does string() do that??)
+                # [bruce comment 080514]
             font_size = font.pointSize()
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = font_size
             if debug_flags.atom_debug: 
-                print "set_font_widgets(): No prefs db. Using default font: ", font.family(), ", size=", font.pointSize()
+                print "set_font_widgets(): No prefs db. " \
+                      "Using default font: ", font.family(), \
+                      ", size=", font.pointSize()
 
         else:
             font_family = env.prefs[displayFont_prefs_key]
