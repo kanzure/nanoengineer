@@ -267,19 +267,24 @@ def startup_script( main_globals):
 
 
     # Handle the optional startup argument, --initial-file .
-    # TODO: figure out what this is for and what it does, and document it here.
-    from utilities import debug_flags
-    if debug_flags.atom_debug:
-        # Use a ridiculously specific keyword, so this isn't triggered accidentally.
-        if len(sys.argv) >= 3 and sys.argv[1] == '--initial-file':
-            # fileOpen gracefully handles the case where the file doesn't exist.
-            foo.fileOpen(sys.argv[2])
-            if len(sys.argv) > 3:
-                import foundation.env as env
-                from utilities.Log import orangemsg
-                env.history.message(orangemsg("We can only import one file at a time."))
-
-
+    # Take the command line argument of --initial-file and open it in the
+    # NE1 viewer.  Traditionally, this would be used for MMP files and 
+    # will be used as such with file associations for the MMP format.
+    # -Derrick 20080514
+    # Use a ridiculously specific keyword, so this isn't triggered accidentally.
+    if (len(sys.argv) >= 3) and (sys.argv.count('--initial-file') >= 1):
+        st_file_index = sys.argv.index('--initial-file')
+        if (st_file_index != 0) and (len(sys.argv) >= st_file_index+2):
+            #all conditions met, try to load the file
+            foo.fileOpen(sys.argv[st_file_index+1])
+        #next sections is for multiple occurances of --initial-file
+        #Give a warning, but don't crash the program.
+        #And allow other args without error.
+        if sys.argv.count('--initial-file') > 1:
+            import foundation.env as env
+            from utilities.Log import orangemsg
+            env.history.message(orangemsg("We can only import one file at a time."))
+            
     # Finally, run the main Qt event loop --
     # perhaps with profiling, depending on local variables set above.
     # This does not normally return until the user asks NE1 to exit.
