@@ -77,7 +77,7 @@ from utilities.prefs_constants import dnaStyleStrutsShape_prefs_key
 from utilities.prefs_constants import dnaStyleStrandsScale_prefs_key
 from utilities.prefs_constants import dnaStyleAxisScale_prefs_key
 from utilities.prefs_constants import dnaStyleBasesScale_prefs_key
-from utilities.prefs_constants import dnaStyleAxisTaper_prefs_key
+from utilities.prefs_constants import dnaStyleAxisEndingStyle_prefs_key
 from utilities.prefs_constants import dnaStyleStrutsScale_prefs_key
 
 # piotr 080325 added more user preferences
@@ -512,7 +512,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
         return colors
 
-    def _get_axis_radii(self, atom_list, color_style, shape, scale, taper):
+    def _get_axis_radii(self, atom_list, color_style, shape, scale, ending_style):
         """
         Create a list of radii from atom list.
         """
@@ -526,21 +526,21 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # For discrete colors duplicate a number of nodes.
             length = 2*n_atoms+2
             radii = [rad] * (length)
-            if taper==2 or taper==3:
+            if ending_style==2 or ending_style==3:
                 radii[1] = 0.0
                 radii[2] = 0.5*rad
                 radii[3] = 0.5*rad
-            if taper==1 or taper==3:
+            if ending_style==1 or ending_style==3:
                 radii[length-4] = 0.5 * rad
                 radii[length-3] = 0.5 * rad
                 radii[length-2] = 0.0
         else:
             length = n_atoms+2
             radii = [rad] * (length)
-            if taper==2 or taper==3:
+            if ending_style==2 or ending_style==3:
                 radii[1] = 0.0
                 radii[2] = 0.66 * rad
-            if taper==1 or taper==3:
+            if ending_style==1 or ending_style==3:
                 radii[length-3] = 0.66 * rad
                 radii[length-2] = 0.0        
 
@@ -683,7 +683,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             n_points = len(axis_positions)            
             if self.dnaStyleAxisShape>0:
                 # spherical ends    
-                if self.dnaStyleAxisTaper==4:
+                if self.dnaStyleAxisEndingStyle == 4:
                     drawer.drawsphere(axis_colors[1], 
                                       axis_positions[1], 
                                       axis_radii[1], 2)
@@ -1598,7 +1598,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaStyleAxisShape = env.prefs[dnaStyleAxisShape_prefs_key]
         self.dnaStyleAxisColor = env.prefs[dnaStyleAxisColor_prefs_key]
         self.dnaStyleAxisScale = env.prefs[dnaStyleAxisScale_prefs_key]
-        self.dnaStyleAxisTaper = env.prefs[dnaStyleAxisTaper_prefs_key]
+        self.dnaStyleAxisEndingStyle = env.prefs[dnaStyleAxisEndingStyle_prefs_key]
         self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
         self.dnaStyleStrutsColor = env.prefs[dnaStyleStrutsColor_prefs_key]
         self.dnaStyleStrutsScale = env.prefs[dnaStyleStrutsScale_prefs_key]                
@@ -1790,7 +1790,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 self.dnaStyleAxisColor, 
                 self.dnaStyleAxisShape,
                 self.dnaStyleAxisScale,
-                self.dnaStyleAxisTaper)
+                self.dnaStyleAxisEndingStyle)
         elif chunk.isStrandChunk():
             polycylinder_positions = self._get_strand_positions(
                 chunk, strand_atoms[current_strand])

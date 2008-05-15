@@ -127,7 +127,7 @@ from utilities.prefs_constants import dnaStyleStrandsArrows_prefs_key
 from utilities.prefs_constants import dnaStyleAxisShape_prefs_key
 from utilities.prefs_constants import dnaStyleAxisColor_prefs_key
 from utilities.prefs_constants import dnaStyleAxisScale_prefs_key
-from utilities.prefs_constants import dnaStyleAxisTaper_prefs_key
+from utilities.prefs_constants import dnaStyleAxisEndingStyle_prefs_key
 from utilities.prefs_constants import dnaStyleStrutsShape_prefs_key
 from utilities.prefs_constants import dnaStyleStrutsColor_prefs_key
 from utilities.prefs_constants import dnaStyleStrutsScale_prefs_key
@@ -642,7 +642,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaStyleAxisScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleAxisScale)
         self.connect(self.dnaStyleBasesScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleBasesScale)
         self.connect(self.dnaStyleStrandsArrowsComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsArrows)
-        self.connect(self.dnaStyleAxisTaperComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisTaper)
+        self.connect(self.dnaStyleAxisEndingStyleComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisEndingStyle)
 
         # piotr 080325
         self.connect(self.dnaDisplayStrandLabelsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayStrandLabelsGroupBox)
@@ -1687,8 +1687,8 @@ restored when the user undoes a structural change.</p>
             env.prefs[dnaStyleAxisShape_prefs_key])
         self.dnaStyleStrandsArrowsComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrandsArrows_prefs_key])        
-        self.dnaStyleAxisTaperComboBox.setCurrentIndex(
-            env.prefs[dnaStyleAxisTaper_prefs_key])
+        self.dnaStyleAxisEndingStyleComboBox.setCurrentIndex(
+            env.prefs[dnaStyleAxisEndingStyle_prefs_key])
         self.update_dnaStyleStrandsScale()
         self.update_dnaStyleStrutsScale()
         self.update_dnaStyleAxisScale()
@@ -2780,11 +2780,11 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[dnaStyleStrandsArrows_prefs_key] = shape
 
-    def change_dnaStyleAxisTaper(self, shape):
+    def change_dnaStyleAxisEndingStyle(self, shape):
         """
         Changes DNA Style strands ends.
 
-        @param shape: The shape mode:
+        @param shape: The ending style shape:
                     - 0 = flat
                     - 1 = taper beginning
                     - 2 = taper ending
@@ -2793,7 +2793,7 @@ restored when the user undoes a structural change.</p>
 
         @type shape: int
         """
-        env.prefs[dnaStyleAxisTaper_prefs_key] = shape
+        env.prefs[dnaStyleAxisEndingStyle_prefs_key] = shape
 
     def toggle_dnaDisplayStrandLabelsGroupBox(self, state):        
         """

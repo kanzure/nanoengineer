@@ -246,7 +246,7 @@ dnaStyleStrandsArrows_prefs_key = 'A10/DNA style strands arrows'
 dnaStyleAxisShape_prefs_key = 'A10/DNA style axis shape'
 dnaStyleAxisColor_prefs_key = 'A10/DNA style axis color'
 dnaStyleAxisScale_prefs_key = 'A10/DNA style axis scale'
-dnaStyleAxisTaper_prefs_key = 'A10/DNA style axis taper'
+dnaStyleAxisEndingStyle_prefs_key = 'A10/DNA style axis ending style'
 dnaStyleStrutsShape_prefs_key = 'A10/DNA style struts shape'
 dnaStyleStrutsColor_prefs_key = 'A10/DNA style struts color'
 dnaStyleStrutsScale_prefs_key = 'A10/DNA style struts scale'
@@ -629,7 +629,7 @@ prefs_table = (
         ('', 'int', dnaStyleAxisShape_prefs_key, 1),
         ('', 'int', dnaStyleAxisColor_prefs_key, 0),
         ('', 'float', dnaStyleAxisScale_prefs_key, 1.1),
-        ('', 'int', dnaStyleAxisTaper_prefs_key, 0),
+        ('', 'int', dnaStyleAxisEndingStyle_prefs_key, 0),
         ('', 'int', dnaStyleStrutsShape_prefs_key, 1),
         ('', 'int', dnaStyleStrutsColor_prefs_key, 0),
         ('', 'float', dnaStyleStrutsScale_prefs_key, 1.0),

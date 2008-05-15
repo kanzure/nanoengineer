@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Atom\cad\src\ne1_ui\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Sun May 04 22:55:22 2008
+# Created: Wed May 14 18:33:46 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1446,9 +1446,9 @@ class Ui_UserPrefsDialog(object):
         self.label_30.setObjectName("label_30")
         self.gridlayout20.addWidget(self.label_30,0,0,1,1)
 
-        self.dnaStyleAxisTaperComboBox = QtGui.QComboBox(self.tab_4)
-        self.dnaStyleAxisTaperComboBox.setObjectName("dnaStyleAxisTaperComboBox")
-        self.gridlayout20.addWidget(self.dnaStyleAxisTaperComboBox,3,1,1,1)
+        self.dnaStyleAxisEndingStyleComboBox = QtGui.QComboBox(self.tab_4)
+        self.dnaStyleAxisEndingStyleComboBox.setObjectName("dnaStyleAxisEndingStyleComboBox")
+        self.gridlayout20.addWidget(self.dnaStyleAxisEndingStyleComboBox,3,1,1,1)
 
         self.label_32 = QtGui.QLabel(self.tab_4)
 
@@ -3242,7 +3242,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(3)
+        self.prefs_tab.setCurrentIndex(0)
         self.level_of_detail_combox.setCurrentIndex(2)
         self.tabWidget_3.setCurrentIndex(0)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
@@ -3521,11 +3521,11 @@ class Ui_UserPrefsDialog(object):
         self.dnaStyleAxisShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Wide tube", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleAxisShapeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Narrow tube", None, QtGui.QApplication.UnicodeUTF8))
         self.label_30.setText(QtGui.QApplication.translate("UserPrefsDialog", "Shape:", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleAxisTaperComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Flat", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleAxisTaperComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper start", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleAxisTaperComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper end", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleAxisTaperComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper both", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleAxisTaperComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Spherical", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleAxisEndingStyleComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Flat", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleAxisEndingStyleComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper start", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleAxisEndingStyleComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper end", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleAxisEndingStyleComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Taper both", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaStyleAxisEndingStyleComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Spherical", None, QtGui.QApplication.UnicodeUTF8))
         self.label_32.setText(QtGui.QApplication.translate("UserPrefsDialog", "Ending style:", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleAxisColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Same as chunk", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaStyleAxisColorComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Base order", None, QtGui.QApplication.UnicodeUTF8))

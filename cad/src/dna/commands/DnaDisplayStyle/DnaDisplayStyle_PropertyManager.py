@@ -11,15 +11,15 @@ DnaDisplayStyle_PropertyManager.py
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 To do:
+- Implement full support for DNA "Favorites".
 - Add warning (in messagebox) if no DNA has its display style set to 
 DNA Cylinder *and* the global display style is not DNA Cylinder.
-- Add "Restore factory defaults" button to the bottom of each page.
-- Add "Favorites" groupbox.
 - Remove DNA Cylinder display style options from Preferences dialog.
-- Add "Display Strand Labels" groupbox.
 - Add "Display Base Orientation Indicators" groupbox.
+- Add "DNA Display Style Strand Label Custom Color" pref key/value.
+- Add "Base Colors" pref keys/values.
 """
-import os
+import os, time
 import foundation.env as env
 
 from widgets.DebugMenuMixin import DebugMenuMixin
@@ -42,7 +42,7 @@ from PM.PM_Constants     import pmWhatsThisButton
 from utilities.prefs_constants import dnaStyleAxisShape_prefs_key
 from utilities.prefs_constants import dnaStyleAxisColor_prefs_key
 from utilities.prefs_constants import dnaStyleAxisScale_prefs_key
-from utilities.prefs_constants import dnaStyleAxisTaper_prefs_key
+from utilities.prefs_constants import dnaStyleAxisEndingStyle_prefs_key
 
 from utilities.prefs_constants import dnaStyleStrandsShape_prefs_key
 from utilities.prefs_constants import dnaStyleStrandsColor_prefs_key
@@ -65,7 +65,7 @@ dnaDisplayStylePrefsList = \
                          [dnaStyleAxisShape_prefs_key, 
                           dnaStyleAxisScale_prefs_key,
                           dnaStyleAxisColor_prefs_key,
-                          dnaStyleAxisTaper_prefs_key,
+                          dnaStyleAxisEndingStyle_prefs_key,
                           
                           dnaStyleStrandsShape_prefs_key,
                           dnaStyleStrandsScale_prefs_key,
@@ -79,9 +79,82 @@ dnaDisplayStylePrefsList = \
                           dnaStyleBasesShape_prefs_key,
                           dnaStyleBasesScale_prefs_key,
                           dnaStyleBasesColor_prefs_key,
+                          dnaStyleBasesDisplayLetters_prefs_key,
                           
                           dnaStrandLabelsEnabled_prefs_key,
                           dnaStrandLabelsColorMode_prefs_key]
+
+# =
+# DNA Display Style Favorite File I/O functions. Talk to Bruce about splitting
+# these into a separate file and putting them elsewhere. Mark 2008-05-15.
+
+def writeDnaDisplayStyleSettingsToFavoritesFile( basename ):
+    """
+    Writes a "favorite file" (with a .fav extension) to store all the 
+    DNA display style settings (pref keys and their current values).
+    
+    @param basename: The filename (without the .fav extension) to write.
+    @type  basename: string
+    
+    @note: The favorite file is written to the directory
+           $HOME/Nanorex/DnaDisplayStyleFavorites.
+    """
+    
+    if not basename:
+        return 0, "No name given."
+    
+    # Get filename and write the favorite file.
+    favfilepath = getFavoritePathFromBasename(basename)
+    writeDnaFavoriteFile(favfilepath)
+    
+    # msg = "Problem writing file [%s]" % favfilepath
+    
+    return 1, basename
+
+def getFavoritePathFromBasename( basename ):
+    """
+    Returns the full path to the favorite file given a basename.
+    
+    @param basename: The favorite filename (without the .fav extension).
+    @type  basename: string
+    
+    @note: The (default) directory for all favorite files is
+           $HOME/Nanorex/DnaDisplayStyleFavorites.
+    """
+    _ext = "fav"
+    
+    # Make favorite filename (i.e. ~/Nanorex/DnaFavorites/basename.fav)
+    from platform.PlatformDependent import find_or_make_Nanorex_subdir
+    _dir = find_or_make_Nanorex_subdir('DnaDisplayStyleFavorites')
+    return os.path.join(_dir, "%s.%s" % (basename, _ext))
+
+def writeDnaFavoriteFile( filename ):
+    """
+    Writes a favorite file to I{filename}.
+    """
+    
+    f = open(filename, 'w')
+        
+    # Write header
+    f.write ('!\n! DNA display style favorite file')
+    f.write ('\n!Created by NanoEngineer-1 on ')
+    timestr = "%s\n!\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
+    f.write(timestr)
+    
+    for pref_key in dnaDisplayStylePrefsList:
+        val = env.prefs[pref_key]
+        if isinstance(val, int):
+            f.write("%s = %d\n" % (pref_key, val))
+        elif isinstance(val, float):
+            f.write("%s = %-6.2f\n" % (pref_key, val))
+        elif isinstance(val, bool):
+            f.write("%s = %d\n" % (pref_key, val))
+        else:
+            print "Not sure what pref_key '%s' is." % pref_key
+        
+    f.close()
+
+# =
 
 class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -176,7 +249,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         change_connect( self.axisEndingStyleComboBox,
                       SIGNAL("currentIndexChanged(int)"),
-                      self.win.userPrefs.change_dnaStyleAxisTaper )
+                      self.win.userPrefs.change_dnaStyleAxisEndingStyle )
         
         # Strands groupbox.
         change_connect( self.strandsShapeComboBox,
@@ -564,7 +637,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.axisShapeComboBox.setCurrentIndex(env.prefs[dnaStyleAxisShape_prefs_key])
         self.axisScaleDoubleSpinBox.setValue(env.prefs[dnaStyleAxisScale_prefs_key])
         self.axisColorComboBox.setCurrentIndex(env.prefs[dnaStyleAxisColor_prefs_key])
-        self.axisEndingStyleComboBox.setCurrentIndex(env.prefs[dnaStyleAxisTaper_prefs_key])
+        self.axisEndingStyleComboBox.setCurrentIndex(env.prefs[dnaStyleAxisEndingStyle_prefs_key])
         
         self.strandsShapeComboBox.setCurrentIndex(env.prefs[dnaStyleStrandsShape_prefs_key])
         self.strandsScaleDoubleSpinBox.setValue(env.prefs[dnaStyleStrandsScale_prefs_key])
@@ -612,8 +685,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def applyFavorite(self):
         """
-        Apply the DNA display style settings stored in the current favorites 
-        (selected in the combobox) to the DNA display style settings.
+        Apply the DNA display style settings stored in the current favorite 
+        (selected in the combobox) to the current DNA display style settings.
         """
         current_favorite = self.favoritesComboBox.currentText()
         if current_favorite == 'Factory default settings':
@@ -657,7 +730,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
               iconPath = "dna/commands/DnaDisplayStyle/ui/icons/AddFavorite.png",
               default = "" )
         if ok:
-            ok, text = self.writeDnaDisplayStyleSettingsToFavoritesFile(name)
+            ok, text = writeDnaDisplayStyleSettingsToFavoritesFile(name)
         if ok:
             self.favoritesComboBox.addItem(name)
             _lastItem = self.favoritesComboBox.count()
@@ -704,34 +777,6 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         print "loadFavorite(): Not implemented yet."
         return
-    
-    def writeDnaDisplayStyleSettingsToFavoritesFile( self, basename ):
-        """
-        Writes a "favorite file" (with a .fav extension) to store all the 
-        DNA display style settings (pref keys and their current values).
-        
-        @param basename: The filename (without the .fav extension) to write.
-        @type  basename: string
-        
-        @note: The favorite file is written to the directory
-               $HOME/Nanorex/DnaFavorites.
-        """
-        
-        if not basename:
-            return 0, "No name given."
-        
-        _ext = ".fav"
-        
-        # Make favorite filename (i.e. ~/Nanorex/DnaFavorites/basename.fav)
-        from platform.PlatformDependent import find_or_make_Nanorex_subdir
-        _dir = find_or_make_Nanorex_subdir('DnaFavorites')
-        _favfilepath = os.path.join(_dir, "%s.%s" % (basename, _ext))
-        
-        #@ MORE TO DO HERE...
-        
-        msg = "Problem writing file [%s]" % _favfilepath
-        
-        return 1, basename
         
     def _addWhatsThisText( self ):
         """
