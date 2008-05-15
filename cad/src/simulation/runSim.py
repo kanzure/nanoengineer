@@ -62,6 +62,8 @@ from processes.Process import Process
 from processes.Plugins import checkPluginPreferences, verifyExecutable
 from widgets.StatusBar import AbortHandler, FileSizeProgressReporter
 from simulation.PyrexSimulator import thePyrexSimulator
+from simulation.SimulatorParameters import SimulatorParameters
+from simulation.YukawaPotential import YukawaPotential
 
 from utilities.prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -359,6 +361,8 @@ class SimRunner:
                 # for Minimize, this uses simaspect to write file;
                 # puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
+            sp = SimulatorParameters()
+            self.yukawaRCutoff = sp.getYukawaRCutoff()
             self.spawn_process()
                 # spawn_process is misnamed since it can go thru either 
                 # interface (pyrex or exec OS process), since it also monitors
@@ -469,9 +473,10 @@ class SimRunner:
                             "-g", self.mdrunLogFileName,
                             ]
                     if (self.hasPAM):
-                        tableFile = \
-                            os.path.join(gromacs_plugin_path,
-                                         "Pam5Potential.xvg")
+                        tableFile = "%s.xvg" % gromacsFullBaseFileName
+                        yp = YukawaPotential(sp)
+                        yp.writeToFile(tableFile)
+
                         mdrunArgs += [ "-table", tableFile,
                                        "-tablep", tableFile ]
                         
@@ -1038,7 +1043,7 @@ class SimRunner:
                     # user potential function table passed to
                     # mdrun.  See GROMACS user manual section
                     # 6.6.2
-                    gromacsArgs += [ "--vdw-cutoff-radius=3.0" ]
+                    gromacsArgs += [ "--vdw-cutoff-radius=%f" % self.yukawaRCutoff ]
 
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
@@ -1125,7 +1130,7 @@ class SimRunner:
                     # user potential function table passed to
                     # mdrun.  See GROMACS user manual section
                     # 6.6.2
-                    simopts.VanDerWaalsCutoffRadius = 3.0
+                    simopts.VanDerWaalsCutoffRadius = self.yukawaRCutoff
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.

@@ -943,8 +943,8 @@ readBondTableOverlay(char *filename)
           addStrutDefinition(name, ks, r0, x1, y1, x2, y2);
           DPRINT7(D_READER, "addStrutDefinition: %s %f %f %f %f %f %f\n", name, ks, r0, x1, y1, x2, y2);
         }
-      } else {
-        fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
+        //} else {
+        //fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
       }
     }
   }

@@ -375,3 +375,38 @@ strut PAM5-5  0.38792  324.6  -0.47384  0.09686     -0.47384 -0.09686
 
 stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
 stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5
+
+
+# Switching function to smoothly reduce Yukawa potential to zero.
+# Between RSwitch and RCutoff (both in nm), the non-bonded potential
+# function is multiplied by a function which smoothly reduces from 1.0
+# (for 0 < r < RSwitch) to 0.0 (for RCutoff < r).  The switching
+# function is disabled if RSwitch > RCutoff.
+ne1 YukawaRSwitch 2.0
+ne1 YukawaRCutoff 3.0
+
+# If true, yukawa(RCutoff) is subtracted from the potential (before
+# applying the switching function.  This reduces the work of the
+# switching function, but modifies the total energy of the system.
+ne1 YukawaShift True
+
+# Net charge of individual counterions in solution.  1 for Na, 2 for
+# Mg.  If you are using a mixture of counterions, you can average the
+# charges and molarities.  Note that the formula is the sum of
+# (molarity * charge^2).  You can adjust the single molarity and
+# charge terms available here to duplicate the results of any sum of
+# such terms.
+ne1 YukawaCounterionCharge 2.0
+
+# Concentration of counterions in solution.
+ne1 YukawaCounterionMolarity 0.02
+
+# Temperature of the solution
+ne1 YukawaTemperatureKelvin 298.0
+
+# Dielectric constant of the solution, not including the counterions.
+# Water is 78.5
+ne1 YukawaDielectric 78.5
+
+# The potential is multiplied by this fudge factor.
+ne1 YukawaConstantMultiple 1.0
