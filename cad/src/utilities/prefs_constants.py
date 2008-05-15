@@ -238,6 +238,9 @@ dnaMinMinorGrooveAngle_prefs_key = 'A10/DNA minimum minor groove angle'
 dnaMaxMinorGrooveAngle_prefs_key = 'A10/DNA maximum minor groove angle'
 dnaMinorGrooveErrorIndicatorColor_prefs_key = 'A10/DNA minor groove error indicator color'
 
+# DNA renditions prefs. Mark 2008-05-15
+dnaRendition_prefs_key = 'A110/DNA rendition' 
+
 # DNA style prefs piotr 080310
 dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' 
 dnaStyleStrandsColor_prefs_key = 'A10/DNA style strands color'
@@ -622,6 +625,7 @@ prefs_table = (
 
         # DNA style preferences 080310 piotr
         # updated on 080408
+        ('', 'int', dnaRendition_prefs_key, 0),
         ('', 'int', dnaStyleStrandsShape_prefs_key, 2),
         ('', 'int', dnaStyleStrandsColor_prefs_key, 0),
         ('', 'float', dnaStyleStrandsScale_prefs_key, 1.0),

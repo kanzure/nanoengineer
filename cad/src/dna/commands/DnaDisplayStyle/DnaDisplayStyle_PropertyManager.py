@@ -11,7 +11,7 @@ DnaDisplayStyle_PropertyManager.py
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 To do:
-- Implement full support for DNA "Favorites".
+- Implement full support for DNA "Favorites". (Urmi)
 - Add warning (in messagebox) if no DNA has its display style set to 
 DNA Cylinder *and* the global display style is not DNA Cylinder.
 - Remove DNA Cylinder display style options from Preferences dialog.
@@ -39,6 +39,8 @@ from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 
+from utilities.prefs_constants import dnaRendition_prefs_key
+
 from utilities.prefs_constants import dnaStyleAxisShape_prefs_key
 from utilities.prefs_constants import dnaStyleAxisColor_prefs_key
 from utilities.prefs_constants import dnaStyleAxisScale_prefs_key
@@ -62,7 +64,8 @@ from utilities.prefs_constants import dnaStrandLabelsEnabled_prefs_key
 from utilities.prefs_constants import dnaStrandLabelsColorMode_prefs_key
 
 dnaDisplayStylePrefsList = \
-                         [dnaStyleAxisShape_prefs_key, 
+                         [dnaRendition_prefs_key,
+                          dnaStyleAxisShape_prefs_key, 
                           dnaStyleAxisScale_prefs_key,
                           dnaStyleAxisColor_prefs_key,
                           dnaStyleAxisEndingStyle_prefs_key,
@@ -234,7 +237,12 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         SIGNAL("clicked()"), 
                        self.loadFavorite)
         
-        # Axis groupbox.
+        # Current display settings groupbox.
+        change_connect( self.dnaRenditionComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.change_dnaRendition )
+        
+        # Axis options.
         change_connect( self.axisShapeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleAxisShape )
@@ -251,7 +259,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleAxisEndingStyle )
         
-        # Strands groupbox.
+        # Strands options.
         change_connect( self.strandsShapeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleStrandsShape )
@@ -268,7 +276,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleStrandsArrows )
         
-        # Structs groupbox.
+        # Structs options.
         change_connect( self.strutsShapeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleStrutsShape )
@@ -281,7 +289,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleStrutsColor )
         
-        # Nucleotides groupbox.
+        # Nucleotides options.
         change_connect( self.nucleotidesShapeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.win.userPrefs.change_dnaStyleBasesShape )
@@ -298,7 +306,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.dnaStyleBasesDisplayLettersCheckBox,
             dnaStyleBasesDisplayLetters_prefs_key)
         
-        # Dna Strand labels
+        # Dna Strand labels option.
         
         change_connect( self.standLabelColorComboBox,
                       SIGNAL("currentIndexChanged(int)"),
@@ -343,9 +351,6 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._pmGroupBox2 = PM_GroupBox( self, 
                                          title = "Current display settings")
         self._loadGroupBox2( self._pmGroupBox2 )
-        
-        
-        #@ self._pmGroupBox1.hide()
         
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -408,6 +413,16 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Load widgets in group box.
         """
+        dnaRenditionChoices = ['3D (default)', 
+                               '2D with base letters',
+                               '2D ball and stick',
+                               '2D ladder']
+
+        self.dnaRenditionComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Rendition:", 
+                         choices       =  dnaRenditionChoices,
+                         setAsDefault  =  True)
         
         dnaComponentChoices = ['Axis', 
                                 'Strands',
@@ -434,6 +449,9 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_StackedWidget( pmGroupBox,
                               self.dnaComponentComboBox,
                               widgetList )
+        
+        # This disables "Component" widgets if rendition style is 2D.
+        self.change_dnaRendition(env.prefs[dnaRendition_prefs_key])
         
         standLabelColorChoices = ['Hide',
                                   'Show (in strand color)', 
@@ -634,6 +652,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         @note: This should be called each time the PM is displayed (see show()).
         """
+        self.dnaRenditionComboBox.setCurrentIndex(env.prefs[dnaRendition_prefs_key])
+        
         self.axisShapeComboBox.setCurrentIndex(env.prefs[dnaStyleAxisShape_prefs_key])
         self.axisScaleDoubleSpinBox.setValue(env.prefs[dnaStyleAxisScale_prefs_key])
         self.axisColorComboBox.setCurrentIndex(env.prefs[dnaStyleAxisColor_prefs_key])
@@ -777,7 +797,32 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         print "loadFavorite(): Not implemented yet."
         return
+    
+    def change_dnaRendition(self, rendition):
+        """
+        Sets the DNA rendition to 3D or one of the optional 2D styles.
         
+        @param rendition: The rendition mode, where:
+                          - 0 = 3D (default)
+                          - 1 = 2D with base letters
+                          - 2 = 2D ball and stick
+                          - 3 = 2D ladder
+        @type  rendition
+        """
+        if rendition == 0:
+            _enabled_flag = True
+        else:
+            _enabled_flag = False
+            
+        self.dnaComponentComboBox.setEnabled(_enabled_flag)
+        self.dnaComponentStackedWidget.setEnabled(_enabled_flag)
+        
+        env.prefs[dnaRendition_prefs_key] = rendition
+        
+        self.o.gl_update() # Force redraw
+        
+        return
+    
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  

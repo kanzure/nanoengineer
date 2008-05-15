@@ -64,6 +64,9 @@ from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_True, Choic
 
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 
+# 3D and 2D rendition display styles. Mark 2008-05-15
+from utilities.prefs_constants import dnaRendition_prefs_key
+
 # piotr 080309: user pereferences for DNA style
 from utilities.prefs_constants import dnaStyleStrandsColor_prefs_key
 from utilities.prefs_constants import dnaStyleAxisColor_prefs_key
@@ -1606,32 +1609,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         self.dnaStyleBasesColor = env.prefs[dnaStyleBasesColor_prefs_key]
         self.dnaStyleBasesScale = env.prefs[dnaStyleBasesScale_prefs_key]
         self.dnaStyleBasesDisplayLetters = env.prefs[dnaStyleBasesDisplayLetters_prefs_key]
-
-        self.dnaExperimentalMode = 0
-
-        # render in experimental 2D mode?
-        # piotr 080416
-        dna_style = debug_pref(
-              "DNA style: ",
-               Choice(["Default", 
-                       "Experimental mode 1", 
-                       "Experimental mode 2", 
-                       "Experimental mode 3"], 
-                      defaultValue = "Default"),
-               non_debug = False, 
-               prefs_key = True 
-           )
         
-        # set the experimental mode
-        if dna_style == "Experimental mode 1":
-            self.dnaExperimentalMode = 1
-        
-        if dna_style == "Experimental mode 2":
-            self.dnaExperimentalMode = 2
-        
-        if dna_style == "Experimental mode 3":
-            self.dnaExperimentalMode = 3
-        
+        self.dnaExperimentalMode = env.prefs[dnaRendition_prefs_key]
 
         if not hasattr(chunk, 'ladder'):
             # DNA updater is off ?      
