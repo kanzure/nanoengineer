@@ -113,7 +113,7 @@ from OpenGL.GL import glDrawPixels
 from OpenGL.GL import glGetFloatv
 from OpenGL.GL import GL_PROJECTION_MATRIX
 from OpenGL.GL import GL_MODELVIEW_MATRIX
-from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import GL_CLIP_PLANE5
 from OpenGL.GL import glClipPlane
 
 from OpenGL.GLU import gluUnProject, gluPickMatrix
@@ -573,7 +573,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
 
         self.stereo_mode = 0 # piotr 080515 - stereo disabled by default
-        
+
         return # from GLPane.__init__ 
 
 
@@ -3209,27 +3209,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # piotr 080515: this debug pref enables a stereo rendering mode
         stereo_pref = debug_pref(
-              "GLPane: stereo rendering",
-               Choice(["Disabled", 
-                       "Side-by-side (relaxed eyes)", 
-                       "Side-by-side (crossed eyes)", 
-                       "Anaglyphs (red/blue glasses)"], 
-                      defaultValue = "Default"),
-               non_debug = False,
-               prefs_key = True)  
+            "GLPane: stereo rendering",
+            Choice(["Disabled", 
+                    "Side-by-side (relaxed eyes)", 
+                    "Side-by-side (crossed eyes)", 
+                    "Anaglyphs (red/blue glasses)"], 
+                   defaultValue = "Default"),
+            non_debug = False,
+            prefs_key = True)  
 
         self.stereo_mode = 0 # stereo disabled by default
-        
+
         # set the stereo mode
         if stereo_pref == "Side-by-side (relaxed eyes)":
             self.stereo_mode = 1
-        
+
         if stereo_pref == "Side-by-side (crossed eyes)":
             self.stereo_mode = 2
-        
+
         if stereo_pref == "Anaglyphs (red/blue glasses)":
             self.stereo_mode = 3        
-        
+
         if self.need_setup_lighting \
            or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights() \
            or debug_pref("always setup_lighting?", Choice_boolean_False):
@@ -3561,7 +3561,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.do_glselect_if_wanted() # note: this sets up its own special projection matrix
 
         self._setup_projection()
-        
+
         # Compute frustum planes required for frustum culling - piotr 080331
         # Moved it right after _setup_projection is called (piotr 080331)
         # Note that this method is also called by "do_glselect_if_wanted".
@@ -3593,9 +3593,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # (which has to be implemented in the bareMotion routines of client modes -- would self.bareMotion be better? ###@@@ review)
 
         # draw according to mode
-    
+
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
-        
+
         # piotr 080515: added software stereo rendering support
         if self.stereo_mode == 0:
             # draw only once if stereo is disabled
@@ -3603,30 +3603,30 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         else:
             # have two images, left and right, for the stereo rendering
             stereo_image_range = [-1, 1]
-            
+
         for stereo_image in stereo_image_range: 
             # iterate over stereo images
             self._enable_stereo(stereo_image)
-            
+
             try: #bruce 070124 added try/finally for drawing_phase
                 self.drawing_phase = 'main' #bruce 070124
                 self.graphicsMode.Draw()
             finally:
                 self.drawing_phase = '?'
-            
+
             # highlight selobj if necessary, by drawing it again in highlighted form.
             # It was already drawn normally, but we redraw it now for two reasons:
             # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
             # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
-    
+
             if selobj is not None:
                 self.draw_highlighted_objectUnderMouse(selobj, hicolor) #bruce 070920 split this out                
                     # REVIEW: is it ok that the mode had to tell us selobj and hicolor
                     # (and validate selobj) before drawing the model?
-    
+
             self._disable_stereo()
-            
-                
+
+
         try: #bruce 070124 added try/finally for drawing_phase
             self.drawing_phase = 'main/Draw_after_highlighting' #bruce 070124
             self.graphicsMode.Draw_after_highlighting() # e.g. draws water surface in Build mode
@@ -3768,16 +3768,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 else:
                     # have two images, left and right, for the stereo rendering
                     stereo_image_range = [-1, 1]
-                    
+
                 for stereo_image in stereo_image_range: 
                     # iterate over stereo images
                     self._enable_stereo(stereo_image)
-                              
+
                     self.graphicsMode.Draw()
-                       # OPTIM: should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
-                       # Note: this might call some display lists which, when created, registered namestack names,
-                       # so we need to still know those names!
-                    
+                        # OPTIM: should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
+                        # Note: this might call some display lists which, when created, registered namestack names,
+                        # so we need to still know those names!
+
                     self._disable_stereo()
 
             except:
@@ -3786,7 +3786,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state
 
-                
+
             self._frustum_planes_available = False # piotr 080331 
                 # just to be safe and not use the frustum planes computed for 
                 # the pick matrix
@@ -4187,7 +4187,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                     else:
                         # have two images, left and right, for the stereo rendering
                         stereo_image_range = [-1, 1]
-                        
+
                     for stereo_image in stereo_image_range: 
                         # iterate over stereo images
                         self._enable_stereo(stereo_image)
@@ -4196,7 +4196,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                         method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
 
                         self._disable_stereo()
-                        
+
                     self.drawing_phase = '?'
                         #bruce 050822 changed black to white in case some draw methods have boolean-test bugs for black (unlikely)
                         ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
@@ -4511,7 +4511,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         return ours
 
     # stereo rendering methods added by piotr 080515
-    
+
     def _enable_stereo(self, stereo_image):
         """
         Enables stereo rendering.        
@@ -4521,13 +4521,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if self.stereo_mode == 0:
             # stereo disabled - just return
             return
-        
-        stereo_separation = 0.5
+
+        stereo_separation = 0.4
         stereo_angle = -5.0
-        
+
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
-        
+
         if self.stereo_mode <= 2:
             # clip left or right image for side-by-side stereo
             # reset the modelview matrix
@@ -4537,14 +4537,15 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 clip_eq = (-1.0, 0.0, 0.0, 0.0)
             else:
                 clip_eq = ( 1.0, 0.0, 0.0, 0.0)
-            glClipPlane(GL_CLIP_PLANE0, clip_eq)
-            glEnable(GL_CLIP_PLANE0)
+            # using GL_CLIP_PLANE5 for stereo clipping 
+            glClipPlane(GL_CLIP_PLANE5, clip_eq)
+            glEnable(GL_CLIP_PLANE5)
             glPopMatrix()
-         
+
         separation = stereo_separation * self.scale
-        
+
         angle = stereo_angle
-        
+
         # for cross-eyed mode, exchange left and right views
         if self.stereo_mode == 2:
             angle *= -1
@@ -4570,7 +4571,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             else:
                 # blue image
                 glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
-                
+
     def _disable_stereo(self):
         """
         Disables stereo rendering.
@@ -4585,13 +4586,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glDepthMask(GL_TRUE)
             # enable all colors
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-            
+
         # make sure the clipping plane is disabled
-        glDisable(GL_CLIP_PLANE0)
-        
+        glDisable(GL_CLIP_PLANE5)
+
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-        
+
     pass # end of class GLPane
 
 # ==
