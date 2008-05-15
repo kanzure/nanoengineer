@@ -657,8 +657,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
         That info must not depend on the highlighted variable or on whether
         the chunk is selected.        
         """
-
-
         # ---------------------------------------------------------------------
 
         chunk._dnaStyleExternalBonds = []
@@ -677,7 +675,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         polycylinder_positions, polycylinder_colors, polycylinder_radii = memo
 
         # render the axis cylinder        
-        if chunk.isAxisChunk():
+        if chunk.isAxisChunk() and \
+           polycylinder_positions: # fixed bug 2877 - piotr 080516
             axis_positions = polycylinder_positions
             axis_colors = polycylinder_colors
             axis_radii = polycylinder_radii
@@ -756,14 +755,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     (bond.atom1, bond.atom2, color))
     
                 # draw the strand itself
-                self._draw_strand(strand_positions, 
-                           strand_colors, 
-                           strand_radii, 
-                           strand_direction,
-                           draw_5p, draw_3p,
-                           self.dnaStyleStrandsColor, 
-                           self.dnaStyleStrandsShape,
-                           self.dnaStyleStrandsArrows)            
+                self._draw_strand(
+                    strand_positions, 
+                    strand_colors, 
+                    strand_radii, 
+                    strand_direction,
+                    draw_5p, 
+                    draw_3p,
+                    self.dnaStyleStrandsColor, 
+                    self.dnaStyleStrandsShape,
+                    self.dnaStyleStrandsArrows)            
 
             # render struts
             if self.dnaStyleStrutsShape>0:
