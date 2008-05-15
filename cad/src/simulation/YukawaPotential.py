@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 """
 
@@ -71,32 +69,14 @@ class YukawaPotential(object):
         E_p_p = self.temperature * L_B / \
                 (mol_K_per_kJ * PHOSPHATE_DIAMETER * t1 * t1)
 
-        YA = E_p_p * PHOSPHATE_DIAMETER
-        YB = PHOSPHATE_DIAMETER
-        YC = Lambda_D
+        self.YA = E_p_p * PHOSPHATE_DIAMETER * self.fudge
+        self.YB = PHOSPHATE_DIAMETER
+        self.YC = Lambda_D
 
         #print "L_B = %e, Lambda_D = %e" % (L_B, Lambda_D)
         #print "t1 = %e, E_p_p = %e" % (t1, E_p_p)
         #print "mol_K_per_kJ = %e" % mol_K_per_kJ
-        #print "YA = %e, YB = %e. YC = %e" % (YA, YB, YC)
-
-# L_B = 7.143248e-01, Lambda_D = 1.180055e+00
-# t1 = 1.169484e+00, E_p_p = 3.235158e+00
-# YA = 1.294063e+00, YB = 4.000000e-01. YC = 1.180055e+00
-        
-# For Z(I) = 2 (Mg2+) and rho(i) = 0.02 M,
-#
-# LambdaD = 1.180059331
-# LB = 0.714319428
-# J = 1.305703721
-# sigma = 0.4 (still)
-# Zp = -1 (still)
-#
-# Yukawa = (0.522281489 / r ) * exp [-(r - 0.4) / 1.180059331 ]
-
-        self.YA = 0.522281489
-        self.YB = 0.4
-        self.YC = 1.180059331
+        #print "YA = %e, YB = %e. YC = %e" % (self.YA, self.YB, self.YC)
 
         self.YShift = 0.0
         if (self.shift):
@@ -147,7 +127,7 @@ class YukawaPotential(object):
                   "%8.4f %13.6e %13.6e %13.6e %13.6e %13.6e %13.6e" % (r,
                                                                        self.r_1(r),
                                                                        self.d2_r_1(r),
-                                                                       self.func(r) * self.fudge,
+                                                                       self.func(r),
                                                                        self.d2_func(r),
                                                                        0,
                                                                        0)
