@@ -13,16 +13,23 @@ from model.elements import      Ss3, Ax3
 from model.elements import Singlet
 
 from model.bonds import bond_direction #e rename
+from model.bonds import bond_atoms_faster
+from model.bond_constants import V_SINGLE
+
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
+from utilities.constants import average_value
 
 from utilities import debug_flags
 
 from utilities.Log import redmsg, orangemsg, quote_html
 
-from geometry.VQT import V
+from utilities.GlobalPreferences import debug_pref_enable_pam_convert_sticky_ends
+
+from geometry.VQT import V, Q, norm
+import math
 
 import foundation.env as env
 
@@ -335,7 +342,7 @@ class DnaLadder_pam_conversion_methods:
             summary_format = "Warning: PAM conversion not implemented for [N] bare axis DnaLadder(s)"
             env.history.deferred_summary_message( orangemsg( summary_format ))
             return -1
-        elif nstrands == 1:
+        elif nstrands == 1 and not debug_pref_enable_pam_convert_sticky_ends():
             summary_format = "Warning: PAM conversion not implemented for [N] sticky end DnaLadder(s)"
                 # need to have a method to describe self, since if it's in the middle of a segment
                 # then we should not call it a sticky end ###FIX
@@ -912,7 +919,93 @@ class DnaLadder_pam_conversion_methods:
             # (warning: good error detection might be nim in there)
             return False
         return True
+
+    def _make_ghost_bases(self): #bruce 080514 unfinished; REFILE some in pam3plus5_ops?
+        """
+        """
+        while len(self.strand_rails) < 2:
+            # need to make up a ghost strand rail
+            assert len(self.strand_rails) != 0, "_make_ghost_bases nim for bare-axis ladders like %r" % self
+            # have one strand, need the other; use same element as in existing strand
+            # BUT the following only works if we're PAM3, for several reasons:
+            # - interleaving Pls is nim
+            # - figuring out geometry assumes straight, central axis (Ax3, not Gv5)
+            strand1 = self.strand_rails[0]
+            axis = self.axis_rail
+            previous_atom = None
+            atoms = []
+            assy = self.assy ###k
+            chunk = assy.DnaStrandChunk(assy)
+            ### nim: put this chunk into the model somewhere -- next to axis chunk? (updater will move it later...)
+            for i in range(len(strand1)):
+                atom = make_strand2_ghost_base_atom( chunk,
+                                                     axis.baseatoms[i],
+                                                     self.axis_vector_at_baseindex(i),
+                                                     strand1.baseatoms[i] )
+                if previous_atom: # not yet implemented for intervening Pl for PAM5
+                    bond = bond_atoms_faster(previous_atom, atom, V_SINGLE)
+                    bond.set_bond_direction_from( previous_atom, -1)
+                bond_atoms_faster(atom, axis.baseatoms[i], V_SINGLE) ### BUG: requires .molecule to be set on both atoms
+                previous_atom = atom
+                atoms.append(atom)
+            # make bondpoints on ends
+            for atom in ( atoms[0], atoms[-1] ): # ok if same atom
+                atom.make_enough_bondpoints() # not sure it positions them well
+            ####e make chain from this, then make chunk from that, see how dna updater does it
+            strand2 = new_rail
+            self.strand_rails.append( strand2)
+        return
+
+    def axis_vector_at_baseindex(self, i):
+        #bruce 080514 unfinished (should see if DnaCylinder display style code has a better version)
+        """
+        """
+        axis_atoms = self.axis_rail.baseatoms
+        def axis_vector_between( i1, i2):
+            return norm( axis_atoms[i2].posn() - axis_atoms[i1].posn() )
+        candidates = []
+        if i - 1 >= 0:
+            candidates.append( axis_vector_between( i - 1, i) )
+        if i + 1 < len(self):
+            candidates.append( axis_vector_between( i, i + 1) )
+        if not candidates:
+            # length 1
+            print "BUG: length 1 axis vector nim, using V(1, 0, 0):", self, i
+            return V(1, 0, 0)
+                ## nim -- should use next_baseatoms on the axis_rail... (in fact, always use them at ends?)
+        return average_value(candidates)
+    pass # end of class DnaLadder_pam_conversion_methods
+
+def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ): ### REFILE - pam3plus5_ops? has imports too
+    #bruce 080514 unfinished
+    """
+    Make a ghost base atom to go in the same basepair as axis_atom and
+    strand1_atom (which must be bonded and of the correct elements).
+    Assume axis_vector points towards the next base (strand1 direction of 1).
     
-    pass
+    Give the new atom the ghost base atom property [nim], but don't make any
+    bonds or bondpoints on it (not even the bond from it to axis_atom),
+    or add it to any chunk.
+    
+    If strand1_atom has sequence info assigned, assign its complement to
+    the new atom.
+
+    @return: the new ghost base atom
+
+    @warning: not yet implemented for PAM5.
+    """
+    origin = axis_atom.posn()
+    assert axis_atom.element is Ax3 # wrong formulae otherwise
+    s1pos = strand1_atom.posn()
+    DEGREES = 2 * math.pi / 360
+    angle = 133 * DEGREES ### maybe wrong value -- see dna lengthening code ### sign is a guess too
+    quat = Q(axis_vector, angle)
+    s2pos = quat.rot(s1pos - origin) + origin
+    from model.chem import Atom ###k might be import cycle!
+    strand2_atom = Atom(strand1_atom, s2pos, chunk)
+    #e complement sequence (possible when not yet in a chunk? nevermind, now we are)
+    #e set ghost property
+    print "made ghost baseatom", strand2_atom
+    return strand2_atom
 
 # end

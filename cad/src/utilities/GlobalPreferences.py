@@ -153,6 +153,14 @@ def dna_updater_is_enabled(): #bruce 080320
 
 # ==
 
+def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this feature works
+    res = debug_pref("DNA: enable PAM3+5 for sticky ends? [nim]",
+                     Choice_boolean_False,
+                     prefs_key = True)
+    return res
+
+# ==
+
 def debug_pref_write_bonds_compactly(): #bruce 080328
     # note: reading code for this was made active in same commit, 080328.
     # note: this could be used for non-dna single bond chains too,

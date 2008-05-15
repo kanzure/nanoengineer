@@ -162,6 +162,7 @@ class Assembly( StateMixin, Assembly_API):
     from dna.model.DnaStrand  import DnaStrand
     from dna.model.DnaMarker  import DnaMarker
     from dna.model.DnaLadderRailChunk import DnaLadderRailChunk
+    from dna.model.DnaLadderRailChunk import DnaStrandChunk
     from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
     
     from cnt.model.NanotubeGroup   import NanotubeGroup # --mark 2008-03-09
