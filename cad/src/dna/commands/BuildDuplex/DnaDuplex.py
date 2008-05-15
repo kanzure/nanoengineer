@@ -44,6 +44,8 @@ from simulation.sim_commandruns import adjustSinglet
 from model.elements import PeriodicTable
 from model.Line import Line
 
+from model.chem import Atom_prekill_prep
+
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from dna.model.Dna_Constants import basesDict, dnaDict
@@ -398,9 +400,7 @@ class Dna:
                                     resizeEndAxisAtom, 
                                     numberOfBasePairsToRemove): 
         """
-        AVAILABLE AS A DEBUG PREFERENCE ONLY AS OF 2008-03-27. Will be cleaned 
-        up further. 
-        
+                
         Remove the spcified number of base pairs from the duplex. 
         
         @param group: The DnaGroup which contains this duplex
@@ -416,14 +416,34 @@ class Dna:
         @type numberOfBasePairsToRemove: int
         
         """
+        #Needs cleanup
+        
+        
                 
         ladder = resizeEndAxisAtom.molecule.ladder
         
-        atomsScheduledForDeletion = []
+        atomsScheduledForDeletionDict = {}
           
         atm = resizeEndAxisAtom    
         strand_neighbors_to_delete = self._strand_neighbors_to_delete(atm)
-        atomsScheduledForDeletion.extend(strand_neighbors_to_delete)
+                
+        for a in strand_neighbors_to_delete:
+            if not atomsScheduledForDeletionDict.has_key(id(a)):
+                atomsScheduledForDeletionDict[id(a)] = a
+                
+        #Add the axis atom to the atoms scheduled for deletion only when 
+        #both the strand neighbors of this axis atom are scheduled for 
+        #deletion. But this is not true if its a sticky end i.e. the 
+        #axis atom has only one strand atom. To fix that problem
+        #we also check (second condition) if all the strand neighbors
+        #of an axis atom are scheduled for deletion... if so, ot also 
+        #adds that axis atom to the atom scheduled for deletion)
+        #Axis atoms are explicitely deleted to fix part of memory 
+        #leak bug 2880  
+        if len(strand_neighbors_to_delete) == 2 or \
+           len(resizeEndAxisAtom.strand_neighbors()) == len(strand_neighbors_to_delete):        
+            if not atomsScheduledForDeletionDict.has_key(id(resizeEndAxisAtom)):
+                atomsScheduledForDeletionDict[id(resizeEndAxisAtom)] = resizeEndAxisAtom
         
         #Fix for bug 2712 --
         #Determine the ladder end. Based on the ladder end, we will decide which
@@ -496,29 +516,57 @@ class Dna:
             if atomB is not None:
                 atm = atomB
                 strand_neighbors_to_delete = self._strand_neighbors_to_delete(atomB)
-                for strand_atom in strand_neighbors_to_delete:
-                    if strand_atom not in atomsScheduledForDeletion:
-                        atomsScheduledForDeletion.append(strand_atom)
-                                    
+                
+                for a in strand_neighbors_to_delete:                    
+                    if not atomsScheduledForDeletionDict.has_key(id(a)):
+                        atomsScheduledForDeletionDict[id(a)] = a
+
+                #Add the axis atom to the atoms scheduled for deletion only when 
+                #both the strand neighbors of this axis atom are scheduled for 
+                #deletion. But this is not true if its a sticky end i.e. the 
+                #axis atom has only one strand atom. To fix that problem
+                #we also check (second condition) if all the strand neighbors
+                #of an axis atom are scheduled for deletion... if so, ot also 
+                #adds that axis atom to the atom scheduled for deletion)
+                #Axis atoms are explicitely deleted to fix part of memory 
+                #leak bug 2880 (and thus no longer depends on dna updater 
+                #to delete bare axis atoms .. which is good because there is a
+                #debug pref that permits bare axis atoms for some other 
+                #uses -- Ninad 2008-05-15
+                if len(strand_neighbors_to_delete) == 2 or \
+                   len(atomB.strand_neighbors()) == len(strand_neighbors_to_delete):                  
+                    if not atomsScheduledForDeletionDict.has_key(atomB):
+                        atomsScheduledForDeletionDict[id(atomB)] = atomB
+                                                                        
             numberOfBasePairsToRemove = numberOfBasePairsToRemove - 1
         
-        #Now kill all the atoms. Note: its not necessary to kill the axis atoms
-        #because those will be killed automatically in the next dna updater
-        #run when it finds them without any connected Strand atoms
-        #REVIEW: Is it okay to do above? Apparantly causes no bugs. - Ninad 
-        for atm in atomsScheduledForDeletion:
+        #Now kill all the atoms. Before killing them, set a flag on them so that
+        #the code knowns not to create new bondpoints on neighbor after killing
+        #the atoms ..This flag prevents that by telling the code not to create 
+        #bondpoints if the neighbor lies in the list of atoms to kill (thus
+        #neighbor will also be killed) . Fixes a memory leak 
+        #See bug 2880 for details.
+        val = Atom_prekill_prep()
+        for a in atomsScheduledForDeletionDict.values():
+            a._will_kill = val # inlined a._prekill(val), for speed
+            
+        for atm in atomsScheduledForDeletionDict.values():
             if atm:
-                try:
-                    atm.kill()
+                try:                   
+                    atm.kill()    
                 except:
                     print_compact_traceback("bug in deleting atom while "\
                                             "resizing the segment")
+                                            
+        atomsScheduledForDeletionDict.clear()                                    
+
         #IMPORTANT TO RUN DNA UPDATER after deleting these atoms! Otherwise we
         #will have to wait for next event to finish before the dna updater runs
         #There are things like resize handle positions that depend on the 
         #axis end atoms of a dna segment. Those update method may be called 
         #before dna updater is run again , thereby spitting ut errors.
         self.assy.update_parts()  
+    
     
     def _strand_neighbors_to_delete(self, axisAtom):
         """
