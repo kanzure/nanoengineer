@@ -64,6 +64,7 @@ from widgets.StatusBar import AbortHandler, FileSizeProgressReporter
 from simulation.PyrexSimulator import thePyrexSimulator
 from simulation.SimulatorParameters import SimulatorParameters
 from simulation.YukawaPotential import YukawaPotential
+from simulation.GromacsLog import GromacsLog
 
 from utilities.prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -300,10 +301,6 @@ class SimRunner:
         
         return True
 
-    def mdrunProcessLogLine(self, line):
-        #print "line: '%s'" % line.rstrip()
-        pass
-
     def mdrunPollFunction(self):
         if (not self.mdrunLogFile):
             try:
@@ -321,7 +318,7 @@ class SimRunner:
                     return
                 self.mdrunLogLineBuffer = self.mdrunLogLineBuffer + line
                 if (self.mdrunLogLineBuffer.endswith('\n')):
-                    self.mdrunProcessLogLine(self.mdrunLogLineBuffer)
+                    self.gromacsLog.addLine(self.mdrunLogLineBuffer)
                 self.mdrunLogLineBuffer = ""
 
 
@@ -465,6 +462,11 @@ class SimRunner:
                     else:
                         self.mdrunLogFile = None
                         self.mdrunLogFileName = "%s-mdrun.log" % gromacsFullBaseFileName
+                        try:
+                            os.remove(self.mdrunLogFileName)
+                        except:
+                            # Ignore the error that it isn't there.  We just want it gone.
+                            pass
                         mdrunArgs = [
                             "-s", "%s.tpr" % gromacsFullBaseFileName,
                             "-o", "%s" % trajectoryOutputFile,
@@ -493,6 +495,7 @@ class SimRunner:
                                   mdrunArgs);
 
                     else:
+                        self.gromacsLog = GromacsLog()
                         abortHandler = \
                             AbortHandler(self.win.statusBar(), "mdrun")
                         errorCode = \
