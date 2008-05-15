@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 VQT.py - Vectors, Quaternions, and [no longer in this file] Trackballs
 
@@ -9,7 +9,7 @@ A relatively full implementation of Quaternions
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: bruce 071216 moved class Trackball into its own file,
 so the remaining part of this module can be classified as "geometry"
@@ -177,6 +177,7 @@ class Q(DataMixin):
     no quaternion that can do it!)
     
     Q(V(x,y,z), theta) is what you probably want [axis vector and angle]. [used widely]
+    #doc -- units of theta? (guess: radians)
     
     Q(vector, vector) gives the quat that rotates between them [used widely]
     [which such quat? presumably the one that does the least rotation in all]

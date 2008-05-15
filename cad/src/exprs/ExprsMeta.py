@@ -592,6 +592,10 @@ def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile 
     return call_but_discard_tracked_usage( computer)
 
 class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
+    """
+    #doc
+    @note: used only in class State(data_descriptor_Expr)
+    """
     def _init1(self):
         (self.expr,) = self.args
         self.expr._e_set_descriptor(self) # whether it stores anything is up to the specific subclass

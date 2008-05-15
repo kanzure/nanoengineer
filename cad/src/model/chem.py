@@ -642,6 +642,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.element = sym.element
             atype = sym
         else:
+            # note: passing an Element object would probably make sense
+            # to allow, but is nim. [bruce 080514 comment]
             assert 0, "can't initialize Atom.element from %r" % (sym,)
         
         #e could assert self.element is now an Elem, but don't bother -- if not, we'll find out soon enough
