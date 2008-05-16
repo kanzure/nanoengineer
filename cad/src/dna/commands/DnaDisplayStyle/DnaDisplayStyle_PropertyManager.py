@@ -450,9 +450,6 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               self.dnaComponentComboBox,
                               widgetList )
         
-        # This disables "Component" widgets if rendition style is 2D.
-        self.change_dnaRendition(env.prefs[dnaRendition_prefs_key])
-        
         standLabelColorChoices = ['Hide',
                                   'Show (in strand color)', 
                                   'Black',
@@ -464,6 +461,9 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          label         =  "Strand labels:", 
                          choices       =  standLabelColorChoices,
                          setAsDefault  =  True)
+        
+        # This disables "Component" widgets if rendition style is 2D.
+        self.change_dnaRendition(env.prefs[dnaRendition_prefs_key])
     
     def _loadAxisGroupBox(self):
         """
@@ -807,7 +807,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                           - 1 = 2D with base letters
                           - 2 = 2D ball and stick
                           - 3 = 2D ladder
-        @type  rendition
+        @type  rendition: int
         """
         if rendition == 0:
             _enabled_flag = True
@@ -816,6 +816,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
         self.dnaComponentComboBox.setEnabled(_enabled_flag)
         self.dnaComponentStackedWidget.setEnabled(_enabled_flag)
+        self.standLabelColorComboBox.setEnabled(_enabled_flag)
         
         env.prefs[dnaRendition_prefs_key] = rendition
         
