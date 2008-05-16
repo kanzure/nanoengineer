@@ -445,15 +445,40 @@ class Assembly( StateMixin, Assembly_API):
         self.mt = modelTree
         return
     
-    def __repr__(self): #bruce 080117; report _assy_number & main-ness, bruce 080219
+    def __repr__(self):
+        #bruce 080117
+        # report _assy_number & main-ness, bruce 080219
+        # main-ness code revised (bugfix during __init__), bruce 080516
         global _global_assy_number
+        extra = "(bug in repr if seen)"
+        try:
+            win = env.mainwindow()
+        except:
+            extra = "(exception in env.mainwindow())"
+        else:
+            if win is None:
+                extra = "(no mainwindow)"
+            else:
+                try:
+                    assy = win.assy
+                except AttributeError:
+                    extra = "(mainwindow has no .assy)"
+                else:
+                    if self is assy:
+                        extra = "(main)"
+                    else:
+                        extra = "(not main)"
+                    pass
+                pass
+            pass
+        # now extra describes the "main assy status"
         res = "<%s #%d/%d %s %r at %#x>" % \
               (self.__class__.__name__.split('.')[-1],
                self._assy_number,
                _global_assy_number, # this lets you tell if it's the most
                    # recent one -- but beware of confusion from partlib assys;
                    # so also report whether it's currently the main one:
-               (self is env.mainwindow().assy) and "(main)" or "(NOT MAIN)",
+               extra,
                self.name,
                id(self))
         return res
@@ -867,9 +892,20 @@ class Assembly( StateMixin, Assembly_API):
                 print "fyi: skipped fix_after_readmmp_after_updaters since status_of_last_dna_updater_run = %r, needs to be %r" % \
                       ( global_model_changedicts.status_of_last_dna_updater_run, LAST_RUN_SUCCEEDED )
             pass
+
+        try:
+            self.fix_nodes_that_occur_twice() #bruce 080516
+        except:
+            msg = "\n*** BUG: exception in %r.fix_nodes_that_occur_twice(); " \
+                  "will try to continue" % self
+            print_compact_traceback(msg + ": ")
+            msg2 = "Bug: exception in fix_nodes_that_occur_twice; " \
+                   "see console prints. Will try to continue."
+            env.history.redmsg( msg2 )
+            pass
         
         return # from update_parts
-    
+
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
         """
         Ensure node is the top node of its own Part, and all its kids are in that Part,
@@ -904,6 +940,129 @@ class Assembly( StateMixin, Assembly_API):
             # also destroys emptied parts.
         return
 
+    def fix_nodes_that_occur_twice(self): # bruce 080516
+        """
+        Detect, report, and fix nodes that occur more than once
+        as group members under self.root.
+        """
+        # WARNING: the code here that runs when this kind of error is detected
+        # is untested (as of the initial commit on 080516). That's ok, since
+        # the call is exception-protected, and that protection has been tested.
+        #
+        # Motivation: there have been bugs that prevented saving an mmp file
+        # that could have been caused by some chunks occurring more than once
+        # in the internal model tree. (One such bug turned out to have another
+        # cause, and it's unconfirmed that any bug has this cause, but it's
+        # possible in principle, or could happen for some new bug.)
+        # 
+        # This kind of bug is bad enough to always check for (since the check
+        # can be fast), and if found, to always report and fix. The initial check
+        # shouldn't be too slow, since we've already scanned every atom (in the
+        # caller update_parts) and this only needs to scan all nodes. If it finds
+        # a problem, it scans again, doing more work to know how to report and fix
+        # the problem.
+        nodes_seen = {} # id(node) -> node, for all nodes in assy.tree
+        nodes_seen_twice = {} # same, but only for nodes seen more than once
+        def func(node):
+            if node is None:
+                # should never happen, but if it does, don't be confused
+                # (todo: actually check for isinstance Node)
+                print "bug: found None in place of a node, inside", self
+                return # filter this later (bug: won't always happen)
+            if nodes_seen.has_key(id(node)):
+                # error; save info to help fix it later
+                nodes_seen_twice[id(node)] = node
+            nodes_seen[id(node)] = node
+            return
+        self.root.apply2all(func)
+        if nodes_seen_twice:
+            # bug. report and try to fix.
+            print "\n*** Bug found by %r.fix_nodes_that_occur_twice()" % self
+            msg2 = "Bug: some node occurs twice in the model; " \
+                   "see console prints for details. Will try to continue."
+            env.history.redmsg(msg2)
+            # error details will now just be printed as we discover them
+            print "for %d nodes:" % len(nodes_seen_twice), nodes
+            # To fix, first decide which parent is legitimate for each duplicate
+            # node (which is node.dad if that parent node was seen),
+            # then filter all members lists to only include one occurrence
+            # of each node and only inside its legitimate parent.
+            # But if existing parent is not legit, change node.dad to
+            # first legal one.
+            parents_seen = {}
+            for m in nodes_seen_twice.itervalues():
+                parents_seen[id(m)] = [] # even if not found again below
+            def func2(node):
+                if node.is_group():
+                    for m in node.members:
+                        if nodes_seen_twice.has_key(id(m)):
+                            parents_seen[id(m)].append( node)
+                                # might list one parent twice, but only consecutively
+                return
+            self.root.apply2all(func2)
+            # parents_seen now knows all the groups whose members lists need
+            # filtering (as entries in one of its parent-list values)
+            # (but we may not bother using it for that optim),
+            # and helps us figure out which parent of each node is legit.
+            current_parent_slot = [None] # kluge
+            nodes_returned_true = {}
+            def fixer(node):
+                """
+                Fix node to have correct parent, and return True if it should
+                remain in the place where we just saw it.
+                (Can be passed to filter() over a group's members list.)
+                """
+                if node is None:
+                    return False # todo: actually check for isinstance Node
+                if not nodes_seen_twice.has_key(id(node)):
+                    return True
+                if nodes_returned_true.has_key(id(node)):
+                    # don't think about it again, once we said where it goes,
+                    # and make sure it's not allowed anywhere else
+                    # (in same parent or another one)
+                    return False
+                if nodes_seen.has_key(id(node.dad)): # correct even if dad is None
+                    legit_parent = node.dad
+                else:
+                    candidates = parents_seen[id(node)]
+                    if not candidates:
+                        # should never happen or we would not have seen this node
+                        print "should never happen: no parent for", node
+                        return False
+                    oldp = node.dad # for debug print
+                    legit_parent = node.dad = candidates[0]
+                    node.changed_dad() ####k safe now?
+                    print "changed parent of node %r from %r to %r" % (node, oldp, node.dad)
+                    if not nodes_seen.has_key(id(node.dad)):
+                        print "should never happen: node.dad still not in nodes_seen for", node
+                        # assuming that doesn't happen, node.dad is only fixed once per node
+                    pass
+                # now see if legit_parent is the current one
+                if legit_parent is current_parent_slot[0]:
+                    nodes_returned_true[id(node)] = node
+                    return True
+                return False
+            def func3(node):
+                if node.is_group():
+                    # filter its members through fixer
+                    current_parent_slot[0] = node
+                    oldmembers = node.members
+                    newmembers = filter( fixer, oldmembers)
+                    if len(newmembers) < len(oldmembers):
+                        print "removing %d members from %r, " \
+                              "changing them from %r to %r" % \
+                              ( len(oldmembers) - len(newmembers),
+                                node, oldmembers, newmembers )
+                        node.members = newmembers
+                        node.changed_members() ###k safe now?
+                        pass
+                    pass
+                return
+            self.root.apply2all( func3)
+            print
+            pass # end of case for errors detected and fixed
+        return # from fix_nodes_that_occur_twice
+                
     # == Part-related debugging functions
 
     def checkparts(self, when = ""):
