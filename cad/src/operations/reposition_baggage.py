@@ -247,6 +247,11 @@ def _reposition_baggage_1(self, baggage, other, planned_atom_nupos):
         if debugprints:
             print "debug repos baggage: sp2 with twisting pi_bond is nim", self ###@@@
         return
+    else:
+        #bruce 080515 bugfix: fallback case
+        # (otherwise following code has UnboundLocalError for 'res')
+        print "bug?: reposition_baggage (for %r) can't yet handle this algchoice:" % self, algchoice
+        return
     # now work out the best assignment of posns in res to baggage; reorder res
     # to fit bags_ordered
     assert len(res) == len_baggage + extra
