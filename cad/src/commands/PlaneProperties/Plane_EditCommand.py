@@ -34,9 +34,9 @@ class Plane_EditCommand(EditCommand):
     The editCommand, depending on what client code needs it to do, may create 
     a new plane or it may be used for an existing plane. 
     """
-        
+
     #@NOTE: self.struct is the Plane object
-    
+
     cmd = greenmsg("Plane: ")
     #
     prefix = '' # Not used by jigs.
@@ -47,7 +47,7 @@ class Plane_EditCommand(EditCommand):
     # sponsor_keyword = ('Graphenes', 'Carbon')
     sponsor_keyword = 'Plane'
     #See Command.anyCommand for details about the following flags
-    
+
     #command_can_be_suspended = False mitigates bug similar to bug 2699
     #(atleast it removes the property manager) . Actual fix will be cleanup of 
     #command/command sequencer and inscreasing the command stack depth
@@ -62,33 +62,33 @@ class Plane_EditCommand(EditCommand):
         # This is what bug 2701 is about (assigned to me). I will talk to Ninad
         # and Bruce about fixing this (after Rattlesnake). 
         # --Mark 2008-03-24
-    
+
     commandName = 'REFERENCE_PLANE'
     featurename = "Reference Plane"
-    
+
     GraphicsMode_class = SelectAtoms_GraphicsMode
-    
-    
+
+
     def __init__(self, commandSequencer, struct = None):
         """
         Constructs an Edit Controller Object. The editCommand, 
         depending on what client code needs it to do, may create a new plane 
         or it may be used for an existing plane. 
-        
+
         @param win: The NE1 main window.
         @type  win: QMainWindow
-        
+
         @param struct: The model object (in this case plane) that the 
                        Plane_EditCommand may create and/or edit
                        If struct object is specified, it means this 
                        editCommand will be used to edit that struct. 
         @type  struct: L{Plane} or None
-        
+
         @see: L{Plane.__init__}
         """     
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct   
-    
+
     def Enter(self):
         """
         Enter this command. 
@@ -98,9 +98,9 @@ class Plane_EditCommand(EditCommand):
         #set to None while entering this command.
         if self.struct:
             self.struct = None
-        
+
         EditCommand.Enter(self)
-        
+
     def restore_gui(self):
         """
         @see: EditCommand.restore_gui
@@ -111,26 +111,16 @@ class Plane_EditCommand(EditCommand):
         ##self.propMgr.update_props_if_needed_before_closing()
         if self.hasValidStructure():
             self.struct.updateCosmeticProps() 
-        
-        
-    def hasValidStructure(self):
-        """        
-        Tells the caller if this edit command has a valid structure. 
-        Overrides EditCommand.hasValidStructure()
-        @see: EditCommand.hasValidSructure()
+
+
+    def _getStructureType(self):
         """
-
-        isValid = EditCommand.hasValidStructure(self)
-
-        if not isValid:
-            return isValid
-
-        if not isinstance(self.struct, Plane): 
-            return False  
-        
-        return True
-    
-        
+        Subclasses override this method to define their own structure type. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() (overridden here)
+        """
+        return Plane
 
     def _createPropMgrObject(self):
         """
@@ -138,19 +128,19 @@ class Plane_EditCommand(EditCommand):
         editCommand. 
         """
         assert not self.propMgr
-        
+
         propMgr = self.win.createPlanePropMgr_if_needed(self)
-        
+
         return propMgr
-        
-            
+
+
     def placePlaneParallelToScreen(self):
         """
         Orient this plane such that it is placed parallel to the screen
         """
         self.struct.placePlaneParallelToScreen()
-        
-        
+
+
     def placePlaneThroughAtoms(self):
         """
         Orient this plane such that its center is same as the common center of 
@@ -167,7 +157,7 @@ class Plane_EditCommand(EditCommand):
         #This is subject to revision. May not be needed after once Logging 
         #facility (see Log.py) is fully implemented -- Ninad 20070921
         self.logMessage = self.cmd + self.struct.logMessage
-        
+
     def placePlaneOffsetToAnother(self):
         """
         Orient the plane such that it is parallel to a selected plane , with an
@@ -192,19 +182,19 @@ class Plane_EditCommand(EditCommand):
         else:
             ctr = None
         return (width, height, ctr, atmList)
-    
+
     def _createStructure(self):
         """
         Create a Plane object. (The model object which this edit controller 
         creates) 
         """
         assert not self.struct
-       
+
         struct = Plane(self.win, self)
-            
+
         return struct
-        
-                
+
+
     def _modifyStructure(self, params):
         """
         Modifies the structure (Plane) using the provided params.
@@ -215,11 +205,11 @@ class Plane_EditCommand(EditCommand):
         assert self.struct
         assert params 
         assert len(params) == 4             
-        
+
         width, height, center_junk, atmList_junk = params
         self.struct.width   =  width        
         self.struct.height  =  height 
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
-        
+
     ##=====================================##

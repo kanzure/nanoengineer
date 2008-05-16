@@ -76,11 +76,11 @@ DEBUG_ROTATION_HANDLES = False
 
 def pref_nt_segment_resize_by_recreating_nanotube():
     res = debug_pref("Nanotube Segment: resize by recreating whole nanotube", 
-                      Choice_boolean_True,
-                      non_debug = True,
-                      prefs_key = True )
+                     Choice_boolean_True,
+                     non_debug = True,
+                     prefs_key = True )
     return res
-    
+
 
 class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     """
@@ -122,7 +122,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     #The minimum 'stopper'length used for resize handles
     #@see: self._update_resizeHandle_stopper_length for details. 
     _resizeHandle_stopper_length = State(Width, -100000)
-              
+
     rotationHandleBasePoint1 = State( Point, ORIGIN)
     rotationHandleBasePoint2 = State( Point, ORIGIN)
 
@@ -133,8 +133,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
-    
-  
+
+
     #@TODO: modify the 'State params for rotation_distance 
     rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
     rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
@@ -148,7 +148,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             direction = norm_Expr(handlePoint1 - handlePoint2),
             sphereRadius = handleSphereRadius1, 
             range = (_resizeHandle_stopper_length, 10000)                               
-                           ))
+        ))
 
     rightHandle = Instance( 
         NanotubeSegment_ResizeHandle(
@@ -159,7 +159,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             direction = norm_Expr(handlePoint2 - handlePoint1),
             sphereRadius = handleSphereRadius2,
             range = (_resizeHandle_stopper_length, 10000)
-                           ))
+        ))
 
     rotationHandle1 = Instance(         
         RotationHandle(    
@@ -167,12 +167,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             rotationDistanceRef = call_Expr( ObjAttr_StateRef,
                                              _self, 
                                              'rotation_distance1'),
-            center = handlePoint1,
-            axis = norm_Expr(handlePoint1 - handlePoint2),
-            origin = rotationHandleBasePoint1,
-            radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
+                                             center = handlePoint1,
+                                             axis = norm_Expr(handlePoint1 - handlePoint2),
+                                             origin = rotationHandleBasePoint1,
+                                             radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
 
-        ))
+                                         ))
 
     rotationHandle2 = Instance(         
         RotationHandle(    
@@ -180,12 +180,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             rotationDistanceRef = call_Expr( ObjAttr_StateRef,
                                              _self, 
                                              'rotation_distance2'),
-            center = handlePoint2,
-            axis = norm_Expr(handlePoint2 - handlePoint1),
-            origin = rotationHandleBasePoint2,
-            radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
+                                             center = handlePoint2,
+                                             axis = norm_Expr(handlePoint2 - handlePoint1),
+                                             origin = rotationHandleBasePoint2,
+                                             radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
 
-        ))
+                                         ))
 
 
     def __init__(self, commandSequencer, struct = None):
@@ -201,10 +201,10 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #Graphics handles for editing the structure . 
         self.handles = []        
         self.grabbedHandle = None
-        
+
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
-        
+
 
 
     def init_gui(self):
@@ -239,14 +239,14 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             #@ DOES THIS DO ANYTHING? I don't think so. --Mark 2008-04-01
             #@endPoint1, endPoint2 = self.struct.nanotube.getEndPoints()
             #@params_for_propMgr = (endPoint1, endPoint2)
-            
+
             #TODO 2008-03-25: better to get all parameters from self.struct and
             #set it in propMgr?  This will mostly work except that reverse is 
             #not true. i.e. we can not specify same set of params for 
             #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
             #by the structure when needed. Commenting out following line of code
             self.propMgr.setParameters(self.struct.getProps())
-            
+
             #Store the previous parameters. Important to set it after you 
             #set nanotube attrs in the propMgr. 
             #self.previousParams is used in self._previewStructure and 
@@ -254,7 +254,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
-            
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
@@ -270,9 +270,9 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
               dna_updater (the dna updater then decides whether to call this 
               method to see which empty groups need to be deleted)
         """
-        
+
         bool_keep = EditCommand.keep_empty_group(self, group)
-        
+
         if not bool_keep:     
             if self.hasValidStructure():                
                 if group is self.struct:
@@ -284,9 +284,9 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             #Reason? ..see explanation in BreakStrands_Command.keep_empty_group
             elif isinstance(group, self.assy.NanotubeGroup):
                 bool_keep = True
-        
+
         return bool_keep
-    
+
 
     def hasValidStructure(self):
         """
@@ -298,15 +298,22 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         isValid = EditCommand.hasValidStructure(self)
 
         if not isValid:
-            return isValid
-
-        if not isinstance(self.struct, NanotubeSegment): 
-            return False    
+            return isValid 
 
         # would like to check here whether it's empty of axis chunks;
         # instead, this will do for now (probably too slow, though):
         p1, p2 = self.struct.nanotube.getEndPoints()
         return (p1 is not None)
+
+    def _getStructureType(self):
+        """
+        Subclasses override this method to define their own structure type. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() (overridden here)
+        """
+        return self.win.assy.NanotubeSegment
+
 
     def _updateHandleList(self):
         """        
@@ -335,30 +342,30 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         self.handlePoint1 = None # Needed!
         self.handlePoint2 = None
-        
+
         #TODO: Call this method less often by implementing model_changed
         #see bug 2729 for a planned optimization
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE      
-        
+
         self._update_resizeHandle_radius()
-        
+
         handlePoint1, handlePoint2 = self.struct.nanotube.getEndPoints()
-        
+
         if 0: # Debug prints
             print "updateHandlePositions(): handlePoint1=", handlePoint1
             print "updateHandlePositions(): handlePoint2=", handlePoint2
-        
+
         if handlePoint1 is not None and handlePoint2 is not None:
             # (that condition is bugfix for deleted axis segment, bruce 080213)
-            
+
             self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2            
-            
+
             #Update the 'stopper'  length where the resize handle being dragged 
             #should stop. See self._update_resizeHandle_stopper_length()
             #for more details
             self._update_resizeHandle_stopper_length()            
-            
+
             if DEBUG_ROTATION_HANDLES:
                 self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
                 self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
@@ -370,7 +377,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0
-        
+
     def _update_resizeHandle_radius(self):
         """
         Finds out the sphere radius to use for the resize handles, based on 
@@ -381,7 +388,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         self.handleSphereRadius1 = HANDLE_RADIUS_DEFAULT_VALUE
         self.handleSphereRadius2 = HANDLE_RADIUS_DEFAULT_VALUE
-            
+
     def _update_resizeHandle_stopper_length(self):
         """
         Update the limiting length at which the resize handle being dragged
@@ -389,17 +396,17 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         The segment resize handle stops when you are dragging it towards the 
         other resizeend and the distance between the two ends reaches two 
         duplexes. 
-        
+
         The self._resizeHandle_stopper_length computed in this method is 
         used as a lower limit of the 'range' option provided in declaration
         of resize handle objects (see class definition for the details)
         @see: self.updateHandlePositions()
         """
-        
+
         total_length = vlen(self.handlePoint1 - self.handlePoint2)        
         nanotubeRise = self.struct.nanotube.getRise()
         self._resizeHandle_stopper_length = - total_length + nanotubeRise
-      
+
     def _createPropMgrObject(self):
         """
         Creates a property manager object (that defines UI things) for this 
@@ -448,17 +455,17 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
         ntSegment = NanotubeSegment(self.name, 
-                                self.win.assy,
-                                self.win.assy.part.topnode,
-                                editCommand = self  )
+                                    self.win.assy,
+                                    self.win.assy.part.topnode,
+                                    editCommand = self  )
         try:
             # Make the DNA duplex. <nanotubeGroup> will contain three chunks:
             #  - Strand1
             #  - Strand2
             #  - Axis
-            
+
             n, m, type, endings, endPoint1, endPoint2 = self._gatherParameters()
-            
+
             from cnt.model.Nanotube import Nanotube
             self.nanotube = Nanotube()
             nanotube  =  self.nanotube
@@ -468,18 +475,18 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             nanotube.setEndPoints(endPoint1, endPoint2)
             position = V(0.0, 0.0, 0.0)
             ntChunk = nanotube.build(self.name, self.win.assy, position)
-            
+
             nanotube.computeEndPointsFromChunk(ntChunk)
-            
+
             ntSegment.addchild(ntChunk)
-            
+
             #set some properties such as nanotubeRise
             #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
             #Should these props be assigned to the NanotubeSegment in 
             #Nanotube.build() itself? This needs to be answered while modifying
             #build() method to fit in the dna data model. --Ninad 2008-03-05
-            
+
             #WARNING 2008-03-05: Since self._modifyStructure calls 
             #self._createStructure() 
             #If in the near future, we actually permit modifying a
@@ -490,9 +497,9 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                     nanotube.getType(),
                     nanotube.getEndings(),
                     nanotube.getEndPoints())
-            
+
             ntSegment.setProps(props)
-            
+
             return ntSegment
 
         except (PluginBug, UserError):
@@ -511,7 +518,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         if not pref_nt_segment_resize_by_recreating_nanotube():
             self._modifyStructure_NEW_SEGMENT_RESIZE(params)
             return
-        
+
         assert self.struct
         # parameters have changed, update existing structure
         self._revertNumber()
@@ -549,8 +556,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             #None. For now lets just print a warning if parentNanotubeGroup is None 
             self._parentNanotubeGroup.addSegment(self.struct)
         return  
-    
-        
+
+
     def _modifyStructure_NEW_SEGMENT_RESIZE(self, params): #@ NOT FIXED
         """
         Modify the structure based on the parameters specified. 
@@ -558,26 +565,26 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
-        
+
         @attention: is not implemented.
         """        
-        
+
         #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
         #to self._modifyStructure, after more testing
         #This method is used for debug prefence: 
         #'DNA Segment: resize without recreating whole duplex'
         #see also self.modifyStructure_NEW_SEGMENT_RESIZE
-        
+
         assert self.struct      
-        
+
         from utilities.debug import print_compact_stack
         print_compact_stack("_modifyStructure_NEW_SEGMENT_RESIZE() not fixed!" )
         print "Params =", params
-        
+
         self.nanotube = params #@
-                
+
         length_diff =  self._determine_how_to_change_length() #@
-                        
+
         if length_diff == 0:
             print_compact_stack("BUG: length_diff is always ZERO." )
             return
@@ -585,40 +592,40 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             print "Nanotube longer by ", length_diff, ", angstroms."
         else:
             print "Nanotube shorter by ", length_diff, ", angstroms."
-        
+
         return
-    
+
         if numberOfBasePairsToAddOrRemove != 0:   #@@@@ Not reached.
-            
+
             resizeEnd_final_position = self._get_resizeEnd_final_position(
                 ladderEndAxisAtom, 
                 abs(numberOfBasePairsToAddOrRemove),
                 nanotubeRise )
-              
+
             self.nanotube.modify(self.struct,
                                  length_diff,
                                  ladderEndAxisAtom.posn(),
                                  resizeEnd_final_position)
-        
+
         #Find new end points of structure parameters after modification 
         #and set these values in the propMgr. 
         new_end1 , new_end2 = self.struct.nanotube.getEndPoints() #@
-       
+
         params_to_set_in_propMgr = (new_end1,
                                     new_end2)
-        
+
         #TODO: Need to set these params in the PM 
         #and then self.previousParams = params_to_set_in_propMgr
-        
+
         self.previousParams = params
 
         return  
-    
+
     def _get_resizeEnd_final_position(self, 
                                       ladderEndAxisAtom, 
                                       numberOfBases, 
                                       nanotubeRise):
-        
+
         final_position = None   
         if self.grabbedHandle:
             final_position = self.grabbedHandle.currentPosition
@@ -627,7 +634,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             axis_vector = ladderEndAxisAtom.posn() - other_axisEndAtom.posn()
             segment_length_to_add = 0 #@
             final_position = ladderEndAxisAtom.posn() + norm(axis_vector)*segment_length_to_add
-            
+
         return final_position
 
     def getStructureName(self):
@@ -675,7 +682,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             return
 
         text = ""
-        
+
         textColor = black
 
         currentPosition = self.grabbedHandle.currentPosition
@@ -693,8 +700,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         self.propMgr.ntLengthLineEdit.setText(lengthText)
 
         return text, textColor
-    
-    
+
+
     def modifyStructure(self):
         """
         Called when a resize handle is dragged to change the length of the 
@@ -715,11 +722,11 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         As of 2008-02-01 it recreates the structure
         @see: a note in self._createStructure() about use of ntSegment.setProps 
         """
-        
+
         if not pref_nt_segment_resize_by_recreating_nanotube():
             self.modifyStructure_NEW_SEGMENT_RESIZE()
             return
-        
+
         if self.grabbedHandle is None:
             return        
 
@@ -731,7 +738,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         self.updateHandlePositions()
         self.glpane.gl_update()
-    
+
 
     def modifyStructure_NEW_SEGMENT_RESIZE(self): #@ NOT FIXED
         """
@@ -755,73 +762,73 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         #TODO: need to cleanup this and may be use use something like
         #self.previousParams = params in the end -- 2008-03-24 (midnight)
-        
-        
+
+
         #@TODO: - rename this method from modifyStructure_NEW_SEGMENT_RESIZE
         #to self.modifyStructure, after more testing
         #This method is used for debug prefence: 
         #'DNA Segment: resize without recreating whole duplex'
         #see also self._modifyStructure_NEW_SEGMENT_RESIZE
-        
+
         if self.grabbedHandle is None:
             return   
-        
+
         self.propMgr.endPoint1 = self.grabbedHandle.fixedEndOfStructure
         self.propMgr.endPoint2 = self.grabbedHandle.currentPosition
-        
+
         DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD = False
-        
+
         if DEBUG_DO_EVERYTHING_INSIDE_MODIFYSTRUCTURE_METHOD:
-            
+
             # TO DO: this entire block of code.  --Mark 2008-04-03
             print_compact_stack("modifyStructure_NEW_SEGMENT_RESIZE(): NOT FIXED")
 
             length = vlen(self.grabbedHandle.fixedEndOfStructure - \
                           self.grabbedHandle.currentPosition )
-                  
+
             endAtom1, endAtom2 = self.struct.getAxisEndAtoms() #@
-            
+
             for atm in (endAtom1, endAtom2):
                 if not same_vals(self.grabbedHandle.fixedEndOfStructure, atm.posn()):
                     ladderEndAxisAtom = atm
                     break
-                
+
                 endPoint1, endPoint2 = self.struct.nanotube.getEndPoints()
                 old_dulex_length = vlen(endPoint1 - endPoint2)
-                                                       
+
                 nanotubeRise = self.struct.getProps()      #@ 
-                
+
                 params_to_set_in_propMgr = (
-                          self.grabbedHandle.origin,
-                          self.grabbedHandle.currentPosition,
-                          )
-                                  
+                    self.grabbedHandle.origin,
+                    self.grabbedHandle.currentPosition,
+                )
+
                 ##self._modifyStructure(params)
                 ############################################
-                
+
                 self.nanotube = Nanotube() #@ Creates 5x5 CNT. Miisng PM params.
-                
+
                 length_diff =  self._determine_how_to_change_length()  
                 ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end() #@
-                
+
                 #@ Nanotube class needs modify() method.
                 self.nanotube.modify(self.struct, 
                                      length_diff,
                                      ladderEndAxisAtom.posn(),
                                      self.grabbedHandle.currentPosition)
-        
+
         #TODO: Important note: How does NE1 know that structure is modified? 
         #Because number of base pairs parameter in the PropMgr changes as you 
         #drag the handle . This is done in self.getCursorText() ... not the 
         #right place to do it. OR that method needs to be renamed to reflect
         #this as suggested in that method -- Ninad 2008-03-25
-        
+
         self.preview_or_finalize_structure(previewing = True) 
-        
+
         ##self.previousParams = params_to_set_in_propMgr
 
         self.glpane.gl_update()
-        
+
     def get_axisEndAtom_at_resize_end(self):
         ladderEndAxisAtom = None
         if self.grabbedHandle is not None:
@@ -829,9 +836,9 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         else:
             endAtom1, endAtom2 = self.struct.getAxisEndAtoms()
             ladderEndAxisAtom = endAtom2
-                        
+
         return ladderEndAxisAtom
-            
+
     def _determine_how_to_change_length(self): #@ NEEDS WORK
         """
         Returns the difference in length between the original nanotube and the
@@ -845,7 +852,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         original_nanotube_length = vlen(endPoint1 - endPoint2)
         new_nanotube_length      = vlen(endPoint1 - endPoint2) #@
         return new_nanotube_length - original_nanotube_length #@ ALWAYS RETURNS ZERO
-        
+
     def makeMenus(self): 
         """
         Create context menu for this command. (Build Dna mode)
@@ -870,12 +877,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             chunk2 = selobj.atom2.molecule
             if chunk1 is chunk2 and chunk1 is not None:
                 highlightedChunk = chunk1
-        
+
         if highlightedChunk is None:
             return
 
         if self.hasValidStructure():        
-             
+
             nanotubeGroup = self.struct.parent_node_of_class(self.assy.NanotubeGroup)
             if nanotubeGroup is None:
                 return
@@ -886,7 +893,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                         noop, 'disabled')
                 self.Menu_spec.append(item)
                 return
-        
+
         highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                 command = self)
+                                                        command = self)
 

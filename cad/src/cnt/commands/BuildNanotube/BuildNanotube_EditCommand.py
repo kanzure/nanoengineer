@@ -59,7 +59,7 @@ class BuildNanotube_EditCommand(EditCommand):
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-    
+
     #The following class constant is used in creating dynamic menu items (using self.makeMenus)
     #if this flag is not defined, the menu doesn't get created
     #or use of self.graphicsMode in self.makeMenus throws errors. 
@@ -156,7 +156,7 @@ class BuildNanotube_EditCommand(EditCommand):
         self.struct = None     
         self.existingStructForEditing = False
         self.propMgr.updateListWidgets()
-    
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
@@ -168,13 +168,13 @@ class BuildNanotube_EditCommand(EditCommand):
         when needed. 
         @see: Command.keep_empty_group() which is overridden here. 
         """
-        
+
         bool_keep = EditCommand.keep_empty_group(self, group)
-        
+
         if not bool_keep:     
             if group is self.struct:
                 bool_keep = True
-        
+
         return bool_keep
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
@@ -229,20 +229,14 @@ class BuildNanotube_EditCommand(EditCommand):
 
         EditCommand.editStructure(self, struct) 
 
-    def hasValidStructure(self):
+
+    def _getStructureType(self):
         """
-        Tells the caller if this edit command has a valid structure. 
-        Overrides EditCommand.hasValidStructure()
-        """        
-        isValid = EditCommand.hasValidStructure(self)
-
-        if not isValid:
-            return isValid
-
-        if isinstance(self.struct, NanotubeGroup): 
-            return True    
-
-        return False
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() 
+        """
+        return self.win.assy.NanotubeGroup
 
 
     def _createPropMgrObject(self):
@@ -385,7 +379,7 @@ class BuildNanotube_EditCommand(EditCommand):
             #'None' for 'self.struct'!
             self.struct.open = False
 
-   
+
     def makeMenus(self): 
         """
         Create context menu for this command. (Build Nanotube mode)
@@ -415,4 +409,4 @@ class BuildNanotube_EditCommand(EditCommand):
 
         if highlightedChunk is not None:
             highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                     command = self)
+                                                            command = self)

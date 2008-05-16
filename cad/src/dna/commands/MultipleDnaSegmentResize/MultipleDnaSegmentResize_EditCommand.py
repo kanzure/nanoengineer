@@ -400,17 +400,14 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
 
 
-    def hasValidStructure(self):
+    def _getStructureType(self):
         """
-        Tells the caller if this edit command has a valid structure. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() 
+        @see: self.hasValidStructure()
         """
-        if self.struct is None:
-            return False 
-
-        if not isinstance(self.struct, DnaSegmentList): 
-            return False  
-
-        return True
+        return DnaSegmentList
 
 
     def getDnaRibbonParams(self):

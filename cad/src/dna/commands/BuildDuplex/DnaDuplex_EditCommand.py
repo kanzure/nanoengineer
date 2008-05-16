@@ -180,7 +180,7 @@ class DnaDuplex_EditCommand(EditCommand):
         if prevMode.commandName == 'BUILD_DNA':
             params = prevMode.provideParamsForTemporaryMode(self.commandName)
             self.callback_addSegments, self._parentDnaGroup = params
-            
+
             #@TODO: self.callback_addSegments is not used as of 2008-02-24 
             #due to change in implementation. Not removing it for now as the 
             #new implementation (which uses the dnaGroup object of 
@@ -235,7 +235,7 @@ class DnaDuplex_EditCommand(EditCommand):
         Overrides EditCommand.runCommand
         """
         self.struct = None   
-    
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
@@ -247,9 +247,9 @@ class DnaDuplex_EditCommand(EditCommand):
         when needed. 
         @see: Command.keep_empty_group() which is overridden here. 
         """
-        
+
         bool_keep = EditCommand.keep_empty_group(self, group)
-        
+
         if not bool_keep: 
             #Don't delete any DnaSegements or DnaGroups at all while 
             #in DnaDuplex_EditCommand. 
@@ -258,9 +258,9 @@ class DnaDuplex_EditCommand(EditCommand):
             #won't be empty, it doesn't hurt in waiting for this temporary 
             #command to exit before deleting any empty groups.             
             if isinstance(group, self.assy.DnaSegment) or \
-                 isinstance(group, self.assy.DnaGroup):
+               isinstance(group, self.assy.DnaGroup):
                 bool_keep = True
-        
+
         return bool_keep
 
 
@@ -324,7 +324,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
         #Now append this dnaSegment  to self._segmentList 
         self._segmentList.append(self.struct)
-      
+
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
         self.graphicsMode.resetVariables()
@@ -340,6 +340,18 @@ class DnaDuplex_EditCommand(EditCommand):
         return propMgr
 
 
+    def _getStructureType(self):
+        """
+        Subclasses override this method to define their own structure type. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() (overridden here)
+        @see: self.hasValidStructure()
+        """
+        return self.win.assy.DnaSegment
+
+
+
     def _createStructure(self):
         """
         creates and returns the structure (in this case a L{Group} object that 
@@ -349,7 +361,7 @@ class DnaDuplex_EditCommand(EditCommand):
         @note: This needs to return a DNA object once that model is implemented        
         """
         return self._createSegment()
-    
+
     def _finalizeStructure(self):
         """
         Finalize the structure. This is a step just before calling Done method.
@@ -374,7 +386,7 @@ class DnaDuplex_EditCommand(EditCommand):
             return
         else:
             EditCommand._finalizeStructure(self)
-        
+
 
     def _gatherParameters(self):
         """
@@ -457,7 +469,7 @@ class DnaDuplex_EditCommand(EditCommand):
             segmentList = self._segmentList
         elif self._fallbackDnaGroup is not None:
             segmentList = self._fallbackDnaGroup.get_segments()
-            
+
 
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 
@@ -465,11 +477,11 @@ class DnaDuplex_EditCommand(EditCommand):
             if segment is not None: 
                 segment.kill_with_contents()
             self._revertNumber()
-        
+
         if self._fallbackDnaGroup is not None:
             self._fallbackDnaGroup.kill()
             self._fallbackDnaGroup = None
-            
+
 
         self._segmentList = []	
         self.win.win_update()
@@ -494,7 +506,7 @@ class DnaDuplex_EditCommand(EditCommand):
                      duplexRise, \
                      endPoint1, \
                      endPoint2 = params
-        
+
         if numberOfBases < 2:
             #Don't create a duplex with only one or 0 bases! 
             #Reset a few variables. This should be done by calling a separate 
@@ -502,17 +514,17 @@ class DnaDuplex_EditCommand(EditCommand):
             #as well. 
             self.mouseClickPoints = []
             self.graphicsMode.resetVariables()
-            
+
             msg  = redmsg("Cannot preview/insert a DNA duplex with less than 2 base pairs.")
             self.propMgr.updateMessage(msg)
-                
+
             self.dna = None # Fixes bug 2530. Mark 2007-09-02
             return None
         else: 
             msg = "Specify two points in the 3D Graphics Area to define the "\
                 "endpoints of the DNA duplex"
             self.propMgr.updateMessage(msg)
-            
+
 
         #If user enters the number of basepairs and hits preview i.e. endPoint1
         #and endPoint2 are not entered by the user and thus have default value 
@@ -585,7 +597,7 @@ class DnaDuplex_EditCommand(EditCommand):
                      duplexRise,
                      endPoint1,
                      endPoint2)
-            
+
             #set some properties such as duplexRise and number of bases per turn
             #This information will be stored on the DnaSegment object so that
             #it can be retrieved while editing this object. 
@@ -593,7 +605,7 @@ class DnaDuplex_EditCommand(EditCommand):
             #should these props be assigned to the DnaSegment in 
             #dnaDuplex.make() itself ? This needs to be answered while modifying
             #make() method to fit in the dna data model. --Ninad 2008-03-05
-            
+
             #WARNING 2008-03-05: Since self._modifyStructure calls 
             #self._createStructure() (which in turn calls self._createSegment() 
             #in this case) If in the near future, we actually permit modifying a
@@ -603,7 +615,7 @@ class DnaDuplex_EditCommand(EditCommand):
             props = (duplexRise, basesPerTurn)
 
             dnaSegment.setProps(props)
-            
+
             return dnaSegment
 
 
@@ -611,7 +623,7 @@ class DnaDuplex_EditCommand(EditCommand):
             # Why do we need UserError here? Mark 2007-08-28
             dnaSegment.kill_with_contents()
             raise PluginBug("Internal error while trying to create DNA duplex.")
-        
+
 
     def getCursorText(self, endPoint1, endPoint2):
         """
@@ -620,29 +632,29 @@ class DnaDuplex_EditCommand(EditCommand):
         """
         if endPoint1 is None or endPoint2 is None:
             return '', black
-        
+
         if not env.prefs[dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key]:
             return '', black
-        
+
         text = ''        
         textColor = black
-        
+
         numberOfBasePairsString = ''
         numberOfTurnsString = ''
         duplexLengthString = ''
         thetaString = ''
-        
+
 
         duplexLength = vlen(endPoint2 - endPoint1)
-        
+
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength( 
-                'B-DNA', 
-                duplexLength,
-                duplexRise = self.duplexRise)
-        
+            'B-DNA', 
+            duplexLength,
+            duplexRise = self.duplexRise)
+
         numberOfBasePairsString = self._getCursorText_numberOfBasePairs(
             numberOfBasePairs)
-        
+
         numberOfTurnsString = self._getCursorText_numberOfTurns(
             numberOfBasePairs)
 
@@ -654,61 +666,61 @@ class DnaDuplex_EditCommand(EditCommand):
                 lengthUnitString = 'nm'
                 duplexLength = duplexLength * 0.1
             duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
-                       
-        
+
+
         if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key]:
             vec = endPoint2 - endPoint1        
             theta = self.glpane.get_angle_made_with_screen_right(vec)
             thetaString = "%5.2f deg"%theta
-        
+
         commaString = ", "
         text = numberOfBasePairsString 
-        
+
         if text and numberOfTurnsString:
             text += commaString
-        
+
         text += numberOfTurnsString
-        
+
         if text and duplexLengthString:
             text += commaString
-        
+
         text += duplexLengthString
-        
+
         if text and thetaString:
             text += commaString
-        
+
         text += thetaString
-        
+
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         return text , textColor
-    
+
     def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
         numberOfBasePairsString = ''
-        
+
         if env.prefs[
             dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key]:
             numberOfBasePairsString = "%db"%numberOfBasePairs
-                    
+
         return numberOfBasePairsString
-        
+
     def _getCursorText_numberOfTurns(self, numberOfBasePairs):
         numberOfTurnsString = '' 
         if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key]:
             numberOfTurns = numberOfBasePairs / self.basesPerTurn
             numberOfTurnsString = '(%5.3ft)'%numberOfTurns
-       
+
         return numberOfTurnsString
-    
+
     def _getCursorText_length(self):
         pass
-    
+
     def _getCursorText_angle(self):
         pass
-    
+
     def isRubberbandLineSnapEnabled(self):
         """
         This returns True or False based on the checkbox state in the PM.

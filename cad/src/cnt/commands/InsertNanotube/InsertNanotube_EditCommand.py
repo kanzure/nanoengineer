@@ -74,7 +74,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
     #required by NanotubeLine_GM
     mouseClickPoints = []
-    
+
     #This is set to InsertNanotube_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
@@ -91,7 +91,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
         self.struct = struct
 
-   
+
     def init_gui(self):
         """
         Do changes to the GUI while entering this command. This includes opening 
@@ -130,7 +130,7 @@ class InsertNanotube_EditCommand(EditCommand):
             if self.flyoutToolbar:
                 if not self.flyoutToolbar.insertNanotubeAction.isChecked():
                     self.flyoutToolbar.insertNanotubeAction.setChecked(True)
-        
+
 
     def restore_gui(self):
         """
@@ -149,7 +149,7 @@ class InsertNanotube_EditCommand(EditCommand):
 
         if self.flyoutToolbar:
             self.flyoutToolbar.insertNanotubeAction.setChecked(False)
-            
+
         self._segmentList = []
 
 
@@ -158,7 +158,7 @@ class InsertNanotube_EditCommand(EditCommand):
         Overrides EditCommand.runCommand
         """
         self.struct = None   
-    
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
@@ -170,9 +170,9 @@ class InsertNanotube_EditCommand(EditCommand):
         when needed. 
         @see: Command.keep_empty_group() which is overridden here. 
         """
-        
+
         bool_keep = EditCommand.keep_empty_group(self, group)
-        
+
         if not bool_keep: 
             #Don't delete any CntSegements or NanotubeGroups at all while 
             #in InsertNanotube_EditCommand. 
@@ -181,9 +181,9 @@ class InsertNanotube_EditCommand(EditCommand):
             #won't be empty, it doesn't hurt in waiting for this temporary 
             #command to exit before deleting any empty groups.             
             if isinstance(group, self.assy.NanotubeSegment) or \
-                 isinstance(group, self.assy.NanotubeGroup):
+               isinstance(group, self.assy.NanotubeGroup):
                 bool_keep = True
-        
+
         return bool_keep
 
 
@@ -237,6 +237,14 @@ class InsertNanotube_EditCommand(EditCommand):
         propMgr = InsertNanotube_PropertyManager(self.win, self)
         return propMgr
 
+    def _getStructureType(self):
+        """
+        Subclasses override this method to define their own structure type. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() (overridden here)
+        """
+        return self.win.assy.NanotubeSegment
 
     def _createStructure(self):
         """
@@ -247,7 +255,7 @@ class InsertNanotube_EditCommand(EditCommand):
         @note: This needs to return a CNT object once that model is implemented        
         """
         return self._createSegment()
-    
+
     def _finalizeStructure(self):
         """
         Finalize the structure. This is a step just before calling Done method.
@@ -272,7 +280,7 @@ class InsertNanotube_EditCommand(EditCommand):
             return
         else:
             EditCommand._finalizeStructure(self)
-        
+
 
     def _gatherParameters(self):
         """
@@ -341,15 +349,15 @@ class InsertNanotube_EditCommand(EditCommand):
         @see: L{self.cancelStructure}
         """
         segmentList = self._segmentList
-        
+
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 
             #side.
             if segment is not None: 
                 segment.kill_with_contents()
             self._revertNumber()
-        
-        
+
+
         self._segmentList = []	
         self.win.win_update()
 
@@ -361,7 +369,7 @@ class InsertNanotube_EditCommand(EditCommand):
         @rtype: L{Group}  
         @note: This needs to return a CNT object once that model is implemented        
         """
-        
+
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
@@ -381,7 +389,7 @@ class InsertNanotube_EditCommand(EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-	    
+
         ntSegment = NanotubeSegment(self.name, 
                                     self.win.assy,
                                     self.win.assy.part.topnode,
@@ -394,13 +402,13 @@ class InsertNanotube_EditCommand(EditCommand):
             position = V(0.0, 0.0, 0.0)
             self.nanotube  =  nanotube  # needed for done msg #@
             ntChunk = nanotube.build(self.name, self.win.assy, position)
-            
+
             ntSegment.addchild(ntChunk)
 
             #set some properties such as ntRise and its two endpoints.
             #This information will be stored on the NanotubeSegment object so that
             #it can be retrieved while editing this object. 
-            
+
             #WARNING 2008-03-05: Since self._modifyStructure calls 
             #self._createStructure() (which in turn calls self._createSegment() 
             #in this case) If in the near future, we actually permit modifying a
@@ -411,7 +419,7 @@ class InsertNanotube_EditCommand(EditCommand):
             #        nanotube.getType(),
             #        nanotube.getEndings(),
             #        nanotube.getEndPoints())
-            
+
             ntSegment.setProps(nanotube.getParameters())
 
             return ntSegment
@@ -429,7 +437,7 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         if endPoint1 is None or endPoint2 is None:
             return
-        
+
         textColor = black
         vec = endPoint2 - endPoint1
         ntLength = vlen(vec)
@@ -457,7 +465,7 @@ class InsertNanotube_EditCommand(EditCommand):
         @see: NanotubeLineMode.setParams, NanotubeLineMode_GM.Draw
         """
         return self.propMgr.ntRubberBandLineDisplayComboBox.currentText()
-    
+
     # Things needed for CntLine_GraphicsMode (NanotubeLine_GM) ======================
 
     def _setParamsForCntLineGraphicsMode(self):

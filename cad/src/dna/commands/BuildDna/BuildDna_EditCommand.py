@@ -59,7 +59,7 @@ class BuildDna_EditCommand(EditCommand):
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-    
+
     #The following class constant is used in creating dynamic menu items (using self.makeMenus)
     #if this flag is not defined, the menu doesn't get created
     #or use of self.graphicsMode in self.makeMenus throws errors. 
@@ -156,7 +156,7 @@ class BuildDna_EditCommand(EditCommand):
         self.struct = None     
         self.existingStructForEditing = False
         self.propMgr.updateListWidgets()
-    
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
@@ -168,13 +168,13 @@ class BuildDna_EditCommand(EditCommand):
         when needed. 
         @see: Command.keep_empty_group() which is overridden here. 
         """
-        
+
         bool_keep = EditCommand.keep_empty_group(self, group)
-        
+
         if not bool_keep:     
             if group is self.struct:
                 bool_keep = True
-        
+
         return bool_keep
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
@@ -229,20 +229,16 @@ class BuildDna_EditCommand(EditCommand):
 
         EditCommand.editStructure(self, struct) 
 
-    def hasValidStructure(self):
+
+    def _getStructureType(self):
         """
-        Tells the caller if this edit command has a valid structure. 
-        Overrides EditCommand.hasValidStructure()
-        """        
-        isValid = EditCommand.hasValidStructure(self)
-
-        if not isValid:
-            return isValid
-
-        if isinstance(self.struct, DnaGroup): 
-            return True    
-
-        return False
+        Subclasses override this method to define their own structure type. 
+        Returns the type of the structure this editCommand supports. 
+        This is used in isinstance test. 
+        @see: EditCommand._getStructureType() (overridden here)
+        @see: self.hasValidStructure()
+        """
+        return self.win.assy.DnaGroup
 
 
     def _createPropMgrObject(self):
@@ -420,12 +416,12 @@ class BuildDna_EditCommand(EditCommand):
             #See: DnaDuplex_EditCommand._createSegment(), 
             #    DnaDuplex_EditCommand.createStructure(), and
             #    DnaDuplex_EditCommand.restore_gui()
-            
+
             #following condition (hasValidStructure) fixes bug 2815.Earlier 
             #ondition was just checking if self.struct is None. 
             #self.hasValidStructure checks if the structure is killed etc 
             #--Ninad 2008-04-21
-   
+
             if not self.hasValidStructure():
                 self.struct = self._createStructure()
             params = (self.callback_addSegments, self.struct)
@@ -489,4 +485,4 @@ class BuildDna_EditCommand(EditCommand):
 
         if highlightedChunk is not None:
             highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                     command = self)
+                                                            command = self)
