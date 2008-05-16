@@ -187,13 +187,19 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     
     def encode_next_atom(self, atom):
         """
-        Assign the next sequential number (for use only in this writing of this mmp file)
-        to the given atom; return the number AS A STRING and also store it herein for later use.
+        Assign the next sequential number (for use only in this writing
+        of this mmp file) to the given atom; return the number AS A STRING
+        and also store it herein for later use.
+
         Error if this atom was already assigned a number.
         """
-        # code moved here from old atom.writemmp in chem.py
+        # code moved here from old Atom.writemmp in chem.py
         atnums = self.atnums
-        assert atom.key not in atnums # new assertion, bruce 030522
+        assert atom.key not in atnums, \
+               "bug: %r encoded twice in %r" % (atom, self)
+            # new assertion, bruce 030522
+            # (that date looks too early to be correct -- probably it's from 050322);
+            # assertion message added, bruce 080516
         atnums['NUM'] += 1 # old kluge, to be removed
         num = atnums['NUM']
         atnums[atom.key] = num
