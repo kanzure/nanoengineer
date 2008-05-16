@@ -3087,6 +3087,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         at2 = b.other(self)
         if at2.element is Singlet:
             return None
+        if at2.element.role == 'handle': #bruce 080516 kluge
+            # (Ultimately we'd want bond.bust to decide this based on both
+            #  atomtypes or on asking each atom about the other's type.
+            #  For now, only this case matters (for element Ah5).
+            if self.molecule is not None:
+                # update valence error indicator appearance on self
+                self.molecule.changeapp(0)
+            return None
         if 1:
             #bruce 060327 optim of Chunk.kill: if we're being killed right now, don't make a new bondpoint
             if self._will_kill == Utility._will_kill_count:
