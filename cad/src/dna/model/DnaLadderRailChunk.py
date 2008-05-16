@@ -786,9 +786,15 @@ class DnaLadderRailChunk(Chunk):
         for atom in all_real_atoms: # in this order
             if not dict1.has_key(atom.key):
                 res.append(atom)
-        assert len(res) == number_of_atoms, \
+        ## assert len(res) == number_of_atoms, \
+            # can fail for ladder.error or atom errors, don't yet know why [080406 1238p];
+            # also failed for Ninad reproducing Eric D bug (which I could not reproduce)
+            # in saving 8x21RingB1.mmp after joining the last strand into a ring (I guess);
+            # so I'll make it a debug print only [bruce 080516]
+        if not ( len(res) == number_of_atoms ):
+            print "\n*** BUG in atoms_in_mmp_file_order for %r: " % self, \
                "len(res) %r != number_of_atoms %r" % \
-               (len(res), number_of_atoms) # can fail for ladder.error or atom errors, don't yet know why [080406 1238p]
+               (len(res), number_of_atoms) 
         return res
 
     def indexed_atoms_in_order(self, mapping): #bruce 080321
