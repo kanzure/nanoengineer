@@ -477,7 +477,7 @@ prefs_table = (
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
 
     # stereo view settings added by piotr 080516
-    ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 0), 
+    ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
     ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50), 
     ('stereo_view_angle', 'int', stereoViewAngle_prefs_key, 50), 
 
