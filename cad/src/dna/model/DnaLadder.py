@@ -52,6 +52,7 @@ from geometry.VQT import cross
 from model.elements import Pl5
 
 from utilities.constants import noop
+from utilities.constants import MODEL_PAM5
 
 from utilities.Log import orangemsg, redmsg, quote_html
 
@@ -376,8 +377,15 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         (which will be the error string we add, not including whatever
          separator we use to add it to an existing self.error).
         """
+        error_here = "" # sometimes modified below
+        if axis_atoms[0].element.pam == MODEL_PAM5:
+            # These tests don't yet work properly for PAM5.
+            # This should be fixed -- but the error responses
+            # also do more harm than good in some cases,
+            # so those need fixing too. In the meantime it's
+            # best to disable it for PAM5. [bruce 080516]
+            return error_here
         old_self_error = self.error # for assert only
-        error_here = "" # modified below
         axis_posns = [atom.posn() for atom in axis_atoms]
         strand1_posns = [atom.posn() for atom in strand1_atoms]
         rung0_vec = strand1_posns[0] - axis_posns[0]
