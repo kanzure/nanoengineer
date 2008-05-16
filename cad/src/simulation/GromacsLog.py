@@ -58,7 +58,7 @@ Testing ia32 SSE2 support... present.
 """
 
 import foundation.env as env
-from utilities.Log import quote_html
+from utilities.Log import quote_html, orangemsg
 
 AVOGADRO = 6.022045e23                # particles/mol
 
@@ -111,7 +111,10 @@ class GromacsLog(object):
                                  self.getHarmonicEnergy(),
                                  self.getNonbondedEnergy()))
             env.history.message("Total Energy %f zJ" % self.getTotalEnergy())
-            env.history.message(quote_html(line.rstrip()))
+            if (line.find("machine") >= 0):
+                env.history.message(orangemsg(quote_html(line.rstrip())))
+            else:
+                env.history.message(quote_html(line.rstrip()))
             return
             
     def _extractColumns(self, line):
@@ -154,7 +157,7 @@ class GromacsLog(object):
         return self._getSingleEnergy("Harmonic Pot.")
 
     def getNonbondedEnergy(self):
-        return self._getSingleEnergy("LJ-14") + self._getSingleEnergy("LJ (SR)")
+        return self._getSingleEnergy("LJ-14") + self._getSingleEnergy("LJ (SR)") + self._getSingleEnergy("Buck.ham (SR)")
 
     def getTotalEnergy(self):
         return self._getSingleEnergy("Total Energy")

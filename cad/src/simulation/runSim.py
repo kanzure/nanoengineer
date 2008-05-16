@@ -69,6 +69,7 @@ from simulation.GromacsLog import GromacsLog
 from utilities.prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
+from utilities.prefs_constants import neighborSearchingInGromacs_prefs_key
 
 from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import gromacs_path_prefs_key
@@ -1122,8 +1123,10 @@ class SimRunner:
                 self.set_minimize_threshhold_prefs(simopts)
                 if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		    
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
+                    simopts.NeighborSearching = 0
                 else:
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
+                    simopts.NeighborSearching = self.getNeighborSearchingPrefValue()
 
                 if (self.useGromacs):
                     simopts.GromacsOutputBaseName = moviefile
@@ -1157,6 +1160,13 @@ class SimRunner:
         # int EnableElectrostatic =1 implies electrostatic is enabled 
         #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
         if env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
+            val = 1
+        else:
+            val = 0	
+        return val
+
+    def getNeighborSearchingPrefValue(self):
+        if env.prefs[neighborSearchingInGromacs_prefs_key]:
             val = 1
         else:
             val = 0	

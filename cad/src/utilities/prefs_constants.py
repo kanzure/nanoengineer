@@ -162,6 +162,8 @@ electrostaticsForDnaDuringAdjust_prefs_key = 'A9/ Electrostatics for Dna During 
 electrostaticsForDnaDuringMinimize_prefs_key = 'A9/ Electrostatics For Dna During Minimize'
 electrostaticsForDnaDuringDynamics_prefs_key = 'A9/ Electrostatics For Dna During Simulation'
 
+neighborSearchingInGromacs_prefs_key = 'A110/Neighbor Searching in GROMACS'
+
 # Minimize prefs for Minimize Energy dialog (independent settings, different defaults) [bruce 060705]
 Minimize_watchRealtimeMinimization_prefs_key = 'A8/Watch Realtime Minimization Minimize'
 Minimize_endRMS_prefs_key = 'A8/End RMS Minimize' 

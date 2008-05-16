@@ -537,7 +537,7 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
     fprintf(mdp, "nsteps              =  100000\n"); // max number of iterations
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
-    fprintf(mdp, "nstlist             =  %d\n", EnableElectrostatic ? 10 : 0); // update frequency for neighbor list
+    fprintf(mdp, "nstlist             =  %d\n", NeighborSearching ? 10 : 0); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  %s\n", EnableNeighborSearchGrid ? "grid" : "simple"); // neighbor search type, must be simple for pbc=no
     fprintf(mdp, "nstxout             =  10\n"); // frequency to write coordinates to output trajectory file
 

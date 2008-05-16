@@ -68,6 +68,7 @@ double VanDerWaalsCutoffRadius;
 double VanDerWaalsCutoffFactor;
 
 int EnableElectrostatic;
+int NeighborSearching;
 
 FILE *OutputFile;
 FILE *TraceFile;
@@ -160,6 +161,7 @@ reinit_globals(void)
     VanDerWaalsCutoffFactor = 1.7;
 
     EnableElectrostatic = 1;
+    NeighborSearching = 1;
     
     OutputFile = NULL;
     TraceFile = NULL;
@@ -227,6 +229,7 @@ printGlobals()
     write_traceline("# VanDerWaalsCutoffRadius: %f\n", VanDerWaalsCutoffRadius);
     write_traceline("# VanDerWaalsCutoffFactor: %f\n", VanDerWaalsCutoffFactor);
     write_traceline("# EnableElectrostatic: %d\n", EnableElectrostatic);
+    write_traceline("# NeighborSearching: %d\n", NeighborSearching);
     write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
     if (SystemParametersFileName != NULL) {
         write_traceline("# SystemParametersFileName: %s\n", SystemParametersFileName);

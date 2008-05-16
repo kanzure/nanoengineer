@@ -32,6 +32,7 @@ from utilities.prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRM
 from utilities.prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
 from utilities.prefs_constants import Minimize_minimizationEngine_prefs_key
 from utilities.prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
+from utilities.prefs_constants import neighborSearchingInGromacs_prefs_key
 
 from utilities.debug import print_compact_traceback
 from utilities.debug import reload_once_per_event
@@ -107,6 +108,10 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
             electrostaticsForDnaDuringMinimize_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.enableNeighborSearching_check_box,
+            neighborSearchingInGromacs_prefs_key)
 
         self.minimize_engine_combobox.setCurrentIndex(
             env.prefs[Minimize_minimizationEngine_prefs_key])

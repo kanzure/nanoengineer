@@ -46,6 +46,7 @@ cdef extern from "simhelp.c":
     double VanDerWaalsCutoffRadius
     double VanDerWaalsCutoffFactor
     int EnableElectrostatic
+    int NeighborSearching
     double ThermostatGamma
     char *IDKey
     char *BaseFileName
@@ -150,6 +151,8 @@ cdef class _Simulator:
             return VanDerWaalsCutoffFactor
         elif strcmp(key, "EnableElectrostatic") == 0:
             return EnableElectrostatic
+        elif strcmp(key, "NeighborSearching") == 0:
+            return NeighborSearching
         elif strcmp(key, "ThermostatGamma") == 0:
             return ThermostatGamma
         elif strcmp(key, "IDKey") == 0:
@@ -263,6 +266,9 @@ cdef class _Simulator:
         elif strcmp(key, "EnableElectrostatic") == 0:
             global EnableElectrostatic
             EnableElectrostatic = value
+        elif strcmp(key, "NeighborSearching") == 0:
+            global NeighborSearching
+            NeighborSearching = value
         elif strcmp(key, "ThermostatGamma") == 0:
             global ThermostatGamma
             ThermostatGamma = value

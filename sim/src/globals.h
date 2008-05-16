@@ -46,6 +46,7 @@ extern double MinimizeThresholdEndMax;
 extern double VanDerWaalsCutoffRadius;
 extern double VanDerWaalsCutoffFactor;
 extern int EnableElectrostatic;
+extern int NeighborSearching;
 extern int TimeReversal;
 extern double ThermostatGamma;
 extern double ThermostatG1;
