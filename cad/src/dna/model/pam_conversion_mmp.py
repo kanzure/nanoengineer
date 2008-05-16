@@ -141,6 +141,23 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
 
         res = [self._compute_one_Pl_atom(a1, a2) for (a1, a2) in pairs]
 
+        if res[0] is res[-1] and len(res) > 1 and res[0] is not None:
+            # The same Pl atom is at both ends of res
+            # (possible for a ring strand).
+            # Decide which one to replace with None so that we never
+            # return a list that contains one atom twice.
+            # (I don't know whether it matters which end we leave it on,
+            #  but we'll leave it on the "best one" anyway.)
+            # [bruce 080516 bugfix]
+            if direction == Pl_STICKY_BOND_DIRECTION:
+                # Pls want to stick to the right,
+                # so this one is happiest in res[0],
+                # so remove it from res[-1]
+                res[-1] = None
+            else:
+                res[0] = None
+            pass
+
         return res
 
     def _compute_one_Pl_atom(self, a1, a2):
@@ -156,6 +173,9 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
 
         @param a1: a baseatom or None
         @param a2: an adjacent baseatom or None
+
+        @warning: for a ring strand in one chunk, we can return the same Pl atom
+                  at both ends. (Only when we find an existing one, I think.)
         """
         chunk = self.chunk
         # If both atoms are real (not None), we store that Pl with a2,
@@ -182,6 +202,9 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
             # if only a1 is in chunk, a live Pl bonded to it
             # (in the right direction) is only ok if it's also in chunk,
             # or (should be equivalent) if it prefers a1 to other neighbors.
+            # (This is not exactly equivalent, in the case of a ring strand in one
+            #  chunk. This is what leads to returning the same Pl in two places
+            #  in that case, I think. [bruce 080516 comment])
             # For a live one, use "in chunk" as definitive test, to avoid bugs.
             candidate = a1.next_atom_in_bond_direction( + Pl_STICKY_BOND_DIRECTION)
             if candidate is not None:
@@ -208,9 +231,12 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
             return res # might be None
         else:
             return None #???
-                # reasoning: if neighbor baseatom exists,
+                # Note: reasoning: if neighbor baseatom exists,
                 # put the Pl in that neighbor chunk.
-                # if not, there needn't be one (not sure about that).
+                # (Which might be the other end of this chunk,
+                #  for a ring strand in one chunk,
+                #  but if so, we'll do that in a separate call.)
+                # If not, there needn't be one (not sure about that).
         pass # end of def _compute_one_Pl_atom (not reached)
     
     pass # end of class DnaStrandChunk_writemmp_mapping_memo
