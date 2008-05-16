@@ -78,7 +78,7 @@ DOC_MODULES = $(wildcard *.py) exprs/
 
 # bruce 051202 added this target
 all : 
-	echo "Nothing is remade by default -- use one of the explicit make targets."
+	@echo "Nothing is remade by default -- use one of the explicit make targets."
 
 build : $(PYFILES0) 
 $(PYFILES0) : %.py : %.ui
@@ -96,9 +96,9 @@ pyclean: cleanpyc
 clean: cleanpyc
 	rm -f *~ *.o *.so *.a *.dll *.def core
 	rm -f atombase.c samevals.c pyrex_test.c
-	echo
-	echo "Warning: make clean has removed C-coded shared libraries."
-	echo "To remake them, use 'make shared' ."
+	@echo
+	@echo "Warning: make clean has removed C-coded shared libraries."
+	@echo "To remake them, use 'make shared' ."
 
 pyrex: $(PYREXTARGET)
 
