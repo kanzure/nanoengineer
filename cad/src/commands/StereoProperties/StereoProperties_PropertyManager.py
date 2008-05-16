@@ -165,7 +165,9 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         stereoModeChoices = ['Relaxed view', 
                              'Cross-eyed view',
-                             'Red/blue anaglyphs']
+                             'Red/blue anaglyphs',
+                             'Red/cyan anaglyphs',
+                             'Red/green anaglyphs']
 
         self.stereoModeComboBox  = \
             PM_ComboBox( pmGroupBox,

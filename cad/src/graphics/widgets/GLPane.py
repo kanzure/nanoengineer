@@ -4533,7 +4533,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             angle *= -1
 
         # for anaglyphs, decresase the angle
-        if stereo_mode == 3:
+        if stereo_mode >= 3:
             angle *= 0.5
 
         glRotatef(angle * stereo_image,
@@ -4547,16 +4547,23 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                          separation * stereo_image * self.right[1], 
                          separation * stereo_image * self.right[2])
 
-        if stereo_mode == 3:             
-            # red/blue anaglyphs
+        if stereo_mode >= 3:             
+            # anaglyphs
             if stereo_image == -1:
                 # red image
                 glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
             else:
                 # clear depth buffer to combine red/blue images
-                glClear(GL_DEPTH_BUFFER_BIT);
-                # blue image
-                glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+                glClear(GL_DEPTH_BUFFER_BIT)
+                if stereo_mode == 3:
+                    # blue image
+                    glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+                elif stereo_mode == 4:
+                    # cyan image
+                    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
+                elif stereo_mode == 5:
+                    # green image
+                    glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE)
         else:
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
@@ -4571,7 +4578,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         stereo_mode = env.prefs[stereoViewMode_prefs_key]
 
-        if stereo_mode == 3: 
+        if stereo_mode >= 3: 
             # enable all colors
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
