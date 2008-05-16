@@ -16,6 +16,9 @@ from model.elements import Pl5
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
 
+import foundation.env as env
+from utilities.Log import orangemsg
+
 # ==
 
 def delete_bare_atoms( changed_atoms): # rename; also make not delete, just error (### need to review error propogation system)
@@ -104,6 +107,13 @@ def delete_bare_atoms( changed_atoms): # rename; also make not delete, just erro
         continue
     
     for atom in delete_these_atoms:
+        #bruce 080515: always emit a deferred_summary_message,
+        # since it can seem like a bug otherwise
+        # (review this, if it happens routinely)
+        summary_format = \
+            "Warning: dna updater deleted [N] \"bare\" %s pseudoatom(s)" % \
+            ( atom.element.symbol, )
+        env.history.deferred_summary_message( orangemsg(summary_format) )
         atom.kill()
 
     return
