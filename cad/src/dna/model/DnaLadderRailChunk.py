@@ -1084,7 +1084,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
                     #  one.)
                     if atom is atom2.Pl_preferred_Ss_neighbor(): # an Ss or None
                         grab_atom2 = True
-                elif atom2.element.role == 'unpaired-base':
+                elif atom2.element.role in ('unpaired-base', 'handle'):
                     grab_atom2 = True
                 if grab_atom2:
                     if atom2.molecule is self:

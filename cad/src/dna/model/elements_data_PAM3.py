@@ -83,6 +83,9 @@ _mendeleev = [
     # work when we rotate a set of atoms, and will define a PAM3+5 baseframe:
     ("Ux3", "PAM3-Unpaired-base-x",  311, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
     ("Uy3", "PAM3-Unpaired-base-y",  312, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
+
+    # note: 313 won't be used unless we decide we want a PAM3-Axis-handle,
+    # which is unlikely.
     
  ]
 

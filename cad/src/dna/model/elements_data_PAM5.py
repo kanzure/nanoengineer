@@ -36,6 +36,7 @@ _defaultRad_Color = {
     "Ub5" : (2.5, [0.428, 0.812, 0.808]), #bruce 080117 guess, "light blue"
     "Ux5" : (2.5, [0.428, 0.812, 0.808]), #bruce 080410 stub
     "Uy5" : (2.5, [0.812, 0.428, 0.808]), #bruce 080410 stub
+    "Ah5" : (2.5, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
     }
   
 _altRad_Color = {
@@ -53,7 +54,7 @@ _mendeleev = [
 
     #bruce 080410 added Ux5 and Uy5 and updated all general comments below
 
-    # axis element (old, only semi-suppported, not generated anymore)
+    # axis element (old, only semi-supported, not generated anymore)
     ("Ax5", "PAM5-Axis",           200, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')), # todo: convert to Gv5, moving it as you do
 
     # strand elements
@@ -91,6 +92,9 @@ _mendeleev = [
     #
     ("Ux5", "PAM5-Unpaired-base-x",211, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
     ("Uy5", "PAM5-Unpaired-base-y",212, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
+
+    ("Ah5", "PAM5-Axis-handle",    213, 1.0, [[1, 200, None, 'sp']], dict(role = 'handle')), #bruce 080515, used for testing
+
  ]
 
 # ==

@@ -20,7 +20,7 @@ http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordin
 from utilities.constants import average_value
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
 
-from model.elements import Pl5, Singlet
+from model.elements import Pl5, Gv5, Singlet
 
 from utilities import debug_flags
 
@@ -460,7 +460,9 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
 # ==
 
 def _f_find_new_ladder_location_of_baseatom(self):
+    # note: used in this file and in PAM_Atom_methods
     """
+    param self: a PAM atom. [#doc more]
     """
     #bruce 080411 split common code out of several methods,
     # then totally rewrote it to stop assuming wrongly
@@ -477,9 +479,13 @@ def _f_find_new_ladder_location_of_baseatom(self):
         # by search in ladder, optimized to try the ends first
     return ladder, whichrail, index
 
-def _f_baseframe_data_at_baseatom(self): #bruce 080411 split common code out of several methods
+def _f_baseframe_data_at_baseatom(self):
+    # note: used in PAM_Atom_methods
+    """
+    param self: a PAM atom. [#doc more]
+    """
     # old buggy version. magically transformed to new correct version
-    # by merely adding a new assert (and rewriting the subroutine)
+    # by merely adding a new assert (and rewriting the subroutine it calls)
     ladder, whichrail, index = _f_find_new_ladder_location_of_baseatom(self)
     assert ladder.valid, \
            "bug: got invalid ladder %r (and whichrail %r, index %r) " \
@@ -489,6 +495,48 @@ def _f_baseframe_data_at_baseatom(self): #bruce 080411 split common code out of 
         # we trust caller to make sure this is up to date (no way to detect if not)
         # implem note: if we only store top baseframes, this will derive bottom ones on the fly
     return origin, rel_to_abs_quat, y_m_junk
+
+# ==
+
+def add_basepair_handles_to_atoms(atoms): #bruce 080515 (not quite finished -- wrong positions for handles)
+    """
+    """
+    from model.global_model_changedicts import _changed_structure_Atoms #k import ok?
+    goodcount, badcount = 0, 0
+    for atom in atoms:
+        atom.unpick()
+        if atom.element is Gv5 and len(atom.strand_neighbors()) == 2:
+            goodcount += 1
+            # Note: in real life, we might do a pass 1 to collect ladders,
+            # then update their baseframes, then use that info to
+            # place the handle atoms properly. (But probably not,
+            # since the formula for where to put them looks too simple
+            # to need the baseframes.)
+            #
+            # In this initial test,
+            # we'll guess a position from the Gv5 and Ss5 neighbors.
+            sn = atom.strand_neighbors()
+            if 1: # stub for computing new position
+                oldposns = [a.posn() for a in ([atom] + sn)]
+                newpos = average_value(oldposns)
+            # the more correct way will use this info:
+            #   The point (0.0, 0.0) in the Standard Reference Frame coordinates
+            #   [citation omitted] is on the symmetry axis of the Ss-Gv-Ss triangle,
+            #   0.24785 nm above the Ss-Ss base of the triangle.
+            #   Eric M's code generates virtual sites from positions specified
+            #   in these coordinates.
+            
+            from model.chem import Atom ### possible import cycle, need to check ### (if so could use mol.assy.Atom)
+            newatom = Atom( 'Ah5', newpos, atom.molecule ) # PAM5-Axis-handle
+            bond_atoms_faster( newatom, atom, V_SINGLE)
+                # note: no bondpoints need creation or removal
+            newatom.pick()
+            pass
+        else:
+            badcount += 1
+        continue
+    
+    return goodcount, badcount
 
 # ==
 
