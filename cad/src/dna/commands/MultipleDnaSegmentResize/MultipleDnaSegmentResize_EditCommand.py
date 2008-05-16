@@ -51,7 +51,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
     commandName = 'MULTIPLE_DNA_SEGMENT_RESIZE'
     cmdname          = 'MULTIPLE_DNA_SEGMENT_RESIZE'    
     featurename       = 'Edit Multiple Dna Segments'  
-    
+
     #This command operates on (resizes) multiple DnaSegments at once. 
     #It does that by  looping through the DnaSegments and resizing them 
     #individually. self.currentStruct is set to the 'current' DnaSegment 
@@ -62,8 +62,8 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
     #Graphics Mode 
     GraphicsMode_class = MultipleDnaSegmentResize_GraphicsMode
-    
-        
+
+
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
     #The minimum 'stopper'length used for resize handles
@@ -108,9 +108,13 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
             range = (_resizeHandle_stopper_length, 10000)
         ))
 
-    def model_changed(self):
+
+
+
+    def _update_previousParams_in_model_changed(self):
         """
-        TODO: IMPLEMENT THIS.
+        Overrides superclass method. Does nothing in this class.
+        @see: self.model_changed() which calls this method. 
         """
         pass
 
@@ -151,10 +155,8 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         @see: self.isAddSegmentsToolActive()
         """
         assert isinstance(segment, self.win.assy.DnaSegment)
-        
         self.struct.addToStructList(segment)        
-        self.updateHandlePositions()
-        self.propMgr.updateListWidgets()
+
 
     def removeSegmentFromResizeSegmentList(self, segment):
         """
@@ -165,21 +167,19 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         @see: self.isRemoveSegmentsToolActive()
         """
         assert isinstance(segment, self.win.assy.DnaSegment)
-        self.struct.removeFromStructList(segment)        
-        self.updateHandlePositions()
-        self.propMgr.updateListWidgets()
+        self.struct.removeFromStructList(segment)   
 
 
-    def updateResizeSegmentList(self, segmentList):
+    def setResizeStructList(self, structList):
         """
-        Updates (rather replaces) the list of segments to be resized with the 
+        Replaces the list of segments to be resized with the 
         given segmentList. Calls the related method of self.struct. 
-        @param segmentList: New list of segments to be resized. 
-        @type  segmentList: list
-        @see: DnaSegmentList.updateStructList()
+        @param structList: New list of segments to be resized. 
+        @type  structList: list
+        @see: DnaSegmentList.setResizeStructList()
         """
         if self.hasValidStructure():
-            self.struct.updateStructList(segmentList)
+            self.struct.setStructList(structList)
             self.updateHandlePositions()
 
     def getResizeSegmentList(self):
@@ -190,6 +190,13 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         if self.hasValidStructure():
             return self.struct.getStructList()
         return ()
+
+    def updateResizeSegmentList(self):
+        """
+        Update the list of resize segments (maintained by self.struct)
+        """
+        if self.hasValidStructure():
+            self.struct.updateStructList()
 
 
     def editStructure(self, struct = None):
@@ -219,13 +226,13 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         @TODO: For multiple Dna segment resizing, this method does nothing as
            of 2008-05-14. Need to be revised.
         """
-           
+
         #Commented out code as of 2008-05-14 ===========
-    
+
         #endPoint1, endPoint2 = self.struct.getAxisEndPoints()
         #params_for_propMgr = (None,
-                              #endPoint1, 
-                              #endPoint2)
+                                #endPoint1, 
+                                #endPoint2)
 
         ##TODO 2008-03-25: better to get all parameters from self.struct and
         ##set it in propMgr?  This will mostly work except that reverse is 
@@ -236,9 +243,9 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         ##of DnaSegment_EditCommand are not same as the original structure
         ##(e.g. bases per turn and duplexrise)
         ###self.propMgr.setParameters(params_for_propMgr)
-        
+
         pass
-    
+
     def _update_resizeHandle_radius(self):
         """
         Finds out the sphere radius to use for the resize handles, based on 
@@ -260,7 +267,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
                                            1.005*HANDLE_RADIUS_DEFAULT_VALUE)
         if atm2 is not None: 
             self.handleSphereRadius2 =  max(1.005*atm2.drawing_radius(), 
-                                           1.005*HANDLE_RADIUS_DEFAULT_VALUE)
+                                            1.005*HANDLE_RADIUS_DEFAULT_VALUE)
 
 
     def _modifyStructure(self, params):
@@ -271,7 +278,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
         """        
-        
+
         if self.currentStruct is None:
             print_compact_stack("bug: self.currentStruct doesn't exist"\
                                 "exiting self._modifyStructure")
@@ -319,10 +326,10 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
 
         Called when a resize handle is dragged to change the length of one 
         or more DnaSegments (to be resized together)  Called upon leftUp . 
-        
+
         To acheive this resizing, it loops through the DnaSegments to be resized
         and calls self._modifyStructure() for individual DnaSegments. 
-        
+
         Note that Client should call this public method and should never call
         the private method self._modifyStructure. 
 
@@ -330,12 +337,12 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
               the relevent method in DragHandler API. )
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
-   
+
         @see: B{self._modifyStructure}   
         @see: B{DnaSegmentList.updateAverageEndPoints()}
 
         """
-        
+
         if self.grabbedHandle is None:
             return   
 
@@ -350,7 +357,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
             self._modifyStructure(params)
             #Reset the self.currentStruct after use
             self.currentStruct = None
-            
+
         #Update the average end points of the self.struct so that resize handles
         #are placed at proper positions. 
         self.struct.updateAverageEndPoints()
@@ -373,11 +380,15 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         final_position = None  
 
         other_axisEndAtom = self.struct.getOtherAxisEndAtom(ladderEndAxisAtom)
+
+        if other_axisEndAtom is None:
+            return None
+
         axis_vector = ladderEndAxisAtom.posn() - other_axisEndAtom.posn()
         segment_length_to_add = getDuplexLength('B-DNA', 
                                                 numberOfBases, 
                                                 duplexRise = duplexRise)
-        
+
         signFactor = + 1
 
         ##if self.grabbedHandle is not None:
@@ -399,13 +410,21 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         return final_position
 
 
+    def hasResizableStructure(self):   
+        """
+        """
+        if len(self.struct.getStructList()) == 0:
+            why_not = 'Segment list is empty'
+            isResizable = False 
+            return isResizable, why_not          
+
+        return  _superclass.hasResizableStructure(self)
 
     def _getStructureType(self):
         """
         Returns the type of the structure this editCommand supports. 
         This is used in isinstance test. 
         @see: EditCommand._getStructureType() 
-        @see: self.hasValidStructure()
         """
         return DnaSegmentList
 
@@ -420,36 +439,78 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         @see: MultipleDnaSegmentResize_GraphicsMode._drawHandles()
         @see: self._determine_numberOfBasePairs_to_change()
         """
-        
+
         #Optimization: First test a few basic things to see if the dna ribbon 
         #should be drawn, before doing more computations -- Ninad 2008-05-14
-        
+
+        params_when_adding_bases = None
+        params_when_removing_bases = None        
+
         if self.grabbedHandle is None:
-            return None
+            return None, None
 
         if self.grabbedHandle.origin is None:
-            return None
+            return None, None
+
+        ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
+
+        if ladderEndAxisAtom is None:
+            return None, None
+
+        numberOfBasePairsToAddOrRemove = self._determine_numberOfBasePairs_to_change()
+
+        if numberOfBasePairsToAddOrRemove == 0:
+            return None, None
+
 
         direction_of_drag = norm(self.grabbedHandle.currentPosition - \
                                  self.grabbedHandle.origin)
 
+
+        #@TODO: BUG: DO NOT use self._get_resizeEnd_final_position to compute 
+        #the resizeEnd_final_position. It computes the segment length to add
+        #using the number of base pairs to add ... and it uses 
+        #getDuplexLength method which in turn rounds off the length as an integer
+        #multiple of duplexRise. Although this is what we want in self._modify()
+        #the drawDnaRibbon draws the base pair only if step size is > 3.18! 
+        #so no basepair is drawn at exact val of 3.18. This is BUG, harder to 
+        #fix. for drawing dna ribbon, lets justcompute the resize end final 
+        #position using the following code. -- Ninad 2008-05-14
+        other_axisEndAtom = self.struct.getOtherAxisEndAtom(ladderEndAxisAtom)
+
+        if other_axisEndAtom is None:
+            return None, None
+
+        axis_vector = ladderEndAxisAtom.posn() - other_axisEndAtom.posn()
+        currentPosition = self.grabbedHandle.currentPosition
+        changedLength = vlen(currentPosition - self.grabbedHandle.origin)
+
+        #NOTE: (TODO) we call self._determine_numberOfBasePairs_to_change() at the 
+        #beginning of this method which checks various things such as 
+        #total distance moved by the handle etc to determine whether to draw 
+        #the ribbon. So those checks are not done here. If that call is removed
+        #then we need to do those checks.
+
+        if dot(self.grabbedHandle.direction, direction_of_drag) < 0:
+            signFactor = -1.0
+        else:
+            signFactor = 1.0
+
+        resizeEnd_final_position = ladderEndAxisAtom.posn() + \
+                                 norm(axis_vector)*changedLength*signFactor        
+
+
+
         #If the segment is being shortened (determined by checking the 
         #direction of drag) , no need to draw the rubberband line. 
         if dot(self.grabbedHandle.direction, direction_of_drag) < 0:
-            return None
+            params_when_adding_bases = None
+            params_when_removing_bases = (numberOfBasePairsToAddOrRemove,
+                                          resizeEnd_final_position 
+                                      )
 
-        
-        ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
-
-        if ladderEndAxisAtom is None:
-            return None
-        
-        numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
-        
-        
-        if numberOfBasePairsToAddOrRemove == 0:
-            return None
-        
+            return params_when_adding_bases, \
+                   params_when_removing_bases
 
         basesPerTurn = self.struct.getBasesPerTurn()
         duplexRise = self.struct.getDuplexRise()
@@ -457,7 +518,7 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         ladder = ladderEndAxisAtom.molecule.ladder                        
         endBaseAtomList  = ladder.get_endBaseAtoms_containing_atom(
             ladderEndAxisAtom)
-        
+
         ribbon1_start_point = None
         ribbon2_start_point = None  
         ribbon1_direction = None
@@ -490,73 +551,50 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
                 ribbon2Color = strand_atom2.molecule.color
                 if not ribbon2Color:
                     ribbon2Color = strand_atom2.element.color
-                    
-        
-        #@TODO: BUG: DO NOT use self._get_resizeEnd_final_position to compute 
-        #the resizeEnd_final_position. It computes the segment length to add
-        #using the number of base pairs to add ... and it uses 
-        #getDuplexLength method which in turn rounds off the length as an integer
-        #multiple of duplexRise. Although this is what we want in self._modify()
-        #the drawDnaRibbon draws the base pair only if step size is > 3.18! 
-        #so no basepair is drawn at exact val of 3.18. This is BUG, harder to 
-        #fix. for drawing dna ribbon, lets justcompute the resize end final 
-        #position using the following code. -- Ninad 2008-05-14
-        other_axisEndAtom = self.struct.getOtherAxisEndAtom(ladderEndAxisAtom)
-        axis_vector = ladderEndAxisAtom.posn() - other_axisEndAtom.posn()
-        currentPosition = self.grabbedHandle.currentPosition
-        changedLength = vlen(currentPosition - self.grabbedHandle.origin)
-        
-        #NOTE: (TODO) we call self._determine_numberOfBasePairs_to_change() at the 
-        #beginning of this method which checks various things such as 
-        #total distance moved by the handle etc to determine whether to draw 
-        #the ribbon. So those checks are not done here. If that call is removed
-        #then we need to do those checks.
-        resizeEnd_final_position = ladderEndAxisAtom.posn() + \
-                                 norm(axis_vector)*changedLength
 
-        ##resizeEnd_final_position = self._get_resizeEnd_final_position(
-            ##ladderEndAxisAtom, 
-            ##abs(numberOfBasePairsToAddOrRemove),
-            ##duplexRise )
+        params_when_adding_bases = ( numberOfBasePairsToAddOrRemove,
+                                     ladderEndAxisAtom.posn(),
+                                     resizeEnd_final_position,                                     
+                                     basesPerTurn,
+                                     duplexRise, 
+                                     ribbon1_start_point,
+                                     ribbon2_start_point,
+                                     ribbon1_direction,
+                                     ribbon2_direction,
+                                     ribbon1Color,
+                                     ribbon2Color )
 
-        return (ladderEndAxisAtom.posn(),
-                resizeEnd_final_position,
-                basesPerTurn,
-                duplexRise, 
-                ribbon1_start_point,
-                ribbon2_start_point,
-                ribbon1_direction,
-                ribbon2_direction,
-                ribbon1Color,
-                ribbon2Color )
-    
-    
+        params_when_removing_bases = None        
+
+        return params_when_adding_bases, params_when_removing_bases
+
+
     def _determine_numberOfBasePairs_to_change(self):
         """
         Overrides superclass method
         @TODO: This is significantly different (and perhaps better)
                than the superclass method. See how to incorporate changes in 
                this method in superclass.
-          
+
         @see: self.getDnaRibbonParams()
         """
-              
+
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
         duplexRise = self.struct.getDuplexRise()
-        
+
         changedLength = vlen(currentPosition - self.grabbedHandle.origin)
-        
+
         direction_of_drag = norm(self.grabbedHandle.currentPosition - \
                                  self.grabbedHandle.origin)
-        
-                
+
+
         #Even when the direction of drag is negative (i.e. the basepairs being 
         #removed), make sure not to remove base pairs for very small movement
         #of the grabbed handle 
         if changedLength < 0.2*duplexRise:
             return 0
-        
+
         #This check quickly determines if the grabbed handle moved by a distance
         #more than the duplexRise and avoids further computations
         #This condition is applicable only when the direction of drag is 
@@ -564,27 +602,27 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
         if changedLength < duplexRise and \
            dot(self.grabbedHandle.direction, direction_of_drag) > 0:
             return 0
-        
-        
+
+
         #If the segment is being shortened (determined by checking the 
         #direction of drag)  
-        
+
         numberOfBasesToAddOrRemove =  \
-                                     getNumberOfBasePairsFromDuplexLength(
+                                   getNumberOfBasePairsFromDuplexLength(
                                        'B-DNA', 
                                        changedLength,
                                        duplexRise = duplexRise)
-            
+
         if dot(self.grabbedHandle.direction, direction_of_drag) < 0:            
             numberOfBasesToAddOrRemove = - numberOfBasesToAddOrRemove
-         
-      
+
+
         if numberOfBasesToAddOrRemove > 0:
             #dna.modify will remove the first base pair it creates 
             #(that basepair will only be used for proper alignment of the 
             #duplex with the existing structure) So we need to compensate for
             #this basepair by adding 1 to the new number of base pairs. 
-            
+
             #UPDATE 2008-05-14: The following is not required in this particular
             #class , because the way we compute the number of base pairs to 
             #be added is different than than how its done at the moment in the
@@ -595,9 +633,9 @@ class MultipleDnaSegmentResize_EditCommand(DnaSegment_EditCommand):
             # -- Ninad 2008-05-14
             ##numberOfBasesToAddOrRemove += 1
             pass
-                               
+
         return numberOfBasesToAddOrRemove
- 
+
     def getCursorText(self):
         """
         Overrides superclass method. As of 2008-05-14, this command doesn't

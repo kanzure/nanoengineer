@@ -24,8 +24,9 @@ from utilities.constants import lightred_1, lightgreen_2
 from geometry.VQT import V
 from utilities.debug import print_compact_stack
 from utilities       import debug_flags
+from utilities.Comparison import same_vals
 
-
+from utilities.Log import redmsg
 
 _superclass = EditCommand_PM
 class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -36,14 +37,16 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
     
     isAlreadyConnected = False
     isAlreadyDisconnected = False
-
+    
     def __init__( self, win, editCommand ):
         """
         Constructor for the Build DNA property manager.
         """
         
-        #For model changed signal
-        self.previousSelectionParams = None
+        #For model changed signal    
+        #@see: self.model_changed() and self._current_model_changed_params 
+        #for example use
+        self._previous_model_changed_params = None
         
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -115,7 +118,60 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
                         SIGNAL("toggled(bool)"), 
                         self.activateRemoveSegmentsTool)
         
+    def model_changed(self): 
+        """
+        @see: DnaSegment_EditCommand.model_changed()
+        @see: DnaSegment_EditCommand.hasResizableStructure()
+        @see: self._current_model_changed_params()
+        """
+        
+        currentParams = self._current_model_changed_params()
+        
+        #Optimization. Return from the model_changed method if the 
+        #params are the same. 
+        if same_vals(currentParams, self._previous_model_changed_params):
+            return 
+        
+        number_of_segments, isStructResizable, why_not = currentParams
+        
+        #update the self._previous_model_changed_params with this new param set.
+        self._previous_model_changed_params = currentParams
+        
+        if not isStructResizable:
+            if not number_of_segments == 0:
+                #disable all widgets                
+                self._pmGroupBox1.setEnabled(False)
+            msg = redmsg("DnaSegment is not resizable. Reason: %s"%(why_not))
+            self.updateMessage(msg)
+        else:
+            if not self._pmGroupBox1.isEnabled():
+                self._pmGroupBox1.setEnabled(True)
+            msg = "Use resize handles to resize the segments"
+            self.updateMessage(msg)
+                    
+        self.updateListWidgets() 
+        ##self.editCommand.updateHandlePositions()
+            
                 
+    def _current_model_changed_params(self):
+        """
+        Returns a tuple containing the parameters that will be compared
+        against the previously stored parameters. This provides a quick test
+        to determine whether to do more things in self.model_changed()
+        @see: self.model_changed() which calls this
+        @see: self._previous_model_changed_params attr. 
+        """
+        params = None
+        
+        if self.editCommand:
+            #update the list first. 
+            self.editCommand.updateResizeSegmentList()
+            number_of_segments = len(self.editCommand.getResizeSegmentList())     
+            isStructResizable, why_not = self.editCommand.hasResizableStructure()
+            params = (number_of_segments, isStructResizable, why_not)
+        
+        return params 
+    
     def isAddSegmentsToolActive(self): 
         """
         Returns True if the add segments tool (which adds the segments to the 
@@ -190,10 +246,9 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         """
         self.segmentListWidget.deleteSelection()
         itemDict = self.segmentListWidget.getItemDictonary()           
-        if hasattr(self.editCommand, 'updateResizeSegmentList'):
-            self.editCommand.updateResizeSegmentList(itemDict.values())
-            self.updateListWidgets()            
-            self.win.win_update()
+        self.editCommand.setResizeStructList(itemDict.values())
+        self.updateListWidgets()            
+        self.win.win_update()
         
 
     def _addGroupBoxes( self ):
@@ -311,9 +366,8 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
         @see: self.updateListWidgets, self.updateStrandListWidget
         """
         segmentList = []
-        if self.editCommand.hasValidStructure():
-            segmentList = self.editCommand.struct.getStructList()
-            
+        
+        segmentList = self.editCommand.getResizeSegmentList()                        
                
         self.segmentListWidget.insertItems(
             row = 0,

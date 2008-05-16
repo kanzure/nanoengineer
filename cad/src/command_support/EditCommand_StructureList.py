@@ -30,7 +30,9 @@ from geometry.VQT import V
 class EditCommand_StructureList:  
     def __init__(self, editCommand, structList = ()):
         self.editCommand = editCommand
-        self._structList = list(structList)
+        self._structList = []
+        self.setStructList(structList = structList)
+
         #self.end1 , self.end2 are the average endpoints calculated using 
         #endpoints of structs within structList.
         self.end1 = None
@@ -44,7 +46,7 @@ class EditCommand_StructureList:
         #out code)
         self.updateAverageEndPoints()
 
-    
+
     def parent_node_of_class(self, class_or_class_name):
         """
         Returns parent node of the class <class_or_class_name> for the 
@@ -53,37 +55,89 @@ class EditCommand_StructureList:
         of the 'first structure' in the self._sturctList.
         """
         if self.editCommand.currentStruct:     
+            if self.editCommand.currentStruct.killed():
+                return None
+
             return self.editCommand.currentStruct.parent_node_of_class(
                 class_or_class_name)
 
         if not self._structList:
             return None
-        
+
         firstStruct = self._structList[0]
-        
+
         if firstStruct is None:
             return None
-        
+
+        if firstStruct.killed():
+            return None
+
         return firstStruct.parent_node_of_class(class_or_class_name)
+
+    def killed(self):
+        """
+        Always returns False as of 2008-05-16. There is no UI to 'delete'
+        this list object. (its internal) This method is implemented just to 
+        handle the calls in , for example, EditCommand.hasValidStructure()
+        @see: MultipleDnaSegment_EditCommand.hasValidStructure()
+        """
+        return False     
+    
+    def isEmpty(self):
+        """
+        Returns True if if the self._sturctList is empty. 
+        """
+        if len(self._structList) == 0:
+            return True        
+        return False 
+    
+    def updateStructList(self):
+        """
+        Update the structure list , removing the invalid items in the structure
+        @see:MultipleDnaSegmentResize_PropertyManager.model_changed()
+        @see: self.getstructList()
+        """
+        #@TODO: Should this always be called in self.getStructList()??? But that 
+        #could be SLOW because that method gets called too often by
+        #the edit command's graphics mode. 
+        def func(struct):
+            if struct is not None and not struct.killed():
+                if not struct.isEmpty():
+                    return True
+            
+            return False                
+            
+        new_list = filter( lambda struct:
+                      func(struct) , 
+                      self._structList )        
+               
+        if len(new_list) != len(self._structList):        
+            self._structList = new_list
+                
 
     def getStructList(self):
         """
-        Returns the list of structures being edited together
+        Returns the list of structures being edited together.
+        @see: MultipleDnaSegmentResize_graphicsMode._drawHandles()
         """
+        #Should we call self.updateStructList() here?? But that could be 
+        #too slow because this method is called quite often in the 
+        #graphics mode.draw  of the command
         return self._structList
 
-    def updateStructList(self, structList):
+    
+    def setStructList(self, structList = () ):
         """
-        Update (REPLACE) the list of structures (self._structList) with the 
-        given one. 
+        Replaces the list of structures (self._structList)
+        with the given one. 
         @param structList: List containing the structures to be edited at once
-                           This list will replace the existing self._structList
+                           This list will replace the existing 
+                           self._structList
         @type: list
-        @see: MultipleSegmentResize_EditCommand.updateResizeSegmentList()
+        @see: MultipleSegmentResize_EditCommand.setStructList()
               (calls this method. )
-        @TODO: Better rename it to 'def repalceStructList' ? 
         """
-        self._structList = structList
+        self._structList = list(structList)
         self.updateAverageEndPoints()
 
     def addToStructList(self, struct):
@@ -91,7 +145,8 @@ class EditCommand_StructureList:
         Add the given structure to the list of structures being edited together.
         @param struct: Structure to be added to the self._structList
         """
-        if struct not in self._structList:
+
+        if struct is not None and not struct in self._structList:
             self._structList.append(struct)
             self.updateAverageEndPoints()
 
@@ -104,7 +159,7 @@ class EditCommand_StructureList:
         if struct in self._structList:
             self._structList.remove(struct)
             self.updateAverageEndPoints()
-            
+
     def updateAverageEndPoints(self):
         """
         Update self's average end points.
@@ -115,12 +170,13 @@ class EditCommand_StructureList:
     def _getAverageEndPoints(self):
         """
         Subclasses should override this method. Default implementation assumes an
-        attr (method) getAxisEndPoints for structures in self._structList. 
+        attr (method) getAxisEndPoints for structures in 
+        self._structList 
         This is not True for some structures such as DnaStrand. 
         """
         endPoint1 = V(0.0, 0.0, 0.0)
         endPoint2 = V(0.0, 0.0, 0.0)
-        
+
         n1 = 0
         n2 = 0
         self.endPoints_1 = []
@@ -162,14 +218,15 @@ class EditCommand_StructureList:
         if  currentStruct and hasattr(currentStruct, 'getAxisEndPoints'):
             return self.editCommand.currentStruct.getAxisEndPoints()
 
-        endPoint1, endPoint2 = self._getAverageEndPoints()
-        return (endPoint1, endPoint2)
+
+        self.updateAverageEndPoints()
+        return (self.end1, self.end2)
 
 
     def getProps(self):
         """
         Returns the properties of editCommand's currentStruct. If there is 
-        no crrentStruct, it uses the firstStruct in self._structList
+        no currentStruct, it uses the firstStruct in self._structList
         """
         if self.editCommand.currentStruct:
             return self.editCommand.currentStruct.getProps()
@@ -178,6 +235,9 @@ class EditCommand_StructureList:
             return ()
 
         firstStruct = self._structList[0]
+        if firstStruct is None:
+            return ()
+
         return firstStruct.getProps()
 
     def setProps(self, props):
@@ -185,4 +245,3 @@ class EditCommand_StructureList:
         TODO: expand this method
         """
         pass
-    

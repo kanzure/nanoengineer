@@ -24,17 +24,6 @@ class DnaSegmentList(EditCommand_StructureList):
     multiple segments at once. 
     """
     
-    def getAxisEndPoints(self):
-        """
-        Returns the axis end points of editCommand's 'currentStruct' 
-        (the structure from self's _structList that is currently being 
-        resized)
-        """
-        if self.editCommand.currentStruct:
-            return self.editCommand.currentStruct.getAxisEndPoints()
-
-        endPoint1, endPoint2 = self._getAverageEndPoints()
-        return (endPoint1, endPoint2)
 
     def getBasesPerTurn(self):
         """
@@ -93,6 +82,7 @@ class DnaSegmentList(EditCommand_StructureList):
         
         @TODO: This method will be SLOW if there are large number of structures
         being edited at once (i.e. large self._structList) . Needs revision.
+        Needs revision.
         We can't use a dictionary because dict.key cant be a Vector object 
         (example dict[key] != ([1.0, 2.0, 3.0])) see the disabled code that 
         tried to use has_key of dict. Need to come up with a better search 
@@ -103,6 +93,7 @@ class DnaSegmentList(EditCommand_StructureList):
 
         for end in (self.end1, self.end2):
             if same_vals(position, end):
+               
                 if same_vals(end, self.end1):
                     lst = self.endPoints_1
                 else:
@@ -137,7 +128,7 @@ class DnaSegmentList(EditCommand_StructureList):
         @see: DnaSegment.is_PAM3_DnaSegment()
         """
         if not self._structList:
-            return False
+            return False                   
         
         for segment in self._structList:
             if not segment.is_PAM3_DnaSegment():

@@ -116,7 +116,7 @@ from OpenGL.GL import GL_MODELVIEW_MATRIX
 from OpenGL.GL import GL_CLIP_PLANE5
 from OpenGL.GL import glClipPlane
 
-from OpenGL.GLU import gluUnProject, gluPickMatrix
+from OpenGL.GLU import gluUnProject, gluProject, gluPickMatrix
 
 try:
     from OpenGL.GLE import glePolyCone
@@ -621,8 +621,74 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.setWhatsThis(glpaneText)
 
     # ==
-
-
+    
+    def renderTextAtPosition(self,                               
+                             position,
+                             textString,
+                             textColor = black
+                             ):
+        """
+        Renders the text at the specified position (x, y , z coordinates)
+        @param position: The x, y z coordinates of the object at which the 
+        text needs to be rendered. 
+        @type position: B{A}
+        @param textString:  the text to be rendered at the specified position.
+        @type textString : str
+        @see: self.renderTextNearCursor() This method is different than that 
+        method. That method uses QPoint (the current cursor position) to 
+        render the text (thus needs integers x and y) where has this method
+        uses the actual object coordinates        
+        @see: MultiplednaSegment_GraphicsMode._drawDnaRubberbandLine()
+        @see: QGLWidget.renderText ()
+        
+        @TODO: refactor to move the common code in this method and 
+        self.renderTextNearCursor(). Also, in this method, its not possible to 
+        define a background text slightly offset to the x.y z to get a nicer
+        text. Need to see how to acheve that
+        """
+        
+        
+        x = position[0]
+        y = position[1]
+        z = position[2]
+        
+        #background color
+        bg_color = lightgray #not used
+        #Foreground color 
+        fg_color = textColor  
+        
+        DEBUG_USE_GLU_PROJECT = False #DO NOT commit it with True.
+        
+        if not DEBUG_USE_GLU_PROJECT:
+            
+            glDisable(GL_LIGHTING)
+            glDisable(GL_DEPTH_TEST)
+            self.qglColor(RGBf_to_QColor(fg_color))
+            self.renderText(x, y, z, 
+                            QString(textString), 
+                            self._getFontForTextNearCursor(fontSize = 11, 
+                                                           isBold = True))
+            self.qglClearColor(RGBf_to_QColor(fg_color))
+            glEnable(GL_DEPTH_TEST)
+            glEnable(GL_LIGHTING)  
+        else:  
+            glDisable(GL_LIGHTING)
+            self.qglColor(RGBf_to_QColor(fg_color))               
+            x, y, z = gluProject(x, y, z)
+            pos = QPoint(int(x), int(y))
+            ##pos = self.mapFromGlobal(pos)
+            x1 = pos.x() 
+            y1 = pos.y() 
+    
+            ### Note: self.renderText is QGLWidget.renderText method.
+            self.renderText(x1 ,
+                            y1,
+                            QString(textString),
+                            self._getFontForTextNearCursor())
+            self.qglClearColor(RGBf_to_QColor(fg_color))
+                # question: is this related to glClearColor? [bruce 071214 question]
+            glEnable(GL_LIGHTING)        
+            
 
     def renderTextNearCursor(self, 
                              textString, 
@@ -640,9 +706,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                        to be rendered. 
 
         @see: DnaLineMode.Draw
-        @see: self._getFontForTextNearCursor
-        #@Note: the color argument is not used. It is superseded by bg_color
-        and forgraound colored text . So color arg is unsupported for Rattlesnake 
+        @see: self._getFontForTextNearCursor()
+        @see: self.renderTextAtPosition()
+        @Note: the color argument is not used. It is superseded by bg_color
+        and forgraound colored text . So color arg is unsupported for 
+        the Rattlesnake  release.
         """
         if not textString:
             return 

@@ -16,7 +16,7 @@ see MultipleDnaSegmentResize_EditCommand
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 from PyQt4.Qt import Qt
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
-from utilities.constants import black, banana, silver, lighterblue
+from utilities.constants import black, banana, silver, lighterblue, darkred, darkgreen
 from graphics.drawing import drawer
 
 SPHERE_RADIUS = 6.0
@@ -24,34 +24,25 @@ SPHERE_DRAWLEVEL = 2
 SPHERE_OPACITY = 0.5 
 CYL_RADIUS = 13.0
 CYL_OPACITY = 0.4
+SPHERE_RADIUS_2 =  3.0
 
 _superclass = DnaSegment_GraphicsMode
 class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
     """
     Graphics mode for resizing multiple dna segments at once
     """
-    
+
     def Enter_GraphicsMode(self):        
         _superclass.Enter_GraphicsMode(self)
         #@TODO: Deselect everything. Is it Ok to do??
         self.win.assy.unpickall_in_GLPane()
-        
-    def getMovablesForLeftDragging(self):
-        """
-        Overrides superclass method. This is a hack  to make sure that
-        translation / rotation is not possible while in Resize multiple 
-        segments. 
-        """
-        #@TODO: This is done to avoid bugs due to which its unable to 
-        #determine ladderEndAxisAtom of the grabbed handle (reason unknown
-        #as of 2008-05-09
-        return ()
-        
+
+    
     def update_cursor_for_no_MB(self):
         """
         Update the cursor for no mouse button pressed
         """       
-        
+
         if self.command:
             if self.command.isAddSegmentsToolActive():
                 self.o.setCursor(self.win.addSegmentToResizeSegmentListCursor)
@@ -59,10 +50,9 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
             if self.command.isRemoveSegmentsToolActive():
                 self.o.setCursor(self.win.removeSegmentFromResizeSegmentListCursor)
                 return
-    
+
         _superclass.update_cursor_for_no_MB(self)
         
-            
     def chunkLeftUp(self, a_chunk, event):
         """
         Overrides superclass method. If add or remove segmets tool is active, 
@@ -81,13 +71,13 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                         self.command.addSegmentToResizeSegmentList(segmentGroup)
                     if self.command.isRemoveSegmentsToolActive():
                         self.command.removeSegmentFromResizeSegmentList(segmentGroup)
-                        
+
             self.end_selection_from_GLPane()
             return
-                
+
         _superclass.chunkLeftUp(self, a_chunk, event)
-        
-    
+
+
     def end_selection_from_GLPane(self):
         """
         Overrides superclass method.  In addition to selecting  or deselecting 
@@ -105,8 +95,8 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                 self.command.addSegmentToResizeSegmentList(segment)
             if self.command.isRemoveSegmentsToolActive():
                 self.command.removeSegmentFromResizeSegmentList(segment)
-                            
-    
+
+
     def keyPressEvent(self, event):
         """
         Handles keyPressEvent. Overrides superclass method. If delete key 
@@ -119,21 +109,23 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
             if self.command.propMgr and self.command.propMgr.listWidgetHasFocus():
                 self.command.propMgr.removeListWidgetItems()
                 return
-        
+            
+
         _superclass.keyPressEvent(self, event)
         
     def Draw(self):
         """
         Draw method
         """
-        _superclass.Draw(self)
         self._drawEditStructureIndicators()
+        _superclass.Draw(self)
         
+
     def _drawEditStructureIndicators(self):
         """
         This draws a transparent cylinder around the segments being resized, to 
         easily distinguish them from other model. 
-        
+
         """
         if self.command:
             segmentList = self.command.getResizeSegmentList()
@@ -157,7 +149,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
         if 0:
             #see method for details. Used for debugging only
             self._DEBUG_Flag_EndPoint1_ofDnaSegments()
-            
+
         if self._tagPositions:
             for point in self._tagPositions:          
                 drawer.drawsphere(silver, 
@@ -165,8 +157,8 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                   SPHERE_RADIUS,
                                   SPHERE_DRAWLEVEL,
                                   opacity = SPHERE_OPACITY)
-            
-            
+
+
     def _DEBUG_Flag_EndPoint1_ofDnaSegments(self):
         """
         Temporary method that draws a sphere to indicate the endPoint1 
@@ -175,9 +167,10 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
         """
         if not self.command:
             return 
-        
+
         endPoints_1 = []
-        for segment in self.command.struct.getStructList():
+         
+        for segment in self.command.getResizeSegmentList():
             e1, e2 = segment.getAxisEndPoints()
             if e1 is not None:
                 endPoints_1.append(e1)
@@ -187,7 +180,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                               SPHERE_RADIUS,
                               SPHERE_DRAWLEVEL,
                               opacity = 1.0)
-        
+
     def _drawDnaRubberbandLine(self):
         """
         Overrides superclass method. It loops through the segments being resized
@@ -196,7 +189,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
               comments.
         @TODO: needs more cleanup
         """
-        
+
         handleType = ''
         if self.command.grabbedHandle is not None:
             if self.command.grabbedHandle in [self.command.rotationHandle1, 
@@ -204,18 +197,28 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                 handleType = 'ROTATION_HANDLE'
             else:
                 handleType = 'RESIZE_HANDLE'
-                
+
         if handleType and handleType == 'RESIZE_HANDLE': 
             for segment in self.command.getResizeSegmentList():  
                 self.command.currentStruct = segment
-                params = self.command.getDnaRibbonParams()    
+                params_when_adding_bases, params_when_removing_bases = \
+                                        self.command.getDnaRibbonParams()  
+
                 self.command.currentStruct = None
-                if params:
-                    end1, end2, basesPerTurn, duplexRise, ribbon1_start_point, \
-                        ribbon2_start_point, ribbon1_direction, ribbon2_direction,\
-                        ribbon1Color, ribbon2Color = params    
-                    
-                    
+                if params_when_adding_bases:                    
+                    numberOfBasePairs,\
+                                    end1, \
+                                    end2, \
+                                    basesPerTurn,\
+                                    duplexRise, \
+                                    ribbon1_start_point, \
+                                    ribbon2_start_point, \
+                                    ribbon1_direction, \
+                                    ribbon2_direction, \
+                                    ribbon1Color, \
+                                    ribbon2Color = params_when_adding_bases 
+
+
                     #Note: The displayStyle argument for the rubberband line should 
                     #really be obtained from self.command.struct. But the struct 
                     #is a DnaSegment (a Group) and doesn't have attr 'display'
@@ -238,11 +241,41 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                                    ribbon2_direction = ribbon2_direction,
                                    ribbon1Color = ribbon1Color,
                                    ribbon2Color = ribbon2Color,
-                                   stepColor = black )
+                                   stepColor = black ) 
                     
+                    #Draw a sphere that indicates the current position of 
+                    #the resize end of each segment . 
+                    drawer.drawsphere(darkgreen, 
+                                      end2, 
+                                      SPHERE_RADIUS_2,
+                                      SPHERE_DRAWLEVEL,
+                                      opacity = SPHERE_OPACITY) 
+                    
+                    numberOfBasePairsString = "+" + str(numberOfBasePairs)
+                    self.glpane.renderTextAtPosition( end2, 
+                                                      numberOfBasePairsString)
+                
+                elif params_when_removing_bases:
+                    numberOfBasePairs , end2 = params_when_removing_bases
+                    #Draw a sphere that indicates the current position of 
+                    #the resize end of each segment.
+                    drawer.drawsphere(darkred, 
+                                      end2, 
+                                      SPHERE_RADIUS_2,
+                                      SPHERE_DRAWLEVEL,
+                                      opacity = SPHERE_OPACITY)   
+                    
+                    numberOfBasePairsString = str(numberOfBasePairs)
+                    self.glpane.renderTextAtPosition( end2, 
+                                                      textString = numberOfBasePairsString,
+                                                      )
+                    
+
+
+
                 #Draw the text next to the cursor that gives info about 
                 #number of base pairs etc
                 self._drawCursorText()
-                
 
-    
+
+

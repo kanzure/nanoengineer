@@ -171,7 +171,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 if handle.hasValidParamsForDrawing():
                     handle.draw()
                     
-        self._drawDnaRubberbandLine()
+            self._drawDnaRubberbandLine()
         
   
     def _drawDnaRubberbandLine(self):
