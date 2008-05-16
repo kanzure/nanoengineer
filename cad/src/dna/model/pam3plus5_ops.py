@@ -13,7 +13,8 @@ http://www.nanoengineer-1.net/privatewiki/index.php?title=PAM-3plus5plus_coordin
 """
 
 # WARNING: this list of imports must be kept fairly clean,
-# especially of anything from dna module. For explanation
+# especially of most things from dna module, or of chem.py
+# (which indirectly imports this module). For explanation
 # see import comment near top of PAM_Atom_methods.py.
 # [bruce 080409]
 
@@ -27,6 +28,8 @@ from utilities import debug_flags
 import foundation.env as env
 from utilities.Log import redmsg, graymsg
 
+from geometry.VQT import norm
+
 from model.bond_constants import find_bond, find_Pl_bonds
 from model.bond_constants import V_SINGLE
 
@@ -39,6 +42,8 @@ from dna.updater.dna_updater_globals import restore_dnaladder_inval_policy
 
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
+
+from dna.model.pam3plus5_math import BASEPAIR_HANDLE_DISTANCE_FROM_SS_MIDPOINT
 
 # ==
 
@@ -354,13 +359,14 @@ def _insert_Pl_between_0(s1, s2):
     ## direct_bond.bust(make_bondpoints = False)
 
     # make the new Pl atom
-    Atom = s1.__class__
-        # kluge to avoid import of chem.py, for now
-        # (though that would probably be ok (at least as a runtime import)
-        #  even though it might expand the import cycle graph)
-        # needs revision if we introduce Atom subclasses
-        # TODO: check if this works when Atom is an extension object
-        # (from pyrex atoms)
+##    Atom = s1.__class__
+##        # kluge to avoid import of chem.py, for now
+##        # (though that would probably be ok (at least as a runtime import)
+##        #  even though it might expand the import cycle graph)
+##        # needs revision if we introduce Atom subclasses
+##        # TODO: check if this works when Atom is an extension object
+##        # (from pyrex atoms)
+    Atom = s1.molecule.assy.Atom #bruce 080516
     chunk = Pl_sticks_to.molecule
     pos = (s1.posn() + s2.posn()) / 2.0
         # position will be corrected by caller before user sees it
@@ -498,38 +504,33 @@ def _f_baseframe_data_at_baseatom(self):
 
 # ==
 
-def add_basepair_handles_to_atoms(atoms): #bruce 080515 (not quite finished -- wrong positions for handles)
+def add_basepair_handles_to_atoms(atoms): #bruce 080515
     """
     """
-    from model.global_model_changedicts import _changed_structure_Atoms #k import ok?
     goodcount, badcount = 0, 0
     for atom in atoms:
         atom.unpick()
         if atom.element is Gv5 and len(atom.strand_neighbors()) == 2:
+
             goodcount += 1
-            # Note: in real life, we might do a pass 1 to collect ladders,
-            # then update their baseframes, then use that info to
-            # place the handle atoms properly. (But probably not,
-            # since the formula for where to put them looks too simple
-            # to need the baseframes.)
-            #
-            # In this initial test,
-            # we'll guess a position from the Gv5 and Ss5 neighbors.
-            sn = atom.strand_neighbors()
-            if 1: # stub for computing new position
-                oldposns = [a.posn() for a in ([atom] + sn)]
-                newpos = average_value(oldposns)
-            # the more correct way will use this info:
-            #   The point (0.0, 0.0) in the Standard Reference Frame coordinates
-            #   [citation omitted] is on the symmetry axis of the Ss-Gv-Ss triangle,
-            #   0.24785 nm above the Ss-Ss base of the triangle.
-            #   Eric M's code generates virtual sites from positions specified
-            #   in these coordinates.
             
-            from model.chem import Atom ### possible import cycle, need to check ### (if so could use mol.assy.Atom)
+            # Figure out the position from the Gv5 and its presumed-to-be Ss5
+            # neighbors. [Fixed per Eric D spec, bruce 080516]
+            sn = atom.strand_neighbors()
+            ss_midpoint = average_value([a.posn() for a in sn])
+            towards_Gv = norm(atom.posn() - ss_midpoint)
+            newpos = ss_midpoint + \
+                     BASEPAIR_HANDLE_DISTANCE_FROM_SS_MIDPOINT * towards_Gv
+##            if 0: # stub for computing new position
+##                oldposns = [a.posn() for a in ([atom] + sn)]
+##                newpos = average_value(oldposns)
+
+            Atom = atom.molecule.assy.Atom # (avoid model.chem import cycle)
+
             newatom = Atom( 'Ah5', newpos, atom.molecule ) # PAM5-Axis-handle
             bond_atoms_faster( newatom, atom, V_SINGLE)
                 # note: no bondpoints need creation or removal
+            
             newatom.pick()
             pass
         else:

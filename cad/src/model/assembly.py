@@ -155,6 +155,7 @@ class Assembly( StateMixin, Assembly_API):
     # and are not redundant with toplevel imports if they exist. [bruce 080310]
     from foundation.Group import Group
     from model.chunk      import Chunk
+    from model.chem       import Atom
     
     from dna.model.Block  import Block
     from dna.model.DnaGroup   import DnaGroup

@@ -144,6 +144,21 @@ if (not __USE_OLD_VALUES__):
 
     # see below for how these are used: default_Pl_relative_position, default_Gv_relative_position
 
+BASEPAIR_HANDLE_DISTANCE_FROM_SS_MIDPOINT = 2.4785
+    # used to position Ah5 as a basepair handle.
+    # The number comes from Eric D mail of 080515:
+    #   The point (0.0, 0.0) in the Standard Reference Frame coordinates
+    #   [citation omitted] is on the symmetry axis of the Ss-Gv-Ss triangle,
+    #   0.24785 nm above the Ss-Ss base of the triangle.
+    #   Eric M's code generates virtual sites from positions specified
+    #   in these coordinates.
+    #
+    # I would have thought this should be the same as X_APRIME =  2.512 (x_a')...
+    # maybe that's not true, or maybe one of them is slightly wrong.
+    # Anyway, this is close, and it probably doesn't matter if it's exactly
+    # right (depending on how basepair handles are implemented in ND-1).
+    # [bruce 080516]
+
 # ==
 
 def baseframe_from_pam5_data(ss1, gv, ss2):
