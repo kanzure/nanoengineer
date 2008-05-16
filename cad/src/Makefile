@@ -96,6 +96,9 @@ pyclean: cleanpyc
 clean: cleanpyc
 	rm -f *~ *.o *.so *.a *.dll *.def core
 	rm -f atombase.c samevals.c pyrex_test.c
+	echo
+	echo "Warning: make clean has removed C-coded shared libraries."
+	echo "To remake them, use 'make shared' ."
 
 pyrex: $(PYREXTARGET)
 
