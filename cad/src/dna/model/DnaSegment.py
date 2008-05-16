@@ -139,6 +139,16 @@ class DnaSegment(DnaStrandOrSegment):
                 numberOfAxisAtoms += len(m.get_baseatoms())
                        
         return numberOfAxisAtoms
+    
+    def isEmpty(self):
+        """
+        Returns True if there are no axis chunks as its members.
+        """
+        for m in self.members:
+            if isinstance(m, DnaAxisChunk):
+                return False
+            
+        return True
 
     #Following methods are likely to be revised in a fully functional dna data 
     # model. These methods are mainly created to get working many core UI 
@@ -373,9 +383,14 @@ class DnaSegment(DnaStrandOrSegment):
             quat = glpane.quat
             vec = atmPosition2 - atmPosition1
             vec = quat.rot(vec)
+            ##print "~~~~~~~~~~~~~~~~~~~~~~"
+            ##print "***vec =", vec
+            ##print "***vec[0] = 0?", vec[0] == 0.0
             if vec[0] < 0.0:
                 atm1, atm2 = atm2, atm1
-                
+            elif vec[0] == 0.0 and vec[1] < 0.0:
+                atm1, atm2 = atm2, atm1
+                                            
         return atm1, atm2
     
         
