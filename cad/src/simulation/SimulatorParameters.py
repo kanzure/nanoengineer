@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 SimulatorParameters.py
@@ -8,6 +8,10 @@ NE1 side.  This currently consists of parameters controlling the
 Yukawa non-bonded potential function for PAM3 and PAM5 DNA models.
 NE1 generates the tables which define a user-defined potential
 function for GROMACS.
+
+@author: Eric M
+@version: $Id$
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 import os

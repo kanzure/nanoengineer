@@ -7,6 +7,10 @@ Parse the .log file output of the GROMACS mdrun program, specifically
 during conjugate gradients minimization.  Note the energy values for
 various components as they change, and report their final values.
 
+@author: Eric M
+@version: $Id$
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+
 GROMACS is not very computer friendly about its output formats.  In
 this case, table headings and values appear on alternate lines, and
 which ones are included varies from run to run.

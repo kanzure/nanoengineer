@@ -1,9 +1,16 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 """
+YukawaPotential.py
 
 Create an .xvg file suitable for passing as the argument to -table for
-mdrun.  The table consists of 7 columns:
+mdrun.
+
+@author: Eric M
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+
+The table consists of 7 columns:
 
 r f f'' g g'' h h''
 
