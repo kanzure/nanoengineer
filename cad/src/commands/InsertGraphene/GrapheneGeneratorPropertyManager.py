@@ -16,10 +16,10 @@ __author__ = "Mark"
 
 from model.bonds import CC_GRAPHITIC_BONDLENGTH
 
-from PM.PM_Dialog        import PM_Dialog
-from PM.PM_GroupBox      import PM_GroupBox
-from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
-from PM.PM_ComboBox      import PM_ComboBox
+from PM.PM_Dialog         import PM_Dialog
+from PM.PM_GroupBox       import PM_GroupBox
+from PM.PM_DoubleSpinBox  import PM_DoubleSpinBox
+from PM.PM_ComboBox       import PM_ComboBox
 
 class GrapheneGeneratorPropertyManager(PM_Dialog):
     """
@@ -66,23 +66,22 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
         """
         
         self.heightField = \
-            PM_DoubleSpinBox( pmGroupBox, 
+            PM_DoubleSpinBox( pmGroupBox,
                               label        = "Height :", 
                               value        = 20.0, 
                               setAsDefault = True,
                               minimum      = 1.0, 
-                              maximum      = 50.0, 
+                              maximum      = 100.0, 
                               singleStep   = 1.0, 
                               decimals     = 3, 
-                              suffix       = ' Angstroms' )
-        
+                              suffix       = ' Angstroms')
         self.widthField = \
             PM_DoubleSpinBox( pmGroupBox,
                               label        = "Width :", 
                               value        = 20.0, 
                               setAsDefault = True,
                               minimum      = 1.0, 
-                              maximum      = 50.0, 
+                              maximum      = 100.0, 
                               singleStep   = 1.0, 
                               decimals     = 3, 
                               suffix       = ' Angstroms')
@@ -122,3 +121,5 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_GrapheneGeneratorPropertyManager
         ToolTip_GrapheneGeneratorPropertyManager(self)
         
+ 
+    
