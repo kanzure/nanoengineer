@@ -849,7 +849,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
-
+   
+    # Stereo View
+    
+    viewStereoViewActionText = \
+        "<u><b>Stereo View</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/Stereo_View.png\"><br> "\
+        "Displays the Stereo View Property Manager "\
+        "</p>"
+    
+    win.setStereoViewAction.setWhatsThis(viewStereoViewActionText)
+   
     #
     # Insert toolbar
     #
