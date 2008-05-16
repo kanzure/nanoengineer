@@ -486,6 +486,14 @@ class Node( StateMixin):
         [overridden in Group]
         """
         return False # for a leaf node
+    
+    def isEmpty(self):
+        """
+        Subclasses should override this method. (especially Group subclasses)
+        Default implementation returns False (non empty node) 
+        @see: DnaGroup.isEmpty()
+        """
+        return False
 
     def is_block(self): #bruce 080107
         """
@@ -499,7 +507,8 @@ class Node( StateMixin):
          and thereby in its subclasses, such as DnaGroup.]
         """
         return False
-
+    
+    
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
         """
         This is called when reading an mmp file, for each "info leaf" record
