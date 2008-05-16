@@ -196,6 +196,7 @@ from utilities.debug_prefs import Choice_boolean_False, Choice_boolean_True
 from utilities.GlobalPreferences import DEBUG_BAREMOTION
 from utilities.GlobalPreferences import use_frustum_culling
 from utilities.GlobalPreferences import pref_show_highlighting_in_MT
+from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import gray, darkgray, black, lightgray
@@ -2952,15 +2953,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
 
-        if debug_pref("GLPane: skip redraws requested only by Qt?",
-                      Choice_boolean_True,
-                      #bruce 080512 made this True, revised prefs_key
-                      non_debug = True, #bruce 080130
-                      prefs_key = "GLPane: skip redraws requested only by Qt?"
-                      ):
-
+        if not self._needs_repaint and \
+           pref_skip_redraws_requested_only_by_Qt():
             # if we don't think this redraw is needed,
-            # skip it (but print '#' if atom_debug is set).
+            # skip it (but print '#' if atom_debug is set -- disabled as of 080512).
 
             #bruce 070109 restored/empowered the following code, but
             # only within this new debug pref [persistent as of 070110].
@@ -2985,29 +2981,30 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # disabling the printing of '#'; if we need it back for debugging
             # we can add a debug_pref for it and/or for drawing redraw_counter
             # as text in the frame. bruce 080512]
+            #
+            # older comments:
+            #
+            #bruce 050516 experiment
+            #
+            # This probably happens fairly often when Qt calls paintGL but
+            # our own code didn't change anything and therefore didn't call
+            # gl_update.
+            #
+            # This is known to happen when a context menu is put up,
+            # the main app window goes into bg or fg, etc.
+            #
+            # SOMEDAY:
+            # An alternative to skipping the redraw would be to optimize it
+            # by redrawing a saved image. We're likely to do that for other
+            # reasons as well (e.g. to optimize redraws in which only the
+            # selection or highlighting changes).
 
-            if not self._needs_repaint: #bruce 050516 experiment
-                # This probably happens fairly often when Qt calls paintGL but
-                # our own code didn't change anything and therefore didn't call
-                # gl_update.
-                #
-                # This is known to happen when a context menu is put up,
-                # the main app window goes into bg or fg, etc.
+            # disabling this debug print (see long comment above), bruce 080512
+            ## if debug_flags.atom_debug:
+            ##     sys.stdout.write("#") # indicate a repaint is being skipped
+            ##     sys.stdout.flush()
 
-                # SOMEDAY:
-                # An alternative to skipping the redraw would be to optimize it
-                # by redrawing a saved image. We're likely to do that for other
-                # reasons as well (e.g. to optimize redraws in which only the
-                # selection or highlighting changes).
-
-                # disabling this debug print (see long comment above), bruce 080512
-                ## if debug_flags.atom_debug:
-                ##     sys.stdout.write("#") # indicate a repaint is being skipped
-                ##     sys.stdout.flush()
-
-                return # skip the following repaint
-
-            pass
+            return # skip the following repaint
 
         env.redraw_counter += 1 #bruce 050825
 

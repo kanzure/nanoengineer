@@ -19,6 +19,8 @@ from utilities.prefs_constants import permit_atom_chunk_coselection_prefs_key
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.debug import print_compact_traceback
 
+import sys
+
 # ==
 
 DEBUG_BAREMOTION = False #bruce 080129, for bug 2606; should be disabled for commits
@@ -340,5 +342,30 @@ def pref_minimize_leave_out_PAM_bondpoints():
     return res
 
 pref_minimize_leave_out_PAM_bondpoints()
+
+# ==
+
+def pref_skip_redraws_requested_only_by_Qt():
+    #bruce 080516 moved this here, revised default to be off on Windows
+    """
+    If enabled, GLPane paintGL calls not requested by our own gl_update calls
+    are skipped, as an optimization. See comments where used for details
+    and status. Default value depends on platform as of 080516.
+    """
+    if sys.platform == "win32":
+        # Windows -- enabling this causes bugs on at least one system
+        choice = Choice_boolean_False
+    else:
+        # non-Windows -- no known bugs as of 080516
+        #bruce 080512 made this True, revised prefs_key
+        choice = Choice_boolean_True
+    res = debug_pref("GLPane: skip redraws requested only by Qt?",
+                      choice,
+                      non_debug = True, #bruce 080130
+                      prefs_key = "GLPane: skip redraws requested only by Qt?"
+                     )
+    return res
+
+pref_skip_redraws_requested_only_by_Qt()
 
 # end
