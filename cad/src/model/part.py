@@ -1243,6 +1243,24 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # I think this should never happen [bruce ca. 050415]
             env.history.message( redmsg( "Internal error making new jig: " + msg))
         fix_one_or_complain( jig, self.topnode, errfunc)
+        # now it's after all the atoms in it, but we also need to move it
+        # outside of any group it doesn't belong in (and after that group
+        # so that it remains after all its atoms). [bruce 080515 bugfix]
+        move_after_this_group = None
+        for group in jig.containing_groups():
+            if not 1: ## group.allow_this_node_inside(jig): # IMPLEM, to the extent we need it aside from permit_as_member
+                move_after_this_group = group
+            else:
+                location = move_after_this_group or jig
+                if group is location.dad and not group.permit_as_member( jig, pre_updaters = False ):
+                    ###doc: explain why this option pre_updaters = False makes sense
+                    # review: use the other code that calls permit_as_member instead of
+                    # calling it directly?
+                    move_after_this_group = group
+                pass
+            continue
+        if move_after_this_group is not None:
+            move_after_this_group.addsibling(jig)
         return
 
     # ==
