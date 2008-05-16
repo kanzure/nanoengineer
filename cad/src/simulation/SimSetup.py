@@ -1,23 +1,23 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 SimSetup.py
 
 Dialog for setting up to run the simulator.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 Created by Mark, under the name runSim.py.
 
-Bruce 050324 changed some comments and did some code cleanup.
+Bruce 050324 changed some comments and did some code cleanup
+(and also moved a lot of existing code for actually "running the simulator"
+ into runSim.py, so that file still exists, but has all different code
+ than before).
 
 Bruce 050325 renamed file and class to SimSetup, to fit naming
 convention for other Dialog subclasses.
-
-(Bruce 030524 also moved a lot of existing code for actually
-"running the simulator" into runSim.py, so that file still exists
-but has all different code than before.)
-'''
-__author__ = "Mark"
+"""
 
 import os
 
@@ -67,9 +67,12 @@ _stickyParams = None # sometimes this is a FakeMovie object
 
 
 class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was called runSim
-    "dialog class for setting up a simulator run"
+    """
+    dialog class for setting up a simulator run
+    """
     def __init__(self, part, previous_movie = None, suffix = ""):
-        """use previous_movie (if passed) for default values,
+        """
+        use previous_movie (if passed) for default values,
         otherwise use the same ones last ok'd by user
         (whether or not that sim got aborted), or default values if that never happened in this session;
         on success or failure, make a new Movie and store it as self.movie
@@ -190,7 +193,8 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         return
     
     def createMoviePressed(self):
-        """Creates a DPB (movie) file of the current part.
+        """
+        Creates a DPB (movie) file of the current part.
         [Actually only saves the params and filename which should be used
          by the client code (in writemovie?) to create that file.]
         The part does not have to be saved as an MMP file first, as it used to.
