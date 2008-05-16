@@ -14,7 +14,7 @@ out of elements_data.py into separate files.
 Bruce 080108 added Gv5 for use in Eric D's forthcoming PAM5 revision.
 """
 
-from model.elements_data import tetra4, flat, tetra2
+from model.elements_data import tetra4, flat, tetra2, onebond
 from utilities.constants import MODEL_PAM5
 
 _DIRECTIONAL_BOND_ELEMENTS_PAM5 = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5')
@@ -62,6 +62,8 @@ _mendeleev = [
     ("Pl5", "PAM5-Phosphate",      202, 1.0, [[2, 210, tetra2]],     dict(role = 'strand')),
 
     # deprecated axis and strand elements
+    # (btw, some of these say None, 'sp', which is probably wrong --
+    #  don't imitate this in new elements) [bruce 080516 comment]
     ("Sj5", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]],       dict(role = 'strand', deprecated_to = 'Ss5')),
     ("Ae5", "PAM5-Axis-End",       204, 1.0, [[1, 200, None, 'sp']], dict(role = 'axis',   deprecated_to = 'X')),
     ("Pe5", "PAM5-Phosphate-End",  205, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'Pl5')), #bruce 080129 X->Pl5; UNCONFIRMED
@@ -93,7 +95,7 @@ _mendeleev = [
     ("Ux5", "PAM5-Unpaired-base-x",211, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
     ("Uy5", "PAM5-Unpaired-base-y",212, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
 
-    ("Ah5", "PAM5-Axis-handle",    213, 1.0, [[1, 200, None, 'sp']], dict(role = 'handle')), #bruce 080515, used for testing
+    ("Ah5", "PAM5-Axis-handle",    213, 1.0, [[1, 200, onebond]], dict(role = 'handle')), #bruce 080515, revised 080516
 
  ]
 

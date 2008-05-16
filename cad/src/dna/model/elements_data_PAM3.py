@@ -57,6 +57,8 @@ _mendeleev = [
     ("Pl3", "PAM3-Phosphate",      302, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'remove')), ### ?? unused atom?
 
     # deprecated PAM3 elements
+    # (btw, some of these say None, 'sp', which is probably wrong --
+    #  don't imitate this in new elements) [bruce 080516 comment]
     ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]],       dict(role = 'strand', deprecated_to = 'Ss3')),
     ("Ae3", "PAM3-Axis-End",       304, 1.0, [[3, 200, tetra3]],     dict(role = 'axis',   deprecated_to = 'Ax3')),
     ("Se3", "PAM3-Sugar-End",      305, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
