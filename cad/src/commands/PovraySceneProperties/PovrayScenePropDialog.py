@@ -1,12 +1,31 @@
 # -*- coding: utf-8 -*-
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+PovrayScenePropDialog.py
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-# Form implementation generated from reading ui file 'PovrayScenePropDialog.ui'
-#
+Note: this file is not presently used in NE1 (as of before 080515).
+
+@author: Mark
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
+
+History:
+
+This used to be made by pyuic from a .ui file,
+but since then it has been hand-modified in ways
+that are not possible to do using the .ui file
+(though they might be doable in the subclass instead),
+and the .ui file has been moved to a non-active name.
+If this command is revived, either those changes need
+abandoning or to be done in the subclass (if the .ui file
+is also revived), or (preferably) the .ui file should be
+removed and the UI rewritten to use the PM module.
+
+The comment from pyuic claims that it was last created
+from the .ui file on this date:
 # Created: Wed Sep 27 14:24:15 2006
 #      by: PyQt4 UI code generator 4.0.1
-#
-# WARNING! All changes made in this file will be lost!
+"""
 
 from PyQt4 import QtCore, QtGui
 from utilities.icon_utilities import geticon
