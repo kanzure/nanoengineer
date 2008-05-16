@@ -178,6 +178,10 @@ from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_atom_commands_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_dna_commands_prefs_key
 
+from utilities.prefs_constants import stereoViewMode_prefs_key
+from utilities.prefs_constants import stereoViewAngle_prefs_key
+from utilities.prefs_constants import stereoViewSeparation_prefs_key
+
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
 from utilities.constants import GL_FAR_Z
@@ -572,7 +576,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.tripleClickTimer.setSingleShot(True)
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
 
-        self.stereo_mode = 0 # piotr 080515 - stereo disabled by default
+        self.stereo_enabled = False # piotr 080515 - stereo disabled by default
 
         return # from GLPane.__init__ 
 
@@ -3207,29 +3211,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
 
-        # piotr 080515: this debug pref enables a stereo rendering mode
-        stereo_pref = debug_pref(
-            "GLPane: stereo rendering",
-            Choice(["Disabled", 
-                    "Side-by-side (relaxed eyes)", 
-                    "Side-by-side (crossed eyes)", 
-                    "Anaglyphs (red/blue glasses)"], 
-                   defaultValue = "Default"),
-            non_debug = False,
-            prefs_key = True)  
-
-        self.stereo_mode = 0 # stereo disabled by default
-
-        # set the stereo mode
-        if stereo_pref == "Side-by-side (relaxed eyes)":
-            self.stereo_mode = 1
-
-        if stereo_pref == "Side-by-side (crossed eyes)":
-            self.stereo_mode = 2
-
-        if stereo_pref == "Anaglyphs (red/blue glasses)":
-            self.stereo_mode = 3        
-
         if self.need_setup_lighting \
            or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights() \
            or debug_pref("always setup_lighting?", Choice_boolean_False):
@@ -3597,7 +3578,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
 
         # piotr 080515: added software stereo rendering support
-        if self.stereo_mode == 0:
+        if not self.stereo_enabled:
             # draw only once if stereo is disabled
             stereo_image_range = [0]
         else:
@@ -3762,7 +3743,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 self.drawing_phase = 'glselect' #bruce 070124
 
                 # piotr 080515: added software stereo rendering support
-                if self.stereo_mode == 0:
+                if not self.stereo_enabled == 0:
                     # draw only once if stereo is disabled
                     stereo_image_range = [0]
                 else:
@@ -4181,7 +4162,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             else:
                 try:
                     # piotr 080515: added software stereo rendering support
-                    if self.stereo_mode == 0:
+                    if not self.stereo_enabled == 0:
                         # draw only once if stereo is disabled
                         stereo_image_range = [0]
                     else:
@@ -4518,17 +4499,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         stereo_image indicates which stereo image we are rendering
         (-1 == left, 1 == right). 
         """
-        if self.stereo_mode == 0:
+        if not self.stereo_enabled:
             # stereo disabled - just return
             return
 
-        stereo_separation = 0.4
-        stereo_angle = -5.0
+        stereo_mode = env.prefs[stereoViewMode_prefs_key]
+        stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
+        stereo_angle = -0.1 * env.prefs[stereoViewAngle_prefs_key]
 
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
 
-        if self.stereo_mode <= 2:
+        if stereo_mode <= 2:
             # clip left or right image for side-by-side stereo
             # reset the modelview matrix
             glPushMatrix()
@@ -4547,11 +4529,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         angle = stereo_angle
 
         # for cross-eyed mode, exchange left and right views
-        if self.stereo_mode == 2:
+        if stereo_mode == 2:
             angle *= -1
 
         # for anaglyphs, decresase the angle
-        if self.stereo_mode == 3:
+        if stereo_mode == 3:
             angle *= 0.5
 
         glRotatef(angle * stereo_image,
@@ -4559,13 +4541,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                   self.up[1],
                   self.up[2])
 
-        if self.stereo_mode <= 2:
+        if stereo_mode <= 2:
             # translate images for side-by-side stereo
             glTranslatef(separation * stereo_image * self.right[0], 
                          separation * stereo_image * self.right[1], 
                          separation * stereo_image * self.right[2])
 
-        if self.stereo_mode == 3:             
+        if stereo_mode == 3:             
             # red/blue anaglyphs
             if stereo_image == -1:
                 # red image
@@ -4575,17 +4557,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 glClear(GL_DEPTH_BUFFER_BIT);
                 # blue image
                 glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+        else:
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
     def _disable_stereo(self):
         """
         Disables stereo rendering.
         """
 
-        if self.stereo_mode == 0:
+        if not self.stereo_enabled:
             # stereo disabled - just return
             return
 
-        if self.stereo_mode == 3: 
+        stereo_mode = env.prefs[stereoViewMode_prefs_key]
+
+        if stereo_mode == 3: 
             # enable all colors
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 

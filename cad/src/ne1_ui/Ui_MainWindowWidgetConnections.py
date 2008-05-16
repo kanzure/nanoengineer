@@ -52,39 +52,39 @@ def setupUi(win):
     win.connect(win.editRenameObjectsAction,SIGNAL("triggered()"),win.editRenameSelectedObjects)
     win.connect(win.editAddSuffixAction,SIGNAL("triggered()"),win.editAddSuffix)
     win.connect(win.pasteFromClipboardAction, 
-                 SIGNAL("triggered()"),
-                 win.editPasteFromClipboard )
+                SIGNAL("triggered()"),
+                win.editPasteFromClipboard )
 
     win.connect(win.partLibAction, 
-                 SIGNAL("triggered()"),
-                 win.insertPartFromPartLib)
+                SIGNAL("triggered()"),
+                win.insertPartFromPartLib)
 
     win.connect(win.viewFullScreenAction, 
-                 SIGNAL("toggled(bool)"), 
-                 win.setViewFullScreen)
+                SIGNAL("toggled(bool)"), 
+                win.setViewFullScreen)
     win.connect(win.viewSemiFullScreenAction, 
-                 SIGNAL("toggled(bool)"), 
-                 win.setViewSemiFullScreen)
+                SIGNAL("toggled(bool)"), 
+                win.setViewSemiFullScreen)
     win.connect(win.viewReportsAction, 
-                 SIGNAL("toggled(bool)"), 
-                 win.reportsDockWidget.toggle)
+                SIGNAL("toggled(bool)"), 
+                win.reportsDockWidget.toggle)
     win.connect(win.viewRulersAction, 
-                 SIGNAL("toggled(bool)"), 
-                 win.toggleRulers)
+                SIGNAL("toggled(bool)"), 
+                win.toggleRulers)
 
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
     win.connect(win.editUndoAction,SIGNAL("triggered()"),win.editUndo)
-    
+
     #= Connections for the "File" menu and toolbar widgets.
-    
+
     win.connect(win.fileCloseAction,
                 SIGNAL("triggered()"),
                 win.fileClose)
     win.connect(win.fileExitAction,
                 SIGNAL("triggered()"),
                 win.close)
-    
+
     win.connect(win.fileOpenAction,
                 SIGNAL("triggered()"),
                 win.fileOpen)
@@ -124,14 +124,14 @@ def setupUi(win):
     win.connect(win.fileExportAmdlAction,
                 SIGNAL("triggered()"),
                 win.fileExportAmdl)
-    
+
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)
     win.connect(win.helpKeyboardShortcutsAction,SIGNAL("triggered()"),win.helpKeyboardShortcuts)
     win.connect(win.helpSelectionShortcutsAction,SIGNAL("triggered()"),win.helpSelectionShortcuts)
     win.connect(win.helpMouseControlsAction,SIGNAL("triggered()"),win.helpMouseControls)
     win.connect(win.helpWhatsThisAction,SIGNAL("triggered()"),win.helpWhatsThis)
-    
+
     win.connect(win.buildDnaAction,SIGNAL("triggered()"),win.activateDnaTool)
     win.connect(win.buildNanotubeAction,SIGNAL("triggered()"),win.activateNanotubeTool)
     win.connect(win.insertCommentAction,SIGNAL("triggered()"),win.insertComment)
@@ -148,17 +148,17 @@ def setupUi(win):
     win.connect(win.jigsGridPlaneAction,SIGNAL("triggered()"),win.makeGridPlane)
 
     win.connect(win.referencePlaneAction,SIGNAL("triggered()"),
-                 win.createPlane)
+                win.createPlane)
     win.connect(win.referenceLineAction,SIGNAL("triggered()"),
-                 win.createPolyLine)
+                win.createPolyLine)
 
     win.connect(win.jigsLinearMotorAction,
-                 SIGNAL("triggered()"),
-                 win.makeLinearMotor)
+                SIGNAL("triggered()"),
+                win.makeLinearMotor)
 
     win.connect(win.jigsMotorAction,
-                 SIGNAL("triggered()"),
-                 win.makeRotaryMotor)
+                SIGNAL("triggered()"),
+                win.makeRotaryMotor)
 
     win.connect(win.jigsStatAction,SIGNAL("triggered()"),win.makeStat)
     win.connect(win.jigsThermoAction,SIGNAL("triggered()"),win.makeThermo)
@@ -170,7 +170,7 @@ def setupUi(win):
     win.connect(win.modifyInvertAction,SIGNAL("triggered()"),win.modifyInvert)
     win.connect(win.modifyMergeAction,SIGNAL("triggered()"),win.modifyMerge)
     win.connect(win.makeChunkFromSelectedAtomsAction,
-                 SIGNAL("triggered()"),win.makeChunkFromAtom)
+                SIGNAL("triggered()"),win.makeChunkFromAtom)
     win.connect(win.modifyAdjustAllAction,SIGNAL("triggered()"),win.modifyAdjustAll)
     win.connect(win.modifyAdjustSelAction,SIGNAL("triggered()"),win.modifyAdjustSel)
     win.connect(win.modifyPassivateAction,SIGNAL("triggered()"),win.modifyPassivate)
@@ -187,7 +187,7 @@ def setupUi(win):
     win.connect(win.selectInvertAction,SIGNAL("triggered()"),win.selectInvert)
     win.connect(win.selectNoneAction,SIGNAL("triggered()"),win.selectNone)
     win.connect(win.selectLockAction,SIGNAL("toggled(bool)"),win.selectLock)
-    
+
 
     win.connect(win.viewOrientationAction,SIGNAL("triggered()"),win.showOrientationWindow) #ninad061114
 
@@ -219,15 +219,16 @@ def setupUi(win):
     win.connect(win.simPlotToolAction,SIGNAL("triggered()"),win.simPlot)
     win.connect(win.simSetupAction,SIGNAL("triggered()"),win.simSetup)
     win.connect(win.toolsCookieCutAction,SIGNAL("triggered()"),win.toolsCookieCut)
+    win.connect(win.setStereoViewAction,SIGNAL("triggered()"),win.stereoSettings)
 
     win.connect(win.toolsDepositAtomAction,
-                 SIGNAL("triggered()"),
-                 win.toolsBuildAtoms)
+                SIGNAL("triggered()"),
+                win.toolsBuildAtoms)
 
     win.connect(win.toolsDoneAction,SIGNAL("triggered()"),win.toolsDone)
     win.connect(win.toolsExtrudeAction,SIGNAL("triggered()"),win.toolsExtrude)
     win.connect(win.toolsFuseChunksAction,SIGNAL("triggered()"),win.toolsFuseChunks)
-    
+
     #Move and Rotate Components mode
     win.connect(win.toolsMoveMoleculeAction,SIGNAL("triggered()"),win.toolsMoveMolecule)
     win.connect(win.rotateComponentsAction,SIGNAL("triggered()"),win.toolsRotateComponents)

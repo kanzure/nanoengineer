@@ -17,11 +17,13 @@ def setupUi(win):
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
     """
-    
+
     # Populate the "Rendering" menu.
     win.renderingMenu.addAction(win.viewQuteMolAction)
     win.renderingMenu.addAction(win.viewRaytraceSceneAction)
-    
+    win.renderingMenu.addSeparator()
+    win.renderingMenu.addAction(win.setStereoViewAction) # piotr 080516
+
 def retranslateUi(win):
     """
     Sets text related attributes for the "Rendering" menu.

@@ -110,7 +110,7 @@ if debug_recent_files:
 else:
     def debug_fileList(fileList):
         pass
-    
+
 
 # #######################################################################
 
@@ -173,7 +173,7 @@ class MWsemantics(QMainWindow,
         # self.showSemiFullScreen where they are used. -- Ninad 2007-12-06
         self._block_viewFullScreenAction_event = False
         self._block_viewSemiFullScreenAction_event = False
-        
+
         # The following maintains a list of all widgets that are hidden during
         # the FullScreen or semiFullScreen mode. This list is then used in 
         # self.showNormal to show the hidden widgets if any. The list is cleared 
@@ -186,10 +186,10 @@ class MWsemantics(QMainWindow,
         QMainWindow.__init__(self, parent)
 
         self.defaultFont = QFont(self.font()) # Makes copy of app's default font.
-        
+
         # Setup the NE1 graphical user interface.
         self.setupUi() # Ui_MainWindow.setupUi()
-        
+
         undo_internals.just_after_mainwindow_super_init()
 
         # bruce 050104 moved this here so it can be used earlier
@@ -223,7 +223,7 @@ class MWsemantics(QMainWindow,
             # it's required for this assy to support Undo
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
-        
+
         pw = Ui_PartWindow(self.assy, self)
         self.assy.set_glpane(pw.glpane) # sets assy.o and assy.glpane
         self.assy.set_modelTree(pw.modelTree) # sets assy.mt
@@ -247,7 +247,7 @@ class MWsemantics(QMainWindow,
         self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
         self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
         self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-        
+
         # Enables the QWorkspace widget which provides Multiple Document
         # Interface (MDI) support for NE1 and adds the Part Window to it.
         # If not enabled, just add the Part Window widget to the 
@@ -255,12 +255,12 @@ class MWsemantics(QMainWindow,
         if debug_pref("Enable QWorkspace for MDI support? (next session)", 
                       Choice_boolean_False, 
                       ## non_debug = True,
-                          #bruce 080416 hid this, since MDI is not yet implemented
-                          # (this change didn't make it into .rc2)
+                      #bruce 080416 hid this, since MDI is not yet implemented
+                      # (this change didn't make it into .rc2)
                       prefs_key = "A10/Use QWorkspace"):
 
             print "QWorkspace for MDI support is enabled (experimental)"
-        
+
             from PyQt4.Qt import QWorkspace
             self.workspace = QWorkspace()
             # Note: The QWorkspace class is deprecated in Qt 4.3 and instructs
@@ -274,7 +274,7 @@ class MWsemantics(QMainWindow,
             pw.showMaximized()
         else:
             self.centralAreaVBoxLayout.addWidget(pw)
-        
+
         if not self._init_part_two_done:
             # I bet there are pieces of _init_part_two that should be done EVERY time we bring up a
             # new partwindow.
@@ -289,18 +289,18 @@ class MWsemantics(QMainWindow,
             # or make pw.commandSequencer work.
             # For now just get it from self. [bruce 071012]
         self.commandSequencer.start_using_mode('$STARTUP_MODE')
-        
+
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
-        
+
         return
-    
+
     def _init_part_two(self):
         """
         #@ NEED DOCSTRING
         """
         # Create the NE1 Progress Dialog. mark 2007-12-06
         self.createProgressDialog()
-        
+
         # Create the Preferences dialog widget.
         # Mark 050628
         from ne1_ui.UserPrefs import UserPrefs
@@ -313,7 +313,7 @@ class MWsemantics(QMainWindow,
         self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
         self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
         self.userPrefs.enable_nv1(env.prefs[nv1_enabled_prefs_key])
-        
+
         #Mouse wheel behavior settings.
         self.updateMouseWheelSettings()
 
@@ -333,11 +333,11 @@ class MWsemantics(QMainWindow,
             self.InsertNanotubeEditCommand = InsertNanotube_EditCommand(self.glpane)	
             self.nanotubecntl = self.InsertNanotubeEditCommand 
                 # Needed for sponsoredList
-            
+
         else:
             from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
             self.nanotubecntl = NanotubeGenerator(self)
-        
+
         # Use old DNA generator or new DNA Duplex generator?
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
                       Choice_boolean_False, 
@@ -356,10 +356,10 @@ class MWsemantics(QMainWindow,
 
         from commands.PovraySceneProperties.PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
-        
+
         from commands.CommentProperties.CommentProp import CommentProp
         self.commentcntl = CommentProp(self)
-        
+
         # Minimize Energy dialog. Mark 060705.
         from commands.MinimizeEnergy.MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
@@ -398,12 +398,12 @@ class MWsemantics(QMainWindow,
         self.depositState = 'Atoms'
 
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-        
+
         # 'movie_is_playing' is a flag that indicates a movie is playing. It is 
         # used by other code to speed up rendering times by disabling the 
         # (re)building of display lists for each frame of the movie.
         self.movie_is_playing = False
-        
+
         # Current Working Directory (CWD).
         # When NE1 starts, the CWD is set to the Working Directory (WD) 
         # preference from the user prefs db. Every time the user opens or 
@@ -417,7 +417,7 @@ class MWsemantics(QMainWindow,
         # On the other hand, if there is no part open, the CWD will be 
         # changed to the new WD.  Mark 060729.
         self.currentWorkingDirectory = ''
-        
+
         # Make sure the working directory from the user prefs db exists since
         # it might have been deleted.
         if os.path.isdir(env.prefs[workingDirectory_prefs_key]): 
@@ -425,7 +425,7 @@ class MWsemantics(QMainWindow,
         else:
             # The CWD does not exist, so set it to the default working dir.
             self.currentWorkingDirectory = getDefaultWorkingDirectory()
-        
+
         # bruce 050810 replaced user preference initialization with this,
         # and revised update_mainwindow_caption to match
         from foundation.changes import Formula
@@ -465,10 +465,10 @@ class MWsemantics(QMainWindow,
             self.mouseWheelDirection = 1
         else:
             self.mouseWheelDirection = -1
-            
+
         self.mouseWheelZoomInPoint  = env.prefs[zoomInAboutScreenCenter_prefs_key]
         self.mouseWheelZoomOutPoint = env.prefs[zoomOutAboutScreenCenter_prefs_key]
-        
+
     def _get_commandSequencer(self):
         # WARNING: if this causes infinite recursion, we just get an AttributeError
         # from the inner call (saying self has no attr 'commandSequencer')
@@ -490,34 +490,34 @@ class MWsemantics(QMainWindow,
         """
         Returns a popup menu containing checkable entries for the toolbars
         and dock widgets present in the main window.
-        
+
         This function is called by the main window every time the user
         activates a context menu, typically by right-clicking on a toolbar or
         a dock widget.
-        
+
         This reimplements QMainWindow's createPopupMenu() method.
-        
+
         @return: The popup menu.
         @rtype: U{B{QMenu}<http://doc.trolltech.com/4/qmenu.html>}
-        
+
         @note: All main window toolbars must be created before calling 
         createPopupMenu().
-        
+
         @see: U{B{QMainWindow.createPopupMenu}
         <http://doc.trolltech.com/4.3/qmainwindow.html#createPopupMenu>}
         """
         menu = QMenu(self)
-        
+
         contextMenuToolBars = \
-            [self.standardToolBar, self.viewToolBar,
-             self.standardViewsToolBar, self.displayStylesToolBar,
-             self.simulationToolBar, self.buildToolsToolBar,
-             self.selectToolBar, self.buildStructuresToolBar, 
-             self.renderingToolBar]
-        
+                            [self.standardToolBar, self.viewToolBar,
+                             self.standardViewsToolBar, self.displayStylesToolBar,
+                             self.simulationToolBar, self.buildToolsToolBar,
+                             self.selectToolBar, self.buildStructuresToolBar, 
+                             self.renderingToolBar]
+
         for toolbar in contextMenuToolBars:
             menu.addAction(toolbar.toggleViewAction())
-            
+
         return menu
 
     def showFullScreen(self):
@@ -615,7 +615,7 @@ class MWsemantics(QMainWindow,
     def showNormal(self):
         QMainWindow.showNormal(self)
         self.activePartWindow().expandLeftArea()
-        
+
         # Note: This will show the reports dock widget even if the user 
         # dismissed it earlier in his session. This is OK, they can just
         # dismiss it again if they don't want it. If users complain, this
@@ -639,7 +639,7 @@ class MWsemantics(QMainWindow,
         return self._activepw.glpane    
 
     glpane = property(get_glpane) #bruce 071008 to replace __getattr__
-    
+
     def get_mt(self): #bruce 071008; inlines self.activePartWindow # TODO: rename .mt to .modelTree
         return self._activepw.modelTree
 
@@ -982,7 +982,7 @@ class MWsemantics(QMainWindow,
         self.assy.delete_sel()
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win_update()
-        
+
     def resizeSelectedDnaSegments(self):
         """
         Invokes the MultipleDnaSegmentResize_EditCommand to resize the 
@@ -994,14 +994,14 @@ class MWsemantics(QMainWindow,
         selectedSegments = self.assy.getSelectedDnaSegments()
         if len(selectedSegments) > 0:
             commandSequencer = self.commandSequencer      
-        
+
             if commandSequencer.currentCommand.commandName != "MULTIPLE_DNA_SEGMENT_RESIZE":
                 commandSequencer.userEnterTemporaryCommand('MULTIPLE_DNA_SEGMENT_RESIZE')
-                
+
             assert commandSequencer.currentCommand.commandName == 'MULTIPLE_DNA_SEGMENT_RESIZE'
             commandSequencer.currentCommand.editStructure(list(selectedSegments))
-        
-    
+
+
     def editAddSuffix(self):
         """
         Adds a suffix to the name(s) the selected objects.
@@ -1009,7 +1009,7 @@ class MWsemantics(QMainWindow,
         # Don't allow renaming while animating (b/w views).
         if self.glpane.is_animating:
             return
-        
+
         _cmd = greenmsg("Add Suffix: ")
 
         if not objectSelected(self.assy):
@@ -1021,15 +1021,15 @@ class MWsemantics(QMainWindow,
             return
 
         _renameList = self.assy.getSelectedRenameables()
-        
+
         ok, new_name = grab_text_line_using_dialog(
-                        title = "Add Suffixes",
-                        label = "Suffix to add to selected nodes:",
-                        iconPath = "ui/actions/Edit/Add_Suffixes.png")
-        
+            title = "Add Suffixes",
+            label = "Suffix to add to selected nodes:",
+            iconPath = "ui/actions/Edit/Add_Suffixes.png")
+
         if not ok:
             return
-    
+
         _number_renamed = 0
         for _object in _renameList:
             if _object.rename_enabled():
@@ -1042,7 +1042,7 @@ class MWsemantics(QMainWindow,
         _msg = "%d of %d selected objects renamed." \
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
-        
+
     def editRenameSelectedObjects(self):
         """
         Renames multiple selected objects (chunks or jigs).
@@ -1050,7 +1050,7 @@ class MWsemantics(QMainWindow,
         # Don't allow renaming while animating (b/w views).
         if self.glpane.is_animating:
             return
-        
+
         _cmd = greenmsg("Rename selected objects: ")
 
         if not objectSelected(self.assy):
@@ -1062,12 +1062,12 @@ class MWsemantics(QMainWindow,
             return
 
         _renameList = self.assy.getSelectedRenameables()
-        
+
         ok, new_name = grab_text_line_using_dialog(
-                        title = "Rename Nodes",
-                        label = "New name of selected nodes:",
-                        iconPath = "ui/actions/Edit/Rename_Objects.png")
-        
+            title = "Rename Nodes",
+            label = "New name of selected nodes:",
+            iconPath = "ui/actions/Edit/Rename_Objects.png")
+
         if not ok:
             return
 
@@ -1081,22 +1081,22 @@ class MWsemantics(QMainWindow,
         _msg = "%d of %d selected objects renamed." \
              % (_number_renamed, len(_renameList))
         env.history.message(_cmd + _msg)
-        
-    
+
+
     def renameObject(self, object):
         """
         Prompts the user to rename I{object}, which can be any renameable node.
-        
+
         @param object: The object to be renamed.
         @type  object: Node
-        
+
         @return: A descriptive message about what happened.
         @rtype:  string
         """
         # Don't allow renaming while animating (b/w views).
         if self.glpane.is_animating:
             return
-        
+
         # Note: see similar code in rename_node_using_dialog in another class.
         oldname = object.name
         ok = object.rename_enabled()
@@ -1109,10 +1109,10 @@ class MWsemantics(QMainWindow,
                 # to get a more specific error message... for now it doesn't have one.
         else:
             ok, text = grab_text_line_using_dialog(
-                            title = "Rename",
-                            label = "new name for [%s]:" % oldname,
-                            iconPath = "ui/actions/Edit/Rename.png",
-                            default = oldname )
+                title = "Rename",
+                label = "new name for [%s]:" % oldname,
+                iconPath = "ui/actions/Edit/Rename.png",
+                default = oldname )
         if ok:
             ok, text = object.try_rename(text)
         if ok:
@@ -1121,11 +1121,11 @@ class MWsemantics(QMainWindow,
         else:
             msg = "Can't rename [%s]: %s" % (oldname, text) # text is reason why not
         return msg
-    
+
     def editRename(self):
         """
         Renames the selected node/object.
-        
+
         @note: Does not work for DnaStrands or DnaSegments.
         """
         _cmd = greenmsg("Rename: ")
@@ -1234,7 +1234,7 @@ class MWsemantics(QMainWindow,
         a bond to an unselected atom, or which has any open bonds.
         """
         self.assy.selectContract()
-        
+
     def selectLock(self, lockState):
         """
         Slot for Lock Selection, which locks/unlocks selection.
@@ -1270,9 +1270,9 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "REFERENCE_PLANE":
-                commandSequencer.userEnterTemporaryCommand(
-                    'REFERENCE_PLANE')
-                
+            commandSequencer.userEnterTemporaryCommand(
+                'REFERENCE_PLANE')
+
         self.commandSequencer.currentCommand.runCommand()	
 
     def makeGridPlane(self):
@@ -1315,7 +1315,7 @@ class MWsemantics(QMainWindow,
 
     def helpKeyboardShortcuts(self):
         self.help.showDialog(1)
-        
+
     def helpSelectionShortcuts(self):
         self.help.showDialog(2)
 
@@ -1551,9 +1551,9 @@ class MWsemantics(QMainWindow,
     def generateNanotube(self):
         self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
-        
+
     # Build > CNT related slots and methods. ######################
-    
+
     def activateNanotubeTool(self):
         """
         Enter Build Nanotube. 
@@ -1562,7 +1562,7 @@ class MWsemantics(QMainWindow,
         @see: B{cnt_model.NanotubeGroup.edit}
         """
         selectedNanotubeGroupList = self.assy.getSelectedNanotubeGroups()
-        
+
         #If exactly one NanotubeGroup is selected then when user invokes Build > Nanotube 
         #command, edit the selected NanotubeGroup instead of creating a new one 
         #For all other cases, invoking Build > Nanotube will create a new NanotubeGroup
@@ -1573,10 +1573,10 @@ class MWsemantics(QMainWindow,
             commandSequencer = self.commandSequencer        
             if commandSequencer.currentCommand.commandName != 'BUILD_NANOTUBE':
                 commandSequencer.userEnterCommand('BUILD_NANOTUBE')
-            
+
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_NANOTUBE'          
             self.commandSequencer.currentCommand.runCommand()
-            
+
     def insertNanotube(self, isChecked = False):
         """
         @param isChecked: If Nanotube button in the Nanotube Flyout toolbar is 
@@ -1589,7 +1589,7 @@ class MWsemantics(QMainWindow,
         if debug_pref("Use new 'Build > Nanotube' builder? (next session)", 
                       Choice_boolean_True, 
                       prefs_key = "A10 devel/Old Nanotube Generator"):
-            
+
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
             if currentCommand.commandName != "INSERT_NANOTUBE":
@@ -1604,7 +1604,7 @@ class MWsemantics(QMainWindow,
         else:
             if isChecked:
                 self.nanotubecntl.show()
-        
+
     def createBuildNanotubePropMgr_if_needed(self, editCommand):
         """
         Create Build Nanotube PM object (if one doesn't exist) 
@@ -1622,7 +1622,7 @@ class MWsemantics(QMainWindow,
             self.buildCntPropMgr.setEditCommand(editCommand)
 
         return self.buildCntPropMgr
-    
+
     def createNanotubeSegmentPropMgr_if_needed(self, editCommand):
         """
         Create the NanotubeSegment PM object (if one doesn't exist) 
@@ -1636,7 +1636,7 @@ class MWsemantics(QMainWindow,
         if self.cntSegmentPropMgr is None:
             self.cntSegmentPropMgr = \
                 NanotubeSegment_PropertyManager(self, editCommand)
-            
+
         else:
             self.cntSegmentPropMgr.setEditCommand(editCommand)
 
@@ -1647,18 +1647,18 @@ class MWsemantics(QMainWindow,
         THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME 
         MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA 
         MODE. -- NINAD - 2008-01-11 
-        
+
         Enter the DnaDuplex_EditCommand command. 
         @see:B{self.insertDna}
         """
         commandSequencer = self.commandSequencer        
         if commandSequencer.currentCommand.commandName != 'DNA_DUPLEX':
             commandSequencer.userEnterCommand('DNA_DUPLEX')
-        
+
         assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
-        
+
         self.commandSequencer.currentCommand.runCommand()
-    
+
     def activateDnaTool(self):
         """
         Enter the DnaDuplex_EditCommand command. 
@@ -1667,7 +1667,7 @@ class MWsemantics(QMainWindow,
         @see: B{dna_model.DnaGroup.edit}
         """
         selectedDnaGroupList = self.assy.getSelectedDnaGroups()
-        
+
         #If exactly one DnaGroup is selected then when user invokes Build > Dna 
         #command, edit the selected Dnagroup instead of creating a new one 
         #For all other cases, invoking Build > Dna  wikk create a new DnaGroup
@@ -1678,10 +1678,10 @@ class MWsemantics(QMainWindow,
             commandSequencer = self.commandSequencer        
             if commandSequencer.currentCommand.commandName != 'BUILD_DNA':
                 commandSequencer.userEnterCommand('BUILD_DNA')
-            
+
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'          
             self.commandSequencer.currentCommand.runCommand()
-        
+
     def enterBreakStrandCommand(self, isChecked = False):
         """
         """
@@ -1694,7 +1694,7 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'BREAK_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
-    
+
     def enterJoinStrandsCommand(self, isChecked = False):
         """
         """
@@ -1707,7 +1707,7 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'JOIN_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
-                
+
     def enterDnaDisplayStyleCommand(self, isChecked = False):
         """
         """
@@ -1720,20 +1720,33 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'DNA_DISPLAY_STYLE':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
-                
+
+    def enterStereoPropertiesCommand(self):
+        """
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "STEREO_PROPERTIES":
+            commandSequencer.userEnterTemporaryCommand(
+                'STEREO_PROPERTIES')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'STEREO_PROPERTIES':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+
     def insertDna_OLD_NOT_USED(self, isChecked = False):
         """
         THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME 
         MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA 
         MODE. -- NINAD - 2008-01-11
-        
+
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
                           checked, enter DnaLineMode. (provided you are 
                           using the new DNADuplexEditCommand command. 
         @type  isChecked: boolean
         @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
         """
-        
+
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
                       Choice_boolean_False, 
                       non_debug = True,
@@ -1750,7 +1763,7 @@ class MWsemantics(QMainWindow,
                 currentCommand = self.commandSequencer.currentCommand
                 if currentCommand.commandName == 'DNA_LINE_MODE':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
-    
+
     def insertDna(self, isChecked = False):
         """
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
@@ -1777,7 +1790,7 @@ class MWsemantics(QMainWindow,
                 currentCommand = self.commandSequencer.currentCommand
                 if currentCommand.commandName == 'DNA_DUPLEX':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
-                    
+
     def orderDna(self, dnaGroupList = ()):
         """
         open a text editor and load a temporary text file containing all the 
@@ -1788,20 +1801,20 @@ class MWsemantics(QMainWindow,
         Strand2,TAGTCGATGCGTAGCGA
 
         The user can then save the file to a permanent location.
-        
+
         @see: Ui_DnaFlyout.orderDnaCommand
         @see: self._writeDnaSequence
         @TODO: This works only for a single DNA group So dnaGroupList always 
                 contain a single item. 
         """
-        
+
         dnaGroupNameString = ''
-               
+
         fileBaseName = 'DnaSequence'
-        
+
         dnaSequence = ''
-               
-        
+
+
         if dnaGroupList:
             dnaSequence = ''
             for dnaGroup in dnaGroupList:
@@ -1813,18 +1826,18 @@ class MWsemantics(QMainWindow,
                     dnaSequence = currentCommand.struct.getDnaSequence()
                     dnaGroupNameString = currentCommand.struct.name
                     fileBaseName = dnaGroupNameString
-                    
-                
+
+
         if dnaSequence: 
             tmpdir = find_or_make_Nanorex_subdir('temp')
             temporaryFile = os.path.join(tmpdir, "%s.csv" % fileBaseName)            
             self._writeDnaSequence(temporaryFile, 
                                    dnaGroupNameString, 
                                    dnaSequence)      
-            
+
             open_file_in_editor(temporaryFile)
-        
-    
+
+
     def _writeDnaSequence(self, fileName, dnaGroupNameString, dnaSequence):
         """
         Open a temporary file and write the specified dna sequence to it
@@ -1832,34 +1845,34 @@ class MWsemantics(QMainWindow,
         @param  dnaSequence: The dnaSequence string to be written to the file.
         @see: self.orderDna
         """
-        
+
         #Create Header
         headerString = '#NanoEngineer-1 DNA Order Form created on: '
         timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
-        
+
         if self.assy.filename:
             mmpFileName = "[" + os.path.normpath(self.assy.filename) + "]"
         else:
             mmpFileName = "[" + self.assy.name + "]" + \
                         " ( The mmp file was probably not saved when the "\
                         " sequence was written)"
-            
+
         if dnaGroupNameString:
             fileNameInfo_header = "#This sequence is created for node "\
                                 "[%s] of file %s\n\n"%(dnaGroupNameString, 
-                                                     mmpFileName)
+                                                       mmpFileName)
         else:
             fileNameInfo_header = "#This sequence is created for file '%s\n\n'"%(
-                                    mmpFileName)
-                            
+                mmpFileName)
+
         headerString = headerString + timestr + fileNameInfo_header
-                    
+
         f = open(fileName,'w')             
         # Write header
         f.write(headerString)
         f.write("Name,Sequence,Notes\n") # Per IDT's Excel format.
         f.write(dnaSequence)
-        
+
     def createDnaSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
@@ -1964,7 +1977,7 @@ class MWsemantics(QMainWindow,
             self.dnaDuplexPropMgr.setEditCommand(editCommand)
 
         return self.dnaDuplexPropMgr
-    
+
     def createBuildDnaPropMgr_if_needed(self, editCommand):
         """
         Create Build Dna PM object (if one doesn't exist) 
@@ -1982,7 +1995,7 @@ class MWsemantics(QMainWindow,
             self.buildDnaPropMgr.setEditCommand(editCommand)
 
         return self.buildDnaPropMgr
-    
+
     def createDnaSegmentPropMgr_if_needed(self, editCommand):
         """
         Create the DnaSegment PM object (if one doesn't exist) 
@@ -1992,18 +2005,18 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{DnaSegment_EditCommand}
         @see: B{DnaSegment_EditCommand._createPropMgrObject}
         """
-        
+
         from dna.commands.DnaSegment.DnaSegment_PropertyManager import DnaSegment_PropertyManager
         if self.dnaSegmentPropMgr is None:
             self.dnaSegmentPropMgr = \
                 DnaSegment_PropertyManager(self, editCommand)
-            
+
         else:
             self.dnaSegmentPropMgr.setEditCommand(editCommand)
 
         return self.dnaSegmentPropMgr
-    
-    
+
+
     def createMultipleDnaSegmentPropMgr_if_needed(self, editCommand):
         """
         Create the a Property manager object (if one doesn't exist)  for the
@@ -2014,18 +2027,18 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{{MultipleDnaSegmentResize_EditCommand}
         @see: B{MultipleDnaSegmentResize_EditCommand._createPropMgrObject}
         """
-        
+
         from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_PropertyManager import MultipleDnaSegmentResize_PropertyManager
         if self.multipleDnaSegmentPropMgr is None:
             self.multipleDnaSegmentPropMgr = \
                 MultipleDnaSegmentResize_PropertyManager(self, editCommand)
-            
+
         else:
             self.multipleDnaSegmentPropMgr.setEditCommand(editCommand)
 
         return self.multipleDnaSegmentPropMgr
-    
-    
+
+
     def createDnaStrandPropMgr_if_needed(self, editCommand):
         """
         Create the DnaStrand PM object (if one doesn't exist) 
@@ -2035,12 +2048,12 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{DnaSegment_EditCommand}
         @see: B{DnaSegment_EditCommand._createPropMgrObject}
         """
-        
+
         from dna.commands.DnaStrand.DnaStrand_PropertyManager import DnaStrand_PropertyManager
         if self.dnaStrandPropMgr is None:
             self.dnaStrandPropMgr = \
                 DnaStrand_PropertyManager(self, editCommand)
-            
+
         else:
             self.dnaStrandPropMgr.setEditCommand(editCommand)
 
@@ -2138,7 +2151,7 @@ class MWsemantics(QMainWindow,
         return
 
     # Load IconSets #########################################
-    
+
     def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
         """
         Load additional icons to QAction icon sets that are used in MainWindow
@@ -2152,16 +2165,16 @@ class MWsemantics(QMainWindow,
         editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
         self.editRedoAction.setIcon ( editRedoIconSet )
         return
-    
+
     # Methods for temporarily disabling QActions in toolbars/menus ##########
-    
+
     def enableViews(self, enableFlag = True):
         """
         Disables/enables view actions on toolbar and menu. 
-        
+
         This is typically used to momentarily disable some
         of the view actions while animating between views.
-        
+
         @param enableFlag: Flag to enable/disable the View actions in this
                            method.
         @type  enableFlag: boolean
@@ -2267,20 +2280,20 @@ class MWsemantics(QMainWindow,
         """
         Update the window title (caption) at the top of the of the main window. 
         Example:  "partname.mmp"
-        
+
         @param changed: If True, the caption will include the prefix and
                         suffix (via user prefs settings in the 
                         "Preferences | Window" dialog) to denote the part
                         has been modified.
         @type  changed: boolean
-              
+
         @attention: I intend to remove the prefix and suffix user prefs and 
         use the standard way applications indicate that a document has unsaved
         changes. On Mac OS X the close button will have a modified look; 
         on other platforms the window title will have an '*' (asterisk).
         BTW, this has already been done in PartWindow.updateWindowTitle().
         Mark 2008-01-02.
-        
+
         @see: U{B{windowTitle}<http://doc.trolltech.com/4/qwidget.html#windowTitle-prop>},
               U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
         """
@@ -2317,7 +2330,7 @@ class MWsemantics(QMainWindow,
         # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
         #print "****self.accessibleName *****=" , self.accessibleName()
         self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
-        
+
         return
 
     def createProgressDialog(self):
@@ -2336,18 +2349,18 @@ class MWsemantics(QMainWindow,
 
         # setMinimumDuration() doesn't work. Qt bug?
         self.progressDialog.setMinimumDuration(500) # 500 ms = 0.5 seconds
-    
-    
+
+
     #= Methods for "Open Recent Files" menu, a submenu of the "Files" menu.
-    
+
     def getRecentFilesListAndPrefsSetting(self):
         """
         Returns the list of recent files that appears in the "Open Recent Files"
         menu and the preference settings object.
-        
+
         @return: List of recent files, preference settings.
         @rtype:  list, QSettings
-        
+
         @see: U{B{QSettings}<http://doc.trolltech.com/4/qsettings.html>}
         """
         if recentfiles_use_QSettings:
@@ -2356,26 +2369,26 @@ class MWsemantics(QMainWindow,
         else:
             prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get(_RECENTFILES_KEY, [])
-        
+
         return fileList, prefsSetting
 
     def updateRecentFileList(self, fileName):
         """ 
         Add I{filename} into the recent file list.
-        
+
         @param filename: The filename to add to the recently opened files list.
         @type  filename: string
         """
-        
+
         # LIST_CAPACITY could be set by user preference (NIY).
         LIST_CAPACITY = 9
             # Warning: Potential bug if number of recent files >= 10
             # (i.e. LIST_CAPACITY >= 10). See fileSlotsMixin.openRecentFile().
-        
+
         fileName = os.path.normpath(str(fileName))
-        
+
         fileList, prefsSetting = self.getRecentFilesListAndPrefsSetting()
-        
+
         if len(fileList) > 0:
             # If filename is already in fileList, delete it from the list.
             # filename will be added to the top of the list later.
@@ -2383,18 +2396,18 @@ class MWsemantics(QMainWindow,
                 if str(fileName) == str(fileList[ii]):
                     del fileList[ii]
                     break
-            
+
         if recentfiles_use_QSettings:
             fileList.prepend(fileName) 
         else:
             fileList.insert(0, fileName)
-            
+
         fileList = fileList[:LIST_CAPACITY]
 
         if recentfiles_use_QSettings:
             assert isinstance(prefsSetting, QSettings)
             prefsSetting.setValue(_RECENTFILES_KEY, QVariant(fileList))
-            
+
             if 0: #debug_recent_files:
                 # confirm that the information really made it into the QSetting.
                 fileListTest = prefsSetting.value(_RECENTFILES_KEY).toStringList()
@@ -2404,16 +2417,16 @@ class MWsemantics(QMainWindow,
                     assert str(fileList[i]) == str(fileListTest[i])
         else:
             prefsSetting[_RECENTFILES_KEY] = fileList 
-        
+
         del prefsSetting
-        
+
         self.createOpenRecentFilesMenu()
         return
-    
+
     def createOpenRecentFilesMenu(self):
         """
         Creates the "Open Recent Files" menu, a submenu of the "File" menu.
-        
+
         This is called whenever a new file is opened or the current file 
         is renamed.
         """
@@ -2424,9 +2437,9 @@ class MWsemantics(QMainWindow,
 
         # Create a new "Open Recent Files" menu from the current list.  
         self.openRecentFilesMenu = QMenu("Open Recent Files", self)
-            
+
         fileList, prefsSetting = self.getRecentFilesListAndPrefsSetting()
-        
+
         self.openRecentFilesMenu.clear()
         for ii in range(len(fileList)):
             _recent_filename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
@@ -2434,7 +2447,7 @@ class MWsemantics(QMainWindow,
                 QtGui.QApplication.translate(
                     "Main Window",
                     "&" + str(ii + 1) + "  " + _recent_filename, None))
-        
+
         # Insert the "Open Recent Files" menu above "File > Close".
         self.openRecentFilesMenuAction = \
             self.fileMenu.insertMenu(self.fileCloseAction, 
@@ -2444,11 +2457,11 @@ class MWsemantics(QMainWindow,
                      SIGNAL('triggered(QAction*)'), 
                      self.openRecentFile)
         return
-    
+
     def toggleRulers(self, isChecked):
         """
         Displays/hides the rulers in the 3D graphics area (glpane).
-        
+
         @param isChecked: Checked state of the B{View > Rulers} menu item
         @type  isChecked: boolean
         """
@@ -2456,7 +2469,7 @@ class MWsemantics(QMainWindow,
             env.prefs[displayRulers_prefs_key] = True
         else:
             env.prefs[displayRulers_prefs_key] = False
-            
+
     pass # end of class MWsemantics
 
 # end

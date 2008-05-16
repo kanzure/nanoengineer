@@ -38,7 +38,7 @@ class viewSlotsMixin:
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHome()
-    
+
     def setViewFullScreen(self, val):
         """
         Full screen mode. (maximize the glpane real estate by hiding/ collapsing
@@ -50,7 +50,7 @@ class viewSlotsMixin:
          - ModelTree/PM area,
          - History Widget,
          - Statusbar         
-        
+
         @param val: The state of the QAction (checked or uncheced) If True, it 
                     will show the main window full screen , otherwise show it 
                     with its regular size
@@ -62,7 +62,7 @@ class viewSlotsMixin:
             self.showFullScreen()
         else:
             self.showNormal()
-    
+
     def setViewSemiFullScreen(self, val):
         """
         Semi-Full Screen mode. (maximize the glpane real estate by hiding/ collapsing
@@ -72,7 +72,7 @@ class viewSlotsMixin:
          - ModelTree/PM area,
          - History Widget,
          - Statusbar         
-        
+
         @param val: The state of the QAction (checked or uncheced) If True, it 
                     will show the main window full screen , otherwise show it 
                     with its regular size
@@ -80,12 +80,12 @@ class viewSlotsMixin:
         @see: MWsemantics.showSemiFullScreen, MWsemantics.showNormal
         @see: self.setViewFullScreen
         """
-        
+
         if val:
             self.showSemiFullScreen()
         else:
             self.showNormal()
-        
+
     def setViewFitToWindow(self):
         """
         Fit to Window
@@ -131,20 +131,20 @@ class viewSlotsMixin:
         was toggled off.
         """
         self._zoomPanRotateTool(val, 'ZOOMTOAREA', "Zoom to Area Tool")
-    
+
     def zoomInOut(self, val):
         """
         Basic Zoom for zooming in and/or out. 
-        
+
         Zoom out as the user pushes the mouse away (cursor moves up). 
         Zoom in as the user pulls the mouse closer (cursor moves down).
-        
+
         @param val: True when Zoom in/out button is toggled on, False when it
                     is toggled off.
         @type  val: boolean
         """
         self._zoomPanRotateTool(val, 'ZOOMINOUT', "Zoom In/Out Tool")
-        
+
     def panTool(self, val):
         """
         Pan Tool allows X-Y panning using the left mouse button.
@@ -153,7 +153,7 @@ class viewSlotsMixin:
         """
         self._zoomPanRotateTool(val, 'PAN', "Pan Tool")
 
-    
+
     def rotateTool(self, val):
         """
         Rotate Tool allows free rotation using the left mouse button.
@@ -226,6 +226,9 @@ class viewSlotsMixin:
 
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
+
+    def stereoSettings(self):        
+        self.enterStereoPropertiesCommand()
 
     def viewNormalTo(self): # 
         """
@@ -438,10 +441,10 @@ class viewSlotsMixin:
 
     def saveNamedView(self):
         csys = NamedView(self.assy, None, 
-                    self.glpane.scale, 
-                    self.glpane.pov, 
-                    self.glpane.zoomFactor, 
-                    self.glpane.quat)
+                         self.glpane.scale, 
+                         self.glpane.pov, 
+                         self.glpane.zoomFactor, 
+                         self.glpane.quat)
         self.assy.addnode(csys)
 
         self.mt.mt_update()
@@ -479,7 +482,7 @@ class viewSlotsMixin:
     def viewQuteMol(self):
         """
         Slot for 'View > QuteMolX'. Opens the QuteMolX Property Manager.
-        
+
         @note: The QuteMolX PM will not open if there are no atoms in the part.
         """    
         cmd = greenmsg("QuteMolX : ")

@@ -14,15 +14,15 @@ from foundation.wiki_help import QToolBar_WikiHelp
 def setupUi(win, toolbarArea):
     """
     Create and populate the "Rendering" toolbar.
-    
+
     @param win: NE1's main window object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
-    
+
     @param toolbarArea: The ToolBarArea of the main window where this toolbar
                         will live (i.e. top, right, left, bottom).
     @type  toolbarArea: U{B{Qt.ToolBarArea enum}<http://doc.trolltech.com/4.2/qt.html#ToolBarArea-enum>}
     """
-    
+
     # Create the "Rendering" toolbar.
     win.renderingToolBar = QToolBar_WikiHelp(win)
     win.renderingToolBar.setEnabled(True)
@@ -32,11 +32,13 @@ def setupUi(win, toolbarArea):
     # Populate the "Rendering" toolbar.
     win.renderingToolBar.addAction(win.viewQuteMolAction)
     win.renderingToolBar.addAction(win.viewRaytraceSceneAction)
+    win.renderingToolBar.addSeparator()
+    win.renderingToolBar.addAction(win.setStereoViewAction) # piotr 080516
 
 def retranslateUi(win):
     """
     Assigns the I{window title} property of the "Rendering" toolbar.
-    
+
     The window title of these toolbars will be displayed in the popup menu 
     under "View > Toolbars".
     """

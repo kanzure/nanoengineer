@@ -62,6 +62,7 @@ from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
 from commands.Fuse.FuseChunks_Command import FuseChunks_Command
 from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
+from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
 def preloaded_command_classes():
@@ -109,7 +110,8 @@ def preloaded_command_classes():
         TranslateChunks_Command, 
         FuseChunks_Command,
         RotateAboutPoint_Command,
-        MultipleDnaSegmentResize_EditCommand
+        MultipleDnaSegmentResize_EditCommand,
+        StereoProperties_Command
     ]
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs

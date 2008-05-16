@@ -30,22 +30,22 @@ def setupUi(win):
     """
 
     MainWindow = win
-    
+
     # Create the NE1 main menu bar.
     win.MenuBar = QtGui.QMenuBar(MainWindow)
     win.MenuBar.setEnabled(True)
     win.MenuBar.setObjectName("MenuBar")
 
     #= File (menu and toolbar) widgets.
-    
+
     # Create the "File" menu.
     win.fileMenu = QtGui.QMenu(win.MenuBar)
     win.fileMenu.setObjectName("fileMenu")
-    
+
     # Create the "Import" menu, a submenu of the "File" menu.
     win.importMenu = QtGui.QMenu(win.fileMenu)
     win.importMenu.setObjectName("importMenu")
-    
+
     # Create the "Export" menu, a submenu of the "File" menu.
     win.exportMenu = QtGui.QMenu(win.fileMenu)
     win.exportMenu.setObjectName("exportMenu")
@@ -66,25 +66,25 @@ def setupUi(win):
 
     win.fileImportOpenBabelAction = QtGui.QAction(MainWindow)
     win.fileImportOpenBabelAction.setObjectName("fileImportOpenBabelAction")
-    
+
     win.fileExportPdbAction = QtGui.QAction(MainWindow)
     win.fileExportPdbAction.setObjectName("fileExportPdbAction")
-    
+
     win.fileExportQuteMolXPdbAction = QtGui.QAction(MainWindow)
     win.fileExportQuteMolXPdbAction.setObjectName("fileExportQuteMolXPdbAction")
-    
+
     win.fileExportJpgAction = QtGui.QAction(MainWindow)
     win.fileExportJpgAction.setObjectName("fileExportJpgAction")
-    
+
     win.fileExportPngAction = QtGui.QAction(MainWindow)
     win.fileExportPngAction.setObjectName("fileExportPngAction")
-    
+
     win.fileExportPovAction = QtGui.QAction(MainWindow)
     win.fileExportPovAction.setObjectName("fileExportPovAction")
-    
+
     win.fileExportAmdlAction = QtGui.QAction(MainWindow)
     win.fileExportAmdlAction.setObjectName("fileExportAmdlAction")
-    
+
     win.fileExportOpenBabelAction = QtGui.QAction(MainWindow)
     win.fileExportOpenBabelAction.setObjectName("fileExportOpenBabelAction")
 
@@ -102,7 +102,7 @@ def setupUi(win):
     win.fileSaveSelectionAction.setObjectName("fileSaveSelectionAction")
 
     #= Edit (menu and toolbar) widgets.
-    
+
     # Create the "Edit" menu.
     win.editMenu = QtGui.QMenu(win.MenuBar)
     win.editMenu.setObjectName("editMenu")
@@ -155,16 +155,16 @@ def setupUi(win):
     win.editDeleteAction = QtGui.QAction(MainWindow)
     win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete.png"))
     win.editDeleteAction.setObjectName("editDeleteAction")
-    
+
     win.editRenameAction = QtGui.QAction(MainWindow)
     win.editRenameAction.setIcon(geticon("ui/actions/Edit/Rename.png"))
     win.editRenameAction.setObjectName("editRenameAction")
-    
+
     win.editRenameObjectsAction = QtGui.QAction(MainWindow)
     win.editRenameObjectsAction.setIcon(
         geticon("ui/actions/Edit/Rename_Objects.png"))
     win.editRenameObjectsAction.setObjectName("editRenameObjectsAction")
-    
+
     win.editAddSuffixAction = QtGui.QAction(MainWindow)
     win.editAddSuffixAction.setIcon(geticon("ui/actions/Edit/Add_Suffixes.png"))
     win.editAddSuffixAction.setObjectName("editAddSuffixAction")
@@ -172,14 +172,14 @@ def setupUi(win):
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color.png"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
-    
+
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
     win.resetChunkColorAction.setIcon(
         geticon("ui/actions/Edit/Reset_Chunk_Color.png"))
     win.resetChunkColorAction.setObjectName("resetChunkColorAction")
 
     #= View (menu and toolbar) actions.
-    
+
     # Create the "View" menu.
     win.viewMenu = QtGui.QMenu(win.MenuBar)
     win.viewMenu.setObjectName("viewMenu")
@@ -187,11 +187,11 @@ def setupUi(win):
     # Create the "Display" menu, a submenu of the "View" menu.
     win.displayMenu = QtGui.QMenu(win.viewMenu)
     win.displayMenu.setObjectName("displayMenu")
-    
+
     # Create the "Modify" menu, a submenu of the "View" menu.
     win.modifyMenu = QtGui.QMenu(win.viewMenu)
     win.modifyMenu.setObjectName("viewMenu")
-    
+
     # Note: The "Toolbars" submenu is created in Ui_ViewMenu.setupIu().
 
     #== View > Modify (menu and toolbar) actions.
@@ -216,7 +216,7 @@ def setupUi(win):
     win.zoomToAreaAction.setIcon(
         geticon("ui/actions/View/Modify/ZoomToArea.png"))
     win.zoomToAreaAction.setObjectName("zoomToAreaAction")
-    
+
     win.zoomInOutAction = QtGui.QAction(MainWindow)
     win.zoomInOutAction.setCheckable(True)
     win.zoomInOutAction.setIcon(
@@ -340,7 +340,7 @@ def setupUi(win):
     win.dispBallAction.setIcon(
         geticon("ui/actions/View/Display/Ball_and_Stick.png"))
     win.dispBallAction.setObjectName("dispBallAction")
-    
+
     #@ This QAction is unused. See comments at the top of Ui_ViewMenu.py.
     win.dispHybridAction = QtGui.QAction(MainWindow)
     win.dispHybridAction.setIcon(
@@ -352,17 +352,17 @@ def setupUi(win):
     win.dispCylinderAction.setIcon(
         geticon("ui/actions/View/Display/Cylinder.png"))
     win.dispCylinderAction.setObjectName("dispCylinderAction")
-    
+
     win.dispDnaCylinderAction = QtGui.QAction(MainWindow)
     win.dispDnaCylinderAction.setIcon(
         geticon("ui/actions/View/Display/DnaCylinder.png"))
     win.dispDnaCylinderAction.setObjectName("dispDnaCylinderAction")
-    
+
     win.dispHideAction = QtGui.QAction(MainWindow)
     win.dispHideAction.setIcon(
         geticon("ui/actions/View/Display/Hide.png"))
     win.dispHideAction.setObjectName("dispHideAction")
-    
+
     win.dispUnhideAction = QtGui.QAction(MainWindow)
     win.dispUnhideAction.setIcon(
         geticon("ui/actions/View/Display/Unhide.png"))
@@ -373,7 +373,7 @@ def setupUi(win):
     win.dispSurfaceAction.setIcon(
         geticon("ui/actions/View/Display/Surface.png"))
     win.dispSurfaceAction.setObjectName("dispSurfaceAction")
-    
+
     win.setViewPerspecAction = QtGui.QAction(MainWindow)
     win.setViewPerspecAction.setCheckable(True)
 
@@ -384,6 +384,12 @@ def setupUi(win):
     win.orthoPerpActionGroup.setExclusive(True)
     win.orthoPerpActionGroup.addAction(win.setViewPerspecAction)
     win.orthoPerpActionGroup.addAction(win.setViewOrthoAction)
+
+    # piotr 080516 added stereo view action
+    win.setStereoViewAction = QtGui.QAction(MainWindow)
+    win.setStereoViewAction.setIcon(
+        geticon("ui/actions/View/Stereo_View.png"))
+    win.setStereoViewAction.setObjectName("setStereoViewAction")
 
     win.viewQuteMolAction = QtGui.QAction(MainWindow)
     win.viewQuteMolAction.setIcon(
@@ -431,23 +437,23 @@ def setupUi(win):
     win.viewFullScreenAction.setCheckable(True)
     win.viewFullScreenAction.setChecked(False)
     win.viewFullScreenAction.setShortcut('F12')
-    
+
     win.viewReportsAction = QtGui.QAction(MainWindow)
     win.viewReportsAction.setCheckable(True)
     win.viewReportsAction.setChecked(True)
     win.viewReportsAction.setText('Reports')
-    
+
     win.viewRulersAction = QtGui.QAction(MainWindow)
     win.viewRulersAction.setCheckable(True)
     win.viewRulersAction.setChecked(env.prefs[displayRulers_prefs_key])
     win.viewRulersAction.setText('Rulers')
 
     #= Insert (menu and toolbar) widgets.
-    
+
     # Create the "Insert" menu.
     win.insertMenu = QtGui.QMenu(win.MenuBar)
     win.insertMenu.setObjectName("Insert")
-    
+
     # Create the "Reference Geometry" menu, a submenu of the "Insert" menu.
     #win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
     #win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
@@ -460,7 +466,7 @@ def setupUi(win):
     win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
     win.fileInsertMmpAction.setIcon(
         geticon('ui/actions/Insert/MMP.png'))
-    
+
     win.fileInsertPdbAction = QtGui.QWidgetAction(MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
     win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB.png'))
@@ -468,7 +474,7 @@ def setupUi(win):
     win.partLibAction = QtGui.QWidgetAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library.png'))
-    
+
     win.insertCommentAction = QtGui.QWidgetAction(MainWindow)
     win.insertCommentAction.setIcon(
         geticon("ui/actions/Insert/Comment.png"))
@@ -496,23 +502,23 @@ def setupUi(win):
     win.referenceLineAction.setText("Line...")
 
     #= Tools (menu and toolbar) widgets.
-    
+
     # Create the "Tools" menu.
     win.toolsMenu = QtGui.QMenu(win.MenuBar)
     win.toolsMenu.setObjectName("Tools")
-    
+
     # Create the "Build Structures" menu, a submenu of the "Tools" menu.
     win.buildStructuresMenu = QtGui.QMenu(win.toolsMenu)
     win.buildStructuresMenu.setObjectName("buildStructuresMenu")
-       
+
     # Create the "Build Tools" menu, a submenu of the "Tools" menu.
     win.buildToolsMenu = QtGui.QMenu(win.toolsMenu)
     win.buildToolsMenu.setObjectName("buildToolsMenu")
-    
+
     # Create the "Dimensions" menu, a submenu of the "Tools" menu.
     win.dimensionsMenu = QtGui.QMenu(win.toolsMenu)
     win.dimensionsMenu.setObjectName("dimensionsMenu")
-    
+
     # Create the "Selection" menu, a submenu of the "Tools" menu.
     win.selectionMenu = QtGui.QMenu(win.toolsMenu)
     win.selectionMenu.setObjectName("selectionMenu")
@@ -563,7 +569,7 @@ def setupUi(win):
     win.modifyStretchAction.setObjectName("modifyStretchAction")
 
     #== "Tools > Build Structures" (menu and toolbar) widgets.
-    
+
     win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
@@ -588,7 +594,7 @@ def setupUi(win):
     win.buildNanotubeAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/Nanotube.png"))
     win.buildNanotubeAction.setObjectName("buildNanotubeAction")
-    
+
     win.buildDnaAction = QtGui.QWidgetAction(MainWindow)
     win.buildDnaAction.setIcon(
         geticon("ui/actions/Tools/Build Structures/DNA.png"))
@@ -607,7 +613,7 @@ def setupUi(win):
     win.insertPeptideAction.setObjectName("insertPeptideAction")
 
     #== "Tools > Build Tools" (menu and toolbar) widgets.
-    
+
     win.modifyHydrogenateAction = QtGui.QWidgetAction(MainWindow)
     win.modifyHydrogenateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Hydrogenate.png"))
@@ -654,7 +660,7 @@ def setupUi(win):
         "modifyCenterCommonAxisAction")
 
     #= "Tools > Dimensions" (menu and toolbar) widgets.
-    
+
     win.jigsDistanceAction = QtGui.QWidgetAction(MainWindow)
     win.jigsDistanceAction.setIcon(
         geticon("ui/actions/Tools/Dimensions/Measure_Distance.png"))
@@ -671,7 +677,7 @@ def setupUi(win):
     win.jigsDihedralAction.setObjectName("jigsDihedralAction")
 
     #= "Tools > Select" (menu and toolbar) widgets.
-    
+
     win.selectAllAction = QtGui.QAction(MainWindow)
     win.selectAllAction.setEnabled(True)
     win.selectAllAction.setIcon(
@@ -707,7 +713,7 @@ def setupUi(win):
     win.selectContractAction.setIcon(
         geticon("ui/actions/Tools/Select/Contract.png"))
     win.selectContractAction.setObjectName("selectContractAction")
-    
+
     win.selectLockAction = QtGui.QAction(MainWindow)
     win.selectLockAction.setIcon(
         geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
@@ -715,17 +721,17 @@ def setupUi(win):
     win.selectLockAction.setCheckable(True)
 
     #= "Simulation" (menu and toolbar) widgets.
-    
+
     # Create the "Simulation" menu
     win.simulationMenu = QtGui.QMenu(win.MenuBar)
     win.simulationMenu.setObjectName("simulationMenu")
-    
+
     # Create the "Measurements" menu. #@ Not used??? MAS
     win.measurementsMenu = QtGui.QMenu()
     win.measurementsMenu.setObjectName("measurementsMenu")
     win.measurementsMenu.setIcon(
         geticon("ui/actions/Toolbars/Smart/Dimension.png"))
-    
+
     win.simSetupAction = QtGui.QWidgetAction(MainWindow)
     win.simSetupAction.setCheckable(True)
     win.simSetupAction.setChecked(False)
@@ -768,7 +774,7 @@ def setupUi(win):
     win.jigsAnchorAction.setIcon(
         geticon("ui/actions/Simulation/Anchor.png"))
     win.jigsAnchorAction.setObjectName("jigsAnchorAction")
-    
+
     win.simulationJigsAction = QtGui.QAction(win)
     win.simulationJigsAction.setIcon(
         geticon("ui/actions/Simulation/Simulation_Jigs.png"))
@@ -791,9 +797,9 @@ def setupUi(win):
     win.simNanoHiveAction = QtGui.QAction(MainWindow)
     win.simNanoHiveAction.setVisible(False)
     win.simNanoHiveAction.setObjectName("simNanoHiveAction")
-    
+
     #= Rendering menu.
-    
+
     # Create the "Tools" menu.
     win.renderingMenu = QtGui.QMenu(win.MenuBar)
     win.renderingMenu.setObjectName("Rendering")
@@ -802,13 +808,13 @@ def setupUi(win):
 
     win.helpMenu = QtGui.QMenu(win.MenuBar)
     win.helpMenu.setObjectName("helpMenu")
-    
+
     win.helpMouseControlsAction = QtGui.QAction(MainWindow)
     win.helpMouseControlsAction.setObjectName("helpMouseControlsAction")
 
     win.helpKeyboardShortcutsAction = QtGui.QAction(MainWindow)
     win.helpKeyboardShortcutsAction.setObjectName("helpKeyboardShortcutsAction")
-    
+
     win.helpSelectionShortcutsAction = QtGui.QAction(MainWindow)
     win.helpSelectionShortcutsAction.setObjectName("helpSelectionShortcutsAction")
 
@@ -821,38 +827,38 @@ def setupUi(win):
 
     win.helpAboutAction = QtGui.QAction(MainWindow)
     win.helpAboutAction.setObjectName("helpAboutAction")
-    
+
     #= Widgets for toolbars
-    
+
     # "Standard" toolbar widgets.
-    
+
     # Action items from the Tools menu  @@@ninad061110
     # Not decided whether select chunks and move chunks options
     # will be a part of Tools Menu
-    
+
     win.toolsSelectMoleculesAction = QtGui.QAction(MainWindow)
     win.toolsSelectMoleculesAction.setCheckable(1) # make the select chunks button checkable
     win.toolsSelectMoleculesAction.setIcon(
         geticon("ui/actions/Toolbars/Standard/Select_Chunks.png"))
-    
+
     # Define an action grop for move molecules (translate and rotate components)
     # actions ...to make them mutually exclusive. 
     # -- ninad 070309
     win.toolsMoveRotateActionGroup = QtGui.QActionGroup(MainWindow)
     win.toolsMoveRotateActionGroup.setExclusive(True)
-    
+
     win.toolsMoveMoleculeAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
     win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
     win.toolsMoveMoleculeAction.setIcon(
         geticon("ui/actions/Toolbars/Standard/Move_Chunks.png"))
-       
+
     win.rotateComponentsAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
     win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
     win.rotateComponentsAction.setIcon(
         geticon("ui/actions/Toolbars/Standard/Rotate_Components.png"))
 
     #= "View" toolbars.
-    
+
     # Create "Standard Views" dropdown menu for the "View" toolbar.
     win.standardViewsMenu = QtGui.QMenu("Standard Views")
 
@@ -864,7 +870,7 @@ def setupUi(win):
     win.standardViewsMenu.addAction(win.viewTopAction)
     win.standardViewsMenu.addAction(win.viewBottomAction)
     win.standardViewsMenu.addAction(win.viewIsometricAction)
-    
+
     win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
     win.standardViewsAction.setEnabled(True)
     win.standardViewsAction.setIcon(
@@ -879,7 +885,7 @@ def setupUi(win):
     win.standardViews_btn.setDefaultAction(win.standardViewsAction)
 
     # Miscellaneous QActions.
-    
+
     # These QActions are used in Cookie (Crystal) and should be moved
     # to one of those file(s). To do for Mark. mark 2007-12-23
     win.DefaultSelAction = QtGui.QAction(MainWindow)
@@ -898,7 +904,7 @@ def setupUi(win):
     win.toolsDoneAction.setIcon(
         geticon("ui/actions/Properties Manager/Done.png"))
     win.toolsDoneAction.setObjectName("toolsDoneAction")
-    
+
     # Dock widgets
     from ne1_ui.Ui_ReportsDockWidget import Ui_ReportsDockWidget
     win.reportsDockWidget = Ui_ReportsDockWidget(win)
@@ -919,7 +925,7 @@ def retranslateUi(win):
     @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
 
     @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
-    
+
     @attention: It is never OK to set the shortcut "Ctrl+H or Cmd+H on Mac)"  
     via setShortcut() since this shortcut is reserved on Mac OS X for hiding a 
     window.
@@ -973,37 +979,37 @@ def retranslateUi(win):
     win.fileImportOpenBabelAction.setToolTip(
         QtGui.QApplication.translate(
             "MainWindow", "Open Babel import", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportPdbAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Protein Data Bank...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportQuteMolXPdbAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Protein Data Bank for QuteMolX...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportJpgAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "JPEG image...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportPngAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "PNG image...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportPovAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "POV-Ray...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportAmdlAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Animation Master Model...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportOpenBabelAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Open Babel export...", 
@@ -1046,7 +1052,7 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Redo", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     # Redo is a special case between Mac OS X and the other platforms:
     # - Cmd+Shift+Z on Mac
     # - Ctrl+Y on Windows and Linux
@@ -1147,7 +1153,7 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Rename Objects", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.editAddSuffixAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Add Suffixes",
@@ -1160,7 +1166,7 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Add Suffixes", 
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.editMakeCheckpointAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Make Checkpoint", 
@@ -1231,7 +1237,7 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Zoom to Selection",
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.zoomInOutAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Zoom",
@@ -1380,7 +1386,7 @@ def retranslateUi(win):
     win.fileInsertMmpAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", "Insert Molecular Machine Part (MMP) file", 
         None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileInsertPdbAction.setText(QtGui.QApplication.translate(
         "MainWindow", "PDB file", 
         None, QtGui.QApplication.UnicodeUTF8))
@@ -1412,7 +1418,7 @@ def retranslateUi(win):
     win.referencePlaneAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "Plane",
         None, QtGui.QApplication.UnicodeUTF8))
-    
+
     # Part Lib
     win.partLibAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Part Library", 
@@ -1710,7 +1716,7 @@ def retranslateUi(win):
     win.selectLockAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lock", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Lock (Ctrl+L)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     #= "Simulation" (menu and toolbar) actions.
     win.simSetupAction.setText(QtGui.QApplication.translate(
         "MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
@@ -1783,9 +1789,9 @@ def retranslateUi(win):
     win.helpKeyboardShortcutsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
     win.helpSelectionShortcutsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts...", None, QtGui.QApplication.UnicodeUTF8))
     win.helpSelectionShortcutsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
-    
-    
-    
+
+
+
 
     # Other QActions not used in menus. These QActions are used in toolbars,
     # context menus, etc.
@@ -1830,7 +1836,7 @@ def retranslateUi(win):
 
     win.viewQuteMolAction.setIconText(QtGui.QApplication.translate("MainWindow", "QuteMolX", None, QtGui.QApplication.UnicodeUTF8))
     win.viewRaytraceSceneAction.setIconText(QtGui.QApplication.translate("MainWindow", "POV-Ray", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.setViewPerspecAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Perspective",
@@ -1839,9 +1845,14 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Orthographic",
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
+    win.setStereoViewAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Stereo View",
+            None, QtGui.QApplication.UnicodeUTF8))
+
     #= Toolbar stuff
-    
+
     #= "Standard" toolbar widgets
     win.toolsSelectMoleculesAction.setText(
         QtGui.QApplication.translate("MainWindow", "Select Chunks",
@@ -1860,4 +1871,4 @@ def retranslateUi(win):
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.rotateComponentsAction.setToolTip(
         QtGui.QApplication.translate("MainWindow", "Rotate",
-                                    None, QtGui.QApplication.UnicodeUTF8))
+                                     None, QtGui.QApplication.UnicodeUTF8))
