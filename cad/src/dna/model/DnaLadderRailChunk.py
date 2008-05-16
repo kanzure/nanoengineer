@@ -780,12 +780,29 @@ class DnaLadderRailChunk(Chunk):
 ##            print "all_atoms", all_atoms
         
         dict1 = {} # helps return each atom exactly once
+        some_atom_occurred_twice = False
         for atom in initial_atoms:
             if dict1.has_key(atom.key): #bruce 080516 debug print (to keep)
                 print "\n*** BUG: %r occurs twice in %r.indexed_atoms_in_order(%r)" % \
                       ( atom, self, mapping)
-                print "that entire list is:", initial_atoms
+                if not some_atom_occurred_twice:
+                    print "that entire list is:", initial_atoms
+                some_atom_occurred_twice = True
             dict1[atom.key] = atom #e could optim: do directly from list of keys
+        if some_atom_occurred_twice: # bruce 080516 bug mitigation
+            print "workaround: remove duplicate atoms (may not work;"
+            print " underlying bug needs fixing even if it works)"
+            newlist = []
+            dict1 = {}
+            for atom in initial_atoms:
+                if not dict1.has_key(atom.key):
+                    dict1[atom.key] = atom
+                    newlist.append(atom)
+                continue
+            print "changed length from %d to %d" % (len(initial_atoms), len(newlist))
+            print
+            initial_atoms = newlist
+            pass
         res = list(initial_atoms) # extended below
         for atom in all_real_atoms: # in this order
             if not dict1.has_key(atom.key):
