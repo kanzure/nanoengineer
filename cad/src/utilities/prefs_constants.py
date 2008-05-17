@@ -233,6 +233,9 @@ dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key = 'A110/Show num
 dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaDulex_Editcommand'
 dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key = 'A110/Show angle info in cursor text while in DnaDulex_Editcommand'
 
+dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex in DnaSegment EditCommand'
+dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaSegment_Editcommand'
+dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaSegment_Editcommand'
 
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
@@ -605,29 +608,30 @@ prefs_table = (
     #DNA cursor text preferences 
 
     #Cursor text prefs while in DnaDuplex_EditCommand 
-    ('', 
-     'boolean',
-     dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key,
-     True),
+    ('', 'boolean',
+     dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key, True),
 
-    ('', 
-     'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key,
-     True),
-    ('', 
-     'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key, 
-     True),
-    ('', 
-     'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, 
-     True), 
-
-    ('', 
-     'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, 
-     True), 
-
+    ('',  'boolean',
+     dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key, True),
+    ('',  'boolean',
+     dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key, True),
+     
+    ('', 'boolean',
+     dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, True), 
+     
+    ('', 'boolean',
+     dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, True), 
+         
+    ('',  'boolean',
+     dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
+     
+    ('', 'boolean',
+    dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key, True),
+     
+    ('', 'boolean',
+    dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
+     
+     
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
     ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]

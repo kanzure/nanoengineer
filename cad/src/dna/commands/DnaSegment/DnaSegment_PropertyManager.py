@@ -7,9 +7,8 @@
 TODO: as of 2008-01-18
 See DnaSegment_EditCommand for details. 
 """
-from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import SIGNAL, Qt
 from PM.PM_GroupBox      import PM_GroupBox
-
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
@@ -21,10 +20,19 @@ from PM.PM_Constants     import pmPreviewButton
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
-from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexLength
+from PM.PM_CheckBox import PM_CheckBox
 
+from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength 
+from dna.model.Dna_Constants import getDuplexLength
 from geometry.VQT import V, vlen
 from utilities.Log import redmsg
+from utilities.Comparison import same_vals
+
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
 
 class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -53,7 +61,10 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         #For model changed signal
-        self.previousSelectionParams = None
+        #@see: self.model_changed() and self._current_model_changed_params 
+        #for example use
+        self._previous_model_changed_params = None
+        
         
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -111,12 +122,23 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                       SIGNAL("valueChanged(double)"),
                       self.duplexRiseChanged )
         
+        
     def model_changed(self): 
         """
         @see: DnaSegment_EditCommand.model_changed()
         @see: DnaSegment_EditCommand.hasResizableStructure()
+        @see: self._current_model_changed_params()
         """
-        isStructResizable, why_not = self.editCommand.hasResizableStructure()
+        currentParams = self._current_model_changed_params()
+        #Optimization. Return from the model_changed method if the 
+        #params are the same. 
+        if same_vals(currentParams, self._previous_model_changed_params):
+            return 
+        
+        isStructResizable, why_not = currentParams
+        #update the self._previous_model_changed_params with this new param set.
+        self._previous_model_changed_params = currentParams
+        
         if not isStructResizable:
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
@@ -130,8 +152,25 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                     " atom for translation or rotation about axis respectively. Dragging"\
                     " any bond will freely move the whole segment."
                 self.updateMessage(msg)
-
                 
+                
+    def _current_model_changed_params(self):
+        """
+        Returns a tuple containing the parameters that will be compared
+        against the previously stored parameters. This provides a quick test
+        to determine whether to do more things in self.model_changed()
+        @see: self.model_changed() which calls this
+        @see: self._previous_model_changed_params attr. 
+        """
+        params = None
+        
+        if self.editCommand:   
+            isStructResizable, why_not = self.editCommand.hasResizableStructure()
+            params = (isStructResizable, why_not)
+        
+        return params 
+
+         
     def show(self):
         """
         Show this property manager. Overrides EditCommand_PM.show()
@@ -283,6 +322,11 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox1( self._pmGroupBox1 )
+        
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
+        
     
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -333,6 +377,60 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.duplexLengthLineEdit.setDisabled(True)  
         
+    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
+        self.showCursorTextCheckBox = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Show cursor text",
+                widgetColumn = 0,
+                state        = Qt.Checked)
+
+        self._cursorTextGroupBox = PM_GroupBox(pmGroupBox, 
+                                               title = 'Cursor text options:')
+
+        self._loadCursorTextCheckBoxes(self._cursorTextGroupBox)
+        self._connect_cursorTextCheckBoxes()
+        
+    def _loadCursorTextCheckBoxes(self, pmGroupBox):
+        """
+         Load various checkboxes that allow custom cursor texts. Subclasses 
+         can override this method. Default implementation adds following 
+         checkboxes
+         """       
+                
+        self.cursorTextCheckBox_numberOfBasePairs = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Number of base pairs",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+        self.cursorTextCheckBox_length = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Duplex length",
+                widgetColumn = 1,
+                state        = Qt.Checked)
+
+
+    def _connect_cursorTextCheckBoxes(self):
+        """
+        Default implementation does nothing. Its overridden in subclasses
+        Connect the cursor text checkboxes with the preference keys. 
+        @see: self._loadDisplayOptionsGroupBox()        
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_numberOfBasePairs , 
+            dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_length , 
+            dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key)
+
     
     def _addWhatsThisText(self):
         """
