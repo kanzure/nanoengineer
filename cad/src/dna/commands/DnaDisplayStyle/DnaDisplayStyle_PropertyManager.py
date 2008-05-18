@@ -39,6 +39,8 @@ from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 
+from utilities.constants import diDNACYLINDER
+
 from utilities.prefs_constants import dnaRendition_prefs_key
 
 from utilities.prefs_constants import dnaStyleAxisShape_prefs_key
@@ -330,6 +332,19 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
+        
+        # Force the Global Display Style to "DNA Cylinder" so the user
+        # can see the display style setting effects on any DNA in the current
+        # model. The current global display style will be restored when leaving
+        # this command (via self.close()).
+        self.originalDisplayStyle = self.o.getGlobalDisplayStyle()
+        self.o.setGlobalDisplayStyle(diDNACYLINDER)
+        
+        # Update all PM widgets, then establish their signal-slot connections.
+        # note: It is important to update the widgets *first* since doing
+        # it in the reverse order will generate signals when updating
+        # the PM widgets (via updateDnaDisplayStyleWidgets()), causing
+        # unneccessary repaints of the model view.
         self.updateDnaDisplayStyleWidgets()
         self.connect_or_disconnect_signals(isConnect = True)
 
@@ -339,6 +354,9 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         self.connect_or_disconnect_signals(False)
         PM_Dialog.close(self)
+        
+        # Restore the original global display style.
+        self.o.setGlobalDisplayStyle(self.originalDisplayStyle)
     
     def _addGroupBoxes( self ):
         """
