@@ -37,7 +37,6 @@ from model.chem import Atom
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from model.chunk import Chunk
-from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 from OpenGL.GL import glCallList
 from utilities.debug import print_compact_traceback, print_compact_stack
 

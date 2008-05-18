@@ -42,9 +42,8 @@ from graphics.behaviors.shape import get_selCurve_color
 from geometry.Slab import Slab
 from commands.BuildCrystal.CookieShape import CookieShape
 
+import graphics.drawing.drawing_globals as drawing_globals
 import graphics.drawing.drawer as drawer
-from graphics.drawing.drawer import DiGridSp
-from graphics.drawing.drawer import genDiam
 from model.chunk import Chunk
 from model.chem import Atom
 
@@ -973,7 +972,8 @@ class cookieMode(basicMode):
             return self.MAX_LATTICE_CELL
         else:
             depth = vlen(self.layers[curLay+1] - self.layers[curLay])
-            num = int(depth/(DiGridSp*sqrt(self.whichsurf+1)) + 0.5)
+            num = int(
+                depth/(drawing_globals.DiGridSp*sqrt(self.whichsurf+1)) + 0.5)
             return num
 
     def setOrientSurf(self, num):
@@ -987,7 +987,7 @@ class cookieMode(basicMode):
         #self.w.statusBar().dispbarLabel.setText(button.toolTip()) #@ unnecessary. --Mark 2008-03-15
 
     def setThickness(self, num):
-        self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
+        self.thickness = num*drawing_globals.DiGridSp*sqrt(self.whichsurf+1)
         s = "%3.3f Angstroms" % (self.thickness)
         self.propMgr.layerThicknessLineEdit.setText(s)
    
@@ -1305,7 +1305,7 @@ def molmake(assy,shap):
     hashAtomPos #bruce 050222 comment: this line is probably a harmless typo, should be removed
     bbhi, bblo = shap.bbox.data
     # Widen the grid enough to get bonds that cross the box
-    allCells = genDiam(bblo-1.6, bbhi+1.6, shap.latticeType)
+    allCells = drawing_globals.genDiam(bblo-1.6, bbhi+1.6, shap.latticeType)
     for cell in allCells:
         for pp in cell:
             pp0 = pp1 = None

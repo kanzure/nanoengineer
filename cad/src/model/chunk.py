@@ -144,8 +144,8 @@ from dna.model.Dna_Constants import getComplementSequence
 
 from operations.bond_chains import grow_directional_bond_chain
 
-from graphics.drawing.drawer import apply_material, allow_color_sorting
-from graphics.drawing.drawer import use_color_sorted_dls
+import graphics.drawing.drawing_globals as drawing_globals
+from graphics.drawing.drawer import apply_material
 
 from graphics.drawables.Selobj import Selobj_API
 
@@ -1971,7 +1971,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #  to fix bugs in updating display when those change (eg bug 452 items 12-A, 12-B).]
 
                 eltprefs = PeriodicTable.color_change_counter, PeriodicTable.rvdw_change_counter
-                matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
+                matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
                 #bruce 060215 adding drawLevel to havelist
                 if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
                     self.displist.draw_dl()
@@ -2327,7 +2327,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         drawn_bonds = {}
 
-        if allow_color_sorting and use_color_sorted_dls:
+        if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
             #russ 080225: Alternate drawing method using colorless display list.
             ##russ 080317 Bypass assertion for DnaStrand.
             ##assert self.__dict__.has_key('displist')
@@ -2408,8 +2408,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Return the color tuple to use for drawing self, or None if
         per-atom colors should be used.
         """
-        if self.picked and not (allow_color_sorting and use_color_sorted_dls):
-            #bruce disable this case when using use_color_sorted_dls
+        if self.picked and not (drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls):
+            #bruce disable this case when using drawing_globals.use_color_sorted_dls
             # since they provide a better way (fixes "stuck green" bug.)
 
             #ninad070405 Following draws the chunk as a colored selection 
@@ -3250,7 +3250,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #Note: There needs to be a user preference that will allow user to 
             # select the chunk as a wireframe --  ninad
 
-            if (allow_color_sorting and use_color_sorted_dls):
+            if (drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls):
                 # russ 080303: Back again to display lists, this time color-sorted.
                 self.displist.selectPick(True)
             else:
@@ -3285,7 +3285,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # See also comments in 'def pick'... this sped up deselection
             # of the same example mentioned there by about 1.5-2 seconds.
 
-            if (allow_color_sorting and use_color_sorted_dls):
+            if (drawing_globals.allow_color_sorting and
+                drawing_globals.use_color_sorted_dls):
                 # russ 080303: Back again to display lists, this time color-sorted.
                 self.displist.selectPick(False)
             else:

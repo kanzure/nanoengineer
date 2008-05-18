@@ -170,29 +170,6 @@ from OpenGL.GL import glVertexPointerf
 from OpenGL.GLU import gluBuild2DMipmaps
 
 try:
-    from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
-except:
-    print "GLE module can't be imported. Now trying _GLE"
-    from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
-
-# Check if the gleGet/SetNumSides function is working on this install, and if
-# not, alias it to an effective no-op. Checking method is as recommended in
-# an OpenGL exception reported by Brian [070622]:
-#   OpenGL.error.NullFunctionError: Attempt to call an
-#   undefined function gleGetNumSides, check for
-#   bool(gleGetNumSides) before calling
-# The underlying cause of this (described by Brian) is that the computer's OpenGL
-# has the older gleGetNumSlices (so it supports the functionality), but PyOpenGL
-# binds (only) to the newer gleGetNumSides. Given the PyOpenGL we're using,
-# there's no way to access gleGetNumSlices, but in the future we might patch it
-# to let us do that when this happens. I [bruce 070629] think Brian said this is
-# only an issue on Macs.
-if not bool(gleGetNumSides):
-    print "fyi: gleGetNumSides is not supported by the OpenGL pre-installed on this computer."
-    gleGetNumSides = int
-    gleSetNumSides = int
-
-try:
     from OpenGL.GL import glScale
 except:
     # The installed version of OpenGL requires argument-typed glScale calls.
@@ -213,7 +190,6 @@ except:
     from OpenGL.GL import glFogfv as glFogv
 
 from geometry.VQT import norm, vlen, V, Q, A
-import foundation.env as env #bruce 051126
 
 from utilities.constants import white, blue, red
 from utilities.constants import darkgreen, lightblue
@@ -222,6 +198,8 @@ from utilities.prefs_constants import material_specular_highlights_prefs_key
 from utilities.prefs_constants import material_specular_shininess_prefs_key
 from utilities.prefs_constants import material_specular_finish_prefs_key
 from utilities.prefs_constants import material_specular_brightness_prefs_key
+
+import graphics.drawing.drawing_globals as drawing_globals
 
 from utilities.debug_prefs import Choice
 import utilities.debug as debug # for debug.print_compact_traceback
@@ -234,72 +212,40 @@ import utilities.EndUser as EndUser
 
 import numpy
 
-# ==
+#================================================================ shape_vertices.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+shape_vertices.py - Geometric constructions of vertex lists used by the drawing functions.
 
-# ColorSorter control
-#bruce 060323 changed this to False for A7 release. russ 080314: default on.
-allow_color_sorting = allow_color_sorting_default = True
-#bruce 060323 changed this to disconnect it from old pref setting
-allow_color_sorting_prefs_key = "allow_color_sorting_rev2"
-#russ 080225: Added, 080314: default on.
-use_color_sorted_dls = use_color_sorted_dls_default = True
-use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
-#russ 080320: Added.
-use_color_sorted_vbos = use_color_sorted_vbos_default = False
-use_color_sorted_vbos_prefs_key = "use_color_sorted_vbos"
-#russ 080403: Added drawing variant selection.
-use_drawing_variant = use_drawing_variant_default = 1 # DrawArrays from CPU RAM.
-use_drawing_variant_prefs_key = "use_drawing_variant"
+This includes vertices for the shapes of primitives that will go into display
+lists in the setup_drawer function in setup_draw.py .
 
-# Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
-use_c_renderer = use_c_renderer_default = False
-#bruce 060323 changed this to disconnect it from old pref setting
-use_c_renderer_prefs_key = "use_c_renderer_rev2"
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
-if EndUser.getAlternateSourcePath() != None:
-    sys.path.append(os.path.join( EndUser.getAlternateSourcePath(), "experimental/pyrex-opengl"))
-else:
-    sys.path.append("./experimental/pyrex-opengl")
+import graphics.drawing.drawing_globals as drawing_globals
 
-binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
-if binPath not in sys.path:
-    sys.path.append(binPath)
+def init_icos():
+    global icosa, icosix
 
-try:
-    import quux
-    quux_module_import_succeeded = True
-    if "experimental" in os.path.dirname(quux.__file__):
-        # should never happen for end users, but if it does we want to print the warning
-        if env.debug() or not EndUser.enableDeveloperFeatures():
-            print "debug: fyi: Using experimental version of C rendering code:", quux.__file__
-except:
-    use_c_renderer = False
-    quux_module_import_succeeded = False
-    if env.debug(): #bruce 060323 added condition
-        print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
-    pass
+    # the golden ratio
+    global phi
+    phi = (1.0+sqrt(5.0))/2.0
+    vert = norm(V(phi,0,1))
+    a = vert[0]
+    b = vert[1]
+    c = vert[2]
 
-# ==
-
-# the golden ratio
-phi = (1.0+sqrt(5.0))/2.0
-vert = norm(V(phi,0,1))
-a = vert[0]
-    # I wonder if this is or was creating the global 'a' in chem.py that I once complained about in there...
-    # it's certainly very bad as the name of a global in any module (like a lot of short global names in this module).
-    # [bruce 060613 comment]
-b = vert[1]
-c = vert[2]
-
-# vertices of an icosahedron
-
-icosa = ((-a,b,c), (b,c,-a), (b,c,a), (a,b,-c), (-c,-a,b), (-c,a,b),
-         (b,-c,a), (c,a,b), (b,-c,-a), (a,b,c), (c,-a,b), (-a,b,-c))
-
-icosix = ((9, 2, 6), (1, 11, 5), (11, 1, 8), (0, 11, 4), (3, 1, 7),
-          (3, 8, 1), (9, 3, 7), (0, 6, 2), (4, 10, 6), (1, 5, 7),
-          (7, 5, 2), (8, 3, 10), (4, 11, 8), (9, 7, 2), (10, 9, 6),
-          (0, 5, 11), (0, 2, 5), (8, 10, 4), (3, 9, 10), (6, 0, 4))
+    # vertices of an icosahedron
+    icosa = ((-a,b,c), (b,c,-a), (b,c,a), (a,b,-c), (-c,-a,b), (-c,a,b),
+             (b,-c,a), (c,a,b), (b,-c,-a), (a,b,c), (c,-a,b), (-a,b,-c))
+    icosix = ((9, 2, 6), (1, 11, 5), (11, 1, 8), (0, 11, 4), (3, 1, 7),
+              (3, 8, 1), (9, 3, 7), (0, 6, 2), (4, 10, 6), (1, 5, 7),
+              (7, 5, 2), (8, 3, 10), (4, 11, 8), (9, 7, 2), (10, 9, 6),
+              (0, 5, 11), (0, 2, 5), (8, 10, 4), (3, 9, 10), (6, 0, 4))
+    return
+init_icos()
 
 # generate geodesic spheres by subdividing the faces of an icosahedron
 # recursively:
@@ -571,112 +517,207 @@ def indexVerts(verts, close):
 
 # ==
 
-# generate two circles in space as 13-gons,
-# one rotated half a segment with respect to the other
-# these are used as cylinder ends [not quite true anymore, see comments just below]
-slices = 13
-circ1 = map((lambda n: n*2.0*pi/slices), range(slices+1))
-circ2 = map((lambda a: a+pi/slices), circ1)
-drum0 = map((lambda a: (cos(a), sin(a), 0.0)), circ1)
-drum1 = map((lambda a: (cos(a), sin(a), 1.0)), circ2)
-drum1n = map((lambda a: (cos(a), sin(a), 0.0)), circ2)
+def init_cyls():
+    # generate two circles in space as 13-gons,
+    # one rotated half a segment with respect to the other
+    # these are used as cylinder ends [not quite true anymore, see comments just below]
+    slices = 13
+    circ1 = map((lambda n: n*2.0*pi/slices), range(slices+1))
+    circ2 = map((lambda a: a+pi/slices), circ1)
+    drawing_globals.drum0 = drum0 = map((lambda a: (cos(a), sin(a), 0.0)), circ1)
+    drum1 = map((lambda a: (cos(a), sin(a), 1.0)), circ2)
+    drum1n = map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 
-# grantham 20051213 I finally decided the look of the oddly twisted
-# cylinder bonds was not pretty enough, so I made a "drum2" which is just
-# drum0 with a 1.0 Z coordinate, a la drum1.
-#bruce 060609: this apparently introduced the bug of the drum1 end-cap of a cylinder being "ragged"
-# (letting empty space show through), which I fixed by using drum2 for that cap rather than drum1.
-# drum1 is no longer used except as an intermediate value in the next few lines.
-drum2 = map((lambda a: (cos(a), sin(a), 1.0)), circ1)
+    # grantham 20051213 I finally decided the look of the oddly twisted
+    # cylinder bonds was not pretty enough, so I made a "drum2" which is just
+    # drum0 with a 1.0 Z coordinate, a la drum1.
+    #bruce 060609: this apparently introduced the bug of the drum1 end-cap of a cylinder being "ragged"
+    # (letting empty space show through), which I fixed by using drum2 for that cap rather than drum1.
+    # drum1 is no longer used except as an intermediate value in the next few lines.
+    drawing_globals.drum2 = drum2 = map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 
-# This edge list zips up the "top" vertex and normal and then
-# the "bottom" vertex and normal.
-# Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot) [grantham 20051213]
-# (bruce 051215 simplified the python usage in a way which should create the same list.)
-cylinderEdges = zip(drum0, drum0, drum2, drum0)
+    # This edge list zips up the "top" vertex and normal and then
+    # the "bottom" vertex and normal.
+    # Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot) [grantham 20051213]
+    # (bruce 051215 simplified the python usage in a way which should create the same list.)
+    drawing_globals.cylinderEdges = zip(drum0, drum0, drum2, drum0)
 
-circle = zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
-       zip(drum1[:-1],drum0[1:],drum1[1:])
-circlen = zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
-        zip(drum1n[:-1],drum0[1:],drum1n[1:])
+    circle = zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
+           zip(drum1[:-1],drum0[1:],drum1[1:])
+    circlen = zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
+            zip(drum1n[:-1],drum0[1:],drum1n[1:])
 
-cap0n = (0.0, 0.0, -1.0)
-cap1n = (0.0, 0.0, 1.0)
-drum0.reverse()
+    drawing_globals.cap0n = (0.0, 0.0, -1.0)
+    drawing_globals.cap1n = (0.0, 0.0, 1.0)
+    drum0.reverse()
+    return
+init_cyls()
 
-###data structure to construct the rotation sign for rotary motor
-numSeg = 20
-rotS = map((lambda n: pi/2+n*2.0*pi/numSeg), range(numSeg*3/4 + 1))
-zOffset = 0.005; scaleS = 0.4
-rotS0n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 0.0 - zOffset)), rotS)
-rotS1n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 1.0 + zOffset)), rotS)
-halfEdge = 3.0 * scaleS * sin(pi/numSeg)
-arrow0Vertices = [(rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
-                  (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
-                  (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])] 
-arrow0Vertices.reverse()                            
-arrow1Vertices = [(rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
-                  (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
-                  (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]                             
+def init_motors():
+    ###data structure to construct the rotation sign for rotary motor
+    numSeg = 20
+    rotS = map((lambda n: pi/2+n*2.0*pi/numSeg), range(numSeg*3/4 + 1))
+    zOffset = 0.005
+    scaleS = 0.4
+    drawing_globals.rotS0n = rotS0n = map(
+        (lambda a: (scaleS*cos(a), scaleS*sin(a), 0.0 - zOffset)), rotS)
+    drawing_globals.rotS1n = rotS1n = map(
+        (lambda a: (scaleS*cos(a), scaleS*sin(a), 1.0 + zOffset)), rotS)
 
-###Linear motor arrow sign data structure
-halfEdge = 1.0/3.0 ##1.0/8.0
-linearArrowVertices = [(0.0, -halfEdge, 0.0), (0.0, halfEdge, 0.0), (0.0, 0.0,2*halfEdge)]
+    ###Linear motor arrow sign data structure
+    drawing_globals.halfHeight = 0.45
+    drawing_globals.halfEdge = halfEdge = 3.0 * scaleS * sin(pi/numSeg)
 
-# a chunk of diamond grid, to be tiled out in 3d
+    arrow0Vertices = [
+        (rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+        (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+        (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])]
+    arrow0Vertices.reverse()
+    drawing_globals.arrow0Vertices = arrow0Vertices
 
-sp0 = 0.0
-sp1 = DIAMOND_BOND_LENGTH / sqrt(3.0) #bruce 051102 replaced 1.52 with this constant (1.544), re bug 900 (partial fix)
-sp2 = 2.0*sp1
-sp3 = 3.0*sp1
-sp4 = 4.0*sp1
+    drawing_globals.arrow1Vertices = [
+        (rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+        (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+        (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]
 
-digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
-        [[sp2, sp2, sp0], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp4, sp0]],
-        [[sp2, sp0, sp2], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp4, sp2, sp2]],
-        [[sp2, sp0, sp2], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp0, sp2, sp2]],
-        [[sp0, sp2, sp2], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp2, sp4, sp2]],
-        [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
-        [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
-        [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
+    drawing_globals.halfEdge = halfEdge = 1.0/3.0 ##1.0/8.0
+    drawing_globals.linearArrowVertices = [
+        (0.0, -halfEdge, 0.0), (0.0, halfEdge, 0.0), (0.0, 0.0,2*halfEdge)]
 
-cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
-                [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
-                [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0],
-                [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
+    return
+init_motors()
 
-flatCubeVertices = []  #bruce 051117: compute this rather than letting a subroutine hardcode it as a redundant constant
-for threemore in cubeVertices:
-    flatCubeVertices.extend(threemore)
-flatCubeVertices = list(flatCubeVertices) #k probably not needed
+def init_diamond():
+    # a chunk of diamond grid, to be tiled out in 3d
+    sp0 = 0.0
+    #bruce 051102 replaced 1.52 with this constant (1.544), re bug 900 (partial fix)
+    sp1 = DIAMOND_BOND_LENGTH / sqrt(3.0)
+    sp2 = 2.0*sp1
+    sp3 = 3.0*sp1
+    sp4 = 4.0*sp1
 
-if 1: # remove this when it works
-    flatCubeVertices_hardcoded = [-1.0, 1.0, -1.0,
-                                  -1.0, 1.0, 1.0,
-                                  1.0, 1.0, 1.0,
-                                  1.0, 1.0, -1.0,
-                                  -1.0, -1.0, -1.0,
-                                  -1.0, -1.0, 1.0,
-                                  1.0, -1.0, 1.0,
-                                  1.0, -1.0, -1.0]
-    assert flatCubeVertices == flatCubeVertices_hardcoded
+    digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
+            [[sp2, sp2, sp0], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp4, sp0]],
+            [[sp2, sp0, sp2], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp4, sp2, sp2]],
+            [[sp2, sp0, sp2], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp0, sp2, sp2]],
+            [[sp0, sp2, sp2], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp2, sp4, sp2]],
+            [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
+            [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
+            [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
+    drawing_globals.digrid = A(digrid)
+    drawing_globals.DiGridSp = sp4
+    return
+init_diamond()
 
-sq3 = sqrt(3.0)/3.0
-cubeNormals = [[-sq3, sq3, -sq3], [-sq3, sq3, sq3],
-               [sq3, sq3, sq3], [sq3, sq3, -sq3],
-               [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3],
-               [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
-cubeIndices = [[0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [0, 3, 7, 4], [4, 7, 6, 5]]        
+def init_cube():
+    drawing_globals.cubeVertices = cubeVertices = [
+        [-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
+        [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
 
-digrid = A(digrid)
+    #bruce 051117: compute this rather than letting a subroutine hardcode it as
+    # a redundant constant
+    flatCubeVertices = []
+    for threemore in cubeVertices:
+        flatCubeVertices.extend(threemore)
+    flatCubeVertices = list(flatCubeVertices) #k probably not needed
+    drawing_globals.flatCubeVertices = flatCubeVertices
 
-DiGridSp = sp4
+    if 1: # remove this when it works
+        flatCubeVertices_hardcoded = [-1.0, 1.0, -1.0,
+                                      -1.0, 1.0, 1.0,
+                                      1.0, 1.0, 1.0,
+                                      1.0, 1.0, -1.0,
+                                      -1.0, -1.0, -1.0,
+                                      -1.0, -1.0, 1.0,
+                                      1.0, -1.0, 1.0,
+                                      1.0, -1.0, -1.0]
+        assert flatCubeVertices == flatCubeVertices_hardcoded
 
-sphereList = []
-numSphereSizes = 3
-CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
-rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
-filledCircleList = None # piotr 080405
+    sq3 = sqrt(3.0)/3.0
+    drawing_globals.cubeNormals = [
+        [-sq3, sq3, -sq3], [-sq3, sq3, sq3],
+        [sq3, sq3, sq3], [sq3, sq3, -sq3],
+        [-sq3, -sq3, -sq3], [-sq3, -sq3, sq3],
+        [sq3, -sq3, sq3], [sq3, -sq3, -sq3]]
+    drawing_globals.cubeIndices = [
+        [0, 1, 2, 3], [0, 4, 5, 1], [1, 5, 6, 2],
+        [2, 6, 7, 3], [0, 3, 7, 4], [4, 7, 6, 5]]
+
+    return
+init_cube()
+
+
+# Some variables used by the Lonsdaleite lattice construction.
+ux = 1.262; uy = 0.729; dz = 0.5153; ul = 1.544
+drawing_globals.XLen = XLen = 2*ux
+drawing_globals.YLen = YLen = 6*uy
+drawing_globals.ZLen = ZLen = 2*(ul + dz)
+
+def _makeLonsCell():
+    """Data structure to construct a Lonsdaleite lattice cell"""
+    lVp = [# 2 outward vertices
+           [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
+           # Layer 1: 7 vertices
+           [ux, -2*uy, ul],   [-ux, -2*uy, ul],   [0.0, uy, ul], 
+           [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
+           [-ux, 4*uy, ul],
+           # Layer 2: 7 vertices
+           [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
+           [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],    [0.0, -uy, 2*ul+dz],
+           [-ux, 4*uy, 2*(ul+dz)]
+           ]
+
+    res = [ # 2 outward vertical edges for layer 1
+            [lVp[0], lVp[3]], [lVp[1], lVp[4]],
+            #  6 xy Edges for layer 1
+            [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
+            [lVp[4], lVp[6]], [lVp[4], lVp[5]],
+            [lVp[6], lVp[8]],        
+            #  2 outward vertical edges for layer 2
+            [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
+            # 6 xy Edges for layer 2
+            [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
+            [lVp[11], lVp[13]], [lVp[11], lVp[12]],
+            [lVp[13], lVp[15]]
+            ]
+    return res
+drawing_globals.lonsEdges = _makeLonsCell()
+
+#================================================================ glprefs.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+glprefs.py - Attributes from drawing-related prefs stored in the prefs db cache.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
+
+import foundation.env as env #bruce 051126
+
+if EndUser.getAlternateSourcePath() != None:
+    sys.path.append(os.path.join( EndUser.getAlternateSourcePath(), "experimental/pyrex-opengl"))
+else:
+    sys.path.append("./experimental/pyrex-opengl")
+
+binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
+if binPath not in sys.path:
+    sys.path.append(binPath)
+
+try:
+    import quux
+    drawing_globals.quux_module_import_succeeded = True
+    if "experimental" in os.path.dirname(quux.__file__):
+        # should never happen for end users, but if it does we want to print the warning
+        if env.debug() or not EndUser.enableDeveloperFeatures():
+            print "debug: fyi: Using experimental version of C rendering code:", quux.__file__
+except:
+    drawing_globals.use_c_renderer = False
+    drawing_globals.quux_module_import_succeeded = False
+    if env.debug(): #bruce 060323 added condition
+        print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
+    pass
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -703,9 +744,8 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        global use_c_renderer, allow_color_sorting, use_color_sorted_dls
-        global use_color_sorted_vbos, use_drawing_variant
-        self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
+        self.enable_specular_highlights = not not env.prefs[
+            material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
             # self.specular_shininess: float; shininess exponent for all specular highlights
@@ -724,20 +764,27 @@ class glprefs:
             self.specular_whiteness = 1.0
             self.specular_brightness = 1.0
 
-        allow_color_sorting = env.prefs.get(allow_color_sorting_prefs_key,
-                                            allow_color_sorting_default)
-        use_color_sorted_dls = env.prefs.get(use_color_sorted_dls_prefs_key,
-                                             use_color_sorted_dls_default)
-        use_color_sorted_vbos = env.prefs.get(use_color_sorted_vbos_prefs_key,
-                                              use_color_sorted_vbos_default)
-        use_drawing_variant = env.prefs.get(use_drawing_variant_prefs_key,
-                                            use_drawing_variant_default)
-        use_c_renderer = quux_module_import_succeeded and \
-                       env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
+        drawing_globals.allow_color_sorting = env.prefs.get(
+            drawing_globals.allow_color_sorting_prefs_key,
+            drawing_globals.allow_color_sorting_default)
+        drawing_globals.use_color_sorted_dls = env.prefs.get(
+            drawing_globals.use_color_sorted_dls_prefs_key,
+            drawing_globals.use_color_sorted_dls_default)
+        drawing_globals.use_color_sorted_vbos = env.prefs.get(
+            drawing_globals.use_color_sorted_vbos_prefs_key,
+            drawing_globals.use_color_sorted_vbos_default)
+        drawing_globals.use_drawing_variant = env.prefs.get(
+            drawing_globals.use_drawing_variant_prefs_key,
+            drawing_globals.use_drawing_variant_default)
+        drawing_globals.use_c_renderer = (
+            drawing_globals.quux_module_import_succeeded and
+            env.prefs.get(drawing_globals.use_c_renderer_prefs_key,
+                          drawing_globals.use_c_renderer_default))
 
-        if use_c_renderer:
+        if drawing_globals.use_c_renderer:
             quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
-                                                    self.specular_brightness, self.specular_shininess);
+                                                    self.specular_brightness,
+                                                    self.specular_shininess);
         return
 
     def materialprefs_summary(self): #bruce 051126
@@ -748,33 +795,45 @@ class glprefs:
         """
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
-            res = res + ( self.specular_shininess, self.specular_whiteness, self.specular_brightness)
+            res = res + ( self.specular_shininess,
+                          self.specular_whiteness,
+                          self.specular_brightness )
 
         # grantham 20060314
-        res += (quux_module_import_succeeded and 
-                env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default),)
+        res += (drawing_globals.quux_module_import_succeeded and 
+                env.prefs.get(drawing_globals.use_c_renderer_prefs_key,
+                              drawing_globals.use_c_renderer_default),)
 
         # grantham 20060314 - Not too sure this next addition is
         # really necessary, but it seems to me that for testing
         # purposes it is important to rebuild display lists if the
         # color sorting pref is changed.
-        res += (env.prefs.get(allow_color_sorting_prefs_key,
-                              allow_color_sorting_default),)
-        res += (env.prefs.get(use_color_sorted_dls_prefs_key,
-                              use_color_sorted_dls_default),)
-        res += (env.prefs.get(use_color_sorted_vbos_prefs_key,
-                              use_color_sorted_vbos_default),)
-        res += (env.prefs.get(use_drawing_variant_prefs_key,
-                              use_drawing_variant_default),)
+        res += (env.prefs.get(drawing_globals.allow_color_sorting_prefs_key,
+                              drawing_globals.allow_color_sorting_default),)
+        res += (env.prefs.get(drawing_globals.use_color_sorted_dls_prefs_key,
+                              drawing_globals.use_color_sorted_dls_default),)
+        res += (env.prefs.get(drawing_globals.use_color_sorted_vbos_prefs_key,
+                              drawing_globals.use_color_sorted_vbos_default),)
+        res += (env.prefs.get(drawing_globals.use_drawing_variant_prefs_key,
+                              drawing_globals.use_drawing_variant_default),)
         return res
 
     pass # end of class glprefs
 
-_glprefs = glprefs()
+drawing_globals.glprefs = glprefs()
+
+#================================================================ gl_lighting.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+gl_lighting.py - Lights, materials, and special effects.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+import graphics.drawing.drawing_globals as drawing_globals
 
 # ==
-
-# helper functions for use by GL widgets wanting to set up lighting
+# Helper functions for use by GL widgets wanting to set up lighting.
 
 #bruce 051212 made these from the code in GLPane which now calls them, so they can also be used in ThumbView
 
@@ -798,15 +857,16 @@ def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
     Return a summary of the glprefs data used by setup_standard_lights,
     for use in later deciding whether it needs to be called again due to changes in glprefs.
     """
-    global _glprefs
     if glprefs is None:
-        glprefs = _glprefs
-    return (glprefs.override_light_specular,) # this must be kept in sync with what's used by setup_standard_lights()
+        glprefs = drawing_globals.glprefs
+        pass
+    # This must be kept in sync with what's used by setup_standard_lights() .
+    return (glprefs.override_light_specular,)
 
 def setup_standard_lights( lights, glprefs = None):
     """
     Set up lighting in the current GL context using the supplied "lights" tuple (in the format used by GLPane's prefs)
-    and the optional glprefs object (which defaults to drawer._glprefs).
+    and the optional glprefs object (which defaults to drawing_globals.glprefs ).
        Note: the glprefs data used can be summarized by the related function glprefs_data_used_by_setup_standard_lights (which see).
        Warning: has side effects on GL_MODELVIEW matrix.
        Note: If GL_NORMALIZE needs to be enabled, callers should do that themselves,
@@ -816,9 +876,8 @@ def setup_standard_lights( lights, glprefs = None):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    global _glprefs
     if glprefs is None:
-        glprefs = _glprefs
+        glprefs = drawing_globals.glprefs
         # note: whatever glprefs data is used below must also be present
         # in the return value of glprefs_data_used_by_setup_standard_lights(). [bruce 051212]
 
@@ -923,9 +982,13 @@ def enable_fog():
 def disable_fog():
     glDisable(GL_FOG)
 
+# ==
 
 def apply_material(color): # grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added specular_brightness), 051215
-    "Set OpenGL material parameters based on the given color (length 3 or 4) and the material-related prefs values in _glprefs."
+    """
+    Set OpenGL material parameters based on the given color (length 3 or 4) and
+    the material-related prefs values in drawing_globals.glprefs.
+    """
 
     #bruce 051215: make sure color is a tuple, and has length exactly 4, for all uses inside this function,
     # assuming callers pass sequences of length 3 or 4. Needed because glMaterial requires four-component
@@ -939,15 +1002,15 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
 
     glColor4fv(color)          # For drawing lines with lighting disabled.
 
-    if not _glprefs.enable_specular_highlights:
+    if not drawing_globals.glprefs.enable_specular_highlights:
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
         # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (0,0,0,1))
         return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
 
-    whiteness = _glprefs.specular_whiteness
-    brightness = _glprefs.specular_brightness
+    whiteness = drawing_globals.glprefs.specular_whiteness
+    brightness = drawing_globals.glprefs.specular_brightness
     if whiteness == 1.0:
         specular = (1.0, 1.0, 1.0, 1.0) # optimization
     else:
@@ -962,9 +1025,13 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
             #e could optimize by merging this with above 3 cases (or, of course, by doing it in C, which we'll do eventually)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
 
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _glprefs.specular_shininess)
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS,
+                drawing_globals.glprefs.specular_shininess)
     return
 
+# ==
+
+#russ 080515: We should find a better place for this!
 def get_gl_info_string(glpane): # grantham 20051129
     """Return a string containing some useful information about the OpenGL implementation.
     Use the GL context from the given QGLWidget glpane (by calling glpane.makeCurrent()).
@@ -1020,9 +1087,17 @@ def get_gl_info_string(glpane): # grantham 20051129
         gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
     return gl_info_string
 
-# ==
+#================================================================ gl_buffers.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+gl_buffers.py - OpenGL data buffer objects.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
 # Vertex Buffer Object (VBO) and Index Buffer Object (IBO) support.
+# For docs see http://www.opengl.org/sdk/docs/man/xhtml/glBufferData.xml .
 
 # Notice that the ARB-suffixed versions of the OpenGL calls are used here.
 # They're the ones with PyConvert ctypes wrappers, see: (the incomprehensible)
@@ -1037,7 +1112,7 @@ from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
 
 from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB # Unwrappered.
 
-class BufferObj(object):
+class GLBufferObject(object):
     """
     Buffer data in the graphics card's RAM space.
 
@@ -1069,8 +1144,8 @@ class BufferObj(object):
 
     def __del__(self):
         """
-        Delete a BufferObj.  We don't expect that there will be a lot of
-        deleting of BufferObjs, but don't want them to sit on a lot of graphics
+        Delete a GLBufferObject.  We don't expect that there will be a lot of
+        deleting of GLBufferObjects, but don't want them to sit on a lot of graphics
         card RAM if we did.
         """
 
@@ -1100,12 +1175,24 @@ class BufferObj(object):
         glBindBufferARB(self.target, 0)
         return
 
-    pass # End of class BufferObj.
+    pass # End of class GLBufferObject.
 
-# ==
+#================================================================ CS_workers.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+CS_workers.py - Drawing functions for primitives drawn by the ColorSorter.
 
-#russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
-cache_ColorSorter = False ## True
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
+
+try:
+    from OpenGL.GLE import glePolyCone
+except:
+    print "GLE module can't be imported. Now trying _GLE"
+    from OpenGL._GLE import glePolyCone
 
 ### Substitute this for drawsphere_worker to test drawing a lot of spheres.
 def drawsphere_worker_loop(params):
@@ -1125,37 +1212,37 @@ def drawsphere_worker(params):
 
     (pos, radius, detailLevel) = params
 
-    vboLevel = use_drawing_variant
+    vboLevel = drawing_globals.use_drawing_variant
 
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
 
     if vboLevel is 0:
-        glCallList(sphereList[detailLevel])
+        glCallList(drawing_globals.sphereList[detailLevel])
     else:                               # Array variants.
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
 
-        size = len(sphereArrays[detailLevel])
-        GLIndexType = sphereGLIndexTypes[detailLevel]
+        size = len(drawing_globals.sphereArrays[detailLevel])
+        GLIndexType = drawing_globals.sphereGLIndexTypes[detailLevel]
 
         if vboLevel is 1:               # DrawArrays from CPU RAM.
-            verts = sphereCArrays[detailLevel]
+            verts = drawing_globals.sphereCArrays[detailLevel]
             glVertexPointer(3, GL_FLOAT, 0, verts)
             glNormalPointer(GL_FLOAT, 0, verts)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, size)
 
         elif vboLevel is 2:             # DrawElements from CPU RAM.
-            verts = sphereCElements[detailLevel][1]
+            verts = drawing_globals.sphereCElements[detailLevel][1]
             glVertexPointer(3, GL_FLOAT, 0, verts)
             glNormalPointer(GL_FLOAT, 0, verts)
             # Can't use the C index in sphereCElements yet, fatal PyOpenGL bug.
-            index = sphereElements[detailLevel][0]
+            index = drawing_globals.sphereElements[detailLevel][0]
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
 
         elif vboLevel is 3:             # DrawArrays from graphics RAM VBO.
-            vbo = sphereArrayVBOs[detailLevel]
+            vbo = drawing_globals.sphereArrayVBOs[detailLevel]
             vbo.bind()
             glVertexPointer(3, GL_FLOAT, 0, None)
             glNormalPointer(GL_FLOAT, 0, None)
@@ -1163,17 +1250,17 @@ def drawsphere_worker(params):
             vbo.unbind()
 
         elif vboLevel is 4: # DrawElements from index in CPU RAM, verts in VBO.
-            vbo = sphereElementVBOs[detailLevel][1]
+            vbo = drawing_globals.sphereElementVBOs[detailLevel][1]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
             glNormalPointer(GL_FLOAT, 0, None)
             # Can't use the C index in sphereCElements yet, fatal PyOpenGL bug.
-            index = sphereElements[detailLevel][0]
+            index = drawing_globals.sphereElements[detailLevel][0]
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
             vbo.unbind()
 
         elif vboLevel is 5: # VBO/IBO buffered DrawElements from graphics RAM.
-            (ibo, vbo) = sphereElementVBOs[detailLevel]
+            (ibo, vbo) = drawing_globals.sphereElementVBOs[detailLevel]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
             glNormalPointer(GL_FLOAT, 0, None)
@@ -1211,9 +1298,9 @@ def drawwiresphere_worker(params):
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
     if oldway:
-        glCallList(sphereList[detailLevel])
+        glCallList(drawing_globals.sphereList[detailLevel])
     else:
-        glCallList(wiresphere1list)
+        glCallList(drawing_globals.wiresphere1list)
     glEnable(GL_LIGHTING)
     glPopMatrix()
     if oldway:
@@ -1235,7 +1322,6 @@ def drawcylinder_worker(params):
     parallel as opposed to antiparallel.
     """
 
-    global CylList, CapList
     (pos1, pos2, radius, capped) = params
 
     glPushMatrix()
@@ -1252,8 +1338,8 @@ def drawcylinder_worker(params):
         glRotate(angle, axis[1], -axis[0], 0.0)
 
     glScale(radius,radius,Numeric.dot(vec,vec)**.5)
-    glCallList(CylList)
-    if capped: glCallList(CapList)
+    glCallList(drawing_globals.CylList)
+    if capped: glCallList(drawing_globals.CapList)
 
     glPopMatrix()
 
@@ -1332,10 +1418,17 @@ def drawline_worker(params):
     ###glEnable(GL_LIGHTING)
     return
 
-# 20060208 grantham - The following classes, ShapeList_inplace, ShapeList and
-# ColorSorter, should probably be in their own file.  But Bruce
-# cautions me against doing it on my own since I haven't done that
-# before and there are subtleties.
+#================================================================ CS_ShapeList.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+CS_ShapeList.py - The C++ ColorSorter's arrays of primitives to draw.
+
+Does some memoization as a speedup.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
 
 class ShapeList_inplace:
 
@@ -1617,6 +1710,18 @@ class ShapeList:
         del self.cylinder_cappings
         del self.cylinder_names
 
+#================================================================ ColorSortedDisplayList.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+ColorSortedDisplayList.py - A class to remember display list id's for
+objects that draw their instances through the ColorSorter.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
+
 class ColorSortedDisplayList:         #Russ 080225: Added.
     """
     The ColorSorter's parent uses one of these to store color-sorted display list
@@ -1626,6 +1731,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.clear()
         self.selected = False   # Whether to draw in the selection over-ride color.
         return
+
+    #russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
+    cache_ColorSorter = False ## True
 
     def clear(self):
         """
@@ -1665,7 +1773,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         Draw the displist (cached display procedure.)
         """
         #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
-        if (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos):
+        if (ColorSortedDisplayList.cache_ColorSorter and
+            drawing_globals.allow_color_sorting and
+            drawing_globals.use_color_sorted_vbos):
             ColorSorter.draw_sorted(self.sorted_by_color)
         else:
             # Call a normal OpenGL display list.
@@ -1724,6 +1834,24 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         return
 
     pass # End of ColorSortedDisplayList.
+
+#================================================================ ColorSorter.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+ColorSorter.py - A class to group primitive drawing by colors.
+
+This was originally done as a GL optimization to minimize calls on
+apply_material.
+
+Later, it was extended to handle multiple display lists per Chunk object as an
+optimization to avoid rebuilding a single display list when the appearance of
+the object changes for hover-highlighting and selection.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
 
 class ColorSorter:
 
@@ -1811,7 +1939,7 @@ class ColorSorter:
 
 
     def schedule(color, func, params):
-        if ColorSorter.sorting and allow_color_sorting:
+        if ColorSorter.sorting and drawing_globals.allow_color_sorting:
 
             ColorSorter._add_to_sorter(color, func, params)
 
@@ -1867,7 +1995,7 @@ class ColorSorter:
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
@@ -1896,7 +2024,7 @@ class ColorSorter:
         Schedule a wiresphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -1921,7 +2049,7 @@ class ColorSorter:
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -1943,7 +2071,7 @@ class ColorSorter:
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -1967,7 +2095,7 @@ class ColorSorter:
         appropriate.
         piotr 080311: this variant accepts a color array as an additional parameter
         """
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
@@ -2023,8 +2151,9 @@ class ColorSorter:
             pass
 
         if csdl != None:
-            if not (allow_color_sorting and (use_color_sorted_dls
-                                             or use_color_sorted_vbos)): #russ 080320
+            if not (drawing_globals.allow_color_sorting and
+                    (drawing_globals.use_color_sorted_dls
+                     or drawing_globals.use_color_sorted_vbos)): #russ 080320
                 # This is the beginning of the single display list created when color
                 # sorting is turned off.  It is ended in ColorSorter.finish .  In
                 # between, the calls to draw{sphere,cylinder,polycone} methods pass
@@ -2041,7 +2170,7 @@ class ColorSorter:
 
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
-        if use_c_renderer and ColorSorter.sorting:
+        if drawing_globals.use_c_renderer and ColorSorter.sorting:
             ColorSorter._cur_shapelist = ShapeList_inplace()
             ColorSorter.sphereLevel = -1
         else:
@@ -2058,7 +2187,7 @@ class ColorSorter:
         debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
         parent_csdl = ColorSorter.parent_csdl
-        if use_c_renderer:
+        if drawing_globals.use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
                 #bruce 060314 uncommented/revised the next line; it might have to come after shapeRendererInit (not sure);
@@ -2081,14 +2210,19 @@ class ColorSorter:
         else:
             if debug_which_renderer:
                 print "using Python renderer: use_color_sorted_dls %s enabled" \
-                      % (use_color_sorted_dls and 'IS' or 'is NOT')
+                      % (drawing_globals.use_color_sorted_dls and 'IS'
+                         or 'is NOT')
                 print "using Python renderer: use_color_sorted_vbos %s enabled" \
-                      % (use_color_sorted_vbos and 'IS' or 'is NOT')
+                      % (drawing_globals.use_color_sorted_vbos and 'IS'
+                         or 'is NOT')
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
-            if (not (allow_color_sorting and use_color_sorted_dls)
-                or (cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos) \
+            if (not (drawing_globals.allow_color_sorting and
+                     drawing_globals.use_color_sorted_dls)
+                or (ColorSortedDisplayList.cache_ColorSorter and
+                    drawing_globals.allow_color_sorting and
+                    drawing_globals.use_color_sorted_vbos)
                 or parent_csdl is None):  #russ 080225 Added, 080320 VBO experiment.
 
                 # Either all in one display list, or immediate-mode drawing.
@@ -2097,7 +2231,9 @@ class ColorSorter:
                 #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
                     #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
-                    if cache_ColorSorter and allow_color_sorting and use_color_sorted_vbos:
+                    if (ColorSortedDisplayList.cache_ColorSorter and
+                        drawing_globals.allow_color_sorting and
+                        drawing_globals.use_color_sorted_vbos):
                         # Remember the ColorSorter lists for use as a pseudo-display-list.
                         parent_csdl.sorted_by_color = ColorSorter.sorted_by_color
                     else:
@@ -2274,559 +2410,22 @@ class ColorSorter:
 
     draw_sorted = staticmethod(draw_sorted)
 
-halfHeight = 0.45
+    pass # End of class ColorSorter.
 
-##Some variable used by the Lonsdaleite lattice construction
-ux = 1.262; uy = 0.729; dz = 0.5153; ul = 1.544
-XLen = 2*ux
-YLen = 6*uy
-ZLen = 2*(ul + dz)
-lonsEdges = None
+#================================================================ CS_draw_primitives.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+CS_draw_primitives.py - Public entry points for ColorSorter drawing primitives.
 
-def _makeLonsCell():
-    """Data structure to construct a Lonsdaleite lattice cell"""
-    lVp = [# 2 outward vertices
-           [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
-           # Layer 1: 7 vertices
-           [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
-           [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
-           [-ux, 4*uy, ul],
-           # Layer 2: 7 vertices
-           [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
-           [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
-           [-ux, 4*uy, 2*(ul+dz)]
-           ]
+These functions all call ColorSorter.schedule_* methods, which record object
+data for sorting, including the object color and an eventual call on the
+appropriate drawing worker function.
 
-    res = [ # 2 outward vertical edges for layer 1
-            [lVp[0], lVp[3]], [lVp[1], lVp[4]],
-            #  6 xy Edges for layer 1
-            [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
-            [lVp[4], lVp[6]], [lVp[4], lVp[5]],
-            [lVp[6], lVp[8]],        
-            #  2 outward vertical edges for layer 2
-            [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
-            # 6 xy Edges for layer 2
-            [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
-            [lVp[11], lVp[13]], [lVp[11], lVp[12]],
-            [lVp[13], lVp[15]]
-            ]
-    return res
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
-wiresphere1list = None
-
-# ==
-
-def setup_drawer():
-    """
-    Set up the usual constant display lists in the current OpenGL context.
-
-    WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS --
-    or more precisely, only the GL context this has last been called in
-    (or one which shares its display lists) will work properly with the routines in drawer.py,
-    since the allocated display list names are stored in globals set by this function,
-    but in general those names might differ if this was called in different GL contexts.
-    """
-    #bruce 060613 added docstring, cleaned up display list name allocation
-    # bruce 071030 renamed from setup to setup_drawer
-
-    spherelistbase = glGenLists(numSphereSizes)
-    global sphereList
-    sphereList = []
-    for i in range(numSphereSizes):
-        sphereList += [spherelistbase+i]
-        glNewList(sphereList[i], GL_COMPILE)
-        glBegin(GL_TRIANGLE_STRIP) # GL_LINE_LOOP to see edges.
-        stripVerts = getSphereTriStrips(i)
-        for vertNorm in stripVerts:
-            glNormal3fv(vertNorm)
-            glVertex3fv(vertNorm)
-            continue
-        glEnd()
-        glEndList()
-        continue
-
-    # Sphere triangle-strip vertices for each level of detail.
-    # (Cache and re-use the work of making them.)
-    # Can use in converter-wrappered calls like glVertexPointerfv,
-    # but the python arrays are re-copied to C each time.
-    global sphereArrays
-    sphereArrays = []
-    for i in range(numSphereSizes):
-        sphereArrays += [getSphereTriStrips(i)]
-        continue
-
-    # Sphere glDrawArrays triangle-strip vertices for C calls.
-    # (Cache and re-use the work of converting a C version.)
-    # Used in thinly-wrappered calls like glVertexPointer.
-    global sphereCArrays
-    sphereCArrays = []
-    for i in range(numSphereSizes):
-        CArray = numpy.array(sphereArrays[i], dtype=numpy.float32)
-        sphereCArrays += [CArray]
-        continue
-
-    # Sphere indexed vertices.
-    # (Cache and re-use the work of making the indexes.)
-    # Can use in converter-wrappered calls like glDrawElementsui,
-    # but the python arrays are re-copied to C each time.
-    global sphereElements
-    sphereElements = []             # Pairs of lists (index, verts) .
-    for i in range(numSphereSizes):
-        sphereElements += [indexVerts(sphereArrays[i], .0001)]
-        continue
-
-    # Sphere glDrawElements index and vertex arrays for C calls.
-    global sphereCIndexTypes, sphereGLIndexTypes, sphereCElements
-    sphereCIndexTypes = []          # numpy index unsigned types.
-    sphereGLIndexTypes = []         # GL index types for drawElements.
-    sphereCElements = []            # Pairs of numpy arrays (Cindex, Cverts) .
-    for i in range(numSphereSizes):
-        (index, verts) = sphereElements[i]
-        if len(index) < 256:
-            Ctype = numpy.uint8
-            GLtype = GL_UNSIGNED_BYTE
-        else:
-            Ctype = numpy.uint16
-            GLtype = GL_UNSIGNED_SHORT
-            pass
-        sphereCIndexTypes += [Ctype]
-        sphereGLIndexTypes += [GLtype]
-        sphereCIndex = numpy.array(index, dtype=Ctype)
-        sphereCVerts = numpy.array(verts, dtype=numpy.float32)
-        sphereCElements += [(sphereCIndex, sphereCVerts)]
-        continue
-
-    if glGetString(GL_EXTENSIONS).find("GL_ARB_vertex_buffer_object") >= 0:
-
-        # A BufferObj version for glDrawArrays.
-        global sphereArrayVBOs
-        sphereArrayVBOs = []
-        for i in range(numSphereSizes):
-            vbo = BufferObj(GL_ARRAY_BUFFER_ARB,
-                            sphereCArrays[i], GL_STATIC_DRAW)
-            sphereArrayVBOs += [vbo]
-            continue
-
-        # A BufferObj version for glDrawElements indexed verts.
-        global sphereElementVBOs
-        sphereElementVBOs = []              # Pairs of (IBO, VBO)
-        for i in range(numSphereSizes):
-            ibo = BufferObj(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                            sphereCElements[i][0], GL_STATIC_DRAW)
-            vbo = BufferObj(GL_ARRAY_BUFFER_ARB,
-                            sphereCElements[i][1], GL_STATIC_DRAW)
-            sphereElementVBOs += [(ibo, vbo)]
-            continue
-
-        ibo.unbind()
-        vbo.unbind()
-        pass
-
-    global wiresphere1list
-    wiresphere1list = glGenLists(1) #bruce 060415
-    glNewList(wiresphere1list, GL_COMPILE)
-    didlines = {} # don't draw each triangle edge more than once
-    def shoulddoline(v1,v2):
-        v1 = tuple(v1) # make sure not list (unhashable) or Numeric array (bug in __eq__)
-        v2 = tuple(v2)
-        if (v1,v2) not in didlines:
-            didlines[(v1,v2)] = didlines[(v2,v1)] = None
-            return True
-        return False
-    def doline(v1,v2):
-        if shoulddoline(v1,v2):
-            glVertex3fv(v1)
-            glVertex3fv(v2)
-        return
-    glBegin(GL_LINES)
-    ocdec = getSphereTriangles(1)
-    for tri in ocdec:
-        #e could probably optim this more, e.g. using a vertex array or VBO or maybe GL_LINE_STRIP
-        doline(tri[0], tri[1])
-        doline(tri[1], tri[2])
-        doline(tri[2], tri[0])
-    glEnd()
-    glEndList()
-
-    global CylList
-    CylList = glGenLists(1)
-    glNewList(CylList, GL_COMPILE)
-    glBegin(GL_TRIANGLE_STRIP)
-    for (vtop, ntop, vbot, nbot) in cylinderEdges:
-        glNormal3fv(nbot)
-        glVertex3fv(vbot)
-        glNormal3fv(ntop)
-        glVertex3fv(vtop)
-    glEnd()
-    glEndList()
-
-    global CapList
-    CapList = glGenLists(1)
-    glNewList(CapList, GL_COMPILE)
-    glNormal3fv(cap0n)
-    glBegin(GL_POLYGON)
-    for p in drum0:
-        glVertex3fv(p)
-    glEnd()
-    glNormal3fv(cap1n)
-    glBegin(GL_POLYGON)
-    for p in drum2: #bruce 060609 fix "ragged edge" bug in this endcap: drum1 -> drum2
-        glVertex3fv(p)
-    glEnd()
-    glEndList()
-
-    global diamondGridList
-    diamondGridList = glGenLists(1)
-    glNewList(diamondGridList, GL_COMPILE)
-    glBegin(GL_LINES)
-    for p in digrid:
-        glVertex(p[0])
-        glVertex(p[1])
-    glEnd()
-    glEndList()
-
-    global lonsGridList
-    lonsGridList = glGenLists(1)
-    glNewList(lonsGridList, GL_COMPILE)
-    glBegin(GL_LINES)
-    global lonsEdges
-    lonsEdges = _makeLonsCell()
-    for p in lonsEdges:
-        glVertex(p[0])
-        glVertex(p[1])
-    glEnd()
-    glEndList()
-
-    global CubeList
-    CubeList = glGenLists(1)
-    glNewList(CubeList, GL_COMPILE)
-    glBegin(GL_QUAD_STRIP)
-    # note: CubeList has only 4 faces of the cube; only suitable for use in wireframes;
-    # see also solidCubeList [bruce 051215 comment reporting grantham 20051213 observation]
-    glVertex((-1,-1,-1))
-    glVertex(( 1,-1,-1))
-    glVertex((-1, 1,-1))
-    glVertex(( 1, 1,-1))
-    glVertex((-1, 1, 1))
-    glVertex(( 1, 1, 1))
-    glVertex((-1,-1, 1))
-    glVertex(( 1,-1, 1))
-    glVertex((-1,-1,-1))
-    glVertex(( 1,-1,-1))
-    glEnd()
-    glEndList()
-
-    global solidCubeList
-    solidCubeList = glGenLists(1)
-    glNewList(solidCubeList, GL_COMPILE)
-    glBegin(GL_QUADS)
-    for i in xrange(len(cubeIndices)):
-        avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading 
-        for j in xrange(4) :    
-            nTuple = tuple(cubeNormals[cubeIndices[i][j]])
-            avenormals += A(nTuple)
-        avenormals = norm(avenormals)
-        for j in xrange(4) :    
-            ## nTuple = tuple(cubeNormals[cubeIndices[i][j]])
-            vTuple = tuple(cubeVertices[cubeIndices[i][j]])
-            vTuple = A(vTuple) * 0.5 #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
-            glNormal3fv(avenormals)
-            glVertex3fv(vTuple)
-    glEnd()
-    glEndList()                
-
-    global rotSignList
-    rotSignList = glGenLists(1)
-    glNewList(rotSignList, GL_COMPILE)
-    glBegin(GL_LINE_STRIP)
-    for ii in xrange(len(rotS0n)):
-        glVertex3fv(tuple(rotS0n[ii]))
-    glEnd()
-    glBegin(GL_LINE_STRIP)
-    for ii in xrange(len(rotS1n)):
-        glVertex3fv(tuple(rotS1n[ii]))
-    glEnd()
-    glBegin(GL_TRIANGLES)
-    for v in arrow0Vertices + arrow1Vertices:
-        glVertex3f(v[0], v[1], v[2])
-    glEnd()
-    glEndList()
-
-    global linearArrowList
-    linearArrowList = glGenLists(1)
-    glNewList(linearArrowList, GL_COMPILE)
-    glBegin(GL_TRIANGLES)
-    for v in linearArrowVertices:
-        glVertex3f(v[0], v[1], v[2])
-    glEnd()
-    glEndList()
-
-    global linearLineList
-    linearLineList = glGenLists(1)
-    glNewList(linearLineList, GL_COMPILE)
-    glEnable(GL_LINE_SMOOTH)
-    glBegin(GL_LINES)
-    glVertex3f(0.0, 0.0, -halfHeight)
-    glVertex3f(0.0, 0.0, halfHeight)
-    glEnd()
-    glDisable(GL_LINE_SMOOTH)
-    glEndList()
-
-    global circleList
-    circleList = glGenLists(1)
-    glNewList(circleList, GL_COMPILE)
-    glBegin(GL_LINE_LOOP)
-    for ii in range(60):
-        x = cos(ii*2.0*pi/60)
-        y = sin(ii*2.0*pi/60)
-        glVertex3f(x, y, 0.0)
-    glEnd()    
-    glEndList()
-
-    global filledCircleList # piotr 080405
-    filledCircleList = glGenLists(1)
-    glNewList(filledCircleList, GL_COMPILE)
-    glBegin(GL_POLYGON)
-    for ii in range(60):
-        x = cos(ii*2.0*pi/60)
-        y = sin(ii*2.0*pi/60)
-        glVertex3f(x, y, 0.0)
-    glEnd()    
-    glEndList()
-
-    global lineCubeList
-    lineCubeList = glGenLists(1)
-    glNewList(lineCubeList, GL_COMPILE)
-    glBegin(GL_LINES)
-    cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
-    for i in cvIndices:
-        glVertex3fv(tuple(cubeVertices[i]))
-    glEnd()    
-    glEndList()
-
-    # Debug Preferences
-    from utilities.debug_prefs import debug_pref, Choice_boolean_True
-    from utilities.debug_prefs import Choice_boolean_False
-    choices = [Choice_boolean_False, Choice_boolean_True]
-
-    # 20060314 grantham
-    initial_choice = choices[allow_color_sorting_default]
-    allow_color_sorting_pref = debug_pref("Use Color Sorting?",
-                                          initial_choice, prefs_key = allow_color_sorting_prefs_key)
-        #bruce 060323 removed non_debug = True for A7 release, changed default value to False (far above),
-        # and changed its prefs_key so developers start with the new default value.
-    #russ 080225: Added.
-    initial_choice = choices[use_color_sorted_dls_default]
-    use_color_sorted_dls_pref = debug_pref("Use Color-sorted Display Lists?",
-                                           initial_choice, prefs_key = use_color_sorted_dls_prefs_key)
-    #russ 080225: Added.
-    initial_choice = choices[use_color_sorted_vbos_default]
-    use_color_sorted_vbos_pref = debug_pref("Use Color-sorted Vertex Buffer Objects?",
-                                            initial_choice, prefs_key = use_color_sorted_vbos_prefs_key)
-
-    #russ 080403: Added drawing variant selection
-    variants = [
-        "0. OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.",
-        "1. OpenGL 1.1 - glDrawArrays from CPU RAM.",
-        "2. OpenGL 1.1 - glDrawElements indexed arrays from CPU RAM.",
-        "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
-        "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
-        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements."]
-    use_drawing_variant = debug_pref(
-        "GLPane: drawing method",
-        Choice(names = variants, values = range(len(variants)),
-               defaultValue = use_drawing_variant_default),
-        prefs_key = use_drawing_variant_prefs_key)
-
-    # temporarily always print this, while default setting might be in flux,
-    # and to avoid confusion if the two necessary prefs are set differently
-    # [bruce 080305]
-    if allow_color_sorting_pref and use_color_sorted_dls_pref:
-        print "\nnote: this session WILL use color sorted display lists"
-    else:
-        print "\nnote: this session will NOT use color sorted display lists"
-    if allow_color_sorting_pref and use_color_sorted_vbos_pref:
-        print "note: this session WILL use color sorted Vertex Buffer Objects\n"
-    else:
-        print "note: this session will NOT use color sorted Vertex Buffer Objects\n"
-
-    # 20060313 grantham Added use_c_renderer debug pref, can
-    # take out when C renderer used by default.
-    global use_c_renderer
-    if quux_module_import_succeeded:
-        initial_choice = choices[use_c_renderer_default]
-        use_c_renderer = debug_pref("Use native C renderer?",
-                                    initial_choice, prefs_key = use_c_renderer_prefs_key)
-            #bruce 060323 removed non_debug = True for A7 release,
-            # and changed its prefs_key so developers start over with the default value.
-
-    #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
-    return # from setup_drawer
-
-def drawCircle(color, center, radius, normal):
-    """Scale, rotate/translate the unit circle properly """
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix() 
-    glColor3fv(color)
-    glDisable(GL_LIGHTING)
-
-    glTranslatef(center[0], center[1], center[2])
-    rQ = Q(V(0, 0, 1), normal)
-    rotAngle = rQ.angle*180.0/pi
-
-    #This may cause problems as proved before in Linear motor display.
-    #rotation around (0, 0, 0)
-    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
-    #      rQ.x = 1.0
-
-    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
-    glScalef(radius, radius, 1.0)
-    glCallList(circleList)
-    glEnable(GL_LIGHTING)
-    glPopMatrix()
-    return
-
-def drawFilledCircle(color, center, radius, normal):
-    """
-    Scale, rotate/translate the unit circle properly.
-    Added a filled circle variant, piotr 080405
-    """
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix() 
-    glColor3fv(color)
-    glDisable(GL_LIGHTING)
-
-    glTranslatef(center[0], center[1], center[2])
-    rQ = Q(V(0, 0, 1), normal)
-    rotAngle = rQ.angle*180.0/pi
-
-    #This may cause problems as proved before in Linear motor display.
-    #rotation around (0, 0, 0)
-    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
-    #      rQ.x = 1.0
-
-    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
-    glScalef(radius, radius, 1.0)
-    glCallList(filledCircleList)
-    glEnable(GL_LIGHTING)
-    glPopMatrix()
-    return
-
-def drawLinearArrows(longScale):   
-    glCallList(linearArrowList)
-    newPos = halfHeight*longScale
-    glPushMatrix()
-    glTranslate(0.0, 0.0, -newPos)
-    glCallList(linearArrowList)
-    glPopMatrix()
-    glPushMatrix()
-    glTranslate(0.0, 0.0, newPos -2.0*halfEdge)
-    glCallList(linearArrowList)
-    glPopMatrix()
-    return
-
-def drawLinearSign(color, center, axis, l, h, w):
-    """Linear motion sign on the side of squa-linder """
-    depthOffset = 0.005
-    glPushMatrix()
-    glColor3fv(color)
-    glDisable(GL_LIGHTING)
-    glTranslatef(center[0], center[1], center[2])
-
-    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
-    ## display problem on some platforms
-    angle = -acos(axis[2])*180.0/pi
-    if (axis[2]*axis[2] >= 1.0):
-        glRotate(angle, 0.0, 1.0, 0.0)
-    else:
-        glRotate(angle, axis[1], -axis[0], 0.0)
-
-    glPushMatrix()
-    glTranslate(h/2.0 + depthOffset, 0.0, 0.0)
-    glPushMatrix()
-    glScale(1.0, 1.0, l)
-    glCallList(linearLineList)
-    glPopMatrix()
-    if l < 2.6:
-        sl = l/2.7
-        glScale(1.0, sl, sl)
-    if w < 1.0:
-        glScale(1.0, w, w)
-    drawLinearArrows(l)
-    glPopMatrix()
-
-    glPushMatrix()
-    glTranslate(-h/2.0 - depthOffset, 0.0, 0.0)
-    glRotate(180.0, 0.0, 0.0, 1.0)
-    glPushMatrix()
-    glScale(1.0, 1.0, l)
-    glCallList(linearLineList)
-    glPopMatrix()
-    if l < 2.6:
-        glScale(1.0, sl, sl)
-    if w < 1.0:
-        glScale(1.0, w, w)
-    drawLinearArrows(l)
-    glPopMatrix()
-
-    glPushMatrix()
-    glTranslate(0.0, w/2.0 + depthOffset, 0.0)
-    glRotate(90.0, 0.0, 0.0, 1.0)
-    glPushMatrix()
-    glScale(1.0, 1.0, l)
-    glCallList(linearLineList)
-    glPopMatrix()
-    if l < 2.6:
-        glScale(1.0, sl, sl)
-    if w < 1.0:
-        glScale(1.0, w, w)
-    drawLinearArrows(l)
-    glPopMatrix()
-
-    glPushMatrix()
-    glTranslate(0.0, -w/2.0 - depthOffset, 0.0 )
-    glRotate(-90.0, 0.0, 0.0, 1.0)
-    glPushMatrix()
-    glScale(1.0, 1.0, l)
-    glCallList(linearLineList)
-    glPopMatrix()
-    if l < 2.6:
-        glScale(1.0, sl, sl)
-    if w < 1.0:
-        glScale(1.0, w, w)
-    drawLinearArrows(l)
-    glPopMatrix()
-
-    glEnable(GL_LIGHTING)
-    glPopMatrix()
-    return
-
-def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
-    """Rotate sign on top of the caps of the cylinder """
-    glPushMatrix()
-    glColor3fv(color)
-    vec = pos2-pos1
-    axis = norm(vec)
-    glTranslatef(pos1[0], pos1[1], pos1[2])
-
-    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
-    ## display problem on some platforms
-    angle = -acos(axis[2])*180.0/pi
-    if (axis[2]*axis[2] >= 1.0):
-        glRotate(angle, 0.0, 1.0, 0.0)
-    else:
-        glRotate(angle, axis[1], -axis[0], 0.0)
-    glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
-    glScale(radius,radius,Numeric.dot(vec,vec)**.5)
-
-    glLineWidth(2.0)
-    glDisable(GL_LIGHTING)
-    glCallList(rotSignList)
-    glEnable(GL_LIGHTING)
-    glLineWidth(1.0)
-
-    glPopMatrix()
-    return
+import foundation.env as env #bruce 051126
 
 def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
     """
@@ -2882,39 +2481,6 @@ def drawsurface(color, pos, radius, tm, nm):
     """
     ColorSorter.schedule_surface(color, pos, radius, tm, nm)
 
-def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
-    """
-    """
-    pass    
-
-
-def drawArrowHead(color, 
-                  basePoint, 
-                  drawingScale, 
-                  unitBaseVector, 
-                  unitHeightVector):
-
-
-
-    arrowBase = drawingScale * 0.08
-    arrowHeight = drawingScale * 0.12
-    glDisable(GL_LIGHTING)
-    glPushMatrix()
-    glTranslatef(basePoint[0],basePoint[1],basePoint[2])
-    point1 = V(0, 0, 0)
-    point1 = point1 + unitHeightVector * arrowHeight    
-    point2 = unitBaseVector * arrowBase    
-    point3 = - unitBaseVector * arrowBase
-    #Draw the arrowheads as filled triangles
-    glColor3fv(color)
-    glBegin(GL_POLYGON)
-    glVertex3fv(point1)
-    glVertex3fv(point2)
-    glVertex3fv(point3)
-    glEnd()    
-    glPopMatrix()
-    glEnable(GL_LIGHTING)
-
 def drawline(color, 
              endpt1, 
              endpt2, 
@@ -2952,6 +2518,602 @@ def drawline(color,
     """
     ColorSorter.schedule_line(color, endpt1, endpt2, dashEnabled,
                               stipleFactor, width, isSmooth)
+
+
+#================================================================ setup_draw.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+setup_draw.py - The function to allocate and compile our standard display lists
+into the current GL context, and initialize the globals that hold their opengl
+names.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
+####from graphics.drawing.shape_vertices import getSphereTriStrips
+
+numSphereSizes = 3
+
+def setup_drawer():
+    """
+    Set up the usual constant display lists in the current OpenGL context.
+
+    WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS --
+    or more precisely, only the GL context this has last been called in
+    (or one which shares its display lists) will work properly with the routines in drawer.py,
+    since the allocated display list names are stored in globals set by this function,
+    but in general those names might differ if this was called in different GL contexts.
+    """
+    #bruce 060613 added docstring, cleaned up display list name allocation
+    # bruce 071030 renamed from setup to setup_drawer
+
+    spherelistbase = glGenLists(numSphereSizes)
+    sphereList = []
+    for i in range(numSphereSizes):
+        sphereList += [spherelistbase+i]
+        glNewList(sphereList[i], GL_COMPILE)
+        glBegin(GL_TRIANGLE_STRIP) # GL_LINE_LOOP to see edges.
+        stripVerts = getSphereTriStrips(i)
+        for vertNorm in stripVerts:
+            glNormal3fv(vertNorm)
+            glVertex3fv(vertNorm)
+            continue
+        glEnd()
+        glEndList()
+        continue
+    drawing_globals.sphereList = sphereList
+
+    # Sphere triangle-strip vertices for each level of detail.
+    # (Cache and re-use the work of making them.)
+    # Can use in converter-wrappered calls like glVertexPointerfv,
+    # but the python arrays are re-copied to C each time.
+    sphereArrays = []
+    for i in range(numSphereSizes):
+        sphereArrays += [getSphereTriStrips(i)]
+        continue
+    drawing_globals.sphereArrays = sphereArrays
+
+    # Sphere glDrawArrays triangle-strip vertices for C calls.
+    # (Cache and re-use the work of converting a C version.)
+    # Used in thinly-wrappered calls like glVertexPointer.
+    sphereCArrays = []
+    for i in range(numSphereSizes):
+        CArray = numpy.array(sphereArrays[i], dtype=numpy.float32)
+        sphereCArrays += [CArray]
+        continue
+    drawing_globals.sphereCArrays = sphereCArrays
+
+    # Sphere indexed vertices.
+    # (Cache and re-use the work of making the indexes.)
+    # Can use in converter-wrappered calls like glDrawElementsui,
+    # but the python arrays are re-copied to C each time.
+    sphereElements = []             # Pairs of lists (index, verts) .
+    for i in range(numSphereSizes):
+        sphereElements += [indexVerts(sphereArrays[i], .0001)]
+        continue
+    drawing_globals.sphereElements = sphereElements
+
+    # Sphere glDrawElements index and vertex arrays for C calls.
+    sphereCIndexTypes = []          # numpy index unsigned types.
+    sphereGLIndexTypes = []         # GL index types for drawElements.
+    sphereCElements = []            # Pairs of numpy arrays (Cindex, Cverts) .
+    for i in range(numSphereSizes):
+        (index, verts) = sphereElements[i]
+        if len(index) < 256:
+            Ctype = numpy.uint8
+            GLtype = GL_UNSIGNED_BYTE
+        else:
+            Ctype = numpy.uint16
+            GLtype = GL_UNSIGNED_SHORT
+            pass
+        sphereCIndexTypes += [Ctype]
+        sphereGLIndexTypes += [GLtype]
+        sphereCIndex = numpy.array(index, dtype=Ctype)
+        sphereCVerts = numpy.array(verts, dtype=numpy.float32)
+        sphereCElements += [(sphereCIndex, sphereCVerts)]
+        continue
+    drawing_globals.sphereCIndexTypes = sphereCIndexTypes
+    drawing_globals.sphereGLIndexTypes = sphereGLIndexTypes
+    drawing_globals.sphereCElements = sphereCElements
+
+    if glGetString(GL_EXTENSIONS).find("GL_ARB_vertex_buffer_object") >= 0:
+
+        # A GLBufferObject version for glDrawArrays.
+        sphereArrayVBOs = []
+        for i in range(numSphereSizes):
+            vbo = GLBufferObject(GL_ARRAY_BUFFER_ARB,
+                                 sphereCArrays[i], GL_STATIC_DRAW)
+            sphereArrayVBOs += [vbo]
+            continue
+        drawing_globals.sphereArrayVBOs = sphereArrayVBOs
+
+        # A GLBufferObject version for glDrawElements indexed verts.
+        sphereElementVBOs = []              # Pairs of (IBO, VBO)
+        for i in range(numSphereSizes):
+            ibo = GLBufferObject(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                                 sphereCElements[i][0], GL_STATIC_DRAW)
+            vbo = GLBufferObject(GL_ARRAY_BUFFER_ARB,
+                                 sphereCElements[i][1], GL_STATIC_DRAW)
+            sphereElementVBOs += [(ibo, vbo)]
+            continue
+        drawing_globals.sphereElementVBOs = sphereElementVBOs
+
+        ibo.unbind()
+        vbo.unbind()
+        pass
+
+    #bruce 060415
+    drawing_globals.wiresphere1list = wiresphere1list = glGenLists(1)
+    glNewList(wiresphere1list, GL_COMPILE)
+    didlines = {} # don't draw each triangle edge more than once
+    def shoulddoline(v1,v2):
+        v1 = tuple(v1) # make sure not list (unhashable) or Numeric array (bug in __eq__)
+        v2 = tuple(v2)
+        if (v1,v2) not in didlines:
+            didlines[(v1,v2)] = didlines[(v2,v1)] = None
+            return True
+        return False
+    def doline(v1,v2):
+        if shoulddoline(v1,v2):
+            glVertex3fv(v1)
+            glVertex3fv(v2)
+        return
+    glBegin(GL_LINES)
+    ocdec = getSphereTriangles(1)
+    for tri in ocdec:
+        #e could probably optim this more, e.g. using a vertex array or VBO or maybe GL_LINE_STRIP
+        doline(tri[0], tri[1])
+        doline(tri[1], tri[2])
+        doline(tri[2], tri[0])
+    glEnd()
+    glEndList()
+
+    drawing_globals.CylList = CylList = glGenLists(1)
+    glNewList(CylList, GL_COMPILE)
+    glBegin(GL_TRIANGLE_STRIP)
+    for (vtop, ntop, vbot, nbot) in drawing_globals.cylinderEdges:
+        glNormal3fv(nbot)
+        glVertex3fv(vbot)
+        glNormal3fv(ntop)
+        glVertex3fv(vtop)
+    glEnd()
+    glEndList()
+
+    drawing_globals.CapList = CapList = glGenLists(1)
+    glNewList(CapList, GL_COMPILE)
+    glNormal3fv(drawing_globals.cap0n)
+    glBegin(GL_POLYGON)
+    for p in drawing_globals.drum0:
+        glVertex3fv(p)
+    glEnd()
+    glNormal3fv(drawing_globals.cap1n)
+    glBegin(GL_POLYGON)
+    #bruce 060609 fix "ragged edge" bug in this endcap: drum1 -> drum2
+    for p in drawing_globals.drum2:
+        glVertex3fv(p)
+    glEnd()
+    glEndList()
+
+    drawing_globals.diamondGridList = diamondGridList = glGenLists(1)
+    glNewList(diamondGridList, GL_COMPILE)
+    glBegin(GL_LINES)
+    for p in drawing_globals.digrid:
+        glVertex(p[0])
+        glVertex(p[1])
+    glEnd()
+    glEndList()
+
+    drawing_globals.lonsGridList = lonsGridList = glGenLists(1)
+    glNewList(lonsGridList, GL_COMPILE)
+    glBegin(GL_LINES)
+    for p in drawing_globals.lonsEdges:
+        glVertex(p[0])
+        glVertex(p[1])
+    glEnd()
+    glEndList()
+
+    drawing_globals.CubeList = CubeList = glGenLists(1)
+    glNewList(CubeList, GL_COMPILE)
+    glBegin(GL_QUAD_STRIP)
+    # note: CubeList has only 4 faces of the cube; only suitable for use in wireframes;
+    # see also solidCubeList [bruce 051215 comment reporting grantham 20051213 observation]
+    glVertex((-1,-1,-1))
+    glVertex(( 1,-1,-1))
+    glVertex((-1, 1,-1))
+    glVertex(( 1, 1,-1))
+    glVertex((-1, 1, 1))
+    glVertex(( 1, 1, 1))
+    glVertex((-1,-1, 1))
+    glVertex(( 1,-1, 1))
+    glVertex((-1,-1,-1))
+    glVertex(( 1,-1,-1))
+    glEnd()
+    glEndList()
+
+    drawing_globals.solidCubeList = solidCubeList = glGenLists(1)
+    glNewList(solidCubeList, GL_COMPILE)
+    glBegin(GL_QUADS)
+    for i in xrange(len(drawing_globals.cubeIndices)):
+        avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading 
+        for j in xrange(4) :    
+            nTuple = tuple(
+                drawing_globals.cubeNormals[drawing_globals.cubeIndices[i][j]])
+            avenormals += A(nTuple)
+        avenormals = norm(avenormals)
+        for j in xrange(4) :    
+            vTuple = tuple(
+                drawing_globals.cubeVertices[drawing_globals.cubeIndices[i][j]])
+            #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
+            vTuple = A(vTuple) * 0.5
+            glNormal3fv(avenormals)
+            glVertex3fv(vTuple)
+    glEnd()
+    glEndList()                
+
+    drawing_globals.rotSignList = rotSignList = glGenLists(1)
+    glNewList(rotSignList, GL_COMPILE)
+    glBegin(GL_LINE_STRIP)
+    for ii in xrange(len(drawing_globals.rotS0n)):
+        glVertex3fv(tuple(drawing_globals.rotS0n[ii]))
+    glEnd()
+    glBegin(GL_LINE_STRIP)
+    for ii in xrange(len(drawing_globals.rotS1n)):
+        glVertex3fv(tuple(drawing_globals.rotS1n[ii]))
+    glEnd()
+    glBegin(GL_TRIANGLES)
+    for v in drawing_globals.arrow0Vertices + drawing_globals.arrow1Vertices:
+        glVertex3f(v[0], v[1], v[2])
+    glEnd()
+    glEndList()
+
+    drawing_globals.linearArrowList = linearArrowList = glGenLists(1)
+    glNewList(linearArrowList, GL_COMPILE)
+    glBegin(GL_TRIANGLES)
+    for v in drawing_globals.linearArrowVertices:
+        glVertex3f(v[0], v[1], v[2])
+    glEnd()
+    glEndList()
+
+    drawing_globals.linearLineList = linearLineList = glGenLists(1)
+    glNewList(linearLineList, GL_COMPILE)
+    glEnable(GL_LINE_SMOOTH)
+    glBegin(GL_LINES)
+    glVertex3f(0.0, 0.0, -drawing_globals.halfHeight)
+    glVertex3f(0.0, 0.0, drawing_globals.halfHeight)
+    glEnd()
+    glDisable(GL_LINE_SMOOTH)
+    glEndList()
+
+    drawing_globals.circleList = circleList = glGenLists(1)
+    glNewList(circleList, GL_COMPILE)
+    glBegin(GL_LINE_LOOP)
+    for ii in range(60):
+        x = cos(ii*2.0*pi/60)
+        y = sin(ii*2.0*pi/60)
+        glVertex3f(x, y, 0.0)
+    glEnd()    
+    glEndList()
+
+    # piotr 080405
+    drawing_globals.filledCircleList = filledCircleList = glGenLists(1)
+    glNewList(filledCircleList, GL_COMPILE)
+    glBegin(GL_POLYGON)
+    for ii in range(60):
+        x = cos(ii*2.0*pi/60)
+        y = sin(ii*2.0*pi/60)
+        glVertex3f(x, y, 0.0)
+    glEnd()    
+    glEndList()
+
+    drawing_globals.lineCubeList = lineCubeList = glGenLists(1)
+    glNewList(lineCubeList, GL_COMPILE)
+    glBegin(GL_LINES)
+    cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
+    for i in cvIndices:
+        glVertex3fv(tuple(drawing_globals.cubeVertices[i]))
+    glEnd()    
+    glEndList()
+
+    # Debug Preferences
+    from utilities.debug_prefs import debug_pref, Choice_boolean_True
+    from utilities.debug_prefs import Choice_boolean_False
+    choices = [Choice_boolean_False, Choice_boolean_True]
+
+    # 20060314 grantham
+    initial_choice = choices[drawing_globals.allow_color_sorting_default]
+    drawing_globals.allow_color_sorting_pref = debug_pref(
+        "Use Color Sorting?", initial_choice,
+        prefs_key = drawing_globals.allow_color_sorting_prefs_key)
+        #bruce 060323 removed non_debug = True for A7 release, changed default
+        #value to False (far above), and changed its prefs_key so developers
+        #start with the new default value.
+    #russ 080225: Added.
+    initial_choice = choices[drawing_globals.use_color_sorted_dls_default]
+    drawing_globals.use_color_sorted_dls_pref = debug_pref(
+        "Use Color-sorted Display Lists?", initial_choice,
+        prefs_key = drawing_globals.use_color_sorted_dls_prefs_key)
+    #russ 080225: Added.
+    initial_choice = choices[drawing_globals.use_color_sorted_vbos_default]
+    drawing_globals.use_color_sorted_vbos_pref = debug_pref(
+        "Use Color-sorted Vertex Buffer Objects?", initial_choice,
+        prefs_key = drawing_globals.use_color_sorted_vbos_prefs_key)
+
+    #russ 080403: Added drawing variant selection
+    variants = [
+        "0. OpenGL 1.0 - glBegin/glEnd tri-strips vertex-by-vertex.",
+        "1. OpenGL 1.1 - glDrawArrays from CPU RAM.",
+        "2. OpenGL 1.1 - glDrawElements indexed arrays from CPU RAM.",
+        "3. OpenGL 1.5 - glDrawArrays from graphics RAM VBO.",
+        "4. OpenGL 1.5 - glDrawElements, verts in VBO, index in CPU.",
+        "5. OpenGL 1.5 - VBO/IBO buffered glDrawElements."]
+    drawing_globals.use_drawing_variant = debug_pref(
+        "GLPane: drawing method",
+        Choice(names = variants, values = range(len(variants)),
+               defaultValue = drawing_globals.use_drawing_variant_default),
+        prefs_key = drawing_globals.use_drawing_variant_prefs_key)
+
+    # temporarily always print this, while default setting might be in flux,
+    # and to avoid confusion if the two necessary prefs are set differently
+    # [bruce 080305]
+    if (drawing_globals.allow_color_sorting_pref and
+        drawing_globals.use_color_sorted_dls_pref):
+        print "\nnote: this session WILL use color sorted display lists"
+    else:
+        print "\nnote: this session will NOT use color sorted display lists"
+    if (drawing_globals.allow_color_sorting_pref and
+        drawing_globals.use_color_sorted_vbos_pref):
+        print "note: this session WILL use color sorted Vertex Buffer Objects\n"
+    else:
+        print "note: this session will NOT use color sorted Vertex Buffer Objects\n"
+
+    # 20060313 grantham Added use_c_renderer debug pref, can
+    # take out when C renderer used by default.
+    if drawing_globals.quux_module_import_succeeded:
+        initial_choice = choices[drawing_globals.use_c_renderer_default]
+        drawing_globals.use_c_renderer = (
+            debug_pref("Use native C renderer?",
+                       initial_choice,
+                       prefs_key = drawing_globals.use_c_renderer_prefs_key))
+            #bruce 060323 removed non_debug = True for A7 release,
+            # and changed its prefs_key so developers start over with the default value.
+
+    #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
+    return # from setup_drawer
+
+#================================================================ drawers.py
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+drawers.py - Miscellaneous drawing functions that are not used as primitives.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
+
+import graphics.drawing.drawing_globals as drawing_globals
+
+try:
+    from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+except:
+    print "GLE module can't be imported. Now trying _GLE"
+    from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+
+# Check if the gleGet/SetNumSides function is working on this install, and if
+# not, alias it to an effective no-op. Checking method is as recommended in
+# an OpenGL exception reported by Brian [070622]:
+#   OpenGL.error.NullFunctionError: Attempt to call an
+#   undefined function gleGetNumSides, check for
+#   bool(gleGetNumSides) before calling
+# The underlying cause of this (described by Brian) is that the computer's OpenGL
+# has the older gleGetNumSlices (so it supports the functionality), but PyOpenGL
+# binds (only) to the newer gleGetNumSides. Given the PyOpenGL we're using,
+# there's no way to access gleGetNumSlices, but in the future we might patch it
+# to let us do that when this happens. I [bruce 070629] think Brian said this is
+# only an issue on Macs.
+if not bool(gleGetNumSides):
+    print "fyi: gleGetNumSides is not supported by the OpenGL pre-installed on this computer."
+    gleGetNumSides = int
+    gleSetNumSides = int
+
+# ==
+
+def drawCircle(color, center, radius, normal):
+    """Scale, rotate/translate the unit circle properly """
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix() 
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+
+    glTranslatef(center[0], center[1], center[2])
+    rQ = Q(V(0, 0, 1), normal)
+    rotAngle = rQ.angle*180.0/pi
+
+    #This may cause problems as proved before in Linear motor display.
+    #rotation around (0, 0, 0)
+    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
+    #      rQ.x = 1.0
+
+    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
+    glScalef(radius, radius, 1.0)
+    glCallList(drawing_globals.circleList)
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
+
+def drawFilledCircle(color, center, radius, normal):
+    """
+    Scale, rotate/translate the unit circle properly.
+    Added a filled circle variant, piotr 080405
+    """
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix() 
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+
+    glTranslatef(center[0], center[1], center[2])
+    rQ = Q(V(0, 0, 1), normal)
+    rotAngle = rQ.angle*180.0/pi
+
+    #This may cause problems as proved before in Linear motor display.
+    #rotation around (0, 0, 0)
+    #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
+    #      rQ.x = 1.0
+
+    glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
+    glScalef(radius, radius, 1.0)
+    glCallList(drawing_globals.filledCircleList)
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
+
+def drawLinearArrows(longScale):   
+    glCallList(drawing_globals.linearArrowList)
+    newPos = drawing_globals.halfHeight*longScale
+    glPushMatrix()
+    glTranslate(0.0, 0.0, -newPos)
+    glCallList(drawing_globals.linearArrowList)
+    glPopMatrix()
+    glPushMatrix()
+    glTranslate(0.0, 0.0, newPos -2.0*drawing_globals.halfEdge)
+    glCallList(drawing_globals.linearArrowList)
+    glPopMatrix()
+    return
+
+def drawLinearSign(color, center, axis, l, h, w):
+    """Linear motion sign on the side of squa-linder """
+    depthOffset = 0.005
+    glPushMatrix()
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glTranslatef(center[0], center[1], center[2])
+
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+
+    glPushMatrix()
+    glTranslate(h/2.0 + depthOffset, 0.0, 0.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(drawing_globals.linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        sl = l/2.7
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(-h/2.0 - depthOffset, 0.0, 0.0)
+    glRotate(180.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(drawing_globals.linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(0.0, w/2.0 + depthOffset, 0.0)
+    glRotate(90.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(drawing_globals.linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glPushMatrix()
+    glTranslate(0.0, -w/2.0 - depthOffset, 0.0 )
+    glRotate(-90.0, 0.0, 0.0, 1.0)
+    glPushMatrix()
+    glScale(1.0, 1.0, l)
+    glCallList(drawing_globals.linearLineList)
+    glPopMatrix()
+    if l < 2.6:
+        glScale(1.0, sl, sl)
+    if w < 1.0:
+        glScale(1.0, w, w)
+    drawLinearArrows(l)
+    glPopMatrix()
+
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
+
+def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
+    """Rotate sign on top of the caps of the cylinder """
+    glPushMatrix()
+    glColor3fv(color)
+    vec = pos2-pos1
+    axis = norm(vec)
+    glTranslatef(pos1[0], pos1[1], pos1[2])
+
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ## display problem on some platforms
+    angle = -acos(axis[2])*180.0/pi
+    if (axis[2]*axis[2] >= 1.0):
+        glRotate(angle, 0.0, 1.0, 0.0)
+    else:
+        glRotate(angle, axis[1], -axis[0], 0.0)
+    glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
+    glScale(radius,radius,Numeric.dot(vec,vec)**.5)
+
+    glLineWidth(2.0)
+    glDisable(GL_LIGHTING)
+    glCallList(drawing_globals.rotSignList)
+    glEnable(GL_LIGHTING)
+    glLineWidth(1.0)
+
+    glPopMatrix()
+    return
+
+def drawArrowHead(color, 
+                  basePoint, 
+                  drawingScale, 
+                  unitBaseVector, 
+                  unitHeightVector):
+
+
+
+    arrowBase = drawingScale * 0.08
+    arrowHeight = drawingScale * 0.12
+    glDisable(GL_LIGHTING)
+    glPushMatrix()
+    glTranslatef(basePoint[0],basePoint[1],basePoint[2])
+    point1 = V(0, 0, 0)
+    point1 = point1 + unitHeightVector * arrowHeight    
+    point2 = unitBaseVector * arrowBase    
+    point3 = - unitBaseVector * arrowBase
+    #Draw the arrowheads as filled triangles
+    glColor3fv(color)
+    glBegin(GL_POLYGON)
+    glVertex3fv(point1)
+    glVertex3fv(point2)
+    glVertex3fv(point3)
+    glEnd()    
+    glPopMatrix()
+    glEnable(GL_LIGHTING)
+
+def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
+    """
+    """
+    pass    
 
 def drawPolyLine(color, points):
     '''Draws a poly line passing through the given list of points'''
@@ -3018,7 +3180,8 @@ def drawTag(color, basePoint, endPoint, pointSize = 20.0):
 def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
-    glVertexPointer(3, GL_FLOAT, 0, flatCubeVertices) #bruce 051117 revised this
+    #bruce 051117 revised this
+    glVertexPointer(3, GL_FLOAT, 0, drawing_globals.flatCubeVertices)
         #grantham 20051213 observations, reported/paraphrased by bruce 051215:
         # - should verify PyOpenGL turns Python float (i.e. C double) into C float
         #   for OpenGL's GL_FLOAT array element type.
@@ -3050,7 +3213,7 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     else: 
         glScale(radius[0], radius[1], radius[2])
     glLineWidth(lineWidth)
-    glCallList(lineCubeList)
+    glCallList(drawing_globals.lineCubeList)
     glLineWidth(1.0) ## restore its state
     glPopMatrix()
     glEnable(GL_CULL_FACE)
@@ -3068,7 +3231,7 @@ def drawwirebox(color, pos, len):
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(len[0], len[1], len[2])
-    glCallList(CubeList)
+    glCallList(drawing_globals.CubeList)
     glPopMatrix()
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
@@ -3349,9 +3512,12 @@ def drawDirectionArrow(color,
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """
     if latticeType == 'DIAMOND':
-        a = 0; cellX = cellY = cellZ = DiGridSp
+        a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
-        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
+        a = 1
+        cellX = drawing_globals.XLen
+        cellY = drawing_globals.YLen
+        cellZ = drawing_globals.ZLen
 
     i = int(floor(pt[0]/cellX))
     j = int(floor(pt[1]/cellY))
@@ -3365,9 +3531,12 @@ def genDiam(bblo, bbhi, latticeType):
     """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
     <Return>: A list of unit cells"""
     if latticeType == 'DIAMOND':
-        a = 0; cellX = cellY = cellZ = DiGridSp
+        a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
-        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
+        a = 1
+        cellX = drawing_globals.XLen
+        cellY = drawing_globals.YLen
+        cellZ = drawing_globals.ZLen
 
     allCells = []    
     for i in range(int(floor(bblo[0]/cellX)),
@@ -3377,8 +3546,8 @@ def genDiam(bblo, bbhi, latticeType):
             for k in range(int(floor(bblo[2]/cellZ)),
                            int(ceil(bbhi[2]/cellZ))):
                 off = V(i*cellX, j*cellY, k*cellZ)
-                if a == 0: allCells += [digrid + off]
-                elif a ==1: allCells += [lonsEdges + off]
+                if a == 0: allCells += [drawing_globals.digrid + off]
+                elif a ==1: allCells += [drawing_globals.lonsEdges + off]
     return allCells  
 
 
@@ -3410,9 +3579,11 @@ def drawGrid(scale, center, latticeType):
         scale = MAX_GRID_SCALE
 
     if latticeType == 'DIAMOND':
-        cellX = cellY = cellZ = DiGridSp
+        cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
-        cellX = XLen; cellY = YLen; cellZ = ZLen
+        cellX = drawing_globals.XLen
+        cellY = drawing_globals.YLen
+        cellZ = drawing_globals.ZLen
 
     bblo = center - scale
     bbhi = center + scale
@@ -3430,9 +3601,9 @@ def drawGrid(scale, center, latticeType):
             glPushMatrix()
             for k in range(k1, k2):
                 if latticeType == 'DIAMOND':
-                    glCallList(diamondGridList)
+                    glCallList(drawing_globals.diamondGridList)
                 else:
-                    glCallList(lonsGridList)
+                    glCallList(drawing_globals.lonsGridList)
                 glTranslate(0.0,  0.0, cellZ)
             glPopMatrix()
             glTranslate(0.0,  cellY, 0.0)
@@ -3522,7 +3693,8 @@ def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
 
 
     glScale(h, w, l)
-    glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
+    #bruce 060302 revised the contents of solidCubeList while fixing bug 1595
+    glCallList(drawing_globals.solidCubeList)
 
     if opacity != 1.0:	
         glDisable(GL_BLEND)

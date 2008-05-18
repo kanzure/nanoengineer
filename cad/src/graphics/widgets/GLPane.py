@@ -126,6 +126,8 @@ except:
 
 from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
+
+import graphics.drawing.drawing_globals as drawing_globals
 import graphics.drawing.drawer as drawer
 
 # note: the list of preloaded_command_classes for the Command Sequencer
@@ -3321,7 +3323,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         #k not sure whether next things are also needed in the split-out standard_repaint [bruce 050617]
 
-        drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
+        drawing_globals.glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
 
         if self.need_setup_lighting \
            or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights() \
@@ -3602,7 +3604,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def standard_repaint_0(self):
 
         # do something (what?) so prefs changes do gl_update when needed [bruce 051126]
-        drawer._glprefs.update()
+        drawing_globals.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
 
         # clear, and draw background
