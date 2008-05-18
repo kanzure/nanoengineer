@@ -2607,14 +2607,26 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.quat = Q(q)
         self.gl_update()
         return what
-
+        
     def setDisplay(self, disp, default_display = False):
         """
-        Set the display mode of the GLPane, where:
-        'disp' is the display mode, and
-        'default_display' changes the header of the display status bar
-        to either 'Default Display' (True)
-        or 'Current Display' (False, the default).
+        Set the global display style of the GLPane.
+        
+        @param disp: The global display style: 
+                     - diDEFAULT (the "NE1 start-up display style", defined
+                       in the Preferences | General dialog)
+                     - diLINES (Lines display style)
+                     - diTUBES (Tubes display style)
+                     - diBALL, (Ball and stick display style)
+                     - diTrueCPK, (Space filling display style)
+                     - diDNACYLINDER (DNA cylinder display style)
+        @type  disp: int
+        
+        @param default_display: Unused. In older versions of NE1, this used
+                                to change the header of the display status bar
+                                to either 'Default Display' (True) or 
+                                'Current Display' (False, the default).
+        @type  default_display: bool
 
         @note: doesn't update the MT, and callers typically won't need to,
                since the per-node display style icons are not changing.
@@ -2639,6 +2651,41 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # (or their currently set individual display style) to the one they used
         # to make their display lists. [bruce 080305 comment]
         return
+        
+    def setGlobalDisplayStyle(self, disp):
+        """
+        Set the global display style of the GLPane.
+        
+        @param disp: The global display style: 
+                     - diDEFAULT (the "NE1 start-up display style", defined
+                       in the Preferences | General dialog)
+                     - diLINES (Lines display style)
+                     - diTUBES (Tubes display style)
+                     - diBALL, (Ball and stick display style)
+                     - diTrueCPK, (Space filling display style)
+                     - diDNACYLINDER (DNA cylinder display style)
+        @type  disp: int
+        
+        @note: This is identical to (and calls) L{setDisplay}, provided for 
+        convenience.
+        """
+        self.setDisplay(disp)
+        
+    def getGlobalDisplayStyle(self):
+        """
+        Returns the current global display style.
+        
+        @return: The current global display style:
+                - diDEFAULT (the "NE1 start-up display style", defined
+                  in the Preferences | General dialog)
+                - diLINES (Lines display style)
+                - diTUBES (Tubes display style)
+                - diBALL, (Ball and stick display style)
+                - diTrueCPK, (Space filling display style)
+                - diDNACYLINDER (DNA cylinder display style)
+        @rtype:  int
+        """
+        return self.displayMode
 
     # note: as of long before 060829, set/getZoomFactor are never called, and I suspect that nothing
     # ever sets self.zoomFactor to anything other than 1.0, though I didn't fully analyze the calls
