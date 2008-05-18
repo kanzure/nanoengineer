@@ -33,6 +33,7 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
 
 class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -122,6 +123,10 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                       SIGNAL("valueChanged(double)"),
                       self.duplexRiseChanged )
         
+        change_connect(self.showCursorTextCheckBox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self._update_state_of_cursorTextGroupBox)
+        
         
     def model_changed(self): 
         """
@@ -184,6 +189,9 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             name = self.editCommand.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)
+            
+            self._update_state_of_cursorTextGroupBox(
+            self.showCursorTextCheckBox.isChecked())
             
     
     def close(self):
@@ -264,6 +272,13 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint1, 
             self.endPoint2)
     
+    
+    def _update_state_of_cursorTextGroupBox(self, enable):
+        if enable:
+            self._cursorTextGroupBox.setEnabled(True)
+        else:
+            self._cursorTextGroupBox.setEnabled(False)
+            
     def _update_widgets_in_PM_before_show(self):
         """
         This is called only when user is editing an existing structure. 
@@ -411,6 +426,13 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 text  = "Duplex length",
                 widgetColumn = 1,
                 state        = Qt.Checked)
+        
+        self.cursorTextCheckBox_changedBaePairs = \
+            PM_CheckBox( 
+                pmGroupBox,
+                text  = "Number of basepairs to be changed",
+                widgetColumn = 1,
+                state        = Qt.Checked)
 
 
     def _connect_cursorTextCheckBoxes(self):
@@ -430,6 +452,10 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         connect_checkbox_with_boolean_pref(
             self.cursorTextCheckBox_length , 
             dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.cursorTextCheckBox_changedBaePairs , 
+            dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key)
 
     
     def _addWhatsThisText(self):

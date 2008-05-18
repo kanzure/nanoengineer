@@ -236,6 +236,7 @@ dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key = 'A110/Show angle info 
 dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex in DnaSegment EditCommand'
 dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaSegment_Editcommand'
 dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaSegment_Editcommand'
+dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaSegment_Editcommand'
 
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
@@ -631,7 +632,8 @@ prefs_table = (
     ('', 'boolean',
     dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
      
-     
+    ('', 'boolean',
+    dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
     ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]

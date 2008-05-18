@@ -658,14 +658,8 @@ class DnaDuplex_EditCommand(EditCommand):
         numberOfTurnsString = self._getCursorText_numberOfTurns(
             numberOfBasePairs)
 
-        if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key]:
-            lengthUnitString = 'A'
-            #change the unit of length to nanometers if the length is > 10A
-            #fixes part of bug 2856
-            if duplexLength > 10.0:
-                lengthUnitString = 'nm'
-                duplexLength = duplexLength * 0.1
-            duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
+        
+        duplexLengthString = self._getCursorText_length(duplexLength)
 
 
         if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key]:
@@ -697,6 +691,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         return text , textColor
+        
 
     def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
         numberOfBasePairsString = ''
@@ -715,8 +710,18 @@ class DnaDuplex_EditCommand(EditCommand):
 
         return numberOfTurnsString
 
-    def _getCursorText_length(self):
-        pass
+    def _getCursorText_length(self, duplexLength):
+        duplexLengthString = ''
+        if env.prefs[dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key]:
+            lengthUnitString = 'A'
+            #change the unit of length to nanometers if the length is > 10A
+            #fixes part of bug 2856
+            if duplexLength > 10.0:
+                lengthUnitString = 'nm'
+                duplexLength = duplexLength * 0.1
+            duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
+        
+        return duplexLengthString
 
     def _getCursorText_angle(self):
         pass

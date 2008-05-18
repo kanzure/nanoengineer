@@ -31,6 +31,8 @@ Ninad 2008-01-18: Created
 
 
 """
+
+import foundation.env as env
 from command_support.EditCommand       import EditCommand 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
@@ -68,6 +70,11 @@ from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM3
 from dna.commands.BuildDuplex.DnaDuplex import B_Dna_PAM5
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
+
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
 
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
@@ -797,6 +804,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #DnaStrand_EditCommand.getCursorText() -- Ninad 2008-04-12
         if self.grabbedHandle is None:
             return        
+        
+        if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
 
         text = ""       
 
@@ -806,33 +816,97 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         duplexLength = vlen( currentPosition - fixedEndOfStructure )
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
                                                                  duplexLength)
-        duplexLengthString = str(round(duplexLength, 3))
-        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString + "A, "
-
+        
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
-
-        original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
-
-        changed_basePairs = numberOfBasePairs - original_numberOfBasePairs
 
         #Note: for Rattlesnake rc2, the text color is green when bases are added
         #, red when subtracted black when no change. But this implementation is 
         #changed based on Mark's user experience. The text is now always shown
         #in black color. -- Ninad 2008-04-17
         textColor = black  
+        
+        #Cursor text strings --
+        duplexLengthString = str(round(duplexLength, 3))
+        
+        numberOfBasePairsString = self._getCursorText_numberOfBasePairs(
+            numberOfBasePairs)
+        
 
-        if changed_basePairs > 0:
-            changedBasePairsString = "(" + "+" + str(changed_basePairs) + ")"
-        else:
-            changedBasePairsString = "(" + str(changed_basePairs) + ")"
+        duplexLengthString  = self._getCursorText_length(duplexLength)
+        
+        changedBasePairsString = self._getCursorText_changedBasePairs(
+            numberOfBasePairs)
+        
+        #Add commas (to be refactored)
+        commaString = ", "
+        text = numberOfBasePairsString 
 
+        if text and duplexLengthString:
+            text += commaString
 
-        text += changedBasePairsString            
+        text += duplexLengthString
+        
+        if text and changedBasePairsString:
+            text += commaString
+        
+        text += changedBasePairsString         
+        
+        
+        #########          
 
         return (text, textColor)
+    
+    def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
+        """
+        Return the cursor textstring that gives information about the number 
+        of basepairs if the corresponding prefs_key returns True.
+        """
+        numberOfBasePairsString = ''
+
+        if env.prefs[
+            dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key]:
+            numberOfBasePairsString = "%db"%numberOfBasePairs
+
+        return numberOfBasePairsString
+    
+    def _getCursorText_length(self, duplexLength):
+        """
+        """
+        duplexLengthString = ''
+        if env.prefs[dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key]:
+            lengthUnitString = 'A'
+            #change the unit of length to nanometers if the length is > 10A
+            #fixes part of bug 2856
+            if duplexLength > 10.0:
+                lengthUnitString = 'nm'
+                duplexLength = duplexLength * 0.1
+            duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
+        
+        return duplexLengthString
+    
+    
+    def _getCursorText_changedBasePairs(self, numberOfBasePairs):
+        """
+        """
+        changedBasePairsString = ''
+        
+        if env.prefs[
+            dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key]:            
+        
+            original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
+            
+            changed_basePairs = numberOfBasePairs - original_numberOfBasePairs
+    
+            if changed_basePairs > 0:
+                changedBasePairsString = "(" + "+" + str(changed_basePairs) + ")"
+            else:
+                changedBasePairsString = "(" + str(changed_basePairs) + ")"
+        
+        return changedBasePairsString
+    
 
     def getDnaRibbonParams(self):
         """
