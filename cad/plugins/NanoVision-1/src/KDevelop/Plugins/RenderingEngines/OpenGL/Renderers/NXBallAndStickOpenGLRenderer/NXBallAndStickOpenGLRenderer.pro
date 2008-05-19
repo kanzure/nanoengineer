@@ -1,14 +1,14 @@
+
 TEMPLATE = lib
 TARGET = NXBallAndStickOpenGLRenderer
 DESTDIR = ../../../../../../../lib/
 
 CONFIG += stl \
-opengl \
-dll \
-plugin \
-rtti \
-debug_and_release \
-build_all
+ opengl \
+ dll \
+ plugin \
+ rtti \
+ release
 
 QT += opengl
 
@@ -20,13 +20,12 @@ HEADERS += ../../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../../../../../include/Nanorex/Interface/NXAtomData.h \
  ../../../../../../../include/Nanorex/Interface/NXBondData.h
 
-
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.cpp
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
- -g \
- -O0 \
- -fno-inline
+#QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+# -g \
+# -O0 \
+# -fno-inline
 
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
@@ -35,24 +34,20 @@ TARGETDEPS += ../../../../../../../lib/libNXOpenGLSceneGraph.a \
   ../../../../../../../lib/libNanorexInterface.so \
   ../../../../../../../lib/libNanorexUtility.so
 
-
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
   ../../../../../../../include
 
-PROJECTLIBS = -lNanorexUtility \
-  -lNanorexInterface \
-  -lNXOpenGLSceneGraph \
-  -lGLT
-
-CONFIG(debug,debug|release){
-    TARGET = $$join(TARGET,,,_d)
-    PROJECTLIBS ~= s/(.+)/\1_d/g
-	TARGETDEPS ~= s/(.+).(a|so)/\1_d.\2/g
-}
-
+#CONFIG(debug,debug|release){
+#    TARGET = $$join(TARGET,,,_d)
+#    PROJECTLIBS ~= s/(.+)/\1_d/g
+#	TARGETDEPS ~= s/(.+).(a|so)/\1_d.\2/g
+#}
 
 LIBS += -L../../../../../../../lib/ \
-  $$PROJECTLIBS \
+  -lNanorexInterface \
+  -lNanorexUtility \
+  -lNXOpenGLSceneGraph \
+  -lGLT \
   -lgle
 
 
@@ -72,6 +67,7 @@ win32 {
     CONFIG -= dll
     CONFIG += staticlib
     TARGETDEPS ~= s/.so/.a/g
+	
     # qmake puts these library declarations too early in the g++ command on win32
     LIBS += -lopengl32 -lglu32 -lgdi32 -luser32 
 }

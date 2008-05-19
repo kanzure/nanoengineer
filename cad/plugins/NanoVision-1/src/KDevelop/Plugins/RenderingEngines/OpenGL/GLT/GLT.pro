@@ -1,22 +1,21 @@
+
 TEMPLATE = lib
 TARGET = GLT
 DESTDIR = ../../../../../../lib/
 
 CONFIG -= qt \
-thread 
+ thread 
 
 CONFIG += opengl \
-staticlib \
-debug_and_release \
-build_all
+ staticlib \
+ release
 
-CONFIG(debug,debug|release){
-    TARGET = $$join(TARGET,,,_d)
-}
+#CONFIG(debug,debug|release){
+#    TARGET = $$join(TARGET,,,_d)
+#}
 
 QT -= core \
-gui
-
+ gui
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/bbox.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/color.cpp \
@@ -56,10 +55,10 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_rgb.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/guarded_gl_ops.h
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
--g \
--O0 \
--fno-inline
+#QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+#-g \
+#-O0 \
+#-fno-inline
 
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 

@@ -1,17 +1,17 @@
+
 TEMPLATE = lib
 TARGET = NXOpenGLSceneGraph
 DESTDIR = ../../../../../../lib/
 
 CONFIG += staticlib \
-opengl \
+ opengl \
  rtti \
- debug_and_release \
- stl \
- build_all
+ release \
+ stl
 
-CONFIG(debug,debug|release){
-    TARGET = $$join(TARGET,,,_d)
-}
+#CONFIG(debug,debug|release){
+#    TARGET = $$join(TARGET,,,_d)
+#}
 
 QT += opengl
 QT -= gui
@@ -27,13 +27,12 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLMaterial.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.h \
  ../../../../../../include/Nanorex/Interface/NXSceneGraph.h
 
-
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.cpp
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
- -g \
- -O0 \
- -fno-inline
+#QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+# -g \
+# -O0 \
+# -fno-inline
 
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 

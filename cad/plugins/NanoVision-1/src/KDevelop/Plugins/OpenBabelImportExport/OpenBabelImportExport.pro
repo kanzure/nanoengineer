@@ -13,21 +13,19 @@ TARGETDEPS += ../../../../lib/libNanorexInterface.so \
 
 CONFIG += dll \
  plugin \
- debug_and_release \
- build_all
+ release \
+ stl
 
-PROJECTLIBS = -lNanorexInterface \
- -lNanorexUtility
-
-CONFIG(debug,debug|release) {
-    TARGET = $$join(TARGET,,,_d)
-    PROJECTLIBS ~= s/(.+)/\1_d/g
-	TARGETDEPS ~= s/(.+).so/\1_d.so/g
-}
+#CONFIG(debug,debug|release) {
+#    TARGET = $$join(TARGET,,,_d)
+#    PROJECTLIBS ~= s/(.+)/\1_d/g
+#	TARGETDEPS ~= s/(.+).so/\1_d.so/g
+#}
 
 unix {
     QMAKE_CLEAN += $${DESTDIR}$${TARGET}.so
-# Remove the "lib" from the start of the library
+
+	# Remove the "lib" from the start of the library
     QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 }
 
@@ -47,16 +45,16 @@ INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
 
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
- -g \
- -O0 \
- -fno-inline
+#QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+# -g \
+# -O0 \
+# -fno-inline
 
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 
 LIBS += -L../../../../lib \
-  $$PROJECTLIBS \
   -lNanorexInterface \
+  -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 
