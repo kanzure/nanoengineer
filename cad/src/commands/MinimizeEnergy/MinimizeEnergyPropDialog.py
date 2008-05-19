@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Thu May 15 16:31:19 2008
+# Created: Mon May 19 16:50:51 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,17 +12,49 @@ from PyQt4 import QtCore, QtGui
 class Ui_MinimizeEnergyPropDialog(object):
     def setupUi(self, MinimizeEnergyPropDialog):
         MinimizeEnergyPropDialog.setObjectName("MinimizeEnergyPropDialog")
-        MinimizeEnergyPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,400,842).size()).expandedTo(MinimizeEnergyPropDialog.minimumSizeHint()))
+        MinimizeEnergyPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,270,609).size()).expandedTo(MinimizeEnergyPropDialog.minimumSizeHint()))
 
-        self.gridlayout = QtGui.QGridLayout(MinimizeEnergyPropDialog)
-        self.gridlayout.setMargin(9)
-        self.gridlayout.setSpacing(6)
-        self.gridlayout.setObjectName("gridlayout")
-
-        self.vboxlayout = QtGui.QVBoxLayout()
+        self.vboxlayout = QtGui.QVBoxLayout(MinimizeEnergyPropDialog)
         self.vboxlayout.setMargin(0)
-        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setSpacing(2)
         self.vboxlayout.setObjectName("vboxlayout")
+
+        self.heading_frame = QtGui.QFrame(MinimizeEnergyPropDialog)
+        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.heading_frame.setObjectName("heading_frame")
+
+        self.hboxlayout = QtGui.QHBoxLayout(self.heading_frame)
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(3)
+        self.hboxlayout.setObjectName("hboxlayout")
+
+        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
+        self.heading_pixmap.setSizePolicy(sizePolicy)
+        self.heading_pixmap.setScaledContents(True)
+        self.heading_pixmap.setAlignment(QtCore.Qt.AlignVCenter)
+        self.heading_pixmap.setObjectName("heading_pixmap")
+        self.hboxlayout.addWidget(self.heading_pixmap)
+
+        self.heading_label = QtGui.QLabel(self.heading_frame)
+
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        font.setPointSize(12)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.heading_label.setFont(font)
+        self.heading_label.setObjectName("heading_label")
+        self.hboxlayout.addWidget(self.heading_label)
+        self.vboxlayout.addWidget(self.heading_frame)
 
         self.body_frame = QtGui.QFrame(MinimizeEnergyPropDialog)
         self.body_frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -40,62 +72,57 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.vboxlayout1.addWidget(self.sponsor_btn)
 
-        self.hboxlayout = QtGui.QHBoxLayout()
-        self.hboxlayout.setMargin(0)
-        self.hboxlayout.setSpacing(6)
-        self.hboxlayout.setObjectName("hboxlayout")
-
-        spacerItem = QtGui.QSpacerItem(35,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout.addItem(spacerItem)
-
-        self.done_btn = QtGui.QToolButton(self.body_frame)
-        self.done_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image2"))
-        self.done_btn.setObjectName("done_btn")
-        self.hboxlayout.addWidget(self.done_btn)
-
-        self.abort_btn = QtGui.QToolButton(self.body_frame)
-        self.abort_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image3"))
-        self.abort_btn.setObjectName("abort_btn")
-        self.hboxlayout.addWidget(self.abort_btn)
-
-        self.restore_btn = QtGui.QToolButton(self.body_frame)
-        self.restore_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image4"))
-        self.restore_btn.setObjectName("restore_btn")
-        self.hboxlayout.addWidget(self.restore_btn)
-
-        self.whatsthis_btn = QtGui.QToolButton(self.body_frame)
-        self.whatsthis_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image5"))
-        self.whatsthis_btn.setObjectName("whatsthis_btn")
-        self.hboxlayout.addWidget(self.whatsthis_btn)
-
-        spacerItem1 = QtGui.QSpacerItem(35,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout.addItem(spacerItem1)
-        self.vboxlayout1.addLayout(self.hboxlayout)
-
-        self.vboxlayout2 = QtGui.QVBoxLayout()
-        self.vboxlayout2.setMargin(0)
-        self.vboxlayout2.setSpacing(6)
-        self.vboxlayout2.setObjectName("vboxlayout2")
-
-        self.buttonGroup8 = QtGui.QGroupBox(self.body_frame)
-        self.buttonGroup8.setObjectName("buttonGroup8")
-
-        self.vboxlayout3 = QtGui.QVBoxLayout(self.buttonGroup8)
-        self.vboxlayout3.setMargin(9)
-        self.vboxlayout3.setSpacing(6)
-        self.vboxlayout3.setObjectName("vboxlayout3")
-
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setSpacing(6)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
+        spacerItem = QtGui.QSpacerItem(35,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+
+        self.done_btn = QtGui.QToolButton(self.body_frame)
+        self.done_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image2"))
+        self.done_btn.setObjectName("done_btn")
+        self.hboxlayout1.addWidget(self.done_btn)
+
+        self.abort_btn = QtGui.QToolButton(self.body_frame)
+        self.abort_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image3"))
+        self.abort_btn.setObjectName("abort_btn")
+        self.hboxlayout1.addWidget(self.abort_btn)
+
+        self.restore_btn = QtGui.QToolButton(self.body_frame)
+        self.restore_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image4"))
+        self.restore_btn.setObjectName("restore_btn")
+        self.hboxlayout1.addWidget(self.restore_btn)
+
+        self.whatsthis_btn = QtGui.QToolButton(self.body_frame)
+        self.whatsthis_btn.setIcon(QtGui.QIcon("../../../../:icons/MinimizeEnergyPropDialog_image5"))
+        self.whatsthis_btn.setObjectName("whatsthis_btn")
+        self.hboxlayout1.addWidget(self.whatsthis_btn)
+
+        spacerItem1 = QtGui.QSpacerItem(35,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem1)
+        self.vboxlayout1.addLayout(self.hboxlayout1)
+
+        self.buttonGroup8 = QtGui.QGroupBox(self.body_frame)
+        self.buttonGroup8.setObjectName("buttonGroup8")
+
+        self.vboxlayout2 = QtGui.QVBoxLayout(self.buttonGroup8)
+        self.vboxlayout2.setMargin(9)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
+
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName("hboxlayout2")
+
         self.min_options_label = QtGui.QLabel(self.buttonGroup8)
         self.min_options_label.setObjectName("min_options_label")
-        self.hboxlayout1.addWidget(self.min_options_label)
+        self.hboxlayout2.addWidget(self.min_options_label)
 
         spacerItem2 = QtGui.QSpacerItem(21,16,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout1.addItem(spacerItem2)
+        self.hboxlayout2.addItem(spacerItem2)
 
         self.grpbtn_1 = QtGui.QPushButton(self.buttonGroup8)
 
@@ -109,8 +136,8 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.grpbtn_1.setAutoDefault(False)
         self.grpbtn_1.setFlat(True)
         self.grpbtn_1.setObjectName("grpbtn_1")
-        self.hboxlayout1.addWidget(self.grpbtn_1)
-        self.vboxlayout3.addLayout(self.hboxlayout1)
+        self.hboxlayout2.addWidget(self.grpbtn_1)
+        self.vboxlayout2.addLayout(self.hboxlayout2)
 
         self.line1 = QtGui.QFrame(self.buttonGroup8)
         self.line1.setFrameShape(QtGui.QFrame.HLine)
@@ -119,52 +146,47 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.line1.setFrameShape(QtGui.QFrame.HLine)
         self.line1.setFrameShadow(QtGui.QFrame.Sunken)
         self.line1.setObjectName("line1")
-        self.vboxlayout3.addWidget(self.line1)
+        self.vboxlayout2.addWidget(self.line1)
 
         self.minimize_all_rbtn = QtGui.QRadioButton(self.buttonGroup8)
         self.minimize_all_rbtn.setChecked(True)
         self.minimize_all_rbtn.setObjectName("minimize_all_rbtn")
-        self.vboxlayout3.addWidget(self.minimize_all_rbtn)
+        self.vboxlayout2.addWidget(self.minimize_all_rbtn)
 
         self.minimize_sel_rbtn = QtGui.QRadioButton(self.buttonGroup8)
         self.minimize_sel_rbtn.setObjectName("minimize_sel_rbtn")
-        self.vboxlayout3.addWidget(self.minimize_sel_rbtn)
+        self.vboxlayout2.addWidget(self.minimize_sel_rbtn)
 
         self.electrostaticsForDnaDuringMinimize_checkBox = QtGui.QCheckBox(self.buttonGroup8)
         self.electrostaticsForDnaDuringMinimize_checkBox.setChecked(True)
         self.electrostaticsForDnaDuringMinimize_checkBox.setObjectName("electrostaticsForDnaDuringMinimize_checkBox")
-        self.vboxlayout3.addWidget(self.electrostaticsForDnaDuringMinimize_checkBox)
+        self.vboxlayout2.addWidget(self.electrostaticsForDnaDuringMinimize_checkBox)
 
         self.enableNeighborSearching_check_box = QtGui.QCheckBox(self.buttonGroup8)
         self.enableNeighborSearching_check_box.setChecked(True)
         self.enableNeighborSearching_check_box.setObjectName("enableNeighborSearching_check_box")
-        self.vboxlayout3.addWidget(self.enableNeighborSearching_check_box)
-        self.vboxlayout2.addWidget(self.buttonGroup8)
-
-        self.vboxlayout4 = QtGui.QVBoxLayout()
-        self.vboxlayout4.setMargin(0)
-        self.vboxlayout4.setSpacing(6)
-        self.vboxlayout4.setObjectName("vboxlayout4")
+        self.vboxlayout2.addWidget(self.enableNeighborSearching_check_box)
+        self.vboxlayout1.addWidget(self.buttonGroup8)
 
         self.groupBox2 = QtGui.QGroupBox(self.body_frame)
         self.groupBox2.setObjectName("groupBox2")
 
-        self.vboxlayout5 = QtGui.QVBoxLayout(self.groupBox2)
-        self.vboxlayout5.setMargin(4)
-        self.vboxlayout5.setSpacing(1)
-        self.vboxlayout5.setObjectName("vboxlayout5")
+        self.vboxlayout3 = QtGui.QVBoxLayout(self.groupBox2)
+        self.vboxlayout3.setMargin(4)
+        self.vboxlayout3.setSpacing(1)
+        self.vboxlayout3.setObjectName("vboxlayout3")
 
-        self.hboxlayout2 = QtGui.QHBoxLayout()
-        self.hboxlayout2.setMargin(0)
-        self.hboxlayout2.setSpacing(6)
-        self.hboxlayout2.setObjectName("hboxlayout2")
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setMargin(0)
+        self.hboxlayout3.setSpacing(6)
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
         self.watch_min_options_label = QtGui.QLabel(self.groupBox2)
         self.watch_min_options_label.setObjectName("watch_min_options_label")
-        self.hboxlayout2.addWidget(self.watch_min_options_label)
+        self.hboxlayout3.addWidget(self.watch_min_options_label)
 
         spacerItem3 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout2.addItem(spacerItem3)
+        self.hboxlayout3.addItem(spacerItem3)
 
         self.grpbtn_2 = QtGui.QPushButton(self.groupBox2)
 
@@ -178,8 +200,8 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.grpbtn_2.setAutoDefault(False)
         self.grpbtn_2.setFlat(True)
         self.grpbtn_2.setObjectName("grpbtn_2")
-        self.hboxlayout2.addWidget(self.grpbtn_2)
-        self.vboxlayout5.addLayout(self.hboxlayout2)
+        self.hboxlayout3.addWidget(self.grpbtn_2)
+        self.vboxlayout3.addLayout(self.hboxlayout3)
 
         self.line2 = QtGui.QFrame(self.groupBox2)
         self.line2.setFrameShape(QtGui.QFrame.HLine)
@@ -188,24 +210,24 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.line2.setFrameShape(QtGui.QFrame.HLine)
         self.line2.setFrameShadow(QtGui.QFrame.Sunken)
         self.line2.setObjectName("line2")
-        self.vboxlayout5.addWidget(self.line2)
+        self.vboxlayout3.addWidget(self.line2)
 
         self.watch_minimization_checkbox = QtGui.QCheckBox(self.groupBox2)
         self.watch_minimization_checkbox.setChecked(True)
         self.watch_minimization_checkbox.setObjectName("watch_minimization_checkbox")
-        self.vboxlayout5.addWidget(self.watch_minimization_checkbox)
+        self.vboxlayout3.addWidget(self.watch_minimization_checkbox)
 
         self.update_btngrp = QtGui.QGroupBox(self.groupBox2)
         self.update_btngrp.setObjectName("update_btngrp")
 
-        self.vboxlayout6 = QtGui.QVBoxLayout(self.update_btngrp)
-        self.vboxlayout6.setMargin(3)
-        self.vboxlayout6.setSpacing(1)
-        self.vboxlayout6.setObjectName("vboxlayout6")
+        self.vboxlayout4 = QtGui.QVBoxLayout(self.update_btngrp)
+        self.vboxlayout4.setMargin(3)
+        self.vboxlayout4.setSpacing(1)
+        self.vboxlayout4.setObjectName("vboxlayout4")
 
         self.watch_min_options_label_2 = QtGui.QLabel(self.update_btngrp)
         self.watch_min_options_label_2.setObjectName("watch_min_options_label_2")
-        self.vboxlayout6.addWidget(self.watch_min_options_label_2)
+        self.vboxlayout4.addWidget(self.watch_min_options_label_2)
 
         self.line2_1 = QtGui.QFrame(self.update_btngrp)
         self.line2_1.setFrameShape(QtGui.QFrame.HLine)
@@ -214,58 +236,58 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.line2_1.setFrameShape(QtGui.QFrame.HLine)
         self.line2_1.setFrameShadow(QtGui.QFrame.Sunken)
         self.line2_1.setObjectName("line2_1")
-        self.vboxlayout6.addWidget(self.line2_1)
+        self.vboxlayout4.addWidget(self.line2_1)
 
         self.update_asap_rbtn = QtGui.QRadioButton(self.update_btngrp)
         self.update_asap_rbtn.setChecked(True)
         self.update_asap_rbtn.setObjectName("update_asap_rbtn")
-        self.vboxlayout6.addWidget(self.update_asap_rbtn)
+        self.vboxlayout4.addWidget(self.update_asap_rbtn)
 
-        self.hboxlayout3 = QtGui.QHBoxLayout()
-        self.hboxlayout3.setMargin(0)
-        self.hboxlayout3.setSpacing(0)
-        self.hboxlayout3.setObjectName("hboxlayout3")
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setMargin(0)
+        self.hboxlayout4.setSpacing(0)
+        self.hboxlayout4.setObjectName("hboxlayout4")
 
         self.update_every_rbtn = QtGui.QRadioButton(self.update_btngrp)
         self.update_every_rbtn.setObjectName("update_every_rbtn")
-        self.hboxlayout3.addWidget(self.update_every_rbtn)
+        self.hboxlayout4.addWidget(self.update_every_rbtn)
 
         self.update_number_spinbox = QtGui.QSpinBox(self.update_btngrp)
         self.update_number_spinbox.setMaximum(9999)
         self.update_number_spinbox.setMinimum(1)
         self.update_number_spinbox.setProperty("value",QtCore.QVariant(1))
         self.update_number_spinbox.setObjectName("update_number_spinbox")
-        self.hboxlayout3.addWidget(self.update_number_spinbox)
+        self.hboxlayout4.addWidget(self.update_number_spinbox)
 
         self.update_units_combobox = QtGui.QComboBox(self.update_btngrp)
         self.update_units_combobox.setObjectName("update_units_combobox")
-        self.hboxlayout3.addWidget(self.update_units_combobox)
+        self.hboxlayout4.addWidget(self.update_units_combobox)
 
         spacerItem4 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout3.addItem(spacerItem4)
-        self.vboxlayout6.addLayout(self.hboxlayout3)
-        self.vboxlayout5.addWidget(self.update_btngrp)
-        self.vboxlayout4.addWidget(self.groupBox2)
+        self.hboxlayout4.addItem(spacerItem4)
+        self.vboxlayout4.addLayout(self.hboxlayout4)
+        self.vboxlayout3.addWidget(self.update_btngrp)
+        self.vboxlayout1.addWidget(self.groupBox2)
 
         self.parms_grpbox = QtGui.QGroupBox(self.body_frame)
         self.parms_grpbox.setObjectName("parms_grpbox")
 
-        self.vboxlayout7 = QtGui.QVBoxLayout(self.parms_grpbox)
-        self.vboxlayout7.setMargin(4)
-        self.vboxlayout7.setSpacing(1)
-        self.vboxlayout7.setObjectName("vboxlayout7")
+        self.vboxlayout5 = QtGui.QVBoxLayout(self.parms_grpbox)
+        self.vboxlayout5.setMargin(4)
+        self.vboxlayout5.setSpacing(1)
+        self.vboxlayout5.setObjectName("vboxlayout5")
 
-        self.hboxlayout4 = QtGui.QHBoxLayout()
-        self.hboxlayout4.setMargin(0)
-        self.hboxlayout4.setSpacing(6)
-        self.hboxlayout4.setObjectName("hboxlayout4")
+        self.hboxlayout5 = QtGui.QHBoxLayout()
+        self.hboxlayout5.setMargin(0)
+        self.hboxlayout5.setSpacing(6)
+        self.hboxlayout5.setObjectName("hboxlayout5")
 
         self.parameters_label = QtGui.QLabel(self.parms_grpbox)
         self.parameters_label.setObjectName("parameters_label")
-        self.hboxlayout4.addWidget(self.parameters_label)
+        self.hboxlayout5.addWidget(self.parameters_label)
 
         spacerItem5 = QtGui.QSpacerItem(21,16,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout4.addItem(spacerItem5)
+        self.hboxlayout5.addItem(spacerItem5)
 
         self.grpbtn_3 = QtGui.QPushButton(self.parms_grpbox)
 
@@ -279,8 +301,8 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.grpbtn_3.setAutoDefault(False)
         self.grpbtn_3.setFlat(True)
         self.grpbtn_3.setObjectName("grpbtn_3")
-        self.hboxlayout4.addWidget(self.grpbtn_3)
-        self.vboxlayout7.addLayout(self.hboxlayout4)
+        self.hboxlayout5.addWidget(self.grpbtn_3)
+        self.vboxlayout5.addLayout(self.hboxlayout5)
 
         self.line3 = QtGui.QFrame(self.parms_grpbox)
         self.line3.setFrameShape(QtGui.QFrame.HLine)
@@ -289,85 +311,85 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.line3.setFrameShape(QtGui.QFrame.HLine)
         self.line3.setFrameShadow(QtGui.QFrame.Sunken)
         self.line3.setObjectName("line3")
-        self.vboxlayout7.addWidget(self.line3)
-
-        self.hboxlayout5 = QtGui.QHBoxLayout()
-        self.hboxlayout5.setMargin(0)
-        self.hboxlayout5.setSpacing(6)
-        self.hboxlayout5.setObjectName("hboxlayout5")
-
-        self.vboxlayout8 = QtGui.QVBoxLayout()
-        self.vboxlayout8.setMargin(0)
-        self.vboxlayout8.setSpacing(6)
-        self.vboxlayout8.setObjectName("vboxlayout8")
-
-        self.endrms_lbl = QtGui.QLabel(self.parms_grpbox)
-        self.endrms_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.endrms_lbl.setObjectName("endrms_lbl")
-        self.vboxlayout8.addWidget(self.endrms_lbl)
-
-        self.endmax_lbl = QtGui.QLabel(self.parms_grpbox)
-        self.endmax_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.endmax_lbl.setObjectName("endmax_lbl")
-        self.vboxlayout8.addWidget(self.endmax_lbl)
-
-        self.cutoverrms_lbl = QtGui.QLabel(self.parms_grpbox)
-        self.cutoverrms_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.cutoverrms_lbl.setObjectName("cutoverrms_lbl")
-        self.vboxlayout8.addWidget(self.cutoverrms_lbl)
-
-        self.cutovermax_lbl = QtGui.QLabel(self.parms_grpbox)
-        self.cutovermax_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.cutovermax_lbl.setObjectName("cutovermax_lbl")
-        self.vboxlayout8.addWidget(self.cutovermax_lbl)
-        self.hboxlayout5.addLayout(self.vboxlayout8)
-
-        self.vboxlayout9 = QtGui.QVBoxLayout()
-        self.vboxlayout9.setMargin(0)
-        self.vboxlayout9.setSpacing(6)
-        self.vboxlayout9.setObjectName("vboxlayout9")
-
-        self.endrms_linedit = QtGui.QLineEdit(self.parms_grpbox)
-        self.endrms_linedit.setObjectName("endrms_linedit")
-        self.vboxlayout9.addWidget(self.endrms_linedit)
-
-        self.endmax_linedit = QtGui.QLineEdit(self.parms_grpbox)
-        self.endmax_linedit.setObjectName("endmax_linedit")
-        self.vboxlayout9.addWidget(self.endmax_linedit)
-
-        self.cutoverrms_linedit = QtGui.QLineEdit(self.parms_grpbox)
-        self.cutoverrms_linedit.setObjectName("cutoverrms_linedit")
-        self.vboxlayout9.addWidget(self.cutoverrms_linedit)
-
-        self.cutovermax_linedit = QtGui.QLineEdit(self.parms_grpbox)
-        self.cutovermax_linedit.setObjectName("cutovermax_linedit")
-        self.vboxlayout9.addWidget(self.cutovermax_linedit)
-        self.hboxlayout5.addLayout(self.vboxlayout9)
-
-        spacerItem6 = QtGui.QSpacerItem(40,1,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout5.addItem(spacerItem6)
-        self.vboxlayout7.addLayout(self.hboxlayout5)
-        self.vboxlayout4.addWidget(self.parms_grpbox)
-
-        self.buttonGroup8_2 = QtGui.QGroupBox(self.body_frame)
-        self.buttonGroup8_2.setObjectName("buttonGroup8_2")
-
-        self.vboxlayout10 = QtGui.QVBoxLayout(self.buttonGroup8_2)
-        self.vboxlayout10.setMargin(4)
-        self.vboxlayout10.setSpacing(1)
-        self.vboxlayout10.setObjectName("vboxlayout10")
+        self.vboxlayout5.addWidget(self.line3)
 
         self.hboxlayout6 = QtGui.QHBoxLayout()
         self.hboxlayout6.setMargin(0)
         self.hboxlayout6.setSpacing(6)
         self.hboxlayout6.setObjectName("hboxlayout6")
 
+        self.vboxlayout6 = QtGui.QVBoxLayout()
+        self.vboxlayout6.setMargin(0)
+        self.vboxlayout6.setSpacing(6)
+        self.vboxlayout6.setObjectName("vboxlayout6")
+
+        self.endrms_lbl = QtGui.QLabel(self.parms_grpbox)
+        self.endrms_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.endrms_lbl.setObjectName("endrms_lbl")
+        self.vboxlayout6.addWidget(self.endrms_lbl)
+
+        self.endmax_lbl = QtGui.QLabel(self.parms_grpbox)
+        self.endmax_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.endmax_lbl.setObjectName("endmax_lbl")
+        self.vboxlayout6.addWidget(self.endmax_lbl)
+
+        self.cutoverrms_lbl = QtGui.QLabel(self.parms_grpbox)
+        self.cutoverrms_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.cutoverrms_lbl.setObjectName("cutoverrms_lbl")
+        self.vboxlayout6.addWidget(self.cutoverrms_lbl)
+
+        self.cutovermax_lbl = QtGui.QLabel(self.parms_grpbox)
+        self.cutovermax_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.cutovermax_lbl.setObjectName("cutovermax_lbl")
+        self.vboxlayout6.addWidget(self.cutovermax_lbl)
+        self.hboxlayout6.addLayout(self.vboxlayout6)
+
+        self.vboxlayout7 = QtGui.QVBoxLayout()
+        self.vboxlayout7.setMargin(0)
+        self.vboxlayout7.setSpacing(6)
+        self.vboxlayout7.setObjectName("vboxlayout7")
+
+        self.endrms_linedit = QtGui.QLineEdit(self.parms_grpbox)
+        self.endrms_linedit.setObjectName("endrms_linedit")
+        self.vboxlayout7.addWidget(self.endrms_linedit)
+
+        self.endmax_linedit = QtGui.QLineEdit(self.parms_grpbox)
+        self.endmax_linedit.setObjectName("endmax_linedit")
+        self.vboxlayout7.addWidget(self.endmax_linedit)
+
+        self.cutoverrms_linedit = QtGui.QLineEdit(self.parms_grpbox)
+        self.cutoverrms_linedit.setObjectName("cutoverrms_linedit")
+        self.vboxlayout7.addWidget(self.cutoverrms_linedit)
+
+        self.cutovermax_linedit = QtGui.QLineEdit(self.parms_grpbox)
+        self.cutovermax_linedit.setObjectName("cutovermax_linedit")
+        self.vboxlayout7.addWidget(self.cutovermax_linedit)
+        self.hboxlayout6.addLayout(self.vboxlayout7)
+
+        spacerItem6 = QtGui.QSpacerItem(40,1,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout6.addItem(spacerItem6)
+        self.vboxlayout5.addLayout(self.hboxlayout6)
+        self.vboxlayout1.addWidget(self.parms_grpbox)
+
+        self.buttonGroup8_2 = QtGui.QGroupBox(self.body_frame)
+        self.buttonGroup8_2.setObjectName("buttonGroup8_2")
+
+        self.vboxlayout8 = QtGui.QVBoxLayout(self.buttonGroup8_2)
+        self.vboxlayout8.setMargin(4)
+        self.vboxlayout8.setSpacing(1)
+        self.vboxlayout8.setObjectName("vboxlayout8")
+
+        self.hboxlayout7 = QtGui.QHBoxLayout()
+        self.hboxlayout7.setMargin(0)
+        self.hboxlayout7.setSpacing(6)
+        self.hboxlayout7.setObjectName("hboxlayout7")
+
         self.min_options_label_4 = QtGui.QLabel(self.buttonGroup8_2)
         self.min_options_label_4.setObjectName("min_options_label_4")
-        self.hboxlayout6.addWidget(self.min_options_label_4)
+        self.hboxlayout7.addWidget(self.min_options_label_4)
 
         spacerItem7 = QtGui.QSpacerItem(21,16,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout6.addItem(spacerItem7)
+        self.hboxlayout7.addItem(spacerItem7)
 
         self.grpbtn_4 = QtGui.QPushButton(self.buttonGroup8_2)
 
@@ -382,8 +404,8 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.grpbtn_4.setDefault(False)
         self.grpbtn_4.setFlat(True)
         self.grpbtn_4.setObjectName("grpbtn_4")
-        self.hboxlayout6.addWidget(self.grpbtn_4)
-        self.vboxlayout10.addLayout(self.hboxlayout6)
+        self.hboxlayout7.addWidget(self.grpbtn_4)
+        self.vboxlayout8.addLayout(self.hboxlayout7)
 
         self.line4 = QtGui.QFrame(self.buttonGroup8_2)
         self.line4.setFrameShape(QtGui.QFrame.HLine)
@@ -392,75 +414,35 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.line4.setFrameShape(QtGui.QFrame.HLine)
         self.line4.setFrameShadow(QtGui.QFrame.Sunken)
         self.line4.setObjectName("line4")
-        self.vboxlayout10.addWidget(self.line4)
+        self.vboxlayout8.addWidget(self.line4)
 
         self.minimize_engine_combobox = QtGui.QComboBox(self.buttonGroup8_2)
         self.minimize_engine_combobox.setObjectName("minimize_engine_combobox")
-        self.vboxlayout10.addWidget(self.minimize_engine_combobox)
-        self.vboxlayout4.addWidget(self.buttonGroup8_2)
-        self.vboxlayout2.addLayout(self.vboxlayout4)
-        self.vboxlayout1.addLayout(self.vboxlayout2)
+        self.vboxlayout8.addWidget(self.minimize_engine_combobox)
+        self.vboxlayout1.addWidget(self.buttonGroup8_2)
         self.vboxlayout.addWidget(self.body_frame)
 
         spacerItem8 = QtGui.QSpacerItem(245,16,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem8)
 
-        self.hboxlayout7 = QtGui.QHBoxLayout()
-        self.hboxlayout7.setMargin(4)
-        self.hboxlayout7.setSpacing(6)
-        self.hboxlayout7.setObjectName("hboxlayout7")
+        self.hboxlayout8 = QtGui.QHBoxLayout()
+        self.hboxlayout8.setMargin(4)
+        self.hboxlayout8.setSpacing(6)
+        self.hboxlayout8.setObjectName("hboxlayout8")
 
         spacerItem9 = QtGui.QSpacerItem(59,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout7.addItem(spacerItem9)
+        self.hboxlayout8.addItem(spacerItem9)
 
         self.cancel_btn = QtGui.QPushButton(MinimizeEnergyPropDialog)
         self.cancel_btn.setAutoDefault(False)
         self.cancel_btn.setObjectName("cancel_btn")
-        self.hboxlayout7.addWidget(self.cancel_btn)
+        self.hboxlayout8.addWidget(self.cancel_btn)
 
         self.ok_btn = QtGui.QPushButton(MinimizeEnergyPropDialog)
         self.ok_btn.setAutoDefault(False)
         self.ok_btn.setObjectName("ok_btn")
-        self.hboxlayout7.addWidget(self.ok_btn)
-        self.vboxlayout.addLayout(self.hboxlayout7)
-        self.gridlayout.addLayout(self.vboxlayout,1,0,1,1)
-
-        self.heading_frame = QtGui.QFrame(MinimizeEnergyPropDialog)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
-
-        self.hboxlayout8 = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout8.setMargin(0)
-        self.hboxlayout8.setSpacing(3)
-        self.hboxlayout8.setObjectName("hboxlayout8")
-
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setAlignment(QtCore.Qt.AlignVCenter)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        self.hboxlayout8.addWidget(self.heading_pixmap)
-
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-
-        font = QtGui.QFont()
-        font.setFamily("Sans Serif")
-        font.setPointSize(12)
-        font.setWeight(75)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(True)
-        self.heading_label.setFont(font)
-        self.heading_label.setObjectName("heading_label")
-        self.hboxlayout8.addWidget(self.heading_label)
-        self.gridlayout.addWidget(self.heading_frame,0,0,1,1)
+        self.hboxlayout8.addWidget(self.ok_btn)
+        self.vboxlayout.addLayout(self.hboxlayout8)
 
         self.retranslateUi(MinimizeEnergyPropDialog)
         QtCore.QObject.connect(self.watch_minimization_checkbox,QtCore.SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
@@ -468,6 +450,7 @@ class Ui_MinimizeEnergyPropDialog(object):
 
     def retranslateUi(self, MinimizeEnergyPropDialog):
         MinimizeEnergyPropDialog.setWindowTitle(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Energy", None, QtGui.QApplication.UnicodeUTF8))
+        self.heading_label.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Energy", None, QtGui.QApplication.UnicodeUTF8))
         self.done_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "OK", None, QtGui.QApplication.UnicodeUTF8))
         self.abort_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.restore_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Restore Defaults", None, QtGui.QApplication.UnicodeUTF8))
@@ -512,5 +495,4 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.cancel_btn.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.ok_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "OK", None, QtGui.QApplication.UnicodeUTF8))
         self.ok_btn.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Energy", None, QtGui.QApplication.UnicodeUTF8))
-        self.heading_label.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Energy", None, QtGui.QApplication.UnicodeUTF8))
 
