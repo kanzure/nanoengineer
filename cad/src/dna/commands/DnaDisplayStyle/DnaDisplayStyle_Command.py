@@ -1,7 +1,7 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Mark
-@version:   $Id:$
+@version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
