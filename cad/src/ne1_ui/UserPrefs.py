@@ -103,7 +103,6 @@ from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
 from utilities.prefs_constants import bdnaRise_prefs_key
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
-from utilities.prefs_constants import dnaColorBasesBy_prefs_key
 from utilities.prefs_constants import dnaStrutScaleFactor_prefs_key
 from utilities.prefs_constants import arrowsOnBackBones_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
@@ -485,8 +484,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             geticon('ui/dialogs/Reset.png'))
         self.reset_cpk_scale_factor_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
-        self.reset_dnaStrutScaleToolButton.setIcon(
-            geticon('ui/dialogs/Reset.png'))
         self.whatsThisToolButton.setIcon(
             geticon("ui/actions/Help/WhatsThis.png"))
         #this is for solid background color frame. It is important to 
@@ -595,8 +592,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaRiseDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaRise)
         self.connect(self.dnaRestoreFactoryDefaultsPushButton,SIGNAL("clicked()"),self.dnaRestoreFactoryDefaults)
         self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
-        self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
-        self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
+
         self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton,
                      SIGNAL("clicked()"),
                      self.change_dnaStrandThreePrimeArrowheadCustomColor)
@@ -613,7 +609,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                      SIGNAL("toggled(bool)"),
                      self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
         
-
         # DNA Minor Groove Error Indicator signal/slot connections.
         self.connect(self.dnaMinGrooveAngleSpinBox,
                      SIGNAL("valueChanged(int)"),
@@ -628,35 +623,13 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                      SIGNAL("clicked()"),
                      self._restore_dnaMinorGrooveFactoryDefaults)
 
-        # DNA style 080310 piotr 
-        self.connect(self.dnaStyleStrandsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsColor)
-        self.connect(self.dnaStyleStrutsColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsColor)
-        self.connect(self.dnaStyleAxisColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisColor)        
-        self.connect(self.dnaStyleBasesColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleBasesColor)        
-        self.connect(self.dnaStyleStrandsShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsShape)
-        self.connect(self.dnaStyleStrutsShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrutsShape)
-        self.connect(self.dnaStyleAxisShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisShape)
-        self.connect(self.dnaStyleBasesShapeComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleBasesShape)
-        self.connect(self.dnaStyleStrandsScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleStrandsScale)
-        self.connect(self.dnaStyleStrutsScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleStrutsScale)
-        self.connect(self.dnaStyleAxisScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleAxisScale)
-        self.connect(self.dnaStyleBasesScaleSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaStyleBasesScale)
-        self.connect(self.dnaStyleStrandsArrowsComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleStrandsArrows)
-        self.connect(self.dnaStyleAxisEndingStyleComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStyleAxisEndingStyle)
-
         # piotr 080325
-        self.connect(self.dnaDisplayStrandLabelsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayStrandLabelsGroupBox)
         self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.connect(self.dnaBaseOrientationIndicatorsInverseCheckBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationInvIndicatorsCheckBox)
         self.connect(self.dnaBaseOrientationIndicatorsThresholdSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsAngle)
         self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsDistance)
         self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton,SIGNAL("clicked()"),self.change_dnaBaseIndicatorsColor)
         self.connect(self.dnaChooseBaseOrientationIndicatorsInvColorButton,SIGNAL("clicked()"),self.change_dnaBaseInvIndicatorsColor)
-        self.connect(self.dnaChooseStrandLabelColorButton,SIGNAL("clicked()"),self.change_dnaStrandLabelsColor)
-        self.connect(self.dnaStrandLabelColorComboBox,SIGNAL("currentIndexChanged(int)"),self.change_dnaStrandLabelsColorMode)
-
-        # piotr 080408
-        self.connect(self.dnaStyleBasesDisplayLettersCheckBox,SIGNAL("toggled(bool)"),self.toggle_dnaStyleBasesDisplayLettersCheckBox)
 
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
@@ -714,7 +687,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-
 
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
@@ -862,7 +834,6 @@ and Low based on the number of atoms in the current part.""")
                                                   Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of
 changing the scale.""")
         self.reset_cpk_scale_factor_btn.setWhatsThis("""Restore the default value of the CPK Scale Factor""")
-        self.reset_dnaStrutScaleToolButton.setWhatsThis("""Restore the default value of the DNA Strut Scale Factor""")
         self.multCyl_radioButton.setWhatsThis("""<p><b>Multiple Cylinders</b></p>
                                               <p><b>High Order Bonds</b> are
 displayed using <b>Multiple Cylinders.</b></p>
@@ -1606,16 +1577,6 @@ restored when the user undoes a structural change.</p>
         connect_colorpref_to_colorframe( 
             dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
 
-        self.dnaColorBasesByComboBox.setCurrentIndex(
-            env.prefs[dnaColorBasesBy_prefs_key])
-
-        self.update_dnaStrutScaleWidgets()
-
-        self.dnaColorBasesByComboBox.setEnabled(False) # Not implemented yet.
-
-        #self.dnaStrutScaleFactorSpinBox.setEnabled(False) # Not implemented yet.
-
-
         # DNA strand arrowheads preferences 
         connect_checkbox_with_boolean_pref(
             self.arrowsOnBackBones_checkBox,
@@ -1668,53 +1629,17 @@ restored when the user undoes a structural change.</p>
             dnaMinorGrooveErrorIndicatorColor_prefs_key, 
             self.dnaGrooveIndicatorColorFrame)
 
-        # piotr 030810 - DNA style
-        self.dnaStyleStrandsColorComboBox.setCurrentIndex(
-            env.prefs[dnaStyleStrandsColor_prefs_key])
-        self.dnaStyleStrutsColorComboBox.setCurrentIndex(
-            env.prefs[dnaStyleStrutsColor_prefs_key])
-        self.dnaStyleAxisColorComboBox.setCurrentIndex(
-            env.prefs[dnaStyleAxisColor_prefs_key])
-        self.dnaStyleBasesColorComboBox.setCurrentIndex(
-            env.prefs[dnaStyleBasesColor_prefs_key])
-        self.dnaStyleStrandsShapeComboBox.setCurrentIndex(
-            env.prefs[dnaStyleStrandsShape_prefs_key])
-        self.dnaStyleStrutsShapeComboBox.setCurrentIndex(
-            env.prefs[dnaStyleStrutsShape_prefs_key])
-        self.dnaStyleBasesShapeComboBox.setCurrentIndex(
-            env.prefs[dnaStyleBasesShape_prefs_key])
-        self.dnaStyleAxisShapeComboBox.setCurrentIndex(
-            env.prefs[dnaStyleAxisShape_prefs_key])
-        self.dnaStyleStrandsArrowsComboBox.setCurrentIndex(
-            env.prefs[dnaStyleStrandsArrows_prefs_key])        
-        self.dnaStyleAxisEndingStyleComboBox.setCurrentIndex(
-            env.prefs[dnaStyleAxisEndingStyle_prefs_key])
-        self.update_dnaStyleStrandsScale()
-        self.update_dnaStyleStrutsScale()
-        self.update_dnaStyleAxisScale()
-        self.update_dnaStyleBasesScale()
-        # piotr 080325
-        self.dnaDisplayStrandLabelsGroupBox.setChecked(
-            env.prefs[dnaStrandLabelsEnabled_prefs_key])
+        # DNA Base Orientation Indicator stuff.
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
             env.prefs[dnaBaseIndicatorsEnabled_prefs_key])
         self.dnaBaseOrientationIndicatorsInverseCheckBox.setChecked(
             env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key])
-        self.dnaStrandLabelColorComboBox.setCurrentIndex(
-            env.prefs[dnaStrandLabelsColorMode_prefs_key])
         self.update_dnaBaseIndicatorsAngle()
         self.update_dnaBaseIndicatorsDistance()
         connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
                                         self.dnaBaseOrientationIndicatorsColorFrame)
         connect_colorpref_to_colorframe(dnaBaseInvIndicatorsColor_prefs_key,
                                         self.dnaBaseOrientationIndicatorsInvColorFrame)
-        connect_colorpref_to_colorframe(dnaStrandLabelsColor_prefs_key,
-                                        self.dnaStrandLabelColorFrame)
-
-        # piotr 080408
-        connect_checkbox_with_boolean_pref(
-            self.dnaStyleBasesDisplayLettersCheckBox,
-            dnaStyleBasesDisplayLetters_prefs_key)
 
     def _setup_undo_page(self):
         """
@@ -2445,6 +2370,7 @@ restored when the user undoes a structural change.</p>
         env.prefs.restore_defaults([
             bdnaBasesPerTurn_prefs_key,
             bdnaRise_prefs_key,
+            dnaDefaultSegmentColor_prefs_key
         ])
 
         # These generate signals (good), which calls slots 
@@ -2466,31 +2392,6 @@ restored when the user undoes a structural change.</p>
         @type  scale_factor: int
 	"""
         env.prefs[dnaStrutScaleFactor_prefs_key] = scale_factor * .01
-        self.update_dnaStrutScaleWidgets()
-
-    def update_dnaStrutScaleWidgets(self):
-        """
-        Updates the DNA Strut Scale spin box and reset button. 
-        """
-        # Set strut scale.        
-        self.dnaStrutScaleFactorSpinBox.setValue(
-            int (env.prefs[dnaStrutScaleFactor_prefs_key] * 100.0))
-
-        # Need a test to determine if <scale> is the same as 
-        # dnaStrutScaleFactor_prefs_key's default value. Asking Bruce.
-        # Mark 2008-01-31
-        if env.prefs[dnaStrutScaleFactor_prefs_key] == 1.0: # Hardcoded for now.
-            self.reset_dnaStrutScaleToolButton.setEnabled(0)
-        else:
-            self.reset_dnaStrutScaleToolButton.setEnabled(1)
-
-    def reset_dnaStrutScale(self):
-        """
-        Slot called when pressing the DNA Strut Scale Factor reset button.
-        Restores the default value of the DNA Strut Scale Factor.
-        """
-        env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
-        self.update_dnaStrutScaleWidgets()
     
     def update_dnaStrandThreePrimeArrowheadCustomColorWidgets(self, enabled_flag):
         """
@@ -2696,15 +2597,6 @@ restored when the user undoes a structural change.</p>
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleStrutsScale_prefs_key] = scale_factor
-        self.update_dnaStyleStrutsScale()
-
-    def update_dnaStyleStrutsScale(self):
-        """
-        Updates the DNA Style Struts Scale spin box. 
-        """
-        # Set struts scale.        
-        self.dnaStyleStrutsScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleStrutsScale_prefs_key]))
 
     def change_dnaStyleAxisScale(self, scale_factor):
         """
