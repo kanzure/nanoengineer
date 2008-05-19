@@ -383,7 +383,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         @see: PM_PrefsCheckBoxes
         @see: self._loadDisplayOptionsGroupBox where this list is used. 
         @see: Superclass method which is overridden here --
-        DnaOrCnt_PrometryManager._params_for_creating_cursorTextCheckBoxes()
+        DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
         [  #Format: (" checkbox text", prefs_key)

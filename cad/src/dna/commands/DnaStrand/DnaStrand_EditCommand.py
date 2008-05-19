@@ -17,6 +17,7 @@ TODO: as of 2008-02-14
     methods in class dna_model.DnaSegment change. 
 
 """
+import foundation.env as env
 from utilities.debug import print_compact_stack
 from utilities.constants import gensym
 from utilities.constants import purple
@@ -51,6 +52,9 @@ from utilities.constants import noop
 from utilities.constants import darkgreen, red, black
 from utilities.Comparison import same_vals
 
+from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key
+from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key
+from utilities.prefs_constants import dnaStrandEditCommand_showCursorTextCheckBox_prefs_key
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.5
@@ -755,12 +759,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #are doing this update by calling getCursorText in the 
         #GraphicscMode._draw_handles-- Ninad 2008-04-05
         self.update_numberOfBases()
-
-        original_numberOfBases = self.struct.getNumberOfBases()
-
-        new_numberOfBases = self.propMgr.numberOfBasesSpinBox.value()
-
-        changed_bases = new_numberOfBases - original_numberOfBases
+        
+        if not env.prefs[dnaStrandEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
 
 
         #Note: for Rattlesnake rc2, the text color is green when bases are added
@@ -770,26 +771,59 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         textColor = black     
 
         text = ""  
-
-        if changed_bases > 0:
-            changedBasesString = "(" + "+" + str(changed_bases) + ")"
-        else:
-            changedBasesString = "(" + str(changed_bases) + ")"
-
-
-        currentPosition = self.grabbedHandle.currentPosition
-        fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
-
-        duplexLength = vlen( currentPosition - fixedEndOfStructure )
-
-        duplexLengthString = str(round(duplexLength, 3))
-        text =  str(new_numberOfBases)+ \
-             "b, "+ \
-             duplexLengthString + \
-             "A, " + \
-             changedBasesString              
+        
+        numberOfBases = self.propMgr.numberOfBasesSpinBox.value()
+        
+        numberOfBasesString = self._getCursorText_numberOfBases(
+            numberOfBases)
+        
+        changedBases = self._getCursorText_changedBases(
+            numberOfBases)
+        
+        #Add commas (to be refactored)
+        commaString = ", "
+        
+        text = numberOfBasesString 
+        
+        if text and changedBases:
+            text += commaString
+        
+        text += changedBases                   
 
         return (text , textColor)
+    
+    def _getCursorText_numberOfBases(self, numberOfBases):
+        """
+        Return the cursor textstring that gives information about the number 
+        of bases if the corresponding prefs_key returns True.
+        """
+        numberOfBasesString = ''
+
+        if env.prefs[
+            dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key]:
+            numberOfBasesString = "%db"%numberOfBases
+
+        return numberOfBasesString
+
+    def _getCursorText_changedBases(self, numberOfBases):
+        """
+        @see: self.getCursorText()
+        """
+        changedBasesString = ''
+
+        if env.prefs[
+            dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key]:
+            
+            original_numberOfBases = self.struct.getNumberOfBases()
+            changed_bases = numberOfBases - original_numberOfBases            
+
+            if changed_bases > 0:
+                changedBasesString = "(" + "+" + str(changed_bases) + ")"
+            else:
+                changedBasesString = "(" + str(changed_bases) + ")"
+
+        return changedBasesString
+
 
     def modifyStructure(self):
         """

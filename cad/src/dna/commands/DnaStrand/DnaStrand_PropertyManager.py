@@ -20,8 +20,8 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QString
 from PyQt4.Qt import Qt
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
+from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
+
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
@@ -32,7 +32,14 @@ from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 
 
-class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key
+from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key
+from utilities.prefs_constants import dnaStrandEditCommand_showCursorTextCheckBox_prefs_key
+
+
+_superclass = DnaOrCnt_PropertyManager
+class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     """
     The DnaStrand_PropertyManager class provides a Property Manager 
     for the DnaStrand_EditCommand.
@@ -74,13 +81,12 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.dnaModel = 'PAM3'
         
         
-        EditCommand_PM.__init__( self, 
+        _superclass.__init__( self, 
                                     win,
                                     editCommand)
 
 
-        DebugMenuMixin._init1( self )
-
+        
         self.showTopRowButtons( pmDoneButton | \
                                 pmWhatsThisButton)
         
@@ -99,6 +105,9 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox1( self._pmGroupBox1 )
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
     
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -166,6 +175,45 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
         self.sequenceEditor.hide()
+        
+         
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaStrandEditCommand_showCursorTextCheckBox_prefs_key)
+
+
+    def _params_for_creating_cursorTextCheckBoxes(self):
+        """
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
+        """
+        params = \
+               [  #Format: (" checkbox text", prefs_key)
+                  ("Number of bases", 
+                   dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key),
+
+                  ("Number of basepairs to be changed",
+                   dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key) 
+                 ]
+
+        return params
+    
         
     def getParameters(self):
         numberOfBases = self.numberOfBasesSpinBox.value()
@@ -254,6 +302,10 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                        SIGNAL('stateChanged(int)'), 
                        self.change_struct_highlightPolicy)
         
+        change_connect(self.showCursorTextCheckBox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self._update_state_of_cursorTextGroupBox)
+        
     def model_changed(self): 
         """
         @see: DnaStrand_EditCommand.model_changed()
@@ -285,17 +337,17 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: DnaStrand_EditCommand.getStructureName()
         @see: self.close()
         """
-        EditCommand_PM.show(self) 
+        _superclass.show(self) 
         self._showSequenceEditor()
     
         if self.editCommand is not None:
             name = self.editCommand.getStructureName()
             if name is not None:
-                self.nameLineEdit.setText(name)               
+                self.nameLineEdit.setText(name)     
+                
+            self._update_state_of_cursorTextGroupBox(
+                self.showCursorTextCheckBox.isChecked())
            
-                
-                
-    
     def close(self):
         """
         Close this property manager. 
@@ -316,7 +368,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             else:
                 self.win.reportsDockWidget.show()
                 
-        EditCommand_PM.close(self)
+        _superclass.close(self)
             
     def _showSequenceEditor(self):
         if self.sequenceEditor:
@@ -374,6 +426,15 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             #editor. See DnaSequenceEditor._determine_complementSequence() 
             #for more details. See also bug 2787
             self.sequenceEditor.setComplementSequence(complementSequenceString)
+            
+    def _update_state_of_cursorTextGroupBox(self, enable):
+        """
+        @see: self.show()
+        """
+        if enable:
+            self._cursorTextGroupBox.setEnabled(True)
+        else:
+            self._cursorTextGroupBox.setEnabled(False)
             
     def change_struct_highlightPolicy(self,checkedState = False):
         """

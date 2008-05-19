@@ -237,6 +237,11 @@ dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Sho
 dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaSegment_Editcommand'
 dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaSegment_Editcommand'
 
+
+dnaStrandEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex in DnaStrand_EditCommand'
+dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key = 'A110/Show number of bases info in cursor text while in DnaStrand_Editcommand'
+dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaStrand_Editcommand'
+
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
 dnaMinMinorGrooveAngle_prefs_key = 'A10/DNA minimum minor groove angle'
@@ -620,6 +625,8 @@ prefs_table = (
      
     ('', 'boolean',
      dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, True), 
+     
+    #DnaSegment_EditCommand
          
     ('',  'boolean',
      dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
@@ -632,6 +639,20 @@ prefs_table = (
      
     ('', 'boolean',
     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
+    
+    
+    #DnaStrand_EditCommand
+    ('',  'boolean',
+     dnaStrandEditCommand_showCursorTextCheckBox_prefs_key, True),
+     
+    ('', 'boolean',
+    dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key, True),
+     
+    ('', 'boolean',
+    dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
+    
+    
+    
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
     ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]
