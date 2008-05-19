@@ -91,6 +91,7 @@ from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseInvIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseInvIndicatorsColor_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsPlaneNormal_prefs_key
 
 from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
@@ -1035,7 +1036,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 inv_indicators_color = env.prefs[dnaBaseInvIndicatorsColor_prefs_key]                
                 inv_indicators_enabled = env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key]
 
-                indicators, inv_indicators = get_dna_base_orientation_indicators(chunk, glpane.up)
+                plane_normal_idx = env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key]
+                
+                plane_normal = glpane.up
+                
+                if plane_normal_idx == 1:
+                    plane_normal = glpane.out
+                elif plane_normal_idx == 2:
+                    plane_normal = glpane.right
+                    
+                indicators, inv_indicators = get_dna_base_orientation_indicators(chunk, plane_normal)
                                 
                 for atom in indicators:
                     drawer.drawsphere(
