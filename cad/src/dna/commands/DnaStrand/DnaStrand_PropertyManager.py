@@ -208,7 +208,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                   ("Number of bases", 
                    dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key),
 
-                  ("Number of basepairs to be changed",
+                  ("Number of bases to be changed",
                    dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key) 
                  ]
 
@@ -344,9 +344,6 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             name = self.editCommand.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)     
-                
-            self._update_state_of_cursorTextGroupBox(
-                self.showCursorTextCheckBox.isChecked())
            
     def close(self):
         """
@@ -426,15 +423,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             #editor. See DnaSequenceEditor._determine_complementSequence() 
             #for more details. See also bug 2787
             self.sequenceEditor.setComplementSequence(complementSequenceString)
-            
-    def _update_state_of_cursorTextGroupBox(self, enable):
-        """
-        @see: self.show()
-        """
-        if enable:
-            self._cursorTextGroupBox.setEnabled(True)
-        else:
-            self._cursorTextGroupBox.setEnabled(False)
+
             
     def change_struct_highlightPolicy(self,checkedState = False):
         """

@@ -134,16 +134,6 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                        self._update_state_of_cursorTextGroupBox)
 
 
-    def show(self):
-        """
-        Overrides superclass method. 
-        Show this property manager
-        """
-        _superclass.show(self)
-        self._update_state_of_cursorTextGroupBox(
-            self.showCursorTextCheckBox.isChecked())
-
-
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -458,12 +448,6 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self.editCommand.duplexRise = rise
         self._duplexRise = rise
         return
-
-    def _update_state_of_cursorTextGroupBox(self, enable):
-        if enable:
-            self._cursorTextGroupBox.setEnabled(True)
-        else:
-            self._cursorTextGroupBox.setEnabled(False)
 
 
     def getParameters(self):

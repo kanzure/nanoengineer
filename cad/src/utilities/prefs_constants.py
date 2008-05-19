@@ -280,6 +280,16 @@ dnaBaseInvIndicatorsColor_prefs_key = 'A10/DNA base inverse orientation indicato
 dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
 dnaStyleBasesDisplayLetters_prefs_key = 'A10/DNA base letters enabled'
 
+
+#Nanotube cursor texts ============
+insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the nanotube in InsertNanotube_EditCommand'
+insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show nanotube length info in cursor text while in InsertNanotube_Editcommand'
+insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key = 'A110/Show angle info in cursor text while in InsertNanotube_Editcommand'
+
+nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while resizing the nanotube in NanotubeSegment_EditCommand'
+nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show nanotube length info in cursor text while in NanotubeSegment_EditCommand'
+
+
 # stereo view preferences [added by piotr 080516]
 stereoViewMode_prefs_key = 'Stereo view mode'
 stereoViewSeparation_prefs_key = 'Stereo view separation'
@@ -652,7 +662,23 @@ prefs_table = (
     dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
     
     
+    #Nanotube cursor text prefs
+    ('', 'boolean', 
+     insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key, True),
+     
+    ('', 'boolean',
+     insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key, True),
+     
+    ('', 'boolean',
+     insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key, True),
     
+    #NanotubeSegment_EditCommand cursor texts
+    ('', 'boolean',
+     nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
+     
+    ('', 'boolean',
+     nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
+     
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
     ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]

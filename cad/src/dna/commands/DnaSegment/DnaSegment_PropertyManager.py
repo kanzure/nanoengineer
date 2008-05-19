@@ -185,10 +185,6 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             if name is not None:
                 self.nameLineEdit.setText(name)
 
-            self._update_state_of_cursorTextGroupBox(
-                self.showCursorTextCheckBox.isChecked())
-
-
     def close(self):
         """
         Close this property manager. 
@@ -267,12 +263,6 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             self.endPoint1, 
             self.endPoint2)
 
-
-    def _update_state_of_cursorTextGroupBox(self, enable):
-        if enable:
-            self._cursorTextGroupBox.setEnabled(True)
-        else:
-            self._cursorTextGroupBox.setEnabled(False)
 
     def _update_widgets_in_PM_before_show(self):
         """

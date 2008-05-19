@@ -10,8 +10,7 @@ See NanotubeSegment_EditCommand for details.
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
+from command_support.DnaOrCnt_PropertyManager   import DnaOrCnt_PropertyManager
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
@@ -24,8 +23,14 @@ from PM.PM_LineEdit import PM_LineEdit
 from geometry.VQT import V, vlen
 
 from utilities.debug import print_compact_stack
+from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from widgets.prefs_widgets    import connect_checkbox_with_boolean_pref
 
-class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+
+_superclass = DnaOrCnt_PropertyManager
+
+class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
     """
     The NanotubeSegmenta_PropertyManager class provides a Property Manager 
     for the NanotubeSegment_EditCommand. 
@@ -63,12 +68,11 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
         
-        EditCommand_PM.__init__( self, 
+        _superclass.__init__( self, 
                                     win,
                                     editCommand)
 
-        DebugMenuMixin._init1( self )
-
+        
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
                                 pmWhatsThisButton)
@@ -85,6 +89,10 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
+            
+        change_connect(self.showCursorTextCheckBox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self._update_state_of_cursorTextGroupBox)
         
     def show(self):
         """
@@ -94,7 +102,7 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: NanotubeSegment_EditCommand.getStructureName()
         @see: self.close()
         """
-        EditCommand_PM.show(self)
+        _superclass.show(self)
         if self.editCommand is not None:
             name = self.editCommand.getStructureName()
             if name is not None:
@@ -111,7 +119,42 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None:
             name = str(self.nameLineEdit.text())
             self.editCommand.setStructureName(name)
-        EditCommand_PM.close(self)
+        _superclass.close(self)
+        
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key)
+
+
+    def _params_for_creating_cursorTextCheckBoxes(self):
+        """
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
+        """
+        params = \
+               [  #Format: (" checkbox text", prefs_key)
+                  
+                  ("Nanotube length",
+                   nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key)
+                 ]
+
+        return params
         
     def setParameters(self, params):
         """
@@ -215,6 +258,10 @@ class NanotubeSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox1( self._pmGroupBox1 )
+        
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
     
     def _loadGroupBox1(self, pmGroupBox):
         """

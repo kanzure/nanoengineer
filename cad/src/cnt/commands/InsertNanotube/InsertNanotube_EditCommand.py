@@ -25,14 +25,12 @@ TODO: (list copied and kept from DnaDuplex_EditCommand.py --Mark)
   necessary to correctly edit the dna structure ad this problem will
   be fixed -- Ninad 2007-12-20
 """
+import foundation.env as env
+
 from command_support.EditCommand import EditCommand
-
 from cnt.model.NanotubeSegment import NanotubeSegment
-from cnt.model.NanotubeGroup import NanotubeGroup
-from utilities.debug import print_compact_stack
-
-from utilities.Log  import redmsg, greenmsg
-from geometry.VQT import V, Veq, vlen
+from utilities.Log  import greenmsg
+from geometry.VQT import V, vlen
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 from cnt.commands.InsertNanotube.InsertNanotube_PropertyManager import InsertNanotube_PropertyManager
@@ -41,6 +39,10 @@ from utilities.constants import gensym
 from utilities.constants import black
 
 from cnt.temporary_commands.NanotubeLineMode import NanotubeLine_GM
+
+from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key
+from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
 
 
 class InsertNanotube_EditCommand(EditCommand):
@@ -437,13 +439,49 @@ class InsertNanotube_EditCommand(EditCommand):
         """
         if endPoint1 is None or endPoint2 is None:
             return
+        
+        if not env.prefs[insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
 
         textColor = black
         vec = endPoint2 - endPoint1
         ntLength = vlen(vec)
-        theta = self.glpane.get_angle_made_with_screen_right(vec)
-        text = '%5.3fA, %5.2f deg' % (ntLength, theta)
+        
+        lengthString = self._getCursorText_length(ntLength)
+        
+        thetaString = ''
+        if env.prefs[insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key]:
+            theta = self.glpane.get_angle_made_with_screen_right(vec)
+            thetaString = '%5.2f deg'%theta
+            
+            
+        commaString = ", "
+        
+        text = lengthString
+
+        if text and thetaString:
+            text += commaString
+
+        text += thetaString
+        
         return text , textColor
+    
+    def _getCursorText_length(self, nanotubeLength):
+        """
+        Returns a string that gives the length of the Nanotube for the cursor 
+        text
+        """
+        nanotubeLengthString = ''
+        if env.prefs[insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key]:
+            lengthUnitString = 'A'
+            #change the unit of length to nanometers if the length is > 10A
+            #fixes part of bug 2856
+            if nanotubeLength > 10.0:
+                lengthUnitString = 'nm'
+                nanotubeLength = nanotubeLength * 0.1
+            nanotubeLengthString = "%5.3f%s"%(nanotubeLength, lengthUnitString)
+        
+        return nanotubeLengthString
 
     def isRubberbandLineSnapEnabled(self):
         """

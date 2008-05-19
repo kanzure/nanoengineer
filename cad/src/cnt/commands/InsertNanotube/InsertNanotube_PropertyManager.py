@@ -12,11 +12,9 @@ Mark 2008-03-09:
 
 __author__ = "Mark"
 
-import foundation.env as env
+
 
 from cnt.model.Nanotube import Nanotube
-
-from utilities.Log import redmsg ##, greenmsg, orangemsg
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
@@ -31,18 +29,23 @@ from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
+from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 from geometry.VQT import V
-from math import pi
-
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertNanotube_PropertyManager
 
-class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key
+from utilities.prefs_constants import insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key
+
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
+_superclass = DnaOrCnt_PropertyManager
+
+class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
     """
     The InsertNanotube_PropertyManager class provides a Property Manager 
     for the B{Build > Nanotube > CNT} command.
@@ -72,11 +75,9 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.nanotube = Nanotube() # A 5x5 CNT.
     
-        EditCommand_PM.__init__( self, 
+        _superclass.__init__( self, 
                                  win,
                                  editCommand)
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
@@ -115,6 +116,10 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.bondLengthDoubleSpinBox,
                        SIGNAL("valueChanged(double)"),
                        self._bondLengthChanged)
+        
+        change_connect(self.showCursorTextCheckBox, 
+                       SIGNAL('stateChanged(int)'), 
+                       self._update_state_of_cursorTextGroupBox)
   
     def ok_btn_clicked(self):
         """
@@ -131,7 +136,8 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         if self.editCommand:
             self.editCommand.cancelStructure()            
-        self.win.toolsCancel()
+        self.win.toolsCancel()        
+    
         
     def _update_widgets_in_PM_before_show(self):
         """
@@ -145,7 +151,7 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: self.show where it is called. 
         """       
         pass     
-        
+
     def getFlyoutActionList(self): 
         """ 
         Returns custom actionlist that will be used in a specific mode 
@@ -199,6 +205,10 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
+        
+        self._displayOptionsGroupBox = PM_GroupBox( self, 
+                                                    title = "Display Options" )
+        self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
         
         self._pmGroupBox3 = PM_GroupBox( self, title = "Nanotube Distortion" )
         self._loadGroupBox3( self._pmGroupBox3 )
@@ -429,6 +439,46 @@ class InsertNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                         widgetColumn = 1,
                         state        = Qt.Checked
                         )
+        
+        
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key )
+
+
+    def _params_for_creating_cursorTextCheckBoxes(self):
+        """
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
+        """
+        params = \
+               [  #Format: (" checkbox text", prefs_key)
+                  
+                   ("Nanotube length",
+                    insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key ),
+
+                    ("Angle",
+                     insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key ) 
+                 ]
+
+        return params
+    
 
     def _addToolTipText(self):
         """

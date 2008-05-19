@@ -29,6 +29,8 @@ While in this command, user can
 History:
 Mark 2008-03-10: Created from copy of DnaSegment_EditCommand.py
 """
+
+import foundation.env as env
 from command_support.EditCommand       import EditCommand 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
@@ -65,6 +67,8 @@ from cnt.model.NanotubeSegment               import NanotubeSegment
 from cnt.commands.NanotubeSegment.NanotubeSegment_ResizeHandle import NanotubeSegment_ResizeHandle
 from cnt.commands.NanotubeSegment.NanotubeSegment_GraphicsMode import NanotubeSegment_GraphicsMode
 
+from utilities.prefs_constants import nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key
+from utilities.prefs_constants import nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -680,9 +684,11 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         if self.grabbedHandle is None:
             return
+        
+        if not env.prefs[nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
 
         text = ""
-
         textColor = black
 
         currentPosition = self.grabbedHandle.currentPosition
@@ -690,16 +696,36 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         nanotubeLength = vlen( currentPosition - fixedEndOfStructure )
 
-        nanotubeLengthString = str(round(nanotubeLength, 3))
-        text =  nanotubeLengthString + "A"
-
+        nanotubeLengthString = self._getCursorText_length(nanotubeLength)
+        
+        text = nanotubeLengthString
+   
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
-        lengthText = "%-7.4f Angstroms" %  (nanotubeLength)
-        self.propMgr.ntLengthLineEdit.setText(lengthText)
+        self.propMgr.ntLengthLineEdit.setText(nanotubeLengthString)
 
         return text, textColor
+    
+    
+    def _getCursorText_length(self, nanotubeLength):
+        """
+        Returns a string that gives the length of the Nanotube for the cursor 
+        text
+        """
+        nanotubeLengthString = ''
+        if env.prefs[nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key]:
+            lengthUnitString = 'A'
+            #change the unit of length to nanometers if the length is > 10A
+            #fixes part of bug 2856
+            if nanotubeLength > 10.0:
+                lengthUnitString = 'nm'
+                nanotubeLength = nanotubeLength * 0.1
+                
+            nanotubeLengthString = "%5.3f%s"%(nanotubeLength, lengthUnitString)
+        
+        return nanotubeLengthString
+    
 
 
     def modifyStructure(self):

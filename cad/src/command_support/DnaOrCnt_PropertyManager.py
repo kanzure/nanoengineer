@@ -37,12 +37,27 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         """
         Constructor for the DNA Duplex property manager.
         """
+        
+        self._cursorTextGroupBox = None
+        self.showCursorTextCheckBox = None
+        
 
         _superclass.__init__( self, 
                               win,
                               editCommand)
 
         DebugMenuMixin._init1( self )
+        
+        
+    def show(self):
+        """
+        Show this PM
+	"""
+        _superclass.show(self)
+        
+        if isinstance(self.showCursorTextCheckBox, PM_CheckBox):
+            self._update_state_of_cursorTextGroupBox(
+                    self.showCursorTextCheckBox.isChecked())
 
 
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
@@ -103,4 +118,16 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         params = [] #Format: (" checkbox text", prefs_key)
 
         return params
+    
+    
+    def _update_state_of_cursorTextGroupBox(self, enable):
+        """
+        """
+        if not isinstance(self._cursorTextGroupBox, PM_PrefsCheckBoxes):
+            return
+        
+        if enable:
+            self._cursorTextGroupBox.setEnabled(True)
+        else:
+            self._cursorTextGroupBox.setEnabled(False)
 
