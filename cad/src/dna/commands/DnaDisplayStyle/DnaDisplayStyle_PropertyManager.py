@@ -392,19 +392,19 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         BUTTON_LIST = [ 
             ( "QToolButton", 1,  "APPLY_FAVORITE", 
-              "dna/commands/DnaDisplayStyle/ui/icons/ApplyFavorite.png",
+              "ui/actions/Properties Manager/ApplyFavorite.png",
               "Apply Favorite", "", 0),
             ( "QToolButton", 2,  "ADD_FAVORITE", 
-              "dna/commands/DnaDisplayStyle/ui/icons/AddFavorite.png",
+              "ui/actions/Properties Manager/AddFavorite.png",
               "Add Favorite", "", 1),
             ( "QToolButton", 3,  "DELETE_FAVORITE",  
-              "dna/commands/DnaDisplayStyle/ui/icons/DeleteFavorite.png",
+              "ui/actions/Properties Manager/DeleteFavorite.png",
               "Delete Favorite", "", 2),
             ( "QToolButton", 4,  "SAVE_FAVORITE",  
-              "dna/commands/DnaDisplayStyle/ui/icons/SaveFavorite.png",
+              "ui/actions/Properties Manager/SaveFavorite.png",
               "Save Favorite", "", 3),
             ( "QToolButton", 5,  "LOAD_FAVORITE",  
-              "dna/commands/DnaDisplayStyle/ui/icons/LoadFavorite.png",
+              "ui/actions/Properties Manager/LoadFavorite.png",
               "Load Favorite", \
               "", 4)  
             ]
@@ -765,7 +765,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
           grab_text_line_using_dialog(
               title = "Add new favorite",
               label = "favorite name:",
-              iconPath = "dna/commands/DnaDisplayStyle/ui/icons/AddFavorite.png",
+              iconPath = "ui/actions/Properties Manager/AddFavorite.png",
               default = "" )
         if ok:
             ok, text = writeDnaDisplayStyleSettingsToFavoritesFile(name)
