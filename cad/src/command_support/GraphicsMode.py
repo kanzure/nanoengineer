@@ -343,6 +343,9 @@ class basicGraphicsMode(GraphicsMode_API):
         
         #Draw tags if any
         self._drawTags()
+        
+        #Draw Special indicators if any (subclasses can draw custom indicators)
+        self._drawSpecialIndicators()
                         
 
         # bruce 040929/041103 debug code -- for developers who enable this
@@ -393,6 +396,23 @@ class basicGraphicsMode(GraphicsMode_API):
                                basePoint, 
                                endPoint, 
                                pointSize = pointSize)
+                
+                
+    def _drawSpecialIndicators(self):
+        """
+        Subclasses should override this method. Default implementation does 
+        nothing. Many times, the graphics mode needs to draw some things to 
+        emphasis some entities in the 3D workspace.
+        
+        Example: In MultiplednaSegmentResize_GraphicsMode, it draws 
+        transparent cylinders around the DnaSegments being resized at once. 
+        This visually distinguishes them from the rest of the segments. 
+        
+        @see: MultipleDnaSegmentResize_GraphicsMode._drawSpecialIndicators()
+        @TODO: cleanup self._drawTags() that method and this method look 
+        similar but the actual implementation is different. 
+        """
+        pass
        
 
     def _drawESPImage(self, grp, pickCheckOnly): # huaicai; some comments/revisions by bruce 071026

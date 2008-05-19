@@ -113,18 +113,15 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
 
         _superclass.keyPressEvent(self, event)
         
-    def Draw(self):
+    
+    def _drawSpecialIndicators(self):
         """
-        Draw method
-        """
-        self._drawEditStructureIndicators()
-        _superclass.Draw(self)
+        Overrides superclass method. 
         
-
-    def _drawEditStructureIndicators(self):
-        """
         This draws a transparent cylinder around the segments being resized, to 
         easily distinguish them from other model. 
+        
+        @see: basicGraphicsmode._drawSpecialIndicators()
 
         """
         if self.command:
