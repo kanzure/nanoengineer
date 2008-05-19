@@ -2030,6 +2030,8 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     """
     findRmsForce = re.compile("rms ([0-9.]+) pN")
     findHighForce = re.compile("high ([0-9.]+) pN")
+    formattedCommentRegex = re.compile(r'^(# [^:]+:)(.*)')
+    
     def __init__(self, owner, minimize = False, simopts = None):
         """
         store owner so we can later set owner.said_we_are_done = True; also start
@@ -2066,54 +2068,67 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         if _print_sim_comments_to_history: #e add checkbox or debug-pref for this??
             env.history.message("tracefile: " + line)
         # don't discard initial "#" or "# "
-        for start in ["# Warning:", "# Error:", "# Done:"]:
-            if line.startswith(start):
-                if start != "# Done:":
-                    self.owner.said_we_are_done = False # not needed if lines come in their usual order
-                    if not self.seen:
-                        env.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
-                        self.mentioned_sim_trace_file = True
-                    if start == "# Warning:":
-                        cline = orangemsg(line)
-                    else:
-                        cline = redmsg(line)
-                    env.history.message( cline) # leave in the '#' I think
-                    self.seen[start] = True
-                else:
-                    # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
-                    # if we see high forces, color the Done message orange, bug 1238, wware 060323
-                    if 1:
-                        #bruce 060705
-                        simopts = self.simopts
-                        try:
-                            endRMS = simopts.MinimizeThresholdEndRMS
-                        except AttributeError:
-                            print "simopts %r had no MinimizeThresholdEndRMS"
-                            endRMS = 1.0 # was 2.0
-                        try:
-                            endMax = simopts.MinimizeThresholdEndMax
-                        except AttributeError:
-                            print "simopts %r had no MinimizeThresholdEndMax"
-                            endMax = 5.0 # was 2.0
-                        epsilon = 0.000001 # guess; goal is to avoid orangemsg due to roundoff when printing/reading values
-                        pass
-                    foundRms = self.findRmsForce.search(line)
-                    if foundRms: foundRms = float(foundRms.group(1))
-                    foundHigh = self.findHighForce.search(line)
-                    if foundHigh: foundHigh = float(foundHigh.group(1))
-                    highForces = ((foundRms != None and foundRms > endRMS + epsilon) or
-                                  (foundHigh != None and foundHigh > endMax + epsilon))
-                    self.donecount += 1
-                    text = line[len(start):].strip()
-                    if text:
-                        if "# Error:" in self.seen:
-                            line = redmsg(line)
-                        elif highForces or ("# Warning:" in self.seen):
-                            line = orangemsg(line)
-                        env.history.message( line) #k is this the right way to choose the color?
-                        ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
-                        ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
+        m = self.formattedCommentRegex.match(line)
+        if (m):
+            start = m.group(1)
+            rest = m.group(2)
+            if (start == "# Warning:" or start == "# Error:"):
+                self.gotWarningOrError(start, line)
+            elif (start == "# Done:"):
+                self.gotDone(start, rest)
+            #else:
+            #    print "formatted trace line: " + line.rstrip()
         return
+
+    def gotWarningOrError(self, start, line):
+        self.owner.said_we_are_done = False # not needed if lines come in their usual order
+        if not self.seen:
+            env.history.message( "Messages from simulator trace file:") #e am I right to not say this just for Done:?
+            self.mentioned_sim_trace_file = True
+        if start == "# Warning:":
+            cline = orangemsg(line)
+        else:
+            cline = redmsg(line)
+        env.history.message( cline) # leave in the '#' I think
+        self.seen[start] = True
+
+    def gotDone(self, start, rest):
+        # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
+        # if we see high forces, color the Done message orange, bug 1238, wware 060323
+        if 1:
+            #bruce 060705
+            simopts = self.simopts
+            try:
+                endRMS = simopts.MinimizeThresholdEndRMS
+            except AttributeError:
+                print "simopts %r had no MinimizeThresholdEndRMS"
+                endRMS = 1.0 # was 2.0
+            try:
+                endMax = simopts.MinimizeThresholdEndMax
+            except AttributeError:
+                print "simopts %r had no MinimizeThresholdEndMax"
+                endMax = 5.0 # was 2.0
+            epsilon = 0.000001 # guess; goal is to avoid orangemsg due to roundoff when printing/reading values
+            pass
+        foundRms = self.findRmsForce.search(rest)
+        if foundRms:
+            foundRms = float(foundRms.group(1))
+        foundHigh = self.findHighForce.search(rest)
+        if foundHigh:
+            foundHigh = float(foundHigh.group(1))
+        highForces = ((foundRms != None and foundRms > endRMS + epsilon) or
+                      (foundHigh != None and foundHigh > endMax + epsilon))
+        self.donecount += 1
+        text = rest.strip()
+        if text:
+            if "# Error:" in self.seen:
+                msg = redmsg(rest)
+            elif highForces or ("# Warning:" in self.seen):
+                msg = orangemsg(rest)
+            env.history.message(msg) #k is this the right way to choose the color?
+            ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
+            ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
+    
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
         """
         Return some brief text suitable for periodically displaying on statusbar to show progress
