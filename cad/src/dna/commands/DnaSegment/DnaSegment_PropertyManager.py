@@ -7,10 +7,10 @@
 TODO: as of 2008-01-18
 See DnaSegment_EditCommand for details. 
 """
-from PyQt4.Qt import SIGNAL, Qt
+from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
+
+from command_support.DnaOrCnt_PropertyManager   import DnaOrCnt_PropertyManager
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
@@ -20,23 +20,21 @@ from PM.PM_Constants     import pmPreviewButton
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
-from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
-
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength 
 from dna.model.Dna_Constants import getDuplexLength
 from geometry.VQT import V, vlen
 from utilities.Log import redmsg
 from utilities.Comparison import same_vals
 
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
-from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
+from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
-class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
+_superclass = DnaOrCnt_PropertyManager
+
+class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     """
     The DnaSegmenta_PropertyManager class provides a Property Manager 
     for the DnaSegment_EditCommand. 
@@ -61,43 +59,39 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Constructor for the Build DNA property manager.
         """
-        
+
         #For model changed signal
         #@see: self.model_changed() and self._current_model_changed_params 
         #for example use
         self._previous_model_changed_params = None
-        
-        
+
+
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-        
+
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
-                
+
         self._numberOfBases = 0 
         self._conformation = 'B-DNA'
         self.duplexRise = 3.18
         self.basesPerTurn = 10
         self.dnaModel = 'PAM3'
-        
-        EditCommand_PM.__init__( self, 
-                                    win,
-                                    editCommand)
 
+        _superclass.__init__( self,  win, editCommand)
 
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
                                 pmPreviewButton | \
                                 pmWhatsThisButton)
-        
+
         msg = "Use resize handles to resize the segment. Drag any axis or sugar"\
             " atom for translation or rotation about axis respectively. Dragging"\
             " any bond will freely move the whole segment."
         self.updateMessage(msg)   
-    
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -110,25 +104,25 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-         
-                
+
+
         change_connect( self.numberOfBasePairsSpinBox,
-                      SIGNAL("valueChanged(int)"),
-                      self.numberOfBasesChanged )
-        
+                        SIGNAL("valueChanged(int)"),
+                        self.numberOfBasesChanged )
+
         change_connect( self.basesPerTurnDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.basesPerTurnChanged )
-        
+                        SIGNAL("valueChanged(double)"),
+                        self.basesPerTurnChanged )
+
         change_connect( self.duplexRiseDoubleSpinBox,
-                      SIGNAL("valueChanged(double)"),
-                      self.duplexRiseChanged )
-        
+                        SIGNAL("valueChanged(double)"),
+                        self.duplexRiseChanged )
+
         change_connect(self.showCursorTextCheckBox, 
                        SIGNAL('stateChanged(int)'), 
                        self._update_state_of_cursorTextGroupBox)
-        
-        
+
+
     def model_changed(self): 
         """
         @see: DnaSegment_EditCommand.model_changed()
@@ -140,11 +134,11 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #params are the same. 
         if same_vals(currentParams, self._previous_model_changed_params):
             return 
-        
+
         isStructResizable, why_not = currentParams
         #update the self._previous_model_changed_params with this new param set.
         self._previous_model_changed_params = currentParams
-        
+
         if not isStructResizable:
             #disable all widgets
             if self._pmGroupBox1.isEnabled():
@@ -158,8 +152,8 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                     " atom for translation or rotation about axis respectively. Dragging"\
                     " any bond will freely move the whole segment."
                 self.updateMessage(msg)
-                
-                
+
+
     def _current_model_changed_params(self):
         """
         Returns a tuple containing the parameters that will be compared
@@ -169,14 +163,14 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: self._previous_model_changed_params attr. 
         """
         params = None
-        
+
         if self.editCommand:   
             isStructResizable, why_not = self.editCommand.hasResizableStructure()
             params = (isStructResizable, why_not)
-        
+
         return params 
 
-         
+
     def show(self):
         """
         Show this property manager. Overrides EditCommand_PM.show()
@@ -185,16 +179,16 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: DnaSegment_EditCommand.getStructureName()
         @see: self.close()
         """
-        EditCommand_PM.show(self)
+        _superclass.show(self)
         if self.editCommand is not None:
             name = self.editCommand.getStructureName()
             if name is not None:
                 self.nameLineEdit.setText(name)
-            
+
             self._update_state_of_cursorTextGroupBox(
-            self.showCursorTextCheckBox.isChecked())
-            
-    
+                self.showCursorTextCheckBox.isChecked())
+
+
     def close(self):
         """
         Close this property manager. 
@@ -206,8 +200,8 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None:
             name = str(self.nameLineEdit.text())
             self.editCommand.setStructureName(name)
-        EditCommand_PM.close(self)
-        
+        _superclass.close(self)
+
     def setParameters(self, params):
         """
         This is usually called when you are editing an existing structure. 
@@ -219,15 +213,15 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         ..better to name them all in one style?  
         """
         #Set the duplex rise and bases per turn spinbox values. 
-        
+
         numberOfBasePairs, \
                          dnaForm, \
-                             dnaModel,\
-                             basesPerTurn, \
-                             duplexRise, \
-                             endPoint1, \
-                             endPoint2   = params 
-        
+                         dnaModel,\
+                         basesPerTurn, \
+                         duplexRise, \
+                         endPoint1, \
+                         endPoint2   = params 
+
         if numberOfBasePairs is not None:
             self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         if dnaForm is not None:
@@ -242,9 +236,9 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.endPoint1 = endPoint1
         if endPoint2 is not None:
             self.endPoint2 = endPoint2
-        
-    
-        
+
+
+
     def getParameters(self):
         """
         """
@@ -262,7 +256,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         dnaModel = self.dnaModel
         basesPerTurn = self.basesPerTurn
         duplexRise = self.duplexRise
-              
+
         return (
             number_of_basePairs_from_struct,
             numberOfBases, 
@@ -272,31 +266,31 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             duplexRise,
             self.endPoint1, 
             self.endPoint2)
-    
-    
+
+
     def _update_state_of_cursorTextGroupBox(self, enable):
         if enable:
             self._cursorTextGroupBox.setEnabled(True)
         else:
             self._cursorTextGroupBox.setEnabled(False)
-            
+
     def _update_widgets_in_PM_before_show(self):
         """
         This is called only when user is editing an existing structure. 
         Its different than self.update_widgets_in_pm_before_show. (that method 
         is called just before showing the property manager) 
         @see: DnaSegment_EditCommand.editStructure()
-        
+
         """
         if self.editCommand is not None and self.editCommand.hasValidStructure():
-        
+
             self.endPoint1, self.endPoint2 = self.editCommand.struct.getAxisEndPoints()
-                           
+
             duplexLength = vlen(self.endPoint1 - self.endPoint2)
-        
+
             numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength) 
-            
+                                                                     duplexLength) 
+
             self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs) 
             #Set the legth of duplex field. Note that 
             #_update_widgets_in_PM_before_show is called in self.show, before
@@ -306,7 +300,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             #DnaSegment_EditCommand, the propMgr will already be connected 
             #so the call below in that case is redundant (but harmless)
             self.numberOfBasesChanged(numberOfBasePairs)
-    
+
     def numberOfBasesChanged( self, numberOfBases ):
         """
         Slot for the B{Number of Bases" spinbox.
@@ -316,44 +310,44 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
         return
-    
+
     def basesPerTurnChanged( self, basesPerTurn ):
         """
         Slot for the B{Bases per turn} spinbox.
         """
         self.basesPerTurn = basesPerTurn
-        
-    
+
+
     def duplexRiseChanged( self, rise ):
         """
         Slot for the B{Rise} spinbox.
         """
         self.duplexRise = rise
-        
-                          
+
+
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
         """        
-                
+
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox1( self._pmGroupBox1 )
-        
+
         self._displayOptionsGroupBox = PM_GroupBox( self, 
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
-        
-    
+
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box 4.
         """
-        
+
         self.nameLineEdit = PM_LineEdit( pmGroupBox,
-                         label         =  "Segment name:",
-                         text          =  "",
-                         setAsDefault  =  False)
-                                                   
+                                         label         =  "Segment name:",
+                                         text          =  "",
+                                         setAsDefault  =  False)
+
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
@@ -362,7 +356,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                         setAsDefault  =  False,
                         minimum       =  2,
                         maximum       =  10000 )
-        
+
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Bases per turn:",
@@ -372,7 +366,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-        
+
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
@@ -392,25 +386,17 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          setAsDefault  =  False)
 
         self.duplexLengthLineEdit.setDisabled(True)  
-        
-    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
-        self.showCursorTextCheckBox = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Show cursor text",
-                widgetColumn = 0,
-                state        = Qt.Checked)
-        
+
+
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
         connect_checkbox_with_boolean_pref(
             self.showCursorTextCheckBox , 
             dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key)
-        
-        paramsForCheckBoxes = self._params_for_creating_cursorTextCheckBoxes()
-
-        self._cursorTextGroupBox = PM_PrefsCheckBoxes(
-            pmGroupBox, 
-            paramsForCheckBoxes = paramsForCheckBoxes,            
-            title = 'Cursor text options:')
 
 
     def _params_for_creating_cursorTextCheckBoxes(self):
@@ -425,32 +411,34 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @rtype: list
         @see: PM_PrefsCheckBoxes
         @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PrometryManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
-        [  #Format: (" checkbox text", prefs_key)
-           ("Number of base pairs", 
-            dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
-                         
-           ("Duplex length",
-            dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key),
-            
-           ("Number of basepairs to be changed",
-            dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key) 
-         ]
-        
+               [  #Format: (" checkbox text", prefs_key)
+                  ("Number of base pairs", 
+                   dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
+
+                   ("Duplex length",
+                    dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key),
+
+                    ("Number of basepairs to be changed",
+                     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key) 
+                 ]
+
         return params
 
-    
+
     def _addWhatsThisText(self):
         """
         Add what's this text. 
         """
         pass
-    
+
     def _addToolTipText(self):
         """
         Add Tooltip text
         """
         pass
-    
-         
+
+

@@ -804,12 +804,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #DnaStrand_EditCommand.getCursorText() -- Ninad 2008-04-12
         if self.grabbedHandle is None:
             return        
-        
-        if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
-            return '', black
-
-        text = ""       
-
+      
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
@@ -827,6 +822,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #changed based on Mark's user experience. The text is now always shown
         #in black color. -- Ninad 2008-04-17
         textColor = black  
+        
+        text = "" 
+        
+        if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
+            return '', black
         
         #Cursor text strings --
         duplexLengthString = str(round(duplexLength, 3))

@@ -34,12 +34,9 @@ from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
-from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
 
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 
-from widgets.DebugMenuMixin import DebugMenuMixin
-from command_support.EditCommand_PM import EditCommand_PM
 from geometry.VQT import V
 
 from PM.PM_Constants     import pmDoneButton
@@ -53,11 +50,12 @@ from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_le
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 
-_superclass = EditCommand_PM
+_superclass = DnaOrCnt_PropertyManager
 
-class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
+class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     """
     The DnaDuplexPropertyManager class provides a Property Manager 
     for the B{Build > DNA > Duplex} command.
@@ -95,9 +93,6 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         _superclass.__init__( self, 
                               win,
                               editCommand)
-
-
-        DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
@@ -336,27 +331,15 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
-        Load widgets in group box 4.
+        Load widgets in the Display Options GroupBox
+        @see: DnaOrCnt_PropertyManager. _loadDisplayOptionsGroupBox
         """
-
-        self.showCursorTextCheckBox = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Show cursor text",
-                widgetColumn = 0,
-                state        = Qt.Checked)
-        
-        connect_checkbox_with_boolean_pref(
-            self.showCursorTextCheckBox , 
-            dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
-        
-        
-        paramsForCheckBoxes = self._params_for_creating_cursorTextCheckBoxes()
-
-        self._cursorTextGroupBox = PM_PrefsCheckBoxes(
-            pmGroupBox, 
-            paramsForCheckBoxes = paramsForCheckBoxes,            
-            title = 'Cursor text options:')
+        #Call the superclass method that loads the cursor text checkboxes. 
+        #Note, as of 2008-05-19, the superclass, DnaOrCnt_PropertyManager
+        #only loads the cursor text groupboxes. Subclasses like this can 
+        #call custom methods like self._loadCursorTextCheckBoxes etc if they 
+        #don't need all groupboxes that the superclass loads. 
+        _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
 
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
@@ -376,6 +359,17 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                         state        = Qt.Checked
                     )
         
+    def _connect_showCursorTextCheckBox(self):
+        """
+        Connect the show cursor text checkbox with user prefs_key.
+        Overrides 
+        DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
+        """
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
+        
+        
     def _params_for_creating_cursorTextCheckBoxes(self):
         """
         Returns params needed to create various cursor text checkboxes connected
@@ -388,6 +382,8 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         @rtype: list
         @see: PM_PrefsCheckBoxes
         @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: Superclass method which is overridden here --
+        DnaOrCnt_PrometryManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
         [  #Format: (" checkbox text", prefs_key)
