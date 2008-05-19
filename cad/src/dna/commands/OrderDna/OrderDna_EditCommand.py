@@ -27,7 +27,7 @@ class OrderDna_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
     
 # == Command part
 
-class OrderDna_Command(EditCommand): 
+class OrderDna_EditCommand(EditCommand): 
     """
     
     """
@@ -93,7 +93,7 @@ class OrderDna_Command(EditCommand):
         bool_keep = EditCommand.keep_empty_group(self, group)
         
         if not bool_keep:
-            #Lets just not delete *ANY* DnaGroup while in OrderDna_Command
+            #Lets just not delete *ANY* DnaGroup while in OrderDna_EditCommand
             #Although OrderDna command can only be accessed through
             #BuildDna_EditCommand, it could happen (due to a bug) that the 
             #previous command is not BuildDna_Editcommand. So bool_keep 
