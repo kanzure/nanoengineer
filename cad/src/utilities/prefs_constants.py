@@ -215,7 +215,6 @@ bdnaRise_prefs_key = 'A10/B-DNA rise step'
 zdnaBasesPerTurn_prefs_key = 'A10/Z-DNA bases per turn' # Twist computed from this.
 zdnaRise_prefs_key = 'A10/Z-DNA rise step'
 dnaDefaultSegmentColor_prefs_key = 'A10/DNA default segment color'
-dnaColorBasesBy_prefs_key = 'A10/DNA color bases by'
 dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
@@ -593,7 +592,6 @@ prefs_table = (
     ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
     ('', 'float', zdnaRise_prefs_key, 3.715),
     ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
-    ('', 'int', dnaColorBasesBy_prefs_key, 0),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
 
     # Strand arrowheads display option prefs.
