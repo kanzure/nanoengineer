@@ -34,8 +34,7 @@ from PM.PM_Constants     import pmWhatsThisButton
 from utilities.prefs_constants import stereoViewMode_prefs_key
 from utilities.prefs_constants import stereoViewAngle_prefs_key
 from utilities.prefs_constants import stereoViewSeparation_prefs_key
-
-###from commands.StereoProperties.StereoProperties_Command import stereoEnabled
+from utilities.prefs_constants import defaultProjection_prefs_key
 
 # =
 
@@ -176,7 +175,7 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          setAsDefault  =  True)
 
         self.stereoModeComboBox.setCurrentIndex(env.prefs[stereoViewMode_prefs_key]-1)
-
+            
         self.stereoSeparationSlider =  \
             PM_Slider( pmGroupBox,
                        currentValue = 50,
@@ -197,6 +196,8 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.stereoAngleSlider.setValue(env.prefs[stereoViewAngle_prefs_key])
 
+        self._updateWidgets()
+                
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the Stereo Property Manager.  
@@ -215,8 +216,27 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """        
         if self.o:
             self.o.stereo_enabled = enabled
-            self.o.gl_update()
+            # switch to perspective mode
+            if enabled:
+                # store current projection mode
+                self.o.last_ortho = self.o.ortho
+                if self.o.ortho is not 0:
+                    # dont use glpane.setViewProjection
+                    # because we don't want to modify 
+                    # default projection setting 
+                    self.o.ortho = 0 
+            else:
+                # restore default mode
+                if hasattr(self.o, "last_ortho"):
+                    projection = self.o.last_ortho
+                    if self.o.ortho != projection:
+                        self.o.ortho = projection
 
+            self._updateWidgets()
+                    
+            self.o.gl_update()
+            
+            
     def _stereoModeComboBoxChanged(self, mode):
         """
         Change stereo mode.
@@ -224,8 +244,8 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         env.prefs[stereoViewMode_prefs_key] = mode + 1
 
-        # print "stereo mode = ", env.prefs[stereoViewMode_prefs_key]
-
+        self._updateSeparationSlider()
+        
         if self.o:
             self.o.gl_update()        
 
@@ -247,3 +267,22 @@ class StereoProperties_PropertyManager( PM_Dialog, DebugMenuMixin ):
         if self.o:
             self.o.gl_update()        
 
+    def _updateSeparationSlider(self):
+        if self.stereoModeComboBox.currentIndex() >= 2: 
+            # for anaglyphs disable the separation slider 
+            self.stereoSeparationSlider.setEnabled(False)
+        else:
+            # otherwise, enable the separation slider
+            self.stereoSeparationSlider.setEnabled(True)
+
+    def _updateWidgets(self):
+        if self.stereoEnabledCheckBox.isChecked():
+            self.stereoModeComboBox.setEnabled(True)
+            self.stereoSeparationSlider.setEnabled(True)
+            self.stereoAngleSlider.setEnabled(True)
+            self._updateSeparationSlider()
+        else:
+            self.stereoModeComboBox.setEnabled(False)
+            self.stereoSeparationSlider.setEnabled(False)
+            self.stereoAngleSlider.setEnabled(False)
+            

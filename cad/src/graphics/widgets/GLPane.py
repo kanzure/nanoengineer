@@ -4609,8 +4609,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def _enable_stereo(self, stereo_image):
         """
         Enables stereo rendering.        
-        stereo_image indicates which stereo image we are rendering
+        Stereo_image indicates which stereo image we are rendering
         (-1 == left, 1 == right). 
+        It should be called before entering drawing phase
+        and should be accompanied by a self._disable_stereo call.
+        These methods push a modelview matrix on a matrix stack
+        and modify the matrix.
         """
         if not self.stereo_enabled:
             # stereo disabled - just return
@@ -4620,11 +4624,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
         stereo_angle = -0.1 * (env.prefs[stereoViewAngle_prefs_key] - 25)
 
+        # push the modelview matrix on the stack
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
 
+        separation = stereo_separation * self.scale
+        angle = stereo_angle
+        
         if stereo_mode <= 2:
-            # clip left or right image for side-by-side stereo
+            # side-by-side stereo mode
+            # clip left or right image 
             # reset the modelview matrix
             glPushMatrix()
             glLoadIdentity()
@@ -4637,31 +4646,24 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glEnable(GL_CLIP_PLANE5)
             glPopMatrix()
 
-        separation = stereo_separation * self.scale
+            # for cross-eyed mode, exchange left and right views
+            if stereo_mode == 2:
+                angle *= -1
 
-        angle = stereo_angle
-
-        # for cross-eyed mode, exchange left and right views
-        if stereo_mode == 2:
-            angle *= -1
-
-        # for anaglyphs, decresase the angle
-        if stereo_mode >= 3:
-            angle *= 0.5
-
-        glRotatef(angle * stereo_image,
-                  self.up[0], 
-                  self.up[1],
-                  self.up[2])
-
-        if stereo_mode <= 2:
             # translate images for side-by-side stereo
             glTranslatef(separation * stereo_image * self.right[0], 
                          separation * stereo_image * self.right[1], 
                          separation * stereo_image * self.right[2])
 
-        if stereo_mode >= 3:             
-            # anaglyphs
+            # rotate the stereo image ("toe-in" method)
+            glRotatef(angle * stereo_image,
+                      self.up[0], 
+                      self.up[1],
+                      self.up[2])
+    
+        else:
+            # anaglyphs stereo mode            
+            angle *= 0.5
             if stereo_image == -1:
                 # red image
                 glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
@@ -4677,12 +4679,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 elif stereo_mode == 5:
                     # green image
                     glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE)
-        else:
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-
+ 
+            # rotate the stereo image ("toe-in" method)
+            glRotatef(angle * stereo_image,
+                      self.up[0], 
+                      self.up[1],
+                      self.up[2])
+ 
+                    
     def _disable_stereo(self):
         """
         Disables stereo rendering.
+        This method modifies pops a modelview matrix from a matrix stack.
         """
 
         if not self.stereo_enabled:
@@ -4691,13 +4699,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         stereo_mode = env.prefs[stereoViewMode_prefs_key]
 
-        if stereo_mode >= 3: 
+        if stereo_mode <=2:
+            # side-by-side stereo mode
+            # make sure the clipping plane is disabled
+            glDisable(GL_CLIP_PLANE5)
+            
+            pass
+        
+        else: 
+            # anaglyphs stereo mode
             # enable all colors
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-
-        # make sure the clipping plane is disabled
-        glDisable(GL_CLIP_PLANE5)
-
+            
+            pass
+        
+        # restore the matrix
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
 
