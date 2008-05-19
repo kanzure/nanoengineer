@@ -269,7 +269,7 @@ class PAM_Atom_methods:
             for n in baggage[:]:
                 if not n.is_singlet():
                     baggage.remove(n)
-                    other.append(n)
+                    others.append(n)
                 continue
             pass
 

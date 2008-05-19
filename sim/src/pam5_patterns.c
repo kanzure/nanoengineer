@@ -142,6 +142,8 @@ static double vDbx_p[8];
 static double vDbx_q[8];
 static struct atomType *vDa_type[8];
 static struct atomType *vDb_type[8];
+static double axis_pq;
+static struct atomType *vAh5_type;
 
 static struct bondStretch *stretch_5_Pl_Ss_3;
 static struct bondStretch *stretch_5_Ss_Pl_3;
@@ -228,6 +230,9 @@ init_stack_match(void)
   x_g = param->value;
   param = getPatternParameter("PAM5:basis-y_m"); BAIL();
   y_m = param->value;
+
+  vAh5_type = getAtomTypeByName("vAh5");
+  changeBasis(x_o, x_g, y_m, 0.0, 0.0, &axis_pq, &axis_pq);
   
   for (i=0; i<8 && i<numStruts; i++) {
     sprintf(buf, "strut-%d", i+1);
@@ -329,6 +334,38 @@ pam5_stack_match(struct patternMatch *match)
     trace_makeVirtualAtom(match, vA);
     queueAtom(match->p, vB);
     trace_makeVirtualAtom(match, vB);
+    queueBond(match->p, bond);
+    trace_makeBond(match, bond);
+  }
+  //printMatch(match);
+}
+
+static void
+pam5_basepair_handle_match(struct patternMatch *match)
+{
+  struct atom *aAh = match->p->atoms[match->atomIndices[0]];
+  struct atom *aGv = match->p->atoms[match->atomIndices[1]];
+  struct atom *aS1 = match->p->atoms[match->atomIndices[2]];
+  struct atom *aS2 = match->p->atoms[match->atomIndices[3]];
+  struct atom *vA;
+  struct bond *bond;
+  
+  pam5_requires_gromacs(match->p); BAIL();
+  init_stack_match(); BAIL();
+  
+  // S1
+  //  |
+  // Gv----Ah
+  //  |
+  // S2
+  if (aAh->isGrounded) {
+    vA = makeVirtualAtom(vAh5_type, sp3, 3, 1,
+                         aGv, aS1, aS2, NULL,
+                         axis_pq, axis_pq, 0.0);
+    
+    bond = makeBond(match->p, vA, aAh, '1');
+    queueAtom(match->p, vA);
+    trace_makeVirtualAtom(match, vA);
     queueBond(match->p, bond);
     trace_makeBond(match, bond);
   }
@@ -573,4 +610,13 @@ createPam5Patterns(void)
   t[6] = makeTraversal(a[2], a[6], '1');
   t[7] = makeTraversal(a[6], a[7], '1');
   makePattern("PAM3-crossover", pam3_crossover_match, 8, 8, t);
+
+  a[0] = makePatternAtom(0, "Ah5");
+  a[1] = makePatternAtom(1, "P5G");
+  a[2] = makePatternAtom(2, "P5S");
+  a[3] = makePatternAtom(3, "P5S");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  t[2] = makeTraversal(a[1], a[3], '1');
+  makePattern("PAM5-basepair-handle", pam5_basepair_handle_match, 4, 3, t);
 }

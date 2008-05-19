@@ -59,6 +59,9 @@ element 207  0  0   P5d Hp5   DNA-Pseudo-Hairpin        167.0   0.0    0.0   2  
 element 208  0  0   P5G Gv5   DNA-Pseudo-Groove         167.0   0.0    0.0   2   100   0    0   820
 element 209  0  0   P5G Gr5   DNA-Pseudo-Groove-End     167.0   0.0    0.0   2   100   0    0   820
 
+element 213  0  0   P5d Ah5   DNA-Pseudo-Axis-Handle      1.0   0.0    0.0   1   100   0    0
+element 219  0  0   P5V vAh5  DNA-Pseudo-Axis-Handle-v    0.0   0.0    0.0   1   100   0    0
+
 element 220  0  0   P5V vDa1  virtual-DNA-planeA-1        0.0   0.0    0.0   1   100   0    1
 element 221  0  0   P5V vDa1p virtual-DNA-planeA-1p       0.0   0.0    0.0   1   100   0    1
 element 222  0  0   P5V vDa2  virtual-DNA-planeA-2        0.0   0.0    0.0   1   100   0    1
@@ -158,6 +161,11 @@ stretch  10.00  923.40  1.0000   -1         -1       9    1   Gr5-1-Ss5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
+
+stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Ah5
+stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-vAh5
+stretch 100.00    0.00  1.0000   -1         -1       9    1   Ah5-1-vAh5
+
 
 # this is overridden by separate directional parameters below, but we
 # still need a max value for bond stretch indicators

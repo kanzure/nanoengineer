@@ -1659,13 +1659,14 @@ addVirtualAtom(struct part *p, struct atom *a)
     if (a == NULL) {
         return;
     }
-    p->num_virtual_atoms++;
-    p->virtual_atoms = (struct atom **)accumulator(p->virtual_atoms,
-                                                   sizeof(struct atom *) *
-                                                     p->num_virtual_atoms,
-                                                   0);
-    p->virtual_atoms[p->num_virtual_atoms - 1] = a;
-    a->index = p->num_virtual_atoms - 1;
+    p->num_generated_atoms++;
+    p->generated_atoms = (struct atom **)accumulator(p->generated_atoms,
+                                                     sizeof(struct atom *) *
+                                                     p->num_generated_atoms,
+                                                     0);
+    p->generated_atoms[p->num_generated_atoms - 1] = a;
+    a->index = p->num_generated_atoms - 1;
+    a->isGenerated = 1;
     
     hashtable_put(p->atomTypesUsed, a->type->symbol, a->type);
 
