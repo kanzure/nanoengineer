@@ -28,6 +28,8 @@ from utilities import debug_flags
 import foundation.env as env
 from utilities.Log import redmsg, graymsg
 
+from utilities.debug import print_compact_traceback
+
 from geometry.VQT import norm
 
 from model.bond_constants import find_bond, find_Pl_bonds
@@ -76,11 +78,22 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     for direction_to, ss in bond_directions_to_neighbors: # neighbors of Pl
         if ss.element.role == 'strand':
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
-            pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
-                    - direction_to, # the sign makes this the Ss -> Pl direction
-                    remove_data = remove_data_from_neighbors,
-                    make_up_position_if_necessary = True # doesn't prevent all returns of None
-             )
+            try:
+                #bruce 080516: protect from exceptions on each neighbor
+                # (so it can still work if the other one works --
+                #  can happen for bridging Pls with bugs on one ladder)
+                pos = ss._f_recommend_PAM3plus5_Pl_abs_position(
+                        - direction_to, # the sign makes this the Ss -> Pl direction
+                        remove_data = remove_data_from_neighbors,
+                        make_up_position_if_necessary = True # doesn't prevent all returns of None
+                 )
+            except:
+                msg = "bug: exception in " \
+                      "%r._f_recommend_PAM3plus5_Pl_abs_position, " \
+                      "skipping it for that strand_neighbor" % (ss,)
+                print_compact_traceback( msg + ": ")
+                pos = None # following print is redundant; nevermind
+                pass
             if pos is None:
                 # can happen in theory, in spite of
                 # make_up_position_if_necessary = True,

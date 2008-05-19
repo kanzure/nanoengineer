@@ -281,7 +281,8 @@ class DnaLadderRailChunk(Chunk):
         if len(self._counted_chunks) == 1:
             # all our atoms come from the same old chunk (but are they all of its atoms?)
             old_chunk = self._counted_chunks.values()[0]
-            assert not old_chunk.killed() # sanity check on old_chunk itself
+            assert not old_chunk.killed(), "old_chunk %r should not be killed" % (old_chunk,)
+                # sanity check on old_chunk itself
             if self._counted_atoms == len(old_chunk.atoms):
                 for atom in old_chunk.atoms.itervalues(): # sanity check on old_chunk itself (also valid outside this if, but too slow)
                     assert atom.molecule is old_chunk # remove when works - slow - or put under SLOW_ASSERTS (otherfile baseatom check too?)
