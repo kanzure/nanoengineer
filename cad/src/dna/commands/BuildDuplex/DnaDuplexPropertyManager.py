@@ -34,6 +34,7 @@ from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
+from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
 
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
@@ -44,7 +45,6 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
@@ -343,13 +343,14 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                 text  = "Show cursor text",
                 widgetColumn = 0,
                 state        = Qt.Checked)
+        
+        
+        paramsForCheckBoxes = self._params_for_creating_cursorTextCheckBoxes()
 
-        self._cursorTextGroupBox = PM_GroupBox(pmGroupBox, 
-                                               title = 'Cursor text options:')
-
-        self._loadCursorTextCheckBoxes(self._cursorTextGroupBox)
-        self._connect_cursorTextCheckBoxes()
-
+        self._cursorTextGroupBox = PM_PrefsCheckBoxes(
+            pmGroupBox, 
+            paramsForCheckBoxes = paramsForCheckBoxes,            
+            title = 'Cursor text options:')
 
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
@@ -368,69 +369,32 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                         widgetColumn = 1,
                         state        = Qt.Checked
                     )
-
-    def _loadCursorTextCheckBoxes(self, pmGroupBox):
+        
+    def _params_for_creating_cursorTextCheckBoxes(self):
         """
-         Load various checkboxes that allow custom cursor texts. Subclasses 
-         can override this method. Default implementation adds following 
-         checkboxes
-         """        
-        self.cursorTextCheckBox_numberOfBasePairs = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Number of base pairs",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-        self.cursorTextCheckBox_numberOfTurns = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Number of turns",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-        self.cursorTextCheckBox_length = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Duplex length",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-        self.cursorTextCheckBox_angle = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Angle information",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-
-    def _connect_cursorTextCheckBoxes(self):
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        #DOC  further.
         """
-        Default implementation does nothing. Its overridden in subclasses
-        Connect the cursor text checkboxes with the preference keys. 
-        @see: self._loadDisplayOptionsGroupBox()        
-        """
-        connect_checkbox_with_boolean_pref(
-            self.showCursorTextCheckBox , 
-            dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
+        params = \
+        [  #Format: (" checkbox text", prefs_key)
+            ("Number of base pairs", 
+             dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
+             
+            ("Number of turns",
+             dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key),
+             
+            ("Duplex length",
+             dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key),
+             
+            ("Angle",
+             dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key) ]
+        
+        return params
 
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_numberOfBasePairs , 
-            dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_numberOfTurns , 
-            dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_length , 
-            dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_angle , 
-            dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key)
-
-
+    
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
