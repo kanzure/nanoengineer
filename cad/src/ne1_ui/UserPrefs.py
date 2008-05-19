@@ -2604,15 +2604,6 @@ restored when the user undoes a structural change.</p>
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleAxisScale_prefs_key] = scale_factor
-        self.update_dnaStyleAxisScale()
-
-    def update_dnaStyleAxisScale(self):
-        """
-        Updates the DNA Style Axis Scale spin box. 
-        """
-        # Set axis scale.        
-        self.dnaStyleAxisScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleAxisScale_prefs_key]))
 
     def change_dnaStyleBasesScale(self, scale_factor):
         """
