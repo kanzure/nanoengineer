@@ -91,8 +91,6 @@ from utilities.prefs_constants import dnaBaseIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseInvIndicatorsEnabled_prefs_key
 from utilities.prefs_constants import dnaBaseInvIndicatorsColor_prefs_key
-from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
-from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
 
 from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
 
@@ -168,6 +166,43 @@ from model.chunk import Chunk
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
+def get_dna_base_orientation_indicators(chunk, normal):
+    """
+    Returns two lists for DNA bases perpendicular and anti-perpendicular
+    to a plane specified by the plane normal vector.
+    """
+    
+    from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
+    from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+
+    indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
+    indicators_distance = env.prefs[dnaBaseIndicatorsDistance_prefs_key]
+
+    indicators = []
+    inv_indicators = []
+
+    if chunk.isStrandChunk(): 
+        if chunk.ladder.axis_rail:
+            n_bases = chunk.ladder.baselength()
+            if chunk == chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+                chunk_strand = 0
+            else:
+                chunk_strand = 1
+            for pos in range(0, n_bases):
+                atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+                atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+                vz = normal
+                v2 = norm(atom1.posn()-atom2.posn())
+                # calculate the angle between this vector 
+                # and the vector towards the viewer
+                a = angleBetween(vz, v2)
+                if abs(a) < indicators_angle:
+                    indicators.append(atom1)
+                if abs(a) > (180.0 - indicators_angle):
+                    inv_indicators.append(atom1)
+    
+    return (indicators, inv_indicators)
+   
 class DnaCylinderChunks(ChunkDisplayMode):
     """
     DNA Cylinder display mode, which draws "axis" chunks as a cylinder.
@@ -843,6 +878,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             bposn+0.25*self.dnaStyleBasesScale*normal,
                             1.0*self.dnaStyleBasesScale, True)
 
+     
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
         Given the same arguments as drawchunk, plus selection_frame_color, 
@@ -995,11 +1031,24 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 self.dnaStyleStrandsShape = env.prefs[dnaStyleStrandsShape_prefs_key]
                 self.dnaStyleStrutsShape = env.prefs[dnaStyleStrutsShape_prefs_key]
                 self.dnaStyleBasesShape = env.prefs[dnaStyleBasesShape_prefs_key]
-                indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
                 indicators_color = env.prefs[dnaBaseIndicatorsColor_prefs_key]
                 inv_indicators_color = env.prefs[dnaBaseInvIndicatorsColor_prefs_key]                
                 inv_indicators_enabled = env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key]
-                indicators_distance = env.prefs[dnaBaseIndicatorsDistance_prefs_key]
+
+                indicators, inv_indicators = get_dna_base_orientation_indicators(chunk, glpane.up)
+                                
+                for atom in indicators:
+                    drawer.drawsphere(
+                        indicators_color, 
+                        chunk.abs_to_base(atom.posn()), 1.5, 2)
+            
+                if inv_indicators_enabled:
+                    for atom in inv_indicators:
+                        drawer.drawsphere(
+                            inv_indicators_color, 
+                            chunk.abs_to_base(atom.posn()), 1.5, 2)
+                    
+                """
                 if chunk.isStrandChunk(): 
                     if chunk.ladder.axis_rail:
                         if self.dnaStyleStrandsShape>0 or \
@@ -1013,7 +1062,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             for pos in range(0,n_bases):
                                 atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
                                 atom2 = chunk.ladder.axis_rail.baseatoms[pos]
-                                vz = glpane.out 
+                                vz = glpane.up
                                 v2 = norm(atom1.posn()-atom2.posn())
                                 # calculate an angle between this vector 
                                 # and the vector towards the viewer
@@ -1027,7 +1076,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         drawer.drawsphere(
                                             inv_indicators_color, 
                                             chunk.abs_to_base(atom1.posn()), 1.5, 2)
-
+                """
+                
             if chunk.isStrandChunk():       
 
                 if hasattr(chunk, "_dnaStyleExternalBonds"):
