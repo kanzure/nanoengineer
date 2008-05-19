@@ -52,6 +52,7 @@ from dna.commands.BreakStrands.BreakStrands_Command import BreakStrands_Command
 from dna.commands.BuildDna.BuildDna_EditCommand import BuildDna_EditCommand
 from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
 from dna.commands.DnaStrand.DnaStrand_EditCommand import DnaStrand_EditCommand
+from dna.commands.OrderDna.OrderDna_Command import OrderDna_Command
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle_Command
 from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
 from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
@@ -102,6 +103,7 @@ def preloaded_command_classes():
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 
         DnaStrand_EditCommand,
+        OrderDna_Command,
         DnaDisplayStyle_Command,
         BuildNanotube_EditCommand,
         InsertNanotube_EditCommand,

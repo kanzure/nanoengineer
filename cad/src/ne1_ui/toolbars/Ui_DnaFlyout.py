@@ -219,14 +219,18 @@ class DnaFlyout:
                              SIGNAL("triggered()"),
                              self.convertPAM5to3Command)
         
-        change_connect(self.orderDnaAction, 
-                             SIGNAL("triggered()"),
-                             self.orderDnaCommand)
+        if 1: # the new way, with the "DNA Order" PM.
+            change_connect(self.orderDnaAction, 
+                                 SIGNAL("triggered(bool)"),
+                                 self.activateOrderDna_Command)
+        else: # the old way (without the PM)
+            change_connect(self.orderDnaAction, 
+                                 SIGNAL("triggered()"),
+                                 self.orderDnaCommand)
         
         change_connect(self.displayStyleAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateDisplayStyle_Command)
-    
     
     def activateFlyoutToolbar(self):
         """
@@ -283,12 +287,10 @@ class DnaFlyout:
         @see: BuildDna_EditCommand.resume_gui()
         """
         
-        
         #Uncheck all the actions in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
             if action.isChecked():
                 action.setChecked(False)
-        
         
     def activateExitDna(self, isChecked):
         """
@@ -327,8 +329,6 @@ class DnaFlyout:
             if action is not self.dnaDuplexAction and action.isChecked():
                 action.setChecked(False)
             
-        
-    
     def activateBreakStrands_Command(self, isChecked):
         """
         Call the method that enters BreakStrands_Command. 
@@ -345,8 +345,6 @@ class DnaFlyout:
             if action is not self.breakStrandAction and action.isChecked():
                 action.setChecked(False)
             
-            
-    
     def activateJoinStrands_Command(self, isChecked):
         """
         Call the method that enters JoinStrands_Command. (After entering the 
@@ -393,7 +391,23 @@ class DnaFlyout:
         @see: MWSemantics.orderDna
         """
         self.win.orderDna()
+    
+    def activateOrderDna_Command(self, isChecked):
+        """
+        Call the method that enters OrderDna_Command. 
+        (After entering the command) Also make sure that 
+        all the other actions on the DnaFlyout toolbar are unchecked AND 
+        the DisplayStyle Action is checked. 
+        """
         
+        self.win.enterOrderDnaCommand(isChecked)
+        
+        #Uncheck all the actions except the Order DNA action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.displayStyleAction and action.isChecked():
+                action.setChecked(False)
+                
     def activateDisplayStyle_Command(self, isChecked):
         """
         Call the method that enters DisplayStyle_Command. 

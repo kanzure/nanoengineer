@@ -1708,6 +1708,19 @@ class MWsemantics(QMainWindow,
             if currentCommand.commandName == 'JOIN_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
 
+    def enterOrderDnaCommand(self, isChecked = False):
+        """
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "ORDER_DNA":
+            commandSequencer.userEnterTemporaryCommand(
+                'ORDER_DNA')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'ORDER_DNA':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                
     def enterDnaDisplayStyleCommand(self, isChecked = False):
         """
         """
