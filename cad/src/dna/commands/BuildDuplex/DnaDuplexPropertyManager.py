@@ -36,6 +36,8 @@ from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
 
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 from geometry.VQT import V
@@ -344,6 +346,10 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                 widgetColumn = 0,
                 state        = Qt.Checked)
         
+        connect_checkbox_with_boolean_pref(
+            self.showCursorTextCheckBox , 
+            dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
+        
         
         paramsForCheckBoxes = self._params_for_creating_cursorTextCheckBoxes()
 
@@ -374,9 +380,14 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Returns params needed to create various cursor text checkboxes connected
         to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
         @see: PM_PrefsCheckBoxes
         @see: self._loadDisplayOptionsGroupBox where this list is used. 
-        #DOC  further.
         """
         params = \
         [  #Format: (" checkbox text", prefs_key)

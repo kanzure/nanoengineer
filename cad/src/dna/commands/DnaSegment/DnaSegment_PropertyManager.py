@@ -21,6 +21,7 @@ from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
 from PM.PM_CheckBox import PM_CheckBox
+from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
 
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength 
 from dna.model.Dna_Constants import getDuplexLength
@@ -399,63 +400,45 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 text  = "Show cursor text",
                 widgetColumn = 0,
                 state        = Qt.Checked)
-
-        self._cursorTextGroupBox = PM_GroupBox(pmGroupBox, 
-                                               title = 'Cursor text options:')
-
-        self._loadCursorTextCheckBoxes(self._cursorTextGroupBox)
-        self._connect_cursorTextCheckBoxes()
         
-    def _loadCursorTextCheckBoxes(self, pmGroupBox):
-        """
-         Load various checkboxes that allow custom cursor texts. Subclasses 
-         can override this method. Default implementation adds following 
-         checkboxes
-         """       
-                
-        self.cursorTextCheckBox_numberOfBasePairs = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Number of base pairs",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-        self.cursorTextCheckBox_length = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Duplex length",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-        
-        self.cursorTextCheckBox_changedBaePairs = \
-            PM_CheckBox( 
-                pmGroupBox,
-                text  = "Number of basepairs to be changed",
-                widgetColumn = 1,
-                state        = Qt.Checked)
-
-
-    def _connect_cursorTextCheckBoxes(self):
-        """
-        Default implementation does nothing. Its overridden in subclasses
-        Connect the cursor text checkboxes with the preference keys. 
-        @see: self._loadDisplayOptionsGroupBox()        
-        """
         connect_checkbox_with_boolean_pref(
             self.showCursorTextCheckBox , 
             dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_numberOfBasePairs , 
-            dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_length , 
-            dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key)
         
-        connect_checkbox_with_boolean_pref(
-            self.cursorTextCheckBox_changedBaePairs , 
-            dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key)
+        paramsForCheckBoxes = self._params_for_creating_cursorTextCheckBoxes()
+
+        self._cursorTextGroupBox = PM_PrefsCheckBoxes(
+            pmGroupBox, 
+            paramsForCheckBoxes = paramsForCheckBoxes,            
+            title = 'Cursor text options:')
+
+
+    def _params_for_creating_cursorTextCheckBoxes(self):
+        """
+        Returns params needed to create various cursor text checkboxes connected
+        to prefs_keys  that allow custom cursor texts. 
+        @return: A list containing tuples in the following format:
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                uses this data to create checkboxes with the the given names and
+                connects them to the provided preference keys. (Note that 
+                PM_PrefsCheckBoxes puts thes within a GroupBox)
+        @rtype: list
+        @see: PM_PrefsCheckBoxes
+        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        """
+        params = \
+        [  #Format: (" checkbox text", prefs_key)
+           ("Number of base pairs", 
+            dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
+                         
+           ("Duplex length",
+            dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key),
+            
+           ("Number of basepairs to be changed",
+            dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key) 
+         ]
+        
+        return params
 
     
     def _addWhatsThisText(self):
