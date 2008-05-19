@@ -171,21 +171,21 @@ def pref_dna_updater_convert_to_PAM3plus5():
                       call_with_new_value = _changed_dna_updater_behavior_pref )
     return res
 
-def pref_mmp_save_convert_to_PAM5():
+def pref_mmp_save_convert_to_PAM5(): # has one use, in save_mmp_file [as of 080519]
     res = debug_pref("DNA: save as PAM5? ",
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
                       ## non_debug = True,
                       prefs_key = True )
     return res
 
-def pref_renderers_convert_to_PAM5():
+def pref_renderers_convert_to_PAM5(): # never yet used [as of 080519]
     res = debug_pref("DNA: render externally as PAM5?", # e.g. QuteMol, POV-Ray
                       Choice_boolean_False,
                       ## non_debug = True,
                       prefs_key = True )
     return res
 
-def pref_minimizers_convert_to_PAM5():
+def pref_minimizers_convert_to_PAM5(): # never yet used [as of 080519]
     res = debug_pref("DNA: minimize in PAM5? ", # i.e. for ND-1 (GROMACS or not)
                       Choice_boolean_False, # soon will be True and I'll remove the ending space
                       ## non_debug = True,

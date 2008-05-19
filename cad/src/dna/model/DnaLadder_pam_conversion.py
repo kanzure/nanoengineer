@@ -135,6 +135,9 @@ class DnaLadder_pam_conversion_methods:
         """
         Command to convert all of self to one of the PAM_MODELS.
         """
+        # WARNING: _convert_to_pam and _cmd_convert_to_pam are partly redundant;
+        # cleanup needed. [bruce 080519 comment in two places]
+        #
         #revised, bruce 080411
 
         if _f_baseatom_wants_pam:
@@ -266,7 +269,19 @@ class DnaLadder_pam_conversion_methods:
             return _f_baseatom_wants_pam[atom.key] # supersedes everything else
         except KeyError:
             pass
-        want = atom.molecule.display_as_pam
+        ## want = atom.molecule.display_as_pam
+        want = "" #bruce 080519 fix or mitigate bug 2842 (ignore .display_as_pam)
+            # NOTE: all sets and uses of .display_as_pam will ultimately need
+            # fixing, since users of v1.0.0 or v1.0.1 might have created
+            # mmp files which have it set on their chunks but shouldn't
+            # (by creating a PAM5 duplex and converting that to PAM3),
+            # and since the manual conversion in ops_pam.py has the bug of
+            # not clearing this (the older cmenu conversion ops do clear it
+            # as they should). This mitigation removes its ability to cause
+            # conversions (when debug_prefs are not set); it leaves its
+            # ability to prevent some dna ladder merging, but that is either
+            # ok or a rarer bug. A better mitigation or fix needs to be done
+            # in time for v1.1. [bruce 080519 comment]
         if not want:
             want = default_pam_model # might be None, which means, whatever you already are
         return want
@@ -290,6 +305,9 @@ class DnaLadder_pam_conversion_methods:
         implemented, return -1. Don't modify self or its atoms in
         these cases.
         """
+        # WARNING: _convert_to_pam and _cmd_convert_to_pam are partly redundant;
+        # cleanup needed. [bruce 080519 comment in two places]
+        #
         # various reasons for conversion to not succeed;
         # most emit a deferred_summary_message
         if not self.valid:
