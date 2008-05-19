@@ -181,8 +181,14 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.editStrandPropertiesButton.setEnabled(False)  
         
         if len(selectedSegments) == 1:
+            self.editSegmentPropertiesButton.setText("Edit Properties...")
+            self.editSegmentPropertiesButton.setEnabled(True)
+        elif len(selectedSegments) > 1:
+            resizeString = "Resize Selected Segments (%d)..."%len(selectedSegments)
+            self.editSegmentPropertiesButton.setText(resizeString)
             self.editSegmentPropertiesButton.setEnabled(True)
         else:
+            self.editSegmentPropertiesButton.setText("Edit Properties...")
             self.editSegmentPropertiesButton.setEnabled(False)
                          
         #Update the strand and segmment list widgets. 
@@ -314,6 +320,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             selectedSegments = self.editCommand.struct.getSelectedSegments()
             if len(selectedSegments) == 1:
                 selectedSegments[0].edit()
+            elif len(selectedSegments) > 1:
+                self.win.resizeSelectedDnaSegments()
     
         
     def _update_widgets_in_PM_before_show(self):
