@@ -3748,7 +3748,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(self.aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
-
         #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
         # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
         # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
@@ -3857,7 +3856,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 self.drawing_phase = 'glselect' #bruce 070124
 
                 # piotr 080515: added software stereo rendering support
-                if not self.stereo_enabled == 0:
+                if not self.stereo_enabled:
                     # draw only once if stereo is disabled
                     stereo_image_range = [0]
                 else:
@@ -4276,7 +4275,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             else:
                 try:
                     # piotr 080515: added software stereo rendering support
-                    if not self.stereo_enabled == 0:
+                    if not self.stereo_enabled:
                         # draw only once if stereo is disabled
                         stereo_image_range = [0]
                     else:
@@ -4619,7 +4618,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         stereo_mode = env.prefs[stereoViewMode_prefs_key]
         stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
-        stereo_angle = -0.1 * env.prefs[stereoViewAngle_prefs_key]
+        stereo_angle = -0.1 * (env.prefs[stereoViewAngle_prefs_key] - 25)
 
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
