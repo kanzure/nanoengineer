@@ -145,6 +145,7 @@ from utilities.prefs_constants import dnaBaseIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseInvIndicatorsColor_prefs_key
 from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
 from utilities.prefs_constants import dnaStyleBasesDisplayLetters_prefs_key
+from utilities.prefs_constants import dnaBaseIndicatorsPlaneNormal_prefs_key
 
 # Undo prefs
 from utilities.prefs_constants import undoRestoreView_prefs_key
@@ -630,6 +631,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsDistance)
         self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton,SIGNAL("clicked()"),self.change_dnaBaseIndicatorsColor)
         self.connect(self.dnaChooseBaseOrientationIndicatorsInvColorButton,SIGNAL("clicked()"),self.change_dnaBaseInvIndicatorsColor)
+        self.connect(self.dnaBaseIndicatorsPlaneNormalComboBox,SIGNAL("activated(int)"),self.change_dnaBaseOrientIndicatorsPlane)
 
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
@@ -1632,6 +1634,8 @@ restored when the user undoes a structural change.</p>
         # DNA Base Orientation Indicator stuff.
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
             env.prefs[dnaBaseIndicatorsEnabled_prefs_key])
+        self.dnaBaseIndicatorsPlaneNormalComboBox.setCurrentIndex(
+            env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key])
         self.dnaBaseOrientationIndicatorsInverseCheckBox.setChecked(
             env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key])
         self.update_dnaBaseIndicatorsAngle()
@@ -2722,6 +2726,13 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[dnaStyleBasesDisplayLetters_prefs_key] = state
 
+    def change_dnaBaseOrientIndicatorsPlane(self, idx):
+        """
+        Slot for the "Plane" combobox for changing the 
+        DNA base indicators plane.
+        """
+        env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key] = idx
+        
     def change_dnaBaseIndicatorsColor(self):
         """
         Slot for the I{Choose...} button for changing the 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Sun May 18 20:39:56 2008
+# Created: Mon May 19 17:47:59 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1350,9 +1350,9 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout19.setSpacing(6)
         self.gridlayout19.setObjectName("gridlayout19")
 
-        self.dnaStyleBasesShapeComboBox_2 = QtGui.QComboBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
-        self.dnaStyleBasesShapeComboBox_2.setObjectName("dnaStyleBasesShapeComboBox_2")
-        self.gridlayout19.addWidget(self.dnaStyleBasesShapeComboBox_2,0,1,1,1)
+        self.dnaBaseIndicatorsPlaneNormalComboBox = QtGui.QComboBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
+        self.dnaBaseIndicatorsPlaneNormalComboBox.setObjectName("dnaBaseIndicatorsPlaneNormalComboBox")
+        self.gridlayout19.addWidget(self.dnaBaseIndicatorsPlaneNormalComboBox,0,1,1,1)
 
         self.bg1_color_lbl_6 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.bg1_color_lbl_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
@@ -2875,7 +2875,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(0)
+        self.prefs_tab.setCurrentIndex(3)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
         QtCore.QMetaObject.connectSlotsByName(UserPrefsDialog)
@@ -3142,11 +3142,13 @@ class Ui_UserPrefsDialog(object):
         self.dnaGrooveIndicatorColorButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaMinorGrooveRestoreFactoryDefaultsPushButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Restore Factory Defaults", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Display Base Orientation Indicators", None, QtGui.QApplication.UnicodeUTF8))
-        self.dnaStyleBasesShapeComboBox_2.addItem(QtGui.QApplication.translate("UserPrefsDialog", "View plane", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaBaseIndicatorsPlaneNormalComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "View plane (up)", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaBaseIndicatorsPlaneNormalComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "View plane (out)", None, QtGui.QApplication.UnicodeUTF8))
+        self.dnaBaseIndicatorsPlaneNormalComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "View plane (right)", None, QtGui.QApplication.UnicodeUTF8))
         self.bg1_color_lbl_6.setText(QtGui.QApplication.translate("UserPrefsDialog", "Inverse indicators color:", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaChooseBaseOrientationIndicatorsInvColorButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaBaseOrientationIndicatorsInverseCheckBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Enable inverse indicators", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_35.setText(QtGui.QApplication.translate("UserPrefsDialog", "Plane:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_35.setText(QtGui.QApplication.translate("UserPrefsDialog", "Plane normal:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_13.setText(QtGui.QApplication.translate("UserPrefsDialog", "Angle threshold:", None, QtGui.QApplication.UnicodeUTF8))
         self.dnaChooseBaseOrientationIndicatorsColorButton.setText(QtGui.QApplication.translate("UserPrefsDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_14.setText(QtGui.QApplication.translate("UserPrefsDialog", "Terminal base distance:", None, QtGui.QApplication.UnicodeUTF8))

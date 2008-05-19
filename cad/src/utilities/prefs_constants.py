@@ -279,6 +279,7 @@ dnaBaseIndicatorsColor_prefs_key = 'A10/DNA base orientation indicators color'
 dnaBaseInvIndicatorsColor_prefs_key = 'A10/DNA base inverse orientation indicators color'
 dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
 dnaStyleBasesDisplayLetters_prefs_key = 'A10/DNA base letters enabled'
+dnaBaseIndicatorsPlaneNormal_prefs_key = 'V110/DNA base orientation indicators plane option'
 
 
 #Nanotube cursor texts ============
@@ -422,8 +423,8 @@ _default_toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this
 _default_toolong_hicolor = ave_colors( 0.8, magenta, black) ## not yet in prefs db
 
 _default_strandLabelsColor = black # piotr 080325 added these default colors
-_default_baseIndicatorsColor = lightgreen
-_default_baseInvIndicatorsColor = red
+_default_baseIndicatorsColor = white
+_default_baseInvIndicatorsColor = black
 
 def _compute_default_bondVaneColor():
     ord_pi_for_color = 0.5
@@ -717,7 +718,8 @@ prefs_table = (
     ('', 'color', dnaBaseInvIndicatorsColor_prefs_key, _default_baseInvIndicatorsColor),
     ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
     ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
-
+    ('', 'int', dnaBaseIndicatorsPlaneNormal_prefs_key, 0),
+    
     # Modes preferences [added to this table by mark 050910]
 
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
