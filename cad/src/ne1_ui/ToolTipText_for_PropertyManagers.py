@@ -329,5 +329,25 @@ def ToolTip_PasteItemPropertyManager(propMgr) :
     
 def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
     """
+    Add "What's This" text for widgets in the Edit DNA Display Style Property Manager.
     """
+    propMgr.favoritesComboBox.setToolTip("List of Favorites")
+    propMgr.dnaRenditionComboBox.setToolTip("Change DNA Rendition")
+    propMgr.dnaComponentComboBox.setToolTip("Change Component Display Settings")
+    propMgr.standLabelColorComboBox.setToolTip("Change Strand Label Color")
+    propMgr.axisShapeComboBox.setToolTip("Change Axis Shape")
+    propMgr.axisScaleDoubleSpinBox.setToolTip("Change Axis Scale")
+    propMgr.axisColorComboBox.setToolTip("Change Axis Color")
+    propMgr.axisEndingStyleComboBox.setToolTip("Change Axis Ending Style")
+    propMgr.strandsShapeComboBox.setToolTip("Change Strands Shape")
+    propMgr.strandsScaleDoubleSpinBox.setToolTip("Change Strands Scale")
+    propMgr.strandsColorComboBox.setToolTip("Change Strands Color")
+    propMgr.strandsArrowsComboBox.setToolTip("Change Strands Arrows")
+    propMgr.strutsShapeComboBox.setToolTip("Change Struts Shape")
+    propMgr.strutsScaleDoubleSpinBox.setToolTip("Change Struts Scale" )
+    propMgr.strutsColorComboBox.setToolTip("Change Struts Color")
+    propMgr.nucleotidesShapeComboBox.setToolTip("Change Nucleotides Shape")
+    propMgr.nucleotidesScaleDoubleSpinBox.setToolTip("Change Nucleotides Scale")
+    propMgr.nucleotidesColorComboBox.setToolTip("Change Nucleotides Color")
+    propMgr.dnaStyleBasesDisplayLettersCheckBox.setToolTip("Display DNA Bases")
     return
