@@ -85,8 +85,6 @@ _defaultRad_Color = {
     "Te" : (2.1,  [0.9, 0.35, 0.0]),
     "I" : (2.0,  [0.0, 0.5, 0.0]),
     "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-    # Experimental PAM1 CNT axis atom. --Mark 2008-03-09
-    "Ac1" : (4.5, [0.1, 0.1, 0.1]), 
     }
   
 _altRad_Color = {
@@ -246,9 +244,6 @@ _mendeleev = [
     ("Te", "Tellurium",   52, 131.106,  [[2, 120, tetra2]]),
     ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
     ("Xe", "Xenon",       54, 134.429,  None),
-    
-    # experimental: PAM1 CNT axis atom. --Mark 2008-03-09
-    ("Ac1", "PAM1-Cnt-Axis", 400, 1.0, [[2, 200, straight]]),
  ]
 
 # ==
