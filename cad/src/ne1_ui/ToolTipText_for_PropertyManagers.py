@@ -326,3 +326,8 @@ def ToolTip_PasteItemPropertyManager(propMgr) :
     propMgr.previewGroupBox.setToolTip("Preview Window")
     
     propMgr.clipboardGroupBox.setToolTip("Clipboard")
+    
+def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
+    """
+    """
+    return

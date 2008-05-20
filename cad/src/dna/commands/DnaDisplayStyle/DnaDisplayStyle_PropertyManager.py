@@ -1154,6 +1154,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
-        pass
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditDnaDisplayStyle_PropertyManager 
+        ToolTip_EditDnaDisplayStyle_PropertyManager(self)
     
     
