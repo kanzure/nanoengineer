@@ -2041,6 +2041,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.minimize = minimize # whether to check for line syntax specific to Minimize
         self.__last_plain_line_words = None # or words returned from string.split(None, 4)
         self.start() # too easy for client code to forget to do this
+        
     def start(self):
         """
         prepare to loop over lines
@@ -2048,6 +2049,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.seen = {} # whether we saw each known error or warning tracefile-keyword
         self.donecount = 0 # how many Done keywords we saw in there
         self.mentioned_sim_trace_file = False # public, can be set by client code
+        
     def step(self, line): #k should this also be called by __call__ ? no, that would slow down its use as a callback.
         """
         do whatever should be done immediately with this line, and save things to do later;
@@ -2121,13 +2123,15 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.donecount += 1
         text = rest.strip()
         if text:
+            line = start + " " + text
             if "# Error:" in self.seen:
-                msg = redmsg(rest)
+                line = redmsg(line)
             elif highForces or ("# Warning:" in self.seen):
-                msg = orangemsg(rest)
-            env.history.message(msg) #k is this the right way to choose the color?
-            ## I don't like how it looks to leave out the main Done in this case [bruce 050415]:
-            ## self.owner.said_we_are_done = True # so we don't have to say it again [bruce 050415]
+                line = orangemsg(line)
+            env.history.message(line) #k is this the right way to choose the color?
+            # but don't do this, we want the main Done too: [bruce 050415]:
+            ## self.owner.said_we_are_done = True
+        return
     
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
         """
