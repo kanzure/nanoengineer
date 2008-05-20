@@ -1249,4 +1249,44 @@ def whatsThis_PasteItemsPropertyManager(propMgr):
             <p>
             This is a list of items contained on the Clipboard """ )
     
-   
+def WhatsThis_EditDnaDisplayStyle_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Edit DNA Display Style Property 
+    Manager.
+    """
+    propMgr.applyFavoriteButton.setWhatsThis(
+        """<b> Apply Favorite </b>
+        
+        <p>
+        Apply the DNA display style settings stored in the current favorite 
+        (selected in the combobox) to the current DNA display style settings.
+        """)
+        
+    propMgr.addFavoriteButton.setWhatsThis(
+        """<b> Add Favorite </b>
+        
+        <p>
+        Adds a new favorite to the user's list of favorites.""")
+    
+    propMgr.deleteFavoriteButton.setWhatsThis(
+        """<b> Delete Favorite </b>
+        
+        <p>
+        Deletes the current favorite from the user's personal list of favorites
+        """)
+    
+    propMgr.loadFavoriteButton.setWhatsThis(
+        """<b> Load Favorite </b>
+        
+        <p>
+        Allows the user to choose a "favorite file" from disk to
+        add to the personal favorites list. File must have a .txt extension.
+        """)
+    propMgr.saveFavoriteButton.setWhatsThis(
+        """<b> Save Favorite </b>
+        
+        <p>
+        Writes the current favorite (selected in the combobox) to a file, that
+        can be given to another NE1 user (i.e. as an email attachment). File 
+        must be saved with a .txt entension so that it can loaded back later.
+        """)
