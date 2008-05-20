@@ -1148,7 +1148,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         What's This text for widgets in the DNA Property Manager.  
         """
-        pass
+        from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_EditDnaDisplayStyle_PropertyManager
+        WhatsThis_EditDnaDisplayStyle_PropertyManager(self)
                 
     def _addToolTipText(self):
         """
