@@ -302,9 +302,12 @@ class MWsemantics(QMainWindow,
         self.createProgressDialog()
 
         # Create the Preferences dialog widget.
-        # Mark 050628
-        from ne1_ui.UserPrefs import UserPrefs
-        self.userPrefs = UserPrefs(self.assy)
+        if 1: # Use the new Preferences dialog. Mark 2008-05-20
+            from ne1_ui.Preferences import Preferences
+            self.userPrefs = Preferences(self.assy)
+        else: # Use the original (User) Preferences dialog.
+            from ne1_ui.UserPrefs import UserPrefs
+            self.userPrefs = UserPrefs(self.assy)
 
         # Enable/disable plugins.  These should be moved to a central method
         # where all plug-ins get added and enabled during invocation.  Mark 050921.
