@@ -2585,16 +2585,8 @@ restored when the user undoes a structural change.</p>
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
-        self.update_dnaStyleStrandsScale()
-
-    def update_dnaStyleStrandsScale(self):
-        """
-        Updates the DNA Style Strands Scale spin box. 
-        """
-        # Set strands scale.        
-        self.dnaStyleStrandsScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleStrandsScale_prefs_key]))
-
+        
+    
     def change_dnaStyleStrutsScale(self, scale_factor):
         """
         @param scale_factor: The struts scale factor.
@@ -2615,16 +2607,8 @@ restored when the user undoes a structural change.</p>
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleBasesScale_prefs_key] = scale_factor
-        self.update_dnaStyleBasesScale()
-
-    def update_dnaStyleBasesScale(self):
-        """
-        Updates the DNA Style bases scale spin box. 
-        """
-        # Set axis scale.        
-        self.dnaStyleBasesScaleSpinBox.setValue(
-            float(env.prefs[dnaStyleBasesScale_prefs_key]))
-
+        
+    
     def change_dnaBaseIndicatorsAngle(self, angle):
         """
         @param angle: The angular threshold for DNA base indicators.
