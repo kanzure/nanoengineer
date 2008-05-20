@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleGetInfoString</key>
-	<string>1.0.0, Nanorex, Inc.</string>
+	<string>1.0.1, Nanorex, Inc.</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.nanorex.NanoEngineer-1</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>01000.03.00</string>
+	<string>01000.13.01</string>
 	<key>IFMajorVersion</key>
 	<integer>1</integer>
 	<key>IFMinorVersion</key>

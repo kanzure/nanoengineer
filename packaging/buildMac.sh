@@ -2,7 +2,7 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-DIST_VERSION=NanoEngineer-1_1.0.0
+DIST_VERSION=NanoEngineer-1_1.0.1
 
 # Set up path variables
 cd ..

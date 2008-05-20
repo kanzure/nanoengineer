@@ -9,6 +9,28 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mmp</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>nanorex.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/mmp</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Nanorex NanoEngineer-1 document</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>MMP </string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSIsAppleDefaultForType</key>
+			<string>Yes</string>
+		</dict>
+		<dict>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>****</string>
@@ -19,6 +41,7 @@
 			<string>Viewer</string>
 		</dict>
 	</array>
+
 	<key>CFBundleExecutable</key>
 	<string>NanoEngineer-1</string>
 	<key>CFBundleIconFile</key>
@@ -32,11 +55,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>01000.03.00</string>
+	<string>01000.13.01</string>
 	<key>LSHasLocalizedDisplayName</key>
 	<false/>
 	<key>NSAppleScriptEnabled</key>
