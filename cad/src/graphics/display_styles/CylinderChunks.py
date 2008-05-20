@@ -14,7 +14,8 @@ though it might be useful as a fast-rendering display mode too.
 from Numeric import dot, argmax, argmin, sqrt
 
 import foundation.env as env
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawcylinder
+from graphics.drawing.drawer import drawcylinder_wireframe
 from geometry.geometryUtilities import matrix_putting_axis_at_z
 from geometry.VQT import V, norm
 from utilities.debug import print_compact_traceback
@@ -59,7 +60,7 @@ class CylinderChunks(ChunkDisplayMode):
         end1, end2, radius, color = memo
         if highlighted:
             color = ave_colors(0.5, color, env.prefs[chunkHighlightColor_prefs_key]) #e should the caller compute this somehow?
-        drawer.drawcylinder(color, end1, end2, radius, capped = True)
+        drawcylinder(color, end1, end2, radius, capped = True)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
@@ -81,7 +82,7 @@ class CylinderChunks(ChunkDisplayMode):
         alittle = 0.01
         end1 = end1 - alittle * axis
         end2 = end2 + alittle * axis
-        drawer.drawcylinder_wireframe(color, end1, end2, radius + alittle)
+        drawcylinder_wireframe(color, end1, end2, radius + alittle)
         return
     def drawchunk_realtime(self, glpane, chunk):
         """

@@ -64,7 +64,10 @@ from OpenGL.GLU import gluPickMatrix, gluUnProject
 from PyQt4.Qt import Qt
 
 from geometry.VQT import V, Q, A
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawFullWindow
+from graphics.drawing.drawer import _default_lights
+from graphics.drawing.drawer import setup_standard_lights
+from graphics.drawing.drawer import setup_drawer
 from model.assembly import Assembly
 import foundation.env as env
 from utilities import debug_flags
@@ -208,9 +211,9 @@ class ThumbView(GLPane_minimal):
             lights = self.shareWidget._lights #bruce 060415 shareWidget --> self.shareWidget; presumably always failed before that
                 ####@@@@ will this fix some bugs about common lighting prefs??
         except:
-            lights = drawer._default_lights
+            lights = _default_lights
         
-        drawer.setup_standard_lights( lights)
+        setup_standard_lights( lights)
         return
     
     def initializeGL(self):
@@ -224,7 +227,7 @@ class ThumbView(GLPane_minimal):
         glLoadIdentity()
         
         if not self.isSharing():
-            ## drawer.setup_drawer()
+            ## setup_drawer()
             self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
 
         return
@@ -340,7 +343,7 @@ class ThumbView(GLPane_minimal):
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            drawer.drawFullWindow(bluesky) # "Blue Sky" gradient
+            drawFullWindow(bluesky) # "Blue Sky" gradient
         
 ##        self.aspect = (self.width + 0.0) / (self.height + 0.0)
 ##        self.vdist = 6.0 * self.scale

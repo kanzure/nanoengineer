@@ -43,7 +43,12 @@ from geometry.Slab import Slab
 from commands.BuildCrystal.CookieShape import CookieShape
 
 import graphics.drawing.drawing_globals as drawing_globals
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawline
+from graphics.drawing.drawer import drawCircle
+from graphics.drawing.drawer import drawGrid
+from graphics.drawing.drawer import drawLineLoop
+from graphics.drawing.drawer import drawrectangle
+from graphics.drawing.drawer import findCell
 from model.chunk import Chunk
 from model.chem import Atom
 
@@ -740,9 +745,9 @@ class cookieMode(basicMode):
         self.lastDrawStored[1] = pp    
         
         if not lastDraw:
-            drawer.drawLineLoop(color, self.lastDrawStored[0])
+            drawLineLoop(color, self.lastDrawStored[0])
         else: self.lastDrawStored = []     
-        drawer.drawLineLoop(color, pp)    
+        drawLineLoop(color, pp)    
   
     
     def _centerEquiPolyDraw(self, color, sides, pts, lastDraw):
@@ -765,9 +770,9 @@ class cookieMode(basicMode):
         self.lastDrawStored[1] = pp    
         
         if not lastDraw:
-            drawer.drawLineLoop(color, self.lastDrawStored[0])        
+            drawLineLoop(color, self.lastDrawStored[0])        
         else: self.lastDrawStored = []
-        drawer.drawLineLoop(color, pp)        
+        drawLineLoop(color, pp)        
 
    
     def _centerCircleDraw(self, color, pts, lastDraw):
@@ -783,11 +788,11 @@ class cookieMode(basicMode):
         self.lastDrawStored[1] = rad    
         
         if not lastDraw:
-            drawer.drawCircle(color, pts[0], self.lastDrawStored[0], self.o.out)
+            drawCircle(color, pts[0], self.lastDrawStored[0], self.o.out)
         else:
             self.lastDrawStored = []
         
-        drawer.drawCircle(color, pts[0], rad, self.o.out)
+        drawCircle(color, pts[0], rad, self.o.out)
 
         
     def _getXorColor(self, color):
@@ -819,20 +824,20 @@ class cookieMode(basicMode):
                  if self.selectionShape == 'LASSO':
                      if not lastDraw:
                         for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
-                            drawer.drawline(color, pp[0], pp[1])
+                            drawline(color, pp[0], pp[1])
                      for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
-                            drawer.drawline(color, pp[0], pp[1])
+                            drawline(color, pp[0], pp[1])
                  elif self.selectionShape == 'RECT_CORNER':
                      if not lastDraw:
-                        drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
+                        drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
                                  self.o.up, self.o.right, color)
-                     drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
+                     drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
                                  self.o.up, self.o.right, color)
                  else:
                     xor_white = self._getXorColor(white)
                     if not lastDraw:
-                        drawer.drawline(xor_white, self.selCurve_List[0], self.selCurve_List[1], True)
-                    drawer.drawline(xor_white, self.selCurve_List[0], self.selCurve_List[2], True)
+                        drawline(xor_white, self.selCurve_List[0], self.selCurve_List[1], True)
+                    drawline(xor_white, self.selCurve_List[0], self.selCurve_List[2], True)
                     if self.selectionShape in ['RECTANGLE', 'DIAMOND']:
                         self._centerRectDiamDraw(color, self.selCurve_List, self.selectionShape, lastDraw)
                     elif self.selectionShape == 'CIRCLE':
@@ -848,20 +853,20 @@ class cookieMode(basicMode):
         else: #Default selection shape
             if self.Rubber:
                 if not lastDraw:
-                    drawer.drawline(color, self.selCurve_List[-2], self.pickLinePrev)
-                drawer.drawline(color, self.selCurve_List[-2], self.selCurve_List[-1])
+                    drawline(color, self.selCurve_List[-2], self.pickLinePrev)
+                drawline(color, self.selCurve_List[-2], self.selCurve_List[-1])
             else:
                 if not lastDraw:
                     for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
-                        drawer.drawline(color, pp[0], pp[1])
+                        drawline(color, pp[0], pp[1])
                 for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
-                    drawer.drawline(color,pp[0],pp[1])
+                    drawline(color,pp[0],pp[1])
                 
                 if self.defaultSelShape == SELSHAPE_RECT:  # Draw the rectangle window
                     if not lastDraw:
-                        drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
+                        drawrectangle(self.selCurve_List[0], self.selCurve_List[-2],
                                      self.o.up, self.o.right, color)
-                    drawer.drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
+                    drawrectangle(self.selCurve_List[0], self.selCurve_List[-1],
                                      self.o.up, self.o.right, color)
         
         glFlush()
@@ -904,7 +909,7 @@ class cookieMode(basicMode):
         glEnable(GL_CLIP_PLANE1)
         glPopMatrix()
         glColor3fv(self.gridColor)
-        drawer.drawGrid(1.5*self.o.scale, -self.o.pov, self.latticeType)
+        drawGrid(1.5*self.o.scale, -self.o.pov, self.latticeType)
         glDisable(GL_CLIP_PLANE0)
         glDisable(GL_CLIP_PLANE1)
 
@@ -1270,7 +1275,7 @@ class cookieMode(basicMode):
         if not self.gridSnap: 
             return p1, p2
         else: # Snap selection point to grid point
-             cellOrig, uLen = drawer.findCell(p2, self.latticeType)
+             cellOrig, uLen = findCell(p2, self.latticeType)
              
              if self.whichsurf == 0: p2 = self._snap100Grid(cellOrig, uLen, p2)
              elif self.whichsurf == 1: p2 = self._snap110Grid(cellOrig, p2)

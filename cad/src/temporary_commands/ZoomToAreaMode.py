@@ -28,7 +28,7 @@ from OpenGL.GL import glReadPixelsf
 from OpenGL.GLU import gluUnProject
 
 from geometry.VQT import V, A
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawrectangle
 from utilities.constants import GL_FAR_Z
 
 
@@ -83,14 +83,14 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         rbwcolor = self.command.rbwcolor
 
         if not self.firstDraw: #Erase the previous rubber window
-            drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                                 self.glpane.right, rbwcolor)
+            drawrectangle(self.pStart, self.pPrev, self.glpane.up,
+                          self.glpane.right, rbwcolor)
         self.firstDraw = False
 
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
         # draw the new rubber band
-        drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                             self.glpane.right, rbwcolor)
+        drawrectangle(self.pStart, self.pPrev, self.glpane.up,
+                      self.glpane.right, rbwcolor)
         glFlush()
         self.glpane.swapBuffers() # Update display
         return
@@ -122,8 +122,8 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         
         # Erase the last rubber-band window
         rbwcolor = self.command.rbwcolor
-        drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                             self.glpane.right, rbwcolor)
+        drawrectangle(self.pStart, self.pPrev, self.glpane.up,
+                      self.glpane.right, rbwcolor)
         glFlush()
         self.glpane.swapBuffers()
         

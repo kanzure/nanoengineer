@@ -29,7 +29,11 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
 from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawline
+from graphics.drawing.drawer import drawOriginAsSmallAxis
+from graphics.drawing.drawer import drawTag
+from graphics.drawing.drawer import drawaxes
+from graphics.drawing.drawer import drawrectangle
 
 from utilities.debug import print_compact_traceback
 
@@ -319,27 +323,27 @@ class basicGraphicsMode(GraphicsMode_API):
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
-                drawer.drawOriginAsSmallAxis(self.o.scale, (0.0,0.0,0.0))
+                drawOriginAsSmallAxis(self.o.scale, (0.0,0.0,0.0))
                 #ninad060921: note: we are also drawing a dotted origin displayed only when 
                 #the solid origin is hidden. See def standard_repaint_0 in GLPane.py
                 #ninad060922 passing self.o.scale makes sure that the origin / pov axes are not zoomable
             else:
-                drawer.drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
+                drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
 
         if env.prefs[displayPOVAxis_prefs_key]:
-            drawer.drawaxes(self.o.scale, -self.o.pov)
+            drawaxes(self.o.scale, -self.o.pov)
 
         # Draw the Point of View axis unless it is at the origin (0,0,0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
             if not env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 if vlen(self.o.pov):
-                    drawer.drawaxes(self.o.scale, -self.o.pov)
+                    drawaxes(self.o.scale, -self.o.pov)
                 else:
                     # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
                     if not env.prefs[displayOriginAxis_prefs_key]:
-                        drawer.drawaxes(self.o.scale, -self.o.pov)
+                        drawaxes(self.o.scale, -self.o.pov)
             else:
-                drawer.drawaxes(self.o.scale, -self.o.pov)
+                drawaxes(self.o.scale, -self.o.pov)
         
         #Draw tags if any
         self._drawTags()
@@ -392,10 +396,10 @@ class basicGraphicsMode(GraphicsMode_API):
                 
                 pointSize = round(self.glpane.scale*0.5)
                 
-                drawer.drawTag(self._tagColor, 
-                               basePoint, 
-                               endPoint, 
-                               pointSize = pointSize)
+                drawTag(self._tagColor, 
+                        basePoint, 
+                        endPoint, 
+                        pointSize = pointSize)
                 
                 
     def _drawSpecialIndicators(self):
@@ -1150,17 +1154,17 @@ class basicGraphicsMode(GraphicsMode_API):
 
         pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
-            drawer.drawline(color,pp[0],pp[1])
+            drawline(color,pp[0],pp[1])
 
         if self.selShape == SELSHAPE_RECT:  # Draw the selection rectangle.
-            drawer.drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
-                                 self.o.up, self.o.right, color)
+            drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
+                          self.o.up, self.o.right, color)
 
         if debug_flags.atom_debug and 0: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
             pl = zip(self.o.selArea_List[:-1],self.o.selArea_List[1:])
             for pp in pl:
-                drawer.drawline(color,pp[0],pp[1])
+                drawline(color,pp[0],pp[1])
 
     def surfset(self, num):
         """

@@ -30,6 +30,7 @@ from graphics.drawing.drawer import drawArrowHead
 from graphics.drawing.drawer import drawline
 from graphics.drawing.drawer import drawPoint
 from graphics.drawing.drawer import drawsphere
+from graphics.drawing.drawer import drawtext
 
 from geometry.VQT import norm, vlen, V, cross, Q
 from geometry.VQT import orthodist, angleBetween
@@ -52,7 +53,6 @@ AXIS_ENDPOINT_SPHERE_OPACITY = 0.5
 def draw_debug_text(glpane, point, text): #bruce 080422, should refile
     """
     """
-    from graphics.drawing.drawer import drawline, drawtext
     from geometry.VQT import V
     from utilities.constants import white, red
     

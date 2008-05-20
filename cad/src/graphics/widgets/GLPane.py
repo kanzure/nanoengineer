@@ -128,7 +128,18 @@ from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
 
 import graphics.drawing.drawing_globals as drawing_globals
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import glprefs_data_used_by_setup_standard_lights
+from graphics.drawing.drawer import drawwiresphere
+from graphics.drawing.drawer import drawFullWindow
+from graphics.drawing.drawer import drawOriginAsSmallAxis
+from graphics.drawing.drawer import drawaxes
+from graphics.drawing.drawer import _default_lights
+from graphics.drawing.drawer import disable_fog
+from graphics.drawing.drawer import enable_fog
+from graphics.drawing.drawer import setup_fog
+from graphics.drawing.drawer import setup_standard_lights
+from graphics.drawing.drawer import glprefs
+from graphics.drawing.drawer import setup_drawer
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -554,7 +565,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.makeCurrent()
 
-        ## drawer.setup_drawer()
+        ## setup_drawer()
         self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
 
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
@@ -1683,7 +1694,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     # default value of instance variable:
     # [bruce 051212 comment: not sure if this needs to be in sync with any other values;
     #  also not sure if this is used anymore, since __init__ sets _lights from prefs db via loadLighting.]
-    _lights = drawer._default_lights
+    _lights = _default_lights
 
     _default_lights = _lights # this copy will never be changed
 
@@ -1715,11 +1726,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # for local use in part of a scenegraph (if other code was also revised) [bruce 051212 comment]
 
         #bruce 051212 moved most code from this method into new function, setup_standard_lights
-        drawer.setup_standard_lights( self._lights, glprefs)
+        setup_standard_lights( self._lights, glprefs)
 
         # record what glprefs data was used by that, for comparison to see when we need to call it again
         # (not needed for _lights since another system tells us when that changes)
-        self._last_glprefs_data_used_by_lights = drawer.glprefs_data_used_by_setup_standard_lights(glprefs)
+        self._last_glprefs_data_used_by_lights = glprefs_data_used_by_setup_standard_lights(glprefs)
         return
 
     def saveLighting(self):
@@ -3121,10 +3132,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 # of computing it.
                 bbox = self.assy.bbox_for_viewing_model()
                 scale = bbox.scale()
-                drawer.setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
+                setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
                 # this next line really should be just before rendering
                 # the atomic model itself.  I dunno where that is.
-                drawer.enable_fog()
+                enable_fog()
 
         glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs
             # (e.g. in exprs/Overlay.py)
@@ -3146,7 +3157,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if fog_test_enable:
             # this next line really should be just after rendering
             # the atomic model itself.  I dunno where that is. [bradg]
-            drawer.disable_fog()
+            disable_fog()
 
         glFlush()
 
@@ -3253,7 +3264,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # completely, here, incl the stack depths, to mitigate some
         # bugs. How??  Note that there might be some OpenGL init code
         # earlier which I'll have to not mess up. Incl displaylists in
-        # drawer.setup_drawer.  What I ended up doing is just to measure the
+        # setup_drawer.  What I ended up doing is just to measure the
         # stack depth and pop it 0 or more times to make the depth 1.
         #   BTW I don't know for sure whether this causes a significant speed
         # hit for some OpenGL implementations (esp. X windows)...
@@ -3326,7 +3337,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         drawing_globals.glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
 
         if self.need_setup_lighting \
-           or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights() \
+           or self._last_glprefs_data_used_by_lights != glprefs_data_used_by_setup_standard_lights() \
            or debug_pref("always setup_lighting?", Choice_boolean_False):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
             # using it makes specularity work on my iMac G4,
@@ -3548,7 +3559,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                   was last called (i.e. in absolute model space coordinates).
         """
         ### uncomment the following line for the bounding sphere debugg
-        ### drawer.drawwiresphere(white, center, radius, 2)
+        ### drawwiresphere(white, center, radius, 2)
 
         if self._frustum_planes_available:
             for p in range(0, 6): # go through all frustum planes
@@ -3623,7 +3634,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            drawer.drawFullWindow(bluesky)
+            drawFullWindow(bluesky)
             # fogColor is an average of the gradient components
             # piotr 080515
             self.fogColor = \
@@ -3754,9 +3765,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]:
-                drawer.drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
+                drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
             else:
-                drawer.drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
+                drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
         # draw some test images related to the confirmation corner
 

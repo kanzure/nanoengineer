@@ -144,6 +144,8 @@ from utilities.constants import ave_colors, noop
 
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from graphics.drawing.texture_fonts import courierfile
+from graphics.drawing.drawer import drawline
+
 from exprs.reload import exprs_globals
 
 from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr
@@ -1455,7 +1457,6 @@ class _testexpr_33(DelegatingInstanceOrExpr):#070226
     def draw(self):
         if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
             ll, lr, ur, ul = self.screenrect() # these points should be valid in the HL's coords == self's coords
-            from graphics.drawing.drawer import drawline
             drawline(blue,ll,ur) # at first I tried putting color last, and it seemed to work but with the wrong coords... ugh.
             drawline(red,lr,ul)
         self.drawkid(self._delegate)

@@ -22,7 +22,9 @@ import types
 from PyQt4.Qt import QApplication, Qt, QCursor
 
 import foundation.env as env
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawsurface
+from graphics.drawing.drawer import drawsurface_wireframe
+from graphics.drawing.drawer import getSphereTriangles
 from geometry.VQT import V, cross
 from utilities.Log import greenmsg
 from graphics.display_styles.displaymodes import ChunkDisplayMode
@@ -508,7 +510,7 @@ class SurfaceChunks(ChunkDisplayMode):
         # (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
         #   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
         # which can be rendered quickly by calling a Pyrex method on it.
-        drawer.drawsurface(color, pos, radius, tm, nm)
+        drawsurface(color, pos, radius, tm, nm)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """Given the same arguments as drawchunk, plus selection_frame_color, draw the chunk's selection frame.
@@ -529,7 +531,7 @@ class SurfaceChunks(ChunkDisplayMode):
         # THIS IS WHERE OLEKSANDR SHOULD RENDER A "SELECTED" SURFACE, OR (PREFERABLY) A SELECTION WIREFRAME
         # around an already-rendered surface.
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
-        drawer.drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
+        drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
         return
     def drawchunk_realtime(self, glpane, chunk):
         """
@@ -649,7 +651,7 @@ class SurfaceChunks(ChunkDisplayMode):
             #  create surface 
             level = 3
             if rad > 6 : level = 4
-            ts = drawer.getSphereTriangles(level)
+            ts = getSphereTriangles(level)
             #ts = s.TorusTriangles(0.7, 0.3, 20)
             tm = s.SurfaceTriangles(ts)
             nm = s.SurfaceNormals()

@@ -20,8 +20,7 @@ from geometry.VQT import V
 from geometry.VQT import vlen
 from geometry.VQT import norm
 from geometry.VQT import orthodist
-import graphics.drawing.drawer as drawer
-
+from graphics.drawing.drawer import drawsphere
 from utilities.constants import ave_colors
 from utilities.constants import magenta
 from utilities.constants import blue
@@ -90,7 +89,7 @@ class HandleSet:
         radius_multiplier = self.radius_multiplier
         color = tuple(color) + (1.0,) ## experiment 050218: alpha factor #bruce 051230 moved outside of loop to fix bug 1250
         for (pos,radius,info) in self.handles:
-            drawer.drawsphere(color, pos + offset, radius * radius_multiplier, detailLevel)
+            drawsphere(color, pos + offset, radius * radius_multiplier, detailLevel)
 ##    def process_optional_info(self, info):
 ##        "some subclasses should override this to let info affect draw method"
 ##        pass
@@ -274,7 +273,7 @@ class niceoffsetsHandleSet(HandleSet): #e this really belongs in extrudeMode.py,
                 color2 = color
             ## experiment 050218: add alpha factor to color
             color2 = tuple(color2) + (0.25,)
-            drawer.drawsphere(color2, pos, radius, detailLevel)
+            drawsphere(color2, pos, radius, detailLevel)
 ##        self.color2_count = count # kluge, probably not used since should equal nbonds
         return
     pass

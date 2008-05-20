@@ -89,7 +89,6 @@ from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     # would draw differently due to a change in some graphics pref it used
 from utilities.prefs_constants import bondpointHotspotColor_prefs_key
 import foundation.env as env
-import graphics.drawing.drawer as drawer
 from foundation.undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from state_utils import copy_val
@@ -108,7 +107,8 @@ import model.bonds as bonds # TODO: import specific functions, since no longer a
 from model.elements import Singlet
 
 from geometry.BoundingBox import BBox
-from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
+from graphics.drawing.drawer import ColorSorter
+from graphics.drawing.drawer import ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor

@@ -32,8 +32,7 @@ from OpenGL.GL import GL_FALSE
 from geometry.VQT import cross, vlen, norm
 
 import foundation.env as env
-import graphics.drawing.drawer as drawer
-
+from graphics.drawing.drawer import apply_material
 from utilities.constants import white
 from utilities.prefs_constants import pibondStyle_prefs_key
 
@@ -141,7 +140,7 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
     # specular color here, thus letting it remain from whatever happened to be drawn just before). If we decide vanes should
     # *not* appear specular, we have to actively turn off specular color here rather than ignoring the issue.
     # One way would be to create and use some new functionality like apply_material(color, specular=False).
-    drawer.apply_material(color)
+    apply_material(color)
     ## glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
         # For vane lighting to be correct, two-sided polygon lighting is required,

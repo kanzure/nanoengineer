@@ -31,7 +31,8 @@ from graphics.drawing.drawer import genDiam
 from graphics.drawing.drawer import drawcylinder
 from graphics.drawing.drawer import drawsphere
 from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
+from graphics.drawing.drawer import ColorSorter
+from graphics.drawing.drawer import ColorSortedDisplayList
 
 from utilities.constants import SUBTRACT_FROM_SELECTION
 from utilities.constants import OUTSIDE_SUBTRACT_FROM_SELECTION

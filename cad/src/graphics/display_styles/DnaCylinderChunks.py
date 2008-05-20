@@ -53,7 +53,11 @@ from Numeric import dot, argmax, argmin, sqrt
 
 import sys
 import foundation.env as env
-import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import drawcylinder
+from graphics.drawing.drawer import drawpolycone
+from graphics.drawing.drawer import drawsphere
+from graphics.drawing.drawer import drawCircle
+from graphics.drawing.drawer import drawFilledCircle
 from geometry.geometryUtilities import matrix_putting_axis_at_z
 from geometry.VQT import V, Q, norm, cross, angleBetween
 from utilities.debug import print_compact_traceback
@@ -359,60 +363,60 @@ class DnaCylinderChunks(ChunkDisplayMode):
             radii[0] = radii[1]
             radii[n-1] = radii[n-2]
             # draw the terminal spheres
-            drawer.drawsphere(colors[1], points[1], radii[1],2) 
-            drawer.drawsphere(colors[n-2], points[n-2], radii[1],2) 
+            drawsphere(colors[1], points[1], radii[1],2) 
+            drawsphere(colors[n-2], points[n-2], radii[1],2) 
             # draw the arrows
             if dir == 1:
                 if draw5p and (arrows==1 or arrows==3):
                     qbond = 0.25 * (points[2] - points[1])
-                    drawer.drawpolycone(colors[1],
-                                        [points[1] + qbond,
-                                         points[1] + qbond,
-                                         points[1] - qbond,
-                                         points[1] - qbond],
-                                         [0.0, 0.0, 
-                                          radii[1]*2.0, radii[1]*2.0])
+                    drawpolycone(colors[1],
+                                 [points[1] + qbond,
+                                  points[1] + qbond,
+                                  points[1] - qbond,
+                                  points[1] - qbond],
+                                  [0.0, 0.0, 
+                                   radii[1]*2.0, radii[1]*2.0])
                 if draw3p and (arrows==2 or arrows==3):
                     hbond = 0.5 * (points[n-3] - points[n-2])
-                    drawer.drawpolycone(colors[n-2],
-                                        [points[n-2],
-                                         points[n-2],
-                                         points[n-2] - hbond,
-                                         points[n-2] - hbond],
-                                         [radii[1]*2.0, radii[1]*2.0, 
-                                          0.0, 0.0])
+                    drawpolycone(colors[n-2],
+                                 [points[n-2],
+                                  points[n-2],
+                                  points[n-2] - hbond,
+                                  points[n-2] - hbond],
+                                  [radii[1]*2.0, radii[1]*2.0, 
+                                   0.0, 0.0])
             if dir == -1:
                 if draw3p and (arrows==2 or arrows==3):
                     hbond = 0.5 * (points[2] - points[1])
-                    drawer.drawpolycone(colors[1],
-                                        [points[1],
-                                         points[1],
-                                         points[1] - hbond,
-                                         points[1] - hbond],
-                                         [radii[1]*2.0, radii[1]*2.0, 
-                                          0.0, 0.0])
+                    drawpolycone(colors[1],
+                                 [points[1],
+                                  points[1],
+                                  points[1] - hbond,
+                                  points[1] - hbond],
+                                  [radii[1]*2.0, radii[1]*2.0, 
+                                   0.0, 0.0])
                 if draw5p and (arrows==1 or arrows==3):
                     qbond = 0.25 * (points[n-3] - points[n-2])
-                    drawer.drawpolycone(colors[n-2],
-                                        [points[n-2] + qbond,
-                                         points[n-2] + qbond,
-                                         points[n-2] - qbond,
-                                         points[n-2] - qbond],
-                                         [0.0, 0.0, 
-                                          radii[1]*2.0, radii[1]*2.0])
+                    drawpolycone(colors[n-2],
+                                 [points[n-2] + qbond,
+                                  points[n-2] + qbond,
+                                  points[n-2] - qbond,
+                                  points[n-2] - qbond],
+                                  [0.0, 0.0, 
+                                   radii[1]*2.0, radii[1]*2.0])
 
             if shape == 1: # draw cylinders
                 gleSetJoinStyle(TUBE_JN_ROUND | TUBE_NORM_PATH_EDGE 
                                 | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED)        
                 if color_style==1:
-                    drawer.drawpolycone_multicolor([0, 0, 0, -2], 
-                                                   points,
-                                                   colors,
-                                                   radii)
+                    drawpolycone_multicolor([0, 0, 0, -2], 
+                                            points,
+                                            colors,
+                                            radii)
                 else:
-                    drawer.drawpolycone(colors[1], 
-                                        points,
-                                        radii)
+                    drawpolycone(colors[1], 
+                                 points,
+                                 radii)
             elif shape == 2: # draw spline tube
                 gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                                 | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
@@ -441,14 +445,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 
                 # draw the tube
                 if color_style==1:
-                    drawer.drawpolycone_multicolor([0, 0, 0, -2], 
-                                                   new_points, 
-                                                   new_colors, 
-                                                   new_radii)
+                    drawpolycone_multicolor([0, 0, 0, -2], 
+                                            new_points, 
+                                            new_colors, 
+                                            new_radii)
                 else:
-                    drawer.drawpolycone(colors[1], 
-                                        new_points, 
-                                        new_radii)
+                    drawpolycone(colors[1], 
+                                 new_points, 
+                                 new_radii)
 
     def _get_axis_positions(self, chunk, atom_list, color_style):
         """
@@ -723,12 +727,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if self.dnaStyleAxisShape>0:
                 # spherical ends    
                 if self.dnaStyleAxisEndingStyle == 4:
-                    drawer.drawsphere(axis_colors[1], 
-                                      axis_positions[1], 
-                                      axis_radii[1], 2)
-                    drawer.drawsphere(axis_colors[n_points-2], 
-                                      axis_positions[n_points-2], 
-                                      axis_radii[n_points-2], 2)                    
+                    drawsphere(axis_colors[1], 
+                               axis_positions[1], 
+                               axis_radii[1], 2)
+                    drawsphere(axis_colors[n_points-2], 
+                               axis_positions[n_points-2], 
+                               axis_radii[n_points-2], 2)                    
                 # set polycone parameters
                 gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                                 | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
@@ -736,14 +740,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 if self.dnaStyleAxisColor==1 \
                    or self.dnaStyleAxisColor==2 \
                    or self.dnaStyleAxisColor==3: # render discrete colors                
-                    drawer.drawpolycone_multicolor([0, 0, 0, -2], 
-                                                   axis_positions, 
-                                                   axis_colors, 
-                                                   axis_radii)
+                    drawpolycone_multicolor([0, 0, 0, -2], 
+                                            axis_positions, 
+                                            axis_colors, 
+                                            axis_radii)
                 else:   
-                    drawer.drawpolycone(axis_colors[1], 
-                                        axis_positions, 
-                                        axis_radii)
+                    drawpolycone(axis_colors[1], 
+                                 axis_positions, 
+                                 axis_radii)
 
         elif chunk.isStrandChunk(): # strands, struts and bases 
             """
@@ -832,7 +836,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 pos, n_atoms, 0.75, 1.0)                        
                         else:
                             color = self._get_base_color(atom1.getDnaBaseName())
-                        drawer.drawcylinder(
+                        drawcylinder(
                             color, 
                             chunk.abs_to_base(atom1.posn()), 
                             atom2_pos, 
@@ -854,8 +858,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     else:
                         color = self._get_base_color(atom.getDnaBaseName())
                     if self.dnaStyleBasesShape==1: # draw spheres
-                        drawer.drawsphere(color, chunk.abs_to_base(atom.posn()),
-                                          self.dnaStyleBasesScale, 2)
+                        drawsphere(color, chunk.abs_to_base(atom.posn()),
+                                   self.dnaStyleBasesScale, 2)
                     elif self.dnaStyleBasesShape==2 \
                          and num_strands > 1: # draw a schematic 'cartoon' shape
                         atom1_pos = chunk.abs_to_base(strand_atoms[current_strand][pos].posn())
@@ -868,12 +872,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         aposn = atom1_pos+0.50*(atom2_pos-atom1_pos)
                         bposn = atom1_pos+0.66*(atom2_pos-atom1_pos)
                         cposn = atom1_pos+0.75*(atom2_pos-atom1_pos)
-                        drawer.drawcylinder(
+                        drawcylinder(
                             color, 
                             atom1_pos, 
                             bposn, 
                             0.20*self.dnaStyleBasesScale, True)
-                        drawer.drawcylinder(
+                        drawcylinder(
                             color, 
                             bposn-0.25*self.dnaStyleBasesScale*normal,
                             bposn+0.25*self.dnaStyleBasesScale*normal,
@@ -1048,13 +1052,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 indicators, inv_indicators = get_dna_base_orientation_indicators(chunk, plane_normal)
                                 
                 for atom in indicators:
-                    drawer.drawsphere(
+                    drawsphere(
                         indicators_color, 
                         chunk.abs_to_base(atom.posn()), 1.5, 2)
             
                 if inv_indicators_enabled:
                     for atom in inv_indicators:
-                        drawer.drawsphere(
+                        drawsphere(
                             inv_indicators_color, 
                             chunk.abs_to_base(atom.posn()), 1.5, 2)
                     
@@ -1078,12 +1082,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 # and the vector towards the viewer
                                 a = angleBetween(vz, v2)
                                 if abs(a) < indicators_angle:
-                                    drawer.drawsphere(
+                                    drawsphere(
                                         indicators_color, 
                                         chunk.abs_to_base(atom1.posn()), 1.5, 2)
                                 if inv_indicators_enabled:
                                     if abs(a) > (180.0-indicators_angle):
-                                        drawer.drawsphere(
+                                        drawsphere(
                                             inv_indicators_color, 
                                             chunk.abs_to_base(atom1.posn()), 1.5, 2)
                 """
@@ -1099,9 +1103,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             color = yellow
                         pos1 = chunk.abs_to_base(atom1.posn())
                         pos2 = chunk.abs_to_base(atom2.posn())
-                        drawer.drawsphere(color, pos1, self.dnaStyleStrandsScale, 2)
-                        drawer.drawsphere(color, pos2, self.dnaStyleStrandsScale, 2)
-                        drawer.drawcylinder(color, pos1, pos2, self.dnaStyleStrandsScale, True)              
+                        drawsphere(color, pos1, self.dnaStyleStrandsScale, 2)
+                        drawsphere(color, pos2, self.dnaStyleStrandsScale, 2)
+                        drawcylinder(color, pos1, pos2, self.dnaStyleStrandsScale, True)              
 
                 if self.dnaStyleBasesDisplayLetters: 
                     # calculate text size
@@ -1468,7 +1472,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                             lcolor = _light_color(strand_color)
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
-                                            drawer.drawFilledCircle(
+                                            drawFilledCircle(
                                                 lcolor, 
                                                 str_atoms_pos[str] + 3.0 * chunk.quat.unrot(glpane.out), 
                                                 1.5, chunk.quat.unrot(glpane.out))                                     
@@ -1479,7 +1483,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     for base in base_list:
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
-                                            drawer.drawCircle(
+                                            drawCircle(
                                                 strand_color, 
                                                 str_atoms_pos[str] + 3.1 * chunk.quat.unrot(glpane.out), 
                                                 1.5, chunk.quat.unrot(glpane.out)) 
@@ -1495,9 +1499,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         for base in base_list:
                             ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                             if str_atoms[0] and str_atoms[1]:
-                                drawer.drawFilledCircle(color, ax_atom_pos, 0.5, chunk.quat.unrot(glpane.out))
+                                drawFilledCircle(color, ax_atom_pos, 0.5, chunk.quat.unrot(glpane.out))
                             else:
-                                drawer.drawFilledCircle(color, ax_atom_pos, 0.15, chunk.quat.unrot(glpane.out))
+                                drawFilledCircle(color, ax_atom_pos, 0.15, chunk.quat.unrot(glpane.out))
                     """
                     elif mode == 1:
                         glLineWidth(10.0)
