@@ -2442,7 +2442,16 @@ def readGromacsCoordinates(filename, atomList):
         dY = 0.0
         dZ = 0.0
 
-    lines = open(filename, "rU").readlines()
+    try:
+        lines = open(filename, "rU").readlines()
+    except IOError:
+        msg = "readGromacsCoordinates: %s: Can't open or read file." % filename
+        print msg
+        return msg
+    except:
+        msg = "readGromacsCoordinates: %s: Exception opening or reading file" % filename
+        print_compact_traceback(msg + ": ")
+        return msg + " (see console prints)."
 
     if len(lines) < 3: ##Invalid file format
         msg = "readGromacsCoordinates: %s: File format error (fewer than 3 lines)." % filename
