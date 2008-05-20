@@ -121,10 +121,6 @@ def writeDnaDisplayStyleSettingsToFavoritesFile( basename ):
     return 1, basename
 
 
-    # msg = "Problem writing file [%s]" % favfilepath
-    return 1, basename
-
-
 def getFavoritePathFromBasename( basename ):
     """
     Returns the full path to the favorite file given a basename.
