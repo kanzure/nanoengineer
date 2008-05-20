@@ -109,13 +109,20 @@ class GromacsLog(object):
             else:
                 self.state = 0 # this never happens
                 return
-        if (line.find("converged") >= 0):
+
+# Stepsize too small, or no change in energy.
+# Converged to machine precision,
+# but not to the requested precision Fmax < 0.006022
+#
+# Polak-Ribiere Conjugate Gradients did not converge to Fmax < 0.006022 in 100001 steps.
+
+        if (line.find("converge") >= 0 and line.find("Fmax") >= 0):
             env.history.message("Energy (Bond, Strut, Nonbonded): (%f, %f, %f) zJ" %
                                 (self.getBondEnergy(),
                                  self.getHarmonicEnergy(),
                                  self.getNonbondedEnergy()))
             env.history.message("Total Energy %f zJ" % self.getTotalEnergy())
-            if (line.find("machine") >= 0):
+            if (line.find("machine") >= 0 or line.find("did not") >= 0):
                 env.history.message(orangemsg(quote_html(line.rstrip())))
             else:
                 env.history.message(quote_html(line.rstrip()))
@@ -131,6 +138,7 @@ class GromacsLog(object):
     
     def _resetColumns(self):
         self._values = {}
+        self.step = "-"
 
     def _addColumns(self, headers, values):
         for i in range(len(headers)):
@@ -139,10 +147,11 @@ class GromacsLog(object):
             self._values[key] = value
 
     def _emitColumns(self):
-        result = "(%f + %f + %f) = %f zJ" % (self.getBondEnergy(),
-                                             self.getHarmonicEnergy(),
-                                             self.getNonbondedEnergy(),
-                                             self.getTotalEnergy())
+        result = "%s: (%f + %f + %f) = %f zJ" % (self.step,
+                                                 self.getBondEnergy(),
+                                                 self.getHarmonicEnergy(),
+                                                 self.getNonbondedEnergy(),
+                                                 self.getTotalEnergy())
         env.history.statusbar_msg(result)
 
     def kJ_per_mol_to_zJ(self, kJ_per_mol):
@@ -151,7 +160,12 @@ class GromacsLog(object):
         
     def _getSingleEnergy(self, key):
         if (self._values.has_key(key)):
-            return self.kJ_per_mol_to_zJ(float(self._values[key]))
+            try:
+                value = float(self._values[key])
+            except:
+                print "_getSingleEnergy(): malformed value for %s: '%s'" % (key, self._values[key])
+                value = 0.0
+            return self.kJ_per_mol_to_zJ(value)
         return 0.0
 
     def getBondEnergy(self):
