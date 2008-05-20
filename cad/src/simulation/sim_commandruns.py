@@ -599,7 +599,8 @@ class Minimize_CommandRun(CommandRun):
             if (self.useGromacs):
                 if (self.background):
                     return
-                newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
+                tracefileProcessor = movie._simrun.tracefileProcessor
+                newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist, tracefileProcessor)
             else:
                 newPositions = readxyz( movie.filename, movie.alist )
                     # movie.alist is now created in writemovie [bruce 050325]

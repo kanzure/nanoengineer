@@ -52,7 +52,7 @@ from PyQt4.Qt import QProcess, QObject, QFileInfo, SIGNAL
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import foundation.env as env
 from foundation.env import seen_before
-from geometry.VQT import A
+from geometry.VQT import A, vlen
 import re
 from model.chunk import Chunk
 from model.elements import Singlet
@@ -226,6 +226,8 @@ class SimRunner:
         self.useGromacs = useGromacs
         self.background = background
         self.hasPAM = hasPAM
+        self.gromacsLog = None
+        self.tracefileProcessor = None
 
         prefer_standalone_sim = \
             debug_pref("force use of standalone sim",
@@ -2051,6 +2053,8 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.seen = {} # whether we saw each known error or warning tracefile-keyword
         self.donecount = 0 # how many Done keywords we saw in there
         self.mentioned_sim_trace_file = False # public, can be set by client code
+        self.currentPatternName = ""
+        self.PAM5_handles = []
         
     def step(self, line): #k should this also be called by __call__ ? no, that would slow down its use as a callback.
         """
@@ -2140,16 +2144,87 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     def gotPattern(self, start, rest):
         """
         """
-        ## print "pattern: ", start, rest
 
-        # first, process the pattern line in whatever way is always useful...
-        # [to be added by Eric M]
-        
-        # then, if debug_pref is set, also create graphical indicators for it
+        if (start == "# Pattern match:"):
+            self.gotPatternMatch(rest)
+        elif (start == "# Pattern makeVirtualAtom:"):
+            self.gotPatternMakeVirtualAtom(rest)
+        elif (start == "# Pattern makeBond:"):
+            self.gotPatternMakeBond(rest)
+        elif (start == "# Pattern setStretchType:"):
+            self.gotPatternSetStretchType(rest)
+        elif (start == "# Pattern makeVanDerWaals:"):
+            self.gotPatternMakeVanDerWaals(rest)
+        else:
+            print "gotPattern(): unknown type: ", start, rest
+
+        # if debug_pref is set, create graphical indicators for it
         # (possibly using info created by the always-on processing of the line)
         if pref_create_pattern_indicators():
             self.createPatternIndicator( start, rest)
         return
+
+
+    # Pattern match: [31] (PAM5-basepair-handle) 2 6 22 13
+    # [match number]
+    # (pattern name)
+    # atoms matched...
+    def gotPatternMatch(self, rest):
+        line = rest.rstrip().split()
+        # pattern match number = line[0]
+        self.currentPatternName = line[1]
+        # actual atoms matched follow
+
+    # Pattern makeVirtualAtom: [5] {41} 3 1 5 20 11 x 0.814144 0.147775 0.000000
+    # [match number]
+    # {new atom id}
+    # number of parent atoms
+    # GROMACS function number
+    # parent1, parent2, parent3, parent4
+    # parameterA, parameterB, parameterC
+    def gotPatternMakeVirtualAtom(self, rest):
+        pass
+
+    # Pattern makeBond: [5] {47} {48} 1.046850 834.100000
+    # [match number]
+    # atom1, atom2 ({} indicates atom created by ND1)
+    # ks, r0
+    def gotPatternMakeBond(self, rest):
+        line = rest.rstrip().split()
+        if (self.currentPatternName == "(PAM5-basepair-handle)"):
+            atom1 = self._atomID(line[1])
+            atom2 = self._atomID(line[2])
+            ks = float(line[3])
+            r0 = float(line[4])
+            self.PAM5_handles += [[atom1, atom2, ks, r0]]
+
+    # Pattern setStretchType: [9] 12 11 1.000000 509.000000
+    # [match number]
+    # atom1, atom2 ({} indicates atom created by ND1)
+    # ks, r0
+    def gotPatternSetStretchType(self, rest):
+        pass
+
+    def gotPatternMakeVanDerWaals(self, rest):
+        pass
+
+    def newAtomPositions(self, positions):
+        for handle in self.PAM5_handles:
+            atom1 = handle[0]
+            atom2 = handle[1]
+            ks = handle[2] # N/m
+            r0 = handle[3] # pm
+            pos1 = positions[atom1-1] # angstroms
+            pos2 = positions[atom2-1] # angstroms
+            delta = 100.0 * vlen(A(pos1) - A(pos2)) # pm
+            force = abs((delta - r0) * ks) # pN
+            env.history.message("Force on handle %d: %f pN" % (atom2, force))
+    
+    def _atomID(self, idString):
+        if (idString.startswith("{")):
+            s = idString[1:-1]
+            return int(s)
+        return int(idString)
     
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
         """
@@ -2167,6 +2242,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             return "?"
         return "frame %s: rms force = %s; high force = %s" % (frameNumber, rms, max_force)
             # 'high' instead of 'max' is to match Done line syntax (by experiment as of 060112)
+
     def finish(self):
         if not self.donecount:
             self.owner.said_we_are_done = False # not needed unless other code has bugs
@@ -2439,7 +2515,7 @@ def readxyz(filename, alist):
 
     return newAtomsPos
 
-def readGromacsCoordinates(filename, atomList):
+def readGromacsCoordinates(filename, atomList, tracefileProcessor = None):
     """
     Read a coordinate file created by gromacs, typically for
     minimizing a part.
@@ -2481,7 +2557,8 @@ def readGromacsCoordinates(filename, atomList):
         print msg
         return msg
 
-    newAtomsPos = [] 
+    newAtomsPos = []
+    allAtomPositions = []
 
     try:     
         numAtoms_junk = int(lines[1])
@@ -2514,11 +2591,15 @@ def readGromacsCoordinates(filename, atomList):
             # coordinates of virtual sites are reported at end of
             # list, and we want to ignore them.
             newAtomsPos += [[x, y, z]]
+        allAtomPositions += [[x, y, z]]
     if (len(newAtomsPos) != len(atomList)):
         msg = "readGromacsCoordinates: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
             (filename, len(newAtomsPos), len(atomList))
         print msg
         return msg
+
+    if (tracefileProcessor):
+        tracefileProcessor.newAtomPositions(allAtomPositions)
 
     return newAtomsPos
 
