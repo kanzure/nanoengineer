@@ -78,6 +78,8 @@ from utilities.prefs_constants import cpp_path_prefs_key
 from utilities.prefs_constants import nv1_enabled_prefs_key
 from utilities.prefs_constants import nv1_path_prefs_key
 
+from utilities.GlobalPreferences import pref_create_pattern_indicators
+
 # some non-toplevel imports too (of which a few must remain non-toplevel)
 
 # ==
@@ -2076,10 +2078,12 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             rest = m.group(2)
             if (start == "# Warning:" or start == "# Error:"):
                 self.gotWarningOrError(start, line)
-            elif (start == "# Done:"):
+            elif start == "# Done:":
                 self.gotDone(start, rest)
-            #else:
-            #    print "formatted trace line: " + line.rstrip()
+            elif start.startswith("# Pattern "):
+                self.gotPattern(start, rest)
+            ## else:
+            ##     print "other formatted trace line: " + line.rstrip()
         return
 
     def gotWarningOrError(self, start, line):
@@ -2132,6 +2136,20 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             # but don't do this, we want the main Done too: [bruce 050415]:
             ## self.owner.said_we_are_done = True
         return
+
+    def gotPattern(self, start, rest):
+        """
+        """
+        ## print "pattern: ", start, rest
+
+        # first, process the pattern line in whatever way is always useful...
+        # [to be added by Eric M]
+        
+        # then, if debug_pref is set, also create graphical indicators for it
+        # (possibly using info created by the always-on processing of the line)
+        if pref_create_pattern_indicators():
+            self.createPatternIndicator( start, rest)
+        return
     
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
         """
@@ -2171,6 +2189,11 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                     msg += " It might be overwritten the next time you run a similar command."
                 msg += ")"
                 env.history.message( msg)
+        return
+
+    def createPatternIndicator( self, start, rest, *moreargs, **moreopts):
+        del moreargs, moreopts # for temporary use, to avoid svn conflicts if more args are passed
+        print "createPatternIndicator", start, rest
         return
 
     pass # end of class TracefileProcessor

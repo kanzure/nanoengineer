@@ -345,6 +345,27 @@ pref_minimize_leave_out_PAM_bondpoints()
 
 # ==
 
+def pref_create_pattern_indicators():
+    #bruce 080520
+    """
+    If enabled, each run of Minimize or Simulate
+    (in any form, e.g. Adjust or Adjust Atoms too)
+    creates graphical pattern indicators,
+    and records extra atom and bond tooltip info,
+    to show details of how the force field is implemented
+    on the current model.
+    """
+    res = debug_pref("Minimize: force field graphics?",
+                     Choice_boolean_False,
+                     non_debug = True,
+                     prefs_key = True
+                    )
+    return res
+
+pref_create_pattern_indicators()
+
+# ==
+
 def pref_skip_redraws_requested_only_by_Qt():
     #bruce 080516 moved this here, revised default to be off on Windows
     """
