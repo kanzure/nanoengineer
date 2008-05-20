@@ -229,7 +229,7 @@ class DnaMarker( ChainAtomMarker):
         """
         [overrides superclass method]
         """
-        if self._should_draw():
+        if self._should_draw(): # this test is not present in superclass
             for a in self.atoms:
                 chunk = a.molecule
                 dispdef = chunk.get_dispdef(glpane)
@@ -238,7 +238,7 @@ class DnaMarker( ChainAtomMarker):
                     rad *= 1.01
                 drawwirecube(color, a.posn(), rad)
                 # draw next_atom in a different color than marked_atom
-                color = orange # this is what differs from superclass
+                color = orange # this is the other thing that differs from superclass
         return
 
     def _should_draw(self):

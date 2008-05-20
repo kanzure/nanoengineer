@@ -210,6 +210,7 @@ def post_main_show( win):
     # TODO: initialize Python extensions: ## import experimental/pyrex_test/extensions.py
     _initialize_plugin_generators()
     _init_experimental_commands()
+    _init_miscellaneous_commands()
     _set_mainwindow_splitter_position( win)
     return
 
@@ -275,6 +276,13 @@ def _init_test_commands():
                   prefs_key = True):
         import prototype.test_commands_init as test_commands_init
         test_commands_init.initialize()
+    return
+
+def _init_miscellaneous_commands():
+
+    import model.virtual_site_indicators as virtual_site_indicators
+    virtual_site_indicators.initialize() #bruce 080519
+    
     return
 
 def _set_mainwindow_splitter_position( win): 
