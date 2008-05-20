@@ -41,6 +41,8 @@ from foundation.preferences import prefs_context
 from model.Elem import Elem
 
 from model.elements_data import init_chemical_elements
+from model.elements_data_other import init_other_elements
+
 from dna.model.elements_data_PAM3 import init_PAM3_elements
 from dna.model.elements_data_PAM5 import init_PAM5_elements
 
@@ -119,9 +121,13 @@ class _ElementPeriodicTable(object):
             el = Elem(elm[2], elm[0], elm[1], elm[3],
                       rad_color[0], rad_color[1], elm[4],
                       ** options)
-            assert not self._periodicTable.has_key(el.eltnum)
-            assert not self._eltName2Num.has_key(el.name)
-            assert not self._eltSym2Num.has_key(el.symbol)
+            assert not self._periodicTable.has_key(el.eltnum), \
+                   "duplicate def of element number %r (prior: %r)" % \
+                   (el.eltnum, self._periodicTable[el.eltnum] )
+            assert not self._eltName2Num.has_key(el.name), \
+                   "duplicate def of element name %r" % (el.name,)
+            assert not self._eltSym2Num.has_key(el.symbol), \
+                   "duplicate def of element symbol %r" % (el.symbol,)
             self._periodicTable[el.eltnum] = el
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
@@ -299,6 +305,8 @@ PeriodicTable  = _ElementPeriodicTable() # initially empty
 
 init_chemical_elements( PeriodicTable) # including Singlet == element 0
 
+init_other_elements( PeriodicTable)
+
 init_PAM3_elements( PeriodicTable)
 init_PAM5_elements( PeriodicTable)
 
@@ -309,6 +317,8 @@ Nitrogen = PeriodicTable.getElement(7)
 Oxygen = PeriodicTable.getElement(8)
 
 Singlet = PeriodicTable.getElement(0)
+
+Vs0 = PeriodicTable.getElement('Vs0') #bruce 080520
 
 Pl5 = PeriodicTable.getElement('Pl5') #bruce 080312 for convertToPam3plus5
 Ss5 = PeriodicTable.getElement('Ss5')

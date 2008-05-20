@@ -127,17 +127,24 @@ class VirtualSiteJig(Jig): # rename file, non caps? virtual_site_indicators.py?
     def _update_site_atom_position(self):
         self.site_atom().setposn( self.site_position() )
 
-    def changed_structure(self):
-        pass ### disable self by user choice?? make the site_atom color more gray???
+    def changed_structure(self, atom):
+        # review: should we disable self by user choice??
+        # make the site_atom color more gray???
+        # not unless we confirm it's a change that really matters!
+        # (this is called at least once during construction of this jig,
+        #  not sure why.)
+        return
     
-    pass
+    pass # end of class VirtualSiteJig
+
+# ==
 
 def make_virtual_site(assy, parent_atoms, site_params):
     """
     @return: list of nodes to add to MT
     """
     from model.chem import oneUnbonded
-    from model.elements import Ss3 as Vs0 ### STUB
+    from model.elements import Vs0
     site_atom = oneUnbonded(Vs0, assy, V(0,0,0))
     jig = VirtualSiteJig(assy, parent_atoms + [site_atom])
     jig.setProps(site_params) # so it knows how to compute site_position

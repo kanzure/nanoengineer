@@ -95,6 +95,8 @@ _mendeleev = [
     ("Ux5", "PAM5-Unpaired-base-x",211, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
     ("Uy5", "PAM5-Unpaired-base-y",212, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')), # (likely to be revised)
 
+    # basepair axis handle (defined as PAM5 to make it more convenient to permit its bonding with Gv5)
+    # (see also: elements_data_other.py)
     ("Ah5", "PAM5-Axis-handle",    213, 1.0, [[1, 200, onebond]], dict(role = 'handle')), #bruce 080515, revised 080516
 
  ]
