@@ -487,6 +487,31 @@ pam5_crossover_match(struct patternMatch *match)
   trace_makeVanDerWaals(match, aP5, aP10);
   makeVanDerWaals(p, aP5->atomID, aP8->atomID);
   trace_makeVanDerWaals(match, aP5, aP8);
+  //printMatch(match);
+}
+
+static void
+pam5_full_crossover_match(struct patternMatch *match)
+{
+  struct part *p = match->p;
+  struct atom *aP3 = p->atoms[match->atomIndices[3]];
+  struct atom *aP8 = p->atoms[match->atomIndices[8]];
+  struct bond *bond;
+
+  //  G0--G1
+  //  |   |
+  //  S9  S2
+  //  |   |
+  //  P8  P3
+  //  |   |
+  //  S7  S4
+  //  |   |
+  //  G6--G5
+  
+  bond = makeBond(p, aP3, aP8, '2');
+  queueBond(p, bond);
+  trace_makeBond(match, bond);
+  //printMatch(match);
 }
 
 static void
@@ -592,6 +617,28 @@ createPam5Patterns(void)
   t[9] = makeTraversal(a[8], a[9], '1');
   t[10] = makeTraversal(a[9], a[10], '1');
   makePattern("PAM5-crossover", pam5_crossover_match, 11, 11, t);
+
+  a[0] = makePatternAtom(0, "P5G");
+  a[1] = makePatternAtom(1, "P5G");
+  a[2] = makePatternAtom(2, "P5S");
+  a[3] = makePatternAtom(3, "P5P");
+  a[4] = makePatternAtom(4, "P5S");
+  a[5] = makePatternAtom(5, "P5G");
+  a[6] = makePatternAtom(6, "P5G");
+  a[7] = makePatternAtom(7, "P5S");
+  a[8] = makePatternAtom(8, "P5P");
+  a[9] = makePatternAtom(9, "P5S");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  t[2] = makeTraversal(a[2], a[3], '1');
+  t[3] = makeTraversal(a[3], a[4], '1');
+  t[4] = makeTraversal(a[4], a[5], '1');
+  t[5] = makeTraversal(a[5], a[6], '1');
+  t[6] = makeTraversal(a[6], a[7], '1');
+  t[7] = makeTraversal(a[7], a[8], '1');
+  t[8] = makeTraversal(a[8], a[9], '1');
+  t[9] = makeTraversal(a[9], a[0], '1');
+  makePattern("PAM5-full-crossover", pam5_full_crossover_match, 10, 10, t);
 
   a[0] = makePatternAtom(0, "Ax3");
   a[1] = makePatternAtom(1, "Ss3");

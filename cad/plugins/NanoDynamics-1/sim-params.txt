@@ -108,6 +108,11 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 # --vdw-cutoff-factor).  Setting cutoffRadiusEnd to rvdW, and
 # cutoffRadiusStart to any larger value selects only the repulsive
 # interaction.
+
+
+# For Yukawa potentials, the numbers on vdw lines are irrelevant, only
+# their existence matters, defining the set of interacting pseudo
+# atoms.
 #
 #  rvdW evdW start end name
 
@@ -348,6 +353,11 @@ pattern PAM5:5-Pl-Ss-3_ks              1.0
 pattern PAM5:5-Ss-Pl-3_r0            420.9
 pattern PAM5:5-Ss-Pl-3_ks              1.0
 
+# If non-zero, exclude non-bonded interactions within the same
+# duplex.  Also adds an exclusion between bridging phosphates in a
+# crossover, so changing this requires changing the Pl5-2-Pl5 stretch
+# term as well.
+pattern enableExclusions               1
 
 # For the PAM5-Stack pattern, two base pair planes are defined, each by
 # a pair of basis vectors from an Ax to an Ss pseudo-atom.  Since the
@@ -383,6 +393,15 @@ strut PAM5-5  0.38792  324.6  -0.47384  0.09686     -0.47384 -0.09686
 
 stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
 stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5
+
+# This is the interaction between the two bridging Pl's in a
+# crossover.  Its labeled as a double bond (its not) to distinguish
+# it from the Pl5-1-Pl5 case above (which also is not a real bond).
+# Note that quadratic = 6 here, which tells GROMACS to not consider
+# this as a chemical bond for purposes of exclusion of non-bonded
+# interactions.  Otherwise, we'd end up excluding two diagonal Pl-Pl
+# interactions which we'd like to include.
+stretch  100.0    600.0  1.0000   -1         -1       9    6   Pl5-2-Pl5
 
 
 # Switching function to smoothly reduce Yukawa potential to zero.

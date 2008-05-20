@@ -74,6 +74,7 @@ writeExclusionsOnOneGroove(FILE *top,
     struct atom *toExclude;
     struct bond *b;
     int i;
+    int j;
 
     for (i=0; i<groove->num_bonds; i++) {
         b = groove->bonds[i];
@@ -89,6 +90,23 @@ writeExclusionsOnOneGroove(FILE *top,
             if (!gotOne) {
                 fprintf(top, "%d", atomNumber(p, first));
                 gotOne = 1;
+                for (j=0; j<first->num_bonds; j++) {
+                    b = first->bonds[j];
+                    // add exclusions for Pl5-2-Pl5 bonds, which are
+                    // pattern generated bonds between bridging
+                    // phosphates in a crossover.
+                    if (b->order != '2') {
+                        continue;
+                    }
+                    if (b->a1 == first && atomIsType(b->a2, Pl5_type)) {
+                        fprintf(top, " %d", atomNumber(p, b->a2));
+                        break;
+                    }
+                    if (b->a2 == first && atomIsType(b->a1, Pl5_type)) {
+                        fprintf(top, " %d", atomNumber(p, b->a1));
+                        break;
+                    }
+                }
             }
             fprintf(top, " %d", atomNumber(p, toExclude));
         }
@@ -126,10 +144,6 @@ writeExclusion(FILE *top,
 }
 
 
-// vdw cutoff radius divided by basepair to basepair distance
-// 11 nm / 318 pm = 34.6, round up and add some fudge
-#define DEPTH_TO_EXCLUDE 40
-
 static void
 writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
 {
@@ -138,6 +152,11 @@ writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
     int i;
     int j;
     int gotOne = 0;
+    int depthToExclude;
+
+    // vdw cutoff radius divided by basepair to basepair distance,
+    // with some fudge.
+    depthToExclude = (int)(VanDerWaalsCutoffRadius * 1.6 / 0.318); // all in nm
 
     if (!(atomIsType(a, Gv5_type) || atomIsType(a, Ax3_type))) {
         return;
@@ -158,10 +177,10 @@ writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
                 b = a->bonds[j];
                 if (b->a1 == a && (atomIsType(b->a2, Gv5_type) ||
                                    atomIsType(b->a2, Ax3_type))) {
-                    gotOne |= writeExclusion(top, p, first, a, b->a2, gotOne, DEPTH_TO_EXCLUDE);
+                    gotOne |= writeExclusion(top, p, first, a, b->a2, gotOne, depthToExclude);
                 } else if (b->a2 == a && (atomIsType(b->a1, Gv5_type) ||
                                           atomIsType(b->a1, Ax3_type))) {
-                    gotOne |= writeExclusion(top, p, first, a, b->a1, gotOne, DEPTH_TO_EXCLUDE);
+                    gotOne |= writeExclusion(top, p, first, a, b->a1, gotOne, depthToExclude);
                 }
             }
             if (gotOne) {
@@ -458,6 +477,8 @@ printGromacsToplogy(char *basename, struct part *p)
     struct xyz min; // most negative corner of bounding volume
     struct xyz max; // most positive corner of bounding volume
     int EnableNeighborSearchGrid = 0;
+    struct patternParameter *param;
+    int enableExclusions;
 
     for (i=0; i<p->num_jigs; i++) {
         jig = p->jigs[i];
@@ -475,6 +496,9 @@ printGromacsToplogy(char *basename, struct part *p)
             break;
         }
     }
+    
+    param = getPatternParameter("enableExclusions"); BAILR(py_exc_str);
+    enableExclusions = (int)param->value;
     
     len = strlen(basename) + 12;
     fileName = allocate(len);
@@ -661,11 +685,13 @@ printGromacsToplogy(char *basename, struct part *p)
     }
     fprintf(top, "\n");
 
-    fprintf(top, "[ exclusions ]\n");
-    for (i=0; i<p->num_atoms; i++) {
-        writeGromacsExclusions(top, p, p->atoms[i]);
+    if (enableExclusions) {
+        fprintf(top, "[ exclusions ]\n");
+        for (i=0; i<p->num_atoms; i++) {
+            writeGromacsExclusions(top, p, p->atoms[i]);
+        }
+        fprintf(top, "\n");
     }
-    fprintf(top, "\n");
 
     fprintf(top, "[ system ]\n");
     fprintf(top, "; Name\n");

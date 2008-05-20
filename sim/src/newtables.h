@@ -58,7 +58,14 @@ struct bondStretch
   double potentialExtensionD;
   
   int parameterQuality; // how sure are we of these parameters
-  int quadratic; // non-zero if this stretch should be pure quadratic, instead of Lippincott-Morse
+
+  // Non-zero if this stretch should be pure quadratic, instead of
+  // Lippincott-Morse.  Set to 1 if GROMACS should consider this
+  // stretch to be a chemical bond (for purposes of excluding
+  // non-bonded interactions), or 6 for a quadratic potential without
+  // the bond.
+  int quadratic;
+  
   int warned; // set to non-zero if a warning about using this entry has been printed
   
   struct interpolationTable LippincottMorse;
