@@ -19,7 +19,7 @@ DNA Cylinder *and* the global display style is not DNA Cylinder.
 - Add "DNA Display Style Strand Label Custom Color" pref key/value.
 - Add "Base Colors" pref keys/values.
 """
-import os, time, fnmatch
+import os, time, fnmatch, string
 import foundation.env as env
 
 from widgets.DebugMenuMixin import DebugMenuMixin
@@ -99,15 +99,15 @@ dnaDisplayStylePrefsList = \
 
 def writeDnaDisplayStyleSettingsToFavoritesFile( basename ):
     """
-    Writes a "favorite file" (with a .fav extension) to store all the 
+    Writes a "favorite file" (with a .txt extension) to store all the 
     DNA display style settings (pref keys and their current values).
             
     @param basename: The filename (without the .fav extension) to write.
     @type  basename: string
             
     @note: The favorite file is written to the directory
-            $HOME/Nanorex/DnaDisplayStyleFavorites.
-            """
+            $HOME/Nanorex/Favorites/DnaDisplayStyle.
+    """
             
     if not basename:
         return 0, "No name given."
@@ -116,46 +116,28 @@ def writeDnaDisplayStyleSettingsToFavoritesFile( basename ):
     favfilepath = getFavoritePathFromBasename(basename)
     writeDnaFavoriteFile(favfilepath)            
             
-    """
-    Writes a "favorite file" (with a .fav extension) to store all the 
-    DNA display style settings (pref keys and their current values).
-            
-    @param basename: The filename (without the .fav extension) to write.
-    @type  basename: string
-            
-    @note: The favorite file is written to the directory
-            $HOME/Nanorex/DnaDisplayStyleFavorites.
-    """
-            
-    if not basename:
-        return 0, "No name given."
-            
-    # Get filename and write the favorite file.
-    favfilepath = getFavoritePathFromBasename(basename)
-    writeDnaFavoriteFile(favfilepath)
-
     # msg = "Problem writing file [%s]" % favfilepath
 
     return 1, basename
 
 
     # msg = "Problem writing file [%s]" % favfilepath
-
     return 1, basename
+
 
 def getFavoritePathFromBasename( basename ):
     """
     Returns the full path to the favorite file given a basename.
     
-    @param basename: The favorite filename (without the .fav extension).
+    @param basename: The favorite filename (without the .txt extension).
     @type  basename: string
     
     @note: The (default) directory for all favorite files is
-           $HOME/Nanorex/DnaDisplayStyleFavorites.
+           $HOME/Nanorex/Favorites/DnaDisplayStyle.
     """
     _ext = "txt"
     
-    # Make favorite filename (i.e. ~/Nanorex/DnaFavorites/basename.fav)
+    # Make favorite filename (i.e. ~/Nanorex/Favorites/DnaDisplayStyleFavorites/basename.txt)
     from platform.PlatformDependent import find_or_make_Nanorex_subdir
     _dir = find_or_make_Nanorex_subdir('Favorites/DnaDisplayStyle')
     return os.path.join(_dir, "%s.%s" % (basename, _ext))
@@ -173,13 +155,12 @@ def writeDnaFavoriteFile( filename ):
     timestr = "%s\n!\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
     f.write(timestr)
     
-    #write preference list in file without the NE version
+    #write preference list in file without the NE version 
     for pref_key in dnaDisplayStylePrefsList:
         val = env.prefs[pref_key]
-        pref_key_temp=pref_key
-    
-
-        pref_key=pref_key_temp[4:]
+        
+        pref_keyArray = pref_key.split("/")
+        pref_key = pref_keyArray[1]
         
         if isinstance(val, int):
             f.write("%s = %d\n" % (pref_key, val))
@@ -194,39 +175,60 @@ def writeDnaFavoriteFile( filename ):
 
     
 def loadFavoriteFile( filename ):
-    if filename:
-        if os.path.exists(filename):
-            favoriteFile = open(filename, 'r')
-        else:
-            env.history.message("File does not exist.")
-            return
-            
+    """
+    Loads a favorite file from anywhere in the disk.
     
-    for line in favoriteFile.readlines():
+    @param filename: The full path for the favorite file.
+    @type  filename: string
+    
+    """
+    
+    if os.path.exists(filename):
+        favoriteFile = open(filename, 'r')
+    else:
+        env.history.message("Favorite file to be loaded does not exist.")
+        return 0
+     
+    # do syntax checking on the file to figure out whether this is a valid
+    # favorite file
+    
+    
+    line = favoriteFile.readline()
+    line = favoriteFile.readline()
+    
+    if line != "! DNA display style favorite file\n":
+        env.history.message(" Not a proper favorite file")
+        favoriteFile.close()
+        return 0
+    
+    while 1:
+        line = favoriteFile.readline()
+        
+        # marks the end of file
+        if line == "":
+            break
+        
         
         # process each line to obtain pref_keys and their corresponding values
-        
         if line[0] != '!':
         
             keyValuePair = line.split('=')
             pref_keyString = keyValuePair[0].strip()
             pref_value=keyValuePair[1].strip()
         
-            # check if pref_value is an integer or float. Booleans currently stored 
-            # integer as well.
+            # check if pref_value is an integer or float. Booleans currently 
+            # stored as integer as well.
         
-            pref_valueTemp = pref_value
-            pref_valueIsInt = isInt(pref_valueTemp)
-        
-        
-            if pref_valueIsInt:
+            try: 
+                int(pref_value)
                 pref_valueToStore = int(pref_value)
-            else:
+                
+            except ValueError:
                 pref_valueToStore = float(pref_value)
             
         
-            # match pref_keyString with its corresponding variable name in the preference
-            # key list
+            # match pref_keyString with its corresponding variable name in the 
+            # preference key list
         
             pref_key = findPrefKey( pref_keyString )
         
@@ -238,34 +240,65 @@ def loadFavoriteFile( filename ):
      
                
     favoriteFile.close()
+    
+    #check if a copy of this file exists in the favorites directory. If not make
+    # a copy of it in there
+    
+    
+    favName = os.path.basename(str(filename))
+    name = favName[0:len(favName)-4]
+    favfilepath = getFavoritePathFromBasename(name)
+    
+    if not os.path.exists(favfilepath):
+        saveFavoriteFile(favfilepath, filename)
+    
+    return 1
       
     
-
-def isInt( favString ):
-    
-    try:
-        int( favString )
-    except ValueError:
-        return 0
-    else:
-        return 1
-
 def findPrefKey( pref_keyString ):
+    """
+    Matches prefence key in the dnaDisplayStylePrefsList with pref_keyString
+    from the favorte file that we intend to load. 
+
+    
+    @param pref_keyString: preference from the favorite file to be loaded.
+    @type  pref_keyString: string
+    
+    @note: very inefficient since worst case time taken is proportional to the 
+    size of the list. If original preference strings are in a dictionary, access
+    can be done in constant time
+    
+    """
     
     for keys in dnaDisplayStylePrefsList:
-        if keys[4:] == pref_keyString:
+        #split keys in dnaDisplayStylePrefList into version number and pref_key
+        
+        pref_array= keys.split("/")
+        if pref_array[1] == pref_keyString:
             return keys
         
     return None
     
 def saveFavoriteFile( savePath, fromPath ):
+    
+    """
+    Save favorite file to anywhere in the disk
+
+    
+    @param savePath: full path for the location where the favorite file is to be saved.
+    @type  savePath: string
+    
+    @param savePath: ~/Nanorex/Favorites/DnaDisplayStyle/$FAV_NAME.txt
+    @type  fromPath: string
+    
+    """
     if savePath:
         saveFile = open(savePath, 'w')
     if fromPath:
         fromFile = open(fromPath, 'r')
         
-    for line in fromFile.readlines():    
-        saveFile.writelines(line)
+    lines=fromFile.readlines()   
+    saveFile.writelines(lines)
         
     saveFile.close()
     fromFile.close()
@@ -487,6 +520,9 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Load widgets in group box.
         """
+        # Other info
+        # Not only loads the factory default settings but also all the favorite
+        # files stored in the ~/Nanorex/Favorites/DnaDisplayStyle directory
         
         favoriteChoices = ['Factory default settings']
 
@@ -500,7 +536,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             fullname = os.path.join( _dir, file)
             if os.path.isfile(fullname):
                 if fnmatch.fnmatch( file, "*.txt"):
-                    # to leave the extension out
+                    
+                    # leave the extension out
                     favoriteChoices.append(file[0:len(file)-4])
         
         self.favoritesComboBox  = \
@@ -726,6 +763,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.strutsScaleDoubleSpinBox  =  \
             PM_DoubleSpinBox( strutsGroupBox,
+                              
                               label         =  "Scale:",
                               value         =  1.00,
                               setAsDefault  =  True,
@@ -852,6 +890,10 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Apply the DNA display style settings stored in the current favorite 
         (selected in the combobox) to the current DNA display style settings.
         """
+        # Rules and other info:
+        # The user has to press the button related to this method when he loads
+        # a previously saved favorite file
+        
         current_favorite = self.favoritesComboBox.currentText()
         if current_favorite == 'Factory default settings':
             env.prefs.restore_defaults(dnaDisplayStylePrefsList)
@@ -870,19 +912,21 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         # - The new favorite is defined by the current DNA display style 
         #    settings.
     
-        # - The user is prompted to type in a (unique) name for the new 
+        # - The user is prompted to type in a name for the new 
         #    favorite.
         # - The DNA display style settings are written to a file in a special 
-        #    directory on the disk (i.e. $HOME/Nanorex/DNA/Favorites/$FAV_NAME.fav).
+        #    directory on the disk 
+        # (i.e. $HOME/Nanorex/Favorites/DnaDisplayStyle/$FAV_NAME.fav).
         # - The name of the new favorite is added to the list of favorites in
         #    the combobox, which becomes the current option. 
         
-        # First, check if there is already a favorite with the current settings.
-        # ok = self.checkForDuplicateFavorite()
-        # if not ok:
-        #     return
+        # Existence of a favorite with the same name is checked in the above 
+        # mentioned location and if a duplicate exists, then the user can either
+        # overwrite and provide a new name.
         
-        # Prompt user for a unique favorite name to add. 
+        
+        
+        # Prompt user for a favorite name to add. 
         from widgets.simple_dialogs import grab_text_line_using_dialog
         
         ok1, name = \
@@ -892,23 +936,28 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
               iconPath = "ui/actions/Properties Manager/AddFavorite.png",
               default = "" )
         if ok1:
-            # check for duplicate files in the favorites folder
+            # check for duplicate files in the 
+            # $HOME/Nanorex/Favorites/DnaDisplayStyle/ directory
+            
             fname = getFavoritePathFromBasename( name )
             if os.path.exists(fname):
+                
+                #favorite file already exists!
                 
                 _ext= ".txt"
                 ret = QMessageBox.warning( self, "Warning!",
                 "The favorite file \"" + name + _ext + "\"already exists.\n"
                 "Do you want to overwrite the existing file?",
-                "&Overwrite", "Cancel", "",
+                "&Overwrite", "&Cancel", "",
                 0,    # Enter == button 0
                 1)   # Escape == button 1  
                 
                 if ret == 0:
+                    #overwrite favorite file
                     ok2, text = writeDnaDisplayStyleSettingsToFavoritesFile(name)
                     indexOfDuplicateItem = self.favoritesComboBox.findText(name)
                     self.favoritesComboBox.removeItem(indexOfDuplicateItem)
-                    env.history.message("Add Favorite: removed duplicate favorite item.")
+                    print "Add Favorite: removed duplicate favorite item."
                 else:
                     env.history.message("Add Favorite: cancelled overwriting favorite item.")              
                     return 
@@ -927,14 +976,14 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             msg = "Can't add favorite [%s]: %s" % (name, text) # text is reason why not
         
-        print msg #@ Turn into a history msg.
+        env.history.message(msg) 
         
         return
         
     def deleteFavorite(self):
         """
         Deletes the current favorite from the user's personal list of favorites
-        (and from disk).
+        (and from disk, only in the favorites folder though).
         
         @note: Cannot delete "Factory default settings".
         """
@@ -944,24 +993,27 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             msg = "Cannot delete '%s'." % currentText
         else:
             self.favoritesComboBox.removeItem(currentIndex)
-            msg = "Deleted favorite named [%s].\n" \
-                "Don't forget to delete the favorite file [%s.fav]." \
-                % (currentText, currentText)
+            
             
             # delete file from the disk
             
             deleteFile= getFavoritePathFromBasename( currentText )
             os.remove(deleteFile)
             
-        print msg
+            msg = "Deleted favorite named [%s].\n" \
+                "and the favorite file [%s.txt]." \
+                % (currentText, currentText)
+            
+        env.history.message(msg) 
         return
         
     def saveFavorite(self):
         """
-        Writes the current favorite (selected in the combobox) to a file that 
+        Writes the current favorite (selected in the combobox) to a file, any 
+        where in the disk that 
         can be given to another NE1 user (i.e. as an email attachment).
         """
-        #print "saveFavorite(): Not implemented yet."
+        
         cmd = greenmsg("Save Favorite File: ")
         env.history.message(greenmsg("Save Favorite File:"))
         current_favorite = self.favoritesComboBox.currentText()
@@ -982,18 +1034,19 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         if not fn:
             env.history.message(cmd + "Cancelled")
         
-        if fn:
+        else:
             saveFavoriteFile(str(fn), favfilepath)
         return
         
     def loadFavorite(self):
         """
-        Prompts the user to choose a "favorite file" (i.e. *.fav) from disk to
+        Prompts the user to choose a "favorite file" (i.e. *.txt) from disk to
         be added to the personal favorites list.
         """
-        #print "loadFavorite(): Not implemented yet."
+        # If the file already exists in the favorites folder then the user is 
+        # given the option of overwriting it or renaming it
         
-        env.history.message(greenmsg("Open Favorite File:"))
+        env.history.message(greenmsg("Load Favorite File:"))
         formats = \
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
@@ -1001,65 +1054,72 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         directory= getDefaultWorkingDirectory()
         
         fname = QFileDialog.getOpenFileName(self,
-                                         "Choose a file to open",
+                                         "Choose a file to load",
                                          directory,
                                          formats)
                     
         if not fname:
-            env.history.message("Cancelled.")
+            env.history.message("User cancelled loading file.")
             return
 
-        if fname:
-            loadFavoriteFile(fname)
+        else:
+            canLoadFile=loadFavoriteFile(fname)
             
-            #get just the name of the file for loading into the combobox
-            
-            favName = os.path.basename(str(fname))
-            name = favName[0:len(favName)-4]
-            indexOfDuplicateItem = self.favoritesComboBox.findText(name)
-            
-            #duplicate exists in combobox 
-            
-            if indexOfDuplicateItem != -1:
-                ret = QMessageBox.warning( self, "Warning!",
-                "The favorite file \"" + name + "\"already exists.\n"
-                "Do you want to overwrite the existing file?",
-                "&Overwrite", "&Rename", "&Cancel",
-                0,    # Enter == button 0
-                1   # button 1
-                )  
+            if canLoadFile == 1:
                 
-                if ret == 0:
-                    self.favoritesComboBox.removeItem(indexOfDuplicateItem)
+            
+                #get just the name of the file for loading into the combobox
+            
+                favName = os.path.basename(str(fname))
+                name = favName[0:len(favName)-4]
+                indexOfDuplicateItem = self.favoritesComboBox.findText(name)
+            
+                #duplicate exists in combobox 
+            
+                if indexOfDuplicateItem != -1:
+                    ret = QMessageBox.warning( self, "Warning!",
+                                               "The favorite file \"" + name + 
+                                               "\"already exists.\n"
+                                               "Do you want to overwrite the existing file?",
+                                               "&Overwrite", "&Rename", "&Cancel",
+                                               0,    # Enter == button 0
+                                               1   # button 1
+                                               )  
+                
+                    if ret == 0:
+                        self.favoritesComboBox.removeItem(indexOfDuplicateItem)
+                        self.favoritesComboBox.addItem(name)
+                        _lastItem = self.favoritesComboBox.count()
+                        self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
+                        ok2, text = writeDnaDisplayStyleSettingsToFavoritesFile(name)
+                        msg = "Overwrote favorite [%s]." % (text)
+                        env.history.message(msg) 
+         
+                    elif ret == 1:
+                        # add new item to favorites folder as well as combobox
+                        self.addFavorite()
+                        
+                    else:
+                        #reset the display setting values to factory default
+                    
+                        factoryIndex = self.favoritesComboBox.findText(
+                                             'Factory default settings')
+                        self.favoritesComboBox.setCurrentIndex(factoryIndex)
+                        env.prefs.restore_defaults(dnaDisplayStylePrefsList)
+                    
+                        env.history.message("Cancelled overwriting favorite file.")              
+                        return 
+                else:
                     self.favoritesComboBox.addItem(name)
                     _lastItem = self.favoritesComboBox.count()
                     self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
-                    ok2, text = writeDnaDisplayStyleSettingsToFavoritesFile(name)
-                    msg = "Overwrote favorite [%s]." % (text)
+                    msg = "Loaded favorite [%s]." % (name)
                     env.history.message(msg) 
          
-                elif ret == 1:
-                    # add new item to favorites folder as well as combobox
-                    self.addFavorite()
-                        
-                else:
-                    #reset the display setting values to factory default
-                    
-                    factoryIndex = self.favoritesComboBox.findText('Factory default settings')
-                    self.favoritesComboBox.setCurrentIndex(factoryIndex)
-                    env.prefs.restore_defaults(dnaDisplayStylePrefsList)
-                    
-                    env.history.message("Cancelled overwriting favorite file.")              
-                    return 
-            else:
-                self.favoritesComboBox.addItem(name)
-                _lastItem = self.favoritesComboBox.count()
-                self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
-                msg = "Loaded favorite [%s]." % (name)
-                env.history.message(msg) 
-         
                 
-        self.updateDnaDisplayStyleWidgets()    
+                self.updateDnaDisplayStyleWidgets()  
+            
+            
         return
     
     def change_dnaRendition(self, rendition):
