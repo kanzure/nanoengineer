@@ -264,7 +264,14 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         ### kluge: has side effect on env.prefs
         # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
         if debug_flags.atom_debug:
-            print "debug: reloading sim_commandruns on each use, for development"
+            print "debug: reloading runSim & sim_commandruns on each use, for development"
+            import simulation.runSim as runSim
+            reload_once_per_event(runSim)
+                # bug: only works some of the times runSim.py is modified,
+                # don't know why; might be that sim_commandruns.py
+                # also needs to be modified, but touching them both
+                # doesn't seem to work consistently either.
+                # [bruce 080520]
             import simulation.sim_commandruns as sim_commandruns
             reload_once_per_event(sim_commandruns)
         from simulation.sim_commandruns import Minimize_CommandRun

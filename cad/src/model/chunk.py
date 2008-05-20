@@ -2056,6 +2056,18 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
             pass # end of 'if is_chunk_visible:'
 
+        self._draw_outside_local_coords(glpane, disp, drawLevel, is_chunk_visible)
+
+        return # from Chunk.draw()
+
+    def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
+        #bruce 080520 split this out
+        """
+        Do the part of self.draw that goes outside self's
+        local coordinate system and outside its display list.
+
+        [Subclasses can extend this if needed.]
+        """
         draw_external_bonds = True # piotr 080401
             # Added for the additional test - the external bonds could be still
             # visible even if the chunk is culled.
@@ -2084,7 +2096,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if self.externs and draw_external_bonds:
             self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
 
-        return # from Chunk.draw()
+        return # from Chunk._draw_outside_local_coords()
 
     def _draw_external_bonds(self, glpane, disp, drawLevel, is_chunk_visible = True):
         """

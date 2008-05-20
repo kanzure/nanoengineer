@@ -264,6 +264,16 @@ class Minimize_CommandRun(CommandRun):
         startmsg = cmdname + ": ..."
         del cmd_subclass_code
 
+        # remove model objects inserted only for feedback from prior runs
+        # (both because it's a good feature, and to avoid letting them
+        #  mess up this command) [bruce 080520]
+        from simulation.runSim import part_contains_pam_atoms
+            # kluge to use this function for this purpose
+            # (it's called later for other reasons)
+        hasPAM_junk = part_contains_pam_atoms( self.part,
+                            kill_leftover_sim_feedback_atoms = True )
+        self.part.assy.update_parts() ###k is this always safe or good?
+        
         # Make sure some chunks are in the part.
         # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.

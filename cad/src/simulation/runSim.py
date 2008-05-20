@@ -890,7 +890,7 @@ class SimRunner:
         mmpfile = self.sim_input_file # the filename to write to
         movie = self._movie # old-code compat kluge
         assert movie.alist is not None #bruce 050404
-        self.used_atoms = {} #bruce 080325
+        self.used_atoms = {} #bruce 080325 [review: redundant with movie.alist??]
 
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             # note: as of 080325, this case certainly runs for Run Dynamics,
@@ -2038,13 +2038,18 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     
     def __init__(self, owner, minimize = False, simopts = None):
         """
-        store owner so we can later set owner.said_we_are_done = True; also start
+        store owner in self, so we can later set owner.said_we_are_done = True; also start
         """
         self.owner = owner
+            # a SimRunner object; has attrs like part, _movie (with alist), used_atoms, ...
+            # the ones we set or use here are said_we_are_done, traceFileName, _movie, part
         self.simopts = simopts #bruce 060705 for A8
         self.minimize = minimize # whether to check for line syntax specific to Minimize
         self.__last_plain_line_words = None # or words returned from string.split(None, 4)
         self.start() # too easy for client code to forget to do this
+        self._pattern_atom_id_cache = {} # note: this cache and its associated methods
+            # might be moved to another object, like self.owner
+        return
         
     def start(self):
         """
@@ -2269,7 +2274,112 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
 
     def createPatternIndicator( self, start, rest, *moreargs, **moreopts):
         del moreargs, moreopts # for temporary use, to avoid svn conflicts if more args are passed
-        print "createPatternIndicator", start, rest
+##        print "createPatternIndicator", start, rest
+
+        ### TODO: add exception protection to caller.
+        
+        # start looks like "# Pattern <patterntype>:"
+        patterntype = start[:-1].strip().split()[2]
+##        print "patterntype = %r" % (patterntype,)
+        if patterntype == "makeVirtualAtom":
+            # for format details see:
+            #
+            # http://www.nanoengineer-1.net/mediawiki/index.php?title=Tracefile_pattern_lines
+            #
+            # which says:
+            #
+            #   rest looks like
+            #
+            #     [4] {22} 3 1 1 2 3 x -0.284437 0.710930 0.000000
+            #
+            #   i.e.
+            #
+            #     [match sequence] {atom ID} num_parents
+            #     function_id parentID1 parentID2 parentID3 parentID4 A B C
+            #
+            #   In this case, there are only three parents, so parentID4 is "x"
+            #   instead of a number.  Function_id 1 with 3 parents only uses two
+            #   parameters (A and B), so C is zero.
+            #   
+            #   For a three parent virtual site with function_id 1, here is how you
+            #   find the location of the site:
+            #   
+            #   Multiply the vector (parentID2 - parentID1) * A
+            #   Multiply the vector (parentID3 - parentID1) * B
+            #   Add the above two vectors to parentID1
+            #   
+            #   This is the only style of virtual site currently in use.  See the
+            #   GROMACS user manual for the definition of other types of virtual sites.
+            words = rest.strip().split()
+            ( matchseq, site_atom_id, num_parents, function_id,
+              parentID1, parentID2, parentID3, parentID4,
+              A, B, C, ) = words
+            if 'killing old site_atoms before this point is nim': ####
+                site_atom = self.interpret_pattern_atom_id( site_atom_id, ok_to_not_exist = True)
+                if site_atom is not None:
+                    site_atom.kill()
+                    # review: will this automatically clear out the dict entry which maps site_atom_id to site_atom??
+                pass
+            num_parents = int(num_parents)
+            function_id = int(function_id)
+            parent_atoms = map( self.interpret_pattern_atom_id, \
+                [parentID1, parentID2, parentID3, parentID4][:num_parents] )
+            A, B, C = map(float, [A, B, C])
+            if (num_parents, function_id) == (3, 1):
+                # the only style of virtual site currently in use (as of 20080501)
+                from model.virtual_site_indicators import add_virtual_site
+                assy = self.owner.part.assy
+                site_params = ( function_id, A, B)
+                mt_name = "%s %s %0.2f %0.2f" % (matchseq, site_atom_id, A, B)
+                site_atom = add_virtual_site(assy, parent_atoms, site_params,
+                                             MT_name = mt_name
+                                            )
+                self.define_new_pattern_atom_id(site_atom_id, site_atom)
+                assy.w.win_update() ### IMPORTANT OPTIM: do this only once, later (not in this method)
+                ## self.needs_win_update = True -- how often to check this and do a real update??
+            else:
+                print "unrecognized kind of virtual site:", start + " " + rest.strip()
+            pass
+        return # from createPatternIndicator
+
+    def interpret_pattern_atom_id(self, id_string, ok_to_not_exist = False):
+        """
+        Interpret a pattern atom id string of the form "23" or "{23}"
+        as a real atom (using self.owner._movie.alist to map atom id number
+        (as index in that list) to atom). Cache interpretations in self,
+        for efficiency and so new atoms can be added without modifying alist.
+
+        @return: the atom, or None if it doesn't exist and ok_to_not_exist.
+        """
+        # note: this method & its cache may need to be moved to another object.
+        try:
+            return self._pattern_atom_id_cache[ id_string ]
+        except KeyError:
+            atom_id_num = self._atomID( id_string)
+            atom_id_index = atom_id_num - 1 ### Eric M, can you review this -1? [bruce 080520 4:45pm]
+            ### atom_id_num = int( id_string[1:-1] ) #e should first check syntax of string
+            alist = self.owner._movie.alist
+            if not (0 <= atom_id_index < len(alist)):
+                # atom does not exist in alist
+                if ok_to_not_exist:
+                    return None
+                else:
+                    assert 0, "atom_id_num %d not found, only %d atoms" % \
+                              ( atom_id_num, len(alist))
+                    return None
+                pass
+            res = alist[atom_id_index]                
+            self._pattern_atom_id_cache[ id_string ] = res
+            return res
+        pass
+
+    def define_new_pattern_atom_id( self, id_string, atom):
+        if self._pattern_atom_id_cache.has_key( id_string ):
+            old_atom = self._pattern_atom_id_cache[ id_string ]
+            print "killing old_atom", old_atom # should not happen by the time we're done, maybe never
+            old_atom.kill() ###k
+        self._pattern_atom_id_cache[ id_string ] = atom
+        print "defined", id_string, atom #####
         return
 
     pass # end of class TracefileProcessor
@@ -2282,25 +2392,34 @@ except:
 else:
     pass
 
-def _part_contains_pam_atoms(part): # probably by EricM
+def part_contains_pam_atoms(part, kill_leftover_sim_feedback_atoms = False):
     """
     Returns non-zero if the given part contains any pam atoms.
     Returns less than zero if the part contains a mixture of pam and
-    other atoms, or more than one type of pam atom.  Singlets don't
-    count.
+    other atoms, or more than one type of pam atom.  Singlets
+    and "sim feedback atoms" (role == 'virtual-site') don't count.
+
+    @param kill_leftover_sim_feedback_atoms: if true, do that as a side effect.
     """
+    # probably written by EricM
+    #bruce 080520 added kill_leftover_sim_feedback_atoms option,
+    # and made this function non-private
     from utilities.constants import MODEL_PAM5, MODEL_PAM3
 
     #             PAM3   PAM5  other
     contents = [ False, False, False ]
-
+    kill_these = []
+    
     def check_for_pam(n):
         if (isinstance(n, Chunk)):
             for a in n.atoms.itervalues():
                 elt = a.element
                 if (elt is Singlet):
                     continue
-                if (elt.pam == MODEL_PAM3):
+                if elt.role == 'virtual-site':
+                    if kill_leftover_sim_feedback_atoms:
+                        kill_these.append(a)
+                elif (elt.pam == MODEL_PAM3):
                     contents[0] = True
                 elif (elt.pam == MODEL_PAM5):
                     contents[1] = True
@@ -2308,6 +2427,11 @@ def _part_contains_pam_atoms(part): # probably by EricM
                     contents[2] = True
 
     part.topnode.apply2all(check_for_pam)
+
+    # do this last, since it can't be done during apply2all:
+    for atom in kill_these:
+        atom.kill()
+    
     if (contents[0]):     # has PAM3
         if (contents[1]): # has PAM5
             return -2     # mixture of PAM3 and PAM5
@@ -2374,7 +2498,9 @@ def writemovie(part,
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    hasPAM = _part_contains_pam_atoms(part)
+    hasPAM = part_contains_pam_atoms(part)
+        # POSSIBLE BUG: this check is done on entire Part
+        # even if we're only minimizing a subset of it.
     if (hasPAM < 0):
         if (hasPAM < -1):
             msg = "calculations with mixed PAM3 and PAM5 atoms are not supported"

@@ -346,9 +346,11 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         """
         alist = list(alist) # make our own copy (in case caller modifies its copy), and ensure type is list
         atm0 = alist[0]
-        assert atm0.molecule.part
+        assert atm0.molecule.part, "atm0.molecule.part %r should exist" % atm0.molecule.part
         for atm in alist:
-            assert atm.molecule.part == atm0.molecule.part
+            assert atm.molecule.part == atm0.molecule.part, \
+                   "atm %r.molecule.part %r should equal atm0.molecule.part %r" % \
+                   (atm, atm.molecule.part, atm0.molecule.part)
         # all atoms have the same Part, which is not None, and there's at least one atom.
         self.alist = alist
         self.natoms = len(alist) #bruce 050404; note, some old code might reset this (perhaps wrongly?) when reading a .dpb file
