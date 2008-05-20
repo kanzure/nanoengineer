@@ -266,24 +266,14 @@ def startup_script( main_globals):
         pass
 
 
-    # Handle the optional startup argument, --initial-file .
-    # Take the command line argument of --initial-file and open it in the
-    # NE1 viewer.  Traditionally, this would be used for MMP files and 
-    # will be used as such with file associations for the MMP format.
-    # -Derrick 20080514
-    # Use a ridiculously specific keyword, so this isn't triggered accidentally.
-    if (len(sys.argv) >= 3) and (sys.argv.count('--initial-file') >= 1):
-        st_file_index = sys.argv.index('--initial-file')
-        if (st_file_index != 0) and (len(sys.argv) >= st_file_index+2):
-            #all conditions met, try to load the file
-            foo.fileOpen(sys.argv[st_file_index+1])
-        #next sections is for multiple occurances of --initial-file
-        #Give a warning, but don't crash the program.
-        #And allow other args without error.
-        if sys.argv.count('--initial-file') > 1:
-            import foundation.env as env
-            from utilities.Log import orangemsg
-            env.history.message(orangemsg("We can only import one file at a time."))
+    # Handle a mmp file passed to it via the command line.  The mmp file
+    # must be the first argument (after the program name) found on the 
+    # command line.  All other arguments are currently ignored and only
+    # one mmp file can be loaded from the command line.
+    # old revision with --initial-file is at: svn rev 12759
+    # Derrick 20080520
+    if ((len(sys.argv) >= 2) and sys.argv[1].endswith(".mmp")):
+        foo.fileOpen(sys.argv[1])
             
     # Finally, run the main Qt event loop --
     # perhaps with profiling, depending on local variables set above.
