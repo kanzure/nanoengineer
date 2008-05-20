@@ -1,5 +1,4 @@
 
-
 HEADERS += \
 ../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
  ../../../include/Nanorex/Interface/NXDataStoreInfo.h \
@@ -16,6 +15,7 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXBondData.h \
  ../../../include/Nanorex/Interface/NXNamedView.h \
  ../../../include/Nanorex/Interface/NXDNARenderOptions.h
+ 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH) \
  ../../../src \
@@ -36,10 +36,10 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
 
 TEMPLATE = lib
 
-CONFIG += stl \
+CONFIG += \
  dll \
- debug_and_release \
- build_all
+ release \
+ stl
 
 TARGET = NanorexInterface
 
@@ -49,29 +49,26 @@ win32 : CONFIG += staticlib
 DESTDIR = ../../../lib/
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
-
-QT -= gui
-
-PROJECT_LIBS = -lNanorexUtility
-
-CONFIG(debug,debug|release){
-    TARGET = $$join(TARGET,,,_d)
-	TARGETDEPS ~= s/(.*).so/\1_d.so/g
-	PROJECT_LIBS ~= s/(.+)/\1_d/g
-}
-
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
+QT -= gui
+
+#CONFIG(debug,debug|release){
+#    TARGET = $$join(TARGET,,,_d)
+#	TARGETDEPS ~= s/(.*).so/\1_d.so/g
+#	PROJECT_LIBS ~= s/(.+)/\1_d/g
+#}
+
 LIBS += -L../../../lib \
-  $$PROJECT_LIBS \
+  -lNanorexUtility \
   -L$(OPENBABEL_LIBPATH) \
   -lopenbabel
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
-  -g \
-  -O0 \
-  -fno-inline
+#QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+#  -g \
+#  -O0 \
+#  -fno-inline
 
 QMAKE_CXXFLAGS_RELEASE += -DNDEBUG -O2
 

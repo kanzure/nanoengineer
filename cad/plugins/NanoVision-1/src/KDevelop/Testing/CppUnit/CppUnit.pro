@@ -22,8 +22,8 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
  ../../../Interface/NXSceneGraphTest.cpp \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.cpp \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp \
  ../../../Utility/NXVectorTest.cpp
+# ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.cpp
 
 
 INCLUDEPATH += ../../../../include \
@@ -44,11 +44,8 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
  ../../../Interface/NXSceneGraphTest.h \
  ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportTest.h \
- ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.h \
  ../../../Utility/NXVectorTest.h
-
-macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
+# ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExportRagelTest.h
 
 # This tell qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle 
@@ -62,6 +59,8 @@ QMAKE_CXXFLAGS_RELEASE += -DNX_DEBUG
 
 TARGETDEPS += ../../../../lib/libNanorexInterface.so \
   ../../../../lib/libNanorexUtility.so
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
 
 DISTFILES += ../../../Plugins/NanorexMMPImportExport/molecule.rl \

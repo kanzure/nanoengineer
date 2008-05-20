@@ -135,7 +135,7 @@ protected:
 	int endFrameIndex; ///< index of last frame in user-defined view-interval
 	int numFrames; ///< Total number of frames
     
-    static double const BASE_FPS = 5.0;
+    static double const BASE_FPS;
 
     void enablePlayButton(void) { trajectoryPlayButton->setEnabled(true); }
     void disablePlayButton(void) { trajectoryPlayButton->setEnabled(false); }

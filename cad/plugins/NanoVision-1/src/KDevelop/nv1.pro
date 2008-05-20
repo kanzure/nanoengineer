@@ -1,14 +1,15 @@
 TEMPLATE = subdirs 
 
-CONFIG += warn_on \
-          qt \
-          thread \
+CONFIG += \
+ qt \
+ thread \
  ordered \
- debug
+ release
 
-SUBDIRS += Utility \
-  Interface \
-  Plugins \
- nv1 \
-   Testing 
+SUBDIRS += \
+ Utility \
+ Interface \
+ Plugins \
+ nv1
+# Testing 
 

@@ -3,6 +3,9 @@
 #include "TrajectoryGraphicsWindow.h"
 #include <cassert>
 
+double const TrajectoryGraphicsWindow::BASE_FPS = 5.0;
+
+	
 /* CONSTRUCTOR */
 TrajectoryGraphicsWindow::
 TrajectoryGraphicsWindow(QWidget *parent,
