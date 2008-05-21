@@ -2374,7 +2374,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         if self.picked:
             return True # even for invisible atoms
-        if self.element is Singlet:
+        if self.element is Singlet and self.bonds:
             disp = self.bonds[0].other(self).display
         else:
             disp = self.display
@@ -2387,6 +2387,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 disp = dispdef
         return not (disp == diINVISIBLE)
 
+    def is_hidden(self, glpane = None): #bruce 080521
+        """
+        Return whether self should be considered hidden
+        by other things (like Jigs) whose drawing should depend on that.
+        Take into account everything checked by self.visible(), but also
+        (unlike it) self.molecule.hidden and (if glpane is passed)
+        whether self == glpane.selobj.
+        """
+        if self.picked:
+            return False
+        if glpane is not None and self is glpane.selobj:
+            return False
+        if self.molecule.hidden:
+            return True
+        return not self.visible()
+    
     # == file input/output methods (ideally to be refactored out of this class)
     
     def writemmp(self, mapping, dont_write_bonds_for_these_atoms = ()):
