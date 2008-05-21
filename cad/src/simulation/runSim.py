@@ -2195,6 +2195,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     # atom1, atom2 ({} indicates atom created by ND1)
     # ks, r0
     def gotPatternMakeBond(self, rest):
+        # note: similar code is present in createPatternIndicator
         line = rest.rstrip().split()
         if (self.currentPatternName == "(PAM5-basepair-handle)"):
             atom1 = self._atomID(line[1])
@@ -2272,15 +2273,16 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                 env.history.message( msg)
         return
 
-    def createPatternIndicator( self, start, rest, *moreargs, **moreopts):
-        del moreargs, moreopts # for temporary use, to avoid svn conflicts if more args are passed
-##        print "createPatternIndicator", start, rest
-
+    def createPatternIndicator( self, start, rest): #bruce 080520
+        """
+        """
         ### TODO: add exception protection to caller.
         
         # start looks like "# Pattern <patterntype>:"
         patterntype = start[:-1].strip().split()[2]
-##        print "patterntype = %r" % (patterntype,)
+
+        assy = self.owner.part.assy
+        
         if patterntype == "makeVirtualAtom":
             # for format details see:
             #
@@ -2328,7 +2330,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             if (num_parents, function_id) == (3, 1):
                 # the only style of virtual site currently in use (as of 20080501)
                 from model.virtual_site_indicators import add_virtual_site
-                assy = self.owner.part.assy
+                
                 site_params = ( function_id, A, B)
                 mt_name = "%s %s %0.2f %0.2f" % (matchseq, site_atom_id, A, B)
                 site_atom = add_virtual_site(assy, parent_atoms, site_params,
@@ -2341,6 +2343,8 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                 print "unrecognized kind of virtual site:", start + " " + rest.strip()
             pass
         elif patterntype == "makeBond":
+            # note: similar code is present in gotPatternMakeBond
+            #
             # Pattern makeBond: [5] {47} {48} 1.046850 834.100000
             # [match number]
             # atom1, atom2 ({} indicates atom created by ND1)
@@ -2349,11 +2353,18 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             ( matchseq, atom_id1, atom_id2, ks_s, r0_s, ) = words
             atom1 = self.interpret_pattern_atom_id(atom_id1)
             atom2 = self.interpret_pattern_atom_id(atom_id2)
-            ks = float(ks_s)
-            r0 = float(r0_s)
-            print "strut: r0: %f ks: %f" % (r0, ks), atom1, "-", atom2
+            ks = float(ks_s) # N/m
+            r0 = float(r0_s) # pm
+            ## print "strut: r0: %f ks: %f" % (r0, ks), atom1, "-", atom2
             # create a strut between atom1 and atom2, length r0, stiffness ks.
-            
+            atoms = [atom1, atom2]
+            bond_params = ( ks, r0 )
+            mt_name = "%s %s-%s" % (matchseq, atom1, atom2) # ks and r0 too?
+                # future: not always used, only used if atoms are not virtual sites
+            from model.virtual_site_indicators import add_virtual_bond
+            add_virtual_bond( assy, atoms, bond_params, MT_name = mt_name)
+            pass
+        
         return # from createPatternIndicator
 
     def interpret_pattern_atom_id(self, id_string, ok_to_not_exist = False):
