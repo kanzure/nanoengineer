@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include <QtPlugin>
+#include <QtGui>
 
 class QWidget;
 
@@ -97,6 +98,11 @@ public:
 	/// pointer which must be checked as failure-condition.
 	virtual NXRendererPlugin* renderer_cast(QObject *plugin) const = 0;
 	
+	// @TODO: consume the events in the following default implementations
+	virtual void mousePressEvent(QMouseEvent *mouseEvent) { }
+	virtual void mouseReleaseEvent(QMouseEvent *mouseEvent) { }
+	virtual void mouseMoveEvent(QMouseEvent *mouseEvent) { }
+
 	// --- regular methods ---
 	
 	void setGraphicsManager(NXGraphicsManager *const gm) {

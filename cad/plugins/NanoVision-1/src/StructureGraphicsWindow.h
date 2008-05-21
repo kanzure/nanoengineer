@@ -32,9 +32,9 @@ public:
 	void resetView(void) { renderingEngine->resetView(); }
 	
 	// Mouse-event handlers
-// 	void mousePressEvent(QMouseEvent *mouseEvent);
-// 	void mouseReleaseEvent(QMouseEvent *mouseEvent);
-// 	void mouseMoveEvent(QMouseEvent *mouseEvent);
+ 	void mousePressEvent(QMouseEvent *mouseEvent);
+ 	void mouseReleaseEvent(QMouseEvent *mouseEvent);
+ 	void mouseMoveEvent(QMouseEvent *mouseEvent);
 	
 	
 private:
@@ -43,29 +43,19 @@ private:
 	NXRenderingEngine *renderingEngine;
 };
 
-#if 0
-#include "Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h"
 
-inline void StructureGraphicsWindow::mousePressEvent(QMouseEvent *mouseEvent)
-{
-	NXOpenGLRenderingEngine *openglRenderingEngine =
-		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
-	openglRenderingEngine->mousePressEvent(mouseEvent);
+inline void StructureGraphicsWindow::mousePressEvent(QMouseEvent *mouseEvent) {
+	renderingEngine->mousePressEvent(mouseEvent);
 }
 
-inline void StructureGraphicsWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
-{
-	NXOpenGLRenderingEngine *openglRenderingEngine =
-		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
-	openglRenderingEngine->mouseMoveEvent(mouseEvent);
+
+inline void StructureGraphicsWindow::mouseMoveEvent(QMouseEvent *mouseEvent) {
+	renderingEngine->mouseMoveEvent(mouseEvent);
 }
 
-inline void StructureGraphicsWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
-{
-	NXOpenGLRenderingEngine *openglRenderingEngine =
-		dynamic_cast<NXOpenGLRenderingEngine*>(renderingEngine);
-	openglRenderingEngine->mouseReleaseEvent(mouseEvent);
+
+inline void StructureGraphicsWindow::mouseReleaseEvent(QMouseEvent *mouseEvent) {
+	renderingEngine->mouseReleaseEvent(mouseEvent);
 }
-#endif
 
 #endif // STRUCTUREGRAPHICSWINDOW_H

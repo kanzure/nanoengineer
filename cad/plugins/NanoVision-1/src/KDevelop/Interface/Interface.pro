@@ -52,7 +52,7 @@ TARGETDEPS += ../../../lib/libNanorexUtility.so
 macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
-QT -= gui
+#QT -= gui
 
 #CONFIG(debug,debug|release){
 #    TARGET = $$join(TARGET,,,_d)

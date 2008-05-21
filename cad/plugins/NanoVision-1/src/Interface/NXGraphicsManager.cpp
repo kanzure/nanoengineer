@@ -122,19 +122,24 @@ bool NXGraphicsManager::loadPlugin(NXRendererPlugin **pluginStore,
 	
 	/// @fixme Uncomment and commit after testing builds with NXRenderingEngine
 	/// Qt-plugin modifications go through
+	string pluginFileName = qPrintable(fileInfo.fileName());
 	if(pluginObject != (QObject*) 0) {
-		NXLOG_INFO("NXGraphicsManager", "plugin loaded");
+		NXLOG_INFO("NXGraphicsManager",
+				   "Plugin loaded: " + pluginFileName);
 		*pluginStore = renderingEngine->renderer_cast(pluginObject);
 		if(*pluginStore != (NXRendererPlugin*)0) {
-			NXLOG_INFO("NXGraphicsManager", "plugin is compatible");
+			NXLOG_INFO("NXGraphicsManager",
+					   "Plugin is compatible: " + pluginFileName);
 		}
 		else {
-			NXLOG_SEVERE("NXGraphicsManager", "plugin is incompatible");
+			NXLOG_SEVERE("NXGraphicsManager",
+						 "Plugin is incompatible: " + pluginFileName);
 		}
 	}
 	else  {
 		*pluginStore = (NXRendererPlugin*) 0;
-		NXLOG_SEVERE("NXGraphicsManager", "failed to load plugin");
+		NXLOG_SEVERE("NXGraphicsManager",
+					 "Failed to load plugin: " + pluginFileName);
 	}
 	
 	bool success = ((*pluginStore) != (NXRendererPlugin*)0);
@@ -254,7 +259,7 @@ bool NXGraphicsManager::loadRendererPlugins(NXProperties *const props)
 	
 	NXLOG_INFO("NXGraphicsManager", "Loading renderer-plugins");
 	
-	while(true) {
+	while (true) {
 		ostringstream pluginKeyStream;
 		pluginKeyStream << "RenderStyle." << pluginNum;
 		++pluginNum;
@@ -269,22 +274,24 @@ bool NXGraphicsManager::loadRendererPlugins(NXProperties *const props)
 		
 		NXLOG_DEBUG("NXGraphicsManager", "Parsing " + pluginKey);
 		
-		if(pluginCode == "def") {
+		if (pluginCode == "def") {
 			NXLOG_WARNING("NXGraphicsManager",
 			              "Render-style code cannot be 'def' (reserved "
 			              "internally for default) - ignoring");
 			continue;
 		}
-		
-		NXLOG_INFO("NXGraphicsManager", "Attempting to discover renderer-plugin"
-		           " for " + pluginName + " rendering-style");
+
+		if (pluginName != "")		
+			NXLOG_INFO("NXGraphicsManager",
+				   	   "Attempting to discover renderer-plugin for rendering-style: "
+				   			+ pluginName);
 		
 		// if code and plugin filename are absent then there are no more plugins
-		if(pluginCode == "" && pluginBaseName == "")
+		if (pluginCode == "" && pluginBaseName == "") {
 			break;
 		
 		// else if only one of them is mentioned then error condition
-		else if(pluginCode=="" || pluginBaseName=="") {
+		} else if (pluginCode=="" || pluginBaseName=="") {
 			// error condition, both are required, only one is present
 			string msg = "Both render-style code and plugin library filename "
 				"must be provided for " + pluginKey + " (check app-settings file)";
@@ -310,7 +317,7 @@ bool NXGraphicsManager::loadRendererPlugins(NXProperties *const props)
 				                  &rendererPlugin, &cleanPath, &absPath);
 			
 			// if successful, record entries in tables
-			if(rendererPluginLoaded) {
+			if (rendererPluginLoaded) {
 				// compatibility test
 				properties.setProperty("Renderer."+pluginCode+".plugin",
 				                       absPath);
@@ -320,7 +327,7 @@ bool NXGraphicsManager::loadRendererPlugins(NXProperties *const props)
 				renderStyleNameTable[pluginCode] = pluginName;
 				renderStyleFileNameTable[pluginCode] = absPath;
 				NXLOG_INFO("NXGraphicsManager",
-				           pluginName + " renderer-plugin loaded");
+						   "Renderer-plugin loaded: " + pluginName);
 			}
 			else {
 				NXLOG_SEVERE("NXGraphicsManager",

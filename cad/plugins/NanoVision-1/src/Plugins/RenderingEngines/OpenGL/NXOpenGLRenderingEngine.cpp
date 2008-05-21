@@ -430,7 +430,23 @@ void NXOpenGLRenderingEngine::drawSkyBlueBackground(void)
 
 void NXOpenGLRenderingEngine::drawCompass(void)
 {
-	/// @todo
+	// Coordinate axis
+	glBegin(GL_LINES);
+		// x-axis
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(3.0, 0.0, 0.0);
+
+		// y-axis
+		glColor3f(0.0f, 1.0, 0.0f);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(0.0, 3.0, 0.0);
+
+		// z-axis
+		glColor3f(0.0f, 0.0, 1.0);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(0.0, 0.0, 3.0);
+	glEnd();
 }
 
 
@@ -1193,23 +1209,23 @@ void NXOpenGLRenderingEngine::setNamedView(NXNamedView const& view)
 }
 
 
-void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
-{
-	if(mouseEvent->button() == Qt::MidButton &&
-	   mouseEvent->modifiers() == Qt::NoModifier)
-	{
+void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent) {
+	
+	if (mouseEvent->button() == Qt::LeftButton &&
+		mouseEvent->modifiers() == Qt::NoModifier) {
+printf("NXOpenGLRenderingEngine::mousePressEvent: 1\n");
 		camera.rotateStartEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
-	}
-	else if(mouseEvent->button() == Qt::LeftButton &&
-	        mouseEvent->modifiers() == Qt::NoModifier)
-	{
+		
+	} else if (mouseEvent->button() == Qt::RightButton &&
+	        mouseEvent->modifiers() == Qt::NoModifier) {
+printf("NXOpenGLRenderingEngine::mousePressEvent: 2\n");
 		camera.panStartEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
-	}
-	else
+	} else {
+printf("NXOpenGLRenderingEngine::mousePressEvent: 3\n");
 		mouseEvent->ignore();
-	
+	}
 	updateGL();
 }
 
@@ -1219,13 +1235,13 @@ void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
 	assert(mouseEvent->button() == Qt::NoButton);
 	Qt::MouseButtons buttons = mouseEvent->buttons();
 	
-	if((buttons & Qt::MidButton) &&
+	if((buttons & Qt::LeftButton) &&
 	   mouseEvent->modifiers() == Qt::NoModifier)
 	{
 		camera.rotatingEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
 	}
-	else if((buttons & Qt::LeftButton) &&
+	else if((buttons & Qt::RightButton) &&
 	        mouseEvent->modifiers() == Qt::NoModifier)
 	{
 		camera.panEvent(mouseEvent->x(), mouseEvent->y());
@@ -1240,12 +1256,12 @@ void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
 
 void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
 {
-	if(mouseEvent->button() == Qt::MidButton)
+	if(mouseEvent->button() == Qt::LeftButton)
 	{
 		camera.rotateStopEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
 	}
-	else if(mouseEvent->button() == Qt::LeftButton)
+	else if(mouseEvent->button() == Qt::RightButton)
 	{
 		camera.panStopEvent(mouseEvent->x(), mouseEvent->y());
 		mouseEvent->accept();
