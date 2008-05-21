@@ -104,6 +104,7 @@ from exprs.Overlay import Overlay
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.gl_lighting import apply_material
 
 from exprs.world import World
 
@@ -370,7 +371,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         ## glColor3fv(color)
         # actually I want a different color on the back, can I get that? ###k
         glDisable(GL_CULL_FACE)
-        drawer.apply_material(color)
+        apply_material(color)
         ## glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
 
