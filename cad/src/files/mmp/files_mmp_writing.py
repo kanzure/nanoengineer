@@ -247,7 +247,40 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             ## disp = dispNames[display]
             disp = get_dispName_for_writemmp(display) #bruce 080324 revised
         return disp
-    
+
+    def encode_atom_coordinates( self, posn ): #bruce 080521
+        """
+        Return a sequence of three strings
+        which encode the three coordinates of the given atom position,
+        suitably for use in the atom record of an mmp file
+        (in the traditional format as of 080521).
+
+        These strings include no separators;
+        not all callers will necessarily add the same separators.
+        """
+        x, y, z = posn
+        return map( self.encode_atom_coordinate, (x, y, z))
+
+    def encode_atom_coordinate( self, angstroms ):
+        """
+        Encode a single atom coordinate as a string (which includes
+        no separators) suitable for use in the atom record of an mmp file
+        (in the traditional format as of 080521).
+
+        @see: encode_atom_coordinates
+        
+        @see: decode_atom_coordinate in another class [nim]
+        """
+        #bruce 080521 split this out of Atom.writemmp
+        coord = angstroms * 1000
+        number = int(coord + 0.5)
+            #bruce 080327 add 0.5 to improve rounding accuracy
+            # BUG [noticed on 080521]: for negative coords,
+            # the above formula makes the rounding worse,
+            # since int() rounds towards zero rather than in
+            # a negative direction. This will be fixed soon.
+        return str(number)
+        
     # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time
     # (to be used for jigs which occur before their atoms in the model tree ordering)
     # 1. methods for when the node first wishes it could be written out

@@ -362,6 +362,7 @@ class Fake_Pl(object): #bruce 080327
                though we're not a subclass of Atom or Node.
         """
         # WARNING: has common code with Atom.writemmp
+        
         num_str = mapping.encode_next_atom(self)
         ## display = self.display
         display = diDEFAULT
@@ -370,13 +371,21 @@ class Fake_Pl(object): #bruce 080327
         ## element = self.element
         element = Pl5
         eltnum = element.eltnum
-        xyz = posn * 1000
-            # note, xyz has floats, rounded to ints below (watch out for this
-            # if it's used to make a hash) [bruce 050404 comment]
-        xyz = [int(coord + 0.5) for coord in xyz]
-            #bruce 080327 add 0.5 to improve rounding accuracy
-        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
-        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+
+        #bruce 080521 refactored the code for printing atom coordinates
+
+##        xyz = posn * 1000
+##            # note, xyz has floats, rounded to ints below (watch out for this
+##            # if it's used to make a hash) [bruce 050404 comment]
+##        xyz = [int(coord + 0.5) for coord in xyz]
+##            #bruce 080327 add 0.5 to improve rounding accuracy
+##        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
+##        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+
+        xs, ys, zs = mapping.encode_atom_coordinates( posn ) #bruce 080521
+        print_fields = (num_str, eltnum, xs, ys, zs, disp)
+        mapping.write("atom %s (%d) (%s, %s, %s) %s\n" % print_fields)
+
         if mapping.write_bonds_compactly:
             # no need to worry about how to write bonds, in this case!
             # it's done implicitly, just by writing self between its neighbor Ss atoms,

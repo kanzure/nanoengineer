@@ -2431,6 +2431,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         @see: Fake_Pl.writemmp
         """
+        # WARNING: has common code with Fake_Pl.writemmp
+        
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
@@ -2449,13 +2451,21 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 nsinglets_H = stats.setdefault('nsinglets_H', 0)
                 nsinglets_H += 1
                 stats['nsinglets_H'] = nsinglets_H
-        xyz = posn * 1000
-            # note, xyz has floats, rounded below (watch out for this
-            # if it's used to make a hash) [bruce 050404 comment]
-        xyz = [int(coord + 0.5) for coord in xyz]
-            #bruce 080327 add 0.5 to improve rounding accuracy
-        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
-        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+
+        #bruce 080521 refactored the code for printing atom coordinates
+        
+##        xyz = posn * 1000
+##            # note, xyz has floats, rounded below (watch out for this
+##            # if it's used to make a hash) [bruce 050404 comment]
+##        xyz = [int(coord + 0.5) for coord in xyz]
+##            #bruce 080327 add 0.5 to improve rounding accuracy
+##        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
+##        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+        
+        xs, ys, zs = mapping.encode_atom_coordinates( posn ) #bruce 080521
+        print_fields = (num_str, eltnum, xs, ys, zs, disp)
+        mapping.write("atom %s (%d) (%s, %s, %s) %s\n" % print_fields)
+        
         if self.key not in dont_write_bonds_for_these_atoms:
             # write dnaBaseName info record [mark 2007-08-16]
             # but not for atoms whose bonds will be written compactly,
@@ -2516,7 +2526,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
         for bond in bonds_with_direction:
             mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
-        return
+        return # from writemmp
 
     def readmmp_info_atom_setitem( self, key, val, interp ):
         """
