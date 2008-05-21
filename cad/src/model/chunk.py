@@ -2817,7 +2817,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 if id(bond) not in drawn:
                     drawn[id(bond)] = bond
                     bond.writepov(file, disp, self.color)
-
+                    
+        # piotr 080521
+        # write POV-Ray file for the ChunkDisplayMode
+        hd = get_display_mode_handler(disp)
+        if hd:
+            hd._writepov(self, file)
+            
     def writemdl(self, alist, f, disp):
         if self.display != diDEFAULT:
             disp = self.display

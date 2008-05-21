@@ -979,7 +979,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                 if self.dnaStyleBasesDisplayLetters: 
                     # calculate text size
-                    # this is kludgy...
                     font_scale = int(500.0/glpane.scale)
                     if sys.platform == "darwin":
                         font_scale *= 2                        
@@ -1030,7 +1029,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         labels_color = env.prefs[dnaStrandLabelsColor_prefs_key]
 
                     # calculate the text size
-                    # this is kludgy...
                     font_scale = int(500.0/glpane.scale)
                     if sys.platform == "darwin":
                         font_scale *= 2                        
@@ -1305,17 +1303,19 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         label_text = QString(base_name)
                                         textpos -= 0.5 * (dx + dy)  
                                         color = black
-                                        if chunk.picked:
-                                            glColor3fv(darkgreen)
                                         
+                                        if chunk.picked:
+                                            glColor3fv(darkgreen)                                        
                                             color = darkgreen
-                                        elif highlighted:
-                                            glColor3fv(yellow)
-                                            color = yellow
                                         else:
                                             base_color = self._get_base_color(base_name)
                                             glColor3fv(base_color)
                                             color = base_color
+                                            
+                                        if highlighted:
+                                            glColor3fv(yellow)
+                                            color = yellow
+                                            
                                         ### drawtext(label_text, color, textpos, font_scale, glpane)
                                         glpane.renderText(textpos[0], 
                                                           textpos[1], 
@@ -1329,7 +1329,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     if chunk.picked:
                                         glColor3fv(darkgreen)
                                     elif highlighted:
-                                        glColor3f(yellow)
+                                        glColor3fv(yellow)
                                     for base in base_list:
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
@@ -1437,10 +1437,20 @@ class DnaCylinderChunks(ChunkDisplayMode):
             file.write("  pigment {color <%g %g %g>}\n" % (color[0], color[1], color[2]))
             file.write("}\n")
         
+
+        # Write a POV-Ray file.
+        
+        # Make sure memo is precomputed.
+        if memo is None:
+            return
+        
         positions, colors, radii, \
         arrows, struts_cylinders, base_cartoons = memo
 
-        # render the axis cylinder        
+        if positions is None:
+            return
+        
+        # Render the axis cylinder        
         n_points = len(positions)            
         if self.dnaStyleAxisShape>0:
             # spherical ends    
@@ -1682,7 +1692,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 # Find external bonds, if there are any.
                 # Moved drawing to draw_realtime otherwise the struts won't be updated.
                 # piotr 080411
-                # It is a kludge. These bonds may need to be drawn in draw_realtime
+                # These bonds need to be drawn in draw_realtime
                 # to reflect orientation changes of the individual chunks.                
     
                 chunk._dnaStyleExternalBonds = []
