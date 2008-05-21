@@ -526,10 +526,11 @@ class Ui_MovePropertyManager( PM_Dialog ):
             self.freeDragTranslateGroupBox.show()
                                
         if id is 1:
-            self.byDeltaGroupBox.show()
-                    
+            self.byDeltaGroupBox.show()                    
         if id is 2:
             self.toPositionGroupBox.show()
+           
+        self.updateMessage()
     
     def changeMoveOption(self, button):
         """
@@ -555,11 +556,12 @@ class Ui_MovePropertyManager( PM_Dialog ):
         """
         if id is 0:
             self.bySpecifiedAngleGroupBox.hide()
-            self.freeDragRotateGroupBox.show()
-                               
+            self.freeDragRotateGroupBox.show()   
         if id is 1:
             self.freeDragRotateGroupBox.hide()
             self.bySpecifiedAngleGroupBox.show()
+            
+        self.updateMessage()
             
     def changeRotateOption(self, button):
         """

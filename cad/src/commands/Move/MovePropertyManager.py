@@ -620,12 +620,30 @@ class MovePropertyManager(Ui_MovePropertyManager):
         if graphicsModeName:
 
             if graphicsModeName == 'TranslateChunks_GraphicsMode':
-                msg += "Translate the current selection by holding down the \
-                    left mouse button (<b>LMB</b>) and dragging the cursor. \
-                    Translation options are available below."
+                currentIndex = self.translateComboBox.currentIndex()
+                if  currentIndex == 0:
+                    msg += "To <b>translate</b> the selection, <b>highlight</b> "\
+                        "any of the selected items and <b>drag</b> while holding " \
+                        "down the left mouse button. Translate options are "\
+                        "available below."
+                elif currentIndex == 1:
+                    msg += "<b>Translate</b> the selection by specified offset, "\
+                        "using the <b>'+Delta'</b> and <b> '-Delta'</b> "\
+                        "buttons."
+                elif currentIndex == 2:
+                    msg += "Use <b>Move Selection</b> button to translate the "\
+                        "selection to the specified absolute XYZ coordinate."
+                    
             else:
-                msg += "Rotate the current selection by holding down the \
-                    left mouse button (<b>LMB</b>) and dragging the cursor. \
-                    Rotate options are available below."
+                currentIndex = self.rotateComboBox.currentIndex()
+                if  currentIndex == 0:
+                    msg += "To <b>rotate</b> the selection, <b>highlight</b> "\
+                        "any of the selected items and <b>drag</b> while holding " \
+                        "down the left mouse button. Rotate options are "\
+                        "available below."
+                elif currentIndex == 1:
+                    msg += "<b> Rotate </b> the selection by the specified "\
+                        "angle, around the specified axis, using the "\
+                        " <b>'+Theta'</b> and <b> '-Theta'</b> buttons."
 
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
