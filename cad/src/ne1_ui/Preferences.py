@@ -193,7 +193,7 @@ from utilities.prefs_constants import displayFontPointSize_prefs_key
 from utilities.prefs_constants import useSelectedFont_prefs_key
 from utilities.prefs_constants import displayFont_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
-from utilities.prefs_constants import drawOverlappingAtomErrorIndicators_prefs_key
+from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
 from utilities.prefs_constants import fogEnabled_prefs_key
 
 debug_sliders = False # Do not commit as True
@@ -654,7 +654,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.cpk_scale_factor_slider, SIGNAL("sliderReleased()"), self.save_cpk_scale_factor)
         self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
         self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
-        connect_checkbox_with_boolean_pref( self.drawOverlappingAtomsErrorIndicatorsCheckBox, drawOverlappingAtomErrorIndicators_prefs_key )
+        connect_checkbox_with_boolean_pref( self.drawOverlappingAtomsErrorIndicatorsCheckBox, indicateOverlappingAtoms_pref_key )
         
         # Connections for "Bonds" page.
         self.connect(self.high_order_bond_display_btngrp, SIGNAL("buttonClicked(int)"), self.change_high_order_bond_display)

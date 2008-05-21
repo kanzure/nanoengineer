@@ -189,7 +189,7 @@ cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
 keepBondsDuringTransmute_prefs_key = 'A9/Keep Bonds During Transmute'
 reshapeAtomsSelection_prefs_key = 'A10/Reshape Atoms Selection in Build Atoms'
-drawOverlappingAtomErrorIndicators_prefs_key = "A10/GLPane: indicate overlapping atoms? "
+indicateOverlappingAtoms_pref_key = "A10/GLPane: indicate overlapping atoms? "
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -580,7 +580,7 @@ prefs_table = (
     # Preference to force to keep bonds while transmuting atoms 
     ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
     ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
-    ('', 'boolean', drawOverlappingAtomErrorIndicators_prefs_key, False),
+    ('', 'boolean', indicateOverlappingAtoms_pref_key, True),
 
     # Bond preferences - colors
 

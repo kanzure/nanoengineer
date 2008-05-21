@@ -57,8 +57,6 @@ from geometry.VQT import V, Q
 from utilities.debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 
-from utilities.GlobalPreferences import pref_indicate_overlapping_atoms
-
 from utilities.Log import greenmsg, redmsg
 from geometry.BoundingBox import BBox
 
@@ -89,6 +87,7 @@ from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 from utilities.prefs_constants import levelOfDetail_prefs_key
 from utilities.prefs_constants import startup_GLPane_scale_prefs_key
+from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
 
 from model.Line import Line
 
@@ -1058,7 +1057,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # Chunk.draw (and in docstring) for ways we might need to generalize
             # it. [bruce 070928]
 
-        self.indicate_overlapping_atoms = pref_indicate_overlapping_atoms()
+        self.indicate_overlapping_atoms = \
+            env.prefs[indicateOverlappingAtoms_pref_key]
+        
         if self.indicate_overlapping_atoms:
             TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for
                 # bonded atoms, or atoms and their bondpoints,
