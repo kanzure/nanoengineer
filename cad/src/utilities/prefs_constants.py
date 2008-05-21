@@ -103,6 +103,7 @@ rulerPosition_prefs_key = 'A10/Ruler Position'
 rulerColor_prefs_key = 'A10/Ruler Color'
 rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
+fogEnabled_prefs_key = "V110/Enable fog"
 
 #Mouse wheel Prefs
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
@@ -188,6 +189,7 @@ cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
 keepBondsDuringTransmute_prefs_key = 'A9/Keep Bonds During Transmute'
 reshapeAtomsSelection_prefs_key = 'A10/Reshape Atoms Selection in Build Atoms'
+drawOverlappingAtomErrorIndicators_prefs_key = "A10/GLPane: indicate overlapping atoms? "
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -499,6 +501,9 @@ prefs_table = (
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
     ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50), 
     ('stereo_view_angle', 'int', stereoViewAngle_prefs_key, 50), 
+    
+    # Fog setting. Mark 2008-05-21
+    ('', 'boolean', fogEnabled_prefs_key, False),
 
     #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
     #can not be set by the user. Its just used internally. 
@@ -575,6 +580,7 @@ prefs_table = (
     # Preference to force to keep bonds while transmuting atoms 
     ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
     ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
+    ('', 'boolean', drawOverlappingAtomErrorIndicators_prefs_key, False),
 
     # Bond preferences - colors
 

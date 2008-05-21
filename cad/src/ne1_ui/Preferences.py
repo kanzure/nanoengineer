@@ -193,6 +193,8 @@ from utilities.prefs_constants import displayFontPointSize_prefs_key
 from utilities.prefs_constants import useSelectedFont_prefs_key
 from utilities.prefs_constants import displayFont_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
+from utilities.prefs_constants import drawOverlappingAtomErrorIndicators_prefs_key
+from utilities.prefs_constants import fogEnabled_prefs_key
 
 debug_sliders = False # Do not commit as True
 
@@ -458,6 +460,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     The User Preferences dialog used for accessing and changing user 
     preferences.
     """
+    currentSelectedPageItem = None # The QTreeWidgetItem currently selected.
 
     def __init__(self, assy):
         QDialog.__init__(self)
@@ -622,6 +625,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                      SIGNAL("activated(int)"),
                      self.set_compass_position)
         
+        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
+        
         # Connection for "Model view > Rulers" page.
         self.connect(self.animation_speed_slider,
                      SIGNAL("sliderReleased()"),
@@ -639,7 +644,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                      SIGNAL("valueChanged(int)"),
                      self.change_ruler_opacity)
         
-        # Connections for "Atom" page.
+        # Connections for "Atoms" page.
         self.connect(self.hotspot_color_btn, SIGNAL("clicked()"), self.change_hotspot_color)
         self.connect(self.reset_cpk_scale_factor_btn, SIGNAL("clicked()"), self.reset_cpk_scale_factor)
         self.connect(self.reset_atom_colors_btn, SIGNAL("clicked()"), self.reset_atom_colors)
@@ -649,6 +654,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.cpk_scale_factor_slider, SIGNAL("sliderReleased()"), self.save_cpk_scale_factor)
         self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
         self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
+        connect_checkbox_with_boolean_pref( self.drawOverlappingAtomsErrorIndicatorsCheckBox, drawOverlappingAtomErrorIndicators_prefs_key )
         
         # Connections for "Bonds" page.
         self.connect(self.high_order_bond_display_btngrp, SIGNAL("buttonClicked(int)"), self.change_high_order_bond_display)
@@ -770,7 +776,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Connections for "Tooltips" page.
         self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipAtomDistancePrecision)
         self.connect(self.dynamicToolTipBendAnglePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipBendAnglePrecision)
-        self.connect(self.historyHeight_spinbox, SIGNAL("valueChanged(int)"), self.change_historyHeight)
         self.connect(self.mouseSpeedDuringRotation_slider, SIGNAL("valueChanged(int)"), self.change_mouseSpeedDuringRotation)
         self.connect(self.resetMouseSpeedDuringRotation_btn, SIGNAL("clicked()"), self.reset_mouseSpeedDuringRotation)
         
@@ -1602,13 +1607,18 @@ restored when the user undoes a structural change.</p>
             dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, 
             self.strandFivePrimeArrowheadsCustomColorFrame)
         
-        
         self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
         
         self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key])
 
+    def _setup_dna_error_indicators_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the 
+        'DNA Error Indicators' page.
+        """
+        
         # Display Minor Groove Error Indicator groupbox widgets.
 
         connect_checkbox_with_boolean_pref(
@@ -1624,6 +1634,12 @@ restored when the user undoes a structural change.</p>
         connect_colorpref_to_colorframe( 
             dnaMinorGrooveErrorIndicatorColor_prefs_key, 
             self.dnaGrooveIndicatorColorFrame)
+        
+    def _setup_dna_base_orientation_indicators_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the 
+        'DNA Base Orientation Indicators' page.
+        """
 
         # DNA Base Orientation Indicator stuff.
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
@@ -1651,19 +1667,6 @@ restored when the user undoes a structural change.</p>
         # Hiding Undo Stack Memory Limit label and spinbox until Bruce hooks up the spinbox. mark 060406
         self.undo_stack_memory_limit_label.hide()
         self.undo_stack_memory_limit_spinbox.hide()
-
-        #& History height widgets have been removed for A7, to be reinstituted at a later time, probably A8. mark 060314.
-        #& self.history_height_lbl.hide()
-        #& self.history_height_spinbox.hide()
-
-        ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
-
-        connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
-        connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
-
-        #ninad060904 
-        self.historyHeight_spinbox.setValue(env.prefs[historyHeight_prefs_key] )
-
         return
 
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
@@ -1698,6 +1701,15 @@ restored when the user undoes a structural change.</p>
         # Update Display Font widgets
         self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
 
+        return
+    
+    def _setup_reports_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the
+        'Reports' page.
+        """
+        connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
+        connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
         return
 
     def _setup_tooltips_page(self): #Ninad 060830
@@ -3744,11 +3756,12 @@ restored when the user undoes a structural change.</p>
         @param pagename: name of the Preferences page. Default is "General".
         @type  pagename: text
         """
-        self.setup_current_page(pagename)
+        self.setupCurrentPage()
         self.setUI_LogoDownloadPermissions()
         self.exec_()
-        # bruce comment 050811: using exec_ rather than show forces this dialog to be modal.
-        # For now, it's probably still only correct if it's modal, so I won't change this for A6.
+        # bruce comment 050811: using exec_ rather than show forces this dialog
+        # to be modal. For now, it's probably still only correct if it's modal,
+        # so I won't change this for A6.
         return
         
     def setupCurrentPage_PREFFERED(self, item, column):
@@ -3777,8 +3790,11 @@ restored when the user undoes a structural change.</p>
         @note: I'd prefer to use the slot method above. --Mark
         """
         selectedItemsList = self.categoryTreeWidget.selectedItems()
-        selectedItem = selectedItemsList[0]
-        pagename = str(selectedItem.text(0))
+        if selectedItemsList:
+            selectedItem = selectedItemsList[0]
+            pagename = str(selectedItem.text(0))
+        else:
+            pagename = 'General'
         self.setup_current_page(pagename)
     
     def setup_current_page(self, pagename):        
@@ -3812,24 +3828,33 @@ restored when the user undoes a structural change.</p>
             elif pagename == 'DNA':
                 self._setup_dna_page()
                 self.prefsStackedWidget.setCurrentIndex(6)
+            elif pagename == 'Error Indicators':
+                self._setup_dna_error_indicators_page()
+                self.prefsStackedWidget.setCurrentIndex(7)
+            elif pagename == 'Base Orientation Indicators':
+                self._setup_dna_base_orientation_indicators_page()
+                self.prefsStackedWidget.setCurrentIndex(8)
             elif pagename == 'Adjust':
                 self._setup_adjust_page()
-                self.prefsStackedWidget.setCurrentIndex(7)
+                self.prefsStackedWidget.setCurrentIndex(9)
             elif pagename == 'Lighting':
                 self._setup_lighting_page()
-                self.prefsStackedWidget.setCurrentIndex(8)
+                self.prefsStackedWidget.setCurrentIndex(10)
             elif pagename == 'Plug-ins':
                 self._setup_plugins_page()
-                self.prefsStackedWidget.setCurrentIndex(9)
+                self.prefsStackedWidget.setCurrentIndex(11)
             elif pagename == 'Undo':
                 self._setup_undo_page()
-                self.prefsStackedWidget.setCurrentIndex(10)
+                self.prefsStackedWidget.setCurrentIndex(12)
             elif pagename == 'Window':
                 self._setup_window_page()
-                self.prefsStackedWidget.setCurrentIndex(11)
+                self.prefsStackedWidget.setCurrentIndex(13)
+            elif pagename == 'Reports':
+                self._setup_reports_page()
+                self.prefsStackedWidget.setCurrentIndex(14)
             elif pagename == 'Tooltips':
                 self._setup_tooltips_page()
-                self.prefsStackedWidget.setCurrentIndex(12)
+                self.prefsStackedWidget.setCurrentIndex(15)
             else:
                 print 'Error: Preferences page unknown: ', pagename
         except:
