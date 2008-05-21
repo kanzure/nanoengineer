@@ -515,6 +515,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.orthographic_radioButton.setChecked(True)
         """
 
+        # Load the Background color combobox with standard gradients and colors.
+        self._loadBackgroundColorItems()
+        
         #Default atom Display groupbox in Modes tab (as of 070430)
         self.default_display_btngrp = QButtonGroup()
         self.default_display_btngrp.setExclusive(True)
@@ -599,6 +602,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Connections for "Model view" page.
         
         # # Connections for background color groupbox.
+        self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
         self.connect(self.fill_type_combox, SIGNAL("activated(const QString&)"), self.change_fill_type)
         self.connect(self.restore_bgcolor_btn, SIGNAL("clicked()"), self.restore_default_bgcolor)
         self.connect(self.choose_bg1_color_btn, SIGNAL("clicked()"), self.change_bg1_color)
@@ -1106,6 +1110,13 @@ restored when the user undoes a structural change.</p>
     
 
     ###### Private methods ###############################
+    
+    def _loadBackgroundColorItems(self):
+        """
+	Load the background color combobox with all the color options.
+	"""
+        return
+    
     def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
         """
         2007-11-16:
@@ -1968,6 +1979,13 @@ restored when the user undoes a structural change.</p>
 
 
     ########### BG Color slots ############
+    
+    def changeBackgroundColor(self, idx):
+        """
+	Slot method for the background color combobox.
+	"""
+        print "changeBackgroundColor(): Slot method called. Idx =", idx
+        return
 
     def change_fill_type(self, ftype):
         """

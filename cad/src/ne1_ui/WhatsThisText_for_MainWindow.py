@@ -918,12 +918,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build DNA</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/DNA.png\"><br> "\
-        "Inserts DNA in the model based on the current "\
-        "parameters in the "\
-        "Property Manager. To preview the structure based on "\
-        "the current parameters, click the Preview button "\
-        "located at the top of the Property Manager :<br> "\
-        "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+        "Invokes the interactive DNA Builder."\
         "</p>"
 
     win.buildDnaAction.setWhatsThis(buildDnaActionText )

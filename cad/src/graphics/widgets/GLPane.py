@@ -198,7 +198,7 @@ from utilities.prefs_constants import stereoViewSeparation_prefs_key
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
 from utilities.constants import GL_FAR_Z
-from utilities.constants import bluesky
+from utilities.constants import bluesky, eveningsky
 from utilities.constants import white
 from utilities.constants import MULTIPANE_GUI
 
@@ -3634,13 +3634,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            drawFullWindow(bluesky)
+            _bgGradient = bluesky
+            drawFullWindow(_bgGradient)
             # fogColor is an average of the gradient components
             # piotr 080515
             self.fogColor = \
-                (0.25 * (bluesky[0][0] + bluesky[1][0] + bluesky[2][0] + bluesky[3][0]), \
-                 0.25 * (bluesky[0][1] + bluesky[1][1] + bluesky[2][1] + bluesky[3][1]), \
-                 0.25 * (bluesky[0][2] + bluesky[1][2] + bluesky[2][2] + bluesky[3][2]))
+                (0.25 * (_bgGradient[0][0] + _bgGradient[1][0] + _bgGradient[2][0] + _bgGradient[3][0]), \
+                 0.25 * (_bgGradient[0][1] + _bgGradient[1][1] + _bgGradient[2][1] + _bgGradient[3][1]), \
+                 0.25 * (_bgGradient[0][2] + _bgGradient[1][2] + _bgGradient[2][2] + _bgGradient[3][2]))
 
             # Note: it would be possible to optimize by not clearing the color buffer
             # when we'll call drawFullWindow, if we first cleared depth buffer (or got
