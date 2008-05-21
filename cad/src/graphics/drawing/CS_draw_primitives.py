@@ -66,6 +66,23 @@ except:
 
 import foundation.env as env #bruce 051126
 
+# Check if the gleGet/SetNumSides function is working on this install, and if
+# not, alias it to an effective no-op. Checking method is as recommended in
+# an OpenGL exception reported by Brian [070622]:
+#   OpenGL.error.NullFunctionError: Attempt to call an
+#   undefined function gleGetNumSides, check for
+#   bool(gleGetNumSides) before calling
+# The underlying cause of this (described by Brian) is that the computer's OpenGL
+# has the older gleGetNumSlices (so it supports the functionality), but PyOpenGL
+# binds (only) to the newer gleGetNumSides. Given the PyOpenGL we're using,
+# there's no way to access gleGetNumSlices, but in the future we might patch it
+# to let us do that when this happens. I [bruce 070629] think Brian said this is
+# only an issue on Macs.
+if not bool(gleGetNumSides):
+    print "fyi: gleGetNumSides is not supported by the OpenGL pre-installed on this computer."
+    gleGetNumSides = int
+    gleSetNumSides = int
+
 def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
     """
     Schedule a sphere for rendering whenever ColorSorter thinks is appropriate.
