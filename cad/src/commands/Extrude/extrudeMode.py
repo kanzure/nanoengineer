@@ -62,7 +62,7 @@ from geometry.VQT import V, Q, norm, vlen, cross
 
 from commands.Extrude.ExtrudePropertyManager import ExtrudePropertyManager
 
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 from model.chunk import Chunk
 from graphics.behaviors.shape import get_selCurve_color
 

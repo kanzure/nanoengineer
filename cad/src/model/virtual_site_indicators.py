@@ -12,7 +12,8 @@ not as part of their implementation for minimize.
 
 from model.jigs import Jig
 from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray, darkgreen
-from graphics.drawing.drawer import drawwirecube, drawline
+from graphics.drawing.drawers import drawwirecube
+from graphics.drawing.CS_draw_primitives import drawline
 from geometry.VQT import V, vlen
 
 from model.chunk import Chunk

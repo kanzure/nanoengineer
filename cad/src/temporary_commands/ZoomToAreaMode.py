@@ -28,7 +28,7 @@ from OpenGL.GL import glReadPixelsf
 from OpenGL.GLU import gluUnProject
 
 from geometry.VQT import V, A
-from graphics.drawing.drawer import drawrectangle
+from graphics.drawing.drawers import drawrectangle
 from utilities.constants import GL_FAR_Z
 
 

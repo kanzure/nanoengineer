@@ -107,8 +107,8 @@ import model.bonds as bonds # TODO: import specific functions, since no longer a
 from model.elements import Singlet
 
 from geometry.BoundingBox import BBox
-from graphics.drawing.drawer import ColorSorter
-from graphics.drawing.drawer import ColorSortedDisplayList
+from graphics.drawing.ColorSorter import ColorSorter
+from graphics.drawing.ColorSorter import ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
@@ -145,7 +145,7 @@ from dna.model.Dna_Constants import getComplementSequence
 from operations.bond_chains import grow_directional_bond_chain
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.drawer import apply_material
+from graphics.drawing.gl_lighting import apply_material
 
 from graphics.drawables.Selobj import Selobj_API
 

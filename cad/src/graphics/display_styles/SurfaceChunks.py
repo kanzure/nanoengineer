@@ -22,9 +22,9 @@ import types
 from PyQt4.Qt import QApplication, Qt, QCursor
 
 import foundation.env as env
-from graphics.drawing.drawer import drawsurface
-from graphics.drawing.drawer import drawsurface_wireframe
-from graphics.drawing.drawer import getSphereTriangles
+from graphics.drawing.CS_draw_primitives import drawsurface
+from graphics.drawing.CS_draw_primitives import drawsurface_wireframe
+from graphics.drawing.shape_vertices import getSphereTriangles
 from geometry.VQT import V, cross
 from utilities.Log import greenmsg
 from graphics.display_styles.displaymodes import ChunkDisplayMode

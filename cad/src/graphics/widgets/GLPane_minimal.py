@@ -31,7 +31,7 @@ from utilities.debug import print_compact_traceback
 
 import foundation.env as env
 
-from graphics.drawing.drawer import setup_drawer
+from graphics.drawing.setup_draw import setup_drawer
 from graphics.drawing.draw_grid_lines import setup_draw_grid_lines
 
 DEPTH_TWEAK_UNITS = (2.0)**(-32)

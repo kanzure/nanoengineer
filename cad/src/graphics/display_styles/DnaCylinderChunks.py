@@ -42,12 +42,12 @@ piotr 080520: Further code cleanup..
 
 import sys
 import foundation.env as env
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawpolycone
-from graphics.drawing.drawer import drawpolycone_multicolor
-from graphics.drawing.drawer import drawsphere
-from graphics.drawing.drawer import drawCircle
-from graphics.drawing.drawer import drawFilledCircle
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawpolycone
+from graphics.drawing.CS_draw_primitives import drawpolycone_multicolor
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.drawers import drawCircle
+from graphics.drawing.drawers import drawFilledCircle
 
 from math import sin, cos, pi
 from Numeric import dot, argmax, argmin, sqrt

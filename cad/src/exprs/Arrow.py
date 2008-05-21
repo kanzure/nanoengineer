@@ -14,8 +14,7 @@ from exprs.ExprsConstants import Color, Position, ORIGIN, DX
 
 from utilities.constants import gray
 
-from graphics.drawing.drawer import drawDirectionArrow 
-
+from graphics.drawing.CS_draw_primitives import drawDirectionArrow 
 
 class Arrow(Widget2D):
     """

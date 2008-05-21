@@ -21,7 +21,8 @@ TODOs:
 from commands.Select.Select_Command import Select_Command
 from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 
-from graphics.drawing.drawer import drawline, drawsphere
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawsphere
 from utilities.constants import black, darkred, blue
 
 from geometry.VQT import vlen, norm, angleBetween, V, ptonline

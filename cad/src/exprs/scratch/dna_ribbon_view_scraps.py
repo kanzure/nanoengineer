@@ -21,7 +21,6 @@ from Overlay import Overlay
 from TextRect import TextRect
 
 from OpenGL.GL import * #e move what needs this into draw_utils
-import graphics.drawing.drawer as drawer
 
 from dna_ribbon_view import * ###e reloadable -- needed at least for IorE, probably more
 from utilities import debug_flags

@@ -24,7 +24,8 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
-from graphics.drawing.drawer import drawLineLoop, drawPlane
+from graphics.drawing.drawers import drawLineLoop
+from graphics.drawing.drawers import drawPlane
 from utilities.constants import black, orange, yellow, darkgreen, brown
 
 from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline

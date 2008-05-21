@@ -9,7 +9,7 @@ dna_updater_debug.py -- debug code for dna_updater
 
 from utilities import debug_flags
 
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 
 from model.jigs import Jig
 

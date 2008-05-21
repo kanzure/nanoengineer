@@ -55,7 +55,7 @@ from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEndList
 from OpenGL.GL import glColor3fv
 
-from graphics.drawing.drawer import drawtext
+from graphics.drawing.drawers import drawtext
 from geometry.VQT import V
 
 from graphics.drawing.Font3D import Font3D

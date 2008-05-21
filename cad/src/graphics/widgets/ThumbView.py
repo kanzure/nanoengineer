@@ -64,10 +64,10 @@ from OpenGL.GLU import gluPickMatrix, gluUnProject
 from PyQt4.Qt import Qt
 
 from geometry.VQT import V, Q, A
-from graphics.drawing.drawer import drawFullWindow
-from graphics.drawing.drawer import _default_lights
-from graphics.drawing.drawer import setup_standard_lights
-from graphics.drawing.drawer import setup_drawer
+from graphics.drawing.drawers import drawFullWindow
+from graphics.drawing.gl_lighting import _default_lights
+from graphics.drawing.gl_lighting import setup_standard_lights
+from graphics.drawing.setup_draw import setup_drawer
 from model.assembly import Assembly
 import foundation.env as env
 from utilities import debug_flags

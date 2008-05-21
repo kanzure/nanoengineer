@@ -67,7 +67,7 @@ from model.chem import oneUnbonded
 from model.elements import Singlet
 from geometry.VQT import Q, A, norm, twistor
 
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 
 from foundation.Group import Group
 from foundation.Utility import Node

@@ -68,7 +68,10 @@ from foundation.state_utils import copy_val
 
 from utilities.constants import green, red, white, pink, black, brown, gray # other colors below
 from math import pi
-from graphics.drawing.drawer import drawline, drawbrick, drawsphere, drawcylinder
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.drawers import drawbrick
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawcylinder
 from OpenGL.GL import GL_LIGHTING, glDisable, glEnable
 from geometry.VQT import cross, proj2sphere, V, norm, Q, vlen
 
@@ -967,7 +970,7 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 # code copied from test_commands.py:
 # these imports are not needed in a minimal example like ExampleCommand2;
 # to make that clear, we put them down here instead of at the top of the file
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 from utilities.constants import red, green
 ##from exprs.ExprsConstants import PIXELS
 from exprs.images import Image

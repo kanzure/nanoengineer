@@ -58,7 +58,7 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
 
 # these imports are not needed in a minimal example like ExampleCommand2:
 
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 from utilities.constants import red
 from geometry.VQT import V
 from exprs.instance_helpers import get_glpane_InstanceHolder

@@ -32,8 +32,8 @@ from Numeric import array, zeros, maximum, minimum, ceil, dot, floor
 
 from geometry.VQT import A, vlen, V
 
-from graphics.drawing.drawer import drawrectangle
-from graphics.drawing.drawer import drawline
+from graphics.drawing.drawers import drawrectangle
+from graphics.drawing.CS_draw_primitives import drawline
 
 from utilities.constants import black
 from utilities.constants import DELETE_SELECTION

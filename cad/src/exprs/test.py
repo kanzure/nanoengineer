@@ -144,7 +144,7 @@ from utilities.constants import ave_colors, noop
 
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from graphics.drawing.texture_fonts import courierfile
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 
 from exprs.reload import exprs_globals
 

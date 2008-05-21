@@ -24,11 +24,11 @@ from PyQt4.Qt import QFont, QString, QColor
 from geometry.VQT import V
 from geometry.VQT import norm, vlen
 
-from graphics.drawing.drawer import ColorSorter
-from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawsphere
-from graphics.drawing.drawer import drawpolycone
+from graphics.drawing.ColorSorter import ColorSorter
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawpolycone
 
 import foundation.env as env
 from utilities import debug_flags

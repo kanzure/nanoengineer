@@ -23,7 +23,7 @@ from Numeric import dot
 from OpenGL.GL import glVertex
 
 from geometry.VQT import cross
-from graphics.drawing.drawer import drawline # import cycle
+from graphics.drawing.CS_draw_primitives import drawline # import cycle
 
 _font = {
     ' ': ( ),

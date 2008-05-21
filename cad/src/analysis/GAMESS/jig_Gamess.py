@@ -10,7 +10,7 @@ jig_Gamess.py
 import sys
 
 from model.jigs import Jig
-from graphics.drawing.drawer import drawwirecube
+from graphics.drawing.drawers import drawwirecube
 from graphics.rendering.povray.povheader import povpoint # Fix for bug 692 Mark 050628
 from analysis.GAMESS.files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 from utilities.Log import redmsg, greenmsg

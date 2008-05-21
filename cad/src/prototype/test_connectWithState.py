@@ -61,8 +61,8 @@ from utilities.constants import pink, white
 DX = V(1,0,0)
 DY = V(0,1,0)
 ORIGIN = V(0,0,0)
-from graphics.drawing.drawer import drawcylinder, drawsphere
-
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
 from exprs.ExprsMeta import ExprsMeta
 from exprs.instance_helpers import IorE_guest_mixin
 from exprs.attr_decl_macros import Instance, State

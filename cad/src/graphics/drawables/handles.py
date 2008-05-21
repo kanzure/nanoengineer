@@ -20,7 +20,7 @@ from geometry.VQT import V
 from geometry.VQT import vlen
 from geometry.VQT import norm
 from geometry.VQT import orthodist
-from graphics.drawing.drawer import drawsphere
+from graphics.drawing.CS_draw_primitives import drawsphere
 from utilities.constants import ave_colors
 from utilities.constants import magenta
 from utilities.constants import blue

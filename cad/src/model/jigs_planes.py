@@ -26,7 +26,7 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 
-from graphics.drawing.drawer import drawLineLoop
+from graphics.drawing.drawers import drawLineLoop
 
 from graphics.drawing.draw_grid_lines import drawGPGrid
 from graphics.drawing.draw_grid_lines import drawSiCGrid

@@ -23,7 +23,7 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 
-from graphics.drawing.drawer import drawDirectionArrow
+from graphics.drawing.CS_draw_primitives import drawDirectionArrow
 
 from geometry.VQT import V, norm, vlen
 from math        import pi

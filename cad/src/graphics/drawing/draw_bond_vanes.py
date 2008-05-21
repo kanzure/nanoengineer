@@ -32,7 +32,7 @@ from OpenGL.GL import GL_FALSE
 from geometry.VQT import cross, vlen, norm
 
 import foundation.env as env
-from graphics.drawing.drawer import apply_material
+from graphics.drawing.gl_lighting import apply_material
 from utilities.constants import white
 from utilities.prefs_constants import pibondStyle_prefs_key
 

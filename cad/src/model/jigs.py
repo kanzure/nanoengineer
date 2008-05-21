@@ -52,7 +52,7 @@ from utilities.Log import orangemsg
 from graphics.rendering.povray.povheader import povpoint
 from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
-from graphics.drawing.drawer import drawwirecube
+from graphics.drawing.drawers import drawwirecube
 
 from utilities.constants import gensym
 from utilities.constants import darkgreen

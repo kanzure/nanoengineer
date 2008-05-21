@@ -21,7 +21,7 @@ from utilities import debug_flags
 from geometry.VQT import cross
 from geometry.VQT import vlen
 from geometry.VQT import norm
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawline
 
 from graphics.drawing.Font3D import Font3D, WIDTH, HEIGHT
     # TODO: WIDTH, HEIGHT should be Font3D attributes [bruce 071030 comment]

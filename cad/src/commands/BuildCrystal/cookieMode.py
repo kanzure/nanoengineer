@@ -43,12 +43,12 @@ from geometry.Slab import Slab
 from commands.BuildCrystal.CookieShape import CookieShape
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import drawCircle
-from graphics.drawing.drawer import drawGrid
-from graphics.drawing.drawer import drawLineLoop
-from graphics.drawing.drawer import drawrectangle
-from graphics.drawing.drawer import findCell
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.drawers import drawCircle
+from graphics.drawing.drawers import drawGrid
+from graphics.drawing.drawers import drawLineLoop
+from graphics.drawing.drawers import drawrectangle
+from graphics.drawing.drawers import findCell
 from model.chunk import Chunk
 from model.chem import Atom
 

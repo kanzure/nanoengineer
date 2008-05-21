@@ -17,7 +17,8 @@ from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsM
 from PyQt4.Qt import Qt
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 from utilities.constants import black, banana, silver, lighterblue, darkred, darkgreen
-from graphics.drawing import drawer
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
 
 SPHERE_RADIUS = 6.0
 SPHERE_DRAWLEVEL = 2
@@ -129,12 +130,13 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
             for segment in segmentList:
                 end1, end2 =  segment.getAxisEndPoints()
                 if end1 is not None and end2 is not None:
-                    drawer.drawcylinder(banana, 
-                                        end1,
-                                        end2,
-                                        CYL_RADIUS, 
-                                        capped = True,
-                                        opacity = CYL_OPACITY )
+                    drawcylinder(banana, 
+                                 end1,
+                                 end2,
+                                 CYL_RADIUS, 
+                                 capped = True,
+                                 opacity = CYL_OPACITY )
+
     def _drawTags(self):
         """
         Overrides _superClass._drawTags()
@@ -149,12 +151,11 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
 
         if self._tagPositions:
             for point in self._tagPositions:          
-                drawer.drawsphere(silver, 
-                                  point, 
-                                  SPHERE_RADIUS,
-                                  SPHERE_DRAWLEVEL,
-                                  opacity = SPHERE_OPACITY)
-
+                drawsphere(silver, 
+                           point, 
+                           SPHERE_RADIUS,
+                           SPHERE_DRAWLEVEL,
+                           opacity = SPHERE_OPACITY)
 
     def _DEBUG_Flag_EndPoint1_ofDnaSegments(self):
         """
@@ -172,11 +173,11 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
             if e1 is not None:
                 endPoints_1.append(e1)
         for end1 in endPoints_1:
-            drawer.drawsphere(lighterblue, 
-                              end1, 
-                              SPHERE_RADIUS,
-                              SPHERE_DRAWLEVEL,
-                              opacity = 1.0)
+            drawsphere(lighterblue, 
+                       end1, 
+                       SPHERE_RADIUS,
+                       SPHERE_DRAWLEVEL,
+                       opacity = 1.0)
 
     def _drawDnaRubberbandLine(self):
         """
@@ -242,11 +243,11 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                     
                     #Draw a sphere that indicates the current position of 
                     #the resize end of each segment . 
-                    drawer.drawsphere(darkgreen, 
-                                      end2, 
-                                      SPHERE_RADIUS_2,
-                                      SPHERE_DRAWLEVEL,
-                                      opacity = SPHERE_OPACITY) 
+                    drawsphere(darkgreen, 
+                               end2, 
+                               SPHERE_RADIUS_2,
+                               SPHERE_DRAWLEVEL,
+                               opacity = SPHERE_OPACITY) 
                     
                     numberOfBasePairsString = "+" + str(numberOfBasePairs)
                     self.glpane.renderTextAtPosition( end2, 
@@ -256,23 +257,17 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                     numberOfBasePairs , end2 = params_when_removing_bases
                     #Draw a sphere that indicates the current position of 
                     #the resize end of each segment.
-                    drawer.drawsphere(darkred, 
-                                      end2, 
-                                      SPHERE_RADIUS_2,
-                                      SPHERE_DRAWLEVEL,
-                                      opacity = SPHERE_OPACITY)   
+                    drawsphere(darkred, 
+                               end2, 
+                               SPHERE_RADIUS_2,
+                               SPHERE_DRAWLEVEL,
+                               opacity = SPHERE_OPACITY)   
                     
                     numberOfBasePairsString = str(numberOfBasePairs)
                     self.glpane.renderTextAtPosition( end2, 
                                                       textString = numberOfBasePairsString,
                                                       )
-                    
-
-
 
                 #Draw the text next to the cursor that gives info about 
                 #number of base pairs etc
                 self._drawCursorText()
-
-
-

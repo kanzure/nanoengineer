@@ -26,10 +26,10 @@ from OpenGL.GL import glPopMatrix
 
 import foundation.env as env
 from geometry.VQT import V, Q, A, norm, cross, vlen
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawRotateSign
-from graphics.drawing.drawer import drawbrick
-from graphics.drawing.drawer import drawLinearSign
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.drawers import drawRotateSign
+from graphics.drawing.drawers import drawbrick
+from graphics.drawing.drawers import drawLinearSign
 
 from utilities.Log import orangemsg
 from utilities.Log import redmsg, greenmsg

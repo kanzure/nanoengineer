@@ -21,9 +21,9 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 
-from graphics.drawing.drawer import drawArrowHead
-from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import drawPoint
+from graphics.drawing.drawers import drawArrowHead
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.drawers import drawPoint
 
 from geometry.VQT import norm, vlen, V, cross
 

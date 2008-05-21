@@ -128,18 +128,18 @@ from geometry.VQT import V, Q, A, norm, vlen, angleBetween
 from Numeric import dot
 
 import graphics.drawing.drawing_globals as drawing_globals
-from graphics.drawing.drawer import glprefs_data_used_by_setup_standard_lights
-from graphics.drawing.drawer import drawwiresphere
-from graphics.drawing.drawer import drawFullWindow
-from graphics.drawing.drawer import drawOriginAsSmallAxis
-from graphics.drawing.drawer import drawaxes
-from graphics.drawing.drawer import _default_lights
-from graphics.drawing.drawer import disable_fog
-from graphics.drawing.drawer import enable_fog
-from graphics.drawing.drawer import setup_fog
-from graphics.drawing.drawer import setup_standard_lights
-from graphics.drawing.drawer import glprefs
-from graphics.drawing.drawer import setup_drawer
+from graphics.drawing.gl_lighting import glprefs_data_used_by_setup_standard_lights
+from graphics.drawing.CS_draw_primitives import drawwiresphere
+from graphics.drawing.drawers import drawFullWindow
+from graphics.drawing.drawers import drawOriginAsSmallAxis
+from graphics.drawing.drawers import drawaxes
+from graphics.drawing.gl_lighting import _default_lights
+from graphics.drawing.gl_lighting import disable_fog
+from graphics.drawing.gl_lighting import enable_fog
+from graphics.drawing.gl_lighting import setup_fog
+from graphics.drawing.gl_lighting import setup_standard_lights
+from graphics.drawing.glprefs import glprefs
+from graphics.drawing.setup_draw import setup_drawer
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,

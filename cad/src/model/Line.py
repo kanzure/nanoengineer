@@ -14,7 +14,7 @@ import foundation.env as env
 from OpenGL.GL  import glPushMatrix
 from OpenGL.GL  import glPopMatrix
 from OpenGL.GLU import gluProject, gluUnProject
-from graphics.drawing.drawer import drawPolyLine
+from graphics.drawing.drawers import drawPolyLine
 
 from Numeric    import dot
 from math       import pi, cos

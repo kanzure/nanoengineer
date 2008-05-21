@@ -27,7 +27,7 @@ from dna.updater.dna_updater_prefs import pref_draw_internal_markers
 
 from utilities import debug_flags
 
-from graphics.drawing.drawer import drawwirecube
+from graphics.drawing.drawers import drawwirecube
 
 from utilities.constants import orange
 

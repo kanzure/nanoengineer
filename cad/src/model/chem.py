@@ -56,11 +56,11 @@ import string
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 
-from graphics.drawing.drawer import ColorSorter
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawsphere
-from graphics.drawing.drawer import drawpolycone
-from graphics.drawing.drawer import drawwiresphere
+from graphics.drawing.ColorSorter import ColorSorter
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawpolycone
+from graphics.drawing.CS_draw_primitives import drawwiresphere
 
 from model.elements import Singlet
 from model.elements import Hydrogen

@@ -101,9 +101,9 @@ from OpenGL.GL import GL_FALSE
 
 from exprs.Overlay import Overlay
 
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawline
 
 from exprs.world import World
 

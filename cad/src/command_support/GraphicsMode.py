@@ -29,11 +29,11 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
 from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
-from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import drawOriginAsSmallAxis
-from graphics.drawing.drawer import drawTag
-from graphics.drawing.drawer import drawaxes
-from graphics.drawing.drawer import drawrectangle
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawTag
+from graphics.drawing.drawers import drawOriginAsSmallAxis
+from graphics.drawing.drawers import drawaxes
+from graphics.drawing.drawers import drawrectangle
 
 from utilities.debug import print_compact_traceback
 

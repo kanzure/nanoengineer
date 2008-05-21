@@ -26,13 +26,13 @@ from geometry.VQT import vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 
-from graphics.drawing.drawer import drawCircle
-from graphics.drawing.drawer import genDiam
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawsphere
-from graphics.drawing.drawer import drawline
-from graphics.drawing.drawer import ColorSorter
-from graphics.drawing.drawer import ColorSortedDisplayList
+from graphics.drawing.drawers import drawCircle
+from graphics.drawing.drawers import genDiam
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.ColorSorter import ColorSorter
+from graphics.drawing.ColorSorter import ColorSortedDisplayList
 
 from utilities.constants import SUBTRACT_FROM_SELECTION
 from utilities.constants import OUTSIDE_SUBTRACT_FROM_SELECTION

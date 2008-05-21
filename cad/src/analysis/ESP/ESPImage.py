@@ -66,9 +66,9 @@ from foundation.state_utils import DataMixin
 from model.chunk import Chunk
 from model.chem import Atom
 
-from graphics.drawing.drawer import drawPlane
-from graphics.drawing.drawer import drawwirecube
-from graphics.drawing.drawer import drawLineLoop
+from graphics.drawing.drawers import drawPlane
+from graphics.drawing.drawers import drawwirecube
+from graphics.drawing.drawers import drawLineLoop
 
 from geometry.VQT import V, Q, A
 from graphics.rendering.povray.povheader import povpoint
@@ -391,7 +391,7 @@ class ESPImage(RectGadget):
             # This is for debugging purposes.  This draws a green normal vector using
             # local space coords.  Mark 050930
             if 0:
-                from graphics.drawing.drawer import drawline
+                from graphics.drawing.CS_draw_primitives import drawline
                 drawline(green, V(0.0, 0.0, 0.0), V(0.0, 0.0, 1.0), 0, 3)
 
         glPopMatrix()
@@ -399,7 +399,7 @@ class ESPImage(RectGadget):
         # This is for debugging purposes. This draws a yellow normal vector using 
         # model space coords.  Mark 050930
         if 0:
-            from graphics.drawing.drawer import drawline
+            from graphics.drawing.CS_draw_primitives import drawline
             from utilities.constants import yellow
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
 

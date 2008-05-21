@@ -34,8 +34,8 @@ from exprs.__Symbols__ import _self
 
 from exprs.py_utils import printnim, printfyi
 
-from graphics.drawing.drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
-from graphics.drawing.drawer import drawline
+from graphics.drawing.CS_draw_primitives import drawsphere
+from graphics.drawing.CS_draw_primitives import drawline
 
 # ==
 

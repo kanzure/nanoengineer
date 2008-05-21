@@ -19,7 +19,7 @@ even though it also includes graphics code, and hardcoded constants
 about its use for our model objects (atoms).
 """
 
-from graphics.drawing.drawer import drawwirebox
+from graphics.drawing.drawers import drawwirebox
 from Numeric import add, subtract, sqrt 
 from Numeric import maximum, minimum, dot
 

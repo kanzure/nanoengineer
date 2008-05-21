@@ -14,8 +14,8 @@ though it might be useful as a fast-rendering display mode too.
 from Numeric import dot, argmax, argmin, sqrt
 
 import foundation.env as env
-from graphics.drawing.drawer import drawcylinder
-from graphics.drawing.drawer import drawcylinder_wireframe
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.CS_draw_primitives import drawcylinder_wireframe
 from geometry.geometryUtilities import matrix_putting_axis_at_z
 from geometry.VQT import V, norm
 from utilities.debug import print_compact_traceback

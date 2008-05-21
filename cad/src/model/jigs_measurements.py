@@ -34,7 +34,7 @@ from utilities.Log import redmsg, greenmsg, orangemsg
 from utilities.debug import print_compact_stack, print_compact_traceback
 from model.jigs import Jig
 from graphics.drawing.dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
-from graphics.drawing.drawer import drawtext
+from graphics.drawing.drawers import drawtext
 
 from utilities.constants import black
 from utilities.prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
