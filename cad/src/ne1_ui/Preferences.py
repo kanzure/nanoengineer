@@ -3,7 +3,7 @@
 Preferences.py
 
 @author: Mark
-@version: $Id:$
+@version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -499,6 +499,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         #        self.update_btngrp_group.addButton(obj)
 
         # Default Projection Groupbox in General tab (as of 070430)
+        """
         self.default_projection_btngrp = QButtonGroup()
         self.default_projection_btngrp.setExclusive(True)
         objId = 0
@@ -512,6 +513,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.perspective_radioButton.setChecked(True)
         else:
             self.orthographic_radioButton.setChecked(True)
+        """
 
         #Default atom Display groupbox in Modes tab (as of 070430)
         self.default_display_btngrp = QButtonGroup()
@@ -559,7 +561,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         
         # = Start of connections.
         
-        
         if hasattr(self, 'categoryTreeWidget'):
             # This connects the "itemSelectedChanged" signal generated when the 
             # user selects an item in the "Category" QTreeWidget on the left
@@ -585,22 +586,79 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             # This connects the "selected" signal generated when the user
             # selects a tab (at the top of the original Preferences dialog) 
             # to the slot that 
-            self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
+            self.connect(self.prefs_tab, SIGNAL("selected(const QString&)"), self.setup_current_page)
 
-        self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
-        self.connect(self.rulerDisplayComboBox,SIGNAL("currentIndexChanged(int)"),self.set_ruler_display)
-        self.connect(self.rulerPositionComboBox,SIGNAL("currentIndexChanged(int)"),self.set_ruler_position)
-        self.connect(self.ruler_color_btn,SIGNAL("clicked()"),self.change_ruler_color)
-        self.connect(self.rulerOpacitySpinBox,SIGNAL("valueChanged(int)"),self.change_ruler_opacity)
-        self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
-        self.connect(self.ballstick_bondcolor_btn,SIGNAL("clicked()"),self.change_ballstick_bondcolor)
-        self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
-        self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
-        self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
-        self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
-        self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
+        # UNKNOWN connections.
+        self.connect(self.level_of_detail_combox, SIGNAL("activated(int)"), self.change_level_of_detail)
+        
+        # Connections for "General" page.
+        self.connect(self.logosDownloadPermissionBtnGroup,
+                     SIGNAL("buttonClicked(int)"),
+                     self.setPrefsLogoDownloadPermissions)
+        
+        # Connections for "Model view" page.
+        
+        # # Connections for background color groupbox.
+        self.connect(self.fill_type_combox, SIGNAL("activated(const QString&)"), self.change_fill_type)
+        self.connect(self.restore_bgcolor_btn, SIGNAL("clicked()"), self.restore_default_bgcolor)
+        self.connect(self.choose_bg1_color_btn, SIGNAL("clicked()"), self.change_bg1_color)
+        
+        self.connect(self.default_display_btngrp,
+                     SIGNAL("buttonClicked(int)"),
+                     self.set_default_display_mode)
+        """
+        self.connect(self.default_projection_btngrp,
+                     SIGNAL("buttonClicked(int)"),
+                     self.set_default_projection)
+                     """
+        self.connect(self.compassGroupBox,
+                     SIGNAL("stateChanged(int)"),
+                     self.display_compass)
+        self.connect(self.compass_position_combox,
+                     SIGNAL("activated(int)"),
+                     self.set_compass_position)
+        
+        # Connection for "Model view > Rulers" page.
+        self.connect(self.animation_speed_slider,
+                     SIGNAL("sliderReleased()"),
+                     self.change_view_animation_speed)
+        self.connect(self.rulerDisplayComboBox,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.set_ruler_display)
+        self.connect(self.rulerPositionComboBox,
+                     SIGNAL("currentIndexChanged(int)"),
+                     self.set_ruler_position)
+        self.connect(self.ruler_color_btn,
+                     SIGNAL("clicked()"),
+                     self.change_ruler_color)
+        self.connect(self.rulerOpacitySpinBox,
+                     SIGNAL("valueChanged(int)"),
+                     self.change_ruler_opacity)
+        
+        # Connections for "Atom" page.
+        self.connect(self.hotspot_color_btn, SIGNAL("clicked()"), self.change_hotspot_color)
+        self.connect(self.reset_cpk_scale_factor_btn, SIGNAL("clicked()"), self.reset_cpk_scale_factor)
+        self.connect(self.reset_atom_colors_btn, SIGNAL("clicked()"), self.reset_atom_colors)
+        self.connect(self.change_element_colors_btn, SIGNAL("clicked()"), self.change_element_colors)
+        self.connect(self.cpk_atom_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_atom_radius)
+        self.connect(self.cpk_cylinder_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_cylinder_radius)
+        self.connect(self.cpk_scale_factor_slider, SIGNAL("sliderReleased()"), self.save_cpk_scale_factor)
+        self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
+        self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
+        
+        # Connections for "Bonds" page.
+        self.connect(self.high_order_bond_display_btngrp, SIGNAL("buttonClicked(int)"), self.change_high_order_bond_display)
+        self.connect(self.reset_bond_colors_btn, SIGNAL("clicked()"), self.reset_bond_colors)
+        self.connect(self.show_bond_labels_checkbox, SIGNAL("toggled(bool)"), self.change_bond_labels)
+        self.connect(self.show_valence_errors_checkbox, SIGNAL("toggled(bool)"), self.change_show_valence_errors)
+        self.connect(self.ballstick_bondcolor_btn, SIGNAL("clicked()"), self.change_ballstick_bondcolor)
+        self.connect(self.bond_hilite_color_btn, SIGNAL("clicked()"), self.change_bond_hilite_color)
+        self.connect(self.bond_line_thickness_spinbox, SIGNAL("valueChanged(int)"), self.change_bond_line_thickness)
+        self.connect(self.bond_stretch_color_btn, SIGNAL("clicked()"), self.change_bond_stretch_color)
+        self.connect(self.bond_vane_color_btn, SIGNAL("clicked()"), self.change_bond_vane_color)
+        self.connect(self.bondpoint_hilite_color_btn, SIGNAL("clicked()"), self.change_bondpoint_hilite_color)
 
-        # Mouse wheel prefs signal-slot connections.
+        # Connections for "Mouse controls" page.
         self.connect(self.mouseWheelDirectionComboBox,
                      SIGNAL("currentIndexChanged(int)"),
                      self.set_mouse_wheel_direction)
@@ -611,141 +669,116 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                      SIGNAL("currentIndexChanged(int)"),
                      self.set_mouse_wheel_zoom_out_position)
 
-        # DNA page signal-slot connections.
-        self.connect(self.dnaBasesPerTurnDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaBasesPerTurn)
-        self.connect(self.dnaRiseDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaRise)
-        self.connect(self.dnaRestoreFactoryDefaultsPushButton,SIGNAL("clicked()"),self.dnaRestoreFactoryDefaults)
-        self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
-
-        self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton,
-                     SIGNAL("clicked()"),
-                     self.change_dnaStrandThreePrimeArrowheadCustomColor)
+        # Connections for "DNA" page.
+        self.connect(self.dnaBasesPerTurnDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaBasesPerTurn)
+        self.connect(self.dnaRiseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaRise)
+        self.connect(self.dnaRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self.dnaRestoreFactoryDefaults)
+        self.connect(self.dnaDefaultSegmentColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultSegmentColor)
         
-        self.connect(self.strandFivePrimeArrowheadsCustomColorPushButton,
-                     SIGNAL("clicked()"),
-                     self.change_dnaStrandFivePrimeArrowheadCustomColor)
+        # Connections for "DNA Strand Arrowheads" groupbox widgets.
+        self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton, SIGNAL("clicked()"), self.change_dnaStrandThreePrimeArrowheadCustomColor)
+        self.connect(self.strandFivePrimeArrowheadsCustomColorPushButton, SIGNAL("clicked()"), self.change_dnaStrandFivePrimeArrowheadCustomColor)
+        self.connect(self.strandThreePrimeArrowheadsCustomColorCheckBox, SIGNAL("toggled(bool)"), self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets)
+        self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox, SIGNAL("toggled(bool)"), self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
         
-        self.connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
-                     SIGNAL("toggled(bool)"),
-                     self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets)
+        # Connections for "DNA Minor Groove Error Indicator" groupbox widgets.
+        self.connect(self.dnaMinGrooveAngleSpinBox, SIGNAL("valueChanged(int)"), self.save_dnaMinMinorGrooveAngles)
+        self.connect(self.dnaMaxGrooveAngleSpinBox, SIGNAL("valueChanged(int)"), self.save_dnaMaxMinorGrooveAngles)
+        self.connect(self.dnaGrooveIndicatorColorButton, SIGNAL("clicked()"), self.change_dnaMinorGrooveErrorIndicatorColor)
+        self.connect(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self._restore_dnaMinorGrooveFactoryDefaults)
+
+        # Connections for "DNA base orientation indicator" groupbox widgets.
+        self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox, SIGNAL("toggled(bool)"), self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
+        self.connect(self.dnaBaseOrientationIndicatorsInverseCheckBox, SIGNAL("toggled(bool)"), self.toggle_dnaDisplayBaseOrientationInvIndicatorsCheckBox)
+        self.connect(self.dnaBaseOrientationIndicatorsThresholdSpinBox, SIGNAL("valueChanged(double)"), self.change_dnaBaseIndicatorsAngle)
+        self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox, SIGNAL("valueChanged(double)"), self.change_dnaBaseIndicatorsDistance)
+        self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton, SIGNAL("clicked()"), self.change_dnaBaseIndicatorsColor)
+        self.connect(self.dnaChooseBaseOrientationIndicatorsInvColorButton, SIGNAL("clicked()"), self.change_dnaBaseInvIndicatorsColor)
+        self.connect(self.dnaBaseIndicatorsPlaneNormalComboBox, SIGNAL("activated(int)"), self.change_dnaBaseOrientIndicatorsPlane)
         
-        self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox,
-                     SIGNAL("toggled(bool)"),
-                     self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
+        # Connections for "Adjust" page.
+        self.connect(self.adjustEngineCombobox, SIGNAL("activated(int)"), self.set_adjust_minimization_engine)
+        self.connect(self.endRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndRms)
+        self.connect(self.endMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndMax)
+        self.connect(self.cutoverRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverRms)
+        self.connect(self.cutoverMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverMax)
         
-        # DNA Minor Groove Error Indicator signal/slot connections.
-        self.connect(self.dnaMinGrooveAngleSpinBox,
-                     SIGNAL("valueChanged(int)"),
-                     self.save_dnaMinMinorGrooveAngles)
-        self.connect(self.dnaMaxGrooveAngleSpinBox,
-                     SIGNAL("valueChanged(int)"),
-                     self.save_dnaMaxMinorGrooveAngles)
-        self.connect(self.dnaGrooveIndicatorColorButton,
-                     SIGNAL("clicked()"),
-                     self.change_dnaMinorGrooveErrorIndicatorColor)
-        self.connect(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton,
-                     SIGNAL("clicked()"),
-                     self._restore_dnaMinorGrooveFactoryDefaults)
+        self.endRmsDoubleSpinBox.setSpecialValueText("Automatic")
+        self.endMaxDoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverRmsDoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverMaxDoubleSpinBox.setSpecialValueText("Automatic")
+        """
+        self.connect(self.endrms_linedit, SIGNAL("textChanged(const QString&)"), self.change_endrms)
+        self.connect(self.endmax_linedit, SIGNAL("textChanged(const QString&)"), self.change_endmax)
+        self.connect(self.cutoverrms_linedit, SIGNAL("textChanged(const QString&)"), self.change_cutoverrms)
+        self.connect(self.cutovermax_linedit, SIGNAL("textChanged(const QString&)"), self.change_cutovermax)
+        self.connect(self.minimize_engine_combobox, SIGNAL("activated(int)"), self.set_adjust_minimization_engine)
+        """
+        
+        # Connections for "Lighting" page.
+        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_ambient_slider, SIGNAL("sliderReleased()"), self.save_lighting)
+        self.connect(self.light_checkbox, SIGNAL("toggled(bool)"), self.toggle_light)
+        self.connect(self.light_color_btn, SIGNAL("clicked()"), self.change_light_color)
+        self.connect(self.light_combobox, SIGNAL("activated(int)"), self.change_active_light)
+        self.connect(self.light_diffuse_slider, SIGNAL("sliderReleased()"), self.save_lighting)
+        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_specularity_slider, SIGNAL("sliderReleased()"), self.save_lighting)
+        self.connect(self.light_x_linedit, SIGNAL("returnPressed()"), self.save_lighting)
+        self.connect(self.light_y_linedit, SIGNAL("returnPressed()"), self.save_lighting)
+        self.connect(self.light_z_linedit, SIGNAL("returnPressed()"), self.save_lighting)
+        self.connect(self.lighting_restore_defaults_btn, SIGNAL("clicked()"), self.restore_default_lighting)
+        self.connect(self.ms_brightness_slider, SIGNAL("sliderReleased()"), self.change_material_brightness_stop)
+        self.connect(self.ms_brightness_slider, SIGNAL("valueChanged(int)"), self.change_material_brightness)
+        self.connect(self.ms_brightness_slider, SIGNAL("sliderPressed()"), self.change_material_brightness_start)
+        self.connect(self.ms_finish_slider, SIGNAL("valueChanged(int)"), self.change_material_finish)
+        self.connect(self.ms_finish_slider, SIGNAL("sliderReleased()"), self.change_material_finish_stop)
+        self.connect(self.ms_finish_slider, SIGNAL("sliderPressed()"), self.change_material_finish_start)
+        self.connect(self.ms_on_checkbox, SIGNAL("toggled(bool)"), self.toggle_material_specularity)
+        self.connect(self.ms_shininess_slider, SIGNAL("sliderReleased()"), self.change_material_shininess_stop)
+        self.connect(self.ms_shininess_slider, SIGNAL("sliderPressed()"), self.change_material_shininess_start)
+        self.connect(self.ms_shininess_slider, SIGNAL("valueChanged(int)"), self.change_material_shininess)
+        
+        # Connections for "Plug-ins" page.
+        self._setup_plugin_signals()
+        
+        # Connections for "Undo" page.
+        self.connect(self.undo_stack_memory_limit_spinbox, SIGNAL("valueChanged(int)"), self.change_undo_stack_memory_limit)
+        self.connect(self.update_number_spinbox, SIGNAL("valueChanged(int)"), self.update_number_spinbox_valueChanged)
 
-        # piotr 080325
-        self.connect(self.dnaDisplayBaseOrientationIndicatorsGroupBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationIndicatorsGroupBox)
-        self.connect(self.dnaBaseOrientationIndicatorsInverseCheckBox,SIGNAL("toggled(bool)"),self.toggle_dnaDisplayBaseOrientationInvIndicatorsCheckBox)
-        self.connect(self.dnaBaseOrientationIndicatorsThresholdSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsAngle)
-        self.connect(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,SIGNAL("valueChanged(double)"),self.change_dnaBaseIndicatorsDistance)
-        self.connect(self.dnaChooseBaseOrientationIndicatorsColorButton,SIGNAL("clicked()"),self.change_dnaBaseIndicatorsColor)
-        self.connect(self.dnaChooseBaseOrientationIndicatorsInvColorButton,SIGNAL("clicked()"),self.change_dnaBaseInvIndicatorsColor)
-        self.connect(self.dnaBaseIndicatorsPlaneNormalComboBox,SIGNAL("activated(int)"),self.change_dnaBaseOrientIndicatorsPlane)
-
-        self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
-        self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
-        self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
-        self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_atom_radius)
-        self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_cylinder_radius)
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
-        self.connect(self.current_height_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
-        self.connect(self.current_width_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
-        self.connect(self.cutovermax_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutovermax)
-        self.connect(self.cutoverrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutoverrms)
-        self.connect(self.default_display_btngrp,SIGNAL("buttonClicked(int)"),
-                     self.set_default_display_mode)
-        #ninad070430 : For A9, there is only one default and startup mode 
-        #(which is Select Chunbks mode) So disabling the following. 
-        ##self.connect(self.default_mode_combox,SIGNAL("activated(int)"),
-                ##self.change_default_mode)
-        ##self.connect(self.startup_mode_combox,
-                ##SIGNAL("activated(const QString&)"),self.change_startup_mode)
-        self.connect(self.default_projection_btngrp,SIGNAL("buttonClicked(int)"),self.set_default_projection)
-        self.connect(self.compassGroupBox,SIGNAL("stateChanged(int)"),self.display_compass)
-        self.connect(self.endmax_linedit,SIGNAL("textChanged(const QString&)"),self.change_endmax)
-        self.connect(self.endrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_endrms)
-        self.connect(self.minimize_engine_combobox,SIGNAL("activated(int)"),self.set_adjust_minimization_engine)
-        self.connect(self.logosDownloadPermissionBtnGroup,
-                     SIGNAL("buttonClicked(int)"),
-                     self.setPrefsLogoDownloadPermissions)
-
-        self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
-        self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
-        self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
-        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
-        self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
-        self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
-        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
-        self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
-        self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
-        self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
-        self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
-        self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
-        self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
-        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
-        self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
-        self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
-        self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
-        self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
-        self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
-        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
-            
-        self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
-        self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
-        self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
-        self.connect(self.restore_saved_size_btn,SIGNAL("clicked()"),self.restore_saved_size)
-        self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
-        self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
-        self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
-
+        # Connections for "Window" page.
+        self.connect(self.caption_fullpath_checkbox, SIGNAL("stateChanged(int)"), self.set_caption_fullpath)
+        self.connect(self.current_height_spinbox, SIGNAL("valueChanged(int)"), self.change_window_size)
+        self.connect(self.current_width_spinbox, SIGNAL("valueChanged(int)"), self.change_window_size)
+        self.connect(self.restore_saved_size_btn, SIGNAL("clicked()"), self.restore_saved_size)
+        self.connect(self.save_current_btn, SIGNAL("clicked()"), self.save_current_win_pos_and_size)
+        
         # Connections for font widgets (in "Windows" page). Mark 2007-05-27.
-        self.connect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.connect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.connect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.connect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        self.connect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.connect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.connect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.connect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
 
         # Connections for color theme.
-        self.connect(self.colorThemeComboBox,SIGNAL("currentIndexChanged(const QString&)"),self.change_color_theme)
-
-        self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
-        self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
-        self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
-        self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
-        self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
-        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
-        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
-        self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
-        self.connect(self.mouseSpeedDuringRotation_slider,SIGNAL("valueChanged(int)"),self.change_mouseSpeedDuringRotation)
-        self.connect(self.resetMouseSpeedDuringRotation_btn,SIGNAL("clicked()"),self.reset_mouseSpeedDuringRotation)
+        self.connect(self.colorThemeComboBox, SIGNAL("currentIndexChanged(const QString&)"), self.change_color_theme)
         
-        self.connect(self.okButton,SIGNAL("clicked()"),self.accept)
-        self.connect(self.whatsThisToolButton,SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
+        # Connections for "Tooltips" page.
+        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipAtomDistancePrecision)
+        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipBendAnglePrecision)
+        self.connect(self.historyHeight_spinbox, SIGNAL("valueChanged(int)"), self.change_historyHeight)
+        self.connect(self.mouseSpeedDuringRotation_slider, SIGNAL("valueChanged(int)"), self.change_mouseSpeedDuringRotation)
+        self.connect(self.resetMouseSpeedDuringRotation_btn, SIGNAL("clicked()"), self.reset_mouseSpeedDuringRotation)
+        
+        # Connections for OK and What's This buttons at the bottom of the dialog.
+        self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
+        self.connect(self.whatsThisToolButton, SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
         
         # = End of connections.
 
         #mark 060627
         # Validator for the linedit widgets. [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]
+        """
         self.endrms_validator = QDoubleValidator(self)
         self.endrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0.0 to 100, 2 decimal places
         self.endrms_linedit.setValidator(self.endrms_validator)
@@ -761,6 +794,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.cutovermax_validator = QDoubleValidator(self)
         self.cutovermax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
         self.cutovermax_linedit.setValidator(self.cutovermax_validator)
+        """
 
         #ninad20070509 setup general page. The items on the general page don't 
         #work properly if the current index of Preferences dialog is set as 0 
@@ -771,8 +805,72 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         #bruce 050811 added these:
         self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
-        self._setup_caption_signals()
-        self._setup_plugin_signals() #bruce 060710
+        self._setupWindowPageSignalSlotConnections()
+        
+        self._setupWhatsThisText()
+    
+    def _setup_plugin_signals(self):
+        """
+        Signal-slot connections for all widgets on the 'Plugins' page.
+        """
+        
+        # QuteMolX signal-slot connections.
+        self.connect(self.qutemol_checkbox, SIGNAL("toggled(bool)"), self.enable_qutemol)
+        self.connect( self.qutemol_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_qutemol_path)
+        self.connect(self.qutemol_choose_btn, SIGNAL("clicked()"), self.choose_qutemol_path)
+
+        # NanoHive-1 signal-slot connections.
+        self.connect(self.nanohive_checkbox, SIGNAL("toggled(bool)"), self.enable_nanohive)
+        self.connect( self.nanohive_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_nanohive_path)
+        self.connect(self.nanohive_choose_btn, SIGNAL("clicked()"), self.choose_nanohive_path)
+
+        # POV-Ray signal-slot connections.
+        self.connect(self.povray_checkbox, SIGNAL("toggled(bool)"), self.enable_povray)
+        self.connect( self.povray_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_povray_path)
+        self.connect(self.povray_choose_btn, SIGNAL("clicked()"), self.choose_povray_path)
+
+        # POV dir signal-slot connections.
+        self.connect(self.povdir_checkbox, SIGNAL("toggled(bool)"), self.enable_povdir)
+        self.connect( self.povdir_lineedit, SIGNAL("textEdited (const QString&) "), self.povdir_lineedit_textChanged )
+        self.connect(self.povdir_choose_btn, SIGNAL("clicked()"), self.set_povdir)
+        self.connect( self.povdir_lineedit, SIGNAL("returnPressed()"), self.povdir_lineedit_returnPressed )
+
+        # MegaPOV signal-slot connections.
+        self.connect(self.megapov_checkbox, SIGNAL("toggled(bool)"), self.enable_megapov)
+        self.connect( self.megapov_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_megapov_path )
+        self.connect(self.megapov_choose_btn, SIGNAL("clicked()"), self.choose_megapov_path)
+
+        # GAMESS signal-slot connections.
+        self.connect(self.gamess_checkbox, SIGNAL("toggled(bool)"), self.enable_gamess)
+        self.connect(self.gamess_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gamess_path)
+        self.connect(self.gamess_choose_btn, SIGNAL("clicked()"), self.choose_gamess_path)
+
+        # GROMACS signal-slot connections.
+        self.connect(self.gromacs_checkbox, SIGNAL("toggled(bool)"), self.enable_gromacs)
+        self.connect(self.gromacs_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gromacs_path)
+        self.connect(self.gromacs_choose_btn, SIGNAL("clicked()"), self.choose_gromacs_path)
+
+        # cpp signal-slot connections.
+        self.connect(self.cpp_checkbox, SIGNAL("toggled(bool)"), self.enable_cpp)
+        self.connect(self.cpp_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_cpp_path)
+        self.connect(self.cpp_choose_btn, SIGNAL("clicked()"), self.choose_cpp_path)
+
+        # NanoVision-1 signal-slots connections.
+        self.connect(self.nv1_checkbox, SIGNAL("toggled(bool)"), self.enable_nv1)
+        self.connect(self.nv1_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_nv1_path)
+        self.connect(self.nv1_choose_btn, SIGNAL("clicked()"), self.choose_nv1_path)
+        
+    def _setupWindowPageSignalSlotConnections(self):
+        """
+        Signal-slot connections for all widgets on the 'Window' page.
+        """
+        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_prefix_linedit_textChanged )
+        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), self.caption_prefix_linedit_returnPressed )
+        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_suffix_linedit_textChanged )
+        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), self.caption_suffix_linedit_returnPressed )
+        return
+    
+    def _setupWhatsThisText(self):
 
         # This is where What's This descriptions should go for Preferences.
         # Mark 050831.
@@ -803,25 +901,22 @@ or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%</p>"""
                                  <p>Continue until this RMS force is reached.</p>""")
         self.endmax_lbl.setWhatsThis("""<b>EndMax</b>
                                  <p>Continue until no interaction exceeds this force.</p>""")
-        self.endmax_linedit.setWhatsThis("""<b>EndMax</b>
+        self.endMaxDoubleSpinBox.setWhatsThis("""<b>EndMax</b>
                                      <p>Continue until no interaction exceeds this force.</p>""")
-        self.endrms_linedit.setWhatsThis("""<b>EndRMS</b>
+        self.endRmsDoubleSpinBox.setWhatsThis("""<b>EndRMS</b>
                                      <p>Continue until this RMS force is reached.</p>""")
         self.cutovermax_lbl.setWhatsThis("""<b>CutoverMax</b>
                                          <p>Use steepest descent until no interaction
 exceeds this force.</p>""")
-        self.cutovermax_linedit.setWhatsThis("""<b>CutoverMax</b>
+        self.cutoverMaxDoubleSpinBox.setWhatsThis("""<b>CutoverMax</b>
                                              <p>Use steepest descent until no interaction
 exceeds this force.</p>""")
-        self.cutoverrms_linedit.setWhatsThis("""<b>CutoverRMS</b>
+        self.cutoverRmsDoubleSpinBox.setWhatsThis("""<b>CutoverRMS</b>
                                              <p>Use steepest descent until this RMS force
 is reached.</p>""")
         self.cutoverrms_lbl.setWhatsThis("""<b>CutoverRMS</b>
                                          <p>Use steepest descent until this RMS force
 is reached.</p>""")
-        self.groupBox14.setWhatsThis("""<b>Settings for Adjust</b>
-                                     <p>This group of settings affect the
-behavior of <b>Adjust All</b> and <b>Adjust Selection</b>.</p>""")
 
         # Sponsor Logos Download Permission
         self.sponsorLogosGroupBox.setWhatsThis("""<b>Sponsor Logos Download Permission</b>
@@ -988,18 +1083,7 @@ restored when the user undoes a structural change.</p>
         return
 
 
-    def _setup_caption_signals(self):
-        # caption_prefix signals
-        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), \
-                      self.caption_prefix_linedit_textChanged )
-        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), \
-                      self.caption_prefix_linedit_returnPressed )
-        # caption_suffix signals
-        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), \
-                      self.caption_suffix_linedit_textChanged )
-        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), \
-                      self.caption_suffix_linedit_returnPressed )
-        return
+    
 
     # caption_prefix slot methods [#e should probably refile these with other slot methods?]
     def caption_prefix_linedit_textChanged(self, qstring):
@@ -1019,112 +1103,7 @@ restored when the user undoes a structural change.</p>
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
     caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
 
-    def _setup_plugin_signals(self):
-        """
-        Signal-slot connections for all widgets on the 'Plugins' page.
-        """
-
-        # QuteMolX signal-slot connections.
-        self.connect(self.qutemol_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_qutemol)
-        self.connect( self.qutemol_path_lineedit, 
-                      SIGNAL("textEdited (const QString&) "), \
-                      self.set_qutemol_path)
-        self.connect(self.qutemol_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_qutemol_path)
-
-        # NanoHive-1 signal-slot connections.
-        self.connect(self.nanohive_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_nanohive)
-        self.connect( self.nanohive_path_lineedit, 
-                      SIGNAL("textEdited (const QString&) "), \
-                      self.set_nanohive_path)
-        self.connect(self.nanohive_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_nanohive_path)
-
-        # POV-Ray signal-slot connections.
-        self.connect(self.povray_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_povray)
-        self.connect( self.povray_path_lineedit, 
-                      SIGNAL("textEdited (const QString&) "), \
-                      self.set_povray_path)
-        self.connect(self.povray_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_povray_path)
-
-        # POV dir signal-slot connections.
-        self.connect(self.povdir_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_povdir)
-        self.connect( self.povdir_lineedit, 
-                      SIGNAL("textEdited (const QString&) "), \
-                      self.povdir_lineedit_textChanged )
-        self.connect(self.povdir_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.set_povdir)
-        self.connect( self.povdir_lineedit, 
-                      SIGNAL("returnPressed()"), \
-                      self.povdir_lineedit_returnPressed )
-
-        # MegaPOV signal-slot connections.
-        self.connect(self.megapov_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_megapov)
-        self.connect( self.megapov_path_lineedit, 
-                      SIGNAL("textEdited (const QString&) "), \
-                      self.set_megapov_path )
-        self.connect(self.megapov_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_megapov_path)
-
-        # GAMESS signal-slot connections.
-        self.connect(self.gamess_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_gamess)
-        self.connect(self.gamess_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_gamess_path)
-        self.connect(self.gamess_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_gamess_path)
-
-        # GROMACS signal-slot connections.
-        self.connect(self.gromacs_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_gromacs)
-        self.connect(self.gromacs_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_gromacs_path)
-        self.connect(self.gromacs_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_gromacs_path)
-
-        # cpp signal-slot connections.
-        self.connect(self.cpp_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_cpp)
-        self.connect(self.cpp_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_cpp_path)
-        self.connect(self.cpp_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_cpp_path)
-
-        # NanoVision-1 signal-slots connections.
-        self.connect(self.nv1_checkbox,
-                     SIGNAL("toggled(bool)"),
-                     self.enable_nv1)
-        self.connect(self.nv1_path_lineedit,
-                     SIGNAL("textEdited(const QString&)"),
-                     self.set_nv1_path)
-        self.connect(self.nv1_choose_btn,
-                     SIGNAL("clicked()"),
-                     self.choose_nv1_path)
+    
 
     ###### Private methods ###############################
     def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
@@ -1159,42 +1138,80 @@ restored when the user undoes a structural change.</p>
         """
         Setup widgets to initial (default or defined) values on the General page.
         """
+        
+        self.setUI_LogoDownloadPermissions()
+        
+        # Build Atoms Default Settings.  mark 060203.
+        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
+
+        # This has been removed for A9. It has never been implemented anyway. Mark 060815.
+        # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
+
+    def _setup_model_view_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the 'Model
+        View' page.
+        """
+        # Setup Background Color widgets.
+        if self.glpane.backgroundGradient:
+            self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
+            
+        # Set "Global Display Style at start-up" option.
+        # bruce comments:
+        # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
+        # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
+        #   match our internal display style codes, and are set by buttongroup.insert in the pyuic output file,
+        #   but for some reason the buttons are inserted in a different order than they're shown.
+        # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
+        #   while the dialog is shown.
+        startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
+        if startup_display_style == 2:
+            self.cpk_rbtn.setChecked(True)
+        elif startup_display_style == 4: 
+            self.ballNstick_rbtn.setChecked(True)
+        elif startup_display_style == 3: 
+            self.lines_rbtn.setChecked(True)
+        elif startup_display_style == 5: 
+            self.tubes_rbtn.setChecked(True)
+            
         connect_checkbox_with_boolean_pref( self.compassGroupBox, displayCompass_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
+        
+        if 0:
+            # bruce 070424: comment out this code which doesn't yet work in Qt4
+            self.update_originAxis_btngroup.setEnabled(env.prefs[displayOriginAxis_prefs_key]) #ninad060920
 
-        #Mouse wheel combo boxes
-        self.mouseWheelDirectionComboBox.setCurrentIndex(
-            env.prefs[mouseWheelDirection_prefs_key])
-        self.mouseWheelZoomInPointComboBox.setCurrentIndex(
-            env.prefs[zoomInAboutScreenCenter_prefs_key])
-        self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
-            env.prefs[zoomOutAboutScreenCenter_prefs_key])
-
-        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(0)
-        elif not env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(1)
-        elif not env.prefs[displayVertRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(2)
-
-        self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
-        connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
-        self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
-        connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
-
+            #@@@ ninad060920 In the dialog box, I have made the axis related radio buttons exclusive
+            #but still I need to supply the following condition , otherwise, if the Small Axis Radio button is False
+            #and user restarts the session, both the radio buttons are set to false.  Not sure why this is happening
+            if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
+                self.displayOriginAsSmallAxis_rbtn.setChecked(True)
+            else:
+                self.displayOriginAsCrossWires_rbtn.setChecked(True) 
+                
+        """
         if env.prefs[defaultProjection_prefs_key] == 0:
             self.perspective_radioButton.setChecked(True)
         else:
             self.orthographic_radioButton.setChecked(True)
+        """
 
+    def _setup_zoom_pan_rotate_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the 
+        'Zoom, Pan Rotate' page.
+	"""
+        
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
-
-        # This has been removed for A9. It has never been implemented anyway. Mark 060815.
-        # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
-
+        
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
 
@@ -1207,52 +1224,32 @@ restored when the user undoes a structural change.</p>
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
 
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+        
+        # Mouse wheel zoom settings combo boxes
+        self.mouseWheelDirectionComboBox.setCurrentIndex(
+            env.prefs[mouseWheelDirection_prefs_key])
+        self.mouseWheelZoomInPointComboBox.setCurrentIndex(
+            env.prefs[zoomInAboutScreenCenter_prefs_key])
+        self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
+            env.prefs[zoomOutAboutScreenCenter_prefs_key])
 
-        # Set "Global Display Style at start-up" option.
-        startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
-        if startup_display_style == 2:
-            self.cpk_rbtn.setChecked(True)
-        elif startup_display_style == 4: 
-            self.ballNstick_rbtn.setChecked(True)
-        elif startup_display_style == 3: 
-            self.lines_rbtn.setChecked(True)
-        elif startup_display_style == 5: 
-            self.tubes_rbtn.setChecked(True)
+    def _setup_rulers_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the 
+        'Rulers' page.
+	"""
+        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(0)
+        elif not env.prefs[displayHorzRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(1)
+        elif not env.prefs[displayVertRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(2)
 
-            # bruce comments:
-            # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
-            # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
-            #   match our internal display style codes, and are set by buttongroup.insert in the pyuic output file,
-            #   but for some reason the buttons are inserted in a different order than they're shown.
-            # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
-            #   while the dialog is shown.
-
-        # Build Atoms Default Settings.  mark 060203.
-        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
-
-        if 0:
-            # bruce 070424: comment out this code which doesn't yet work in Qt4
-            self.update_originAxis_btngroup.setEnabled(env.prefs[displayOriginAxis_prefs_key]) #ninad060920
-
-            #@@@ ninad060920 In the dialog box, I have made the axis related radio buttons exclusive
-            #but still I need to supply the following condition , otherwise, if the Small Axis Radio button is False
-            #and user restarts the session, both the radio buttons are set to false.  Not sure why this is happening
-            if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
-                self.displayOriginAsSmallAxis_rbtn.setChecked(True)
-            else:
-                self.displayOriginAsCrossWires_rbtn.setChecked(True) 
-
-        # Setup Background Color widgets.
-        if self.glpane.backgroundGradient:
-            self.bg_gradient_setup()
-        else:
-            self.bg_solid_setup()
-
-        self.setUI_LogoDownloadPermissions()
-
+        self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
+        connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
+        self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
+        connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
+        
     def _setup_plugins_page(self):
         """
         Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -1313,7 +1310,7 @@ restored when the user undoes a structural change.</p>
         # "Settings for Adjust" groupbox. ###########################
 
         # Adjust Engine combobox.
-        self.minimize_engine_combobox.setCurrentIndex(
+        self.adjustEngineCombobox.setCurrentIndex(
             env.prefs[Adjust_minimizationEngine_prefs_key])
         # Watch motion in real time checkbox.
         connect_checkbox_with_boolean_pref(
@@ -1331,17 +1328,19 @@ restored when the user undoes a structural change.</p>
 
         # Convergence Criteria groupbox
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
-        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
-        self.endrms_linedit.setText(str(self.endrms))
+        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, 0.0)
+        self.endRmsDoubleSpinBox.setValue(self.endrms)
 
-        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, '')
-        self.endmax_linedit.setText(str(self.endmax))
+        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, 0.0)
+        self.endMaxDoubleSpinBox.setValue(self.endmax)
 
-        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, '')
-        self.cutoverrms_linedit.setText(str(self.cutoverrms))
+        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, 0.0)
+        self.cutoverRmsDoubleSpinBox.setValue(self.cutoverrms)
 
-        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
-        self.cutovermax_linedit.setText(str(self.cutovermax))
+        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, 0.0)
+        self.cutoverMaxDoubleSpinBox.setValue(self.cutovermax)
+        
+        self.endRmsDoubleSpinBox.setValue(self.endrms)
 
     # == Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
 
@@ -1366,9 +1365,9 @@ restored when the user undoes a structural change.</p>
 
         # These sliders generate signals whenever their 'setValue()' slot is called (below).
         # This creates problems (bugs) for us, so we disconnect them temporarily.
-        self.disconnect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.disconnect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.disconnect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.disconnect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.disconnect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.disconnect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
 
         # self.lights[light_num][0] contains 'color' attribute.  
         # We already have it (self.light_color) from the prefs key (above).
@@ -1390,9 +1389,9 @@ restored when the user undoes a structural change.</p>
         self.light_checkbox.setChecked(self.lights[light_num][7])
 
         # Reconnect the slots to the light sliders.
-        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
 
         self._setup_material_group()
 
@@ -1464,9 +1463,9 @@ restored when the user undoes a structural change.</p>
         cpk_sf = env.prefs[cpkScaleFactor_prefs_key]
         # This slider generate signals whenever its 'setValue()' slot is called (below).
         # This creates problems (bugs) for us, so we disconnect it temporarily.
-        self.disconnect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.disconnect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
         self.cpk_scale_factor_slider.setValue(int (cpk_sf * 200.0)) # generates signal
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
         self.cpk_scale_factor_linedit.setText(str(cpk_sf))
 
         connect_checkbox_with_boolean_pref(
@@ -1766,7 +1765,7 @@ restored when the user undoes a structural change.</p>
         self.glpane.compassPosition = val
         self.glpane.gl_update()
 
-    def set_default_projection(self, projection):
+    def set_default_projection_OBSOLETE(self, projection):
         """
         Set the projection.
 
@@ -1774,6 +1773,10 @@ restored when the user undoes a structural change.</p>
                            - 0 = Perspective
                            - 1 = Orthographic
         @type  projection: int
+        
+        @deprecated: I'm removing this from the Preferences dialog.
+        The defaultProjection_prefs_key will be set instead by the 
+        main window UI (View > Display menu). -Mark 2008-05-20
         """
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
@@ -1836,9 +1839,45 @@ restored when the user undoes a structural change.</p>
         env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
         self.mouseSpeedDuringRotation_slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100.0))
         self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
-
+    
+    def changeEndRms(self, endRms):
+        """
+        Slot for EndRMS.
+	"""
+        if endRms:
+            env.prefs[Adjust_endRMS_prefs_key] = endRms
+        else:
+            env.prefs[Adjust_endRMS_prefs_key] = -1.0
+        
+    def changeEndMax(self, endMax):
+        """
+        Slot for EndMax.
+	"""
+        if endMax:
+            env.prefs[Adjust_endMax_prefs_key] = endMax
+        else:
+            env.prefs[Adjust_endMax_prefs_key] = -1.0
+    
+    def changeCutoverRms(self, cutoverRms):
+        """
+        Slot for CutoverRMS.
+	"""
+        if cutoverRms:
+            env.prefs[Adjust_cutoverRMS_prefs_key] = cutoverRms
+        else:
+            env.prefs[Adjust_cutoverRMS_prefs_key] = -1.0
+            
+    def changeCutoverMax(self, cutoverMax):
+        """
+        Slot for CutoverMax.
+	"""
+        if cutoverRms:
+            env.prefs[Adjust_cutoverMax_prefs_key] = cutoverMax
+        else:
+            env.prefs[Adjust_cutoverMax_prefs_key] = -1.0
+    
     # [WARNING: bruce 060705 copied some of the following methods into MinimizeEnergyProp.py]
-    def change_endrms(self, text):
+    def change_endrms_OBSOLETE(self, text):
         """
         Slot for EndRMS.
         This gets called each time a user types anything into the widget.
@@ -1853,8 +1892,8 @@ restored when the user undoes a structural change.</p>
             self.endrms = endrms_str
         except:
             print_compact_traceback("bug in change_endrms ignored: ") #bruce 060627
-
-    def change_endmax(self, text):
+            
+    def change_endmax_OBSOLETE(self, text):
         """
         Slot for EndMax.
         This gets called each time a user types anything into the widget.
@@ -1870,7 +1909,7 @@ restored when the user undoes a structural change.</p>
         except:
             print_compact_traceback("bug in change_endmax ignored: ") #bruce 060627
 
-    def change_cutoverrms(self, text):
+    def change_cutoverrms_OBSOLETE(self, text):
         """
         Slot for Cutover RMS.
         This gets called each time a user types anything into the widget.
@@ -1885,8 +1924,8 @@ restored when the user undoes a structural change.</p>
             self.cutoverrms = cutoverrms_str
         except:
             print_compact_traceback("bug in change_cutoverrms ignored: ") #bruce 060627
-
-    def change_cutovermax(self, text):
+    
+    def change_cutovermax_OBSOLETE(self, text):
         """
         Slot for Cutover Max.
         This gets called each time a user types anything into the widget.
@@ -1901,7 +1940,6 @@ restored when the user undoes a structural change.</p>
             self.cutovermax = cutovermax_str
         except:
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
-
 
     def set_adjust_minimization_engine(self, engine):
         """
@@ -3608,19 +3646,19 @@ restored when the user undoes a structural change.</p>
             font_size = env.prefs[displayFontPointSize_prefs_key]
             font = QFont(font_family, font_size)
 
-        self.disconnect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.disconnect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.disconnect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.disconnect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        self.disconnect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.disconnect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.disconnect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.disconnect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
 
         self.selectedFontGroupBox.setChecked(env.prefs[useSelectedFont_prefs_key]) # Generates signal!
         self.fontComboBox.setCurrentFont(font) # Generates signal!
         self.fontSizeSpinBox.setValue(font_size) # Generates signal!
 
-        self.connect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
-        self.connect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
-        self.connect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
-        self.connect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        self.connect(self.selectedFontGroupBox, SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.connect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.connect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.connect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
 
         if setFontFromPrefs:
             self.set_font()
@@ -3738,33 +3776,42 @@ restored when the user undoes a structural change.</p>
             if pagename == 'General':
                 self._setup_general_page()
                 self.prefsStackedWidget.setCurrentIndex(0)
+            elif pagename == 'Model View':
+                self._setup_model_view_page()
+                self.prefsStackedWidget.setCurrentIndex(1)
+            elif pagename == 'Zoom, Pan and Rotate':
+                self._setup_zoom_pan_rotate_page()
+                self.prefsStackedWidget.setCurrentIndex(2)
+            elif pagename == 'Rulers':
+                self._setup_rulers_page()
+                self.prefsStackedWidget.setCurrentIndex(3)
             elif pagename == 'Atoms':
                 self._setup_atoms_page()
-                self.prefsStackedWidget.setCurrentIndex(1)
+                self.prefsStackedWidget.setCurrentIndex(4)
             elif pagename == 'Bonds':
                 self._setup_bonds_page()
-                self.prefsStackedWidget.setCurrentIndex(2)
+                self.prefsStackedWidget.setCurrentIndex(5)
             elif pagename == 'DNA':
                 self._setup_dna_page()
-                self.prefsStackedWidget.setCurrentIndex(3)
+                self.prefsStackedWidget.setCurrentIndex(6)
             elif pagename == 'Adjust':
                 self._setup_adjust_page()
-                self.prefsStackedWidget.setCurrentIndex(4)
+                self.prefsStackedWidget.setCurrentIndex(7)
             elif pagename == 'Lighting':
                 self._setup_lighting_page()
-                self.prefsStackedWidget.setCurrentIndex(5)
+                self.prefsStackedWidget.setCurrentIndex(8)
             elif pagename == 'Plug-ins':
                 self._setup_plugins_page()
-                self.prefsStackedWidget.setCurrentIndex(6)
+                self.prefsStackedWidget.setCurrentIndex(9)
             elif pagename == 'Undo':
                 self._setup_undo_page()
-                self.prefsStackedWidget.setCurrentIndex(7)
+                self.prefsStackedWidget.setCurrentIndex(10)
             elif pagename == 'Window':
                 self._setup_window_page()
-                self.prefsStackedWidget.setCurrentIndex(8)
+                self.prefsStackedWidget.setCurrentIndex(11)
             elif pagename == 'Tooltips':
                 self._setup_tooltips_page()
-                self.prefsStackedWidget.setCurrentIndex(9)
+                self.prefsStackedWidget.setCurrentIndex(12)
             else:
                 print 'Error: Preferences page unknown: ', pagename
         except:
