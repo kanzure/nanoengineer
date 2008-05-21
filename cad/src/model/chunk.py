@@ -407,14 +407,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return # from Chunk.__init__
 
     # ==
-    
+
     def isNullChunk(self): # by Ninad
         """
         @return: whether chunk is a "null object" (used as atom.molecule for some
         killed atoms).
 
         This is overridden in subclass _nullMol_Chunk ONLY.
-        
+
         @see: _nullMol_Chunk.isNullChunk()
         """
         return False
@@ -432,7 +432,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         should call its ladder_invalidate_and_assert_permitted method.
         """
         return
-        
+
     def in_a_valid_ladder(self): #bruce 071203
         """
         Is this chunk a rail of a valid DnaLadder?
@@ -472,7 +472,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # A graphene sheet or a simple chunk that thinks its a nanotube.
                     return
                 if segment is not None:
-                   
+
                     # Self is a member of a Nanotube group, so add this 
                     # info to a disabled menu item in the context menu.
                     item = (("%s" % (segment.name)),
@@ -530,7 +530,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         item = (("%s " % segment.name),
                                 noop,
                                 'disabled')
-                        
+
                     contextMenuList.append(item)
                     item = (("Edit DnaSegment Properties..."), 
                             segment.edit)
@@ -542,15 +542,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         if len(selectedDnaSegments) > 0:
                             item = (("Resize Selected DnaSegments "\
                                      "(%d)..."%len(selectedDnaSegments)), 
-                                self.assy.win.resizeSelectedDnaSegments)
+                                    self.assy.win.resizeSelectedDnaSegments)
                             contextMenuList.append(item)
                             contextMenuList.append(None)
                     if self.ladder:
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
                         if menu_spec:
                             contextMenuList.extend(menu_spec)
-                            
-                    
+
+
 
         return # from make_glpane_context_menu_items
 
@@ -1832,11 +1832,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # in hidden chunks, even in display modes that don't draw atoms,
         # etc. (But not for frustum culled atoms, since the indicators
         # would also be off-screen.) [bruce 080411 new feature]
-        
+
         indicate_overlapping_atoms = self.part and self.part.indicate_overlapping_atoms
             # note: using self.part for this is a slight kluge;
             # see the comments where this variable is defined in class Part.
-        
+
         if self.hidden and not indicate_overlapping_atoms:
             # (usually do this now, to avoid overhead of frustum test;
             #  if indicate_overlapping_atoms is true, we'll test self.hidden
@@ -1864,7 +1864,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if self.hidden:
             # catch the case where indicate_overlapping_atoms skipped this test earlier
             return
-        
+
         self.basepos
         # make sure basepos is up-to-date, so basecenter is not changed
         # during the redraw. #e Ideally we'd have a way to detect or
@@ -1893,7 +1893,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         disp = self.get_dispdef(glpane) 
             # piotr 080401: Moved it here, because disp is required by 
             # _draw_external_bonds.
-            
+
         # piotr 080415: fixing bug 2785 again (not in rc1)
         # Non-DNA chunks shouldn't be drawn using the diDNACYLINDER style. 
         if disp == diDNACYLINDER \
@@ -1903,7 +1903,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # note: it should never happen that disp == diDNACYLINDER
             # if the global display style == diDNACYLINDER and the chunk is non-DNA. 
             # self.get_dispdef takes care of that case.
-            
+
         if is_chunk_visible:
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
             # external bonds (unless a separate debug pref is set.) 
@@ -2044,7 +2044,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                            "%r != %r, what's up?" % (should_not_change,
                                                      ( + self.basecenter, + self.quat))
-                    
+
                 pass # end of drawing within self's local coordinate frame
 
             except:
@@ -2241,7 +2241,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             neighborhoodGenerator.add(atom)
             continue
         return
-    
+
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
         """
         [private submethod of self.draw]
@@ -2349,11 +2349,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 glCallList(self.displist.nocolor_dl)
                 self.popMatrix()
 
+            # piotr 080521: Get display mode for drawing external bonds and/or
+            # the "realtime" objects.
+            disp = self.get_dispdef(glpane)
+
             #russ 080302: Draw external bonds.
             if self.externs:
                 # From Chunk.draw().
                 drawLevel = self.assy.drawLevel
-                disp = self.get_dispdef(glpane)
                 # From Chunk._draw_external_bonds
                 ColorSorter.start(None)
                 for bond in self.externs:
@@ -2361,7 +2364,14 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     continue
                 ColorSorter.finish()
                 pass
-            pass                    
+            pass
+
+            # piotr 080521
+            # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
+            hd = get_display_mode_handler(disp)
+            if hd:
+                hd._drawchunk_realtime(glpane, self, highlighted=True)
+
         else:
             if self.get_dispdef() == diDNACYLINDER :
                 #If the chunk is drawn with the DNA cylinder display style, 
@@ -3048,7 +3058,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         change self's color to the specified color. A color of None
         means self's atoms are drawn with their element colors.
-        
+
         @param color: None, or a standard color 3-tuple.
 
         @param repaint_in_MT: True by default; callers can optimize by passing
@@ -3306,7 +3316,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             pass
 
         return
-    
+
     def getAxis_of_self_or_eligible_parent_node(self, atomAtVectorOrigin = None):
         """
         Return the axis of a parent node such as a DnaSegment or a Nanotube 
@@ -3326,7 +3336,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
             if axisVector is not None:
                 return axisVector, dnaSegment
-        
+
         dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
         if dnaStrand and self.isStrandChunk():
             arbitraryAtom = self.atlist[0]
@@ -3336,13 +3346,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 axisVector = dnaSegment.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
                 if axisVector is not None:
                     return axisVector, dnaSegment
-            
+
         nanotube = self.parent_node_of_class(self.assy.NanotubeSegment)
         if nanotube:
             axisVector = nanotube.getAxisVector(atomAtVectorOrigin = atomAtVectorOrigin)
             if axisVector is not None:
                 return axisVector, nanotube
-            
+
         #If no eligible parent node with an axis is found, return self's 
         #axis.
         return self.getaxis(), self
@@ -4182,19 +4192,19 @@ class _nullMol_Chunk(Chunk):
         else:
             print msg
         return
-    
+
     def isNullChunk(self): # by Ninad, implementing old suggestion by Bruce for is_nullMol
         """
         @return: whether chunk is a "null object" (used as atom.molecule for some
         killed atoms).
 
         Overrides Chunk method.
-        
+
         This method helps replace comparisons to _nullMol (helps with imports, 
         replaces set_undo_nullMol, permits per-assy _nullMol if desired)
         """
         return True
-    
+
     pass # end of class _nullMol
 
 # ==
@@ -4230,7 +4240,7 @@ def shakedown_poly_evals_evecs_axis(basepos):
     axis = compute_heuristic_axis( basepos, 'chunk',
                                    evals_evecs = (evals, evecs), aspect_threshhold = 0.95,
                                    near1 = V(1,0,0), near2 = V(0,1,0), dflt = V(1,0,0) # prefer axes parallel to screen in default view
-                               )
+                                   )
 
     assert axis is not None
     axis = A(axis) ##k if this is in fact needed, we should probably do it inside compute_heuristic_axis for sake of other callers

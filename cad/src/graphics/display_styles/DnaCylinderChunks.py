@@ -48,6 +48,7 @@ from graphics.drawing.CS_draw_primitives import drawpolycone_multicolor
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.drawers import drawCircle
 from graphics.drawing.drawers import drawFilledCircle
+from graphics.drawing.drawers import drawtext
 
 from math import sin, cos, pi
 from Numeric import dot, argmax, argmin, sqrt
@@ -369,6 +370,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
             o += 1
             new_points[0] = 3.0 * new_points[1] - 3.0 * new_points[2] + new_points[3] 
             new_points[o] = 3.0 * new_points[o-1] - 3.0 * new_points[o-2] + new_points[o-3] 
+            new_colors[0] = new_colors[1]
+            new_colors[o] = new_colors[o - 1]
+            new_radii[0] = new_radii[1]
+            new_radii[o] = new_radii[o - 1]
             return (new_points, new_colors, new_radii)
         else:
             return (points, colors, radii)
@@ -462,7 +467,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
             if color_style == 1:                    
                 for i in range(1, n_atoms+1):
                     colors[i] = self._get_rainbow_color_in_range(
-                        i, n_atoms, 0.75, 1.0)
+                        i-1, n_atoms, 0.75, 1.0)
             elif color_style == 4:
                 for i in range(1, n_atoms+1):
                     colors[i] = group_color
@@ -595,6 +600,36 @@ class DnaCylinderChunks(ChunkDisplayMode):
         return radii
     pass
 
+
+    def _make_discrete_polycone(self, positions, colors, radii):
+        """
+        Converts a polycone_multicolor colors from smoothly interpolated 
+        gradient to discrete (sharp edged) color scheme.
+        The number of nodes will be duplicated.
+        """
+        n = len(positions)
+        new_positions = []
+        new_colors = []
+        new_radii = []
+        #new_positions.append(positions[0])
+        #new_colors.append(colors[0])
+        #new_radii.append(radii[0])
+        for i in range(0, n - 1):
+            new_positions.append(positions[i])
+            new_positions.append(positions[i])
+            new_colors.append(colors[i])
+            new_colors.append(colors[i+1])
+            new_radii.append(radii[i])
+            new_radii.append(radii[i])
+        #new_positions.append(positions[i+1])
+        #new_colors.append(colors[i+1])
+        #new_radii.append(radii[i+1])
+        print "colors = ", colors
+        print "new colors = ", new_colors
+        return (new_positions, new_colors, new_radii)
+    pass
+
+
     def drawchunk(self, glpane, chunk, memo, highlighted):
         """
         Draw chunk in glpane in the whole-chunk display mode represented by 
@@ -674,6 +709,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     # the "GL_COLOR_MATERIAL" mode, the
                     # color argument is ignored and colors array
                     # is used instead
+                    ### positions, colors, radii = self._make_discrete_polycone(positions, colors, radii)
                     drawpolycone_multicolor([0, 0, 0, -2], 
                                                    positions,
                                                    colors,
@@ -809,8 +845,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 if flipped:
                     dvec = norm(cross(dpos, -out))
                 else:
-                    dvec = norm(cross(dpos, out))                    
-                pos0 = chunk.abs_to_base(axis_atom.posn())
+                    dvec = norm(cross(dpos, out))
+                pos0 = axis_atom.posn()
+                if not highlighted:
+                    pos0 = chunk.abs_to_base(pos0)
                 pos1 = pos0 + ssep * dvec
                 pos2 = pos0 - ssep * dvec
                 if mol.ladder.strand_rails[0].baseatoms[pos] == strand_atom:
@@ -900,28 +938,41 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     plane_normal = glpane.right
                     
                 indicators, inv_indicators = get_dna_base_orientation_indicators(chunk, plane_normal)
-                                
-                for atom in indicators:
-                    drawsphere(
-                        indicators_color, 
-                        chunk.abs_to_base(atom.posn()), 1.5, 2)
-            
-                if inv_indicators_enabled:
-                    for atom in inv_indicators:
+                 
+                if highlighted:
+                    for atom in indicators:
                         drawsphere(
-                            inv_indicators_color, 
-                            chunk.abs_to_base(atom.posn()), 1.5, 2)
-
+                            indicators_color, 
+                            atom.posn(), 1.5, 2)
+                    if inv_indicators_enabled:
+                        for atom in inv_indicators:
+                            drawsphere(
+                                inv_indicators_color, 
+                                atom.posn(), 1.5, 2)
+                else:
+                    for atom in indicators:
+                        drawsphere(
+                            indicators_color, 
+                            chunk.abs_to_base(atom.posn()), 1.5, 2)                
+                    if inv_indicators_enabled:
+                        for atom in inv_indicators:
+                            drawsphere(
+                                inv_indicators_color, 
+                                chunk.abs_to_base(atom.posn()), 1.5, 2)
+    
             if chunk.isStrandChunk():       
                 if hasattr(chunk, "_dnaStyleExternalBonds"):
                     for exbond in chunk._dnaStyleExternalBonds:
                         atom1, atom2, color = exbond
+                        pos1 = atom1.posn()
+                        pos2 = atom2.posn()
                         if chunk.picked:
                             color = darkgreen
                         if highlighted:
                             color = yellow
-                        pos1 = chunk.abs_to_base(atom1.posn())
-                        pos2 = chunk.abs_to_base(atom2.posn())
+                        else:
+                            pos1 = chunk.abs_to_base(pos1)
+                            pos2 = chunk.abs_to_base(pos2)
                         drawsphere(color, pos1, self.dnaStyleStrandsScale, 2)
                         drawsphere(color, pos2, self.dnaStyleStrandsScale, 2)
                         drawcylinder(color, pos1, pos2, self.dnaStyleStrandsScale, True)              
@@ -947,7 +998,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     glDisable(GL_LIGHTING)            
                     for atom in chunk.atoms.itervalues():
                         # pre-compute atom position
-                        textpos = chunk.abs_to_base(atom.posn())+3.0*glpane.out
+                        if not highlighted:
+                            textpos = chunk.abs_to_base(atom.posn()) + 3.0 * glpane.out
+                        else:
+                            textpos = atom.posn() + 3.0 * glpane.out
                         # get atom base name
                         label_text = QString(atom.getDnaBaseName())
                         # move the text center to the atom position
@@ -1020,11 +1074,17 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     labelFont = QFont( QString("Helvetica"), font_scale)
 
                                     # define a color of the label
-                                    if labels_color_mode==0:
-                                        glpane.qglColor(RGBf_to_QColor(chunk_color))
+                                    if highlighted:
+                                        glpane.qglColor(RGBf_to_QColor(yellow))
+                                    elif chunk.picked:
+                                        glpane.qglColor(RGBf_to_QColor(darkgreen))
                                     else:
-                                        glpane.qglColor(RGBf_to_QColor(labels_color))
-
+                                        if labels_color_mode == 0:
+                                            glpane.qglColor(RGBf_to_QColor(chunk_color))
+                                        else:
+                                            glpane.qglColor(RGBf_to_QColor(labels_color))
+    
+                                        
                                     # get font metrics to calculate text extents
                                     fm = QFontMetrics(labelFont)
                                     label_text = QString(strand.name)+QString(" ")
@@ -1032,8 +1092,11 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                                     # calculate the text position
                                     # move a bit into viewers direction
-                                    textpos = chunk.abs_to_base(atom.posn())+halfbond+5.0*glpane.out 
-
+                                    if not highlighted:
+                                        textpos = chunk.abs_to_base(atom.posn()) + halfbond + 5.0 * glpane.out 
+                                    else:
+                                        textpos = atom.posn() + halfbond + 5.0 * glpane.out 
+                                        
                                     # calculate shift for right aligned text
                                     dx, dy = _realTextSize(label_text, fm)
 
@@ -1056,8 +1119,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # The helices are flattened, so sequence ond overall topology
             # can be visualized in a convenient way. Particularly
             # useful for short structural motifs and origami structures.
-            # As for 080415, this work is still considered very preliminary
+            # As of 080415, this work is still considered very preliminary
             # and experimental.
+            
+            # As of 080520, this code is less buggy, but still quite slow.
             
             # The structure will follow a 2D projection of the central axis.
             # Note: this mode doesn't work well for PAM5 models.
@@ -1066,15 +1131,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
             flipped = False
             
-            # if hasattr(chunk.ladder, "flipped"):
-            #     flipped = chunk.ladder.flipped
-                
-            # print "flipped: ", flipped
-            
             mode = self.dnaExperimentalMode - 1
-
-            #if not axis:
-            #    print "No axis rail for ", chunk
 
             no_axis = False
             
@@ -1151,7 +1208,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         dvec = norm(cross(dpos, -out))
                     else:
                         dvec = norm(cross(dpos, out))                    
-                    pos0 = chunk.abs_to_base(atom0.posn())
+                    pos0 = atom0.posn()
+                    if not highlighted:
+                        pos0 = chunk.abs_to_base(pos0)
                     s_atom0 = s_atom1 = None
                     if strand_atoms[0]:
                         if pos < len(strand_atoms[0]):
@@ -1188,6 +1247,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             
                             if chunk.picked:
                                 strand_color = darkgreen
+                             
+                            if highlighted:
+                                strand_color = yellow
                                 
                             glColor3fv(strand_color)
                             
@@ -1202,7 +1264,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     last_str_atom_pos = str_atoms_pos[str]
                                 else:
                                     last_str_atom_pos = None
-        
                             glEnd()
                             
                             if mode == 0 \
@@ -1243,11 +1304,19 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         base_name = str_atoms[str].getDnaBaseName()
                                         label_text = QString(base_name)
                                         textpos -= 0.5 * (dx + dy)  
+                                        color = black
                                         if chunk.picked:
                                             glColor3fv(darkgreen)
+                                        
+                                            color = darkgreen
+                                        elif highlighted:
+                                            glColor3fv(yellow)
+                                            color = yellow
                                         else:
                                             base_color = self._get_base_color(base_name)
                                             glColor3fv(base_color)
+                                            color = base_color
+                                        ### drawtext(label_text, color, textpos, font_scale, glpane)
                                         glpane.renderText(textpos[0], 
                                                           textpos[1], 
                                                           textpos[2], 
@@ -1259,10 +1328,13 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     glBegin(GL_LINES)
                                     if chunk.picked:
                                         glColor3fv(darkgreen)
+                                    elif highlighted:
+                                        glColor3f(yellow)
                                     for base in base_list:
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
-                                            if not chunk.picked:
+                                            if not chunk.picked and \
+                                               not highlighted:
                                                 base_color = self._get_base_color(
                                                     str_atoms[str].getDnaBaseName())
                                                 glColor3fv(base_color)   
@@ -1275,6 +1347,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     for base in base_list:
                                         if chunk.picked:
                                             lcolor = _light_color(darkgreen)
+                                        elif highlighted:
+                                            lcolor = yellow
                                         else:
                                             lcolor = _light_color(strand_color)
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
@@ -1301,6 +1375,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         # Draw filled circles in the center of the axis rail.
                         if chunk.picked:
                             color = darkgreen
+                        elif highlighted:
+                            color = yellow
                         else:
                             color = black
                         for base in base_list:
@@ -1594,6 +1670,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 radii = self._get_strand_radii(
                     strand_atoms[current_strand], 
                     self.dnaStyleStrandsScale)
+    
                 if self.dnaStyleStrandsShape == 2:
                     positions, \
                     colors, \
@@ -1624,9 +1701,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 else:
                                     color = group_color                                
                                 chunk._dnaStyleExternalBonds.append(
-                                    (bond.atom1, bond.atom2, color))
-                                
-         
+                                    (bond.atom1, bond.atom2, color))         
                     
                 # Make the strand arrows
                 # This code looks a bit complicated... make sure the conditions 
