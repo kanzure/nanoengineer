@@ -263,7 +263,7 @@ class PermissionDialog(QDialog, threading.Thread):
         layout.addWidget(self.text_browser,0,0,1,4)
         self.text_browser.setMinimumSize(400, 80)
         self.setWindowTitle('May we use your network connection?')
-        self.setWindowIcon(geticon('ui/border/MainWindow'))
+        self.setWindowIcon(geticon('ui/border/MainWindow.png'))
         self.text_browser.setPlainText(self.text)
         self.accept_button = QPushButton(self)
         self.accept_button.setObjectName("accept_button")
