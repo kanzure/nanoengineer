@@ -1414,6 +1414,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
             n = len(points)-1
             for i in range(1,n):
                 file.write("  " + povpoint(points[i]) +", %d\n" % radii[i]);
+            file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
+            """  
             file.write("  pigment {\n")
             vec = points[n]-points[1]
             file.write("    gradient <%g,%g,%g> scale %g translate <%g,%g,%g>\n" % 
@@ -1421,6 +1423,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         points[1][0], points[1][1], points[1][2]))
             file.write("    color_map { RainbowMap }\n")
             file.write("  }\n")
+            """
             file.write("}\n")
 
         def writecylinder(start, end, rad, color):
@@ -1437,6 +1440,14 @@ class DnaCylinderChunks(ChunkDisplayMode):
             file.write("  pigment {color <%g %g %g>}\n" % (color[0], color[1], color[2]))
             file.write("}\n")
         
+        def writecone(color, pos1, pos2, rad1, rad2):            
+            file.write("cone {\n")
+            file.write("  " + povpoint(pos1))
+            file.write(", %g\n" % (rad1))
+            file.write("  " + povpoint(pos2))
+            file.write(", %g\n" % (rad2))
+            file.write("  pigment {color <%g %g %g>}\n" % (color[0], color[1], color[2]))
+            file.write("}\n")
 
         # Write a POV-Ray file.
         
@@ -1462,13 +1473,121 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             positions[n_points-2], 
                             radii[n_points - 2], 2)                    
             
-            # set polycone parameters
+            # draw the polycone
+            writetube(positions, colors, radii, False, True)
+
+        elif chunk.isStrandChunk(): # strands, struts and bases 
+
+            writetube(positions, colors, radii, False, True)
+
+            # draw the arrows
+            for color, pos, rad in arrows:
+                writecone(color, pos[1], pos[2], rad[1], rad[2])
+
+        """
+        # render the axis cylinder        
+        if chunk.isAxisChunk() and \
+           positions: # fixed bug 2877 - piotr 080516
+            n_points = len(positions)            
+            if self.dnaStyleAxisShape>0:
+                # spherical ends    
+                if self.dnaStyleAxisEndingStyle == 4:
+                    drawsphere(colors[1], 
+                                      positions[1], 
+                                      radii[1], 2)
+                    drawsphere(colors[n_points - 2], 
+                                      positions[n_points-2], 
+                                      radii[n_points - 2], 2)                    
+
+                # set polycone parameters
+                gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
+                                | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
+                
+                # draw the polycone                
+                if self.dnaStyleAxisColor==1 \
+                   or self.dnaStyleAxisColor==2 \
+                   or self.dnaStyleAxisColor==3: # render discrete colors                
+                    drawpolycone_multicolor([0, 0, 0, -2], 
+                                                   positions, 
+                                                   colors, 
+                                                   radii)
+                else:   
+                    drawpolycone(colors[1], 
+                                        positions, 
+                                        radii)
+
+        elif chunk.isStrandChunk(): # strands, struts and bases 
             gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE 
                             | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
-            
-            # draw the polycone
-            writetube(positions, colors, radii, True, True)
 
+            if positions:                    
+                if self.dnaStyleStrandsColor == 1:
+                    # opactity value == -2 is a flag enabling 
+                    # the "GL_COLOR_MATERIAL" mode, the
+                    # color argument is ignored and colors array
+                    # is used instead
+                    ### positions, colors, radii = self._make_discrete_polycone(positions, colors, radii)
+                    drawpolycone_multicolor([0, 0, 0, -2], 
+                                                   positions,
+                                                   colors,
+                                                   radii)
+                else:
+                    drawpolycone(colors[1], 
+                                        positions,
+                                        radii)
+    
+                n_points = len(positions)
+                
+                # draw the ending spheres
+                drawsphere(
+                    colors[1], 
+                    positions[1], 
+                    radii[1], 2) 
+                
+                drawsphere(
+                    colors[n_points - 2], 
+                    positions[n_points - 2], 
+                    radii[n_points - 2], 2) 
+                
+                # draw the arrows
+                for color, pos, rad in arrows:
+                    drawpolycone(color, pos, rad)
+            # render struts
+            for color, pos1, pos2, rad in struts_cylinders:
+                drawcylinder(color, pos1, pos2, rad, True)
+                
+            # render nucleotides            
+            if self.dnaStyleBasesShape > 0:
+                for color, a1pos, a2pos, a3pos, normal, bname in base_cartoons:
+                    if self.dnaStyleBasesShape == 1: # sugar spheres
+                        drawsphere(color, a1pos, self.dnaStyleBasesScale, 2)
+                    elif self.dnaStyleBasesShape == 2: # draw a schematic 'cartoon' shape
+                        aposn = a1pos + 0.50 * (a2pos - a1pos)
+                        bposn = a1pos + 0.66 * (a2pos - a1pos)
+                        cposn = a1pos + 0.75 * (a2pos - a1pos)
+                        
+                        drawcylinder(color, 
+                            a1pos, 
+                            bposn, 
+                            0.20*self.dnaStyleBasesScale, True) 
+                        
+                        if bname == 'G' \
+                           or bname == 'A': # draw two purine rings                                
+                            drawcylinder(color, 
+                                aposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                aposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                0.7*self.dnaStyleBasesScale, True)                            
+                            drawcylinder(color, 
+                                cposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                cposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                0.9*self.dnaStyleBasesScale, True)
+                        else:
+                            drawcylinder(color, 
+                                bposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                bposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                0.9*self.dnaStyleBasesScale, True) 
+        """
+        
     def compute_memo(self, chunk):
         """
         If drawing chunks in this display mode can be optimized by precomputing
