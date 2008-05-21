@@ -2340,6 +2340,20 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             else:
                 print "unrecognized kind of virtual site:", start + " " + rest.strip()
             pass
+        elif patterntype == "makeBond":
+            # Pattern makeBond: [5] {47} {48} 1.046850 834.100000
+            # [match number]
+            # atom1, atom2 ({} indicates atom created by ND1)
+            # ks, r0
+            words = rest.strip().split()
+            ( matchseq, atom_id1, atom_id2, ks_s, r0_s, ) = words
+            atom1 = self.interpret_pattern_atom_id(atom_id1)
+            atom2 = self.interpret_pattern_atom_id(atom_id2)
+            ks = float(ks_s)
+            r0 = float(r0_s)
+            print "strut: r0: %f ks: %f" % (r0, ks), atom1, "-", atom2
+            # create a strut between atom1 and atom2, length r0, stiffness ks.
+            
         return # from createPatternIndicator
 
     def interpret_pattern_atom_id(self, id_string, ok_to_not_exist = False):
@@ -2356,8 +2370,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             return self._pattern_atom_id_cache[ id_string ]
         except KeyError:
             atom_id_num = self._atomID( id_string)
-            atom_id_index = atom_id_num - 1 ### Eric M, can you review this -1? [bruce 080520 4:45pm]
-            ### atom_id_num = int( id_string[1:-1] ) #e should first check syntax of string
+            atom_id_index = atom_id_num - 1
             alist = self.owner._movie.alist
             if not (0 <= atom_id_index < len(alist)):
                 # atom does not exist in alist
