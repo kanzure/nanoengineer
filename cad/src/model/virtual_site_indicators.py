@@ -14,7 +14,10 @@ from model.jigs import Jig
 from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray, darkgreen
 from graphics.drawing.drawers import drawwirecube
 from graphics.drawing.CS_draw_primitives import drawline
+from graphics.drawing.CS_draw_primitives import drawcylinder
 from geometry.VQT import V, vlen
+
+from utilities.Log import quote_html
 
 from model.chunk import Chunk
 
@@ -58,7 +61,7 @@ class VisualFeedbackJig(Jig):
         # (note: this is called at least once during or shortly after
         # construction of the VirtualSiteJig, not sure why.)
         return
-
+        
     # == other methods
 
     def setProps(self, props):
@@ -88,6 +91,14 @@ class VisualFeedbackJig(Jig):
         # we'd at least need to call it after copy (in the copy)
         # and in undo_update.
         return
+
+    def _any_atom_is_hidden(self):
+        """
+        """
+        for atom in self.atoms:
+            if atom.is_hidden():
+                return True
+        return False
     
     pass # end of class VisualFeedbackJig
 
@@ -124,6 +135,22 @@ class VirtualSiteJig( VisualFeedbackJig):
         VisualFeedbackJig.__init__(self, assy, atomlist)
         return
 
+    def _getToolTipInfo(self): # VirtualSiteJig
+        # untested, since some ###BUG prevents this from being shown
+        """
+        Return a string for display in self's Dynamic Tool tip.
+
+        (Appears when user highlights this jig's drawing,
+         but unrelated to tooltip on our site_atom itself.)
+        
+        [overridden from class Jig]
+        """
+        self._update_props() # doesn't yet matter in this method
+        msg = "%s: %s" % (self.sym, quote_html(self.name)) + \
+              "<br><font color=\"#0000FF\">" \
+              "%s</font>" % (self._props,)
+        return msg
+
     def site_atom(self):
         return self.atoms[-1]
 
@@ -153,6 +180,9 @@ class VirtualSiteJig( VisualFeedbackJig):
         return
 
     def _should_draw(self):
+        # note: this is not about whether to draw the site_atom
+        # (which is done by a different object),
+        # but about whether to draw connections from it to its parent atoms.
         return self.picked or self.site_atom().molecule.picked
             # so self needn't appear in MT if that chunk does
 
@@ -223,12 +253,29 @@ class VirtualBondJig( VisualFeedbackJig):
         VisualFeedbackJig.__init__(self, assy, atomlist)
         return
 
+    def _getToolTipInfo(self): # VirtualBondJig
+        """
+        Return a string for display in self's Dynamic Tool tip.
+        
+        [overridden from class Jig]
+        """
+        # todo: add strain or stress text, maybe more
+        self._update_props()
+        ks = self._ks
+        r0 = self._r0
+        msg = "%s: %s" % (self.sym, quote_html(self.name)) + \
+              "<br><font color=\"#0000FF\">" \
+              "ks = %f N/m<br>r0 = %f pm</font>" % (ks, r0,)
+        return msg
+
     def _draw_jig(self, glpane, color, highlighted = False):
         """
         [overrides superclass method]
         """
         del color
         self._update_props()
+        if not self._should_draw():
+            return
         if highlighted:
             color = yellow
         elif self.picked:
@@ -239,9 +286,14 @@ class VirtualBondJig( VisualFeedbackJig):
         ##     # todo: in this case draw a cyl, with glname, MT highlight behavior, etc...
         if 1: # stub
             posns = [a.posn() for a in self.atoms]
-            drawline( color, posns[0], posns[1], width = 2 ) # cylinder?
+            ## drawline( color, posns[0], posns[1], width = 2 )
+            drawrad = 0.1
+            drawcylinder( color, posns[0], posns[1], drawrad)
         return
 
+    def _should_draw(self):
+        return not self._any_atom_is_hidden() #080520 new feature
+    
     def _should_draw_thicker(self): # not yet used
         return self.picked or \
                self.atoms[0].molecule.picked or \
@@ -271,7 +323,8 @@ class VirtualBondJig( VisualFeedbackJig):
             # limit = r0 * 1.5
             #frac = (length - r0) / (r0 * 0.5)
             limit_color = red
-        neutral_color = gray
+        ## neutral_color = gray
+        neutral_color = (0.8, 0.8, 0.8) # "very light gray"
         if frac > 1.0:
             frac = 1.0
         color = ave_colors( frac, limit_color, neutral_color )
@@ -283,9 +336,30 @@ class VirtualBondJig( VisualFeedbackJig):
 
 class VirtualSiteChunk(Chunk):
     """
+    A chunk that (initially) has only a virtual site atom, and represents it in the MT.
+    This atom will also have a VirtualSiteJig (and be its site_atom),
+    which cooperates with us in some sense, and which we can find
+    via that atom.
+
+    Nothing prevents a user from merging several of these chunks
+    into one. Its jig-drawing code will still work then.
+    
+    Nothing prevents merging it into a regular chunk, but doing that
+    would break that code (i.e. stop drawing the VirtualSiteJigs),
+    so users shouldn't do that.
     """
     # someday: custom icon for MT?
     # note: mmp save/reload would not preserve this chunk subclass
+
+    # maybe someday: hide our atom if some or all of our parent atoms
+    # are hidden. Do this by self.hidden = True so it's noticed by
+    # any VirtualBondJigs on our atom. Not simple, since it needs to be
+    # done before drawing, not during it, since it's a model change
+    # (doing that during drawing can cause bugs); but hidden state
+    # can't yet be subscribed to. Maybe an update_parts hook could do it?
+    # Not sure if even that would be safe (in terms of changing the model
+    # then), though I guess it probably is since updaters change it quite a bit.
+    # Anyway, for now, this feature is not needed.
 
     def _draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible):
         Chunk._draw_outside_local_coords(self, glpane, disp, drawLevel, is_chunk_visible)
@@ -297,6 +371,7 @@ class VirtualSiteChunk(Chunk):
                 pass
             continue
         return
+
     pass
 
 # ==
