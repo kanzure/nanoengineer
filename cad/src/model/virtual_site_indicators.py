@@ -259,13 +259,17 @@ class VirtualBondJig( VisualFeedbackJig):
         
         [overridden from class Jig]
         """
-        # todo: add strain or stress text, maybe more
         self._update_props()
-        ks = self._ks
-        r0 = self._r0
+        ks = self._ks # N/m
+        r0 = self._r0 # pm
+        length = self._getLength() # pm
+        force = ks * (length - r0) # pN
         msg = "%s: %s" % (self.sym, quote_html(self.name)) + \
               "<br><font color=\"#0000FF\">" \
-              "ks = %f N/m<br>r0 = %f pm</font>" % (ks, r0,)
+              "ks = %f N/m<br>" \
+              "r0 = %f pm<br>" \
+              "len = %f pm<br>" \
+              "force = %f pN</font>" % (ks, r0, length, force)
         return msg
 
     def _draw_jig(self, glpane, color, highlighted = False):
@@ -307,12 +311,16 @@ class VirtualBondJig( VisualFeedbackJig):
         self._ks, self._r0 = props # TODO: use in draw, tooltip
         return
 
+    def _getLength(self):
+        length_in_Angstroms = vlen( self.atoms[0].posn() - self.atoms[1].posn() )
+        length = 100.0 * length_in_Angstroms # in pm == picometers
+        return length
+        
     def _drawing_color(self):
         r0 = self._r0 # pm
         ks = self._ks # N/m
-        length_in_Angstroms = vlen( self.atoms[0].posn() - self.atoms[1].posn() )
-        length = 100.0 * length_in_Angstroms # in pm == picometers
-        frac = 1 - 1 / (0.05 * ks * abs(r0 - length) + 1)
+        length = self._getLength() # pm
+        frac = 1 - 1 / (0.08 * ks * abs(r0 - length) + 1)
         if length < r0:
             # compressed: blue (gray if not at all, blue if a lot; should use ks somehow to get energy or force...)
             # limit = r0 * 0.5
