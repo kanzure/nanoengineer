@@ -259,15 +259,16 @@ class VirtualBondJig( VisualFeedbackJig):
         ks = self._ks # N/m
         length_in_Angstroms = vlen( self.atoms[0].posn() - self.atoms[1].posn() )
         length = 100.0 * length_in_Angstroms # in pm == picometers
+        frac = 1 - 1 / (0.05 * ks * abs(r0 - length) + 1)
         if length < r0:
             # compressed: blue (gray if not at all, blue if a lot; should use ks somehow to get energy or force...)
             # limit = r0 * 0.5
-            frac = (r0 - length) / (r0 * 0.5) # if > 1, we'll use 1 below
+            #frac = (r0 - length) / (r0 * 0.5) # if > 1, we'll use 1 below
             limit_color = blue
         else:
             # stretched
             # limit = r0 * 1.5
-            frac = (length - r0) / (r0 * 0.5)
+            #frac = (length - r0) / (r0 * 0.5)
             limit_color = red
         neutral_color = gray
         if frac > 1.0:
