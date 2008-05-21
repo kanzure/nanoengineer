@@ -19,7 +19,7 @@ _DIRECTIONAL_BOND_ELEMENTS_OTHER = ()
 # ==
 
 _defaultRad_Color = {
-    "Vs0" : (2.5, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
+    "Vs0" : (1.0, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
     }
   
 _altRad_Color = {
