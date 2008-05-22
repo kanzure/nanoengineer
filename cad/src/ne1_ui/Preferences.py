@@ -196,6 +196,10 @@ from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
 from utilities.prefs_constants import fogEnabled_prefs_key
 
+#global display preferences
+from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
+from utilities.constants import diBALL, diTUBES, diDNACYLINDER
+
 #background color preferences
 from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
@@ -637,9 +641,15 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 	"""
         # Load the Background color combobox with standard gradients and colors.
         self._loadBackgroundColorItems()
+        
+        #Load the Global Display combobox
+        self._loadGlobalDisplayStylesAtStartup()
+        
         self._createGlobalDisplayStyleGroupBox()
         
         self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
+        self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.set_default_display_mode)
+        
         self.connect(self.default_display_btngrp, SIGNAL("buttonClicked(int)"), self.set_default_display_mode)
         
         self.connect(self.compassGroupBox, SIGNAL("stateChanged(int)"), self.display_compass)
@@ -1278,6 +1288,32 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
     ###### Private methods ###############################
 
+    def _loadGlobalDisplayStylesAtStartup(self):
+        """
+            Loads the global display style combobox with all the display options 
+            and sets the current display style
+        """
+        
+        
+        displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
+        displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
+        displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+        
+        displayIconsDict = dict(zip(displayNames, displayIcons))
+        displayNamesDict = dict(zip(displayIndexes, displayNames))
+        
+        for displayName in displayNames:
+            
+            basename = displayIconsDict[displayName] + ".png"
+            iconPath = os.path.join("ui/actions/View/Display/", 
+                                    basename)
+            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), displayName)
+            
+        display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
+        self.globalDisplayStyleStartupComboBox.setCurrentIndex(displayIndexes.index(display_style))
+    
+    
+        
     def _createGlobalDisplayStyleGroupBox(self):
         #Default atom Display groupbox in Modes tab (as of 070430)
         self.default_display_btngrp = QButtonGroup()
@@ -2871,15 +2907,44 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
         return
 
-    def set_default_display_mode(self, display_style): #bruce 050810 revised this to set the pref immediately
+    
+    def _getDisplayModeAtStartUp(self, display_styleInCombobox):
+        """
+        Find display style that corresponds to the display style in the Global 
+        Display Style Combo Box
+	"""
+         
+        diLINE_INDEX = 0
+        diTUBES_INDEX = 1
+        diBALL_INDEX = 2
+        diTrueCPK_INDEX = 3
+        
+        if display_styleInCombobox == diLINE_INDEX:
+            display_style = diLINES
+        elif display_styleInCombobox == diTUBES_INDEX:
+            display_style = diTUBES
+        elif display_styleInCombobox == diBALL_INDEX:
+            display_style = diBALL
+        elif display_styleInCombobox == diTrueCPK_INDEX:
+            display_style = diTrueCPK
+        else:
+            display_style = diDNACYLINDER
+            
+        return display_style
+        
+    def set_default_display_mode(self, display_styleInCombobox): #bruce 050810 revised this to set the pref immediately
         """
 	Set the global display style at start up to I{display_style}. 
 
         This also changes the global display style of the glpane to 
         <display_style>.
-        """        
+        """
+        #map the combox box index to correct display_style
+        
+        display_style = self._getDisplayModeAtStartUp(display_styleInCombobox)
         if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
             return
+        
         # set the pref
         env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
 
