@@ -16,6 +16,8 @@ from PyQt4.Qt import Qt
 
 # ==
 
+
+
 MULTIPANE_GUI = True # enable some code which was intended to permit the main window
     # to contain multiple PartWindows. Unfortunately we're far from that being possible,
     # but we're also (I strongly suspect, but am not sure) now dependent on this
@@ -548,7 +550,7 @@ lighterblue = ave_colors( 0.5, white, blue)
 brown = ave_colors(0.5, black, yellow) 
 
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
-eveningsky = (0.0, 0.3, 0.0), (0.0, 0.3, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0) # GLPane "Evening Sky" gradient
+eveningsky = (0.0, 0.0, 0.3), (0.0, 0.0, 0.3), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0) # GLPane "Evening Sky" gradient
 
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
