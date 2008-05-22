@@ -238,6 +238,17 @@ not covered by the mmpformat version record value:
   after this upcoming release of NE1 1.0.0, and revise that scheme somehow
   for any new mmp recordname that needs it, by adding a new info kind just for
   that mmp recordname (which can be isomorphic to info leaf).
+
+==
+
+Update, 080521: I fixed a bug in Atom.writemmp's rounding of negative
+atom position coordinates. I didn't modify the mmpformat version for this,
+since it would cause old code to warn when reading new files, even though
+these are *more* compatible with that reader code than older-written
+files are (since their atom coordinates were written by buggy code).
+This forgoes a chance to record in the file whether the writing bug
+was fixed, but there will very soon be a new preferred mmpformat version
+for other reasons, so it's not important.
 """
 
 # ==
