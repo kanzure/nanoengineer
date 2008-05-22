@@ -141,6 +141,9 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
+from utilities.prefs_constants import bgBLUE_SKY, bgEVENING_SKY
+
+
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
 # builtin_command_loaders.py [bruce 080209]
@@ -3621,20 +3624,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # clear, and draw background
 
         c = self.backgroundColor
+        
         glClearColor(c[0], c[1], c[2], 0.0)
         self.fogColor = (c[0], c[1], c[2], 1.0) # piotr 080515        
         del c
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
-            #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
+            #e if stencil clear is expensive, we could optim and only do it when 
+            #needed [bruce ca. 050615]
 
-        # "Blue Sky" is the only gradient bg supported.
-        if self.backgroundGradient:
+        # for now only evening sky and blue sky gradient backgrounds are supported
+        if self.backgroundGradient:    
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
             _bgGradient = bluesky
+            if env.prefs[backgroundGradient_prefs_key] == bgBLUE_SKY:
+                _bgGradient = bluesky
+            if env.prefs[backgroundGradient_prefs_key] == bgEVENING_SKY:
+                _bgGradient = eveningsky
+                
             drawFullWindow(_bgGradient)
             # fogColor is an average of the gradient components
             # piotr 080515
