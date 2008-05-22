@@ -3640,8 +3640,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
             _bgGradient = bluesky
-            if env.prefs[backgroundGradient_prefs_key] == bgBLUE_SKY:
-                _bgGradient = bluesky
+            
             if env.prefs[backgroundGradient_prefs_key] == bgEVENING_SKY:
                 _bgGradient = eveningsky
                 
