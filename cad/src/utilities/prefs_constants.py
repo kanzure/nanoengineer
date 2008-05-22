@@ -44,6 +44,28 @@ import sys, os # for getDefaultWorkingDirectory
 
 # ==
 
+#constants related to user chosen background color for display
+
+bgBLUE_SKY = 0
+bgEVENING_SKY = 1
+bg_BLACK = 2
+bg_WHITE = 3
+bg_GRAY = 4
+bg_CUSTOM = 5
+
+
+backgroundIndexes = [bgBLUE_SKY, bgEVENING_SKY, bg_BLACK, bg_WHITE, bg_GRAY, 
+                  bg_CUSTOM]
+backgroundNames   = ["Blue Sky (default)","Evening Sky","Black",  
+                   "White","Gray", "Custom..."]
+
+backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
+                     "Background_Black", "Background_White", "Background_Gray"]
+
+backgroundIconsDict = dict(zip(backgroundNames, backgroundIcons))
+backgroundNamesDict = dict(zip(backgroundIndexes, backgroundNames))
+
+
 # Compass position constants.  These are used to preserve the preference value
 # for the compass position and relate directly to the radio button group values for the options 
 # presented in the Preferences/General dialog.  Do not change the value of these 4 constants!
