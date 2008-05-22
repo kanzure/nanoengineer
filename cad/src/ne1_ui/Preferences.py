@@ -926,21 +926,32 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         from utilities.icon_utilities import geticon
         
         for backgroundName in backgroundNames:
-            if backgroundName == "Custom..." :
-                iconPath = "ui/actions/Properties Manager/GHOST_ICON.png"
-                self.backgroundColorComboBox.addItem(geticon(iconPath),
-                                                     backgroundName)    
             
-            else:
-                basename = backgroundIconsDict[backgroundName] + ".png"
-                iconPath = os.path.join("ui/dialogs/Preferences/", 
+            basename = backgroundIconsDict[backgroundName] + ".png"
+            iconPath = os.path.join("ui/dialogs/Preferences/", 
                                     basename)
-                self.backgroundColorComboBox.addItem(geticon(iconPath), 
-                                                     backgroundName)
+            self.backgroundColorComboBox.addItem(geticon(iconPath), 
+                                                 backgroundName)
 
-        self.backgroundColorComboBox.setCurrentIndex(bgBLUE_SKY)
-        
-        
+            
+             
+            # set index in the combo box
+            if self.glpane.backgroundGradient: 
+                if env.prefs[backgroundGradient_prefs_key] == bgEVENING_SKY:
+                    self.backgroundColorComboBox.setCurrentIndex(bgEVENING_SKY)
+                else:
+                    
+                    self.backgroundColorComboBox.setCurrentIndex(bgBLUE_SKY) 
+            else:
+                
+                if (env.prefs[ backgroundColor_prefs_key ] == [0.76, 0.76, 0.76]):
+                    self.backgroundColorComboBox.setCurrentIndex(bg_GRAY)
+                elif (env.prefs[ backgroundColor_prefs_key ] == [0.0, 0.0, 0.0]):
+                    self.backgroundColorComboBox.setCurrentIndex(bg_BLACK)
+                elif (env.prefs[ backgroundColor_prefs_key ] == [1.0, 1.0, 1.0]):
+                    self.backgroundColorComboBox.setCurrentIndex(bg_WHITE)  
+                else:
+                    self.backgroundColorComboBox.setCurrentIndex(bg_CUSTOM) 
         return
     
     def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
@@ -1819,16 +1830,25 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 	"""
         
         print "changeBackgroundColor(): Slot method called. Idx =", idx
+        #change background color to Blue Sky or Evening Sky
         if idx == bgBLUE_SKY or idx == bgEVENING_SKY:
             if idx == bgBLUE_SKY :
                 
                 self.glpane.setBackgroundGradient(True) 
-                env.prefs[backgroundGradient_prefs_key] = bgBLUE_SKY
+                
+                #env.prefs[backgroundGradient_prefs_key] for blue sky is set to a
+                #non zero value. Hence bgBLUE_SKY_ENV_PREF is arbitrarily chosen
+                # since bgBLUE_SKY
+                # is zero and 1 is assigned to evening sky
+                #This is used to set the index of the background color combo box
+                #when NE_1 is first loaded
+                
+                env.prefs[backgroundGradient_prefs_key] = bgBLUE_SKY_ENV_PREF
             else:
                 
                 self.glpane.setBackgroundGradient(True) 
                 env.prefs[backgroundGradient_prefs_key] = bgEVENING_SKY
-            #change background color to Blue Sky or Evening Sky
+            
             
             plt = QtGui.QPalette()      
             plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
