@@ -248,6 +248,33 @@ def _mmp_format_version_we_can_read(): # bruce 080328, revised 080410 (should it
         res = _MMP_FORMAT_VERSION_WE_CAN_READ__MOST_CONSERVATIVE
     return res
 
+# ==
+
+def decode_atom_coordinate(coord_string): #bruce 080521; perhaps never used
+    """
+    Decode an atom coordinate string as used in the atom record
+    of an mmp file (in the traditional format as of 080521).
+    Return a float, in Angstroms.
+    """
+    # note: this is inlined in decode_atom_coordinates
+    return float(coord_string) / 1000.0 # in Angstroms
+
+def decode_atom_coordinates(xs, ys, zs): #bruce 080521
+    """
+    Decode three atom coordinate strings as used in the atom record
+    of an mmp file (in the traditional format as of 080521).
+    Interpret them as x, y, z coordinates respectively.
+    Return a Numeric array of three floats, in Angstroms
+    (which is the NE1 internal standard for representing a
+     model space position).
+    """
+    # this would be correct (untested):
+    ## return A(map( decode_atom_coordinate, [xs, ys, zs]))
+    # but it's better to optimize by inlining decode_atom_coordinate:
+    return V(float(xs), float(ys), float(zs)) / 1000.0
+
+# ==
+
 class _readmmp_state:
     """
     Hold the state needed by _readmmp between lines;
@@ -580,7 +607,8 @@ class _readmmp_state:
             sym = "C"
             errmsg = "unsupported element in this mmp line; using %s: %s" % (sym, card,)
             self.format_error(errmsg)
-        xyz = A(map(float, [m.group(3), m.group(4), m.group(5)])) / 1000.0
+        ## xyz = A(map(float, [m.group(3), m.group(4), m.group(5)])) / 1000.0
+        xyz = decode_atom_coordinates( m.group(3), m.group(4), m.group(5) ) #bruce 080521
         if self.prevchunk is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
             self.guess_sim_input('missing_group_or_chunk')
@@ -595,7 +623,8 @@ class _readmmp_state:
         self.ndix[n] = a
         self.prevatom = a
         self.prevcard = card
-        
+        return
+
     def _read_bond1(self, card):
         return self.read_bond_record(card, V_SINGLE)
         
