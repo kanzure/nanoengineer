@@ -28,6 +28,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QWhatsThis
 from PyQt4.Qt import QTreeWidget
 
+
 from PreferencesDialog import Ui_PreferencesDialog
 import foundation.preferences as preferences
 from utilities.debug import print_compact_traceback
@@ -195,6 +196,16 @@ from utilities.prefs_constants import displayFont_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
 from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
 from utilities.prefs_constants import fogEnabled_prefs_key
+
+#background color preferences
+from utilities.prefs_constants import backgroundColor_prefs_key
+from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import bgBLUE_SKY, bgEVENING_SKY, bg_BLACK 
+from utilities.prefs_constants import bg_WHITE, bg_GRAY, bg_CUSTOM
+from utilities.prefs_constants import backgroundIndexes, backgroundNames
+from utilities.prefs_constants import backgroundIcons
+from utilities.prefs_constants import backgroundIconsDict, backgroundNamesDict
+#from utilities.prefs_constants import BLUE_SKY_NUM, EVENING_SKY_NUM
 
 debug_sliders = False # Do not commit as True
 
@@ -901,11 +912,35 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     
 
     ###### Private methods ###############################
+
+    
     
     def _loadBackgroundColorItems(self):
         """
-	Load the background color combobox with all the color options.
+	Load the background color combobox with all the color options and sets 
+        the current background color
 	"""
+        
+        #do something with the default background color later, setup signal slot
+        # connections
+        from utilities.icon_utilities import geticon
+        
+        for backgroundName in backgroundNames:
+            if backgroundName == "Custom..." :
+                iconPath = "ui/actions/Properties Manager/GHOST_ICON.png"
+                self.backgroundColorComboBox.addItem(geticon(iconPath),
+                                                     backgroundName)    
+            
+            else:
+                basename = backgroundIconsDict[backgroundName] + ".png"
+                iconPath = os.path.join("ui/dialogs/Preferences/", 
+                                    basename)
+                self.backgroundColorComboBox.addItem(geticon(iconPath), 
+                                                     backgroundName)
+
+        self.backgroundColorComboBox.setCurrentIndex(bgBLUE_SKY)
+        
+        
         return
     
     def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
@@ -1782,7 +1817,64 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
 	Slot method for the background color combobox.
 	"""
+        
         print "changeBackgroundColor(): Slot method called. Idx =", idx
+        if idx == bgBLUE_SKY or idx == bgEVENING_SKY:
+            if idx == bgBLUE_SKY :
+                
+                self.glpane.setBackgroundGradient(True) 
+                env.prefs[backgroundGradient_prefs_key] = bgBLUE_SKY
+            else:
+                
+                self.glpane.setBackgroundGradient(True) 
+                env.prefs[backgroundGradient_prefs_key] = bgEVENING_SKY
+            #change background color to Blue Sky or Evening Sky
+            
+            plt = QtGui.QPalette()      
+            plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
+                    RGBf_to_QColor(self.glpane.backgroundColor))
+            plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
+                     RGBf_to_QColor(self.glpane.backgroundColor))
+            plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,
+                     RGBf_to_QColor(self.glpane.backgroundColor))
+
+            self.bg1_color_frame.setPalette(plt)
+            self.glpane.gl_update()
+
+            
+            
+        
+        elif idx == bg_BLACK or idx == bg_WHITE or idx == bg_GRAY:
+             #change background color to Black, White or Gray
+             # Get the bg color rgb values of the glpane.
+            if idx == bg_WHITE:
+                self.glpane.setBackgroundColor([1.0,1.0,1.0])
+                
+            elif idx == bg_BLACK:
+                self.glpane.setBackgroundColor([0.0,0.0,0.0])
+                   
+            else:
+                self.glpane.setBackgroundColor([0.76,0.76,0.76])
+                
+            
+                
+            plt = QtGui.QPalette()      
+            plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
+                         RGBf_to_QColor(self.glpane.backgroundColor))
+            plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
+                         RGBf_to_QColor(self.glpane.backgroundColor))
+            plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,
+                         RGBf_to_QColor(self.glpane.backgroundColor))
+             
+            self.bg1_color_frame.setPalette(plt)
+
+            self.glpane.setBackgroundGradient(False) # This also stores the pref in the db.
+            self.glpane.setBackgroundColor(self.glpane.backgroundColor)
+            self.glpane.gl_update()
+        else: 
+            #change background color to Custom Color
+            self.change_bg1_color()
+        
         return
 
     def change_fill_type(self, ftype):
