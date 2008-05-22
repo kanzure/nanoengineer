@@ -1407,12 +1407,12 @@ class DnaCylinderChunks(ChunkDisplayMode):
             """
             file.write("sphere_sweep {\n")
             if smooth == True:
-                file.write("  cubic_spline\n")
+                file.write("  linear_spline\n")
             else:
-                file.write("  cubic_spline\n")
-            file.write("  %d,\n" % (len(points)-2))
-            n = len(points)-1
-            for i in range(1,n):
+                file.write("  linear_spline\n")
+            file.write("  %d,\n" % (len(points)))
+            n = len(points)
+            for i in range(0,n):
                 file.write("  " + povpoint(chunk.base_to_abs(points[i])) +", %g\n" % radii[i]);
             file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
             """  
@@ -1436,16 +1436,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
         def writesphere(color, pos, rad):
             file.write("sphere {\n")
             file.write("  " + povpoint(chunk.base_to_abs(pos)))
-            file.write(", %g\n", rad)
+            file.write(", %g\n" % rad)
             file.write("  pigment {color <%g %g %g>}\n" % (color[0], color[1], color[2]))
             file.write("}\n")
         
         def writecone(color, pos1, pos2, rad1, rad2):            
             file.write("cone {\n")
             file.write("  " + povpoint(chunk.base_to_abs(pos1)))
-            file.write(", %g\n" % (rad1))
+            file.write(", %g\n" % rad1)
             file.write("  " + povpoint(chunk.base_to_abs(pos2)))
-            file.write(", %g\n" % (rad2))
+            file.write(", %g\n" % rad2)
             file.write("  pigment {color <%g %g %g>}\n" % (color[0], color[1], color[2]))
             file.write("}\n")
 
@@ -1471,7 +1471,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                             radii[1])                
                 writesphere(colors[n_points - 2], 
                             positions[n_points-2], 
-                            radii[n_points - 2], 2)                    
+                            radii[n_points - 2])                    
             
             # draw the polycone
             writetube(positions, colors, radii, False, True)
