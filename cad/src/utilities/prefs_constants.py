@@ -580,7 +580,7 @@ prefs_table = (
     # Preference to force to keep bonds while transmuting atoms 
     ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
     ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
-    ('', 'boolean', indicateOverlappingAtoms_pref_key, True),
+    ('', 'boolean', indicateOverlappingAtoms_pref_key, False),
 
     # Bond preferences - colors
 

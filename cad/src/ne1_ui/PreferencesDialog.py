@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Wed May 21 15:36:40 2008
+# Created: Wed May 21 18:31:39 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -798,9 +798,9 @@ class Ui_PreferencesDialog(object):
         self.hboxlayout14.addWidget(self.reset_cpk_scale_factor_btn)
         self.vboxlayout14.addLayout(self.hboxlayout14)
 
-        self.drawOverlappingAtomsErrorIndicatorsCheckBox = QtGui.QCheckBox(self.Atoms)
-        self.drawOverlappingAtomsErrorIndicatorsCheckBox.setObjectName("drawOverlappingAtomsErrorIndicatorsCheckBox")
-        self.vboxlayout14.addWidget(self.drawOverlappingAtomsErrorIndicatorsCheckBox)
+        self.overlappingAtomIndicatorsCheckBox = QtGui.QCheckBox(self.Atoms)
+        self.overlappingAtomIndicatorsCheckBox.setObjectName("overlappingAtomIndicatorsCheckBox")
+        self.vboxlayout14.addWidget(self.overlappingAtomIndicatorsCheckBox)
 
         self.keepBondsTransmuteCheckBox = QtGui.QCheckBox(self.Atoms)
         self.keepBondsTransmuteCheckBox.setObjectName("keepBondsTransmuteCheckBox")
@@ -2937,7 +2937,7 @@ class Ui_PreferencesDialog(object):
 
         self.retranslateUi(PreferencesDialog)
         self.prefsTabWidget.setCurrentIndex(0)
-        self.prefsStackedWidget.setCurrentIndex(13)
+        self.prefsStackedWidget.setCurrentIndex(4)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(PreferencesDialog)
 
@@ -3053,7 +3053,7 @@ class Ui_PreferencesDialog(object):
         self.cpk_scale_factor_linedit.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Displays the value of the CPK Atom Scale", None, QtGui.QApplication.UnicodeUTF8))
         self.cpk_scale_factor_slider.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Changes Atom Scale factor for CPK display mode", None, QtGui.QApplication.UnicodeUTF8))
         self.reset_cpk_scale_factor_btn.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Restore default value", None, QtGui.QApplication.UnicodeUTF8))
-        self.drawOverlappingAtomsErrorIndicatorsCheckBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Draw error indicators for overlapping atoms", None, QtGui.QApplication.UnicodeUTF8))
+        self.overlappingAtomIndicatorsCheckBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Overlapping atom indicators", None, QtGui.QApplication.UnicodeUTF8))
         self.keepBondsTransmuteCheckBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Force to keep bonds during transmute", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox4.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Colors", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel3_2.setText(QtGui.QApplication.translate("PreferencesDialog", "Bond highlighting :", None, QtGui.QApplication.UnicodeUTF8))

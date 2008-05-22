@@ -2066,22 +2066,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
     
     win.statusBar().globalDisplayStylesComboBox.setWhatsThis( _text )
 
-def create_whats_this_descriptions_for_UserPrefs_dialog(w):
-    "Create What's This descriptions for the User Prefs dialog widgets."
-
-    # Bond Line Thickness
-
-    bondThicknessText = \
-        "<u><b>Bond Thickness</b></u>"\
-        "<p>"\
-        "Sets the <i>Bond Thickness</i> (in pixels) for Lines "\
-        "Display Mode. This will also affect the thickness "\
-        "of bonds where atoms or chunks have been set to"\
-        "<b>Lines</b> display."\
-        "</p>"
-
-    w.bond_line_thickness_spinbox.setWhatsThis(bondThicknessText )
-
 def create_whats_this_descriptions_for_NanoHive_dialog(w):
     "Create What's This descriptions for the Nano-Hive dialog widgets."
 
