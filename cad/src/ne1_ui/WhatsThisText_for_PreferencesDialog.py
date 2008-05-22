@@ -16,12 +16,11 @@ for widgets in the Main Window.
 def whatsThis_PreferencesDialog(preferencesDialog):
     """
     Assigning the I{What's This} text for the Preferences dialog.
-    @see: B{Preferences._addWhatsThisText}
     """
     
     _pd = preferencesDialog
     
-    # Bond Line Thickness
+    # Bond line thickness
 
     _text = \
         "<b>Bond line thickness</b>"\
@@ -148,8 +147,6 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.textLabel1_3.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p><p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
     _pd.cpk_cylinder_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p><p>Set scale (size) factor
                                            for the cylinder representing bonds in Ball and Stick display mode""")
-    _pd.fill_type_combox.setWhatsThis("""<p><b>Fill Type</b></p><p>
-                                   <p>Sets the fill type of the background. Each mode can have a different color, if desired.</p>""")
     _pd.cpk_rbtn.setWhatsThis("""<u><b>CPK (Space Filling)</b></u><br>
                                <p>Changes the <i>Default Display Style</i>  to <b>CPK</b> mode.
                                Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")

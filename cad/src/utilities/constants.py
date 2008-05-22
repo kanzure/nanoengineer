@@ -549,8 +549,9 @@ lighterblue = ave_colors( 0.5, white, blue)
 #(or suggest better name by looking at it. ) - ninad 20070615
 brown = ave_colors(0.5, black, yellow) 
 
+bgEVENING_SKY = 2 # This is one more than bg_EVENING_SKY in Preferences.py
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
-eveningsky = (0.0, 0.0, 0.3), (0.0, 0.0, 0.3), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0) # GLPane "Evening Sky" gradient
+eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3) # GLPane "Evening Sky" gradient
 
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)

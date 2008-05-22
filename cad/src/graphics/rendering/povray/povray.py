@@ -50,7 +50,7 @@ def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 0607
                                "&OK", "Cancel", "",
                                0, 1 )
     if ret == 0: # OK
-        win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
+        win.userPrefs.show(pagename = 'Plug-ins') # Show Preferences | Plug-ins.
         return 0 # let caller figure out whether user fixed the problem
     elif ret == 1: # Cancel
         return 1

@@ -48,7 +48,7 @@ def _dialogToOfferPluginPrefsFixup(caption, text):
         "&OK", "Cancel", "",
         0, 1 )
     if ret == 0: # User clicked "OK"
-        win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
+        win.userPrefs.show(pagename = 'Plug-ins') # Show Preferences | Plug-in.
         return 0 # let caller figure out whether user fixed the problem
     elif ret == 1: # User clicked "Cancel"
         return 1

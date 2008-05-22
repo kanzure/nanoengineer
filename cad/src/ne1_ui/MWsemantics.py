@@ -1159,7 +1159,7 @@ class MWsemantics(QMainWindow,
         """
         Edit Preferences
         """
-        self.userPrefs.showDialog()
+        self.userPrefs.show()
 
     ###################################
     # View Toolbar Slots 

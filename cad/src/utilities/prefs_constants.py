@@ -46,25 +46,7 @@ import sys, os # for getDefaultWorkingDirectory
 
 #constants related to user chosen background color for display
 
-bgBLUE_SKY = 0
-bgEVENING_SKY = 1
-bg_BLACK = 2
-bg_WHITE = 3
-bg_GRAY = 4
-bg_CUSTOM = 5
-bgBLUE_SKY_ENV_PREF = 2
 
-backgroundIndexes = [bgBLUE_SKY, bgEVENING_SKY, bg_BLACK, bg_WHITE, bg_GRAY, 
-                  bg_CUSTOM]
-backgroundNames   = ["Blue Sky (default)","Evening Sky","Black",  
-                   "White","Gray", "Custom..."]
-
-backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
-                     "Background_Black", "Background_White", "Background_Gray",
-                     "Background_Custom"]
-
-backgroundIconsDict = dict(zip(backgroundNames, backgroundIcons))
-backgroundNamesDict = dict(zip(backgroundIndexes, backgroundNames))
 
 
 # Compass position constants.  These are used to preserve the preference value

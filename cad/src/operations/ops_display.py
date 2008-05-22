@@ -332,7 +332,7 @@ class displaySlotsMixin:
         Let user change the background color of the 3D Graphics Area,
         aka "the glpane" to the developers.
         """
-        self.userPrefs.showDialog(pagename='General')
+        self.userPrefs.show(pagename='Model View')
 
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
@@ -374,7 +374,7 @@ class displaySlotsMixin:
         """
         Allows user to change lighting brightness.
         """
-        self.userPrefs.showDialog('Lighting') # Show Preferences | Lighting.
+        self.userPrefs.show(pagement = 'Lighting') # Show Preferences | Lighting.
 
     pass # end of class displaySlotsMixin
 

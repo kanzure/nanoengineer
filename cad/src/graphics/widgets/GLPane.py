@@ -141,8 +141,7 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
-from utilities.prefs_constants import bgBLUE_SKY, bgEVENING_SKY
-
+from utilities.constants import bgEVENING_SKY
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -817,17 +816,31 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
         """
         Sets the mode\'s background color and stores it in the prefs db.
+        
+        @param color: r,g,b tuple with values between 0.0-1.0
+        @type  color: tuple with 3 floats
         """
         self.backgroundColor = color
         env.prefs[ backgroundColor_prefs_key ] = color
+        self.setBackgroundGradient(0)
         return
+    
+    def getBackgroundColor(self):
+        """
+        Returns the current background color.
+        
+        @return color: r,g,b tuple with values between 0.0-1.0
+        @rtype  color: tuple with 3 floats
+        """
+        return self.backgroundColor
 
     def setBackgroundGradient(self, gradient): # mark 050808 new feature
         """
         Stores the background gradient prefs value in the prefs db.
         gradient can be either:
-            0 - the background color is used to fill the GLPane.
-            1 - the background gradient is set to a 'Blue Sky' gradient.
+            0 - No gradient. The background color is a solid color.
+            1 - the background gradient is set to the 'Blue Sky' gradient.
+            2 - the background gradient is set to the 'Evening Sky' gradient.
 
         See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.
         """
@@ -3639,9 +3652,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            _bgGradient = bluesky
             
-            if env.prefs[backgroundGradient_prefs_key] == bgEVENING_SKY:
+            # Setting to blue sky (default), but might change to evening sky.
+            _bgGradient = bluesky
+            if self.backgroundGradient == bgEVENING_SKY:
                 _bgGradient = eveningsky
                 
             drawFullWindow(_bgGradient)
