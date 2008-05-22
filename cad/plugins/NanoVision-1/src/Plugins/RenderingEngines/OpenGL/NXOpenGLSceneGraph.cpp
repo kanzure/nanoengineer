@@ -254,8 +254,7 @@ NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
 
 // .............................................................................
 
-bool NXSGOpenGLRenderable::apply(void) const throw ()
-{
+bool NXSGOpenGLRenderable::apply(void) const throw () {
 	GUARDED_GL_OP(glCallList(display_list_id));
 	return true;
 }

@@ -605,7 +605,7 @@ void StructureGraphicsTreeItem::showWindow()
 		// set initial view
 		NXEntityManager *entityManager = resultsWindow->entityManager;
 		NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
-		/*
+
 		if(dataStoreInfo->hasLastView()) {
 			NXNamedView lastView = dataStoreInfo->getLastView();
 			structureWindow->setNamedView(lastView);
@@ -621,14 +621,11 @@ void StructureGraphicsTreeItem::showWindow()
 				<< homeView << endl;
 		}
 		else {
-			*/
 			structureWindow->resetView();
 			NXLOG_DEBUG("StructureGraphicsWindow",
 			            "Inferring default view from atom layout");
 			cerr << "StructureGraphicsWindow: Inferring default view from atom layout"<< endl;
-			/*
 		}
-		*/
 		resultsWindow->workspace->addWindow((DataWindow*) structureWindow);
 		structureWindow->show();
 		// resultsWindow->workspace->setActiveWindow((DataWindow*)structureWindow);

@@ -387,9 +387,9 @@ void NXOpenGLRenderingEngine::paintGL(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawSkyBlueBackground();
-	drawCompass();
 	camera.glSetPosition();
 	camera.glSetProjection();
+	drawCompass();
 	
 	if(currentFrameIndex >= 0) {
 		NXSGOpenGLNode *currentFrameSGNode =
@@ -1209,66 +1209,75 @@ void NXOpenGLRenderingEngine::setNamedView(NXNamedView const& view)
 }
 
 
+/* FUNCTION: mousePressEvent */
 void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent) {
 	
-	if (mouseEvent->button() == Qt::LeftButton &&
-		mouseEvent->modifiers() == Qt::NoModifier) {
-printf("NXOpenGLRenderingEngine::mousePressEvent: 1\n");
-		camera.rotateStartEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
+	if (mouseEvent->button() == Qt::LeftButton) {
+		if (mouseEvent->modifiers() == Qt::NoModifier) {
+printf("NXOpenGLRenderingEngine::mousePressEvent: rotate\n");
+			camera.rotateStartEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
 		
-	} else if (mouseEvent->button() == Qt::RightButton &&
-	        mouseEvent->modifiers() == Qt::NoModifier) {
-printf("NXOpenGLRenderingEngine::mousePressEvent: 2\n");
-		camera.panStartEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
+		} else if (mouseEvent->modifiers() == Qt::ControlModifier) {
+printf("NXOpenGLRenderingEngine::mousePressEvent: pan\n");
+			camera.panStartEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
+			
+		} else if (mouseEvent->modifiers() == Qt::ShiftModifier) {
+printf("NXOpenGLRenderingEngine::mousePressEvent: zoom\n");
+			mouseEvent->accept();
+		}
+		
 	} else {
-printf("NXOpenGLRenderingEngine::mousePressEvent: 3\n");
 		mouseEvent->ignore();
 	}
 	updateGL();
 }
 
 
-void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
-{
-	assert(mouseEvent->button() == Qt::NoButton);
+/* FUNCTION: mouseMoveEvent */
+void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent) {
+	
 	Qt::MouseButtons buttons = mouseEvent->buttons();
-	
-	if((buttons & Qt::LeftButton) &&
-	   mouseEvent->modifiers() == Qt::NoModifier)
-	{
-		camera.rotatingEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
-	}
-	else if((buttons & Qt::RightButton) &&
-	        mouseEvent->modifiers() == Qt::NoModifier)
-	{
-		camera.panEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
-	}
-	else
+	if (buttons & Qt::LeftButton) {
+		if (mouseEvent->modifiers() == Qt::NoModifier) {
+			camera.rotatingEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
+		
+		} else if (mouseEvent->modifiers() == Qt::ControlModifier) {
+			camera.panEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
+			
+		} else if (mouseEvent->modifiers() == Qt::ShiftModifier) {
+			mouseEvent->accept();
+		}
+		
+	} else {
 		mouseEvent->ignore();
-	
+	}
 	updateGL();
 }
 
 
-void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
-{
-	if(mouseEvent->button() == Qt::LeftButton)
-	{
-		camera.rotateStopEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
-	}
-	else if(mouseEvent->button() == Qt::RightButton)
-	{
-		camera.panStopEvent(mouseEvent->x(), mouseEvent->y());
-		mouseEvent->accept();
-	}
-	else
-		mouseEvent->ignore();
+/* FUNCTION: mouseReleaseEvent */
+void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent) {
 	
+	if (mouseEvent->button() == Qt::LeftButton) {
+		if (mouseEvent->modifiers() == Qt::NoModifier) {
+			camera.rotateStopEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
+		
+		} else if (mouseEvent->modifiers() == Qt::ControlModifier) {
+			camera.panStopEvent(mouseEvent->x(), mouseEvent->y());
+			mouseEvent->accept();
+			
+		} else if (mouseEvent->modifiers() == Qt::ShiftModifier) {
+			mouseEvent->accept();
+		}
+		
+	} else {
+		mouseEvent->ignore();
+	}
 	updateGL();
 }
 
