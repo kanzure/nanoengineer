@@ -81,7 +81,7 @@ class Chirality:
         P = sqrt3 * B * s
         Q = 1.5 * B * (c - s / sqrt3)
         m1, m2 = (z3min + P * n) / Q, (z3max + P * n) / Q
-        return int(m1-1.5), int(m2+1.5)
+        return int(m1-1.5), int(m2+1.5) # REVIEW: should this use intRound?
 
     def xyz(self, n, m):
         x1, y1 = self.x1y1(n, m)

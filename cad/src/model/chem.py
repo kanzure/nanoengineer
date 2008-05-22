@@ -101,6 +101,7 @@ from utilities.constants import atKey
     # key type is changed. [Note: this comment appears in two files.]
 
 from utilities.constants import gensym
+from utilities.constants import intRound
 
 from utilities.constants import diDEFAULT
 from utilities.constants import diBALL
@@ -1476,7 +1477,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # propogate it throughout base pair?
                 ss1, ss2 = strand_neighbors
                 angle = atom_angle_radians( ss1, self, ss2 ) * 180/math.pi
-                angle = int(angle + 0.5)
+                angle = intRound(angle)
                 ## low, high = 130, 155
                 low = env.prefs[dnaMinMinorGrooveAngle_prefs_key]
                 high = env.prefs[dnaMaxMinorGrooveAngle_prefs_key]
@@ -2453,16 +2454,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 stats['nsinglets_H'] = nsinglets_H
 
         #bruce 080521 refactored the code for printing atom coordinates
-        
-##        xyz = posn * 1000
-##            # note, xyz has floats, rounded below (watch out for this
-##            # if it's used to make a hash) [bruce 050404 comment]
-##        xyz = [int(coord + 0.5) for coord in xyz]
-##            #bruce 080327 add 0.5 to improve rounding accuracy
-##        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
-##        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
-        
-        xs, ys, zs = mapping.encode_atom_coordinates( posn ) #bruce 080521
+        # (and fixed a rounding bug, described in encode_atom_coordinates)
+        xs, ys, zs = mapping.encode_atom_coordinates( posn )
         print_fields = (num_str, eltnum, xs, ys, zs, disp)
         mapping.write("atom %s (%d) (%s, %s, %s) %s\n" % print_fields)
         

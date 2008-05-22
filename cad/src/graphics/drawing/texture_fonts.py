@@ -197,6 +197,8 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         y = int(y+0.5)+0.5 ### NOT UNDERSTOOD: why x & y differ, in whether it's best to add this 0.5.
             # [btw I'd guessed y+0.5 in int() should be (y-0.5)+0.5 due to outer +0.5, but that looks worse in checkbox_pref centering;
             #  I don't know why.]
+            # [later, 080521: could it be +0.5 effect differing for x & y due to different sign,
+            #  since int() rounds towards zero rather than towards neginf? ### REVIEW: fix this using intRound?]
             #
             # Adding outer 0.5 to y became best after I fixed a bug of translating before glu*Project (just before this if-statement),
             # which fails inside displists since the translate effect doesn't show up in glu*Project then.

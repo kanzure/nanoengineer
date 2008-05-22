@@ -81,6 +81,17 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 
 def noop(*args,**kws): pass
 
+def intRound(num): #bruce 080521
+    """
+    Round a number (int or float) to the closest int.
+
+    @warning: int(num + 0.5) is *not* a correct formula for this
+              (when num is negative), since Python int() rounds
+              towards zero, not towards negative infinity
+              [http://docs.python.org/lib/built-in-funcs.html].
+    """
+    return int(round(num))
+
 def genKey(start = 1):
     #bruce 050922 moved this here from chem.py and Utility.py, added start arg
     """

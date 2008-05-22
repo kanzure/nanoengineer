@@ -373,16 +373,8 @@ class Fake_Pl(object): #bruce 080327
         eltnum = element.eltnum
 
         #bruce 080521 refactored the code for printing atom coordinates
-
-##        xyz = posn * 1000
-##            # note, xyz has floats, rounded to ints below (watch out for this
-##            # if it's used to make a hash) [bruce 050404 comment]
-##        xyz = [int(coord + 0.5) for coord in xyz]
-##            #bruce 080327 add 0.5 to improve rounding accuracy
-##        print_fields = (num_str, eltnum, xyz[0], xyz[1], xyz[2], disp)
-##        mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
-
-        xs, ys, zs = mapping.encode_atom_coordinates( posn ) #bruce 080521
+        # (and fixed a rounding bug, described in encode_atom_coordinates)
+        xs, ys, zs = mapping.encode_atom_coordinates( posn )
         print_fields = (num_str, eltnum, xs, ys, zs, disp)
         mapping.write("atom %s (%d) (%s, %s, %s) %s\n" % print_fields)
 

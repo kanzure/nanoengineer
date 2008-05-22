@@ -674,6 +674,10 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
             # note: if original points are pixel centers, then 0.5 of this serves to turn them into pixel boundaries,
             # but then we'd also want to round them, differently for low and high values,
             # so to do that, add 1 to high values before int()
+
+            ### REVIEW: should we use intRound to avoid issue of int() rounding towards zero
+            # even for negative coordinates (for which adding 0.5 has the wrong effect)? [bruce 080521 Q]
+            
         x0 -= pixelmargin
         x0 = int(x0)
         if x0 < 0: x0 = 0

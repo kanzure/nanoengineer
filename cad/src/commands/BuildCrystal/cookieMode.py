@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 cookieMode.py -- cookie cutter mode, aka "Build Crystal"
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
@@ -52,6 +52,7 @@ from graphics.drawing.drawers import findCell
 from model.chunk import Chunk
 from model.chem import Atom
 
+from utilities.constants import intRound
 from utilities.constants import gensym
 from utilities.constants import diTUBES
 from utilities.constants import SELSHAPE_LASSO
@@ -1237,8 +1238,8 @@ class cookieMode(basicMode):
        
         p2d = self._getNCartP2d(ax, ay, p2)
         
-        i = int(p2d[0]/uLen/sqrt6 + 0.5)
-        j = int(p2d[1]/uLen/sqrt6 + 0.5)
+        i = intRound(p2d[0]/uLen/sqrt6)
+        j = intRound(p2d[1]/uLen/sqrt6)
         
         nxy = orig3d + i*uLen*ax + j*uLen*ay 
         

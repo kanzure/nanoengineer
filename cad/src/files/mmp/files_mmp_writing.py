@@ -33,6 +33,7 @@ from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback
 
+from utilities.constants import intRound
 from utilities.constants import get_dispName_for_writemmp
 from utilities.constants import PAM_MODELS
 
@@ -273,15 +274,11 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         """
         #bruce 080521 split this out of Atom.writemmp
         coord = angstroms * 1000
-##        number = int(coord + 0.5)
-##            #bruce 080327 add 0.5 to improve rounding accuracy
-##            # BUG [noticed on 080521]: for negative coords,
-##            # the above formula makes the rounding worse,
-##            # since int() rounds towards zero rather than in
-##            # a negative direction. This will be fixed soon.
-        # preliminary fix for that bug; python doc check still needed;
-        # better comment to follow:
-        number = int(round(coord))
+        number = intRound(coord) #bruce 080521 bugfix
+            # (before 080521 this was int(coord + 0.5) since 080327,
+            #  which is wrong for negative coords;
+            #  before 080327 it was int(coord), which may be wrong
+            #  for many coord values (full effect untested).)
         return str(number)
         
     # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time

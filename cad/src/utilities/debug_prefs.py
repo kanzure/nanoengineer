@@ -434,8 +434,8 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
     def short_name_of_value(self, value):
         return "%d,%d,%d" % self.value_as_int_tuple(value)
     def value_as_int_tuple(self, value):
-        r,g,b = value # assume floats
-        return tuple(map( lambda component: int(component * 255 + 0.5), (r,g,b) ))
+        r, g, b = value # assume floats
+        return tuple(map( lambda component: int(component * 255 + 0.5), (r, g, b) ))
     def value_as_QColor(self, value = None): ###k untested??
         #e API is getting a bit klugy... we're using a random instance as knowing about the superset of colors,
         # and using its default value as the value here...
