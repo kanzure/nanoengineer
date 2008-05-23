@@ -139,11 +139,15 @@ Part Properties dialog), so no harm is caused by changing it.
     (it should be ok that 080412 > 080328, since the pair of dates are compared independently, *but* the preferred
      date defaults to the required date, therefore we also have to upgrade '080328 required' to '080328 required; 080412 preferred')
 
+'080327 required; 080523 preferred' -- bruce, adding "info atom +5data" for saving PAM3+5 data on Ss3 pseudoatoms
+
 '080328 required' -- bruce, adding new records bond_chain, directional_bond_chain, and dna_rung_bonds
                      (all enabled for writing by the option write_bonds_compactly in the present code),
                      and also using new display style names
 
 '080328 required; 080412 preferred' -- bruce, see comment for '080327 required; 080412 preferred'
+
+'080328 required; 080523 preferred' -- bruce, see comment for '080327 required; 080523 preferred'
 """
 
 # ==
@@ -261,11 +265,11 @@ MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080321 preferred'
     # for notes about when/how to revise this, see general notes referred to
     # at end of module docstring.
 
-MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES = '080327 required; 080412 preferred'
+MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES = '080327 required; 080523 preferred'
     # For NE1 1.0.0 we will write new display names but not (by default)
     # the new bond records enabled in current code by 'write_bonds_compactly'.
 
-MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES = '080328 required; 080412 preferred'
+MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES = '080328 required; 080523 preferred'
     # Soon after NE1 1.0.0, this can become the usually-written version, I hope,
     # and these separately named constants can go away. (Or, the oldest one
     # might be retained, so we can offer the ability to write mmp files for

@@ -540,10 +540,17 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # but since anything here uses them, we define them here. [bruce 080523]
 
     _PAM3plus5_Pl_Gv_data = None
-        # "+5 data", stored only on Ss3, Ss5 (PAM strand sugar atoms);
-        # should be undoable in theory, but this would be slow and the bugs
-        # it might cause to leave it out seem very unlikely, so not undoable
-        # for now; is copyable [as of 080523]; needs to be saved in mmp file ###NIM
+        # "+5 data", stored only on Ss3, Ss5 (PAM strand sugar atoms).
+        #
+        # This is now copyable as of 080523.
+        # It needs to be savable in mmp file [coded, but mmpformat is not, and mmpread is not ###]
+        #
+        # It should be undoable in theory, but this would be slow and the bugs
+        # it might cause to leave it out seem very unlikely, so it's not
+        # undoable for now -- this will need to change if we implement
+        # "minimize PAM3+5 as PAM5", since then a single undoable operation
+        # (the minimize) can change the +5 data without ever converting it
+        # to PAM5 in an in-between undo snapshot.
 
     _f_Pl_posn_is_definitive = True
         # friend attribute for temporary use by PAM3plus5 code on Pl atoms;
@@ -2485,6 +2492,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #bruce 080319 optimization -- never write this when it's 'X',
                 # since it's assumed to be 'X' when not present (for valid atoms).
                 mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
+        
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
         # Note: maybe we should disable this *except* for Pe atoms
         # (hoping Mark's comment was right), so it stops happening for files
@@ -2495,16 +2503,26 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #(while reading in the reference base mmp files in the plugins dir) 
         dnaStrandId_for_generators = self.getDnaStrandId_for_generators()
         if dnaStrandId_for_generators:
-            mapping.write( "info atom dnaStrandId_for_generators = %s\n" % dnaStrandId_for_generators )
+            mapping.write( "info atom dnaStrandId_for_generators = %s\n" %
+                           dnaStrandId_for_generators )
+        
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
         if atype is not None and atype is not self.element.atomtypes[0]:
             mapping.write( "info atom atomtype = %s\n" % atype.name )
+
+        # also write PAM3+5 data when present [bruce 080523]
+        if self._PAM3plus5_Pl_Gv_data is not None:
+            self._writemmp_PAM3plus5_Pl_Gv_data( mapping)
+        
         # write only the bonds which have now had both atoms written
         # (including internal and external bonds, not treated differently)
         #bruce 050502: write higher-valence bonds using their new mmp records,
-        # one line per type of bond (only if we need to write any bonds of that type)
-        bldict = {} # maps valence to list of 0 or more atom-encodings for bonds of that valence we need to write
+        # one line per type of bond (only written if we need to write any bonds
+        # of that type)
+        bldict = {}
+            # maps valence to list of 0 or more atom-encodings for
+            # bonds of that valence we need to write
         ## bl = [] # (note: in pre-050322 code bl held ints, not strings)
         bonds_with_direction = []
         for b in self.bonds:
@@ -2521,7 +2539,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # [bruce 080328]
                 continue
             #bruce 050322 revised this:
-            oa_code = mapping.encode_atom(oa) # None, or true and prints as "atom number string"
+            oa_code = mapping.encode_atom(oa)
+                # None, or true and prints as "atom number string"
             if oa_code:
                 # we'll write this bond, since both atoms have been written
                 valence = b.v6
@@ -2535,7 +2554,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             assert len(atomcodes) > 0
             mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
         for bond in bonds_with_direction:
-            mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
+            #bruce 070415
+            mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") 
+        
         return # from writemmp
 
     def readmmp_info_atom_setitem( self, key, val, interp ):

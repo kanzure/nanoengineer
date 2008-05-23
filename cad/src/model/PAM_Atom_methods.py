@@ -707,6 +707,30 @@ class PAM_Atom_methods:
     # except that some methods or attrs have Pl or Ss in their names,
     # and some of those have been moved into the Pl atom methods section above)
 
+    def _writemmp_PAM3plus5_Pl_Gv_data( self, mapping): #bruce 080523
+        """
+        Write the mmp info record (or similar extra data)
+        which represents a non-default value of self._PAM3plus5_Pl_Gv_data.
+        """
+        vecs = self._PAM3plus5_Pl_Gv_data
+        assert vecs is not None
+        # should be a list of 3 standard "atom position vectors"
+        # (they are relative rather than absolute, but can still
+        #  be written in the same manner as atom positions)
+        record = "info atom +5data =" # will be extended below
+        for vec in vecs:
+            if vec is None:
+                vecstring = " ()" # (guessing this is easier to read than None)
+            else:
+                xs, ys, zs = mapping.encode_atom_coordinates( vec )
+                vecstring = " (%s, %s, %s)" % (xs, ys, zs)
+                    # note: 4 of these chars could be left out if we wanted to
+                    # optimize the format
+            record += vecstring
+        record += "\n"
+        mapping.write( record)
+        return
+
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         #bruce 080319 revised, mainly to support undo/copy
         """
