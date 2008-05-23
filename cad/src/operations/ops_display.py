@@ -374,7 +374,7 @@ class displaySlotsMixin:
         """
         Allows user to change lighting brightness.
         """
-        self.userPrefs.show(pagement = 'Lighting') # Show Preferences | Lighting.
+        self.userPrefs.show(pagename = 'Lighting') # Show Preferences | Lighting.
 
     pass # end of class displaySlotsMixin
 
