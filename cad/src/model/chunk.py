@@ -2629,7 +2629,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 print "fyi: info chunk display_as_pam with unrecognized value %r" % (val,) # deferred_summary_message?
                 val = ""
-            self.display_as_pam = val
+            #bruce 080523: silently ignore this, until the bug 2842 dust fully
+            # settles. This is #1 of 2 changes (in the same commit) which
+            # eliminates all ways of setting this attribute, thus fixing
+            # bug 2842 well enough for v1.1. (The same change is not needed
+            # for save_as_pam below, since it never gets set, or ever did,
+            # except when using non-default values of debug_prefs. This means
+            # someone setting those prefs could save a file which causes a bug
+            # only seen by whoever loads it, but I'll live with that for now.)
+            ## self.display_as_pam = val
+            pass
         elif key == ['save_as_pam']:
             # val should be one of the strings "", MODEL_PAM3, MODEL_PAM5;
             # if not recognized, use ""

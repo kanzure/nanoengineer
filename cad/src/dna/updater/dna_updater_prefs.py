@@ -162,10 +162,13 @@ def pref_draw_internal_markers():
 # may cause bugs. The names don't reflect this. So I am hiding them (removing
 # non_debug = True). Unfortunately this didn't make it into .rc2 (since I forgot
 # about it) so it may not make it into the release. [bruce 080416]
+#update: these are still not implemented fully, and setting them will
+# still cause bugs (e.g. some aspects of bug 2842). This won't change for v1.1
+# release. [bruce 080523]
 
 def pref_dna_updater_convert_to_PAM3plus5():
     res = debug_pref("DNA: edit as PAM3+5? ",
-                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      Choice_boolean_False, # when True, I'll remove the ending space
                       ## non_debug = True,
                       prefs_key = True,
                       call_with_new_value = _changed_dna_updater_behavior_pref )
@@ -173,7 +176,7 @@ def pref_dna_updater_convert_to_PAM3plus5():
 
 def pref_mmp_save_convert_to_PAM5(): # has one use, in save_mmp_file [as of 080519]
     res = debug_pref("DNA: save as PAM5? ",
-                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      Choice_boolean_False, # when True, I'll remove the ending space
                       ## non_debug = True,
                       prefs_key = True )
     return res
@@ -187,7 +190,7 @@ def pref_renderers_convert_to_PAM5(): # never yet used [as of 080519]
 
 def pref_minimizers_convert_to_PAM5(): # never yet used [as of 080519]
     res = debug_pref("DNA: minimize in PAM5? ", # i.e. for ND-1 (GROMACS or not)
-                      Choice_boolean_False, # soon will be True and I'll remove the ending space
+                      Choice_boolean_False, # when True, I'll remove the ending space
                       ## non_debug = True,
                       prefs_key = True )
     return res

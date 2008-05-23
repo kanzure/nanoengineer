@@ -1061,11 +1061,15 @@ class Dna:
         # initial stub: always do that (when making PAM5 dna),
         # but only if edit pref would otherwise immediately convert it to PAM3.
         #update, bruce 080401: always do it, regardless of that edit pref.
-        if self.model == "PAM5": ##  and pref_dna_updater_convert_to_PAM3plus5():
-            if debug_flags.atom_debug:
-                print "debug fyi: %r is setting .display_as_pam = MODEL_PAM5 " \
-                      "on %r" % (self, chunk)
-            chunk.display_as_pam = MODEL_PAM5
+        #update, bruce 080523: never do it, until the bug 2842 dust completely
+        # settles. See also a comment added in rev 12846. This is #2 of 2 changes
+        # (in the same commit) which eliminates all ways of setting this attribute,
+        # thus fixing bug 2842 well enough for v1.1.
+        ## if self.model == "PAM5": ##  and pref_dna_updater_convert_to_PAM3plus5():
+        ##     if debug_flags.atom_debug:
+        ##         print "debug fyi: %r is setting .display_as_pam = MODEL_PAM5 " \
+        ##               "on %r" % (self, chunk)
+        ##     chunk.display_as_pam = MODEL_PAM5
         return chunk
 
     def getBaseRise( self ):
