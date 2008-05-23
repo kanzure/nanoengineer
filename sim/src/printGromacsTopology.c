@@ -248,7 +248,9 @@ writeGromacsAngle(FILE *top, struct part *p, struct bend *b)
 
     theta0 = bd->theta0*180.0/Pi;
     ktheta = zJ_to_kJpermol(bd->kb * 1e-3); // bd->kb in yJ rad^-2, convert to zJ
-    fprintf(top, "%5d %5d %5d   1   %12.5f %12.5e\n", atomNumber(p, a1), atomNumber(p, ac), atomNumber(p, a2), theta0, ktheta);
+    if (fabs(ktheta) > 1e-10) {
+        fprintf(top, "%5d %5d %5d   1   %12.5f %12.5e\n", atomNumber(p, a1), atomNumber(p, ac), atomNumber(p, a2), theta0, ktheta);
+    }
 }
 
 static FILE *closure_topologyFile = NULL;

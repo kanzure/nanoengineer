@@ -392,7 +392,16 @@ strut PAM5-5  0.38792  324.6  -0.47384  0.09686     -0.47384 -0.09686
 #         ks       r0    de      beta    inflectionR qual quad bondName
 
 stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
+
+# this stretch is to the Pl on the 5' side of the Gv
 stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5
+
+# this stretch is to the Pl on the 3' side of the Gv
+stretch  0.0     1092.9  1.0000   -1         -1       9    1   Gv5-2-Pl5
+
+#    ktheta          theta0  qual  bondName
+# bend to Pl on the 3' side of the Gv
+bend   0.0          180.000    9   Gv5-1-Ss5.sp3-1-Pl5
 
 # This is the interaction between the two bridging Pl's in a
 # crossover.  Its labeled as a double bond (its not) to distinguish

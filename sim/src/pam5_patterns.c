@@ -147,6 +147,7 @@ static struct atomType *vAh5_type;
 
 static struct bondStretch *stretch_5_Pl_Ss_3;
 static struct bondStretch *stretch_5_Ss_Pl_3;
+static struct bendData *bend_Gv_Ss_Pl_5;
 
 /*
  The source frame is a rectalinear frame (basis vectors are
@@ -270,6 +271,8 @@ init_stack_match(void)
   param = getPatternParameter("PAM5:5-Ss-Pl-3_ks"); BAIL();
   ks = param->value; // N/m
   stretch_5_Ss_Pl_3 = newBondStretch("5-Ss-Pl-3", ks, r0, 1.0, -1.0, -1.0, 9, 1);
+
+  bend_Gv_Ss_Pl_5 = newBendData("Gv-Ss-Pl-5", 0.0, 0.0, 9);
 
   stack_match_initialized = 1;
 }
@@ -434,7 +437,9 @@ pam5_groove_phosphate_match(struct patternMatch *match)
   struct atom *aPl = p->atoms[match->atomIndices[2]];
   struct bond *b = getBond(p, aPl, aSs); BAIL();
   struct bond *bond;
+  struct bend *bend;
   int reverse;
+  char order;
 
   pam5_requires_gromacs(p); BAIL();
 
@@ -450,11 +455,16 @@ pam5_groove_phosphate_match(struct patternMatch *match)
     p->parseError(p->stream);
     return;
   }
+
   if (reverse) {
-    return;
+    order = '2';
+  } else {
+    order = '1';
+    bend = getBend(p, aGv, aSs, aPl);
+    bend->bendType = bend_Gv_Ss_Pl_5;
   }
   
-  bond = makeBond(p, aPl, aGv, '1');
+  bond = makeBond(p, aPl, aGv, order);
   queueBond(p, bond);
   trace_makeBond(match, bond);
   //printMatch(match);
