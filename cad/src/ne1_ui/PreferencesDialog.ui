@@ -234,7 +234,7 @@
              <item>
               <widget class="QGroupBox" name="hoverHighlightingStyleGroupBox" >
                <property name="title" >
-                <string>Hover highlighting color style</string>
+                <string>Hover highlighting style</string>
                </property>
                <layout class="QGridLayout" >
                 <property name="margin" >
@@ -304,7 +304,7 @@
              <item>
               <widget class="QGroupBox" name="selectionColorStyleGroupBox" >
                <property name="title" >
-                <string>Selection color style</string>
+                <string>Selection style</string>
                </property>
                <layout class="QGridLayout" >
                 <property name="margin" >

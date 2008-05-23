@@ -89,6 +89,14 @@ from utilities.prefs_constants import cpkScaleFactor_prefs_key
 from utilities.prefs_constants import showBondStretchIndicators_prefs_key
 from utilities.prefs_constants import showValenceErrors_prefs_key
 
+# Color (page) prefs
+from utilities.prefs_constants import backgroundColor_prefs_key
+from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.prefs_constants import selectionColorStyle_prefs_key
+from utilities.prefs_constants import selectionColor_prefs_key
+
 # Mouse wheel prefs
 from utilities.prefs_constants import mouseWheelDirection_prefs_key
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
@@ -199,10 +207,6 @@ from utilities.prefs_constants import fogEnabled_prefs_key
 #global display preferences
 from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
 from utilities.constants import diBALL, diTUBES, diDNACYLINDER
-
-#background color preferences
-from utilities.prefs_constants import backgroundColor_prefs_key
-from utilities.prefs_constants import backgroundGradient_prefs_key
 
 from utilities.constants import black, white, gray
 
@@ -474,7 +478,7 @@ def get_pref_or_optval(key, val, optval):
 
 class Preferences(QDialog, Ui_PreferencesDialog):
     """
-    The User Preferences dialog used for accessing and changing user 
+    The Preferences dialog used for accessing and changing user 
     preferences.
     """
     currentSelectedPageItem = None # The QTreeWidgetItem currently selected.
@@ -487,25 +491,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.glpane = assy.o
         self.w = assy.w
         self.assy = assy
-
-        # Sponsor logos download permission in General tab
-        self.logosDownloadPermissionBtnGroup = QButtonGroup()
-        self.logosDownloadPermissionBtnGroup.setExclusive(True)
-        for button in self.sponsorLogosGroupBox.children():
-            if isinstance(button, QAbstractButton):
-                self.logosDownloadPermissionBtnGroup.addButton(button)
-                buttonId = 0
-                if button.text().startsWith("Never ask"):
-                    buttonId = 1
-                elif button.text().startsWith("Never download"):
-                    buttonId = 2
-                self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
-        self.setUI_LogoDownloadPermissions()
         
         # Start of dialog setup.
-    
         self._setupDialog_TopLevelWidgets()
-        
         self._setupPage_General()
         self._setupPage_Color()
         self._setupPage_ModelView()
@@ -529,16 +517,11 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         whatsThis_PreferencesDialog(self)
         
         self._hideOrShowWidgets()
-        
-        # Open the "General" page as the default page.
-        #@self.showPage(pagename = "General") 
-    
+        return
     # End of _init_()
     
     def _setupDialog_TopLevelWidgets(self):
         """
-        Private.
-        
         Setup all the main dialog widgets and their signal-slot connection(s).
 	"""
         
@@ -566,64 +549,78 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         
         self.gridlayout1.setMargin(4)
         self.gridlayout1.setSpacing(0)
+        return
     
     def _setupPage_General(self):
         """
         Setup the "General" page.
 	"""
+        # Sponsor logos download permission options in General tab
+        self.logosDownloadPermissionBtnGroup = QButtonGroup()
+        self.logosDownloadPermissionBtnGroup.setExclusive(True)
+        for button in self.sponsorLogosGroupBox.children():
+            if isinstance(button, QAbstractButton):
+                self.logosDownloadPermissionBtnGroup.addButton(button)
+                buttonId = 0
+                if button.text().startsWith("Never ask"):
+                    buttonId = 1
+                elif button.text().startsWith("Never download"):
+                    buttonId = 2
+                self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
+
+        # Check the correct permission radio button.
+        if env.prefs[sponsor_permanent_permission_prefs_key]:
+            if env.prefs[sponsor_download_permission_prefs_key]:
+                self.logoNeverAskRadioBtn.setChecked(True)
+            else:
+                self.logoNeverDownLoadRadioBtn.setChecked(True)
+        else:
+            self.logoAlwaysAskRadioBtn.setChecked(True)
+            
         self.connect(self.logosDownloadPermissionBtnGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
+        
+        # Build Chunks option connections.
         connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
-        
-        self.setUI_LogoDownloadPermissions()
         return
     
     def _setupPage_Color(self):
         """
         Setup the "Color" page.
 	"""
+        # Background color widgets and connection(s).
         self._loadBackgroundColorItems()
+        self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
+        
+        # Hover highlighting color style widgets and connection(s).
         self._loadHoverHighlightingColorStylesItems()
+        self.hoverHighlightingStyleComboBox.setCurrentIndex(env.prefs[hoverHighlightingColorStyle_prefs_key])
+        self.connect(self.hoverHighlightingStyleComboBox, SIGNAL("activated(int)"), self.changeHoverHighlightingColorStyle)
+        connect_colorpref_to_colorframe( hoverHighlightingColor_prefs_key, self.hoverHighlightingColorFrame)
+        self.connect(self.hoverHighlightingColorButton, SIGNAL("clicked()"), self.changeHoverHighlightingColor)
+        
+        # Selection color style widgets and connection(s).
         self._loadSelectionColorStylesItems()
+        self.selectionStyleComboBox.setCurrentIndex(env.prefs[selectionColorStyle_prefs_key])
+        self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self.changeSelectionColorStyle)
+        connect_colorpref_to_colorframe( selectionColor_prefs_key, self.selectionColorFrame)
+        self.connect(self.selectionColorButton, SIGNAL("clicked()"), self.changeSelectionColor)
+        return
         
     def _setupPage_ModelView(self):
         """
         Setup widgets to initial (default or defined) values on the 
         'Model View' page.
 	"""
-        #Load the Global Display combobox
+        # Load the Global Display Style at start-up combobox
         self._loadGlobalDisplayStylesAtStartup()
-        
-        self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
         self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.set_default_display_mode)
-        
-        #@self.connect(self.default_display_btngrp, SIGNAL("buttonClicked(int)"), self.set_default_display_mode)
         
         self.connect(self.compassGroupBox, SIGNAL("stateChanged(int)"), self.display_compass)
         self.connect(self.compass_position_combox, SIGNAL("activated(int)"), self.set_compass_position)
         
-        # Set "Global Display Style at start-up" option.
-        # bruce comments:
-        # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
-        # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
-        #   match our internal display style codes, and are set by buttongroup.insert in the pyuic output file,
-        #   but for some reason the buttons are inserted in a different order than they're shown.
-        # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
-        #   while the dialog is shown.
-        """
-        startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
-        if startup_display_style == 2:
-            self.cpk_rbtn.setChecked(True)
-        elif startup_display_style == 4: 
-            self.ballNstick_rbtn.setChecked(True)
-        elif startup_display_style == 3: 
-            self.lines_rbtn.setChecked(True)
-        elif startup_display_style == 5: 
-            self.tubes_rbtn.setChecked(True)
-	"""
-            
         connect_checkbox_with_boolean_pref( self.compassGroupBox, displayCompass_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
@@ -631,6 +628,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
         
         connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
+        return
 
     def _setupPage_ZoomPanRotate(self):
         """
@@ -668,7 +666,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.mouseWheelDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_direction)
         self.connect(self.mouseWheelZoomInPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_in_position)
         self.connect(self.mouseWheelZoomOutPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_out_position)
-        
+        return
+    
     def _setupPage_Rulers(self):
         """
         Setup the "Rulers" page.
@@ -690,6 +689,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
         self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
         connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
+        return
     
     def _setupPage_Atoms(self):
         """
@@ -753,6 +753,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             
         self.reset_cpk_scale_factor_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
+        return
     
     def _setupPage_Bonds(self):
         """
@@ -834,7 +835,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         # Set CPK Cylinder radius (percentage).  Mark 051003.
         self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100.0))
-
+        return
+    
     def _setupPage_Dna(self):
         """
         Setup the "DNA" page.
@@ -856,13 +858,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox, SIGNAL("toggled(bool)"), self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
         
         # DNA strand arrowheads preferences 
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnBackBones_checkBox,
-            arrowsOnBackBones_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnThreePrimeEnds_checkBox,
-            arrowsOnThreePrimeEnds_prefs_key)
+        connect_checkbox_with_boolean_pref(self.arrowsOnBackBones_checkBox, arrowsOnBackBones_prefs_key)
+        connect_checkbox_with_boolean_pref(self.arrowsOnThreePrimeEnds_checkBox, arrowsOnThreePrimeEnds_prefs_key)
 
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
@@ -1258,7 +1255,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             elif (env.prefs[ backgroundColor_prefs_key ] == gray):
                 self.backgroundColorComboBox.setCurrentIndex(bg_GRAY)
             else:
-                self.backgroundColorComboBox.setCurrentIndex(bg_CUSTOM) 
+                self.backgroundColorComboBox.setCurrentIndex(bg_CUSTOM)
         return
         
     def _loadHoverHighlightingColorStylesItems(self):
@@ -1581,10 +1578,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     def setPrefsLogoDownloadPermissions(self, permission):
         """
         Set the sponsor logos download permissions in the persistent user
-		preferences database.
-
-        0 = Always ask before downloading, 1 = Never ask before downloading
-        2 = Never download
+        preferences database.
+        
+        @param permission: The permission, where:
+                        0 = Always ask before downloading
+                        1 = Never ask before downloading
+                        2 = Never download
+        @type  permission: int
         """
         if permission == 1:
             env.prefs[sponsor_permanent_permission_prefs_key] = True
@@ -1622,7 +1622,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             msg = "Unknown color idx=", idx
             print_compact_traceback(msg)
             
-        
         self.glpane.gl_update() # Needed!
         return
 
@@ -1635,7 +1634,31 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.glpane.setBackgroundColor(QColor_to_RGBf(c))
         else:
             self._updateBackgroundColorComboBoxIndex()
-
+            
+    def changeHoverHighlightingColorStyle(self, idx):
+        """
+        Change the 3D hover highlighting style.
+        """
+        env.prefs[hoverHighlightingColorStyle_prefs_key] = idx
+    
+    def changeHoverHighlightingColor(self):
+        """
+        Change the 3D hover highlighting color.
+        """
+        self.usual_change_color(hoverHighlightingColor_prefs_key)
+        
+    def changeSelectionColorStyle(self, idx):
+        """
+        Change the 3D selection color style.
+        """
+        env.prefs[selectionColorStyle_prefs_key] = idx
+        
+    def changeSelectionColor(self):
+        """
+        Change the 3D selection color.
+        """
+        self.usual_change_color(selectionColor_prefs_key)
+    
     def set_mouse_wheel_direction(self, direction):
         """
         Slot for Mouse Wheel Direction combo box.
@@ -1728,20 +1751,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Change the ruler opacity.
         """
         env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
-
-    # = Download permission slot methods
-    
-    def setUI_LogoDownloadPermissions(self):
-        """
-        Set the sponsor logos download permissions in the user interface.
-        """
-        if env.prefs[sponsor_permanent_permission_prefs_key]:
-            if env.prefs[sponsor_download_permission_prefs_key]:
-                self.logoNeverAskRadioBtn.setChecked(True)
-            else:
-                self.logoNeverDownLoadRadioBtn.setChecked(True)
-        else:
-            self.logoAlwaysAskRadioBtn.setChecked(True)
 
     ########## End of slot methods for "General" page widgets ###########
 
@@ -3180,6 +3189,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.current_width_spinbox.setValue(w)
         self.current_height_spinbox.setValue(h)
         self.change_window_size()
+        return
 
     def change_use_selected_font(self, use_selected_font):
         """
@@ -3188,6 +3198,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[useSelectedFont_prefs_key] = use_selected_font
         self.set_font()
+        return
 
     def change_font(self, font):
         """
@@ -3196,6 +3207,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[displayFont_prefs_key] = str(font.family())
         self.set_font()
+        return
 
     def change_fontsize(self, pointsize):
         """
@@ -3203,6 +3215,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[displayFontPointSize_prefs_key] = pointsize
         self.set_font()
+        return
 
     def change_selected_font_to_default_font(self):
         """
@@ -3218,7 +3231,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         if debug_flags.atom_debug: 
             print "change_selected_font_to_default_font(): " \
                   "Button clicked. Default font: ", font.family(), \
-                  ", size=", font.pointSize()        
+                  ", size=", font.pointSize()
+        return
 
     def set_font_widgets(self, setFontFromPrefs = True):
         """
@@ -3274,6 +3288,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         if setFontFromPrefs:
             self.set_font()
+        return
 
     def set_font(self):
         """
@@ -3299,6 +3314,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         # Set font
         self.w.setFont(font)
+        return
 
     def set_caption_fullpath(self, val): #bruce 050810 revised this
         # there is now a separate connection which sets the pref, so this is not needed:
@@ -3312,14 +3328,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         pass
 
     ########## End of slot methods for "Window" page widgets ###########
-
-    ########## Slot methods for "Undo" page widgets ################
-
-    def set_history_height(self, height):
-        print 'set_history_height: height =', height
-        # HistoryWidget needs a new method to properly set the height of the widget given 'height'.
-        # Needs research - not obvious how to do this.  Mark 050729.
-        # self.history.set_height(height)
 
     ########## Slot methods for top level widgets ################
     
@@ -3399,12 +3407,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             print_compact_traceback("bug in showPage() ignored: ")
             
         self.setWindowTitle("Preferences - %s" % pagename)
+        return
 
     def accept(self):
         """
         The slot method for the 'OK' button.
         """
         QDialog.accept(self)
+        return
 
     def reject(self):
         """
@@ -3419,6 +3429,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # This will need to be removed when we implement a true cancel function.
         # Mark 050629.
         QDialog.reject(self)
+        return
 
     pass # end of class Preferences
 

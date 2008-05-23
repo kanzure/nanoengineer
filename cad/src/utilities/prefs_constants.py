@@ -46,8 +46,22 @@ import sys, os # for getDefaultWorkingDirectory
 
 #constants related to user chosen background color for display
 
+# HH = Hover Highlighting (color) Style
+HHS_SOLID = 0
+HHS_SCREENDOOR = 1
+HHS_CROSSHATCH = 2
+HHS_BW_PATTERN = 3
+HHS_POLYGON_EDGES = 4
+HHS_HALO = 5
+HHS_DISABLED = 6
 
-
+# SS = Selection (color) Style
+SS_SOLID = 0
+SS_SCREENDOOR = 1
+SS_CROSSHATCH = 2
+SS_BW_PATTERN = 3
+SS_POLYGON_EDGES = 4
+SS_HALO = 5
 
 # Compass position constants.  These are used to preserve the preference value
 # for the compass position and relate directly to the radio button group values for the options 
@@ -97,8 +111,7 @@ animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.py. Mark 060726.
-backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
-backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
+
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 displayRulers_prefs_key = 'A10/Display rulers'
@@ -110,7 +123,15 @@ rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
 fogEnabled_prefs_key = "V110/Enable fog"
 
-#Mouse wheel Prefs
+# Color prefs (for "Color" page).
+backgroundColor_prefs_key = 'A9/Background Color'
+backgroundGradient_prefs_key = 'A9/Background Gradient'
+hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style'
+hoverHighlightingColor_prefs_key = 'V110/3D hover highlighting color'
+selectionColorStyle_prefs_key = 'V110/3D selection color style'
+selectionColor_prefs_key = 'V110/3D selection color'
+
+# Mouse wheel Prefs
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
 zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
 zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
@@ -496,12 +517,18 @@ prefs_table = (
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
-    ('background_color', 'color', backgroundColor_prefs_key, white),
-    ('background_gradient', 'int', backgroundGradient_prefs_key, 1), # 1 = Sky Blue . Mark 060814.
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diBALL), # Mark 060815 diTUBES; revised Ninad 080423 diBALL
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-
+    
+    # Color (page) preferences
+    ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
+    ('', 'color', backgroundColor_prefs_key, white),
+    ('', 'int',   hoverHighlightingColorStyle_prefs_key, 0),
+    ('', 'color', hoverHighlightingColor_prefs_key, yellow),
+    ('', 'int',   selectionColorStyle_prefs_key, 0),
+    ('', 'color', selectionColor_prefs_key, green),
+    
     # stereo view settings added by piotr 080516
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
     ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50), 

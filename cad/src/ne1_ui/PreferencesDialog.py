@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Fri May 23 10:35:41 2008
+# Created: Fri May 23 12:54:08 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -2942,10 +2942,10 @@ class Ui_PreferencesDialog(object):
         self.buildmode_select_atoms_checkbox.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Automatically select atoms when depositing", None, QtGui.QApplication.UnicodeUTF8))
         self.buildmode_select_atoms_checkbox.setText(QtGui.QApplication.translate("PreferencesDialog", "Auto select atoms of deposited objects", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("PreferencesDialog", "Background color:", None, QtGui.QApplication.UnicodeUTF8))
-        self.hoverHighlightingStyleGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Hover highlighting color style", None, QtGui.QApplication.UnicodeUTF8))
+        self.hoverHighlightingStyleGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Hover highlighting style", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("PreferencesDialog", "Color:", None, QtGui.QApplication.UnicodeUTF8))
         self.hoverHighlightingColorButton.setText(QtGui.QApplication.translate("PreferencesDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectionColorStyleGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Selection color style", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectionColorStyleGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Selection style", None, QtGui.QApplication.UnicodeUTF8))
         self.label_22.setText(QtGui.QApplication.translate("PreferencesDialog", "Color:", None, QtGui.QApplication.UnicodeUTF8))
         self.selectionColorButton.setText(QtGui.QApplication.translate("PreferencesDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_9.setText(QtGui.QApplication.translate("PreferencesDialog", "Global display style at start-up:", None, QtGui.QApplication.UnicodeUTF8))
