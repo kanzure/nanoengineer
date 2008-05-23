@@ -201,106 +201,15 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # and they will change it back to its prior value before returning
 
     default_pam = pref_dna_updater_convert_to_PAM3plus5() and MODEL_PAM3 or None
-        # None means "whatever you already are", i.e. do no conversion.
+        # None means "whatever you already are", i.e. do no conversion
+        # except whatever is requested by manual conversion operations.
         # There is not yet a way to say "display everything in PAM5".
         # We will probably need either that, or "convert selection to PAM5",
         # or both. As of 080401 we only have "convert one ladder to PAM5" (unfinished).
+
+    #### TODO: check default_pam and _f_baseatom_wants_pam to optim by not always calling this
+    _do_pam_conversions( default_pam, all_new_unmerged_ladders ) #bruce 080523 split this out
     
-    number_converted = 0 # not counting failures
-    number_failed = 0
-
-    ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
-    if ladders_dict:
-        print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
-        ladders_dict.clear()
-
-    locator = _f_atom_to_ladder_location_dict
-    if locator:
-        print "***BUG: _f_atom_to_ladder_location_dict was found with leftover garbage; clearing it now"
-        locator.clear()
-
-    if 1:
-        # make errors more obvious, bugs less likely;
-        # also make it easy & reliable to locate all atoms in new ladders
-        # (this could surely be optimized, but simple & reliable is primary
-        #  concern for now)
-        
-        for ladder in all_new_unmerged_ladders:
-            if not ladder.error:
-                ladder.clear_baseframe_data()
-                ladder._f_store_locator_data()
-                for ladder1 in ladder.strand_neighbor_ladders():
-                    ladder.clear_baseframe_data()
-                    # no need to store locator data for these
-        pass
-    
-    for ladder in all_new_unmerged_ladders:
-        assert ladder.valid, "bug: new ladder %r not valid!" % self
-        wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
-            # - this checks for ladder.error and won't succeed if set
-            # - this sets baseframe data if conversion succeeds,
-            #   and stores ladder in ladders_dict, with value False
-        assert ladder.valid, "bug: _f_convert_pam_if_desired made %r invalid!" % ladder
-        didit = wanted and succeeded 
-        failed = wanted and not succeeded
-        number_converted += not not didit
-        number_failed += not not failed
-        if didit:
-            assert ladders_dict.get(ladder, None) == False
-            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
-                print "converted:", ladder.ladder_string()
-        continue
-
-    if number_converted:
-##        for ladder in all_new_unmerged_ladders:
-##            ladders_dict[ladder] = None # TODO: refactor this -- see above comment
-        for ladder in all_new_unmerged_ladders:
-            if not ladder.error:
-                ladder._f_finish_converting_bridging_Pl_atoms()
-                    # this assert not ladder.error
-                assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
-                ladder.fix_bondpoint_positions_at_ends_of_rails()
-                    # (don't pass ladders_dict, it's accessed as the global which
-                    #  is assigned to it above [080409 revision])
-                    # the ladders in ladders_dict are known to have valid baseframes
-                    # (as we start this loop) or valid baseframes at the ends
-                    # (as we continue this loop);
-                    # this method needs to look at neighboring ladders
-                    # (touching ladder at corners) and use end-baseframes from
-                    # them; if it sees one not in the dict, it computes its
-                    # baseframes (perhaps just at both ends as an optim)
-                    # and also stores that ladder in the dict so this won't
-                    # be done to it again.
-            continue
-        pass
-    ladders_dict.clear()
-    del ladders_dict
-    locator.clear()
-    del locator
-    _f_baseatom_wants_pam.clear()
-    
-    # Note: if ladders were converted, their chains are still ok,
-    # since those only store baseatoms (for strand and axis),
-    # and those transmuted and moved but didn't change identity.
-    # So the ladders also don't change identity, and remain valid
-    # unless they had conversion errors. If not valid, they are ok
-    # in those lists since this was already possible in other ways
-    # (I think). (All this needs test and review.)
-    #
-    # But lots of atoms got changed in lots of ways (transmute, move,
-    # rebond, create Pl, kill Pl). Ignore all that.
-    # (review: any changes to ignore if conversion wanted and failed?)
-
-    msg = "from converting %d ladders" % number_converted
-    if number_failed:
-        msg += " (%d desired conversions failed)" % number_failed
-        # msg is just for debug, nevermind calling fix_plurals
-    
-    if number_converted:
-        ignore_new_changes(msg, changes_ok = True)
-    else:
-        ignore_new_changes(msg, changes_ok = False)
-
     if _f_invalid_dna_ladders:
         #bruce 080413
         print "\n*** likely bug: _f_invalid_dna_ladders is nonempty " \
@@ -486,6 +395,113 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # (if this info is cached outside of wholechains)
 
     return all_new_chunks, new_wholechains # from update_PAM_chunks
+
+# ==
+
+def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
+    """
+    #doc
+    [private helper]
+    """
+    #bruce 080523 split this out of its sole caller
+    # maybe: put it into its own module, or an existing one?
+
+    number_converted = 0 # not counting failures
+    number_failed = 0
+
+    ladders_dict = _f_ladders_with_up_to_date_baseframes_at_ends
+    if ladders_dict:
+        print "***BUG: _f_ladders_with_up_to_date_baseframes_at_ends was found with leftover garbage; clearing it now"
+        ladders_dict.clear()
+
+    locator = _f_atom_to_ladder_location_dict
+    if locator:
+        print "***BUG: _f_atom_to_ladder_location_dict was found with leftover garbage; clearing it now"
+        locator.clear()
+
+    if 1:
+        # make errors more obvious, bugs less likely;
+        # also make it easy & reliable to locate all atoms in new ladders
+        # (this could surely be optimized, but simple & reliable is primary
+        #  concern for now)
+        
+        for ladder in all_new_unmerged_ladders:
+            if not ladder.error:
+                ladder.clear_baseframe_data()
+                ladder._f_store_locator_data()
+                for ladder1 in ladder.strand_neighbor_ladders():
+                    ladder.clear_baseframe_data()
+                    # no need to store locator data for these
+        pass
+    
+    for ladder in all_new_unmerged_ladders:
+        assert ladder.valid, "bug: new ladder %r not valid!" % self
+        wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
+            # - this checks for ladder.error and won't succeed if set
+            # - this sets baseframe data if conversion succeeds,
+            #   and stores ladder in ladders_dict, with value False
+        assert ladder.valid, "bug: _f_convert_pam_if_desired made %r invalid!" % ladder
+        didit = wanted and succeeded 
+        failed = wanted and not succeeded
+        number_converted += not not didit
+        number_failed += not not failed
+        if didit:
+            assert ladders_dict.get(ladder, None) == False
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
+                print "converted:", ladder.ladder_string()
+        continue
+
+    if number_converted:
+##        for ladder in all_new_unmerged_ladders:
+##            ladders_dict[ladder] = None # TODO: refactor this -- see above comment
+        for ladder in all_new_unmerged_ladders:
+            if not ladder.error:
+                ladder._f_finish_converting_bridging_Pl_atoms()
+                    # this assert not ladder.error
+                assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
+                ladder.fix_bondpoint_positions_at_ends_of_rails()
+                    # (don't pass ladders_dict, it's accessed as the global which
+                    #  is assigned to it above [080409 revision])
+                    # the ladders in ladders_dict are known to have valid baseframes
+                    # (as we start this loop) or valid baseframes at the ends
+                    # (as we continue this loop);
+                    # this method needs to look at neighboring ladders
+                    # (touching ladder at corners) and use end-baseframes from
+                    # them; if it sees one not in the dict, it computes its
+                    # baseframes (perhaps just at both ends as an optim)
+                    # and also stores that ladder in the dict so this won't
+                    # be done to it again.
+            continue
+        pass
+    ladders_dict.clear()
+    del ladders_dict
+    locator.clear()
+    del locator
+    _f_baseatom_wants_pam.clear()
+    
+    # Note: if ladders were converted, their chains are still ok,
+    # since those only store baseatoms (for strand and axis),
+    # and those transmuted and moved but didn't change identity.
+    # So the ladders also don't change identity, and remain valid
+    # unless they had conversion errors. If not valid, they are ok
+    # in those lists since this was already possible in other ways
+    # (I think). (All this needs test and review.)
+    #
+    # But lots of atoms got changed in lots of ways (transmute, move,
+    # rebond, create Pl, kill Pl). Ignore all that.
+    # (review: any changes to ignore if conversion wanted and failed?)
+
+    msg = "from converting %d ladders" % number_converted
+    if number_failed:
+        msg += " (%d desired conversions failed)" % number_failed
+        # msg is just for debug, nevermind calling fix_plurals
+    
+    if number_converted:
+        ignore_new_changes(msg, changes_ok = True)
+    else:
+        ignore_new_changes(msg, changes_ok = False)
+
+    return # from _do_pam_conversions
 
 # ==
 
