@@ -20,26 +20,26 @@
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
-    <number>2</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
-    <number>2</number>
+    <number>6</number>
    </property>
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefsTabWidget" >
      <property name="currentIndex" >
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab" >
+     <widget class="QWidget" name="systemOptionsTab" >
       <attribute name="title" >
        <string>System Options</string>
       </attribute>
       <layout class="QGridLayout" >
        <property name="margin" >
-        <number>2</number>
+        <number>9</number>
        </property>
        <property name="spacing" >
-        <number>0</number>
+        <number>6</number>
        </property>
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
@@ -192,7 +192,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="ModelView" >
+         <widget class="QWidget" name="Color" >
           <layout class="QGridLayout" >
            <property name="margin" >
             <number>9</number>
@@ -232,6 +232,192 @@
               </layout>
              </item>
              <item>
+              <widget class="QGroupBox" name="hoverHighlightingStyleGroupBox" >
+               <property name="title" >
+                <string>Hover highlighting color style</string>
+               </property>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>4</number>
+                </property>
+                <property name="spacing" >
+                 <number>2</number>
+                </property>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="label_21" >
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                   <number>0</number>
+                  </property>
+                  <property name="spacing" >
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <widget class="QFrame" name="hoverHighlightingColorFrame" >
+                    <property name="minimumSize" >
+                     <size>
+                      <width>23</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize" >
+                     <size>
+                      <width>23</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="frameShape" >
+                     <enum>QFrame::Box</enum>
+                    </property>
+                    <property name="frameShadow" >
+                     <enum>QFrame::Plain</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="hoverHighlightingColorButton" >
+                    <property name="text" >
+                     <string>Choose...</string>
+                    </property>
+                    <property name="autoDefault" >
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0" colspan="2" >
+                 <widget class="QComboBox" name="hoverHighlightingStyleComboBox" />
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="selectionColorStyleGroupBox" >
+               <property name="title" >
+                <string>Selection color style</string>
+               </property>
+               <layout class="QGridLayout" >
+                <property name="margin" >
+                 <number>4</number>
+                </property>
+                <property name="spacing" >
+                 <number>2</number>
+                </property>
+                <item row="1" column="0" >
+                 <widget class="QLabel" name="label_22" >
+                  <property name="text" >
+                   <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" >
+                 <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                   <number>0</number>
+                  </property>
+                  <property name="spacing" >
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <widget class="QFrame" name="selectionColorFrame" >
+                    <property name="minimumSize" >
+                     <size>
+                      <width>23</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize" >
+                     <size>
+                      <width>23</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="frameShape" >
+                     <enum>QFrame::Box</enum>
+                    </property>
+                    <property name="frameShadow" >
+                     <enum>QFrame::Plain</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="selectionColorButton" >
+                    <property name="text" >
+                     <string>Choose...</string>
+                    </property>
+                    <property name="autoDefault" >
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0" colspan="2" >
+                 <widget class="QComboBox" name="selectionStyleComboBox" />
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>20</width>
+                 <height>16</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="1" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="ModelView" >
+          <layout class="QGridLayout" >
+           <property name="margin" >
+            <number>9</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item row="0" column="0" >
+            <layout class="QVBoxLayout" >
+             <property name="margin" >
+              <number>0</number>
+             </property>
+             <property name="spacing" >
+              <number>6</number>
+             </property>
+             <item>
               <layout class="QHBoxLayout" >
                <property name="margin" >
                 <number>0</number>
@@ -253,61 +439,6 @@
                 <widget class="QComboBox" name="globalDisplayStyleStartupComboBox" />
                </item>
               </layout>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="default_display_grpBox" >
-               <property name="title" >
-                <string>Global display style at start-up (old way)</string>
-               </property>
-               <layout class="QVBoxLayout" >
-                <property name="margin" >
-                 <number>4</number>
-                </property>
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QRadioButton" name="ballNstick_rbtn" >
-                  <property name="toolTip" >
-                   <string>Ball and Stick Display Style</string>
-                  </property>
-                  <property name="text" >
-                   <string>Ball and stick</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="cpk_rbtn" >
-                  <property name="toolTip" >
-                   <string>CPK (Space Fill) Display Style</string>
-                  </property>
-                  <property name="text" >
-                   <string>CPK (space filling)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="tubes_rbtn" >
-                  <property name="toolTip" >
-                   <string>Tubes Display Style</string>
-                  </property>
-                  <property name="text" >
-                   <string>Tubes</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="lines_rbtn" >
-                  <property name="toolTip" >
-                   <string>Lines Display Style</string>
-                  </property>
-                  <property name="text" >
-                   <string>Lines</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
              </item>
              <item>
               <widget class="QGroupBox" name="compassGroupBox" >
@@ -3448,6 +3579,9 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="suffix" >
+                     <string> pN</string>
+                    </property>
                     <property name="decimals" >
                      <number>2</number>
                     </property>
@@ -3468,6 +3602,9 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="suffix" >
+                     <string> pN</string>
                     </property>
                     <property name="decimals" >
                      <number>2</number>
@@ -3490,6 +3627,9 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="suffix" >
+                     <string> pN</string>
+                    </property>
                     <property name="decimals" >
                      <number>2</number>
                     </property>
@@ -3510,6 +3650,9 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="suffix" >
+                     <string> pN</string>
                     </property>
                     <property name="decimals" >
                      <number>2</number>
@@ -5843,68 +5986,6 @@
               </widget>
              </item>
              <item>
-              <layout class="QVBoxLayout" >
-               <property name="margin" >
-                <number>0</number>
-               </property>
-               <property name="spacing" >
-                <number>6</number>
-               </property>
-               <item>
-                <widget class="QGroupBox" name="groupBox_2" >
-                 <property name="title" >
-                  <string>Property manager</string>
-                 </property>
-                 <layout class="QVBoxLayout" >
-                  <property name="margin" >
-                   <number>4</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>4</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_2" >
-                    <property name="text" >
-                     <string>Color theme:</string>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="colorThemeComboBox" >
-                    <item>
-                     <property name="text" >
-                      <string>Gray</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text" >
-                      <string>Blue</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <spacer>
-                 <property name="orientation" >
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" >
-                  <size>
-                   <width>20</width>
-                   <height>16</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-             <item>
               <spacer>
                <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
@@ -6256,6 +6337,11 @@
          <item>
           <property name="text" >
            <string>General</string>
+          </property>
+         </item>
+         <item>
+          <property name="text" >
+           <string>Color</string>
           </property>
          </item>
          <item>

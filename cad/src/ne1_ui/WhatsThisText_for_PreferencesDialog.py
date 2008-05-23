@@ -147,16 +147,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.textLabel1_3.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p><p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
     _pd.cpk_cylinder_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p><p>Set scale (size) factor
                                            for the cylinder representing bonds in Ball and Stick display mode""")
-    _pd.cpk_rbtn.setWhatsThis("""<u><b>CPK (Space Filling)</b></u><br>
-                               <p>Changes the <i>Default Display Style</i>  to <b>CPK</b> mode.
-                               Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
-    _pd.ballNstick_rbtn.setWhatsThis("""<u><b>Ball and Stick</b></u><br>
-                                      <p>Changes the <i>Default Display Style</i> to <b>Ball and Stick</b> mode. Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
-                                      (sticks).</p>""")
-    _pd.lines_rbtn.setWhatsThis("""<u><b>Lines</b></u><br>
-                             <p>Changes the <i>Default Display Style</i> to <b>Lines</b> mode. Bonds are rendered as lines. Atoms are not rendered.</p>""")
-    _pd.tubes_rbtn.setWhatsThis("""<u><b>Tubes</b></u><br>
-                             <p>Changes the <i>Default Display Style</i> to <b>Tubes</b> mode.Atoms and bonds are rendered as colored tubes.</p>""")
+    
     _pd.autobond_checkbox.setWhatsThis("""Build mode's default setting for Autobonding at startup (enabled/disabled)""")
     _pd.water_checkbox.setWhatsThis("""Build mode's default setting for Water at startup (enabled/disabled)""")
     _pd.buildmode_select_atoms_checkbox.setWhatsThis("""<p><b>Select Atoms of Deposited Object</b></p><p>

@@ -482,65 +482,11 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
-        self.setModal(True)
 
         # Some standard attrs.
         self.glpane = assy.o
         self.w = assy.w
         self.assy = assy
-
-        #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin, 
-        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
-        #This is for the NE1 v1.0.0 backlog item 
-        #"disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)"
-        #See also: Ui_SimulationMenu.py where the coresponding commands are
-        #hidden or shown based on a debug pref. 
-        self._hideOrShowTheseWidgetsInUserPreferenceDialog()
-        
-        
-
-        #@ WHAT IS THIS? Mark
-        #self.update_btngrp_group = QButtonGroup()
-        #self.update_btngrp_group.setExclusive(True)
-
-        #for obj in self.update_btngrp.children():
-        #    if isinstance(obj, QAbstractButton):
-        #        self.update_btngrp_group.addButton(obj)
-
-        # Load the Background color combobox with standard gradients and colors.
-        #@self._loadBackgroundColorItems()
-        
-        """
-        #Default atom Display groupbox in Modes tab (as of 070430)
-        self.default_display_btngrp = QButtonGroup()
-        self.default_display_btngrp.setExclusive(True)
-
-        #self.cpk_rbtn --> diTrueCPK which has id 2 (defined in constants.py)
-        self.default_display_btngrp.addButton(self.cpk_rbtn)
-        self.default_display_btngrp.setId(self.cpk_rbtn, 2)
-
-        #self.lines_rbtn is the 'Lines' display mode
-        self.default_display_btngrp.addButton(self.lines_rbtn)
-        self.default_display_btngrp.setId(self.lines_rbtn, 3)
-
-        #self.ballNstick_rbtn is the 'Ball and Stick' display mode
-        self.default_display_btngrp.addButton(self.ballNstick_rbtn)
-        self.default_display_btngrp.setId(self.ballNstick_rbtn, 4)
-
-        #self.tubes_rbtn is the 'Tubes' display mode
-        self.default_display_btngrp.addButton(self.tubes_rbtn)
-        self.default_display_btngrp.setId(self.tubes_rbtn, 5)
-	"""
-
-        self.high_order_bond_display_btngrp = QButtonGroup()
-        self.high_order_bond_display_btngrp.setExclusive(True)
-
-        objId = 0
-        for obj in [self.multCyl_radioButton, self.vanes_radioButton, 
-                    self.ribbons_radioButton]:
-            self.high_order_bond_display_btngrp.addButton(obj)
-            self.high_order_bond_display_btngrp.setId(obj, objId)
-            objId +=1
 
         # Sponsor logos download permission in General tab
         self.logosDownloadPermissionBtnGroup = QButtonGroup()
@@ -556,11 +502,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                 self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
         self.setUI_LogoDownloadPermissions()
         
-        # = Start of dialog setup. (LINE ~570)
+        # Start of dialog setup.
     
         self._setupDialog_TopLevelWidgets()
         
         self._setupPage_General()
+        self._setupPage_Color()
         self._setupPage_ModelView()
         self._setupPage_ZoomPanRotate()
         self._setupPage_Rulers()
@@ -577,23 +524,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self._setupPage_Reports()
         self._setupPage_Tooltips()
         
-        # = End of connections.
-
-        #ninad20070509 setup general page. The items on the general page don't 
-        #work properly if the current index of Preferences dialog is set as 0 
-        #(which is 'General' page) . The following call makes sure that 
-        #this won't happen.
-        #@self._setup_general_page()
-        
-        #bruce 050811 added these:
-        #@self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
-        self._setupWindowPageSignalSlotConnections()
-        
+        # Assign "What's This" text for all widgets.
         from ne1_ui.WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
         whatsThis_PreferencesDialog(self)
         
+        self._hideOrShowWidgets()
+        
         # Open the "General" page as the default page.
-        self.showPage(pagename = "General") 
+        #@self.showPage(pagename = "General") 
     
     # End of _init_()
     
@@ -619,11 +557,18 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         
         self.whatsThisToolButton.setIcon(
             geticon("ui/actions/Help/WhatsThis.png"))
+        
+        # Set the margin and spacing for these two gridlayouts:
+        # gridlayout  = grid layout for the Preference dialog
+        # gridlayout1 = grid layout for the System Options tab
+        self.gridlayout.setMargin(2)
+        self.gridlayout.setSpacing(2)
+        
+        self.gridlayout1.setMargin(4)
+        self.gridlayout1.setSpacing(0)
     
     def _setupPage_General(self):
         """
-        Private.
-        
         Setup the "General" page.
 	"""
         self.connect(self.logosDownloadPermissionBtnGroup, SIGNAL("buttonClicked(int)"), self.setPrefsLogoDownloadPermissions)
@@ -633,24 +578,28 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
         
         self.setUI_LogoDownloadPermissions()
+        return
+    
+    def _setupPage_Color(self):
+        """
+        Setup the "Color" page.
+	"""
+        self._loadBackgroundColorItems()
+        self._loadHoverHighlightingColorStylesItems()
+        self._loadSelectionColorStylesItems()
         
     def _setupPage_ModelView(self):
         """
         Setup widgets to initial (default or defined) values on the 
         'Model View' page.
 	"""
-        # Load the Background color combobox with standard gradients and colors.
-        self._loadBackgroundColorItems()
-        
         #Load the Global Display combobox
         self._loadGlobalDisplayStylesAtStartup()
-        
-        self._createGlobalDisplayStyleGroupBox()
         
         self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
         self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.set_default_display_mode)
         
-        self.connect(self.default_display_btngrp, SIGNAL("buttonClicked(int)"), self.set_default_display_mode)
+        #@self.connect(self.default_display_btngrp, SIGNAL("buttonClicked(int)"), self.set_default_display_mode)
         
         self.connect(self.compassGroupBox, SIGNAL("stateChanged(int)"), self.display_compass)
         self.connect(self.compass_position_combox, SIGNAL("activated(int)"), self.set_compass_position)
@@ -663,6 +612,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         #   but for some reason the buttons are inserted in a different order than they're shown.
         # - this is only sufficient because nothing outside this dialog can change env.prefs[startupGlobalDisplayStyle_prefs_key]
         #   while the dialog is shown.
+        """
         startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
         if startup_display_style == 2:
             self.cpk_rbtn.setChecked(True)
@@ -672,6 +622,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.lines_rbtn.setChecked(True)
         elif startup_display_style == 5: 
             self.tubes_rbtn.setChecked(True)
+	"""
             
         connect_checkbox_with_boolean_pref( self.compassGroupBox, displayCompass_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
@@ -807,6 +758,19 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Setup the "Bonds" page.
 	"""
+        
+        # Create "High order bond display" button group, which lives inside
+        # of self.high_order_bond_display_groupbox (a QGroupBox).
+        self.high_order_bond_display_btngrp = QButtonGroup()
+        self.high_order_bond_display_btngrp.setExclusive(True)
+
+        objId = 0
+        for obj in [self.multCyl_radioButton, self.vanes_radioButton, 
+                    self.ribbons_radioButton]:
+            self.high_order_bond_display_btngrp.addButton(obj)
+            self.high_order_bond_display_btngrp.setId(obj, objId)
+            objId +=1
+            
         self.connect(self.high_order_bond_display_btngrp, SIGNAL("buttonClicked(int)"), self.change_high_order_bond_display)
         self.connect(self.reset_bond_colors_btn, SIGNAL("clicked()"), self.reset_bond_colors)
         self.connect(self.show_bond_labels_checkbox, SIGNAL("toggled(bool)"), self.change_bond_labels)
@@ -1136,15 +1100,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.fontComboBox, SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
         self.connect(self.fontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_fontsize)
         self.connect(self.makeDefaultFontPushButton, SIGNAL("clicked()"), self.change_selected_font_to_default_font)
-
-        # Connections for color theme.
-        self.connect(self.colorThemeComboBox, SIGNAL("currentIndexChanged(const QString&)"), self.change_color_theme)
-        
-        # Update the max value of the Current Size Spinboxes
+       
+        # Update the max value of the Current Size spinboxes
         screen = screen_pos_size()
-        ((x0,y0),(w,h)) = screen
-        self.current_width_spinbox.setRange(1,w)
-        self.current_height_spinbox.setRange(1,h)
+        ((x0, y0), (w, h)) = screen
+        self.current_width_spinbox.setRange(1, w)
+        self.current_height_spinbox.setRange(1, h)
 
         # Set value of the Current Size Spinboxes
         pos, size = _get_window_pos_size(self.w)
@@ -1166,6 +1127,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         # Update Display Font widgets
         self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
+        
+        # Connect all QLineEdit widgets last. Otherwise they'll generate signals.
+        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_prefix_linedit_textChanged )
+        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), self.caption_prefix_linedit_returnPressed )
+        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_suffix_linedit_textChanged )
+        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), self.caption_suffix_linedit_returnPressed )
         return
     
     def _setupPage_Reports(self):
@@ -1201,69 +1168,31 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         self.dynamicToolTipAtomDistancePrecision_spinbox.setValue(env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] )
         self.dynamicToolTipBendAnglePrecision_spinbox.setValue(env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] )
-
         return
-    
-    #NEXT!
-    def _setup_plugin_signals_DEPRECATED(self):
-        """
-        Signal-slot connections for all widgets on the 'Plugins' page.
-        """
         
-        # QuteMolX signal-slot connections.
-        self.connect(self.qutemol_checkbox, SIGNAL("toggled(bool)"), self.enable_qutemol)
-        self.connect( self.qutemol_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_qutemol_path)
-        self.connect(self.qutemol_choose_btn, SIGNAL("clicked()"), self.choose_qutemol_path)
-
-        # NanoHive-1 signal-slot connections.
-        self.connect(self.nanohive_checkbox, SIGNAL("toggled(bool)"), self.enable_nanohive)
-        self.connect( self.nanohive_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_nanohive_path)
-        self.connect(self.nanohive_choose_btn, SIGNAL("clicked()"), self.choose_nanohive_path)
-
-        # POV-Ray signal-slot connections.
-        self.connect(self.povray_checkbox, SIGNAL("toggled(bool)"), self.enable_povray)
-        self.connect( self.povray_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_povray_path)
-        self.connect(self.povray_choose_btn, SIGNAL("clicked()"), self.choose_povray_path)
-
-        # POV dir signal-slot connections.
-        self.connect(self.povdir_checkbox, SIGNAL("toggled(bool)"), self.enable_povdir)
-        self.connect( self.povdir_lineedit, SIGNAL("textEdited (const QString&) "), self.povdir_lineedit_textChanged )
-        self.connect(self.povdir_choose_btn, SIGNAL("clicked()"), self.set_povdir)
-        self.connect( self.povdir_lineedit, SIGNAL("returnPressed()"), self.povdir_lineedit_returnPressed )
-
-        # MegaPOV signal-slot connections.
-        self.connect(self.megapov_checkbox, SIGNAL("toggled(bool)"), self.enable_megapov)
-        self.connect( self.megapov_path_lineedit, SIGNAL("textEdited (const QString&) "), self.set_megapov_path )
-        self.connect(self.megapov_choose_btn, SIGNAL("clicked()"), self.choose_megapov_path)
-
-        # GAMESS signal-slot connections.
-        self.connect(self.gamess_checkbox, SIGNAL("toggled(bool)"), self.enable_gamess)
-        self.connect(self.gamess_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gamess_path)
-        self.connect(self.gamess_choose_btn, SIGNAL("clicked()"), self.choose_gamess_path)
-
-        # GROMACS signal-slot connections.
-        self.connect(self.gromacs_checkbox, SIGNAL("toggled(bool)"), self.enable_gromacs)
-        self.connect(self.gromacs_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_gromacs_path)
-        self.connect(self.gromacs_choose_btn, SIGNAL("clicked()"), self.choose_gromacs_path)
-
-        # cpp signal-slot connections.
-        self.connect(self.cpp_checkbox, SIGNAL("toggled(bool)"), self.enable_cpp)
-        self.connect(self.cpp_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_cpp_path)
-        self.connect(self.cpp_choose_btn, SIGNAL("clicked()"), self.choose_cpp_path)
-
-        # NanoVision-1 signal-slots connections.
-        self.connect(self.nv1_checkbox, SIGNAL("toggled(bool)"), self.enable_nv1)
-        self.connect(self.nv1_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_nv1_path)
-        self.connect(self.nv1_choose_btn, SIGNAL("clicked()"), self.choose_nv1_path)
-        
-    def _setupWindowPageSignalSlotConnections(self):
+    def _hideOrShowWidgets(self):
         """
-        Signal-slot connections for all widgets on the 'Window' page.
+        Permanently hides some widgets in the Preferences dialog. 
+        This provides an easy and convenient way of hiding widgets that have  
+        been added but not fully implemented. It is also possible to 
+        show hidden widgets that have a debug pref set to enable them.
         """
-        self.connect( self.caption_prefix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_prefix_linedit_textChanged )
-        self.connect( self.caption_prefix_linedit, SIGNAL("returnPressed()"), self.caption_prefix_linedit_returnPressed )
-        self.connect( self.caption_suffix_linedit, SIGNAL("textChanged ( const QString & ) "), self.caption_suffix_linedit_textChanged )
-        self.connect( self.caption_suffix_linedit, SIGNAL("returnPressed()"), self.caption_suffix_linedit_returnPressed )
+        widgetList = [self.nanohive_lbl, 
+                      self.nanohive_checkbox, 
+                      self.nanohive_path_lineedit,
+                      self.nanohive_choose_btn,
+                      self.gamess_checkbox,
+                      self.gamess_lbl,
+                      self.gamess_path_lineedit,
+                      self.gamess_choose_btn]      
+
+        for widget in widgetList:    
+            if debug_pref("Show GAMESS and ESP Image UI options",
+                          Choice_boolean_False,
+                          prefs_key = True):
+                widget.show()
+            else:
+                widget.hide()
         return
 
     # caption_prefix slot methods [#e should probably refile these with other slot methods?]
@@ -1284,56 +1213,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
     caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
 
-    
-
     ###### Private methods ###############################
-
-    def _loadGlobalDisplayStylesAtStartup(self):
-        """
-            Loads the global display style combobox with all the display options 
-            and sets the current display style
-        """
-        
-        
-        displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
-        displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
-        displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
-        
-        displayIconsDict = dict(zip(displayNames, displayIcons))
-        displayNamesDict = dict(zip(displayIndexes, displayNames))
-        
-        for displayName in displayNames:
-            
-            basename = displayIconsDict[displayName] + ".png"
-            iconPath = os.path.join("ui/actions/View/Display/", 
-                                    basename)
-            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), displayName)
-            
-        display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
-        self.globalDisplayStyleStartupComboBox.setCurrentIndex(displayIndexes.index(display_style))
-    
-    
-        
-    def _createGlobalDisplayStyleGroupBox(self):
-        #Default atom Display groupbox in Modes tab (as of 070430)
-        self.default_display_btngrp = QButtonGroup()
-        self.default_display_btngrp.setExclusive(True)
-
-        #self.cpk_rbtn --> diTrueCPK which has id 2 (defined in constants.py)
-        self.default_display_btngrp.addButton(self.cpk_rbtn)
-        self.default_display_btngrp.setId(self.cpk_rbtn, 2)
-
-        #self.lines_rbtn is the 'Lines' display mode
-        self.default_display_btngrp.addButton(self.lines_rbtn)
-        self.default_display_btngrp.setId(self.lines_rbtn, 3)
-
-        #self.ballNstick_rbtn is the 'Ball and Stick' display mode
-        self.default_display_btngrp.addButton(self.ballNstick_rbtn)
-        self.default_display_btngrp.setId(self.ballNstick_rbtn, 4)
-
-        #self.tubes_rbtn is the 'Tubes' display mode
-        self.default_display_btngrp.addButton(self.tubes_rbtn)
-        self.default_display_btngrp.setId(self.tubes_rbtn, 5)
     
     def _loadBackgroundColorItems(self):
         """
@@ -1362,7 +1242,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                                                  backgroundName)
         
         self._updateBackgroundColorComboBoxIndex()
-        
+        return
+    
     def _updateBackgroundColorComboBoxIndex(self):
         """
         Set current index in the background color combobox.
@@ -1379,187 +1260,64 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             else:
                 self.backgroundColorComboBox.setCurrentIndex(bg_CUSTOM) 
         return
+        
+    def _loadHoverHighlightingColorStylesItems(self):
+        """
+	Load the hover highlighting style combobox with items.
+	"""
+        hoverHighlightingIndexes = [0, #hh_SOLID, 
+                                    1] #hh_SCREENDOOR]
+        
+        hoverHighlightingStyles = ["Highlight in solid color",
+                                   "Highlight in screendoor pattern",
+                                   "Highlight in crosshatch pattern",
+                                   "Highlight with black-and-white pattern",
+                                   "Highlight in colored polygon edges",
+                                   "Highlight in colored halo",
+                                   "Disable hover highlighting"]
+        
+        for hoverHighlightingStyle in hoverHighlightingStyles:
+            self.hoverHighlightingStyleComboBox.addItem(hoverHighlightingStyle)
+        return
     
-    def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
+    def _loadSelectionColorStylesItems(self):
         """
-        2007-11-16:
-        THIS METHOD PERMANENTLY HIDES SOME WIDGETS in Preferences tab 
-        #(e.g. GAMESS plugin, 
-        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
-        #This is for the rattlesnake spring backlog item 
-        #'disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)'
-
-        """
-        widgetList = [self.nanohive_lbl, 
-                      self.nanohive_checkbox, 
-                      self.nanohive_path_lineedit,
-                      self.nanohive_choose_btn,
-                      self.gamess_checkbox,
-                      self.gamess_lbl,
-                      self.gamess_path_lineedit,
-                      self.gamess_choose_btn]      
-
-        for widget in widgetList:    
-            if debug_pref("Show GAMESS and ESP Image UI options",
-                          Choice_boolean_False,
-                          prefs_key = True):
-                widget.show()
-            else:
-                widget.hide()
-
-
-    def _setup_general_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the General page.
-        """
-        
-        self.setUI_LogoDownloadPermissions()
-        
-        # Build Atoms Default Settings.  mark 060203.
-        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
-        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
-
-    def _setup_zoom_pan_rotate_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the 
-        'Zoom, Pan Rotate' page.
+	Load the selection color style combobox with items.
 	"""
+        selectionStyleIndexes = [0, #ss_SOLID, 
+                                 1] #ss_SCREENDOOR]
         
-        connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
+        selectionStyles = ["Solid color",
+                           "Screendoor pattern",
+                           "Crosshatch pattern",
+                           "Black-and-white pattern",
+                           "Colored polygon edges",
+                           "Colored halo"]
         
-        speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
-        self.animation_speed_slider.setValue(speed)
+        for selectionStyle in selectionStyles:
+            self.selectionStyleComboBox.addItem(selectionStyle)
+        return
 
-        #mouse speed during rotation slider - ninad060906
-        mouseSpeedDuringRotation = int(env.prefs[mouseSpeedDuringRotation_prefs_key]*100)
-
-        if mouseSpeedDuringRotation == 60:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
-        else:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
-
-        self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+    def _loadGlobalDisplayStylesAtStartup(self):
+        """
+            Loads the global display style combobox with all the display options 
+            and sets the current display style
+        """
+        displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
+        displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
+        displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
         
-        # Mouse wheel zoom settings combo boxes
-        self.mouseWheelDirectionComboBox.setCurrentIndex(
-            env.prefs[mouseWheelDirection_prefs_key])
-        self.mouseWheelZoomInPointComboBox.setCurrentIndex(
-            env.prefs[zoomInAboutScreenCenter_prefs_key])
-        self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
-            env.prefs[zoomOutAboutScreenCenter_prefs_key])
-
-    def _setup_rulers_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the 
-        'Rulers' page.
-	"""
-        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(0)
-        elif not env.prefs[displayHorzRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(1)
-        elif not env.prefs[displayVertRuler_prefs_key]:
-            self.rulerDisplayComboBox.setCurrentIndex(2)
-
-        self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
-        connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
-        self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
-        connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
+        displayIconsDict = dict(zip(displayNames, displayIcons))
+        displayNamesDict = dict(zip(displayIndexes, displayNames))
         
-    def _setup_plugins_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the Plug-ins page.
-        """
-
-        # GAMESS label.
-        if sys.platform == 'win32': # Windows
-            self.gamess_lbl.setText("PC GAMESS :")
-        else:
-            self.gamess_lbl.setText("GAMESS :")
-
-        # QuteMolX executable path.
-        self.qutemol_checkbox.setChecked(env.prefs[qutemol_enabled_prefs_key])
-        self.qutemol_path_lineedit.setText(env.prefs[qutemol_path_prefs_key])
-
-        # Nano-Hive executable path.
-        self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
-        self.nanohive_path_lineedit.setText(env.prefs[nanohive_path_prefs_key])
-
-        # POV-Ray executable path.
-        self.povray_checkbox.setChecked(env.prefs[povray_enabled_prefs_key])
-        self.povray_path_lineedit.setText(env.prefs[povray_path_prefs_key])
-
-        # MegaPOV executable path.
-        self.megapov_checkbox.setChecked(env.prefs[megapov_enabled_prefs_key])
-        self.megapov_path_lineedit.setText(env.prefs[megapov_path_prefs_key])
-
-        # POV include dir (directory for POV-Ray or MegaPOV include files, or "" to get the default choice)
-        # Added by Will & Bruce 060710 for Mac A8 release, not present in Windows A8,
-        # since needed to support use of Unix compiles of those programs on the Mac,
-        # which is the only way to get a command-line version which NE1 can call. [bruce 060710]
-        self.povdir_checkbox.setChecked(env.prefs[povdir_enabled_prefs_key])
-        self.povdir_lineedit.setText(env.prefs[povdir_path_prefs_key])
-
-        self._update_povdir_enables() #bruce 060710
-
-        # GAMESS executable path.
-        self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
-        self.gamess_path_lineedit.setText(env.prefs[gmspath_prefs_key])
-
-        # GROMACS executable path.
-        self.gromacs_checkbox.setChecked(env.prefs[gromacs_enabled_prefs_key])
-        self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
-
-        # cpp executable path.
-        self.cpp_checkbox.setChecked(env.prefs[cpp_enabled_prefs_key])
-        self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
-
-        # NV1 executable path.
-        self.nv1_checkbox.setChecked(env.prefs[nv1_enabled_prefs_key])
-        self.nv1_path_lineedit.setText(env.prefs[nv1_path_prefs_key])
-
-    def _setup_adjust_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the Modes page.
-        """
-
-        # "Settings for Adjust" groupbox. ###########################
-
-        # Adjust Engine combobox.
-        self.adjustEngineCombobox.setCurrentIndex(
-            env.prefs[Adjust_minimizationEngine_prefs_key])
-        # Watch motion in real time checkbox.
-        connect_checkbox_with_boolean_pref(
-            self.update_btngrp,
-            Adjust_watchRealtimeMinimization_prefs_key )
-        #Preference for enabling/disabling electrostatics during Adjustment 
-        #for the DNA reduced model. Ninad 20070809
-        connect_checkbox_with_boolean_pref(
-            self.electrostaticsForDnaDuringAdjust_checkBox,
-            electrostaticsForDnaDuringAdjust_prefs_key)
-
-        # "Update..." radio btngroup
-        self.update_btngrp.setEnabled(
-            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
-
-        # Convergence Criteria groupbox
-        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
-        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, 0.0)
-        self.endRmsDoubleSpinBox.setValue(self.endrms)
-
-        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, 0.0)
-        self.endMaxDoubleSpinBox.setValue(self.endmax)
-
-        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, 0.0)
-        self.cutoverRmsDoubleSpinBox.setValue(self.cutoverrms)
-
-        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, 0.0)
-        self.cutoverMaxDoubleSpinBox.setValue(self.cutovermax)
-        
-        self.endRmsDoubleSpinBox.setValue(self.endrms)
-
-    # == Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
+        for displayName in displayNames:
+            basename = displayIconsDict[displayName] + ".png"
+            iconPath = os.path.join("ui/actions/View/Display/", 
+                                    basename)
+            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), displayName)
+            
+        display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
+        self.globalDisplayStyleStartupComboBox.setCurrentIndex(displayIndexes.index(display_style))
 
     def _updatePage_Lighting(self, lights = None): #mark 051124
         """
@@ -1650,292 +1408,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
         self.ms_brightness_slider.setValue(self.brightness) # generates signal
         self.ms_brightness_linedit.setText(str(self.brightness * .01))
-
-    def _setup_atoms_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the atoms page.
-        """
-        # Set colors for atom color swatches
-##        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
-
-        #bruce 050805 new way (see comment in _setup_bonds_page):
-        connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
-        connect_colorpref_to_colorframe( bondpointHighlightColor_prefs_key, self.bondpoint_hilite_color_frame)
-        connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
-
-        lod = env.prefs[ levelOfDetail_prefs_key ]
-        lod = int(lod)
-        loditem = lod # index of corresponding spinbox item -- this is only correct for 0,1,2; other cases handled below
-        if lod <= -1: # 'variable' (only -1 is used now, but other negative values might be used in future)
-            # [bruce 060215 changed prefs value for 'variable' from 3 to -1, in case we have more LOD levels in the future]
-            # [bruce 060317 fixed bug 1551 (in two files) by removing lod == 3 case from if/elif statement.]
-            loditem = 3 # index of the spinbox item that says "variable"
-        elif lod > 2:
-            loditem = 2
-        self.level_of_detail_combox.setCurrentIndex(loditem)
-
-        # Set Ball & Stick Atom radius (percentage).  Mark 051003.
-        self.cpk_atom_rad_spinbox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
-
-        cpk_sf = env.prefs[cpkScaleFactor_prefs_key]
-        # This slider generate signals whenever its 'setValue()' slot is called (below).
-        # This creates problems (bugs) for us, so we disconnect it temporarily.
-        self.disconnect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
-        self.cpk_scale_factor_slider.setValue(int (cpk_sf * 200.0)) # generates signal
-        self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
-        self.cpk_scale_factor_linedit.setText(str(cpk_sf))
-
-        connect_checkbox_with_boolean_pref(
-            self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
-
-        # I couldn't figure out a way to get a pref's default value without changing its current value.
-        # Something like this would be very handy:
-        #   default_cpk_sf = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
-        # Talk to Bruce about this. mark 060309.
-        #
-        # (I think there is a way, but I forget the details -- see some
-        #  "restore defaults" code to look for a use of it. -- bruce 070831)
-
-        if cpk_sf == 0.775: # Hardcoded for now.
-            # Disable the reset button if the CPK Scale Factor is currently the default value.
-            self.reset_cpk_scale_factor_btn.setEnabled(0)
-        else:
-            self.reset_cpk_scale_factor_btn.setEnabled(1)
-
-        return
-
-    def _setup_bonds_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the bonds page.
-        """
-        # Set colors for bond color swatches
-
-
-        #bruce 050805 here's the new way: subscribe to the preference value,
-        # but make sure to only have one such subs (for one widget's bgcolor) at a time.
-        # The colors in these frames will now automatically update whenever the prefs value changes.
-        ##e (should modify this code to share its prefskey list with the one for restore_defaults)
-        connect_colorpref_to_colorframe( 
-            bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
-        connect_colorpref_to_colorframe( 
-            bondStretchColor_prefs_key, self.bond_stretch_color_frame)
-        connect_colorpref_to_colorframe( 
-            bondVaneColor_prefs_key, self.bond_vane_color_frame)
-        connect_colorpref_to_colorframe( 
-            diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
-        connect_checkbox_with_boolean_pref(
-            self.showBondStretchIndicators_checkBox,
-            showBondStretchIndicators_prefs_key)
-
-        # also handle the non-color prefs on this page:
-        #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
-        pibondstyle_sym = env.prefs[ pibondStyle_prefs_key]
-        button_code = { 'multicyl':0,'vane':1, 'ribbon':2 }.get( pibondstyle_sym, 0)
-            # Errors in prefs db are not detected -- we just use the first button because (we happen to know) it's the default.
-            # This int encoding is specific to this buttongroup.
-            # The prefs db and the rest of the code uses the symbolic strings listed above.
-        if button_code == 0:
-            self.multCyl_radioButton.setChecked(True)
-        elif button_code ==1:
-            self.vanes_radioButton.setChecked(True)
-        else:
-            self.ribbons_radioButton.setChecked(True)
-
-        #  ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
-        self.show_bond_labels_checkbox.setChecked( env.prefs[ pibondLetters_prefs_key] )
-            # I don't know whether this sends the signal as if the user changed it
-            # (and even if Qt doc says no, this needs testing since I've seen it be wrong about those things before),
-            # but in the present code it doesn't matter unless it causes storing default value explicitly into prefs db
-            # (I can't recall whether or not it does). Later this might matter more, e.g. if we have prefs-value modtimes.
-            # [bruce 050806]
-
-        # ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ),
-        # (This is a per-atom warning, but I decided to put it on the Bonds page since you need it when
-        #  working on high order bonds. And, since I could fit that into the UI more easily.)
-
-        if hasattr(self, 'show_valence_errors_checkbox'):
-            self.show_valence_errors_checkbox.setChecked( env.prefs[ showValenceErrors_prefs_key] )
-            # note: this does cause the checkbox to send its "toggled(bool)" signal to our slot method.
-
-        # Set Lines Dislplay Mode line thickness.  Mark 050831.
-        self.update_bond_line_thickness_suffix()
-        self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
-
-        # Set CPK Cylinder radius (percentage).  Mark 051003.
-        self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100.0))
-
-        return
-
-    def _setup_dna_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the DNA page.
-        """
-
-        self.dnaBasesPerTurnDoubleSpinBox.setValue(
-            env.prefs[bdnaBasesPerTurn_prefs_key])
-        self.dnaRiseDoubleSpinBox.setValue(
-            env.prefs[bdnaRise_prefs_key])
-
-        connect_colorpref_to_colorframe( 
-            dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
-
-        # DNA strand arrowheads preferences 
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnBackBones_checkBox,
-            arrowsOnBackBones_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnThreePrimeEnds_checkBox,
-            arrowsOnThreePrimeEnds_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnFivePrimeEnds_checkBox,
-            arrowsOnFivePrimeEnds_prefs_key)
-        
-        connect_checkbox_with_boolean_pref(
-            self.strandThreePrimeArrowheadsCustomColorCheckBox,
-            useCustomColorForThreePrimeArrowheads_prefs_key)
-        
-        connect_checkbox_with_boolean_pref(
-            self.strandFivePrimeArrowheadsCustomColorCheckBox,
-            useCustomColorForFivePrimeArrowheads_prefs_key)
-        
-        connect_colorpref_to_colorframe( 
-            dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, 
-            self.strandThreePrimeArrowheadsCustomColorFrame)
-        
-        connect_colorpref_to_colorframe( 
-            dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, 
-            self.strandFivePrimeArrowheadsCustomColorFrame)
-        
-        self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
-            env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
-        
-        self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets(
-            env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key])
-
-    def _setup_dna_error_indicators_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the 
-        'DNA Error Indicators' page.
-        """
-        
-        # Display Minor Groove Error Indicator groupbox widgets.
-
-        connect_checkbox_with_boolean_pref(
-            self.dnaDisplayMinorGrooveErrorGroupBox,
-            dnaDisplayMinorGrooveErrorIndicators_prefs_key)
-
-        self.dnaMinGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMinMinorGrooveAngle_prefs_key])
-
-        self.dnaMaxGrooveAngleSpinBox.setValue(
-            env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
-
-        connect_colorpref_to_colorframe( 
-            dnaMinorGrooveErrorIndicatorColor_prefs_key, 
-            self.dnaGrooveIndicatorColorFrame)
-        
-    def _setup_dna_base_orientation_indicators_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the 
-        'DNA Base Orientation Indicators' page.
-        """
-
-        # DNA Base Orientation Indicator stuff.
-        self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(
-            env.prefs[dnaBaseIndicatorsEnabled_prefs_key])
-        self.dnaBaseIndicatorsPlaneNormalComboBox.setCurrentIndex(
-            env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key])
-        self.dnaBaseOrientationIndicatorsInverseCheckBox.setChecked(
-            env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key])
-        self.update_dnaBaseIndicatorsAngle()
-        self.update_dnaBaseIndicatorsDistance()
-        connect_colorpref_to_colorframe(dnaBaseIndicatorsColor_prefs_key,
-                                        self.dnaBaseOrientationIndicatorsColorFrame)
-        connect_colorpref_to_colorframe(dnaBaseInvIndicatorsColor_prefs_key,
-                                        self.dnaBaseOrientationIndicatorsInvColorFrame)
-
-    def _setup_undo_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the Undo page.
-        """
-
-        connect_checkbox_with_boolean_pref( self.undo_restore_view_checkbox, undoRestoreView_prefs_key )
-        connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
-        self.undo_stack_memory_limit_spinbox.setValue( env.prefs[undoStackMemoryLimit_prefs_key] )
-
-        # Hiding Undo Stack Memory Limit label and spinbox until Bruce hooks up the spinbox. mark 060406
-        self.undo_stack_memory_limit_label.hide()
-        self.undo_stack_memory_limit_spinbox.hide()
-        return
-
-    def _setup_window_page_DEPRECATED(self): #bruce 050810 revised this, and also call it from __init__ to be safe
-        """
-        Setup widgets to initial (default or defined) values on the window page.
-        """
-
-        # Update the max value of the Current Size Spinboxes
-        screen = screen_pos_size()
-        ((x0,y0),(w,h)) = screen
-        self.current_width_spinbox.setRange(1,w)
-        self.current_height_spinbox.setRange(1,h)
-
-        # Set value of the Current Size Spinboxes
-        pos, size = _get_window_pos_size(self.w)
-        self.current_width_spinbox.setValue(size[0])
-        self.current_height_spinbox.setValue(size[1])
-
-        # Set string of Saved Size Lineedits
-        from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
-        keyprefix = mainwindow_geometry_prefs_key_prefix
-        pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
-        self.update_saved_size(size[0], size[1])
-
-        connect_checkbox_with_boolean_pref( self.remember_win_pos_and_size_checkbox, rememberWinPosSize_prefs_key )
-
-        self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
-        self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
-            ##e someday we should make a 2-way connector function for LineEdits too
-        connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
-
-        # Update Display Font widgets
-        self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
-
-        return
-    
-    def _setup_reports_page_DEPRECATED(self):
-        """
-        Setup widgets to initial (default or defined) values on the
-        'Reports' page.
-        """
-        connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
-        connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
-        return
-
-    def _setup_tooltips_page_DEPRECATED(self): #Ninad 060830
-        """
-        Setup widgets to initialize (default or defined) values on the tooltips 
-        page.
-        """
-        #Atom related Dynamic tooltip preferences
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomChunkInfo_checkbox, dynamicToolTipAtomChunkInfo_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomMass_checkbox, dynamicToolTipAtomMass_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomPosition_checkbox, dynamicToolTipAtomPosition_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomDistanceDeltas_checkbox, dynamicToolTipAtomDistanceDeltas_prefs_key)
-        connect_checkbox_with_boolean_pref(
-            self.includeVdwRadiiInAtomDistanceInfo,
-            dynamicToolTipVdwRadiiInAtomDistance_prefs_key)
-
-
-        #Bond related dynamic tool tip preferences
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
-        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondChunkInfo_checkbox, dynamicToolTipBondChunkInfo_prefs_key)
-
-        self.dynamicToolTipAtomDistancePrecision_spinbox.setValue(env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] )
-        self.dynamicToolTipBendAnglePrecision_spinbox.setValue(env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] )
-
-        return
 
     #e this is really a slot method -- should refile it
     def any_caption_text_changed(self):
@@ -2125,8 +1597,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         else:
             env.prefs[sponsor_permanent_permission_prefs_key] = False
 
-
-    ########### BG Color slots ############
+    # = BG color slot methods
     
     def changeBackgroundColor(self, idx):
         """
@@ -2203,6 +1674,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.w.updateMouseWheelSettings()
         return
 
+    # = Ruler slot methods
+    
     def set_ruler_display(self, display):
         """
         Set display of individual rulers.
@@ -2256,6 +1729,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
 
+    # = Download permission slot methods
+    
     def setUI_LogoDownloadPermissions(self):
         """
         Set the sponsor logos download permissions in the user interface.
@@ -2267,7 +1742,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                 self.logoNeverDownLoadRadioBtn.setChecked(True)
         else:
             self.logoAlwaysAskRadioBtn.setChecked(True)
-
 
     ########## End of slot methods for "General" page widgets ###########
 
@@ -3826,14 +3300,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Set font
         self.w.setFont(font)
 
-    def change_color_theme(self, color_theme):
-        """
-        Slot for Color Theme combobox.
-        Not implemented yet. Mark 2007-05-27.
-        """
-        print "change_color_theme(): Color theme = ", color_theme
-        print "Not implemented yet."
-
     def set_caption_fullpath(self, val): #bruce 050810 revised this
         # there is now a separate connection which sets the pref, so this is not needed:
         ## self.win.caption_fullpath = val
@@ -3865,7 +3331,11 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  pagename: string
         """
         self.showPage(pagename)
-        self.exec_() # This dialog is modal.
+        
+        # Must use exec_() and not show() with self.modal=True. I tried it and
+        # it doesn't work whenever the user is prompted by NE1 to enable
+        # a plug-in via the Preferences dialog. -Mark 2008-05-22
+        self.exec_() 
         return
         
     def showPage(self, pagename = ""):
@@ -3878,13 +3348,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         
         @note: This is the slot method for the "Category" QTreeWidget.
         """
-        if pagename:
-            # Plan to build <pagenameList> from <prefsStackedWidget>, a
-            # QStackedWidget, using count() and widget() functions
-            # in __init__() (or a special method called from it).
-            # When thats working, I'll enable this assertion check.
-            assert 1 # pagename in self.pagenameList
-        else:
+        if not pagename:
             selectedItemsList = self.categoryTreeWidget.selectedItems()
             if selectedItemsList:
                 selectedItem = selectedItemsList[0]
@@ -3892,70 +3356,47 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             else:
                 pagename = 'General'
         
-        self.setup_current_page(pagename)
-    
-    def setup_current_page(self, pagename):        
-        #bruce 050817 fix new A6 bug introduced by Mark's fix of bug 894
-        # (which was: lack of showing general page could reset gamess path to ""):
-        # always call self._setup_general_page regardless of argument,
-        # as well as the page named in the argument.
         try:
-            #@if pagename != 'General':
-            #@    self._setup_general_page()
-            # end of bruce 050817 fix
-
             if pagename == 'General':
-                #@self._setup_general_page()
                 self.prefsStackedWidget.setCurrentIndex(0)
-            elif pagename == 'Model View':
-                #@self._setup_model_view_page()
+            elif pagename == 'Color':
                 self.prefsStackedWidget.setCurrentIndex(1)
-            elif pagename == 'Zoom, Pan and Rotate':
-                #@self._setup_zoom_pan_rotate_page()
+            elif pagename == 'Model View':
                 self.prefsStackedWidget.setCurrentIndex(2)
-            elif pagename == 'Rulers':
-                #@self._setup_rulers_page()
+            elif pagename == 'Zoom, Pan and Rotate':
                 self.prefsStackedWidget.setCurrentIndex(3)
-            elif pagename == 'Atoms':
-                #@self._setup_atoms_page()
+            elif pagename == 'Rulers':
                 self.prefsStackedWidget.setCurrentIndex(4)
-            elif pagename == 'Bonds':
-                #@self._setup_bonds_page()
+            elif pagename == 'Atoms':
                 self.prefsStackedWidget.setCurrentIndex(5)
-            elif pagename == 'DNA':
-                #@self._setup_dna_page()
+            elif pagename == 'Bonds':
                 self.prefsStackedWidget.setCurrentIndex(6)
-            elif pagename == 'Error Indicators':
-                #@self._setup_dna_error_indicators_page()
+            elif pagename == 'DNA':
                 self.prefsStackedWidget.setCurrentIndex(7)
-            elif pagename == 'Base Orientation Indicators':
-                #@self._setup_dna_base_orientation_indicators_page()
+            elif pagename == 'Error Indicators':
                 self.prefsStackedWidget.setCurrentIndex(8)
-            elif pagename == 'Adjust':
-                #@self._setup_adjust_page()
+            elif pagename == 'Base Orientation Indicators':
                 self.prefsStackedWidget.setCurrentIndex(9)
-            elif pagename == 'Lighting':
-                self._updatePage_Lighting()
+            elif pagename == 'Adjust':
                 self.prefsStackedWidget.setCurrentIndex(10)
-            elif pagename == 'Plug-ins':
-                #@self._setup_plugins_page()
+            elif pagename == 'Lighting':
+                self._updatePage_Lighting() #@ Investigate. -mark
                 self.prefsStackedWidget.setCurrentIndex(11)
-            elif pagename == 'Undo':
-                #@self._setup_undo_page()
+            elif pagename == 'Plug-ins':
                 self.prefsStackedWidget.setCurrentIndex(12)
-            elif pagename == 'Window':
-                #@self._setup_window_page()
+            elif pagename == 'Undo':
                 self.prefsStackedWidget.setCurrentIndex(13)
-            elif pagename == 'Reports':
-                #@self._setup_reports_page()
+            elif pagename == 'Window':
                 self.prefsStackedWidget.setCurrentIndex(14)
-            elif pagename == 'Tooltips':
-                self._setup_tooltips_page()
+            elif pagename == 'Reports':
                 self.prefsStackedWidget.setCurrentIndex(15)
+            elif pagename == 'Tooltips':
+                self.prefsStackedWidget.setCurrentIndex(16)
             else:
-                print 'Error: Preferences page unknown: ', pagename
+                msg = 'Preferences page unknown: pagename =%s' % pagename
+                print_compact_traceback(msg) 
         except:
-            print_compact_traceback("bug in setup_current_page ignored: ") #bruce 060627
+            print_compact_traceback("bug in showPage() ignored: ")
             
         self.setWindowTitle("Preferences - %s" % pagename)
 
