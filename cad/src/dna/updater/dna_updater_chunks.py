@@ -207,8 +207,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         # We will probably need either that, or "convert selection to PAM5",
         # or both. As of 080401 we only have "convert one ladder to PAM5" (unfinished).
 
-    #### TODO: check default_pam and _f_baseatom_wants_pam to optim by not always calling this
-    _do_pam_conversions( default_pam, all_new_unmerged_ladders ) #bruce 080523 split this out
+    if default_pam or _f_baseatom_wants_pam:
+        #bruce 080523 optim: don't always call this
+        _do_pam_conversions( default_pam, all_new_unmerged_ladders )
     
     if _f_invalid_dna_ladders:
         #bruce 080413
