@@ -2150,6 +2150,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         else:
             msg = "Unknown color idx=", idx
             print_compact_traceback(msg)
+            
         
         self.glpane.gl_update() # Needed!
         return
@@ -2918,6 +2919,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         diTUBES_INDEX = 1
         diBALL_INDEX = 2
         diTrueCPK_INDEX = 3
+        diDNACYLINDER_INDEX = 4
+        ERROR = -1
         
         if display_styleInCombobox == diLINE_INDEX:
             display_style = diLINES
@@ -2927,14 +2930,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             display_style = diBALL
         elif display_styleInCombobox == diTrueCPK_INDEX:
             display_style = diTrueCPK
-        else:
+        elif display_styleInCombobox == diDNACYLINDER_INDEX:
             display_style = diDNACYLINDER
+        else:
+            display_style = ERROR
             
         return display_style
         
     def set_default_display_mode(self, display_styleInCombobox): #bruce 050810 revised this to set the pref immediately
         """
-	Set the global display style at start up to I{display_style}. 
+	Set the global display style at start up.  
 
         This also changes the global display style of the glpane to 
         <display_style>.
@@ -2942,6 +2947,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         #map the combox box index to correct display_style
         
         display_style = self._getDisplayModeAtStartUp(display_styleInCombobox)
+        
+        if display_style == -1 :
+            msg = " Unknown global display style requested"
+            print_compact_traceback(msg)
+            return 
+        
         if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
             return
         
