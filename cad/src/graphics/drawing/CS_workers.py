@@ -85,24 +85,8 @@ from geometry.VQT import norm, vlen, V, Q, A
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.drawers import renderSurface
-
-try:
-    from OpenGL.GLE import glePolyCone
-except:
-    print "GLE module can't be imported. Now trying _GLE"
-    from OpenGL._GLE import glePolyCone
-
-try:
-    from OpenGL.GL import glScale
-except:
-    # The installed version of OpenGL requires argument-typed glScale calls.
-    from OpenGL.GL import glScalef as glScale
-
-from OpenGL.GL import glScalef
-    # Note: this is NOT redundant with the above import of glScale --
-    # without it, displaying an ESP Image gives a NameError traceback
-    # and doesn't work. [Fixed by bruce 070703; bug caught by Eric M using
-    # PyChecker; bug introduced sometime after A9.1 went out.]
+from graphics.drawing.gl_GLE import glePolyCone
+from graphics.drawing.gl_Scale import glScale
 
 ### Substitute this for drawsphere_worker to test drawing a lot of spheres.
 def drawsphere_worker_loop(params):

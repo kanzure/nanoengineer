@@ -108,45 +108,13 @@ from utilities.constants import darkgreen, lightblue
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_lighting import apply_material
-
-try:
-    from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
-except:
-    print "GLE module can't be imported. Now trying _GLE"
-    from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
-# Check if the gleGet/SetNumSides function is working on this install, and if
-# not, patch it to call gleGet/SetNumSlices. Checking method is as recommended
-# in an OpenGL exception reported by Brian [070622]:
-#   OpenGL.error.NullFunctionError: Attempt to call an
-#   undefined function gleGetNumSides, check for
-#   bool(gleGetNumSides) before calling
-# The underlying cause of this (described by Brian) is that the computer's
-# OpenGL has the older gleGetNumSlices (so it supports the functionality), but
-# PyOpenGL binds (only) to the newer gleGetNumSides.  I [bruce 070629] think
-# Brian said this is only an issue on Macs.
-if not bool(gleGetNumSides):
-    # russ 080522: Replaced no-op functions with a patch.
-    print "fyi: Patching gleGetNumSides to call gleGetNumSlices instead."
-    from graphics.drawing.gleNumSides_patch import gleGetNumSides, gleSetNumSides
-
-try:
-    from OpenGL.GL import glScale
-except:
-    # The installed version of OpenGL requires argument-typed glScale calls.
-    from OpenGL.GL import glScalef as glScale
-
-from OpenGL.GL import glScalef
-    # Note: this is NOT redundant with the above import of glScale --
-    # without it, displaying an ESP Image gives a NameError traceback
-    # and doesn't work. [Fixed by bruce 070703; bug caught by Eric M using
-    # PyChecker; bug introduced sometime after A9.1 went out.]
-
-# ==
+from graphics.drawing.gl_GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+from graphics.drawing.gl_Scale import glScale, glScalef
 
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
     glMatrixMode(GL_MODELVIEW)
-    glPushMatrix() 
+    glPushMatrix()
     glColor3fv(color)
     glDisable(GL_LIGHTING)
 
