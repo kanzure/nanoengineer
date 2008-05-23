@@ -25,9 +25,9 @@ entries for PAM elements, and some bond_geometry_error_string things
 # minimized, especially toplevel imports of dna model and updater code.
 # We'll let it import from pam3plus5_math and maybe pam3plus5_ops
 # and keep those clean as well, until all this can be cleared up.
-# (The ultimate issue is having PAM-specific methods on class Atom.
-#  It may also relate to the chem.py / chunk.py import cycle, not sure.)
-# [bruce 080409]
+# (The ultimate issue is having PAM-specific methods on class Atom,
+#  as opposed to on a PAM-specific subclass of class Atom.)
+# [bruce 080409/080523]
 
 from model.elements import Pl5
 
@@ -48,18 +48,14 @@ from dna.model.pam3plus5_math import baseframe_abs_to_rel
 from dna.model.pam3plus5_math import baseframe_rel_to_abs
 from dna.model.pam3plus5_math import default_Pl_relative_position
 from dna.model.pam3plus5_math import default_Gv_relative_position
-    # import cycle? unlikely, that module won't need much.
-    # (could fold this into a ladder method if desired)
 
 from dna.model.pam3plus5_ops import Pl_pos_from_neighbor_PAM3plus5_data
 from dna.model.pam3plus5_ops import _f_baseframe_data_at_baseatom
 from dna.model.pam3plus5_ops import _f_find_new_ladder_location_of_baseatom
 
-
-from geometry.VQT import norm
+from geometry.VQT import norm, V
 from Numeric import dot
 
-##from geometry.VQT import V
 ##from foundation.state_constants import S_CHILDREN
 
 VALID_ELEMENTS_FOR_DNABASENAME = ('Ss5', 'Ss3', 'Sh5', 'Se3', 'Sj5', 'Sj3',)
@@ -186,9 +182,7 @@ class PAM_Atom_methods:
         from dna.updater.fix_bond_directions import PROPOGATED_DNA_UPDATER_ERROR
         from dna.updater.fix_bond_directions import _f_detailed_dna_updater_error_string
             # note: use a runtime import for these, until this method can be
-            # moved to a subclass of Atom defined in dna_model;
-            # even so, this may cause an import cycle issue; ### REVIEW
-            # if so, move the imported things into their own file
+            # moved to a subclass of Atom defined in dna_model
         res = self._dna_updater__error
         if include_propogated_error_details and \
            res == PROPOGATED_DNA_UPDATER_ERROR:
@@ -729,6 +723,38 @@ class PAM_Atom_methods:
             record += vecstring
         record += "\n"
         mapping.write( record)
+        return
+
+    def _readmmp_3plus5_data(self, key, val, interp): #bruce 080523
+        """
+        Read the value part of the mmp info record
+        which represents a non-default value of self._PAM3plus5_Pl_Gv_data.
+        Raise exceptions on errors.
+
+        @param val:
+        @type val: string
+        """
+        del key
+        val = val.replace("()", "(None, None, None)") # kluge, for convenience
+        for ignore in "(),":
+            val = val.replace(ignore, " ") # ditto
+        val = val.strip()
+        coord_strings = val.split()
+        assert len(coord_strings) == 9, "wrong length: %r" % (coord_strings,)
+        def decode(coord_string):
+            if coord_string == "None":
+                return None
+            return interp.decode_atom_coordinate(coord_string)
+        coords = map( decode, coord_strings) # each element is a float or None
+        def decode_coords( x, y, z ):
+            if x is None or y is None or z is None:
+                return None
+            return V(x, y, z)
+        x1, y1, z1, x2, y2, z2, x3, y3, z3 = coords
+        d1 = decode_coords(x1, y1, z1)
+        d2 = decode_coords(x2, y2, z2)
+        d3 = decode_coords(x3, y3, z3)
+        self._PAM3plus5_Pl_Gv_data = [d1, d2, d3]
         return
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16

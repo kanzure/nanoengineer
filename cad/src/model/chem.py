@@ -2514,6 +2514,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # also write PAM3+5 data when present [bruce 080523]
         if self._PAM3plus5_Pl_Gv_data is not None:
             self._writemmp_PAM3plus5_Pl_Gv_data( mapping)
+                # this writes "info atom +5data = ..."
         
         # write only the bonds which have now had both atoms written
         # (including internal and external bonds, not treated differently)
@@ -2613,7 +2614,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 summary_format = redmsg( msg )
                 env.history.deferred_summary_message(summary_format)
                 pass
-                 
+
+        elif key == ['+5data']: #bruce 080523
+            try:
+                self._readmmp_3plus5_data(key, val, interp)
+            except:
+                msg = "error in reading info atom +5data = %s\n" % (val,) + \
+                      "for %r (ignored)" % self
+                if debug_flags.atom_debug:
+                    print_compact_traceback( msg + ": ")
+                else:
+                    print msg
+                pass
         else:
             if debug_flags.atom_debug:
                 print "atom_debug: fyi: info atom (in class Atom) with "\

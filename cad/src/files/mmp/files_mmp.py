@@ -237,12 +237,13 @@ def _mmp_format_version_we_can_read(): # bruce 080328, revised 080410 (should it
     
     if debug_pref_read_bonds_compactly() and debug_pref_read_new_display_names():
         # this is the default, as of 080328, still true 080410 and for upcoming
-        # release of NE1 1.0.0
-        res = '080328 required; 080412 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
+        # release of NE1 1.0.0; revised to a newer one, 080523
+        res = '080328 required; 080523 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
     elif debug_pref_read_new_display_names():
         # this is the default which we *write*, as of 080410 and for upcoming
-        # release of NE1 1.0.0; setting prefs to only read this high is only useful for testing
-        res = '080327 required; 080412 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
+        # release of NE1 1.0.0; revised to a newer one, 080523
+        # note: setting prefs to only read this high is only useful for testing
+        res = '080327 required; 080523 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
     else:
         # setting prefs to only read this high is only useful for testing
         res = _MMP_FORMAT_VERSION_WE_CAN_READ__MOST_CONSERVATIVE
@@ -250,7 +251,7 @@ def _mmp_format_version_we_can_read(): # bruce 080328, revised 080410 (should it
 
 # ==
 
-def decode_atom_coordinate(coord_string): #bruce 080521; perhaps never used
+def decode_atom_coordinate(coord_string): #bruce 080521
     """
     Decode an atom coordinate string as used in the atom record
     of an mmp file (in the traditional format as of 080521).
@@ -1370,6 +1371,12 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
     [but also compare to class _readmmp_state... maybe this should be the same object as that. ###k]
     [also has decode methods, and some external code makes one of these just to use those (which is a kluge).]
     """
+    # make these helper functions available as if they were methods,
+    # to permit clients to avoid import cycles
+    # which would occur if they imported them directly from this file
+    decode_atom_coordinate = staticmethod( decode_atom_coordinate)
+    decode_atom_coordinates = staticmethod( decode_atom_coordinates)
+    
     def __init__(self, ndix, markers):
         self.ndix = ndix # maps atom numbers to atoms (??)
         self.markers = markers
