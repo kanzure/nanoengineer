@@ -269,7 +269,8 @@ class VirtualBondJig( VisualFeedbackJig):
               "ks = %f N/m<br>" \
               "r0 = %f pm<br>" \
               "len = %f pm<br>" \
-              "force = %f pN</font>" % (ks, r0, length, force)
+              "len/r0 = %f<br>" \
+              "force = %f pN</font>" % (ks, r0, length, length/r0, force)
         return msg
 
     def _draw_jig(self, glpane, color, highlighted = False):
