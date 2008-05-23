@@ -87,8 +87,6 @@ from utilities.debug import reload_once_per_event
 from utilities.debug import print_compact_stack, print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False, Choice
 
-from foundation.changedicts import register_changedict, register_class_changedicts
-
 from utilities.Printing import Vector3ToString
 from utilities.Log import orangemsg, redmsg, greenmsg
 
@@ -143,11 +141,7 @@ from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_pref
 from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
 
-from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
-from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
-
 from graphics.drawables.Selobj import Selobj_API
-
 
 from utilities import debug_flags
 
@@ -157,6 +151,12 @@ import foundation.env as env
 
 from foundation.state_utils import StateMixin
 from foundation.state_utils import register_instancelike_class
+from foundation.state_utils import copy_val
+
+from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
+from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
+
+from foundation.changedicts import register_changedict, register_class_changedicts
 
 import foundation.undo_archive as undo_archive
 from foundation.undo_archive import register_undo_updater
@@ -532,6 +532,23 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # It's down here under the 'optional' data since we should derive it from _hyb which is usually 'default for element'.
     
     _s_attr_atomtype = S_DATA
+
+    # The attributes _PAM3plus5_Pl_Gv_data and _f_Pl_posn_is_definitive
+    # are only used by methods in our mixin superclass PAM_Atom_methods,
+    # except for some of our foundational methods like Atom.copy()
+    # (and soon, writemmp and a method for reading an info record),
+    # but since anything here uses them, we define them here. [bruce 080523]
+
+    _PAM3plus5_Pl_Gv_data = None
+        # "+5 data", stored only on Ss3, Ss5 (PAM strand sugar atoms);
+        # should be undoable in theory, but this would be slow and the bugs
+        # it might cause to leave it out seem very unlikely, so not undoable
+        # for now; is copyable [as of 080523]; needs to be saved in mmp file ###NIM
+
+    _f_Pl_posn_is_definitive = True
+        # friend attribute for temporary use by PAM3plus5 code on Pl atoms;
+        # no need to be undoable or copyable or savable, since should always
+        # be True during an Undo snapshot or copy or save operation.
 
     # these are needed for repeated destroy: [bruce 060322]
     _glname = 0 # made this private, bruce 080220
@@ -3011,6 +3028,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # needed by extrude and other future things
         if self._dnaBaseName:
             nuat._dnaBaseName = self._dnaBaseName #bruce 080319
+        # Note: the following attributes are used only by methods in our
+        # mixin superclass, PAM_Atom_methods, except for a few foundational
+        # methods in this class. If we introduce per-element subclasses of
+        # this class, these would only need to be copied in the subclass
+        # corresponding to PAM_Atom_methods. [bruce 080523]
+        if not self._f_Pl_posn_is_definitive:
+            print "bug? copying %r in which ._f_Pl_posn_is_definitive is not set" % self
+        if self._PAM3plus5_Pl_Gv_data is not None:
+            nuat._PAM3plus5_Pl_Gv_data = copy_val(self._PAM3plus5_Pl_Gv_data)
 
         # no need in new atoms for anything like
         # _changed_otherwise_Atoms[nuat.key] = nuat

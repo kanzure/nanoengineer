@@ -132,6 +132,17 @@ class PAM_Atom_methods:
 
     # not: _s_attr__nonlive_Pls = S_CHILDREN
 
+    # for default value assignments of _PAM3plus5_Pl_Gv_data and
+    # _f_Pl_posn_is_definitive, and comments about them, see class Atom
+    # (which inherits this class); they are only used by methods in this
+    # class, except for a few foundational methods in class Atom
+    # (for copy and soon for mmp save/load), but since it uses them
+    # at all, we define them there. [bruce 080523]
+    #
+    # _PAM3plus5_Pl_Gv_data = ...
+    # 
+    # _f_Pl_posn_is_definitive = ...
+    
     # == methods for either strand or axis PAM atoms
 
     def dna_updater_error_string(self,
@@ -437,10 +448,6 @@ class PAM_Atom_methods:
     # == end of methods for either strand or axis PAM atoms
 
     # == PAM Pl atom methods
-
-    # default values of instance variables
-
-    _f_Pl_posn_is_definitive = True # friend attribute for temporary use by PAM3plus5 code on Pl atoms
 
     def Pl_preferred_Ss_neighbor(self): # bruce 080118, revised 080401
         """
@@ -1425,8 +1432,6 @@ class PAM_Atom_methods:
 
     # methods related to storing PAM3+5 Pl data on Ss
     # (Gv and Pl data share private helper methods)
-
-    _PAM3plus5_Pl_Gv_data = None
 
     def _f_store_PAM3plus5_Pl_abs_position(self, direction, abspos, **opts):
         #bruce 080402, split 080409

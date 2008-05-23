@@ -91,7 +91,7 @@ from utilities.prefs_constants import bondpointHotspotColor_prefs_key
 import foundation.env as env
 from foundation.undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
-##from state_utils import copy_val
+##from foundation.state_utils import copy_val
 from graphics.display_styles.displaymodes import get_display_mode_handler
 
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
