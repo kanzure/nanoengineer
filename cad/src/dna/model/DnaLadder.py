@@ -1339,8 +1339,8 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         The length of the returned list is always exactly twice the number of
         strand rails of self.
 
-        @note: this is safe to call on freshly made valid ladders which
-               didn't yet remake their chunks.
+        @note: this is safe to call on freshly made valid ladders with no
+               errors set which didn't yet remake their chunks.
         """
         if not self.valid:
             # was assert, but happened for convert to pam3 of ladder
@@ -1366,7 +1366,8 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                  specified corner of self (perhaps self), or None
                  if that strand ends at that corner.
 
-        @note: can be wrong if self.error or not self.valid (not checked).
+        @note: can be wrong (or raise an exception) if self.error or
+               not self.valid (not checked).
 
         @note: this is safe to call on freshly made valid ladders which
                didn't yet remake their chunks.
@@ -1382,6 +1383,11 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             #  might return has ._dna_updater__error set, or if it reaches a non-Ss atom.)
         if next_atom is not None:            
             return rail_end_atom_to_ladder(next_atom)
+                # note: if self.error is set due to wrong strand directions,
+                # then we may have looked in the wrong bond direction for
+                # next_atom, and probably found an interior atom of self,
+                # in which case this will raise an exception.
+                # [bruce 080523 comment]
         return None
         
     pass # end of class DnaLadder

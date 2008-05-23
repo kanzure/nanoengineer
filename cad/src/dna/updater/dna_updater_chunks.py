@@ -226,18 +226,20 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         #  concern for now)
         
         for ladder in all_new_unmerged_ladders:
-            ladder.clear_baseframe_data()
-            ladder._f_store_locator_data()
-            for ladder1 in ladder.strand_neighbor_ladders():
+            if not ladder.error:
                 ladder.clear_baseframe_data()
-                # no need to store locator data for these
+                ladder._f_store_locator_data()
+                for ladder1 in ladder.strand_neighbor_ladders():
+                    ladder.clear_baseframe_data()
+                    # no need to store locator data for these
         pass
     
     for ladder in all_new_unmerged_ladders:
         assert ladder.valid, "bug: new ladder %r not valid!" % self
         wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
-            # this sets baseframe data if conversion succeeds,
-            # and stores ladder in ladders_dict, with value False
+            # - this checks for ladder.error and won't succeed if set
+            # - this sets baseframe data if conversion succeeds,
+            #   and stores ladder in ladders_dict, with value False
         assert ladder.valid, "bug: _f_convert_pam_if_desired made %r invalid!" % ladder
         didit = wanted and succeeded 
         failed = wanted and not succeeded
@@ -253,20 +255,22 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 ##        for ladder in all_new_unmerged_ladders:
 ##            ladders_dict[ladder] = None # TODO: refactor this -- see above comment
         for ladder in all_new_unmerged_ladders:
-            ladder._f_finish_converting_bridging_Pl_atoms()
-            assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
-            ladder.fix_bondpoint_positions_at_ends_of_rails()
-                # (don't pass ladders_dict, it's accessed as the global which
-                #  is assigned to it above [080409 revision])
-                # the ladders in ladders_dict are known to have valid baseframes
-                # (as we start this loop) or valid baseframes at the ends
-                # (as we continue this loop);
-                # this method needs to look at neighboring ladders
-                # (touching ladder at corners) and use end-baseframes from
-                # them; if it sees one not in the dict, it computes its
-                # baseframes (perhaps just at both ends as an optim)
-                # and also stores that ladder in the dict so this won't
-                # be done to it again.
+            if not ladder.error:
+                ladder._f_finish_converting_bridging_Pl_atoms()
+                    # this assert not ladder.error
+                assert ladder.valid, "bug: _f_finish_converting_bridging_Pl_atoms made %r invalid!" % ladder
+                ladder.fix_bondpoint_positions_at_ends_of_rails()
+                    # (don't pass ladders_dict, it's accessed as the global which
+                    #  is assigned to it above [080409 revision])
+                    # the ladders in ladders_dict are known to have valid baseframes
+                    # (as we start this loop) or valid baseframes at the ends
+                    # (as we continue this loop);
+                    # this method needs to look at neighboring ladders
+                    # (touching ladder at corners) and use end-baseframes from
+                    # them; if it sees one not in the dict, it computes its
+                    # baseframes (perhaps just at both ends as an optim)
+                    # and also stores that ladder in the dict so this won't
+                    # be done to it again.
             continue
         pass
     ladders_dict.clear()

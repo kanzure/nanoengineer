@@ -236,6 +236,7 @@ def rail_end_atom_to_ladder(atom):
             # note: this attribute name is hardcoded in several files
         ## assert isinstance(ladder, DnaLadder)
             # (not worth the trouble, since we don't want the DnaLadder import)
+        assert ladder is not None
         assert ladder.valid, "%r not valid" % ladder
             # note: changes in _ladder_set_valid mean this will become common for bugs, attrerror will be rare [080413]
             # or: if not, print "likely bug: invalid ladder %r found on %r during merging" % (ladder, atom) #k
