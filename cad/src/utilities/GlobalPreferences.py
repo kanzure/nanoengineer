@@ -161,6 +161,8 @@ def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this
                      prefs_key = True)
     return res
 
+debug_pref_enable_pam_convert_sticky_ends()
+
 # ==
 
 def debug_pref_write_bonds_compactly(): #bruce 080328

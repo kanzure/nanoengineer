@@ -199,10 +199,18 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     # 
     strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
     assert not strand_atoms ### REMOVE WHEN WORKS
-    strand_atoms = None # not a dict, bug if used
     if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: found %d strand chains or rings" % len(strand_chains)
 
     return axis_chains, strand_chains # from find_axis_and_strand_chains_or_rings
+
+# ==
+
+def find_newly_made_strand_chain( atom): #bruce 080523
+    strand_atoms = {atom.key: atom} #k
+    strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
+    assert not strand_atoms ### REMOVE WHEN WORKS
+    assert len(strand_chains) == 1, "should be len 1: %r" % (strand_chains,)
+    return strand_chains[0]
 
 # end

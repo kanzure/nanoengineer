@@ -24,6 +24,8 @@ from utilities.constants import average_value
 
 from utilities import debug_flags
 
+from utilities.debug import print_compact_stack
+
 from utilities.Log import redmsg, orangemsg, quote_html
 
 from utilities.GlobalPreferences import debug_pref_enable_pam_convert_sticky_ends
@@ -943,7 +945,8 @@ class DnaLadder_pam_conversion_methods:
         """
         while len(self.strand_rails) < 2:
             # need to make up a ghost strand rail
-            assert len(self.strand_rails) != 0, "_make_ghost_bases nim for bare-axis ladders like %r" % self
+            assert len(self.strand_rails) != 0, \
+                   "_make_ghost_bases is NIM for bare-axis ladders like %r" % self
             # have one strand, need the other; use same element as in existing strand
             # BUT the following only works if we're PAM3, for several reasons:
             # - interleaving Pls is nim
@@ -952,9 +955,12 @@ class DnaLadder_pam_conversion_methods:
             axis = self.axis_rail
             previous_atom = None
             atoms = []
-            assy = self.assy ###k
+            assy = self.assy
             chunk = assy.DnaStrandChunk(assy)
-            ### nim: put this chunk into the model somewhere -- next to axis chunk? (updater will move it later...)
+            assy.addnode(chunk) #k ok that it's empty at this point?
+                # would it be better to put it next to axis chunk?
+                # guess: shouldn't matter, dna updater will move it later (I hope)
+                ### REVIEW: or are we past the stage where it would do that? ### LIKELY BUG (since I think we are past it)
             for i in range(len(strand1)):
                 atom = make_strand2_ghost_base_atom( chunk,
                                                      axis.baseatoms[i],
@@ -963,35 +969,80 @@ class DnaLadder_pam_conversion_methods:
                 if previous_atom: # not yet implemented for intervening Pl for PAM5
                     bond = bond_atoms_faster(previous_atom, atom, V_SINGLE)
                     bond.set_bond_direction_from( previous_atom, -1)
-                bond_atoms_faster(atom, axis.baseatoms[i], V_SINGLE) ### BUG: requires .molecule to be set on both atoms
+                bond_atoms_faster(atom, axis.baseatoms[i], V_SINGLE)
+                    #note: requires .molecule to be set on both atoms
                 previous_atom = atom
                 atoms.append(atom)
-            # make bondpoints on ends
+            # make bondpoints on ends of the new ghost strand.
+            # note: this means there will be a nick between the ghost strand
+            # and any adjacent regular strand. REVIEW: do the bondpoints overlap
+            # in a problematic way? (Same issue for this and any other nick.)
             for atom in ( atoms[0], atoms[-1] ): # ok if same atom
-                atom.make_enough_bondpoints() # not sure it positions them well
-            ####e make chain from this, then make chunk from that, see how dna updater does it
-            strand2 = new_rail
+                atom.make_enough_bondpoints() # not sure if this positions them well
+            ####e make chain from this, then make chunk from that -- see how dna updater does it...
+            # or we might cheat and tell the updater to start over at the beginning...
+            from dna.updater.dna_updater_find_chains import find_newly_made_strand_chain
+            strand2 = find_newly_made_strand_chain( atoms[0] ) ###TODO: zap this, see SOLUTION below
+                #k ok that this is not the usual class of chain?
             self.strand_rails.append( strand2)
+            self.remake_chunks( rails = [strand2] )
         return
 
-    def axis_vector_at_baseindex(self, i):
-        #bruce 080514 unfinished (should see if DnaCylinder display style code has a better version)
+    def axis_atom_at_extended_baseindex(self, i): #bruce 080523
+        """
+        Return the axis atom of self at the given baseindex,
+        or if the baseindex is out of range by 1
+        (i.e. -1 or len(self)),
+        return the appropriate axis atom from an adjacent axis
+        in another DnaLadder (or the same ladder if self is a duplex ring),
+        or None if self's axis ends on that side.
+        """
+        axis_rail = self.axis_rail
+        axis_atoms = axis_rail.baseatoms
+        if i == -1:
+            res = axis_rail.neighbor_baseatoms[0] # might be None (or -1?)
+        elif 0 <= i < len(axis_atoms):
+            res = axis_atoms[i]
+        elif i == len(axis_atoms):
+            res = axis_rail.neighbor_baseatoms[1] # might be None
+        else:
+            assert 0, "%r.axis_atom_at_baseindex len %d " \
+                      "called with index %d, must be in [-1, len]" % \
+                      (self, len(self), i)
+            res = None
+        if res == -1:
+            ### LOGIC BUG: this is common, since we're earlier than when the
+            # dna updater sets neighbor_baseatoms. SOLUTION (nim):
+            # call this before we invalidate the old ladders, or before the
+            # updater entirely, when the pam conv baseatoms are first set or
+            # extended to whole basepairs. Just make the ghost atoms then
+            # in an ordinary chunk -- no need to make a strand rail & specialized
+            # chunk for them since updater will do it after that.
+            # [this is where i am in implementing ghost bases, 080523 eve]
+            msg = "logic bug: res == -1 for %r.axis_atom_at_baseindex len %d " \
+                  "index %d; returning None instead" % \
+                  (self, len(self), i)
+            print_compact_stack(msg + ": ")
+            res = None
+        return res
+    
+    def axis_vector_at_baseindex(self, i): #bruce 080514/080523
         """
         """
-        axis_atoms = self.axis_rail.baseatoms
-        def axis_vector_between( i1, i2):
-            return norm( axis_atoms[i2].posn() - axis_atoms[i1].posn() )
+        # todo: see if DnaCylinder display style code has a better version
+        atoms = map( self.axis_atom_at_extended_baseindex, [i - 1, i, i + 1] )
         candidates = []
-        if i - 1 >= 0:
-            candidates.append( axis_vector_between( i - 1, i) )
-        if i + 1 < len(self):
-            candidates.append( axis_vector_between( i, i + 1) )
+        if atoms[0] is not None:
+            candidates.append( norm( atoms[1].posn() - atoms[0].posn() ))
+        if atoms[2] is not None:
+            candidates.append( norm( atoms[2].posn() - atoms[1].posn() ))
         if not candidates:
-            # length 1
+            # length 1 axis WholeChain
             print "BUG: length 1 axis vector nim, using V(1, 0, 0):", self, i
             return V(1, 0, 0)
-                ## nim -- should use next_baseatoms on the axis_rail... (in fact, always use them at ends?)
+                # unideal -- should return a perpendicular to a rung bond if we have one
         return average_value(candidates)
+    
     pass # end of class DnaLadder_pam_conversion_methods
 
 def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ): ### REFILE - pam3plus5_ops? has imports too
@@ -1019,10 +1070,10 @@ def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ):
     angle = 133 * DEGREES ### maybe wrong value -- see dna lengthening code ### sign is a guess too
     quat = Q(axis_vector, angle)
     s2pos = quat.rot(s1pos - origin) + origin
-    from model.chem import Atom ###k might be import cycle!
+    from model.chem import Atom
     strand2_atom = Atom(strand1_atom, s2pos, chunk)
-    #e complement sequence (possible when not yet in a chunk? nevermind, now we are)
-    #e set ghost property
+    ### TODO: complement sequence (possible when not yet in a chunk? nevermind, now we are)
+    ### TODO: set ghost property
     print "made ghost baseatom", strand2_atom
     return strand2_atom
 

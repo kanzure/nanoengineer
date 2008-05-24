@@ -1049,10 +1049,13 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
     # ==
     
-    def remake_chunks(self):
+    def remake_chunks(self, rails = None):
         """
         Make new chunks for self, as close to the old chunks as we can
         (definitely in the same Part; in the same Group if they were in one).
+
+        @param rails: list of rails of self to make them for, or None (default)
+                      to make them for all rails of self
         
         @return: list of all newly made (by this method) DnaLadderRailChunks
                  (or modified ones, if that's ever possible)
@@ -1070,7 +1073,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         # (within its call of DnaLadderRailChunk.modify_color_for_error);
         # we won't reassign ladder_color, since we want old chunk colors
         # to last, so they can be preserved until errors are removed.
-        for rail in self.all_rails():
+        if rails is None:
+            rails = self.all_rails()
+        for rail in rails:
             if rail is self.axis_rail:
                 constructor = make_or_reuse_DnaAxisChunk
             else:
