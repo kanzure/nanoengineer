@@ -52,13 +52,15 @@ import foundation.env as env #bruce 051126
 class glprefs:
 
     def __init__(self):
-##	self.override_material_specular = None
-##	    # set to 4-element sequence to override material specular component
-##	self.override_shininess = None
-##	    # if exists, overrides shininess
-##	self.override_light_specular = None
-##	    # set to 4-element sequence to override light specular component
-        import foundation.preferences as preferences #bruce 051126 KLUGE: make sure env.prefs exists (could use cleanup, but that's not trivial)
+        ##  self.override_material_specular = None
+        ##      # set to 4-element sequence to override material specular component
+        ##  self.override_shininess = None
+        ##      # if exists, overrides shininess
+        ##  self.override_light_specular = None
+        ##      # set to 4-element sequence to override light specular component
+
+        #bruce 051126 KLUGE: make sure env.prefs exists (could use cleanup, but that's not trivial)
+        import foundation.preferences as preferences
         self.update()
 
     def update(self): #bruce 051126 added this method
@@ -96,15 +98,19 @@ class glprefs:
         drawing_globals.allow_color_sorting = env.prefs.get(
             drawing_globals.allow_color_sorting_prefs_key,
             drawing_globals.allow_color_sorting_default)
+
         drawing_globals.use_color_sorted_dls = env.prefs.get(
             drawing_globals.use_color_sorted_dls_prefs_key,
             drawing_globals.use_color_sorted_dls_default)
+
         drawing_globals.use_color_sorted_vbos = env.prefs.get(
             drawing_globals.use_color_sorted_vbos_prefs_key,
             drawing_globals.use_color_sorted_vbos_default)
+
         drawing_globals.use_drawing_variant = env.prefs.get(
             drawing_globals.use_drawing_variant_prefs_key,
             drawing_globals.use_drawing_variant_default)
+
         drawing_globals.use_c_renderer = (
             drawing_globals.quux_module_import_succeeded and
             env.prefs.get(drawing_globals.use_c_renderer_prefs_key,

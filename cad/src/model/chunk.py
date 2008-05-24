@@ -61,6 +61,10 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_POLYGON_STIPPLE
+from OpenGL.GL import glPolygonStipple
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
@@ -93,6 +97,10 @@ from foundation.undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from foundation.state_utils import copy_val
 from graphics.display_styles.displaymodes import get_display_mode_handler
+
+from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
+from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR, HHS_CROSSHATCH
+import numpy
 
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 
@@ -403,6 +411,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
         self.glname = env.alloc_my_glselect_name(self) 
+
+        # (Class globals) 32x32 stipple bitmask patterns, in C arrays.
+        # To avoid "seams", repeated subpattern sizes must be a power of 2.
+        # ScreenDoor - 2x2 repeat, 1/4 density (one corner turned on.)
+        Chunk.ScreenDoor = numpy.array(16*(4*[0xaa] + 4*[0x00]), dtype=numpy.uint8)
+        # CrossHatch - 4x4 repeat, 7/16 density (two edges of a square turned on.)
+        Chunk.CrossHatch = numpy.array(8*(4*[0xff] + 12*[0x11]), dtype=numpy.uint8)
 
         return # from Chunk.__init__
 
@@ -2274,7 +2289,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         This is used to return a highlight color for the chunk highlighting. 
         See a comment in this method below
         """
-        #NOTE: before 2008-03-13, the chunk highlighting was acheived by 
+        #NOTE: before 2008-03-13, the chunk highlighting was achieved by 
         #using the atoms and bonds within the chunk. The Atom and Bond classes
         #have their own glselect name, so the code was able to recognize them 
         #as highlightable objects and then depending upon the graphics mode 
@@ -2287,7 +2302,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #by defining this API method - Ninad 2008-03-13
 
         return yellow
-
 
     def draw_highlighted(self, glpane, color):
         """
@@ -2340,6 +2354,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         drawn_bonds = {}
 
         if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
+            HHPattern = self.getHoverHighlightingPattern() # russ 080523
+            if HHPattern is not None:
+                glEnable(GL_POLYGON_STIPPLE)
+                glPolygonStipple(HHPattern)
+                pass
+
             #russ 080225: Alternate drawing method using colorless display list.
             ##russ 080317 Bypass assertion for DnaStrand.
             ##assert self.__dict__.has_key('displist')
@@ -2372,6 +2392,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if hd:
                 hd._drawchunk_realtime(glpane, self, highlighted=True)
 
+            if HHPattern is not None:   # russ 080523
+                glDisable(GL_POLYGON_STIPPLE)
+                pass
         else:
             if self.get_dispdef() == diDNACYLINDER :
                 #If the chunk is drawn with the DNA cylinder display style, 
@@ -2413,6 +2436,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             pass
 
         return
+
+    def getHoverHighlightingPattern(self): # russ 080523
+        HHStyle = env.prefs[hoverHighlightingColorStyle_prefs_key]
+        if HHStyle is HHS_SCREENDOOR:
+            return Chunk.ScreenDoor
+        if HHStyle is HHS_CROSSHATCH:
+            return Chunk.CrossHatch
+        else:
+            return None
 
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
         """

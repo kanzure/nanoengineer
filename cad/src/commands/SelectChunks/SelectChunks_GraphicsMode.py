@@ -40,7 +40,8 @@ from model.chunk import Chunk
 from OpenGL.GL import glCallList
 from utilities.debug import print_compact_traceback, print_compact_stack
 
-from utilities.constants import yellow, orange, ave_colors, red
+from utilities.constants import orange, ave_colors, red
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities import debug_flags
@@ -1163,7 +1164,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
         # selectMolsMode and slightly revised it.
         ## hicolor2 = orange # intended to visually differ from hicolor
-        hicolor2 = ave_colors(0.5, yellow, orange)
+        HHColor = env.prefs[hoverHighlightingColor_prefs_key]
+        hicolor2 = ave_colors(0.5, HHColor, orange)
             #bruce 080217 revision to hicolor2 (since orange is a warning color)
         skip_usual_selobj_highlighting = self.drawHighlightedChunk(glpane, 
                                                                    selobj, 
@@ -1190,7 +1192,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if self.o.modkeys == 'Shift+Control':
             return red
         
-        return yellow
+        return env.prefs[hoverHighlightingColor_prefs_key]
+
 
     def _getBondHighlightColor(self, selobj):
         """
@@ -1202,7 +1205,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if self.o.modkeys == 'Shift+Control':
             return red
         
-        return yellow
+        return env.prefs[hoverHighlightingColor_prefs_key]
 
 class SelectChunks_GraphicsMode(SelectChunks_basicGraphicsMode):
     """
