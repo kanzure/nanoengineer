@@ -160,21 +160,75 @@ stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Gv5
 stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Pl5
 stretch   0.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
 
-stretch  10.00 1075.00  1.0000   -1         -1       9    6   Ss5-1-Ss5
-stretch  10.00  923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
+######## From among the "PAM5 Parameters"
 stretch  10.00  923.40  1.0000   -1         -1       9    1   Gr5-1-Ss5
-stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
 stretch   0.00  519.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
 
-stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Ah5
-stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-vAh5
-stretch 100.00    0.00  1.0000   -1         -1       9    1   Ah5-1-vAh5
+###########################################################
+########  PAM5 Parameters ######################################
 
+#         ks       r0    de      beta    inflectionR qual quad bondName
+
+stretch  50.00  1075.00  1.0000   -1         -1       9    6   Ss5-1-Ss5
+stretch  50.00   923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
+
+
+stretch   1.00   650.00  1.0000   -1         -1       9    1   Pl5-1-Pl5
+stretch   0.00   519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
+
+# this stretch is to the Pl on the 5' side of the Gv
+stretch   1.00  1092.90  1.0000   -1         -1       9    1   Gv5-1-Pl5
+
+# this stretch is to the Pl on the 3' side of the Gv
+stretch  0.0     1092.9  1.0000   -1         -1       9    1   Gv5-2-Pl5
+
+#    ktheta          theta0  qual  bondName
+# bend to Pl on the 3' side of the Gv
+bend   0.0          180.000    9   Gv5-1-Ss5.sp3-1-Pl5
+
+
+# These are the stretch terms for the two different Pl-Ss
+# interactions.  5 and 3 represent the 5' and 3' ends of the strand.
+
+pattern PAM5:5-Pl-Ss-3_r0            509.0
+pattern PAM5:5-Pl-Ss-3_ks             50.0
+
+pattern PAM5:5-Ss-Pl-3_r0            420.9
+pattern PAM5:5-Ss-Pl-3_ks             50.0
+
+
+#      ktheta      theta0  qual   bondName
+
+# bend   0.05442     88.000   9     Pl5-1-Ss5-1-Pl5
+bend   0.025       61.000   9     Ss5-1-Pl5-1-Ss5
+bend   0.007       180.000   9     Gv5-1-Ss5-1-Pl5
+
+
+# This is the interaction between the two bridging Pl's in a
+# crossover.  Its labeled as a double bond (its not) to distinguish
+# it from the Pl5-1-Pl5 case above (which also is not a real bond).
+# Note that quadratic = 6 here, which tells GROMACS to not consider
+# this as a chemical bond for purposes of exclusion of non-bonded
+# interactions.  Otherwise, we'd end up excluding two diagonal Pl-Pl
+# interactions which we'd like to include.
+stretch  100.0    600.0  1.0000   -1         -1       9    6   Pl5-2-Pl5
+
+#### Non-bonded exclusions ####
+# If non-zero, exclude non-bonded interactions within the same
+# duplex.  Also adds an exclusion between bridging phosphates in a
+# crossover, so changing this requires changing the Pl5-2-Pl5 stretch
+# term as well.
+pattern enableExclusions               0
+
+###############################################################
+###########################################################
 
 # this is overridden by separate directional parameters below, but we
 # still need a max value for bond stretch indicators
 stretch   4.00  510.00  1.0000   -1         -1       9    1   Ss5-1-Pl5
+
+
 
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ax3
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ae3
@@ -344,20 +398,7 @@ bend   0.04          127.000    9   H-1-Hp3.sp3-1-H
 #pattern PAM5:Ax-Ax-Ss_high_ktheta    1.0
 #pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
 
-# These are the stretch terms for the two different Pl-Ss
-# interactions.  5 and 3 represent the 5' and 3' ends of the strand.
-
-pattern PAM5:5-Pl-Ss-3_r0            509.0
-pattern PAM5:5-Pl-Ss-3_ks              1.0
-
-pattern PAM5:5-Ss-Pl-3_r0            420.9
-pattern PAM5:5-Ss-Pl-3_ks              1.0
-
-# If non-zero, exclude non-bonded interactions within the same
-# duplex.  Also adds an exclusion between bridging phosphates in a
-# crossover, so changing this requires changing the Pl5-2-Pl5 stretch
-# term as well.
-pattern enableExclusions               1
+################(( Pattern-stretches, Non-bonded exclusions flag copied from here ))################
 
 # For the PAM5-Stack pattern, two base pair planes are defined, each by
 # a pair of basis vectors from an Ax to an Ss pseudo-atom.  Since the
@@ -389,29 +430,7 @@ strut PAM5-3  1.04685  834.1  -0.05386  0.42674     -0.05386 -0.42674
 strut PAM5-4  0.57124  339.8  -0.20685  0.12986     -0.20685 -0.12986
 strut PAM5-5  0.38792  324.6  -0.47384  0.09686     -0.47384 -0.09686
 
-#         ks       r0    de      beta    inflectionR qual quad bondName
-
-stretch  0.36     644.5  1.0000   -1         -1       9    1   Pl5-1-Pl5
-
-# this stretch is to the Pl on the 5' side of the Gv
-stretch  1.0     1092.9  1.0000   -1         -1       9    1   Gv5-1-Pl5
-
-# this stretch is to the Pl on the 3' side of the Gv
-stretch  0.0     1092.9  1.0000   -1         -1       9    1   Gv5-2-Pl5
-
-#    ktheta          theta0  qual  bondName
-# bend to Pl on the 3' side of the Gv
-bend   0.0          180.000    9   Gv5-1-Ss5.sp3-1-Pl5
-
-# This is the interaction between the two bridging Pl's in a
-# crossover.  Its labeled as a double bond (its not) to distinguish
-# it from the Pl5-1-Pl5 case above (which also is not a real bond).
-# Note that quadratic = 6 here, which tells GROMACS to not consider
-# this as a chemical bond for purposes of exclusion of non-bonded
-# interactions.  Otherwise, we'd end up excluding two diagonal Pl-Pl
-# interactions which we'd like to include.
-stretch  100.0    600.0  1.0000   -1         -1       9    6   Pl5-2-Pl5
-
+###############((( Stretching constants moved from here )))######################
 
 # Switching function to smoothly reduce Yukawa potential to zero.
 # Between RSwitch and RCutoff (both in nm), the non-bonded potential
