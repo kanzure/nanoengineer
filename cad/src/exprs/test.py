@@ -574,13 +574,22 @@ testexpr_11pd5 = test_translucent_icons(_files1, _dir1)
     # works; only looks good over atoms ("the model") if you hack testdraw to draw the model before this expr,
     # rather than after it (now there is a checkbox_pref for that, and it has the right default, 070404)
 
-_files2 = """BigCancel.png
-BigCancel_pressed.png
-BigOK.png
-BigOK_pressed.png
-Cancel_pressed.png
-OK_Cancel.png
-OK_pressed.png""".split()
+##_files2 = """BigCancel.png
+##BigCancel_pressed.png
+##BigOK.png
+##BigOK_pressed.png
+##Cancel_pressed.png
+##OK_Cancel.png
+##OK_pressed.png""".split()
+
+_files2 = """CancelBig.png
+CancelBig_Pressed.png
+DoneBig.png
+DoneBig_Pressed.png
+DoneSmall_Cancel_Pressed.png
+DoneSmall.png
+DoneSmall_Pressed.png
+""".split()
 
 ## _dir2 = "/Nanorex/confirmation-corner/new-icons/" # not in cvs
 _dir2 = "ui/confcorner" #070621 [now that cad/src/ui/confcorner is in cvs]
