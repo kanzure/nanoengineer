@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 main_startup.py -- provides the startup_script function called by main.py
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -216,6 +217,44 @@ def startup_script( main_globals):
     startup_misc.post_main_show(foo)
 
 
+    # start psyco runtime optimizer (EXPERIMENTAL) --
+    # for doc see http://psyco.sourceforge.net/
+    #
+    # Example: it speeds up code like this by 17 times:
+    # (in my test, Intel Mac OS 10.4, Python 2.4.4)
+    #   x = 17
+    #   for i in range(10**7):
+    #       x += i % 3 - 1
+    #
+    #  [bruce 080524]
+    from utilities.debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("Use psyco runtime optimizer (next session)?",
+                  Choice_boolean_False,
+                  prefs_key = True ):
+        # Import Psyco if available
+        try:
+            import psyco
+            ## psyco.full() -- insert dna takes a lot of time, then segfaults
+            # after printing "inside this what's this";
+            # plan: be more conservative about what it should optimize...
+            # preferably bind specific functions using psyco.bind().
+            # For now, just tell it to only optimize the most important ones.
+            psyco.log() # manual says: log file name looks like xxx.log-psyco
+                # by default, where xxx is the name of the script you ran
+                # (when I ran "python main.py" in cad/src, it wrote to main.log-psyco there)
+                # (maybe we can pass our own pathname as an argument?)
+            ## psyco.profile(0.2) # use profiling, optimize funcs that use
+                # more than 20% of the time (not sure what that means exactly)
+                # (seems safe, but from log file, i guess it doesn't do much)
+            psyco.profile(0.05) # "aggressive"
+            print "using psyco"
+            pass
+        except ImportError:
+            print "not using psyco"
+            pass
+        pass
+
+
     # Decide whether to do profiling, and if so, with which
     # profiling command and into what file. Set local variables
     # to record the decision, which are used later when running
@@ -292,7 +331,7 @@ def startup_script( main_globals):
         print ("\nProfile data was presumably saved into %r" %
                (atom_debug_profile_filename,))
     else:
-        # if you change this code, also change the string literal just above
+        # if you change this code, also change the string literals just above
         app.exec_() 
 
 
