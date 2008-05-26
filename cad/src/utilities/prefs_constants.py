@@ -135,7 +135,7 @@ selectionColor_prefs_key = 'V110/3D selection color'
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
 zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
 zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
-
+mouseWheelTimeoutInterval_pref_key = 'V110/Mouse Wheel Event Timeout Interval'
 
 
 #GLpane scale preferences
@@ -549,7 +549,8 @@ prefs_table = (
     ('', 'int', mouseWheelDirection_prefs_key,      0),
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
     ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
-
+    ('', 'float', mouseWheelTimeoutInterval_pref_key, 0.5),
+    
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 
     ('', 'boolean', displayRulers_prefs_key, True),

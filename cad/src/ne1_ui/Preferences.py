@@ -101,6 +101,7 @@ from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.prefs_constants import mouseWheelDirection_prefs_key
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
 from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
+from utilities.prefs_constants import mouseWheelTimeoutInterval_pref_key
 
 # DNA prefs
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
@@ -447,23 +448,24 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruc
     """
     if screen is None:
         screen = screen_pos_size()
-    ((x0,y0),(w,h)) = screen
+    ((x0, y0), (w, h)) = screen
     x1 = x0 + w
     y1 = y0 + h
 
     pos, size = _get_prefs_for_window_pos_size( win, keyprefix, defaults)
     # now use pos and size, within limits set by screen
-    px,py = pos
-    sx,sy = size
+    px, py = pos
+    sx, sy = size
     if sx > w: sx = w
     if sy > h: sy = h
     if px < x0: px = x0
     if py < y0: py = y0
     if px > x1 - sx: px = x1 - sx
     if py > y1 - sy: py = y1 - sy
-    env.history.message("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
-    win.resize(sx,sy)
-    win.move(px,py)
+    env.history.message("restoring last-saved window position %r and size %r" \
+                        % ((px, py),(sx, sy)))
+    win.resize(sx, sy)
+    win.move(px, py)
     return
 
 def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
@@ -477,8 +479,8 @@ def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
     if defaults is None:
         defaults = _get_window_pos_size(win)
     dpos, dsize = defaults
-    px,py = dpos # check correctness of args, even if not used later
-    sx,sy = dsize
+    px, py = dpos # check correctness of args, even if not used later
+    sx, sy = dsize
     import foundation.preferences as preferences
     prefs = preferences.prefs_context()
     ksize, kpos = _size_pos_keys( keyprefix)
@@ -535,7 +537,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     The Preferences dialog used for accessing and changing user 
     preferences.
     """
-    pagenameList = [] # List of pagenames in prefsStackedWidget.
+    pagenameList = [] # List of page names in prefsStackedWidget.
 
     def __init__(self, assy):
         QDialog.__init__(self)
@@ -717,10 +719,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
             env.prefs[zoomOutAboutScreenCenter_prefs_key])
         
+        self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_pref_key])
+        
         # Connections for "Mouse controls" page.
         self.connect(self.mouseWheelDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_direction)
         self.connect(self.mouseWheelZoomInPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_in_position)
         self.connect(self.mouseWheelZoomOutPointComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_zoom_out_position)
+        self.connect(self.hhTimeoutIntervalDoubleSpinBox, SIGNAL("valueChanged(double)"), self.set_mouse_wheel_timeout_interval)
         return
     
     def _setupPage_Rulers(self):
@@ -1766,6 +1771,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         env.prefs[zoomOutAboutScreenCenter_prefs_key] = position
         self.w.updateMouseWheelSettings()
         return
+    
+    def set_mouse_wheel_timeout_interval(self, interval):
+        """
+        Slot method for the I{Hover highlighting timeout interval} spinbox.
+        @param interval: The timeout interval in seconds.
+        @type  interval: double
+	"""
+        env.prefs[mouseWheelTimeoutInterval_pref_key] = interval
 
     # = Ruler slot methods
     

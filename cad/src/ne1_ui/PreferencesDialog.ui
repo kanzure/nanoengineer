@@ -44,7 +44,7 @@
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
          <property name="currentIndex" >
-          <number>5</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="General" >
           <layout class="QGridLayout" >
@@ -627,19 +627,6 @@
            <property name="spacing" >
             <number>6</number>
            </property>
-           <item row="0" column="1" >
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>231</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item row="0" column="0" >
             <layout class="QVBoxLayout" >
              <property name="margin" >
@@ -994,8 +981,8 @@
                 <property name="spacing" >
                  <number>4</number>
                 </property>
-                <item row="0" column="1" >
-                 <layout class="QVBoxLayout" >
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" >
                   <property name="margin" >
                    <number>0</number>
                   </property>
@@ -1003,51 +990,101 @@
                    <number>4</number>
                   </property>
                   <item>
-                   <widget class="QComboBox" name="mouseWheelDirectionComboBox" >
+                   <layout class="QVBoxLayout" >
+                    <property name="margin" >
+                     <number>0</number>
+                    </property>
+                    <property name="spacing" >
+                     <number>4</number>
+                    </property>
                     <item>
-                     <property name="text" >
-                      <string>Pull/push wheel to zoom in/out</string>
-                     </property>
+                     <widget class="QLabel" name="label_19" >
+                      <property name="text" >
+                       <string>Direction:</string>
+                      </property>
+                      <property name="alignment" >
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
                     </item>
                     <item>
-                     <property name="text" >
-                      <string>Push/pull wheel to zoom in/out</string>
-                     </property>
+                     <widget class="QLabel" name="label_17" >
+                      <property name="text" >
+                       <string>Zoom in:</string>
+                      </property>
+                      <property name="alignment" >
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
                     </item>
-                   </widget>
+                    <item>
+                     <widget class="QLabel" name="label_18" >
+                      <property name="text" >
+                       <string>Zoom out:</string>
+                      </property>
+                      <property name="alignment" >
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="mouseWheelZoomInPointComboBox" >
+                   <layout class="QVBoxLayout" >
+                    <property name="margin" >
+                     <number>0</number>
+                    </property>
+                    <property name="spacing" >
+                     <number>4</number>
+                    </property>
                     <item>
-                     <property name="text" >
-                      <string>Center about cursor position</string>
-                     </property>
+                     <widget class="QComboBox" name="mouseWheelDirectionComboBox" >
+                      <item>
+                       <property name="text" >
+                        <string>Pull/push wheel to zoom in/out</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text" >
+                        <string>Push/pull wheel to zoom in/out</string>
+                       </property>
+                      </item>
+                     </widget>
                     </item>
                     <item>
-                     <property name="text" >
-                      <string>Center about screen</string>
-                     </property>
+                     <widget class="QComboBox" name="mouseWheelZoomInPointComboBox" >
+                      <item>
+                       <property name="text" >
+                        <string>Center about cursor position</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text" >
+                        <string>Center about screen</string>
+                       </property>
+                      </item>
+                     </widget>
                     </item>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="mouseWheelZoomOutPointComboBox" >
                     <item>
-                     <property name="text" >
-                      <string>Center about cursor position</string>
-                     </property>
+                     <widget class="QComboBox" name="mouseWheelZoomOutPointComboBox" >
+                      <item>
+                       <property name="text" >
+                        <string>Center about cursor position</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text" >
+                        <string>Center about screen</string>
+                       </property>
+                      </item>
+                     </widget>
                     </item>
-                    <item>
-                     <property name="text" >
-                      <string>Center about screen</string>
-                     </property>
-                    </item>
-                   </widget>
+                   </layout>
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="0" >
-                 <layout class="QVBoxLayout" >
+                <item row="1" column="0" >
+                 <layout class="QHBoxLayout" >
                   <property name="margin" >
                    <number>0</number>
                   </property>
@@ -1055,9 +1092,9 @@
                    <number>4</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="label_19" >
+                   <widget class="QLabel" name="label_20" >
                     <property name="text" >
-                     <string>Direction:</string>
+                     <string>Hover highlighting timeout interval:</string>
                     </property>
                     <property name="alignment" >
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1065,22 +1102,21 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_17" >
-                    <property name="text" >
-                     <string>Zoom in:</string>
+                   <widget class="QDoubleSpinBox" name="hhTimeoutIntervalDoubleSpinBox" >
+                    <property name="suffix" >
+                     <string> seconds</string>
                     </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    <property name="decimals" >
+                     <number>1</number>
                     </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_18" >
-                    <property name="text" >
-                     <string>Zoom out:</string>
+                    <property name="maximum" >
+                     <double>1.000000000000000</double>
                     </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    <property name="singleStep" >
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value" >
+                     <double>0.500000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -1103,6 +1139,19 @@
               </spacer>
              </item>
             </layout>
+           </item>
+           <item row="0" column="1" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>231</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
