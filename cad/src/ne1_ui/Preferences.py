@@ -535,16 +535,17 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     The Preferences dialog used for accessing and changing user 
     preferences.
     """
-    currentSelectedPageItem = None # The QTreeWidgetItem currently selected.
+    pagenameList = [] # List of pagenames in prefsStackedWidget.
 
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
 
-        # Some standard attrs.
+        # Some important attrs.
         self.glpane = assy.o
         self.w = assy.w
         self.assy = assy
+        self.pagenameList = self.getPagenameList()
         
         # Start of dialog setup.
         self._setupDialog_TopLevelWidgets()
@@ -3344,10 +3345,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         selected from the Category tree widget, show the "General" page.
         
         @param pagename: Name of the Preferences page. Default is "General".
+                         Only names found in self.pagenameList are allowed.
         @type  pagename: string
         
         @note: This is the slot method for the "Category" QTreeWidget.
         """
+        
         if not pagename:
             selectedItemsList = self.categoryTreeWidget.selectedItems()
             if selectedItemsList:
@@ -3356,58 +3359,49 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             else:
                 pagename = 'General'
         
+        # Strip whitespaces, commas and dashes from pagename just before 
+        # checking for it in self.pagenameList.
+        pagename = pagename.replace(" ", "")
+        pagename = pagename.replace(",", "")
+        pagename = pagename.replace("-", "")
+        
+        if not pagename in self.pagenameList:
+            msg = 'Preferences page unknown: pagename =%s\n' \
+                'pagename must be one of the following:\n%r\n' \
+                % (pagename, self.pagenameList)
+            print_compact_traceback(msg)
+                
         try:
-            if pagename == 'General':
-                self.prefsStackedWidget.setCurrentIndex(0)
-            elif pagename == 'Color':
-                self.prefsStackedWidget.setCurrentIndex(1)
-            elif pagename == 'Model View':
-                self.prefsStackedWidget.setCurrentIndex(2)
-            elif pagename == 'Zoom, Pan and Rotate':
-                self.prefsStackedWidget.setCurrentIndex(3)
-            elif pagename == 'Rulers':
-                self.prefsStackedWidget.setCurrentIndex(4)
-            elif pagename == 'Atoms':
-                self.prefsStackedWidget.setCurrentIndex(5)
-            elif pagename == 'Bonds':
-                self.prefsStackedWidget.setCurrentIndex(6)
-            elif pagename == 'DNA':
-                self.prefsStackedWidget.setCurrentIndex(7)
-            elif pagename == 'Error Indicators':
-                self.prefsStackedWidget.setCurrentIndex(8)
-            elif pagename == 'Base Orientation Indicators':
-                self.prefsStackedWidget.setCurrentIndex(9)
-            elif pagename == 'Adjust':
-                self.prefsStackedWidget.setCurrentIndex(10)
-            elif pagename == 'Lighting':
-                self.prefsStackedWidget.setCurrentIndex(11)
-            elif pagename == 'Plug-ins':
-                self.prefsStackedWidget.setCurrentIndex(12)
-            elif pagename == 'Undo':
-                self.prefsStackedWidget.setCurrentIndex(13)
-            elif pagename == 'Window':
-                self.prefsStackedWidget.setCurrentIndex(14)
-            elif pagename == 'Reports':
-                self.prefsStackedWidget.setCurrentIndex(15)
-            elif pagename == 'Tooltips':
-                self.prefsStackedWidget.setCurrentIndex(16)
-            else:
-                msg = 'Preferences page unknown: pagename =%s' % pagename
-                print_compact_traceback(msg) 
+            # Show page <pagename>.
+            self.prefsStackedWidget.setCurrentIndex(self.pagenameList.index(pagename))
         except:
-            print_compact_traceback("bug in showPage() ignored: ")
+            print_compact_traceback("Bug in showPage() ignored: ")
             
         self.setWindowTitle("Preferences - %s" % pagename)
         return
     
-    def _printPageNames(self):
+    def getPagenameList(self):
         """
-        This method prints out the object (page) names of the children widgets
+        Returns a list of page names (i.e. the "stack of widgets") inside
         prefsStackedWidget.
+        
+        @return: List of page names.
+        @rtype:  List
+        
+        @attention: Qt Designer assigns the QStackedWidget property 
+                    "currentPageName" (which is not a formal attr)
+                    to the QWidget (page) attr "objectName".
+                    
+        @see: U{B{QStackedWidget}<http://doc.trolltech.com/4/qstackedwidget.html>}.
         """
-        for widget in self.prefsStackedWidget.children():
-            if isinstance(widget, QWidget):
-                print widget.objectName
+        _pagenameList = []
+        
+        for _widgetIndex in range(self.prefsStackedWidget.count()):
+            _widget = self.prefsStackedWidget.widget(_widgetIndex)
+            _pagename = str(_widget.objectName())
+            _pagenameList.append(_pagename)
+            
+        return _pagenameList
     
     def accept(self):
         """

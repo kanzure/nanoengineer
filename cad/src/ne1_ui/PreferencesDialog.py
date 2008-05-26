@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Fri May 23 12:54:08 2008
+# Created: Mon May 26 14:34:48 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -310,10 +310,10 @@ class Ui_PreferencesDialog(object):
         self.gridlayout6.addItem(spacerItem6,0,1,1,1)
         self.prefsStackedWidget.addWidget(self.ModelView)
 
-        self.ZoomPanRotate = QtGui.QWidget()
-        self.ZoomPanRotate.setObjectName("ZoomPanRotate")
+        self.ZoomPanandRotate = QtGui.QWidget()
+        self.ZoomPanandRotate.setObjectName("ZoomPanandRotate")
 
-        self.gridlayout9 = QtGui.QGridLayout(self.ZoomPanRotate)
+        self.gridlayout9 = QtGui.QGridLayout(self.ZoomPanandRotate)
         self.gridlayout9.setMargin(9)
         self.gridlayout9.setSpacing(6)
         self.gridlayout9.setObjectName("gridlayout9")
@@ -326,7 +326,7 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout6.setSpacing(6)
         self.vboxlayout6.setObjectName("vboxlayout6")
 
-        self.groupBox8 = QtGui.QGroupBox(self.ZoomPanRotate)
+        self.groupBox8 = QtGui.QGroupBox(self.ZoomPanandRotate)
         self.groupBox8.setObjectName("groupBox8")
 
         self.gridlayout10 = QtGui.QGridLayout(self.groupBox8)
@@ -456,7 +456,7 @@ class Ui_PreferencesDialog(object):
         self.gridlayout10.addLayout(self.hboxlayout6,1,0,1,1)
         self.vboxlayout6.addWidget(self.groupBox8)
 
-        self.groupBox_4 = QtGui.QGroupBox(self.ZoomPanRotate)
+        self.groupBox_4 = QtGui.QGroupBox(self.ZoomPanandRotate)
         self.groupBox_4.setObjectName("groupBox_4")
 
         self.gridlayout12 = QtGui.QGridLayout(self.groupBox_4)
@@ -507,7 +507,7 @@ class Ui_PreferencesDialog(object):
         spacerItem16 = QtGui.QSpacerItem(20,161,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout6.addItem(spacerItem16)
         self.gridlayout9.addLayout(self.vboxlayout6,0,0,1,1)
-        self.prefsStackedWidget.addWidget(self.ZoomPanRotate)
+        self.prefsStackedWidget.addWidget(self.ZoomPanandRotate)
 
         self.Rulers = QtGui.QWidget()
         self.Rulers.setObjectName("Rulers")
@@ -1286,10 +1286,10 @@ class Ui_PreferencesDialog(object):
         self.gridlayout20.addLayout(self.vboxlayout19,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.DNA)
 
-        self.DnaErrorIndicators = QtGui.QWidget()
-        self.DnaErrorIndicators.setObjectName("DnaErrorIndicators")
+        self.MinorGrooveErrorIndicators = QtGui.QWidget()
+        self.MinorGrooveErrorIndicators.setObjectName("MinorGrooveErrorIndicators")
 
-        self.gridlayout24 = QtGui.QGridLayout(self.DnaErrorIndicators)
+        self.gridlayout24 = QtGui.QGridLayout(self.MinorGrooveErrorIndicators)
         self.gridlayout24.setMargin(9)
         self.gridlayout24.setSpacing(6)
         self.gridlayout24.setObjectName("gridlayout24")
@@ -1302,7 +1302,7 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout20.setSpacing(6)
         self.vboxlayout20.setObjectName("vboxlayout20")
 
-        self.dnaDisplayMinorGrooveErrorGroupBox = QtGui.QGroupBox(self.DnaErrorIndicators)
+        self.dnaDisplayMinorGrooveErrorGroupBox = QtGui.QGroupBox(self.MinorGrooveErrorIndicators)
         self.dnaDisplayMinorGrooveErrorGroupBox.setCheckable(True)
         self.dnaDisplayMinorGrooveErrorGroupBox.setChecked(False)
         self.dnaDisplayMinorGrooveErrorGroupBox.setObjectName("dnaDisplayMinorGrooveErrorGroupBox")
@@ -1400,12 +1400,12 @@ class Ui_PreferencesDialog(object):
         spacerItem34 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout20.addItem(spacerItem34)
         self.gridlayout24.addLayout(self.vboxlayout20,0,0,1,1)
-        self.prefsStackedWidget.addWidget(self.DnaErrorIndicators)
+        self.prefsStackedWidget.addWidget(self.MinorGrooveErrorIndicators)
 
-        self.dnaBaseOrientationIndicators = QtGui.QWidget()
-        self.dnaBaseOrientationIndicators.setObjectName("dnaBaseOrientationIndicators")
+        self.BaseOrientationIndicators = QtGui.QWidget()
+        self.BaseOrientationIndicators.setObjectName("BaseOrientationIndicators")
 
-        self.gridlayout26 = QtGui.QGridLayout(self.dnaBaseOrientationIndicators)
+        self.gridlayout26 = QtGui.QGridLayout(self.BaseOrientationIndicators)
         self.gridlayout26.setMargin(9)
         self.gridlayout26.setSpacing(6)
         self.gridlayout26.setObjectName("gridlayout26")
@@ -1418,7 +1418,7 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout23.setSpacing(4)
         self.vboxlayout23.setObjectName("vboxlayout23")
 
-        self.dnaDisplayBaseOrientationIndicatorsGroupBox = QtGui.QGroupBox(self.dnaBaseOrientationIndicators)
+        self.dnaDisplayBaseOrientationIndicatorsGroupBox = QtGui.QGroupBox(self.BaseOrientationIndicators)
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setCheckable(True)
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(False)
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setObjectName("dnaDisplayBaseOrientationIndicatorsGroupBox")
@@ -1536,7 +1536,7 @@ class Ui_PreferencesDialog(object):
         spacerItem36 = QtGui.QSpacerItem(20,111,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout23.addItem(spacerItem36)
         self.gridlayout26.addLayout(self.vboxlayout23,0,0,1,1)
-        self.prefsStackedWidget.addWidget(self.dnaBaseOrientationIndicators)
+        self.prefsStackedWidget.addWidget(self.BaseOrientationIndicators)
 
         self.Adjust = QtGui.QWidget()
         self.Adjust.setObjectName("Adjust")
@@ -2919,7 +2919,7 @@ class Ui_PreferencesDialog(object):
 
         self.retranslateUi(PreferencesDialog)
         self.prefsTabWidget.setCurrentIndex(0)
-        self.prefsStackedWidget.setCurrentIndex(1)
+        self.prefsStackedWidget.setCurrentIndex(5)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(PreferencesDialog)
 
@@ -3268,7 +3268,7 @@ class Ui_PreferencesDialog(object):
         item7.setText(0,QtGui.QApplication.translate("PreferencesDialog", "DNA", None, QtGui.QApplication.UnicodeUTF8))
 
         item8 = QtGui.QTreeWidgetItem(item7)
-        item8.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Error Indicators", None, QtGui.QApplication.UnicodeUTF8))
+        item8.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Minor Groove Error Indicators", None, QtGui.QApplication.UnicodeUTF8))
 
         item9 = QtGui.QTreeWidgetItem(item7)
         item9.setText(0,QtGui.QApplication.translate("PreferencesDialog", "Base Orientation Indicators", None, QtGui.QApplication.UnicodeUTF8))
