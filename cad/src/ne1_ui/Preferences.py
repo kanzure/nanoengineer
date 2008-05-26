@@ -210,12 +210,66 @@ from utilities.constants import diBALL, diTUBES, diDNACYLINDER
 
 from utilities.constants import black, white, gray
 
-bg_BLUE_SKY = 0
-bg_EVENING_SKY = 1
-bg_BLACK = 2
-bg_WHITE = 3
-bg_GRAY = 4
-bg_CUSTOM = 5
+# =
+# Preferences widgets constants. I suggest that these be moved to another
+# file (i.e. prefs_constants.py or another file). Discuss with Bruce. -Mark
+
+# Widget constants for the "Model View" page.
+
+BG_BLUE_SKY = 0
+BG_EVENING_SKY = 1
+BG_BLACK = 2
+BG_WHITE = 3
+BG_GRAY = 4
+BG_CUSTOM = 5
+
+# GDS = global display style
+GDS_INDEXES = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
+GDS_NAMES   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
+GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+
+# Widget constants for the "Colors" page.
+
+# HHS = hover highlighting styles
+HHS_SOLID = 0
+HHS_SCREENDOOR1 = 1
+HHS_CROSSHATCH1 = 2
+HHS_BW_PATTERN = 3
+HHS_POLYGON_EDGES = 4
+HHS_HALO = 5
+HHS_DISABLED = 6
+
+HHS_INDEXES = [HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, HHS_BW_PATTERN,
+              HHS_POLYGON_EDGES, HHS_HALO, HHS_DISABLED]
+
+HHS_OPTIONS = ["Highlight in solid color",
+               "Highlight in screendoor pattern",
+               "Highlight in crosshatch pattern",
+               "Highlight with black-and-white pattern",
+               "Highlight in colored polygon edges",
+               "Highlight in colored halo",
+               "Disable hover highlighting"]
+
+# SS = selection styles
+
+SS_SOLID = 0
+SS_SCREENDOOR1 = 1
+SS_CROSSHATCH1 = 2
+SS_BW_PATTERN = 3
+SS_POLYGON_EDGES = 4
+SS_HALO = 5
+
+SS_INDEXES = [SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
+              SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO]
+
+SS_OPTIONS = ["Solid color",
+              "Screendoor pattern",
+              "Crosshatch pattern",
+              "Black-and-white pattern",
+              "Colored polygon edges",
+              "Colored halo"]
+
+# = end of Preferences widgets constants.
 
 debug_sliders = False # Do not commit as True
 
@@ -597,16 +651,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Hover highlighting color style widgets and connection(s).
         self._loadHoverHighlightingColorStylesItems()
         self.hoverHighlightingStyleComboBox.setCurrentIndex(env.prefs[hoverHighlightingColorStyle_prefs_key])
-        self.connect(self.hoverHighlightingStyleComboBox, SIGNAL("activated(int)"), self.changeHoverHighlightingColorStyle)
+        self.connect(self.hoverHighlightingStyleComboBox, SIGNAL("activated(int)"), self._change_hhStyle)
         connect_colorpref_to_colorframe( hoverHighlightingColor_prefs_key, self.hoverHighlightingColorFrame)
-        self.connect(self.hoverHighlightingColorButton, SIGNAL("clicked()"), self.changeHoverHighlightingColor)
+        self.connect(self.hoverHighlightingColorButton, SIGNAL("clicked()"), self._change_hhColor)
         
         # Selection color style widgets and connection(s).
         self._loadSelectionColorStylesItems()
         self.selectionStyleComboBox.setCurrentIndex(env.prefs[selectionColorStyle_prefs_key])
-        self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self.changeSelectionColorStyle)
+        self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self._change_selectionStyle)
         connect_colorpref_to_colorframe( selectionColor_prefs_key, self.selectionColorFrame)
-        self.connect(self.selectionColorButton, SIGNAL("clicked()"), self.changeSelectionColor)
+        self.connect(self.selectionColorButton, SIGNAL("clicked()"), self._change_selectionColor)
         return
         
     def _setupPage_ModelView(self):
@@ -614,9 +668,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Setup widgets to initial (default or defined) values on the 
         'Model View' page.
 	"""
-        # Load the Global Display Style at start-up combobox
-        self._loadGlobalDisplayStylesAtStartup()
-        self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.set_default_display_mode)
+        # Setup the Global Display Style at start-up combobox
+        self._setupGlobalDisplayStyleAtStartup_ComboBox()
+        
         
         self.connect(self.compassGroupBox, SIGNAL("stateChanged(int)"), self.display_compass)
         self.connect(self.compass_position_combox, SIGNAL("activated(int)"), self.set_compass_position)
@@ -1019,6 +1073,100 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.ms_shininess_slider, SIGNAL("sliderReleased()"), self.change_material_shininess_stop)
         self.connect(self.ms_shininess_slider, SIGNAL("sliderPressed()"), self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider, SIGNAL("valueChanged(int)"), self.change_material_shininess)
+
+        self._updatePage_Lighting()
+        return
+    
+    def _updatePage_Lighting(self, lights = None): #mark 051124
+        """
+        Setup widgets to initial (default or defined) values on the Lighting page.
+        """
+        if not lights:
+            self.lights = self.original_lights = self.glpane.getLighting()
+        else:
+            self.lights = lights
+
+        light_num = self.light_combobox.currentIndex()
+
+        self.update_light_combobox_items()
+
+        # Move lc_prefs_keys upstairs.  Mark.
+        lc_prefs_keys = [light1Color_prefs_key, light2Color_prefs_key, light3Color_prefs_key]
+        self.current_light_key = lc_prefs_keys[light_num] # Get prefs key for current light color.
+        connect_colorpref_to_colorframe(self.current_light_key, self.light_color_frame)
+        self.light_color = env.prefs[self.current_light_key]
+
+        # These sliders generate signals whenever their 'setValue()' slot is called (below).
+        # This creates problems (bugs) for us, so we disconnect them temporarily.
+        self.disconnect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.disconnect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.disconnect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+
+        # self.lights[light_num][0] contains 'color' attribute.  
+        # We already have it (self.light_color) from the prefs key (above).
+        a = self.lights[light_num][1] # ambient intensity
+        d = self.lights[light_num][2] # diffuse intensity
+        s = self.lights[light_num][3] # specular intensity
+
+        self.light_ambient_slider.setValue(int (a * 100)) # generates signal
+        self.light_diffuse_slider.setValue(int (d * 100)) # generates signal
+        self.light_specularity_slider.setValue(int (s * 100)) # generates signal
+
+        self.light_ambient_linedit.setText(str(a))
+        self.light_diffuse_linedit.setText(str(d))
+        self.light_specularity_linedit.setText(str(s))
+
+        self.light_x_linedit.setText(str (self.lights[light_num][4]))
+        self.light_y_linedit.setText(str (self.lights[light_num][5]))
+        self.light_z_linedit.setText(str (self.lights[light_num][6]))
+        self.light_checkbox.setChecked(self.lights[light_num][7])
+
+        # Reconnect the slots to the light sliders.
+        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
+
+        self._setup_material_group()
+        return
+
+    # _setup_material_group() should be folded back into _updatePage_Lighting(). Mark 051204.
+    def _setup_material_group(self, reset = False):
+        """
+        Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
+        If reset = False, widgets are reset from the prefs db.
+        If reset = True, widgets are reset from their previous values.
+        """
+
+        if reset:
+            self.material_specularity = self.original_material_specularity
+            self.whiteness = self.original_whiteness
+            self.shininess = self.original_shininess
+            self.brightness = self.original_brightness
+        else:
+            self.material_specularity = self.original_material_specularity = \
+                env.prefs[material_specular_highlights_prefs_key]
+            self.whiteness = self.original_whiteness = \
+                int(env.prefs[material_specular_finish_prefs_key] * 100)
+            self.shininess = self.original_shininess = \
+                int(env.prefs[material_specular_shininess_prefs_key])
+            self.brightness = self.original_brightness= \
+                int(env.prefs[material_specular_brightness_prefs_key] * 100)
+
+        # Enable/disable specular highlights.
+        self.ms_on_checkbox.setChecked(self.material_specularity )
+
+        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
+        # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
+        self.ms_finish_slider.setValue(self.whiteness) # generates signal
+        self.ms_finish_linedit.setText(str(self.whiteness * .01))
+
+        # For shininess, the range is 15 (low) to 60 (high).  Mark. 051129.
+        self.ms_shininess_slider.setValue(self.shininess) # generates signal
+        self.ms_shininess_linedit.setText(str(self.shininess))
+
+        # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
+        self.ms_brightness_slider.setValue(self.brightness) # generates signal
+        self.ms_brightness_linedit.setText(str(self.brightness * .01))
         return
     
     def _setupPage_Plugins(self):
@@ -1217,8 +1365,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 	Load the background color combobox with all the color options and sets 
         the current background color
 	"""
-        backgroundIndexes = [bg_BLUE_SKY, bg_EVENING_SKY, 
-                             bg_BLACK, bg_WHITE, bg_GRAY, bg_CUSTOM]
+        backgroundIndexes = [BG_BLUE_SKY, BG_EVENING_SKY, 
+                             BG_BLACK, BG_WHITE, BG_GRAY, BG_CUSTOM]
         
         backgroundNames   = ["Blue Sky (default)", "Evening Sky",
                              "Black", "White", "Gray", "Custom..."]
@@ -1249,162 +1397,77 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.backgroundColorComboBox.setCurrentIndex(self.glpane.backgroundGradient - 1)
         else:
             if (env.prefs[ backgroundColor_prefs_key ] == black):
-                self.backgroundColorComboBox.setCurrentIndex(bg_BLACK)
+                self.backgroundColorComboBox.setCurrentIndex(BG_BLACK)
             elif (env.prefs[ backgroundColor_prefs_key ] == white):
-                self.backgroundColorComboBox.setCurrentIndex(bg_WHITE)  
+                self.backgroundColorComboBox.setCurrentIndex(BG_WHITE)  
             elif (env.prefs[ backgroundColor_prefs_key ] == gray):
-                self.backgroundColorComboBox.setCurrentIndex(bg_GRAY)
+                self.backgroundColorComboBox.setCurrentIndex(BG_GRAY)
             else:
-                self.backgroundColorComboBox.setCurrentIndex(bg_CUSTOM)
+                self.backgroundColorComboBox.setCurrentIndex(BG_CUSTOM)
         return
         
     def _loadHoverHighlightingColorStylesItems(self):
         """
 	Load the hover highlighting style combobox with items.
 	"""
-        hoverHighlightingIndexes = [0, #hh_SOLID, 
-                                    1] #hh_SCREENDOOR]
-        
-        hoverHighlightingStyles = ["Highlight in solid color",
-                                   "Highlight in screendoor pattern",
-                                   "Highlight in crosshatch pattern",
-                                   "Highlight with black-and-white pattern",
-                                   "Highlight in colored polygon edges",
-                                   "Highlight in colored halo",
-                                   "Disable hover highlighting"]
-        
-        for hoverHighlightingStyle in hoverHighlightingStyles:
+        for hoverHighlightingStyle in HHS_OPTIONS:
             self.hoverHighlightingStyleComboBox.addItem(hoverHighlightingStyle)
         return
     
     def _loadSelectionColorStylesItems(self):
         """
 	Load the selection color style combobox with items.
-	"""
-        selectionStyleIndexes = [0, #ss_SOLID, 
-                                 1] #ss_SCREENDOOR]
-        
-        selectionStyles = ["Solid color",
-                           "Screendoor pattern",
-                           "Crosshatch pattern",
-                           "Black-and-white pattern",
-                           "Colored polygon edges",
-                           "Colored halo"]
-        
-        for selectionStyle in selectionStyles:
+	"""        
+        for selectionStyle in SS_OPTIONS:
             self.selectionStyleComboBox.addItem(selectionStyle)
         return
+    
+    # = Methods for the "Model View" page.
 
-    def _loadGlobalDisplayStylesAtStartup(self):
+    def _setupGlobalDisplayStyleAtStartup_ComboBox(self):
         """
-            Loads the global display style combobox with all the display options 
-            and sets the current display style
+        Loads the global display style combobox with all the display options 
+        and sets the current display style
         """
-        displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
-        displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
-        displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+        gdsIconDist = dict(zip(GDS_NAMES, GDS_ICONS))
         
-        displayIconsDict = dict(zip(displayNames, displayIcons))
-        displayNamesDict = dict(zip(displayIndexes, displayNames))
-        
-        for displayName in displayNames:
-            basename = displayIconsDict[displayName] + ".png"
+        for gdsName in GDS_NAMES: # gds = global display style
+            basename = gdsIconDist[gdsName] + ".png"
             iconPath = os.path.join("ui/actions/View/Display/", 
                                     basename)
-            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), displayName)
+            self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), gdsName)
             
         display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
-        self.globalDisplayStyleStartupComboBox.setCurrentIndex(displayIndexes.index(display_style))
-
-    def _updatePage_Lighting(self, lights = None): #mark 051124
+        self.globalDisplayStyleStartupComboBox.setCurrentIndex(GDS_INDEXES.index(display_style))
+        
+        self.connect(self.globalDisplayStyleStartupComboBox, SIGNAL("activated(int)"), self.setGlobalDisplayStyleAtStartUp)
+    
+    def setGlobalDisplayStyleAtStartUp(self, gdsIndexUnused):
         """
-        Setup widgets to initial (default or defined) values on the Lighting page.
-        """
-        if not lights:
-            self.lights = self.original_lights = self.glpane.getLighting()
-        else:
-            self.lights = lights
+	Slot method for the "Global Display Style at Start-up" combo box in
+        the Preferences dialog (and not the combobox in the status bar of
+        the main window).
+        
+        @param gdsIndexUnused: The current index of the combobox. It is unused.
+        @type  gdsIndexUnused: int
 
-        light_num = self.light_combobox.currentIndex()
-
-        self.update_light_combobox_items()
-
-        # Move lc_prefs_keys upstairs.  Mark.
-        lc_prefs_keys = [light1Color_prefs_key, light2Color_prefs_key, light3Color_prefs_key]
-        self.current_light_key = lc_prefs_keys[light_num] # Get prefs key for current light color.
-        connect_colorpref_to_colorframe(self.current_light_key, self.light_color_frame)
-        self.light_color = env.prefs[self.current_light_key]
-
-        # These sliders generate signals whenever their 'setValue()' slot is called (below).
-        # This creates problems (bugs) for us, so we disconnect them temporarily.
-        self.disconnect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.disconnect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.disconnect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-
-        # self.lights[light_num][0] contains 'color' attribute.  
-        # We already have it (self.light_color) from the prefs key (above).
-        a = self.lights[light_num][1] # ambient intensity
-        d = self.lights[light_num][2] # diffuse intensity
-        s = self.lights[light_num][3] # specular intensity
-
-        self.light_ambient_slider.setValue(int (a * 100)) # generates signal
-        self.light_diffuse_slider.setValue(int (d * 100)) # generates signal
-        self.light_specularity_slider.setValue(int (s * 100)) # generates signal
-
-        self.light_ambient_linedit.setText(str(a))
-        self.light_diffuse_linedit.setText(str(d))
-        self.light_specularity_linedit.setText(str(s))
-
-        self.light_x_linedit.setText(str (self.lights[light_num][4]))
-        self.light_y_linedit.setText(str (self.lights[light_num][5]))
-        self.light_z_linedit.setText(str (self.lights[light_num][6]))
-        self.light_checkbox.setChecked(self.lights[light_num][7])
-
-        # Reconnect the slots to the light sliders.
-        self.connect(self.light_ambient_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_diffuse_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-        self.connect(self.light_specularity_slider, SIGNAL("valueChanged(int)"), self.change_lighting)
-
-        self._setup_material_group()
-
-    # _setup_material_group() should be folded back into _updatePage_Lighting(). Mark 051204.
-    def _setup_material_group(self, reset = False):
-        """
-        Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
-        If reset = False, widgets are reset from the prefs db.
-        If reset = True, widgets are reset from their previous values.
+        @note: This changes the global display style of the glpane.
         """
 
-        if reset:
-            self.material_specularity = self.original_material_specularity
-            self.whiteness = self.original_whiteness
-            self.shininess = self.original_shininess
-            self.brightness = self.original_brightness
-        else:
-            self.material_specularity = self.original_material_specularity = \
-                env.prefs[material_specular_highlights_prefs_key]
-            self.whiteness = self.original_whiteness = \
-                int(env.prefs[material_specular_finish_prefs_key] * 100)
-            self.shininess = self.original_shininess = \
-                int(env.prefs[material_specular_shininess_prefs_key])
-            self.brightness = self.original_brightness= \
-                int(env.prefs[material_specular_brightness_prefs_key] * 100)
+        # Get the GDS index from the current combox box index.
+        display_style = GDS_INDEXES[self.globalDisplayStyleStartupComboBox.currentIndex()]
+        
+        if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
+            return
+        
+        # set the pref
+        env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
 
-        # Enable/disable specular highlights.
-        self.ms_on_checkbox.setChecked(self.material_specularity )
-
-        # For whiteness, the stored range is 0.0 (Plastic) to 1.0 (Metal).  The Qt slider range
-        # is 0 - 100, so we multiply by 100 (above) to set the slider.  Mark. 051129.
-        self.ms_finish_slider.setValue(self.whiteness) # generates signal
-        self.ms_finish_linedit.setText(str(self.whiteness * .01))
-
-        # For shininess, the range is 15 (low) to 60 (high).  Mark. 051129.
-        self.ms_shininess_slider.setValue(self.shininess) # generates signal
-        self.ms_shininess_linedit.setText(str(self.shininess))
-
-        # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
-        self.ms_brightness_slider.setValue(self.brightness) # generates signal
-        self.ms_brightness_linedit.setText(str(self.brightness * .01))
+        # Set the current display style in the glpane.
+        # (This will be noticed later by chunk.draw of affected chunks.)
+        self.glpane.setDisplay(display_style, True)
+        self.glpane.gl_update()
+        return
 
     #e this is really a slot method -- should refile it
     def any_caption_text_changed(self):
@@ -1602,20 +1665,23 @@ class Preferences(QDialog, Ui_PreferencesDialog):
     def changeBackgroundColor(self, idx):
         """
 	Slot method for the background color combobox.
+        
+        @note: the pref_keys are set in setBackgroundGradient() 
+               and setBackgroundColor().
 	"""
         #print "changeBackgroundColor(): Slot method called. Idx =", idx
 
-        if idx == bg_BLUE_SKY:  
+        if idx == BG_BLUE_SKY:  
             self.glpane.setBackgroundGradient(idx + 1)
-        elif idx == bg_EVENING_SKY:
+        elif idx == BG_EVENING_SKY:
             self.glpane.setBackgroundGradient(idx + 1)
-        elif idx == bg_BLACK:
+        elif idx == BG_BLACK:
             self.glpane.setBackgroundColor(black)
-        elif idx == bg_WHITE:
+        elif idx == BG_WHITE:
             self.glpane.setBackgroundColor(white)
-        elif idx == bg_GRAY:
+        elif idx == BG_GRAY:
             self.glpane.setBackgroundColor(gray)
-        elif idx == bg_CUSTOM: 
+        elif idx == BG_CUSTOM: 
             #change background color to Custom Color
             self.chooseCustomBackgroundColor()
         else:
@@ -1633,27 +1699,30 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         if c.isValid():
             self.glpane.setBackgroundColor(QColor_to_RGBf(c))
         else:
+            # User cancelled. Reset the combobox to the previous item.
             self._updateBackgroundColorComboBoxIndex()
             
-    def changeHoverHighlightingColorStyle(self, idx):
+    def _change_hhStyle(self, idx):
         """
-        Change the 3D hover highlighting style.
+        Slot method for Hover Highlighting combobox.
+        Change the (3D) hover highlighting style.
         """
-        env.prefs[hoverHighlightingColorStyle_prefs_key] = idx
+        env.prefs[hoverHighlightingColorStyle_prefs_key] = HHS_INDEXES[idx]
     
-    def changeHoverHighlightingColor(self):
+    def _change_hhColor(self):
         """
         Change the 3D hover highlighting color.
         """
         self.usual_change_color(hoverHighlightingColor_prefs_key)
         
-    def changeSelectionColorStyle(self, idx):
+    def _change_selectionStyle(self, idx):
         """
-        Change the 3D selection color style.
+        Slot method for Selection Style combobox used to 
+        Change the (3D) selection color style.
         """
-        env.prefs[selectionColorStyle_prefs_key] = idx
+        env.prefs[selectionColorStyle_prefs_key] = SS_INDEXES[idx]
         
-    def changeSelectionColor(self):
+    def _change_selectionColor(self):
         """
         Change the 3D selection color.
         """
@@ -2372,87 +2441,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[dnaStrandLabelsColorMode_prefs_key] = mode
 
-    ########## End of slot methods for "DNA" page widgets ###########
+    # == End of slot methods for "DNA" page widgets ==
 
-    ########## Slot methods for "Modes" page widgets ################
-
-    def change_startup_mode(self, option):
-        """
-        Slot for the combobox that sets the Startup Mode.
-        """
-        env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentIndex()]
-        return
-
-    def change_default_mode(self, val):
-        """
-        Slot for the combobox that sets the Default Mode.
-	"""
-        env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentIndex()]
-        self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
-        return
-
-    
-    def _getDisplayModeAtStartUp(self, display_styleInCombobox):
-        """
-        Find display style that corresponds to the display style in the Global 
-        Display Style Combo Box
-	"""
-         
-        diLINE_INDEX = 0
-        diTUBES_INDEX = 1
-        diBALL_INDEX = 2
-        diTrueCPK_INDEX = 3
-        diDNACYLINDER_INDEX = 4
-        ERROR = -1
-        
-        if display_styleInCombobox == diLINE_INDEX:
-            display_style = diLINES
-        elif display_styleInCombobox == diTUBES_INDEX:
-            display_style = diTUBES
-        elif display_styleInCombobox == diBALL_INDEX:
-            display_style = diBALL
-        elif display_styleInCombobox == diTrueCPK_INDEX:
-            display_style = diTrueCPK
-        elif display_styleInCombobox == diDNACYLINDER_INDEX:
-            display_style = diDNACYLINDER
-        else:
-            display_style = ERROR
-            
-        return display_style
-        
-    def set_default_display_mode(self, display_styleInCombobox): #bruce 050810 revised this to set the pref immediately
-        """
-	Set the global display style at start up.  
-
-        This also changes the global display style of the glpane to 
-        <display_style>.
-        """
-        #map the combox box index to correct display_style
-        
-        display_style = self._getDisplayModeAtStartUp(display_styleInCombobox)
-        
-        if display_style == -1 :
-            msg = " Unknown global display style requested"
-            print_compact_traceback(msg)
-            return 
-        
-        if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
-            return
-        
-        # set the pref
-        env.prefs[startupGlobalDisplayStyle_prefs_key] = display_style
-
-        # Set the current display mode in the glpane.
-        # (This will be noticed later by chunk.draw of affected chunks.)
-        self.glpane.setDisplay(display_style, True)
-        self.glpane.gl_update()
-        # (Note: no mt_update is needed, since per-node display style icons
-        #  have not changed.)
-        return
-
-    ########## End of slot methods for "Modes" page widgets ###########
-
-    ########## Slot methods for "Lighting" page widgets ################
+    # == Slot methods for "Lighting" page widgets ==
 
     def change_lighting(self, specularityValueJunk = None):
         """
@@ -2609,7 +2600,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for Reset button.
         """
-        # This has issues.  I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
+        # This has issues.  
+        # I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
         self._setup_material_group(reset = True)
         self._updatePage_Lighting(self.original_lights)
         self.glpane.saveLighting()
@@ -3388,7 +3380,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             elif pagename == 'Adjust':
                 self.prefsStackedWidget.setCurrentIndex(10)
             elif pagename == 'Lighting':
-                self._updatePage_Lighting() #@ Investigate. -mark
                 self.prefsStackedWidget.setCurrentIndex(11)
             elif pagename == 'Plug-ins':
                 self.prefsStackedWidget.setCurrentIndex(12)
@@ -3408,7 +3399,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             
         self.setWindowTitle("Preferences - %s" % pagename)
         return
-
+    
+    def _printPageNames(self):
+        """
+        This method prints out the object (page) names of the children widgets
+        prefsStackedWidget.
+        """
+        for widget in self.prefsStackedWidget.children():
+            if isinstance(widget, QWidget):
+                print widget.objectName
+    
     def accept(self):
         """
         The slot method for the 'OK' button.
