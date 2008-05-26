@@ -31,7 +31,7 @@ class DnaDisplayStyle_Command(EditCommand):
     """
     # class constants
     
-    commandName = 'DNA_DISPLAY_STYLE'
+    commandName = 'EDIT_DNA_DISPLAY_STYLE'
     default_mode_status_text = ""
     featurename = "DNA Display Style"
          

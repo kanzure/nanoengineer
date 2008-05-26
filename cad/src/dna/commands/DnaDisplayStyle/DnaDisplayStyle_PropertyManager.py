@@ -11,12 +11,8 @@ DnaDisplayStyle_PropertyManager.py
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 To do:
-- Implement full support for DNA "Favorites". (Urmi)
-- Add warning (in messagebox) if no DNA has its display style set to 
-DNA Cylinder *and* the global display style is not DNA Cylinder.
-- Remove DNA Cylinder display style options from Preferences dialog.
-- Add "Display Base Orientation Indicators" groupbox.
-- Add "DNA Display Style Strand Label Custom Color" pref key/value.
+- Add "Display Base Orientation Indicators" groupbox and remove from 
+the Preferences dialog.
 - Add "Base Colors" pref keys/values.
 """
 import os, time, fnmatch, string
@@ -321,7 +317,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     @type iconPath: str
     """
 
-    title         =  "DNA Display Style"
+    title         =  "Edit DNA Display Style"
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/Dna_Display_Style.png"
     

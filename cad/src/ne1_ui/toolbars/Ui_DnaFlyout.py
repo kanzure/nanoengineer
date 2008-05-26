@@ -155,7 +155,7 @@ class DnaFlyout:
             geticon("ui/actions/Command Toolbar/Order_DNA.png"))
         
         self.displayStyleAction = QtGui.QWidgetAction(parentWidget)
-        self.displayStyleAction.setText("DNA Display")
+        self.displayStyleAction.setText("Edit Style")
         self.displayStyleAction.setCheckable(True)        
         self.displayStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))

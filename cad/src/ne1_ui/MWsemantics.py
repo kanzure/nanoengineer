@@ -1725,12 +1725,12 @@ class MWsemantics(QMainWindow,
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        if currentCommand.commandName != "DNA_DISPLAY_STYLE":
+        if currentCommand.commandName != "EDIT_DNA_DISPLAY_STYLE":
             commandSequencer.userEnterTemporaryCommand(
-                'DNA_DISPLAY_STYLE')
+                'EDIT_DNA_DISPLAY_STYLE')
         else:        
             currentCommand = self.commandSequencer.currentCommand
-            if currentCommand.commandName == 'DNA_DISPLAY_STYLE':
+            if currentCommand.commandName == 'EDIT_DNA_DISPLAY_STYLE':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
 
     def enterStereoPropertiesCommand(self):
