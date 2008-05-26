@@ -742,33 +742,36 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # render nucleotides            
             if self.dnaStyleBasesShape > 0:
                 for color, a1pos, a2pos, a3pos, normal, bname in base_cartoons:
-                    if self.dnaStyleBasesShape == 1: # sugar spheres
-                        drawsphere(color, a1pos, self.dnaStyleBasesScale, 2)
-                    elif self.dnaStyleBasesShape == 2: # draw a schematic 'cartoon' shape
-                        aposn = a1pos + 0.50 * (a2pos - a1pos)
-                        bposn = a1pos + 0.66 * (a2pos - a1pos)
-                        cposn = a1pos + 0.75 * (a2pos - a1pos)
-                        
-                        drawcylinder(color, 
-                            a1pos, 
-                            bposn, 
-                            0.20*self.dnaStyleBasesScale, True) 
-                        
-                        if bname == 'G' \
-                           or bname == 'A': # draw two purine rings                                
-                            drawcylinder(color, 
-                                aposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                aposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.7*self.dnaStyleBasesScale, True)                            
-                            drawcylinder(color, 
-                                cposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                cposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.9*self.dnaStyleBasesScale, True)
-                        else:
-                            drawcylinder(color, 
-                                bposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                bposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.9*self.dnaStyleBasesScale, True)                            
+                    if a1pos:
+                        if self.dnaStyleBasesShape == 1: # sugar spheres
+                            drawsphere(color, a1pos, self.dnaStyleBasesScale, 2)
+                        elif self.dnaStyleBasesShape == 2: 
+                            if a2pos:
+                                # draw a schematic 'cartoon' shape
+                                aposn = a1pos + 0.50 * (a2pos - a1pos)
+                                bposn = a1pos + 0.66 * (a2pos - a1pos)
+                                cposn = a1pos + 0.75 * (a2pos - a1pos)
+                                
+                                drawcylinder(color, 
+                                    a1pos, 
+                                    bposn, 
+                                    0.20*self.dnaStyleBasesScale, True) 
+                                
+                                if bname == 'G' \
+                                   or bname == 'A': # draw two purine rings                                
+                                    drawcylinder(color, 
+                                        aposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        aposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.7*self.dnaStyleBasesScale, True)                            
+                                    drawcylinder(color, 
+                                        cposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        cposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.9*self.dnaStyleBasesScale, True)
+                                else:
+                                    drawcylinder(color, 
+                                        bposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        bposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.9*self.dnaStyleBasesScale, True)                            
                             
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
@@ -1414,16 +1417,18 @@ class DnaCylinderChunks(ChunkDisplayMode):
             n = len(points)
             for i in range(0,n):
                 file.write("  " + povpoint(chunk.base_to_abs(points[i])) +", %g\n" % radii[i]);
-            file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
-            """  
+            ### file.write("  pigment {color <%g %g %g>}\n" % (colors[0][0], colors[0][1], colors[0][2]))
+             
             file.write("  pigment {\n")
-            vec = points[n]-points[1]
-            file.write("    gradient <%g,%g,%g> scale %g translate <%g,%g,%g>\n" % 
-                       (vec[0], vec[1], vec[2], vlen(vec),
-                        points[1][0], points[1][1], points[1][2]))
+            vec = points[n-1]-points[0]
+            nvec = radii[0] * norm(vec)
+            vec += 2.0 * nvec
+            file.write("    gradient <%g,%g,%g> scale %g translate " % 
+                       (vec[0], vec[1], vec[2], vlen(vec)))
+            file.write(povpoint(chunk.base_to_abs(points[0] - nvec)) + "\n")
             file.write("    color_map { RainbowMap }\n")
             file.write("  }\n")
-            """
+            
             file.write("}\n")
 
         def writecylinder(start, end, rad, color):
@@ -1491,31 +1496,34 @@ class DnaCylinderChunks(ChunkDisplayMode):
             # render nucleotides            
             if self.dnaStyleBasesShape > 0:
                 for color, a1pos, a2pos, a3pos, normal, bname in base_cartoons:
-                    if self.dnaStyleBasesShape == 1: # sugar spheres
-                        writesphere(color, a1pos, self.dnaStyleBasesScale)
-                    elif self.dnaStyleBasesShape == 2: # draw a schematic 'cartoon' shape
-                        aposn = a1pos + 0.50 * (a2pos - a1pos)
-                        bposn = a1pos + 0.66 * (a2pos - a1pos)
-                        cposn = a1pos + 0.75 * (a2pos - a1pos)
-                        writecylinder( 
-                            a1pos, 
-                            bposn, 
-                            0.20*self.dnaStyleBasesScale, color) 
-                        if bname == 'G' \
-                           or bname == 'A': # draw two purine rings                                
-                            writecylinder(
-                                aposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                aposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.7*self.dnaStyleBasesScale, color)                            
-                            writecylinder( 
-                                cposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                cposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.9*self.dnaStyleBasesScale, color)
-                        else:
-                            writecylinder( 
-                                bposn - 0.25 * self.dnaStyleBasesScale * normal,
-                                bposn + 0.25 * self.dnaStyleBasesScale * normal,
-                                0.9*self.dnaStyleBasesScale, color)                            
+                    if a1pos:
+                        if self.dnaStyleBasesShape == 1: # sugar spheres
+                            writesphere(color, a1pos, self.dnaStyleBasesScale)
+                        elif self.dnaStyleBasesShape == 2: 
+                            if a2pos:
+                                # draw a schematic 'cartoon' shape
+                                aposn = a1pos + 0.50 * (a2pos - a1pos)
+                                bposn = a1pos + 0.66 * (a2pos - a1pos)
+                                cposn = a1pos + 0.75 * (a2pos - a1pos)
+                                writecylinder( 
+                                    a1pos, 
+                                    bposn, 
+                                    0.20*self.dnaStyleBasesScale, color) 
+                                if bname == 'G' \
+                                   or bname == 'A': # draw two purine rings                                
+                                    writecylinder(
+                                        aposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        aposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.7*self.dnaStyleBasesScale, color)                            
+                                    writecylinder( 
+                                        cposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        cposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.9*self.dnaStyleBasesScale, color)
+                                else:
+                                    writecylinder( 
+                                        bposn - 0.25 * self.dnaStyleBasesScale * normal,
+                                        bposn + 0.25 * self.dnaStyleBasesScale * normal,
+                                        0.9*self.dnaStyleBasesScale, color)                            
         
     def compute_memo(self, chunk):
         """
