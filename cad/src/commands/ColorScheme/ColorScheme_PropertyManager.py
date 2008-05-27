@@ -312,14 +312,12 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.showTopRowButtons( pmDoneButton | \
                                 pmWhatsThisButton)
         
-        msg = "Color Scheme for background, chunk selection etc."
+        msg = "Edit the color scheme for NE1, including the background color, "\
+            "hover highlighting and selection colors, etc."
         self.updateMessage(msg)
-        
         
         self._setupPM_Color()
     
-    
-        
     def _setupPM_Color(self):
         """
         Setup the "Color" PM
@@ -495,15 +493,10 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Load widgets in group box.
         """
         
-
         self.backgroundColorComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Background color:",
-                         spanWidth = True
-                         )
-                         
-                        
-        
+                         label     =  "Background:",
+                         spanWidth = True)
         
     def _loadBackgroundColorItems(self):
         """
