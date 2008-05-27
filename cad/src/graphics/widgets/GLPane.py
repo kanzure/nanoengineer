@@ -537,6 +537,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.triggerBareMotionEvent = True 
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
+        self.wheelHighlight = False
+            # russ 080527: Fix Bug 2606 (highlighting not turned on after wheel event.)
+            # Indicates handling bareMotion for highlighting after a mousewheel event.
 
         self.cursorMotionlessStartTime = time.time() #bruce 070110 fix bug when debug_pref turns off glpane timer from startup
 
@@ -2526,12 +2529,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
         xy_now = (cursorPos.x(), cursorPos.y()) # Current cursor position
         xy_last = self.timer_event_last_xy # Cursor position from last timer event.
-
-        # russ 080527 Fix Bug 2606 (highlighting not turned on after wheel event.)
-        try:
-            self.wheelHighlight
-        except:
-            self.wheelHighlight = False
 
         # If this cursor position hasn't changed since the last timer event, and no mouse button is
         # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().

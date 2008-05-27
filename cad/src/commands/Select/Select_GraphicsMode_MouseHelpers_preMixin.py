@@ -78,7 +78,10 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         # after the cursor stops, or something like that -- see the code.]
         # For more details, read the docstring [and code] for GLPane.timerEvent().
         # [probably by Mark, probably circa 060806]
-        if self.mouse_exceeded_distance(event, 1):
+        #
+        # russ 080527: Fixed bug 2606.  After a zoom wheelEvent, prevent
+        # skipping highlight selection due to mouse_exceeded_distance.
+        if self.mouse_exceeded_distance(event, 1) and not self.o.wheelHighlight:
             if DEBUG_BAREMOTION_VERBOSE:
                 #bruce 080129 re highlighting bug 2606 reported by Paul
                 print "debug fyi: skipping %r.bareMotion since mouse travelled too far" % self
