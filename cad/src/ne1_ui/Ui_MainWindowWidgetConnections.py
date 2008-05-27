@@ -2,7 +2,8 @@
 """
 Ui_MainWindowWidgetConnections.py
 
-Creates all connects for all Main Window widgets used in menus and toolbars.
+Creates all signal-slot connections for all Main Window widgets used in menus 
+and toolbars.
 
 @author: Mark
 @version: $Id$
@@ -32,6 +33,7 @@ def setupUi(win):
     win.connect(win.dispLightingAction,SIGNAL("triggered()"),win.dispLighting)
     win.connect(win.dispLinesAction,SIGNAL("triggered()"),win.dispLines)
     win.connect(win.dispObjectColorAction,SIGNAL("triggered()"),win.dispObjectColor)
+
     win.connect(win.resetChunkColorAction,SIGNAL("triggered()"),win.dispResetChunkColor)
     win.connect(win.dispResetAtomsDisplayAction,SIGNAL("triggered()"),win.dispResetAtomsDisplay)
     win.connect(win.dispShowInvisAtomsAction,SIGNAL("triggered()"),win.dispShowInvisAtoms)
@@ -54,7 +56,8 @@ def setupUi(win):
     win.connect(win.pasteFromClipboardAction, 
                 SIGNAL("triggered()"),
                 win.editPasteFromClipboard )
-
+    #Urmi background color chooser option 080522
+    win.connect(win.colorSchemeToolbarAction,SIGNAL("triggered()"),win.colorSchemeCommand)
     win.connect(win.partLibAction, 
                 SIGNAL("triggered()"),
                 win.insertPartFromPartLib)
@@ -72,6 +75,11 @@ def setupUi(win):
                 SIGNAL("toggled(bool)"), 
                 win.toggleRulers)
 
+    #Urmi background color chooser option 080522
+    win.connect(win.colorSchemeAction, 
+                SIGNAL("triggered()"), 
+                win.colorSchemeCommand)
+    
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
     win.connect(win.editUndoAction,SIGNAL("triggered()"),win.editUndo)
