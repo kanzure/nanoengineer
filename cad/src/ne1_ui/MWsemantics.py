@@ -2470,6 +2470,25 @@ class MWsemantics(QMainWindow,
                      self.openRecentFile)
         return
 
+    def colorSchemeCommand(self):
+        
+        """
+        Displas/hides the color scheme property manager
+        
+        """
+        
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "COLOR_SCHEME":
+            commandSequencer.userEnterTemporaryCommand(
+                'COLOR_SCHEME')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'COLOR_SCHEME':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                
+                
+                
     def toggleRulers(self, isChecked):
         """
         Displays/hides the rulers in the 3D graphics area (glpane).
