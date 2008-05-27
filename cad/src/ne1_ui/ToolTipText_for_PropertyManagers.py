@@ -351,3 +351,13 @@ def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
     propMgr.nucleotidesColorComboBox.setToolTip("Change Nucleotides Color")
     propMgr.dnaStyleBasesDisplayLettersCheckBox.setToolTip("Display DNA Bases")
     return
+
+
+def ToolTip_ColorScheme_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Color Scheme Property Manager.
+    """
+    propMgr.favoritesComboBox.setToolTip("List of Favorites")
+    propMgr.backgroundColorComboBox.setToolTip("Change Background Color")
+    
+    return
