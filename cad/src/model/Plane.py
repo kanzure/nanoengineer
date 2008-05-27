@@ -24,6 +24,11 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
+# piotr 080527
+# added texture-related imports
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import GL_TEXTURE_2D
+
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
 from utilities.constants import black, orange, yellow, darkgreen, brown
@@ -38,6 +43,8 @@ from utilities.Log     import redmsg
 from model.ReferenceGeometry import ReferenceGeometry 
 from graphics.drawables.DirectionArrow import DirectionArrow
 from graphics.drawables.ResizeHandle import ResizeHandle  
+
+from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
@@ -116,6 +123,11 @@ class Plane(ReferenceGeometry):
             self.height     =  10.0
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
+            # piotr 080527
+            # this comment is to be removed            
+            # uncomment the line below and change the path to load a texture image
+            # used to draw on a new plane
+            # mipmaps, self.tex_image = load_image_into_new_texture_name("/tmp/tile.png")
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
@@ -258,6 +270,9 @@ class Plane(ReferenceGeometry):
         """
         # Reference planes don't support textures so set this property to False 
         # in the drawer.drawPlane method        
+        
+        # piotr 080527
+        # change to True when using textures
         textureReady = False
         glPushMatrix()
 
@@ -283,7 +298,14 @@ class Plane(ReferenceGeometry):
             fill_color = brown #backside
         else:
             fill_color = self.fill_color
-                                   
+        
+        # piotr 080527
+        # uncomment the line below to bind a texture to the plane
+        # the entire image will be stretched onto the plane
+        # not sure what happens with non-power-of-2 images
+        # should test if has attr "self.tex_image"
+        # glBindTexture(GL_TEXTURE_2D, self.tex_image)
+        
         drawPlane(fill_color, 
                   self.width, 
                   self.height, 
