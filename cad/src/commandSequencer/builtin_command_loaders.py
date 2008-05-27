@@ -65,6 +65,10 @@ from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 
+# Urmi background color chooser PM 080523
+from commands.ColorScheme.ColorScheme_Command import ColorScheme_Command
+
+from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
 def preloaded_command_classes():
     """
@@ -113,7 +117,8 @@ def preloaded_command_classes():
         FuseChunks_Command,
         RotateAboutPoint_Command,
         MultipleDnaSegmentResize_EditCommand,
-        StereoProperties_Command
+        StereoProperties_Command,
+        ColorScheme_Command
     ]
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs
