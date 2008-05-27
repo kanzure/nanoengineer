@@ -437,6 +437,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "size, plugins etc. </p>"
     win.editPrefsAction.setWhatsThis( editPrefsText )
     
+    colorSchemeText = \
+        "<b>Color Scheme Property Manager</b>"\
+        "<p>"\
+        "Allows you to edit various color schemes "\
+        "such as changing background color, "\
+        "chunk selection color etc. </p>"
+    win.colorSchemeToolbarAction.setWhatsThis( colorSchemeText )
+    
     #
     # View Toolbar
     #
