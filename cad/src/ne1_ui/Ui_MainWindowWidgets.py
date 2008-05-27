@@ -23,7 +23,7 @@ from utilities.prefs_constants import displayRulers_prefs_key
 
 def setupUi(win):
     """
-    Creates and populates the "File" menu in the main menubar.
+    Creates all the QActions used in the main menubar and toolbars.
 
     @param win: NE1's mainwindow object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
@@ -172,7 +172,9 @@ def setupUi(win):
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color.png"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
-
+    
+    
+    
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
     win.resetChunkColorAction.setIcon(
         geticon("ui/actions/Edit/Reset_Chunk_Color.png"))
@@ -437,7 +439,13 @@ def setupUi(win):
     win.viewFullScreenAction.setCheckable(True)
     win.viewFullScreenAction.setChecked(False)
     win.viewFullScreenAction.setShortcut('F12')
-
+    
+    #Urmi background color chooser option 080522 from the menu
+    win.colorSchemeAction = QtGui.QAction(MainWindow)
+    win.colorSchemeAction.setText('Color Scheme')
+    
+    
+    
     win.viewReportsAction = QtGui.QAction(MainWindow)
     win.viewReportsAction.setCheckable(True)
     win.viewReportsAction.setChecked(True)
@@ -448,6 +456,7 @@ def setupUi(win):
     win.viewRulersAction.setChecked(env.prefs[displayRulers_prefs_key])
     win.viewRulersAction.setText('Rulers')
 
+    
     #= Insert (menu and toolbar) widgets.
 
     # Create the "Insert" menu.
@@ -527,6 +536,11 @@ def setupUi(win):
     win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options.png"))
     win.editPrefsAction.setObjectName("editPrefsAction")    
 
+     #Urmi background color scheme option 080522
+    win.colorSchemeToolbarAction =  QtGui.QAction(MainWindow)
+    win.colorSchemeToolbarAction.setIcon(geticon("ui/actions/View/ColorScheme.png"))
+    win.colorSchemeToolbarAction.setObjectName("colorSchemeToolbarAction")
+    
     win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
     win.modifyAdjustSelAction.setIcon(
@@ -1192,6 +1206,11 @@ def retranslateUi(win):
             "MainWindow", "Change Color", 
             None, QtGui.QApplication.UnicodeUTF8))
 
+    
+
+    
+    
+    
     #= View (menu and toolbar) actions.
     win.viewOrientationAction.setText(
         QtGui.QApplication.translate(
@@ -1499,6 +1518,11 @@ def retranslateUi(win):
         None, 
         QtGui.QApplication.UnicodeUTF8))
 
+    win.colorSchemeToolbarAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Color Scheme", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
     win.modifyMirrorAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
         "Mirror", 
@@ -1533,6 +1557,17 @@ def retranslateUi(win):
         "Preferences", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
+    
+    #Urmi background color chooser option 080522
+    
+    win.colorSchemeToolbarAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Color Scheme", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.colorSchemeToolbarAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Color Scheme...", 
+            None, QtGui.QApplication.UnicodeUTF8))
 
     #= Tools > Build Structures (menu and toolbar) actions.
     win.toolsDepositAtomAction.setText(
