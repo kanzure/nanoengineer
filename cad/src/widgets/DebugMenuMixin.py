@@ -289,10 +289,14 @@ class DebugMenuMixin:
             return 1 # caller should detect this and not run its usual event code...
         if debug_events:
             try:
+                before = event.state()
+            except:
+                before = "<no state>" # needed for Wheel events, at least
+            try:
                 after = event.stateAfter()
             except:
                 after = "<no stateAfter>" # needed for Wheel events, at least
-            print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, event.state(), after, time.asctime())
+            print "%s: event; state = %r, stateAfter = %r; time = %r" % (funcname, before, after, time.asctime())
 
         # It seems, from doc and experiments, that event.state() is
         # from just before the event (e.g. a button press or release,

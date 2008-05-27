@@ -956,6 +956,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # from the Preferences dialog. The default = 0.5 seconds, which is
         # much better than 2.0.
         #
+        # russ 080527: Fix Bug 2606 (highlighting not turned on after wheel event.)
+        # Return value to caller tells whether the bareMotion event was discarded.
+        #
         if self.timeAtLastWheelEvent:
             time_since_wheel_event = time.time() - self.timeAtLastWheelEvent	    
             if time_since_wheel_event < env.prefs[mouseWheelTimeoutInterval_pref_key]:
@@ -963,13 +966,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                     #bruce 080129 re highlighting bug 2606 reported by Paul
                     print "debug fyi: ignoring %r.bareMotion since time_since_wheel_event is only %r " % \
                           (self, time_since_wheel_event) 
-                return 
+                return True
         
         if not self.hover_highlighting_enabled:
             self.hover_highlighting_enabled = True
         
         _superclass.bareMotion(self, event)
-    
+
+        return False
         
     def update_cursor_for_no_MB(self):
         """

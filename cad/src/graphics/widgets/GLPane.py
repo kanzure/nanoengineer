@@ -2390,6 +2390,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.update_modkeys(event.modifiers()) #bruce 060220
         self.graphicsMode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
             # Or would it be better to ignore this completely during a drag? [bruce 060220 questions]
+
+        # russ 080527: Fix Bug 2606 (highlighting not turned on after wheel event.)
+        self.wheelHighlight = True
+
         return
 
 #== Timer helper methods
@@ -2523,15 +2527,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         xy_now = (cursorPos.x(), cursorPos.y()) # Current cursor position
         xy_last = self.timer_event_last_xy # Cursor position from last timer event.
 
+        # russ 080527 Fix Bug 2606 (highlighting not turned on after wheel event.)
+        try:
+            self.wheelHighlight
+        except:
+            self.wheelHighlight = False
+
         # If this cursor position hasn't changed since the last timer event, and no mouse button is
         # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().
         # This event is intended only for eventual use in selectMode.mouse_exceeded_distance
         # by certain graphicsModes, but is sent to all graphicsModes.
-        if xy_now == xy_last and self.button == None:
+        if (xy_now == xy_last and self.button == None) or self.wheelHighlight:
             # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops 
             # and hasn't moved since the last timer event.
 
-            if self.triggerBareMotionEvent:
+            if self.triggerBareMotionEvent or self.wheelHighlight:
                 #print "Calling bareMotion. xy_now = ", xy_now
                 mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
                                 #Qt.NoButton & Qt.MouseButtonMask,
@@ -2539,12 +2549,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 if DEBUG_BAREMOTION:
                     #bruce 080129 re highlighting bug 2606 reported by Paul
                     print "debug fyi: calling %r.bareMotion with fake zero-motion event" % (self.graphicsMode,)
-                self.graphicsMode.bareMotion(mouseEvent)
 
-                self.triggerBareMotionEvent = False
-                    # this might cause part of the highlighting bug 2606 reported by Paul
-                    # when the mode discarded that event due to wheel timeout @@@@@
-                    # [bruce 080129 guess]
+                # russ 080527: Fix Bug 2606 (highlighting not turned on after wheel event.)
+                # Keep generating fake zero-motion events until one is handled rather than discarded.
+                discarded = self.graphicsMode.bareMotion(mouseEvent)
+                if not discarded:
+                    self.triggerBareMotionEvent = False
+                    self.wheelHighlight = False
 
             # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
             # REVIEW:
