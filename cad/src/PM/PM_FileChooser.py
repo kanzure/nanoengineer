@@ -28,6 +28,11 @@ class PM_FileChooser( QWidget ):
     It is implemented with a QLabel, a QLineEdit and a QToolButton (with 
     a "..." text label).
     
+    The parentWidget must make the following signal-slot connection to be
+    notified when the user has selected a new file via the file chooser dialog:
+    
+    self.connect(pmFileChooser.lineEdit, SIGNAL("editingFinished()"), self.mySlotMethod)
+    
     @cvar defaultText: The default text (path) of the line edit widget.
     @type defaultText: string
     
@@ -49,7 +54,8 @@ class PM_FileChooser( QWidget ):
     defaultText = ""
     setAsDefault = True
     hidden       = False
-    labelWidget  = None
+    lineEdit     = None
+    browseButton = None
     
     def __init__(self, 
                  parentWidget, 
@@ -154,23 +160,20 @@ class PM_FileChooser( QWidget ):
         """
         Prompts the user to choose a file from disk and inserts the full path
         into the lineEdit widget.
-        
-        @return: The full path to the file selected.
-        @rtype:  string
         """
         
-        directory= getDefaultWorkingDirectory()
+        _dir = getDefaultWorkingDirectory()
         
         fname = QFileDialog.getOpenFileName(self,
-                                         "Choose file",
-                                         directory,
-                                         self.filter)
+                                   "Choose file",
+                                   _dir,
+                                   self.filter)
         
         if fname:
+            self.lineEdit.emit(SIGNAL("editingFinished()"))
             self.setText(fname)
-            
         return
-        
+    
     def restoreDefault(self):
         """
         Restores the default value.
