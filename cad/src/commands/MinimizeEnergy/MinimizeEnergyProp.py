@@ -39,7 +39,7 @@ from utilities.debug import reload_once_per_event
 
 import foundation.env as env
 from utilities import debug_flags
-from ne1_ui.UserPrefs import get_pref_or_optval
+from ne1_ui.prefs.Preferences import get_pref_or_optval
 from widgets.widget_helpers import double_fixup
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref

@@ -33,7 +33,7 @@ from PyQt4.Qt import QFont
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QWhatsThis
 
-from UserPrefsDialog import Ui_UserPrefsDialog
+from outtakes.UserPrefsDialog import Ui_UserPrefsDialog
 import foundation.preferences as preferences
 from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False

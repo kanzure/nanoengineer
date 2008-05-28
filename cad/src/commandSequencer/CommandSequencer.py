@@ -310,7 +310,7 @@ class modeMixin(object):
         Exception if requested mode object is not found -- unlike pre-050911 code,
         never return some other mode than asked for -- let caller do that if desired.
         """
-        import ne1_ui.UserPrefs as UserPrefs #bruce 060403
+        import ne1_ui.prefs.Preferences as Preferences #bruce 060403
         assert commandName_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (commandName_or_obj,)
         if type(commandName_or_obj) == type(''):
             # usual case - internal or symbolic commandName string
@@ -319,15 +319,15 @@ class modeMixin(object):
                 commandName = 'SELECTMOLS' #k
             elif commandName == '$STARTUP_MODE':
                 ## commandName = env.prefs[startupMode_prefs_key]
-                commandName = UserPrefs.startup_commandName()
+                commandName = Preferences.startup_commandName()
                 # Needed when Preferences | Modes | Startup Mode = Default Mode.  
                 # Mark 050921.
                 if commandName == '$DEFAULT_MODE':
                     ## commandName = env.prefs[defaultMode_prefs_key]
-                    commandName = UserPrefs.default_commandName()
+                    commandName = Preferences.default_commandName()
             elif commandName == '$DEFAULT_MODE':
                 ## commandName = env.prefs[defaultMode_prefs_key]
-                commandName = UserPrefs.default_commandName()
+                commandName = Preferences.default_commandName()
             return self._commandTable[ commandName]
         else:
             # assume it's a mode object; make sure it's legit

@@ -302,7 +302,7 @@ class MWsemantics(QMainWindow,
         self.createProgressDialog()
 
         # Create the Preferences dialog widget.
-        from ne1_ui.Preferences import Preferences
+        from ne1_ui.prefs.Preferences import Preferences
         self.userPrefs = Preferences(self.assy)
 
         # Enable/disable plugins.  These should be moved to a central method

@@ -36,7 +36,7 @@ from utilities import debug_flags
 import utilities.debug as debug
 import utilities.debug_prefs as debug_prefs
 
-from ne1_ui.UserPrefs import save_window_pos_size, load_window_pos_size
+from ne1_ui.prefs.Preferences import save_window_pos_size, load_window_pos_size
 from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
 from utilities.debug import registered_commands_menuspec
 from utilities.debug import print_compact_traceback
@@ -188,7 +188,7 @@ class DebugMenuMixin:
         ] )
         return res
 
-    def _debug_save_window_layout(self): # [see also UserPrefs.save_current_win_pos_and_size, new as of 051218]
+    def _debug_save_window_layout(self): # [see also Preferences.save_current_win_pos_and_size, new as of 051218]
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
         save_window_pos_size( win, keyprefix)

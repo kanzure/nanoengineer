@@ -125,7 +125,7 @@ def pre_main_show( win):
     from utilities.debug import print_compact_stack
     try:
         # this code is similar to debug.py's _debug_load_window_layout
-        from ne1_ui.UserPrefs import load_window_pos_size
+        from ne1_ui.prefs.Preferences import load_window_pos_size
         from utilities.prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         load_window_pos_size( win, keyprefix)

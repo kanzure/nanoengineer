@@ -28,7 +28,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QWhatsThis
 from PyQt4.Qt import QTreeWidget
 
-from PreferencesDialog import Ui_PreferencesDialog
+from ne1_ui.prefs.PreferencesDialog import Ui_PreferencesDialog
 import foundation.preferences as preferences
 from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
@@ -570,7 +570,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self._setupPage_Tooltips()
         
         # Assign "What's This" text for all widgets.
-        from ne1_ui.WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
+        from ne1_ui.prefs.WhatsThisText_for_PreferencesDialog import whatsThis_PreferencesDialog
         whatsThis_PreferencesDialog(self)
         
         self._hideOrShowWidgets()
