@@ -9,6 +9,7 @@ PM_FileChooser.py
 History:
 
 """
+import os
 
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QLineEdit
@@ -53,10 +54,10 @@ class PM_FileChooser( QWidget ):
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     
     @cvar lineEdit: The Qt line edit widget for this PM widget.
-    @type lineEdit: U{B{QLabel}<http://doc.trolltech.com/4/qlineedit.html>}
+    @type lineEdit: U{B{QLineEdit}<http://doc.trolltech.com/4/qlineedit.html>}
     
-    @cvar browseButton: The Qt toolbutton widget for this PM widget.
-    @type browseButton: U{B{QLabel}<http://doc.trolltech.com/4/qtoolbutton.html>}
+    @cvar browseButton: The Qt tool button widget for this PM widget.
+    @type browseButton: U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
     """
     
     defaultText = ""
@@ -72,6 +73,8 @@ class PM_FileChooser( QWidget ):
                  text         = '', 
                  setAsDefault = True,
                  spanWidth    = False,
+                 caption      = "Choose file",
+                 directory    = '',
                  filter       = "All Files (*.*)"
                  ):
         """
@@ -109,6 +112,16 @@ class PM_FileChooser( QWidget ):
                       the widget (unless the label is empty) and is left justified.
         @type  spanWidth: boolean
         
+        @param caption: The caption used as the title of the file chooser 
+                        dialog. "Choose file" is the default.
+        @type  caption: string
+        
+        @param directory: The directory that the file chooser dialog should 
+                          open in when the "..." button is clicked. 
+                          If blank or if directory does not exist,
+                          the current working directory is used.
+        @type  directory: string
+        
         @param filter: The file type filters to use for the file chooser dialog.
         @type  filter: string (a semicolon-separated list of file types)
         
@@ -123,6 +136,8 @@ class PM_FileChooser( QWidget ):
         self.text         = text
         self.setAsDefault = setAsDefault
         self.spanWidth    = spanWidth
+        self.caption      = caption
+        self.directory    = directory
         self.filter       = filter
         
         if label: # Create this widget's QLabel.
@@ -172,8 +187,12 @@ class PM_FileChooser( QWidget ):
         
         _dir = getDefaultWorkingDirectory()
         
+        if self.directory:
+            if os.path.isdir(self.directory):
+                _dir = self.directory
+
         fname = QFileDialog.getOpenFileName(self,
-                                   "Choose file",
+                                   self.caption,
                                    _dir,
                                    self.filter)
         
