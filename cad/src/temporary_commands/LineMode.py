@@ -146,9 +146,8 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             self.update_cursor_for_no_MB()
             self.glpane.gl_update()    
         
-        _superclass_for_GM.bareMotion(self,event)
-        
-        return
+        value = _superclass_for_GM.bareMotion(self,event)
+        return value # russ 080527        
             
     def snapLineEndPoint(self):
         """

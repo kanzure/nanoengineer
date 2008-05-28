@@ -106,12 +106,14 @@ class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         @see: self.update_cursor_for_no_MB
 	"""
-        _superclass.bareMotion(self, event)
+        value = _superclass.bareMotion(self, event)
         
         #When the cursor is over a specifit atom, we need to display 
         #a different icon. (e.g. when over a strand atom, it should display 
         # rotate cursor)    
         self.update_cursor()
+
+        return value # russ 080527
 
     def update_cursor_for_no_MB(self):
         """

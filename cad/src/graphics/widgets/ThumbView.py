@@ -552,7 +552,8 @@ class ThumbView(GLPane_minimal):
         
         self.selectedObj = self.select(wX, wY)
         self.highlightSelected(self.selectedObj)
-        return
+
+        return False # russ 080527        
         
     def leftDown(self, event):
         pass

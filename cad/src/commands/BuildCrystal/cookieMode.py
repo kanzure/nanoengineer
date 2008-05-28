@@ -599,7 +599,8 @@ class cookieMode(basicMode):
             basicMode.Wheel(self, event)
         
     def bareMotion(self, event):
-        if self.freeView or not self.drawingCookieSelCurve: return
+        if self.freeView or not self.drawingCookieSelCurve:
+            return False # russ 080527        
         
         if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
             if not self.selCurve_List: return
@@ -619,6 +620,7 @@ class cookieMode(basicMode):
                 env.history.statusbar_msg("Left click to end selection; Press <Esc> key to cancel selection.")
             self.draw_selection_curve()
             ######self.o.gl_update()
+        return False # russ 080527        
    
     def _afterCookieSelection(self):
         """Restore some variable states after the each curve selection """

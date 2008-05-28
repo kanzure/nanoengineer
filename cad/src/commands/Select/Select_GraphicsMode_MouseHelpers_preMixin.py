@@ -85,7 +85,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
             if DEBUG_BAREMOTION_VERBOSE:
                 #bruce 080129 re highlighting bug 2606 reported by Paul
                 print "debug fyi: skipping %r.bareMotion since mouse travelled too far" % self
-            return
+            return False
 
         self.update_selobj(event)
         # note: this routine no longer updates glpane.selatom. For that see
@@ -93,8 +93,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         ###e someday, if new or prior selobj asks for it (by defining certain
         # methods), we'd tell it about this bareMotion and about changes in
         # selobj. [bruce 060726]
-        return
-    
+        return False # russ 080527        
     
     #Left mouse related event handlers --
     

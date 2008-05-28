@@ -103,7 +103,7 @@ class nullGraphicsMode(GraphicsMode_API):
     def keyReleaseEvent(self, e):
         pass
     def bareMotion(self, e):
-        pass
+        return False # russ 080527        
     def drawTags(self, *args, **kws): #bruce 080325
         pass
 
@@ -860,7 +860,7 @@ class basicGraphicsMode(GraphicsMode_API):
     # other events
 
     def bareMotion(self, event):
-        pass
+        return False # russ 080527        
 
     def Wheel(self, event):
         #e sometime we need to give this a modifier key binding too;
