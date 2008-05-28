@@ -22,13 +22,21 @@ from utilities.prefs_constants import getDefaultWorkingDirectory
 
 class PM_FileChooser( QWidget ):
     """
-    The PM_FileChooser widget provides a file chooser Property Manager group 
-    box. 
+    The PM_FileChooser widget provides a file chooser widget for a
+    Property Manager group box. The PM_FileChooser widget is a composite widget
+    made from 3 other Qt widgets:
+    - a QLabel 
+    - a QLineEdit and
+    - a QToolButton (with a "..." text label). 
     
-    It is implemented with a QLabel, a QLineEdit and a QToolButton (with 
-    a "..." text label).
+    IMAGE(http://www.nanoengineer-1.net/mediawiki/images/e/e2/PM_FileChooser1.jpg)
     
-    The parentWidget must make the following signal-slot connection to be
+    The user can type the path name of a file into the line edit widget or 
+    select a file using Qt's file (chooser) dialog by clicking the "..."
+    button. The path name of the selected file will be inserted into the
+    line edit widget.
+    
+    The parent must make the following signal-slot connection to be
     notified when the user has selected a new file via the file chooser dialog:
     
     self.connect(pmFileChooser.lineEdit, SIGNAL("editingFinished()"), self.mySlotMethod)
