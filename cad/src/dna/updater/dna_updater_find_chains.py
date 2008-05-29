@@ -36,9 +36,6 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
     _wrapper = None # a per-subclass constant, to wrap an AtomChainOrRing
     def make_chain(self, listb, lista):
         # also used for lone atoms
-##        if 1: # debug code for bug 2887
-##            if len(lista) < 3:
-##                print "debug: make_chain %r listb = %r lista = %r" % (self, listb, lista)
         return self._wrap( AtomChain(listb, lista))
     def make_ring(self, listb, lista):
         return self._wrap( AtomRing(listb, lista))
@@ -65,9 +62,6 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         # note: this is called (legitimately) on rung bonds even though only
         # non-rung bonds will end up in found chains.
         res = PAM_atoms_allowed_in_same_ladder( bond.atom1, bond.atom2 )
-##        if 1: # debug code for bug 2887
-##            if bond.atom1.key == 642 or bond.atom2.key == 642:
-##                print "bond_ok %r %r" % (bond, res)
         return res
     pass
     
@@ -90,7 +84,6 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = StrandChain
     def atom_ok(self, atom):
-##     def DEBUG_RES(): # debug code for bug 2887
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
         # the atom list it stores.
@@ -100,10 +93,6 @@ class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
         if atom._dna_updater__error:
             return False
         return atom.element.role == 'strand' and not atom.molecule.in_a_valid_ladder()
-##     res = DEBUG_RES()
-##     if atom.key in (642, 699, 585):
-##      print "atom_ok %r %r" % (atom, res)
-##     return res
     pass # end of class
 
 # singleton objects
