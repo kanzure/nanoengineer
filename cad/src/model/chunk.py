@@ -2376,9 +2376,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO:
                 glPolygonMode(GL_FRONT, GL_LINE)
                 glPolygonMode(GL_BACK, GL_LINE)
-                glDisable(GL_LIGHTING)
-                glDisable(GL_CULL_FACE)
                 if HHStyle is HHS_HALO:
+                    glDisable(GL_LIGHTING)
                     glpane.setDepthRange_Highlighting_back()
                     glLineWidth(5.0)
                     pass
@@ -2423,11 +2422,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 pass
 
             if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO: # russ 080529
-                glEnable(GL_CULL_FACE)
-                glEnable(GL_LIGHTING)
                 glPolygonMode(GL_FRONT, GL_FILL)
                 glPolygonMode(GL_BACK, GL_FILL)
                 if HHStyle is HHS_HALO:
+                    glEnable(GL_LIGHTING)
                     glpane.setDepthRange_Highlighting()
                     glLineWidth(1.0)
                     pass

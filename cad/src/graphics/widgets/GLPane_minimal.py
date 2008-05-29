@@ -252,7 +252,7 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         return
 
     def setDepthRange_Highlighting_back(self):
-        glDepthRange(0.0 + 100 * DEPTH_TWEAK, 1.0)
+        glDepthRange(0.0 + (self.ortho and 100 or 1000) * DEPTH_TWEAK, 1.0)
         return
 
     # ==
