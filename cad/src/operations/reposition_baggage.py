@@ -63,7 +63,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
         # [bruce 080404/080405 new feature / bugfix]
         self._f_dna_updater_should_reposition_baggage = True
         # do it immediately if possible
-        ladder = self.molecule.ladder
+        ladder = getattr(self.molecule, 'ladder', None) ## self.molecule.ladder
         if ladder and ladder.valid and not ladder.error:
             # usual case, at least when dragging a real neighbor of self;
             # in these cases the dna updater is never running;
@@ -72,6 +72,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
             self.reposition_baggage_using_DnaLadder()
         else:
             # don't know if this ever happens
+            # (it does happen for ghost bases created within ordinary chunks)
             self._changed_structure() # make sure dna updater runs on self
                 # (probably NOT redundant with other changes by caller)            
         pass

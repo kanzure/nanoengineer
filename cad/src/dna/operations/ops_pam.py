@@ -12,6 +12,8 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 from platform.PlatformDependent import fix_plurals
 import foundation.env as env
 
+from utilities.GlobalPreferences import debug_pref_enable_pam_convert_sticky_ends
+
 from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
 
 from utilities.constants import MODEL_PAM3, MODEL_PAM5
@@ -96,6 +98,8 @@ class ops_pam_Mixin:
 
         number_of_basepairs_to_convert = 0
         number_of_unpaired_bases_to_convert = 0
+
+        ladders_needing_ghost_bases = {} # maps ladder to (ladder, list of indices) #bruce 080528
         
         for ladder in ladders:
             # TODO: if ladder can't convert (nim for that kind of ladder),
@@ -106,7 +110,7 @@ class ops_pam_Mixin:
             # skip it.
             
             length = len(ladder)
-            inds = {} # base indexes in ladder of basepairs which touch our dict of atoms
+            index_set = {} # base indexes in ladder of basepairs which touch our dict of atoms
             rails = ladder.all_rails()
             if len(ladder.strand_rails) not in (1, 2):
                 continue
@@ -115,38 +119,47 @@ class ops_pam_Mixin:
                     atom = rail.baseatoms[ind]
                     if atom.key in atoms:
                         # convert this base pair
-                        inds[ind] = ind
+                        index_set[ind] = ind
                         pass
                     continue
                 continue
-            if len(ladder.strand_rails) == 2:
-                number_of_basepairs_to_convert += len(inds)
-            else:
-                number_of_unpaired_bases_to_convert += len(inds)
             # conceivable that for some ladders we never hit them;
             # for now, warn but skip them in that case
-            if not inds:
+            if not index_set:
                 print "unexpected: scanned %r but found nothing to convert (only Pls selected??)" % ladder # env.history?
             else:
+                if len(ladder.strand_rails) == 2:
+                    number_of_basepairs_to_convert += len(index_set)
+                else:
+                    number_of_unpaired_bases_to_convert += len(index_set)
+                        # note: we do this even if the conversion will fail
+                        # (as it does initially for single strand domains),
+                        # since the summary error message from that is useful.
+                    if ladder.can_make_ghost_bases():
+                        # initially, this test rules out free floating single strands;
+                        # later we might be able to do this for them, which is why
+                        # we do the test using that method rather than directly.
+                        ladders_needing_ghost_bases[ladder] = (ladder, index_set.values())
                 # see related code in _cmd_convert_to_pam method
                 # in DnaLadder_pam_conversion.py
                 ladders_to_inval[ladder] = ladder
-                if 0 in inds or (length - 1) in inds:
+                if 0 in index_set or (length - 1) in index_set:
                     for ladder2 in ladder.strand_neighbor_ladders():
                         # might contain Nones or duplicate entries
                         if ladder2 is not None:
                             ladders_to_inval[ladder2] = ladder2 # overkill if only one ind above was found
                 for rail in rails:
                     baseatoms = rail.baseatoms
-                    for ind in inds:
+                    for ind in index_set:
                         atom = baseatoms[ind]
-                        atoms_to_convert[atom.key] = atom
+                        atoms_to_convert[atom.key] = atom # note: we also add ghost base atoms, below
                 pass
             continue # next ladder
 
         if not atoms_to_convert:
             assert not number_of_basepairs_to_convert
             assert not number_of_unpaired_bases_to_convert
+            assert not ladders_needing_ghost_bases
             if num_atoms_with_good_ladders < orig_len_atoms:
                 # warn if we're skipping some atoms [similar code occurs twice in this method]
                 msg = "%d atom(s) skipped, since not in valid, error-free DnaLadders"
@@ -176,12 +189,34 @@ class ops_pam_Mixin:
         print "%s will convert %d atoms, touching %d ladders" % \
               ( commandname, len(atoms_to_convert), len(ladders_to_inval) )
 
+        # make ghost bases as needed for this conversion (if enabled -- not by default since not yet working ####)
+        # (this must not delete any baseatoms in atoms, or run the dna updater
+        #  or otherwise put atoms into different ladders, but it can make new
+        #  atoms in new chunks, as it does)
+
+        if debug_pref_enable_pam_convert_sticky_ends():
+            for ladder, index_list in ladders_needing_ghost_bases.itervalues():
+                baseatoms = ladder.make_ghost_bases(index_list) # note: index_list is not sorted; that's ok
+                    # note: this makes them in a separate chunk, and returns them
+                    # as an atom list, but doesn't add the new chunk to the ladder.
+                    # the next dna updater run will fix that (making a new ladder
+                    # that includes all atoms in baseatoms and the old ladder).
+                for ind in index_list:
+                    atom = baseatoms[ind]
+                    atoms_to_convert[atom.key] = atom
+        
+        # cause the dna updater (which would normally run after we return,
+        #  but is also explicitly run below) to do the rest of the conversion
+        # (and report errors for whatever it can't convert)
+        
         for ladder in ladders_to_inval:
             ladder._dna_updater_rescan_all_atoms()
 
         for atom in atoms_to_convert:
             _f_baseatom_wants_pam[atom] = which_pam
 
+        # run the dna updater explicitly
+        
         print "about to run dna updater for", commandname
         self.assy.update_parts() # not a part method
             # (note: this catches dna updater exceptions and turns them into redmsgs.)

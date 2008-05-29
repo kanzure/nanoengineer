@@ -334,7 +334,16 @@ def compute_duplex_baseframes( pam_model, data ):
         baseframe_maker = baseframe_from_pam5_data
     else:
         assert 0, "pam_model == %r is not supported" % pam_model
-        # to support mixed, caller needs to identity each rail's model...
+        # to support mixed, caller would need to identify each rail's model...
+    # ideally, if len(data) == 2 and pam_model == MODEL_PAM3, we could append
+    # another array of ghost base positions to data, and continue --
+    # but this would require knowing axis vector at each base index,
+    # but (1) we don't have the atoms in this function, (2) even if our caller
+    # passed them, that's hard to do at the axis ends, especially for len == 1,
+    # except between dna updater runs or before the dna updater dissolves old
+    # ladders -- but this is probably called after that stage during dna updater
+    # (not sure ###k).
+    # [bruce 080528 comment]
     r1, r2, r3 = data
     try:
         return [baseframe_maker(a1,a2,a3) for (a1,a2,a3) in zip(r1,r2,r3)]

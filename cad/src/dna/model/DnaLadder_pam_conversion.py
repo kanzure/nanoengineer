@@ -13,7 +13,7 @@ from model.elements import      Ss3, Ax3
 from model.elements import Singlet
 
 from model.bonds import bond_direction #e rename
-from model.bonds import bond_atoms_faster
+from model.bonds import bond_atoms_faster, bond_atoms
 from model.bond_constants import V_SINGLE
 
 from utilities.constants import Pl_STICKY_BOND_DIRECTION
@@ -21,6 +21,8 @@ from utilities.constants import Pl_STICKY_BOND_DIRECTION
 from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
 from utilities.constants import average_value
+
+from utilities.constants import white
 
 from utilities import debug_flags
 
@@ -382,8 +384,8 @@ class DnaLadder_pam_conversion_methods:
         # a global _f_ladders_with_up_to_date_baseframes_at_ends (formerly a parameter
         # ladders_dict) (search for mentions of that global in various places, for doc).
         ok = self._compute_and_store_new_baseframe_data()
-            # note: this calls _make_ghost_bases [nim] if necessary to make sure we
-            # temporarily have a full set of 2 strand_rails.
+            # note: this NO LONGER (as of 080528) calls make_ghost_bases [nim]
+            # if necessary to make sure we temporarily have a full set of 2 strand_rails.
             # what to do for non-axis ladders is not yet reviewed or implemented. @@@@
         if not ok:
             print "baseframes failed for", self
@@ -901,11 +903,11 @@ class DnaLadder_pam_conversion_methods:
             if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
                 print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self
         # using ends_only is an optim, not yet implemented
-        if len(self.strand_rails) < 2:
-            self._make_ghost_bases() # IMPLEM -- until then, conversion fails on less than full duplexes
-                # need to DECIDE how we'll do this when we implement the
-                # "mmp save only" version, for which we'd prefer virtual
-                # ghost bases. @@@@
+##        if len(self.strand_rails) < 2:
+##            self.make_ghost_bases()
+##                # need to DECIDE how we'll do this when we implement the
+##                # "mmp save only" version, for which we'd prefer virtual
+##                # ghost bases.
         assert len(self.strand_rails) == 2
         data = []
         for rail in self.all_rail_slots_from_top_to_bottom():
@@ -940,13 +942,30 @@ class DnaLadder_pam_conversion_methods:
             return False
         return True
 
-    def _make_ghost_bases(self): #bruce 080514 unfinished; REFILE some in pam3plus5_ops?
+    def can_make_ghost_bases(self): #bruce 080528
         """
+        Would a call to self.make_ghost_bases succeed in making any,
+        or succeed by virtue of not needing to make any?
         """
-        while len(self.strand_rails) < 2:
+        res = len(self.strand_rails) > 0 and \
+              self.axis_rail and \
+              self.pam_model() == MODEL_PAM3
+        return res
+    
+    def make_ghost_bases(self, indices = None):
+        #bruce 080514 unfinished (inside make_strand2_ghost_base_atom); revised 080528; REFILE some in pam3plus5_ops?
+        """
+        @return: list of newly made atoms (*not* added to self as another strand_rail)
+        
+        @note: this is not meant to be called during a dna updater run -- it would
+               fail or cause bugs then, except perhaps if called before the updater
+               has dissolved ladders.
+        """
+        del indices # just make all of them, for now (minor bug, but harmless in practice)
+        assert len(self.strand_rails) != 0, \
+               "make_ghost_bases is NIM for bare-axis ladders like %r" % self
+        if len(self.strand_rails) == 1:
             # need to make up a ghost strand rail
-            assert len(self.strand_rails) != 0, \
-                   "_make_ghost_bases is NIM for bare-axis ladders like %r" % self
             # have one strand, need the other; use same element as in existing strand
             # BUT the following only works if we're PAM3, for several reasons:
             # - interleaving Pls is nim
@@ -954,13 +973,14 @@ class DnaLadder_pam_conversion_methods:
             strand1 = self.strand_rails[0]
             axis = self.axis_rail
             previous_atom = None
-            atoms = []
+            atoms = [] # collects newly made ghost strand sugar atoms
             assy = self.assy
-            chunk = assy.DnaStrandChunk(assy)
+##            chunk = assy.DnaStrandChunk(assy)
+            chunk = assy.Chunk(assy)
+            chunk.color = white # indicate ghost status (quick initial hack)
             assy.addnode(chunk) #k ok that it's empty at this point?
                 # would it be better to put it next to axis chunk?
                 # guess: shouldn't matter, dna updater will move it later (I hope)
-                ### REVIEW: or are we past the stage where it would do that? ### LIKELY BUG (since I think we are past it)
             for i in range(len(strand1)):
                 atom = make_strand2_ghost_base_atom( chunk,
                                                      axis.baseatoms[i],
@@ -969,8 +989,10 @@ class DnaLadder_pam_conversion_methods:
                 if previous_atom: # not yet implemented for intervening Pl for PAM5
                     bond = bond_atoms_faster(previous_atom, atom, V_SINGLE)
                     bond.set_bond_direction_from( previous_atom, -1)
-                bond_atoms_faster(atom, axis.baseatoms[i], V_SINGLE)
-                    #note: requires .molecule to be set on both atoms
+                bond_atoms(atom, axis.baseatoms[i], V_SINGLE)
+                    #note: bond_atoms_faster (and probably also bond_atoms)
+                    # requires .molecule to be set on both atoms
+                    #note: bond_atoms_faster doesn't remove a bondpoint
                 previous_atom = atom
                 atoms.append(atom)
             # make bondpoints on ends of the new ghost strand.
@@ -979,14 +1001,16 @@ class DnaLadder_pam_conversion_methods:
             # in a problematic way? (Same issue for this and any other nick.)
             for atom in ( atoms[0], atoms[-1] ): # ok if same atom
                 atom.make_enough_bondpoints() # not sure if this positions them well
-            ####e make chain from this, then make chunk from that -- see how dna updater does it...
-            # or we might cheat and tell the updater to start over at the beginning...
-            from dna.updater.dna_updater_find_chains import find_newly_made_strand_chain
-            strand2 = find_newly_made_strand_chain( atoms[0] ) ###TODO: zap this, see SOLUTION below
-                #k ok that this is not the usual class of chain?
-            self.strand_rails.append( strand2)
-            self.remake_chunks( rails = [strand2] )
-        return
+                continue
+##            # make chain from this, then make chunk from that -- see how dna updater does it...
+##            # (or we might cheat and tell the updater to start over at the beginning...)
+##            from dna.updater.dna_updater_find_chains import find_newly_made_strand_chain
+##            strand2 = find_newly_made_strand_chain( atoms[0] ) ### zap this, see SOLUTION below
+##                #k ok that this is not the usual class of chain?
+##            self.strand_rails.append( strand2)
+##            self.remake_chunks( rails = [strand2] )
+            pass
+        return atoms
 
     def axis_atom_at_extended_baseindex(self, i): #bruce 080523
         """
@@ -1006,20 +1030,20 @@ class DnaLadder_pam_conversion_methods:
         elif i == len(axis_atoms):
             res = axis_rail.neighbor_baseatoms[1] # might be None
         else:
-            assert 0, "%r.axis_atom_at_baseindex len %d " \
+            assert 0, "%r.axis_atom_at_extended_baseindex len %d " \
                       "called with index %d, must be in [-1, len]" % \
                       (self, len(self), i)
             res = None
         if res == -1:
-            ### LOGIC BUG: this is common, since we're earlier than when the
-            # dna updater sets neighbor_baseatoms. SOLUTION (nim):
+##            ### LOGIC BUG: this is common, since we're earlier than when the
+##            # dna updater sets neighbor_baseatoms. SOLUTION (nim):
             # call this before we invalidate the old ladders, or before the
             # updater entirely, when the pam conv baseatoms are first set or
             # extended to whole basepairs. Just make the ghost atoms then
             # in an ordinary chunk -- no need to make a strand rail & specialized
             # chunk for them since updater will do it after that.
-            # [this is where i am in implementing ghost bases, 080523 eve]
-            msg = "logic bug: res == -1 for %r.axis_atom_at_baseindex len %d " \
+##            # [this is where i am in implementing ghost bases, 080523 eve]
+            msg = "bug: res == -1 for %r.axis_atom_at_extended_baseindex len %d " \
                   "index %d; returning None instead" % \
                   (self, len(self), i)
             print_compact_stack(msg + ": ")
@@ -1044,6 +1068,8 @@ class DnaLadder_pam_conversion_methods:
         return average_value(candidates)
     
     pass # end of class DnaLadder_pam_conversion_methods
+
+# ==
 
 def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ): ### REFILE - pam3plus5_ops? has imports too
     #bruce 080514 unfinished
