@@ -251,10 +251,6 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
         glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
         return
 
-    def setDepthRange_Highlighting_back(self):
-        glDepthRange(0.0 + (self.ortho and 100 or 1000) * DEPTH_TWEAK, 1.0)
-        return
-
     # ==
 
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView

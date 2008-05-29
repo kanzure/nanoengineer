@@ -71,6 +71,8 @@ from OpenGL.GL import glCallList
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
 from OpenGL.GL import glPolygonMode
+from OpenGL.GL import glPolygonOffset
+from OpenGL.GL import GL_POLYGON_OFFSET_LINE
 from OpenGL.GL import GL_POLYGON_STIPPLE
 from OpenGL.GL import glPolygonStipple
 from OpenGL.GL import glPopName
@@ -2377,9 +2379,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 glPolygonMode(GL_FRONT, GL_LINE)
                 glPolygonMode(GL_BACK, GL_LINE)
                 if HHStyle is HHS_HALO:
+                    # Draw wide, unshaded lines, offset away from the viewer
+                    # so only the silhouette edges are visible.
                     glDisable(GL_LIGHTING)
-                    glpane.setDepthRange_Highlighting_back()
                     glLineWidth(5.0)
+                    glEnable(GL_POLYGON_OFFSET_LINE)
+                    glPolygonOffset(0.0, 30000.0) # Constant offset.
                     pass
                 pass
 
@@ -2426,8 +2431,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 glPolygonMode(GL_BACK, GL_FILL)
                 if HHStyle is HHS_HALO:
                     glEnable(GL_LIGHTING)
-                    glpane.setDepthRange_Highlighting()
                     glLineWidth(1.0)
+                    glDisable(GL_POLYGON_OFFSET_LINE)
+                    glPolygonOffset(0.0, 0.0)
                     pass
                 pass
             
