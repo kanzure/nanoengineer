@@ -24,7 +24,9 @@ from exprs.Rect             import Sphere
 
 from exprs.Arrow import Arrow
    
-from utilities.constants import yellow, darkgreen
+import foundation.env as env
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.constants import darkgreen
 from utilities.constants import olive
 
 from geometry.VQT import V
@@ -91,15 +93,15 @@ class NanotubeSegment_ResizeHandle(DraggableHandle_AlongLine):
             scale = _self.command.glpane.scale)
             )
 
+    HHColor = env.prefs[hoverHighlightingColor_prefs_key]
     appearance_highlighted = Option(
         Drawable,
         Overlay(
             Sphere(_self.sphereRadius,                       
-                   yellow, 
+                   HHColor, 
                    center = ORIGIN),
-                   
             Arrow( 
-                color = yellow, 
+                color = HHColor, 
                 arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius, 
                 tailPoint = ORIGIN, 
                 tailRadius = _self.sphereRadius*0.3,

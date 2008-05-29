@@ -36,7 +36,9 @@ from exprs.If_expr import If_expr
 from exprs.dna_ribbon_view  import Cylinder
 from exprs.Rect             import Sphere
    
-from utilities.constants import yellow, purple, darkgreen
+import foundation.env as env
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.constants import purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
@@ -88,17 +90,18 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
     #Handle appearance when highlighted
     # [this probably doesn't need to be an Option, since the client never
     #  passes it [bruce 080409 comment]]
+    HHColor = env.prefs[hoverHighlightingColor_prefs_key]
     appearance_highlighted = Option(
         Drawable,
         Overlay(
             Sphere(_self.sphereRadius, 
-                   yellow, 
+                   HHColor, 
                    center = ORIGIN + _self.direction * 3.0 * _self.sphereRadius),
                    
             Cylinder((ORIGIN,  
                       ORIGIN + _self.direction * 2.2 * _self.sphereRadius),
                      0.6* _self.sphereRadius , 
-                     yellow)),
+                     HHColor)),
             doc = "handle appearance when highlighted")
      
 

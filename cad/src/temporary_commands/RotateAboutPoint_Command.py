@@ -15,7 +15,8 @@ conference. This may be revised further.
 
 from temporary_commands.LineMode import LineMode
 from temporary_commands.LineMode import LineMode_GM
-from utilities.constants import yellow
+import foundation.env as env
+from utilities.prefs_constants import atomHighlightColor_prefs_key
 from model.chem import Atom # for isinstance check as of 2008-04-17
 
 from geometry.VQT import cross, norm, Q
@@ -97,7 +98,7 @@ class RotateAboutPoint_GraphicsMode(LineMode_GM):
         
         
     def _getAtomHighlightColor(self, selobj):
-        return yellow
+        return env.prefs[atomHighlightColor_prefs_key]
     
     def update_cursor_for_no_MB(self): 
         """
@@ -203,4 +204,3 @@ class RotateAboutPoint_Command(LineMode):
         
         self.graphicsMode.resetVariables()               
         return
-    

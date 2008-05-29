@@ -120,7 +120,8 @@ from graphics.drawing.ColorSorter import ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
-from utilities.constants import darkgreen, yellow
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.constants import darkgreen
 
 from utilities.constants import gensym, genKey
 
@@ -2301,7 +2302,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #This is done by making sure that the chunk gets a glselect name and 
         #by defining this API method - Ninad 2008-03-13
 
-        return yellow
+        return env.prefs[hoverHighlightingColor_prefs_key]
 
     def draw_highlighted(self, glpane, color):
         """

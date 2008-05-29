@@ -24,7 +24,9 @@ from exprs.ExprsConstants   import ORIGIN, DX , DY
 from exprs.dna_ribbon_view  import Cylinder
 from exprs.Rect             import Sphere
    
-from utilities.constants import white, yellow, purple, darkgreen
+import foundation.env as env
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.constants import white, purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle_AlongCircle import DraggableHandle_AlongCircle
@@ -49,11 +51,12 @@ class RotationHandle(DraggableHandle_AlongCircle):
             Sphere(1.2, handleColor, center = ORIGIN + _self.axis*3*DX), 
             Cylinder((ORIGIN, ORIGIN + _self.axis*2*DX), 0.5 ,handleColor))
         
+        HHColor = env.prefs[hoverHighlightingColor_prefs_key]
         appearance_highlighted = Option(
             Drawable,
             Overlay(
-                Sphere(1.2, yellow, center = ORIGIN + _self.axis*3*DX),
-                Cylinder((ORIGIN,  ORIGIN + _self.axis*2*DX), 0.5 , yellow)),
+                Sphere(1.2, HHColor, center = ORIGIN + _self.axis*3*DX),
+                Cylinder((ORIGIN,  ORIGIN + _self.axis*2*DX), 0.5 , HHColor)),
                 doc = "handle appearance when highlighted")
     else:           
         

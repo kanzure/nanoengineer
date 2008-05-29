@@ -133,8 +133,8 @@ class basicGraphicsMode(GraphicsMode_API):
     # This is done differently in different subclasses, since in some of
     # them, those are the same object.
     
-    # Draw tags on entities in the 3D workspace if wanted. see self._drawTags
-    # dor details
+    # Draw tags on entities in the 3D workspace if wanted. See self._drawTags
+    # for details.
     _tagPositions = ()
     _tagColor = yellow
     

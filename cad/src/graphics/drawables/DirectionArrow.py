@@ -161,7 +161,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         """
         Draw the handle as a highlighted object.
         @param glpane: B{GLPane} object
-        @type  glpane: L{GLPane"
+        @type  glpane: L{GLPane}
         @param color: Highlight color 
         """    
                   

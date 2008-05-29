@@ -60,7 +60,8 @@ from geometry.VQT import V, Q, norm, cross, angleBetween
 from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 
-from utilities.constants import ave_colors, black, red, blue, white, yellow, darkgreen
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.constants import ave_colors, black, red, blue, white, darkgreen
 
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 
@@ -930,6 +931,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 indicators_color = env.prefs[dnaBaseIndicatorsColor_prefs_key]
                 inv_indicators_color = env.prefs[dnaBaseInvIndicatorsColor_prefs_key]                
                 inv_indicators_enabled = env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key]
+                HHColor = env.prefs[hoverHighlightingColor_prefs_key]
 
                 plane_normal_idx = env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key]
                 
@@ -972,7 +974,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         if chunk.picked:
                             color = darkgreen
                         if highlighted:
-                            color = yellow
+                            color = HHColor
                         else:
                             pos1 = chunk.abs_to_base(pos1)
                             pos2 = chunk.abs_to_base(pos2)
@@ -1076,7 +1078,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                                     # define a color of the label
                                     if highlighted:
-                                        glpane.qglColor(RGBf_to_QColor(yellow))
+                                        glpane.qglColor(RGBf_to_QColor(HHColor))
                                     elif chunk.picked:
                                         glpane.qglColor(RGBf_to_QColor(darkgreen))
                                     else:
@@ -1250,7 +1252,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 strand_color = darkgreen
                              
                             if highlighted:
-                                strand_color = yellow
+                                strand_color = HHColor
                                 
                             glColor3fv(strand_color)
                             
@@ -1316,8 +1318,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                             color = base_color
                                             
                                         if highlighted:
-                                            glColor3fv(yellow)
-                                            color = yellow
+                                            glColor3fv(HHColor)
+                                            color = HHColor
                                             
                                         ### drawtext(label_text, color, textpos, font_scale, glpane)
                                         glpane.renderText(textpos[0], 
@@ -1332,7 +1334,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     if chunk.picked:
                                         glColor3fv(darkgreen)
                                     elif highlighted:
-                                        glColor3fv(yellow)
+                                        glColor3fv(HHColor)
                                     for base in base_list:
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
@@ -1351,7 +1353,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         if chunk.picked:
                                             lcolor = _light_color(darkgreen)
                                         elif highlighted:
-                                            lcolor = yellow
+                                            lcolor = HHColor
                                         else:
                                             lcolor = _light_color(strand_color)
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
@@ -1379,7 +1381,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         if chunk.picked:
                             color = darkgreen
                         elif highlighted:
-                            color = yellow
+                            color = HHColor
                         else:
                             color = black
                         for base in base_list:
