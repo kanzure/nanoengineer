@@ -197,8 +197,9 @@ class PM_FileChooser( QWidget ):
                                    self.filter)
         
         if fname:
-            self.lineEdit.emit(SIGNAL("editingFinished()"))
             self.setText(fname)
+            self.lineEdit.emit(SIGNAL("editingFinished()"))
+            
         return
     
     def restoreDefault(self):
