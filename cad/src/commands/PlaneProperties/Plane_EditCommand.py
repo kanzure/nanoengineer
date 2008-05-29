@@ -26,6 +26,7 @@ from command_support.EditCommand import EditCommand
 from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
 from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
+from utilities.Comparison import same_vals
 
 
 class Plane_EditCommand(EditCommand):
@@ -181,7 +182,8 @@ class Plane_EditCommand(EditCommand):
             ctr     =  self.struct.center 
         else:
             ctr = None
-        return (width, height, ctr, atmList)
+        imagePath = self.propMgr.imageFile    
+        return (width, height, ctr, atmList, imagePath)
 
     def _createStructure(self):
         """
@@ -204,12 +206,31 @@ class Plane_EditCommand(EditCommand):
         """
         assert self.struct
         assert params 
-        assert len(params) == 4             
+        assert len(params) == 5             
 
-        width, height, center_junk, atmList_junk = params
+        width, height, center_junk, atmList_junk, imagePath = params
         self.struct.width   =  width        
         self.struct.height  =  height 
+        self.struct.imagePath = imagePath
+        
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
 
     ##=====================================##
+    
+    def model_changed(self):
+        
+        #check first if the plane object exists first
+        if self.hasValidStructure() is None:
+            return
+        
+        #see if values in PM has changed
+        currentParams = self._gatherParameters()
+        
+        if same_vals(currentParams,self.propMgr.previousPMParams):
+            return
+        
+        self.propMgr.previousPMParams = currentParams
+        self._modifyStructure(currentParams)
+        
+        
