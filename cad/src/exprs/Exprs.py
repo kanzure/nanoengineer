@@ -624,8 +624,11 @@ class LvalueFromObjAndAttr(object): #061204 for _e_eval_lval and LvalueArg, like
 
 class getattr_Expr(OpExpr):
     def __call__(self, *args, **kws):
-        print 'bug: __call__ of %r with:' % self,args,kws
-        assert 0, "getattr exprs are not callable [ok??]"
+        msg = "error: getattr exprs are not callable: " \
+              "explicit call_Expr needed, instead of direct call " \
+              "of %r with:" % self, args, kws #bruce 080528 revised msg
+        print msg
+        assert 0, msg
     def _e_init(self):
         assert len(self._e_args) in (2,3) #e kind of useless and slow #e should also check types? #070203 permit 3-arg form
         attr = self._e_args[1]
