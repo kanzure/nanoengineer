@@ -27,6 +27,7 @@ from OpenGL.GL import glRotatef
 # piotr 080527
 # added texture-related imports
 from OpenGL.GL import glBindTexture
+from OpenGL.GL import glDeleteTextures
 from OpenGL.GL import GL_TEXTURE_2D
 
 from graphics.drawing.drawers import drawLineLoop
@@ -127,6 +128,8 @@ class Plane(ReferenceGeometry):
 
         self.editCommand      =  editCommand
 
+        self.tex_coords       = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]] 
+        
         if not READ_FROM_MMP:
             self.width      =  20.0
             self.height     =  10.0
@@ -287,34 +290,9 @@ class Plane(ReferenceGeometry):
         @type  highlighted: bool
         """
         #check whether self.imagePath is a valid image Path
-
-        validImagePath = 0 
-        if self.imagePath:
-            validImagePath = checkIfValidImagePath(self.imagePath)
-        else:
-            self.imagePreviousSize = 0 
-            self.tex_image = None
-
-        if validImagePath:
-
-            from PIL import Image
-
-            im = Image.open(self.imagePath)
-            self.imageSize = im.size
-            #load texture image from the disk only if the image is changed
-            if self.imageSize != self.imagePreviousSize:
-                try:
-                    mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
-                    self.imagePreviousSize = self.imageSize
-
-                except:
-                    msg = redmsg("Cannot load plane image " + self.imagePath)
-                    env.history.message(msg)
-                    self.tex_image = None
-        else:
-            self.tex_image = None
-            self.imagePreviousSize = 0 
-
+        # and load the image
+        self.loadImageFromValidPath()
+        
         glPushMatrix()
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
@@ -350,7 +328,8 @@ class Plane(ReferenceGeometry):
                   textureReady,
                   self.opacity, 
                   SOLID=True, 
-                  pickCheckOnly=self.pickCheckOnly)
+                  pickCheckOnly=self.pickCheckOnly,
+                  tex_coords=self.tex_coords)
 
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
@@ -759,6 +738,9 @@ class Plane(ReferenceGeometry):
         """
 
         # piotr 080528
+        
+        self.deleteImage()
+        
         try:
             mipmaps, image = load_image_into_new_texture_name(file_name)
             self.tex_image = image
@@ -767,5 +749,91 @@ class Plane(ReferenceGeometry):
         except:
             msg = redmsg("Cannot load plane image " + file_name)
             env.history.message(msg)
+            self.tex_image = None
+
+    def loadImageFromValidPath(self):
+        validImagePath = 0 
+        if self.imagePath:
+            validImagePath = checkIfValidImagePath(self.imagePath)
+        else:
+            self.deleteImage()
+            self.imagePreviousSize = 0 
+            self.tex_image = None
+
+        if validImagePath:
+
+            from PIL import Image
+
+            im = Image.open(self.imagePath)
+            self.imageSize = im.size
+            #load texture image from the disk only if the image is changed
+            if self.imageSize != self.imagePreviousSize:
+                try:
+                    mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
+                    self.imagePreviousSize = self.imageSize
+                except:
+                    msg = redmsg("Cannot load plane image " + self.imagePath)
+                    env.history.message(msg)
+                    self.deleteImage()
+                    self.tex_image = None
+        else:
+            self.deleteImage()
+            self.tex_image = None
+            self.imagePreviousSize = 0 
+
+ 
+    def rotateImage(self, direction):
+        """
+        Rotates plane image texture coordinates clockwise (direction==0)
+        or counterclockwise (direction==1) by 90 degrees.
+        """
+        
+        if direction == 0:
+            tmp = self.tex_coords[0]
+            self.tex_coords[0] = self.tex_coords[3]
+            self.tex_coords[3] = self.tex_coords[2]
+            self.tex_coords[2] = self.tex_coords[1]
+            self.tex_coords[1] = tmp
+        else:
+            tmp = self.tex_coords[0]
+            self.tex_coords[0] = self.tex_coords[1]
+            self.tex_coords[1] = self.tex_coords[2]
+            self.tex_coords[2] = self.tex_coords[3]
+            self.tex_coords[3] = tmp
+        
+        self.loadImageFromValidPath()
+        self.glpane.gl_update()
+        pass
+    
+    def mirrorImage(self, direction):
+        """
+        Mirrors image texture coordinates horizontally (direction==0)
+        or vertically (direction==1).
+        """
+        if direction == 0:            
+            tmp = self.tex_coords[3]
+            self.tex_coords[3] = self.tex_coords[0]
+            self.tex_coords[0] = tmp
+            tmp = self.tex_coords[2]
+            self.tex_coords[2] = self.tex_coords[1]
+            self.tex_coords[1] = tmp
+        else:
+            tmp = self.tex_coords[3]
+            self.tex_coords[3] = self.tex_coords[2]
+            self.tex_coords[2] = tmp
+            tmp = self.tex_coords[0]
+            self.tex_coords[0] = self.tex_coords[1]
+            self.tex_coords[1] = tmp
+        
+        self.loadImageFromValidPath()
+        self.glpane.gl_update()
+        pass
+    
+    def deleteImage(self):
+        """
+        Deletes a texture.
+        """
+        if self.tex_image:
+            glDeleteTextures(self.tex_image)
             self.tex_image = None
 

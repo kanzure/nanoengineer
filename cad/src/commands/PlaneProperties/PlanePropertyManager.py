@@ -465,17 +465,33 @@ class PlanePropertyManager(EditCommand_PM):
                                                minLines     = 5)
 
     def rotate_90(self):
-        print "rotate 90 method will be included here soon"
+        """
+        Rotate the image clockwise.
+        """
+        if self.editCommand.struct is not None:
+            self.editCommand.struct.rotateImage(0)
         return
 
     def rotate_neg_90(self):
-        print "rotate negative 90 method will be included here soon"
+        """
+        Rotate the image counterclockwise.
+        """
+        if self.editCommand.struct is not None:
+            self.editCommand.struct.rotateImage(1)
         return
 
     def flip_image(self):
-        print "flip image method will be included here soon"
+        """ 
+        Flip the image horizontally.
+        """
+        if self.editCommand.struct is not None:
+            self.editCommand.struct.mirrorImage(1)
         return
 
     def mirror_image(self):
-        print "mirror image method will be included here soon"
+        """
+        Flip the image vertically.
+        """
+        if self.editCommand.struct is not None:
+            self.editCommand.struct.mirrorImage(0)
         return
