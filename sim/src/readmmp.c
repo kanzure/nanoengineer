@@ -493,7 +493,9 @@ readMMP(char *filename)
       consumeRestOfLine(mmp);
           
       // hack: change singlets to hydrogen
-      // if (elementType == 0) elementType=1;
+      if (elementType == 0) {
+        elementType=1;
+      }
       previousAtomID = atomID;
 
       // at this point, position is in pm (expectXYZInts converts)
