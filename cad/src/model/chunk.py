@@ -56,6 +56,12 @@ from Numeric import compress
 from Numeric import take
 from Numeric import argmax
 
+from OpenGL.GL import GL_BACK
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_FILL
+from OpenGL.GL import GL_FRONT
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_LINE
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
@@ -63,6 +69,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
+from OpenGL.GL import glPolygonMode
 from OpenGL.GL import GL_POLYGON_STIPPLE
 from OpenGL.GL import glPolygonStipple
 from OpenGL.GL import glPopName
@@ -100,6 +107,8 @@ from graphics.display_styles.displaymodes import get_display_mode_handler
 
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR, HHS_CROSSHATCH
+from utilities.prefs_constants import HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_HALO
+
 import numpy
 
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
@@ -2355,10 +2364,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         drawn_bonds = {}
 
         if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
+
             HHPattern = self.getHoverHighlightingPattern() # russ 080523
             if HHPattern is not None:
                 glEnable(GL_POLYGON_STIPPLE)
                 glPolygonStipple(HHPattern)
+                pass
+
+            HHStyle = env.prefs[hoverHighlightingColorStyle_prefs_key] # russ 080529
+            if HHStyle is HHS_POLYGON_EDGES:
+                glPolygonMode(GL_FRONT, GL_LINE)
+                glPolygonMode(GL_BACK, GL_LINE)
+                glDisable(GL_LIGHTING)
+                glDisable(GL_CULL_FACE)
                 pass
 
             #russ 080225: Alternate drawing method using colorless display list.
@@ -2369,6 +2387,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 self.pushMatrix()
                 glCallList(self.displist.nocolor_dl)
                 self.popMatrix()
+                pass
 
             # piotr 080521: Get display mode for drawing external bonds and/or
             # the "realtime" objects.
@@ -2392,10 +2411,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             hd = get_display_mode_handler(disp)
             if hd:
                 hd._drawchunk_realtime(glpane, self, highlighted=True)
+                pass
 
             if HHPattern is not None:   # russ 080523
                 glDisable(GL_POLYGON_STIPPLE)
                 pass
+
+            if HHStyle is HHS_POLYGON_EDGES: # russ 080529
+                glEnable(GL_CULL_FACE)
+                glEnable(GL_LIGHTING)
+                glPolygonMode(GL_FRONT, GL_FILL)
+                glPolygonMode(GL_BACK, GL_FILL)
+                pass
+
         else:
             if self.get_dispdef() == diDNACYLINDER :
                 #If the chunk is drawn with the DNA cylinder display style, 
