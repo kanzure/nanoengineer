@@ -22,7 +22,7 @@ from utilities.constants import MODEL_PAM3, MODEL_PAM5, PAM_MODELS, MODEL_MIXED
 from utilities.constants import noop
 from utilities.constants import average_value
 
-from utilities.constants import white
+from utilities.constants import white, gray, ave_colors
 
 from utilities import debug_flags
 
@@ -38,6 +38,8 @@ import math
 import foundation.env as env
 
 from dna.model.dna_model_constants import LADDER_ENDS
+from dna.model.dna_model_constants import LADDER_END0
+from dna.model.dna_model_constants import LADDER_END1
 from dna.model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
 
 from dna.model.pam3plus5_math import other_baseframe_data
@@ -55,6 +57,8 @@ from dna.model.pam3plus5_ops import kill_Pl_and_rebond_neighbors
 from dna.updater.dna_updater_globals import _f_ladders_with_up_to_date_baseframes_at_ends
 from dna.updater.dna_updater_globals import _f_atom_to_ladder_location_dict
 from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
+
+GHOST_BASE_COLOR = ave_colors( 0.7, white, gray )
 
 # ==
 
@@ -130,11 +134,6 @@ class DnaLadder_pam_conversion_methods:
         """
         self._cmd_convert_to_pam(MODEL_PAM3)
 
-##    # todo: also a command to "convert to default PAM display"
-####    # which sets chunk.display_as_pam = None
-##    # (what to call it?)
-##    # (or just make the one that corresponds to that, do that, if it's pam3 at least??) [no]
-    
     def _cmd_convert_to_pam(self, which_model):
         """
         Command to convert all of self to one of the PAM_MODELS.
@@ -157,10 +156,6 @@ class DnaLadder_pam_conversion_methods:
         
         env.history.graymsg(quote_html("Debug fyi: Convert %r to %s" % (self, which_model))) #####
         
-##        for chunk in self.all_chunks():
-##            chunk.display_as_pam = which_model
-##            chunk.changed() # calls assy.changed(); might be needed
-
         for rail in self.all_rails():
             for baseatom in rail.baseatoms:
                 _f_baseatom_wants_pam[baseatom.key] = which_model
@@ -675,7 +670,6 @@ class DnaLadder_pam_conversion_methods:
                be done to it again (by some other call of this method
                from the same caller using the same dict).
         """
-##        print "fyi: called _f_finish_converting_bridging_Pl_atoms(%r)" % self ####
         assert self.valid and not self.error
         for Pl in self._bridging_Pl_atoms():
             Pl._f_Pl_finish_converting_if_needed()
@@ -725,7 +719,6 @@ class DnaLadder_pam_conversion_methods:
                 res[possible_Pl.key] = possible_Pl
             continue
         res = res.values()
-##        print "fyi: _bridging_Pl_atoms(%r) returns %r" % (self, res) ####
         return res
 
     def _corner_atoms_with_next_atoms_or_None(self): #bruce 080410 split this out of _bridging_Pl_atoms
@@ -763,7 +756,6 @@ class DnaLadder_pam_conversion_methods:
                 res.append( (end_atom, next_atom) )
                 continue
             continue
-##        print "fyi: _corner_atoms_with_next_atoms_or_None(%r) returns %r" % (self, res) ####
         return res
 
     def fix_bondpoint_positions_at_ends_of_rails(self): #bruce 080411
@@ -903,11 +895,6 @@ class DnaLadder_pam_conversion_methods:
             if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # 080413
                 print "fyi: %r._compute_and_store_new_baseframe_data was only needed at the ends, optim is nim" % self
         # using ends_only is an optim, not yet implemented
-##        if len(self.strand_rails) < 2:
-##            self.make_ghost_bases()
-##                # need to DECIDE how we'll do this when we implement the
-##                # "mmp save only" version, for which we'd prefer virtual
-##                # ghost bases.
         assert len(self.strand_rails) == 2
         data = []
         for rail in self.all_rail_slots_from_top_to_bottom():
@@ -975,26 +962,48 @@ class DnaLadder_pam_conversion_methods:
             previous_atom = None
             atoms = [] # collects newly made ghost strand sugar atoms
             assy = self.assy
-##            chunk = assy.DnaStrandChunk(assy)
             chunk = assy.Chunk(assy)
-            chunk.color = white # indicate ghost status (quick initial hack)
+            chunk.color = GHOST_BASE_COLOR # indicate ghost status (quick initial hack)
             assy.addnode(chunk) #k ok that it's empty at this point?
                 # would it be better to put it next to axis chunk?
                 # guess: shouldn't matter, dna updater will move it later (I hope)
+                # not quite true: TODO: should put it into same DnaGroup to avoid console print
+                # about making a new one (probably harmless).
             for i in range(len(strand1)):
-                atom = make_strand2_ghost_base_atom( chunk,
-                                                     axis.baseatoms[i],
-                                                     self.axis_vector_at_baseindex(i),
-                                                     strand1.baseatoms[i] )
-                if previous_atom: # not yet implemented for intervening Pl for PAM5
-                    bond = bond_atoms_faster(previous_atom, atom, V_SINGLE)
-                    bond.set_bond_direction_from( previous_atom, -1)
-                bond_atoms(atom, axis.baseatoms[i], V_SINGLE)
+                axis_atom = axis.baseatoms[i]
+                axis_vector = self.axis_vector_at_baseindex(i)
+                new_atom = make_strand2_ghost_base_atom( chunk,
+                                        axis_atom,
+                                        axis_vector,
+                                        strand1.baseatoms[i] )
+                # bond new_atom to axis_atom
+                # note: new_atom has no bondpoints, but axis_atom has one
+                # which we need to remove. We find the bondpoint farthest from
+                # the axis and pass it, not only to specify which one to remove,
+                # but to cause one to be removed at all. (Whether that's a bug
+                # in bond_atoms is unclear -- see comment added to it, 080529.)
+                bp = axis_atom.bondpoint_most_perpendicular_to_line( axis_vector)
+                    # might be None in case of bugs; that's ok for this code
+                bond_atoms(new_atom, axis_atom, V_SINGLE, None, bp)
                     #note: bond_atoms_faster (and probably also bond_atoms)
                     # requires .molecule to be set on both atoms
                     #note: bond_atoms_faster doesn't remove a bondpoint
-                previous_atom = atom
-                atoms.append(atom)
+                # bond it to the previous new strand atom
+                if previous_atom:
+                    # warning: not yet implemented to correctly handle
+                    # intervening Pl for PAM5 (so don't call this for PAM5)
+                    bond = bond_atoms_faster(previous_atom, new_atom, V_SINGLE)
+                    bond.set_bond_direction_from( previous_atom, -1)
+                        # TODO: also set bond direction on the open bonds,
+                        # to avoid history warning
+                        # TODO: make Ss->Pl direction geometrically correct
+                        # in length 1 case (probably a bug in pam conversion
+                        # code elsewhere; conceivably influenced by bondpoint
+                        # positions and bond directions we can set here)
+                        # TODO: fix bug in length of open bonds (some are too long,
+                        # after conversion to PAM5 finishes)
+                previous_atom = new_atom
+                atoms.append(new_atom)
             # make bondpoints on ends of the new ghost strand.
             # note: this means there will be a nick between the ghost strand
             # and any adjacent regular strand. REVIEW: do the bondpoints overlap
@@ -1002,17 +1011,10 @@ class DnaLadder_pam_conversion_methods:
             for atom in ( atoms[0], atoms[-1] ): # ok if same atom
                 atom.make_enough_bondpoints() # not sure if this positions them well
                 continue
-##            # make chain from this, then make chunk from that -- see how dna updater does it...
-##            # (or we might cheat and tell the updater to start over at the beginning...)
-##            from dna.updater.dna_updater_find_chains import find_newly_made_strand_chain
-##            strand2 = find_newly_made_strand_chain( atoms[0] ) ### zap this, see SOLUTION below
-##                #k ok that this is not the usual class of chain?
-##            self.strand_rails.append( strand2)
-##            self.remake_chunks( rails = [strand2] )
             pass
         return atoms
 
-    def axis_atom_at_extended_baseindex(self, i): #bruce 080523
+    def axis_atom_at_extended_baseindex(self, i): #bruce 080523; has BUG for length-1 case, or notices a bug in neighbor_baseatoms then
         """
         Return the axis atom of self at the given baseindex,
         or if the baseindex is out of range by 1
@@ -1024,25 +1026,24 @@ class DnaLadder_pam_conversion_methods:
         axis_rail = self.axis_rail
         axis_atoms = axis_rail.baseatoms
         if i == -1:
-            res = axis_rail.neighbor_baseatoms[0] # might be None (or -1?)
+            res = axis_rail.neighbor_baseatoms[LADDER_END0] # might be None (or -1?)
         elif 0 <= i < len(axis_atoms):
             res = axis_atoms[i]
         elif i == len(axis_atoms):
-            res = axis_rail.neighbor_baseatoms[1] # might be None
+            res = axis_rail.neighbor_baseatoms[LADDER_END1] # might be None
         else:
             assert 0, "%r.axis_atom_at_extended_baseindex len %d " \
                       "called with index %d, must be in [-1, len]" % \
                       (self, len(self), i)
             res = None
         if res == -1:
-##            ### LOGIC BUG: this is common, since we're earlier than when the
-##            # dna updater sets neighbor_baseatoms. SOLUTION (nim):
-            # call this before we invalidate the old ladders, or before the
-            # updater entirely, when the pam conv baseatoms are first set or
-            # extended to whole basepairs. Just make the ghost atoms then
-            # in an ordinary chunk -- no need to make a strand rail & specialized
-            # chunk for them since updater will do it after that.
-##            # [this is where i am in implementing ghost bases, 080523 eve]
+            # This would be a bug, but is not known to happen.
+            # It would happen if this was called at the wrong time --
+            # i.e. during the dna updater, after it has dissolved
+            # invalid ladders. Present code [080529] only calls this
+            # outside of the dna updater, when the baseatoms
+            # which need pam conversion are first set or are
+            # extended to whole basepairs.
             msg = "bug: res == -1 for %r.axis_atom_at_extended_baseindex len %d " \
                   "index %d; returning None instead" % \
                   (self, len(self), i)
@@ -1072,7 +1073,7 @@ class DnaLadder_pam_conversion_methods:
 # ==
 
 def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ): ### REFILE - pam3plus5_ops? has imports too
-    #bruce 080514 unfinished
+    #bruce 080514 unfinished, see TODO comments
     """
     Make a ghost base atom to go in the same basepair as axis_atom and
     strand1_atom (which must be bonded and of the correct elements).
@@ -1093,7 +1094,7 @@ def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ):
     assert axis_atom.element is Ax3 # wrong formulae otherwise
     s1pos = strand1_atom.posn()
     DEGREES = 2 * math.pi / 360
-    angle = 133 * DEGREES ### maybe wrong value -- see dna lengthening code ### sign is a guess too
+    angle = 133 * DEGREES # value and sign are guesses, but seem to be right, or at least close ### REVIEW
     quat = Q(axis_vector, angle)
     s2pos = quat.rot(s1pos - origin) + origin
     from model.chem import Atom

@@ -330,6 +330,12 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     and might eventually be made impossible after all old calling code is converted
     for higher-order bonds. [However, as of 051216 it's still called in lots of places.]
     """
+    # DOCSTRING BUG (unconfirmed, docstring is unclear): if s1 and s2 are not provided
+    # but vnew is provided, the docstring is unclear about whether this will find
+    # bondpoints to remove in order to keep the valence correct. In at least one piece of new code
+    # it seems that it's not doing that, resulting in valence errors. Maybe it was never
+    # intended to do that. To fix that new code I'll find the right bondpoints to pass.
+    # [bruce 080529, issue needs REVIEW]
     if vnew is None:
         assert s1 is s2 is None
         assert no_corrections == False

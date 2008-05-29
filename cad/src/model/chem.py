@@ -79,6 +79,7 @@ import model.global_model_changedicts as global_model_changedicts
 
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
+from Numeric import dot
 
 from graphics.rendering.mdl.mdldata import marks, links, filler
 from graphics.rendering.povray.povheader import povpoint
@@ -3272,7 +3273,27 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def baggageNeighbors(self): #bruce 051209
         baggage, other_unused = self.baggage_and_other_neighbors()
         return baggage
-        
+
+    def bondpoint_most_perpendicular_to_line(self, vector): #bruce 080529
+        """
+        Return one of our bondpoints whose spatial direction from self
+        is farthest from the line through self defined by vector,
+        or None if self has no bondpoints.
+        """
+        candidates = []
+        for bond in self.bonds:
+            other = bond.other(self)
+            if not other.element is Singlet:
+                continue
+            other_vector = norm( other.posn() - self.posn() )
+            closeness_to_line = abs( dot( other_vector, vector) )
+                # scale depends on vlen(vector), but that doesn't matter here
+            candidates.append( (closeness_to_line, other) )
+        if candidates:
+            candidates.sort() # closest one is last, farthest is first
+            return candidates[0][1]
+        return None
+    
     def deleteBaggage(self): #mark 060129.
         """
         Deletes any monovalent atoms connected to self.  

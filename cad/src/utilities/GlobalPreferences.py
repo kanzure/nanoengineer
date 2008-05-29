@@ -155,9 +155,10 @@ def dna_updater_is_enabled(): #bruce 080320
 
 # ==
 
-def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this feature works
-    res = debug_pref("DNA: enable PAM3+5 for sticky ends? [nim]",
+def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this feature fully works
+    res = debug_pref("DNA: PAM3+5 make ghost bases for sticky ends?", #bruce 080529 revised text
                      Choice_boolean_False,
+                     non_debug = True, #bruce 080529
                      prefs_key = True)
     return res
 

@@ -24,7 +24,7 @@ LADDER_END0 = LADDER_ENDS[0] # "left" for ladder
 
 LADDER_END1 = LADDER_ENDS[1] # "right" for ladder
 
-LADDER_OTHER_END = [1,0] # 1 - end
+LADDER_OTHER_END = [1, 0] # 1 - end
 
 LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1 = [-1, 1] # not correct for strand2 of a ladder
 
@@ -36,7 +36,7 @@ CHAIN_END0 = CHAIN_ENDS[0] # "5' end" for strand
 
 CHAIN_END1 = CHAIN_ENDS[1] # "3' end" for strand
 
-CHAIN_OTHER_END = [1,0] # 1 - end
+CHAIN_OTHER_END = [1, 0] # 1 - end
 
 CHAIN_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND = [-1, 1]
 
