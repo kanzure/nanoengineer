@@ -77,7 +77,6 @@ class PlanePropertyManager(EditCommand_PM):
         self.previousPMParams = None
         self.imageFile = ""
 
-
     def _addGroupBoxes(self):
         """
         Add the 1st group box to the Property Manager.
