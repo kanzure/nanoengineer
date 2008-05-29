@@ -125,6 +125,14 @@ def _full_dna_update_0( _runcount):
             # which call atom._changed_structure -- that's necessary to allow,
             # so we don't change dnaladder_inval_policy until below,
             # inside update_PAM_chunks [bruce 080413 comment]
+            # (REVIEW: atom._changed_structure does not directly invalidate
+            #  dna ladders, so I'm not sure if this comment is just wrong,
+            #  or if it meant something not exactly what it said, like,
+            #  this can cause more ladders to be invalidated than otherwise
+            #  in an upcoming step -- though if it meant that, it seems
+            #  wrong too, since the existence of that upcoming step
+            #  might be enough reason to not be able to change the policy yet.
+            #  [bruce 080529 addendum/Q])
     
     if not changed_atoms and not _f_are_there_any_homeless_dna_markers() and not _f_invalid_dna_ladders:
         return # optimization

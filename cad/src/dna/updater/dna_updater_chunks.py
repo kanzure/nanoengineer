@@ -137,8 +137,12 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # in the following method.
     
     dissolve_or_fragment_invalid_ladders( changed_atoms)
-        # note: this adds atoms (live atoms only) to changed_atoms;
-        # see its comments and above comment for details.
+        # note: this does more than its name implies:
+        # - invalidate all ladders containing changed_atoms
+        #   (or touching changed Pl atoms, as of 080529 bugfix);
+        # - add all live baseatoms from invalid ladders to changed_atoms
+        #   (whether they were invalidated by it or before it was called).
+        # see its comments and the comment just before it (above) for details.
         #
         # NOTE: THIS SETS dnaladder_inval_policy to DNALADDER_INVAL_IS_ERROR
         # (at the right time during its side effects/tests on ladders)

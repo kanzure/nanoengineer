@@ -22,6 +22,8 @@ from dna.updater.dna_updater_globals import DNALADDER_INVAL_IS_ERROR
 
 from dna.model.dna_model_constants import MAX_LADDER_LENGTH
 
+from model.elements import Pl5
+
 # ==
 
 def dissolve_or_fragment_invalid_ladders( changed_atoms):
@@ -32,8 +34,8 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
     (due to dissolved or fragmented ladders) are included in the caller's
     subsequent step of finding changed chains,
     or that the chains they are in are covered. This is necessary so that
-    the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
-    they cover any atom in.
+    the found chains (by the caller, after this call)
+    cover all atoms in every "base pair" (Ss-Ax-Ss) they cover any atom in.
     This might be done by adding some of their atoms into changed_atoms
     in this method (but only live atoms).
     """
@@ -46,7 +48,27 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         chunk = atom.molecule
         ## print "DEBUG: changed atom %r -> chunk %r" % (atom, chunk)
         changed_chunks[id(chunk)] = chunk
-    
+        if atom.element is Pl5:
+            #bruce 080529 fix bug 2887 (except for the lone Pl atom part,
+            #  really a separate bug)
+            # Only needed for Pl5 whose structure actually changed
+            # (so no need to do it recursively for the ones we add to
+            #  changed_atoms lower down). Needed because, without it,
+            # breaking a Pl-Ss bond can leave a Pl whose only real bond
+            # goes to a valid ladder, resulting in finding a strand chain
+            # with only that Pl atom (thus no baseatoms), which assertfails,
+            # and would probably cause other problems if it didn't.
+            for Ss in atom.strand_neighbors():
+                chunk = Ss.molecule
+                changed_chunks[id(chunk)] = chunk
+                # no need to put Ss into changed_atoms,
+                # that will happen lower down when chunk ladder becomes invalid
+                # (and if somehow it doesn't, probably not needed anyway,
+                #  though that ought to be reviewed)
+                continue
+            pass
+        continue
+
     for chunk in changed_chunks.itervalues():
         if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # was useful for bug 080120 9pm
             print "dna updater: fyi: tell changed chunk %r -> inval its ladder %r" % \
