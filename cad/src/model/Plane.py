@@ -127,7 +127,12 @@ class Plane(ReferenceGeometry):
         self.pickCheckOnly  = False 
 
         self.editCommand      =  editCommand
-
+        self.imagePath = ""
+        self.imageSize = 0
+        self.imagePreviousSize = -1
+        # piotr 080528
+        # added tex_image attribute for texture image
+        self.tex_image = None
         self.tex_coords       = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]] 
         
         if not READ_FROM_MMP:
@@ -135,20 +140,12 @@ class Plane(ReferenceGeometry):
             self.height     =  10.0
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
-            self.imagePath = ""
-            self.imageSize = 0
-            self.imagePreviousSize = -1
-            # piotr 080528
-            # added tex_image attribute for texture image
-            self.tex_image = None
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
                                                  self.getaxis())
 
-
-
-
+                                                 
     def __getattr__(self, attr):
         """
         Recomputes attrs.
