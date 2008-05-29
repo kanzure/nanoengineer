@@ -618,22 +618,37 @@ class InstanceHolder: #070414
             state = {}
         if ipath is None:
             ipath = 'InstanceHolder-Null-ipath'
+        self._autoindex = 0
         self.ipath = ipath
         self.env = widget_env( glpane, state)
         self._thing = self.env.make( InstanceOrExpr(), self.ipath ) #k will this expr work?
             # make this exactly once;
             # its only purpose is to cache instances and provide the .Instance API
-    def Instance(self, expr, index, **kws):
+    def Instance(self, expr, index = None, **kws):
         """
-        make instances in self, using API similar to IorE.Instance
-        [identical in present implem, but that may not last]
+        make instances in self, using API similar to IorE.Instance.
+
+        @index: if not provided or None, make up a new unique index for the expr;
+                otherwise use the provided index (which if not unique will cause
+                a prior returned Instance to be reused for a new expr or replaced
+                with one made from it, depending on other options).
         """
+        if index is None:
+            #bruce 080528 new feature
+            self._autoindex += 1
+            index = ('__autoindex__', self._autoindex)
+        # note (digression): index is not allowed to contain objects like Atoms,
+        # due to restrictions in other code about ipath -- should be fixed.
+        # [bruce 080528 comment]
         return self._thing.Instance(expr, index, **kws)
     pass
 
 def get_glpane_InstanceHolder(glpane): #070414
     """
     Find or make a central place to store cached expr Instances associated with a given glpane.
+
+    @warning: there is one such place per glpane, with only one namespace
+              for expr indices, effectively shared throughout the entire app.
     """
     try:
         place = glpane._exprs__InstanceHolder
