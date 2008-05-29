@@ -65,6 +65,7 @@ from graphics.drawing.CS_draw_primitives import drawwiresphere
 from model.elements import Singlet
 from model.elements import Hydrogen
 from model.elements import PeriodicTable
+from model.elements import Pl5
 
 from model.atomtypes import AtomType #bruce 080327
 
@@ -417,6 +418,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  are not Nodes)
     display = diDEFAULT # rarely changed for atoms
     _dnaBaseName = "" #bruce 080319 revised this; WARNING: accessed directly in DnaLadderRailChunk
+    ghost = False #bruce 080529
     _modified_valence = False #bruce 050502
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using set_atomtype or set_atomtype_but_dont_revise_singlets
@@ -519,6 +521,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_categorize_picked = 'selection' ##k this is noticed and stored, but I don't think it yet has any effect (??) [bruce 060313]
     _s_attr_display = S_DATA
     _s_attr__dnaBaseName = S_DATA #bruce 080319
+    _s_attr_ghost = S_DATA #bruce 080529; might not be needed (since no ops change this except on newly made atoms, so far)
     _s_attr_info = S_DATA
     _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
         # (and without it, reviving a dead atom triggered an assertfail, unsurprisingly)
@@ -1826,8 +1829,6 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
             
-            
-            
             drawpolycone(arrowColor,
                          [[pos[0] - 2 * axis[0], 
                           pos[1] - 2 * axis[1],
@@ -2110,6 +2111,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             msg += " (%s)" % more
         return msg
 
+    def is_ghost(self): #bruce 080529
+        """
+        """
+        if self.ghost:
+            return True # only set on Ss3 or Ss5 pseudoatoms
+        elif self.element is Singlet and len(self.bonds) == 1:
+            return self.bonds[0].other(self).is_ghost()
+        elif self.element is Pl5:
+            # we're a ghost if all Ss neighbors are ghosts
+            for n in self.strand_neighbors():
+                if not n.ghost:
+                    return False
+                continue
+            return True
+        return False
+    
     def overdraw_with_special_color(self, color, level = None, factor = 1.0):
         """
         Draw this atom slightly larger than usual with the given
@@ -2493,6 +2510,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #bruce 080319 optimization -- never write this when it's 'X',
                 # since it's assumed to be 'X' when not present (for valid atoms).
                 mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
+
+        if self.ghost:
+            mapping.write( "info atom ghost = True\n" ) #bruce 080529
         
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
         # Note: maybe we should disable this *except* for Pe atoms
@@ -2600,6 +2620,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 summary_format = redmsg( msg )
                 env.history.deferred_summary_message(summary_format)
                 pass
+        
+        elif key == ['ghost']: #bruce 080529
+            if val == "True":
+                self.ghost = True
         
         elif key == ['dnaStrandId_for_generators']: # Mark 2007-09-04
             try:
@@ -2824,7 +2848,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         return ainfo
     
-    def getInformationString(self):
+    def getInformationString(self, mention_ghost = True):
         """
         If a standard atom, return a string like C26(sp2) with atom name and
         atom hybridization type, but only include the type if more than one is 
@@ -2839,6 +2863,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             res += "(%s)" % self.atomtype.name
         if self.getDnaBaseName():
             res += "(%s)" % self.getDnaBaseName()
+        if mention_ghost and self.is_ghost():
+            res += " (placeholder base)"
         return res
 
     def getToolTipInfo(self,
@@ -2851,7 +2877,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         atom = self
 
-        atomStr        = atom.getInformationString()
+        atomStr        = atom.getInformationString( mention_ghost = False)
         elementNameStr = " [" + atom.element.name + "]"
 
         atomInfoStr = atomStr + elementNameStr
@@ -2860,6 +2886,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # show display style of atoms that have one [bruce 080206]
             atomInfoStr += "<br>" + "display style: %s" % atom.atom_dispLabel() 
 
+        if atom.is_ghost():
+            atomInfoStr += "<br>" + "(placeholder base)"
+        
         # report dna updater errors in atom or its DnaLadder
         msg = atom.dna_updater_error_string(newline = '<br>')
         if msg:
@@ -3062,6 +3091,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # needed by extrude and other future things
         if self._dnaBaseName:
             nuat._dnaBaseName = self._dnaBaseName #bruce 080319
+        if self.ghost:
+            # (note: can be set on PAM strand baseatoms,
+            #  but not on Pl atoms or bondpoints)
+            nuat.ghost = self.ghost #bruce 080529
         # Note: the following attributes are used only by methods in our
         # mixin superclass, PAM_Atom_methods, except for a few foundational
         # methods in this class. If we introduce per-element subclasses of

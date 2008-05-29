@@ -1099,9 +1099,23 @@ def make_strand2_ghost_base_atom( chunk, axis_atom, axis_vector, strand1_atom ):
     s2pos = quat.rot(s1pos - origin) + origin
     from model.chem import Atom
     strand2_atom = Atom(strand1_atom, s2pos, chunk)
-    ### TODO: complement sequence (possible when not yet in a chunk? nevermind, now we are)
-    ### TODO: set ghost property
+    
+    ### TODO: complement sequence
+    ## if strand1_atom._dnaBaseName:
+    ##     strand2_atom._dnaBaseName = some_function(strand1_atom._dnaBaseName)
+    
+    # set ghost property
+    # (review: will we call these ghost bases or placeholder bases?)
+    # (note: this property won't be set on bondpoints of strand2_atom,
+    #  since those get remade too often to want to maintain that,
+    #  but drawing code should implicitly inherit it onto them
+    #  once it has any drawing effects. It also won't be set on Pl atoms
+    #  between them, for similar reasons re pam conversion; drawing code
+    #  should handle that as well, if all Ss neighbors are ghosts.)
+    strand2_atom.ghost = True
     print "made ghost baseatom", strand2_atom
+        # not too verbose, since sticky ends should not be very long
+        # (and this won't be set on free floating single strands)
     return strand2_atom
 
 # end

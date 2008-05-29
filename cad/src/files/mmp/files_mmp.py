@@ -237,13 +237,13 @@ def _mmp_format_version_we_can_read(): # bruce 080328, revised 080410 (should it
     
     if debug_pref_read_bonds_compactly() and debug_pref_read_new_display_names():
         # this is the default, as of 080328, still true 080410 and for upcoming
-        # release of NE1 1.0.0; revised to a newer one, 080523
-        res = '080328 required; 080523 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
+        # release of NE1 1.0.0; revised to a newer one, 080523, 080529
+        res = '080328 required; 080529 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_COMPACT_BONDS_AND_NEW_DISPLAY_NAMES
     elif debug_pref_read_new_display_names():
         # this is the default which we *write*, as of 080410 and for upcoming
-        # release of NE1 1.0.0; revised to a newer one, 080523
+        # release of NE1 1.0.0; revised to a newer one, 080523, 080529
         # note: setting prefs to only read this high is only useful for testing
-        res = '080327 required; 080523 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
+        res = '080327 required; 080529 preferred' # i.e. MMP_FORMAT_VERSION_TO_WRITE__WITH_NEW_DISPLAY_NAMES
     else:
         # setting prefs to only read this high is only useful for testing
         res = _MMP_FORMAT_VERSION_WE_CAN_READ__MOST_CONSERVATIVE
