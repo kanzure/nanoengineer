@@ -51,6 +51,15 @@ ONE_RADIAN = 180.0 / pi
 # This is for optimization since this computation occurs repeatedly
 # in very tight drawning loops. --Mark 2007-08-14
 
+
+def checkIfValidImagePath(imagePath):
+    from PIL import Image
+    try:
+        im = Image.open(imagePath)
+    except IOError:
+        return 0
+    return 1
+
 class Plane(ReferenceGeometry):
     """ 
     The Plane class provides a reference plane on which to construct other
@@ -123,13 +132,23 @@ class Plane(ReferenceGeometry):
             self.height     =  10.0
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
+
+
+            self.imagePath = ""
+
+            self.imageSize = 0
+            self.imagePreviousSize = -1
             # piotr 080528
             # added tex_image attribute for texture image
             self.tex_image = None
+
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
                                                  self.getaxis())
+
+
+
 
     def __getattr__(self, attr):
         """
@@ -142,6 +161,7 @@ class Plane(ReferenceGeometry):
             return self.__computeBBox()
         if attr == 'planeNorm':
             return self.quat.rot(V(0.0, 0.0, 1.0))
+
         if attr == 'members':
             return None # Mark 2007-08-15
         else:
@@ -252,6 +272,10 @@ class Plane(ReferenceGeometry):
                   self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         return " " + dataline
 
+
+
+
+
     def _draw_geometry(self, glpane, color, highlighted = False):
         """
         Draw the Plane.
@@ -266,10 +290,40 @@ class Plane(ReferenceGeometry):
                             drawn in the highlighted color.
         @type  highlighted: bool
         """
-        # Reference planes don't support textures so set this property to False 
-        # in the drawer.drawPlane method        
 
-        textureReady = False
+
+
+
+        #check whether self.imagePath is a valid image Path
+
+        validImagePath = 0 
+        if self.imagePath:
+            validImagePath = checkIfValidImagePath(self.imagePath)
+        else:
+            self.imagePreviousSize = 0 
+            self.tex_image = None
+
+
+        if validImagePath:
+
+            from PIL import Image
+
+            im = Image.open(self.imagePath)
+            self.imageSize = im.size
+            #load texture image from the disk only if the image is changed
+            if self.imageSize != self.imagePreviousSize:
+                try:
+                    mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
+                    self.imagePreviousSize = self.imageSize
+
+                except:
+                    msg = redmsg("Cannot load plane image " + self.imagePath)
+                    env.history.message(msg)
+                    self.tex_image = None
+        else:
+            self.tex_image = None
+            self.imagePreviousSize = 0 
+
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -295,8 +349,15 @@ class Plane(ReferenceGeometry):
         else:
             fill_color = self.fill_color
 
+
+
+
+
         # piotr 080528
         # enable texturing if the image texture exists
+
+
+        textureReady = False
         if self.tex_image:
             textureReady = True
             glBindTexture(GL_TEXTURE_2D, self.tex_image)
