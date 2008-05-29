@@ -873,12 +873,17 @@ def drawCubeCell(color):
     glEnable(GL_LIGHTING) 
     return
 
-def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False):
+def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False, tex_coords=None):
     '''Draw polygon with size of <w>*<h> and with color <color>. Optionally, it could be texuture mapped, translucent.
        @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
-    vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
-
+    
+    # piotr 080529: use external texture coordinates if provided
+    if tex_coords is None:
+        vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
+    else:
+        vt = tex_coords
+    
     glDisable(GL_LIGHTING)
     glColor4fv(list(color) + [opacity])
 
