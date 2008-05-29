@@ -132,16 +132,12 @@ class Plane(ReferenceGeometry):
             self.height     =  10.0
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
-
-
             self.imagePath = ""
-
             self.imageSize = 0
             self.imagePreviousSize = -1
             # piotr 080528
             # added tex_image attribute for texture image
             self.tex_image = None
-
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
@@ -290,10 +286,6 @@ class Plane(ReferenceGeometry):
                             drawn in the highlighted color.
         @type  highlighted: bool
         """
-
-
-
-
         #check whether self.imagePath is a valid image Path
 
         validImagePath = 0 
@@ -302,7 +294,6 @@ class Plane(ReferenceGeometry):
         else:
             self.imagePreviousSize = 0 
             self.tex_image = None
-
 
         if validImagePath:
 
@@ -325,10 +316,8 @@ class Plane(ReferenceGeometry):
             self.imagePreviousSize = 0 
 
         glPushMatrix()
-
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
-
         glRotatef( q.angle * ONE_RADIAN, 
                    q.x,
                    q.y,
@@ -348,15 +337,8 @@ class Plane(ReferenceGeometry):
             fill_color = brown #backside
         else:
             fill_color = self.fill_color
-
-
-
-
-
         # piotr 080528
         # enable texturing if the image texture exists
-
-
         textureReady = False
         if self.tex_image:
             textureReady = True
