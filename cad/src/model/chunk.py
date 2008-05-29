@@ -62,6 +62,7 @@ from OpenGL.GL import GL_FILL
 from OpenGL.GL import GL_FRONT
 from OpenGL.GL import GL_LIGHTING
 from OpenGL.GL import GL_LINE
+from OpenGL.GL import glLineWidth
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
@@ -2372,11 +2373,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 pass
 
             HHStyle = env.prefs[hoverHighlightingColorStyle_prefs_key] # russ 080529
-            if HHStyle is HHS_POLYGON_EDGES:
+            if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO:
                 glPolygonMode(GL_FRONT, GL_LINE)
                 glPolygonMode(GL_BACK, GL_LINE)
                 glDisable(GL_LIGHTING)
                 glDisable(GL_CULL_FACE)
+                if HHStyle is HHS_HALO:
+                    glpane.setDepthRange_Highlighting_back()
+                    glLineWidth(5.0)
+                    pass
                 pass
 
             #russ 080225: Alternate drawing method using colorless display list.
@@ -2417,13 +2422,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 glDisable(GL_POLYGON_STIPPLE)
                 pass
 
-            if HHStyle is HHS_POLYGON_EDGES: # russ 080529
+            if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO: # russ 080529
                 glEnable(GL_CULL_FACE)
                 glEnable(GL_LIGHTING)
                 glPolygonMode(GL_FRONT, GL_FILL)
                 glPolygonMode(GL_BACK, GL_FILL)
+                if HHStyle is HHS_HALO:
+                    glpane.setDepthRange_Highlighting()
+                    glLineWidth(1.0)
+                    pass
                 pass
-
+            
         else:
             if self.get_dispdef() == diDNACYLINDER :
                 #If the chunk is drawn with the DNA cylinder display style, 
