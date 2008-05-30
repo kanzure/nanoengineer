@@ -44,7 +44,7 @@
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
          <property name="currentIndex" >
-          <number>5</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="General" >
           <layout class="QGridLayout" >
@@ -200,6 +200,19 @@
            <property name="spacing" >
             <number>6</number>
            </property>
+           <item row="0" column="1" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="0" column="0" >
             <layout class="QVBoxLayout" >
              <property name="margin" >
@@ -372,6 +385,68 @@
               </widget>
              </item>
              <item>
+              <layout class="QHBoxLayout" >
+               <property name="margin" >
+                <number>0</number>
+               </property>
+               <property name="spacing" >
+                <number>2</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_25" >
+                 <property name="text" >
+                  <string>Halo width:</string>
+                 </property>
+                 <property name="alignment" >
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="haloWidthSpinBox" >
+                 <property name="suffix" >
+                  <string> pixels</string>
+                 </property>
+                 <property name="maximum" >
+                  <number>10</number>
+                 </property>
+                 <property name="minimum" >
+                  <number>1</number>
+                 </property>
+                 <property name="value" >
+                  <number>5</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="haloWidthResetButton" >
+                 <property name="toolTip" >
+                  <string>Restore default value</string>
+                 </property>
+                 <property name="text" >
+                  <string/>
+                 </property>
+                 <property name="icon" >
+                  <iconset>../../../../../:icons/UserPrefsDialog_image0</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer>
+                 <property name="orientation" >
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" >
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
               <spacer>
                <property name="orientation" >
                 <enum>Qt::Vertical</enum>
@@ -385,19 +460,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-           <item row="1" column="1" >
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>

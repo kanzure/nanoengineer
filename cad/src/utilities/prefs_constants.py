@@ -130,6 +130,7 @@ hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style'
 hoverHighlightingColor_prefs_key = 'V110/3D hover highlighting color'
 selectionColorStyle_prefs_key = 'V110/3D selection color style'
 selectionColor_prefs_key = 'V110/3D selection color'
+haloWidth_prefs_key = 'V110/halo width in pixels'
 
 # Mouse wheel Prefs
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
@@ -530,6 +531,7 @@ prefs_table = (
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
     ('', 'int',   selectionColorStyle_prefs_key, 0),
     ('', 'color', selectionColor_prefs_key, green),
+    ('', 'int',   haloWidth_prefs_key, 5),
     
     # stereo view settings added by piotr 080516
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 

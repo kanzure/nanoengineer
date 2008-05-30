@@ -96,6 +96,7 @@ from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import haloWidth_prefs_key
 
 # Mouse wheel prefs
 from utilities.prefs_constants import mouseWheelDirection_prefs_key
@@ -666,6 +667,15 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self._change_selectionStyle)
         connect_colorpref_to_colorframe( selectionColor_prefs_key, self.selectionColorFrame)
         self.connect(self.selectionColorButton, SIGNAL("clicked()"), self._change_selectionColor)
+        
+        # Halo width spinbox.
+        self.connect(self.haloWidthSpinBox, SIGNAL("valueChanged(int)"), self.change_haloWidth)
+        self.connect(self.haloWidthResetButton, SIGNAL("clicked()"), self.reset_haloWidth)
+        
+        self.haloWidthResetButton.setIcon(geticon('ui/dialogs/Reset.png'))
+        self.haloWidthSpinBox.setValue(env.prefs[haloWidth_prefs_key])
+        self.change_haloWidth(env.prefs[haloWidth_prefs_key]) # Needed to update the reset button.
+        
         return
         
     def _setupPage_ModelView(self):
@@ -1735,6 +1745,31 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Change the 3D selection color.
         """
         self.usual_change_color(selectionColor_prefs_key)
+        
+    def change_haloWidth(self, width):
+        """
+        Change the halo style width.
+        
+        @param width: The width in pixels.
+        @type  width: int
+        """
+        env.prefs[haloWidth_prefs_key] = width
+        
+        # Disable the reset button if scaleFactor is equal to the default value.
+        if width == 5: # Hardcoded for now.
+            self.haloWidthResetButton.setEnabled(0)
+        else:
+            self.haloWidthResetButton.setEnabled(1)
+            
+        return
+
+    def reset_haloWidth(self):
+        """
+        Slot called when pressing the Halo width reset button.
+        Restores the default value of the halo width.
+        """
+        env.prefs.restore_defaults([haloWidth_prefs_key])
+        self.haloWidthSpinBox.setValue(env.prefs[haloWidth_prefs_key])
     
     def set_mouse_wheel_direction(self, direction):
         """
