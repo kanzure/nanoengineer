@@ -165,9 +165,13 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                methods in the API are revised to be called at appropiraite 
                time. 
         """  
-        newSelectionParams = self._currentSelectionParams()          
-        if same_vals(newSelectionParams, self.previousSelectionParams):
+        newSelectionParams = self._currentSelectionParams()   
+        
+        if same_vals(newSelectionParams, self.previousSelectionParams) and \
+           same_vals(self.strandListWidget.count(), self._currentStructureParams()):
+            #This second condition above fixes bug 2888
             return
+        
         
         self.previousSelectionParams = newSelectionParams  
         
