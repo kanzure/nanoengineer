@@ -270,7 +270,7 @@ class ops_pam_Mixin:
                             ghost_bases[n.key] = n
                 else:
                     bad += 1
-                    del ghost_bases[n.key]
+                    del ghost_bases[atom.key]
                 continue
             if good:
                 print "removing %d ghost base(s) we converted to PAM3" % good
