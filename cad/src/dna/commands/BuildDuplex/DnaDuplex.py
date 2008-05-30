@@ -33,6 +33,8 @@ from utilities.constants import MODEL_PAM5
 
 from utilities import debug_flags
 
+from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
+from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn
@@ -1039,13 +1041,13 @@ class Dna:
                             _strandA_list,
                             name = gensym("Strand", self.assy),
                             group = dnaGroup,
-                            color = darkred)
+                            color = env.prefs[dnaDefaultStrand1Color_prefs_key])
         if _strandB_list:
             strandBChunk = self._makeChunkFromAtomList(
                             _strandB_list,
                             name = gensym("Strand", self.assy),
                             group = dnaGroup,
-                            color = blue)
+                            color = env.prefs[dnaDefaultStrand2Color_prefs_key])
         if _axis_list:
             axisChunk = self._makeChunkFromAtomList(
                             _axis_list,

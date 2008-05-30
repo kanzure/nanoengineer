@@ -106,6 +106,8 @@ from utilities.prefs_constants import mouseWheelTimeoutInterval_pref_key
 # DNA prefs
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
 from utilities.prefs_constants import bdnaRise_prefs_key
+from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
+from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
 from utilities.prefs_constants import dnaStrutScaleFactor_prefs_key
 from utilities.prefs_constants import arrowsOnBackBones_prefs_key
@@ -755,23 +757,22 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Setup the "Atoms" page.
 	"""
-        self.connect(self.hotspot_color_btn, SIGNAL("clicked()"), self.change_hotspot_color)
-        self.connect(self.reset_cpk_scale_factor_btn, SIGNAL("clicked()"), self.reset_cpk_scale_factor)
-        self.connect(self.reset_atom_colors_btn, SIGNAL("clicked()"), self.reset_atom_colors)
-        self.connect(self.change_element_colors_btn, SIGNAL("clicked()"), self.change_element_colors)
-        self.connect(self.cpk_atom_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_atom_radius)
-        self.connect(self.cpk_cylinder_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_cylinder_radius)
-        self.connect(self.cpk_scale_factor_slider, SIGNAL("sliderReleased()"), self.save_cpk_scale_factor)
-        self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
-        self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
-        connect_checkbox_with_boolean_pref( self.overlappingAtomIndicatorsCheckBox, indicateOverlappingAtoms_pref_key )
-        self.connect(self.level_of_detail_combox, SIGNAL("activated(int)"), self.change_level_of_detail)
         
-        #bruce 050805 new way (see comment in _setup_bonds_page):
+        # "Change Element Colors" button.
+        self.connect(self.change_element_colors_btn, SIGNAL("clicked()"), self.change_element_colors)
+        
+        # Atom colors
         connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
         connect_colorpref_to_colorframe( bondpointHighlightColor_prefs_key, self.bondpoint_hilite_color_frame)
         connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
-
+        self.connect(self.atom_hilite_color_btn, SIGNAL("clicked()"), self.change_atom_hilite_color)
+        self.connect(self.bondpoint_hilite_color_btn, SIGNAL("clicked()"), self.change_bondpoint_hilite_color)
+        self.connect(self.hotspot_color_btn, SIGNAL("clicked()"), self.change_hotspot_color)
+        self.connect(self.reset_atom_colors_btn, SIGNAL("clicked()"), self.reset_atom_colors)
+        
+        # Level of detail.
+        self.connect(self.level_of_detail_combox, SIGNAL("activated(int)"), self.change_level_of_detail)
+        
         lod = env.prefs[ levelOfDetail_prefs_key ]
         lod = int(lod)
         loditem = lod # index of corresponding spinbox item -- this is only correct for 0,1,2; other cases handled below
@@ -782,37 +783,29 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         elif lod > 2:
             loditem = 2
         self.level_of_detail_combox.setCurrentIndex(loditem)
-
-        # Set Ball & Stick Atom radius (percentage).  Mark 051003.
-        self.cpk_atom_rad_spinbox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
-
-        cpk_sf = env.prefs[cpkScaleFactor_prefs_key]
-        # This slider generate signals whenever its 'setValue()' slot is called (below).
-        # This creates problems (bugs) for us, so we disconnect it temporarily.
-        self.disconnect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
-        self.cpk_scale_factor_slider.setValue(int (cpk_sf * 200.0)) # generates signal
-        self.connect(self.cpk_scale_factor_slider, SIGNAL("valueChanged(int)"), self.change_cpk_scale_factor)
-        self.cpk_scale_factor_linedit.setText(str(cpk_sf))
-
-        connect_checkbox_with_boolean_pref(
-            self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
-
-        # I couldn't figure out a way to get a pref's default value without changing its current value.
-        # Something like this would be very handy:
-        #   default_cpk_sf = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
-        # Talk to Bruce about this. mark 060309.
-        #
-        # (I think there is a way, but I forget the details -- see some
-        #  "restore defaults" code to look for a use of it. -- bruce 070831)
-
-        if cpk_sf == 0.775: # Hardcoded for now.
-            # Disable the reset button if the CPK Scale Factor is currently the default value.
-            self.reset_cpk_scale_factor_btn.setEnabled(0)
-        else:
-            self.reset_cpk_scale_factor_btn.setEnabled(1)
-            
+        
+        # Ball and Stick atom scale factor.
+        self.connect(self.ballStickAtomScaleFactorSpinBox, SIGNAL("valueChanged(int)"), self.change_ballStickAtomScaleFactor)
+        self.connect(self.reset_ballstick_scale_factor_btn, SIGNAL("clicked()"), self.reset_ballStickAtomScaleFactor)
+        
+        self.reset_ballstick_scale_factor_btn.setIcon(
+            geticon('ui/dialogs/Reset.png'))
+        _sf = int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0)
+        self.ballStickAtomScaleFactorSpinBox.setValue(_sf)
+        self.change_ballStickAtomScaleFactor(_sf) # Needed to update the reset button.
+        
+        # CPK atom scale factor.
+        self.connect(self.cpkAtomScaleFactorDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_cpkAtomScaleFactor)
+        self.connect(self.reset_cpk_scale_factor_btn, SIGNAL("clicked()"), self.reset_cpkAtomScaleFactor)
+        
         self.reset_cpk_scale_factor_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
+        self.cpkAtomScaleFactorDoubleSpinBox.setValue(env.prefs[cpkScaleFactor_prefs_key])
+        self.change_cpkAtomScaleFactor(env.prefs[cpkScaleFactor_prefs_key]) # Needed to update the reset button.
+        
+        # Checkboxes.
+        connect_checkbox_with_boolean_pref( self.overlappingAtomIndicatorsCheckBox, indicateOverlappingAtoms_pref_key )
+        connect_checkbox_with_boolean_pref( self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
         return
     
     def _setupPage_Bonds(self):
@@ -841,7 +834,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.bond_line_thickness_spinbox, SIGNAL("valueChanged(int)"), self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn, SIGNAL("clicked()"), self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn, SIGNAL("clicked()"), self.change_bond_vane_color)
-        self.connect(self.bondpoint_hilite_color_btn, SIGNAL("clicked()"), self.change_bondpoint_hilite_color)
+        
+        
+        self.connect(self.cpk_cylinder_rad_spinbox, SIGNAL("valueChanged(int)"), self.change_ballstick_cylinder_radius)
     
         #bruce 050805 here's the new way: subscribe to the preference value,
         # but make sure to only have one such subs (for one widget's bgcolor) at a time.
@@ -905,6 +900,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.dnaBasesPerTurnDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaBasesPerTurn)
         self.connect(self.dnaRiseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaRise)
         self.connect(self.dnaRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self.dnaRestoreFactoryDefaults)
+        
+        connect_colorpref_to_colorframe(dnaDefaultStrand1Color_prefs_key, self.dnaDefaultStrand1ColorFrame)
+        self.connect(self.dnaDefaultStrand1ColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultStrand1Color)
+        
+        connect_colorpref_to_colorframe(dnaDefaultStrand2Color_prefs_key, self.dnaDefaultStrand2ColorFrame)
+        self.connect(self.dnaDefaultStrand2ColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultStrand2Color)
+        
         connect_colorpref_to_colorframe(dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
         self.connect(self.dnaDefaultSegmentColorPushButton, SIGNAL("clicked()"), self.changeDnaDefaultSegmentColor)
         
@@ -1897,41 +1899,58 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # the redraw this causes will (as of tonight) always recompute the correct drawLevel (in Part._recompute_drawLevel),
         # and chunks will invalidate their display lists as needed to accomodate the change. [bruce 060215]
         return
+        
+    def change_ballStickAtomScaleFactor(self, scaleFactor):
+        """
+        Change the Ball and Stick atom scale factor.
+        
+        @param scaleFactor: The scale factor (%).
+        @type  scaleFactor: int
+        """
+        
+        env.prefs[diBALL_AtomRadius_prefs_key] = scaleFactor * .01
+        
+        # Disable the reset button if scaleFactor is equal to the default value.
+        if scaleFactor == 100: # Hardcoded for now.
+            self.reset_ballstick_scale_factor_btn.setEnabled(0)
+        else:
+            self.reset_ballstick_scale_factor_btn.setEnabled(1)
+            
+        return
 
-    def change_ballstick_atom_radius(self, val):
+    def reset_ballStickAtomScaleFactor(self):
         """
-        Change the CPK (Ball and Stick) atom radius by % value <val>.
+        Slot called when pressing the CPK Atom Scale Factor reset button.
+        Restores the default value of the CPK Atom Scale Factor.
         """
-        #bruce 060607 renamed change_cpk_atom_radius -> change_ballstick_atom_radius in this file and the .py/.ui dialog files.
-        env.prefs[diBALL_AtomRadius_prefs_key] = val * .01
-        self.glpane.gl_update() #k this gl_update is probably not needed and sometimes a slowdown [bruce 060607]
+        env.prefs.restore_defaults([diBALL_AtomRadius_prefs_key])
+        self.ballStickAtomScaleFactorSpinBox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
+        return
 
-    def change_cpk_scale_factor(self, val):
+    def change_cpkAtomScaleFactor(self, scaleFactor):
         """
-        Slot called when moving the slider.
-        Change the % value displayed in the LineEdit widget for CPK Scale Factor.
+        Change the atom scale factor for CPK display style.
+        
+        @param scaleFactor: The scale factor (between 0.5 and 1.0).
+        @type  scaleFactor: float
         """
-        sf = val * .005
-        self.cpk_scale_factor_linedit.setText(str(sf))
+        env.prefs[cpkScaleFactor_prefs_key] = scaleFactor
+        
+        # Disable the reset button if scaleFactor is equal to the default value.
+        if scaleFactor == 0.775: # Hardcoded for now.
+            self.reset_cpk_scale_factor_btn.setEnabled(0)
+        else:
+            self.reset_cpk_scale_factor_btn.setEnabled(1)
+            
+        return
 
-    def save_cpk_scale_factor(self):
+    def reset_cpkAtomScaleFactor(self):
         """
-        Slot called when releasing the slider.
-        Saves the CPK (VdW) scale factor.
-        """
-        env.prefs[cpkScaleFactor_prefs_key] = self.cpk_scale_factor_slider.value() * .005
-        self.glpane.gl_update()
-        self.reset_cpk_scale_factor_btn.setEnabled(1)
-
-    def reset_cpk_scale_factor(self):
-        """
-        Slot called when pressing the CPK Scale Factor reset button.
-        Restores the default value of the CPK Scale Factor.
+        Slot called when pressing the CPK Atom Scale Factor reset button.
+        Restores the default value of the CPK Atom Scale Factor.
         """
         env.prefs.restore_defaults([cpkScaleFactor_prefs_key])
-        self.cpk_scale_factor_slider.setValue(int (env.prefs[cpkScaleFactor_prefs_key] * 200.0))
-            # generates signal (good), which calls slot save_cpk_scale_factor().
-        self.reset_cpk_scale_factor_btn.setEnabled(0)
+        self.cpkAtomScaleFactorDoubleSpinBox.setValue(env.prefs[cpkScaleFactor_prefs_key])
 
     ########## End of slot methods for "Atoms" page widgets ###########
 
@@ -2061,6 +2080,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         env.prefs.restore_defaults([
             bdnaBasesPerTurn_prefs_key,
             bdnaRise_prefs_key,
+            dnaDefaultStrand1Color_prefs_key,
+            dnaDefaultStrand2Color_prefs_key,
             dnaDefaultSegmentColor_prefs_key
         ])
 
@@ -2069,6 +2090,20 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
         self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
 
+    def changeDnaDefaultStrand1Color(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA default strand1 color.
+        """
+        self.usual_change_color( dnaDefaultStrand1Color_prefs_key )
+        
+    def changeDnaDefaultStrand2Color(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA default strand2 color.
+        """
+        self.usual_change_color( dnaDefaultStrand2Color_prefs_key )
+        
     def changeDnaDefaultSegmentColor(self):
         """
         Slot for the I{Choose...} button for changing the 

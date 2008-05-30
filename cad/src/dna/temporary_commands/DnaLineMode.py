@@ -14,7 +14,12 @@ from temporary_commands.LineMode import LineMode
 from graphics.drawing.drawDnaLadder import drawDnaLadder
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 
-from utilities.constants import black, darkred, blue, white
+from utilities.constants import black, white
+
+import foundation.env as env
+
+from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
+from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 
 # == GraphicsMode part
 
@@ -137,8 +142,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                               self.glpane.scale,
                               self.glpane.lineOfSight,
                               beamThickness = 4.0,
-                              beam1Color = darkred,
-                              beam2Color = blue,
+                              beam1Color = env.prefs[dnaDefaultStrand1Color_prefs_key],
+                              beam2Color = env.prefs[dnaDefaultStrand2Color_prefs_key],
                               stepColor = black )
             elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
                 #Default dna rubberband line display style       
@@ -151,8 +156,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                                self.glpane.lineOfSight,
                                self.glpane.displayMode,
                                ribbonThickness = 4.0,
-                               ribbon1Color = darkred,
-                               ribbon2Color = blue,
+                               ribbon1Color = env.prefs[dnaDefaultStrand1Color_prefs_key],
+                               ribbon2Color = env.prefs[dnaDefaultStrand2Color_prefs_key],
                                stepColor = black )   
             else:
                 pass

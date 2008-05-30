@@ -37,7 +37,7 @@ getDefaultWorkingDirectory.
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, lightgray, lightgreen
-from utilities.constants import orange
+from utilities.constants import orange, darkred
 from utilities.constants import ave_colors, diBALL
 
 import sys, os # for getDefaultWorkingDirectory
@@ -242,6 +242,8 @@ bdnaBasesPerTurn_prefs_key = 'A10/B-DNA bases per turn' # Twist computed from th
 bdnaRise_prefs_key = 'A10/B-DNA rise step'
 zdnaBasesPerTurn_prefs_key = 'A10/Z-DNA bases per turn' # Twist computed from this.
 zdnaRise_prefs_key = 'A10/Z-DNA rise step'
+dnaDefaultStrand1Color_prefs_key = 'V110/DNA default strand1 color'
+dnaDefaultStrand2Color_prefs_key = 'V110/DNA default strand2 color'
 dnaDefaultSegmentColor_prefs_key = 'A10/DNA default segment color'
 dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
@@ -646,6 +648,8 @@ prefs_table = (
     ('', 'float', bdnaRise_prefs_key, 3.180),
     ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
     ('', 'float', zdnaRise_prefs_key, 3.715),
+    ('', 'color', dnaDefaultStrand1Color_prefs_key, darkred),
+    ('', 'color', dnaDefaultStrand2Color_prefs_key, blue),
     ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
 

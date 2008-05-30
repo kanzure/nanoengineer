@@ -102,13 +102,13 @@ def whatsThis_PreferencesDialog(preferencesDialog):
                                              and Low based on the number of atoms in the current part.""")
     _pd.textLabel1_3_2.setWhatsThis("""<p><b>Ball and Stick Atom Scale</b></p><p>Sets the Ball and Stick
                                  Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.""")
-    _pd.cpk_atom_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Atom Scale</b></p><p>Sets the Ball and Stick
-                                       Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.""")
+    _pd.ballStickAtomScaleFactorSpinBox.setWhatsThis("""<p><b>Ball and Stick Atom Scale</b></p><p>Sets the 
+                                       Atom Scale factor for Ball and Stick display style. It is best to change the scale factor while the Global Display Style is set to Ball and Stick.""")
     _pd.textLabel1_3_2_2.setWhatsThis("""<p><b>CPK Atom Scale</b></p><p>Changes the CPK Atom Scale factor.
                                    It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale.""")
-    _pd.cpk_scale_factor_linedit.setWhatsThis("""Displays the value of the CPK Atom Scale""")
-    _pd.cpk_scale_factor_slider.setWhatsThis("""<p><b>CPK Atom Scale</b></p><p>Slider control for chaning the CPK
-                                              Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of
+    #@_pd.cpk_scale_factor_linedit.setWhatsThis("""Displays the value of the CPK Atom Scale""")
+    _pd.cpkAtomScaleFactorDoubleSpinBox.setWhatsThis("""<p><b>CPK Atom Scale</b></p><p>Set the
+                                              atom scale factor for CPK display style. It is best to change the scale factor while the Global Display style is set to CPK so you can see the graphical effect of
                                               changing the scale.""")
     _pd.reset_cpk_scale_factor_btn.setWhatsThis("""Restore the default value of the CPK Scale Factor""")
     _pd.multCyl_radioButton.setWhatsThis("""<p><b>Multiple Cylinders</b></p><p>
