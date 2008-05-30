@@ -60,8 +60,8 @@ class PlanePropertyManager(EditCommand_PM):
 
 
 
-        msg = "Insert a Plane parallel to the screen. Note: This feature is \
-            experimental for Alpha9 and has known bugs."
+        msg = "Insert a Plane parallel to the screen. Note: This feature is "\
+            "experimental for Alpha9 and has known bugs."
 
         # This causes the "Message" box to be displayed as well.
         self.updateMessage(msg)
@@ -197,9 +197,9 @@ class PlanePropertyManager(EditCommand_PM):
                              value        = 10.0, 
                              setAsDefault = True,
                              minimum      = 1.0, 
-                             maximum      = 200.0,
+                             maximum      = 10000.0, # 1000 nm
                              singleStep   = 1.0, 
-                             decimals     = 3, 
+                             decimals     = 1, 
                              suffix       = ' Angstroms')
 
         self.connect(self.widthDblSpinBox, 
@@ -212,9 +212,9 @@ class PlanePropertyManager(EditCommand_PM):
                              value        = 10.0, 
                              setAsDefault = True,
                              minimum      = 1.0, 
-                             maximum      = 200.0,
+                             maximum      = 10000.0, # 1000 nm
                              singleStep   = 1.0, 
-                             decimals     = 3, 
+                             decimals     = 1, 
                              suffix       = ' Angstroms')
 
         self.connect(self.heightDblSpinBox, 
@@ -316,7 +316,10 @@ class PlanePropertyManager(EditCommand_PM):
     def change_plane_width(self, newWidth):
         """
         Slot for width spinbox in the Property Manager.
-        """
+        
+        @param newWidth: width in Angstroms.
+        @type  newWidth: float
+        """        
         if self.aspectRatioCheckBox.isChecked():
             self.editCommand.struct.width   =  newWidth
             self.editCommand.struct.height  =  self.editCommand.struct.width / \
@@ -329,7 +332,10 @@ class PlanePropertyManager(EditCommand_PM):
     def change_plane_height(self, newHeight):
         """
         Slot for height spinbox in the Property Manager.
-        """
+        
+        @param newHeight: height in Angstroms.
+        @type  newHeight: float
+        """        
         if self.aspectRatioCheckBox.isChecked():
             self.editCommand.struct.height  =  newHeight 
             self.editCommand.struct.width   =  self.editCommand.struct.height * \
@@ -362,23 +368,23 @@ class PlanePropertyManager(EditCommand_PM):
         """       
 
         if buttonId == 0:
-            msg = "Create a Plane parallel to the screen. \
-                With <b>Parallel to Screen</b> plane placement option, the \
-                center of the plane is always (0,0,0)" 
+            msg = "Create a Plane parallel to the screen. "\
+                "With <b>Parallel to Screen</b> plane placement option, the "\
+                "center of the plane is always (0,0,0)" 
             self.updateMessage(msg)
             self.editCommand.placePlaneParallelToScreen()            
         elif buttonId == 1:
-            msg = "Create a Plane with center coinciding with the common center\
-                of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
-                selected, the Plane will pass through those atoms."        
+            msg = "Create a Plane with center coinciding with the common center "\
+                "of <b> 3 or more selected atoms </b>. If exactly 3 atoms are "\
+                "selected, the Plane will pass through those atoms."        
             self.updateMessage(msg)            
             self.editCommand.placePlaneThroughAtoms()
             if self.editCommand.logMessage:
                 env.history.message(self.editCommand.logMessage)
         elif buttonId == 2:
-            msg = "Create a Plane at an <b>offset</b> to the selected plane\
-                indicated by the direction arrow. \
-                you can click on the direction arrow to reverse its direction."
+            msg = "Create a Plane at an <b>offset</b> to the selected plane "\
+                "indicated by the direction arrow. "\
+                "you can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
             self.editCommand.placePlaneOffsetToAnother()
             if self.editCommand.logMessage:
@@ -386,9 +392,9 @@ class PlanePropertyManager(EditCommand_PM):
         elif buttonId == 3:
             #'Custom' plane placement. Do nothing (only update message box)
             # Fixes bug 2439
-            msg = "Create a plane with a <b>Custom</b> plane placement. \
-                The plane is placed parallel to the screen, with \
-                center at (0, 0, 0). User can then modify the plane placement."
+            msg = "Create a plane with a <b>Custom</b> plane placement. "\
+                "The plane is placed parallel to the screen, with "\
+                "center at (0, 0, 0). User can then modify the plane placement."
             self.updateMessage(msg)
 
     def update_spinboxes(self):
