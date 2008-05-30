@@ -922,6 +922,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         else:
             chunk_color = white
 
+        HHColor = env.prefs[hoverHighlightingColor_prefs_key]
+
         if self.dnaExperimentalMode == 0:
 
             if indicators_enabled: # draw the orientation indicators
@@ -931,7 +933,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
                 indicators_color = env.prefs[dnaBaseIndicatorsColor_prefs_key]
                 inv_indicators_color = env.prefs[dnaBaseInvIndicatorsColor_prefs_key]                
                 inv_indicators_enabled = env.prefs[dnaBaseInvIndicatorsEnabled_prefs_key]
-                HHColor = env.prefs[hoverHighlightingColor_prefs_key]
 
                 plane_normal_idx = env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key]
                 
