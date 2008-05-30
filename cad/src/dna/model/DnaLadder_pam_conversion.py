@@ -972,20 +972,16 @@ class DnaLadder_pam_conversion_methods:
             # - figuring out geometry assumes straight, central axis (Ax3, not Gv5)
             strand1 = self.strand_rails[0]
             axis = self.axis_rail
+            axis_chunk = axis.baseatoms[0].molecule
             previous_atom = None
             atoms = [] # collects newly made ghost strand sugar atoms
             assy = self.assy
-            chunk = assy.Chunk(assy)
-            chunk.color = GHOST_BASE_COLOR # indicate ghost status (quick initial hack)
-            assy.addnode(chunk) #k ok that it's empty at this point?
-                # would it be better to put it next to axis chunk?
-                # guess: shouldn't matter, dna updater will move it later (I hope)
-                # not quite true: TODO: should put it into same DnaGroup to avoid console print
-                # about making a new one (probably harmless).
+            ghost_chunk = assy.Chunk(assy)
+            ghost_chunk.color = GHOST_BASE_COLOR # indicate ghost status (quick initial hack)
             for i in range(len(strand1)):
                 axis_atom = axis.baseatoms[i]
                 axis_vector = self.axis_vector_at_baseindex(i)
-                new_atom = make_strand2_ghost_base_atom( chunk,
+                new_atom = make_strand2_ghost_base_atom( ghost_chunk,
                                         axis_atom,
                                         axis_vector,
                                         strand1.baseatoms[i] )
@@ -1024,7 +1020,50 @@ class DnaLadder_pam_conversion_methods:
             for atom in ( atoms[0], atoms[-1] ): # ok if same atom
                 atom.make_enough_bondpoints() # not sure if this positions them well
                 continue
+
+            # picking it would be good, but causes problems (console prints
+            #  and stacks related to no .part during pick,
+            #  and to being picked when added); no time to fix them for v1.1:
+            ## if axis_chunk.picked:
+            ##     ghost_chunk.pick()
+            
+            # note: for some reason it still ends up picked in the glpane.
+            #
+            # if the strands of original PAM3 duplex were selected when I first
+            # entered Build Dna (which deselects them), then (running this code
+            # by select all and then converting them to PAM5) I have bugs from this:
+            # the PM strand list doesn't get updated right away;
+            # but then selecting it from MT doesn't work and gives
+            # tracebacks like "RuntimeError: underlying C/C++ object has been deleted"
+            # about a strandListWidget. Guess: this has exposed some update bug
+            # in the Build Dna command. I'll confer with Ninad about this ###BUG.
+            #
+            # but if the PAM3 strands were never selected before entering Build Dna,
+            # I don't have those bugs. If I try to repeat them later, things behave
+            # differently -- I still don't have the bugs, but this time, ghost strands
+            # don't end up selected.
+            #
+            # [bruce 080530 1:20pm PT]
+
+            # now add ghost_chunk to the right place in the model
+            # (though dna updater will move it later)
+            #
+            ## assy.addnode(ghost_chunk)
+            # revised 080530: add ghost_chunk to same DnaGroup as axis_chunk (but at toplevel within that).
+            # Dna updater will move it, but this should avoid creating a new DnaGroup
+            # (which hangs around empty) and the console print from doing that.
+            dnaGroup = axis_chunk.getDnaGroup() # might be None
+                # this only requires that axis_chunk is some kind of Chunk.
+                # fyi: if we didn't know what kind of node it was, we'd need to use:
+                ## node.parent_node_of_class(assy.DnaGroup)
+            print "got DnaGroup:", dnaGroup ####
+            if dnaGroup is not None:
+                dnaGroup.addchild(ghost_chunk)
+            else:
+                # probably never happens
+                assy.addnode(ghost_chunk)
             pass
+        
         return atoms
 
     def axis_atom_at_extended_baseindex(self, i): #bruce 080523; has BUG for length-1 case, or notices a bug in neighbor_baseatoms then
