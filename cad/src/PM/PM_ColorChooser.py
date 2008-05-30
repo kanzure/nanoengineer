@@ -232,6 +232,7 @@ class PM_ColorChooser( QWidget ):
         c = QColorDialog.getColor(qcolor, self)
         if c.isValid():
             self.setColor(QColor_to_RGBf(c))
+            self.emit(SIGNAL("editingFinished()"))
     
     def restoreDefault(self):
         """
