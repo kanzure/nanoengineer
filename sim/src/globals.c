@@ -70,6 +70,12 @@ double VanDerWaalsCutoffFactor;
 int EnableElectrostatic;
 int NeighborSearching;
 
+// these are not reset by reinit_globals, but rather in
+// readBondTableOverlay.
+int LoadedSystemParameters;
+char *UserParametersFileName;
+int LoadedUserParameters;
+
 FILE *OutputFile;
 FILE *TraceFile;
 
@@ -231,8 +237,11 @@ printGlobals()
     write_traceline("# EnableElectrostatic: %d\n", EnableElectrostatic);
     write_traceline("# NeighborSearching: %d\n", NeighborSearching);
     write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
-    if (SystemParametersFileName != NULL) {
+    if (SystemParametersFileName != NULL && LoadedSystemParameters) {
         write_traceline("# SystemParametersFileName: %s\n", SystemParametersFileName);
+    }
+    if (UserParametersFileName != NULL && LoadedUserParameters) {
+        write_traceline("# UserParametersFileName: %s\n", UserParametersFileName);
     }
     if (GromacsOutputBaseName != NULL) {
         write_traceline("# GromacsOutputBaseName: %s\n", GromacsOutputBaseName);

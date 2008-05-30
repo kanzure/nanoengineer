@@ -793,7 +793,7 @@ addStrutDefinition(char *name, double ks, double r0, double x1, double y1, doubl
   addInitialBondStretch(ks, r0, 1.0, -1.0, -1.0, 9, 6, buf);
 }
 
-static void
+static int
 readBondTableOverlay(char *filename)
 {
   char buf[4096];
@@ -834,8 +834,9 @@ readBondTableOverlay(char *filename)
   
   if (f == NULL) {
     // silent about not finding file
-    return;
+    return 0;
   }
+  write_traceline("# reading parameter file: %s\n", filename);
   while (fgets(buf, 4096, f)) {
     lineNumber++;
     token = strtok(buf, " \n");
@@ -949,6 +950,7 @@ readBondTableOverlay(char *filename)
     }
   }
   fclose(f);
+  return 1;
 }
 
 static void
@@ -1099,6 +1101,7 @@ initializeBondTable(void)
     userBondTableOverlayFileName = (char *)allocate(len);
     strcpy(userBondTableOverlayFileName, home);
     strcat(userBondTableOverlayFileName, rest);
+    UserParametersFileName = userBondTableOverlayFileName;
   }
   if (!stat(userBondTableOverlayFileName, &statBuf)) {
     if (userBondTableOverlayModificationTime < statBuf.st_mtime) {
@@ -1110,8 +1113,10 @@ initializeBondTable(void)
     initializeStaticBondTable();
 
     numStruts = 0;    
-    readBondTableOverlay(systemBondTableOverlayFileName);
-    readBondTableOverlay(userBondTableOverlayFileName);
+    LoadedSystemParameters =
+      readBondTableOverlay(systemBondTableOverlayFileName);
+    LoadedUserParameters =
+      readBondTableOverlay(userBondTableOverlayFileName);
   }
 }
 
@@ -1126,6 +1131,7 @@ destroyBondTable(void)
   if (userBondTableOverlayFileName != NULL) {
     free(userBondTableOverlayFileName);
     userBondTableOverlayFileName = NULL;
+    UserParametersFileName = NULL;
   }
 }
 

@@ -51,6 +51,10 @@ extern int TimeReversal;
 extern double ThermostatGamma;
 extern double ThermostatG1;
 
+extern int LoadedSystemParameters;
+extern char *UserParametersFileName;
+extern int LoadedUserParameters;
+
 extern FILE *OutputFile;
 extern FILE *TraceFile;
 
