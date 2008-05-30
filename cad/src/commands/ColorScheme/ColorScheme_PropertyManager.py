@@ -544,6 +544,17 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          choices       =  favoriteChoices,
                          spanWidth  =  True)
         
+        self.favoritesComboBox.setWhatsThis(
+            """<b> List of Favorites </b>
+        
+            <p>
+            Creates a list of favorite color schemes. Once favorite
+            color schemes have been added to the list using the
+            Add Favorite button, the list will display the chosen favorites.
+            To apply the current favorite from the list, select a
+            current favorite from the list, and
+            push the Apply Favorite button.""")
+        
         # PM_ToolButtonRow ===============
         
         # Button list to create a toolbutton row.

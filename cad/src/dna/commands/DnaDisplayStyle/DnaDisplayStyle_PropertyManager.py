@@ -537,6 +537,16 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          choices       =  favoriteChoices,
                          spanWidth  =  True)
         
+        self.favoritesComboBox.setWhatsThis(
+            """<b> List of Favorites </b>
+        
+            <p>
+            Creates a list of favorite DNA display styles. Once favorite
+            styles have been added to the list using the Add Favorite button,
+            the list will display the chosen favorites.
+            To change the current favorite, select a current favorite from
+            the list, and push the Apply Favorite button.""")
+        
         # PM_ToolButtonRow ===============
         
         # Button list to create a toolbutton row.

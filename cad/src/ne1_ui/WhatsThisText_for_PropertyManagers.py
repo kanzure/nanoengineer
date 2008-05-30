@@ -1297,6 +1297,27 @@ def WhatsThis_ColorScheme_PropertyManager(propMgr):
     Add "What's This" text for widgets in the Color Scheme Property 
     Manager.
     """
+    propMgr.favoritesComboBox.setWhatsThis(
+            """<b> List of Favorites </b>
+        
+            <p>
+            Creates a list of favorite DNA display styles. Once favorite
+            styles have been added to the list using the Add Favorite button,
+            the list will display the chosen favorites.
+            To change the current favorite, select a current favorite from
+            the list, and push the Apply Favorite button.""")
+    
+    propMgr.favoritesComboBox.setWhatsThis(
+        """<b> List of Favorites </b>
+        
+        <p>
+        Creates a list of favorite color schemes. Once favorite
+        color schemes have been added to the list using the
+        Add Favorite button, the list will display the chosen favorites.
+        To apply the current favorite from the list, select a
+        current favorite from the list, and
+        push the Apply Favorite button.""")
+    
     propMgr.applyFavoriteButton.setWhatsThis(
         """<b> Apply Favorite </b>
         
