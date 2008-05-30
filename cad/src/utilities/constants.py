@@ -94,6 +94,19 @@ def intRound(num): #bruce 080521
     """
     return int(round(num))
 
+def str_or_unicode(qstring): #bruce 080529
+    """
+    Return str(qstring), unless that fails with UnicodeEncodeError,
+    in which case return unicode(qstring).
+
+    @param qstring: anything, but typically a QString object.
+    """
+    try:
+        return str(qstring)
+    except UnicodeEncodeError:
+        return unicode(qstring)
+    pass
+
 def genKey(start = 1):
     #bruce 050922 moved this here from chem.py and Utility.py, added start arg
     """

@@ -37,6 +37,7 @@ from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from widgets.widget_helpers import double_fixup
 from widgets.prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 from utilities import debug_flags
+from utilities.constants import str_or_unicode
 from platform.PlatformDependent import screen_pos_size
 from platform.PlatformDependent import get_rootdir
 from platform.Paths import get_default_plugin_path
@@ -352,7 +353,7 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     if parentless_open_dialog_pref():
         parent = None
 
-    filename = str(QFileDialog.getOpenFileName(
+    filename = str_or_unicode(QFileDialog.getOpenFileName(
         parent,
         caption,
         get_rootdir(), # '/' on Mac or Linux, something else on Windows
@@ -363,7 +364,7 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
 
     # Save filename in prefs db.    
     prefs = preferences.prefs_context()
-    prefs[prefs_key] = os.path.normpath(str(filename))
+    prefs[prefs_key] = os.path.normpath(filename)
 
     return filename
 
@@ -384,7 +385,7 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     if parentless_open_dialog_pref():
         parent = None
 
-    filename = str(QFileDialog.getExistingDirectory(
+    filename = str_or_unicode(QFileDialog.getExistingDirectory(
         parent,### if this was None, it might fix the Mac bug where you can't drag the dialog around [bruce 060710]
         caption,
         get_rootdir(), # '/' on Mac or Linux -- maybe not the best choice if they've chosen one before?
@@ -395,7 +396,7 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
 
     # Save filename in prefs db.    
     prefs = preferences.prefs_context()
-    prefs[prefs_key] = str(filename)
+    prefs[prefs_key] = filename
 
     return filename
 
@@ -1498,13 +1499,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         #bruce 070503 Qt4 bugfix (prefix and suffix): str().strip() rather than QString().stripWhiteSpace()
         # (but, like the old code, still only allows one space char on the side that can have one,
         #  in order to most easily require at least one on that side; if mot for that, we'd use rstrip and lstrip)
-        prefix = str(self.caption_prefix_linedit.text())
+        prefix = str_or_unicode(self.caption_prefix_linedit.text())
         prefix = prefix.strip()
         if prefix:
             prefix = prefix + ' '
         env.prefs[captionPrefix_prefs_key] = prefix
 
-        suffix = str(self.caption_suffix_linedit.text())
+        suffix = str_or_unicode(self.caption_suffix_linedit.text())
         suffix = suffix.strip()
         if suffix:
             suffix = ' ' + suffix
@@ -2727,7 +2728,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for GAMESS path line editor.
         """
-        env.prefs[gamess_path_prefs_key] = str(newValue)
+        env.prefs[gamess_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_gamess(self, enable = True):
         """
@@ -2767,7 +2768,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for GROMACS path line editor.
         """
-        env.prefs[gromacs_path_prefs_key] = str(newValue)
+        env.prefs[gromacs_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_gromacs(self, enable = True):
         """
@@ -2821,7 +2822,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for cpp path line editor.
         """
-        env.prefs[cpp_path_prefs_key] = str(newValue)
+        env.prefs[cpp_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_cpp(self, enable = True):
         """
@@ -2874,7 +2875,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for NanoVision-1 path line editor.
         """
-        env.prefs[nv1_path_prefs_key] = str(newValue)
+        env.prefs[nv1_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_nv1(self, enable = True):
         """
@@ -2927,7 +2928,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for QuteMol path line editor.
         """
-        env.prefs[qutemol_path_prefs_key] = str(newValue)
+        env.prefs[qutemol_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_qutemol(self, enable = True):
         """
@@ -2975,7 +2976,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for NanoHive path line editor.
         """
-        env.prefs[nanohive_path_prefs_key] = str(newValue)
+        env.prefs[nanohive_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_nanohive(self, enable = True):
         """
@@ -3035,7 +3036,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for POV-Ray path line editor.
         """
-        env.prefs[povray_path_prefs_key] = str(newValue)
+        env.prefs[povray_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_povray(self, enable = True):
         """
@@ -3081,7 +3082,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for MegaPOV path line editor.
         """
-        env.prefs[megapov_path_prefs_key] = str(newValue)
+        env.prefs[megapov_path_prefs_key] = str_or_unicode(newValue)
 
     def enable_megapov(self, enable = True):
         """
@@ -3171,7 +3172,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             # other keyfocus removals, including dialog ok or cancel. That is mostly nim,
             # so we have to do it all the time for now -- this is the only way for the user to set the text to "".
             # (This even runs on programmatic sets of the text. Hope that's ok.)
-            env.prefs[povdir_path_prefs_key] = path = str( self.povdir_lineedit.text() ).strip()
+            env.prefs[povdir_path_prefs_key] = path = str_or_unicode( self.povdir_lineedit.text() ).strip()
             if debug_povdir_signals():
                 print "debug fyi: set pov include dir to [%s]" % (path,)
         except:
@@ -3281,7 +3282,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Slot for the Font combobox.
         Called whenever the font is changed.
         """
-        env.prefs[displayFont_prefs_key] = str(font.family())
+        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
         self.set_font()
         return
 
@@ -3300,7 +3301,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         widgets.
         """
         font = self.w.defaultFont
-        env.prefs[displayFont_prefs_key] = str(font.family())
+        env.prefs[displayFont_prefs_key] = str_or_unicode(font.family())
         env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
         self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
 
@@ -3328,13 +3329,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             # Set the font and point size prefs to the application's default font.
             # This code only called the first time NE1 is run (or the prefs db does not exist)
             font = self.w.defaultFont
-            font_family = str(font.family())
-                # note: this str() prevents NE1 from running on some international systems.
-                # we should leave it in place until we can reproduce the bug,
-                # then fix it. (Not necessarily by replacing it with unicode(),
-                # since ideally we'd use str if it works, unicode if it doesn't.
-                # Does string() do that??)
-                # [bruce comment 080514]
+            font_family = str_or_unicode(font.family())
+                # Note: when this used str() rather than str_or_unicode(),
+                # it prevented NE1 from running on some international systems
+                # (when it had never run before and needed to initialize this
+                #  prefs value).
+                # We can now reproduce the bug (see bug 2883 for details),
+                # so I am using str_or_unicode to try to fix it. [bruce 080529]
             font_size = font.pointSize()
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = font_size
@@ -3375,7 +3376,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
         if use_selected_font:
             font = self.fontComboBox.currentFont()
-            font_family = str(font.family())
+            font_family = str_or_unicode(font.family())
             fontsize = self.fontSizeSpinBox.value()
             font.setPointSize(fontsize)
             env.prefs[displayFont_prefs_key] = font_family
