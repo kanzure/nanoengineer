@@ -357,7 +357,10 @@ def ToolTip_ColorScheme_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Color Scheme Property Manager.
     """
-    propMgr.favoritesComboBox.setToolTip("List of Favorites")
-    propMgr.backgroundColorComboBox.setToolTip("Change Background Color")
-    
+    propMgr.favoritesComboBox.setToolTip("List of favorites")
+    propMgr.backgroundColorComboBox.setToolTip("Change background color")
+    propMgr.hoverHighlightingStyleComboBox.setToolTip("Change hover highlighting style")
+    propMgr.hoverHighlightingColorChooser.setToolTip("Change hover highlighting color") 
+    propMgr.selectionStyleComboBox.setToolTip("Change selection style")
+    propMgr.selectionColorChooser.setToolTip("Change selection color")
     return
