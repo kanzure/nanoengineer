@@ -2,13 +2,20 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-DIST_VERSION=NanoEngineer-1_1.0.1
+VERSION_NUM=1.0.1
+DIST_VERSION=NanoEngineer-1_$VERSION_NUM
 
 # Set up path variables
 cd ..
 TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT/NanoEngineer-1.app/Contents
+
+cd $TOP_LEVEL
+PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
+cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
+cp cad/src/foundation/preferences.py.ptmp
+cad/src/foundation/preferences.py || exit 1 
 
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
