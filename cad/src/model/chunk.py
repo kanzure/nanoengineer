@@ -108,6 +108,7 @@ from utilities.Comparison import same_vals
 ##from foundation.state_utils import copy_val
 from graphics.display_styles.displaymodes import get_display_mode_handler
 
+from utilities.prefs_constants import haloWidth_prefs_key 
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
 from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR, HHS_CROSSHATCH
 from utilities.prefs_constants import HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_HALO
@@ -2382,9 +2383,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # Draw wide, unshaded lines, offset away from the viewer
                     # so only the silhouette edges are visible.
                     glDisable(GL_LIGHTING)
-                    glLineWidth(5.0)
+                    glLineWidth(env.prefs[haloWidth_prefs_key])
                     glEnable(GL_POLYGON_OFFSET_LINE)
-                    glPolygonOffset(0.0, 30000.0) # Constant offset.
+                    glPolygonOffset(0.0, 5.e4) # Constant offset.
                     pass
                 pass
 
