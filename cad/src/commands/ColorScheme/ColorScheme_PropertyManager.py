@@ -371,9 +371,12 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._loadBackgroundColorItems()
         self._loadHoverHighlightingStyleItems()
         self.hoverHighlightingStyleComboBox.setCurrentIndex(env.prefs[hoverHighlightingColorStyle_prefs_key])
+        self.hoverHighlightingColorChooser.setColor(env.prefs[hoverHighlightingColor_prefs_key])
         self._loadSelectionStyleItems()
         self.selectionStyleComboBox.setCurrentIndex(env.prefs[selectionColorStyle_prefs_key])
-    
+        
+        # will be uncommented after Russ finish setting this pref key: Urmi 20080530
+        #self.selectionColorChooser.setColor(env.prefs[selectionColorStyle_prefs_key])
         
     def connect_or_disconnect_signals(self, isConnect):
         """
