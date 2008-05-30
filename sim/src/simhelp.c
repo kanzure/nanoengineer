@@ -246,10 +246,12 @@ write_traceline(const char *format, ...)
         va_start(args, format);
         vsnprintf(buf, 1024, format, args);
         va_end(args);
-	if (writeTraceCallbackFunc != NULL)
-	    do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", buf));
-	if (TraceFile != NULL)
-	    fprintf(TraceFile, "%s", buf);
+	if (writeTraceCallbackFunc != NULL) {
+            do_python_callback(writeTraceCallbackFunc, Py_BuildValue("(s)", buf));
+        }
+	if (TraceFile != NULL) {
+            fprintf(TraceFile, "%s", buf);
+        }
     }
 }
 

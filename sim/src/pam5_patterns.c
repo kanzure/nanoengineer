@@ -99,6 +99,15 @@ pam5_requires_gromacs(struct part *p)
   }
 }
 
+static void
+pam3_requires_gromacs(struct part *p)
+{
+  if (GromacsOutputBaseName == NULL) {
+    ERROR("PAM3 DNA structures with electrostatics must be minimized with GROMACS");
+    p->parseError(p->stream);
+  }
+}
+
 // The three vectors from aAx1 to the other three atoms can be thought
 // of as the basis for a coordinate system.  We would like that
 // coordinate system to be right handed, and we return true if that is
@@ -545,12 +554,22 @@ pam3_crossover_match(struct patternMatch *match)
   // non-bonded interactions which are not automatically excluded are
   // S4-S7 and S5-S6.  We want to add S1-S7, S2-S5, and S4-S6.
 
-  makeVanDerWaals(p, aS1->atomID, aS7->atomID);
-  trace_makeVanDerWaals(match, aS1, aS7);
-  makeVanDerWaals(p, aS2->atomID, aS5->atomID);
-  trace_makeVanDerWaals(match, aS2, aS5);
-  makeVanDerWaals(p, aS4->atomID, aS6->atomID);
-  trace_makeVanDerWaals(match, aS4, aS6);
+  if (EnableElectrostatic) {
+    makeVanDerWaals(p, aS1->atomID, aS7->atomID);
+    trace_makeVanDerWaals(match, aS1, aS7);
+    makeVanDerWaals(p, aS2->atomID, aS5->atomID);
+    trace_makeVanDerWaals(match, aS2, aS5);
+    makeVanDerWaals(p, aS4->atomID, aS6->atomID);
+    trace_makeVanDerWaals(match, aS4, aS6);
+  }
+}
+
+static void
+pam3_any_match(struct patternMatch *match)
+{
+  if (EnableElectrostatic) {
+    pam3_requires_gromacs(match->p);
+  }
 }
 
 void
@@ -564,7 +583,7 @@ createPam5Patterns(void)
     return;
   }
   stack_match_initialized = 0;
-  
+
   a[0] = makePatternAtom(0, "P5G");
   a[1] = makePatternAtom(1, "P5S");
   a[2] = makePatternAtom(2, "P5S");
@@ -650,6 +669,19 @@ createPam5Patterns(void)
   t[9] = makeTraversal(a[9], a[0], '1');
   makePattern("PAM5-full-crossover", pam5_full_crossover_match, 10, 10, t);
 
+  a[0] = makePatternAtom(0, "Ah5");
+  a[1] = makePatternAtom(1, "P5G");
+  a[2] = makePatternAtom(2, "P5S");
+  a[3] = makePatternAtom(3, "P5S");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[1], a[2], '1');
+  t[2] = makeTraversal(a[1], a[3], '1');
+  makePattern("PAM5-basepair-handle", pam5_basepair_handle_match, 4, 3, t);
+
+  a[0] = makePatternAtom(0, "PAM3");
+  t[0] = makeTraversal(a[0], a[0], '?'); // how to match a bare atom
+  makePattern("PAM3-any", pam3_any_match, 1, 1, t);
+  
   a[0] = makePatternAtom(0, "Ax3");
   a[1] = makePatternAtom(1, "Ss3");
   a[2] = makePatternAtom(2, "Ss3");
@@ -667,13 +699,4 @@ createPam5Patterns(void)
   t[6] = makeTraversal(a[2], a[6], '1');
   t[7] = makeTraversal(a[6], a[7], '1');
   makePattern("PAM3-crossover", pam3_crossover_match, 8, 8, t);
-
-  a[0] = makePatternAtom(0, "Ah5");
-  a[1] = makePatternAtom(1, "P5G");
-  a[2] = makePatternAtom(2, "P5S");
-  a[3] = makePatternAtom(3, "P5S");
-  t[0] = makeTraversal(a[0], a[1], '1');
-  t[1] = makeTraversal(a[1], a[2], '1');
-  t[2] = makeTraversal(a[1], a[3], '1');
-  makePattern("PAM5-basepair-handle", pam5_basepair_handle_match, 4, 3, t);
 }
