@@ -1,45 +1,45 @@
-mmpformat 050130 required; 050217 optional
+mmpformat 080327 required; 080523 preferred
 kelvin 300
-group (Data)
+group (View Data)
+info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (-0.421789, 0.882976, 0.067448, -0.194675) (5.845851) (0.000000, 0.000000, 0.000000) (1.000000)
-datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
-datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-egroup (Data)
-group (Untitled)
+egroup (View Data)
+group (test_0005)
+info opengroup open = True
 mol (Chunk-C1) def
 atom 1 (6) (-16, 344, -737) def
-atom 2 (0) (-70, 968, -289) def
+atom 2 (1) (-92, 1221, -108) def
 bond1 1
-atom 3 (0) (-4, 560, -1476) def
+atom 3 (1) (1, 648, -1775) def
 bond1 1
 atom 4 (6) (-1225, -588, -437) def
 bond1 1
-atom 5 (0) (-1643, -337, 158) def
+atom 5 (1) (-1813, -235, 400) def
 bond1 4
-atom 6 (0) (-1625, -494, -1089) def
+atom 6 (1) (-1787, -456, -1352) def
 bond1 4
 atom 7 (6) (1288, -573, -395) def
 bond1 1
-atom 8 (0) (1701, -343, 212) def
+atom 8 (1) (1869, -250, 459) def
 bond1 7
-atom 9 (0) (1705, -485, -1036) def
+atom 9 (1) (1874, -449, -1296) def
 bond1 7
 atom 10 (6) (-613, -2292, -13) def
 bond1 4
-atom 11 (0) (-910, -2578, 636) def
+atom 11 (1) (-1031, -2694, 900) def
 bond1 10
-atom 12 (0) (-692, -2808, -579) def
+atom 12 (1) (-724, -3017, -808) def
 bond1 10
 atom 13 (6) (1130, -2052, 4) def
 bond1 7 10
-atom 14 (0) (1446, -2171, 696) def
+atom 14 (1) (1574, -2219, 976) def
 bond1 13
-atom 15 (0) (1453, -2524, -510) def
+atom 15 (1) (1584, -2716, -719) def
 bond1 13
-egroup (Untitled)
+egroup (test_0005)
 end1
 group (Clipboard)
+info opengroup open = False
 egroup (Clipboard)
-end molecular machine part Untitled
+end molecular machine part test_0005

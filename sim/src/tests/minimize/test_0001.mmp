@@ -1,50 +1,45 @@
-mmpformat 050130 required; 050217 optional
+mmpformat 080327 required; 080523 preferred
 kelvin 300
-group (Data)
-csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) =
-(0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.936981, 0.308166, -0.163947, 0.014883) (5.314410) =
-(0.000000, 0.000000, 0.000000) (1.000000)
-datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, =
-0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
-datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, =
-0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, =
-1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-egroup (Data)
-group (Untitled)
+group (View Data)
+info opengroup open = True
+csys (HomeView) (0.936981, 0.308166, -0.163947, 0.014883) (5.314410) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.936981, 0.308166, -0.163947, 0.014883) (4.504046) (0.091500, -1.694500, -0.145000) (1.000000)
+egroup (View Data)
+group (test_0001)
+info opengroup open = True
 mol (Chunk-C1) def
 atom 1 (6) (-192, 2912, 0) def
-atom 2 (0) (113, 3476, 425) def
+atom 2 (1) (237, 3705, 598) def
 bond1 1
-atom 3 (0) (-618, 3217, -564) def
+atom 3 (1) (-791, 3341, -793) def
 bond1 1
 atom 4 (6) (-1081, 2023, 889) def
 bond1 1
-atom 5 (0) (-1796, 2006, 602) def
+atom 5 (1) (-2085, 1999, 486) def
 bond1 4
-atom 6 (0) (-1098, 2309, 1603) def
+atom 6 (1) (-1105, 2425, 1893) def
 bond1 4
 atom 7 (6) (935, 2061, -611) def
 bond1 1
-atom 8 (0) (777, 2054, -1365) def
+atom 8 (1) (713, 2051, -1670) def
 bond1 7
-atom 9 (0) (1608, 2416, -493) def
+atom 9 (1) (1881, 2560, -445) def
 bond1 7
 atom 10 (6) (-509, 593, 921) def
 bond1 4
-atom 11 (0) (-1056, 164, 592) def
+atom 11 (1) (-1279, -11, 458) def
 bond1 10
-atom 12 (0) (-420, 378, 1655) def
+atom 12 (1) (-384, 291, 1952) def
 bond1 10
 atom 13 (6) (1013, 469, 103) def
 bond1 7 10
-atom 14 (0) (1613, 391, 580) def
+atom 14 (1) (1856, 359, 773) def
 bond1 13
-atom 15 (0) (1034, -87, -427) def
+atom 15 (1) (1043, -314, -643) def
 bond1 13
-egroup (Untitled)
+egroup (test_0001)
 end1
 group (Clipboard)
+info opengroup open = False
 egroup (Clipboard)
-end molecular machine part Untitled
+end molecular machine part test_0001

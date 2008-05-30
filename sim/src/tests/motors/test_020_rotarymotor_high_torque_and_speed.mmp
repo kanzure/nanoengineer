@@ -1,39 +1,51 @@
-mmpformat 050920 required; 051103 preferred
+mmpformat 080327 required; 080523 preferred
 kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (test_020_rotarymotor_high_torque_and_speed)
+info opengroup open = True
 group (rotarymotor- high torque and speed)
 info opengroup open = True
-mol (Chunk-C309) tub
-atom 1 (6) (-1271, -37, 47) -
-atom 2 (0) (-1756, 10, -550) -
+mol (Chunk-C309) Tubes
+atom 1 (6) (-1271, -37, 47) def
+atom 2 (1) (-1952, 29, -791) def
 bond1 1
-atom 3 (0) (-1697, -38, 690) -
+atom 3 (1) (-1869, -38, 949) def
 bond1 1
-atom 4 (6) (-290, 1170, 48) -
+atom 4 (6) (-290, 1170, 48) def
 bond1 1
-atom 5 (0) (-433, 1633, -551) -
+atom 5 (1) (-491, 1820, -793) def
 bond1 4
-atom 6 (0) (-380, 1587, 690) -
+atom 6 (1) (-416, 1755, 949) def
 bond1 4
-atom 7 (6) (1159, 611, -33) -
+atom 7 (6) (1159, 611, -33) def
 bond1 4
-atom 8 (0) (1569, 835, 580) -
+atom 8 (1) (1735, 925, 828) def
 bond1 7
-atom 9 (0) (1517, 883, -661) -
+atom 9 (1) (1661, 992, -913) def
 bond1 7
-atom 10 (6) (-427, -1343, -45) -
+atom 10 (6) (-427, -1343, -45) def
 bond1 1
-atom 11 (0) (-617, -1740, -678) -
+atom 11 (1) (-694, -1900, -933) def
 bond1 10
-atom 12 (0) (-565, -1796, 563) -
+atom 12 (1) (-621, -1979, 809) def
 bond1 10
-atom 13 (6) (1075, -940, -89) -
+atom 13 (6) (1075, -940, -89) def
 bond1 7 10
-atom 14 (0) (1453, -1251, 506) -
+atom 14 (1) (1606, -1377, 747) def
 bond1 13
-atom 15 (0) (1404, -1205, -736) -
+atom 15 (1) (1536, -1311, -995) def
 bond1 13
-rmotor (Rotary Motor.45) (127, 127, 127) 3.00 4.50 (49, -108, -14) (-42, 39, -998) 4.00 0.50 0.10
+rmotor (Rotary Motor.45) (127, 127, 127) 3.000000 4.500000 (49, -108, -14) (-42, 39, -998) 4.000 0.500 0.100
 shaft 1 4 7 10 13
 thermo (Thermo-76) (153, 0, 51) 1 15 4
 egroup (rotarymotor- high torque and speed)
-end molecular machine part rotarymotor- high torque and speed
+egroup (test_020_rotarymotor_high_torque_and_speed)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part test_020_rotarymotor_high_torque_and_speed

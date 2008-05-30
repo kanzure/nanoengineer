@@ -87,7 +87,7 @@ testsSkipped = 0
 # wild guesses, to be later scrutinized by smart people.
 
 # default values, overridden by loose, medium, and tight options
-LENGTH_TOLERANCE = 0.138   # angstroms
+LENGTH_TOLERANCE = 0.139   # angstroms
 ANGLE_TOLERANCE = 14.1     # degrees
 #LENGTH_TOLERANCE = 0.05    # angstroms
 #ANGLE_TOLERANCE = 5        # degrees
