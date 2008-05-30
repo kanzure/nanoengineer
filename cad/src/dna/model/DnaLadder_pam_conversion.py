@@ -325,7 +325,10 @@ class DnaLadder_pam_conversion_methods:
             summary_format = "Warning: PAM conversion refused for [N] DnaLadder(s) with errors"
             env.history.deferred_summary_message( redmsg( summary_format )) # red warning is intended
             return -1
-        if self.pam_model() == MODEL_MIXED:
+
+        self_pam_model = self.pam_model()
+        
+        if self_pam_model == MODEL_MIXED:
             summary_format = "Warning: PAM conversion not implemented for [N] DnaLadder(s) with mixed PAM models"
             env.history.deferred_summary_message( orangemsg( summary_format ))
             return -1
@@ -339,7 +342,7 @@ class DnaLadder_pam_conversion_methods:
                       (self.axis_rail.baseatoms[0].element, self)
                 return -1
             pass
-        if self.pam_model() == pam_model:
+        if self_pam_model == pam_model:
             # note: should never happen (AFAIK) since caller handles it,
             # but preserve this just in case; meanwhile this code is copied into caller,
             # with a slight text revision here so we can figure out if this one happens
@@ -359,12 +362,22 @@ class DnaLadder_pam_conversion_methods:
             summary_format = "Warning: PAM conversion not implemented for [N] bare axis DnaLadder(s)"
             env.history.deferred_summary_message( orangemsg( summary_format ))
             return -1
-        elif nstrands == 1 and not debug_pref_enable_pam_convert_sticky_ends():
-            summary_format = "Warning: PAM conversion not implemented for [N] sticky end DnaLadder(s)"
-                # need to have a method to describe self, since if it's in the middle of a segment
-                # then we should not call it a sticky end ###FIX
-            env.history.deferred_summary_message( orangemsg( summary_format ))
-            return -1
+        elif nstrands == 1:
+            # sticky end (might be PAM3 or PAM5)
+            if not debug_pref_enable_pam_convert_sticky_ends():
+                summary_format = "Warning: PAM conversion not enabled for [N] sticky end DnaLadder(s)"
+                    # need to have a method to describe self, since if it's in the middle of a segment
+                    # then we should not call it a sticky end ###FIX
+                env.history.deferred_summary_message( orangemsg( summary_format ))
+                return -1
+            elif self_pam_model != MODEL_PAM3:
+                # PAM5 sticky end -- conversion is not yet implemented (needs baseframes) (ghost bases also nim)
+                summary_format = "Warning: PAM conversion not implemented for [N] PAM5 sticky end DnaLadder(s)"
+                env.history.deferred_summary_message( redmsg( summary_format ))
+                return -1
+            else:
+                # PAM3 sticky end -- should be ok
+                pass
         elif nstrands > 2:
             summary_format = "Bug: PAM conversion attempted on [N] DnaLadder(s) with more than two strands"
             env.history.deferred_summary_message( redmsg( summary_format ))
