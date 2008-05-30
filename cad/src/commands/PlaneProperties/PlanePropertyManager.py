@@ -114,7 +114,7 @@ class PlanePropertyManager(EditCommand_PM):
                          setAsDefault = True,
                          spanWidth = True
                          )
-
+   
         self.imageDisplayFileChooser = \
             PM_FileChooser(pmGroupBox,
                            label     = 'Image file:',
@@ -274,9 +274,12 @@ class PlanePropertyManager(EditCommand_PM):
 
 
     def update_imageFile(self):
+        """
+        Loads image file if path is valid
+        """
         if self.imageDisplayCheckBox.isChecked(): 
             self.imageFile = str(self.imageDisplayFileChooser.lineEdit.text())
-
+            
             from model.Plane import checkIfValidImagePath
             validPath = checkIfValidImagePath(self.imageFile)
 
