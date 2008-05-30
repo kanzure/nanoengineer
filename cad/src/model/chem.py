@@ -521,7 +521,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_categorize_picked = 'selection' ##k this is noticed and stored, but I don't think it yet has any effect (??) [bruce 060313]
     _s_attr_display = S_DATA
     _s_attr__dnaBaseName = S_DATA #bruce 080319
-    _s_attr_ghost = S_DATA #bruce 080529; might not be needed (since no ops change this except on newly made atoms, so far)
+    # decided to leave out _s_attr_ghost, for now [bruce 080530]:
+    ## _s_attr_ghost = S_DATA #bruce 080529; might not be needed (since no ops change this except on newly made atoms, so far)
     _s_attr_info = S_DATA
     _s_attr__Atom__killed = S_DATA # Declaring (name-mangled) __killed seems needed just like for any other attribute...
         # (and without it, reviving a dead atom triggered an assertfail, unsurprisingly)
