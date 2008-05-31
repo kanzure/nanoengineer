@@ -104,11 +104,18 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """"
         Set all pref keys to True
         """
-        env.prefs[arrowsOnBackBones_prefs_key] = True
-        env.prefs[arrowsOnThreePrimeEnds_prefs_key] = True 
-        env.prefs[arrowsOnFivePrimeEnds_prefs_key] = True
-        env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] = True
-        env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] = True
+        self._local_arrowsOnBackBones_prefs_key = True
+        self._local_arrowsOnThreePrimeEnds_prefs_key = True 
+        self._local_arrowsOnFivePrimeEnds_prefs_key = True
+        self._local_useCustomColorForThreePrimeArrowheads_prefs_key = True
+        self._local_useCustomColorForFivePrimeArrowheads_prefs_key = True
+        
+        env.prefs[arrowsOnBackBones_prefs_key] = self._local_arrowsOnBackBones_prefs_key 
+        env.prefs[arrowsOnThreePrimeEnds_prefs_key] = self._local_arrowsOnThreePrimeEnds_prefs_key 
+        env.prefs[arrowsOnFivePrimeEnds_prefs_key] = self._local_arrowsOnFivePrimeEnds_prefs_key 
+        env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] = self._local_useCustomColorForThreePrimeArrowheads_prefs_key 
+        env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] =  self._local_useCustomColorForFivePrimeArrowheads_prefs_key 
+        
 
         return
         
@@ -342,7 +349,46 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
+        self._assignLocalPrefKeyValues()
         self.connect_or_disconnect_signals(isConnect = True)
         
-    
+    def close(self):
+        """
+        Closes the Property Manager. Overrides PM_Dialog.close.
+        """
+        # this is important since these pref keys are used in other command modes 
+        # as well and we do not want to see the 5' end arrow in Inset DNA mode
         
+        self._reAssignDefaultValuesToPrefKeys()
+        self.connect_or_disconnect_signals(False)
+        PM_Dialog.close(self)
+        
+    def _assignLocalPrefKeyValues(self):
+        env.prefs[arrowsOnBackBones_prefs_key] = self._local_arrowsOnBackBones_prefs_key 
+        env.prefs[arrowsOnThreePrimeEnds_prefs_key] = self._local_arrowsOnThreePrimeEnds_prefs_key 
+        env.prefs[arrowsOnFivePrimeEnds_prefs_key] = self._local_arrowsOnFivePrimeEnds_prefs_key 
+        env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] = self._local_useCustomColorForThreePrimeArrowheads_prefs_key 
+        env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] =  self._local_useCustomColorForFivePrimeArrowheads_prefs_key 
+        
+        
+    def _reAssignDefaultValuesToPrefKeys(self):
+        """"
+        Set all pref keys to their default values
+        """
+        
+        #store old values in local attributes so that when join Strands is 
+        # revisited between sesions, the users choices are respected
+        self._local_arrowsOnBackBones_prefs_key = env.prefs[arrowsOnBackBones_prefs_key] 
+        self._local_arrowsOnThreePrimeEnds_prefs_key = env.prefs[arrowsOnThreePrimeEnds_prefs_key] 
+        self._local_arrowsOnFivePrimeEnds_prefs_key = env.prefs[arrowsOnFivePrimeEnds_prefs_key] 
+        self._local_useCustomColorForThreePrimeArrowheads_prefs_key = env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] 
+        self._local_useCustomColorForFivePrimeArrowheads_prefs_key = env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] 
+        
+        #restore default values of pref keys
+        env.prefs[arrowsOnBackBones_prefs_key] = True
+        env.prefs[arrowsOnThreePrimeEnds_prefs_key] = True 
+        env.prefs[arrowsOnFivePrimeEnds_prefs_key] = False
+        env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] = False
+        env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] = False
+
+        return
