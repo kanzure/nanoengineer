@@ -102,7 +102,7 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def _setAllDisplayOptionsToTrue(self):
         
         """"
-        Set all pref keys to True
+        Set all pref keys to True and introduce the private pref key attributes
         """
         self._local_arrowsOnBackBones_prefs_key = True
         self._local_arrowsOnThreePrimeEnds_prefs_key = True 
@@ -349,8 +349,8 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
         PM_Dialog.show(self)
-        self._assignLocalPrefKeyValues()
         self.connect_or_disconnect_signals(isConnect = True)
+        self._assignLocalPrefKeyValues()
         
     def close(self):
         """
