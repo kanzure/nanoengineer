@@ -115,6 +115,9 @@ from OpenGL.GL import GL_PROJECTION_MATRIX
 from OpenGL.GL import GL_MODELVIEW_MATRIX
 from OpenGL.GL import GL_CLIP_PLANE5
 from OpenGL.GL import glClipPlane
+from OpenGL.GL import glPushAttrib
+from OpenGL.GL import glPopAttrib
+from OpenGL.GL import GL_TRANSFORM_BIT
 
 from OpenGL.GLU import gluUnProject, gluProject, gluPickMatrix
 
@@ -596,6 +599,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
 
         self.stereo_enabled = False # piotr 080515 - stereo disabled by default
+        self.current_stereo_image = 0
 
         return # from GLPane.__init__ 
 
@@ -640,7 +644,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.setWhatsThis(glpaneText)
 
     # ==
-    
+
     def renderTextAtPosition(self,                               
                              position,
                              textString,
@@ -659,27 +663,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         uses the actual object coordinates        
         @see: MultiplednaSegment_GraphicsMode._drawDnaRubberbandLine()
         @see: QGLWidget.renderText ()
-        
+
         @TODO: refactor to move the common code in this method and 
         self.renderTextNearCursor(). Also, in this method, its not possible to 
         define a background text slightly offset to the x.y z to get a nicer
         text. Need to see how to acheve that
         """
-        
-        
+
+
         x = position[0]
         y = position[1]
         z = position[2]
-        
+
         #background color
         bg_color = lightgray #not used
         #Foreground color 
         fg_color = textColor  
-        
+
         DEBUG_USE_GLU_PROJECT = False #DO NOT commit it with True.
-        
+
         if not DEBUG_USE_GLU_PROJECT:
-            
+
             glDisable(GL_LIGHTING)
             glDisable(GL_DEPTH_TEST)
             self.qglColor(RGBf_to_QColor(fg_color))
@@ -698,7 +702,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             ##pos = self.mapFromGlobal(pos)
             x1 = pos.x() 
             y1 = pos.y() 
-    
+
             ### Note: self.renderText is QGLWidget.renderText method.
             self.renderText(x1 ,
                             y1,
@@ -707,7 +711,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.qglClearColor(RGBf_to_QColor(fg_color))
                 # question: is this related to glClearColor? [bruce 071214 question]
             glEnable(GL_LIGHTING)        
-            
+
 
     def renderTextNearCursor(self, 
                              textString, 
@@ -819,7 +823,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
     def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
         """
         Sets the mode\'s background color and stores it in the prefs db.
-        
+
         @param color: r,g,b tuple with values between 0.0-1.0
         @type  color: tuple with 3 floats
         """
@@ -827,11 +831,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         env.prefs[ backgroundColor_prefs_key ] = color
         self.setBackgroundGradient(0)
         return
-    
+
     def getBackgroundColor(self):
         """
         Returns the current background color.
-        
+
         @return color: r,g,b tuple with values between 0.0-1.0
         @rtype  color: tuple with 3 floats
         """
@@ -2193,6 +2197,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         self.checkpoint_before_drag(event, but)
 
+        # piotr 080529 - determine which of the stereo pairs is being used
+        self.current_stereo_image = 0
+        if self.stereo_enabled:
+            # get current stereo mode
+            stereo_mode = env.prefs[stereoViewMode_prefs_key]
+            # if in side-by-side stereo
+            if stereo_mode == 1 or \
+               stereo_mode == 2:
+                # find out which of the stereo pairs is being used
+                if event.x() < self.width / 2:
+                    self.current_stereo_image = -1
+                else:
+                    self.current_stereo_image = 1
+
         if 0: #bruce 080502 debug code for rapid click bug; keep this for awhile
             print "debug fyi: GLPane.mousePressEvent sees selobj", self.selobj
 
@@ -2592,8 +2610,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # bruce 041214 made just_beyond = 0.0 an optional argument,
         # rather than a hardcoded 0.01 (but put 0.01 into most callers)
 
+        # piotr 080529
+        # modify modelview matrix in side-by-side stereo view modes        
+        self._enable_stereo(self.current_stereo_image, no_clipping=True)            
+
         p1 = A(gluUnProject(x, y, just_beyond))
         p2 = A(gluUnProject(x, y, 1.0))
+
+        self._disable_stereo()
 
         los = self.lineOfSight
 
@@ -2644,11 +2668,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.quat = Q(q)
         self.gl_update()
         return what
-        
+
     def setDisplay(self, disp, default_display = False):
         """
         Set the global display style of the GLPane.
-        
+
         @param disp: The global display style: 
                      - diDEFAULT (the "NE1 start-up display style", defined
                        in the Preferences | General dialog)
@@ -2658,7 +2682,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                      - diTrueCPK, (Space filling display style)
                      - diDNACYLINDER (DNA cylinder display style)
         @type  disp: int
-        
+
         @param default_display: Unused. In older versions of NE1, this used
                                 to change the header of the display status bar
                                 to either 'Default Display' (True) or 
@@ -2688,11 +2712,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # (or their currently set individual display style) to the one they used
         # to make their display lists. [bruce 080305 comment]
         return
-        
+
     def setGlobalDisplayStyle(self, disp):
         """
         Set the global display style of the GLPane.
-        
+
         @param disp: The global display style: 
                      - diDEFAULT (the "NE1 start-up display style", defined
                        in the Preferences | General dialog)
@@ -2702,16 +2726,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                      - diTrueCPK, (Space filling display style)
                      - diDNACYLINDER (DNA cylinder display style)
         @type  disp: int
-        
+
         @note: This is identical to (and calls) L{setDisplay}, provided for 
         convenience.
         """
         self.setDisplay(disp)
-        
+
     def getGlobalDisplayStyle(self):
         """
         Returns the current global display style.
-        
+
         @return: The current global display style:
                 - diDEFAULT (the "NE1 start-up display style", defined
                   in the Preferences | General dialog)
@@ -3645,7 +3669,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # clear, and draw background
 
         c = self.backgroundColor
-        
+
         glClearColor(c[0], c[1], c[2], 0.0)
         self.fogColor = (c[0], c[1], c[2], 1.0) # piotr 080515        
         del c
@@ -3660,12 +3684,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            
+
             # Setting to blue sky (default), but might change to evening sky.
             _bgGradient = bluesky
             if self.backgroundGradient == bgEVENING_SKY:
                 _bgGradient = eveningsky
-                
+
             drawFullWindow(_bgGradient)
             # fogColor is an average of the gradient components
             # piotr 080515
@@ -3791,15 +3815,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(self.aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
-        #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
-        # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
-        # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
-        # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
-        if env.prefs[displayOriginAxis_prefs_key]:
-            if env.prefs[displayOriginAsSmallAxis_prefs_key]:
-                drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
-            else:
-                drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
+        # piotr 080515: added software stereo rendering support
+        if self.stereo_enabled:
+            # have two images, left and right, for the stereo rendering
+            stereo_image_range = [-1, 1]
+        else:
+            # draw only once if stereo is disabled
+            stereo_image_range = [0]
+
+        for stereo_image in stereo_image_range: 
+            # iterate over stereo images
+            self._enable_stereo(stereo_image, preserve_colors=True)
+
+            #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
+            # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
+            # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
+            # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
+            if env.prefs[displayOriginAxis_prefs_key]:
+                if env.prefs[displayOriginAsSmallAxis_prefs_key]:
+                    drawOriginAsSmallAxis(self.scale, (0.0, 0.0, 0.0), dashEnabled = True)
+                else:
+                    drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
+
+            self._disable_stereo()
 
         # draw some test images related to the confirmation corner
 
@@ -4649,19 +4687,30 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     # stereo rendering methods added by piotr 080515
 
-    def _enable_stereo(self, stereo_image):
+    def _enable_stereo(self, stereo_image, preserve_colors=False, no_clipping=False):
         """
         Enables stereo rendering.        
-        Stereo_image indicates which stereo image we are rendering
-        (-1 == left, 1 == right). 
+        Stereo_image . 
         It should be called before entering drawing phase
         and should be accompanied by a self._disable_stereo call.
         These methods push a modelview matrix on a matrix stack
         and modify the matrix.
+        @param stereo_image : Indicates which stereo image is being drawn
+        (-1 == left, 1 == right)
+        @param preserve_colors : Disable color mask manipulations
+        in anaglyph mode.
+        @param no_clipping : Disable clipping in side-by-side mode.
         """
+        
         if not self.stereo_enabled:
             # stereo disabled - just return
             return
+
+        if not stereo_image in (-1, 1):
+            # wrong stereo pair   
+            return
+
+        glPushAttrib(GL_TRANSFORM_BIT)
 
         stereo_mode = env.prefs[stereoViewMode_prefs_key]
         stereo_separation = 0.01 * env.prefs[stereoViewSeparation_prefs_key]
@@ -4673,21 +4722,24 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         separation = stereo_separation * self.scale
         angle = stereo_angle
-        
+
         if stereo_mode <= 2:
             # side-by-side stereo mode
             # clip left or right image 
             # reset the modelview matrix
-            glPushMatrix()
-            glLoadIdentity()
-            if stereo_image == -1:
-                clip_eq = (-1.0, 0.0, 0.0, 0.0)
-            else:
-                clip_eq = ( 1.0, 0.0, 0.0, 0.0)
-            # using GL_CLIP_PLANE5 for stereo clipping 
-            glClipPlane(GL_CLIP_PLANE5, clip_eq)
-            glEnable(GL_CLIP_PLANE5)
-            glPopMatrix()
+
+            if not no_clipping:
+                glPushMatrix()
+                glLoadIdentity()
+                if stereo_image == -1:
+                    clip_eq = (-1.0, 0.0, 0.0, 0.0)
+                else:
+                    clip_eq = ( 1.0, 0.0, 0.0, 0.0)
+                # using GL_CLIP_PLANE5 for stereo clipping 
+                glClipPlane(GL_CLIP_PLANE5, clip_eq)
+                glEnable(GL_CLIP_PLANE5)
+                glPopMatrix()
+
 
             # for cross-eyed mode, exchange left and right views
             if stereo_mode == 2:
@@ -4703,33 +4755,34 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                       self.up[0], 
                       self.up[1],
                       self.up[2])
-    
+
         else:
             # anaglyphs stereo mode            
             angle *= 0.5
-            if stereo_image == -1:
-                # red image
-                glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
-            else:
-                # clear depth buffer to combine red/blue images
-                glClear(GL_DEPTH_BUFFER_BIT)
-                if stereo_mode == 3:
-                    # blue image
-                    glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
-                elif stereo_mode == 4:
-                    # cyan image
-                    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
-                elif stereo_mode == 5:
-                    # green image
-                    glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE)
- 
+            if not preserve_colors:
+                if stereo_image == -1:
+                    # red image
+                    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
+                else:
+                    # clear depth buffer to combine red/blue images
+                    glClear(GL_DEPTH_BUFFER_BIT)
+                    if stereo_mode == 3:
+                        # blue image
+                        glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+                    elif stereo_mode == 4:
+                        # cyan image
+                        glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
+                    elif stereo_mode == 5:
+                        # green image
+                        glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE)
+
             # rotate the stereo image ("toe-in" method)
             glRotatef(angle * stereo_image,
                       self.up[0], 
                       self.up[1],
                       self.up[2])
- 
-                    
+
+
     def _disable_stereo(self):
         """
         Disables stereo rendering.
@@ -4744,21 +4797,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         if stereo_mode <=2:
             # side-by-side stereo mode
-            # make sure the clipping plane is disabled
+            # make sure that the clipping plane is disabled
             glDisable(GL_CLIP_PLANE5)
-            
             pass
-        
+
         else: 
             # anaglyphs stereo mode
             # enable all colors
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-            
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE) 
             pass
-        
+
         # restore the matrix
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
+
+        glPopAttrib()
 
     pass # end of class GLPane
 
