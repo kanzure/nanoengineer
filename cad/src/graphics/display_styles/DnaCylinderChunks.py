@@ -202,6 +202,111 @@ def get_dna_base_orientation_indicators(chunk, normal):
                     inv_indicators.append(atom1)
     
     return (indicators, inv_indicators)
+
+def get_all_available_dna_base_orientation_indicators(chunk, 
+                                                      normal,
+                                                      reference_indicator_dict = {},                                           
+                                                      skip_isStrandChunk_check = False):
+    """
+    
+    """
+    #@TODO: Move this and other methods out of this file , into a general
+    #helper pkg and module -- Ninad 2008-06-01
+    from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
+    from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+
+    indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
+    indicators_distance = env.prefs[dnaBaseIndicatorsDistance_prefs_key]
+
+    all_indicators_dict = {}
+        
+    if skip_isStrandChunk_check:
+        pass
+        #caller has already done this check and is explicitely asking to
+        #skip isStrandChunk test (for optimization) 
+    else:        
+        if chunk.isStrandChunk():
+            return {}, {}
+     
+    if chunk.ladder.axis_rail:
+        n_bases = chunk.ladder.baselength()
+        if chunk == chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+            chunk_strand = 0
+        else:
+            chunk_strand = 1
+        for pos in range(0, n_bases):
+            atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+            atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+            vz = normal
+            v2 = norm(atom1.posn()-atom2.posn())
+            # calculate the angle between this vector 
+            # and the vector towards the viewer
+            a = angleBetween(vz, v2)
+            if abs(a) < indicators_angle:
+                if not reference_indicator_dict.has_key(id(atom1)):
+                    all_indicators_dict[id(atom1)] = atom1
+            if abs(a) > (180.0 - indicators_angle):
+                if not reference_indicator_dict.has_key(id(atom1)):
+                    all_indicators_dict[id(atom1)] = atom1
+    
+    return all_indicators_dict
+    
+
+
+def get_dna_base_orientation_indicator_dict(chunk, 
+                                            normal,
+                                            reference_indicator_dict = {},
+                                            reference_inv_indicator_dict = {},
+                                            skip_isStrandChunk_check = False):
+    """
+    Returns two  dictoinaries for DNA bases perpendicular and anti-perpendicular
+    to a plane specified by the plane normal vector.
+    """
+    #@TODO: Move this and other methods out of this file , into a general
+    #helper pkg and module -- Ninad 2008-06-01
+    
+    from utilities.prefs_constants import dnaBaseIndicatorsAngle_prefs_key
+    from utilities.prefs_constants import dnaBaseIndicatorsDistance_prefs_key
+
+    indicators_angle = env.prefs[dnaBaseIndicatorsAngle_prefs_key]
+    indicators_distance = env.prefs[dnaBaseIndicatorsDistance_prefs_key]
+
+    indicators_dict = {}
+    inv_indicators_dict = {}
+        
+    if skip_isStrandChunk_check:
+        pass
+        #caller has already done this check and is explicitely asking to
+        #skip isStrandChunk test (for optimization) 
+    else:        
+        if chunk.isStrandChunk():
+            return {}, {}
+     
+    if chunk.ladder.axis_rail:
+        n_bases = chunk.ladder.baselength()
+        if chunk == chunk.ladder.strand_rails[0].baseatoms[0].molecule:
+            chunk_strand = 0
+        else:
+            chunk_strand = 1
+        for pos in range(0, n_bases):
+            atom1 = chunk.ladder.strand_rails[chunk_strand].baseatoms[pos]
+            atom2 = chunk.ladder.axis_rail.baseatoms[pos]
+            vz = normal
+            v2 = norm(atom1.posn()-atom2.posn())
+            # calculate the angle between this vector 
+            # and the vector towards the viewer
+            a = angleBetween(vz, v2)
+            if abs(a) < indicators_angle:
+                if not reference_indicator_dict.has_key(id(atom1)) and \
+                   not reference_inv_indicator_dict.has_key(id(atom1)):
+                    indicators_dict[id(atom1)] = atom1
+            if abs(a) > (180.0 - indicators_angle):
+                if not reference_indicator_dict.has_key(id(atom1)) and \
+                   not reference_inv_indicator_dict.has_key(id(atom1)):
+                    inv_indicators_dict[id(atom1)] = atom1
+    
+    return (indicators_dict, inv_indicators_dict)
+
    
 class DnaCylinderChunks(ChunkDisplayMode):
     """
