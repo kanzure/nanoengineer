@@ -120,7 +120,7 @@ from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import pink, yellow
 
 from utilities.constants import ErrorPickedColor
-from utilities.constants import PickedColor
+from utilities.prefs_constants import selectionColor_prefs_key
 
 from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
@@ -1884,7 +1884,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if self.bad():
                 color = ErrorPickedColor
             else:
-                color = PickedColor
+                # russ 080530: Changed to pref from PickedColor constant (blue).
+                color = env.prefs[selectionColor_prefs_key]
             drawwiresphere(color, pos, pickedrad) ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
         #bruce 050806: check valence more generally, and not only for picked atoms.
         self.draw_error_wireframe_if_needed(glpane, disp, pos, pickedrad,
