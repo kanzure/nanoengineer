@@ -4706,10 +4706,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # stereo disabled - just return
             return
 
-        if not stereo_image in (-1, 1):
-            # wrong stereo pair   
-            return
-
         glPushAttrib(GL_TRANSFORM_BIT)
 
         stereo_mode = env.prefs[stereoViewMode_prefs_key]
