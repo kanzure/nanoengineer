@@ -80,6 +80,7 @@ class DnaFlyout:
         self.subControlActionGroup.addAction(self.dnaDuplexAction)
         self.subControlActionGroup.addAction(self.breakStrandAction) 
         self.subControlActionGroup.addAction(self.joinStrandsAction)
+        self.subControlActionGroup.addAction(self.makeCrossoversAction)
         self.subControlActionGroup.addAction(self.displayStyleAction)
 
         #Action List for  subcontrol Area buttons. 
@@ -91,6 +92,7 @@ class DnaFlyout:
         subControlAreaActionList.append(self.dnaDuplexAction)        
         subControlAreaActionList.append(self.breakStrandAction)
         subControlAreaActionList.append(self.joinStrandsAction)
+        subControlAreaActionList.append(self.makeCrossoversAction)
         subControlAreaActionList.append(self.convertPAM3to5Action)
         subControlAreaActionList.append(self.convertPAM5to3Action)
         subControlAreaActionList.append(self.orderDnaAction)
@@ -133,6 +135,12 @@ class DnaFlyout:
         self.joinStrandsAction.setCheckable(True)        
         self.joinStrandsAction.setIcon(
             geticon("ui/actions/Command Toolbar/Join_Strands.png"))
+        
+        self.makeCrossoversAction = QtGui.QWidgetAction(parentWidget)
+        self.makeCrossoversAction.setText("Crossovers")
+        self.makeCrossoversAction.setCheckable(True)        
+        self.makeCrossoversAction.setIcon(
+            geticon("ui/actions/Command Toolbar/Crossover.png"))
 
         self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
         self.dnaOrigamiAction.setText("Origami")
@@ -206,6 +214,10 @@ class DnaFlyout:
         change_connect(self.joinStrandsAction,
                              SIGNAL("triggered(bool)"),
                              self.activateJoinStrands_Command)
+        
+        change_connect(self.makeCrossoversAction,
+                             SIGNAL("triggered(bool)"),
+                             self.activateMakeCrossovers_Command)
         
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
@@ -359,6 +371,23 @@ class DnaFlyout:
             if action is not self.joinStrandsAction and action.isChecked():
                 action.setChecked(False)
             elif action is self.joinStrandsAction and not action.isChecked():
+                pass
+                #action.setChecked(True)
+                
+    def activateMakeCrossovers_Command(self, isChecked):
+        """
+        Call the method that enters JoinStrands_Command. (After entering the 
+        command) Also make sure that all the other actions on the DnaFlyout 
+        toolbar are unchecked AND the JoinStrands Action is checked. 
+        """
+        self.win.enterMakeCrossoversCommand(isChecked)
+        
+        #Uncheck all the actions except the join strands action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.makeCrossoversAction and action.isChecked():
+                action.setChecked(False)
+            elif action is self.makeCrossoversAction and not action.isChecked():
                 pass
                 #action.setChecked(True)
         

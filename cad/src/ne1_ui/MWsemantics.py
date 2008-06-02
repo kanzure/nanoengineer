@@ -157,6 +157,7 @@ class MWsemantics(QMainWindow,
         self.dnaDuplexPropMgr = None
         self.dnaSegmentPropMgr = None
         self.multipleDnaSegmentPropMgr = None
+        self.makeCrossoversPropMgr = None
         self.dnaStrandPropMgr = None
         self.buildDnaPropMgr = None
         self.buildCntPropMgr = None
@@ -1706,6 +1707,22 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'JOIN_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
+                        
+                
+    def enterMakeCrossoversCommand(self, isChecked = False):
+        """
+        Enter make crossovers command.
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "MAKE_CROSSOVERS":
+            commandSequencer.userEnterTemporaryCommand(
+                'MAKE_CROSSOVERS')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'MAKE_CROSSOVERS':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+                
 
     def enterOrderDnaCommand(self, isChecked = False):
         """
@@ -2049,6 +2066,29 @@ class MWsemantics(QMainWindow,
             self.multipleDnaSegmentPropMgr.setEditCommand(editCommand)
 
         return self.multipleDnaSegmentPropMgr
+    
+    
+    def createMakeCrossoversPropMgr_if_needed(self, editCommand):
+        """
+        Create the a Property manager object (if one doesn't exist)  for the
+        Make Crossovers command.
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{{MakeCrossovers_Command}
+        @see: B{MakeCrossovers_Command._createPropMgrObject}
+        """
+
+        from dna.commands.MakeCrossovers.MakeCrossovers_PropertyManager import MakeCrossovers_PropertyManager
+        if self.makeCrossoversPropMgr is None:
+            self.makeCrossoversPropMgr = \
+                MakeCrossovers_PropertyManager(self, editCommand)
+
+        else:
+            self.makeCrossoversPropMgr.setEditCommand(editCommand)
+
+        return self.makeCrossoversPropMgr
+    
 
 
     def createDnaStrandPropMgr_if_needed(self, editCommand):

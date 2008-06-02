@@ -35,41 +35,48 @@ from commands.Extrude.extrudeMode import extrudeMode
 from commands.Paste.PasteMode import PasteMode
 from commands.PartLibrary.PartLibraryMode import PartLibraryMode
 from commands.PlayMovie.movieMode import movieMode
-from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
-from temporary_commands.ZoomInOutMode import ZoomInOutMode
-from temporary_commands.PanMode import PanMode
-from temporary_commands.RotateMode import RotateMode
-from temporary_commands.LineMode import LineMode
-from dna.temporary_commands.DnaLineMode import DnaLineMode
-from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
 from commands.PlaneProperties.Plane_EditCommand import Plane_EditCommand
 from commands.RotaryMotorProperties.RotaryMotor_EditCommand import RotaryMotor_EditCommand
 from commands.LinearMotorProperties.LinearMotor_EditCommand import LinearMotor_EditCommand
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
 from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
-from dna.commands.BreakStrands.BreakStrands_Command import BreakStrands_Command
-from dna.commands.BuildDna.BuildDna_EditCommand import BuildDna_EditCommand
-from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
-from dna.commands.DnaStrand.DnaStrand_EditCommand import DnaStrand_EditCommand
-from dna.commands.OrderDna.OrderDna_Command import OrderDna_Command
-from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle_Command
-from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
-from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
-from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSegment_EditCommand
 from commands.Move.Move_Command import Move_Command
 from commands.Rotate.RotateChunks_Command import RotateChunks_Command
 from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
 from commands.Fuse.FuseChunks_Command import FuseChunks_Command
-from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
-from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
-
 # Urmi background color chooser PM 080523
 from commands.ColorScheme.ColorScheme_Command import ColorScheme_Command
-
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
+
+from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
+from temporary_commands.ZoomInOutMode import ZoomInOutMode
+from temporary_commands.PanMode import PanMode
+from temporary_commands.RotateMode import RotateMode
+from temporary_commands.LineMode import LineMode
+from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
+
+#Carbon nanotube command imports 
+from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
+from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
+from cnt.commands.NanotubeSegment.NanotubeSegment_EditCommand import NanotubeSegment_EditCommand
+
+#DNA command imports =======
+
+from dna.commands.BuildDna.BuildDna_EditCommand     import BuildDna_EditCommand
+from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
+from dna.commands.DnaSegment.DnaSegment_EditCommand import DnaSegment_EditCommand
+from dna.commands.DnaStrand.DnaStrand_EditCommand   import DnaStrand_EditCommand
+from dna.commands.MakeCrossovers.MakeCrossovers_Command import MakeCrossovers_Command
+from dna.commands.BreakStrands.BreakStrands_Command import BreakStrands_Command
+from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
+from dna.commands.OrderDna.OrderDna_Command       import OrderDna_Command
+from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle_Command
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
+from dna.temporary_commands.DnaLineMode             import DnaLineMode
+
+
 def preloaded_command_classes():
     """
     Return a list of command classes for the commands which are always loaded
@@ -104,9 +111,11 @@ def preloaded_command_classes():
         RotaryMotor_EditCommand,
         BreakStrands_Command,
         JoinStrands_Command,
+        MakeCrossovers_Command,
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 
         DnaStrand_EditCommand,
+        MultipleDnaSegmentResize_EditCommand,
         OrderDna_Command,
         DnaDisplayStyle_Command,
         BuildNanotube_EditCommand,
@@ -115,8 +124,7 @@ def preloaded_command_classes():
         RotateChunks_Command,
         TranslateChunks_Command, 
         FuseChunks_Command,
-        RotateAboutPoint_Command,
-        MultipleDnaSegmentResize_EditCommand,
+        RotateAboutPoint_Command,        
         StereoProperties_Command,
         ColorScheme_Command
     ]
