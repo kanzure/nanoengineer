@@ -49,7 +49,7 @@ from dna.commands.BuildDuplex.B_Dna_PAM3_SingleStrand import B_Dna_PAM3_SingleSt
 from command_support.EditCommand import EditCommand 
 
 from utilities.constants import noop
-from utilities.constants import darkgreen, red, black
+from utilities.constants import red, black
 from utilities.Comparison import same_vals
 
 from utilities.prefs_constants import dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key

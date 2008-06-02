@@ -16,7 +16,9 @@ see MultipleDnaSegmentResize_EditCommand
 from dna.commands.DnaSegment.DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 from PyQt4.Qt import Qt
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
-from utilities.constants import black, banana, silver, lighterblue, darkred, darkgreen
+import foundation.env as env
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import black, banana, silver, lighterblue, darkred
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
 
@@ -243,7 +245,7 @@ class MultipleDnaSegmentResize_GraphicsMode(DnaSegment_GraphicsMode):
                     
                     #Draw a sphere that indicates the current position of 
                     #the resize end of each segment . 
-                    drawsphere(darkgreen, 
+                    drawsphere(env.prefs[selectionColor_prefs_key], 
                                end2, 
                                SPHERE_RADIUS_2,
                                SPHERE_DRAWLEVEL,

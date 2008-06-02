@@ -54,8 +54,8 @@ from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
 from graphics.drawing.drawers import drawwirecube
 
+from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.constants import gensym
-from utilities.constants import darkgreen
 from utilities.constants import blue
 from utilities.constants import darkred
 from utilities.constants import black
@@ -94,7 +94,7 @@ class Jig(NodeWith3DContents, Selobj_API):
     
     sym = "Jig" # affects name-making code in __init__
 
-    pickcolor = darkgreen # color in glpane when picked. [mark 2007-05-07 modified color]
+    pickcolor = env.prefs[selectionColor_prefs_key] # color in glpane when picked. [russ 080530: pref.]
 
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
         # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)

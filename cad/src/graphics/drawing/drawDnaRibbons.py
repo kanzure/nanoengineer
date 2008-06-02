@@ -34,7 +34,7 @@ from graphics.drawing.drawers import drawtext
 
 from geometry.VQT import norm, vlen, V, cross, Q
 from geometry.VQT import orthodist, angleBetween
-from utilities.constants import white, darkgreen, blue
+from utilities.constants import white, blue
 from utilities.constants import diTrueCPK, diTUBES, diLINES
 
 from Numeric import dot

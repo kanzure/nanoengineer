@@ -26,6 +26,7 @@ from exprs.Arrow import Arrow
    
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
+from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.constants import darkgreen
 from utilities.constants import olive
 
@@ -120,7 +121,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
         """
         #Change the handle color when handle is grabbed. See declaration of 
         #self.handleColor in the class definition. 
-        self.handleColor = darkgreen
+        self.handleColor = env.prefs[selectionColor_prefs_key]
         
         #assign 'self' as the curent grabbed handle of the command. 
         self.command.grabbedHandle = self

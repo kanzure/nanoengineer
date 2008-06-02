@@ -23,7 +23,10 @@ from OpenGL.GL import glRotatef
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
-from utilities.constants import black, orange, darkgreen
+
+import foundation.env as env
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import black, orange
 
 from math import pi
 from geometry.VQT import V
@@ -137,7 +140,7 @@ class ResizeHandle(DragHandler_API, Selobj_API):
                    glpane_q.y, 
                    glpane_q.z) 
        
-        drawPlane(darkgreen, 
+        drawPlane(env.prefs[selectionColor_prefs_key], 
                   side, 
                   side, 
                   self.textureReady,

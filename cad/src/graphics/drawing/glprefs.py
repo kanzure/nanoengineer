@@ -41,6 +41,9 @@ from utilities.prefs_constants import material_specular_highlights_prefs_key
 from utilities.prefs_constants import material_specular_shininess_prefs_key
 from utilities.prefs_constants import material_specular_finish_prefs_key
 from utilities.prefs_constants import material_specular_brightness_prefs_key
+from utilities.prefs_constants import selectionColorStyle_prefs_key
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import haloWidth_prefs_key
 
 import graphics.drawing.drawing_globals as drawing_globals
 if drawing_globals.quux_module_import_succeeded:
@@ -151,6 +154,12 @@ class glprefs:
                               drawing_globals.use_color_sorted_vbos_default),)
         res += (env.prefs.get(drawing_globals.use_drawing_variant_prefs_key,
                               drawing_globals.use_drawing_variant_default),)
+
+        # russ 080530: Selection style preference now goes into the display list.
+        res += (env.prefs[selectionColorStyle_prefs_key],)
+        res += (env.prefs[selectionColor_prefs_key],)
+        res += (env.prefs[haloWidth_prefs_key],)
+
         return res
 
     pass # end of class glprefs

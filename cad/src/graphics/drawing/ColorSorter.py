@@ -65,7 +65,12 @@ from OpenGL.GL import glPushName
 from OpenGL.GL import GL_SRC_ALPHA
 from OpenGL.GL import GL_TRUE
 
-from utilities.constants import darkgreen
+import foundation.env as env
+from utilities.prefs_constants import selectionColor_prefs_key
+from graphics.drawing.gl_lighting import isPatternedDrawing
+from graphics.drawing.gl_lighting import startPatternedDrawing
+from graphics.drawing.gl_lighting import endPatternedDrawing
+
 import graphics.drawing.drawing_globals as drawing_globals
 if drawing_globals.quux_module_import_succeeded:
     import quux
@@ -586,6 +591,7 @@ class ColorSorter:
             else: #russ 080225
 
                 parent_csdl.reset()
+                selColor = env.prefs[selectionColor_prefs_key]
 
                 # First build the lower level per-color sublists of primitives.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
@@ -692,11 +698,23 @@ class ColorSorter:
 
                 glEndList()
 
-                # A third overlays the second with a single color for selection.
+                # A third DL implements the selected appearance.
                 selected_dl = parent_csdl.selected_dl = glGenLists(1)
                 glNewList(selected_dl, GL_COMPILE)
-                apply_material(darkgreen)
+                # russ 080530: Support for patterned selection drawing modes.
+                patterned = isPatternedDrawing(select=True)
+                if patterned:
+                    # Patterned drawing needs the colored dl drawn first.
+                    glCallList(color_dl)
+                    startPatternedDrawing(select=True)
+                    pass
+                # Draw solid color (unpatterned) or an overlay pattern, in the
+                # selection color.
+                apply_material(selColor)
                 glCallList(nocolor_dl)
+                if patterned:
+                    # Reset from patterning drawing mode.
+                    endPatternedDrawing(select=True)
                 glEndList()
 
                 # Use either the normal-color display list or the selected one.

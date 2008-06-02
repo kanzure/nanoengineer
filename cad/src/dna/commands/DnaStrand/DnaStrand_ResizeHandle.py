@@ -38,7 +38,8 @@ from exprs.Rect             import Sphere
    
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.constants import purple, darkgreen
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import purple
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
@@ -60,13 +61,16 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         # that would also be more reliable, since as it is, any failure for
         # on_release to be called would leave the handle stuck in the
         # grabbed state; client code would be wise to sometimes reset
-        # this state. Also, it seems rare to ever see this darkgreen color
+        # this state. Also, it seems rare to ever see this selection color
         # since the handle is usually highlighted and yellow while dragging it.
+        # [Depending on the highlight and selection drawing mode.  Russ 080530]
         # So this state could probably just be removed, with all uses of
         # _currentHandleColor changes to uses of handleColor.
         # [bruce 080409]
     
-    _currentHandleColor = If_expr( handleIsGrabbed, darkgreen, _self.handleColor)
+    _currentHandleColor = If_expr( handleIsGrabbed,
+                                   env.prefs[selectionColor_prefs_key],
+                                   _self.handleColor)
         
     #The caller-specified formula that determines the radius (of the sphere) of this handle. 
     #See DnaStrand_EditCommand._determine_resize_handle_radius() for more 
@@ -204,7 +208,7 @@ class DnaStrand_ResizeHandle(DraggableHandle_AlongLine):
         #Change the handle color when handle is grabbed. See declaration of 
         #self.handleColor in the class definition. 
       
-        ## self._currentHandleColor = darkgreen
+        ## self._currentHandleColor = env.prefs[selectionColor_prefs_key]
         self.handleIsGrabbed = True
         
         #assign 'self' as the curent grabbed handle of the command. 

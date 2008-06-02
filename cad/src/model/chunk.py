@@ -56,13 +56,6 @@ from Numeric import compress
 from Numeric import take
 from Numeric import argmax
 
-from OpenGL.GL import GL_BACK
-from OpenGL.GL import GL_CULL_FACE
-from OpenGL.GL import GL_FILL
-from OpenGL.GL import GL_FRONT
-from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import GL_LINE
-from OpenGL.GL import glLineWidth
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
@@ -70,11 +63,6 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
-from OpenGL.GL import glPolygonMode
-from OpenGL.GL import glPolygonOffset
-from OpenGL.GL import GL_POLYGON_OFFSET_LINE
-from OpenGL.GL import GL_POLYGON_STIPPLE
-from OpenGL.GL import glPolygonStipple
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
@@ -108,13 +96,6 @@ from utilities.Comparison import same_vals
 ##from foundation.state_utils import copy_val
 from graphics.display_styles.displaymodes import get_display_mode_handler
 
-from utilities.prefs_constants import haloWidth_prefs_key 
-from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
-from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR, HHS_CROSSHATCH
-from utilities.prefs_constants import HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_HALO
-
-import numpy
-
 from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 from utilities import debug_flags
@@ -134,7 +115,9 @@ from graphics.drawing.ColorSorter import ColorSortedDisplayList
 
 ##from constants import PickedColor
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.constants import darkgreen
+from utilities.prefs_constants import selectionColor_prefs_key
+from graphics.drawing.gl_lighting import startPatternedDrawing
+from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from utilities.constants import gensym, genKey
 
@@ -425,13 +408,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
         self.glname = env.alloc_my_glselect_name(self) 
-
-        # (Class globals) 32x32 stipple bitmask patterns, in C arrays.
-        # To avoid "seams", repeated subpattern sizes must be a power of 2.
-        # ScreenDoor - 2x2 repeat, 1/4 density (one corner turned on.)
-        Chunk.ScreenDoor = numpy.array(16*(4*[0xaa] + 4*[0x00]), dtype=numpy.uint8)
-        # CrossHatch - 4x4 repeat, 7/16 density (two edges of a square turned on.)
-        Chunk.CrossHatch = numpy.array(8*(4*[0xff] + 12*[0x11]), dtype=numpy.uint8)
 
         return # from Chunk.__init__
 
@@ -2131,6 +2107,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
+        selColor = env.prefs[selectionColor_prefs_key]
         #bruce 080215 split this out, added debug_pref
         # piotr 080320: if this debug_pref is set, the external bonds 
         # are hidden whenever the mouse is dragged. this speeds up interactive 
@@ -2215,7 +2192,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                             # implemented. piotr 080401
                             continue # skip the bond drawing if culled
                     if bond.atom1.molecule.picked and bond.atom2.molecule.picked:
-                        color = darkgreen #bruce 080430 cosmetic improvement
+                        color = selColor #bruce 080430 cosmetic improvement
                             # REVIEW: not sure this color is correct; it needs to be a named constant
                     else:
                         color = bondcolor
@@ -2369,25 +2346,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
 
-            HHPattern = self.getHoverHighlightingPattern() # russ 080523
-            if HHPattern is not None:
-                glEnable(GL_POLYGON_STIPPLE)
-                glPolygonStipple(HHPattern)
-                pass
-
-            HHStyle = env.prefs[hoverHighlightingColorStyle_prefs_key] # russ 080529
-            if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO:
-                glPolygonMode(GL_FRONT, GL_LINE)
-                glPolygonMode(GL_BACK, GL_LINE)
-                if HHStyle is HHS_HALO:
-                    # Draw wide, unshaded lines, offset away from the viewer
-                    # so only the silhouette edges are visible.
-                    glDisable(GL_LIGHTING)
-                    glLineWidth(env.prefs[haloWidth_prefs_key])
-                    glEnable(GL_POLYGON_OFFSET_LINE)
-                    glPolygonOffset(0.0, 5.e4) # Constant offset.
-                    pass
-                pass
+            # russ 080530: Support for patterned highlighting drawing modes.
+            patterned = startPatternedDrawing(highlight=True)
 
             #russ 080225: Alternate drawing method using colorless display list.
             ##russ 080317 Bypass assertion for DnaStrand.
@@ -2423,20 +2383,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 hd._drawchunk_realtime(glpane, self, highlighted=True)
                 pass
 
-            if HHPattern is not None:   # russ 080523
-                glDisable(GL_POLYGON_STIPPLE)
-                pass
-
-            if HHStyle is HHS_POLYGON_EDGES or HHStyle is HHS_HALO: # russ 080529
-                glPolygonMode(GL_FRONT, GL_FILL)
-                glPolygonMode(GL_BACK, GL_FILL)
-                if HHStyle is HHS_HALO:
-                    glEnable(GL_LIGHTING)
-                    glLineWidth(1.0)
-                    glDisable(GL_POLYGON_OFFSET_LINE)
-                    glPolygonOffset(0.0, 0.0)
-                    pass
-                pass
+            # russ 080530: Support for patterned highlighting drawing modes.
+            if patterned:
+                endPatternedDrawing(highlight=True)
             
         else:
             if self.get_dispdef() == diDNACYLINDER :
@@ -2480,15 +2429,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         return
 
-    def getHoverHighlightingPattern(self): # russ 080523
-        HHStyle = env.prefs[hoverHighlightingColorStyle_prefs_key]
-        if HHStyle is HHS_SCREENDOOR:
-            return Chunk.ScreenDoor
-        if HHStyle is HHS_CROSSHATCH:
-            return Chunk.CrossHatch
-        else:
-            return None
-
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
         """
         [private submethod of self.draw:]
@@ -2515,7 +2455,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # this now also affects Atom.drawing_color
             # (but it's unclear whether that ever affects color
             #  of external bonds -- apparently not, in my tests)
-            color = darkgreen
+            color = env.prefs[selectionColor_prefs_key]
         else:
             color = self.color # None or a color
         color = self.modify_color_for_error(color)

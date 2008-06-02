@@ -11,7 +11,9 @@ not as part of their implementation for minimize.
 """
 
 from model.jigs import Jig
-from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray, darkgreen
+import foundation.env as env
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray
 from graphics.drawing.drawers import drawwirecube
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawcylinder
@@ -284,7 +286,7 @@ class VirtualBondJig( VisualFeedbackJig):
         if highlighted:
             color = yellow
         elif self.picked:
-            color = darkgreen
+            color = env.prefs[selectionColor_prefs_key]
         else:
             color = self._drawing_color()
         ## if self._should_draw_thicker(): ###k is this right?

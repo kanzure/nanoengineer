@@ -61,7 +61,8 @@ from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.constants import ave_colors, black, red, blue, white, darkgreen
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import ave_colors, black, red, blue, white
 
 from utilities.prefs_constants import atomHighlightColor_prefs_key
 
@@ -1027,7 +1028,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
         else:
             chunk_color = white
 
-        HHColor = env.prefs[hoverHighlightingColor_prefs_key]
+        hhColor = env.prefs[hoverHighlightingColor_prefs_key]
+        selColor = env.prefs[selectionColor_prefs_key]
 
         if self.dnaExperimentalMode == 0:
 
@@ -1078,9 +1080,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                         pos1 = atom1.posn()
                         pos2 = atom2.posn()
                         if chunk.picked:
-                            color = darkgreen
+                            color = selColor
                         if highlighted:
-                            color = HHColor
+                            color = hhColor
                         else:
                             pos1 = chunk.abs_to_base(pos1)
                             pos2 = chunk.abs_to_base(pos2)
@@ -1184,9 +1186,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
 
                                     # define a color of the label
                                     if highlighted:
-                                        glpane.qglColor(RGBf_to_QColor(HHColor))
+                                        glpane.qglColor(RGBf_to_QColor(hhColor))
                                     elif chunk.picked:
-                                        glpane.qglColor(RGBf_to_QColor(darkgreen))
+                                        glpane.qglColor(RGBf_to_QColor(selColor))
                                     else:
                                         if labels_color_mode == 0:
                                             glpane.qglColor(RGBf_to_QColor(chunk_color))
@@ -1355,10 +1357,10 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                 strand_color = lightgreen
                             
                             if chunk.picked:
-                                strand_color = darkgreen
+                                strand_color = selColor
                              
                             if highlighted:
-                                strand_color = HHColor
+                                strand_color = hhColor
                                 
                             glColor3fv(strand_color)
                             
@@ -1416,16 +1418,16 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                         color = black
                                         
                                         if chunk.picked:
-                                            glColor3fv(darkgreen)                                        
-                                            color = darkgreen
+                                            glColor3fv(selColor)                                        
+                                            color = selColor
                                         else:
                                             base_color = self._get_base_color(base_name)
                                             glColor3fv(base_color)
                                             color = base_color
                                             
                                         if highlighted:
-                                            glColor3fv(HHColor)
-                                            color = HHColor
+                                            glColor3fv(hhColor)
+                                            color = hhColor
                                             
                                         ### drawtext(label_text, color, textpos, font_scale, glpane)
                                         glpane.renderText(textpos[0], 
@@ -1438,9 +1440,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     glLineWidth(lw)
                                     glBegin(GL_LINES)
                                     if chunk.picked:
-                                        glColor3fv(darkgreen)
+                                        glColor3fv(selColor)
                                     elif highlighted:
-                                        glColor3fv(HHColor)
+                                        glColor3fv(hhColor)
                                     for base in base_list:
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
                                         if str_atoms[str]:
@@ -1457,9 +1459,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                     # draw circles interior
                                     for base in base_list:
                                         if chunk.picked:
-                                            lcolor = _light_color(darkgreen)
+                                            lcolor = _light_color(selColor)
                                         elif highlighted:
-                                            lcolor = HHColor
+                                            lcolor = hhColor
                                         else:
                                             lcolor = _light_color(strand_color)
                                         ax_atom, ax_atom_pos, str_atoms, str_atoms_pos = base
@@ -1485,9 +1487,9 @@ class DnaCylinderChunks(ChunkDisplayMode):
                     if mode == 0:
                         # Draw filled circles in the center of the axis rail.
                         if chunk.picked:
-                            color = darkgreen
+                            color = selColor
                         elif highlighted:
-                            color = HHColor
+                            color = hhColor
                         else:
                             color = black
                         for base in base_list:

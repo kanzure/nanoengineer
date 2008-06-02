@@ -31,7 +31,8 @@ from utilities import debug_flags
 
 from utilities.debug import print_compact_traceback
 
-from utilities.constants import darkgreen, orange, yellow
+from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.constants import orange, yellow
 
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
@@ -54,7 +55,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
     featurename     =  "" 
     color           =  orange
     normcolor       =  color
-    pickcolor       =  darkgreen 
+    pickcolor       =  env.prefs[selectionColor_prefs_key]
     atoms           =  []
     points          =  None
     handles         =  None

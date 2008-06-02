@@ -32,7 +32,7 @@ from OpenGL.GL import GL_TEXTURE_2D
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
-from utilities.constants import black, orange, yellow, darkgreen, brown
+from utilities.constants import black, orange, yellow, brown
 
 from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 from geometry.BoundingBox import BBox
