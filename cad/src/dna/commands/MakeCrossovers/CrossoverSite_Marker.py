@@ -32,7 +32,7 @@ things are related to displaying things in the GM (But the 'identifying
 crossover sites' is a general part)
 """
 
-
+import foundation.env as env
 import time
 from utilities.constants import black, banana
 from dna.commands.MakeCrossovers.MakeCrossovers_Handle import MakeCrossovers_Handle
@@ -46,6 +46,8 @@ from graphics.display_styles.DnaCylinderChunks import get_all_available_dna_base
 from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.Arrow           import Arrow
 from exprs.Highlightable    import Highlightable
+
+from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
 
 MAX_DISTANCE_BETWEEN_CROSSOVER_SITES = 17
 #Following is used by the algoritm that searches for neighboring dna segments 
@@ -87,21 +89,57 @@ class CrossoverSite_Marker:
         self._final_crossover_atoms_dict = {} 
             
     def update(self):
-        self._updateAllDnaSegmentDict() 
+        """
+        Does a full update (including exprs handle creation
+        @see: self.partialUpdate()
+        """
+        self.clearDictionaries()
+        self._updateAllDnaSegmentDict()    
         self._updateCrossoverSites()
         self._createExprsHandles()
+        
+    def partialUpdate(self):
+        """
+        Updates everything but the self.handleDict i.e. updates the crossover sites
+        but doesn't create/ update handles. 
+        #DOC and revise 
+        @see: MakeCrossovers_GraphicsMode.leftUp()
+        @see: MakeCrossovers_GraphicsMode.leftDrag()
+        @see: self.update()
+        """
+        self._allDnaSegmentDict = {}            
+        self._base_orientation_indicator_dict = {}
+        self._DEBUG_plane_normals_ends_for_drawing = []
+        self._DEBUG_avg_center_pairs_of_potential_crossovers = []
+        self.final_crossover_pairs_dict = {}        
+        self._final_avg_center_pairs_for_crossovers_dict = {}
+        self._raw_crossover_atoms_dict = {}    
+        #This dict contains all ids of all the potential cross over atoms, whose
+        #also have their neighbor atoms in the self._raw_crossover_atoms_dict
+        self._raw_crossover_atoms_with_neighbors_dict = {}
+        self._final_crossover_atoms_dict = {}        
+        self._updateAllDnaSegmentDict()
+        self._updateCrossoverSites()
+        
+    def updateHandles(self):
+        """
+        Only update handles, don't recompute crossover sites. (This method 
+        assumes that the crossover sites are up to date.
+        """
+        self._createExprsHandles()
+       
         
     def updateExprsHandleDict(self):
         self.clearDictionaries()
         self.update() 
         
-    def update_after_crossover(self, crossoverPairs):
+    def update_after_crossover_creation(self, crossoverPairs):
         crossoverPairs_id = self._create_crossoverPairs_id(crossoverPairs)
         if self.final_crossover_pairs_dict.has_key(crossoverPairs_id):
             del self.final_crossover_pairs_dict[crossoverPairs_id]
         if self._final_avg_center_pairs_for_crossovers_dict.has_key(crossoverPairs_id):
             del self._final_avg_center_pairs_for_crossovers_dict[crossoverPairs_id]
-            
+                
         
     def clearDictionaries(self):
         self._allDnaSegmentDict = {}            
@@ -151,7 +189,13 @@ class CrossoverSite_Marker:
 
     def _updateAllDnaSegmentDict(self):
         self._allDnaSegmentDict.clear()
-        allDnaSegments = self.getAllDnaSegments()
+        #If this preferece value is True, the search algotithm will search for
+        #the potential crossover sites only *between* the segments in the 
+        #segment list widget (thus ignoring other segments not in that list)
+        if env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]:
+            allDnaSegments = self.command.getSegmentList()
+        else:
+            allDnaSegments = self.getAllDnaSegments()
 
         for segment in allDnaSegments:
             if not self._allDnaSegmentDict.has_key(segment):

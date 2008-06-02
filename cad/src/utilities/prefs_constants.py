@@ -273,6 +273,8 @@ dnaStrandEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text w
 dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key = 'A110/Show number of bases info in cursor text while in DnaStrand_Editcommand'
 dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaStrand_Editcommand'
 
+
+makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key = 'A110/search for crossover sites between the given dna segments only'
 # DNA Minor Groove Error Indicator prefs
 dnaDisplayMinorGrooveErrorIndicators_prefs_key = 'A10/Display DNA minor groove error indicators'
 dnaMinMinorGrooveAngle_prefs_key = 'A10/DNA minimum minor groove angle'
@@ -706,6 +708,12 @@ prefs_table = (
      
     ('', 'boolean',
     dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
+    
+    
+    #Make crossovers command 
+    ('', 'boolean',
+    makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key,
+    True),    
     
     
     #Nanotube cursor text prefs

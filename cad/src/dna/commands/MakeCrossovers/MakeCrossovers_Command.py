@@ -124,7 +124,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         self._bond_two_strandAtoms(atm1, neighbor2)
         self._bond_two_strandAtoms(atm2, neighbor1)
         
-        self.graphicsMode.update_after_crossover(crossoverPairs)
+        self.graphicsMode.update_after_crossover_creation(crossoverPairs)
                 
     
     def _bond_two_strandAtoms(self, atm1, atm2):

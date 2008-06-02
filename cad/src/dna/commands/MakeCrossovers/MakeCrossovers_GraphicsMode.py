@@ -16,6 +16,7 @@ History:
 TODO  2008-06-01 :
 See class CrossoverSite_Marker for details
 """
+import foundation.env as env
 from utilities.constants import banana, silver,  darkred, darkgreen, yellow
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
@@ -24,6 +25,7 @@ from graphics.drawing.CS_draw_primitives import drawline
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.MakeCrossovers.ListWidgetItems_GraphicsMode_Mixin import ListWidgetItems_GraphicsMode_Mixin
 from dna.commands.MakeCrossovers.CrossoverSite_Marker import CrossoverSite_Marker
+from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
 
 SPHERE_DRAWLEVEL = 2
 SPHERE_OPACITY = 0.5 
@@ -32,25 +34,30 @@ CYL_OPACITY = 0.4
 SPHERE_RADIUS =  2.0
 
 
-
-
-
 _superclass = BuildDna_GraphicsMode
 class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
                                   ListWidgetItems_GraphicsMode_Mixin):
     
     DEBUG_DRAW_PLANE_NORMALS = False
     DEBUG_DRAW_AVERAGE_CENTER_PAIRS_OF_POTENTIAL_CROSSOVERS = False
-    DEBUG_DRAW_ALL_POTENTIAL_CROSSOVER_SITES =  True
+    DEBUG_DRAW_ALL_POTENTIAL_CROSSOVER_SITES =  False
 
     _crossoverSite_marker = None
+    
+    _handleDrawingRequested = True
+    #@see: self.leftADown where this flag is set. It is then used in 
+    #self.leftADrag
+    _should_update_crossoverSites_during_leftDrag = False
+    
     def __init__(self, glpane):
         _superclass.__init__(self, glpane)
+        self._handleDrawingRequested = True
         self._createCrossoverSite_Marker_if_needed()
     
     def _createCrossoverSite_Marker_if_needed(self):
         if self._crossoverSite_marker is None:
             self._crossoverSite_marker = CrossoverSite_Marker(self)
+            
     def Enter_GraphicsMode(self):
         _superclass.Enter_GraphicsMode(self)  
         self._createCrossoverSite_Marker_if_needed()
@@ -65,8 +72,8 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
     def updateExprsHandleDict(self):
         self._crossoverSite_marker.updateExprsHandleDict()  
         
-    def update_after_crossover(self, crossoverPairs):
-        self._crossoverSite_marker.update_after_crossover(crossoverPairs)
+    def update_after_crossover_creation(self, crossoverPairs):
+        self._crossoverSite_marker.update_after_crossover_creation(crossoverPairs)
         
     def update_cursor_for_no_MB(self):
         """
@@ -74,6 +81,24 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
         """  
         _superclass.update_cursor_for_no_MB(self)
         ListWidgetItems_GraphicsMode_Mixin.update_cursor_for_no_MB(self)
+        
+    def leftADown(self, objectUnderMouse, event):
+        """
+        Overrides superclass method. This method also sets flag used in 
+        self.leftDrag that decide whether to compute the crossover sites 
+        during the left drag.Example: If user is dragging a dnaSegment that is 
+        is not included in the crossover site search, it skips the computation 
+        during the left drag. Thus providing a minor optimization. 
+        """
+        _superclass.leftADown(self, objectUnderMouse, event)        
+        
+        if not env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]:
+            self._should_update_crossoverSites_during_leftDrag = True  
+        elif self._movable_dnaSegment_for_leftDrag and \
+           self._movable_dnaSegment_for_leftDrag in self.command.getSegmentList():
+            self._should_update_crossoverSites_during_leftDrag = True
+        else:
+            self._should_update_crossoverSites_during_leftDrag = False
 
     def chunkLeftUp(self, a_chunk, event):
         """
@@ -85,7 +110,22 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
         """
         ListWidgetItems_GraphicsMode_Mixin.chunkLeftUp(self, a_chunk, event)
         _superclass.chunkLeftUp(self, a_chunk, event)
-
+        
+        
+    def leftUp(self, event):
+        _superclass.leftUp(self, event) 
+        self._crossoverSite_marker.updateHandles()
+        if not self._handleDrawingRequested:
+            self._handleDrawingRequested = True   
+            
+    def leftDrag(self, event):
+        """
+        Overrides superclass method. Also updates the potential crossover sites.
+        """
+        _superclass.leftDrag(self, event)
+        self._handleDrawingRequested = False   
+        if self._should_update_crossoverSites_during_leftDrag:
+            self._crossoverSite_marker.partialUpdate()
 
     def end_selection_from_GLPane(self):
         """
@@ -104,13 +144,15 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
 
     def Draw(self):
         _superclass.Draw(self)
-        self._drawHandles()
+        if self._handleDrawingRequested:
+            self._drawHandles()
 
     def _drawHandles(self):
         if self._crossoverSite_marker and self._crossoverSite_marker.handleDict:
             for handle in self._crossoverSite_marker.handleDict.values(): 
                 if handle is not None: #if handle is None its a bug!
-                    handle.draw()
+                    handle.draw()                    
+    
 
     def _drawSpecialIndicators(self):
         final_crossover_atoms_dict = self._crossoverSite_marker.get_final_crossover_atoms_dict()

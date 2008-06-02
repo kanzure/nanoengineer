@@ -9,7 +9,9 @@ MakeCrossovers_PropertyManager.py
 History:
 
 TODO:
+See MakeCrossovers_Command for details. 
 """
+import foundation.env as env
 
 from widgets.DebugMenuMixin import DebugMenuMixin
 from PM.PM_Dialog import PM_Dialog
@@ -18,14 +20,18 @@ from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_PushButton import PM_PushButton
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_CheckBox      import PM_CheckBox
 
-from PyQt4.Qt import SIGNAL
+
+from PyQt4.Qt import SIGNAL, Qt
 
 from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
+from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
 from dna.commands.MakeCrossovers.ListWidgetItems_PM_Mixin import ListWidgetItems_PM_Mixin
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
 from utilities.Comparison import same_vals
+from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
@@ -81,9 +87,9 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
                                 pmWhatsThisButton)
 
 
-        msg = "click on the green cylindes in the 3D workspace to create "\
+        msg = "Click on the white cylinders in the 3D workspace to create "\
             "that crossover. Alternatively, use button in the Property Manager "\
-            "to make all crossovers indicated by green cylinders."
+            "to make all crossovers indicated by the white cylinders."
         self.updateMessage(msg)
 
     def ok_btn_clicked(self):
@@ -139,6 +145,10 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         change_connect(self.makeCrossoverPushButton,
                        SIGNAL("clicked()"),
                        self._makeAllCrossovers)
+        connect_checkbox_with_boolean_pref(
+            self.crossoversBetGivenSegmentsOnly_checkBox,
+            makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key)
+                                          
 
 
     def show(self):
@@ -166,7 +176,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         """
         Add the Property Manager group boxes.
         """        
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Segments" )
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Segments for crossover search" )
         self._loadGroupBox1( self._pmGroupBox1 )
 
 
@@ -175,11 +185,29 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         load widgets in groupbox1
         """
 
-        self._loadSegmentListWidget(pmGroupBox)        
-        self.makeCrossoverPushButton = PM_PushButton( pmGroupBox,
-                                                      label     = "",
-                                                      text      = "Make All Crossovers",
-                                                      spanWidth = True )
+        self._loadSegmentListWidget(pmGroupBox)  
+        self.crossoversBetGivenSegmentsOnly_checkBox = PM_CheckBox( 
+            pmGroupBox,
+            text         = "Between above segments only",
+            widgetColumn  = 0,
+            setAsDefault = True,
+            spanWidth = True,
+            )
+        
+        #If this preferece value is True, the search algotithm will search for
+        #the potential crossover sites only *between* the segments in the 
+        #segment list widget (thus ignoring other segments not in that list)
+        if env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]:
+            self.crossoversBetGivenSegmentsOnly_checkBox.setCheckState(Qt.Checked) 
+        else:
+            self.crossoversBetGivenSegmentsOnly_checkBox.setCheckState(Qt.Unchecked)
+        
+        self.makeCrossoverPushButton = PM_PushButton( 
+            pmGroupBox,
+            label     = "",
+            text      = "Make All Crossovers",
+            spanWidth = True )
+        
 
     def model_changed(self): 
         """
