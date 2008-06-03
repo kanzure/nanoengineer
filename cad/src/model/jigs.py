@@ -98,8 +98,6 @@ class Jig(NodeWith3DContents, Selobj_API):
     
     sym = "Jig" # affects name-making code in __init__
 
-    pickcolor = env.prefs[selectionColor_prefs_key] # color in glpane when picked. [russ 080530: pref.]
-
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
         # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)
 
@@ -141,7 +139,7 @@ class Jig(NodeWith3DContents, Selobj_API):
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     propmgr = None # see set_propmgr method in RotaryMotor class. Mark 2007-05-28.
     
-    copyable_attrs = _superclass.copyable_attrs + ('pickcolor', 'normcolor', 'color')
+    copyable_attrs = _superclass.copyable_attrs + ('normcolor', 'color')
         # added in some subclasses: 'enable_minimize', 'dampers_enabled'
         # most Jig subclasses need to extend this further
 
@@ -476,7 +474,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         if not self.picked:
             _superclass.pick(self)
             self.normcolor = self.color # bug if this is done twice in a row! [bruce 050131 maybe fixed now due to the 'if']
-            self.color = self.pickcolor
+            self.color = env.prefs[selectionColor_prefs_key] # russ 080603: pref.
         return
 
     def unpick(self):

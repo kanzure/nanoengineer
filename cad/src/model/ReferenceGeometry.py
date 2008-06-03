@@ -55,12 +55,11 @@ class ReferenceGeometry(Jig, DragHandler_API):
     featurename     =  "" 
     color           =  orange
     normcolor       =  color
-    pickcolor       =  env.prefs[selectionColor_prefs_key]
     atoms           =  []
     points          =  None
     handles         =  None
     
-    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
+    copyable_attrs = Node.copyable_attrs + ('normcolor', 'color')
         
     def __init__(self, win):  
         self.win = win
@@ -135,7 +134,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         if not self.picked: 
             Node.pick(self)
             self.normcolor = self.color
-            self.color = self.pickcolor
+            self.color = env.prefs[selectionColor_prefs_key] # russ 080603: pref.
         return
 
     def unpick(self):
