@@ -32,6 +32,7 @@ from utilities import debug_flags
 from utilities.debug import print_compact_traceback
 
 from utilities.prefs_constants import selectionColor_prefs_key
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.constants import orange, yellow
 
 from OpenGL.GL import glPushName
@@ -119,14 +120,16 @@ class ReferenceGeometry(Jig, DragHandler_API):
                 "ignoring exception when drawing Plane %r: " % self)
         else:
             glPopName()
-                
+
     def draw_in_abs_coords(self, glpane, color):
         """
         Draws the reference geometry with highlighting.
         """       
-        self._draw_geometry(glpane, color, highlighted = True)   
-        
-                               
+        self._draw_geometry(glpane,
+                            env.prefs[hoverHighlightingColor_prefs_key],
+                            highlighted = True)
+        return
+
     def pick(self): 
         """
         Select the reference geometry.
@@ -186,7 +189,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         """
         Highlight color for the highlighted object
         """
-        return yellow
+        return env.prefs[hoverHighlightingColor_prefs_key]
     
     # copying Bruce's code from class Highlightable with some mods. Need to see
     # if sleobj_still_ok method is needed. OK for now --Ninad 20070601
