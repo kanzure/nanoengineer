@@ -336,22 +336,6 @@ properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
 
-# piotr 080402 added the following three constants
-
-# The estimated maximum sphere radius in any display style.
-# The maximum VdW atom radius is 5.0 A
-# It can be increased by 25% in User Preferences.
-# Highlighing increases this radius by 0.2A
-# Total = 5.0A * 1.25 + 0.2A = 6.2A 
-MAX_ATOM_SPHERE_RADIUS = 6.2
-
-# Margin value for boudning box (used in BoundingBox.py)
-BBOX_MARGIN = 1.8
-
-# The minimal bounding sphere radius for a single atom of VdW radius = 0.0
-# calculated as follows: BB_MIN_RADIUS = sqrt(3 * (BBOX_MARGIN) ^ 2)
-BBOX_MIN_RADIUS = 3.118
-
 def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
     """
     [friend function for displaymodes.py]
@@ -422,6 +406,24 @@ for _disp in range(len(dispNames)):
 
 # ==
 
+# constants related to bounding boxes containing atoms and bonds [piotr 080402]
+
+# The estimated maximum sphere radius in any display style.
+# The maximum VdW atom radius is 5.0 A.
+# It can be increased by 25% in User Preferences.
+# Highlighting increases this radius by 0.2A.
+# Total = 5.0A * 1.25 + 0.2A = 6.2A 
+MAX_ATOM_SPHERE_RADIUS = 6.2
+
+# Margin value for bounding box (used in BoundingBox.py)
+BBOX_MARGIN = 1.8
+
+# The minimal bounding sphere radius for a single atom of VdW radius = 0.0,
+# calculated as follows: BB_MIN_RADIUS = sqrt(3 * (BBOX_MARGIN) ^ 2)
+BBOX_MIN_RADIUS = 3.118
+
+# ==
+
 # PAM models. (Possible values of atom.element.pam, besides None,
 #  and of some "info chunk" attributes in the mmp format, besides "".
 #  Values must never be changed (unless info chunk read/write code
@@ -444,6 +446,15 @@ Pl_STICKY_BOND_DIRECTION = 1 # should be 1 or -1;
     # (This value (1) is consistent with which strand-ends get Pls
     #  in the PAM5 generator as of 080312, and with other evidence #doc)
     # [bruce 080118/080326] #e rename?
+
+# ==
+
+# constants for bondpoint_policy [bruce 080603]
+
+BONDPOINT_LEFT_OUT = "BONDPOINT_LEFT_OUT"
+BONDPOINT_UNCHANGED = "BONDPOINT_UNCHANGED" # not yet specifiable
+BONDPOINT_ANCHORED = "BONDPOINT_ANCHORED" # not yet specifiable
+BONDPOINT_REPLACED_WITH_HYDROGEN = "BONDPOINT_REPLACED_WITH_HYDROGEN"
 
 # ==
 
@@ -567,7 +578,7 @@ bgEVENING_SKY = 2 # This is one more than BG_EVENING_SKY in Preferences.py
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3) # GLPane "Evening Sky" gradient
 
-PickedColor = (0.0, 0.0, 1.0)
+## PickedColor = (0.0, 0.0, 1.0) # no longer used as of 080603
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
 
 elemKeyTab =  [('H', Qt.Key_H, 1),
