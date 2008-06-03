@@ -166,7 +166,7 @@ def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this
 debug_pref_enable_pam_convert_sticky_ends()
 
 def debug_pref_remove_ghost_bases_from_pam3(): #bruce 080602
-    res = debug_pref("DNA: remove ghost bases when converting to PAM3? [F is nim]", ####
+    res = debug_pref("DNA: remove ghost bases when converting to PAM3?",
                      Choice_boolean_True, # because they mess up DNA ui ops
                      non_debug = True, # because you should keep them for more accurate repeated Minimize
                      prefs_key = "v1.1/DNA: remove ghost bases when converting to PAM3?"

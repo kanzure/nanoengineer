@@ -13,6 +13,7 @@ from platform.PlatformDependent import fix_plurals
 import foundation.env as env
 
 from utilities.GlobalPreferences import debug_pref_enable_pam_convert_sticky_ends
+from utilities.GlobalPreferences import debug_pref_remove_ghost_bases_from_pam3
 
 from dna.updater.dna_updater_globals import _f_baseatom_wants_pam
 
@@ -52,11 +53,11 @@ class ops_pam_Mixin:
         self._convert_selection_to_pam_model( which_pam, commandname, make_ghost_bases = False)
         return
     
-    def convertPAM5to3_leaveghosts_Command(self): 
-        commandname = "Convert PAM5 to PAM3 leave ghosts"
-        which_pam = MODEL_PAM3
-        self._convert_selection_to_pam_model( which_pam, commandname, remove_ghost_bases_from_PAM3 = False)
-        return
+    ## def convertPAM5to3_leaveghosts_Command(self): 
+    ##     commandname = "Convert PAM5 to PAM3 leave ghosts"
+    ##     which_pam = MODEL_PAM3
+    ##     self._convert_selection_to_pam_model( which_pam, commandname, remove_ghost_bases_from_PAM3 = False)
+    ##     return
 
     ## def makePlaceholderBasesCommand(self): ...
     # this command (to make ghost bases but do nothing else)
@@ -68,7 +69,7 @@ class ops_pam_Mixin:
                                         which_pam,
                                         commandname = "",
                                         make_ghost_bases = True, # only implemented for PAM3, so far
-                                        remove_ghost_bases_from_PAM3 = True
+                                        ## remove_ghost_bases_from_PAM3 = True
                                        ): #bruce 080413
         """
         Convert the selected atoms (including atoms into selected chunks),
@@ -258,7 +259,11 @@ class ops_pam_Mixin:
             # (note: this catches dna updater exceptions and turns them into redmsgs.)
         print "done with dna updater for", commandname
 
-        if remove_ghost_bases_from_PAM3:
+        if debug_pref_remove_ghost_bases_from_pam3():
+            # note: in commented out calling code above, this was a flag
+            # option, remove_ghost_bases_from_PAM3;
+            # that will be revived if we have a separate command for this.
+            #
             # actually we only remove the ones we noticed as PAM5 above,
             # and succeeded in converting to PAM3.
             good = bad = 0
