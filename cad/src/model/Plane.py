@@ -32,6 +32,8 @@ from OpenGL.GL import GL_TEXTURE_2D
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
+
+from graphics.drawing.drawers import drawHeightfield
 from utilities.constants import black, orange, yellow, brown
 
 from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
@@ -130,10 +132,18 @@ class Plane(ReferenceGeometry):
         self.imagePath = ""
         self.imageSize = 0
         self.imagePreviousSize = -1
+        self.heightfield = None
+        self.heightfield_scale = 1.0
+        
         # piotr 080528
         # added tex_image attribute for texture image
         self.tex_image = None
-        self.tex_coords       = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]] 
+        self.tex_coords       = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0]] 
+        
+        self._image = None
+        self.display_heightfield = False
+        self.heightfield_hq = False
+        self.update_heightfield = False
         
         if not READ_FROM_MMP:
             self.width      =  20.0
@@ -268,10 +278,6 @@ class Plane(ReferenceGeometry):
                   self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         return " " + dataline
 
-
-
-
-
     def _draw_geometry(self, glpane, color, highlighted = False):
         """
         Draw the Plane.
@@ -318,15 +324,26 @@ class Plane(ReferenceGeometry):
         if self.tex_image:
             textureReady = True
             glBindTexture(GL_TEXTURE_2D, self.tex_image)
-
-        drawPlane(fill_color, 
-                  self.width, 
-                  self.height, 
-                  textureReady,
-                  self.opacity, 
-                  SOLID=True, 
-                  pickCheckOnly=self.pickCheckOnly,
-                  tex_coords=self.tex_coords)
+            
+        if self.display_heightfield:
+            if self.heightfield:
+                drawHeightfield(fill_color, 
+                          self.width, 
+                          self.height, 
+                          textureReady,
+                          self.opacity, 
+                          SOLID=True, 
+                          pickCheckOnly=self.pickCheckOnly,
+                          hf=self.heightfield)
+        else:
+            drawPlane(fill_color, 
+                      self.width, 
+                      self.height, 
+                      textureReady,
+                      self.opacity, 
+                      SOLID=True, 
+                      pickCheckOnly=self.pickCheckOnly,
+                      tex_coords=self.tex_coords)
 
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
@@ -345,7 +362,7 @@ class Plane(ReferenceGeometry):
                     bordercolor = brown #backside
                 else:
                     bordercolor = self.border_color #frontside
-
+                    
                 drawLineLoop(bordercolor, corners_pos)
 
 
@@ -760,16 +777,81 @@ class Plane(ReferenceGeometry):
         if validImagePath:
 
             from PIL import Image
-
+            from PIL.Image import ANTIALIAS
+            
             im = Image.open(self.imagePath)
             self.imageSize = im.size
+            self._image = im
+            
             #load texture image from the disk only if the image is changed
-            if self.imageSize != self.imagePreviousSize:
+            if self.imageSize != self.imagePreviousSize or \
+               self.update_heightfield:
+                
+                self.update_heightfield = False
+
+                # calculate heightfield data
+                if self.display_heightfield:
+                    self.heightfield = []
+                    if im:
+                        wi, he = im.size                
+                        new_size = im.size
+                        
+                        # resize if too big
+                        if self.heightfield_hq:
+                            if wi > 300 or \
+                               he > 300:
+                                new_size = (300, (300 * wi) / he)
+                        else:
+                            if wi > 100 or \
+                               he > 100:
+                                new_size = (100, (100 * wi) / he)                        
+    
+                        im = im.resize(new_size, ANTIALIAS)
+                        
+                        wi, he = im.size
+                        scale = -self.heightfield_scale/256.0
+                        
+                        nz = -1.0/float(he + 1)
+                        
+                        # generate triangle strips
+                        for y in range(0, he-1):
+                            tstrip_vert = []
+                            tstrip_norm = []
+                            tstrip_tex = []
+                            for x in range(0, wi):                       
+                                for t in [0, 1]:
+                                    x0 = float(x) / float(wi - 1) 
+                                    y0 = float(y+t) / float(he - 1) 
+                                    r0, g0, b0 = im.getpixel((x,y+t)) ###pix[x, y+t]
+                                    # red channel is used to calculate the relief values
+                                    r0 *= scale                            
+                                    tstrip_vert.append([x0 - 0.5, y0 - 0.5, r0])
+                                    #tstrip_tex.append([x0, y0])
+                                    if x > 0 and \
+                                       y > 0 and \
+                                       x < wi - 1 and \
+                                       y < he - 2:
+                                        r1, g1, b1 = im.getpixel((x-1, y+t))
+                                        r2, g2, b2 = im.getpixel((x+1, y+t))                        
+                                        r3, g3, b3 = im.getpixel((x, y-1+t))                            
+                                        r4, g4, b4 = im.getpixel((x, y+1+t)) 
+                                        r1 *= scale
+                                        r2 *= scale
+                                        r3 *= scale
+                                        r4 *= scale
+                                        tstrip_norm.append(norm(V(r2-r1, r4-r3, nz)))
+                                    else:
+                                        tstrip_norm.append(V(0.0, 0.0, -1.0))
+                                        
+                            self.heightfield.append((tstrip_vert, tstrip_norm, tstrip_tex))                    
+                else:
+                    self.heightfield = None
+                
                 try:
+                    self.deleteImage()
                     mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
                     self.imagePreviousSize = self.imageSize
                 except:
-                    msg = redmsg("Cannot load plane image " + self.imagePath)
                     env.history.message(msg)
                     self.deleteImage()
                     self.tex_image = None

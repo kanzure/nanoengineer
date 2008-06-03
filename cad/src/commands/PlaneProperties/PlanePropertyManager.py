@@ -76,7 +76,7 @@ class PlanePropertyManager(EditCommand_PM):
         # needed to figure out if the model has changed or not
         self.previousPMParams = None
         self.imageFile = ""
-
+        
     def _addGroupBoxes(self):
         """
         Add the 1st group box to the Property Manager.
@@ -167,11 +167,44 @@ class PlanePropertyManager(EditCommand_PM):
         self.minusNinetyButton.setEnabled(False)
         self.flipButton.setEnabled(False)
 
+        self.heightfieldDisplayCheckBox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "Create 3D relief",
+                         widgetColumn  = 0,
+                         state        = Qt.Unchecked,
+                         setAsDefault = True,
+                         spanWidth = True
+                         )
+        
+        self.heightfieldHQDisplayCheckBox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "High quality",
+                         widgetColumn  = 0,
+                         state        = Qt.Unchecked,
+                         setAsDefault = True,
+                         spanWidth = True
+                         )
+        
+        self.vScaleSpinBox = \
+            PM_DoubleSpinBox(pmGroupBox, 
+                             label        = " Vertical scale:",
+                             value        = 1.0, 
+                             setAsDefault = True,
+                             minimum      = 0.1, 
+                             maximum      = 100.0, # 1000 nm
+                             singleStep   = 0.1, 
+                             decimals     = 1, 
+                             suffix       = ' Angstroms')
+        
+        self.heightfieldDisplayCheckBox.setEnabled(False)
+        self.heightfieldHQDisplayCheckBox.setEnabled(False)
+        self.vScaleSpinBox.setEnabled(False)
+        
         self.connect(self.plusNinetyButton,SIGNAL("clicked()"),self.rotate_90)
         self.connect(self.minusNinetyButton,SIGNAL("clicked()"),self.rotate_neg_90)
         self.connect(self.flipButton,SIGNAL("clicked()"),self.flip_image)
         self.connect(self.mirrorButton,SIGNAL("clicked()"),self.mirror_image)
-
+    
         #signal slot connection for imageDisplayCheckBox
         self.connect(self.imageDisplayCheckBox, 
                      SIGNAL("stateChanged(int)"), 
@@ -182,6 +215,20 @@ class PlanePropertyManager(EditCommand_PM):
                      SIGNAL("editingFinished()"),
                      self.update_imageFile)
 
+        #signal slot connection for heightfieldDisplayCheckBox
+        self.connect(self.heightfieldDisplayCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleHeightfield)
+
+        #signal slot connection for heightfieldHQDisplayCheckBox
+        self.connect(self.heightfieldHQDisplayCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleHeightfieldHQ)
+
+        #signal slot connection for vScaleSpinBox
+        self.connect(self.vScaleSpinBox, 
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_vertical_scale)
 
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -258,7 +305,7 @@ class PlanePropertyManager(EditCommand_PM):
         whatsThis_PlanePropertyManager(self)
 
 
-    def  toggleFileChooserBehavior(self, checked):
+    def toggleFileChooserBehavior(self, checked):
         """
         Enables FileChooser and displays image when checkbox is checked otherwise 
         not
@@ -272,6 +319,23 @@ class PlanePropertyManager(EditCommand_PM):
         else:
             pass
 
+    def toggleHeightfield(self, checked):
+        """
+        Enables 3D relief drawing mode.
+        """
+        if self.editCommand and self.editCommand.struct:
+            self.editCommand.struct.display_heightfield = checked
+            self.editCommand.struct.update_heightfield = True
+            self.editCommand.struct.glpane.gl_update()
+
+    def toggleHeightfieldHQ(self, checked):
+        """
+        Enables high quality rendering in 3D relief mode.
+        """
+        if self.editCommand and self.editCommand.struct:
+            self.editCommand.struct.heightfield_hq = checked
+            self.editCommand.struct.update_heightfield = True
+            self.editCommand.struct.glpane.gl_update()
 
     def update_imageFile(self):
         """
@@ -288,17 +352,26 @@ class PlanePropertyManager(EditCommand_PM):
                 self.plusNinetyButton.setEnabled(True)
                 self.minusNinetyButton.setEnabled(True)
                 self.flipButton.setEnabled(True)
+                self.heightfieldDisplayCheckBox.setEnabled(True)
+                self.heightfieldHQDisplayCheckBox.setEnabled(True)
+                self.vScaleSpinBox.setEnabled(True)
             else:
                 self.mirrorButton.setEnabled(False)
                 self.plusNinetyButton.setEnabled(False)
                 self.minusNinetyButton.setEnabled(False)
                 self.flipButton.setEnabled(False)
+                self.heightfieldDisplayCheckBox.setEnabled(False)
+                self.heightfieldHQDisplayCheckBox.setEnabled(False)
+                self.vScaleSpinBox.setEnabled(False)
         else:
             self.imageFile =""
             self.mirrorButton.setEnabled(False)
             self.plusNinetyButton.setEnabled(False)
             self.minusNinetyButton.setEnabled(False)
             self.flipButton.setEnabled(False)
+            self.heightfieldDisplayCheckBox.setEnabled(False)
+            self.heightfieldHQDisplayCheckBox.setEnabled(False)
+            self.vScaleSpinBox.setEnabled(False)
 
 
     def show(self):
@@ -361,6 +434,15 @@ class PlanePropertyManager(EditCommand_PM):
         if gl_update:
             self.editCommand.struct.glpane.gl_update()
 
+    def change_vertical_scale(self, scale):
+        """
+        Changes vertical scaling of the heightfield.
+        """
+        if self.editCommand and self.editCommand.struct:
+            self.editCommand.struct.heightfield_scale = scale
+            self.editCommand.struct.update_heightfield = True
+            self.editCommand.struct.glpane.gl_update()
+                              
     def changePlanePlacement(self, buttonId):
         """
         Slot to change the placement of the plane depending upon the 
