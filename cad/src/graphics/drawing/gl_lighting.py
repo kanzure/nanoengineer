@@ -396,9 +396,9 @@ def _decodePatternPrefs(highlight=False, select=False):
     """
     key = (highlight and hoverHighlightingColorStyle_prefs_key
            or select and selectionColorStyle_prefs_key) # False or string.
-    style = key is not False and env.prefs[key]         # False or enum int.
-    solid = style is not False and (highlight and style is HHS_SOLID or
-                                    select and style is SS_SOLID) # bool.
+    style = bool(key) and env.prefs[key] # False or enum int.
+    solid = style is False or (highlight and style is HHS_SOLID or
+                               select and style is SS_SOLID) # bool.
     pattern = False         # False or bitarray pointer.
     edges = halos = False   # bool.
 

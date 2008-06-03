@@ -53,7 +53,11 @@ from graphics.rendering.povray.povheader import povpoint
 from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
 from graphics.drawing.drawers import drawwirecube
+from graphics.drawing.gl_lighting import isPatternedDrawing
+from graphics.drawing.gl_lighting import startPatternedDrawing
+from graphics.drawing.gl_lighting import endPatternedDrawing
 
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.constants import gensym
 from utilities.constants import blue
@@ -251,13 +255,41 @@ class Jig(NodeWith3DContents, Selobj_API):
         """
         Draws the jig in the normal way.
         """
-        self._draw_jig(glpane, self.color)
+        # russ 080530: Support for patterned selection drawing modes.
+        selected = self.picked and not self.is_disabled()
+        patterned = isPatternedDrawing(select=selected)
+        if patterned:
+            # Patterned selection drawing needs the normal drawing first.
+            self._draw_jig(glpane, self.normcolor)
+            startPatternedDrawing(select=True)
+            pass
+        # Draw solid color (unpatterned) or overlay pattern in the selection color.
+        self._draw_jig(glpane,
+                       (selected and env.prefs[selectionColor_prefs_key]
+                        or self.color))
+        if patterned:
+            # Reset from patterned drawing mode.
+            endPatternedDrawing(select=True)
+            pass
+        return
         
     def draw_in_abs_coords(self, glpane, color):
         """
         Draws the jig in the highlighted way.
         """
-        self._draw_jig(glpane, color, 1)
+        # russ 080530: Support for patterned highlighting drawing modes.
+        patterned = isPatternedDrawing(highlight=True)
+        if patterned:
+            # Patterned highlighting drawing needs the normal drawing first.
+            self._draw_jig(glpane, self.normcolor, 1)
+            startPatternedDrawing(highlight=True)
+            self._draw_jig(glpane,
+                           env.prefs[hoverHighlightingColor_prefs_key], 1)
+            endPatternedDrawing(highlight=True)
+        else:
+            self._draw_jig(glpane, color, 1)
+            pass
+        return
         
     def _draw_jig(self, glpane, color, highlighted = False):
         """
