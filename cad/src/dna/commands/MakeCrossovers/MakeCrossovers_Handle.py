@@ -47,8 +47,9 @@ class MakeCrossovers_Handle(DelegatingInstanceOrExpr):
     
     scale = Arg(float)    
     
-    crossoverSite_marker =  Option(Action, 
-                      doc = 'The CrossoverSite Marker class which instantiates this handle')
+    crossoverSite_marker =  Option(
+        Action, 
+        doc = 'The CrossoverSite Marker class which instantiates this handle')
      
     #Command object specified as an 'Option' during instantiation of the class
     #see DnaSegment_EditCommand class definition. 
@@ -58,6 +59,13 @@ class MakeCrossovers_Handle(DelegatingInstanceOrExpr):
     
     
     crossoverPairs = Option(tuple, ())  
+    
+    
+    #Stateusbar text. Variable needs to be renamed in superclass. 
+    sbar_text = Option(str, 
+                       "Click on the handle to create this crossover", 
+                       doc = "Statusbar text on mouseover")
+    
     
     delegate = If_expr(_self.should_draw,   
                        Highlightable( 
@@ -84,7 +92,8 @@ class MakeCrossovers_Handle(DelegatingInstanceOrExpr):
                                              color = banana)),
                                              
                            on_press = _self.on_press,
-                           on_release = _self.on_release
+                           on_release = _self.on_release,
+                           sbar_text = sbar_text
                            ))
                       
     ##delegate = If_expr(_self.should_draw, 
