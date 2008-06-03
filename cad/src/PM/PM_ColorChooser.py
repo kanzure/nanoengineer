@@ -76,7 +76,7 @@ class PM_ColorChooser( QWidget ):
                  spanWidth    = False,
                  ):
         """
-        Appends a file chooser widget to <parentWidget>, a property manager 
+        Appends a color chooser widget to <parentWidget>, a property manager 
         group box.
         
         @param parentWidget: the parent group box containing this widget.
