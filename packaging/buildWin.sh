@@ -13,9 +13,9 @@ TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT
 VERSION_NUM="1.1.0"
-
-#Make a tarball of the uncompiled source for later.
-tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
+MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
+MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
+TINY=`echo $VERSION_NUM | cut -d "." -f 3`
 
 # Do a basic check on the directory structure
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then
@@ -23,15 +23,32 @@ if [ ! -e "$TOP_LEVEL/cad/src" ]; then
   exit 1
 fi
 
+
+#Modifying the utilities/version.py file for version number and release date
+cat cad/src/utilities/version.py | sed -e "s/\\\"major\\\": ./\\\"major\\\": $MAJOR/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+cat cad/src/utilities/version.py | sed -e "s/\\\"minor\\\": ./\\\"minor\\\": $MINOR/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+cat cad/src/utilities/version.py | sed -e "s/\\\"tiny\\\": ./\\\"tiny\\\": $TINY/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+DATECODE=`date "+%b %d, %Y"`
+cat cad/src/utilities/version.py | sed -e "s/\\\"releaseDate\\\": \\\".*\\\",/\\\"releaseDate\\\": \\\"$DATECODE\\\",/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+
 cat packaging/Win32/installer.nsi | sed -e "s:^!define PRODUCT_VERSION .*:!define PRODUCT_VERSION \\\"$VERSION_NUM\\\":" > packaging/Win32/installer.nsi.btmp
 mv packaging/Win32/installer.nsi.btmp packaging/Win32/installer.nsi || exit 1
 
-# Modifying the foundation/preferences.py file for bsddb3 and version
+
 cd $TOP_LEVEL
+# Modifying the foundation/preferences.py file for version
 PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
 cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
 cp cad/src/foundation/preferences.py.ptmp cad/src/foundation/preferences.py || exit 1
 
+#Make a tarball of the uncompiled source for later.
+tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
+
+# Modifying the foundation/preferences.py file for bsddb3
 cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
 mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
 

@@ -2,8 +2,11 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-VERSION_NUM=1.0.1
+VERSION_NUM=1.1.0
 DIST_VERSION=NanoEngineer-1_$VERSION_NUM
+MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
+MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
+TINY=`echo $VERSION_NUM | cut -d "." -f 3`
 
 # Set up path variables
 cd ..
@@ -12,10 +15,26 @@ DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT/NanoEngineer-1.app/Contents
 
 cd $TOP_LEVEL
+# Modifying the foundation/preferences.py file for version
 PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
 cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
 cp cad/src/foundation/preferences.py.ptmp
-cad/src/foundation/preferences.py || exit 1 
+cad/src/foundation/preferences.py || exit 1
+
+#Modifying the utilities/version.py file for version number and release date
+cat cad/src/utilities/version.py | sed -e "s/\\\"major\\\": ./\\\"major\\\": $MAJOR/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+cat cad/src/utilities/version.py | sed -e "s/\\\"minor\\\": ./\\\"minor\\\": $MINOR/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+cat cad/src/utilities/version.py | sed -e "s/\\\"tiny\\\": ./\\\"tiny\\\": $TINY/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+DATECODE=`date "+%b %d, %Y"`
+cat cad/src/utilities/version.py | sed -e "s/\\\"releaseDate\\\": \\\".*\\\",/\\\"releaseDate\\\": \\\"$DATECODE\\\",/g" > cad/src/utilities/version.py.ptmp
+mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+
+# Modifying the foundation/preferences.py file for bsddb3
+cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
+mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
 
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
@@ -185,8 +204,8 @@ sudo chown -R root:admin $DIST_ROOT/$DIST_VERSION
 sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg -f $DIST_ROOT -s -ds -v -r $TOP_LEVEL/packaging/MacOSX -i $TOP_LEVEL/packaging/MacOSX/PackageMaker-Info.plist -d $TOP_LEVEL/packaging/MacOSX/Description.plist
 
 # Create the disk image
-mkdir $TOP_LEVEL/cad/src/build/$DIST_VERSION
-mv $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg $TOP_LEVEL/cad/src/build/$DIST_VERSION/
+sudo mkdir $TOP_LEVEL/cad/src/build/$DIST_VERSION
+sudo mv $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg $TOP_LEVEL/cad/src/build/$DIST_VERSION/
 sudo hdiutil create -srcfolder $TOP_LEVEL/cad/src/build/$DIST_VERSION -format UDZO $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg
 
 cd $TOP_LEVEL/packaging
