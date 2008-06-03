@@ -236,43 +236,42 @@ GDS_ICONS   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
 # Widget constants for the "Colors" page.
 
 # HHS = hover highlighting styles
-HHS_SOLID = 0
-HHS_SCREENDOOR1 = 1
-HHS_CROSSHATCH1 = 2
-HHS_BW_PATTERN = 3
-HHS_POLYGON_EDGES = 4
-HHS_HALO = 5
-HHS_DISABLED = 6
+from utilities.prefs_constants import HHS_HALO
+from utilities.prefs_constants import HHS_SOLID
+from utilities.prefs_constants import HHS_SCREENDOOR1
+from utilities.prefs_constants import HHS_CROSSHATCH1
+from utilities.prefs_constants import HHS_BW_PATTERN
+from utilities.prefs_constants import HHS_POLYGON_EDGES
+from utilities.prefs_constants import HHS_DISABLED
 
-HHS_INDEXES = [HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, HHS_BW_PATTERN,
-              HHS_POLYGON_EDGES, HHS_HALO, HHS_DISABLED]
+HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
+              HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
 
-HHS_OPTIONS = ["Highlight in solid color",
-               "Highlight in screendoor pattern",
-               "Highlight in crosshatch pattern",
-               "Highlight with black-and-white pattern",
-               "Highlight in colored polygon edges",
-               "Highlight in colored halo",
-               "Disable hover highlighting"]
+HHS_OPTIONS = ["Colored halo (default)",
+               "Solid color",
+               "Screendoor pattern",
+               "Crosshatch pattern",
+               "Black-and-white pattern",
+               "Colored polygon edges",
+               "Disable highlighting"]
 
 # SS = selection styles
+from utilities.prefs_constants import SS_HALO
+from utilities.prefs_constants import SS_SOLID
+from utilities.prefs_constants import SS_SCREENDOOR1
+from utilities.prefs_constants import SS_CROSSHATCH1
+from utilities.prefs_constants import SS_BW_PATTERN
+from utilities.prefs_constants import SS_POLYGON_EDGES
 
-SS_SOLID = 0
-SS_SCREENDOOR1 = 1
-SS_CROSSHATCH1 = 2
-SS_BW_PATTERN = 3
-SS_POLYGON_EDGES = 4
-SS_HALO = 5
+SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
+              SS_BW_PATTERN, SS_POLYGON_EDGES]
 
-SS_INDEXES = [SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
-              SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO]
-
-SS_OPTIONS = ["Solid color",
+SS_OPTIONS = ["Colored halo (default)",
+              "Solid color",
               "Screendoor pattern",
               "Crosshatch pattern",
               "Black-and-white pattern",
-              "Colored polygon edges",
-              "Colored halo"]
+              "Colored polygon edges"]
 
 # = end of Preferences widgets constants.
 

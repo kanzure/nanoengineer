@@ -106,10 +106,10 @@ import utilities.debug as debug # for debug.print_compact_traceback
 import numpy
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
-from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR, HHS_CROSSHATCH
+from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1
 from utilities.prefs_constants import HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_HALO
 from utilities.prefs_constants import selectionColorStyle_prefs_key
-from utilities.prefs_constants import SS_SOLID, SS_SCREENDOOR, SS_CROSSHATCH
+from utilities.prefs_constants import SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1
 from utilities.prefs_constants import SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO
 from utilities.prefs_constants import haloWidth_prefs_key
 
@@ -405,12 +405,12 @@ def _decodePatternPrefs(highlight=False, select=False):
     # Nothing to do for solid colors.
     if not solid:
         # Check for stipple-patterned drawing styles.
-        if (highlight and style is HHS_SCREENDOOR
-            or select and style is SS_SCREENDOOR):
+        if (highlight and style is HHS_SCREENDOOR1
+            or select and style is SS_SCREENDOOR1):
             pattern = ScreenDoor
             pass
-        elif (highlight and style is HHS_CROSSHATCH
-              or select and style is SS_CROSSHATCH):
+        elif (highlight and style is HHS_CROSSHATCH1
+              or select and style is SS_CROSSHATCH1):
             pattern = CrossHatch
             pass
         # Check for polygon-edge drawing styles.

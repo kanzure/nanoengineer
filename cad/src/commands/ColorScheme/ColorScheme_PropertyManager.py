@@ -31,7 +31,7 @@ from PM.PM_StackedWidget import PM_StackedWidget
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
-from PM.PM_ColorChooser import PM_ColorChooser
+from PM.PM_ColorComboBox import PM_ColorComboBox
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 
@@ -53,43 +53,42 @@ bg_CUSTOM = 5
 
 #hover highlighting 
 # HHS = hover highlighting styles
-HHS_SOLID = 0
-HHS_SCREENDOOR1 = 1
-HHS_CROSSHATCH1 = 2
-HHS_BW_PATTERN = 3
-HHS_POLYGON_EDGES = 4
-HHS_HALO = 5
-HHS_DISABLED = 6
+from utilities.prefs_constants import HHS_SOLID
+from utilities.prefs_constants import HHS_SCREENDOOR1
+from utilities.prefs_constants import HHS_CROSSHATCH1
+from utilities.prefs_constants import HHS_BW_PATTERN
+from utilities.prefs_constants import HHS_POLYGON_EDGES
+from utilities.prefs_constants import HHS_HALO
+from utilities.prefs_constants import HHS_DISABLED
 
-HHS_INDEXES = [HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, HHS_BW_PATTERN,
-              HHS_POLYGON_EDGES, HHS_HALO, HHS_DISABLED]
+HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
+              HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
 
-HHS_OPTIONS = ["Highlight in solid color",
-               "Highlight in screendoor pattern",
-               "Highlight in crosshatch pattern",
-               "Highlight with black-and-white pattern",
-               "Highlight in colored polygon edges",
-               "Highlight in colored halo",
-               "Disable hover highlighting"]
+HHS_OPTIONS = ["Colored halo (default)",
+               "Solid color",
+               "Screendoor pattern",
+               "Crosshatch pattern",
+               "Black-and-white pattern",
+               "Colored polygon edges",
+               "Disable highlighting"]
 
 # SS = selection styles
+from utilities.prefs_constants import SS_HALO
+from utilities.prefs_constants import SS_SOLID
+from utilities.prefs_constants import SS_SCREENDOOR1
+from utilities.prefs_constants import SS_CROSSHATCH1
+from utilities.prefs_constants import SS_BW_PATTERN
+from utilities.prefs_constants import SS_POLYGON_EDGES
 
-SS_SOLID = 0
-SS_SCREENDOOR1 = 1
-SS_CROSSHATCH1 = 2
-SS_BW_PATTERN = 3
-SS_POLYGON_EDGES = 4
-SS_HALO = 5
+SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
+              SS_BW_PATTERN, SS_POLYGON_EDGES]
 
-SS_INDEXES = [SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
-              SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO]
-
-SS_OPTIONS = ["Solid color",
+SS_OPTIONS = ["Colored halo (default)",
+              "Solid color",
               "Screendoor pattern",
               "Crosshatch pattern",
               "Black-and-white pattern",
-              "Colored polygon edges",
-              "Colored halo"]
+              "Colored polygon edges"]
 
 
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
@@ -219,7 +218,6 @@ def loadFavoriteFile( filename ):
         # marks the end of file
         if line == "":
             break
-        
         
         # process each line to obtain pref_keys and their corresponding values
         if line[0] != '!':
@@ -362,21 +360,9 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             "hover highlighting and selection colors, etc."
         self.updateMessage(msg)
         
-        self._setupPM_Color()
+        #@self._setupPM_Color()
     
-    def _setupPM_Color(self):
-        """
-        Setup the "Color" PM
-	"""
-        self._loadBackgroundColorItems()
-        self._loadHoverHighlightingStyleItems()
-        self.hoverHighlightingStyleComboBox.setCurrentIndex(env.prefs[hoverHighlightingColorStyle_prefs_key])
-        self.hoverHighlightingColorChooser.setColor(env.prefs[hoverHighlightingColor_prefs_key])
-        self._loadSelectionStyleItems()
-        self.selectionStyleComboBox.setCurrentIndex(env.prefs[selectionColorStyle_prefs_key])
-        
-        # will be uncommented after Russ finish setting this pref key: Urmi 20080530
-        #self.selectionColorChooser.setColor(env.prefs[selectionColorStyle_prefs_key])
+    
         
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -421,7 +407,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.hoverHighlightingStyleComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.changeHoverHighlightingStyle)
-        change_connect(self.hoverHighlightingColorChooser, 
+        change_connect(self.hoverHighlightingColorComboBox, 
                        SIGNAL("editingFinished()"),
                        self.changeHoverHighlightingColor)
     
@@ -429,7 +415,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         change_connect(self.selectionStyleComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.changeSelectionStyle)
-        change_connect(self.selectionColorChooser, 
+        change_connect(self.selectionColorComboBox, 
                        SIGNAL("editingFinished()"),
                        self.changeSelectionColor)  
         
@@ -438,7 +424,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Slot method for Hover Highlighting color chooser.
         Change the (3D) hover highlighting color.
         """
-        color = self.hoverHighlightingColorChooser.getColor()
+        color = self.hoverHighlightingColorComboBox.getColor()
         env.prefs[hoverHighlightingColor_prefs_key] = color
         return
         
@@ -463,7 +449,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Slot method for Selection color chooser.
         Change the (3D) Selection color.
         """
-        color = self.selectionColorChooser.getColor()
+        color = self.selectionColorComboBox.getColor()
         env.prefs[selectionColor_prefs_key] = color
         return    
         
@@ -501,8 +487,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.connect_or_disconnect_signals(False)
         PM_Dialog.close(self)
         
-        
-    
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
@@ -611,32 +595,73 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          label     =  "",
                          spanWidth = True)
         
+        self._loadBackgroundColorItems()
+        
         #hover highlighting group box
         
-        self.pmGroupBox2 = PM_GroupBox(pmGroupBox, title = "Hover highlighting:")
+        self.pmGroupBox2 = PM_GroupBox(pmGroupBox, title = "")
         self.hoverHighlightingStyleComboBox = \
             PM_ComboBox( self.pmGroupBox2,
-                         label     =  "Style:",
+                         label     =  "Highlighting:",
                          )
         
-        self.hoverHighlightingColorChooser = \
-            PM_ColorChooser(self.pmGroupBox2,
-                            label = "Color"
-                            )
+        self._loadHoverHighlightingStyleItems()
+        
+        from utilities.constants import yellow, orange, red, magenta, cyan, blue, gray, green
+        hhColorList = [yellow, orange, red, magenta, cyan, blue, gray]
+        hhColorNames = ["Yellow (default)", "Orange", "Red", "Magenta", "Cyan", "Blue", "Other color..."]
+    
+        self.hoverHighlightingColorComboBox = \
+            PM_ColorComboBox(self.pmGroupBox2,
+                             colorList = hhColorList,
+                             colorNames = hhColorNames,
+                             color = env.prefs[hoverHighlightingColor_prefs_key]
+                             )
         
         #selection style and color group box
         
-        self.pmGroupBox3 = PM_GroupBox(pmGroupBox, title = "Selection:")
+        self.pmGroupBox3 = PM_GroupBox(pmGroupBox, title = "")
         self.selectionStyleComboBox = \
             PM_ComboBox( self.pmGroupBox3,
-                         label     =  "Style:",
+                         label     =  "Selection:",
                          )
         
-        self.selectionColorChooser = \
-            PM_ColorChooser(self.pmGroupBox3,
-                            label = "Color"
-                            )
+        self._loadSelectionStyleItems()
+        
+        selColorList = [green, orange, red, magenta, cyan, blue, gray]
+        selColorNames = ["Green (default)", "Orange", "Red", "Magenta", "Cyan", "Blue", "Other color..."]
+        
+        self.selectionColorComboBox = \
+            PM_ColorComboBox(self.pmGroupBox3,
+                             colorList = selColorList,
+                             colorNames = selColorNames,
+                             color = env.prefs[selectionColor_prefs_key]
+                             )
+
+        self._updateWidgets()
+        return
     
+    def _setupPM_Color_DEPRECATED(self):
+        """
+        Add the Property Manager group boxes.
+	"""
+        self._loadBackgroundColorItems()
+        self._loadHoverHighlightingStyleItems()
+        self._loadSelectionStyleItems()
+        self._updateWidgets()
+        return
+        
+    def _updateWidgets(self):
+        """
+        Update all the PM widgets. This is typically called after applying
+        a favorite.
+        """
+        self._updateBackgroundColorComboBoxIndex()
+        self.hoverHighlightingStyleComboBox.setCurrentIndex(HHS_INDEXES.index(env.prefs[hoverHighlightingColorStyle_prefs_key]))
+        self.hoverHighlightingColorComboBox.setColor(env.prefs[hoverHighlightingColor_prefs_key])
+        self.selectionStyleComboBox.setCurrentIndex(SS_INDEXES.index(env.prefs[selectionColorStyle_prefs_key]))
+        self.selectionColorComboBox.setColor(env.prefs[selectionColor_prefs_key])
+        return
         
     def _loadSelectionStyleItems(self):
         """
@@ -680,7 +705,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             self.backgroundColorComboBox.addItem(geticon(iconPath), 
                                                  backgroundName)
         
-        self._updateBackgroundColorComboBoxIndex()
+        self._updateBackgroundColorComboBoxIndex() # Not needed, but OK.
         return    
         
     def _updateBackgroundColorComboBoxIndex(self):
@@ -740,7 +765,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
     def applyFavorite(self):
         """
         Apply the color scheme settings stored in the current favorite 
-        (selected in the combobox) to the current DNA display style settings.
+        (selected in the combobox) to the current color scheme settings.
         """
         # Rules and other info:
         # The user has to press the button related to this method when he loads
@@ -751,7 +776,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             env.prefs.restore_defaults(colorSchemePrefsList)
             # set it back to blue sky
             self.win.glpane.setBackgroundGradient(1)
-            self.win.glpane.gl_update()
         else:
             favfilepath = getFavoritePathFromBasename(current_favorite)
             loadFavoriteFile(favfilepath)
@@ -759,7 +783,10 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 self.win.glpane.setBackgroundGradient(env.prefs[backgroundGradient_prefs_key])
             else:
                 self.win.glpane.setBackgroundColor(env.prefs[backgroundColor_prefs_key])
-            self.win.glpane.gl_update()
+        #self.hoverHighlightingColorComboBox.setColor(env.prefs[hoverHighlightingColor_prefs_key])
+        #self.selectionColorComboBox.setColor(env.prefs[selectionColor_prefs_key])
+        self._updateWidgets()
+        self.win.glpane.gl_update()
         return
     
     def addFavorite(self):

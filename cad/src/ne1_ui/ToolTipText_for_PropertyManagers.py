@@ -360,7 +360,7 @@ def ToolTip_ColorScheme_PropertyManager(propMgr):
     propMgr.favoritesComboBox.setToolTip("List of favorites")
     propMgr.backgroundColorComboBox.setToolTip("Change background color")
     propMgr.hoverHighlightingStyleComboBox.setToolTip("Change hover highlighting style")
-    propMgr.hoverHighlightingColorChooser.setToolTip("Change hover highlighting color") 
+    propMgr.hoverHighlightingColorComboBox.setToolTip("Change hover highlighting color") 
     propMgr.selectionStyleComboBox.setToolTip("Change selection style")
-    propMgr.selectionColorChooser.setToolTip("Change selection color")
+    propMgr.selectionColorComboBox.setToolTip("Change selection color")
     return

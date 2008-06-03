@@ -27,7 +27,7 @@ from PyQt4.Qt import SIGNAL
 from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_ColorChooser  import PM_ColorChooser
+from PM.PM_ColorComboBox  import PM_ColorComboBox
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
@@ -40,6 +40,9 @@ from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_p
 from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
+from utilities.constants import red, green, orange, magenta, cyan, white, gray
+END_COLOR_LIST  = [red, green, orange, magenta, cyan, white, gray]
+END_COLOR_NAMES = ["Red", "Green", "Orange", "Magenta", "Cyan", "White", "Other color..."]
 
 class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -157,11 +160,13 @@ class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                                             setAsDefault = True,
                                                             spanWidth = True
                                                             )
+        
         self.threePrimeEndColorChooser = \
-            PM_ColorChooser(self.pmGroupBox3,
-                            label = "Color"
-                            ) 
-        self.threePrimeEndColorChooser.setColor(env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key])
+            PM_ColorComboBox(self.pmGroupBox3,
+                             colorList  = END_COLOR_LIST,
+                             colorNames = END_COLOR_NAMES,
+                             color      = env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
+                             )
         
         if env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key] == True:
             self.strandThreePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Checked) 
@@ -196,10 +201,11 @@ class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
                                                             spanWidth = True
                                                             )
         self.fivePrimeEndColorChooser = \
-            PM_ColorChooser(self.pmGroupBox2,
-                            label = "Color"
-                            ) 
-        self.fivePrimeEndColorChooser.setColor(env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key])
+            PM_ColorComboBox(self.pmGroupBox2,
+                             colorList  = END_COLOR_LIST,
+                             colorNames = END_COLOR_NAMES,
+                             color      = env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
+                             )
         
         if env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key] == True:
             self.strandFivePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Checked) 

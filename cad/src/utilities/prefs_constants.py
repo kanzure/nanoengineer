@@ -37,7 +37,7 @@ getDefaultWorkingDirectory.
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, lightgray, lightgreen
-from utilities.constants import orange, darkred
+from utilities.constants import orange, darkred, darkgreen
 from utilities.constants import ave_colors, diBALL
 
 import sys, os # for getDefaultWorkingDirectory
@@ -47,21 +47,22 @@ import sys, os # for getDefaultWorkingDirectory
 #constants related to user chosen background color for display
 
 # HH = Hover Highlighting (color) Style
-HHS_SOLID = 0
-HHS_SCREENDOOR = 1
-HHS_CROSSHATCH = 2
-HHS_BW_PATTERN = 3
-HHS_POLYGON_EDGES = 4
-HHS_HALO = 5
+HHS_HALO = 0 # default
+HHS_SOLID = 1
+HHS_SCREENDOOR1 = 2
+HHS_CROSSHATCH1 = 3
+HHS_BW_PATTERN = 4
+HHS_POLYGON_EDGES = 5
 HHS_DISABLED = 6
 
 # SS = Selection (color) Style
-SS_SOLID = 0
-SS_SCREENDOOR = 1
-SS_CROSSHATCH = 2
-SS_BW_PATTERN = 3
-SS_POLYGON_EDGES = 4
-SS_HALO = 5
+SS_HALO = 0
+SS_SOLID = 1
+SS_SCREENDOOR1 = 2
+SS_CROSSHATCH1 = 3
+SS_BW_PATTERN = 4
+SS_POLYGON_EDGES = 5
+
 
 # Compass position constants.  These are used to preserve the preference value
 # for the compass position and relate directly to the radio button group values for the options 
@@ -529,9 +530,9 @@ prefs_table = (
     # Color (page) preferences
     ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
     ('', 'color', backgroundColor_prefs_key, white),
-    ('', 'int',   hoverHighlightingColorStyle_prefs_key, 0),
+    ('', 'int',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
-    ('', 'int',   selectionColorStyle_prefs_key, 0),
+    ('', 'int',   selectionColorStyle_prefs_key, SS_HALO),
     ('', 'color', selectionColor_prefs_key, green),
     ('', 'int',   haloWidth_prefs_key, 5),
     
@@ -662,10 +663,9 @@ prefs_table = (
     ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
     ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, True),
-    ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, red),
+    ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
-
 
     #DNA cursor text preferences 
 
