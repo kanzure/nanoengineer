@@ -97,6 +97,7 @@ class CrossoverSite_Marker:
         self._updateAllDnaSegmentDict()    
         self._updateCrossoverSites()
         self._createExprsHandles()
+        self.glpane.gl_update()
         
     def partialUpdate(self):
         """

@@ -248,7 +248,14 @@ class MakeCrossovers_Command(SelectChunks_Command,
             if strandGroup1 is not None:
                 strandGroup1.setStrandColor(color) 
                 
-                    
+    def updateCrossoverSites(self):
+        """
+        Calls the grraphics mode method that does the job of updating 
+        all the crossover sites in the 3D workspace. 
+        """
+        self.graphicsMode.updateCrossoverSites()
+        
+    
         
     def updateExprsHandleDict(self): 
         self.graphicsMode.updateExprsHandleDict()

@@ -145,12 +145,12 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         change_connect(self.makeCrossoverPushButton,
                        SIGNAL("clicked()"),
                        self._makeAllCrossovers)
+        
         connect_checkbox_with_boolean_pref(
-            self.crossoversBetGivenSegmentsOnly_checkBox,
+             self.crossoversBetGivenSegmentsOnly_checkBox,
             makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key)
-                                          
-
-
+        
+                                                          
     def show(self):
         """
         Overrides the superclass method
@@ -217,18 +217,18 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         """
 
         currentParams = self._current_model_changed_params()
-
+        
         #Optimization. Return from the model_changed method if the 
         #params are the same. 
         if same_vals(currentParams, self._previous_model_changed_params):
             return 
 
-        number_of_segments = currentParams
+        number_of_segments, crossover_search_pref_junk = currentParams
 
         #update the self._previous_model_changed_params with this new param set.
         self._previous_model_changed_params = currentParams        
         self.updateListWidgets()   
-        self.command.updateExprsHandleDict()
+        self.command.updateCrossoverSites()
 
 
     def _current_model_changed_params(self):
@@ -244,8 +244,10 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         if self.command:
             #update the list first. 
             self.command.updateSegmentList()
-            number_of_segments = len(self.command.getSegmentList())     
-            params = (number_of_segments)
+            number_of_segments = len(self.command.getSegmentList()) 
+            crossover_search_pref = \
+                                  env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]
+            params = (number_of_segments, crossover_search_pref)
 
         return params
 

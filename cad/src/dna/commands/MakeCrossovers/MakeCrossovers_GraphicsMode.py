@@ -17,6 +17,8 @@ TODO  2008-06-01 :
 See class CrossoverSite_Marker for details
 """
 import foundation.env as env
+
+from PyQt4.Qt import Qt
 from utilities.constants import banana, silver,  darkred, darkgreen, yellow
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
@@ -28,11 +30,13 @@ from dna.commands.MakeCrossovers.CrossoverSite_Marker import CrossoverSite_Marke
 from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
+
 SPHERE_DRAWLEVEL = 2
 SPHERE_OPACITY = 0.5 
 CYL_RADIUS = 1.0
 CYL_OPACITY = 0.4
 SPHERE_RADIUS =  2.0
+SPHERE_RADIUS_FOR_TAGS =  4.0
 
 
 _superclass = BuildDna_GraphicsMode
@@ -77,12 +81,34 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
     def update_after_crossover_creation(self, crossoverPairs):
         self._crossoverSite_marker.update_after_crossover_creation(crossoverPairs)
         
+    def updateCrossoverSites(self):
+        """
+        Delegates  the responsibility of updating all crossover sites in the 3D
+        wokspace to the self._crossoverSite_marker.
+        """
+        self._crossoverSite_marker.update()
+        
     def update_cursor_for_no_MB(self):
         """
         Update the cursor for no mouse button pressed
         """  
         _superclass.update_cursor_for_no_MB(self)
         ListWidgetItems_GraphicsMode_Mixin.update_cursor_for_no_MB(self)
+        
+    def keyPressEvent(self, event):
+        """
+        Handles keyPressEvent. Overrides superclass method. If delete key 
+        is pressed while the focus is inside the PM list widget, it deletes
+        that list widget item.
+        @see: ListWidgetItems_PM_Mixing.listWidgetHasFocus()
+        @TODO: Calls self.command.propMgr object which is better to avoid...
+        """
+        if event.key() == Qt.Key_Delete:
+            if self.command.propMgr and self.command.propMgr.listWidgetHasFocus():
+                self.command.propMgr.removeListWidgetItems()
+                return            
+
+        _superclass.keyPressEvent(self, event)
         
     def leftADown(self, objectUnderMouse, event):
         """
@@ -204,9 +230,9 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
        
         if self._tagPositions:
             for point in self._tagPositions:          
-                drawsphere(silver, 
+                drawsphere(banana, 
                            point, 
-                           SPHERE_RADIUS,
+                           SPHERE_RADIUS_FOR_TAGS ,
                            SPHERE_DRAWLEVEL,
                            opacity = SPHERE_OPACITY)
 
