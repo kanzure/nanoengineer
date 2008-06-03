@@ -531,6 +531,7 @@ lightgreen = (0.45, 0.8, 0.45) # bruce 080206
 lightgreen_2 = (0.596, 0.988, 0.596)
 darkgreen =  (0.0, 0.6, 0.0)
 magenta = (1.0, 0.0, 1.0)
+cyan = (0.0, 1.0, 1.0)
 lightgray = (0.8, 0.8, 0.8)
 gray =   (0.5, 0.5, 0.5)
 darkgray = (0.3, 0.3, 0.3)
