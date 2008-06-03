@@ -12,11 +12,16 @@ not as part of their implementation for minimize.
 
 from model.jigs import Jig
 import foundation.env as env
+from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.constants import red, orange, yellow, average_value, ave_colors, blue, gray
 from graphics.drawing.drawers import drawwirecube
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawcylinder
+from graphics.drawing.gl_lighting import isPatternedDrawing
+from graphics.drawing.gl_lighting import startPatternedDrawing
+from graphics.drawing.gl_lighting import endPatternedDrawing
+
 from geometry.VQT import V, vlen
 
 from utilities.Log import quote_html
@@ -283,19 +288,28 @@ class VirtualBondJig( VisualFeedbackJig):
         self._update_props()
         if not self._should_draw():
             return
-        if highlighted:
-            color = yellow
-        elif self.picked:
-            color = env.prefs[selectionColor_prefs_key]
-        else:
-            color = self._drawing_color()
-        ## if self._should_draw_thicker(): ###k is this right?
-        ##     # todo: in this case draw a cyl, with glname, MT highlight behavior, etc...
-        if 1: # stub
-            posns = [a.posn() for a in self.atoms]
-            ## drawline( color, posns[0], posns[1], width = 2 )
-            drawrad = 0.1
-            drawcylinder( color, posns[0], posns[1], drawrad)
+
+        drawrad = 0.1
+        posns = [a.posn() for a in self.atoms]
+        normcolor = self._drawing_color()
+
+        # russ 080530: Support for patterned highlighting drawing modes.
+        selected = self.picked
+        patterned = isPatternedDrawing(select=selected, highlight=highlighted)
+        if patterned:
+            # Patterned selection drawing needs the normal drawing first.
+            drawcylinder( normcolor, posns[0], posns[1], drawrad)
+            startPatternedDrawing(select=selected, highlight=highlighted)
+            pass
+        # Draw solid color, or overlay pattern in highlight or selection color.
+        drawcylinder(
+            (highlighted and env.prefs[hoverHighlightingColor_prefs_key] or
+             selected and env.prefs[selectionColor_prefs_key] or
+             normcolor), posns[0], posns[1], drawrad)
+        if patterned:
+            # Reset from patterned drawing mode.
+            endPatternedDrawing(select=selected, highlight=highlighted)
+            pass
         return
 
     def _should_draw(self):
