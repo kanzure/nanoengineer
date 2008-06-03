@@ -324,23 +324,89 @@ def pref_show_highlighting_in_MT():
 
 # ==
 
-def pref_minimize_leave_out_PAM_bondpoints():
-    #bruce 080507
+# bondpoint_policy helper function and preferences.
+# A future refactoring might make this a method or class,
+# but for now it's unclear how to do that (sim_aspect
+# needs this before it has a writemmp_mapping to ask it of),
+# and there's only one global policy ever used (derived from prefs),
+# so this way is easiest for now.
+# [bruce 080507/080603]
+
+def pref_minimize_leave_out_PAM_bondpoints(): #bruce 080507
     """
     If enabled, bondpoints on PAM atoms are left out of simulations
     and minimizations, rather than being converted to H (as always occurred
-    until now) or anchored or left unchanged (not yet possible).
+    until now) or anchored (not yet possible) or left unchanged. 
 
     @warning: not yet fully implemented.
     """
     res = debug_pref("Minimize: leave out PAM bondpoints? (partly nim)",
                      Choice_boolean_False, # not yet safe or tested (and partly nim)
-                     non_debug = True, # should be easy to test
+                     ## non_debug = True, # since won't be implemented for v1.1
                      prefs_key = True
                     )
     return res
 
 pref_minimize_leave_out_PAM_bondpoints()
+
+def pref_minimize_leave_PAM_bondpoints_unchanged(): #bruce 080603
+    """
+    If enabled, bondpoints on PAM atoms are left unchanged during simulations
+    and minimizations, rather than being converted to H (as always occurred
+    until now) or anchored (not yet possible) or left out (not yet correctly
+    implemented).
+    """
+    res = debug_pref("Minimize: leave PAM bondpoints unchanged?",
+                     Choice_boolean_True,
+                     non_debug = True, # should be easy to test or change
+                     prefs_key = True
+                    )
+    return res
+
+pref_minimize_leave_PAM_bondpoints_unchanged()
+
+from utilities.constants import BONDPOINT_LEFT_OUT
+from utilities.constants import BONDPOINT_UNCHANGED
+from utilities.constants import BONDPOINT_ANCHORED # not yet specifiable
+from utilities.constants import BONDPOINT_REPLACED_WITH_HYDROGEN
+
+def bondpoint_policy(bondpoint, sim_flag): #bruce 080507/080603
+    """
+    Determine how to treat the given bondpoint,
+    perhaps influenced by debug_prefs and/or whether we're writing
+    to a simulation that wants bondpoints modified (sim_flag).
+
+    @return: one of these constants:
+             BONDPOINT_LEFT_OUT,
+             BONDPOINT_UNCHANGED,
+             BONDPOINT_ANCHORED,
+             BONDPOINT_REPLACED_WITH_HYDROGEN.
+
+    @see: nsinglets_leftout in class sim_aspect
+
+    @see: sim attribute in class writemmp_mapping
+    """
+    ## assert bondpoint.element is Singlet # (no need, and avoid import)
+    if not sim_flag:
+        return BONDPOINT_UNCHANGED
+    if len(bondpoint.bonds) != 1:
+        # should never happen
+        print "bug: %r has %d bonds, namely %r" % \
+              (bondpoint, len(bondpoint.bonds), bondpoint.bonds)
+        ## someday: return BONDPOINT_LEFT_OUT # or BONDPOINT_UNCHANGED??
+        # for now, only this is safe:
+        return BONDPOINT_UNCHANGED
+    other = bondpoint.bonds[0].other(bondpoint)
+    if other.element.pam:
+        if pref_minimize_leave_out_PAM_bondpoints():
+            return BONDPOINT_LEFT_OUT # BUG: not yet fully implemented by callers
+        elif pref_minimize_leave_PAM_bondpoints_unchanged():
+            return BONDPOINT_UNCHANGED
+        else:
+            return BONDPOINT_REPLACED_WITH_HYDROGEN
+    else:
+        return BONDPOINT_REPLACED_WITH_HYDROGEN
+    pass
 
 # ==
 
