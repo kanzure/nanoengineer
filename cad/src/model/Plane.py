@@ -852,6 +852,7 @@ class Plane(ReferenceGeometry):
                     mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
                     self.imagePreviousSize = self.imageSize
                 except:
+                    msg = redmsg("Can't load the image file.") 
                     env.history.message(msg)
                     self.deleteImage()
                     self.tex_image = None
