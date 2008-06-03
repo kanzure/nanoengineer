@@ -463,7 +463,11 @@ class ColorSorter:
         Schedule a surface for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        ColorSorter.schedule(color, drawsurface_worker, (pos, radius, tm, nm))
+        if len(color) == 3:		
+            lcolor = (color[0], color[1], color[2], 1.0)
+        else:
+            lcolor = color		    
+        ColorSorter.schedule(lcolor, drawsurface_worker, (pos, radius, tm, nm))
 
     schedule_surface = staticmethod(schedule_surface)
 
