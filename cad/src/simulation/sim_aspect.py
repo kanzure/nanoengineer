@@ -18,7 +18,9 @@ from model.chem import AtomDict
 
 from model.elements import Singlet
 
-from utilities.GlobalPreferences import pref_minimize_leave_out_PAM_bondpoints
+from utilities.constants import BONDPOINT_LEFT_OUT
+
+from utilities.GlobalPreferences import bondpoint_policy
 
 # has some non-toplevel imports too
 
@@ -49,44 +51,8 @@ def atom_is_anchored(atom):
         if jig.anchors_atom(atom): # as of 050321, true only for Anchor jigs
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
-
-BONDPOINT_LEFT_OUT = "BONDPOINT_LEFT_OUT"
-BONDPOINT_UNCHANGED = "BONDPOINT_UNCHANGED" # not yet specifiable
-BONDPOINT_ANCHORED = "BONDPOINT_ANCHORED" # not yet specifiable
-BONDPOINT_REPLACED_WITH_HYDROGEN = "BONDPOINT_REPLACED_WITH_HYDROGEN"
-
-def bondpoint_policy(bondpoint): #bruce 080507; also review uses of nsinglets_leftout ###@@@
-    """
-    Determine how to treat the given bondpoint,
-    and return one of the codes BONDPOINT_LEFT_OUT,
-    BONDPOINT_UNCHANGED, BONDPOINT_ANCHORED,
-    BONDPOINT_REPLACED_WITH_HYDROGEN.
-
-    @see: nsinglets_leftout
-    """
-    assert bondpoint.element is Singlet
-    if len(bondpoint.bonds) != 1:
-        # should never happen
-        print "bug: %r has %d bonds, namely %r" % \
-              (bondpoint, len(bondpoint.bonds), bondpoint.bonds)
-        return BONDPOINT_LEFT_OUT
-    other = bondpoint.bonds[0].other(bondpoint)
-    if other.element.pam:
-        if pref_minimize_leave_out_PAM_bondpoints():
-            return BONDPOINT_LEFT_OUT
-        else:
-            return BONDPOINT_REPLACED_WITH_HYDROGEN
-    else:
-        return BONDPOINT_REPLACED_WITH_HYDROGEN
-    pass
     
 class sim_aspect:
-    # Note: as of 051115 this is used for Adjust Selection and/or Adjust All
-    # and/or possibly Minimize, but not for Run Dynamics [using modern names
-    # for these features, 080321, but not reverifying current usage];
-    # verified by debug_sim_aspect output.
-    # WARNING: this class also assumes internally that those are its only uses,
-    # by setting mapping.min = True.
     """
     Class for a "simulatable aspect" (portion, more or less) of a Part.
     For now, there's only one kind (a subset of atoms, some fixed in position),
@@ -94,6 +60,12 @@ class sim_aspect:
     Someday there might be other kinds, e.g. with some chunks treated
     as rigid bodies or jigs, with the sim not told about all their atoms.
     """
+    # Note: as of 051115 this is used for Adjust Selection and/or Adjust All
+    # and/or possibly Minimize, but not for Run Dynamics [using modern names
+    # for these features, 080321, but not reverifying current usage];
+    # verified by debug_sim_aspect output.
+    # WARNING: this class also assumes internally that those are its only uses,
+    # by setting mapping.min = True.
     def __init__(self, part, atoms,
                  cmdname_for_messages = "Minimize",
                  anchor_all_nonmoving_atoms = False
@@ -205,10 +177,16 @@ class sim_aspect:
             """
             for atom in dict1.values():
                 if atom.element is Singlet:
-                    policy = bondpoint_policy(atom)
+                    policy = bondpoint_policy(atom, True)
                     if policy == BONDPOINT_LEFT_OUT:
                         ### todo: keep a count of these, or even a list
                         del dict1[atom.key]
+                        # BUG: the necessary consequences of doing this
+                        # (e.g. not expecting its coordinates to be present
+                        #  in sim results frames or files, for some ways of
+                        #  reading them, but updating their positions when
+                        #  reading those files anyway, using reposition_bondpoints)
+                        # are NIM as of 080603.
                         pass
                     # todo: also record lists of bondpoints to handle later
                     # in various ways, or a list of atoms whose bondpoints need repositioning
@@ -239,25 +217,35 @@ class sim_aspect:
         self.anchored_atoms_list = [atom for key, atom in items]
         #e validity checking info is NIM, except for the atom lists themselves
         return
+
     def atomslist(self):
         return list(self._atoms_list)
+
     def natoms_moving(self):
         return len(self._atoms_list) - len(self.anchored_atoms_list)
+
     def natoms_fixed(self):
         return len(self.anchored_atoms_list)
+
     def nsinglets_H(self):
         """
         return number of singlets to be written as H for the sim
         """
         singlets = filter( lambda atom: atom.is_singlet(), self._atoms_list )
         return len(singlets)
+
     def nsinglets_leftout(self):
         """
         return number of singlets to be entirely left out of the sim input file
         """
+        ### @@@ this is currently WRONG for some bondpoint_policy values;
+        # REVIEW ALL USES [bruce 080507/080603 comment]
+        
         # review: should this just be the number that were in _moving_atoms
         # (guess yes), or in other dicts too? [bruce 080507 Q]
+        
         return 0 # for now
+
     def writemmpfile(self, filename, **mapping_options):
         #bruce 050404 (for most details).
         # Imitates some of Part.writemmpfile aka files_mmp_writing.writemmpfile_part.

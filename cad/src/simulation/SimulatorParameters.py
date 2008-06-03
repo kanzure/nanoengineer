@@ -30,6 +30,7 @@ class SimulatorParameters(object):
 
         self._parameterValues = {}
         try:
+            print "sim parameters used by NE1 read from: [%s]" % fileName
             parametersFile = open(fileName)
             for line in parametersFile:
                 s = line.split()
@@ -42,7 +43,9 @@ class SimulatorParameters(object):
                             value = True
                         self._parameterValues[key] = value
         except IOError:
-            env.history.redmsg("Error reading %s" % fileName)
+            msg = "Error reading [%s]" % fileName
+            print_compact_traceback(msg + ": ")
+            env.history.redmsg(msg)
             self._parameterValues = {}
 
     def _getFloatParameter(self, parameterName, defaultValue = 0.0):

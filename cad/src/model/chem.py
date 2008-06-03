@@ -115,12 +115,19 @@ from utilities.constants import dispLabel
 from utilities.constants import default_display_mode
 from utilities.constants import TubeRadius
 
+from utilities.constants import BONDPOINT_LEFT_OUT
+from utilities.constants import BONDPOINT_UNCHANGED
+# from utilities.constants import BONDPOINT_ANCHORED
+from utilities.constants import BONDPOINT_REPLACED_WITH_HYDROGEN
+
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 
 from utilities.constants import pink, yellow
-
 from utilities.constants import ErrorPickedColor
+
 from utilities.prefs_constants import selectionColor_prefs_key
+
+from utilities.GlobalPreferences import bondpoint_policy
 
 from utilities.GlobalPreferences import disable_do_not_draw_open_bonds
 from utilities.GlobalPreferences import usePyrexAtomsAndBonds
@@ -2477,12 +2484,36 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @see: Fake_Pl.writemmp
         """
         # WARNING: has common code with Fake_Pl.writemmp
+
+        # figure out what to do if self is a bondpoint [revised, bruce 080603]
+        policy = BONDPOINT_UNCHANGED # simplifies code for non-Singlet cases
+        if self.element is Singlet:
+            policy = bondpoint_policy(self, mapping.sim)
+            if policy == BONDPOINT_LEFT_OUT:
+                # note: this is probably correct for this code considered alone
+                # (since it probably needs to not call encode_next_atom, and doesn't),
+                # but some necessary consequences of leaving this atom out
+                # are probably NIM. For more info see other comments in,
+                # and/or around other calls of, bondpoint_policy.
+                #
+                # review: want summary message about number of bondpoints left out?
+                # guess: no, at least not once it happens by default.
+                return
+            elif policy == BONDPOINT_UNCHANGED:
+                pass # handled correctly by the code for general elements, below
+            elif policy == BONDPOINT_REPLACED_WITH_HYDROGEN:
+                pass # this is tested again below and handled separately
+            else:
+                # e.g. BONDPOINT_ANCHORED (can't yet happen)
+                assert 0, "not yet implemented: bondpoint_policy of %r" % (policy,)
+            pass
         
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
         eltnum = self.element.eltnum # might be revised below
-        if mapping.sim and self.element is Singlet:
+        
+        if policy == BONDPOINT_REPLACED_WITH_HYDROGEN: # condition revised, bruce 080603
             # special case for singlets in mmp files meant only for simulator:
             # pretend we're a Hydrogen, and revise posn and eltnum accordingly
             # (for writing only, not stored in our attrs)
@@ -2496,6 +2527,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 nsinglets_H = stats.setdefault('nsinglets_H', 0)
                 nsinglets_H += 1
                 stats['nsinglets_H'] = nsinglets_H
+                pass
+            pass
 
         #bruce 080521 refactored the code for printing atom coordinates
         # (and fixed a rounding bug, described in encode_atom_coordinates)
