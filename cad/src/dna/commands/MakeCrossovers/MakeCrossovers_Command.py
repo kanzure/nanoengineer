@@ -24,7 +24,7 @@ from dna.commands.MakeCrossovers.MakeCrossovers_GraphicsMode import MakeCrossove
 from dna.commands.MakeCrossovers.MakeCrossovers_PropertyManager import MakeCrossovers_PropertyManager
 from model.bond_constants import find_bond
 from model.bonds import bond_at_singlets
-from utilities.debug import print_compact_traceback
+from utilities.debug import print_compact_traceback, print_compact_stack
 
 from dna.commands.MakeCrossovers.ListWidgetItems_Command_Mixin import ListWidgetItems_Command_Mixin
 
@@ -103,15 +103,47 @@ class MakeCrossovers_Command(SelectChunks_Command,
             
 
     def makeAllCrossovers(self):
+        """
+        Make all possible crossovers
+        @see: self.makeCrossover()
+        """
         crossoverPairs = self.graphicsMode.get_final_crossover_pairs()
         if crossoverPairs:
             for pairs in crossoverPairs:
-                self.makeCrossover(pairs)                
+                self.makeCrossover(pairs, 
+                                   suppress_post_crossover_updates = True)                
                 
         self.graphicsMode.clearDictionaries()
         
                     
-    def makeCrossover(self, crossoverPairs):
+    def makeCrossover(self, 
+                      crossoverPairs, 
+                      suppress_post_crossover_updates = False):
+        """
+        Make the crossover between the atoms of the crossover pairs. 
+        @param crossoverPairs: A tuple of 4 atoms between which the crossover
+               will be made. Note: As of 2008-06-03, this method assumes the 
+               following  form: (atom1, neighbor1, atom2, neighbor2) 
+               Where all atoms are PAM3 atoms. pair of atoms atom1 and neighbor1
+               are sugar atoms bonded to each other
+               (same for pair atom2, neighbor2)
+               The bond between these atoms will be broken first and then the 
+               atoms are bonded to the opposite atoms. 
+               
+        @type crossoverPair: tuple
+        @param suppress_post_crossover_updates: After making a crossover, this 
+        method calls its graphicsMode method to do some more updates (such 
+        as updating the atoms dictionaries etc.) But if its a batch process, 
+        (e.g. user is calling makeAllCrossovers, this update is not needed 
+        after making an individual crossover. The caller then sets this flag to 
+        true to tell this method to skip that update.
+        @type suppress_post_crossover_updates: boolean
+        @seE:self.makeAllCrossovers()
+        """
+        if len(crossoverPairs) != 4:
+            print_compact_stack("Bug in making the crossover.len(crossoverPairs) != 4")
+            return
+
         atm1, neighbor1, atm2, neighbor2 = crossoverPairs
         bond1 = find_bond(atm1, neighbor1)
         if bond1:
@@ -120,11 +152,14 @@ class MakeCrossovers_Command(SelectChunks_Command,
         bond2 = find_bond(atm2, neighbor2)
         if bond2:
             bond2.bust()
-        
+        #Do we need to check if these pairs are valid (i.e.a 5' end atom is 
+        #bonded to a 3' end atom.. I think its not needed as its done in 
+        #self._bond_two_strandAtoms. 
         self._bond_two_strandAtoms(atm1, neighbor2)
         self._bond_two_strandAtoms(atm2, neighbor1)
         
-        self.graphicsMode.update_after_crossover_creation(crossoverPairs)
+        if not suppress_post_crossover_updates:
+            self.graphicsMode.update_after_crossover_creation(crossoverPairs)
                 
     
     def _bond_two_strandAtoms(self, atm1, atm2):

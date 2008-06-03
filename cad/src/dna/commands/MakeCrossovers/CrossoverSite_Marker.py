@@ -135,10 +135,14 @@ class CrossoverSite_Marker:
         
     def update_after_crossover_creation(self, crossoverPairs):
         crossoverPairs_id = self._create_crossoverPairs_id(crossoverPairs)
-        if self.final_crossover_pairs_dict.has_key(crossoverPairs_id):
-            del self.final_crossover_pairs_dict[crossoverPairs_id]
-        if self._final_avg_center_pairs_for_crossovers_dict.has_key(crossoverPairs_id):
-            del self._final_avg_center_pairs_for_crossovers_dict[crossoverPairs_id]
+        
+        for d in (self.final_crossover_pairs_dict,                  
+                  self._final_avg_center_pairs_for_crossovers_dict):
+            if d.has_key(crossoverPairs_id):
+                for atm in d[crossoverPairs_id]:
+                    if self._final_crossover_atoms_dict.has_key(id(atm)):
+                        del self._final_crossover_atoms_dict[id(atm)]
+                del d[crossoverPairs_id]
                 
         
     def clearDictionaries(self):
