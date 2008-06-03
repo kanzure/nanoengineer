@@ -215,6 +215,28 @@ class MakeCrossovers_Command(SelectChunks_Command,
             bondPoint1 = three_prime_bondPoint_atm1
             bondPoint2 = five_prime_bondPoint_atm2
             
+        #Copied over from BuildAtoms_GraphicsMode._singletLeftUp_joinStrands()
+        #The following fixes bug 2770 
+        #Set the color of the whole dna strandGroup to the color of the
+        #strand, whose bondpoint, is dropped over to the bondboint of the 
+        #other strandchunk (thus joining the two strands together into
+        #a single dna strand group) - Ninad 2008-04-09
+        color = atm1.molecule.color 
+        if color is None:
+            color = atm1.element.color
+        strandGroup1 = atm1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
+                   
+        strandGroup2 = atm2.molecule.parent_node_of_class(
+            self.win.assy.DnaStrand)                
+        if strandGroup2 is not None:
+            #set the strand color of strandGroup2 to the one for 
+            #strandGroup1. 
+            strandGroup2.setStrandColor(color)
+            strandChunkList = strandGroup2.getStrandChunks()
+            for c in strandChunkList:
+                if hasattr(c, 'invalidate_ladder'):
+                    c.invalidate_ladder()
+        
         #Do the actual bonding        
         if bondPoint1 and bondPoint2:
             try:
@@ -222,6 +244,12 @@ class MakeCrossovers_Command(SelectChunks_Command,
             except:
                 print_compact_traceback("Bug: unable to bond atoms %s and %s"%(atm1, 
                                                                            atm2))
+                
+            if strandGroup1 is not None:
+                strandGroup1.setStrandColor(color) 
+                
+                    
+        
     def updateExprsHandleDict(self): 
         self.graphicsMode.updateExprsHandleDict()
  
