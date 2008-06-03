@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 WhatsThisText_for_PropertyManagers.py
 
@@ -9,7 +9,7 @@ Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text
 for widgets in the Main Window.
 
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -69,6 +69,33 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
         </p>""")
     
     return # End of whatsThis_DnaDuplexPropertyManager
+
+def whatsThis_MakeCrossoversPropertyManager(propMgr):
+    """
+    Whats This text for the DnaDuplex Property Manager
+    @see: B{MakeCrossovers_PropertyManager._addWhatsThisText}
+    """
+    propMgr.segmentListWidget.setWhatsThis("""<b> List of Dna segments for 
+    crossover search</b>
+    <p>Lists DnaSegments that will be searched for potential crossover sites. 
+    To add/remove Dna segments to/from this list, activate the appropriate tool
+    in this property manager and select the whole axis of the Dna segment.
+    To add/remove multiple segments to the list at once, hold down left mouse 
+    button and ddrag it to draw a selection rectangle around the segments. 
+    </p>
+    """)
+    propMgr.crossoversBetGivenSegmentsOnly_checkBox.setWhatsThis("""
+    <b> Between above segments only Checkbox </b>
+    <p>*If checked, program will search for the crossover sites <b>only 
+     between</b> the DNA segments listed in the segment's list. <br><br>
+    *Unchecking this checkbox will make the program search for the crossover 
+     sites between each DNA segment in the segment's list and <b>all</b>
+     the DNA segments in the model, that are within a certain distance from 
+     that particular DNA segment. 
+    <br><br><b>Note</b>This operation could be time consuming so it is 
+    recommended that user keeps this checkbox checked.</p>""")
+    return # End of whatsThis_whatsThis_MakeCrossoversPropertyManager
+    
 
 def whatsThis_PeptideGeneratorPropertyManager(propMgr):
     """

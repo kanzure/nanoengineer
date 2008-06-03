@@ -32,6 +32,7 @@ from utilities import debug_flags
 from utilities.debug import print_compact_stack
 from utilities.Comparison import same_vals
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
+from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
 
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
@@ -255,7 +256,7 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         """
         What's This text for widgets in the DNA Property Manager.  
         """
-        pass
+        whatsThis_MakeCrossoversPropertyManager(self)
 
     def _addToolTipText(self):
         """

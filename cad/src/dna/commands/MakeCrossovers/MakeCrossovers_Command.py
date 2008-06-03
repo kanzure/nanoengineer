@@ -41,7 +41,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
     
     commandName = 'MAKE_CROSSOVERS'
     default_mode_status_text = ""
-    featurename = 'MAKE_CROSSOVERS'
+    featurename = 'Make Crossovers'
          
     hover_highlighting_enabled = True
     GraphicsMode_class = MakeCrossovers_Graphicsmode

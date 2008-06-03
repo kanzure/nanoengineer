@@ -148,6 +148,19 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         <p>
         Displays the DNA Display Property Manager 
         </p>""")    
+    
+    commandToolbar.makeCrossoversAction.setWhatsThis(
+        """<b>Make Crossovers</b>
+        <p>
+        Enters the interative <b>Make Crossovers</b> command.<br>
+        To create crossovers, select the DNA Segments to be searched for 
+        potential crossover sites. The crossover sites get updated as you, 
+        for instance, rotate a DNA segment around its axis or translate it etc. 
+        The crossover sites are shown as transparent green spheres. 
+        Clicking on the white colored handles (if one exists) in the 
+        3D-Workspace creates that crossover. 
+        </p>""") 
+    
     return
 
 def whatsThisTextForNanotubeCommandToolbar(commandToolbar):
