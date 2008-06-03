@@ -109,7 +109,7 @@ def loadCursors(w):
     w.SelectAtomsAddCursor = \
      createCompositeCursor(w.SelectAtomsCursor, w.addSymbol, 
                            offsetX = 12, offsetY = 0)
-    w.SelectSubtractCursor = \
+    w.SelectAtomsSubtractCursor = \
      createCompositeCursor(w.SelectAtomsCursor, w.subtractSymbol, 
                            offsetX = 12, offsetY = 0)
     w.DeleteCursor = \
