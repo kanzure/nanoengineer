@@ -37,6 +37,10 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
     #Some left drag variables used to drag the whole segment along axis or 
     #rotate the segment around its own axis of for free drag translation 
     _movablesForLeftDrag = []
+    
+    #Subclasses such as MakeCrossovers_GraphicsMode need this attr. 
+    #needs refactoring. See self.leftADown() 
+    _movable_dnaSegment_for_leftDrag = None
 
     #The common center is the center about which the list of movables (the segment
     #contents are rotated. 
@@ -50,6 +54,8 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
     _translateAlongAxis = False
     _rotateAboutAxis = False
     _freeDragWholeStructure = False
+    
+    
 
     cursor_over_when_LMB_pressed = ''  
 
@@ -119,11 +125,14 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
 
     def clear_leftA_variables(self):
         self._movablesForLeftDrag = []
+        #Subclasses such as MakeCrossovers_GraphicsMode need this attr. 
+        #(self._movable_dnaSegment_for_leftDrag) needs refactoring. 
+        self._movable_dnaSegment_for_leftDrag = None
         self._commonCenterForRotation = None
         self._axis_for_constrained_motion = None
-        _translateAlongAxis = False
-        _rotateAboutAxis = False
-        _freeDragWholeStructure = False
+        self._translateAlongAxis = False
+        self._rotateAboutAxis = False
+        self._freeDragWholeStructure = False
 
     def _leftDown_preparation_for_dragging(self, objectUnderMouse, event):
         """ 
@@ -235,10 +244,11 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
             #Don't go further if some modkey is pressed. We will call the 
             #edit method of the Dna components only if no modifier key is 
             #pressed
+            
             return
-
+        
         if not self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
-            return   
+            return          
 
         #@TODO: If the object under mouse was double clicked, don't enter the 
         #edit mode, instead do appropriate operation such as expand selection or
@@ -334,6 +344,7 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
 
         if isinstance(segment, self.win.assy.DnaSegment):
             self._movablesForLeftDrag = segment.get_all_content_chunks()
+            self._movable_dnaSegment_for_leftDrag = segment
         else:
             self._movablesForLeftDrag = self.win.assy.getSelectedMovables()
 
