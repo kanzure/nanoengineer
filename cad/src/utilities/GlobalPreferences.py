@@ -156,13 +156,24 @@ def dna_updater_is_enabled(): #bruce 080320
 # ==
 
 def debug_pref_enable_pam_convert_sticky_ends(): #bruce 080514; remove when this feature fully works
-    res = debug_pref("DNA: PAM3+5 make ghost bases for sticky ends?", #bruce 080529 revised text
-                     Choice_boolean_False,
+    res = debug_pref("DNA: ghost bases when converting sticky ends to PAM5?", #bruce 080529 revised text
+                     Choice_boolean_True, #bruce 080602 revised default value & prefs_key
                      non_debug = True, #bruce 080529
-                     prefs_key = True)
+                     prefs_key = "v1.1/DNA: PAM3+5 make ghost bases for sticky ends?"
+                    )
     return res
 
 debug_pref_enable_pam_convert_sticky_ends()
+
+def debug_pref_remove_ghost_bases_from_pam3(): #bruce 080602
+    res = debug_pref("DNA: remove ghost bases when converting to PAM3? [F is nim]", ####
+                     Choice_boolean_True, # because they mess up DNA ui ops
+                     non_debug = True, # because you should keep them for more accurate repeated Minimize
+                     prefs_key = "v1.1/DNA: remove ghost bases when converting to PAM3?"
+                    )
+    return res
+
+debug_pref_remove_ghost_bases_from_pam3()
 
 # ==
 
