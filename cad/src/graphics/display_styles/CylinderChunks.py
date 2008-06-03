@@ -84,7 +84,7 @@ class CylinderChunks(ChunkDisplayMode):
         end2 = end2 + alittle * axis
         drawcylinder_wireframe(color, end1, end2, radius + alittle)
         return
-    def drawchunk_realtime(self, glpane, chunk):
+    def drawchunk_realtime(self, glpane, chunk, highlighted=False):
         """
         Draws the chunk style that may depend on a current view.
         piotr 080321

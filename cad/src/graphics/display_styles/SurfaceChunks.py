@@ -533,7 +533,7 @@ class SurfaceChunks(ChunkDisplayMode):
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
         drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
         return
-    def drawchunk_realtime(self, glpane, chunk):
+    def drawchunk_realtime(self, glpane, chunk, highlighted=False):
         """
         Draws the chunk style that may depend on a current view.
         piotr 080320
