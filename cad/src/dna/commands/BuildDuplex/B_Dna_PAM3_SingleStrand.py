@@ -139,7 +139,9 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         return strand_neighbors_to_delete
         
             
-    def _set_bond_direction_on_new_strand(self, strandEndAtom_of_new_strand):
+    def _set_bond_direction_on_new_strand(self, 
+                                          strandEndAtom_of_new_strand
+                                          ):
         """
         Set the bond direction on the new strand. The bond direction will be set
         such that the new strand can be fused with the strand being resized
@@ -153,6 +155,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         @type strandEndAtom_of_new_strand: B{Atom}
         """
         atm = strandEndAtom_of_new_strand
+        
         strand_bond = None
         for bnd in atm.bonds:
             if bnd.is_directional():
@@ -277,110 +280,7 @@ class B_Dna_PAM3_SingleStrand(B_Dna_PAM3):
         
         if axis_and_axis_atomPairs_to_bond:
             self._bond_axisNeighbors_with_orig_axisAtoms(axis_and_axis_atomPairs_to_bond)
-        
-    def _bond_atoms_in_atomPairs(self, atomPairs):
-        """
-        Create bonds between the atoms in given atom pairs. It creats explicit 
-        bonds between the two atoms at the specified bondpoints (i.e. it doesn't
-        use fuseChunkBase to find the bondable pairs within certain tolerance)
-        
-        @see: self._fuse_new_dna_with_original_duplex()
-        @see: _bond_two_strandAtoms() called here
-        
-        @TODO: Refactor self._bond_bare_strandAtoms_with_orig_axisAtoms
-           self._bond_axisNeighbors_with_orig_axisAtoms to use this method
-        """
-        for atm1, atm2 in atomPairs:
-            if atm1.element.role == 'strand' and atm2.element.role == 'strand':
-                self._bond_two_strandAtoms(atm1, atm2)
-            else:
-                #@REVIEW -- As of 2008-04-11, the atomPairs send to this method
-                #are of the same type i.e. (axis, axis) or (strand, strand) 
-                #but when we do refactoring of methods like 
-                #self._bond_bare_strandAtoms_with_orig_axisAtoms, to use this 
-                #method, may be we must make sure that we are not bonding
-                #an axis atom with a 5' or 3' bondpoint of the strand atom.
-                #Skip the pair if its one and the same atom.
-                DEBUG_bonded = False 
-                if atm1 is not atm2:     
-                    for s1 in atm1.singNeighbors():
-                        if atm2.singNeighbors(): 
-                            s2 = atm2.singNeighbors()[0]
-                            DEBUG_bonded = True
-                            bond_at_singlets(s1, s2, move = False)
-                            break
-                        
-    def _bond_two_strandAtoms(self, atm1, atm2):
-        """
-        Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
-        it always makes sure that a 3' bondpoint on one atom is bonded to 5'
-        bondpoint on the other atom. 
-        Example:
-        User lengthens a strand by a single strand baseatom. The final task done
-        in self.modify() is to fuse the created strand base atom with the 
-        strand end atom of the original dna. But this new atom has two bondpoints
-        -- one is a 3' bondpoint and other is 5' bondpoint. So we must find out 
-        what bondpoint is available on the original dna. If its a 5' bondpoint, 
-        we will use that and the 3'bondpoint available on the new strand 
-        baseatom. But what if even the strand endatom of the original dna is a
-        single atom not bonded to any strand neighbors? ..thus, even that
-        atom will have both 3' and 5' bondpoints. In that case it doesn't matter
-        what pair (5' orig and 3' new) or (3' orig and 5' new) we bond, as long
-        as we honor bonding within the atoms of any atom pair mentioned above.
-        
-        @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be 
-                     bonded with atm2. 
-        @param atm2: Second sugar atom
-        @see: self._fuse_new_dna_with_original_duplex()
-        @see: self._bond_atoms_in_atomPairs() which calls this
-        """
-        assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
-        #Initialize all possible bond points to None
-                
-        five_prime_bondPoint_atm1  = None
-        three_prime_bondPoint_atm1 = None
-        five_prime_bondPoint_atm2  = None
-        three_prime_bondPoint_atm2 = None
-        #Initialize the final bondPoints we will use to create bonds
-        bondPoint1 = None
-        bondPoint2 = None
-        
-        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
-        #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
-        #But it doesn't matter here. 
-        for s1 in atm1.singNeighbors():
-            bnd = s1.bonds[0]            
-            if bnd.isFivePrimeOpenBond():
-                five_prime_bondPoint_atm1 = s1                
-            if bnd.isThreePrimeOpenBond():
-                three_prime_bondPoint_atm1 = s1
-                
-        #Find 5' and 3' bondpoints of atm2
-        for s2 in atm2.singNeighbors():
-            bnd = s2.bonds[0]
-            if bnd.isFivePrimeOpenBond():
-                five_prime_bondPoint_atm2 = s2
-            if bnd.isThreePrimeOpenBond():
-                three_prime_bondPoint_atm2 = s2
-        #Determine bondpoint1 and bondPoint2 (the ones we will bond). See method
-        #docstring for details.
-        if five_prime_bondPoint_atm1 and three_prime_bondPoint_atm2:
-            bondPoint1 = five_prime_bondPoint_atm1
-            bondPoint2 = three_prime_bondPoint_atm2
-        #Following will overwrite bondpoint1 and bondPoint2, if the condition is
-        #True. Doesn't matter. See method docstring to know why.
-        if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
-            bondPoint1 = three_prime_bondPoint_atm1
-            bondPoint2 = five_prime_bondPoint_atm2
-            
-        #Do the actual bonding        
-        if bondPoint1 and bondPoint2:
-            bond_at_singlets(bondPoint1, bondPoint2, move = False)
-        else:
-            print_compact_stack("Bug: unable to bond atoms %s and %s"%(atm1, 
-                                                                       atm2))
-            
-    
+                                
     def _bond_bare_strandAtoms_with_orig_axisAtoms(self, 
                                                    axis_and_strand_atomPairs_to_bond):
         """

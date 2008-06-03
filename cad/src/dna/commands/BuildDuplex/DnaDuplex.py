@@ -14,25 +14,16 @@ Mark 2007-10-18:
 
 import foundation.env as env
 import os
-import random
 
 from math    import sin, cos, pi
-
 from utilities.debug import print_compact_traceback, print_compact_stack
-
 from platform.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
-
-from utilities.constants import gensym, darkred, blue
-from utilities.constants import diBALL, diTUBES
-from utilities.constants import MODEL_PAM5
-
-from utilities import debug_flags
-
+from utilities.constants import gensym
 from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
 from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 from utilities.prefs_constants import dnaDefaultSegmentColor_prefs_key
@@ -42,16 +33,14 @@ from dna.model.Dna_Constants import getDuplexBasesPerTurn
 ##from dna.updater.dna_updater_prefs import pref_dna_updater_convert_to_PAM3plus5
 
 from simulation.sim_commandruns import adjustSinglet
-
 from model.elements import PeriodicTable
 from model.Line import Line
 
 from model.chem import Atom_prekill_prep
-
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from dna.model.Dna_Constants import basesDict, dnaDict
-from dna.model.dna_model_constants import LADDER_END0, LADDER_END1
+from dna.model.dna_model_constants import LADDER_END0
 
 basepath_ok, basepath = find_plugin_dir("DNA")
 if not basepath_ok:
@@ -64,6 +53,9 @@ LEFT_HANDED  =  1
 from geometry.VQT import V, Q, norm, cross  
 from geometry.VQT import  vlen
 from Numeric import dot
+
+from utilities.debug import print_compact_stack
+from model.bonds import bond_at_singlets
 
 
 class Dna:
@@ -223,8 +215,13 @@ class Dna:
         if endBaseAtomList and len(endBaseAtomList) > 2:
             if not resizeEndStrandAtom:
                 self._resizeEndStrand1Atom = endBaseAtomList[0]
-                
-            self._resizeEndAxisAtom = endBaseAtomList[1]
+            
+            self._resizeEndAxisAtom = endBaseAtomList[1]   
+            
+            self._resizeEndStrand2Atom = None
+            if endBaseAtomList[2] not in (None, self._resizeEndStrand1Atom):
+                self._resizeEndStrand2Atom = endBaseAtomList[2]
+            
             #Run full dna update so that the newly created duplex represents
             #one in dna data model. Do it before calling self._orient_for_modify
             #The dna updater run will help us use dna model features such as
@@ -332,9 +329,11 @@ class Dna:
         """
         pass
     
-    def _bond_bare_strandAtoms_with_orig_axisAtoms(self, 
-                                                              new_endBaseAtomList):
+    def _bond_bare_strandAtoms_with_orig_axisAtoms(self,
+                                                   new_endBaseAtomList):
         pass
+    
+    
     
     
     def _fuse_new_dna_with_original_duplex(self, 
@@ -385,16 +384,241 @@ class Dna:
                 chunkPair[0].setDisplay(display)
                 if color:
                     chunkPair[0].setcolor(color)
- 
-        self.fuseBasePairChunks(chunkList1)
-        self.fuseBasePairChunks(chunkList2, fuseTolerance = 1.5)
-        if chunkList3:
-            self.fuseBasePairChunks(chunkList3)
+                    
+                    
+        #Original implementation which relied on  on fuse chunks for finding 
+        #bondable atom pairs within a tolerance limit. This is no longer
+        #used and can be removed after more testing of explicit bonding
+        #done in self._bond_atoms_in_atomPairs() (called below)
+        #-- Ninad 2008-04-14
+        ##self.fuseBasePairChunks(chunkList1)
+        ##self.fuseBasePairChunks(chunkList2, fuseTolerance = 1.5)
+        ##if chunkList3:
+            ##self.fuseBasePairChunks(chunkList3)
+             
+        strandPairsToBond =   [ (new_endBaseAtomList[0], 
+                                self._resizeEndStrand1Atom)]
+        
+        if endBaseAtomList[2]:
+           strandPairsToBond.append((new_endBaseAtomList[2],
+                                      endBaseAtomList[2]))
+           
+        axisAtomPairsToBond = [  (new_endBaseAtomList[1], 
+                                 self._resizeEndAxisAtom)]
+        
+    
+        self._bond_strandAtom_pairs(strandPairsToBond)
+        
+        #Create explicit bonds between the end base atoms 
+        #(like done in self._bond_bare_strandAtoms_with_orig_axisAtoms())
+        #instead of relying on fuse chunks (which relies on finding 
+        #bondable atom pairs within a tolerance limit. This fixes bug 2798
+        #-- Ninad 2008-04-14
+        self._bond_atoms_in_atomPairs(axisAtomPairsToBond)
+        
         
         #Now replace the overlapping axis atoms with the corresponding 
         #original axis atoms, make bonds between strand and axis atoms as needed
         #see this method docstrings for details
         self._replace_overlapping_axisAtoms_of_new_dna(new_endBaseAtomList)
+        
+    def _bond_strandAtom_pairs(self, strandPairsToBond):
+        bondPoint1 = None
+        bondPoint2 = None
+        bondPoint3 = None
+        bondPoint4 = None
+        
+        ##print "***strandPairsToBond =", strandPairsToBond 
+        
+        if len(strandPairsToBond) == 2:
+            firstStrandAtomPair = strandPairsToBond[0]
+            secondStrandAtomPair = strandPairsToBond[1]            
+            bondablePairs_1 = self._getBondablePairsForStrandAtoms(firstStrandAtomPair)
+            bondablePairs_2 = self._getBondablePairsForStrandAtoms(secondStrandAtomPair)
+            
+            ##print "***bondablePairs_1 =", bondablePairs_1
+            ##print "***bondablePairs_2 =", bondablePairs_2
+            
+            if bondablePairs_1[0] is not None and bondablePairs_2[1] is not None:
+                bondPoint1, bondPoint2 = bondablePairs_1[0]                
+                bondPoint3, bondPoint4 = bondablePairs_2[1]
+            elif bondablePairs_1[1] is not None and bondablePairs_2[0] is not None:
+                bondPoint1, bondPoint2 = bondablePairs_1[1]                
+                bondPoint3, bondPoint4 = bondablePairs_2[0]
+                
+        elif len(strandPairsToBond) == 1:
+            firstStrandAtomPair = strandPairsToBond[0]                 
+            bondablePairs_1 = self._getBondablePairsForStrandAtoms(firstStrandAtomPair)           
+            if bondablePairs_1[0] is not None:
+                bondPoint1, bondPoint2 = bondablePairs_1[0]                
+            elif bondablePairs_1[1] is not None:
+                bondPoint1, bondPoint2 = bondablePairs_1[1]                
+   
+            #Do the actual bonding        
+        if bondPoint1 and bondPoint2:
+            bond_at_singlets(bondPoint1, bondPoint2, move = False)
+            
+        if bondPoint3 and bondPoint4:
+            bond_at_singlets(bondPoint3, bondPoint4, move = False)
+   
+                
+            
+    def _getBondablePairsForStrandAtoms(self, strandAtomPair):    
+        bondablePairs = []
+    
+        atm1 = strandAtomPair[0]
+        atm2 = strandAtomPair[1]
+                            
+        assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
+        #Initialize all possible bond points to None
+                
+        five_prime_bondPoint_atm1  = None
+        three_prime_bondPoint_atm1 = None
+        five_prime_bondPoint_atm2  = None
+        three_prime_bondPoint_atm2 = None
+        #Initialize the final bondPoints we will use to create bonds
+        bondPoint1 = None
+        bondPoint2 = None
+        
+        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
+        #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
+        #But it doesn't matter here. 
+        for s1 in atm1.singNeighbors():
+            bnd = s1.bonds[0]            
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm1 = s1                
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm1 = s1
+                
+        #Find 5' and 3' bondpoints of atm2
+        for s2 in atm2.singNeighbors():
+            bnd = s2.bonds[0]
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm2 = s2
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm2 = s2
+        #Determine bondpoint1 and bondPoint2 (the ones we will bond). See method
+        #docstring for details.
+        if five_prime_bondPoint_atm1 and three_prime_bondPoint_atm2:
+            bondablePairs.append((five_prime_bondPoint_atm1, 
+                                  three_prime_bondPoint_atm2 ))
+        else:
+            bondablePairs.append(None)
+            
+           
+        #Following will overwrite bondpoint1 and bondPoint2, if the condition is
+        #True. Doesn't matter. See method docstring to know why.
+        if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
+            bondablePairs.append((three_prime_bondPoint_atm1,
+                                  five_prime_bondPoint_atm2))
+        else:
+            bondablePairs.append(None)
+ 
+        return bondablePairs
+            
+        
+    def _bond_atoms_in_atomPairs(self, atomPairs):
+        """
+        Create bonds between the atoms in given atom pairs. It creats explicit 
+        bonds between the two atoms at the specified bondpoints (i.e. it doesn't
+        use fuseChunkBase to find the bondable pairs within certain tolerance)
+        
+        @see: self._fuse_new_dna_with_original_duplex()
+        @see: _bond_two_strandAtoms() called here
+        
+        @TODO: Refactor self._bond_bare_strandAtoms_with_orig_axisAtoms
+           self._bond_axisNeighbors_with_orig_axisAtoms to use this method
+        """
+        for atm1, atm2 in atomPairs:
+            if atm1.element.role == 'strand' and atm2.element.role == 'strand':
+                self._bond_two_strandAtoms(atm1, atm2)
+            else:
+                #@REVIEW -- As of 2008-04-14, the atomPairs send to this method
+                #are of the same type i.e. (axis, axis) or (strand, strand) 
+                #but when we do refactoring of methods like 
+                #self._bond_bare_strandAtoms_with_orig_axisAtoms, to use this 
+                #method, may be we must make sure that we are not bonding
+                #an axis atom with a 5' or 3' bondpoint of the strand atom.
+                #Skip the pair if its one and the same atom.
+                #-- Ninad 2008-04-14
+                if atm1 is not atm2:     
+                    for s1 in atm1.singNeighbors():
+                        if atm2.singNeighbors(): 
+                            s2 = atm2.singNeighbors()[0]
+                            bond_at_singlets(s1, s2, move = False)
+                            break
+                        
+    def _bond_two_strandAtoms(self, atm1, atm2):
+        """
+        Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
+        it always makes sure that a 3' bondpoint on one atom is bonded to 5'
+        bondpoint on the other atom. 
+        Example:
+        User lengthens a strand by a single strand baseatom. The final task done
+        in self.modify() is to fuse the created strand base atom with the 
+        strand end atom of the original dna. But this new atom has two bondpoints
+        -- one is a 3' bondpoint and other is 5' bondpoint. So we must find out 
+        what bondpoint is available on the original dna. If its a 5' bondpoint, 
+        we will use that and the 3'bondpoint available on the new strand 
+        baseatom. But what if even the strand endatom of the original dna is a
+        single atom not bonded to any strand neighbors? ..thus, even that
+        atom will have both 3' and 5' bondpoints. In that case it doesn't matter
+        what pair (5' orig and 3' new) or (3' orig and 5' new) we bond, as long
+        as we honor bonding within the atoms of any atom pair mentioned above.
+        
+        @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be 
+                     bonded with atm2. 
+        @param atm2: Second sugar atom
+        @see: self._fuse_new_dna_with_original_duplex()
+        @see: self._bond_atoms_in_atomPairs() which calls this
+        """
+        #Moved from B_Dna_PAM3_SingleStrand to here, to fix bugs like 
+        #2711 in segment resizing-- Ninad 2008-04-14
+        assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
+        #Initialize all possible bond points to None
+                
+        five_prime_bondPoint_atm1  = None
+        three_prime_bondPoint_atm1 = None
+        five_prime_bondPoint_atm2  = None
+        three_prime_bondPoint_atm2 = None
+        #Initialize the final bondPoints we will use to create bonds
+        bondPoint1 = None
+        bondPoint2 = None
+        
+        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
+        #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
+        #But it doesn't matter here. 
+        for s1 in atm1.singNeighbors():
+            bnd = s1.bonds[0]            
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm1 = s1                
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm1 = s1
+                
+        #Find 5' and 3' bondpoints of atm2
+        for s2 in atm2.singNeighbors():
+            bnd = s2.bonds[0]
+            if bnd.isFivePrimeOpenBond():
+                five_prime_bondPoint_atm2 = s2
+            if bnd.isThreePrimeOpenBond():
+                three_prime_bondPoint_atm2 = s2
+        #Determine bondpoint1 and bondPoint2 (the ones we will bond). See method
+        #docstring for details.
+        if five_prime_bondPoint_atm1 and three_prime_bondPoint_atm2:
+            bondPoint1 = five_prime_bondPoint_atm1
+            bondPoint2 = three_prime_bondPoint_atm2
+        #Following will overwrite bondpoint1 and bondPoint2, if the condition is
+        #True. Doesn't matter. See method docstring to know why.
+        if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
+            bondPoint1 = three_prime_bondPoint_atm1
+            bondPoint2 = five_prime_bondPoint_atm2
+            
+        #Do the actual bonding        
+        if bondPoint1 and bondPoint2:
+            bond_at_singlets(bondPoint1, bondPoint2, move = False)
+        else:
+            print_compact_stack("Bug: unable to bond atoms %s and %s"%(atm1, 
+                                                                       atm2))
         
     
     def _remove_bases_from_duplex(self,
@@ -744,6 +968,14 @@ class Dna:
                 #@see self._determine_axis_and_strandA_endAtoms_at_end_1() for 
                 #more comments
                 firstChunkInBaseList = self.baseList[0]
+                #@ATTENTION: The strandA endatom at end1 is later modified 
+                #in self.orient_for_modify (if its a resize operation) 
+                #Its done to fix bug 2888 (for v1.1.0). 
+                #Perhaps computing this strand atom  always be done at a later 
+                #stage. But I am unsure if this will cause any bugs. So not 
+                #changing the original implementation . 
+                #See B_Dna_PAM3.orient_for_modify() for details. 
+                #This NEEDS CLEANUP -- Ninad 2008-06-02 
                 self._determine_axis_and_strandA_endAtoms_at_end_1(self.baseList[0])
 
             theta -= twistPerBase
@@ -1042,12 +1274,14 @@ class Dna:
                             name = gensym("Strand", self.assy),
                             group = dnaGroup,
                             color = env.prefs[dnaDefaultStrand1Color_prefs_key])
+
         if _strandB_list:
             strandBChunk = self._makeChunkFromAtomList(
                             _strandB_list,
                             name = gensym("Strand", self.assy),
                             group = dnaGroup,
                             color = env.prefs[dnaDefaultStrand2Color_prefs_key])
+
         if _axis_list:
             axisChunk = self._makeChunkFromAtomList(
                             _axis_list,
@@ -1408,7 +1642,9 @@ class B_Dna_PAM3(B_Dna_PAM5):
             
  
         return
-
+    
+    
+            
     def _determine_axis_and_strandA_endAtoms_at_end_1(self, chunk):
         """
         Determine the axis end atom and the strand atom on strand 1 
@@ -1444,40 +1680,20 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 if atm.element.symbol == 'Ss3' and atm.getDnaBaseName() == 'a':
                     self.strandA_atom_end1 = atm
 
-    def _orient_for_modify(self, end1, end2):    
-        
-
-        original_ladder = self._resizeEndAxisAtom.molecule.ladder
-        original_ladder_end = original_ladder.get_ladder_end(self._resizeEndAxisAtom)
-       
-        rail_for_strandA_of_original_duplex = self._resizeEndStrand1Atom.molecule.get_ladder_rail()      
-
-        rail_bond_direction_of_strandA_of_original_duplex = rail_for_strandA_of_original_duplex.bond_direction()
-
+    def _orient_for_modify(self, end1, end2):
+        """
+        Orient the new dna to match up appropriately with the original dna 
+        (being modified/resized)
+        """
+    
         b = norm(end2 - end1)
         new_ladder =   self.axis_atom_end1.molecule.ladder
         new_ladder_end = new_ladder.get_ladder_end(self.axis_atom_end1)
 
         chunkListForRotation = new_ladder.all_chunks()
 
-        endBaseAtomList  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
-        
-        endStrandbaseAtoms = (endBaseAtomList[0], endBaseAtomList[2])   
-    
-        self.strandA_atom_end1 = None
-        for atm in endStrandbaseAtoms:
-            if atm is not None:
-                rail = atm.molecule.get_ladder_rail()
-    
-                bond_direction = rail.bond_direction()
-    
-                if new_ladder_end == original_ladder_end:                
-                    if bond_direction != rail_bond_direction_of_strandA_of_original_duplex:
-                        self.strandA_atom_end1 = atm
-                else:
-                    if bond_direction == rail_bond_direction_of_strandA_of_original_duplex:
-                        self.strandA_atom_end1 = atm 
-                    
+        #This method fixes bug 2889. See that method for more comments.    
+        self._redetermine_resizeEndStrand1Atom_and_strandA_atom_end1()
 
         axis_strand_vector = (self.strandA_atom_end1.posn() - \
                               self.axis_atom_end1.posn())
@@ -1491,33 +1707,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         self.final_pos_strand_end_atom = \
             self.axis_atom_end1.posn() + \
             vlen(axis_strand_vector)*unitVectorAlongLadderStep
-
-        expected_vec = self.final_pos_strand_end_atom - self.axis_atom_end1.posn()
         
-        DEBUG_BY_DRAWING_LINES = 0
-
-        if DEBUG_BY_DRAWING_LINES:
-            pointList1 = (self.strandA_atom_end1.posn() ,
-                          self.axis_atom_end1.posn())
-            line1 = Line(self.assy.w, pointList = pointList1)
-
-            pointList2 = (self._resizeEndStrand1Atom.posn(),
-                          self._resizeEndAxisAtom.posn())
-            line2 = Line(self.assy.w, pointList = pointList2)
-
-            pointList3 = (self.final_pos_strand_end_atom, self.axis_atom_end1.posn())
-            line3 = Line(self.assy.w, pointList = pointList3)
-
-            pointList4 = (end1, end2)
-            line4 = Line(self.assy.w, pointList = pointList4)
-            print "~~~~~~~~~~~~~~~~~~~~"
-            print "***self.strandA_atom_end1 =", self.strandA_atom_end1
-            print "***%s vector before orientation" %(line1.name)
-            print "***%s orientation of the last duplex"%(line2.name)
-            print "***%s expected orientation of new duplex"%(line3.name)
-            print "***%s end1  to end2"%(line4.name)
-            print "~~~~~~~~~~~~~~~~~~~~"
-
         
         q_new = Q(axis_strand_vector, vectorAlongLadderStep)
 
@@ -1528,7 +1718,89 @@ class B_Dna_PAM3(B_Dna_PAM5):
 
 
         self.assy.rotateSpecifiedMovables(q_new2, chunkListForRotation, end1)
+        
+        
+    def _redetermine_resizeEndStrand1Atom_and_strandA_atom_end1(self):
+        """
+        @ATTENTION: The strandA endatom at end1 is modified in this method.
+        It is originally computed in self._determine_axis_and_strandA_endAtoms()
+         
+        The recomputation is done to fix bug 2889 (for v1.1.0).  
+        See B_Dna_PAM3.orient_for_modify() for details. 
+        This NEEDS CLEANUP 
+        @see: self._create_raw_duplex()
+        @see: self.orient_for_modify()
+        """
+        #Method created just before codefreeze for v1.1.0 to fix newly discovered
+        #bug 2889 -- Ninad 2008-06-02
+        #Perhaps computing this strand atom  always be done at a later 
+        #stage (like done in here). But not sure if this will cause any bugs. 
+        #So not changing the original implementation .
+        
+        
+        new_ladder =   self.axis_atom_end1.molecule.ladder       
+        endBaseAtomList  = new_ladder.get_endBaseAtoms_containing_atom(self.axis_atom_end1)
+        
+        endStrandbaseAtoms = (endBaseAtomList[0], endBaseAtomList[2]) 
+        
+        self.strandA_atom_end1 = None
+        
+        #Check if the resizeEndStrandAtom is a 5' or a 3' end. 
+        #If it is a 5' or 3' end, then chose the strand end atom of the 
+        #new duplex such that it is the opposite of it (i.e. if resizeEndStrandAtom 
+        #is a 5' end, the strand end atom on new duplex should be chosen such that
+        #its a 3' end. Using these references, we will orient the new duplex 
+        #to match up correctly with the resizeEnd strand atom (and later
+        #the old and new dnas will be bonded at these ends)
+        
+        #However, if the chosen resizeEndStrandAtom of original duplex 
+        #doesn't have a 5' or 3' end, then we will choose the second 
+        #resizeEndStrandEndAtom on the original duplex and do the same 
+        #computations
+        resizeEndStrandAtom_isFivePrimeEndAtom = False
+        resizeEndStrandAtom_isThreePrimeEndAtom = False        
+        if self._resizeEndStrand1Atom.isFivePrimeEndAtom():            
+            resizeEndStrandAtom_isFivePrimeEndAtom = True
+        elif self._resizeEndStrand1Atom.isThreePrimeEndAtom():
+            resizeEndStrandAtom_isThreePrimeEndAtom = True
+        
+        if not (resizeEndStrandAtom_isFivePrimeEndAtom or \
+                resizeEndStrandAtom_isThreePrimeEndAtom):
+            if self._resizeEndStrand2Atom:
+                if self._resizeEndStrand2Atom.isFivePrimeEndAtom():            
+                    resizeEndStrandAtom_isFivePrimeEndAtom = True
+                elif self._resizeEndStrand2Atom.isThreePrimeEndAtom():
+                    resizeEndStrandAtom_isThreePrimeEndAtom = True
+                    
+                if (resizeEndStrandAtom_isFivePrimeEndAtom or \
+                    resizeEndStrandAtom_isThreePrimeEndAtom):
+                    #Swap resizeEndStrand1Atom and resizeEndStrand2Atom
+                    atm1, atm2 = self._resizeEndStrand1Atom, self._resizeEndStrand2Atom
+                    self._resizeEndStrand1Atom, self._resizeEndStrand2Atom = atm2, atm1
+                    
 
+        for atm in endStrandbaseAtoms:
+            if atm is not None:
+                if atm.isThreePrimeEndAtom() and \
+                   resizeEndStrandAtom_isFivePrimeEndAtom:
+                    self.strandA_atom_end1 = atm 
+                    break 
+                elif atm.isFivePrimeEndAtom() and \
+                     resizeEndStrandAtom_isThreePrimeEndAtom:
+                    self.strandA_atom_end1 = atm 
+                    break 
+                
+        if self.strandA_atom_end1 is None:
+            #As a fallback, set this atom to any atom in endStrandbaseAtoms
+            #but, this may cause a bug in which bond directions are not 
+            #properly set.
+            for atm in endStrandbaseAtoms:
+                if atm is not None:
+                    self.strandA_atom_end1 = atm
+        
+    
+        
+        
     def _orient_to_position_first_strandA_base_in_axis_plane(self, baseList, end1, end2):
         """
         The self._orient method orients the DNA duplex parallel to the screen
