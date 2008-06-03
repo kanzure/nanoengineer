@@ -26,6 +26,7 @@ from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.MakeCrossovers.ListWidgetItems_GraphicsMode_Mixin import ListWidgetItems_GraphicsMode_Mixin
 from dna.commands.MakeCrossovers.CrossoverSite_Marker import CrossoverSite_Marker
 from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 SPHERE_DRAWLEVEL = 2
 SPHERE_OPACITY = 0.5 
@@ -35,7 +36,8 @@ SPHERE_RADIUS =  2.0
 
 
 _superclass = BuildDna_GraphicsMode
-class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
+class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
+                                  BuildDna_GraphicsMode,
                                   ListWidgetItems_GraphicsMode_Mixin):
     
     DEBUG_DRAW_PLANE_NORMALS = False
@@ -117,6 +119,18 @@ class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
         self._crossoverSite_marker.updateHandles()
         if not self._handleDrawingRequested:
             self._handleDrawingRequested = True   
+            
+    def editObjectOnSingleClick(self):
+        """
+        Overrides superclass method. If this method returns True, 
+        when you left click on a DnaSegment or a DnaStrand, it becomes editable
+        (i.e. program enters the edit command of that particular object if
+        that object is editable). If this returns False, program simply stays in
+        the current command. 
+        @see: BuildDna_GraphicsMode.editObjectOnSingleClick()
+        """
+        return False
+        
             
     def leftDrag(self, event):
         """

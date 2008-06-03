@@ -81,6 +81,7 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
                     self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
                 elif self.o.selobj.element.role == 'axis':
                     self.o.setCursor(self.win.translateAlongCentralAxisCursor)
+                    
 
     def bareMotion(self, event):
         """
@@ -255,7 +256,7 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
         #contract selection (done in superclass) 
         #Note: when the object is just single clicked, it becomes editable). 
 
-        if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
+        if self.editObjectOnSingleClick():
             if aChunk.picked:
                 if aChunk.isAxisChunk() or aChunk.isStrandChunk():   
                     strandOrSegmentGroup = aChunk.parent_node_of_class(
@@ -547,6 +548,17 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
         @see : self.drawHighlightedObjectUnderMouse()
 	"""
         return False
+    
+    def editObjectOnSingleClick(self):
+        """
+        Subclasses can override this method. If this method returns True, 
+        when you left click on a DnaSegment or a DnaStrand, it becomes editable
+        (i.e. program enters the edit command of that particular object if
+        that object is editable)
+        @see: MakeCrossover_GraphicsMode.editObjectOnSingleClick()
+        """
+        if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
+            return True
 
     def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
         """
