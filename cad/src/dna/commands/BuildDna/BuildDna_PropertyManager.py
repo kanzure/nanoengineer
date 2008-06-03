@@ -130,6 +130,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.editSegmentPropertiesButton,
                       SIGNAL("clicked()"),
                       self._editDnaSegment)
+        
+        change_connect(self.searchForCrossoversButton,
+                      SIGNAL("clicked()"),
+                      self._enterMakeCrossoversCommand)
  
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
@@ -191,9 +195,11 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             resizeString = "Resize Selected Segments (%d)..."%len(selectedSegments)
             self.editSegmentPropertiesButton.setText(resizeString)
             self.editSegmentPropertiesButton.setEnabled(True)
+            self.searchForCrossoversButton.setEnabled(True)
         else:
             self.editSegmentPropertiesButton.setText("Edit Properties...")
             self.editSegmentPropertiesButton.setEnabled(False)
+            self.searchForCrossoversButton.setEnabled(False)
                          
         #Update the strand and segmment list widgets. 
         #Ideally it should only update when the structure is modified 
@@ -327,6 +333,19 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             elif len(selectedSegments) > 1:
                 self.win.resizeSelectedDnaSegments()
     
+    def _enterMakeCrossoversCommand(self):
+        """
+        If more than one segments in the segment list widget 
+        are selected, enter make crossovers  command
+        
+        @BUG: This enters Make Crossover command which searches for *ALL* 
+        of the selected DnaSegments in the model and not just the selected 
+        segments of the DnaGroup you are editing in the BuildDna command
+        This is misleading.
+        
+        """
+        self.win.enterMakeCrossoversCommand()
+                       
         
     def _update_widgets_in_PM_before_show(self):
         """
@@ -460,6 +479,12 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             label = "",
             text  = "Edit Properties..." )
         self.editSegmentPropertiesButton.setEnabled(False)
+        
+        self.searchForCrossoversButton = PM_PushButton( 
+            pmGroupBox,
+            label = "",
+            text  = "Search For Crossovers..." )
+        self.searchForCrossoversButton.setEnabled(False)
     
  
     def _addWhatsThisText( self ):
