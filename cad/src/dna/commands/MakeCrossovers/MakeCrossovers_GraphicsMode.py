@@ -197,9 +197,11 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
     def _drawSpecialIndicators(self):
         final_crossover_atoms_dict = self._crossoverSite_marker.get_final_crossover_atoms_dict()
         for atm in final_crossover_atoms_dict.values():
+            sphere_radius = max(1.20*atm.drawing_radius(), 
+                                SPHERE_RADIUS)
             drawsphere(darkgreen, 
                        atm.posn(), 
-                       SPHERE_RADIUS,
+                       sphere_radius,
                        SPHERE_DRAWLEVEL,
                        opacity = SPHERE_OPACITY) 
 
