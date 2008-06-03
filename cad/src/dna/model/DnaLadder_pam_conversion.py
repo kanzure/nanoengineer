@@ -1066,7 +1066,7 @@ class DnaLadder_pam_conversion_methods:
         
         return atoms
 
-    def axis_atom_at_extended_baseindex(self, i): #bruce 080523; has BUG for length-1 case, or notices a bug in neighbor_baseatoms then
+    def axis_atom_at_extended_baseindex(self, i): #bruce 080523
         """
         Return the axis atom of self at the given baseindex,
         or if the baseindex is out of range by 1
@@ -1075,6 +1075,11 @@ class DnaLadder_pam_conversion_methods:
         in another DnaLadder (or the same ladder if self is a duplex ring),
         or None if self's axis ends on that side.
         """
+        # note: this had a bug when len(axis_atoms) == 1
+        # due to a bug in how axis_rail.neighbor_baseatoms was set then;
+        # apparently nothing before this had cared about its order.
+        # This is fixed by new code in _f_update_neighbor_baseatoms.
+        # [080602]
         axis_rail = self.axis_rail
         axis_atoms = axis_rail.baseatoms
         if i == -1:

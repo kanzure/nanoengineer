@@ -12,13 +12,23 @@ from dna.model.DnaMarker import DnaStrandMarker
 
 from utilities import debug_flags
 
+from utilities.debug import print_compact_stack, print_compact_traceback
+
 from dna.model.dna_model_constants import LADDER_ENDS
 from dna.model.dna_model_constants import LADDER_END0
+
+from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
 
 import foundation.env as env
 from utilities.Log import redmsg
 
 from model.bond_constants import find_bond, find_Pl_bonds
+from model.bond_constants import atoms_are_bonded
+
+# ==
+
+DEBUG_NEIGHBOR_BASEATOMS = False # DO NOT COMMIT WITH True
+    #bruce 080530 for bug in length 1 sticky end ghost bases
 
 # ==
 
@@ -63,6 +73,10 @@ class DnaChain(object):
         # current overall algorithm. OTOH, it might turn out that when
         # merging ladders and reversing it, we have to tell their markers
         # we did that, which is not done now [071204].
+        #
+        # update 080602: this is NO LONGER USED (as of long ago, probably when
+        # DnaMarkers got two atoms each) except to maintain its own value
+        # (in self and other chains made from self). TODO: remove it.
 
     def __repr__(self):
         classname = self.__class__.__name__.split('.')[-1]
@@ -77,6 +91,11 @@ class DnaChain(object):
     def _reverse_neighbor_baseatoms(self):
         self.neighbor_baseatoms = list(self.neighbor_baseatoms)
         self.neighbor_baseatoms.reverse()
+        if DEBUG_NEIGHBOR_BASEATOMS:
+            if self.neighbor_baseatoms[0] != -1 or \
+               self.neighbor_baseatoms[1] != -1:
+                msg = "reversed %r.neighbor_baseatoms to get %r" % (self, self.neighbor_baseatoms)
+                print_compact_stack( "\n" + msg + ": ")
         return
     
     def baseatom_index_pairs(self):
@@ -263,11 +282,11 @@ class DnaChain(object):
         
     # ==
     
-    def _f_update_neighbor_baseatoms(self): ### @@@ correct order behavior is unclear; does it matter? not yet! 080116
+    def _f_update_neighbor_baseatoms(self):
         """
         [friend method for dna updater]
         
-        This must be called exactly once per ladder rail chain
+        This must be called at least once per ladder rail chain
         (i.e. _DnaChainFragment object, I think, 080116),
         during each dna updater run which encounters it (whether as a
         new or preexisting rail chain).
@@ -289,9 +308,9 @@ class DnaChain(object):
 
         For strands, it finds neighbors using bond direction, and knows
         about skipping Pl atoms; for axes, in the ambiguous length==1 case,
-        it uses an arbitrary order, but [###IMPLEM THIS IF/WHEN IT MATTERS]
+        it uses an arbitrary order, but
         makes sure this is consistent with strands when at least one strand
-        has no nick at one end of this chain's ladder. [explain better]
+        has no nick at one end of this chain's ladder. [#todo: explain better]
         If this doesn't force an order, then if this had already been set
         before this call and either of the same non-None atoms are still
         in it now, preserve their position.
@@ -311,9 +330,10 @@ class DnaChain(object):
         If this ever matters, we might need to straighten out this order
         in DnaLadder.finished() for length==1 ladders. The ladders are already
         made and merged by the time we're called, so whatever reversals they'll
-        do are already done.
+        do are already done. [update, 080602: this was implemented today,
+        to fix a bug; no change to DnaLadder.finished() seemed to be needed.]
         """
-        assert self.strandQ in [False, True]
+        assert self.strandQ in (False, True)
         self.neighbor_baseatoms = list(self.neighbor_baseatoms)
         # do most atoms one end at a time...
         for end in LADDER_ENDS: # end_baseatoms needs ladder end, not chain end
@@ -321,16 +341,30 @@ class DnaChain(object):
             if self.strandQ:
                 # similar to code in DnaLadder._can_merge_at_end
                 end_atom = self.end_baseatoms()[end]
-                assert self._bond_direction # relative to LADDER_ENDS directions, I think ## @@@ not 100% sure this is set yet
+                assert self._bond_direction
+                    # relative to LADDER_ENDS directions
+                    # (since that's in the same direction as our baseatoms array)
+                    # (review: not 100% sure this is set yet;
+                    #  but the assert is now old and has never failed)
                 if end == LADDER_END0:
-                    bond_dir_to_neighbor = - self._bond_direction
+                    arrayindex_dir_to_neighbor = -1
                 else:
-                    bond_dir_to_neighbor = + self._bond_direction
+                    arrayindex_dir_to_neighbor = 1
+                bond_dir_to_neighbor = self._bond_direction * arrayindex_dir_to_neighbor
                 next_atom = end_atom.strand_next_baseatom(bond_direction = bond_dir_to_neighbor)
                 assert next_atom is None or next_atom.element.role == 'strand'
                 # (note: strand_next_baseatom returns None if end_atom or the atom it
                 #  might return has ._dna_updater__error set.)
                 # store next_atom at end of loop
+                if len(self.baseatoms) > 1: #080602 debug code
+                    if arrayindex_dir_to_neighbor == 1:
+                        next_interior_atom = self.baseatoms[1]
+                    else:
+                        next_interior_atom = self.baseatoms[-2]
+                    if next_interior_atom is next_atom:
+                        print "\n*** PROBABLE BUG: next_interior_atom is next_atom %r for end_atom %r in %r" % \
+                              (next_atom, end_atom, self)
+                    pass
             else:
                 # do axis atoms in this per-end loop, only if chain length > 1;
                 # otherwise do them both at once, after this loop.
@@ -372,6 +406,10 @@ class DnaChain(object):
             if next_atom != -1:
                 self.neighbor_baseatoms[end] = next_atom # None or an atom
                 assert next_atom is None or not next_atom._dna_updater__error # 080206
+                if DEBUG_NEIGHBOR_BASEATOMS:
+                    msg = "set %r.neighbor_baseatoms[%r] = %r, whole list is now %r" % \
+                          (self, end, next_atom, self.neighbor_baseatoms)
+                    print_compact_stack( "\n" + msg + ": ")
             continue
         # ... but in length==1 case, do axis atoms both at once
         if not self.strandQ and len(self.baseatoms) == 1:
@@ -383,16 +421,63 @@ class DnaChain(object):
             next_atoms = filter( lambda atom: not atom._dna_updater__error , next_atoms )
             while len(next_atoms) < 2:
                 next_atoms.append(None)
-            ### TODO: if order matters, reverse this here, if either strand
+            
+            # if order matters, reverse this here, if either strand
             # in the same ladder indicates we ought to, by its next atom
             # bonding to one of these atoms (having no nick); I think any
             # advice we get from this (from 1 of 4 possible next atoms)
             # can't be inconsistent, but I haven't proved this. (Certainly
             # it can't be for physically reasonable structures.)
-            # [bruce 080116]
-            order_was_forced_by_strands = False
-                # sometimes True once above is implemented
-
+            # [bruce 080116 proposed, bruce 080602 implemented, as bugfix]
+            order_was_forced_by_strands = False # might be set below
+            try:
+                # very near a release, so cause no new harm...
+                ladder = rail_end_atom_to_ladder(end_atom)
+                assert self is ladder.axis_rail
+                evidence_counters = [0, 0] # [wrong order, right order]
+                for strand in ladder.strand_rails:
+                    strand._f_update_neighbor_baseatoms()
+                        # redundant with caller, but necessary since we don't
+                        # know whether it called this already or not;
+                        # calling it twice on a strand is ok (2nd call is a noop);
+                        # not important to optimize since length-1 ladders are rare.
+                    for strand_end in LADDER_ENDS:
+                        for axis_end in LADDER_ENDS:
+                            axis_next_atom = next_atoms[axis_end] # might be None
+                            strand_next_atom = strand.neighbor_baseatoms[strand_end] # might be None
+                            if axis_next_atom and strand_next_atom and \
+                               atoms_are_bonded( axis_next_atom, strand_next_atom):
+                                evidence_counters[ strand_end == axis_end ] += 1
+                            continue
+                        continue
+                    continue
+                badvote, goodvote = evidence_counters
+                    # note: current order of next_atoms is arbitrary,
+                    # so we need symmetry here between badvote and goodvote
+                if badvote != goodvote:
+                    if badvote > goodvote:
+                        next_atoms.reverse()
+                        badvote, goodvote = goodvote, badvote
+                        pass
+                    order_was_forced_by_strands = True
+                if badvote and goodvote:
+                    # should never happen for physically reasonable structures,
+                    # but is probably possible for nonsense structures
+                    print "\nBUG or unreasonable structure: " \
+                          "badvote %d goodvote %d for next_atoms %r " \
+                          "around %r with %r" % \
+                          (badvote, goodvote, next_atoms, self, end_atom)
+                    pass
+                pass
+            except:
+                msg = "\n*** BUG: ignoring exception while disambiguating " \
+                      "next_atoms %r around %r with %r" % \
+                      (next_atoms, self, end_atom)
+                print_compact_traceback( msg + ": " )
+                pass
+            
+            reverse_count = 0 # for debug prints only
+            
             if not order_was_forced_by_strands:
                 # For stability of arbitrary choices in case self.neighbor_baseatoms
                 # was already set, let non-None atoms still in it determine the order
@@ -402,8 +487,18 @@ class DnaChain(object):
                     if old_atom and old_atom is next_atoms[1-end]:
                         assert old_atom != -1 # next_atoms can't contain -1
                         next_atoms.reverse() # (this can't happen twice)
+                        reverse_count += 1
             
             self.neighbor_baseatoms = next_atoms
+            
+            if DEBUG_NEIGHBOR_BASEATOMS:
+                msg = "set %r.neighbor_baseatoms = next_atoms %r, " \
+                      "order_was_forced_by_strands = %r, reverse_count = %r" % \
+                      (self, next_atoms, order_was_forced_by_strands, reverse_count)
+                print_compact_stack( "\n" + msg + ": ")
+                pass
+            pass
+        
         # we're done
         assert len(self.neighbor_baseatoms) == 2
         assert type(self.neighbor_baseatoms) == type([])

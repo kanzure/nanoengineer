@@ -88,8 +88,8 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # exist within the markers, and can be used to scan their atoms even though
     # some are dead or their bonding has changed. The markers use them to help
     # decide where and how to move. Warning: this will only be true during the early
-    # parts of the da updater run, since the wholechains rely on rail.neighbor_baseatoms
-    # to know how their rails are linked, and that will be rewritten later around
+    # parts of the dna updater run, since the wholechains rely on rail.neighbor_baseatoms
+    # to know how their rails are linked, and that will be rewritten later, around the time
     # when new wholechains are made. TODO: assert that we don't rely on that after
     # it's invalid.
     #
@@ -334,7 +334,20 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
                 # it worked without error, but returned each set multiple times.
             rail._f_update_neighbor_baseatoms() # called exactly once per rail,
                 # per dna updater run which encounters it (whether as a new
-                # or preexisting rail); implem differs for axis or strand atoms
+                # or preexisting rail); implem differs for axis or strand atoms.
+                # Notes [080602]:
+                # - the fact that we call it even on preexisting rails (not
+                #   modified during this dna updater run) might be important,
+                #   if any of their neighbor atoms differ. OTOH this might never
+                #   happen, since such changes would call changed_structure
+                #   on those baseatoms (even if there's an intervening Pl,
+                #   as of a recent bugfix).
+                # - the order of rail.neighbor_baseatoms doesn't matter here,
+                #   but might matter in later code, so it's necessary to make sure
+                #   it's consistent for all rails in a length-1 ladder, but ok
+                #   to do that either in the above method which sets them,
+                #   or in later code which makes them consistent. (As of 080602
+                #   it's now done in the above method which sets them.)
             for neighbor_baseatom in rail.neighbor_baseatoms:
                 if neighbor_baseatom is not None:
                     rail1 = _find_rail_of_atom( neighbor_baseatom, ladder_to_rails_function )
@@ -348,8 +361,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
                 res.append(rails_for_wholechain)
         return res
 
-    # make new wholechains. This also calls marker methods on all markers they find
-    # which can kill some of the markers.
+    # Make new wholechains. Note: The constructors call marker methods on all
+    # markers found on those wholechains; those methods can kill some of the
+    # markers.
     
     new_wholechains = (
         map( Axis_WholeChain, 
