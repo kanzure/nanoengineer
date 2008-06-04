@@ -278,8 +278,15 @@ useCustomColorForThreePrimeArrowheads_prefs_key = 'A101/ Use custom color for th
 dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for strand three-prime arrowheads/spheres'
 useCustomColorForFivePrimeArrowheads_prefs_key = 'A101/ Use custom color for five-prime arrowheads/spheres'
 dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for five-prime strand arrowheads/spheres'
+#Join strands command prefs 
 
-
+joinStrandsCommand_local_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Join strands command, show three prime ends as out arrow heads'
+joinStrandsCommand_local_arrowsOnFivePrimeEnds_prefs_key = 'A110/ While in Join strands command, show five prime ends as in arrow heads'
+joinStrandsCommand_local_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ While in Join strands command, use custom color for three-prime arrowheads/spheres'
+joinStrandsCommand_local_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand three-prime arrowheads/spheres'
+joinStrandsCommand_local_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Join strands command,use custom color for five-prime arrowheads/spheres'
+joinStrandsCommand_local_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
+    
 #Various cursor text prefs =======================
 dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
 dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaDulex_Editcommand'
@@ -689,6 +696,15 @@ prefs_table = (
     ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+    
+    #Join strands command arrowhead display pref.(should it override global pref)
+       
+    ('', 'boolean', joinStrandsCommand_local_arrowsOnThreePrimeEnds_prefs_key, True), 
+    ('', 'boolean', joinStrandsCommand_local_arrowsOnFivePrimeEnds_prefs_key, True), 
+    ('', 'boolean', joinStrandsCommand_local_useCustomColorForThreePrimeArrowheads_prefs_key, True),
+    ('', 'color', joinStrandsCommand_local_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
+    ('', 'boolean', joinStrandsCommand_local_useCustomColorForFivePrimeArrowheads_prefs_key, True),
+    ('', 'color', joinStrandsCommand_local_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
 
     #DNA cursor text preferences 
 
