@@ -2347,7 +2347,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls:
 
             # russ 080530: Support for patterned highlighting drawing modes.
-            patterned = startPatternedDrawing(highlight=True)
+            patterned = startPatternedDrawing(highlight = True)
 
             #russ 080225: Alternate drawing method using colorless display list.
             ##russ 080317 Bypass assertion for DnaStrand.
@@ -2380,12 +2380,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # Highlight "realtime" objects (e.g. 2D DNA cylinder style).
             hd = get_display_mode_handler(disp)
             if hd:
-                hd._drawchunk_realtime(glpane, self, highlighted=True)
+                hd._drawchunk_realtime(glpane, self, highlighted = True)
                 pass
 
             # russ 080530: Support for patterned highlighting drawing modes.
             if patterned:
-                endPatternedDrawing(highlight=True)
+                endPatternedDrawing(highlight = True)
             
         else:
             if self.get_dispdef() == diDNACYLINDER :
@@ -4034,10 +4034,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     # ==
 
-    def Passivate(self, p=False):
+    def Passivate(self, p = False):
         """
         [Public method, does all needed invalidations:]
-        Passivate the selected atoms in this chunk, or all its atoms if p=True.
+        Passivate the selected atoms in this chunk, or all its atoms if p = True.
         This transmutes real atoms to match their number of real bonds,
         and (whether or not that succeeds) removes all their open bonds.
         """

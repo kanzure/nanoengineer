@@ -1712,21 +1712,26 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return 'three_prime_end_atom'
             
             bond = self.strand_end_bond()
+                # never non-None if self has two bonds with directions set
+                # (assuming no errors) -- i.e. for -Ss3-X, only non-None
+                # for the X, never for the Ss3
+                # [bruce 080604 quick analysis, should re-review]
             if bond is not None:
-                
                 # Determine how singlets of strand open bonds should be drawn.
                 # draw_bond_main() takes care of drawing bonds accordingly.
                 # - mark 2007-10-20.
                 if bond.isFivePrimeOpenBond() and bool_arrowsOnFivePrimeEnds:
-                        return 'arrowhead-in'                        
+                    return 'arrowhead-in'                        
                 elif bond.isThreePrimeOpenBond() and bool_arrowsOnThreePrimeEnds:
-                        return 'arrowhead-out'              
+                    return 'arrowhead-out'              
                 else:
                     return 'do not draw'
                 #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
                 #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
                 #  since it usually looks like a cone when it's correctly used? Current code won't do that.
                 #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
+                pass
+            pass
         return ""
 
     def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
@@ -2788,8 +2793,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # By Chris Phoenix and Mark for John Burch [04-12-03]
         color = col or self.drawing_color()
         disp, radius = self.howdraw(dispdef)
-        xyz=map(float, A(self.posn()))
-        rgb=map(int,A(color)*255)
+        xyz = map(float, A(self.posn()))
+        rgb = map(int,A(color)*255)
         atnum = len(alist) # current atom number        
         alist.append([xyz, radius, rgb])
         
@@ -3001,7 +3006,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     # ==
     
-    def checkpick(self, p1, v1, disp, r=None, iPic=None):
+    def checkpick(self, p1, v1, disp, r = None, iPic = None):
         """
         Selection function for atoms: [Deprecated! bruce 041214]
         Check if the line through point p1 in direction v1 goes through the
@@ -3092,7 +3097,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # [and as of sometime before 060331 it turns out to cause bug 1796]
                 #bruce 060331 moved this inside 'if picked', as a speed optimization
             try:
-                #bruce 050309 catch exceptions, and do this before picked=0
+                #bruce 050309 catch exceptions, and do this before picked = 0
                 # so that if selatoms is recomputed now, the del will still work
                 # (required by upcoming "assy/part split")
                 del self.molecule.assy.selatoms[self.key]
