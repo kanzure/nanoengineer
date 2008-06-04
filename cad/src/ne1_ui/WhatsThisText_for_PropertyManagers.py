@@ -1293,29 +1293,29 @@ def WhatsThis_EditDnaDisplayStyle_PropertyManager(propMgr):
     Manager.
     """
     propMgr.favoritesComboBox.setWhatsThis(
-            """<b>DNA Display Style Favorites</b>
-            <p>
-            A list of DNA display style favorites added by the user that can be
-            applied by pressing the <b>Apply Favorite</b> button. The settings
-            are only in effect whenever the <i>Global Display Style</i> is set 
-            to DNA Cylinder or to DNA objects that have their display style set
-            to DNA Cylinder.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
-            The <b>Apply Favorite</b> button must be clicked to apply the 
-            current favorite selected from this list. <b>Factory default
-            settings</b> resets all color options to their default
-            settings.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
-            The <b>Add Favorite</b> button allows new favorites to
-            be added to the list. This saves the current settings
-            to a user specified name.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
-            The <b>Delete Favorite</b> button allows an existing favorite to
-            be deleted from the list. <b>Factory default settings</b> can
-            never be deleted, however.
+        """<b>DNA Display Style Favorites</b>
+        <p>
+        A list of DNA display style favorites added by the user that can be
+        applied by pressing the <b>Apply Favorite</b> button. The settings
+        are only in effect whenever the <i>Global Display Style</i> is set 
+        to DNA Cylinder or to DNA objects that have their display style set
+        to DNA Cylinder.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
+        The <b>Apply Favorite</b> button must be clicked to apply the 
+        current favorite selected from this list. <b>Factory default
+        settings</b> resets all color options to their default
+        settings.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        The <b>Add Favorite</b> button allows new favorites to
+        be added to the list. This saves the current settings
+        to a user specified name.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        The <b>Delete Favorite</b> button allows an existing favorite to
+        be deleted from the list. <b>Factory default settings</b> can
+        never be deleted, however.
             """)
     
     propMgr.applyFavoriteButton.setWhatsThis(
@@ -1366,28 +1366,28 @@ def WhatsThis_ColorScheme_PropertyManager(propMgr):
     Manager.
     """
     propMgr.favoritesComboBox.setWhatsThis(
-            """<b>Color Scheme Favorites</b>
-            <p>
-            A list of color scheme favorites added by the user that can be
-            applied to NanoEngineer-1 by pressing the <b>Apply Favorite</b>
-            button.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/ApplyColorSchemeFavorite.png\"><br>
-            The <b>Apply Favorite</b> button must be clicked to apply the 
-            current favorite selected from this list. <b>Factory default
-            settings</b> resets all color options to their default
-            settings.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
-            The <b>Add Favorite</b> button allows new favorite color schemes to
-            be added to the list. This saves the current color settings
-            to a user specified name.</p>
-            <p>
-            <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
-            The <b>Delete Favorite</b> button allows an existing favorite to
-            be deleted from the list. <b>Factory default settings</b> can
-            never be deleted, however.
-            """)
+        """<b>Color Scheme Favorites</b>
+        <p>
+        A list of color scheme favorites added by the user that can be
+        applied to NanoEngineer-1 by pressing the <b>Apply Favorite</b>
+        button.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyColorSchemeFavorite.png\"><br>
+        The <b>Apply Favorite</b> button must be clicked to apply the 
+        current favorite selected from this list. <b>Factory default
+        settings</b> resets all color options to their default
+        settings.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        The <b>Add Favorite</b> button allows new favorite color schemes to
+        be added to the list. This saves the current color settings
+        to a user specified name.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        The <b>Delete Favorite</b> button allows an existing favorite to
+        be deleted from the list. <b>Factory default settings</b> can
+        never be deleted, however.
+        """)
     
     propMgr.applyFavoriteButton.setWhatsThis(
         """<b>Apply Favorite </b>
