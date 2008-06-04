@@ -922,11 +922,11 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         an action defined in self.behavior. Now it post-extends it instead.
         AFAIK this never mattered until now.
         """
-        if not motion:
-            # debug print temporarily reenabled for sake of DnaSegment_EditCommand.py
-            # since this is not getting called for on_release, don't know why
-            # [bruce 080129]
-            print "_do_action for %r in %r" % (name, self)
+##      if not motion:
+##          # debug print temporarily reenabled for sake of DnaSegment_EditCommand.py
+##          # since this is not getting called for on_release, don't know why
+##          # [bruce 080129]
+##          print "_do_action for %r in %r" % (name, self)
         assert name.startswith('on_')
         actions = []
         # action from self.behavior
