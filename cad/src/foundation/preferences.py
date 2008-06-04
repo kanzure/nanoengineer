@@ -72,7 +72,7 @@ from foundation.changes import UsageTracker
 
 from utilities.prefs_constants import prefs_table
 
-DEFAULT_PREFS_BASENAME = "default_prefs_v1-0-1.txt" #bruce 080505
+DEFAULT_PREFS_BASENAME = "default_prefs_v1-1-0.txt" #bruce 080505
     # note: this name is also hardcoded into packaging/Pref_Mod/pref_modifier.py
     # todo: should derive name from current version number.
     # review: should we only read the one from the current version's installer,

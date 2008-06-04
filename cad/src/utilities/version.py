@@ -62,11 +62,11 @@ class Version:
     # Every instance of Version will share the same state
     __shared_state = {
         "major": 1,
-        "minor": 0,
-        "tiny": 1,     # tiny and teensy are optional
+        "minor": 1,
+        "tiny": 0,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "",
-        "releaseDate": "May 6, 2008",
+        "releaseDate": "Jun 04, 2008",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
