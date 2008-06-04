@@ -147,9 +147,9 @@ fogEnabled_prefs_key = "V110/Enable fog"
 # Color prefs (for "Color" page).
 backgroundColor_prefs_key = 'A9/Background Color'
 backgroundGradient_prefs_key = 'A9/Background Gradient'
-hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style'
+hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style rev1'
 hoverHighlightingColor_prefs_key = 'V110/3D hover highlighting color'
-selectionColorStyle_prefs_key = 'V110/3D selection color style'
+selectionColorStyle_prefs_key = 'V110/3D selection color style rev1'
 selectionColor_prefs_key = 'V110/3D selection color'
 haloWidth_prefs_key = 'V110/halo width in pixels'
 
@@ -550,9 +550,9 @@ prefs_table = (
     # Color (page) preferences
     ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
     ('', 'color', backgroundColor_prefs_key, white),
-    ('', 'int',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
+    ('', 'string',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
-    ('', 'int',   selectionColorStyle_prefs_key, SS_HALO),
+    ('', 'string',   selectionColorStyle_prefs_key, SS_HALO),
     ('', 'color', selectionColor_prefs_key, darkgreen),
     ('', 'int',   haloWidth_prefs_key, 5),
     
