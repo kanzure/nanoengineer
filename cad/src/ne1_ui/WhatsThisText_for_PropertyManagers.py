@@ -81,7 +81,7 @@ def whatsThis_MakeCrossoversPropertyManager(propMgr):
     To add/remove Dna segments to/from this list, activate the appropriate tool
     in this property manager and select the whole axis of the Dna segment.
     To add/remove multiple segments to the list at once, hold down left mouse 
-    button and ddrag it to draw a selection rectangle around the segments. 
+    button and drag it to draw a selection rectangle around the segments. 
     </p>
     """)
     propMgr.crossoversBetGivenSegmentsOnly_checkBox.setWhatsThis("""
