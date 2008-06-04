@@ -56,15 +56,17 @@ HHS_POLYGON_EDGES = 'POLYGON_EDGES'
 HHS_DISABLED = 'DISABLED'
 
 HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
-              HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
+               ## russ 080604 NIMs: HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
+               HHS_POLYGON_EDGES]
 
 HHS_OPTIONS = ["Colored halo (default)",
                "Solid color",
                "Screendoor pattern",
                "Crosshatch pattern",
-               "Black-and-white pattern",
+               ## russ 080604 NIM: "Black-and-white pattern",
                "Colored polygon edges",
-               "Disable highlighting"]
+               ## russ 080604 NIM: "Disable highlighting"
+               ]
 
 # SS = Selection (color) Style
 SS_HALO = 'HALO'# default
@@ -75,13 +77,14 @@ SS_BW_PATTERN = 'BW_PATTERN'
 SS_POLYGON_EDGES = 'POLYGON_EDGES'
 
 SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
-              SS_BW_PATTERN, SS_POLYGON_EDGES]
+              ## russ 080604 NIM: SS_BW_PATTERN,
+              SS_POLYGON_EDGES]
 
 SS_OPTIONS = ["Colored halo (default)",
               "Solid color",
               "Screendoor pattern",
               "Crosshatch pattern",
-              "Black-and-white pattern",
+              ## russ 080604 NIM: "Black-and-white pattern",
               "Colored polygon edges"]
 
 # Compass position constants.  These are used to preserve the preference value
