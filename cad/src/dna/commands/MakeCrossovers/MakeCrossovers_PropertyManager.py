@@ -226,11 +226,15 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         if same_vals(currentParams, self._previous_model_changed_params):
             return 
 
-        number_of_segments, crossover_search_pref_junk = currentParams
-        
-
+        number_of_segments, \
+                          crossover_search_pref_junk,\
+                          bool_valid_segmentList_junk = currentParams
+                
         #update the self._previous_model_changed_params with this new param set.
-        self._previous_model_changed_params = currentParams        
+        self._previous_model_changed_params = currentParams       
+        #Ensures that there are only PAM3 DNA segments in the commad's tructure 
+        #list (command._structList. Call this before updating the list widgets!
+        self.command.ensureValidSegmentList()
         self.updateListWidgets()   
         self.command.updateCrossoverSites()
 
@@ -247,10 +251,14 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         if self.command:
             #update the list first. 
             self.command.updateSegmentList()
+            bool_valid_segmentList = self.command.ensureValidSegmentList()
             number_of_segments = len(self.command.getSegmentList()) 
             crossover_search_pref = \
                                   env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]
-            params = (number_of_segments, crossover_search_pref)
+            params = (number_of_segments, 
+                      crossover_search_pref, 
+                      bool_valid_segmentList
+                  )
 
         return params
 

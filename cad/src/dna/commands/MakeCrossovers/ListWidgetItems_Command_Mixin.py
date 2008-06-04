@@ -105,8 +105,10 @@ class ListWidgetItems_Command_Mixin:
         Also does other things such as updating handles etc.
         @type sement: B{DnaSegment}
         @see: self.isAddSegmentsToolActive()
+        @TODO: This allows ONLY PAM3 DNA segments to be added to the 
+        segment list. NEEDS REVISION
         """
-        if segment not in self._structList:
+        if segment.is_PAM3_DnaSegment() and segment not in self._structList:
             self._structList.append(segment)
 
     def removeSegmentFromSegmentList(self, segment):

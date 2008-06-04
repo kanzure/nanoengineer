@@ -106,7 +106,7 @@ class MakeCrossovers_Command(SelectChunks_Command,
         """
         msg = ''
         if type == 'ADD_SEGMENTS_ACTIVATED':
-            msg = """To add new DNA segments to the list, click on the segment's
+            msg = """To add new PAM3 DNA segments to the list, click on the segment's
              axis. Multiple segments can be added at once by doing a 
             rectangular lasso selection in the 3D workspace."""
         elif type == 'REMOVE_SEGMENTS_ACTIVATED':
@@ -121,6 +121,11 @@ class MakeCrossovers_Command(SelectChunks_Command,
         elif type == 'WARNING_LIMIT_EXCEEDED':
             msg = "Only a maximum of <b> %d </b> DNA segments can be searched for "\
                 "crossover sites. Segments not added to the list"%self.itemLimitForSegmentListWidget()
+            msg = orangemsg(msg)
+        elif type == 'WARNING_PAM5_SEGMENT_FOUND':
+            msg = """Warning: One or more of the PAM5 DNA segments have been 
+            removed from the segment list.Make Crossovers command is only 
+            availble for PAM3 model."""
             msg = orangemsg(msg)
         else:
             msg = self.propMgr.defaultLogMessage
@@ -329,10 +334,26 @@ class MakeCrossovers_Command(SelectChunks_Command,
         all the crossover sites in the 3D workspace. 
         """
         self.graphicsMode.updateCrossoverSites()
-        
-    
+           
         
     def updateExprsHandleDict(self): 
         self.graphicsMode.updateExprsHandleDict()
+        
+    def ensureValidSegmentList(self):
+        """
+        Ensures that the segments within the segment list being searched for 
+        crossover sites have all valid segments (even empty list is considered
+        as valid as of 2008-06-04)
+        @see: MakeCrossversPropertyManager.model_changed()
+        """
+        pam5_segment_found = False
+        for segment in self._structList:
+            if not segment.is_PAM3_DnaSegment():
+                pam5_segment_found = True                
+                self._structList.remove(segment)
+        if pam5_segment_found:
+            self.logMessage('WARNING_PAM5_SEGMENT_FOUND')
+            
+        return pam5_segment_found
  
   
