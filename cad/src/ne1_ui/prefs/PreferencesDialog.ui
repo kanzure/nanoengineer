@@ -44,7 +44,7 @@
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
          <property name="currentIndex" >
-          <number>1</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="General" >
           <layout class="QGridLayout" >
@@ -689,13 +689,26 @@
            <property name="spacing" >
             <number>6</number>
            </property>
+           <item row="0" column="1" >
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>231</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="0" column="0" >
             <layout class="QVBoxLayout" >
              <property name="margin" >
               <number>0</number>
              </property>
              <property name="spacing" >
-              <number>6</number>
+              <number>4</number>
              </property>
              <item>
               <widget class="QGroupBox" name="groupBox8" >
@@ -707,44 +720,8 @@
                  <number>4</number>
                 </property>
                 <property name="spacing" >
-                 <number>0</number>
+                 <number>4</number>
                 </property>
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                   <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="QCheckBox" name="animate_views_checkbox" >
-                    <property name="toolTip" >
-                     <string>Enable/disable animation between current view and a new view</string>
-                    </property>
-                    <property name="text" >
-                     <string>Animate between views</string>
-                    </property>
-                    <property name="checked" >
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer>
-                    <property name="orientation" >
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" >
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
                 <item row="1" column="0" >
                  <layout class="QHBoxLayout" >
                   <property name="margin" >
@@ -817,7 +794,7 @@
                     <item>
                      <widget class="QLabel" name="rotationSensitivity_txtlbl" >
                       <property name="text" >
-                       <string>Mouse speed:</string>
+                       <string>Mouse rotation speed:</string>
                       </property>
                       <property name="alignment" >
                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -837,29 +814,6 @@
                     <property name="spacing" >
                      <number>0</number>
                     </property>
-                    <item row="2" column="3" >
-                     <spacer>
-                      <property name="orientation" >
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeType" >
-                       <enum>QSizePolicy::Expanding</enum>
-                      </property>
-                      <property name="sizeHint" >
-                       <size>
-                        <width>23</width>
-                        <height>16</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="0" column="0" >
-                     <widget class="QLabel" name="textLabel2_3" >
-                      <property name="text" >
-                       <string>Slow</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="2" column="1" >
                      <spacer>
                       <property name="orientation" >
@@ -876,14 +830,23 @@
                       </property>
                      </spacer>
                     </item>
-                    <item row="2" column="0" >
-                     <widget class="QLabel" name="textLabel2_3_2" >
+                    <item row="1" column="3" >
+                     <widget class="QToolButton" name="resetAnimationSpeed_btn" >
+                      <property name="enabled" >
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolTip" >
+                       <string>Restore default value</string>
+                      </property>
                       <property name="text" >
-                       <string>Slow</string>
+                       <string/>
+                      </property>
+                      <property name="icon" >
+                       <iconset>../../../../../:icons/UserPrefsDialog_image0</iconset>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1" >
+                    <item row="2" column="3" >
                      <spacer>
                       <property name="orientation" >
                        <enum>Qt::Horizontal</enum>
@@ -893,13 +856,13 @@
                       </property>
                       <property name="sizeHint" >
                        <size>
-                        <width>88</width>
-                        <height>20</height>
+                        <width>23</width>
+                        <height>16</height>
                        </size>
                       </property>
                      </spacer>
                     </item>
-                    <item row="1" column="3" >
+                    <item row="0" column="3" >
                      <spacer>
                       <property name="orientation" >
                        <enum>Qt::Horizontal</enum>
@@ -914,6 +877,13 @@
                        </size>
                       </property>
                      </spacer>
+                    </item>
+                    <item row="0" column="2" >
+                     <widget class="QLabel" name="textLabel3_4" >
+                      <property name="text" >
+                       <string>Fast</string>
+                      </property>
+                     </widget>
                     </item>
                     <item row="3" column="0" colspan="3" >
                      <widget class="QSlider" name="mouseSpeedDuringRotation_slider" >
@@ -945,7 +915,14 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="3" >
+                    <item row="2" column="2" >
+                     <widget class="QLabel" name="textLabel3_4_2" >
+                      <property name="text" >
+                       <string>Fast</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1" >
                      <spacer>
                       <property name="orientation" >
                        <enum>Qt::Horizontal</enum>
@@ -955,32 +932,16 @@
                       </property>
                       <property name="sizeHint" >
                        <size>
-                        <width>23</width>
+                        <width>88</width>
                         <height>20</height>
                        </size>
                       </property>
                      </spacer>
                     </item>
-                    <item row="2" column="2" >
-                     <widget class="QLabel" name="textLabel3_4_2" >
+                    <item row="2" column="0" >
+                     <widget class="QLabel" name="textLabel2_3_2" >
                       <property name="text" >
-                       <string>Fast</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3" >
-                     <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
-                      <property name="enabled" >
-                       <bool>false</bool>
-                      </property>
-                      <property name="toolTip" >
-                       <string>Restore default value</string>
-                      </property>
-                      <property name="text" >
-                       <string/>
-                      </property>
-                      <property name="icon" >
-                       <iconset>../../../../../:icons/UserPrefsDialog_image0</iconset>
+                       <string>Slow</string>
                       </property>
                      </widget>
                     </item>
@@ -1014,14 +975,66 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="2" >
-                     <widget class="QLabel" name="textLabel3_4" >
+                    <item row="3" column="3" >
+                     <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
+                      <property name="enabled" >
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolTip" >
+                       <string>Restore default value</string>
+                      </property>
                       <property name="text" >
-                       <string>Fast</string>
+                       <string/>
+                      </property>
+                      <property name="icon" >
+                       <iconset>../../../../../:icons/UserPrefsDialog_image0</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0" >
+                     <widget class="QLabel" name="textLabel2_3" >
+                      <property name="text" >
+                       <string>Slow</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                   <number>0</number>
+                  </property>
+                  <property name="spacing" >
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="animate_views_checkbox" >
+                    <property name="toolTip" >
+                     <string>Enable/disable animation between current view and a new view</string>
+                    </property>
+                    <property name="text" >
+                     <string>Animate between views</string>
+                    </property>
+                    <property name="checked" >
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer>
+                    <property name="orientation" >
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" >
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -1201,19 +1214,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-           <item row="0" column="1" >
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>231</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>

@@ -43,17 +43,15 @@ def setupUi(win, toolbarArea):
     win.standardToolBar.addAction(win.simMinimizeEnergyAction)
     win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.dispObjectColorAction)
-    
-    
     win.standardToolBar.addAction(win.resetChunkColorAction)
+    win.standardToolBar.addSeparator()
+    win.standardToolBar.addAction(win.colorSchemeAction)
     win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.editRenameAction)
     win.standardToolBar.addAction(win.editRenameObjectsAction)
     win.standardToolBar.addAction(win.editAddSuffixAction)
     win.standardToolBar.addSeparator()
-    win.standardToolBar.addAction(win.editPrefsAction)
-    #Urmi background color chooser option 080522 (toolbar option)
-    win.standardToolBar.addAction(win.colorSchemeToolbarAction)
+    win.standardToolBar.addAction(win.editPrefsAction)    
     
     win.standardToolBar.addSeparator()  
     win.standardToolBar.addAction(win.helpWhatsThisAction)

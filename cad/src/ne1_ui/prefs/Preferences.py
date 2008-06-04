@@ -243,17 +243,8 @@ from utilities.prefs_constants import HHS_CROSSHATCH1
 from utilities.prefs_constants import HHS_BW_PATTERN
 from utilities.prefs_constants import HHS_POLYGON_EDGES
 from utilities.prefs_constants import HHS_DISABLED
-
-HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
-              HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
-
-HHS_OPTIONS = ["Colored halo (default)",
-               "Solid color",
-               "Screendoor pattern",
-               "Crosshatch pattern",
-               "Black-and-white pattern",
-               "Colored polygon edges",
-               "Disable highlighting"]
+from utilities.prefs_constants import HHS_INDEXES
+from utilities.prefs_constants import HHS_OPTIONS
 
 # SS = selection styles
 from utilities.prefs_constants import SS_HALO
@@ -262,16 +253,8 @@ from utilities.prefs_constants import SS_SCREENDOOR1
 from utilities.prefs_constants import SS_CROSSHATCH1
 from utilities.prefs_constants import SS_BW_PATTERN
 from utilities.prefs_constants import SS_POLYGON_EDGES
-
-SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
-              SS_BW_PATTERN, SS_POLYGON_EDGES]
-
-SS_OPTIONS = ["Colored halo (default)",
-              "Solid color",
-              "Screendoor pattern",
-              "Crosshatch pattern",
-              "Black-and-white pattern",
-              "Colored polygon edges"]
+from utilities.prefs_constants import SS_INDEXES
+from utilities.prefs_constants import SS_OPTIONS
 
 # = end of Preferences widgets constants.
 
@@ -656,14 +639,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         
         # Hover highlighting color style widgets and connection(s).
         self._loadHoverHighlightingColorStylesItems()
-        self.hoverHighlightingStyleComboBox.setCurrentIndex(env.prefs[hoverHighlightingColorStyle_prefs_key])
+        self.hoverHighlightingStyleComboBox.setCurrentIndex(HHS_INDEXES.index(env.prefs[hoverHighlightingColorStyle_prefs_key]))
         self.connect(self.hoverHighlightingStyleComboBox, SIGNAL("activated(int)"), self._change_hhStyle)
         connect_colorpref_to_colorframe( hoverHighlightingColor_prefs_key, self.hoverHighlightingColorFrame)
         self.connect(self.hoverHighlightingColorButton, SIGNAL("clicked()"), self._change_hhColor)
         
         # Selection color style widgets and connection(s).
         self._loadSelectionColorStylesItems()
-        self.selectionStyleComboBox.setCurrentIndex(env.prefs[selectionColorStyle_prefs_key])
+        self.selectionStyleComboBox.setCurrentIndex(SS_INDEXES.index(env.prefs[selectionColorStyle_prefs_key]))
         self.connect(self.selectionStyleComboBox, SIGNAL("activated(int)"), self._change_selectionStyle)
         connect_colorpref_to_colorframe( selectionColor_prefs_key, self.selectionColorFrame)
         self.connect(self.selectionColorButton, SIGNAL("clicked()"), self._change_selectionColor)
@@ -704,24 +687,30 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Setup widgets to initial (default or defined) values on the 
         'Zoom, Pan Rotate' page.
 	"""
-        self.connect(self.animation_speed_slider, SIGNAL("sliderReleased()"), self.change_view_animation_speed)
+        
+        # Animation speed checkbox and slider.
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
+        
+        self.resetAnimationSpeed_btn.setIcon(
+            geticon('ui/dialogs/Reset.png'))
+        
+        self.connect(self.animation_speed_slider, SIGNAL("sliderReleased()"), self.change_view_animation_speed)
+        self.connect(self.resetAnimationSpeed_btn, SIGNAL("clicked()"), self.reset_animationSpeed)
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
+        self._updateResetButton(self.resetAnimationSpeed_btn, animateMaximumTime_prefs_key)
 
         #mouse speed during rotation slider - ninad060906
-        mouseSpeedDuringRotation = int(env.prefs[mouseSpeedDuringRotation_prefs_key]*100)
-
-        if mouseSpeedDuringRotation == 60:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
-        else:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
-            
         self.resetMouseSpeedDuringRotation_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
-
-        self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+        
+        self.connect(self.mouseSpeedDuringRotation_slider, SIGNAL("sliderReleased()"), self.change_mouseSpeedDuringRotation)
+        self.connect(self.resetMouseSpeedDuringRotation_btn, SIGNAL("clicked()"), self.reset_mouseSpeedDuringRotation)
+        
+        mouseSpeedDuringRotation = int(env.prefs[mouseSpeedDuringRotation_prefs_key] * 100)
+        self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation)
+        self._updateResetButton(self.resetMouseSpeedDuringRotation_btn, mouseSpeedDuringRotation_prefs_key)
         
         # Mouse wheel zoom settings combo boxes
         self.mouseWheelDirectionComboBox.setCurrentIndex(
@@ -1313,8 +1302,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Connections for "Tooltips" page.
         self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipAtomDistancePrecision)
         self.connect(self.dynamicToolTipBendAnglePrecision_spinbox, SIGNAL("valueChanged(int)"), self.change_dynamicToolTipBendAnglePrecision)
-        self.connect(self.mouseSpeedDuringRotation_slider, SIGNAL("valueChanged(int)"), self.change_mouseSpeedDuringRotation)
-        self.connect(self.resetMouseSpeedDuringRotation_btn, SIGNAL("clicked()"), self.reset_mouseSpeedDuringRotation)
         
         #Atom related Dynamic tooltip preferences
         connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomChunkInfo_checkbox, dynamicToolTipAtomChunkInfo_prefs_key)
@@ -1590,20 +1577,41 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # change minValue to -400.  mark 060124.
         env.prefs[animateMaximumTime_prefs_key] = \
            self.animation_speed_slider.value() / -100.0
-
-    def change_mouseSpeedDuringRotation(self, val):
+        
+        self._updateResetButton(self.resetAnimationSpeed_btn, animateMaximumTime_prefs_key)
+        return
+        
+    def _updateResetButton(self, resetButton, key):
         """
-        Slot that sets the factor controlling rotation speed during middle 
-        mouse drag 0.3(slow) and 1(fast).
+        Enables/disables I{resetButton} if I{key} is not equal/equal to its 
+        default value.
+	"""
+        if env.prefs.has_default_value(key):
+            resetButton.setEnabled(0)
+        else:
+            resetButton.setEnabled(1)
+        return
+            
+    def reset_animationSpeed(self):
+        """
+        Slot called when pressing the Animation speed reset button.
+        Restores the default value of the animation speed.
+        """
+        env.prefs.restore_defaults([animateMaximumTime_prefs_key])
+        self.animation_speed_slider.setValue(int (env.prefs[animateMaximumTime_prefs_key] * -100))
+        self.resetAnimationSpeed_btn.setEnabled(0)
+        return
+
+    def change_mouseSpeedDuringRotation(self):
+        """
+        Slot that sets the speed factor controlling rotation speed during mouse button drags. 
+        0.3 = slow and 1.0 = fast.
         """
         env.prefs[mouseSpeedDuringRotation_prefs_key] = \
            self.mouseSpeedDuringRotation_slider.value() / 100.0
-
-        val = self.mouseSpeedDuringRotation_slider.value() 
-        if val == 60:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
-        else:
-            self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
+        
+        self._updateResetButton(self.resetMouseSpeedDuringRotation_btn, mouseSpeedDuringRotation_prefs_key)
+        return
 
     def reset_mouseSpeedDuringRotation(self):
         """
@@ -1754,12 +1762,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  width: int
         """
         env.prefs[haloWidth_prefs_key] = width
-        
-        # Disable the reset button if scaleFactor is equal to the default value.
-        if width == 5: # Hardcoded for now.
-            self.haloWidthResetButton.setEnabled(0)
-        else:
-            self.haloWidthResetButton.setEnabled(1)
+        self._updateResetButton(self.haloWidthResetButton, haloWidth_prefs_key)
             
         return
 
@@ -1944,13 +1947,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         
         env.prefs[diBALL_AtomRadius_prefs_key] = scaleFactor * .01
-        
-        # Disable the reset button if scaleFactor is equal to the default value.
-        if scaleFactor == 100: # Hardcoded for now.
-            self.reset_ballstick_scale_factor_btn.setEnabled(0)
-        else:
-            self.reset_ballstick_scale_factor_btn.setEnabled(1)
-            
+        self._updateResetButton(self.reset_ballstick_scale_factor_btn, diBALL_AtomRadius_prefs_key)
         return
 
     def reset_ballStickAtomScaleFactor(self):
@@ -1970,13 +1967,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  scaleFactor: float
         """
         env.prefs[cpkScaleFactor_prefs_key] = scaleFactor
-        
-        # Disable the reset button if scaleFactor is equal to the default value.
-        if scaleFactor == 0.775: # Hardcoded for now.
-            self.reset_cpk_scale_factor_btn.setEnabled(0)
-        else:
-            self.reset_cpk_scale_factor_btn.setEnabled(1)
-            
+        self._updateResetButton(self.reset_cpk_scale_factor_btn, cpkScaleFactor_prefs_key)
         return
 
     def reset_cpkAtomScaleFactor(self):

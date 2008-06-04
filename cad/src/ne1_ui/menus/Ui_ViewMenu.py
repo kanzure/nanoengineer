@@ -74,9 +74,6 @@ def setupUi(win):
     win.viewMenu.addAction(win.viewReportsAction)
     win.viewMenu.addMenu(win.toolbarMenu)
     
-    #Urmi background color chooser option 080522
-    win.viewMenu.addAction(win.colorSchemeAction)
-    
 def retranslateUi(win):
     """
     Sets text related attributes for the "View", "Display" and "Modify" menus.

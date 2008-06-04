@@ -415,11 +415,6 @@ def setupUi(win):
     win.dispShowInvisAtomsAction = QtGui.QAction(MainWindow)
     win.dispShowInvisAtomsAction.setObjectName("dispShowInvisAtomsAction")
 
-    win.changeBackgroundColorAction = QtGui.QAction(MainWindow)
-    win.changeBackgroundColorAction.setIcon(
-        geticon("ui/actions/View/Display/Background_Color.png"))
-    win.changeBackgroundColorAction.setObjectName("changeBackgroundColorAction")
-
     win.dispElementColorSettingsAction = QtGui.QAction(MainWindow)
     win.dispElementColorSettingsAction.setObjectName("dispElementColorSettingsAction")
     win.dispElementColorSettingsAction.setIcon(
@@ -439,13 +434,7 @@ def setupUi(win):
     win.viewFullScreenAction.setCheckable(True)
     win.viewFullScreenAction.setChecked(False)
     win.viewFullScreenAction.setShortcut('F12')
-    
-    #Urmi background color chooser option 080522 from the menu
-    win.colorSchemeAction = QtGui.QAction(MainWindow)
-    win.colorSchemeAction.setText('Color Scheme')
-    
-    
-    
+
     win.viewReportsAction = QtGui.QAction(MainWindow)
     win.viewReportsAction.setCheckable(True)
     win.viewReportsAction.setChecked(True)
@@ -537,9 +526,9 @@ def setupUi(win):
     win.editPrefsAction.setObjectName("editPrefsAction")    
 
      #Urmi background color scheme option 080522
-    win.colorSchemeToolbarAction =  QtGui.QAction(MainWindow)
-    win.colorSchemeToolbarAction.setIcon(geticon("ui/actions/View/ColorScheme.png"))
-    win.colorSchemeToolbarAction.setObjectName("colorSchemeToolbarAction")
+    win.colorSchemeAction =  QtGui.QAction(MainWindow)
+    win.colorSchemeAction.setIcon(geticon("ui/actions/View/ColorScheme.png"))
+    win.colorSchemeAction.setObjectName("colorSchemeAction")
     
     win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
@@ -1195,11 +1184,11 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))    
     win.dispObjectColorAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Change Color...", 
+            "MainWindow", "Change Color of Selection...", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.dispObjectColorAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Change Color", 
+            "MainWindow", "Change Color of Selected Objects", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.dispObjectColorAction.setIconText(
         QtGui.QApplication.translate(
@@ -1387,8 +1376,8 @@ def retranslateUi(win):
     win.viewRotate180Action.setStatusTip(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setText(QtGui.QApplication.translate("MainWindow", "&Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setIconText(QtGui.QApplication.translate("MainWindow", "Isometric", None, QtGui.QApplication.UnicodeUTF8))
-    win.resetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
-    win.resetChunkColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
+    win.resetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Color of Selected Chunks", None, QtGui.QApplication.UnicodeUTF8))
+    win.resetChunkColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Color of Selected Chunks", None, QtGui.QApplication.UnicodeUTF8))
 
     #= Insert (menu and toolbar) actions.
     win.jigsAtomSetAction.setIconText(QtGui.QApplication.translate(
@@ -1518,9 +1507,9 @@ def retranslateUi(win):
         None, 
         QtGui.QApplication.UnicodeUTF8))
 
-    win.colorSchemeToolbarAction.setText(
+    win.colorSchemeAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme", 
+            "MainWindow", "Color Scheme...", 
             None, QtGui.QApplication.UnicodeUTF8))
     
     win.modifyMirrorAction.setIconText(QtGui.QApplication.translate(
@@ -1560,13 +1549,13 @@ def retranslateUi(win):
     
     #Urmi background color chooser option 080522
     
-    win.colorSchemeToolbarAction.setToolTip(
+    win.colorSchemeAction.setToolTip(
         QtGui.QApplication.translate(
             "MainWindow", "Color Scheme", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.colorSchemeToolbarAction.setIconText(
+    win.colorSchemeAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme...", 
+            "MainWindow", "Color Scheme", 
             None, QtGui.QApplication.UnicodeUTF8))
 
     #= Tools > Build Structures (menu and toolbar) actions.
@@ -1833,8 +1822,6 @@ def retranslateUi(win):
     win.viewDefviewAction.setText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
     win.viewDefviewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
     win.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
-    win.changeBackgroundColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Background Color...", None, QtGui.QApplication.UnicodeUTF8))
-    win.changeBackgroundColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Background Color...", None, QtGui.QApplication.UnicodeUTF8))
 
     win.toolsDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
     win.toolsDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))

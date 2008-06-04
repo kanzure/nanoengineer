@@ -89,9 +89,20 @@ def whatsThis_PreferencesDialog(preferencesDialog):
 
     _pd.animate_views_checkbox.setWhatsThis("""<p><b>Animate Between Views</b></p><p>Enables/disables animation
                                          when switching between the current view and a new view.</p>""")
-    _pd.animation_speed_slider.setWhatsThis("""<p><b>View Animation Speed</b></p><p>Sets the animation speed when
-                                             animating between view (i.e. Front View to Right View).  It is recommended that this be set to Fast when working on large
-                                             models.</p>""")
+    _pd.animation_speed_slider.setWhatsThis(
+        """<p><b>View animation speed</b></p>
+        <p>
+        Sets the animation speed when animating between views 
+        (i.e. Front View to Right View).  It is recommended that this be set 
+        to Fast when working on large models.
+        </p>""")
+    _pd.mouseSpeedDuringRotation_slider.setWhatsThis(
+        """<p><b>Mouse rotation speed</b></p>
+        <p>
+        Specifies the speed factor to use when rotating the view by dragging
+        the mouse (i.e. during the <b>Rotate</b> command or when using the
+        middle mouse button).
+        </p>""")
     _pd.textLabel1_7.setWhatsThis("""<p><b>Level of Detail</b></p><p>Sets the <b>Level of Detail</b>
                                    for atoms and bonds.<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics
                                    quality<br> <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between
@@ -106,7 +117,6 @@ def whatsThis_PreferencesDialog(preferencesDialog):
                                        Atom Scale factor for Ball and Stick display style. It is best to change the scale factor while the Global Display Style is set to Ball and Stick.""")
     _pd.textLabel1_3_2_2.setWhatsThis("""<p><b>CPK Atom Scale</b></p><p>Changes the CPK Atom Scale factor.
                                    It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale.""")
-    #@_pd.cpk_scale_factor_linedit.setWhatsThis("""Displays the value of the CPK Atom Scale""")
     _pd.cpkAtomScaleFactorDoubleSpinBox.setWhatsThis("""<p><b>CPK Atom Scale</b></p><p>Set the
                                               atom scale factor for CPK display style. It is best to change the scale factor while the Global Display style is set to CPK so you can see the graphical effect of
                                               changing the scale.""")

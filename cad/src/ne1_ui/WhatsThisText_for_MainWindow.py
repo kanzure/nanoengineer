@@ -443,7 +443,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Allows you to edit various color schemes "\
         "such as changing background color, "\
         "chunk selection color etc. </p>"
-    win.colorSchemeToolbarAction.setWhatsThis( colorSchemeText )
+    win.colorSchemeAction.setWhatsThis( colorSchemeText )
     
     #
     # View Toolbar

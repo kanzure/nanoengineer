@@ -44,25 +44,45 @@ import sys, os # for getDefaultWorkingDirectory
 
 # ==
 
-#constants related to user chosen background color for display
+# constants related to user chosen hover highlight and selection color
 
 # HH = Hover Highlighting (color) Style
-HHS_HALO = 0 # default
-HHS_SOLID = 1
-HHS_SCREENDOOR1 = 2
-HHS_CROSSHATCH1 = 3
-HHS_BW_PATTERN = 4
-HHS_POLYGON_EDGES = 5
-HHS_DISABLED = 6
+HHS_HALO = 'HALO'# default
+HHS_SOLID = 'SOLID'
+HHS_SCREENDOOR1 = 'SCREENDOOR1'
+HHS_CROSSHATCH1 = 'CROSSHATCH1'
+HHS_BW_PATTERN = 'BW_PATTERN'
+HHS_POLYGON_EDGES = 'POLYGON_EDGES'
+HHS_DISABLED = 'DISABLED'
+
+HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
+              HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
+
+HHS_OPTIONS = ["Colored halo (default)",
+               "Solid color",
+               "Screendoor pattern",
+               "Crosshatch pattern",
+               "Black-and-white pattern",
+               "Colored polygon edges",
+               "Disable highlighting"]
 
 # SS = Selection (color) Style
-SS_HALO = 0
-SS_SOLID = 1
-SS_SCREENDOOR1 = 2
-SS_CROSSHATCH1 = 3
-SS_BW_PATTERN = 4
-SS_POLYGON_EDGES = 5
+SS_HALO = 'HALO'# default
+SS_SOLID = 'SOLID'
+SS_SCREENDOOR1 = 'SCREENDOOR1'
+SS_CROSSHATCH1 = 'CROSSHATCH1'
+SS_BW_PATTERN = 'BW_PATTERN'
+SS_POLYGON_EDGES = 'POLYGON_EDGES'
 
+SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
+              SS_BW_PATTERN, SS_POLYGON_EDGES]
+
+SS_OPTIONS = ["Colored halo (default)",
+              "Solid color",
+              "Screendoor pattern",
+              "Crosshatch pattern",
+              "Black-and-white pattern",
+              "Colored polygon edges"]
 
 # Compass position constants.  These are used to preserve the preference value
 # for the compass position and relate directly to the radio button group values for the options 
@@ -533,7 +553,7 @@ prefs_table = (
     ('', 'int',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
     ('', 'int',   selectionColorStyle_prefs_key, SS_HALO),
-    ('', 'color', selectionColor_prefs_key, green),
+    ('', 'color', selectionColor_prefs_key, darkgreen),
     ('', 'int',   haloWidth_prefs_key, 5),
     
     # stereo view settings added by piotr 080516

@@ -25,7 +25,6 @@ def setupUi(win):
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
     """
 
-    win.connect(win.changeBackgroundColorAction,SIGNAL("triggered()"),win.changeBackgroundColor)
     win.connect(win.dispBallAction,SIGNAL("triggered()"),win.dispBall)
     win.connect(win.dispDefaultAction,SIGNAL("triggered()"),win.dispDefault)
     win.connect(win.dispElementColorSettingsAction,SIGNAL("triggered()"),win.dispElementColorSettings)
@@ -56,8 +55,6 @@ def setupUi(win):
     win.connect(win.pasteFromClipboardAction, 
                 SIGNAL("triggered()"),
                 win.editPasteFromClipboard )
-    #Urmi background color chooser option 080522
-    win.connect(win.colorSchemeToolbarAction,SIGNAL("triggered()"),win.colorSchemeCommand)
     win.connect(win.partLibAction, 
                 SIGNAL("triggered()"),
                 win.insertPartFromPartLib)

@@ -28,6 +28,7 @@ def setupUi(win):
     win.editMenu.addSeparator()
     win.editMenu.addAction(win.dispObjectColorAction)
     win.editMenu.addAction(win.resetChunkColorAction)
+    win.editMenu.addAction(win.colorSchemeAction)
     win.editMenu.addSeparator()
     win.editMenu.addAction(win.editRenameAction)
     win.editMenu.addAction(win.editRenameObjectsAction)
