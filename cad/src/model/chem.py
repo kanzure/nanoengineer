@@ -2939,13 +2939,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 wholechain = None
             if wholechain: # also check whether it's valid??
                 try:
+                    baseatom = atom
+                    if baseatom.element is Singlet:
+                        baseatom = baseatom.singlet_neighbor() #bruce 080603 bugfix
+                    if baseatom.element is Pl5:
+                        baseatom = baseatom.Pl_preferred_Ss_neighbor() #bruce 080603 bugfix
                     rail = atom.molecule.get_ladder_rail()
-                    whichrailjunk, baseindex = atom.molecule.ladder.whichrail_and_index_of_baseatom(self)
+                    whichrailjunk, baseindex = atom.molecule.ladder.whichrail_and_index_of_baseatom(baseatom)
                     bi_min, bi_max = wholechain.wholechain_baseindex_range()
                     bi_rail0, bi_rail1 = wholechain.wholechain_baseindex_range_for_rail(rail)
-                    bi_self = wholechain.wholechain_baseindex(rail, baseindex)
+                    bi_baseatom = wholechain.wholechain_baseindex(rail, baseindex)
                     msg = "wholechain baseindices: (%d, %d), (%d, %d), %d" % \
-                          (bi_min, bi_max, bi_rail0, bi_rail1, bi_self)
+                          (bi_min, bi_max, bi_rail0, bi_rail1, bi_baseatom)
                     atomInfoStr += "<br>" + greenmsg(msg)
                 except:
                     print_compact_traceback("exception in show wholechain baseindices: ")
