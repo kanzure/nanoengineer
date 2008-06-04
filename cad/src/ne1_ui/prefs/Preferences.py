@@ -1653,7 +1653,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         Slot for CutoverMax.
 	"""
-        if cutoverRms:
+        if cutoverMax:
             env.prefs[Adjust_cutoverMax_prefs_key] = cutoverMax
         else:
             env.prefs[Adjust_cutoverMax_prefs_key] = -1.0
