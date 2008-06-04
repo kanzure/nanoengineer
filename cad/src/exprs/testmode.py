@@ -429,7 +429,7 @@ class testmode(superclass):
             self.Menu_spec.extend( [
                 # mark 060303. added the following:
                 None,
-                ('Change Background Color...', self.w.changeBackgroundColor),
+                ('Edit Color Scheme...', self.w.colorSchemeCommand),
                 ])
             pass
 

@@ -634,7 +634,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ('Change Background Color...', self.w.changeBackgroundColor),
+            ('Edit Color Scheme...', self.w.colorSchemeCommand),
             ])
 
         self.Menu_spec_shift = list(self.Menu_spec) #bruce 060721 experiment; 

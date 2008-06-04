@@ -127,7 +127,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ("Change Background Color...", self.w.changeBackgroundColor),
+            ("Edit Color Scheme...", self.w.colorSchemeCommand),
         ])
 
         return # from makeMenus

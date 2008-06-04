@@ -340,7 +340,7 @@ class movieMode(basicMode):
             ('Reset Movie', self.ResetMovie),
             ('Done', self.Done),
             None,
-            ('Change Background Color...', self.w.changeBackgroundColor),
+            ('Edit Color Scheme...', self.w.colorSchemeCommand),
         ]
 
     def ResetMovie(self):
