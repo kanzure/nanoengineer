@@ -119,6 +119,7 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
         <p>
         Displays the current amino acid sequence 
         </p>""")
+    return
 
 def whatsThis_PeptideGeneratorPropertyManager(propMgr):
     """
@@ -167,7 +168,6 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
         </p>""")
 
     return # End of whatsThis_PeptideGeneratorPropertyManager
-
 
 def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
     """
@@ -270,7 +270,8 @@ def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
         <p>
         Specify the spacing between nanotubes in angstroms.
         </p>""")
-    
+    return
+
 def whatsThis_InsertNanotube_PropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Nanotube Property Manager.
@@ -372,6 +373,7 @@ def whatsThis_InsertNanotube_PropertyManager(propMgr):
         <p>
         Specify the spacing between nanotubes in angstroms.
         </p>""")
+    return
 
 def whatsThis_GrapheneGeneratorPropertyManager(propMgr):
     """
@@ -404,7 +406,8 @@ def whatsThis_GrapheneGeneratorPropertyManager(propMgr):
         Graphene sheets can be unterminated (dangling bonds), 
         or terminated with hydrogen atoms or nitrogen atoms.
         </p>""")
-            
+    return
+
 def whatsThis_MovePropertyManager(propMgr):
     """
     "What's This" text for widgets in the Move Property Manager.
@@ -727,6 +730,7 @@ def whatsThis_MoviePropertyManager(propMgr):
         <p>
        Dragging the slider advances the movie
         </p>""")
+    return
 
 def whatsThis_SequenceEditor(propMgr):
     """
@@ -786,7 +790,8 @@ def whatsThis_SequenceEditor(propMgr):
         <p>
        Shows the complementary strand sequence
         </p>""")
-         
+    return
+
 def whatsThis_ExtrudePropertyManager(propMgr):
     """
     "What's This" text for widgets in the Extrude Property Manager.
@@ -868,7 +873,7 @@ def whatsThis_ExtrudePropertyManager(propMgr):
         <p>
         The Z offset distance between copies.
         </p>""")
-    
+    return
     
 def whatsThis_CookiePropertyManager(propMgr):
     """
@@ -978,6 +983,7 @@ def whatsThis_CookiePropertyManager(propMgr):
         "that it can be viewed from any angle. This can be done by using the "\
         "middle mouse button."\
         "</p>")
+    return
         
 def whatsThis_RotaryMotorPropertyManager(propMgr):
     """
@@ -1056,6 +1062,7 @@ def whatsThis_RotaryMotorPropertyManager(propMgr):
         <p>
         Changes direction of the motor
         </p>""")
+    return
     
 def whatsThis_LinearMotorPropertyManager(propMgr):
     """
@@ -1121,9 +1128,8 @@ def whatsThis_LinearMotorPropertyManager(propMgr):
         <p>
         Changes direction of the linear motor
         </p>""")
-        
-        
-        
+    return
+
 def whatsThis_PlanePropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Plane Property Manager.
@@ -1139,6 +1145,7 @@ def whatsThis_PlanePropertyManager(propMgr):
         <p>
         The width of the Plane in angstroms. (up to 200 angstroms)
         </p>""")
+    return
     
 def whatsThis_QuteMolPropertyManager(propMgr):
     """
@@ -1166,6 +1173,7 @@ def whatsThis_QuteMolPropertyManager(propMgr):
         Allows the user to select between rendering and hiding the 
         DNA strand bases
         </p>""")
+    return
 
 def whatsThis_BuildAtomsPropertyManager(propMgr):
     """
@@ -1240,144 +1248,185 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         When checked an atom's position is displayed as X Y Z coordinates.
         These coordinates can also be adjusted with provided spin boxes.
         </p>""")
+    return
     
 def whatsThis_PartLibPropertyManager(propMgr):
-        """
-        Add "What's This" text for widgets in the Part Library Property Manager.
-        """
-        propMgr.previewGroupBox.setWhatsThis(
-            """<b>Preview Window</b>
-            <p>
-            This window displays the selected part chosen from the library.
-            The user may also rotate the part and set a hot spot while 
-            the part is displayed in the preview window""" )
-       
-        
-        propMgr.partLibGroupBox .setWhatsThis(
-            """<b>Part Library</b>
-            <p>
-            This is a directory of available parts contained 
-            in the part library """ )
+    """
+    Add "What's This" text for widgets in the Part Library Property Manager.
+    """
+    propMgr.previewGroupBox.setWhatsThis(
+        """<b>Preview Window</b>
+        <p>
+        This window displays the selected part chosen from the library.
+        The user may also rotate the part and set a hot spot while 
+        the part is displayed in the preview window""" )
+   
+    
+    propMgr.partLibGroupBox .setWhatsThis(
+        """<b>Part Library</b>
+        <p>
+        This is a directory of available parts contained 
+        in the part library """ )
+    return
 
 def whatsThis_PasteItemsPropertyManager(propMgr):
-        """
-        Add "What's This" text for widgets in the Part Library Property Manager.
-        """
-        propMgr.previewGroupBox.setWhatsThis(
-            """<b>Preview Window</b>
-            <p>
-            This window displays the selected part chosen from the clipboard.
-            The user may also rotate the part and set a hot spot while 
-            the part is displayed in the preview window""" )
-       
-        
-        propMgr.clipboardGroupBox.setWhatsThis(
-            """<b>Clipboard</b>
-            <p>
-            This is a list of items contained on the Clipboard """ )
+    """
+    Add "What's This" text for widgets in the Part Library Property Manager.
+    """
+    propMgr.previewGroupBox.setWhatsThis(
+        """<b>Preview Window</b>
+        <p>
+        This window displays the selected part chosen from the clipboard.
+        The user may also rotate the part and set a hot spot while 
+        the part is displayed in the preview window""" )
+   
+    
+    propMgr.clipboardGroupBox.setWhatsThis(
+        """<b>Clipboard</b>
+        <p>
+        This is a list of items contained on the Clipboard """ )
+    return
     
 def WhatsThis_EditDnaDisplayStyle_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Edit DNA Display Style Property 
     Manager.
     """
+    propMgr.favoritesComboBox.setWhatsThis(
+            """<b>DNA Display Style Favorites</b>
+            <p>
+            A list of DNA display style favorites added by the user that can be
+            applied by pressing the <b>Apply Favorite</b> button. The settings
+            are only in effect whenever the <i>Global Display Style</i> is set 
+            to DNA Cylinder or to DNA objects that have their display style set
+            to DNA Cylinder.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
+            The <b>Apply Favorite</b> button must be clicked to apply the 
+            current favorite selected from this list. <b>Factory default
+            settings</b> resets all color options to their default
+            settings.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+            The <b>Add Favorite</b> button allows new favorites to
+            be added to the list. This saves the current settings
+            to a user specified name.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+            The <b>Delete Favorite</b> button allows an existing favorite to
+            be deleted from the list. <b>Factory default settings</b> can
+            never be deleted, however.
+            """)
+    
     propMgr.applyFavoriteButton.setWhatsThis(
-        """<b> Apply Favorite </b>
-        
+        """<b>Apply Favorite </b>
         <p>
-        Apply the DNA display style settings stored in the current favorite 
-        (selected in the combobox) to the current DNA display style settings.
+        <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
+        Applies the settings stored in the selected Favorite to the current 
+        settings.
         """)
         
     propMgr.addFavoriteButton.setWhatsThis(
-        """<b> Add Favorite </b>
-        
+        """<b>Add Favorite </b>
         <p>
-        Adds a new favorite to the user's list of favorites.""")
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        Allows a new Favorite to be added to the list. 
+        This saves the current settings to a user specified Favorite name.
+        """)
     
     propMgr.deleteFavoriteButton.setWhatsThis(
-        """<b> Delete Favorite </b>
-        
+        """<b>Delete Favorite </b>
         <p>
-        Deletes the current favorite from the user's personal list of favorites
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        Allows an existing favorite to be deleted from the list. 
+        <b>Factory default settings</b> can never be deleted, however.
         """)
     
     propMgr.loadFavoriteButton.setWhatsThis(
-        """<b> Load Favorite </b>
-        
+        """<b>Load Favorite </b>
         <p>
-        Allows the user to choose a "favorite file" from disk to
-        add to the personal favorites list. File must have a .txt extension.
+        <img source=\"ui/actions/Properties Manager/LoadFavorite.png\"><br>
+        Allows the user to load a <i>favorites file</i> from disk to be
+        added to the favorites list. Favorites files must have a .txt extension.
         """)
     propMgr.saveFavoriteButton.setWhatsThis(
-        """<b> Save Favorite </b>
-        
+        """<b>Save Favorite </b>
         <p>
-        Writes the current favorite (selected in the combobox) to a file, that
-        can be given to another NE1 user (i.e. as an email attachment). File 
-        must be saved with a .txt entension so that it can loaded back later.
-        """)
-    
-    
+        <img source=\"ui/actions/Properties Manager/SaveFavorite.png\"><br>
+        Writes the selected favorite (selected in the combobox) to a file that
+        can be given to another NE1 user (i.e. as an email attachment). The 
+        file is saved with a .txt entension so that it can loaded back using
+        the <b>Load Favorite</b> button.
+        """)   
+    return
+
 def WhatsThis_ColorScheme_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Color Scheme Property 
     Manager.
     """
     propMgr.favoritesComboBox.setWhatsThis(
-            """<b> List of Favorites </b>
-        
+            """<b>Color Scheme Favorites</b>
             <p>
-            Creates a list of favorite DNA display styles. Once favorite
-            styles have been added to the list using the Add Favorite button,
-            the list will display the chosen favorites.
-            To change the current favorite, select a current favorite from
-            the list, and push the Apply Favorite button.""")
-    
-    propMgr.favoritesComboBox.setWhatsThis(
-        """<b> List of Favorites </b>
-        
-        <p>
-        Creates a list of favorite color schemes. Once favorite
-        color schemes have been added to the list using the
-        Add Favorite button, the list will display the chosen favorites.
-        To apply the current favorite from the list, select a
-        current favorite from the list, and
-        push the Apply Favorite button.""")
+            A list of color scheme favorites added by the user that can be
+            applied to NanoEngineer-1 by pressing the <b>Apply Favorite</b>
+            button.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/ApplyColorSchemeFavorite.png\"><br>
+            The <b>Apply Favorite</b> button must be clicked to apply the 
+            current favorite selected from this list. <b>Factory default
+            settings</b> resets all color options to their default
+            settings.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+            The <b>Add Favorite</b> button allows new favorite color schemes to
+            be added to the list. This saves the current color settings
+            to a user specified name.</p>
+            <p>
+            <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+            The <b>Delete Favorite</b> button allows an existing favorite to
+            be deleted from the list. <b>Factory default settings</b> can
+            never be deleted, however.
+            """)
     
     propMgr.applyFavoriteButton.setWhatsThis(
-        """<b> Apply Favorite </b>
-        
+        """<b>Apply Favorite </b>
         <p>
-        Apply the color scheme settings stored in the current favorite 
-        (selected in the combobox) to the current color scheme settings.
+        <img source=\"ui/actions/Properties Manager/ApplyColorSchemeFavorite.png\"><br>
+        Applies the color settings stored in the selected Color Scheme
+        Favorite to the current color scheme.
         """)
         
     propMgr.addFavoriteButton.setWhatsThis(
-        """<b> Add Favorite </b>
-        
+        """<b>Add Favorite </b>
         <p>
-        Adds a new favorite to the user's list of favorites.""")
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        Allows a new Color Scheme Favorite to be added to the list. 
+        This saves the current color settings to a user specified name.
+        """)
     
     propMgr.deleteFavoriteButton.setWhatsThis(
-        """<b> Delete Favorite </b>
-        
+        """<b>Delete Favorite </b>
         <p>
-        Deletes the current favorite from the user's personal list of favorites
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        Allows an existing favorite to be deleted from the list. 
+        <b>Factory default settings</b> can never be deleted, however.
         """)
     
     propMgr.loadFavoriteButton.setWhatsThis(
-        """<b> Load Favorite </b>
-        
+        """<b>Load Favorite </b>
         <p>
-        Allows the user to choose a "favorite file" from disk to
-        add to the personal favorites list. File must have a .txt extension.
+        <img source=\"ui/actions/Properties Manager/LoadFavorite.png\"><br>
+        Allows the user to load a <i>favorites file</i> from disk to be
+        added to the favorites list. Favorites files must have a .txt extension.
         """)
     propMgr.saveFavoriteButton.setWhatsThis(
-        """<b> Save Favorite </b>
-        
+        """<b>Save Favorite </b>
         <p>
-        Writes the current favorite (selected in the combobox) to a file, that
-        can be given to another NE1 user (i.e. as an email attachment). File 
-        must be saved with a .txt entension so that it can loaded back later.
-        """)    
+        <img source=\"ui/actions/Properties Manager/SaveFavorite.png\"><br>
+        Writes the selected favorite (selected in the combobox) to a file that
+        can be given to another NE1 user (i.e. as an email attachment). The 
+        file is saved with a .txt entension so that it can loaded back using
+        the <b>Load Favorite</b> button.
+        """)
+    return
