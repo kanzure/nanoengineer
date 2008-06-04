@@ -184,7 +184,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
                 pass
             continue
         # piotr 080420: The second level dl's are 2-element lists of DL ids 
-        # rather than just a list of ids. The secod DL is used in case
+        # rather than just a list of ids. The second DL is used in case
         # of multi-color objects and is required for highlighting 
         # and selection (not in rc1)
         for clr, dls in self.per_color_dls: # Second-level dl's.
@@ -485,7 +485,7 @@ class ColorSorter:
 
     schedule_line = staticmethod(schedule_line)
 
-    def start(csdl, pickstate=None):
+    def start(csdl, pickstate = None):
         """
         Start sorting - objects provided to "schedule", "schedule_sphere", and
         "schedule_cylinder" will be stored for a sort at the time "finish" is called.
@@ -509,7 +509,7 @@ class ColorSorter:
                 # through ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display list.
                 try:
-                    if csdl.dl is 0:
+                    if csdl.dl == 0:
                         csdl.activate()             # Allocate a display list for our use.
                         pass
                     glNewList(csdl.dl, GL_COMPILE_AND_EXECUTE) # Start a single-level list.
@@ -706,11 +706,11 @@ class ColorSorter:
                 selected_dl = parent_csdl.selected_dl = glGenLists(1)
                 glNewList(selected_dl, GL_COMPILE)
                 # russ 080530: Support for patterned selection drawing modes.
-                patterned = isPatternedDrawing(select=True)
+                patterned = isPatternedDrawing(select = True)
                 if patterned:
                     # Patterned drawing needs the colored dl drawn first.
                     glCallList(color_dl)
-                    startPatternedDrawing(select=True)
+                    startPatternedDrawing(select = True)
                     pass
                 # Draw solid color (unpatterned) or an overlay pattern, in the
                 # selection color.
@@ -718,7 +718,7 @@ class ColorSorter:
                 glCallList(nocolor_dl)
                 if patterned:
                     # Reset from patterning drawing mode.
-                    endPatternedDrawing(select=True)
+                    endPatternedDrawing(select = True)
                 glEndList()
 
                 # Use either the normal-color display list or the selected one.

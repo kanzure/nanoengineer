@@ -1436,7 +1436,7 @@ class DnaCylinderChunks(ChunkDisplayMode):
                                                           label_text, labelFont)                    
                             elif mode == 1 \
                                  or mode == 2:
-                                if no_axis is False:
+                                if no_axis == False:
                                     glLineWidth(lw)
                                     glBegin(GL_LINES)
                                     if chunk.picked:

@@ -385,46 +385,46 @@ def get_gl_info_string(glpane): # grantham 20051129
 # 32x32 stipple bitmask patterns, in C arrays.
 # To avoid "seams", repeated subpattern sizes must be a power of 2.
 # ScreenDoor - 2x2 repeat, 1/4 density (one corner turned on.)
-ScreenDoor = numpy.array(16*(4*[0xaa] + 4*[0x00]), dtype=numpy.uint8)
+ScreenDoor = numpy.array(16*(4*[0xaa] + 4*[0x00]), dtype = numpy.uint8)
 # CrossHatch - 4x4 repeat, 7/16 density (two edges of a square turned on.)
-CrossHatch = numpy.array(8*(4*[0xff] + 12*[0x11]), dtype=numpy.uint8)
+CrossHatch = numpy.array(8*(4*[0xff] + 12*[0x11]), dtype = numpy.uint8)
 
-def _decodePatternPrefs(highlight=False, select=False):
+def _decodePatternPrefs(highlight = False, select = False):
     """
     Internal common code for startPatternedDrawing and endPatternedDrawing.
     Returns a tuple of prefs data.
     """
     key = (highlight and hoverHighlightingColorStyle_prefs_key
            or select and selectionColorStyle_prefs_key) # False or string.
-    style = bool(key) and env.prefs[key] # False or enum int.
-    solid = style is False or (highlight and style is HHS_SOLID or
-                               select and style is SS_SOLID) # bool.
+    style = bool(key) and env.prefs[key] # False or enum string.
+    solid = style == False or (highlight and style == HHS_SOLID or
+                               select and style == SS_SOLID) # bool.
     pattern = False         # False or bitarray pointer.
     edges = halos = False   # bool.
 
     # Nothing to do for solid colors.
     if not solid:
         # Check for stipple-patterned drawing styles.
-        if (highlight and style is HHS_SCREENDOOR1
-            or select and style is SS_SCREENDOOR1):
+        if (highlight and style == HHS_SCREENDOOR1
+            or select and style == SS_SCREENDOOR1):
             pattern = ScreenDoor
             pass
-        elif (highlight and style is HHS_CROSSHATCH1
-              or select and style is SS_CROSSHATCH1):
+        elif (highlight and style == HHS_CROSSHATCH1
+              or select and style == SS_CROSSHATCH1):
             pattern = CrossHatch
             pass
         # Check for polygon-edge drawing styles.
-        if pattern is False:
-            edges = (highlight and style is HHS_POLYGON_EDGES
-                     or select and style is SS_POLYGON_EDGES)
-            halos = (highlight and style is HHS_HALO
-                     or select and style is SS_HALO)
+        if pattern == False:
+            edges = (highlight and style == HHS_POLYGON_EDGES
+                     or select and style == SS_POLYGON_EDGES)
+            halos = (highlight and style == HHS_HALO
+                     or select and style == SS_HALO)
             pass
         pass
 
     return (key, style, solid, pattern, edges, halos)
 
-def isPatternedDrawing(highlight=False, select=False):
+def isPatternedDrawing(highlight = False, select = False):
     """
     Return True if either highlight or select is passed as True, and the
     corresponding preference is set to select a patterned (non-solid) drawing
@@ -433,14 +433,14 @@ def isPatternedDrawing(highlight=False, select=False):
     (key, style, solid, pattern, edges, halos) = _decodePatternPrefs(highlight, select)
     return not solid
 
-def startPatternedDrawing(highlight=False, select=False):
+def startPatternedDrawing(highlight = False, select = False):
     """
     Start drawing with a patterned style, if either highlight or select is
     passed as True, and the corresponding preference is set to select a
     patterned drawing style.
 
     This is common code for two different prefs keys, each of which has its own
-    set of settings constanstants...
+    set of settings constants...
 
     Return value is True if one of the patterned styles is selected.
     """
@@ -473,14 +473,14 @@ def startPatternedDrawing(highlight=False, select=False):
         pass
     return True
 
-def endPatternedDrawing(highlight=False, select=False):
+def endPatternedDrawing(highlight = False, select = False):
     """
     End drawing with a patterned style, if either highlight or select is
     passed as True, and the corresponding preference is set to select a
     patterned drawing style.
 
     This is common code for two different prefs keys, each of which has its own
-    set of settings constanstants...
+    set of settings constants...
 
     Return value is True if one of the patterned styles is selected.
     """
