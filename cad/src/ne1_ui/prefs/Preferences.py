@@ -1049,7 +1049,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, 0.0)
         self.cutoverMaxDoubleSpinBox.setValue(self.cutovermax)
         
-        self.endRmsDoubleSpinBox.setValue(self.endrms)
         return
     
     def _setupPage_Lighting(self):
