@@ -261,19 +261,21 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.cpk_cylinder_rad_spinbox.setWhatsThis(_text)
     
     _pd.autobond_checkbox.setWhatsThis(
-        """Build mode's default setting for autobonding
-        at startup (enabled/disabled)""")
+        """<p>Default setting for <b>Autobonding</b> at startup
+        (enabled/disabled)</p>""")
+
     _pd.water_checkbox.setWhatsThis(
-        """Build mode's default setting for water at
-        startup (enabled/disabled)""")
+        """<p>Default setting for <b>Water (surface)</b> at startup
+        (enabled/disabled)</p>""")
     _pd.buildmode_select_atoms_checkbox.setWhatsThis(
         """<p><b>Auto select atoms of deposited object</b></p>
         <p>
         When depositing atoms, clipboard chunks or library parts,
         their atoms will automatically be selected.""")
     _pd.buildmode_highlighting_checkbox.setWhatsThis(
-        """Build mode's default setting for highlighting at
-        startup (enabled/disabled)""")
+        """<p>Default setting for <b>Hover highlighting</b> at startup
+        (enabled/disabled)</p>""")
+    
     _pd.gromacs_label.setWhatsThis(
         """Enable GROMACS and choose the mdrun executable path to use.""")
     _pd.gromacs_checkbox.setWhatsThis(
