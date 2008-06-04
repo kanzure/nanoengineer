@@ -5,9 +5,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>270</width>
-    <height>609</height>
+    <width>300</width>
+    <height>500</height>
    </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>3</hsizetype>
+    <vsizetype>3</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>300</width>
+    <height>500</height>
+   </size>
   </property>
   <property name="windowTitle" >
    <string>Minimize Energy</string>
@@ -15,105 +29,462 @@
   <property name="windowIcon" >
    <iconset/>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
-    <number>0</number>
-   </property>
-   <property name="spacing" >
     <number>2</number>
    </property>
-   <item>
-    <widget class="QFrame" name="heading_frame" >
-     <property name="frameShape" >
-      <enum>QFrame::NoFrame</enum>
+   <property name="spacing" >
+    <number>4</number>
+   </property>
+   <item row="2" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="frameShadow" >
-      <enum>QFrame::Plain</enum>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
      </property>
-     <layout class="QHBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
-      <property name="spacing" >
-       <number>3</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="heading_pixmap" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string/>
-        </property>
-        <property name="pixmap" >
-         <pixmap/>
-        </property>
-        <property name="scaledContents" >
-         <bool>true</bool>
-        </property>
-        <property name="alignment" >
-         <set>Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="heading_label" >
-        <property name="font" >
-         <font>
-          <family>Sans Serif</family>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-          <underline>false</underline>
-          <strikeout>false</strikeout>
-         </font>
-        </property>
-        <property name="text" >
-         <string>Minimize Energy</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+     <property name="sizeHint" >
+      <size>
+       <width>270</width>
+       <height>5</height>
+      </size>
+     </property>
+    </spacer>
    </item>
-   <item>
+   <item row="1" column="0" >
     <widget class="QFrame" name="body_frame" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>3</hsizetype>
+       <vsizetype>3</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape" >
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow" >
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QGridLayout" >
       <property name="margin" >
-       <number>9</number>
+       <number>4</number>
       </property>
       <property name="spacing" >
-       <number>6</number>
+       <number>4</number>
       </property>
-      <item>
-       <widget class="QPushButton" name="sponsor_btn" >
-        <property name="text" >
-         <string/>
+      <item row="4" column="0" >
+       <widget class="QGroupBox" name="watch_minimize_groupbox" >
+        <property name="title" >
+         <string>Watch minimize in real time</string>
         </property>
-        <property name="icon" >
-         <iconset/>
-        </property>
-        <property name="autoDefault" >
-         <bool>false</bool>
-        </property>
-        <property name="flat" >
+        <property name="checkable" >
          <bool>true</bool>
         </property>
+        <layout class="QGridLayout" >
+         <property name="margin" >
+          <number>4</number>
+         </property>
+         <property name="spacing" >
+          <number>2</number>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QRadioButton" name="update_asap_rbtn" >
+           <property name="toolTip" >
+            <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
+           </property>
+           <property name="text" >
+            <string>Update as fast as possible</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <layout class="QHBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="update_every_rbtn" >
+             <property name="toolTip" >
+              <string>Specify how often to update the screen during adjustments</string>
+             </property>
+             <property name="text" >
+              <string>Update every</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="update_number_spinbox" >
+             <property name="toolTip" >
+              <string>Specify how often to update the screen during adjustments</string>
+             </property>
+             <property name="maximum" >
+              <number>9999</number>
+             </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
+             <property name="value" >
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="update_units_combobox" >
+             <property name="toolTip" >
+              <string>Specify how often to update the screen during adjustments</string>
+             </property>
+             <item>
+              <property name="text" >
+               <string>frames</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>seconds</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>minutes</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>hours</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
-      <item>
+      <item row="5" column="0" >
+       <widget class="QGroupBox" name="groupBox20" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title" >
+         <string>Convergence criteria</string>
+        </property>
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>4</number>
+         </property>
+         <property name="spacing" >
+          <number>4</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="endrms_lbl" >
+             <property name="toolTip" >
+              <string>Target RMS force (pN)</string>
+             </property>
+             <property name="text" >
+              <string>EndRMS:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="endmax_lbl" >
+             <property name="toolTip" >
+              <string>Target max force (pN)</string>
+             </property>
+             <property name="text" >
+              <string>EndMax:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="cutoverrms_lbl" >
+             <property name="toolTip" >
+              <string>Cutover RMS force (pN)</string>
+             </property>
+             <property name="text" >
+              <string>CutoverRMS:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="cutovermax_lbl" >
+             <property name="toolTip" >
+              <string>Cutover max force (pN)</string>
+             </property>
+             <property name="text" >
+              <string>CutoverMax:</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QDoubleSpinBox" name="endRmsDoubleSpinBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="suffix" >
+              <string> pN</string>
+             </property>
+             <property name="decimals" >
+              <number>3</number>
+             </property>
+             <property name="maximum" >
+              <double>501.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="endMaxDoubleSpinBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="suffix" >
+              <string> pN</string>
+             </property>
+             <property name="decimals" >
+              <number>2</number>
+             </property>
+             <property name="maximum" >
+              <double>2501.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="cutoverRmsDoubleSpinBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="suffix" >
+              <string> pN</string>
+             </property>
+             <property name="decimals" >
+              <number>2</number>
+             </property>
+             <property name="maximum" >
+              <double>12500.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="cutoverMaxDoubleSpinBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>0</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="suffix" >
+              <string> pN</string>
+             </property>
+             <property name="decimals" >
+              <number>2</number>
+             </property>
+             <property name="maximum" >
+              <double>60001.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QGroupBox" name="buttonGroup8" >
+        <property name="title" >
+         <string>Minimize Options</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>4</number>
+         </property>
+         <property name="spacing" >
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="minimize_all_rbtn" >
+           <property name="toolTip" >
+            <string>Perform energy minimization on all the atoms in the workspace</string>
+           </property>
+           <property name="text" >
+            <string>Minimize all</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="minimize_sel_rbtn" >
+           <property name="toolTip" >
+            <string>Perform energy minimization on only the atoms that have been selected</string>
+           </property>
+           <property name="text" >
+            <string>Minimize selection</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="electrostaticsForDnaDuringMinimize_checkBox" >
+           <property name="text" >
+            <string>Electrostatics for DNA reduced model</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="enableNeighborSearching_check_box" >
+           <property name="text" >
+            <string>Enable neighbor searching (slow but accurate)</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QGroupBox" name="buttonGroup8_2" >
+        <property name="title" >
+         <string>Minimize physics engine</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>4</number>
+         </property>
+         <property name="spacing" >
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="minimize_engine_combobox" >
+           <property name="toolTip" >
+            <string>Choose the simulation engine with which to minimize energy.</string>
+           </property>
+           <item>
+            <property name="text" >
+             <string>NanoDynamics-1 (Default)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>GROMACS with ND1 Force Field</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>Background GROMACS with ND1 Force Field</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0" >
        <layout class="QHBoxLayout" >
         <property name="margin" >
          <number>0</number>
@@ -207,739 +578,93 @@
         </item>
        </layout>
       </item>
-      <item>
-       <widget class="QGroupBox" name="buttonGroup8" >
-        <property name="title" >
+      <item row="0" column="0" >
+       <widget class="QPushButton" name="sponsor_btn" >
+        <property name="text" >
          <string/>
         </property>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>9</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="min_options_label" >
-             <property name="text" >
-              <string>Minimize Options</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>21</width>
-               <height>16</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="grpbtn_1" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>0</hsizetype>
-               <vsizetype>0</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize" >
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="text" >
-              <string/>
-             </property>
-             <property name="icon" >
-              <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-             <property name="flat" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="Line" name="line1" >
-           <property name="frameShape" >
-            <enum>QFrame::HLine</enum>
-           </property>
-           <property name="frameShadow" >
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="midLineWidth" >
-            <number>0</number>
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="minimize_all_rbtn" >
-           <property name="toolTip" >
-            <string>Perform energy minimization on all the atoms in the workspace</string>
-           </property>
-           <property name="text" >
-            <string>Minimize All</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="minimize_sel_rbtn" >
-           <property name="toolTip" >
-            <string>Perform energy minimization on only the atoms that have been selected</string>
-           </property>
-           <property name="text" >
-            <string>Minimize Selection</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="electrostaticsForDnaDuringMinimize_checkBox" >
-           <property name="text" >
-            <string>Electrostatics for DNA Reduced Model</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="enableNeighborSearching_check_box" >
-           <property name="text" >
-            <string>Enable Neighbor Searching (slow but accurate)</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox2" >
-        <property name="title" >
-         <string/>
+        <property name="icon" >
+         <iconset/>
         </property>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>4</number>
-         </property>
-         <property name="spacing" >
-          <number>1</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="watch_min_options_label" >
-             <property name="text" >
-              <string>Watch Minimization Options</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="grpbtn_2" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>0</hsizetype>
-               <vsizetype>0</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize" >
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="text" >
-              <string/>
-             </property>
-             <property name="icon" >
-              <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-             <property name="flat" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="Line" name="line2" >
-           <property name="frameShape" >
-            <enum>QFrame::HLine</enum>
-           </property>
-           <property name="frameShadow" >
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="midLineWidth" >
-            <number>0</number>
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="watch_minimization_checkbox" >
-           <property name="toolTip" >
-            <string>Enables real time graphical updates during minimization runs</string>
-           </property>
-           <property name="text" >
-            <string>Watch minimization in real time</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="update_btngrp" >
-           <property name="title" >
-            <string/>
-           </property>
-           <layout class="QVBoxLayout" >
-            <property name="margin" >
-             <number>3</number>
-            </property>
-            <property name="spacing" >
-             <number>1</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="watch_min_options_label_2" >
-              <property name="text" >
-               <string>Update Options</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Line" name="line2_1" >
-              <property name="frameShape" >
-               <enum>QFrame::HLine</enum>
-              </property>
-              <property name="frameShadow" >
-               <enum>QFrame::Sunken</enum>
-              </property>
-              <property name="midLineWidth" >
-               <number>0</number>
-              </property>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="update_asap_rbtn" >
-              <property name="toolTip" >
-               <string>Update every 2 seconds, or faster if it doesn't slow minimization by more than 20%</string>
-              </property>
-              <property name="text" >
-               <string>As fast as possible</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QRadioButton" name="update_every_rbtn" >
-                <property name="toolTip" >
-                 <string>Specify how often to update the screen during the minimization.</string>
-                </property>
-                <property name="text" >
-                 <string>Every</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="update_number_spinbox" >
-                <property name="toolTip" >
-                 <string>Specify how often to update the screen during the minimization.</string>
-                </property>
-                <property name="maximum" >
-                 <number>9999</number>
-                </property>
-                <property name="minimum" >
-                 <number>1</number>
-                </property>
-                <property name="value" >
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="update_units_combobox" >
-                <property name="toolTip" >
-                 <string>Specify how often to update the screen during the minimization.</string>
-                </property>
-                <item>
-                 <property name="text" >
-                  <string>frames</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>seconds</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>minutes</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>hours</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType" >
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>16</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="parms_grpbox" >
-        <property name="title" >
-         <string/>
+        <property name="autoDefault" >
+         <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>4</number>
-         </property>
-         <property name="spacing" >
-          <number>1</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="parameters_label" >
-             <property name="text" >
-              <string>Convergence Criteria</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>21</width>
-               <height>16</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="grpbtn_3" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>0</hsizetype>
-               <vsizetype>0</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize" >
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="text" >
-              <string/>
-             </property>
-             <property name="icon" >
-              <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-             <property name="flat" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="Line" name="line3" >
-           <property name="frameShape" >
-            <enum>QFrame::HLine</enum>
-           </property>
-           <property name="frameShadow" >
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="midLineWidth" >
-            <number>0</number>
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="endrms_lbl" >
-               <property name="text" >
-                <string>EndRMS (pN) :</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="endmax_lbl" >
-               <property name="text" >
-                <string>EndMax (pN) :</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="cutoverrms_lbl" >
-               <property name="text" >
-                <string>CutoverRMS (pN) :</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="cutovermax_lbl" >
-               <property name="text" >
-                <string>CutoverMax (pN) :</string>
-               </property>
-               <property name="alignment" >
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item>
-              <widget class="QLineEdit" name="endrms_linedit" >
-               <property name="toolTip" >
-                <string>Target RMS force (pN)</string>
-               </property>
-               <property name="text" >
-                <string>1.0</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="endmax_linedit" >
-               <property name="toolTip" >
-                <string>Target max force (pN)</string>
-               </property>
-               <property name="text" >
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="cutoverrms_linedit" >
-               <property name="toolTip" >
-                <string>Cutover RMS foce (pN)</string>
-               </property>
-               <property name="text" >
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="cutovermax_linedit" >
-               <property name="toolTip" >
-                <string>Cutover max force (pN)</string>
-               </property>
-               <property name="text" >
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>40</width>
-               <height>1</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="buttonGroup8_2" >
-        <property name="title" >
-         <string/>
+        <property name="flat" >
+         <bool>true</bool>
         </property>
-        <layout class="QVBoxLayout" >
-         <property name="margin" >
-          <number>4</number>
-         </property>
-         <property name="spacing" >
-          <number>1</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" >
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <property name="spacing" >
-            <number>6</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="min_options_label_4" >
-             <property name="text" >
-              <string>Minimize Engine</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>21</width>
-               <height>16</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QPushButton" name="grpbtn_4" >
-             <property name="sizePolicy" >
-              <sizepolicy>
-               <hsizetype>0</hsizetype>
-               <vsizetype>0</vsizetype>
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize" >
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="text" >
-              <string/>
-             </property>
-             <property name="icon" >
-              <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-             </property>
-             <property name="autoDefault" >
-              <bool>false</bool>
-             </property>
-             <property name="default" >
-              <bool>false</bool>
-             </property>
-             <property name="flat" >
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="Line" name="line4" >
-           <property name="frameShape" >
-            <enum>QFrame::HLine</enum>
-           </property>
-           <property name="frameShadow" >
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="midLineWidth" >
-            <number>0</number>
-           </property>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="minimize_engine_combobox" >
-           <property name="toolTip" >
-            <string>Choose the simulation engine with which to minimize energy.</string>
-           </property>
-           <item>
-            <property name="text" >
-             <string>NanoDynamics-1 (Default)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text" >
-             <string>GROMACS with ND1 Force Field</string>
-            </property>
-           </item>
-           <item>
-            <property name="text" >
-             <string>Background GROMACS with ND1 Force Field</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item>
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
+   <item row="0" column="0" >
+    <widget class="QFrame" name="heading_frame" >
+     <property name="frameShape" >
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <property name="sizeType" >
-      <enum>QSizePolicy::Expanding</enum>
+     <property name="frameShadow" >
+      <enum>QFrame::Plain</enum>
      </property>
-     <property name="sizeHint" >
-      <size>
-       <width>245</width>
-       <height>16</height>
-      </size>
-     </property>
-    </spacer>
+     <widget class="QLabel" name="heading_pixmap" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>8</y>
+        <width>16</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="sizePolicy" >
+       <sizepolicy>
+        <hsizetype>0</hsizetype>
+        <vsizetype>0</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text" >
+       <string/>
+      </property>
+      <property name="pixmap" >
+       <pixmap/>
+      </property>
+      <property name="scaledContents" >
+       <bool>true</bool>
+      </property>
+      <property name="alignment" >
+       <set>Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="heading_label" >
+      <property name="geometry" >
+       <rect>
+        <x>3</x>
+        <y>0</y>
+        <width>267</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font" >
+       <font>
+        <family>Sans Serif</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="text" >
+       <string>Minimize Energy</string>
+      </property>
+      <property name="alignment" >
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      </property>
+     </widget>
+    </widget>
    </item>
-   <item>
+   <item row="3" column="0" >
     <layout class="QHBoxLayout" >
      <property name="margin" >
       <number>4</number>
@@ -995,22 +720,5 @@
  </widget>
  <layoutdefault spacing="6" margin="11" />
  <resources/>
- <connections>
-  <connection>
-   <sender>watch_minimization_checkbox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>update_btngrp</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

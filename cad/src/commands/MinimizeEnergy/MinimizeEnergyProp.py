@@ -10,6 +10,9 @@ methods needed by the Minimize Energy dialog.
 History:
 
 mark 060705 - Created for Alpha 8 NFR: "Simulator > Minimize Energy".
+
+To do:
+- implement/enforce constrains between all convergence values.
 """
 
 from PyQt4.Qt import QDialog
@@ -17,7 +20,7 @@ from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QAbstractButton
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QWhatsThis
-from PyQt4.Qt import QDoubleValidator
+from PyQt4.Qt import QSize
 
 from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from commands.MinimizeEnergy.MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
@@ -53,23 +56,27 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
     def __init__(self, win):
         QDialog.__init__(self, win)  # win is parent.
         self.setupUi(self)
-        self.update_btngrp_group = QButtonGroup()
-        self.update_btngrp_group.setExclusive(True)
-        for obj in self.update_btngrp.children():
+        self.watch_minimize_buttongroup = QButtonGroup()
+        self.watch_minimize_buttongroup.setExclusive(True)
+        for obj in self.watch_minimize_groupbox.children():
             if isinstance(obj, QAbstractButton):
-                self.update_btngrp_group.addButton(obj)
+                self.watch_minimize_buttongroup.addButton(obj)
         
         #fix some icon problems
         self.setWindowIcon(
             geticon('ui/border/MinimizeEnergy.png'))
         self.done_btn.setIcon(
             geticon('ui/actions/Properties Manager/Done.png'))
+        self.abort_btn.setIconSize(QSize(22, 22))  
         self.abort_btn.setIcon(
             geticon('ui/actions/Properties Manager/Abort.png'))
+        self.restore_btn.setIconSize(QSize(22, 22))  
         self.restore_btn.setIcon(
             geticon('ui/actions/Properties Manager/Restore.png'))
+        self.done_btn.setIconSize(QSize(22, 22))  
         self.whatsthis_btn.setIcon(
             geticon('ui/actions/Properties Manager/WhatsThis.png'))
+        self.whatsthis_btn.setIconSize(QSize(22, 22))  
         
         self.connect(self.cancel_btn,
                      SIGNAL("clicked()"),
@@ -92,18 +99,6 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         self.connect(self.abort_btn,
                      SIGNAL("clicked()"),
                      self.cancel_btn_clicked)
-        self.connect(self.grpbtn_1,
-                     SIGNAL("clicked()"),
-                     self.toggle_grpbtn_1)
-        self.connect(self.grpbtn_2,
-                     SIGNAL("clicked()"),
-                     self.toggle_grpbtn_2)
-        self.connect(self.grpbtn_3,
-                     SIGNAL("clicked()"),
-                     self.toggle_grpbtn_3)
-        self.connect(self.grpbtn_4,
-                     SIGNAL("clicked()"),
-                     self.toggle_grpbtn_4)
         
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
@@ -112,65 +107,31 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         connect_checkbox_with_boolean_pref(
             self.enableNeighborSearching_check_box,
             neighborSearchingInGromacs_prefs_key)
+        
+        self.connect(self.minimize_engine_combobox, SIGNAL("activated(int)"), self.update_minimize_engine)
 
         self.minimize_engine_combobox.setCurrentIndex(
             env.prefs[Minimize_minimizationEngine_prefs_key])
+        
+        self.connect(self.endRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndRms)
+        self.connect(self.endMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeEndMax)
+        self.connect(self.cutoverRmsDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverRms)
+        self.connect(self.cutoverMaxDoubleSpinBox, SIGNAL("valueChanged(double)"), self.changeCutoverMax)
+        
+        self.endRmsDoubleSpinBox.setSpecialValueText("Automatic")
+        self.endMaxDoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverRmsDoubleSpinBox.setSpecialValueText("Automatic")
+        self.cutoverMaxDoubleSpinBox.setSpecialValueText("Automatic")
 
         self.win = win
         self.previousParams = None
         self.setup_ruc()
-        self.setup_validators()
         self.seltype = 'All'
         self.minimize_selection_enabled = True #bruce 080513
-        self.sponsor_btn.setWhatsThis("""<b>NanoEngineer-1 Sponsor</b>
-        <p>Click on the logo to learn more
-        about this NanoEngineer-1 sponsor.</p>""")
-        self.minimize_all_rbtn.setWhatsThis("""<b>Minimize All</b><p>Perform energy minimization on all the
-        atoms in the workspace.</p>""")
-        self.minimize_sel_rbtn.setWhatsThis("""<b>Minimize Selection</b><p>Perform energy minimization on the
-        atoms that are currently selected.</p>""")
-        self.watch_minimization_checkbox.setWhatsThis("""<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
-        updates during minimization runs.""")
-        self.update_asap_rbtn.setWhatsThis("""<b>Update as fast as possible</b>
-        <p>
-        Update every 2 seconds,
-        or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%</p>""")
-        self.update_every_rbtn.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        self.update_units_combobox.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        self.endrms_linedit.setWhatsThis("""<b>EndRMS</b>
-        <p>Continue until this RMS force is reached.</p>""")
-        self.endmax_linedit.setWhatsThis("""<b>EndMax</b>
-        <p>Continue until the total force on each atom
-        is less than this value.</p>""")
-        self.cutoverrms_linedit.setWhatsThis("""<b>CutoverRMS</b>
-        <p>Use steepest descent until this RMS force
-        is reached.</p>""")
-        self.cutovermax_linedit.setWhatsThis("""<b>CutoverMax</b>
-        <p>Use steepest descent  until the total force
-        on each atom is less than this value.</p>""")
-        self.cancel_btn.setWhatsThis("""<b>Cancel</b><p>Dismiss this dialog without taking any action.</p>""")
-        self.ok_btn.setWhatsThis("""<b>Minimize Energy</b><p>Using the parameters specified above,
-        perform energy minimization on some or all of the atoms.</p>""")
-        self.setWhatsThis("""<u><b>Minimize Energy</b></u>
-        <p>The potential energy of a chemical
-        structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot
-        of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get
-        an approximate potential energy without all that, we represent the energy as a series of terms involving geometric properties
-        of the structure: lengths of chemical bonds, angles between pairs and triples of chemical bonds, etc.
-        </p><p>As is generally
-        the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The
-        atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting
-        the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x,
-        y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will
-        settle into if lowered to zero Kelvin.
-        </p>""")
+        
+        # Assign "What's This" text for all widgets.
+        from commands.MinimizeEnergy.WhatsThisText_for_MinimizeEnergyDialog import whatsThis_MinimizeEnergyDialog
+        whatsThis_MinimizeEnergyDialog(self)
             
         self.update_widgets() # to make sure self attrs are set
 
@@ -182,8 +143,8 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         from widgets.widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
             #( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
-            ( self.update_btngrp_group, self.update_number_spinbox, self.update_units_combobox ),
-            self.watch_minimization_checkbox,
+            ( self.watch_minimize_buttongroup, self.update_number_spinbox, self.update_units_combobox ),
+            self.watch_minimize_groupbox,
             Minimize_watchRealtimeMinimization_prefs_key
         )
         ## can't do this yet: self.ruc.set_widgets_from_update_data( self.previous_movie._update_data ) # includes checkbox
@@ -217,10 +178,6 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         Returns a tuple with the current parameter values from the widgets. Also sets those in env.prefs.
         Doesn't do anything about self.seltype, since that is a choice of command, not a parameter for a command.
         """
-        self.change_endrms('notused')
-        self.change_endmax('notused')
-        self.change_cutoverrms('notused')
-        self.change_cutovermax('notused')
         return tuple([env.prefs[key] for key in (endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key)])
     
     def update_widgets(self, update_seltype = True):
@@ -236,19 +193,22 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
                 self.minimize_sel_rbtn.setChecked(1)
             self.minimize_sel_rbtn.setEnabled( self.minimize_selection_enabled)
             pass
+        
+        # Convergence Criteria groupbox
+        # WARNING: some of the following code is mostly duplicated by Preferences code       
+        self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, 0.0)
+        self.endRmsDoubleSpinBox.setValue(self.endrms)
 
-        # WARNING: some of the following code is mostly duplicated by UserPrefs code
-        self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
-        self.endrms_linedit.setText(str(self.endrms))
+        self.endmax = get_pref_or_optval(endMax_prefs_key, -1.0, 0.0)
+        self.endMaxDoubleSpinBox.setValue(self.endmax)
+
+        self.cutoverrms = get_pref_or_optval(cutoverRMS_prefs_key, -1.0, 0.0)
+        self.cutoverRmsDoubleSpinBox.setValue(self.cutoverrms)
+
+        self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, 0.0)
+        self.cutoverMaxDoubleSpinBox.setValue(self.cutovermax)
         
-        self.endmax = get_pref_or_optval(endMax_prefs_key, -1.0, '')
-        self.endmax_linedit.setText(str(self.endmax))
-        
-        self.cutoverrms = get_pref_or_optval(cutoverRMS_prefs_key, -1.0, '')
-        self.cutoverrms_linedit.setText(str(self.cutoverrms))
-        
-        self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
-        self.cutovermax_linedit.setText(str(self.cutovermax))
+        self.update_minimize_engine()
         
         ###e also watch in realtime prefs for this -- no, thats in another method for now
         return
@@ -309,6 +269,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         Slot for Restore Defaults button
         """
         # restore factory defaults # for A8, only for conv crit, not for watch motion settings
+        self.minimize_engine_combobox.setCurrentIndex(0) # ND1
         env.prefs.restore_defaults([endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key])
         self.update_widgets(update_seltype = False)
         
@@ -318,109 +279,79 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         """
         QWhatsThis.enterWhatsThisMode()
         
-    # Property Manager groupbox button slots
-
-    def toggle_grpbtn_1(self):
+    # Dialog slots
+    
+    def update_minimize_engine(self, ignoredIndex = 0):
         """
-        Slot for first groupbox toggle button
-        """
-        self.toggle_groupbox_in_dialogs(self.grpbtn_1, self.line1,
-                            self.minimize_all_rbtn, self.minimize_sel_rbtn)
-
-    def toggle_grpbtn_2(self):
-        """
-        Slot for second groupbox toggle button
-        """
-        self.toggle_groupbox_in_dialogs(self.grpbtn_2, self.line2,
-                            self.watch_minimization_checkbox, self.update_btngrp)
+        Slot for the Minimize Engine comobox.
+	"""
         
-    def toggle_grpbtn_3(self):
-        """
-        Slot for third groupbox toggle button
-        """
-        self.toggle_groupbox_in_dialogs(self.grpbtn_3, self.line3,
-                            self.endrms_lbl, self.endrms_linedit,
-                            self.endmax_lbl, self.endmax_linedit,
-                            self.cutoverrms_lbl, self.cutoverrms_linedit,
-                            self.cutovermax_lbl, self.cutovermax_linedit,
-                            ##self.spacer_3 - had to be set to 1 pixel in ui file, since it's a local var, not a self attr
-                            )
-
-    def toggle_grpbtn_4(self):
-        """
-        Slot for fourth groupbox toggle button
-        """
-        self.toggle_groupbox_in_dialogs(self.grpbtn_4, self.line4,
-                            self.minimize_engine_combobox)
-
-    # WARNING: some of the following code is mostly duplicated by UserPrefs code;
-    # the docstrings are wrong in this context, since these methods have no signal connections
-
-    def setup_validators(self):
-        # Validator for the linedit widgets.
-        self.endrms_validator = QDoubleValidator(self)
-        self.endrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0.0 to 100, 2 decimal places
-        self.endrms_linedit.setValidator(self.endrms_validator)
+        engineIndex = self.minimize_engine_combobox.currentIndex()
         
-        self.endmax_validator = QDoubleValidator(self)
-        self.endmax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
-        self.endmax_linedit.setValidator(self.endmax_validator)
-        
-        self.cutoverrms_validator = QDoubleValidator(self)
-        self.cutoverrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
-        self.cutoverrms_linedit.setValidator(self.cutoverrms_validator)
-        
-        self.cutovermax_validator = QDoubleValidator(self)
-        self.cutovermax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
-        self.cutovermax_linedit.setValidator(self.cutovermax_validator)
-
-    def change_endrms(self, text):
-        try:
-            endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
-            self.endrms_linedit.setText(endrms_str)
-            if endrms_str:
-                env.prefs[endRMS_prefs_key] = float(str(endrms_str))
-            else:
-                env.prefs[endRMS_prefs_key] = -1.0
-            self.endrms = endrms_str
-        except:
-            print_compact_traceback("bug in change_endrms ignored: ") 
-        
-    def change_endmax(self, text):
-        try:
-            endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
-            self.endmax_linedit.setText(endmax_str)
-            if endmax_str:
-                env.prefs[endMax_prefs_key] = float(str(endmax_str))
-            else:
-                env.prefs[endMax_prefs_key] = -1.0
-            self.endmax = endmax_str
-        except:
-            print_compact_traceback("bug in change_endmax ignored: ") 
+        if engineIndex == 0: # NanoDynamics-1
             
-    def change_cutoverrms(self, text):
-        try:
-            cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
-            self.cutoverrms_linedit.setText(cutoverrms_str)
-            if cutoverrms_str:
-                env.prefs[cutoverRMS_prefs_key] = float(str(cutoverrms_str))
-            else:
-                env.prefs[cutoverRMS_prefs_key] = -1.0
-            self.cutoverrms = cutoverrms_str
-        except:
-            print_compact_traceback("bug in change_cutoverrms ignored: ") 
+            # Minimize options widgets.
+            self.electrostaticsForDnaDuringMinimize_checkBox.setEnabled(False)
+            self.enableNeighborSearching_check_box.setEnabled(False)
             
-    def change_cutovermax(self, text):
-        try:
-            cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
-            self.cutovermax_linedit.setText(cutovermax_str)
-            if cutovermax_str:
-                env.prefs[cutoverMax_prefs_key] = float(str(cutovermax_str))
-            else:
-                env.prefs[cutoverMax_prefs_key] = -1.0
-            self.cutovermax = cutovermax_str
-        except:
-            print_compact_traceback("bug in change_cutovermax ignored: ") 
+            # Watch minimize in real time widgets.
+            self.watch_minimize_groupbox.setEnabled(True)
+            
+            # Converence criteria widgets
+            self.endMaxDoubleSpinBox.setEnabled(True)
+            self.cutoverRmsDoubleSpinBox.setEnabled(True)
+            self.cutoverMaxDoubleSpinBox.setEnabled(True)
+        else: # GROMACS
+            
+            # Minimize options widgets.
+            self.electrostaticsForDnaDuringMinimize_checkBox.setEnabled(True)
+            self.enableNeighborSearching_check_box.setEnabled(True)
+            
+            # Watch minimize in real time widgets.
+            self.watch_minimize_groupbox.setEnabled(False)
+            
+            # Converence criteria widgets
+            self.endMaxDoubleSpinBox.setEnabled(False)
+            self.cutoverRmsDoubleSpinBox.setEnabled(False)
+            self.cutoverMaxDoubleSpinBox.setEnabled(False)
+        return
+        
+    def changeEndRms(self, endRms):
+        """
+        Slot for EndRMS.
+	"""
+        if endRms:
+            env.prefs[endRMS_prefs_key] = endRms
+        else:
+            env.prefs[endRMS_prefs_key] = -1.0
+        
+    def changeEndMax(self, endMax):
+        """
+        Slot for EndMax.
+	"""
+        if endMax:
+            env.prefs[endMax_prefs_key] = endMax
+        else:
+            env.prefs[endMax_prefs_key] = -1.0
+        return
+    
+    def changeCutoverRms(self, cutoverRms):
+        """
+        Slot for CutoverRMS.
+	"""
+        if cutoverRms:
+            env.prefs[cutoverRMS_prefs_key] = cutoverRms
+        else:
+            env.prefs[cutoverRMS_prefs_key] = -1.0
+            
+    def changeCutoverMax(self, cutoverMax):
+        """
+        Slot for CutoverMax.
+	"""
+        if cutoverMax:
+            env.prefs[cutoverMax_prefs_key] = cutoverMax
+        else:
+            env.prefs[cutoverMax_prefs_key] = -1.0
 
     pass # end of class MinimizeEnergyProp
 
