@@ -1184,8 +1184,8 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def pref_arrowsOnThreePrimeEnds(self):
         """
-        Return the appropriate value of the preference for whether to use a
-        custom color for whether to draw arrows or not.
+        Return the appropriate value of the preference for whether to
+        draw arrows on 3' strand ends of PAM DNA.
 
         [subclasses might override how this is determined]
         """
@@ -1193,8 +1193,8 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def pref_arrowsOnFivePrimeEnds(self):
         """
-        Return the appropriate value of the preference for whether to use a
-        custom color for whether to draw arrows or not.
+        Return the appropriate value of the preference for whether to
+        draw arrows on 5' strand ends of PAM DNA.
 
         [subclasses might override how this is determined]
         """
@@ -1203,9 +1203,8 @@ class basicGraphicsMode(GraphicsMode_API):
     def pref_useCustomColorForThreePrimeArrowheads(self):
         """
         Return the appropriate value of the preference for whether to use a
-        custom color for whether to use custom color -- misnamed because it is
-        used on arrowheads *if they are drawn by prior prefs* but on strand end
-        atoms (Ss3 atoms) if not.
+        custom color for 3' arrowheads (if they are drawn)
+        or for 3' strand end atoms (if arrowheads are not drawn).
 
         [subclasses might override how this is determined]
         """
@@ -1214,9 +1213,8 @@ class basicGraphicsMode(GraphicsMode_API):
     def pref_useCustomColorForFivePrimeArrowheads(self):
         """
         Return the appropriate value of the preference for whether to use a
-        custom color for whether to use custom color -- misnamed because it is
-        used on arrowheads *if they are drawn by prior prefs* but on strand end
-        atoms (Ss3 atoms) if not.
+        custom color for 5' arrowheads (if they are drawn)
+        or for 5' strand end atoms (if arrowheads are not drawn).
 
         [subclasses might override how this is determined]
         """
@@ -1224,9 +1222,9 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def pref_dnaStrandThreePrimeArrowheadsCustomColor(self):
         """
-        Return the appropriate value of the preference for whether to use a
-        custom color for what colors to use for the arrowheads, or if they are
-        not drawn, the strand end atoms.
+        Return the appropriate value of the preference for what custom color
+        to use when drawing 3' arrowheads (if they are drawn)
+        or 3' strand end atoms (if arrowheads are not drawn).
 
         [subclasses might override how this is determined]
         """
@@ -1234,9 +1232,9 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def pref_dnaStrandFivePrimeArrowheadsCustomColor(self):
         """
-        Return the appropriate value of the preference for whether to use a
-        custom color for what colors to use for the arrowheads, or if they are
-        not drawn, the strand end atoms.
+        Return the appropriate value of the preference for what custom color
+        to use when drawing 5' arrowheads (if they are drawn)
+        or 5' strand end atoms (if arrowheads are not drawn).
 
         [subclasses might override how this is determined]
         """
