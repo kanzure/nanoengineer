@@ -112,7 +112,7 @@ def drawsphere_worker(params):
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
 
-    if vboLevel is 0:
+    if vboLevel == 0:
         glCallList(drawing_globals.sphereList[detailLevel])
     else:                               # Array variants.
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -121,13 +121,13 @@ def drawsphere_worker(params):
         size = len(drawing_globals.sphereArrays[detailLevel])
         GLIndexType = drawing_globals.sphereGLIndexTypes[detailLevel]
 
-        if vboLevel is 1:               # DrawArrays from CPU RAM.
+        if vboLevel == 1:               # DrawArrays from CPU RAM.
             verts = drawing_globals.sphereCArrays[detailLevel]
             glVertexPointer(3, GL_FLOAT, 0, verts)
             glNormalPointer(GL_FLOAT, 0, verts)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, size)
 
-        elif vboLevel is 2:             # DrawElements from CPU RAM.
+        elif vboLevel == 2:             # DrawElements from CPU RAM.
             verts = drawing_globals.sphereCElements[detailLevel][1]
             glVertexPointer(3, GL_FLOAT, 0, verts)
             glNormalPointer(GL_FLOAT, 0, verts)
@@ -135,7 +135,7 @@ def drawsphere_worker(params):
             index = drawing_globals.sphereElements[detailLevel][0]
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
 
-        elif vboLevel is 3:             # DrawArrays from graphics RAM VBO.
+        elif vboLevel == 3:             # DrawArrays from graphics RAM VBO.
             vbo = drawing_globals.sphereArrayVBOs[detailLevel]
             vbo.bind()
             glVertexPointer(3, GL_FLOAT, 0, None)
@@ -143,7 +143,7 @@ def drawsphere_worker(params):
             glDrawArrays(GL_TRIANGLE_STRIP, 0, vbo.size)
             vbo.unbind()
 
-        elif vboLevel is 4: # DrawElements from index in CPU RAM, verts in VBO.
+        elif vboLevel == 4: # DrawElements from index in CPU RAM, verts in VBO.
             vbo = drawing_globals.sphereElementVBOs[detailLevel][1]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)
@@ -153,7 +153,7 @@ def drawsphere_worker(params):
             glDrawElements(GL_TRIANGLE_STRIP, size, GLIndexType, index)
             vbo.unbind()
 
-        elif vboLevel is 5: # VBO/IBO buffered DrawElements from graphics RAM.
+        elif vboLevel == 5: # VBO/IBO buffered DrawElements from graphics RAM.
             (ibo, vbo) = drawing_globals.sphereElementVBOs[detailLevel]
             vbo.bind()              # Vertex and normal data comes from the vbo.
             glVertexPointer(3, GL_FLOAT, 0, None)

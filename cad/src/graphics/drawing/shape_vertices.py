@@ -287,7 +287,7 @@ def getSphereTriStrips(level):
                 # Output the right end of the first segment of the sub-band.
                 # We'll end up wrapping around to this same pair of points at
                 # the left end of the last segment of the sub-band.
-                if seg is 0:
+                if seg == 0:
                     # Project verts from icosahedron faces onto the unit sphere.
                     points += [norm(sbBotRight), norm(sbTopRight)]
 
