@@ -25,8 +25,10 @@ from dna.commands.MakeCrossovers.MakeCrossovers_PropertyManager import MakeCross
 from model.bond_constants import find_bond
 from model.bonds import bond_at_singlets
 from utilities.debug import print_compact_traceback, print_compact_stack
+from utilities.Log import orangemsg
 
 from dna.commands.MakeCrossovers.ListWidgetItems_Command_Mixin import ListWidgetItems_Command_Mixin
+
 
 MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER = 8
 
@@ -54,20 +56,10 @@ class MakeCrossovers_Command(SelectChunks_Command,
     flyoutToolbar = None
     
                 
-    def Enter(self):      
-        
-        
-        ListWidgetItems_Command_Mixin.Enter(self)  
-        
-        #Now set the initial segment list. The segments within this segment list
-        #will be searched for the crossovers. 
-        selectedSegments = self.win.assy.getSelectedDnaSegments()
-        if len(selectedSegments) < MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER:
-            self.setSegmentList(selectedSegments)
-            
-        _superclass.Enter(self)     
-
-
+    def Enter(self):
+        ListWidgetItems_Command_Mixin.Enter(self)    
+        _superclass.Enter(self)  
+    
     def init_gui(self):
         """
         Initialize GUI for this mode 
@@ -89,9 +81,15 @@ class MakeCrossovers_Command(SelectChunks_Command,
             #This bug is mitigated as propMgr object no longer gets recreated
             #for modes -- niand 2007-08-29
             changes.keep_forever(self.propMgr)  
+            
+        #Now set the initial segment list. The segments within this segment list
+        #will be searched for the crossovers. 
+        selectedSegments = self.win.assy.getSelectedDnaSegments()        
+        self.ensureSegmentListItemsWithinLimit(selectedSegments)
                 
-        self.propMgr.show()
+        self.propMgr.show()    
         
+    
                    
         
     def restore_gui(self):
@@ -100,6 +98,83 @@ class MakeCrossovers_Command(SelectChunks_Command,
         """                   
         if self.propMgr is not None:
             self.propMgr.close()
+            
+            
+    def logMessage(self, type = 'DEFAULT'): 
+        """
+        Updates the PM message groupbox message with the one specified below. 
+        """
+        msg = ''
+        if type == 'ADD_SEGMENTS_ACTIVATED':
+            msg = """To add new DNA segments to the list, click on the segment's
+             axis. Multiple segments can be added at once by doing a 
+            rectangular lasso selection in the 3D workspace."""
+        elif type == 'REMOVE_SEGMENTS_ACTIVATED':
+            msg = """To remove segments from the list, click on the segment's 
+            axis. Multiple segments can be removed at once by doing a 
+            rectangular lasso selection in the 3D workspace."""
+        elif type == 'LEFT_DRAG_STARTED':
+            msg = """Transparent green spheres (if present) around the atoms indicate 
+            potential crossover sites."""
+        elif type == 'LEFT_DRAG_FINISHED':
+            msg = self.propMgr.defaultLogMessage
+        elif type == 'WARNING_LIMIT_EXCEEDED':
+            msg = "Only a maximum of <b> %d </b> DNA segments can be searched for "\
+                "crossover sites. Segments not added to the list"%self.itemLimitForSegmentListWidget()
+            msg = orangemsg(msg)
+        else:
+            msg = self.propMgr.defaultLogMessage
+        
+        self.propMgr.updateMessage(msg)
+            
+            
+    def itemLimitForSegmentListWidget(self):
+        """
+        Maximum number of items allowed in the segment list widet.(For 
+        performance reasons)
+        """
+        return MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER
+    
+    
+    def ensureSegmentListItemsWithinLimit(self, segments):
+        """
+        """
+        #Following should never happen but added as a safety
+        if len(self._structList) > self.itemLimitForSegmentListWidget():
+            self.logMessage('WARNING_LIMIT_EXCEEDED')
+            return
+        
+        #Optimization
+        if len(self._structList) == 0 and \
+           len(segments)<= self.itemLimitForSegmentListWidget():
+            self.setSegmentList(segments)
+            return
+        
+        raw_number_of_segments =  len(self._structList) + len(segments)
+        if raw_number_of_segments <= self.itemLimitForSegmentListWidget():
+            for segment in segments:
+                self.addSegmentToSegmentList(segment)
+            return
+        
+        #Check how many of the segments are already in self._structList. 
+        #Filter the ones that are *NOT* in self._structList. This filtered 
+        #segments are the segments to add to the list
+        
+        def func(segment):
+            if segment not in self._structList:
+                return True
+            return False
+        
+        segments_to_add = filter(lambda seg: func(seg), segments)
+        
+        raw_number_of_segments = len(segments_to_add) + len(self._structList)
+        
+        if raw_number_of_segments <= self.itemLimitForSegmentListWidget():
+            for segment in segments:
+                self.addSegmentToSegmentList(segment)
+            return
+        else:
+            self.logMessage('WARNING_LIMIT_EXCEEDED')
             
 
     def makeAllCrossovers(self):

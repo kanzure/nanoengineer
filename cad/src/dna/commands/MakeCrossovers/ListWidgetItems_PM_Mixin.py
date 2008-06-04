@@ -137,7 +137,8 @@ class ListWidgetItems_PM_Mixin:
             if self.removeSegmentsToolButton.isChecked():
                 self.removeSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(False)
-            self.segmentListWidget.setColor(lightgreen_2)            
+            self.segmentListWidget.setColor(lightgreen_2) 
+            self.command.logMessage('ADD_SEGMENTS_ACTIVATED')
         else:
             if self.addSegmentsToolButton.isChecked():
                 self.addSegmentsToolButton.setChecked(False)
@@ -159,13 +160,14 @@ class ListWidgetItems_PM_Mixin:
             if self.addSegmentsToolButton.isChecked():
                 self.addSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(False)
-            
+            self.command.logMessage('REMOVE_SEGMENTS_ACTIVATED')            
             self.segmentListWidget.setColor(lightred_1)            
         else:
             if self.removeSegmentsToolButton.isChecked():
                 self.removeSegmentsToolButton.setChecked(False)
             self.segmentListWidget.setAlternatingRowColors(True)
             self.segmentListWidget.resetColor()
+    
             
     def _deactivateAddRemoveSegmentsTool(self):
         """

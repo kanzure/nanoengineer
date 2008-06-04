@@ -44,7 +44,8 @@ class ListWidgetItems_GraphicsMode_Mixin:
                     self.win.assy.DnaSegment)
                 if segmentGroup is not None:
                     if self.command.isAddSegmentsToolActive():
-                        self.command.addSegmentToSegmentList(segmentGroup)
+                        segmentList = [segmentGroup]
+                        self.command.ensureSegmentListItemsWithinLimit(segmentList)
                     if self.command.isRemoveSegmentsToolActive():
                         self.command.removeSegmentFromSegmentList(segmentGroup)
 
@@ -63,9 +64,9 @@ class ListWidgetItems_GraphicsMode_Mixin:
         the 'remove segments from segment list too, is active)
         """       
         selectedSegments = self.win.assy.getSelectedDnaSegments()
-        for segment in selectedSegments:
-            if self.command.isAddSegmentsToolActive():
-                self.command.addSegmentToSegmentList(segment)
-            if self.command.isRemoveSegmentsToolActive():
+        if self.command.isAddSegmentsToolActive():
+            self.command.ensureSegmentListItemsWithinLimit(selectedSegments)
+        if self.command.isRemoveSegmentsToolActive():
+            for segment in selectedSegments:
                 self.command.removeSegmentFromSegmentList(segment)
 

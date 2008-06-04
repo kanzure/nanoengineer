@@ -33,6 +33,29 @@ class ListWidgetItems_Command_Mixin:
     def Enter(self):
         self._structList = []  
         
+        
+    def itemLimitForSegmentListWidget(self):
+        """
+        Maximum number of items allowed in the segment list widet.(For 
+        performance reasons)
+        """
+        return 30
+        
+        
+    def ensureSegmentListItemsWithinLimit(self, segments):
+        """
+        Subclasses should override this method.
+        """
+        pass
+    
+    
+    def logMessage(self, type = ''):
+        """
+        Subclasses should override this
+        """
+        pass
+    
+    
     def activateAddSegmentsTool(self, enableFlag = True):
         """
         """        

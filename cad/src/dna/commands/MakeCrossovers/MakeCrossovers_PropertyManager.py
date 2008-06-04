@@ -33,6 +33,7 @@ from utilities.debug import print_compact_stack
 from utilities.Comparison import same_vals
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MakeCrossoversPropertyManager
+from utilities.Log import orangemsg
 
 _superclass = PM_Dialog
 class MakeCrossovers_PropertyManager( PM_Dialog, 
@@ -86,12 +87,13 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmWhatsThisButton)
+        
+        self.defaultLogMessage = """Pairs of white cylinders (if any) in the 
+        3D workspace indicate potential crossover sites. Clicking on such a 
+         cylinder pair will make that crossover."""
 
+        self.updateMessage(self.defaultLogMessage)
 
-        msg = "Click on the white cylinders in the 3D workspace to create "\
-            "that crossover. Alternatively, use button in the Property Manager "\
-            "to make all crossovers indicated by the white cylinders."
-        self.updateMessage(msg)
 
     def ok_btn_clicked(self):
         """
@@ -225,12 +227,12 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
             return 
 
         number_of_segments, crossover_search_pref_junk = currentParams
+        
 
         #update the self._previous_model_changed_params with this new param set.
         self._previous_model_changed_params = currentParams        
         self.updateListWidgets()   
         self.command.updateCrossoverSites()
-
 
     def _current_model_changed_params(self):
         """
@@ -263,3 +265,6 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
         Tool Tip text for widgets in the DNA Property Manager.  
         """
         pass
+    
+    
+    

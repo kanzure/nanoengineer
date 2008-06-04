@@ -55,6 +55,11 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
     #self.leftADrag
     _should_update_crossoverSites_during_leftDrag = False
     
+    #Used to log a message in the command.propMgr.See self.leftDrag, self.leftUp
+    #This flag ensures that its done only once during left drag. Needs cleanup.
+    #this attr was introduced just before v1.1.0 release--Ninad 2008-06-03
+    _leftDrag_logMessage_emitted = False
+    
     def __init__(self, glpane):
         _superclass.__init__(self, glpane)
         self._handleDrawingRequested = True
@@ -121,7 +126,7 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
         _superclass.leftADown(self, objectUnderMouse, event)        
         
         if not env.prefs[makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key]:
-            self._should_update_crossoverSites_during_leftDrag = True  
+            self._should_update_crossoverSites_during_leftDrag = True             
         elif self._movable_dnaSegment_for_leftDrag and \
            self._movable_dnaSegment_for_leftDrag in self.command.getSegmentList():
             self._should_update_crossoverSites_during_leftDrag = True
@@ -142,9 +147,13 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
         
     def leftUp(self, event):
         _superclass.leftUp(self, event) 
-        self._crossoverSite_marker.updateHandles()
+        self._crossoverSite_marker.updateHandles()       
+        if self._leftDrag_logMessage_emitted:
+            self.command.logMessage('LEFT_DRAG_FINISED')
         if not self._handleDrawingRequested:
             self._handleDrawingRequested = True   
+            
+        self._leftDrag_logMessage_emitted = False
             
     def editObjectOnSingleClick(self):
         """
@@ -166,6 +175,9 @@ class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
         self._handleDrawingRequested = False   
         if self._should_update_crossoverSites_during_leftDrag:
             self._crossoverSite_marker.partialUpdate()
+            if not self._leftDrag_logMessage_emitted:
+                self._leftDrag_logMessage_emitted = True
+                self.command.logMessage('LEFT_DRAG_STARTED')
 
     def end_selection_from_GLPane(self):
         """
