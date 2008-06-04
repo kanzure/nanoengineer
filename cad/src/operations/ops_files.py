@@ -768,7 +768,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # method -- both are needed. See comment there for details.
                 # [bruce comment 080229]
 
-            self.glpane.gl_update_duration(new_part = True) #mark 060116.
+            ## russ 080603: Replaced by a call on gl_update_duration in
+            ## GLPane.AnimateToView(), necessary for newly-created models.
+            ##self.glpane.gl_update_duration(new_part = True) #mark 060116.
             
             self.mt.mt_update()
             

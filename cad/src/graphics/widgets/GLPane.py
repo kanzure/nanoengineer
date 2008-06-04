@@ -1248,6 +1248,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # Compute the maximum number of frames for the maximum possible 
         # rotation (180 degrees) based on how long it takes to repaint one frame.
+        self.gl_update_duration()
         max_frames = max(1, env.prefs[animateMaximumTime_prefs_key]/self._repaint_duration)
 
         # Compute the deltas for the quat, pov, scale and zoomFactor.
@@ -1279,7 +1280,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             min(max_frames, \
                 max(3, rot_frames, pov_frames, scale_frames, zoom_frames)))
 
-        #print "total_frames =", total_frames
+        ##print "total_frames =", total_frames
 
         # Compute the increments for each view parameter to use in the animation loop.
         rot_inc = (wxyz2 - wxyz1) / total_frames
@@ -2939,9 +2940,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self._last_few_repaint_times.append( self._repaint_duration)
         self._last_few_repaint_times = self._last_few_repaint_times[-5:] # keep at most the last five times
 
-        #if new_part:
-        #    print "repaint duration = ", self._repaint_duration
-        #print "repaint duration = ", self._repaint_duration
+        ##if new_part:
+        ##    print "new part, repaint duration = ", self._repaint_duration
+        ##else:
+        ##    print "repaint duration = ", self._repaint_duration
 
         return
 
