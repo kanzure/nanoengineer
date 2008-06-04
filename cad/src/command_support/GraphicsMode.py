@@ -51,6 +51,13 @@ from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
 
+from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
+from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key
+from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
+
 from model.chem import Atom
 from model.bonds import Bond
 from foundation.Utility import Node
@@ -1172,6 +1179,69 @@ class basicGraphicsMode(GraphicsMode_API):
         for setting diamond surface orientation
         """
         pass
+
+    # ==
+
+    def pref_arrowsOnThreePrimeEnds(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for whether to draw arrows or not.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[arrowsOnThreePrimeEnds_prefs_key]
+
+    def pref_arrowsOnFivePrimeEnds(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for whether to draw arrows or not.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[arrowsOnFivePrimeEnds_prefs_key]
+
+    def pref_useCustomColorForThreePrimeArrowheads(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for whether to use custom color -- misnamed because it is
+        used on arrowheads *if they are drawn by prior prefs* but on strand end
+        atoms (Ss3 atoms) if not.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key]
+
+    def pref_useCustomColorForFivePrimeArrowheads(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for whether to use custom color -- misnamed because it is
+        used on arrowheads *if they are drawn by prior prefs* but on strand end
+        atoms (Ss3 atoms) if not.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key]
+
+    def pref_dnaStrandThreePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for what colors to use for the arrowheads, or if they are
+        not drawn, the strand end atoms.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
+
+    def pref_dnaStrandFivePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for what colors to use for the arrowheads, or if they are
+        not drawn, the strand end atoms.
+
+        [subclasses might override how this is determined]
+        """
+        return env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
+
 
     pass # end of class basicGraphicsMode
 
