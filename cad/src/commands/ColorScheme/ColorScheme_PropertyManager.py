@@ -149,6 +149,8 @@ def writeColorSchemeFavoriteFile( filename ):
         #tuples written as string for now
         elif isinstance(val, tuple):
             f.write("%s = %s\n" % (pref_key, val))
+        elif isinstance(val, str):
+            f.write("%s = %s\n" % (pref_key, val))
         elif isinstance(val, bool):
             f.write("%s = %d\n" % (pref_key, val))
         else:
@@ -196,20 +198,31 @@ def loadFavoriteFile( filename ):
             keyValuePair = line.split('=')
             pref_keyString = keyValuePair[0].strip()
             pref_value=keyValuePair[1].strip()
-        
-            # check if pref_value is an integer or tuple (for colors)
-        
-            try: 
-                int(pref_value)
-                pref_valueToStore = int(pref_value)
             
-            except ValueError:
-                pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
+            try:
+                if backgroundColor_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
+                elif backgroundGradient_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = int(pref_value)
+                elif hoverHighlightingColorStyle_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = str(pref_value)
+                elif hoverHighlightingColor_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
+                elif selectionColorStyle_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = str(pref_value)
+                elif selectionColor_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
+                else:
+                    print "Not sure what pref_key '%s' is." % pref_keyString
+                    continue
+            except:
+                msg = "\npref_key = '%s'\nvalue = %s" \
+                    % (pref_keyString, pref_value)
+                print_compact_traceback(msg)
         
             pref_key = findPrefKey( pref_keyString )
         
             #add preference key and its corresponding value to the dictionary
-        
             if pref_key:
                 env.prefs[pref_key] = pref_valueToStore
              
@@ -247,7 +260,7 @@ def findPrefKey( pref_keyString ):
     """
     
     for keys in colorSchemePrefsList:
-        #split keys in dnaDisplayStylePrefList into version number and pref_key
+        #split keys in colorSchemePrefsList into version number and pref_key
         
         pref_array= keys.split("/")
         if pref_array[1] == pref_keyString:
