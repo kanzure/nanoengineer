@@ -134,16 +134,16 @@ class Plane(ReferenceGeometry):
         self.imagePreviousSize = -1
         self.heightfield = None
         self.heightfield_scale = 1.0
+        self.heightfield_use_texture = True
         
         # piotr 080528
         # added tex_image attribute for texture image
         self.tex_image = None
         self.tex_coords       = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0]] 
         
-        self._image = None
+        self.image = None
         self.display_heightfield = False
         self.heightfield_hq = False
-        self.update_heightfield = False
         
         if not READ_FROM_MMP:
             self.width      =  20.0
@@ -292,9 +292,6 @@ class Plane(ReferenceGeometry):
                             drawn in the highlighted color.
         @type  highlighted: bool
         """
-        #check whether self.imagePath is a valid image Path
-        # and load the image
-        self.loadImageFromValidPath()
         
         glPushMatrix()
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -318,15 +315,16 @@ class Plane(ReferenceGeometry):
             fill_color = brown #backside
         else:
             fill_color = self.fill_color
-        # piotr 080528
-        # enable texturing if the image texture exists
+        
         textureReady = False
         if self.tex_image:
             textureReady = True
             glBindTexture(GL_TEXTURE_2D, self.tex_image)
-            
+
         if self.display_heightfield:
-            if self.heightfield:
+            if self.heightfield and self.image:
+                if not self.heightfield_use_texture:
+                    textureReady = False
                 drawHeightfield(fill_color, 
                           self.width, 
                           self.height, 
@@ -370,7 +368,6 @@ class Plane(ReferenceGeometry):
             self.directionArrow.draw()
 
         glPopMatrix()
-
         return
 
     def setWidth(self, newWidth):
@@ -765,7 +762,100 @@ class Plane(ReferenceGeometry):
             env.history.message(msg)
             self.tex_image = None
 
+    def computeHeightfield(self):
+        """
+        Computes a pseudo-3D "relief" mesh from image data.
+        The result is a tuple including vertex, normal, and texture coordinates.
+        These arrays are used by drawers.drawHeighfield method.
+        """
+        
+        # calculate heightfield data        
+        from PIL import Image
+        from PIL.Image import ANTIALIAS
+        
+        self.heightfield = None
+        
+        if self.display_heightfield:
+            if self.image:
+                
+                self.heightfield = []
+                
+                wi, he = self.image.size                
+                new_size = self.image.size
+                
+                # resize if too large (max. 300 pixels (HQ) or 100 pixels)
+                
+                if self.heightfield_hq:
+                    if wi > 300 or \
+                       he > 300:
+                        new_size = (300, (300 * wi) / he)
+                else:
+                    if wi > 100 or \
+                       he > 100:
+                        new_size = (100, (100 * wi) / he)                        
+
+                im = self.image.resize(new_size, ANTIALIAS) # resize
+                im = im.convert("L") # compute luminance == convert to grayscale
+                pix = im.load()
+                
+                wi, he = im.size
+                
+                scale = -self.heightfield_scale/256.0
+                
+                nz = -1.0/float(he + 1)
+
+                # generate triangle strips
+                for y in range(0, he-1):
+                    tstrip_vert = []
+                    tstrip_norm = []
+                    tstrip_tex = []
+                    for x in range(0, wi):                       
+                        for t in [0, 1]:
+                            x0 = float(x) / float(wi - 1) 
+                            y0 = float(y+t) / float(he - 1) 
+                            
+                            # transform according to current texture coordinates
+                            """
+                            nx = (self.tex_coords[1][0] * (x0) + self.tex_coords[0][0] * (1.0 - x0)) * (1.0 - y0) + \
+                                 (self.tex_coords[2][0] * (x0) + self.tex_coords[3][0] * (1.0 - x0)) * y0
+                            ny = (self.tex_coords[0][1] * (x0) + self.tex_coords[1][1] * (1.0 - x0)) * (1.0 - y0) + \
+                                 (self.tex_coords[3][1] * (x0) + self.tex_coords[2][1] * (1.0 - x0)) * y0
+                              
+                            x0 = nx
+                            y0 = ny
+                            """
+                            
+                            # get data point (the image is converted to grayscale)
+                            r0 = scale * pix[x, y+t]
+
+                            # append a vertex
+                            tstrip_vert.append([x0 - 0.5, y0 - 0.5, r0])                            
+                            # append a 2D texture coordinate 
+                            tstrip_tex.append([x0 , 1.0 - y0])
+                            
+                            # compute normal for lighting
+                            if x > 0 and \
+                               y > 0 and \
+                               x < wi - 1 and \
+                               y < he - 2:
+                                r1 = scale * pix[x-1, y+t]
+                                r2 = scale * pix[x+1, y+t]                        
+                                r3 = scale * pix[x, y-1+t]                            
+                                r4 = scale * pix[x, y+1+t] 
+                                tstrip_norm.append(norm(V(r2-r1, r4-r3, nz)))
+                            else:
+                                tstrip_norm.append(V(0.0, 0.0, -1.0))
+
+                    self.heightfield.append((tstrip_vert, tstrip_norm, tstrip_tex))
+
     def loadImageFromValidPath(self):
+        """
+        Loads an image to be displayed on a plane.
+        
+        This code is obsolete, image loading functions are now directly called 
+        from PlanePropertyManager. piotr 080603
+        """
+
         validImagePath = 0 
         if self.imagePath:
             validImagePath = checkIfValidImagePath(self.imagePath)
@@ -775,78 +865,10 @@ class Plane(ReferenceGeometry):
             self.tex_image = None
 
         if validImagePath:
-
-            from PIL import Image
-            from PIL.Image import ANTIALIAS
-            
             im = Image.open(self.imagePath)
             self.imageSize = im.size
-            self._image = im
-            
-            #load texture image from the disk only if the image is changed
-            if self.imageSize != self.imagePreviousSize or \
-               self.update_heightfield:
-                
-                self.update_heightfield = False
-
-                # calculate heightfield data
-                if self.display_heightfield:
-                    self.heightfield = []
-                    if im:
-                        wi, he = im.size                
-                        new_size = im.size
-                        
-                        # resize if too big
-                        if self.heightfield_hq:
-                            if wi > 300 or \
-                               he > 300:
-                                new_size = (300, (300 * wi) / he)
-                        else:
-                            if wi > 100 or \
-                               he > 100:
-                                new_size = (100, (100 * wi) / he)                        
-    
-                        im = im.resize(new_size, ANTIALIAS)
-                        
-                        wi, he = im.size
-                        scale = -self.heightfield_scale/256.0
-                        
-                        nz = -1.0/float(he + 1)
-                        
-                        # generate triangle strips
-                        for y in range(0, he-1):
-                            tstrip_vert = []
-                            tstrip_norm = []
-                            tstrip_tex = []
-                            for x in range(0, wi):                       
-                                for t in [0, 1]:
-                                    x0 = float(x) / float(wi - 1) 
-                                    y0 = float(y+t) / float(he - 1) 
-                                    r0, g0, b0 = im.getpixel((x,y+t)) ###pix[x, y+t]
-                                    # red channel is used to calculate the relief values
-                                    r0 *= scale                            
-                                    tstrip_vert.append([x0 - 0.5, y0 - 0.5, r0])
-                                    #tstrip_tex.append([x0, y0])
-                                    if x > 0 and \
-                                       y > 0 and \
-                                       x < wi - 1 and \
-                                       y < he - 2:
-                                        r1, g1, b1 = im.getpixel((x-1, y+t))
-                                        r2, g2, b2 = im.getpixel((x+1, y+t))                        
-                                        r3, g3, b3 = im.getpixel((x, y-1+t))                            
-                                        r4, g4, b4 = im.getpixel((x, y+1+t)) 
-                                        r1 *= scale
-                                        r2 *= scale
-                                        r3 *= scale
-                                        r4 *= scale
-                                        tstrip_norm.append(norm(V(r2-r1, r4-r3, nz)))
-                                    else:
-                                        tstrip_norm.append(V(0.0, 0.0, -1.0))
-                                        
-                            self.heightfield.append((tstrip_vert, tstrip_norm, tstrip_tex))                    
-                else:
-                    self.heightfield = None
-                
+            # load texture image from the disk only if the image is changed
+            if self.imageSize != self.imagePreviousSize:
                 try:
                     self.deleteImage()
                     mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
@@ -856,6 +878,7 @@ class Plane(ReferenceGeometry):
                     env.history.message(msg)
                     self.deleteImage()
                     self.tex_image = None
+            im = None
         else:
             self.deleteImage()
             self.tex_image = None
@@ -881,7 +904,9 @@ class Plane(ReferenceGeometry):
             self.tex_coords[2] = self.tex_coords[3]
             self.tex_coords[3] = tmp
         
-        self.loadImageFromValidPath()
+        if self.display_heightfield:
+            self.computeHeightfield()
+            
         self.glpane.gl_update()
         pass
     
@@ -905,7 +930,9 @@ class Plane(ReferenceGeometry):
             self.tex_coords[0] = self.tex_coords[1]
             self.tex_coords[1] = tmp
         
-        self.loadImageFromValidPath()
+        if self.display_heightfield:
+            self.computeHeightfield()
+            
         self.glpane.gl_update()
         pass
     

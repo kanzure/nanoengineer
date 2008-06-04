@@ -183,6 +183,15 @@ class PlanePropertyManager(EditCommand_PM):
                          state        = Qt.Unchecked,
                          setAsDefault = True,
                          spanWidth = True
+                         )        
+        
+        self.heightfieldTextureCheckBox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "Use texture",
+                         widgetColumn  = 0,
+                         state        = Qt.Checked,
+                         setAsDefault = True,
+                         spanWidth = True
                          )
         
         self.vScaleSpinBox = \
@@ -198,6 +207,7 @@ class PlanePropertyManager(EditCommand_PM):
         
         self.heightfieldDisplayCheckBox.setEnabled(False)
         self.heightfieldHQDisplayCheckBox.setEnabled(False)
+        self.heightfieldTextureCheckBox.setEnabled(False)
         self.vScaleSpinBox.setEnabled(False)
         
         self.connect(self.plusNinetyButton,SIGNAL("clicked()"),self.rotate_90)
@@ -223,7 +233,12 @@ class PlanePropertyManager(EditCommand_PM):
         #signal slot connection for heightfieldHQDisplayCheckBox
         self.connect(self.heightfieldHQDisplayCheckBox, 
                      SIGNAL("stateChanged(int)"), 
-                     self.toggleHeightfieldHQ)
+                     self.toggleHeightfieldHQ)        
+        
+        #signal slot connection for heightfieldTextureCheckBox
+        self.connect(self.heightfieldTextureCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleTexture)
 
         #signal slot connection for vScaleSpinBox
         self.connect(self.vScaleSpinBox, 
@@ -324,23 +339,60 @@ class PlanePropertyManager(EditCommand_PM):
         Enables 3D relief drawing mode.
         """
         if self.editCommand and self.editCommand.struct:
-            self.editCommand.struct.display_heightfield = checked
-            self.editCommand.struct.update_heightfield = True
-            self.editCommand.struct.glpane.gl_update()
+            plane = self.editCommand.struct
+            plane.display_heightfield = checked
+            if checked:
+                self.heightfieldHQDisplayCheckBox.setEnabled(True)
+                self.heightfieldTextureCheckBox.setEnabled(True)
+                self.vScaleSpinBox.setEnabled(True)                
+                plane.computeHeightfield()
+            else:
+                self.heightfieldHQDisplayCheckBox.setEnabled(False)
+                self.heightfieldTextureCheckBox.setEnabled(False)
+                self.vScaleSpinBox.setEnabled(False)
+                plane.heightfield = None
+            plane.glpane.gl_update()
 
     def toggleHeightfieldHQ(self, checked):
         """
         Enables high quality rendering in 3D relief mode.
         """
         if self.editCommand and self.editCommand.struct:
-            self.editCommand.struct.heightfield_hq = checked
-            self.editCommand.struct.update_heightfield = True
-            self.editCommand.struct.glpane.gl_update()
+            plane = self.editCommand.struct
+            plane.heightfield_hq = checked
+            plane.computeHeightfield()
+            plane.glpane.gl_update()
+
+    def toggleTexture(self, checked):
+        """
+        Enables high quality rendering in 3D relief mode.
+        """
+        if self.editCommand and self.editCommand.struct:
+            plane = self.editCommand.struct
+            plane.heightfield_use_texture = checked
+            #if plane.display_heightfield and plane.image:
+            #    plane.computeHeightfield()
+            plane.glpane.gl_update()
 
     def update_imageFile(self):
         """
         Loads image file if path is valid
         """
+        
+        self.imageFile = ""
+        self.mirrorButton.setEnabled(False)
+        self.plusNinetyButton.setEnabled(False)
+        self.minusNinetyButton.setEnabled(False)
+        self.flipButton.setEnabled(False)
+        self.heightfieldDisplayCheckBox.setEnabled(False)
+        self.heightfieldHQDisplayCheckBox.setEnabled(False)
+        self.heightfieldTextureCheckBox.setEnabled(False)
+        self.vScaleSpinBox.setEnabled(False)
+        
+        plane = self.editCommand.struct
+        plane.deleteImage()
+        plane.heightfield = None
+        
         if self.imageDisplayCheckBox.isChecked(): 
             self.imageFile = str(self.imageDisplayFileChooser.lineEdit.text())
             
@@ -348,30 +400,23 @@ class PlanePropertyManager(EditCommand_PM):
             validPath = checkIfValidImagePath(self.imageFile)
 
             if validPath:
-                self.mirrorButton.setEnabled(True)
-                self.plusNinetyButton.setEnabled(True)
-                self.minusNinetyButton.setEnabled(True)
-                self.flipButton.setEnabled(True)
-                self.heightfieldDisplayCheckBox.setEnabled(True)
-                self.heightfieldHQDisplayCheckBox.setEnabled(True)
-                self.vScaleSpinBox.setEnabled(True)
-            else:
-                self.mirrorButton.setEnabled(False)
-                self.plusNinetyButton.setEnabled(False)
-                self.minusNinetyButton.setEnabled(False)
-                self.flipButton.setEnabled(False)
-                self.heightfieldDisplayCheckBox.setEnabled(False)
-                self.heightfieldHQDisplayCheckBox.setEnabled(False)
-                self.vScaleSpinBox.setEnabled(False)
-        else:
-            self.imageFile =""
-            self.mirrorButton.setEnabled(False)
-            self.plusNinetyButton.setEnabled(False)
-            self.minusNinetyButton.setEnabled(False)
-            self.flipButton.setEnabled(False)
-            self.heightfieldDisplayCheckBox.setEnabled(False)
-            self.heightfieldHQDisplayCheckBox.setEnabled(False)
-            self.vScaleSpinBox.setEnabled(False)
+                from PIL import Image
+
+                plane.image = Image.open(self.imageFile)
+                plane.loadImage(self.imageFile)
+
+                plane.computeHeightfield()
+                    
+                if plane.image:
+                    self.mirrorButton.setEnabled(True)
+                    self.plusNinetyButton.setEnabled(True)
+                    self.minusNinetyButton.setEnabled(True)
+                    self.flipButton.setEnabled(True)
+                    self.heightfieldDisplayCheckBox.setEnabled(True)
+                    if plane.display_heightfield:
+                        self.heightfieldHQDisplayCheckBox.setEnabled(True)
+                        self.heightfieldTextureCheckBox.setEnabled(True)
+                        self.vScaleSpinBox.setEnabled(True)
 
 
     def show(self):
@@ -439,9 +484,10 @@ class PlanePropertyManager(EditCommand_PM):
         Changes vertical scaling of the heightfield.
         """
         if self.editCommand and self.editCommand.struct:
-            self.editCommand.struct.heightfield_scale = scale
-            self.editCommand.struct.update_heightfield = True
-            self.editCommand.struct.glpane.gl_update()
+            plane = self.editCommand.struct
+            plane.heightfield_scale = scale
+            plane.computeHeightfield()
+            plane.glpane.gl_update()
                               
     def changePlanePlacement(self, buttonId):
         """

@@ -933,13 +933,26 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
 def drawHeightfield(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False, hf=None):
     '''Draw a heighfield using vertex and normal arrays. Optionally, it could be texuture mapped.
        @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''        
+
+    from OpenGL.GL import glTexEnvf
+    from OpenGL.GL import GL_TEXTURE_ENV
+    from OpenGL.GL import GL_TEXTURE_ENV_MODE
+    from OpenGL.GL import GL_MODULATE
+    from OpenGL.GL import glVertexPointer
+    from OpenGL.GL import glNormalPointer
+    from OpenGL.GL import glTexCoordPointer
+    from OpenGL.GL import glDrawArrays
+    from OpenGL.GL import glEnableClientState
+    from OpenGL.GL import GL_VERTEX_ARRAY
+    from OpenGL.GL import GL_NORMAL_ARRAY
+    from OpenGL.GL import GL_TEXTURE_COORD_ARRAY
         
     glEnable(GL_COLOR_MATERIAL)
     glEnable(GL_LIGHTING)
 
     ### glColor4fv(list(color) + [opacity])
     ### glColor3fv(list(color))
-    glColor3f(0.9, 0.9, 0.9)
+    glColor3f(1.0, 1.0, 1.0)
     
     glPushMatrix()
     glScalef(w, h, 1.0)
@@ -955,31 +968,23 @@ def drawHeightfield(color, w, h, textureReady, opacity, SOLID=False, pickCheckOn
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        #if textureReady:
-        #    glEnable(GL_TEXTURE_2D)  
-
-    from OpenGL.GL import glVertexPointer
-    from OpenGL.GL import glNormalPointer
-    from OpenGL.GL import glTexCoordPointer
-    from OpenGL.GL import glDrawArrays
-    from OpenGL.GL import glEnableClientState
-    from OpenGL.GL import GL_VERTEX_ARRAY
-    from OpenGL.GL import GL_NORMAL_ARRAY
-    from OpenGL.GL import GL_TEXTURE_COORD_ARRAY
+        if textureReady:
+            glEnable(GL_TEXTURE_2D)  
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)            
 
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_NORMAL_ARRAY)
-    #glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
     for tstrip_vert, tstrip_norm, tstrip_tex in hf:
         glVertexPointer(3, GL_FLOAT, 0, tstrip_vert)
         glNormalPointer(GL_FLOAT, 0, tstrip_norm)
-        #glTexCoordPointer(2, GL_FLOAT, 0, tstrip_tex)
+        glTexCoordPointer(2, GL_FLOAT, 0, tstrip_tex)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, len(tstrip_vert))
         
     glDisableClientState(GL_VERTEX_ARRAY)
     glDisableClientState(GL_NORMAL_ARRAY)
-    #glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
     glDisable(GL_COLOR_MATERIAL)
     
