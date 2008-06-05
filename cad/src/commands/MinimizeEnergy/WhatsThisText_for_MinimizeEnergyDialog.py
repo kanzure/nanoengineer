@@ -77,7 +77,7 @@ def whatsThis_MinimizeEnergyDialog(minimizeEnergyDialog):
         <p>
         Perform energy minimization on the atoms that are currently selected.
         </p>""")
-    _med.watch_minimize_groupbox.setWhatsThis(
+    _med.watch_motion_groupbox.setWhatsThis(
         """<b>Watch Motion In Real Time</b>
         <p>
         Enables real time graphical updates during minimization runs.

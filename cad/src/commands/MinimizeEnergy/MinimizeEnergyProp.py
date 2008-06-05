@@ -56,11 +56,11 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
     def __init__(self, win):
         QDialog.__init__(self, win)  # win is parent.
         self.setupUi(self)
-        self.watch_minimize_buttongroup = QButtonGroup()
-        self.watch_minimize_buttongroup.setExclusive(True)
-        for obj in self.watch_minimize_groupbox.children():
+        self.watch_motion_buttongroup = QButtonGroup()
+        self.watch_motion_buttongroup.setExclusive(True)
+        for obj in self.watch_motion_groupbox.children():
             if isinstance(obj, QAbstractButton):
-                self.watch_minimize_buttongroup.addButton(obj)
+                self.watch_motion_buttongroup.addButton(obj)
         
         #fix some icon problems
         self.setWindowIcon(
@@ -143,8 +143,8 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         from widgets.widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
             #( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
-            ( self.watch_minimize_buttongroup, self.update_number_spinbox, self.update_units_combobox ),
-            self.watch_minimize_groupbox,
+            ( self.watch_motion_buttongroup, self.update_number_spinbox, self.update_units_combobox ),
+            self.watch_motion_groupbox,
             Minimize_watchRealtimeMinimization_prefs_key
         )
         ## can't do this yet: self.ruc.set_widgets_from_update_data( self.previous_movie._update_data ) # includes checkbox
@@ -295,7 +295,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
             self.enableNeighborSearching_check_box.setEnabled(False)
             
             # Watch minimize in real time widgets.
-            self.watch_minimize_groupbox.setEnabled(True)
+            self.watch_motion_groupbox.setEnabled(True)
             
             # Converence criteria widgets
             self.endMaxDoubleSpinBox.setEnabled(True)
@@ -308,7 +308,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
             self.enableNeighborSearching_check_box.setEnabled(True)
             
             # Watch minimize in real time widgets.
-            self.watch_minimize_groupbox.setEnabled(False)
+            self.watch_motion_groupbox.setEnabled(False)
             
             # Converence criteria widgets
             self.endMaxDoubleSpinBox.setEnabled(False)

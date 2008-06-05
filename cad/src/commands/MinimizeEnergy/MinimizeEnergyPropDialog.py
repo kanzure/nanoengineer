@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Wed Jun 04 18:56:48 2008
+# Created: Wed Jun 04 23:52:14 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,16 +45,16 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.gridlayout1.setSpacing(4)
         self.gridlayout1.setObjectName("gridlayout1")
 
-        self.watch_minimize_groupbox = QtGui.QGroupBox(self.body_frame)
-        self.watch_minimize_groupbox.setCheckable(True)
-        self.watch_minimize_groupbox.setObjectName("watch_minimize_groupbox")
+        self.watch_motion_groupbox = QtGui.QGroupBox(self.body_frame)
+        self.watch_motion_groupbox.setCheckable(True)
+        self.watch_motion_groupbox.setObjectName("watch_motion_groupbox")
 
-        self.gridlayout2 = QtGui.QGridLayout(self.watch_minimize_groupbox)
+        self.gridlayout2 = QtGui.QGridLayout(self.watch_motion_groupbox)
         self.gridlayout2.setMargin(4)
         self.gridlayout2.setSpacing(2)
         self.gridlayout2.setObjectName("gridlayout2")
 
-        self.update_asap_rbtn = QtGui.QRadioButton(self.watch_minimize_groupbox)
+        self.update_asap_rbtn = QtGui.QRadioButton(self.watch_motion_groupbox)
         self.update_asap_rbtn.setChecked(True)
         self.update_asap_rbtn.setObjectName("update_asap_rbtn")
         self.gridlayout2.addWidget(self.update_asap_rbtn,0,0,1,1)
@@ -64,25 +64,25 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.hboxlayout.setSpacing(2)
         self.hboxlayout.setObjectName("hboxlayout")
 
-        self.update_every_rbtn = QtGui.QRadioButton(self.watch_minimize_groupbox)
+        self.update_every_rbtn = QtGui.QRadioButton(self.watch_motion_groupbox)
         self.update_every_rbtn.setObjectName("update_every_rbtn")
         self.hboxlayout.addWidget(self.update_every_rbtn)
 
-        self.update_number_spinbox = QtGui.QSpinBox(self.watch_minimize_groupbox)
+        self.update_number_spinbox = QtGui.QSpinBox(self.watch_motion_groupbox)
         self.update_number_spinbox.setMaximum(9999)
         self.update_number_spinbox.setMinimum(1)
         self.update_number_spinbox.setProperty("value",QtCore.QVariant(1))
         self.update_number_spinbox.setObjectName("update_number_spinbox")
         self.hboxlayout.addWidget(self.update_number_spinbox)
 
-        self.update_units_combobox = QtGui.QComboBox(self.watch_minimize_groupbox)
+        self.update_units_combobox = QtGui.QComboBox(self.watch_motion_groupbox)
         self.update_units_combobox.setObjectName("update_units_combobox")
         self.hboxlayout.addWidget(self.update_units_combobox)
 
         spacerItem1 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout.addItem(spacerItem1)
         self.gridlayout2.addLayout(self.hboxlayout,1,0,1,1)
-        self.gridlayout1.addWidget(self.watch_minimize_groupbox,4,0,1,1)
+        self.gridlayout1.addWidget(self.watch_motion_groupbox,4,0,1,1)
 
         self.groupBox20 = QtGui.QGroupBox(self.body_frame)
 
@@ -323,7 +323,7 @@ class Ui_MinimizeEnergyPropDialog(object):
 
     def retranslateUi(self, MinimizeEnergyPropDialog):
         MinimizeEnergyPropDialog.setWindowTitle(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Energy", None, QtGui.QApplication.UnicodeUTF8))
-        self.watch_minimize_groupbox.setTitle(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Watch minimize in real time", None, QtGui.QApplication.UnicodeUTF8))
+        self.watch_motion_groupbox.setTitle(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Watch motion in real time", None, QtGui.QApplication.UnicodeUTF8))
         self.update_asap_rbtn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Update every 2 seconds, or faster if it doesn\'t slow adjustments by more than 20%", None, QtGui.QApplication.UnicodeUTF8))
         self.update_asap_rbtn.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Update as fast as possible", None, QtGui.QApplication.UnicodeUTF8))
         self.update_every_rbtn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Specify how often to update the screen during adjustments", None, QtGui.QApplication.UnicodeUTF8))
