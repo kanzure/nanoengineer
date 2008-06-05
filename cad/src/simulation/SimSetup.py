@@ -79,11 +79,11 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         """
         QDialog.__init__(self)
         self.setupUi(self)
-        self.update_btngrp_group = QButtonGroup()
-        self.update_btngrp_group.setExclusive(True)
+        self.watch_motion_buttongroup = QButtonGroup()
+        self.watch_motion_buttongroup.setExclusive(True)
         for obj in self.update_btngrp.children():
             if isinstance(obj, QAbstractButton):
-                self.update_btngrp_group.addButton(obj)
+                self.watch_motion_buttongroup.addButton(obj)
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
         qt4todo('self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.setEnabled) ???')
@@ -176,7 +176,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             #bruce 060705 use new common code, if it works
             from widgets.widget_controllers import realtime_update_controller
             self.ruc = realtime_update_controller(
-                ( self.update_btngrp_group, self.update_number_spinbox, self.update_units_combobox ),
+                ( self.watch_motion_buttongroup, self.update_number_spinbox, self.update_units_combobox ),
                 self.watch_motion_checkbox
                 # no prefs key for checkbox
             )

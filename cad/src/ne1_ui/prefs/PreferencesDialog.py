@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Wed Jun 04 01:03:48 2008
+# Created: Wed Jun 04 20:03:14 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1696,16 +1696,16 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout28.addWidget(self.electrostaticsForDnaDuringAdjust_checkBox)
         self.vboxlayout27.addWidget(self.adjustPhysicsEngineGroupBox)
 
-        self.update_btngrp = QtGui.QGroupBox(self.Adjust)
-        self.update_btngrp.setCheckable(True)
-        self.update_btngrp.setObjectName("update_btngrp")
+        self.watch_motion_groupbox = QtGui.QGroupBox(self.Adjust)
+        self.watch_motion_groupbox.setCheckable(True)
+        self.watch_motion_groupbox.setObjectName("watch_motion_groupbox")
 
-        self.vboxlayout29 = QtGui.QVBoxLayout(self.update_btngrp)
+        self.vboxlayout29 = QtGui.QVBoxLayout(self.watch_motion_groupbox)
         self.vboxlayout29.setMargin(4)
         self.vboxlayout29.setSpacing(0)
         self.vboxlayout29.setObjectName("vboxlayout29")
 
-        self.update_asap_rbtn = QtGui.QRadioButton(self.update_btngrp)
+        self.update_asap_rbtn = QtGui.QRadioButton(self.watch_motion_groupbox)
         self.update_asap_rbtn.setChecked(True)
         self.update_asap_rbtn.setObjectName("update_asap_rbtn")
         self.vboxlayout29.addWidget(self.update_asap_rbtn)
@@ -1715,22 +1715,22 @@ class Ui_PreferencesDialog(object):
         self.hboxlayout35.setSpacing(6)
         self.hboxlayout35.setObjectName("hboxlayout35")
 
-        self.update_every_rbtn = QtGui.QRadioButton(self.update_btngrp)
+        self.update_every_rbtn = QtGui.QRadioButton(self.watch_motion_groupbox)
         self.update_every_rbtn.setObjectName("update_every_rbtn")
         self.hboxlayout35.addWidget(self.update_every_rbtn)
 
-        self.update_number_spinbox = QtGui.QSpinBox(self.update_btngrp)
+        self.update_number_spinbox = QtGui.QSpinBox(self.watch_motion_groupbox)
         self.update_number_spinbox.setMaximum(9999)
         self.update_number_spinbox.setMinimum(1)
         self.update_number_spinbox.setProperty("value",QtCore.QVariant(1))
         self.update_number_spinbox.setObjectName("update_number_spinbox")
         self.hboxlayout35.addWidget(self.update_number_spinbox)
 
-        self.update_units_combobox = QtGui.QComboBox(self.update_btngrp)
+        self.update_units_combobox = QtGui.QComboBox(self.watch_motion_groupbox)
         self.update_units_combobox.setObjectName("update_units_combobox")
         self.hboxlayout35.addWidget(self.update_units_combobox)
         self.vboxlayout29.addLayout(self.hboxlayout35)
-        self.vboxlayout27.addWidget(self.update_btngrp)
+        self.vboxlayout27.addWidget(self.watch_motion_groupbox)
 
         self.groupBox20 = QtGui.QGroupBox(self.Adjust)
 
@@ -3047,7 +3047,7 @@ class Ui_PreferencesDialog(object):
 
         self.retranslateUi(PreferencesDialog)
         self.prefsTabWidget.setCurrentIndex(0)
-        self.prefsStackedWidget.setCurrentIndex(3)
+        self.prefsStackedWidget.setCurrentIndex(10)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(PreferencesDialog)
 
@@ -3238,7 +3238,7 @@ class Ui_PreferencesDialog(object):
         self.adjustEngineCombobox.addItem(QtGui.QApplication.translate("PreferencesDialog", "GROMACS with ND1 Force Field", None, QtGui.QApplication.UnicodeUTF8))
         self.adjustEngineCombobox.addItem(QtGui.QApplication.translate("PreferencesDialog", "Background GROMACS with ND1 Force Field", None, QtGui.QApplication.UnicodeUTF8))
         self.electrostaticsForDnaDuringAdjust_checkBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Enable electrostatics for DNA reduced model", None, QtGui.QApplication.UnicodeUTF8))
-        self.update_btngrp.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Watch motion in real time", None, QtGui.QApplication.UnicodeUTF8))
+        self.watch_motion_groupbox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Watch motion in real time", None, QtGui.QApplication.UnicodeUTF8))
         self.update_asap_rbtn.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Update every 2 seconds, or faster if it doesn\'t slow adjustments by more than 20%", None, QtGui.QApplication.UnicodeUTF8))
         self.update_asap_rbtn.setText(QtGui.QApplication.translate("PreferencesDialog", "Update as fast as possible", None, QtGui.QApplication.UnicodeUTF8))
         self.update_every_rbtn.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Specify how often to update the screen during adjustments", None, QtGui.QApplication.UnicodeUTF8))

@@ -49,7 +49,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.compassGroupBox.setWhatsThis(_text)
     _pd.display_compass_labels_checkbox.setWhatsThis(
         """Shows/Hides the display compass axis labels.""")
-    _pd.update_btngrp.setWhatsThis(
+    _pd.watch_motion_groupbox.setWhatsThis(
         """<p><b>Watch motion in real time</b></p>
         <p>
         Enables/disables realtime graphical updates during adjust operations

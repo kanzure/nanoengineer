@@ -1021,19 +1021,27 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Adjust Engine combobox.
         self.adjustEngineCombobox.setCurrentIndex(
             env.prefs[Adjust_minimizationEngine_prefs_key])
+        
         # Watch motion in real time checkbox.
         connect_checkbox_with_boolean_pref(
-            self.update_btngrp,
+            self.watch_motion_groupbox,
             Adjust_watchRealtimeMinimization_prefs_key )
+        
+        self.watch_motion_groupbox.setEnabled(
+            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
+        
+        # "Watch motion..." radio btngroup
+        self.watch_motion_buttongroup = QButtonGroup()
+        self.watch_motion_buttongroup.setExclusive(True)
+        for obj in self.watch_motion_groupbox.children():
+            if isinstance(obj, QAbstractButton):
+                self.watch_motion_buttongroup.addButton(obj)
+        
         #Preference for enabling/disabling electrostatics during Adjustment 
         #for the DNA reduced model. Ninad 20070809
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringAdjust_checkBox,
             electrostaticsForDnaDuringAdjust_prefs_key)
-
-        # "Update..." radio btngroup
-        self.update_btngrp.setEnabled(
-            env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
 
         # Convergence Criteria groupbox
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        

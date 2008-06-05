@@ -504,7 +504,7 @@ class Minimize_CommandRun(CommandRun):
             assert update_cond or (update_cond is False) # a callable or False [remove when works]
             # WARNING: as of 080321, this apparently fails routinely
             # for Adjust All, and then the first fallback in the
-            # except clause also fails (userPrefs.update_btngrp_group
+            # except clause also fails (userPrefs.watch_motion_buttongroup
             # attributeerror), and then its fallback finally works.
             # Cleanup is severely needed. [bruce 080321 comment]
         except:
@@ -514,7 +514,7 @@ class Minimize_CommandRun(CommandRun):
             # For A8, this is normal, since only (at most) Minimize Energy sets self.kws['update_cond'] itself.
             # This will be used routinely in A8 by Adjust All and Adjust Selection, and maybe Adjust Atoms (not sure).
             #
-            # Just get the values from the General Prefs page.
+            # Just get the values from the "Adjust" prefs page.
             # But at least try to do that using new common code.
             try:
                 from widgets.widget_controllers import realtime_update_controller
@@ -522,12 +522,10 @@ class Minimize_CommandRun(CommandRun):
                 from utilities.prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
                     ###@@@ should depend on command, or be in movie...
                 ruc = realtime_update_controller(
-                    ( userPrefs.update_btngrp_group,
-                          # Note: update_btngrp_group exists in MinimizeEnergyProp.py
-                          # and in SimSetup.py, but it's commented out in UserPrefs.py --
-                          # looks like a bug. And indeed, at least for Adjust All,
-                          # this apparently fails routinely. See related comment above.
-                          # [bruce 080321 comment]
+                    ( userPrefs.watch_motion_buttongroup,
+                          # Note: watch_motion_buttongroup exists in MinimizeEnergyProp.py
+                          # and in SimSetup.py and now its back in Preferences.py,
+                          # so this is no longer a bug (for "Adjust All"). [mark 2008-06-04]
                       userPrefs.update_number_spinbox,
                       userPrefs.update_units_combobox ),
                     None, # checkbox ###@@@ maybe not needed, since UserPrefs sets up the connection #k
