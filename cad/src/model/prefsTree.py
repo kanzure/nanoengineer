@@ -202,7 +202,7 @@ def read_mmp_single_part(assy, filename):
     from utilities.constants import noop
     history.message = noop # don't bother user with this file being nonstd (bad, should pass a flag, so other errors seen)
     try:
-        grouplist  = readmmp(assy, filename, isInsert = True)
+        ok, grouplist  = readmmp(assy, filename, isInsert = True)
     finally:
         history.message = oldmessage
     if grouplist:

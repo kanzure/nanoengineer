@@ -136,7 +136,7 @@ class Dna:
             @type  position: L{V}
             """
             try:
-                grouplist = readmmp(assy, filename, isInsert = True)
+                ok, grouplist = readmmp(assy, filename, isInsert = True)
             except IOError:
                 raise PluginBug("Cannot read file: " + filename)
             if not grouplist:

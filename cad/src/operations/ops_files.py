@@ -61,6 +61,8 @@ from utilities.prefs_constants import toolbar_state_prefs_key
 from utilities.debug_prefs import Choice_boolean_False
 from utilities.debug_prefs import debug_pref
 
+from utilities.constants import SUCCESS, ABORTED, READ_ERROR
+
 debug_babel = False   # DO NOT COMMIT with True
 
 def set_waitcursor(on_or_off):
@@ -735,12 +737,28 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # This puts up the hourglass cursor while opening a file.
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
             
+            ok = SUCCESS
+            
             if fn[-3:] == "mmp":
-                listOfAtoms = readmmp(self.assy, fn, showProgressDialog = True, returnListOfAtoms = True)
+                ok, listOfAtoms = readmmp(self.assy, 
+                                          fn, 
+                                          showProgressDialog = True, 
+                                          returnListOfAtoms = True)
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
-                _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
+                    #mark 2008-06-05 comment: I included an error return value
+                    # for readmmp (ok) checked below. The code below needs to 
+                    # be cleaned up, but I need Bruce's help to do that.
+                if ok == SUCCESS:
+                    _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"  
+                elif ok == ABORTED:
+                    _openmsg = orangemsg("Open cancelled: [ " + os.path.normpath(fn) + " ]")
+                elif ok == READ_ERROR:
+                    _openmsg = redmsg("Error reading: [ " + os.path.normpath(fn) + " ]")
+                else:
+                    msg = "Unknown return value '%s'" % ok
+                    print_compact_traceback(msg)
                 isMMPFile = True
                 if (gromacsCoordinateFile):
                     newPositions = readGromacsCoordinates(gromacsCoordinateFile, listOfAtoms)
@@ -749,10 +767,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     else:
                         env.history.message(redmsg(newPositions))
             
-            dir, fil, ext = _fileparse(fn)
-            # maybe: could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
-            self.assy.name = fil
-            self.assy.filename = fn
+            if ok == SUCCESS:
+                dir, fil, ext = _fileparse(fn)
+                # maybe: could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
+                self.assy.name = fil
+                self.assy.filename = fn
             self.assy.reset_changed() # The file and the part are now the same
             self.update_mainwindow_caption()
 

@@ -458,6 +458,13 @@ BONDPOINT_REPLACED_WITH_HYDROGEN = "BONDPOINT_REPLACED_WITH_HYDROGEN"
 
 # ==
 
+# constants for readmmp
+SUCCESS = 'SUCCESS'
+ABORTED = 'ABORTED'
+READ_ERROR = 'READ ERROR'
+
+# ==
+
 def filesplit(pathname):
     """
     Splits pathname into directory part (not ending with '/'),

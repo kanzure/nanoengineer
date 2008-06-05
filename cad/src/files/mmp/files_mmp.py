@@ -58,6 +58,7 @@ from utilities.debug import print_compact_stack
 
 from utilities.constants import gensym
 from utilities.constants import interpret_dispName
+from utilities.constants import SUCCESS, ABORTED, READ_ERROR
 
 from model.bond_constants import find_bond
 from model.bond_constants import V_SINGLE
@@ -1479,6 +1480,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
     return
 
 # ==
+_readmmp_aborted = False
 
 def _readmmp(assy, filename, isInsert = False, showProgressDialog = False): 
     """
@@ -1509,7 +1511,9 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
                                a file. Default is False.
     @type  showProgressDialog: boolean
 
-    @return: the tuple (grouplist or None, listOfAtomsInFileOrder)
+    @return: the tuple (ok, grouplist or None, listOfAtomsInFileOrder), where
+             ok is "SUCCESS", "ABORTED", or "READ ERROR".
+    @rtype: (string, list, list)
     """
     #bruce 050405 revised code & docstring
     #ericm 080409 revised return value to contain listOfAtomsInFileOrder
@@ -1521,7 +1525,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     # within a ZIP file. To test, create a zipfile (i.e. "part.zip") which
     # contains an MMP file named "main.mmp", then rename "part.zip" to 
     # "part.mmp". Set the constant READ_MAINMMP_FROM_ZIPFILE = True,
-    # then run NE1 and open "part.mpp" using "File > Open...". 
+    # then run NE1 and open "part.mmp" using "File > Open...". 
     # Mark 2008-02-03
     READ_MAINMMP_FROM_ZIPFILE = False # Don't commit with True.
     
@@ -1534,12 +1538,17 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         lines = _bytes.splitlines()
     else:
         # The normal way to read an MMP file.
-        lines = open(filename,"rU").readlines()
-        # 'U' in filemode is for universal newline support
+        try:
+            lines = open(filename,"rU").readlines()
+            # 'U' in filemode is for universal newline support
+        except:
+            return READ_ERROR, None, []
     
-    if not isInsert:
-        assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
-    
+    # Commented this out since the assy.filename should be (and is) set by 
+    # another caller based on success.
+    #if not isInsert:
+    #    assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
+        
     # Create and display a Progress dialog while reading the MMP file. 
     # One issue with this implem is that QProgressDialog always displays 
     # a "Cancel" button, which is not hooked up. I think this is OK for now,
@@ -1557,8 +1566,26 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         win.progressDialog.setRange(0, _progressFinishValue)
         _progressDialogDisplayed = False
         _timerStart = time.time()
+        
+        # Ask Bruce to review this approach. [mark 2008-06-05]
+        def abort_readmmp():
+            """
+            This slot is called when the user aborts opening a large
+            MMP file by pressing the "Cancel" button in the progress dialog.
+            """
+            global _readmmp_aborted # Ask Bruce about this.
+            _readmmp_aborted = True
+            win.disconnect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
+            return
+        
+        from PyQt4.Qt import SIGNAL
+        win.connect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
     
     for card in lines:
+        if _readmmp_aborted: # User aborted while reading the MMP file.
+            global _readmmp_aborted
+            _readmmp_aborted = False # Reset global to False for next time.
+            return ABORTED, None, []
         try:
             errmsg = state.readmmp_line( card) # None or an error message
         except:
@@ -1607,7 +1634,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             break
     if len(grouplist) == 0:
         state.format_error("nothing in file")
-        return None, []
+        return SUCCESS, None, []
     elif len(grouplist) == 1:
         state.guess_sim_input('one_part')
             # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
@@ -1632,7 +1659,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
     
-    return grouplist, listOfAtomsInFileOrder # from _readmmp
+    return SUCCESS, grouplist, listOfAtomsInFileOrder # from _readmmp
 
 def readmmp(assy,
             filename,
@@ -1676,6 +1703,12 @@ def readmmp(assy,
                               appeared.  If False (the default),
                               returns the group list.
     @type  returnListOfAtoms: boolean
+    
+    @return: the tuple (ok, grouplist) where ok is
+             - "SUCCESS", 
+             - "ABORTED", or 
+             - "READ ERROR".
+    @rtype:  (string, list)
     """
     kluge_main_assy = env.mainwindow().assy
         # use this instead of assy to fix logic bug in use of assy_valid flag
@@ -1686,10 +1719,10 @@ def readmmp(assy,
     kluge_main_assy.assy_valid = False # disable updaters during _readmmp
         # [bruce 080117/080124, revised 080319]
     try:
-        grouplist, listOfAtomsInFileOrder = _readmmp(assy,
-                                                     filename,
-                                                     isInsert,
-                                                     showProgressDialog)
+        ok, grouplist, listOfAtomsInFileOrder = _readmmp(assy,
+                                                         filename,
+                                                         isInsert,
+                                                         showProgressDialog)
             # warning: can show a dialog, which can cause paintGL calls.
     finally:
         kluge_main_assy.assy_valid = True
@@ -1698,8 +1731,8 @@ def readmmp(assy,
             # note: handles grouplist is None (though not very well)
             # note: runs all updaters when done, and sets per-part viewdata
     if (returnListOfAtoms):
-        return listOfAtomsInFileOrder
-    return grouplist
+        return ok, listOfAtomsInFileOrder
+    return ok, grouplist
     
 def _reset_grouplist(assy, grouplist):
     """
@@ -1828,9 +1861,10 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     try:
         #Fixes bug 2825 (_readmmp returns 2 vals so added 'listOfAtomsInFileOrder'
         #below.
-        grouplist, listOfAtomsInFileOrder = _readmmp(assy, 
-                                                     filename, 
-                                                     isInsert = True)
+        ok, grouplist, listOfAtomsInFileOrder = _readmmp(assy, 
+                                                         filename, 
+                                                         isInsert = True,
+                                                         showProgressDialog = True)
         
         del listOfAtomsInFileOrder        
         

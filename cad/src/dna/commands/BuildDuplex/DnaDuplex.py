@@ -1031,7 +1031,7 @@ class Dna:
         #directly use self.baseList instead? Only comments are added for 
         #now. See also self.make()(the caller)
         try:
-            grouplist = readmmp(self.assy, filename, isInsert = True)
+            ok, grouplist = readmmp(self.assy, filename, isInsert = True)
         except IOError:
             raise PluginBug("Cannot read file: " + filename)
         if not grouplist:
