@@ -97,7 +97,8 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
     # ==
 
-    def draw(self, highlighted = False, selected = False, patterning = False):
+    def draw(self, highlighted = False, selected = False,
+             patterning = True, highlight_color = None):
         """
         Simple all-in-one interface to CSDL drawing.
 
@@ -117,27 +118,40 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         @param patterning: Whether to apply patterned drawing styles for
           highlighting and selection, according to the prefs settings.
           If not set, it's as if the solid-color prefs are chosen.
+
+        @param highlight_color: Option to over-ride the highlight color set in the color scheme preferences.
         """
         patterned = patterning and isPatternedDrawing(select = selected,
-                                             highlight = highlighted)
+                                                      highlight = highlighted)
         if patterned:
-            # Patterned highlighting or selection drawing needs a normal drawing
-            # done first to overlay with the pattern.
-            glCallList(self.color_dl)
+            # Patterned highlighting or selection drawing needs a normal draw
+            # done first to overlay with the pattern.  When doing patterned
+            # highlighting over a selected object, the selected_dl is called.
+            if selected:
+                glCallList(self.selected_dl)
+            else:
+                glCallList(self.color_dl)
+                pass
+
+            # Set up a patterned drawing mode for the following draw.
             startPatternedDrawing(select = selected, highlight = highlighted)
             pass
 
-        # Draw solid color, or overlay pattern in highlight or selection color.
-        if selected:
-            glCallList(self.selected_dl)
-        elif highlighted:
-            apply_material(env.prefs[hoverHighlightingColor_prefs_key])
+        if highlighted:
+            # Draw highlighted (solid, or in an overlay pattern set up above.)
+            apply_material( highlight_color is not None and highlight_color
+                            or env.prefs[hoverHighlightingColor_prefs_key])
             glCallList(self.nocolor_dl)
+        elif selected:
+            # Draw the selected appearance.  If the selection mode is patterned,
+            # the selected_dl does first normal drawing and then an overlay.
+            glCallList(self.selected_dl)
         else:
+            # Plain, old, solid drawing of the base object appearance.
             glCallList(self.color_dl)
 
         if patterned:
-            # Reset from patterned drawing mode.
+            # Reset from a patterned drawing mode set up above.
             endPatternedDrawing(select = selected, highlight = highlighted)
             pass
         return
