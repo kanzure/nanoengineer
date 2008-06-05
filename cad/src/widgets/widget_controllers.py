@@ -163,7 +163,7 @@ class realtime_update_controller: #bruce 060705, consolidate code from runSim.py
         Set the data widgets, and if given, the checkbox widget and its prefs key, both optional.
         If checkbox and its prefs_key are both there, connect them. If neither is provided, always update.
         """
-        self.watch_motion_groupbox, self.update_number_spinbox, self.update_units_combobox = widgets
+        self.watch_motion_buttongroup, self.update_number_spinbox, self.update_units_combobox = widgets
         self.checkbox = checkbox
         self.checkbox_prefs_key = checkbox_prefs_key
         if checkbox and checkbox_prefs_key:
@@ -176,7 +176,7 @@ class realtime_update_controller: #bruce 060705, consolidate code from runSim.py
                 self.checkbox.setChecked(enable)
             if self.checkbox_prefs_key: #k could be elif, if we connected them above
                 env.prefs[self.checkbox_prefs_key] = enable
-            qt4todo('self.watch_motion_groupbox.setButton( update_as_fast_as_possible_data')
+            qt4todo('self.watch_motion_buttongroup.setButton( update_as_fast_as_possible_data')
             self.update_number_spinbox.setValue( update_number)
             for i in range(self.update_units_combobox.count()):
                 if self.update_units_combobox.itemText(i) == update_units:
@@ -187,7 +187,7 @@ class realtime_update_controller: #bruce 060705, consolidate code from runSim.py
             pass # rely on whatever is already in them (better than guessing here)
         return
     def get_update_data_from_widgets(self):
-        update_as_fast_as_possible_data = self.watch_motion_groupbox.checkedId() # 0 means yes, 1 means no (for now)
+        update_as_fast_as_possible_data = self.watch_motion_buttongroup.checkedId() # 0 means yes, 1 means no (for now)
             # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
         update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
         update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
