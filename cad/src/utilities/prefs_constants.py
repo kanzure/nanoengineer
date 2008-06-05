@@ -286,7 +286,15 @@ joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ Whil
 joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand three-prime arrowheads/spheres'
 joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Join strands command,use custom color for five-prime arrowheads/spheres'
 joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
-    
+
+#Break strands command prefs
+breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Break strands command, show three prime ends as out arrow heads'
+breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key = 'A110/ While in Break strands command, show five prime ends as in arrow heads'
+breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ While in Break strands command, use custom color for three-prime arrowheads/spheres'
+breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand three-prime arrowheads/spheres'
+breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Break strands command,use custom color for five-prime arrowheads/spheres'
+breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand five-prime arrowheads/spheres'
+
 #Various cursor text prefs =======================
 dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
 dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Show number of basepair info in cursor text while in DnaDulex_Editcommand'
@@ -705,6 +713,16 @@ prefs_table = (
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+    
+    
+    #Break strands command arrowhead display pref.(should it override global pref)
+       
+    ('', 'boolean', breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
+    ('', 'boolean', breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
+    ('', 'boolean', breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
+    ('', 'color', breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
+    ('', 'boolean', breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
+    ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
 
     #DNA cursor text preferences 
 

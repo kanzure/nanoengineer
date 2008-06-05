@@ -18,22 +18,13 @@ button code (confirmation_corner)
 pending because of some remaining things in GBC cleanup (such as 
 NanotubeGenerator etc) 
 
-2008-06-04: Review the arrowhead preference related feature introduced in 
-revisions 13013, 13018
+Ninad 2008-06-04 - 2008-06-05: 
+Revised and refactored arrowhead display code and moved part common to both 
+Break and JoinStrands PMs into new module BreakOrJoinStrands_PropertyManager
 """
-import sys
-import foundation.env as env
-from PyQt4.Qt import Qt
-from PyQt4.Qt import SIGNAL
-from widgets.DebugMenuMixin import DebugMenuMixin
-from PM.PM_Dialog import PM_Dialog
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_GroupBox import PM_GroupBox
-from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_ColorComboBox  import PM_ColorComboBox
 
-from utilities.prefs_constants import arrowsOnBackBones_prefs_key
+import sys
+from PM.PM_GroupBox import PM_GroupBox
 
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key 
@@ -42,16 +33,10 @@ from utilities.prefs_constants import joinStrandsCommand_dnaStrandThreePrimeArro
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
 
+from dna.command_support.BreakOrJoinStrands_PropertyManager import BreakOrJoinStrands_PropertyManager
 
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-
-from utilities.constants import red, green, orange, magenta, cyan, white, gray
-END_COLOR_LIST  = [red, green, orange, magenta, cyan, white, gray]
-END_COLOR_NAMES = ["Red", "Green", "Orange", "Magenta", "Cyan", "White", "Other color..."]
-
-DEBUG_use_local_arrowhead_prefs_checkbox = False
-
-class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
+_superclass = BreakOrJoinStrands_PropertyManager
+class JoinStrands_PropertyManager( BreakOrJoinStrands_PropertyManager ):
     """
     The JoinStrands_PropertyManager class provides a Property Manager 
     for the B{Join Strands} command on the flyout toolbar in the 
@@ -73,26 +58,12 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
     pmName        =  title
     iconPath      =  "ui/actions/Command Toolbar/Join_Strands.png"
     
-    
     def __init__( self, parentCommand ):
         """
         Constructor for the property manager.
         """
-
-        self.parentMode = parentCommand
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
-        self.o = self.win.glpane             
-                        
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
-        DebugMenuMixin._init1( self )
-
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
-        
-                
+        _superclass.__init__(self, parentCommand)
         if sys.platform == 'darwin':
             leftMouseButtonString = 'mouse button'
         else:
@@ -106,15 +77,8 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
             (leftMouseButtonString)
         
         self.updateMessage(msg)
-
-    
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """      
-        self.win.toolsDone()
-    
         
+ 
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
@@ -123,118 +87,55 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )  
         return
     
-    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
+    
+    #Return varius prefs_keys for arrowhead display options ui elements =======     
+    def _prefs_key_arrowsOnThreePrimeEnds(self):
         """
-        Load widgets in the display options groupbox
-        """         
-        self._arrowheadPrefsGroupBox = PM_GroupBox(
-            pmGroupBox, 
-            title = "Arrowhead prefs in Join Strands:")
-        #load all the options
-        self._load3PrimeEndArrowAndCustomColor(self._arrowheadPrefsGroupBox)
-        self._load5PrimeEndArrowAndCustomColor(self._arrowheadPrefsGroupBox)
-        self._loadArrowOnBackBone(pmGroupBox)
-        
+        Return the appropriate KEY of the preference for whether to
+        draw arrows on 3' strand ends of PAM DNA.
+        """
+        return joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
+    
+    def _prefs_key_arrowsOnFivePrimeEnds(self):
+        """
+        Return the appropriate KEY of the preference for whether to
+        draw arrows on 5' strand ends of PAM DNA.
+        """
+        return joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key
+    
+    def _prefs_key_useCustomColorForThreePrimeArrowheads(self):
+        """
+        Return the appropriate KEY of the preference for whether to use a
+        custom color for 3' arrowheads (if they are drawn)
+        or for 3' strand end atoms (if arrowheads are not drawn)
+        """
+        return joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key
+    
+    def _prefs_key_useCustomColorForFivePrimeArrowheads(self):
+        """
+        Return the appropriate KEY of the preference for whether to use a
+        custom color for 5' arrowheads (if they are drawn)
+        or for 5' strand end atoms (if arrowheads are not drawn).        
+        """
+        return joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key
+    
+    def _prefs_key_dnaStrandThreePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate KEY of the preference for what custom color
+        to use when drawing 3' arrowheads (if they are drawn)
+        or 3' strand end atoms (if arrowheads are not drawn).
+        """
+        return joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key
+    
+    def _prefs_key_dnaStrandFivePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate KEY of the preference for what custom color
+        to use when drawing 5' arrowheads (if they are drawn)
+        or 5' strand end atoms (if arrowheads are not drawn).
+        """
+        return joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
+    
 
-    def _load3PrimeEndArrowAndCustomColor(self, pmGroupBox):
-        """
-        Loads 3' end arrow head and custom color checkbox and color chooser dialog
-        """
-        self.pmGroupBox3 = PM_GroupBox(pmGroupBox, title = "3' end:")
-        
-        self.arrowsOnThreePrimeEnds_checkBox = PM_CheckBox( self.pmGroupBox3,
-                                                            text         = "Show arrow",
-                                                            widgetColumn  = 0,
-                                                            setAsDefault = True,
-                                                            spanWidth = True
-                                                            )
-        
-        if env.prefs[joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key]:
-            self.arrowsOnThreePrimeEnds_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnThreePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
-            
-        self.strandThreePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox3,
-                                                            text         = "Display Custom Color",
-                                                            widgetColumn  = 0,
-                                                            setAsDefault = True,
-                                                            spanWidth = True
-                                                            )
-        
-        self.threePrimeEndColorChooser = \
-            PM_ColorComboBox(self.pmGroupBox3,
-                             colorList  = END_COLOR_LIST,
-                             colorNames = END_COLOR_NAMES,
-                             color      = env.prefs[joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
-                             )
-        
-        if env.prefs[joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key]:
-            self.strandThreePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Checked) 
-            self.threePrimeEndColorChooser.show()
-        else:
-            self.strandThreePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Unchecked)
-            self.threePrimeEndColorChooser.hide()
-            
-        
-        return 
-    
-    def _load5PrimeEndArrowAndCustomColor(self, pmGroupBox):
-        """
-        Loads 5' end custom color checkbox and color chooser dialog
-        """
-        self.pmGroupBox2 = PM_GroupBox(pmGroupBox, title = "5' end:")
-        self.arrowsOnFivePrimeEnds_checkBox = PM_CheckBox( self.pmGroupBox2,
-                                                            text         = "Show arrow",
-                                                            widgetColumn  = 0,
-                                                            setAsDefault = True,
-                                                            spanWidth = True
-                                                            )
-        if env.prefs[joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key]:
-            self.arrowsOnFivePrimeEnds_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnFivePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
-            
-        self.strandFivePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox2,
-                                                            text         = "Display Custom Color",
-                                                            widgetColumn  = 0,
-                                                            setAsDefault = True,
-                                                            spanWidth = True
-                                                            )
-        self.fivePrimeEndColorChooser = \
-            PM_ColorComboBox(self.pmGroupBox2,
-                             colorList  = END_COLOR_LIST,
-                             colorNames = END_COLOR_NAMES,
-                             color      = env.prefs[joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
-                             )
-        
-        if env.prefs[joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key]:
-            self.strandFivePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Checked) 
-            self.fivePrimeEndColorChooser.show()
-        else:
-            self.strandFivePrimeArrowheadsCustomColorCheckBox.setCheckState(Qt.Unchecked)
-            self.fivePrimeEndColorChooser.hide()
-        
-        return 
-    
-        
-    def _loadArrowOnBackBone(self, pmGroupBox):
-        """
-        Loads Arrow on the backbone checkbox
-        """
-        self.pmGroupBox4 = PM_GroupBox(pmGroupBox, title = "Global preference:")
-        self.arrowsOnBackBones_checkBox = PM_CheckBox( self.pmGroupBox4,
-                                                       text         = "Show arrows on back bones",
-                                                       widgetColumn  = 0,
-                                                       setAsDefault = True,
-                                                       spanWidth = True
-                                                       )
-        if env.prefs[arrowsOnBackBones_prefs_key] == True:
-            self.arrowsOnBackBones_checkBox.setCheckState(Qt.Checked) 
-        else:
-            self.arrowsOnBackBones_checkBox.setCheckState(Qt.Unchecked) 
-            
-        
-    
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  
@@ -248,127 +149,6 @@ class JoinStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         pass
     
     
-    def connect_or_disconnect_signals(self, isConnect):
-        """
-        Connect or disconnect widget signals sent to their slot methods.
-        This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
-        @type  isConnect: boolean
-        """
-        if isConnect:
-            change_connect = self.win.connect
-        else:
-            change_connect = self.win.disconnect 
-        
-        # DNA Strand arrowhead display options signal-slot connections.
-               
-                   
-        self._connect_checkboxes_to_global_prefs_keys(isConnect)    
-        
-        change_connect(self.fivePrimeEndColorChooser,
-                       SIGNAL("editingFinished()"), 
-                       self.chooseCustomColorOnFivePrimeEnds)
-        
-        change_connect(self.threePrimeEndColorChooser,
-                       SIGNAL("editingFinished()"), 
-                       self.chooseCustomColorOnThreePrimeEnds)
-        
-        change_connect(self.strandFivePrimeArrowheadsCustomColorCheckBox,
-                       SIGNAL("toggled(bool)"),
-                       self.allowChoosingColorsOnFivePrimeEnd)
-        
-        change_connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
-                       SIGNAL("toggled(bool)"),
-                       self.allowChoosingColorsOnThreePrimeEnd)
-        
-    def _connect_checkboxes_to_global_prefs_keys(self, isConnect = True):
-        """
-        #doc
-        """
-        if not isConnect:
-            return
-        
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnThreePrimeEnds_checkBox,
-            joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key)
-                                                   
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnFivePrimeEnds_checkBox,
-            joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key)
-                               
-        
-        connect_checkbox_with_boolean_pref(
-            self.strandFivePrimeArrowheadsCustomColorCheckBox,
-            joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key)
-        
-        
-        connect_checkbox_with_boolean_pref(
-            self.strandThreePrimeArrowheadsCustomColorCheckBox,
-            joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key)
-                                                  
-        
-        connect_checkbox_with_boolean_pref(self.arrowsOnBackBones_checkBox, 
-                                           arrowsOnBackBones_prefs_key)
     
-    
-    def allowChoosingColorsOnFivePrimeEnd(self, state):
-        """
-        Show or hide color chooser based on the 
-        strandFivePrimeArrowheadsCustomColorCheckBox's state
-        """
-        if self.strandFivePrimeArrowheadsCustomColorCheckBox.isChecked():
-            self.fivePrimeEndColorChooser.show()
-        else:
-            self.fivePrimeEndColorChooser.hide()
-        return
-    
-    def allowChoosingColorsOnThreePrimeEnd(self, state):
-        """
-        Show or hide color chooser based on the 
-        strandThreePrimeArrowheadsCustomColorCheckBox's state
-        """
-        if self.strandThreePrimeArrowheadsCustomColorCheckBox.isChecked():
-            self.threePrimeEndColorChooser.show()
-        else:
-            self.threePrimeEndColorChooser.hide()
-        return
-    
-    def chooseCustomColorOnThreePrimeEnds(self):
-        """
-        Choose custom color for 5' prime end
-        """
-        color = self.threePrimeEndColorChooser.getColor()
-        env.prefs[joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key] = color
-        self.win.glpane.gl_update() 
-        return
-       
-    def chooseCustomColorOnFivePrimeEnds(self):
-        """
-        Choose custom color for 5' prime end
-        """
-        color = self.fivePrimeEndColorChooser.getColor()
-        env.prefs[joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key] = color
-        self.win.glpane.gl_update() 
-        return
-        
-    
-    def show(self):
-        """
-        Shows the Property Manager. Overrides PM_Dialog.show.
-        """
-        PM_Dialog.show(self)        
-        self.connect_or_disconnect_signals(isConnect = True)    
-        
-                
-    def close(self):
-        """
-        Closes the Property Manager. Overrides PM_Dialog.close.
-        """
-        # this is important since these pref keys are used in other command modes 
-        # as well and we do not want to see the 5' end arrow in Inset DNA mode       
-        
-        self.connect_or_disconnect_signals(False)        
-        PM_Dialog.close(self)
         
         

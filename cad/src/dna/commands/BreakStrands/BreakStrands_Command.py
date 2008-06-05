@@ -12,10 +12,19 @@ TODOs: [ as of 2008-01-04]
 """
 
 import foundation.changes as changes
+import foundation.env as env
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from utilities.constants import red
 from dna.commands.BreakStrands.BreakStrands_PropertyManager import BreakStrands_PropertyManager
+
+from utilities.prefs_constants import breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key 
+from utilities.prefs_constants import breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
+from utilities.prefs_constants import breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
+
 
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 # == GraphicsMode part
@@ -59,6 +68,61 @@ class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
         left double deposits an atom. We don't want that happening here!
         """
         pass
+    
+    def pref_arrowsOnThreePrimeEnds(self):
+        """
+        Return the appropriate value of the preference for whether to
+        draw arrows on 3' strand ends of PAM DNA.
+        [overrides superclass method, using different prefs_key]
+        """
+        return env.prefs[breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key]
+
+    def pref_arrowsOnFivePrimeEnds(self):
+        """
+        Return the appropriate value of the preference for whether to
+        draw arrows on 5' strand ends of PAM DNA.
+
+        [overrides superclass method, using different prefs_key]
+        """
+        return env.prefs[breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key]
+
+    def pref_useCustomColorForThreePrimeArrowheads(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for 3' arrowheads (if they are drawn)
+        or for 3' strand end atoms (if arrowheads are not drawn).
+
+        [overrides superclass method, using different prefs_key]
+        """
+        return env.prefs[breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key]
+
+    def pref_useCustomColorForFivePrimeArrowheads(self):
+        """
+        Return the appropriate value of the preference for whether to use a
+        custom color for 5' arrowheads (if they are drawn)
+        or for 5' strand end atoms (if arrowheads are not drawn).
+        [overrides superclass method, using different prefs_key]
+        """
+        return env.prefs[breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key]
+
+    def pref_dnaStrandThreePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate value of the preference for what custom color
+        to use when drawing 3' arrowheads (if they are drawn)
+        or 3' strand end atoms (if arrowheads are not drawn).
+        [overrides superclass method, using different prefs_key]
+
+        """
+        return env.prefs[breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
+
+    def pref_dnaStrandFivePrimeArrowheadsCustomColor(self):
+        """
+        Return the appropriate value of the preference for what custom color
+        to use when drawing 5' arrowheads (if they are drawn)
+        or 5' strand end atoms (if arrowheads are not drawn).
+        [overrides superclass method, using different prefs_key]
+        """
+        return env.prefs[breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
         
     
   
