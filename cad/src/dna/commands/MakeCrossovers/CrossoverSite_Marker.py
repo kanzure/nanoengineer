@@ -49,6 +49,7 @@ from exprs.Highlightable    import Highlightable
 
 from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
 
+
 MAX_DISTANCE_BETWEEN_CROSSOVER_SITES = 17
 #Following is used by the algoritm that searches for neighboring dna segments 
 #(to a given dnaSegment) to mark crossover sites (atom pairs that will be 
@@ -92,11 +93,15 @@ class CrossoverSite_Marker:
         """
         Does a full update (including exprs handle creation
         @see: self.partialUpdate()
-        """
+        """        
         self.clearDictionaries()
         self._updateAllDnaSegmentDict()    
+        ##print "***updating crossover sites", time.clock()
         self._updateCrossoverSites()
+        ##print "**crossover sites updated", time.clock()
+        ##print "***creating handles", time.clock()
         self._createExprsHandles()
+        ##print "***%d handles created, new time = %s"%(len(self.handleDict), time.clock())
         self.glpane.gl_update()
         
     def partialUpdate(self):
@@ -240,7 +245,7 @@ class CrossoverSite_Marker:
         """
         #First mark the current dna segment in the dictionary 
         #segments_searched_for_neighbors for the following purpose:
-        #Suppose there are 3 dna segments A, B , C and D in 
+        #Suppose there are 4 dna segments A, B , C and D in 
         #'allDnasegment' list. 
         #Let the current dnaSegment be 'A'. We add it to dict 
         #'segments_searched_for_neighbors'.  
@@ -357,10 +362,11 @@ class CrossoverSite_Marker:
         new_atom_dict_1, atomPairsList_1 = self._filter_neighbor_atompairs(
             atom_dict_1)
         new_atom_dict_2, atomPairsList_2 = self._filter_neighbor_atompairs(
-            atom_dict_2)         
-
-        self._base_orientation_indicator_dict.update(new_atom_dict_1)
-        self._base_orientation_indicator_dict.update(new_atom_dict_2)
+            atom_dict_2)     
+        
+        if self.graphicsMode.DEBUG_DRAW_ALL_POTENTIAL_CROSSOVER_SITES:
+            self._base_orientation_indicator_dict.update(new_atom_dict_1)
+            self._base_orientation_indicator_dict.update(new_atom_dict_2)
 
         for atompair in atomPairsList_1:            
             crossoverPairs =  self._filter_crossover_atompairs(atompair, 
@@ -380,11 +386,12 @@ class CrossoverSite_Marker:
                     if self._final_crossover_atoms_dict.has_key(id(atm)) and \
                        self._final_crossover_atoms_dict.has_key(id(neighbor)):                  
                         continue #skip this iteration
-
-                    if not new_atom_dict.has_key(id(neighbor)):
-                        new_atom_dict[id(neighbor)] = neighbor
-                    if not new_atom_dict.has_key(id(atm)):
-                        new_atom_dict[id(atm)] = atm
+                    
+                    if self.graphicsMode.DEBUG_DRAW_ALL_POTENTIAL_CROSSOVER_SITES:
+                        if not new_atom_dict.has_key(id(neighbor)):
+                            new_atom_dict[id(neighbor)] = neighbor
+                        if not new_atom_dict.has_key(id(atm)):
+                            new_atom_dict[id(atm)] = atm
 
                     #@@BUG: What if both neighbors of atm are in atom_dict_1??
                     #In that case, this code creates two separate tuples with 
