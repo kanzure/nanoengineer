@@ -95,6 +95,56 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.selected = False   # Whether to draw in the selection over-ride color.
         return
 
+    # ==
+
+    def draw(self, highlighted = False, selected = False, patterning = False):
+        """
+        Simple all-in-one interface to CSDL drawing.
+
+        Allocate a CSDL in the parent class and fill it with the ColorSorter:
+            self.csdl = ColorSortedDisplayList()
+            ColorSorter.start(self.csdl)
+            drawsphere(...), drawcylinder(...), drawpolycone(...), and so on.
+            ColorSorter.finish()
+
+        Then when you want to draw the display lists call csdl.draw() with the
+        desired options:
+        
+        @param highlighted: Whether to draw highlighted.
+
+        @param selected: Whether to draw selected.
+
+        @param patterning: Whether to apply patterned drawing styles for
+          highlighting and selection, according to the prefs settings.
+          If not set, it as if the solid-color prefs are chosen.
+        """
+        patterned = patterning and isPatternedDrawing(select=selected,
+                                             highlight=highlighted)
+        if patterned:
+            # Patterned highlighting or selection drawing needs a normal drawing
+            # done first to overlay with the pattern.
+            glCallList(self.color_dl)
+            startPatternedDrawing(select=selected, highlight=highlighted)
+            pass
+
+        # Draw solid color, or overlay pattern in highlight or selection color.
+        if selected:
+            glCallList(self.selected_dl)
+        elif highlighted:
+            apply_material(env.prefs[hoverHighlightingColor_prefs_key])
+            glCallList(self.nocolor_dl)
+        else:
+            glCallList(self.color_dl)
+
+        if patterned:
+            # Reset from patterned drawing mode.
+            endPatternedDrawing(select=selected, highlight=highlighted)
+            pass
+        return
+
+    # ==
+    # CSDL state maintenance.
+    
     #russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
     cache_ColorSorter = False ## True
 
