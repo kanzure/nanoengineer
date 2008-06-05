@@ -146,7 +146,7 @@ class Plane(ReferenceGeometry):
         self.heightfield_hq = False
         
         if not READ_FROM_MMP:
-            self.width      =  20.0
+            self.width      =  10.0 # piotr 080605 - change default dimensions to square
             self.height     =  10.0
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   

@@ -199,8 +199,8 @@ class PlanePropertyManager(EditCommand_PM):
                              label        = " Vertical scale:",
                              value        = 1.0, 
                              setAsDefault = True,
-                             minimum      = 0.1, 
-                             maximum      = 100.0, # 1000 nm
+                             minimum      = -1000.0, # -1000 A
+                             maximum      =  1000.0, # 1000 A
                              singleStep   = 0.1, 
                              decimals     = 1, 
                              suffix       = ' Angstroms')
@@ -297,7 +297,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.aspectRatioSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "",
-                              value         =  2.0,
+                              value         =  1.0,
                               setAsDefault  =  True,
                               minimum       =  0.1,
                               maximum       =  10.0,
