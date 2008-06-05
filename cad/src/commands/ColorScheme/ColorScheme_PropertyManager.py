@@ -25,7 +25,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4 import QtGui
 from PyQt4.Qt import QFileDialog, QString, QMessageBox
-from PyQt4.Qt import QColorDialog
+from PyQt4.Qt import QColorDialog, QPixmap, QIcon
 from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
@@ -380,7 +380,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         # background color setting combo box.
         change_connect( self.backgroundColorComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
+                      SIGNAL("activated(int)"),
                       self.changeBackgroundColor )
         
         #hover highlighting style combo box
@@ -624,6 +624,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         a favorite.
         """
         self._updateBackgroundColorComboBoxIndex()
+        self.updateCustomColorItemIcon(RGBf_to_QColor(env.prefs[backgroundColor_prefs_key]))
         self.hoverHighlightingStyleComboBox.setCurrentIndex(HHS_INDEXES.index(env.prefs[hoverHighlightingColorStyle_prefs_key]))
         self.hoverHighlightingColorComboBox.setColor(env.prefs[hoverHighlightingColor_prefs_key])
         self.selectionStyleComboBox.setCurrentIndex(SS_INDEXES.index(env.prefs[selectionColorStyle_prefs_key]))
@@ -714,7 +715,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             msg = "Unknown color idx=", idx
             print_compact_traceback(msg)
-            
         
         self.win.glpane.gl_update() # Needed!
         return
@@ -726,10 +726,22 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         c = QColorDialog.getColor(RGBf_to_QColor(self.win.glpane.getBackgroundColor()), self)
         if c.isValid():
             self.win.glpane.setBackgroundColor(QColor_to_RGBf(c))
+            self.updateCustomColorItemIcon(c)
         else:
             # User cancelled. Need to reset combobox to correct index.
             self._updateBackgroundColorComboBoxIndex()
-
+        return
+    
+    def updateCustomColorItemIcon(self, qcolor):
+        """
+        Update the custom color item icon in the background color combobox
+        with I{qcolor}.
+        """
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(qcolor)
+        self.backgroundColorComboBox.setItemIcon(bg_CUSTOM, QIcon(pixmap))
+        return
+    
     def applyFavorite(self):
         """
         Apply the color scheme settings stored in the current favorite 
@@ -827,8 +839,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         else:
             msg = "Can't add favorite [%s]: %s" % (name, text) # text is reason why not
         
-        env.history.message(msg) 
-        
+        env.history.message(msg)
         return
         
     def deleteFavorite(self):
@@ -873,7 +884,6 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         formats = \
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
-         
         
         fn = QFileDialog.getSaveFileName(
             self, 
@@ -914,11 +924,10 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             return
 
         else:
-            canLoadFile=loadFavoriteFile(fname)
+            canLoadFile = loadFavoriteFile(fname)
             
             if canLoadFile == 1:
                 
-            
                 #get just the name of the file for loading into the combobox
             
                 favName = os.path.basename(str(fname))
@@ -975,12 +984,7 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                 else:
                     self.win.glpane.setBackgroundColor(env.prefs[backgroundColor_prefs_key])
                 self.win.glpane.gl_update() 
-            
-            
         return
-    
-    #def _gl_update(self, state):
-    #    self.win.glpane.gl_update()
     
     def _addWhatsThisText( self ):
         """
