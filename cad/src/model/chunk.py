@@ -114,8 +114,6 @@ from graphics.drawing.ColorSorter import ColorSortedDisplayList
 ##from constants import PickedColor
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
-from graphics.drawing.gl_lighting import startPatternedDrawing
-from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from utilities.constants import gensym, genKey
 
@@ -144,13 +142,20 @@ from commands.ChunkProperties.ChunkProp import ChunkProp
 
 from dna.model.Dna_Constants import getComplementSequence
 
-
 from operations.bond_chains import grow_directional_bond_chain
 
 import graphics.drawing.drawing_globals as drawing_globals
+
 from graphics.drawing.gl_lighting import apply_material
+from graphics.drawing.gl_lighting import startPatternedDrawing
+from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from graphics.drawables.Selobj import Selobj_API
+
+from graphics.drawing.special_drawing import USE_CURRENT
+from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+from graphics.drawing.special_drawing import StrandEnd_ExtraChunkDisplayList
+from graphics.drawing.special_drawing import Chunk_SpecialDrawingHandler
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -2018,13 +2023,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # of a matching glEndList) in which any subsequent glNewList is an
                     # invalid operation. (Also done in shape.py; not needed in drawer.py.)
                     try:
-                        self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
-                            ##### pass special-list-policy args?
-                            #   incl kind -> class, wantlist, self.extra_displists for where to put them
-                            # or self to ask all that stuff (already passed of course).
-                            # this needs to add things to self.extra_displists as needed
+                        self._draw_for_main_display_list(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk), wantlist)
                     except:
-                        print_compact_traceback("exception in Chunk.draw_displist ignored: ")
+                        print_compact_traceback("exception in Chunk._draw_for_main_display_list ignored: ")
 
                     if wantlist:
                         ColorSorter.finish() # grantham 20051205
@@ -2269,10 +2270,43 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             continue
         return
 
-    def draw_displist(self, glpane, disp0, hd_info):
+    def _draw_for_main_display_list(self, glpane, disp0, hd_info, wantlist):
         """
         [private submethod of self.draw]
+
+        Draw the contents of our main display list, which the caller
+        has already opened for compile and execute (or the equivalent,
+        if it's a ColorSortedDisplayList object) if wantlist is true,
+        or doesn't want to open otherwise (so we do immediate mode
+        drawing then).
+
+        Also (if self attrs permit and wantlist argument is true)
+        capture functions for deferred drawing into new instances
+        of appropriate subclasses of ExtraChunkDisplayList added to
+        self.extra_displists, so that some aspects of our atoms and bonds
+        can be drawn from separate display lists, to avoid remaking our
+        main one whenever those need to change.
         """
+        if wantlist and debug_pref("use special_drawing_handlers? (not yet working)",
+                                   Choice_boolean_False,
+                                   non_debug = True,
+                                   prefs_key = True):
+            # set up the right kind of special_drawing_handler for self;
+            # this will be passed to the draw calls of our atoms and bonds
+            # [new feature, bruce 080605]
+            special_drawing_classes = { # todo: move into a class constant
+                SPECIAL_DRAWING_STRAND_END: StrandEnd_ExtraChunkDisplayList,
+             }
+            self.special_drawing_handler = \
+                    Chunk_SpecialDrawingHandler( self, special_drawing_classes )
+        else:
+            self.special_drawing_handler = None
+        
+        del wantlist # for now; bruce 080605 #####
+            #   incl kind -> class, wantlist, self.extra_displists for where to put them
+            # or self to ask all that stuff (already passed of course).
+            # this needs to add things to self.extra_displists as needed
+
         #bruce 050513 optimizing this somewhat; 060608 revising it
         if debug_pref("GLPane: report remaking of chunk display lists?",
                       Choice_boolean_False,
@@ -2466,7 +2500,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                That might change, e.g. if we made chunks able to show their
                axes, name, bbox, etc.
         """
-        #bruce 060608 split this out of draw_displist
+        #bruce 060608 split this out of _draw_for_main_display_list
         return
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
@@ -2497,7 +2531,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         return color
 
-    def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of draw_displist
+    def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of _draw_for_main_display_list
         """
         [private submethod of self.draw:]
         
@@ -2555,7 +2589,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 # end bruce hack 041014, except for use of color rather than
                 # self.color in atom.draw (but not in bond.draw -- good??)
 
-                atomdisp = atom.draw(glpane, disp, color, drawLevel)
+                atomdisp = atom.draw(
+                    glpane, disp, color, drawLevel,
+                    special_drawing_handler = self.special_drawing_handler
+                 )
 
                 #bruce 050513 optim: if self and atom display modes don't need to draw bonds,
                 # we can skip drawing bonds here without checking whether their other atoms
@@ -2598,7 +2635,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     pass
                 else:
                     print "Source of current atom:", atom_source
-        return # from standard_draw_atoms (submethod of draw_displist)
+        return # from standard_draw_atoms (submethod of _draw_for_main_display_list)
 
     def overdraw_hotspot(self, glpane, disp): # bruce 050131 (atom_debug only); [unknown later date] now always active
         """

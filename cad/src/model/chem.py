@@ -179,6 +179,9 @@ from dna.operations.crossovers import crossover_menu_spec
 
 from model.PAM_Atom_methods import PAM_Atom_methods
 
+from graphics.drawing.special_drawing import USE_CURRENT
+from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+
 # ==
 
 debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
@@ -1590,7 +1593,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         return glname
 
-    def draw(self, glpane, dispdef, col, level):
+    def draw(self, glpane, dispdef, col, level, special_drawing_handler = None, special_drawing_prefs = USE_CURRENT):
         """
         Draw this atom (self), using an appearance which depends on
         whether it is picked (selected)
@@ -1613,6 +1616,27 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         assert not self.__killed
 
+        # review: future: should we always compute _draw_atom_style here,
+        # just once, so we can pass it to methods below such as howdraw,
+        # and avoid calling it multiple times in other methods below?
+
+##        print "got special_drawing_handler %r, special_drawing_prefs %r" % \
+##              (special_drawing_handler, special_drawing_prefs) ##########################
+        
+        if special_drawing_handler and (
+            self._draw_atom_style(special_drawing_handler = special_drawing_handler) ==
+            'special_drawing_handler'
+           ):
+            # defer all drawing of self to special_drawing_handler [bruce 080605]
+            def func(special_drawing_prefs, args = (glpane, dispdef, col, level)):
+                self.draw(*args, **dict(special_drawing_prefs = special_drawing_prefs))
+            special_drawing_handler.draw_by_calling_with_prefsvalues(
+                SPECIAL_DRAWING_STRAND_END, func )
+            return
+        
+        # if we didn't defer, we don't need to use special_drawing_handler at all
+        del special_drawing_handler
+
         glname = self.get_glname(glpane)
 
         disp = default_display_mode # to be returned in case of early exception
@@ -1634,8 +1658,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         ColorSorter.pushName(glname)
         try:
             if disp in [diTrueCPK, diBALL, diTUBES]:
-                self.draw_atom_sphere(color, pos, drawrad, level, dispdef)
-            self.draw_wirespheres(glpane, disp, pos, pickedrad)
+                self.draw_atom_sphere(color, pos, drawrad, level, dispdef,
+                                      special_drawing_prefs = special_drawing_prefs )
+            self.draw_wirespheres(glpane, disp, pos, pickedrad,
+                                  special_drawing_prefs = special_drawing_prefs )
         except:
             ColorSorter.popName()
             glPopName()
@@ -1668,16 +1694,30 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     # bruce 070409 split this out of draw_atom_sphere; 
     # 070424 revised return value (None -> "")
-    def _draw_atom_style(self): 
+    def _draw_atom_style(self, special_drawing_handler = None, special_drawing_prefs = None): ##### TODO: pass one of these args to each call
         """
         [private helper method for L{draw_atom_sphere}, and perhaps related
         methods like L{draw_wirespheres}]
 
         Return a short hardcoded string (known to L{draw_atom_sphere}) saying
         in what style to draw the atom's sphere.
+
+        @param special_drawing_handler: if not None, an object to which all drawing
+                                   which is dependent on special_drawing_prefs
+                                   needs to be deferred. In this method, this
+                                   argument is used only for tests
+                                   which let us tell the caller whether we need
+                                   to defer to it.
+
+        @param special_drawing_prefs: an object that knows how to find out
+                                   how to draw strand ends. Never passed
+                                   along with special_drawing_handler -- only passed
+                                   if we're doing drawing which was *already*
+                                   deferred do that.
         
         @return: Returns one of the following values:
                  - "" (Not None) means to draw an actual sphere.
+                 - "special_drawing_handler" means to defer drawing to the special_drawing_handler.
                  - "arrowhead-in" means to draw a 5' arrowhead.
                  - "arrowhead-out" means to draw a 3' arrowhead.
                  - "do not draw" means don't draw anything.
@@ -1703,44 +1743,90 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
         if self.element.bonds_can_be_directional: #bruce 070415, correct end-arrowheads
             # note: as of mark 071014, this can happen for self being a Singlet
-            bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
-            bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
-                
-            if not bool_arrowsOnFivePrimeEnds and self.isFivePrimeEndAtom():
-                return 'five_prime_end_atom'
-            elif not bool_arrowsOnThreePrimeEnds and self.isThreePrimeEndAtom():
-                return 'three_prime_end_atom'
-            
-            bond = self.strand_end_bond()
-                # never non-None if self has two bonds with directions set
-                # (assuming no errors) -- i.e. for -Ss3-X, only non-None
-                # for the X, never for the Ss3
-                # [bruce 080604 quick analysis, should re-review]
-            if bond is not None:
-                # Determine how singlets of strand open bonds should be drawn.
-                # draw_bond_main() takes care of drawing bonds accordingly.
-                # - mark 2007-10-20.
-                if bond.isFivePrimeOpenBond() and bool_arrowsOnFivePrimeEnds:
-                    return 'arrowhead-in'                        
-                elif bond.isThreePrimeOpenBond() and bool_arrowsOnThreePrimeEnds:
-                    return 'arrowhead-out'              
+
+            # figure out whether to defer drawing to special_drawing_handler [bruce 080605]
+            if self.isFivePrimeEndAtom() or \
+               self.isThreePrimeEndAtom() or \
+               self.strand_end_bond() is not None:
+                if special_drawing_handler and \
+                   special_drawing_handler.should_defer( SPECIAL_DRAWING_STRAND_END):
+                    # tell caller to defer drawing self to special_drawing_handler
+                    return 'special_drawing_handler'
                 else:
-                    return 'do not draw'
-                #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
-                #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
-                #  since it usually looks like a cone when it's correctly used? Current code won't do that.
-                #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
+                    # draw using the values in special_drawing_prefs
+                    res = self._draw_atom_style_using_special_drawing_prefs( special_drawing_prefs )
+                    if res:
+                        return res
                 pass
+            pass
+        return "" # from _draw_atom_style
+
+    def _draw_atom_style_using_special_drawing_prefs(self, special_drawing_prefs):
+        """
+        [private helper for _draw_atom_style]
+        """
+        #bruce 080605 split this out, revised it
+        assert special_drawing_prefs, "need special_drawing_prefs" ##### BUG: will fail in max_pixel_radius until fixed!
+            # note: for optimal redraw (by avoiding needless remakes of some
+            # display lists), only access each of the values this can provide
+            # when that value is actually needed to do the drawing.
+        
+        if self.isFivePrimeEndAtom():
+            # (this happens even if self.isThreePrimeEndAtom() is also true
+            #  (which may happen for a length-1 PAM3 strand);
+            #  I guess that's either ok or good [bruce 080605 comment])
+            if not special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
+                return 'five_prime_end_atom'
+        elif self.isThreePrimeEndAtom():
+            if not special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]: 
+                return 'three_prime_end_atom'
+        
+        bond = self.strand_end_bond()
+            # never non-None if self has two bonds with directions set
+            # (assuming no errors) -- i.e. for -Ss3-X, only non-None
+            # for the X, never for the Ss3
+            # [bruce 080604 quick analysis, should re-review]
+        if bond is not None:
+            # Determine how singlets of strand open bonds should be drawn.
+            # draw_bond_main() takes care of drawing bonds accordingly.
+            # - mark 2007-10-20.
+            if bond.isFivePrimeOpenBond():
+                if special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
+                    return 'arrowhead-in'
+            elif bond.isThreePrimeOpenBond():
+                if special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
+                    return 'arrowhead-out'
+            else:
+                return 'do not draw'
+            #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
+            #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
+            #  since it usually looks like a cone when it's correctly used? Current code won't do that.
+            #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
             pass
         return ""
 
-    def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
+    def draw_atom_sphere(self,
+                         color,
+                         pos,
+                         drawrad,
+                         level,
+                         dispdef,
+                         abs_coords = False,
+                         special_drawing_prefs = USE_CURRENT
+                        ):
         """
         #doc
-        [dispdef can be None if not known to caller]
+
+        @param dispdef: can be None if not known to caller
+
+        @param special_drawing_handler: see _draw_atom_style for related doc
+        
+        @param special_drawing_prefs: see _draw_atom_style for doc
+
+        @return: None
         """
         #bruce 060630 split this out for sharing with draw_in_abs_coords
-        style = self._draw_atom_style()
+        style = self._draw_atom_style( special_drawing_prefs = special_drawing_prefs)
         if style == 'do not draw':
             if disable_do_not_draw_open_bonds(): ##  or self._dna_updater__error:
                 # (first cond is a debug_pref for debugging -- bruce 080122)
@@ -1788,10 +1874,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #Following implements custom arrowhead colors for the 3' and 5' end
                 #(can be changed using Preferences > Dna page) Feature implemented 
                 #for Rattlesnake v1.0.1
-                bool_custom_arrowhead_color = env.prefs[
+                bool_custom_arrowhead_color = special_drawing_prefs[
                     useCustomColorForFivePrimeArrowheads_prefs_key]                
                 if bool_custom_arrowhead_color and not abs_coords:
-                    arrowColor = env.prefs[
+                    arrowColor = special_drawing_prefs[
                         dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
                 
             elif style == 'arrowhead-out':
@@ -1801,10 +1887,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #Following implements custom arrowhead colors for the 3' and 5' end
                 #(can be changed using Preferences > Dna page) Feature implemented 
                 #for Rattlesnake v1.0.1
-                bool_custom_arrowhead_color = env.prefs[
+                bool_custom_arrowhead_color = special_drawing_prefs[
                     useCustomColorForThreePrimeArrowheads_prefs_key]                
                 if bool_custom_arrowhead_color and not abs_coords:
-                    arrowColor = env.prefs[
+                    arrowColor = special_drawing_prefs[
                         dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
             else:
                 assert 0
@@ -1860,30 +1946,30 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                        )
         elif style == 'five_prime_end_atom':
             sphereColor = color
-            bool_custom_color = env.prefs[
+            bool_custom_color = special_drawing_prefs[
                     useCustomColorForFivePrimeArrowheads_prefs_key]                
             if bool_custom_color and not abs_coords:
-                sphereColor = env.prefs[
+                sphereColor = special_drawing_prefs[
                     dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
                     
             drawsphere(sphereColor, pos, drawrad, level)
         elif style == 'three_prime_end_atom':
             sphereColor = color
-            bool_custom_color = env.prefs[
+            bool_custom_color = special_drawing_prefs[
                     useCustomColorForThreePrimeArrowheads_prefs_key]                
             if bool_custom_color and not abs_coords:
-                sphereColor = env.prefs[
+                sphereColor = special_drawing_prefs[
                     dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
             drawsphere(sphereColor, pos, drawrad, level)
         else:
             if style:
                 print "bug (ignored): unknown _draw_atom_style return value for %r: %r" % (self, style,)
             drawsphere(color, pos, drawrad, level)
-        return
+        return # from draw_atom_sphere
     
-    def draw_wirespheres(self, glpane, disp, pos, pickedrad):
+    def draw_wirespheres(self, glpane, disp, pos, pickedrad, special_drawing_prefs = USE_CURRENT):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
-        if self._draw_atom_style().startswith('arrowhead-'):
+        if self._draw_atom_style(special_drawing_prefs = special_drawing_prefs).startswith('arrowhead-'):
             # compensate for the cone (drawn by draw_atom_sphere in this case) being bigger than the sphere [bruce 070409]
             pickedrad *= debug_pref("Pe pickedrad ratio", Choice([1.8, 1.9, 1.7, 1.0])) ####
         if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
@@ -2156,7 +2242,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         drawrad *= factor #bruce 080214 new feature
         ## drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
-        self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
+        self.draw_atom_sphere(color, pos, drawrad, level, None,
+                              abs_coords = True,
+                              special_drawing_prefs = USE_CURRENT
+                              )
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     

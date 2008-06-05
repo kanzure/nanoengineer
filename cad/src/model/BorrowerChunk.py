@@ -148,7 +148,7 @@ class BorrowerChunk(Chunk):
 
         return # from take_atomset
 
-    # instead of overriding draw_displist, it's enough to define _colorfunc and _dispfunc to help it:
+    # instead of overriding _draw_for_main_display_list, it's enough to define _colorfunc and _dispfunc to help it:
     def _colorfunc(self, atm):
         """
         Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
@@ -159,7 +159,7 @@ class BorrowerChunk(Chunk):
         return self.origmols[atm.key].drawing_color()
     def _dispfunc(self, atm):
         origmol = self.origmols[atm.key]
-        glpane = origmol.glpane # set shortly before this call, in origmol.draw_displist (kluge)
+        glpane = origmol.glpane # set shortly before this call, in origmol._draw_for_main_display_list (kluge)
         disp = origmol.get_dispdef(glpane)
         return disp
     def restore_atoms_to_their_homes(self):

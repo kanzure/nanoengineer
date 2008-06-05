@@ -93,6 +93,8 @@ def mainwindow(): #bruce 051209
 
     return _mainWindow
 
+mainWindow = mainwindow # alias which should become the new name of that function [bruce 080605]
+
 def debug(): #bruce 060222
     """
     Should debug checks be run, and debug messages be printed, and debug options offered in menus?
