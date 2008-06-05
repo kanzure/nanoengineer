@@ -25,12 +25,11 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 from PyQt4 import QtGui
 from PyQt4.Qt import QFileDialog, QString, QMessageBox
+from PyQt4.Qt import QColorDialog
 from PM.PM_Dialog   import PM_Dialog
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
-from PM.PM_StackedWidget import PM_StackedWidget
 from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_ColorComboBox import PM_ColorComboBox
 from PM.PM_Constants     import pmDoneButton
@@ -41,10 +40,9 @@ from utilities.constants import yellow, orange, red, magenta, cyan, blue
 from utilities.constants import white, black, gray, green, darkgreen
 
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
-from PyQt4.Qt import QColorDialog
+
 from utilities.icon_utilities import geticon
 from utilities.debug import print_compact_traceback
-
 
 bg_BLUE_SKY = 0
 bg_EVENING_SKY = 1
@@ -68,11 +66,14 @@ from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
 from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import fogEnabled_prefs_key
+
 from utilities.constants import black, white, gray
 
 colorSchemePrefsList = \
                      [backgroundGradient_prefs_key,
                       backgroundColor_prefs_key,
+                      fogEnabled_prefs_key,
                       hoverHighlightingColorStyle_prefs_key,
                       hoverHighlightingColor_prefs_key,
                       selectionColorStyle_prefs_key,
@@ -204,6 +205,8 @@ def loadFavoriteFile( filename ):
                     pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
                 elif backgroundGradient_prefs_key.endswith(pref_keyString):
                     pref_valueToStore = int(pref_value)
+                elif fogEnabled_prefs_key.endswith(pref_keyString):
+                    pref_valueToStore = bool(int(pref_value))
                 elif hoverHighlightingColorStyle_prefs_key.endswith(pref_keyString):
                     pref_valueToStore = str(pref_value)
                 elif hoverHighlightingColor_prefs_key.endswith(pref_keyString):
@@ -561,6 +564,12 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          spanWidth = False)
         
         self._loadBackgroundColorItems()
+        
+        self.enableFogCheckBox = \
+            PM_CheckBox( pmGroupBox, text = "Enable fog" )
+        
+        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
+        return
     
     def _loadGroupBox3(self, pmGroupBox):
         """
@@ -970,7 +979,8 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             
         return
     
-    
+    #def _gl_update(self, state):
+    #    self.win.glpane.gl_update()
     
     def _addWhatsThisText( self ):
         """

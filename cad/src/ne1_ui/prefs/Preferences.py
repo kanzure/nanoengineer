@@ -679,6 +679,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
 
+        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
         self.connect(self.enableFogCheckBox, SIGNAL("toggled(bool)"), self.enable_fog)
 
         return
@@ -1538,7 +1539,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
 	Switches fog.
 	"""
-        env.prefs[fogEnabled_prefs_key] = val
         self.glpane.gl_update()
 
     def set_default_projection_OBSOLETE(self, projection):
