@@ -3171,25 +3171,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # piotr 080402: uses GlobalPreferences
         assert not self._frustum_planes_available
 
-        # fog_test_enable debug_pref can be removed if fog is implemented fully
-        # (added by bradg 20060224)
         
-        # piotr 080605 1.1.0 rc1 - replaced fog debug pref with user pref
-        fog_test_enable = env.prefs[fogEnabled_prefs_key]
-
-        if fog_test_enable:
-            if hasattr(self, "fogColor"):
-                # piotr 080515 fixed fog
-                # I think that the bbox call can be expensive.
-                # I have to preserve this value or find another way
-                # of computing it.
-                bbox = self.assy.bbox_for_viewing_model()
-                scale = bbox.scale()
-                setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
-                # this next line really should be just before rendering
-                # the atomic model itself.  I dunno where that is.
-                enable_fog()
-
         glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs
             # (e.g. in exprs/Overlay.py)
             # TODO: put this into some sort of init function in GLPane_minimal;
@@ -3206,11 +3188,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 #  called in the same way as the following]
         else:
             method( self) # let the graphicsMode override it
-
-        if fog_test_enable:
-            # this next line really should be just after rendering
-            # the atomic model itself.  I dunno where that is. [bradg]
-            disable_fog()
 
         glFlush()
 
@@ -3702,11 +3679,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                 (0.25 * (_bgGradient[0][0] + _bgGradient[1][0] + _bgGradient[2][0] + _bgGradient[3][0]), \
                  0.25 * (_bgGradient[0][1] + _bgGradient[1][1] + _bgGradient[2][1] + _bgGradient[3][1]), \
                  0.25 * (_bgGradient[0][2] + _bgGradient[1][2] + _bgGradient[2][2] + _bgGradient[3][2]))
-
+            
             # Note: it would be possible to optimize by not clearing the color buffer
             # when we'll call drawFullWindow, if we first cleared depth buffer (or got
             # drawFullWindow to ignore it and effectively clear it by writing its own
             # depths into it everywhere, if that's possible). [bruce 070913 comment]
+
+        # fog_test_enable debug_pref can be removed if fog is implemented fully
+        # (added by bradg 20060224)
+        # piotr 080605 1.1.0 rc1 - replaced fog debug pref with user pref
+        fog_test_enable = env.prefs[fogEnabled_prefs_key]
+
+        if fog_test_enable:
+            if hasattr(self, "fogColor"):
+                # piotr 080515 fixed fog
+                # I think that the bbox call can be expensive.
+                # I have to preserve this value or find another way
+                # of computing it.
+                bbox = self.assy.bbox_for_viewing_model()
+                scale = bbox.scale()
+                enable_fog()
+                setup_fog(self.vdist - scale, self.vdist + scale, self.fogColor) 
+                # this next line really should be just before rendering
+                # the atomic model itself.  I dunno where that is.
 
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
@@ -3763,6 +3758,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
 
+
         # piotr 080515: added software stereo rendering support
         if not self.stereo_enabled:
             # draw only once if stereo is disabled
@@ -3775,12 +3771,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # iterate over stereo images
             self._enable_stereo(stereo_image)
 
+            # enable fog
+            if fog_test_enable:
+                enable_fog()
+                
             try: #bruce 070124 added try/finally for drawing_phase
                 self.drawing_phase = 'main' #bruce 070124
                 self.graphicsMode.Draw()
             finally:
                 self.drawing_phase = '?'
 
+            if fog_test_enable:
+                disable_fog()            
+                
             # highlight selobj if necessary, by drawing it again in highlighted form.
             # It was already drawn normally, but we redraw it now for two reasons:
             # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
@@ -3843,6 +3846,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                     drawaxes(self.scale, (0.0, 0.0, 0.0), coloraxes = True, dashEnabled = True)
 
             self._disable_stereo()
+            
+        if fog_test_enable:
+            # this next line really should be just after rendering
+            # the atomic model itself.  I dunno where that is. [bradg]
+            disable_fog()            
 
         # draw some test images related to the confirmation corner
 
@@ -3862,6 +3870,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         if ccdp2:
             self.draw_conf_corner_bg_image()
 
+
+            
         # draw various overlays
 
         self.drawing_phase = 'overlay'
