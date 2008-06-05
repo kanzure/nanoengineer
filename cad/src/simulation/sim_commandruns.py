@@ -134,7 +134,7 @@ class simSetup_CommandRun(CommandRun):
             return -1
         ###@@@ else use suffix below!
 
-        self.simcntl = SimSetup(self.part, suffix = suffix)
+        self.simcntl = SimSetup(self.win, self.part, suffix = suffix)
             # this now has its own sticky params, doesn't need previous_movie [bruce 060601, fixing bug 1840]
             # Open SimSetup dialog [and run it until user dismisses it]
         movie = self.simcntl.movie # always a Movie object, even if user cancelled the dialog

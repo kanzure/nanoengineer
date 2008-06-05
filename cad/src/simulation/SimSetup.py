@@ -69,16 +69,16 @@ _stickyParams = None # sometimes this is a FakeMovie object
 
 class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was called runSim
     """
-    dialog class for setting up a simulator run
+    The "Run Dynamics" dialog class for setting up and launching a simulator run.
     """
-    def __init__(self, part, previous_movie = None, suffix = ""):
+    def __init__(self, win, part, previous_movie = None, suffix = ""):
         """
         use previous_movie (if passed) for default values,
         otherwise use the same ones last ok'd by user
         (whether or not that sim got aborted), or default values if that never happened in this session;
         on success or failure, make a new Movie and store it as self.movie
         """
-        QDialog.__init__(self)
+        QDialog.__init__(self, win) # win is parent.
         self.setupUi(self)
         
         self.setWindowIcon(geticon('ui/border/RunDynamics.png'))
