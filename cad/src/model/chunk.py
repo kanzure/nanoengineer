@@ -66,8 +66,6 @@ from OpenGL.GL import glEnable
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 
-# chunk and chem formed a two element import cycle -- as of 080508 that's fixed,
-# but they are still both part of larger cycles involving the dna package.
 # (chem is used here only for class Atom, as of 080510)
 import model.chem as chem
 
@@ -1979,8 +1977,18 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 matprefs = drawing_globals.glprefs.materialprefs_summary() #bruce 051126
                 #bruce 060215 adding drawLevel to havelist
                 if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
+                    # our main display list is still valid -- use it
                     self.displist.draw_dl()
+                        # note: this draws differently depending on selectedness
+                        # stored in self.displist (redundant with self.picked,
+                        # needs to be kept synchronized -- this ought to be refactored
+                        # (to use the new self.displist.draw() method, once it's tested)
+                        # so that state is not in self.displist [bruce 080604 comment])
+                    for extra_displist in self.extra_displists.itervalues(): #####
+                        extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked) #####
+                            # todo: pass wantlist? yes in theory, but not urgent.
                 else:
+                    # our main display list (and all extra lists) needs to be remade
                     if 1:
                         #bruce 060608: record info to help per-chunk display modes
                         # figure out whether they need to invalidate their memo data.
@@ -1993,9 +2001,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     self.havelist = 0 #bruce 051209: this is now needed
                     try:
                         wantlist = not env.mainwindow().movie_is_playing #bruce 051209
+                            # warning: use of env.mainwindow is a KLUGE
                     except:
                         print_compact_traceback("exception (a bug) ignored: ")
                         wantlist = True
+                    self.extra_displists = {} # we'll make new ones as needed
                     if wantlist:
                         ##print "Regenerating display list for %s" % self.name
                         match_checking_code = self.begin_tracking_usage()
@@ -2010,6 +2020,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     # invalid operation. (Also done in shape.py; not needed in drawer.py.)
                     try:
                         self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
+                            ##### pass special-list-policy args?
+                            #   incl kind -> class, wantlist, self.extra_displists for where to put them
+                            # or self to ask all that stuff (already passed of course).
+                            # this needs to add things to self.extra_displists as needed
                     except:
                         print_compact_traceback("exception in Chunk.draw_displist ignored: ")
 
@@ -2029,7 +2043,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         # so it doesn't keep happening with every redraw of this Chunk.
                         #e (in future it might be safer to remake the display list to contain
                         # only a known-safe thing, like a bbox and an indicator of the bug.)
-                    pass
+
+                    # draw the extra_displists (only needed if wantlist? not sure, so do always;
+                    #  guess: there will be none of them unless wantlist is set, so it doesn't matter)
+                    for extra_displist in self.extra_displists.itervalues():
+                        extra_displist.draw_but_first_recompile_if_needed(glpane,
+                                                                          selected = self.picked,
+                                                                          wantlist = wantlist)
+                        
+                    pass # end of the case where our "main display list (and all extra lists) needs to be remade"
 
                 #@@ninad 070219 disabling the following--
                 #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
