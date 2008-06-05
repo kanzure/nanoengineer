@@ -636,6 +636,10 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # Background color widgets and connection(s).
         self._loadBackgroundColorItems()
         self.connect(self.backgroundColorComboBox, SIGNAL("activated(int)"), self.changeBackgroundColor)
+        
+        # Fog checkbox
+        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
+        self.connect(self.enableFogCheckBox, SIGNAL("toggled(bool)"), self.enable_fog)
 
         # Hover highlighting color style widgets and connection(s).
         self._loadHoverHighlightingColorStylesItems()
@@ -678,9 +682,6 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
-
-        connect_checkbox_with_boolean_pref( self.enableFogCheckBox, fogEnabled_prefs_key )
-        self.connect(self.enableFogCheckBox, SIGNAL("toggled(bool)"), self.enable_fog)
 
         return
 

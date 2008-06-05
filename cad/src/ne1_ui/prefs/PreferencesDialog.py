@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PreferencesDialog.ui'
 #
-# Created: Wed Jun 04 20:03:14 2008
+# Created: Thu Jun 05 16:35:48 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -114,36 +114,49 @@ class Ui_PreferencesDialog(object):
 
         self.vboxlayout3 = QtGui.QVBoxLayout()
         self.vboxlayout3.setMargin(0)
-        self.vboxlayout3.setSpacing(6)
+        self.vboxlayout3.setSpacing(4)
         self.vboxlayout3.setObjectName("vboxlayout3")
+
+        self.backgroundGroupBox = QtGui.QGroupBox(self.Color)
+        self.backgroundGroupBox.setObjectName("backgroundGroupBox")
+
+        self.gridlayout4 = QtGui.QGridLayout(self.backgroundGroupBox)
+        self.gridlayout4.setMargin(4)
+        self.gridlayout4.setSpacing(2)
+        self.gridlayout4.setObjectName("gridlayout4")
+
+        self.enableFogCheckBox = QtGui.QCheckBox(self.backgroundGroupBox)
+        self.enableFogCheckBox.setObjectName("enableFogCheckBox")
+        self.gridlayout4.addWidget(self.enableFogCheckBox,1,0,1,1)
 
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(2)
         self.hboxlayout.setObjectName("hboxlayout")
 
-        self.label_8 = QtGui.QLabel(self.Color)
+        self.label_8 = QtGui.QLabel(self.backgroundGroupBox)
         self.label_8.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_8.setObjectName("label_8")
         self.hboxlayout.addWidget(self.label_8)
 
-        self.backgroundColorComboBox = QtGui.QComboBox(self.Color)
+        self.backgroundColorComboBox = QtGui.QComboBox(self.backgroundGroupBox)
         self.backgroundColorComboBox.setObjectName("backgroundColorComboBox")
         self.hboxlayout.addWidget(self.backgroundColorComboBox)
-        self.vboxlayout3.addLayout(self.hboxlayout)
+        self.gridlayout4.addLayout(self.hboxlayout,0,0,1,1)
+        self.vboxlayout3.addWidget(self.backgroundGroupBox)
 
         self.hoverHighlightingStyleGroupBox = QtGui.QGroupBox(self.Color)
         self.hoverHighlightingStyleGroupBox.setObjectName("hoverHighlightingStyleGroupBox")
 
-        self.gridlayout4 = QtGui.QGridLayout(self.hoverHighlightingStyleGroupBox)
-        self.gridlayout4.setMargin(4)
-        self.gridlayout4.setSpacing(2)
-        self.gridlayout4.setObjectName("gridlayout4")
+        self.gridlayout5 = QtGui.QGridLayout(self.hoverHighlightingStyleGroupBox)
+        self.gridlayout5.setMargin(4)
+        self.gridlayout5.setSpacing(2)
+        self.gridlayout5.setObjectName("gridlayout5")
 
         self.label_21 = QtGui.QLabel(self.hoverHighlightingStyleGroupBox)
         self.label_21.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_21.setObjectName("label_21")
-        self.gridlayout4.addWidget(self.label_21,1,0,1,1)
+        self.gridlayout5.addWidget(self.label_21,1,0,1,1)
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setMargin(0)
@@ -162,25 +175,25 @@ class Ui_PreferencesDialog(object):
         self.hoverHighlightingColorButton.setAutoDefault(False)
         self.hoverHighlightingColorButton.setObjectName("hoverHighlightingColorButton")
         self.hboxlayout1.addWidget(self.hoverHighlightingColorButton)
-        self.gridlayout4.addLayout(self.hboxlayout1,1,1,1,1)
+        self.gridlayout5.addLayout(self.hboxlayout1,1,1,1,1)
 
         self.hoverHighlightingStyleComboBox = QtGui.QComboBox(self.hoverHighlightingStyleGroupBox)
         self.hoverHighlightingStyleComboBox.setObjectName("hoverHighlightingStyleComboBox")
-        self.gridlayout4.addWidget(self.hoverHighlightingStyleComboBox,0,0,1,2)
+        self.gridlayout5.addWidget(self.hoverHighlightingStyleComboBox,0,0,1,2)
         self.vboxlayout3.addWidget(self.hoverHighlightingStyleGroupBox)
 
         self.selectionColorStyleGroupBox = QtGui.QGroupBox(self.Color)
         self.selectionColorStyleGroupBox.setObjectName("selectionColorStyleGroupBox")
 
-        self.gridlayout5 = QtGui.QGridLayout(self.selectionColorStyleGroupBox)
-        self.gridlayout5.setMargin(4)
-        self.gridlayout5.setSpacing(2)
-        self.gridlayout5.setObjectName("gridlayout5")
+        self.gridlayout6 = QtGui.QGridLayout(self.selectionColorStyleGroupBox)
+        self.gridlayout6.setMargin(4)
+        self.gridlayout6.setSpacing(2)
+        self.gridlayout6.setObjectName("gridlayout6")
 
         self.label_22 = QtGui.QLabel(self.selectionColorStyleGroupBox)
         self.label_22.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_22.setObjectName("label_22")
-        self.gridlayout5.addWidget(self.label_22,1,0,1,1)
+        self.gridlayout6.addWidget(self.label_22,1,0,1,1)
 
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setMargin(0)
@@ -199,11 +212,11 @@ class Ui_PreferencesDialog(object):
         self.selectionColorButton.setAutoDefault(False)
         self.selectionColorButton.setObjectName("selectionColorButton")
         self.hboxlayout2.addWidget(self.selectionColorButton)
-        self.gridlayout5.addLayout(self.hboxlayout2,1,1,1,1)
+        self.gridlayout6.addLayout(self.hboxlayout2,1,1,1,1)
 
         self.selectionStyleComboBox = QtGui.QComboBox(self.selectionColorStyleGroupBox)
         self.selectionStyleComboBox.setObjectName("selectionStyleComboBox")
-        self.gridlayout5.addWidget(self.selectionStyleComboBox,0,0,1,2)
+        self.gridlayout6.addWidget(self.selectionStyleComboBox,0,0,1,2)
         self.vboxlayout3.addWidget(self.selectionColorStyleGroupBox)
 
         self.hboxlayout3 = QtGui.QHBoxLayout()
@@ -240,10 +253,10 @@ class Ui_PreferencesDialog(object):
         self.ModelView = QtGui.QWidget()
         self.ModelView.setObjectName("ModelView")
 
-        self.gridlayout6 = QtGui.QGridLayout(self.ModelView)
-        self.gridlayout6.setMargin(9)
-        self.gridlayout6.setSpacing(6)
-        self.gridlayout6.setObjectName("gridlayout6")
+        self.gridlayout7 = QtGui.QGridLayout(self.ModelView)
+        self.gridlayout7.setMargin(9)
+        self.gridlayout7.setSpacing(6)
+        self.gridlayout7.setObjectName("gridlayout7")
 
         self.vboxlayout4 = QtGui.QVBoxLayout()
         self.vboxlayout4.setMargin(0)
@@ -270,13 +283,13 @@ class Ui_PreferencesDialog(object):
         self.compassGroupBox.setChecked(True)
         self.compassGroupBox.setObjectName("compassGroupBox")
 
-        self.gridlayout7 = QtGui.QGridLayout(self.compassGroupBox)
-        self.gridlayout7.setMargin(4)
-        self.gridlayout7.setSpacing(4)
-        self.gridlayout7.setObjectName("gridlayout7")
+        self.gridlayout8 = QtGui.QGridLayout(self.compassGroupBox)
+        self.gridlayout8.setMargin(4)
+        self.gridlayout8.setSpacing(4)
+        self.gridlayout8.setObjectName("gridlayout8")
 
         spacerItem5 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout7.addItem(spacerItem5,0,1,1,1)
+        self.gridlayout8.addItem(spacerItem5,0,1,1,1)
 
         self.vboxlayout5 = QtGui.QVBoxLayout()
         self.vboxlayout5.setMargin(0)
@@ -302,50 +315,46 @@ class Ui_PreferencesDialog(object):
         self.display_compass_labels_checkbox.setChecked(True)
         self.display_compass_labels_checkbox.setObjectName("display_compass_labels_checkbox")
         self.vboxlayout5.addWidget(self.display_compass_labels_checkbox)
-        self.gridlayout7.addLayout(self.vboxlayout5,0,0,1,1)
+        self.gridlayout8.addLayout(self.vboxlayout5,0,0,1,1)
         self.vboxlayout4.addWidget(self.compassGroupBox)
 
         self.groupBox7_2 = QtGui.QGroupBox(self.ModelView)
         self.groupBox7_2.setObjectName("groupBox7_2")
 
-        self.gridlayout8 = QtGui.QGridLayout(self.groupBox7_2)
-        self.gridlayout8.setMargin(4)
-        self.gridlayout8.setSpacing(0)
-        self.gridlayout8.setObjectName("gridlayout8")
+        self.gridlayout9 = QtGui.QGridLayout(self.groupBox7_2)
+        self.gridlayout9.setMargin(4)
+        self.gridlayout9.setSpacing(0)
+        self.gridlayout9.setObjectName("gridlayout9")
 
         self.display_pov_axis_checkbox = QtGui.QCheckBox(self.groupBox7_2)
         self.display_pov_axis_checkbox.setChecked(False)
         self.display_pov_axis_checkbox.setObjectName("display_pov_axis_checkbox")
-        self.gridlayout8.addWidget(self.display_pov_axis_checkbox,1,0,1,1)
+        self.gridlayout9.addWidget(self.display_pov_axis_checkbox,1,0,1,1)
 
         self.display_origin_axis_checkbox = QtGui.QCheckBox(self.groupBox7_2)
         self.display_origin_axis_checkbox.setChecked(True)
         self.display_origin_axis_checkbox.setObjectName("display_origin_axis_checkbox")
-        self.gridlayout8.addWidget(self.display_origin_axis_checkbox,0,0,1,1)
+        self.gridlayout9.addWidget(self.display_origin_axis_checkbox,0,0,1,1)
         self.vboxlayout4.addWidget(self.groupBox7_2)
-
-        self.enableFogCheckBox = QtGui.QCheckBox(self.ModelView)
-        self.enableFogCheckBox.setObjectName("enableFogCheckBox")
-        self.vboxlayout4.addWidget(self.enableFogCheckBox)
 
         spacerItem6 = QtGui.QSpacerItem(20,41,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout4.addItem(spacerItem6)
-        self.gridlayout6.addLayout(self.vboxlayout4,0,0,1,1)
+        self.gridlayout7.addLayout(self.vboxlayout4,0,0,1,1)
 
         spacerItem7 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout6.addItem(spacerItem7,0,1,1,1)
+        self.gridlayout7.addItem(spacerItem7,0,1,1,1)
         self.prefsStackedWidget.addWidget(self.ModelView)
 
         self.ZoomPanandRotate = QtGui.QWidget()
         self.ZoomPanandRotate.setObjectName("ZoomPanandRotate")
 
-        self.gridlayout9 = QtGui.QGridLayout(self.ZoomPanandRotate)
-        self.gridlayout9.setMargin(9)
-        self.gridlayout9.setSpacing(6)
-        self.gridlayout9.setObjectName("gridlayout9")
+        self.gridlayout10 = QtGui.QGridLayout(self.ZoomPanandRotate)
+        self.gridlayout10.setMargin(9)
+        self.gridlayout10.setSpacing(6)
+        self.gridlayout10.setObjectName("gridlayout10")
 
         spacerItem8 = QtGui.QSpacerItem(231,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout9.addItem(spacerItem8,0,1,1,1)
+        self.gridlayout10.addItem(spacerItem8,0,1,1,1)
 
         self.vboxlayout6 = QtGui.QVBoxLayout()
         self.vboxlayout6.setMargin(0)
@@ -355,10 +364,10 @@ class Ui_PreferencesDialog(object):
         self.groupBox8 = QtGui.QGroupBox(self.ZoomPanandRotate)
         self.groupBox8.setObjectName("groupBox8")
 
-        self.gridlayout10 = QtGui.QGridLayout(self.groupBox8)
-        self.gridlayout10.setMargin(4)
-        self.gridlayout10.setSpacing(4)
-        self.gridlayout10.setObjectName("gridlayout10")
+        self.gridlayout11 = QtGui.QGridLayout(self.groupBox8)
+        self.gridlayout11.setMargin(4)
+        self.gridlayout11.setSpacing(4)
+        self.gridlayout11.setObjectName("gridlayout11")
 
         self.hboxlayout6 = QtGui.QHBoxLayout()
         self.hboxlayout6.setMargin(0)
@@ -394,29 +403,29 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout7.addWidget(self.rotationSensitivity_txtlbl)
         self.hboxlayout6.addLayout(self.vboxlayout7)
 
-        self.gridlayout11 = QtGui.QGridLayout()
-        self.gridlayout11.setMargin(0)
-        self.gridlayout11.setSpacing(0)
-        self.gridlayout11.setObjectName("gridlayout11")
+        self.gridlayout12 = QtGui.QGridLayout()
+        self.gridlayout12.setMargin(0)
+        self.gridlayout12.setSpacing(0)
+        self.gridlayout12.setObjectName("gridlayout12")
 
         spacerItem11 = QtGui.QSpacerItem(87,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout11.addItem(spacerItem11,2,1,1,1)
+        self.gridlayout12.addItem(spacerItem11,2,1,1,1)
 
         self.resetAnimationSpeed_btn = QtGui.QToolButton(self.groupBox8)
         self.resetAnimationSpeed_btn.setEnabled(False)
         self.resetAnimationSpeed_btn.setIcon(QtGui.QIcon("../../../../../:icons/UserPrefsDialog_image0"))
         self.resetAnimationSpeed_btn.setObjectName("resetAnimationSpeed_btn")
-        self.gridlayout11.addWidget(self.resetAnimationSpeed_btn,1,3,1,1)
+        self.gridlayout12.addWidget(self.resetAnimationSpeed_btn,1,3,1,1)
 
         spacerItem12 = QtGui.QSpacerItem(23,16,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout11.addItem(spacerItem12,2,3,1,1)
+        self.gridlayout12.addItem(spacerItem12,2,3,1,1)
 
         spacerItem13 = QtGui.QSpacerItem(23,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout11.addItem(spacerItem13,0,3,1,1)
+        self.gridlayout12.addItem(spacerItem13,0,3,1,1)
 
         self.textLabel3_4 = QtGui.QLabel(self.groupBox8)
         self.textLabel3_4.setObjectName("textLabel3_4")
-        self.gridlayout11.addWidget(self.textLabel3_4,0,2,1,1)
+        self.gridlayout12.addWidget(self.textLabel3_4,0,2,1,1)
 
         self.mouseSpeedDuringRotation_slider = QtGui.QSlider(self.groupBox8)
 
@@ -431,18 +440,18 @@ class Ui_PreferencesDialog(object):
         self.mouseSpeedDuringRotation_slider.setProperty("value",QtCore.QVariant(50))
         self.mouseSpeedDuringRotation_slider.setOrientation(QtCore.Qt.Horizontal)
         self.mouseSpeedDuringRotation_slider.setObjectName("mouseSpeedDuringRotation_slider")
-        self.gridlayout11.addWidget(self.mouseSpeedDuringRotation_slider,3,0,1,3)
+        self.gridlayout12.addWidget(self.mouseSpeedDuringRotation_slider,3,0,1,3)
 
         self.textLabel3_4_2 = QtGui.QLabel(self.groupBox8)
         self.textLabel3_4_2.setObjectName("textLabel3_4_2")
-        self.gridlayout11.addWidget(self.textLabel3_4_2,2,2,1,1)
+        self.gridlayout12.addWidget(self.textLabel3_4_2,2,2,1,1)
 
         spacerItem14 = QtGui.QSpacerItem(88,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout11.addItem(spacerItem14,0,1,1,1)
+        self.gridlayout12.addItem(spacerItem14,0,1,1,1)
 
         self.textLabel2_3_2 = QtGui.QLabel(self.groupBox8)
         self.textLabel2_3_2.setObjectName("textLabel2_3_2")
-        self.gridlayout11.addWidget(self.textLabel2_3_2,2,0,1,1)
+        self.gridlayout12.addWidget(self.textLabel2_3_2,2,0,1,1)
 
         self.animation_speed_slider = QtGui.QSlider(self.groupBox8)
 
@@ -456,19 +465,19 @@ class Ui_PreferencesDialog(object):
         self.animation_speed_slider.setMaximum(-25)
         self.animation_speed_slider.setOrientation(QtCore.Qt.Horizontal)
         self.animation_speed_slider.setObjectName("animation_speed_slider")
-        self.gridlayout11.addWidget(self.animation_speed_slider,1,0,1,3)
+        self.gridlayout12.addWidget(self.animation_speed_slider,1,0,1,3)
 
         self.resetMouseSpeedDuringRotation_btn = QtGui.QToolButton(self.groupBox8)
         self.resetMouseSpeedDuringRotation_btn.setEnabled(False)
         self.resetMouseSpeedDuringRotation_btn.setIcon(QtGui.QIcon("../../../../../:icons/UserPrefsDialog_image0"))
         self.resetMouseSpeedDuringRotation_btn.setObjectName("resetMouseSpeedDuringRotation_btn")
-        self.gridlayout11.addWidget(self.resetMouseSpeedDuringRotation_btn,3,3,1,1)
+        self.gridlayout12.addWidget(self.resetMouseSpeedDuringRotation_btn,3,3,1,1)
 
         self.textLabel2_3 = QtGui.QLabel(self.groupBox8)
         self.textLabel2_3.setObjectName("textLabel2_3")
-        self.gridlayout11.addWidget(self.textLabel2_3,0,0,1,1)
-        self.hboxlayout6.addLayout(self.gridlayout11)
-        self.gridlayout10.addLayout(self.hboxlayout6,1,0,1,1)
+        self.gridlayout12.addWidget(self.textLabel2_3,0,0,1,1)
+        self.hboxlayout6.addLayout(self.gridlayout12)
+        self.gridlayout11.addLayout(self.hboxlayout6,1,0,1,1)
 
         self.hboxlayout7 = QtGui.QHBoxLayout()
         self.hboxlayout7.setMargin(0)
@@ -482,16 +491,16 @@ class Ui_PreferencesDialog(object):
 
         spacerItem15 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout7.addItem(spacerItem15)
-        self.gridlayout10.addLayout(self.hboxlayout7,0,0,1,1)
+        self.gridlayout11.addLayout(self.hboxlayout7,0,0,1,1)
         self.vboxlayout6.addWidget(self.groupBox8)
 
         self.groupBox_4 = QtGui.QGroupBox(self.ZoomPanandRotate)
         self.groupBox_4.setObjectName("groupBox_4")
 
-        self.gridlayout12 = QtGui.QGridLayout(self.groupBox_4)
-        self.gridlayout12.setMargin(4)
-        self.gridlayout12.setSpacing(4)
-        self.gridlayout12.setObjectName("gridlayout12")
+        self.gridlayout13 = QtGui.QGridLayout(self.groupBox_4)
+        self.gridlayout13.setMargin(4)
+        self.gridlayout13.setSpacing(4)
+        self.gridlayout13.setObjectName("gridlayout13")
 
         self.hboxlayout8 = QtGui.QHBoxLayout()
         self.hboxlayout8.setMargin(0)
@@ -536,7 +545,7 @@ class Ui_PreferencesDialog(object):
         self.mouseWheelZoomOutPointComboBox.setObjectName("mouseWheelZoomOutPointComboBox")
         self.vboxlayout9.addWidget(self.mouseWheelZoomOutPointComboBox)
         self.hboxlayout8.addLayout(self.vboxlayout9)
-        self.gridlayout12.addLayout(self.hboxlayout8,0,0,1,1)
+        self.gridlayout13.addLayout(self.hboxlayout8,0,0,1,1)
 
         self.hboxlayout9 = QtGui.QHBoxLayout()
         self.hboxlayout9.setMargin(0)
@@ -555,24 +564,24 @@ class Ui_PreferencesDialog(object):
         self.hhTimeoutIntervalDoubleSpinBox.setProperty("value",QtCore.QVariant(0.5))
         self.hhTimeoutIntervalDoubleSpinBox.setObjectName("hhTimeoutIntervalDoubleSpinBox")
         self.hboxlayout9.addWidget(self.hhTimeoutIntervalDoubleSpinBox)
-        self.gridlayout12.addLayout(self.hboxlayout9,1,0,1,1)
+        self.gridlayout13.addLayout(self.hboxlayout9,1,0,1,1)
         self.vboxlayout6.addWidget(self.groupBox_4)
 
         spacerItem16 = QtGui.QSpacerItem(20,161,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout6.addItem(spacerItem16)
-        self.gridlayout9.addLayout(self.vboxlayout6,0,0,1,1)
+        self.gridlayout10.addLayout(self.vboxlayout6,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.ZoomPanandRotate)
 
         self.Rulers = QtGui.QWidget()
         self.Rulers.setObjectName("Rulers")
 
-        self.gridlayout13 = QtGui.QGridLayout(self.Rulers)
-        self.gridlayout13.setMargin(9)
-        self.gridlayout13.setSpacing(6)
-        self.gridlayout13.setObjectName("gridlayout13")
+        self.gridlayout14 = QtGui.QGridLayout(self.Rulers)
+        self.gridlayout14.setMargin(9)
+        self.gridlayout14.setSpacing(6)
+        self.gridlayout14.setObjectName("gridlayout14")
 
         spacerItem17 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout13.addItem(spacerItem17,0,1,1,1)
+        self.gridlayout14.addItem(spacerItem17,0,1,1,1)
 
         self.vboxlayout10 = QtGui.QVBoxLayout()
         self.vboxlayout10.setMargin(0)
@@ -582,29 +591,29 @@ class Ui_PreferencesDialog(object):
         self.rulersGroupBox = QtGui.QGroupBox(self.Rulers)
         self.rulersGroupBox.setObjectName("rulersGroupBox")
 
-        self.gridlayout14 = QtGui.QGridLayout(self.rulersGroupBox)
-        self.gridlayout14.setMargin(4)
-        self.gridlayout14.setSpacing(2)
-        self.gridlayout14.setObjectName("gridlayout14")
+        self.gridlayout15 = QtGui.QGridLayout(self.rulersGroupBox)
+        self.gridlayout15.setMargin(4)
+        self.gridlayout15.setSpacing(2)
+        self.gridlayout15.setObjectName("gridlayout15")
 
         self.label_5 = QtGui.QLabel(self.rulersGroupBox)
         self.label_5.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_5.setObjectName("label_5")
-        self.gridlayout14.addWidget(self.label_5,3,0,1,1)
+        self.gridlayout15.addWidget(self.label_5,3,0,1,1)
 
         self.textLabel3_2_4 = QtGui.QLabel(self.rulersGroupBox)
         self.textLabel3_2_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3_2_4.setObjectName("textLabel3_2_4")
-        self.gridlayout14.addWidget(self.textLabel3_2_4,2,0,1,1)
+        self.gridlayout15.addWidget(self.textLabel3_2_4,2,0,1,1)
 
         self.label_10 = QtGui.QLabel(self.rulersGroupBox)
         self.label_10.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_10.setObjectName("label_10")
-        self.gridlayout14.addWidget(self.label_10,1,0,1,1)
+        self.gridlayout15.addWidget(self.label_10,1,0,1,1)
 
         self.rulerPositionComboBox = QtGui.QComboBox(self.rulersGroupBox)
         self.rulerPositionComboBox.setObjectName("rulerPositionComboBox")
-        self.gridlayout14.addWidget(self.rulerPositionComboBox,1,1,1,1)
+        self.gridlayout15.addWidget(self.rulerPositionComboBox,1,1,1,1)
 
         self.hboxlayout10 = QtGui.QHBoxLayout()
         self.hboxlayout10.setMargin(0)
@@ -623,43 +632,43 @@ class Ui_PreferencesDialog(object):
         self.ruler_color_btn.setAutoDefault(False)
         self.ruler_color_btn.setObjectName("ruler_color_btn")
         self.hboxlayout10.addWidget(self.ruler_color_btn)
-        self.gridlayout14.addLayout(self.hboxlayout10,2,1,1,1)
+        self.gridlayout15.addLayout(self.hboxlayout10,2,1,1,1)
 
         self.rulerOpacitySpinBox = QtGui.QSpinBox(self.rulersGroupBox)
         self.rulerOpacitySpinBox.setMaximum(100)
         self.rulerOpacitySpinBox.setProperty("value",QtCore.QVariant(70))
         self.rulerOpacitySpinBox.setObjectName("rulerOpacitySpinBox")
-        self.gridlayout14.addWidget(self.rulerOpacitySpinBox,3,1,1,1)
+        self.gridlayout15.addWidget(self.rulerOpacitySpinBox,3,1,1,1)
 
         self.rulerDisplayComboBox = QtGui.QComboBox(self.rulersGroupBox)
         self.rulerDisplayComboBox.setObjectName("rulerDisplayComboBox")
-        self.gridlayout14.addWidget(self.rulerDisplayComboBox,0,1,1,1)
+        self.gridlayout15.addWidget(self.rulerDisplayComboBox,0,1,1,1)
 
         self.label_12 = QtGui.QLabel(self.rulersGroupBox)
         self.label_12.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_12.setObjectName("label_12")
-        self.gridlayout14.addWidget(self.label_12,0,0,1,1)
+        self.gridlayout15.addWidget(self.label_12,0,0,1,1)
 
         self.showRulersInPerspectiveViewCheckBox = QtGui.QCheckBox(self.rulersGroupBox)
         self.showRulersInPerspectiveViewCheckBox.setObjectName("showRulersInPerspectiveViewCheckBox")
-        self.gridlayout14.addWidget(self.showRulersInPerspectiveViewCheckBox,4,0,1,2)
+        self.gridlayout15.addWidget(self.showRulersInPerspectiveViewCheckBox,4,0,1,2)
         self.vboxlayout10.addWidget(self.rulersGroupBox)
 
         spacerItem18 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout10.addItem(spacerItem18)
-        self.gridlayout13.addLayout(self.vboxlayout10,0,0,1,1)
+        self.gridlayout14.addLayout(self.vboxlayout10,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Rulers)
 
         self.Atoms = QtGui.QWidget()
         self.Atoms.setObjectName("Atoms")
 
-        self.gridlayout15 = QtGui.QGridLayout(self.Atoms)
-        self.gridlayout15.setMargin(9)
-        self.gridlayout15.setSpacing(6)
-        self.gridlayout15.setObjectName("gridlayout15")
+        self.gridlayout16 = QtGui.QGridLayout(self.Atoms)
+        self.gridlayout16.setMargin(9)
+        self.gridlayout16.setSpacing(6)
+        self.gridlayout16.setObjectName("gridlayout16")
 
         spacerItem19 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout15.addItem(spacerItem19,0,1,1,1)
+        self.gridlayout16.addItem(spacerItem19,0,1,1,1)
 
         self.vboxlayout11 = QtGui.QVBoxLayout()
         self.vboxlayout11.setMargin(0)
@@ -696,10 +705,10 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout13.setSpacing(2)
         self.vboxlayout13.setObjectName("vboxlayout13")
 
-        self.gridlayout16 = QtGui.QGridLayout()
-        self.gridlayout16.setMargin(0)
-        self.gridlayout16.setSpacing(2)
-        self.gridlayout16.setObjectName("gridlayout16")
+        self.gridlayout17 = QtGui.QGridLayout()
+        self.gridlayout17.setMargin(0)
+        self.gridlayout17.setSpacing(2)
+        self.gridlayout17.setObjectName("gridlayout17")
 
         self.hboxlayout12 = QtGui.QHBoxLayout()
         self.hboxlayout12.setMargin(0)
@@ -718,12 +727,12 @@ class Ui_PreferencesDialog(object):
         self.atom_hilite_color_btn.setAutoDefault(False)
         self.atom_hilite_color_btn.setObjectName("atom_hilite_color_btn")
         self.hboxlayout12.addWidget(self.atom_hilite_color_btn)
-        self.gridlayout16.addLayout(self.hboxlayout12,0,1,1,1)
+        self.gridlayout17.addLayout(self.hboxlayout12,0,1,1,1)
 
         self.hotspot_lbl_2 = QtGui.QLabel(self.groupBox13)
         self.hotspot_lbl_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.hotspot_lbl_2.setObjectName("hotspot_lbl_2")
-        self.gridlayout16.addWidget(self.hotspot_lbl_2,1,0,1,1)
+        self.gridlayout17.addWidget(self.hotspot_lbl_2,1,0,1,1)
 
         self.hboxlayout13 = QtGui.QHBoxLayout()
         self.hboxlayout13.setMargin(0)
@@ -742,12 +751,12 @@ class Ui_PreferencesDialog(object):
         self.hotspot_color_btn.setAutoDefault(False)
         self.hotspot_color_btn.setObjectName("hotspot_color_btn")
         self.hboxlayout13.addWidget(self.hotspot_color_btn)
-        self.gridlayout16.addLayout(self.hboxlayout13,2,1,1,1)
+        self.gridlayout17.addLayout(self.hboxlayout13,2,1,1,1)
 
         self.textLabel3_2_3 = QtGui.QLabel(self.groupBox13)
         self.textLabel3_2_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3_2_3.setObjectName("textLabel3_2_3")
-        self.gridlayout16.addWidget(self.textLabel3_2_3,0,0,1,1)
+        self.gridlayout17.addWidget(self.textLabel3_2_3,0,0,1,1)
 
         self.hboxlayout14 = QtGui.QHBoxLayout()
         self.hboxlayout14.setMargin(0)
@@ -767,13 +776,13 @@ class Ui_PreferencesDialog(object):
         self.bondpoint_hilite_color_btn.setDefault(False)
         self.bondpoint_hilite_color_btn.setObjectName("bondpoint_hilite_color_btn")
         self.hboxlayout14.addWidget(self.bondpoint_hilite_color_btn)
-        self.gridlayout16.addLayout(self.hboxlayout14,1,1,1,1)
+        self.gridlayout17.addLayout(self.hboxlayout14,1,1,1,1)
 
         self.hotspot_lbl = QtGui.QLabel(self.groupBox13)
         self.hotspot_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.hotspot_lbl.setObjectName("hotspot_lbl")
-        self.gridlayout16.addWidget(self.hotspot_lbl,2,0,1,1)
-        self.vboxlayout13.addLayout(self.gridlayout16)
+        self.gridlayout17.addWidget(self.hotspot_lbl,2,0,1,1)
+        self.vboxlayout13.addLayout(self.gridlayout17)
 
         self.hboxlayout15 = QtGui.QHBoxLayout()
         self.hboxlayout15.setMargin(0)
@@ -796,10 +805,10 @@ class Ui_PreferencesDialog(object):
         self.hboxlayout16.setSpacing(6)
         self.hboxlayout16.setObjectName("hboxlayout16")
 
-        self.gridlayout17 = QtGui.QGridLayout()
-        self.gridlayout17.setMargin(0)
-        self.gridlayout17.setSpacing(2)
-        self.gridlayout17.setObjectName("gridlayout17")
+        self.gridlayout18 = QtGui.QGridLayout()
+        self.gridlayout18.setMargin(0)
+        self.gridlayout18.setSpacing(2)
+        self.gridlayout18.setObjectName("gridlayout18")
 
         self.vboxlayout14 = QtGui.QVBoxLayout()
         self.vboxlayout14.setMargin(0)
@@ -815,38 +824,38 @@ class Ui_PreferencesDialog(object):
         self.textLabel1_3_2_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel1_3_2_2.setObjectName("textLabel1_3_2_2")
         self.vboxlayout14.addWidget(self.textLabel1_3_2_2)
-        self.gridlayout17.addLayout(self.vboxlayout14,1,0,1,1)
+        self.gridlayout18.addLayout(self.vboxlayout14,1,0,1,1)
 
         self.level_of_detail_combox = QtGui.QComboBox(self.Atoms)
         self.level_of_detail_combox.setObjectName("level_of_detail_combox")
-        self.gridlayout17.addWidget(self.level_of_detail_combox,0,1,1,1)
+        self.gridlayout18.addWidget(self.level_of_detail_combox,0,1,1,1)
 
         self.textLabel1_7 = QtGui.QLabel(self.Atoms)
         self.textLabel1_7.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel1_7.setObjectName("textLabel1_7")
-        self.gridlayout17.addWidget(self.textLabel1_7,0,0,1,1)
+        self.gridlayout18.addWidget(self.textLabel1_7,0,0,1,1)
 
-        self.gridlayout18 = QtGui.QGridLayout()
-        self.gridlayout18.setMargin(0)
-        self.gridlayout18.setSpacing(2)
-        self.gridlayout18.setObjectName("gridlayout18")
+        self.gridlayout19 = QtGui.QGridLayout()
+        self.gridlayout19.setMargin(0)
+        self.gridlayout19.setSpacing(2)
+        self.gridlayout19.setObjectName("gridlayout19")
 
         self.reset_cpk_scale_factor_btn = QtGui.QToolButton(self.Atoms)
         self.reset_cpk_scale_factor_btn.setIcon(QtGui.QIcon("../../../../../:icons/UserPrefsDialog_image0"))
         self.reset_cpk_scale_factor_btn.setObjectName("reset_cpk_scale_factor_btn")
-        self.gridlayout18.addWidget(self.reset_cpk_scale_factor_btn,1,1,1,1)
+        self.gridlayout19.addWidget(self.reset_cpk_scale_factor_btn,1,1,1,1)
 
         self.reset_ballstick_scale_factor_btn = QtGui.QToolButton(self.Atoms)
         self.reset_ballstick_scale_factor_btn.setIcon(QtGui.QIcon("../../../../../:icons/UserPrefsDialog_image0"))
         self.reset_ballstick_scale_factor_btn.setObjectName("reset_ballstick_scale_factor_btn")
-        self.gridlayout18.addWidget(self.reset_ballstick_scale_factor_btn,0,1,1,1)
+        self.gridlayout19.addWidget(self.reset_ballstick_scale_factor_btn,0,1,1,1)
 
         self.ballStickAtomScaleFactorSpinBox = QtGui.QSpinBox(self.Atoms)
         self.ballStickAtomScaleFactorSpinBox.setMaximum(125)
         self.ballStickAtomScaleFactorSpinBox.setMinimum(50)
         self.ballStickAtomScaleFactorSpinBox.setProperty("value",QtCore.QVariant(100))
         self.ballStickAtomScaleFactorSpinBox.setObjectName("ballStickAtomScaleFactorSpinBox")
-        self.gridlayout18.addWidget(self.ballStickAtomScaleFactorSpinBox,0,0,1,1)
+        self.gridlayout19.addWidget(self.ballStickAtomScaleFactorSpinBox,0,0,1,1)
 
         self.cpkAtomScaleFactorDoubleSpinBox = QtGui.QDoubleSpinBox(self.Atoms)
         self.cpkAtomScaleFactorDoubleSpinBox.setDecimals(3)
@@ -855,9 +864,9 @@ class Ui_PreferencesDialog(object):
         self.cpkAtomScaleFactorDoubleSpinBox.setSingleStep(0.005)
         self.cpkAtomScaleFactorDoubleSpinBox.setProperty("value",QtCore.QVariant(0.775))
         self.cpkAtomScaleFactorDoubleSpinBox.setObjectName("cpkAtomScaleFactorDoubleSpinBox")
-        self.gridlayout18.addWidget(self.cpkAtomScaleFactorDoubleSpinBox,1,0,1,1)
-        self.gridlayout17.addLayout(self.gridlayout18,1,1,1,1)
-        self.hboxlayout16.addLayout(self.gridlayout17)
+        self.gridlayout19.addWidget(self.cpkAtomScaleFactorDoubleSpinBox,1,0,1,1)
+        self.gridlayout18.addLayout(self.gridlayout19,1,1,1,1)
+        self.hboxlayout16.addLayout(self.gridlayout18)
 
         spacerItem22 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout16.addItem(spacerItem22)
@@ -873,19 +882,19 @@ class Ui_PreferencesDialog(object):
 
         spacerItem23 = QtGui.QSpacerItem(20,30,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout11.addItem(spacerItem23)
-        self.gridlayout15.addLayout(self.vboxlayout11,0,0,1,1)
+        self.gridlayout16.addLayout(self.vboxlayout11,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Atoms)
 
         self.Bonds = QtGui.QWidget()
         self.Bonds.setObjectName("Bonds")
 
-        self.gridlayout19 = QtGui.QGridLayout(self.Bonds)
-        self.gridlayout19.setMargin(9)
-        self.gridlayout19.setSpacing(6)
-        self.gridlayout19.setObjectName("gridlayout19")
+        self.gridlayout20 = QtGui.QGridLayout(self.Bonds)
+        self.gridlayout20.setMargin(9)
+        self.gridlayout20.setSpacing(6)
+        self.gridlayout20.setObjectName("gridlayout20")
 
         spacerItem24 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout19.addItem(spacerItem24,0,1,1,1)
+        self.gridlayout20.addItem(spacerItem24,0,1,1,1)
 
         self.vboxlayout15 = QtGui.QVBoxLayout()
         self.vboxlayout15.setMargin(0)
@@ -900,10 +909,10 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout16.setSpacing(4)
         self.vboxlayout16.setObjectName("vboxlayout16")
 
-        self.gridlayout20 = QtGui.QGridLayout()
-        self.gridlayout20.setMargin(0)
-        self.gridlayout20.setSpacing(2)
-        self.gridlayout20.setObjectName("gridlayout20")
+        self.gridlayout21 = QtGui.QGridLayout()
+        self.gridlayout21.setMargin(0)
+        self.gridlayout21.setSpacing(2)
+        self.gridlayout21.setObjectName("gridlayout21")
 
         self.textLabel3_2 = QtGui.QLabel(self.groupBox4)
 
@@ -914,7 +923,7 @@ class Ui_PreferencesDialog(object):
         self.textLabel3_2.setSizePolicy(sizePolicy)
         self.textLabel3_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3_2.setObjectName("textLabel3_2")
-        self.gridlayout20.addWidget(self.textLabel3_2,0,0,1,1)
+        self.gridlayout21.addWidget(self.textLabel3_2,0,0,1,1)
 
         self.hboxlayout17 = QtGui.QHBoxLayout()
         self.hboxlayout17.setMargin(0)
@@ -934,7 +943,7 @@ class Ui_PreferencesDialog(object):
         self.bond_stretch_color_btn.setDefault(False)
         self.bond_stretch_color_btn.setObjectName("bond_stretch_color_btn")
         self.hboxlayout17.addWidget(self.bond_stretch_color_btn)
-        self.gridlayout20.addLayout(self.hboxlayout17,2,1,1,1)
+        self.gridlayout21.addLayout(self.hboxlayout17,2,1,1,1)
 
         self.hboxlayout18 = QtGui.QHBoxLayout()
         self.hboxlayout18.setMargin(0)
@@ -953,12 +962,12 @@ class Ui_PreferencesDialog(object):
         self.bond_hilite_color_btn.setAutoDefault(False)
         self.bond_hilite_color_btn.setObjectName("bond_hilite_color_btn")
         self.hboxlayout18.addWidget(self.bond_hilite_color_btn)
-        self.gridlayout20.addLayout(self.hboxlayout18,0,1,1,1)
+        self.gridlayout21.addLayout(self.hboxlayout18,0,1,1,1)
 
         self.textLabel3_3 = QtGui.QLabel(self.groupBox4)
         self.textLabel3_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3_3.setObjectName("textLabel3_3")
-        self.gridlayout20.addWidget(self.textLabel3_3,3,0,1,1)
+        self.gridlayout21.addWidget(self.textLabel3_3,3,0,1,1)
 
         self.hboxlayout19 = QtGui.QHBoxLayout()
         self.hboxlayout19.setMargin(0)
@@ -977,12 +986,12 @@ class Ui_PreferencesDialog(object):
         self.ballstick_bondcolor_btn.setAutoDefault(False)
         self.ballstick_bondcolor_btn.setObjectName("ballstick_bondcolor_btn")
         self.hboxlayout19.addWidget(self.ballstick_bondcolor_btn)
-        self.gridlayout20.addLayout(self.hboxlayout19,1,1,1,1)
+        self.gridlayout21.addLayout(self.hboxlayout19,1,1,1,1)
 
         self.textLabel3 = QtGui.QLabel(self.groupBox4)
         self.textLabel3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3.setObjectName("textLabel3")
-        self.gridlayout20.addWidget(self.textLabel3,1,0,1,1)
+        self.gridlayout21.addWidget(self.textLabel3,1,0,1,1)
 
         self.textLabel3_2_2 = QtGui.QLabel(self.groupBox4)
 
@@ -994,7 +1003,7 @@ class Ui_PreferencesDialog(object):
         self.textLabel3_2_2.setMinimumSize(QtCore.QSize(0,0))
         self.textLabel3_2_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel3_2_2.setObjectName("textLabel3_2_2")
-        self.gridlayout20.addWidget(self.textLabel3_2_2,2,0,1,1)
+        self.gridlayout21.addWidget(self.textLabel3_2_2,2,0,1,1)
 
         self.hboxlayout20 = QtGui.QHBoxLayout()
         self.hboxlayout20.setMargin(0)
@@ -1013,8 +1022,8 @@ class Ui_PreferencesDialog(object):
         self.bond_vane_color_btn.setAutoDefault(False)
         self.bond_vane_color_btn.setObjectName("bond_vane_color_btn")
         self.hboxlayout20.addWidget(self.bond_vane_color_btn)
-        self.gridlayout20.addLayout(self.hboxlayout20,3,1,1,1)
-        self.vboxlayout16.addLayout(self.gridlayout20)
+        self.gridlayout21.addLayout(self.hboxlayout20,3,1,1,1)
+        self.vboxlayout16.addLayout(self.gridlayout21)
 
         self.hboxlayout21 = QtGui.QHBoxLayout()
         self.hboxlayout21.setMargin(0)
@@ -1117,16 +1126,16 @@ class Ui_PreferencesDialog(object):
 
         spacerItem27 = QtGui.QSpacerItem(20,144,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout15.addItem(spacerItem27)
-        self.gridlayout19.addLayout(self.vboxlayout15,0,0,1,1)
+        self.gridlayout20.addLayout(self.vboxlayout15,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Bonds)
 
         self.DNA = QtGui.QWidget()
         self.DNA.setObjectName("DNA")
 
-        self.gridlayout21 = QtGui.QGridLayout(self.DNA)
-        self.gridlayout21.setMargin(9)
-        self.gridlayout21.setSpacing(6)
-        self.gridlayout21.setObjectName("gridlayout21")
+        self.gridlayout22 = QtGui.QGridLayout(self.DNA)
+        self.gridlayout22.setMargin(9)
+        self.gridlayout22.setSpacing(6)
+        self.gridlayout22.setObjectName("gridlayout22")
 
         self.vboxlayout21 = QtGui.QVBoxLayout()
         self.vboxlayout21.setMargin(0)
@@ -1141,10 +1150,10 @@ class Ui_PreferencesDialog(object):
         self.vboxlayout22.setSpacing(2)
         self.vboxlayout22.setObjectName("vboxlayout22")
 
-        self.gridlayout22 = QtGui.QGridLayout()
-        self.gridlayout22.setMargin(0)
-        self.gridlayout22.setSpacing(2)
-        self.gridlayout22.setObjectName("gridlayout22")
+        self.gridlayout23 = QtGui.QGridLayout()
+        self.gridlayout23.setMargin(0)
+        self.gridlayout23.setSpacing(2)
+        self.gridlayout23.setObjectName("gridlayout23")
 
         self.label_24 = QtGui.QLabel(self.groupBox)
 
@@ -1155,7 +1164,7 @@ class Ui_PreferencesDialog(object):
         self.label_24.setSizePolicy(sizePolicy)
         self.label_24.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_24.setObjectName("label_24")
-        self.gridlayout22.addWidget(self.label_24,4,0,1,1)
+        self.gridlayout23.addWidget(self.label_24,4,0,1,1)
 
         self.label_23 = QtGui.QLabel(self.groupBox)
 
@@ -1166,7 +1175,7 @@ class Ui_PreferencesDialog(object):
         self.label_23.setSizePolicy(sizePolicy)
         self.label_23.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_23.setObjectName("label_23")
-        self.gridlayout22.addWidget(self.label_23,3,0,1,1)
+        self.gridlayout23.addWidget(self.label_23,3,0,1,1)
 
         self.hboxlayout23 = QtGui.QHBoxLayout()
         self.hboxlayout23.setMargin(0)
@@ -1191,11 +1200,11 @@ class Ui_PreferencesDialog(object):
         self.dnaDefaultStrand1ColorPushButton.setAutoDefault(False)
         self.dnaDefaultStrand1ColorPushButton.setObjectName("dnaDefaultStrand1ColorPushButton")
         self.hboxlayout23.addWidget(self.dnaDefaultStrand1ColorPushButton)
-        self.gridlayout22.addLayout(self.hboxlayout23,3,1,1,1)
+        self.gridlayout23.addLayout(self.hboxlayout23,3,1,1,1)
 
         self.dnaConformationComboBox = QtGui.QComboBox(self.groupBox)
         self.dnaConformationComboBox.setObjectName("dnaConformationComboBox")
-        self.gridlayout22.addWidget(self.dnaConformationComboBox,0,1,1,1)
+        self.gridlayout23.addWidget(self.dnaConformationComboBox,0,1,1,1)
 
         self.hboxlayout24 = QtGui.QHBoxLayout()
         self.hboxlayout24.setMargin(0)
@@ -1220,18 +1229,18 @@ class Ui_PreferencesDialog(object):
         self.dnaDefaultSegmentColorPushButton.setAutoDefault(False)
         self.dnaDefaultSegmentColorPushButton.setObjectName("dnaDefaultSegmentColorPushButton")
         self.hboxlayout24.addWidget(self.dnaDefaultSegmentColorPushButton)
-        self.gridlayout22.addLayout(self.hboxlayout24,5,1,1,1)
+        self.gridlayout23.addLayout(self.hboxlayout24,5,1,1,1)
 
         self.label_6 = QtGui.QLabel(self.groupBox)
         self.label_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_6.setObjectName("label_6")
-        self.gridlayout22.addWidget(self.label_6,2,0,1,1)
+        self.gridlayout23.addWidget(self.label_6,2,0,1,1)
 
         self.dnaBasesPerTurnDoubleSpinBox = QtGui.QDoubleSpinBox(self.groupBox)
         self.dnaBasesPerTurnDoubleSpinBox.setDecimals(2)
         self.dnaBasesPerTurnDoubleSpinBox.setSingleStep(0.1)
         self.dnaBasesPerTurnDoubleSpinBox.setObjectName("dnaBasesPerTurnDoubleSpinBox")
-        self.gridlayout22.addWidget(self.dnaBasesPerTurnDoubleSpinBox,1,1,1,1)
+        self.gridlayout23.addWidget(self.dnaBasesPerTurnDoubleSpinBox,1,1,1,1)
 
         self.label_11 = QtGui.QLabel(self.groupBox)
 
@@ -1242,7 +1251,7 @@ class Ui_PreferencesDialog(object):
         self.label_11.setSizePolicy(sizePolicy)
         self.label_11.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_11.setObjectName("label_11")
-        self.gridlayout22.addWidget(self.label_11,0,0,1,1)
+        self.gridlayout23.addWidget(self.label_11,0,0,1,1)
 
         self.hboxlayout25 = QtGui.QHBoxLayout()
         self.hboxlayout25.setMargin(0)
@@ -1267,7 +1276,7 @@ class Ui_PreferencesDialog(object):
         self.dnaDefaultStrand2ColorPushButton.setAutoDefault(False)
         self.dnaDefaultStrand2ColorPushButton.setObjectName("dnaDefaultStrand2ColorPushButton")
         self.hboxlayout25.addWidget(self.dnaDefaultStrand2ColorPushButton)
-        self.gridlayout22.addLayout(self.hboxlayout25,4,1,1,1)
+        self.gridlayout23.addLayout(self.hboxlayout25,4,1,1,1)
 
         self.label_4 = QtGui.QLabel(self.groupBox)
 
@@ -1278,7 +1287,7 @@ class Ui_PreferencesDialog(object):
         self.label_4.setSizePolicy(sizePolicy)
         self.label_4.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_4.setObjectName("label_4")
-        self.gridlayout22.addWidget(self.label_4,1,0,1,1)
+        self.gridlayout23.addWidget(self.label_4,1,0,1,1)
 
         self.label_7 = QtGui.QLabel(self.groupBox)
 
@@ -1289,14 +1298,14 @@ class Ui_PreferencesDialog(object):
         self.label_7.setSizePolicy(sizePolicy)
         self.label_7.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_7.setObjectName("label_7")
-        self.gridlayout22.addWidget(self.label_7,5,0,1,1)
+        self.gridlayout23.addWidget(self.label_7,5,0,1,1)
 
         self.dnaRiseDoubleSpinBox = QtGui.QDoubleSpinBox(self.groupBox)
         self.dnaRiseDoubleSpinBox.setDecimals(3)
         self.dnaRiseDoubleSpinBox.setSingleStep(0.01)
         self.dnaRiseDoubleSpinBox.setObjectName("dnaRiseDoubleSpinBox")
-        self.gridlayout22.addWidget(self.dnaRiseDoubleSpinBox,2,1,1,1)
-        self.vboxlayout22.addLayout(self.gridlayout22)
+        self.gridlayout23.addWidget(self.dnaRiseDoubleSpinBox,2,1,1,1)
+        self.vboxlayout22.addLayout(self.gridlayout23)
 
         self.hboxlayout26 = QtGui.QHBoxLayout()
         self.hboxlayout26.setMargin(0)
@@ -1316,10 +1325,10 @@ class Ui_PreferencesDialog(object):
         self.dna_reduced_model_options_grpbox = QtGui.QGroupBox(self.DNA)
         self.dna_reduced_model_options_grpbox.setObjectName("dna_reduced_model_options_grpbox")
 
-        self.gridlayout23 = QtGui.QGridLayout(self.dna_reduced_model_options_grpbox)
-        self.gridlayout23.setMargin(4)
-        self.gridlayout23.setSpacing(2)
-        self.gridlayout23.setObjectName("gridlayout23")
+        self.gridlayout24 = QtGui.QGridLayout(self.dna_reduced_model_options_grpbox)
+        self.gridlayout24.setMargin(4)
+        self.gridlayout24.setSpacing(2)
+        self.gridlayout24.setObjectName("gridlayout24")
 
         self.hboxlayout27 = QtGui.QHBoxLayout()
         self.hboxlayout27.setMargin(0)
@@ -1354,7 +1363,7 @@ class Ui_PreferencesDialog(object):
         self.strandFivePrimeArrowheadsCustomColorPushButton.setObjectName("strandFivePrimeArrowheadsCustomColorPushButton")
         self.hboxlayout28.addWidget(self.strandFivePrimeArrowheadsCustomColorPushButton)
         self.hboxlayout27.addLayout(self.hboxlayout28)
-        self.gridlayout23.addLayout(self.hboxlayout27,4,0,1,1)
+        self.gridlayout24.addLayout(self.hboxlayout27,4,0,1,1)
 
         self.hboxlayout29 = QtGui.QHBoxLayout()
         self.hboxlayout29.setMargin(0)
@@ -1389,41 +1398,41 @@ class Ui_PreferencesDialog(object):
         self.strandThreePrimeArrowheadsCustomColorPushButton.setObjectName("strandThreePrimeArrowheadsCustomColorPushButton")
         self.hboxlayout30.addWidget(self.strandThreePrimeArrowheadsCustomColorPushButton)
         self.hboxlayout29.addLayout(self.hboxlayout30)
-        self.gridlayout23.addLayout(self.hboxlayout29,3,0,1,1)
+        self.gridlayout24.addLayout(self.hboxlayout29,3,0,1,1)
 
         self.arrowsOnFivePrimeEnds_checkBox = QtGui.QCheckBox(self.dna_reduced_model_options_grpbox)
         self.arrowsOnFivePrimeEnds_checkBox.setChecked(True)
         self.arrowsOnFivePrimeEnds_checkBox.setObjectName("arrowsOnFivePrimeEnds_checkBox")
-        self.gridlayout23.addWidget(self.arrowsOnFivePrimeEnds_checkBox,2,0,1,1)
+        self.gridlayout24.addWidget(self.arrowsOnFivePrimeEnds_checkBox,2,0,1,1)
 
         self.arrowsOnThreePrimeEnds_checkBox = QtGui.QCheckBox(self.dna_reduced_model_options_grpbox)
         self.arrowsOnThreePrimeEnds_checkBox.setChecked(True)
         self.arrowsOnThreePrimeEnds_checkBox.setObjectName("arrowsOnThreePrimeEnds_checkBox")
-        self.gridlayout23.addWidget(self.arrowsOnThreePrimeEnds_checkBox,1,0,1,1)
+        self.gridlayout24.addWidget(self.arrowsOnThreePrimeEnds_checkBox,1,0,1,1)
 
         self.arrowsOnBackBones_checkBox = QtGui.QCheckBox(self.dna_reduced_model_options_grpbox)
         self.arrowsOnBackBones_checkBox.setObjectName("arrowsOnBackBones_checkBox")
-        self.gridlayout23.addWidget(self.arrowsOnBackBones_checkBox,0,0,1,1)
+        self.gridlayout24.addWidget(self.arrowsOnBackBones_checkBox,0,0,1,1)
         self.vboxlayout21.addWidget(self.dna_reduced_model_options_grpbox)
 
         spacerItem29 = QtGui.QSpacerItem(20,421,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout21.addItem(spacerItem29)
-        self.gridlayout21.addLayout(self.vboxlayout21,0,0,1,1)
+        self.gridlayout22.addLayout(self.vboxlayout21,0,0,1,1)
 
         spacerItem30 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout21.addItem(spacerItem30,0,1,1,1)
+        self.gridlayout22.addItem(spacerItem30,0,1,1,1)
         self.prefsStackedWidget.addWidget(self.DNA)
 
         self.MinorGrooveErrorIndicators = QtGui.QWidget()
         self.MinorGrooveErrorIndicators.setObjectName("MinorGrooveErrorIndicators")
 
-        self.gridlayout24 = QtGui.QGridLayout(self.MinorGrooveErrorIndicators)
-        self.gridlayout24.setMargin(9)
-        self.gridlayout24.setSpacing(6)
-        self.gridlayout24.setObjectName("gridlayout24")
+        self.gridlayout25 = QtGui.QGridLayout(self.MinorGrooveErrorIndicators)
+        self.gridlayout25.setMargin(9)
+        self.gridlayout25.setSpacing(6)
+        self.gridlayout25.setObjectName("gridlayout25")
 
         spacerItem31 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout24.addItem(spacerItem31,0,1,1,1)
+        self.gridlayout25.addItem(spacerItem31,0,1,1,1)
 
         self.vboxlayout23 = QtGui.QVBoxLayout()
         self.vboxlayout23.setMargin(0)
@@ -1435,10 +1444,10 @@ class Ui_PreferencesDialog(object):
         self.dnaDisplayMinorGrooveErrorGroupBox.setChecked(False)
         self.dnaDisplayMinorGrooveErrorGroupBox.setObjectName("dnaDisplayMinorGrooveErrorGroupBox")
 
-        self.gridlayout25 = QtGui.QGridLayout(self.dnaDisplayMinorGrooveErrorGroupBox)
-        self.gridlayout25.setMargin(4)
-        self.gridlayout25.setSpacing(4)
-        self.gridlayout25.setObjectName("gridlayout25")
+        self.gridlayout26 = QtGui.QGridLayout(self.dnaDisplayMinorGrooveErrorGroupBox)
+        self.gridlayout26.setMargin(4)
+        self.gridlayout26.setSpacing(4)
+        self.gridlayout26.setObjectName("gridlayout26")
 
         self.vboxlayout24 = QtGui.QVBoxLayout()
         self.vboxlayout24.setMargin(0)
@@ -1471,7 +1480,7 @@ class Ui_PreferencesDialog(object):
         self.bg1_color_lbl_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.bg1_color_lbl_3.setObjectName("bg1_color_lbl_3")
         self.vboxlayout24.addWidget(self.bg1_color_lbl_3)
-        self.gridlayout25.addLayout(self.vboxlayout24,0,0,1,1)
+        self.gridlayout26.addLayout(self.vboxlayout24,0,0,1,1)
 
         self.vboxlayout25 = QtGui.QVBoxLayout()
         self.vboxlayout25.setMargin(0)
@@ -1508,7 +1517,7 @@ class Ui_PreferencesDialog(object):
         self.dnaGrooveIndicatorColorButton.setObjectName("dnaGrooveIndicatorColorButton")
         self.hboxlayout31.addWidget(self.dnaGrooveIndicatorColorButton)
         self.vboxlayout25.addLayout(self.hboxlayout31)
-        self.gridlayout25.addLayout(self.vboxlayout25,0,1,1,1)
+        self.gridlayout26.addLayout(self.vboxlayout25,0,1,1,1)
 
         self.hboxlayout32 = QtGui.QHBoxLayout()
         self.hboxlayout32.setMargin(0)
@@ -1522,24 +1531,24 @@ class Ui_PreferencesDialog(object):
         self.dnaMinorGrooveRestoreFactoryDefaultsPushButton.setAutoDefault(False)
         self.dnaMinorGrooveRestoreFactoryDefaultsPushButton.setObjectName("dnaMinorGrooveRestoreFactoryDefaultsPushButton")
         self.hboxlayout32.addWidget(self.dnaMinorGrooveRestoreFactoryDefaultsPushButton)
-        self.gridlayout25.addLayout(self.hboxlayout32,1,0,1,2)
+        self.gridlayout26.addLayout(self.hboxlayout32,1,0,1,2)
         self.vboxlayout23.addWidget(self.dnaDisplayMinorGrooveErrorGroupBox)
 
         spacerItem33 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout23.addItem(spacerItem33)
-        self.gridlayout24.addLayout(self.vboxlayout23,0,0,1,1)
+        self.gridlayout25.addLayout(self.vboxlayout23,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.MinorGrooveErrorIndicators)
 
         self.BaseOrientationIndicators = QtGui.QWidget()
         self.BaseOrientationIndicators.setObjectName("BaseOrientationIndicators")
 
-        self.gridlayout26 = QtGui.QGridLayout(self.BaseOrientationIndicators)
-        self.gridlayout26.setMargin(9)
-        self.gridlayout26.setSpacing(6)
-        self.gridlayout26.setObjectName("gridlayout26")
+        self.gridlayout27 = QtGui.QGridLayout(self.BaseOrientationIndicators)
+        self.gridlayout27.setMargin(9)
+        self.gridlayout27.setSpacing(6)
+        self.gridlayout27.setObjectName("gridlayout27")
 
         spacerItem34 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout26.addItem(spacerItem34,0,1,1,1)
+        self.gridlayout27.addItem(spacerItem34,0,1,1,1)
 
         self.vboxlayout26 = QtGui.QVBoxLayout()
         self.vboxlayout26.setMargin(0)
@@ -1551,19 +1560,19 @@ class Ui_PreferencesDialog(object):
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setChecked(False)
         self.dnaDisplayBaseOrientationIndicatorsGroupBox.setObjectName("dnaDisplayBaseOrientationIndicatorsGroupBox")
 
-        self.gridlayout27 = QtGui.QGridLayout(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
-        self.gridlayout27.setMargin(4)
-        self.gridlayout27.setSpacing(2)
-        self.gridlayout27.setObjectName("gridlayout27")
+        self.gridlayout28 = QtGui.QGridLayout(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
+        self.gridlayout28.setMargin(4)
+        self.gridlayout28.setSpacing(2)
+        self.gridlayout28.setObjectName("gridlayout28")
 
         self.dnaBaseIndicatorsPlaneNormalComboBox = QtGui.QComboBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.dnaBaseIndicatorsPlaneNormalComboBox.setObjectName("dnaBaseIndicatorsPlaneNormalComboBox")
-        self.gridlayout27.addWidget(self.dnaBaseIndicatorsPlaneNormalComboBox,0,1,1,1)
+        self.gridlayout28.addWidget(self.dnaBaseIndicatorsPlaneNormalComboBox,0,1,1,1)
 
         self.bg1_color_lbl_6 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.bg1_color_lbl_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.bg1_color_lbl_6.setObjectName("bg1_color_lbl_6")
-        self.gridlayout27.addWidget(self.bg1_color_lbl_6,2,0,1,1)
+        self.gridlayout28.addWidget(self.bg1_color_lbl_6,2,0,1,1)
 
         self.hboxlayout33 = QtGui.QHBoxLayout()
         self.hboxlayout33.setMargin(0)
@@ -1582,11 +1591,11 @@ class Ui_PreferencesDialog(object):
         self.dnaChooseBaseOrientationIndicatorsInvColorButton.setAutoDefault(False)
         self.dnaChooseBaseOrientationIndicatorsInvColorButton.setObjectName("dnaChooseBaseOrientationIndicatorsInvColorButton")
         self.hboxlayout33.addWidget(self.dnaChooseBaseOrientationIndicatorsInvColorButton)
-        self.gridlayout27.addLayout(self.hboxlayout33,2,1,1,1)
+        self.gridlayout28.addLayout(self.hboxlayout33,2,1,1,1)
 
         self.dnaBaseOrientationIndicatorsInverseCheckBox = QtGui.QCheckBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.dnaBaseOrientationIndicatorsInverseCheckBox.setObjectName("dnaBaseOrientationIndicatorsInverseCheckBox")
-        self.gridlayout27.addWidget(self.dnaBaseOrientationIndicatorsInverseCheckBox,3,0,1,2)
+        self.gridlayout28.addWidget(self.dnaBaseOrientationIndicatorsInverseCheckBox,3,0,1,2)
 
         self.label_35 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
 
@@ -1597,7 +1606,7 @@ class Ui_PreferencesDialog(object):
         self.label_35.setSizePolicy(sizePolicy)
         self.label_35.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_35.setObjectName("label_35")
-        self.gridlayout27.addWidget(self.label_35,0,0,1,1)
+        self.gridlayout28.addWidget(self.label_35,0,0,1,1)
 
         self.label_13 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
 
@@ -1608,14 +1617,14 @@ class Ui_PreferencesDialog(object):
         self.label_13.setSizePolicy(sizePolicy)
         self.label_13.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_13.setObjectName("label_13")
-        self.gridlayout27.addWidget(self.label_13,4,0,1,1)
+        self.gridlayout28.addWidget(self.label_13,4,0,1,1)
 
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox = QtGui.QDoubleSpinBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setDecimals(0)
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setMaximum(1000000.0)
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setSingleStep(1.0)
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setObjectName("dnaBaseOrientationIndicatorsTerminalDistanceSpinBox")
-        self.gridlayout27.addWidget(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,5,1,1,1)
+        self.gridlayout28.addWidget(self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox,5,1,1,1)
 
         self.dnaBaseOrientationIndicatorsThresholdSpinBox = QtGui.QDoubleSpinBox(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.dnaBaseOrientationIndicatorsThresholdSpinBox.setDecimals(1)
@@ -1623,7 +1632,7 @@ class Ui_PreferencesDialog(object):
         self.dnaBaseOrientationIndicatorsThresholdSpinBox.setSingleStep(0.1)
         self.dnaBaseOrientationIndicatorsThresholdSpinBox.setProperty("value",QtCore.QVariant(30.0))
         self.dnaBaseOrientationIndicatorsThresholdSpinBox.setObjectName("dnaBaseOrientationIndicatorsThresholdSpinBox")
-        self.gridlayout27.addWidget(self.dnaBaseOrientationIndicatorsThresholdSpinBox,4,1,1,1)
+        self.gridlayout28.addWidget(self.dnaBaseOrientationIndicatorsThresholdSpinBox,4,1,1,1)
 
         self.hboxlayout34 = QtGui.QHBoxLayout()
         self.hboxlayout34.setMargin(0)
@@ -1642,7 +1651,7 @@ class Ui_PreferencesDialog(object):
         self.dnaChooseBaseOrientationIndicatorsColorButton.setAutoDefault(False)
         self.dnaChooseBaseOrientationIndicatorsColorButton.setObjectName("dnaChooseBaseOrientationIndicatorsColorButton")
         self.hboxlayout34.addWidget(self.dnaChooseBaseOrientationIndicatorsColorButton)
-        self.gridlayout27.addLayout(self.hboxlayout34,1,1,1,1)
+        self.gridlayout28.addLayout(self.hboxlayout34,1,1,1,1)
 
         self.label_14 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
 
@@ -1653,26 +1662,26 @@ class Ui_PreferencesDialog(object):
         self.label_14.setSizePolicy(sizePolicy)
         self.label_14.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_14.setObjectName("label_14")
-        self.gridlayout27.addWidget(self.label_14,5,0,1,1)
+        self.gridlayout28.addWidget(self.label_14,5,0,1,1)
 
         self.bg1_color_lbl_5 = QtGui.QLabel(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
         self.bg1_color_lbl_5.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.bg1_color_lbl_5.setObjectName("bg1_color_lbl_5")
-        self.gridlayout27.addWidget(self.bg1_color_lbl_5,1,0,1,1)
+        self.gridlayout28.addWidget(self.bg1_color_lbl_5,1,0,1,1)
         self.vboxlayout26.addWidget(self.dnaDisplayBaseOrientationIndicatorsGroupBox)
 
         spacerItem35 = QtGui.QSpacerItem(20,111,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout26.addItem(spacerItem35)
-        self.gridlayout26.addLayout(self.vboxlayout26,0,0,1,1)
+        self.gridlayout27.addLayout(self.vboxlayout26,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.BaseOrientationIndicators)
 
         self.Adjust = QtGui.QWidget()
         self.Adjust.setObjectName("Adjust")
 
-        self.gridlayout28 = QtGui.QGridLayout(self.Adjust)
-        self.gridlayout28.setMargin(9)
-        self.gridlayout28.setSpacing(6)
-        self.gridlayout28.setObjectName("gridlayout28")
+        self.gridlayout29 = QtGui.QGridLayout(self.Adjust)
+        self.gridlayout29.setMargin(9)
+        self.gridlayout29.setSpacing(6)
+        self.gridlayout29.setObjectName("gridlayout29")
 
         self.vboxlayout27 = QtGui.QVBoxLayout()
         self.vboxlayout27.setMargin(0)
@@ -1836,7 +1845,7 @@ class Ui_PreferencesDialog(object):
 
         spacerItem37 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout27.addItem(spacerItem37)
-        self.gridlayout28.addLayout(self.vboxlayout27,0,0,2,1)
+        self.gridlayout29.addLayout(self.vboxlayout27,0,0,2,1)
 
         self.grpbtn_4 = QtGui.QPushButton(self.Adjust)
 
@@ -1851,19 +1860,19 @@ class Ui_PreferencesDialog(object):
         self.grpbtn_4.setDefault(False)
         self.grpbtn_4.setFlat(True)
         self.grpbtn_4.setObjectName("grpbtn_4")
-        self.gridlayout28.addWidget(self.grpbtn_4,0,1,1,1)
+        self.gridlayout29.addWidget(self.grpbtn_4,0,1,1,1)
 
         spacerItem38 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout28.addItem(spacerItem38,1,1,1,1)
+        self.gridlayout29.addItem(spacerItem38,1,1,1,1)
         self.prefsStackedWidget.addWidget(self.Adjust)
 
         self.Lighting = QtGui.QWidget()
         self.Lighting.setObjectName("Lighting")
 
-        self.gridlayout29 = QtGui.QGridLayout(self.Lighting)
-        self.gridlayout29.setMargin(9)
-        self.gridlayout29.setSpacing(6)
-        self.gridlayout29.setObjectName("gridlayout29")
+        self.gridlayout30 = QtGui.QGridLayout(self.Lighting)
+        self.gridlayout30.setMargin(9)
+        self.gridlayout30.setSpacing(6)
+        self.gridlayout30.setObjectName("gridlayout30")
 
         self.vboxlayout32 = QtGui.QVBoxLayout()
         self.vboxlayout32.setMargin(0)
@@ -1874,10 +1883,10 @@ class Ui_PreferencesDialog(object):
         self.groupBox8_2.setEnabled(True)
         self.groupBox8_2.setObjectName("groupBox8_2")
 
-        self.gridlayout30 = QtGui.QGridLayout(self.groupBox8_2)
-        self.gridlayout30.setMargin(4)
-        self.gridlayout30.setSpacing(4)
-        self.gridlayout30.setObjectName("gridlayout30")
+        self.gridlayout31 = QtGui.QGridLayout(self.groupBox8_2)
+        self.gridlayout31.setMargin(4)
+        self.gridlayout31.setSpacing(4)
+        self.gridlayout31.setObjectName("gridlayout31")
 
         self.vboxlayout33 = QtGui.QVBoxLayout()
         self.vboxlayout33.setMargin(0)
@@ -2033,7 +2042,7 @@ class Ui_PreferencesDialog(object):
         spacerItem44 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout46.addItem(spacerItem44)
         self.vboxlayout33.addLayout(self.hboxlayout46)
-        self.gridlayout30.addLayout(self.vboxlayout33,0,1,1,1)
+        self.gridlayout31.addLayout(self.vboxlayout33,0,1,1,1)
 
         self.vboxlayout34 = QtGui.QVBoxLayout()
         self.vboxlayout34.setMargin(0)
@@ -2084,7 +2093,7 @@ class Ui_PreferencesDialog(object):
         self.z_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.z_label.setObjectName("z_label")
         self.vboxlayout34.addWidget(self.z_label)
-        self.gridlayout30.addLayout(self.vboxlayout34,0,0,1,1)
+        self.gridlayout31.addLayout(self.vboxlayout34,0,0,1,1)
         self.vboxlayout32.addWidget(self.groupBox8_2)
 
         self.groupBox9_2 = QtGui.QGroupBox(self.Lighting)
@@ -2274,7 +2283,7 @@ class Ui_PreferencesDialog(object):
 
         spacerItem55 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout32.addItem(spacerItem55)
-        self.gridlayout29.addLayout(self.vboxlayout32,0,0,2,1)
+        self.gridlayout30.addLayout(self.vboxlayout32,0,0,2,1)
 
         self.hboxlayout52 = QtGui.QHBoxLayout()
         self.hboxlayout52.setMargin(0)
@@ -2288,81 +2297,81 @@ class Ui_PreferencesDialog(object):
         self.lighting_restore_defaults_btn.setAutoDefault(False)
         self.lighting_restore_defaults_btn.setObjectName("lighting_restore_defaults_btn")
         self.hboxlayout52.addWidget(self.lighting_restore_defaults_btn)
-        self.gridlayout29.addLayout(self.hboxlayout52,1,1,1,1)
+        self.gridlayout30.addLayout(self.hboxlayout52,1,1,1,1)
 
         spacerItem57 = QtGui.QSpacerItem(30,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout29.addItem(spacerItem57,0,1,1,1)
+        self.gridlayout30.addItem(spacerItem57,0,1,1,1)
         self.prefsStackedWidget.addWidget(self.Lighting)
 
         self.Plugins = QtGui.QWidget()
         self.Plugins.setObjectName("Plugins")
 
-        self.gridlayout31 = QtGui.QGridLayout(self.Plugins)
-        self.gridlayout31.setMargin(9)
-        self.gridlayout31.setSpacing(6)
-        self.gridlayout31.setObjectName("gridlayout31")
+        self.gridlayout32 = QtGui.QGridLayout(self.Plugins)
+        self.gridlayout32.setMargin(9)
+        self.gridlayout32.setSpacing(6)
+        self.gridlayout32.setObjectName("gridlayout32")
 
         spacerItem58 = QtGui.QSpacerItem(20,218,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.gridlayout31.addItem(spacerItem58,1,0,1,1)
+        self.gridlayout32.addItem(spacerItem58,1,0,1,1)
 
         self.file_locations_grp = QtGui.QGroupBox(self.Plugins)
         self.file_locations_grp.setObjectName("file_locations_grp")
 
-        self.gridlayout32 = QtGui.QGridLayout(self.file_locations_grp)
-        self.gridlayout32.setMargin(2)
-        self.gridlayout32.setSpacing(2)
-        self.gridlayout32.setObjectName("gridlayout32")
+        self.gridlayout33 = QtGui.QGridLayout(self.file_locations_grp)
+        self.gridlayout33.setMargin(2)
+        self.gridlayout33.setSpacing(2)
+        self.gridlayout33.setObjectName("gridlayout33")
 
         self.qutemol_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.qutemol_path_lineedit.setEnabled(False)
         self.qutemol_path_lineedit.setObjectName("qutemol_path_lineedit")
-        self.gridlayout32.addWidget(self.qutemol_path_lineedit,0,1,1,1)
+        self.gridlayout33.addWidget(self.qutemol_path_lineedit,0,1,1,1)
 
         self.nanohive_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.nanohive_path_lineedit.setEnabled(False)
         self.nanohive_path_lineedit.setObjectName("nanohive_path_lineedit")
-        self.gridlayout32.addWidget(self.nanohive_path_lineedit,1,1,1,1)
+        self.gridlayout33.addWidget(self.nanohive_path_lineedit,1,1,1,1)
 
         self.povray_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.povray_path_lineedit.setEnabled(False)
         self.povray_path_lineedit.setMaximumSize(QtCore.QSize(32767,32767))
         self.povray_path_lineedit.setMaxLength(32767)
         self.povray_path_lineedit.setObjectName("povray_path_lineedit")
-        self.gridlayout32.addWidget(self.povray_path_lineedit,2,1,1,1)
+        self.gridlayout33.addWidget(self.povray_path_lineedit,2,1,1,1)
 
         self.megapov_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.megapov_path_lineedit.setEnabled(False)
         self.megapov_path_lineedit.setMaximumSize(QtCore.QSize(32767,32767))
         self.megapov_path_lineedit.setMaxLength(32767)
         self.megapov_path_lineedit.setObjectName("megapov_path_lineedit")
-        self.gridlayout32.addWidget(self.megapov_path_lineedit,3,1,1,1)
+        self.gridlayout33.addWidget(self.megapov_path_lineedit,3,1,1,1)
 
         self.povdir_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.povdir_lineedit.setEnabled(False)
         self.povdir_lineedit.setObjectName("povdir_lineedit")
-        self.gridlayout32.addWidget(self.povdir_lineedit,4,1,1,1)
+        self.gridlayout33.addWidget(self.povdir_lineedit,4,1,1,1)
 
         self.gamess_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.gamess_path_lineedit.setEnabled(False)
         self.gamess_path_lineedit.setMaximumSize(QtCore.QSize(32767,32767))
         self.gamess_path_lineedit.setMaxLength(32767)
         self.gamess_path_lineedit.setObjectName("gamess_path_lineedit")
-        self.gridlayout32.addWidget(self.gamess_path_lineedit,5,1,1,1)
+        self.gridlayout33.addWidget(self.gamess_path_lineedit,5,1,1,1)
 
         self.gromacs_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.gromacs_path_lineedit.setEnabled(False)
         self.gromacs_path_lineedit.setObjectName("gromacs_path_lineedit")
-        self.gridlayout32.addWidget(self.gromacs_path_lineedit,6,1,1,1)
+        self.gridlayout33.addWidget(self.gromacs_path_lineedit,6,1,1,1)
 
         self.nv1_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.nv1_path_lineedit.setEnabled(False)
         self.nv1_path_lineedit.setObjectName("nv1_path_lineedit")
-        self.gridlayout32.addWidget(self.nv1_path_lineedit,8,1,1,1)
+        self.gridlayout33.addWidget(self.nv1_path_lineedit,8,1,1,1)
 
         self.cpp_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
         self.cpp_path_lineedit.setEnabled(False)
         self.cpp_path_lineedit.setObjectName("cpp_path_lineedit")
-        self.gridlayout32.addWidget(self.cpp_path_lineedit,7,1,1,1)
+        self.gridlayout33.addWidget(self.cpp_path_lineedit,7,1,1,1)
 
         self.hboxlayout53 = QtGui.QHBoxLayout()
         self.hboxlayout53.setMargin(0)
@@ -2376,17 +2385,17 @@ class Ui_PreferencesDialog(object):
         self.nv1_label = QtGui.QLabel(self.file_locations_grp)
         self.nv1_label.setObjectName("nv1_label")
         self.hboxlayout53.addWidget(self.nv1_label)
-        self.gridlayout32.addLayout(self.hboxlayout53,8,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout53,8,0,1,1)
 
         self.nv1_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.nv1_choose_btn.setEnabled(False)
         self.nv1_choose_btn.setObjectName("nv1_choose_btn")
-        self.gridlayout32.addWidget(self.nv1_choose_btn,8,2,1,1)
+        self.gridlayout33.addWidget(self.nv1_choose_btn,8,2,1,1)
 
         self.gromacs_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.gromacs_choose_btn.setEnabled(False)
         self.gromacs_choose_btn.setObjectName("gromacs_choose_btn")
-        self.gridlayout32.addWidget(self.gromacs_choose_btn,6,2,1,1)
+        self.gridlayout33.addWidget(self.gromacs_choose_btn,6,2,1,1)
 
         self.hboxlayout54 = QtGui.QHBoxLayout()
         self.hboxlayout54.setMargin(0)
@@ -2400,7 +2409,7 @@ class Ui_PreferencesDialog(object):
         self.gromacs_label = QtGui.QLabel(self.file_locations_grp)
         self.gromacs_label.setObjectName("gromacs_label")
         self.hboxlayout54.addWidget(self.gromacs_label)
-        self.gridlayout32.addLayout(self.hboxlayout54,6,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout54,6,0,1,1)
 
         self.hboxlayout55 = QtGui.QHBoxLayout()
         self.hboxlayout55.setMargin(0)
@@ -2415,7 +2424,7 @@ class Ui_PreferencesDialog(object):
         self.cpp_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.cpp_label.setObjectName("cpp_label")
         self.hboxlayout55.addWidget(self.cpp_label)
-        self.gridlayout32.addLayout(self.hboxlayout55,7,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout55,7,0,1,1)
 
         self.hboxlayout56 = QtGui.QHBoxLayout()
         self.hboxlayout56.setMargin(0)
@@ -2437,7 +2446,7 @@ class Ui_PreferencesDialog(object):
         self.gamess_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.gamess_lbl.setObjectName("gamess_lbl")
         self.hboxlayout56.addWidget(self.gamess_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout56,5,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout56,5,0,1,1)
 
         self.hboxlayout57 = QtGui.QHBoxLayout()
         self.hboxlayout57.setMargin(0)
@@ -2456,7 +2465,7 @@ class Ui_PreferencesDialog(object):
         self.povdir_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.povdir_lbl.setObjectName("povdir_lbl")
         self.hboxlayout57.addWidget(self.povdir_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout57,4,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout57,4,0,1,1)
 
         self.hboxlayout58 = QtGui.QHBoxLayout()
         self.hboxlayout58.setMargin(0)
@@ -2478,7 +2487,7 @@ class Ui_PreferencesDialog(object):
         self.megapov_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.megapov_lbl.setObjectName("megapov_lbl")
         self.hboxlayout58.addWidget(self.megapov_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout58,3,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout58,3,0,1,1)
 
         self.hboxlayout59 = QtGui.QHBoxLayout()
         self.hboxlayout59.setMargin(0)
@@ -2500,7 +2509,7 @@ class Ui_PreferencesDialog(object):
         self.povray_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.povray_lbl.setObjectName("povray_lbl")
         self.hboxlayout59.addWidget(self.povray_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout59,2,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout59,2,0,1,1)
 
         self.hboxlayout60 = QtGui.QHBoxLayout()
         self.hboxlayout60.setMargin(0)
@@ -2524,7 +2533,7 @@ class Ui_PreferencesDialog(object):
         self.nanohive_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.nanohive_lbl.setObjectName("nanohive_lbl")
         self.hboxlayout60.addWidget(self.nanohive_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout60,1,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout60,1,0,1,1)
 
         self.hboxlayout61 = QtGui.QHBoxLayout()
         self.hboxlayout61.setMargin(0)
@@ -2548,61 +2557,61 @@ class Ui_PreferencesDialog(object):
         self.qutemol_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.qutemol_lbl.setObjectName("qutemol_lbl")
         self.hboxlayout61.addWidget(self.qutemol_lbl)
-        self.gridlayout32.addLayout(self.hboxlayout61,0,0,1,1)
+        self.gridlayout33.addLayout(self.hboxlayout61,0,0,1,1)
 
         self.cpp_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.cpp_choose_btn.setEnabled(False)
         self.cpp_choose_btn.setObjectName("cpp_choose_btn")
-        self.gridlayout32.addWidget(self.cpp_choose_btn,7,2,1,1)
+        self.gridlayout33.addWidget(self.cpp_choose_btn,7,2,1,1)
 
         self.qutemol_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.qutemol_choose_btn.setEnabled(False)
         self.qutemol_choose_btn.setAutoDefault(False)
         self.qutemol_choose_btn.setObjectName("qutemol_choose_btn")
-        self.gridlayout32.addWidget(self.qutemol_choose_btn,0,2,1,1)
+        self.gridlayout33.addWidget(self.qutemol_choose_btn,0,2,1,1)
 
         self.povray_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.povray_choose_btn.setEnabled(False)
         self.povray_choose_btn.setAutoDefault(False)
         self.povray_choose_btn.setObjectName("povray_choose_btn")
-        self.gridlayout32.addWidget(self.povray_choose_btn,2,2,1,1)
+        self.gridlayout33.addWidget(self.povray_choose_btn,2,2,1,1)
 
         self.povdir_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.povdir_choose_btn.setEnabled(False)
         self.povdir_choose_btn.setAutoDefault(False)
         self.povdir_choose_btn.setObjectName("povdir_choose_btn")
-        self.gridlayout32.addWidget(self.povdir_choose_btn,4,2,1,1)
+        self.gridlayout33.addWidget(self.povdir_choose_btn,4,2,1,1)
 
         self.megapov_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.megapov_choose_btn.setEnabled(False)
         self.megapov_choose_btn.setAutoDefault(False)
         self.megapov_choose_btn.setObjectName("megapov_choose_btn")
-        self.gridlayout32.addWidget(self.megapov_choose_btn,3,2,1,1)
+        self.gridlayout33.addWidget(self.megapov_choose_btn,3,2,1,1)
 
         self.gamess_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.gamess_choose_btn.setEnabled(False)
         self.gamess_choose_btn.setAutoDefault(False)
         self.gamess_choose_btn.setObjectName("gamess_choose_btn")
-        self.gridlayout32.addWidget(self.gamess_choose_btn,5,2,1,1)
+        self.gridlayout33.addWidget(self.gamess_choose_btn,5,2,1,1)
 
         self.nanohive_choose_btn = QtGui.QPushButton(self.file_locations_grp)
         self.nanohive_choose_btn.setEnabled(False)
         self.nanohive_choose_btn.setAutoDefault(False)
         self.nanohive_choose_btn.setObjectName("nanohive_choose_btn")
-        self.gridlayout32.addWidget(self.nanohive_choose_btn,1,2,1,1)
-        self.gridlayout31.addWidget(self.file_locations_grp,0,0,1,1)
+        self.gridlayout33.addWidget(self.nanohive_choose_btn,1,2,1,1)
+        self.gridlayout32.addWidget(self.file_locations_grp,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Plugins)
 
         self.Undo = QtGui.QWidget()
         self.Undo.setObjectName("Undo")
 
-        self.gridlayout33 = QtGui.QGridLayout(self.Undo)
-        self.gridlayout33.setMargin(9)
-        self.gridlayout33.setSpacing(6)
-        self.gridlayout33.setObjectName("gridlayout33")
+        self.gridlayout34 = QtGui.QGridLayout(self.Undo)
+        self.gridlayout34.setMargin(9)
+        self.gridlayout34.setSpacing(6)
+        self.gridlayout34.setObjectName("gridlayout34")
 
         spacerItem59 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout33.addItem(spacerItem59,0,1,1,1)
+        self.gridlayout34.addItem(spacerItem59,0,1,1,1)
 
         self.vboxlayout38 = QtGui.QVBoxLayout()
         self.vboxlayout38.setMargin(0)
@@ -2641,16 +2650,16 @@ class Ui_PreferencesDialog(object):
 
         spacerItem60 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout38.addItem(spacerItem60)
-        self.gridlayout33.addLayout(self.vboxlayout38,0,0,1,1)
+        self.gridlayout34.addLayout(self.vboxlayout38,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Undo)
 
         self.Window = QtGui.QWidget()
         self.Window.setObjectName("Window")
 
-        self.gridlayout34 = QtGui.QGridLayout(self.Window)
-        self.gridlayout34.setMargin(9)
-        self.gridlayout34.setSpacing(6)
-        self.gridlayout34.setObjectName("gridlayout34")
+        self.gridlayout35 = QtGui.QGridLayout(self.Window)
+        self.gridlayout35.setMargin(9)
+        self.gridlayout35.setSpacing(6)
+        self.gridlayout35.setObjectName("gridlayout35")
 
         self.hboxlayout63 = QtGui.QHBoxLayout()
         self.hboxlayout63.setMargin(0)
@@ -2660,14 +2669,14 @@ class Ui_PreferencesDialog(object):
         self.groupBox10 = QtGui.QGroupBox(self.Window)
         self.groupBox10.setObjectName("groupBox10")
 
-        self.gridlayout35 = QtGui.QGridLayout(self.groupBox10)
-        self.gridlayout35.setMargin(4)
-        self.gridlayout35.setSpacing(4)
-        self.gridlayout35.setObjectName("gridlayout35")
+        self.gridlayout36 = QtGui.QGridLayout(self.groupBox10)
+        self.gridlayout36.setMargin(4)
+        self.gridlayout36.setSpacing(4)
+        self.gridlayout36.setObjectName("gridlayout36")
 
         self.remember_win_pos_and_size_checkbox = QtGui.QCheckBox(self.groupBox10)
         self.remember_win_pos_and_size_checkbox.setObjectName("remember_win_pos_and_size_checkbox")
-        self.gridlayout35.addWidget(self.remember_win_pos_and_size_checkbox,1,0,1,3)
+        self.gridlayout36.addWidget(self.remember_win_pos_and_size_checkbox,1,0,1,3)
 
         self.vboxlayout40 = QtGui.QVBoxLayout()
         self.vboxlayout40.setMargin(0)
@@ -2683,7 +2692,7 @@ class Ui_PreferencesDialog(object):
         self.restore_saved_size_btn.setAutoDefault(False)
         self.restore_saved_size_btn.setObjectName("restore_saved_size_btn")
         self.vboxlayout40.addWidget(self.restore_saved_size_btn)
-        self.gridlayout35.addLayout(self.vboxlayout40,0,2,1,1)
+        self.gridlayout36.addLayout(self.vboxlayout40,0,2,1,1)
 
         self.vboxlayout41 = QtGui.QVBoxLayout()
         self.vboxlayout41.setMargin(0)
@@ -2699,52 +2708,52 @@ class Ui_PreferencesDialog(object):
         self.textLabel1_2_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel1_2_2.setObjectName("textLabel1_2_2")
         self.vboxlayout41.addWidget(self.textLabel1_2_2)
-        self.gridlayout35.addLayout(self.vboxlayout41,0,0,1,1)
+        self.gridlayout36.addLayout(self.vboxlayout41,0,0,1,1)
 
-        self.gridlayout36 = QtGui.QGridLayout()
-        self.gridlayout36.setMargin(0)
-        self.gridlayout36.setSpacing(6)
-        self.gridlayout36.setObjectName("gridlayout36")
+        self.gridlayout37 = QtGui.QGridLayout()
+        self.gridlayout37.setMargin(0)
+        self.gridlayout37.setSpacing(6)
+        self.gridlayout37.setObjectName("gridlayout37")
 
         self.current_width_spinbox = QtGui.QSpinBox(self.groupBox10)
         self.current_width_spinbox.setMaximum(2048)
         self.current_width_spinbox.setMinimum(640)
         self.current_width_spinbox.setProperty("value",QtCore.QVariant(640))
         self.current_width_spinbox.setObjectName("current_width_spinbox")
-        self.gridlayout36.addWidget(self.current_width_spinbox,0,0,1,1)
+        self.gridlayout37.addWidget(self.current_width_spinbox,0,0,1,1)
 
         self.saved_height_lineedit = QtGui.QLineEdit(self.groupBox10)
         self.saved_height_lineedit.setReadOnly(True)
         self.saved_height_lineedit.setObjectName("saved_height_lineedit")
-        self.gridlayout36.addWidget(self.saved_height_lineedit,1,2,1,1)
+        self.gridlayout37.addWidget(self.saved_height_lineedit,1,2,1,1)
 
         self.current_height_spinbox = QtGui.QSpinBox(self.groupBox10)
         self.current_height_spinbox.setMaximum(2000)
         self.current_height_spinbox.setMinimum(480)
         self.current_height_spinbox.setProperty("value",QtCore.QVariant(480))
         self.current_height_spinbox.setObjectName("current_height_spinbox")
-        self.gridlayout36.addWidget(self.current_height_spinbox,0,2,1,1)
+        self.gridlayout37.addWidget(self.current_height_spinbox,0,2,1,1)
 
         self.saved_width_lineedit = QtGui.QLineEdit(self.groupBox10)
         self.saved_width_lineedit.setReadOnly(True)
         self.saved_width_lineedit.setObjectName("saved_width_lineedit")
-        self.gridlayout36.addWidget(self.saved_width_lineedit,1,0,1,1)
+        self.gridlayout37.addWidget(self.saved_width_lineedit,1,0,1,1)
 
         self.textLabel1_2_2_2 = QtGui.QLabel(self.groupBox10)
         self.textLabel1_2_2_2.setAlignment(QtCore.Qt.AlignCenter)
         self.textLabel1_2_2_2.setObjectName("textLabel1_2_2_2")
-        self.gridlayout36.addWidget(self.textLabel1_2_2_2,0,1,1,1)
+        self.gridlayout37.addWidget(self.textLabel1_2_2_2,0,1,1,1)
 
         self.textLabel1_2_2_2_2 = QtGui.QLabel(self.groupBox10)
         self.textLabel1_2_2_2_2.setAlignment(QtCore.Qt.AlignCenter)
         self.textLabel1_2_2_2_2.setObjectName("textLabel1_2_2_2_2")
-        self.gridlayout36.addWidget(self.textLabel1_2_2_2_2,1,1,1,1)
-        self.gridlayout35.addLayout(self.gridlayout36,0,1,1,1)
+        self.gridlayout37.addWidget(self.textLabel1_2_2_2_2,1,1,1,1)
+        self.gridlayout36.addLayout(self.gridlayout37,0,1,1,1)
         self.hboxlayout63.addWidget(self.groupBox10)
 
         spacerItem61 = QtGui.QSpacerItem(70,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout63.addItem(spacerItem61)
-        self.gridlayout34.addLayout(self.hboxlayout63,0,0,1,1)
+        self.gridlayout35.addLayout(self.hboxlayout63,0,0,1,1)
 
         self.hboxlayout64 = QtGui.QHBoxLayout()
         self.hboxlayout64.setMargin(0)
@@ -2754,42 +2763,42 @@ class Ui_PreferencesDialog(object):
         self.groupBox3 = QtGui.QGroupBox(self.Window)
         self.groupBox3.setObjectName("groupBox3")
 
-        self.gridlayout37 = QtGui.QGridLayout(self.groupBox3)
-        self.gridlayout37.setMargin(4)
-        self.gridlayout37.setSpacing(4)
-        self.gridlayout37.setObjectName("gridlayout37")
+        self.gridlayout38 = QtGui.QGridLayout(self.groupBox3)
+        self.gridlayout38.setMargin(4)
+        self.gridlayout38.setSpacing(4)
+        self.gridlayout38.setObjectName("gridlayout38")
 
         self.caption_fullpath_checkbox = QtGui.QCheckBox(self.groupBox3)
         self.caption_fullpath_checkbox.setObjectName("caption_fullpath_checkbox")
-        self.gridlayout37.addWidget(self.caption_fullpath_checkbox,4,0,1,1)
+        self.gridlayout38.addWidget(self.caption_fullpath_checkbox,4,0,1,1)
 
         self.caption_suffix_linedit = QtGui.QLineEdit(self.groupBox3)
         self.caption_suffix_linedit.setMinimumSize(QtCore.QSize(0,0))
         self.caption_suffix_linedit.setMaximumSize(QtCore.QSize(32767,32767))
         self.caption_suffix_linedit.setObjectName("caption_suffix_linedit")
-        self.gridlayout37.addWidget(self.caption_suffix_linedit,3,0,1,1)
+        self.gridlayout38.addWidget(self.caption_suffix_linedit,3,0,1,1)
 
         self.textLabel2_2 = QtGui.QLabel(self.groupBox3)
         self.textLabel2_2.setObjectName("textLabel2_2")
-        self.gridlayout37.addWidget(self.textLabel2_2,2,0,1,1)
+        self.gridlayout38.addWidget(self.textLabel2_2,2,0,1,1)
 
         self.caption_prefix_linedit = QtGui.QLineEdit(self.groupBox3)
         self.caption_prefix_linedit.setMinimumSize(QtCore.QSize(0,0))
         self.caption_prefix_linedit.setMaximumSize(QtCore.QSize(32767,32767))
         self.caption_prefix_linedit.setObjectName("caption_prefix_linedit")
-        self.gridlayout37.addWidget(self.caption_prefix_linedit,1,0,1,1)
+        self.gridlayout38.addWidget(self.caption_prefix_linedit,1,0,1,1)
 
         self.textLabel2 = QtGui.QLabel(self.groupBox3)
         self.textLabel2.setObjectName("textLabel2")
-        self.gridlayout37.addWidget(self.textLabel2,0,0,1,1)
+        self.gridlayout38.addWidget(self.textLabel2,0,0,1,1)
         self.hboxlayout64.addWidget(self.groupBox3)
 
         spacerItem62 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout64.addItem(spacerItem62)
-        self.gridlayout34.addLayout(self.hboxlayout64,1,0,1,1)
+        self.gridlayout35.addLayout(self.hboxlayout64,1,0,1,1)
 
         spacerItem63 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.gridlayout34.addItem(spacerItem63,3,0,1,1)
+        self.gridlayout35.addItem(spacerItem63,3,0,1,1)
 
         self.hboxlayout65 = QtGui.QHBoxLayout()
         self.hboxlayout65.setMargin(0)
@@ -2801,15 +2810,15 @@ class Ui_PreferencesDialog(object):
         self.selectedFontGroupBox.setChecked(False)
         self.selectedFontGroupBox.setObjectName("selectedFontGroupBox")
 
-        self.gridlayout38 = QtGui.QGridLayout(self.selectedFontGroupBox)
-        self.gridlayout38.setMargin(4)
-        self.gridlayout38.setSpacing(4)
-        self.gridlayout38.setObjectName("gridlayout38")
+        self.gridlayout39 = QtGui.QGridLayout(self.selectedFontGroupBox)
+        self.gridlayout39.setMargin(4)
+        self.gridlayout39.setSpacing(4)
+        self.gridlayout39.setObjectName("gridlayout39")
 
         self.makeDefaultFontPushButton = QtGui.QPushButton(self.selectedFontGroupBox)
         self.makeDefaultFontPushButton.setAutoDefault(False)
         self.makeDefaultFontPushButton.setObjectName("makeDefaultFontPushButton")
-        self.gridlayout38.addWidget(self.makeDefaultFontPushButton,1,0,1,2)
+        self.gridlayout39.addWidget(self.makeDefaultFontPushButton,1,0,1,2)
 
         self.vboxlayout42 = QtGui.QVBoxLayout()
         self.vboxlayout42.setMargin(0)
@@ -2840,7 +2849,7 @@ class Ui_PreferencesDialog(object):
         spacerItem64 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout66.addItem(spacerItem64)
         self.vboxlayout42.addLayout(self.hboxlayout66)
-        self.gridlayout38.addLayout(self.vboxlayout42,0,1,1,1)
+        self.gridlayout39.addLayout(self.vboxlayout42,0,1,1,1)
 
         self.vboxlayout43 = QtGui.QVBoxLayout()
         self.vboxlayout43.setMargin(0)
@@ -2856,21 +2865,21 @@ class Ui_PreferencesDialog(object):
         self.label_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_3.setObjectName("label_3")
         self.vboxlayout43.addWidget(self.label_3)
-        self.gridlayout38.addLayout(self.vboxlayout43,0,0,1,1)
+        self.gridlayout39.addLayout(self.vboxlayout43,0,0,1,1)
         self.hboxlayout65.addWidget(self.selectedFontGroupBox)
 
         spacerItem65 = QtGui.QSpacerItem(280,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout65.addItem(spacerItem65)
-        self.gridlayout34.addLayout(self.hboxlayout65,2,0,1,1)
+        self.gridlayout35.addLayout(self.hboxlayout65,2,0,1,1)
         self.prefsStackedWidget.addWidget(self.Window)
 
         self.Reports = QtGui.QWidget()
         self.Reports.setObjectName("Reports")
 
-        self.gridlayout39 = QtGui.QGridLayout(self.Reports)
-        self.gridlayout39.setMargin(9)
-        self.gridlayout39.setSpacing(6)
-        self.gridlayout39.setObjectName("gridlayout39")
+        self.gridlayout40 = QtGui.QGridLayout(self.Reports)
+        self.gridlayout40.setMargin(9)
+        self.gridlayout40.setSpacing(6)
+        self.gridlayout40.setObjectName("gridlayout40")
 
         self.vboxlayout44 = QtGui.QVBoxLayout()
         self.vboxlayout44.setMargin(0)
@@ -2880,38 +2889,38 @@ class Ui_PreferencesDialog(object):
         self.groupBox17 = QtGui.QGroupBox(self.Reports)
         self.groupBox17.setObjectName("groupBox17")
 
-        self.gridlayout40 = QtGui.QGridLayout(self.groupBox17)
-        self.gridlayout40.setMargin(4)
-        self.gridlayout40.setSpacing(2)
-        self.gridlayout40.setObjectName("gridlayout40")
+        self.gridlayout41 = QtGui.QGridLayout(self.groupBox17)
+        self.gridlayout41.setMargin(4)
+        self.gridlayout41.setSpacing(2)
+        self.gridlayout41.setObjectName("gridlayout41")
 
         self.msg_serial_number_checkbox = QtGui.QCheckBox(self.groupBox17)
         self.msg_serial_number_checkbox.setObjectName("msg_serial_number_checkbox")
-        self.gridlayout40.addWidget(self.msg_serial_number_checkbox,0,0,1,2)
+        self.gridlayout41.addWidget(self.msg_serial_number_checkbox,0,0,1,2)
 
         self.msg_timestamp_checkbox = QtGui.QCheckBox(self.groupBox17)
         self.msg_timestamp_checkbox.setObjectName("msg_timestamp_checkbox")
-        self.gridlayout40.addWidget(self.msg_timestamp_checkbox,1,0,1,2)
+        self.gridlayout41.addWidget(self.msg_timestamp_checkbox,1,0,1,2)
         self.vboxlayout44.addWidget(self.groupBox17)
 
         spacerItem66 = QtGui.QSpacerItem(20,40,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout44.addItem(spacerItem66)
-        self.gridlayout39.addLayout(self.vboxlayout44,0,0,1,1)
+        self.gridlayout40.addLayout(self.vboxlayout44,0,0,1,1)
 
         spacerItem67 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout39.addItem(spacerItem67,0,1,1,1)
+        self.gridlayout40.addItem(spacerItem67,0,1,1,1)
         self.prefsStackedWidget.addWidget(self.Reports)
 
         self.Tooltips = QtGui.QWidget()
         self.Tooltips.setObjectName("Tooltips")
 
-        self.gridlayout41 = QtGui.QGridLayout(self.Tooltips)
-        self.gridlayout41.setMargin(9)
-        self.gridlayout41.setSpacing(6)
-        self.gridlayout41.setObjectName("gridlayout41")
+        self.gridlayout42 = QtGui.QGridLayout(self.Tooltips)
+        self.gridlayout42.setMargin(9)
+        self.gridlayout42.setSpacing(6)
+        self.gridlayout42.setObjectName("gridlayout42")
 
         spacerItem68 = QtGui.QSpacerItem(90,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout41.addItem(spacerItem68,0,1,1,1)
+        self.gridlayout42.addItem(spacerItem68,0,1,1,1)
 
         self.vboxlayout45 = QtGui.QVBoxLayout()
         self.vboxlayout45.setMargin(0)
@@ -2953,35 +2962,35 @@ class Ui_PreferencesDialog(object):
         self.hboxlayout67.setSpacing(4)
         self.hboxlayout67.setObjectName("hboxlayout67")
 
-        self.gridlayout42 = QtGui.QGridLayout()
-        self.gridlayout42.setMargin(0)
-        self.gridlayout42.setSpacing(2)
-        self.gridlayout42.setObjectName("gridlayout42")
+        self.gridlayout43 = QtGui.QGridLayout()
+        self.gridlayout43.setMargin(0)
+        self.gridlayout43.setSpacing(2)
+        self.gridlayout43.setObjectName("gridlayout43")
 
         self.atomDistPrecisionLabel = QtGui.QLabel(self.atom_dynamic_tooltips_grpbox)
         self.atomDistPrecisionLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.atomDistPrecisionLabel.setObjectName("atomDistPrecisionLabel")
-        self.gridlayout42.addWidget(self.atomDistPrecisionLabel,0,0,1,1)
+        self.gridlayout43.addWidget(self.atomDistPrecisionLabel,0,0,1,1)
 
         self.dynamicToolTipAtomDistancePrecision_spinbox = QtGui.QSpinBox(self.atom_dynamic_tooltips_grpbox)
         self.dynamicToolTipAtomDistancePrecision_spinbox.setMaximum(5)
         self.dynamicToolTipAtomDistancePrecision_spinbox.setMinimum(1)
         self.dynamicToolTipAtomDistancePrecision_spinbox.setProperty("value",QtCore.QVariant(3))
         self.dynamicToolTipAtomDistancePrecision_spinbox.setObjectName("dynamicToolTipAtomDistancePrecision_spinbox")
-        self.gridlayout42.addWidget(self.dynamicToolTipAtomDistancePrecision_spinbox,0,1,1,1)
+        self.gridlayout43.addWidget(self.dynamicToolTipAtomDistancePrecision_spinbox,0,1,1,1)
 
         self.dynamicToolTipBendAnglePrecision_spinbox = QtGui.QSpinBox(self.atom_dynamic_tooltips_grpbox)
         self.dynamicToolTipBendAnglePrecision_spinbox.setMaximum(5)
         self.dynamicToolTipBendAnglePrecision_spinbox.setMinimum(1)
         self.dynamicToolTipBendAnglePrecision_spinbox.setProperty("value",QtCore.QVariant(3))
         self.dynamicToolTipBendAnglePrecision_spinbox.setObjectName("dynamicToolTipBendAnglePrecision_spinbox")
-        self.gridlayout42.addWidget(self.dynamicToolTipBendAnglePrecision_spinbox,1,1,1,1)
+        self.gridlayout43.addWidget(self.dynamicToolTipBendAnglePrecision_spinbox,1,1,1,1)
 
         self.textLabel1_8_3 = QtGui.QLabel(self.atom_dynamic_tooltips_grpbox)
         self.textLabel1_8_3.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.textLabel1_8_3.setObjectName("textLabel1_8_3")
-        self.gridlayout42.addWidget(self.textLabel1_8_3,1,0,1,1)
-        self.hboxlayout67.addLayout(self.gridlayout42)
+        self.gridlayout43.addWidget(self.textLabel1_8_3,1,0,1,1)
+        self.hboxlayout67.addLayout(self.gridlayout43)
 
         spacerItem69 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout67.addItem(spacerItem69)
@@ -2991,23 +3000,23 @@ class Ui_PreferencesDialog(object):
         self.groupBox35 = QtGui.QGroupBox(self.Tooltips)
         self.groupBox35.setObjectName("groupBox35")
 
-        self.gridlayout43 = QtGui.QGridLayout(self.groupBox35)
-        self.gridlayout43.setMargin(4)
-        self.gridlayout43.setSpacing(0)
-        self.gridlayout43.setObjectName("gridlayout43")
+        self.gridlayout44 = QtGui.QGridLayout(self.groupBox35)
+        self.gridlayout44.setMargin(4)
+        self.gridlayout44.setSpacing(0)
+        self.gridlayout44.setObjectName("gridlayout44")
 
         self.dynamicToolTipBondChunkInfo_checkbox = QtGui.QCheckBox(self.groupBox35)
         self.dynamicToolTipBondChunkInfo_checkbox.setObjectName("dynamicToolTipBondChunkInfo_checkbox")
-        self.gridlayout43.addWidget(self.dynamicToolTipBondChunkInfo_checkbox,1,0,1,1)
+        self.gridlayout44.addWidget(self.dynamicToolTipBondChunkInfo_checkbox,1,0,1,1)
 
         self.dynamicToolTipBondLength_checkbox = QtGui.QCheckBox(self.groupBox35)
         self.dynamicToolTipBondLength_checkbox.setObjectName("dynamicToolTipBondLength_checkbox")
-        self.gridlayout43.addWidget(self.dynamicToolTipBondLength_checkbox,0,0,1,1)
+        self.gridlayout44.addWidget(self.dynamicToolTipBondLength_checkbox,0,0,1,1)
         self.vboxlayout45.addWidget(self.groupBox35)
 
         spacerItem70 = QtGui.QSpacerItem(20,161,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout45.addItem(spacerItem70)
-        self.gridlayout41.addLayout(self.vboxlayout45,0,0,1,1)
+        self.gridlayout42.addLayout(self.vboxlayout45,0,0,1,1)
         self.prefsStackedWidget.addWidget(self.Tooltips)
         self.gridlayout1.addWidget(self.prefsStackedWidget,0,1,1,1)
 
@@ -3047,7 +3056,7 @@ class Ui_PreferencesDialog(object):
 
         self.retranslateUi(PreferencesDialog)
         self.prefsTabWidget.setCurrentIndex(0)
-        self.prefsStackedWidget.setCurrentIndex(10)
+        self.prefsStackedWidget.setCurrentIndex(1)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(PreferencesDialog)
 
@@ -3069,7 +3078,9 @@ class Ui_PreferencesDialog(object):
         self.water_checkbox.setText(QtGui.QApplication.translate("PreferencesDialog", "Water", None, QtGui.QApplication.UnicodeUTF8))
         self.buildmode_select_atoms_checkbox.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Automatically select atoms when depositing", None, QtGui.QApplication.UnicodeUTF8))
         self.buildmode_select_atoms_checkbox.setText(QtGui.QApplication.translate("PreferencesDialog", "Auto select atoms of deposited objects", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("PreferencesDialog", "Background color:", None, QtGui.QApplication.UnicodeUTF8))
+        self.backgroundGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Background", None, QtGui.QApplication.UnicodeUTF8))
+        self.enableFogCheckBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Enable fog", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_8.setText(QtGui.QApplication.translate("PreferencesDialog", "Color scheme:", None, QtGui.QApplication.UnicodeUTF8))
         self.hoverHighlightingStyleGroupBox.setTitle(QtGui.QApplication.translate("PreferencesDialog", "Hover highlighting style", None, QtGui.QApplication.UnicodeUTF8))
         self.label_21.setText(QtGui.QApplication.translate("PreferencesDialog", "Color:", None, QtGui.QApplication.UnicodeUTF8))
         self.hoverHighlightingColorButton.setText(QtGui.QApplication.translate("PreferencesDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
@@ -3093,7 +3104,6 @@ class Ui_PreferencesDialog(object):
         self.display_pov_axis_checkbox.setText(QtGui.QApplication.translate("PreferencesDialog", "Display point of view (POV) axis", None, QtGui.QApplication.UnicodeUTF8))
         self.display_origin_axis_checkbox.setToolTip(QtGui.QApplication.translate("PreferencesDialog", "Show/Hide Origin Axis", None, QtGui.QApplication.UnicodeUTF8))
         self.display_origin_axis_checkbox.setText(QtGui.QApplication.translate("PreferencesDialog", "Display origin axis", None, QtGui.QApplication.UnicodeUTF8))
-        self.enableFogCheckBox.setText(QtGui.QApplication.translate("PreferencesDialog", "Enable fog", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox8.setTitle(QtGui.QApplication.translate("PreferencesDialog", "View rotation settings", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_5.setText(QtGui.QApplication.translate("PreferencesDialog", "View animation speed:", None, QtGui.QApplication.UnicodeUTF8))
         self.rotationSensitivity_txtlbl.setText(QtGui.QApplication.translate("PreferencesDialog", "Mouse rotation speed:", None, QtGui.QApplication.UnicodeUTF8))
