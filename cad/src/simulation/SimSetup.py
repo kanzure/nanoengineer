@@ -37,6 +37,7 @@ from utilities.prefs_constants import electrostaticsForDnaDuringDynamics_prefs_k
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from utilities.qt4transition import qt4todo
 from utilities.TimeUtilities import timeStamp
+from utilities.icon_utilities import geticon
 
 # class FakeMovie:
 #
@@ -79,15 +80,18 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         """
         QDialog.__init__(self)
         self.setupUi(self)
+        
+        self.setWindowIcon(geticon('ui/border/RunDynamics.png'))
+        
         self.watch_motion_buttongroup = QButtonGroup()
         self.watch_motion_buttongroup.setExclusive(True)
-        for obj in self.update_btngrp.children():
+        for obj in self.watch_motion_groupbox.children():
             if isinstance(obj, QAbstractButton):
                 self.watch_motion_buttongroup.addButton(obj)
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
-        qt4todo('self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.setEnabled) ???')
-        self.watch_motion_checkbox.setEnabled(True)
+        qt4todo('self.connect(self.watch_motion_groupbox,SIGNAL("toggled(bool)"),self.setEnabled) ???')
+        self.watch_motion_groupbox.setEnabled(True)
         ## self.part = part
             # not yet needed, though in future we might display info
             # about this Part in the dialog, to avoid confusion
@@ -115,39 +119,67 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             # self.movie is now a public attribute.
             #bruce 050329 comment: couldn't we set .movie to None, until we learn we succeeded? ###e ###@@@
         self.setup()
-        self.watch_motion_checkbox.setWhatsThis("""<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
-        updates during simulation runs.""")
-        self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        self.update_units_combobox.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        self.update_every_rbtn.setWhatsThis("""<b>Update every <i>n units.</u></b>
-        <p>Specify how often to update
-        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        self.update_asap_rbtn.setWhatsThis("""<b>Update as fast as possible</b>
-        <p>
-        Update every 2 seconds,
-        or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%</p>""")
-        self.tempSB.setWhatsThis("""<b>Temperature</b><p>The temperature of the simulation in Kelvin
-        (300 K = room temp)</p>""")
-        self.nframesSB.setWhatsThis("""<b>Total Frames</b><p>The number of frames for the simulation
-        run.</p>""")
-        self.stepsperSB.setWhatsThis("""<b>Steps per Frame</b><p>The time duration between frames. 10
-        steps = 1 femtosecond.</p>""")
-        self.setWhatsThis("""<b>Run Dynamics</b><p>NanoEngineer-1 Molecular Dynamics
-        Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>""")
+        self.watch_motion_groupbox.setWhatsThis(
+            """<b>Watch motion in real time</b>
+            <p>
+            Enables real time graphical updates during simulation runs.
+            """)
+        self.update_number_spinbox.setWhatsThis(
+            """<b>Update every <i>n units.</u></b>
+            <p>
+            Specify how often to update the model during the simulation. 
+            This allows the user to monitor simulation results while the 
+            simulation is running.
+            </p>""")
+        self.update_units_combobox.setWhatsThis(
+            """<b>Update every <i>n units.</u></b>
+            <p>
+            Specify how often to update the model during the simulation. 
+            This allows the user to monitor simulation results while the 
+            simulation is running.
+            </p>""")
+        self.update_every_rbtn.setWhatsThis(
+            """<b>Update every <i>n units.</u></b>
+            <p>
+            Specify how often to update the model during the simulation. 
+            This allows the user to monitor simulation results while the 
+            simulation is running.</p>""")
+        self.update_asap_rbtn.setWhatsThis(
+            """<b>Update as fast as possible</b>
+            <p>
+            Update every 2 seconds, or faster (up to 20x/sec) if it doesn't 
+            slow down the simulation by more than 20%.
+            </p>""")
+        self.temperatureSpinBox.setWhatsThis(
+            """<b>Temperature</b>
+            <p>
+            The temperature of the simulation in Kelvin 
+            (300 K = room temperature)</p>""")
+        self.totalFramesSpinBox.setWhatsThis(
+            """<b>Total frames</b>
+            <p>
+            The total number of (movie) frames to create for the simulation run.
+            </p>""")
+        self.stepsPerFrameDoubleSpinBox.setWhatsThis(
+            """<b>Steps per frame</b>
+            <p>
+            The time duration between frames in femtoseconds.
+            </p>""")
+        self.setWhatsThis(
+            """<b>Run Dynamics</b>
+            <p>
+            The is the main dialog for configuring and launching a 
+            Molecular Dynamics simulation run. Specify the simulation parameters
+            and click <b>Run Simulation</b> to launch.</p>
+            <p>
+            The <b>Play Movie</b> command can be used to play back the 
+            simulation.
+            </p>""")
         
-        if not debug_pref("GROMACS Enabled", Choice_boolean_False,
+        if not debug_pref("GROMACS: Enable for Run Dynamics", Choice_boolean_False,
                           prefs_key=True):
-            # Hide the Simulation engine chooser altogether.
-            self.parms_grpbox_2.setHidden(True)
-            self.base_frame.setFixedHeight(self.base_frame.geometry().height() - 65)
-            geometry = self.layout20.geometry()
-            geometry.moveBottom(geometry.bottom() - 65)
-            self.layout20.setGeometry(geometry)
-            self.setFixedHeight(self.geometry().height() - 65)
+            # Hide the Simulation engine groupbox altogether.
+            self.md_engine_groupbox.setHidden(True)
             
         self.exec_()
         
@@ -158,9 +190,9 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         # Movie.__init__ (movie.py), toward the end
         # SimSetup.setup (SimSetup.py)
         # FakeMovie.__init (runSim.py)
-        self.nframesSB.setValue( self.previous_movie.totalFramesRequested )
-        self.tempSB.setValue( self.previous_movie.temp )
-        self.stepsperSB.setValue( self.previous_movie.stepsper )
+        self.totalFramesSpinBox.setValue( self.previous_movie.totalFramesRequested )
+        self.temperatureSpinBox.setValue( self.previous_movie.temp )
+        self.stepsPerFrameDoubleSpinBox.setValue( self.previous_movie.stepsper / 10.0 )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
         # new checkboxes for Alpha7, circa 060108
         #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) 
@@ -170,14 +202,14 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         ##e the following really belongs in the realtime_update_controller,
         # and the update_cond is not the best thing to set this from;
         # but we can leave it here, then let the realtime_update_controller override it if it knows how. [now it does]
-        self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
+        self.watch_motion_groupbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
 
         try:
             #bruce 060705 use new common code, if it works
             from widgets.widget_controllers import realtime_update_controller
             self.ruc = realtime_update_controller(
                 ( self.watch_motion_buttongroup, self.update_number_spinbox, self.update_units_combobox ),
-                self.watch_motion_checkbox
+                self.watch_motion_groupbox
                 # no prefs key for checkbox
             )
             self.ruc.set_widgets_from_update_data( self.previous_movie._update_data ) # includes checkbox
@@ -185,8 +217,8 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             print_compact_traceback( "bug; reverting to older code in simsetep setup: ")
             if self.previous_movie._update_data:
                 update_number, update_units, update_as_fast_as_possible_data, watchjunk = self.previous_movie._update_data
-                self.watch_motion_checkbox.setChecked(watchjunk) ###060705
-                self.update_btngrp.setButton( update_as_fast_as_possible_data)
+                self.watch_motion_groupbox.setChecked(watchjunk) ###060705
+                self.watch_motion_groupbox.setButton( update_as_fast_as_possible_data)
                 self.update_number_spinbox.setValue( update_number)
                 self.update_units_combobox.setCurrentText( update_units)
                     #k let's hope this changes the current choice, not the popup menu item text for the current choice!
@@ -220,9 +252,9 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             errorcode, partdir = self.assy.find_or_make_part_files_directory()
     
             self.movie.cancelled = False # This is the only way caller can tell we succeeded.
-            self.movie.totalFramesRequested = self.nframesSB.value()
-            self.movie.temp = self.tempSB.value()
-            self.movie.stepsper = self.stepsperSB.value()
+            self.movie.totalFramesRequested = self.totalFramesSpinBox.value()
+            self.movie.temp = self.temperatureSpinBox.value()
+            self.movie.stepsper = self.stepsPerFrameDoubleSpinBox.value() * 10.0
             self.movie.print_energy = self.potential_energy_checkbox.isChecked()
     #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
             #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
@@ -243,12 +275,12 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 print_compact_traceback("bug using realtime_update_controller in SimSetup, will use older code instead: ")
                     # this older code can be removed after A8 if we don't see that message
                 #bruce 060530 use new watch_motion rate parameters
-                self.movie.watch_motion = self.watch_motion_checkbox.isChecked() # [deprecated for setattr as of 060705]
+                self.movie.watch_motion = self.watch_motion_groupbox.isChecked() # [deprecated for setattr as of 060705]
                 if env.debug():
                     print "debug fyi: sim setup watch_motion = %r" % (self.movie.watch_motion,)
                 # This code works, but I'll try to replace it with calls to common code (above). [bruce 060705]
                 # first grab them from the UI
-                update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+                update_as_fast_as_possible_data = self.watch_motion_groupbox.selectedId() # 0 means yes, 1 means no (for now)
                     # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
                 update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
                 update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
@@ -257,7 +289,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 update_data = update_number, update_units, update_as_fast_as_possible_data, self.movie.watch_motion
     ##                if env.debug():
     ##                    print "stored _update_data %r into movie %r" % (self.movie._update_data, self.movie)
-    ##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
+    ##                    print "debug: self.watch_motion_groupbox.selectedId() = %r" % (update_as_fast_as_possible_data,)
     ##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
     ##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
                 # Now figure out what these user settings mean our realtime updating algorithm should be,
