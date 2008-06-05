@@ -3172,7 +3172,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # fog_test_enable debug_pref can be removed if fog is implemented fully
         # (added by bradg 20060224)
-        fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False)
+        
+        # piotr 080605 1.1.0 rc1 - replaced fog debug pref with user pref
+        fog_test_enable = env.prefs[fogEnabled_prefs_key]
 
         if fog_test_enable:
             if hasattr(self, "fogColor"):
