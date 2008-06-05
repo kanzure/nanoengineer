@@ -399,7 +399,7 @@ def _decodePatternPrefs(highlight = False, select = False):
     style = bool(key) and env.prefs[key] # False or enum string.
     solid = style == False or (highlight and style == HHS_SOLID or
                                select and style == SS_SOLID) # bool.
-    pattern = False         # False or bitarray pointer.
+    pattern = None          # None or a bitarray pointer.
     edges = halos = False   # bool.
 
     # Nothing to do for solid colors.
@@ -414,7 +414,7 @@ def _decodePatternPrefs(highlight = False, select = False):
             pattern = CrossHatch
             pass
         # Check for polygon-edge drawing styles.
-        if pattern == False:
+        if pattern is None:
             edges = (highlight and style == HHS_POLYGON_EDGES
                      or select and style == SS_POLYGON_EDGES)
             halos = (highlight and style == HHS_HALO
@@ -451,7 +451,7 @@ def startPatternedDrawing(highlight = False, select = False):
         return False
 
     # Set up stipple-patterned drawing styles.
-    if pattern is not False:
+    if pattern is not None:
         glEnable(GL_POLYGON_STIPPLE)
         glPolygonStipple(pattern)
         return True
@@ -491,7 +491,7 @@ def endPatternedDrawing(highlight = False, select = False):
         return False
 
     # End stipple-patterned drawing styles.
-    if pattern is not False:
+    if pattern is not None:
         glDisable(GL_POLYGON_STIPPLE)
         return True
 
