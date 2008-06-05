@@ -116,15 +116,15 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         @param patterning: Whether to apply patterned drawing styles for
           highlighting and selection, according to the prefs settings.
-          If not set, it as if the solid-color prefs are chosen.
+          If not set, it's as if the solid-color prefs are chosen.
         """
-        patterned = patterning and isPatternedDrawing(select=selected,
-                                             highlight=highlighted)
+        patterned = patterning and isPatternedDrawing(select = selected,
+                                             highlight = highlighted)
         if patterned:
             # Patterned highlighting or selection drawing needs a normal drawing
             # done first to overlay with the pattern.
             glCallList(self.color_dl)
-            startPatternedDrawing(select=selected, highlight=highlighted)
+            startPatternedDrawing(select = selected, highlight = highlighted)
             pass
 
         # Draw solid color, or overlay pattern in highlight or selection color.
@@ -138,7 +138,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         if patterned:
             # Reset from patterned drawing mode.
-            endPatternedDrawing(select=selected, highlight=highlighted)
+            endPatternedDrawing(select = selected, highlight = highlighted)
             pass
         return
 
