@@ -195,6 +195,7 @@ from utilities.prefs_constants import showRulersInPerspectiveView_prefs_key
 from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_atom_commands_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_dna_commands_prefs_key
+from utilities.prefs_constants import fogEnabled_prefs_key
 
 from utilities.prefs_constants import stereoViewMode_prefs_key
 from utilities.prefs_constants import stereoViewAngle_prefs_key
