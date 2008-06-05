@@ -1153,7 +1153,7 @@ class SimRunner:
         #ninad20070509
         #int EnableElectrostatic =1 implies electrostatic is enabled 
         #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
-        if env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
+        if self.useGromacs and env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
             val = 1
         else:
             val = 0	
@@ -1163,7 +1163,7 @@ class SimRunner:
         #ninad20070509
         # int EnableElectrostatic =1 implies electrostatic is enabled 
         #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
-        if env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
+        if self.useGromacs and env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
             val = 1
         else:
             val = 0	
