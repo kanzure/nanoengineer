@@ -1077,7 +1077,8 @@ class PAM_Atom_methods:
 
     def isThreePrimeEndAtom(self):
         """
-        Returns True if self is a three prime end atom of a DnaStrand
+        Returns True if self is a three prime end atom of a DnaStrand.
+        (This means the last non-bondpoint atom in the 5'->3' direction.)
         """
         if self.is_singlet():
             return False
@@ -1091,10 +1092,10 @@ class PAM_Atom_methods:
 
         return False
 
-
     def isFivePrimeEndAtom(self):
         """
-        Returns True if self is a five prime end atom of a DnaStrand
+        Returns True if self is a five prime end atom of a DnaStrand.
+        (This means the last non-bondpoint atom in the 3'->5' direction.)
         """
         if self.is_singlet():
             return False
@@ -1107,7 +1108,6 @@ class PAM_Atom_methods:
             return True # self is an end atom
 
         return False
-
 
     def strand_end_bond(self): #bruce 070415, revised 071016 ### REVIEW: rename?
         """

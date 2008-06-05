@@ -586,9 +586,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         @return: strand Sequence string
         @rtype: str
         """
-        sequenceString = ''  
-        for atm in self.get_strand_atoms_in_bond_direction():
-            baseName = str(atm.getDnaBaseName())        
+        sequenceString = ""
+        for atom in self.get_strand_atoms_in_bond_direction():
+            baseName = str(atom.getDnaBaseName())        
             if baseName:
                 sequenceString = sequenceString + baseName
 
@@ -611,12 +611,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
         # [yes, see my longer reply comment above -- Bruce 080117]
         atomList = []           
-        for atm in self.get_strand_atoms_in_bond_direction():
-            if not atm.is_singlet():
-                atomList.append(atm)
+        for atom in self.get_strand_atoms_in_bond_direction():
+            if not atom.is_singlet():
+                atomList.append(atom)
 
-        for atm in atomList:   
-            atomIndex = atomList.index(atm)
+        for atom in atomList:   
+            atomIndex = atomList.index(atom)
             if atomIndex > (len(sequenceString) - 1):
                 #In this case, set an unassigned base ('X') for the remaining 
                 #atoms
@@ -624,11 +624,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             else:
                 baseName = sequenceString[atomIndex]
 
-            atm.setDnaBaseName(baseName)
+            atom.setDnaBaseName(baseName)
 
             #Also assign the baseNames for the PAM atoms on the complementary 
             #('mate') strand.
-            strandAtomMate = atm.get_strand_atom_mate()
+            strandAtomMate = atom.get_strand_atom_mate()
             complementBaseName= getComplementSequence(str(baseName))
             if strandAtomMate is not None:
                 strandAtomMate.setDnaBaseName(str(complementBaseName))  
@@ -675,23 +675,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
               widget.        
         """
         found_strand_atom = False
-        for atm in self.atoms.itervalues():
-            if atm.element.role == 'strand':
+        for atom in self.atoms.itervalues():
+            if atom.element.role == 'strand':
                 found_strand_atom = True
                 # side effect: use strand icon [mark 080203]
                 if self.hidden:
                     self.iconPath = "ui/modeltree/Strand-hide.png"
                 else:
                     self.iconPath = "ui/modeltree/Strand.png"
-            elif atm.is_singlet() or atm.element.role == 'unpaired-base':
+            elif atom.is_singlet() or atom.element.role == 'unpaired-base':
                 pass
             else:
                 # other kinds of atoms are not allowed
                 return False
             continue
 
-        return found_strand_atom    
-
+        return found_strand_atom
 
     def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
         """
@@ -717,15 +716,15 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         @note: this would return all atoms from an entire strand (chain or ring)
                even if it spanned multiple chunks.
-        """ 
+        """
         startAtom = None
         atomList = []
 
         #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
         # and not a bondpoint)
-        for atm in self.atoms.itervalues():
-            if atm.element.symbol == 'Ss3':
-                startAtom = atm
+        for atom in self.atoms.itervalues():
+            if atom.element.symbol == 'Ss3':
+                startAtom = atom
                 break        
 
         if startAtom is None:
@@ -869,10 +868,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         functional.
         """
         found_axis_atom = False
-        for atm in self.atoms.itervalues():
-            if atm.element.role == 'axis':
+        for atom in self.atoms.itervalues():
+            if atom.element.role == 'axis':
                 found_axis_atom = True
-            elif atm.is_singlet():
+            elif atom.is_singlet():
                 pass
             else:
                 # other kinds of atoms are not allowed
@@ -911,19 +910,19 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         found_carbon_atom = False # CNT
         found_boron_atom = False  # BNNT
 
-        for atm in self.atoms.itervalues():
-            if atm.element.symbol == 'C':
-                if atm.atomtype.spX == 2:
+        for atom in self.atoms.itervalues():
+            if atom.element.symbol == 'C':
+                if atom.atomtype.spX == 2:
                     found_carbon_atom = True
                 else:
                     return False
-            elif atm.element.symbol == 'B':
+            elif atom.element.symbol == 'B':
                 found_boron_atom = True
-            elif atm.element.symbol == 'N':
+            elif atom.element.symbol == 'N':
                 pass
-            elif atm.element.symbol == 'H':
+            elif atom.element.symbol == 'H':
                 pass
-            elif atm.is_singlet():
+            elif atom.is_singlet():
                 pass
             else:
                 # other kinds of atoms are not allowed
@@ -1245,7 +1244,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     # lowest-level structure-changing methods
 
-    def addatom(self, atm):
+    def addatom(self, atom):
         """
         Private method;
         should be the only way new atoms can be added to a Chunk
@@ -1264,51 +1263,51 @@ class Chunk(NodeWithAtomContents, InvalMixin,
            (It's not worth tracking changes to the set of singlets in the mol,
         so instead we recompute self.singlets and self.singlpos as needed.)
         """
-        ## atm.invalidate_bonds() # might not be needed
-        ## [definitely not after bruce 050516, since changing atm.molecule is enough;
-        #   if this is not changing it, then atm was in _nullMol and we don't care
+        ## atom.invalidate_bonds() # might not be needed
+        ## [definitely not after bruce 050516, since changing atom.molecule is enough;
+        #   if this is not changing it, then atom was in _nullMol and we don't care
         #   whether its bonds are valid.]
         # make atom know self as its .molecule
-        assert atm.molecule is None or atm.molecule is _nullMol
+        assert atom.molecule is None or atom.molecule is _nullMol
 #bruce 080220 new feature -- but now being done elsewhere (more efficient,
 # and useless here unless also done in all inlined versions, which is hard):
-##        if atm._f_assy is not self.assy:
-##            atm._f_set_assy(self.assy)
-        atm.molecule = self
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
-        atm.index = -1 # illegal value
+##        if atom._f_assy is not self.assy:
+##            atom._f_set_assy(self.assy)
+        atom.molecule = self
+        _changed_parent_Atoms[atom.key] = atom #bruce 060322
+        atom.index = -1 # illegal value
         # make Chunk self have atom
-        self.atoms[atm.key] = atm
+        self.atoms[atom.key] = atom
         self.invalidate_atom_lists()
         return
 
-    def addcopiedatom(self, atm):
+    def addcopiedatom(self, atom):
         """
         private method for mol.copy;
         leaves out asserts which are wrong in that case; caller must do invals
         (it can do invalidate_atom_lists once, for many calls of this)
         """
-        atm.molecule = self
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
-        self.atoms[atm.key] = atm
+        atom.molecule = self
+        _changed_parent_Atoms[atom.key] = atom #bruce 060322
+        self.atoms[atom.key] = atom
         return
 
-    def delatom(self, atm):
+    def delatom(self, atom):
         """
         Private method;
         should be the only way atoms can be removed from a Chunk
         (except for optimized callers like Chunk.merge).
-           Remove atom atm from the Chunk self, preparing atm for being destroyed
+           Remove atom from the Chunk self, preparing atom for being destroyed
         or for later addition to some other mol, doing necessary invals in self,
         and (for safety and possibly to break cycles of python refs) removing all
-        connections from atm back to self.
+        connections from atom back to self.
         """
-        ## atm.invalidate_bonds() # not needed after bruce 050516; see comment in addatom
+        ## atom.invalidate_bonds() # not needed after bruce 050516; see comment in addatom
         self.invalidate_atom_lists() # do this first, in case exceptions below
 
         # make atom independent of self
-        assert atm.molecule is self
-        atm.index = -1 # illegal value
+        assert atom.molecule is self
+        atom.index = -1 # illegal value
         # inlined _get_nullMol:
         global _nullMol
         if _nullMol is None:
@@ -1317,13 +1316,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             ## _nullMol = Chunk("<not an assembly>", 'name-of-_nullMol')
             # this newer method might or might not have that problem
             _nullMol = _make_nullMol()
-        atm.molecule = _nullMol # not a real mol; absorbs invals without harm
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
-        # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
+        atom.molecule = _nullMol # not a real mol; absorbs invals without harm
+        _changed_parent_Atoms[atom.key] = atom #bruce 060322
+        # (note, we *don't* add atom to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
 
         # make self forget about atom
-        del self.atoms[atm.key] # callers can check for KeyError, always an error
+        del self.atoms[atom.key] # callers can check for KeyError, always an error
         if not self.atoms:
             self.kill() # new feature, bruce 041116, experimental
         return
@@ -1478,7 +1477,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # [bruce 041207, by separate experiment]. Some callers test the boolean
         # value we compute for self.singlets. Since the elements are pyobjs,
         # this would probably work even if filter returned an array.)
-        return filter( lambda atm: atm.element is Singlet, self.atlist )
+        return filter( lambda atom: atom.element is Singlet, self.atlist )
 
     _inputs_for_singlpos = ['singlets', 'atpos']
     def _recompute_singlpos(self):
@@ -1488,7 +1487,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if len(self.singlets):
             # (This was apparently None for no singlets -- always a bug,
             #  and caused bug 237 in Extrude entry. [bruce 041206])
-            return A( map( lambda atm: atm.posn(), self.singlets ) )
+            return A( map( lambda atom: atom.posn(), self.singlets ) )
         else:
             return []
         pass
@@ -1560,8 +1559,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
         atlist = [atom for (key, atom) in atomitems] #k syntax
         self.atlist = array(atlist, PyObject) #k it's untested whether making it an array is good or bad
-        for atm, i in zip(atlist, range(len(atlist))):
-            atm.index = i 
+        for atom, i in zip(atlist, range(len(atlist))):
+            atom.index = i 
         return        
 
     _inputs_for_atpos = ['atlist'] # also incrementally modified by setatomposn [not anymore, 060308]
@@ -1592,7 +1591,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
 
         atlist = self.atlist # might call _recompute_atlist
-        atpos = map( lambda atm: atm.posn(), atlist ) # atpos, basepos, and atlist must be in same order
+        atpos = map( lambda atom: atom.posn(), atlist ) # atpos, basepos, and atlist must be in same order
         atpos = A(atpos)
         # we must invalidate or fix self.atpos when any of our atoms' positions is changed!
         self.atpos = atpos
@@ -1724,9 +1723,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     def _recompute_externs(self): #bruce 050513 optimized this
         # following code simplified from self.draw()
         externs = []
-        for atm in self.atoms.itervalues():
-            for bond in atm.bonds:
-                ## if bond.other(atm).molecule != self # slower than needed:
+        for atom in self.atoms.itervalues():
+            for bond in atom.bonds:
+                ## if bond.other(atom).molecule != self # slower than needed:
                 if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
                     # external bond
                     externs.append(bond)
@@ -2270,10 +2269,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             continue
         return
 
-    def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
+    def draw_displist(self, glpane, disp0, hd_info):
         """
         [private submethod of self.draw]
         """
+        #bruce 050513 optimizing this somewhat; 060608 revising it
         if debug_pref("GLPane: report remaking of chunk display lists?",
                       Choice_boolean_False,
                       non_debug = True,
@@ -2451,15 +2451,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         return
 
-    def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
+    def standard_draw_chunk(self, glpane, disp0, highlighted = False):
         """
         [private submethod of self.draw:]
-        Draw the standard representation of this chunk as a whole (except for chunk selection wireframe),
-        as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
+        
+        Draw the standard representation of this chunk as a whole
+        (except for chunk selection wireframe),
+        as if self's display mode was disp0;
+        this occurs inside our local coordinate system and display-list-making,
         and it doesn't occur if chunk drawing is delegated to our display mode.
-           Note: as of 060608 nothing is ever drawn for a chunk as a whole, so this method does nothing.
-        That might change, e.g. if we made chunks show their axis, name, bbox, etc.
+
+        @note: as of 080605 nothing is ever drawn for a chunk as a whole,
+               so this method does nothing (in this class or any subclass).
+               That might change, e.g. if we made chunks able to show their
+               axes, name, bbox, etc.
         """
+        #bruce 060608 split this out of draw_displist
         return
 
     def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
@@ -2486,15 +2493,18 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def modify_color_for_error(self, color):
         """
+        [overridden in some subclasses]
         """
         return color
 
     def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of draw_displist
         """
         [private submethod of self.draw:]
-        Draw all our atoms and all their internal bonds, in the standard way, *including* atom selection wireframes,
-        as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
-        and it doesn't occur if atom drawing is delegated to our display mode.
+        
+        Draw all our atoms and all their internal bonds, in the standard way,
+        *including* atom selection wireframes, as if self's display mode was disp0;
+        this occurs inside our local coordinate system and display-list-making;
+        it doesn't occur if atom drawing is delegated to our display mode.
         """
         drawLevel = self.assy.drawLevel
         drawn = {}
@@ -2511,16 +2521,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         bondcolor = atomcolor # never changed below
 
-        for atm in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
+        for atom in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
                 color = atomcolor # might be modified before use
                 disp = disp0 # might be modified before use
                 # bruce 041014 hack for extrude -- use _colorfunc if present [part 2; optimized 050513]
                 if _colorfunc is not None:
                     try:
-                        color = _colorfunc(atm) # None or a color
+                        color = _colorfunc(atom) # None or a color
                     except:
-                        print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atm)) #bruce 060411 added errmsg
+                        print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atom)) #bruce 060411 added errmsg
                         _colorfunc = None # report the error only once per displist-redraw
                         color = None
                     else:
@@ -2531,9 +2541,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         # ordinary drawing inefficient, and to avoid duplicating this entire method:
                         if _dispfunc is not None:
                             try:
-                                disp = _dispfunc(atm)
+                                disp = _dispfunc(atom)
                             except:
-                                print_compact_traceback("bug in _dispfunc for %r and %r: " % (self, atm))
+                                print_compact_traceback("bug in _dispfunc for %r and %r: " % (self, atom))
                                 _dispfunc = None # report the error only once per displist-redraw
                                 disp = disp0 # probably not needed
                                 pass
@@ -2543,16 +2553,16 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 # otherwise color and disp remain unchanged
 
                 # end bruce hack 041014, except for use of color rather than
-                # self.color in atm.draw (but not in bond.draw -- good??)
+                # self.color in atom.draw (but not in bond.draw -- good??)
 
-                atomdisp = atm.draw(glpane, disp, color, drawLevel)
+                atomdisp = atom.draw(glpane, disp, color, drawLevel)
 
-                #bruce 050513 optim: if self and atm display modes don't need to draw bonds,
+                #bruce 050513 optim: if self and atom display modes don't need to draw bonds,
                 # we can skip drawing bonds here without checking whether their other atoms
                 # have their own display modes and want to draw them,
                 # since we'll notice that when we get to those other atoms
                 # (whether in self or some other chunk).
-                # (We could ask atm.draw to return a flag saying whether to draw its bonds here.)
+                # (We could ask atom.draw to return a flag saying whether to draw its bonds here.)
                 #    To make this safe, we'd need to not recompute externs here,
                 # but that should be ok since they're computed separately anyway now.
                 # So I'm removing that now, and doing this optim.
@@ -2563,9 +2573,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
                 if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK, diDNACYLINDER):
                     # todo: move this tuple into bonds module or Bond class
-                    for bond in atm.bonds:
+                    for bond in atom.bonds:
                         if id(bond) not in drawn:
-                            ## if bond.other(atm).molecule != self: could be faster [bruce 050513]:
+                            ## if bond.other(atom).molecule != self: could be faster [bruce 050513]:
                             if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
                                 pass ## self.externs.append(bond) # bruce 050513 removing this
                             else:
@@ -2579,11 +2589,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 print_compact_traceback("exception in drawing one atom or bond ignored: ")
                 # (this might mean some externs are missing; never mind that for now.) [bruce 050513 -- not anymore]
                 try:
-                    print "current atom was:", atm
+                    print "current atom was:", atom
                 except:
                     print "current atom was... exception when printing it, discarded"
                 try:
-                    atom_source = atm._source # optional atom-specific debug info
+                    atom_source = atom._source # optional atom-specific debug info
                 except AttributeError:
                     pass
                 else:
@@ -2728,7 +2738,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # order of creation even if we later change the kind of value it
             # produces.
         pairs.sort()
-        res = [atm for key, atm in pairs]
+        res = [atom for key, atom in pairs]
         return res
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
@@ -2750,9 +2760,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # their bonds separately, in a more compact form.
         compact_bond_atoms = \
                            self.write_bonds_compactly_for_these_atoms(mapping)
-        for atm in self.atoms_in_mmp_file_order(mapping):
-            atm.writemmp(mapping,
-                         dont_write_bonds_for_these_atoms = compact_bond_atoms)
+        for atom in self.atoms_in_mmp_file_order(mapping):
+            atom.writemmp(mapping,
+                          dont_write_bonds_for_these_atoms = compact_bond_atoms)
                 # note: this writes internal and/or external bonds,
                 # after their 2nd atom is written, unless both their
                 # atoms are in compact_bond_atoms. It also writes
@@ -2857,9 +2867,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # bruce 070928 bugfix: use repeated_bonds_dict
             # instead of a per-chunk dict, so we don't
             # draw external bonds twice
-        for atm in self.atoms.values():
-            atm.writepov(file, disp, self.color)
-            for bond in atm.bonds:
+        for atom in self.atoms.values():
+            atom.writepov(file, disp, self.color)
+            for bond in atom.bonds:
                 if id(bond) not in drawn:
                     drawn[id(bond)] = bond
                     bond.writepov(file, disp, self.color)
@@ -3668,9 +3678,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if closest_z < far_cutoff:
                 return []
 
-        atm = self.atlist[ closest_z_ind ]
+        atom = self.atlist[ closest_z_ind ]
 
-        return [(closest_z, atm)] # from findAtomUnderMouse_Numeric_stuff
+        return [(closest_z, atom)] # from findAtomUnderMouse_Numeric_stuff
 
     # self.sel_radii_squared is not a real attribute, since invalling it
     # would be too slow. Instead we have these methods:
@@ -3695,7 +3705,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         return self.sel_radii_squared_private
 
     def compute_sel_radii_squared(self):
-        lis = map( lambda atm: atm.selradius_squared(), self.atlist )
+        lis = map( lambda atom: atom.selradius_squared(), self.atlist )
         if not lis:
             return lis
         else:
@@ -3791,7 +3801,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         for a in self.atlist: # this is now in order of atom.key; it might get recomputed right now (along with atpos & basepos if so)
             na = a.copy()
             # inlined addatom, optimized (maybe put this in a new variant of obs copy_for_mol_copy?)
-            na.molecule = numol # no need for _changed_parent_Atoms[atm.key] = atm #bruce 060322
+            na.molecule = numol # no need for _changed_parent_Atoms[na.key] = na #bruce 060322
             nuatoms[na.key] = na
             pairlis.append((a, na))
             ndix[a.key] = na
@@ -3994,7 +4004,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         nuatoms = {}
         for a in self.atlist: # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
             na = a.copy()
-            na.molecule = numol # no need for _changed_parent_Atoms[atm.key] = atm #bruce 060322
+            na.molecule = numol # no need for _changed_parent_Atoms[na.key] = na #bruce 060322
             nuatoms[na.key] = na
             pairlis.append((a, na))
             ndix[a.key] = na
@@ -4137,17 +4147,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # effectively inlines hopmol and its delatom and addatom;
         # no need to find and hop singlet neighbors of atoms in mol
         # since they were already in mol anyway.
-        for atm in mol.atoms.values():
+        for atom in mol.atoms.values():
             # should be a method in atom:
-            atm.index = -1
-            atm.molecule = self
-            _changed_parent_Atoms[atm.key] = atm #bruce 060322
-            #bruce 050516: changing atm.molecule is now enough in itself
-            # to invalidate atm's bonds, since their validity now depends on
-            # a counter stored in (and unique to) atm.molecule having
+            atom.index = -1
+            atom.molecule = self
+            _changed_parent_Atoms[atom.key] = atom #bruce 060322
+            #bruce 050516: changing atom.molecule is now enough in itself
+            # to invalidate atom's bonds, since their validity now depends on
+            # a counter stored in (and unique to) atom.molecule having
             # a specific stored value; in the new Chunk (self) this will
             # have a different value. So I can remove the following code:
-##            for bond in atm.bonds:
+##            for bond in atom.bonds:
 ##                bond.setup_invalidate()
         self.atoms.update(mol.atoms)
         self.invalidate_atom_lists()
