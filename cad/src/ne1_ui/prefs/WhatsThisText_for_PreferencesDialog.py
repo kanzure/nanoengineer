@@ -268,7 +268,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         """<p>Default setting for <b>Water (surface)</b> at startup
         (enabled/disabled)</p>""")
     _pd.buildmode_select_atoms_checkbox.setWhatsThis(
-        """<p><b>Auto select atoms of deposited object</b></p>
+        """<b>Auto select atoms of deposited object</b>
         <p>
         When depositing atoms, clipboard chunks or library parts,
         their atoms will automatically be selected.""")

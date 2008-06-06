@@ -27,6 +27,7 @@ from PyQt4.Qt import QFont
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QWhatsThis
 from PyQt4.Qt import QTreeWidget
+from PyQt4.Qt import QSize
 
 from ne1_ui.prefs.PreferencesDialog import Ui_PreferencesDialog
 import foundation.preferences as preferences
@@ -582,7 +583,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.whatsThisToolButton, SIGNAL("clicked()"),QWhatsThis.enterWhatsThisMode)
 
         self.whatsThisToolButton.setIcon(
-            geticon("ui/actions/Help/WhatsThis.png"))
+            geticon("ui/actions/Properties Manager/WhatsThis.png"))
+        self.whatsThisToolButton.setIconSize(QSize(22, 22))  
 
         # Set the margin and spacing for these two gridlayouts:
         # gridlayout  = grid layout for the Preference dialog
