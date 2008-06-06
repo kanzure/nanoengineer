@@ -429,7 +429,6 @@ class ops_copy_Mixin:
         @see:L{MWsemantics.editPaste}, L{MWsemantics.editPasteFromClipboard}
         """
         ###REVIEW: this has not been reviewed for DNA data model. No time to fix for .rc1. [bruce 080414 late]
-        
         pastable = pastableNode 
         pos = mousePosition
         moveOffset = V( 0, 0, 0)
@@ -530,6 +529,25 @@ class ops_copy_Mixin:
                               positions on the screen or 'None'
         @see: L{self.paste} for implementation notes.
         """
+        #@TODO: REFACTOR and REVIEW this. 
+        #Many changes made just before v1.1.0 codefreeze for a new must have
+        #bug fix -- Ninad 2008-06-06
+        
+        #Note about new implementation as of 2008-06-06:
+        #When pasting a selection which may contain various groups as 
+        #well as independent chunks, this method does the following --
+        #a) checks if the items to be pasted have at least one Dna object 
+        #   such as a DnaGroup or DnaStrandOrSegment or a DnaStrandOrAxisChunk
+        #If it finds the above, the scale for computing the move offset 
+        #for pasting all the selection is the one for pasting dna objects 
+        #(see scale_when_dna_in_newNodeList). 
+        #- If there are no dna objects AND all pastable items are pure chunks
+        # then uses a scale computed using bounding box of the chunks.. if thats
+        #too low, then uses 'scale_when_dna_in_newNodeList' 
+        #for all non 'pure chunk' pastable items, it always uses 
+        #'scale_when_dna_in_newNodeList'. soon, these scale values will become a
+        #user preference. -- Ninad 2008-06-06
+        
         assert isinstance(groupToPaste, Group)
         
         pastable = groupToPaste
@@ -549,43 +567,112 @@ class ops_copy_Mixin:
                                         assy = assy)
         
         if not newNodeList:
-            errorMsg = orangemsg("Clipboard item is an empty group."\
+            errorMsg = orangemsg("Clipboard item is probably an empty group."\
                                  "Paste cancelled")
                 # review: is this claim about the cause always correct?
             return newGroup, errorMsg
-        
-            
-        chunkList = []
-        for newNode in newNodeList:
-            if isinstance(newNode, Chunk):
-                chunkList.append(newNode)       
                 
+                    
+        selection_has_dna_objects = self.__pasteGroup_nodeList_contains_Dna_objects(newNodeList)
+        
+        scale_when_dna_in_newNodeList = 3.0
+        scale_when_no_dna_in_newNodeList = 0.1   
+        
+        def filterChunks(node):
+            """
+            Returns True if the given node is a chunk AND its NOT a DnaStrand 
+            chunk or DnaAxis chunk. Otherwise returns False. 
+            See also sub-'def filterOtherPastables', which does exactly opposite
+            It filters out pastables that are not 'pure chunks' 
+            """
+            if isinstance(node, self.assy.Chunk):
+                if not node.isAxisChunk() or node.isStrandChunk():
+                    return True
+            return False
+        
+        def filterOtherPastables(node):
+            """
+            Returns FALSE if the given node is a chunk AND its NOT a DnaStrand 
+            chunk or DnaAxis chunk. Otherwise returns TRUE. (does exactly opposite
+            of def filterChunks
+            @see: sub method filterChunks. 
+            """
+            if isinstance(node, self.assy.Chunk):
+                if not node.isAxisChunk() or node.isStrandChunk():
+                    return False
+            return True
+
+        chunkList = []
+        other_pastable_items = []
+        
+        chunkList = filter(lambda newNode: filterChunks(newNode), newNodeList)    
+        
+        if len(chunkList) < len(newNodeList):
+            other_pastable_items = filter(lambda newNode: 
+                                          filterOtherPastables(newNode), 
+                                          newNodeList) 
         if chunkList:
             boundingBox = BBox()
             for m in chunkList:
                 boundingBox.merge(m.bbox)           
-            approxCenter = boundingBox.center()  
-            scale = float(boundingBox.scale() * 0.06)       
-            if scale < 0.001:
-                scale = 0.1
-        else:
+            approxCenter = boundingBox.center() 
+            if selection_has_dna_objects:
+                scale = scale_when_dna_in_newNodeList
+            else:
+                #scale that determines moveOffset
+                scale = float(boundingBox.scale() * 0.06)   
+                if scale < 0.001:
+                    scale = scale_when_no_dna_in_newNodeList
+                    
+            if pos:
+                moveOffset = pos - approxCenter
+            else:                       
+                moveOffset  = scale * self.assy.o.right 
+                moveOffset += scale * self.assy.o.down 
+            #Move the chunks (these will be later added to the newGroup)
+            for m in chunkList:
+                m.move(moveOffset)
+        
+        if other_pastable_items:
             approxCenter = V(0.01, 0.01, 0.01)
-            scale = 0.1
-        
-        if pos:
-            moveOffset = pos - approxCenter
-        else:                       
-            moveOffset  = scale * self.assy.o.right 
-            moveOffset += scale * self.assy.o.down      
-        
+            scale = scale_when_dna_in_newNodeList       
+            if pos:
+                moveOffset = pos - approxCenter
+            else:                       
+                moveOffset  = scale * self.assy.o.right 
+                moveOffset += scale * self.assy.o.down                
+                
+            for m in other_pastable_items:
+                m.move(moveOffset)
+                
+                
+        #Now add all the nodes in the newNodeList to the Group 
         for newNode in newNodeList:
-            newNode.move(moveOffset)
             newGroup.addmember(newNode)
                     
         assy.addnode(newGroup) 
         
         return newGroup, errorMsg
     
+    #Determine if the selection
+    def __pasteGroup_nodeList_contains_Dna_objects(self, nodeList):
+        """
+        Private method, that tells if the given list has atleast one dna object
+        in it. e.g. a dnagroup or DnaSegment etc. 
+        Used in self._pasteGroup as of 2008-06-06. 
+        
+        @TODO: May even be moved to a general utility class 
+        in dna pkg. (but needs self.assy for isinstance checkes
+        """
+        for node in nodeList:
+            if isinstance(node, self.assy.DnaGroup) or \
+               isinstance(node, self.assy.DnaStrandOrSegment):
+                return True
+            if isinstance(node, Chunk):
+                if node.isStrandChunk() or node.isAxisChunk():
+                    return True
+        return False
+        
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
         Paste the given Jig in the 3 D workspace. 
