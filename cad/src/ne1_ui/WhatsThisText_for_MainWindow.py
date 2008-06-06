@@ -2032,14 +2032,12 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # What's This
 
     _text = \
-        "<u><b>What's This</b></u>"\
+        "<u><b>Enter \"What's This\" mode</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Help/WhatsThis.png\"><br> "\
-        "Click this option to invoke a small question mark that "\
-        "is attached to the mouse pointer. Click on a feature "\
-        "which you would like more information about. "\
-        "A popup box appears with information about the "\
-        "feature.</p>"
+        "This invokes \"What's This?\" help mode which is part of NanoEngineer-1's "\
+        "online help system, and provides users with information about the "\
+        "functionality and usage of a particular command button or widget.</p>"
 
     win.helpWhatsThisAction.setWhatsThis( _text )
     

@@ -1802,7 +1802,7 @@ def retranslateUi(win):
     win.helpAboutAction.setText(QtGui.QApplication.translate("MainWindow", "&About NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
     win.helpAboutAction.setIconText(QtGui.QApplication.translate("MainWindow", "About NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
 
-    win.helpWhatsThisAction.setText(QtGui.QApplication.translate("MainWindow", "What\'s This", None, QtGui.QApplication.UnicodeUTF8))
+    win.helpWhatsThisAction.setText(QtGui.QApplication.translate("MainWindow", "Enter \"What\'s This\" help mode", None, QtGui.QApplication.UnicodeUTF8))
     win.helpWhatsThisAction.setIconText(QtGui.QApplication.translate("MainWindow", "What\'s This", None, QtGui.QApplication.UnicodeUTF8))
     win.helpGraphicsCardAction.setText(QtGui.QApplication.translate("MainWindow", "Graphics Card Info...", None, QtGui.QApplication.UnicodeUTF8))
     win.helpGraphicsCardAction.setIconText(QtGui.QApplication.translate("MainWindow", "Graphics Card Info", None, QtGui.QApplication.UnicodeUTF8))

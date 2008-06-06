@@ -86,7 +86,8 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         
         self.whatsthis_btn.setIcon(
             geticon('ui/actions/Properties Manager/WhatsThis.png'))
-        self.whatsthis_btn.setIconSize(QSize(22, 22))  
+        self.whatsthis_btn.setIconSize(QSize(22, 22))
+        self.whatsthis_btn.setToolTip('Enter "What\'s This?" help mode')
         
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),

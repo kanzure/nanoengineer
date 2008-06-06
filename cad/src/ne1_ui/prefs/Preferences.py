@@ -585,6 +585,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.whatsThisToolButton.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
         self.whatsThisToolButton.setIconSize(QSize(22, 22))  
+        self.whatsThisToolButton.setToolTip('Enter "What\'s This?" help mode')
 
         # Set the margin and spacing for these two gridlayouts:
         # gridlayout  = grid layout for the Preference dialog

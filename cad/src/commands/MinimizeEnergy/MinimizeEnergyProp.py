@@ -79,11 +79,12 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
         
         self.whatsthis_btn.setIcon(
             geticon('ui/actions/Properties Manager/WhatsThis.png'))
-        self.whatsthis_btn.setIconSize(QSize(22, 22))  
+        self.whatsthis_btn.setIconSize(QSize(22, 22)) 
+        self.whatsthis_btn.setToolTip('Enter "What\'s This?" help mode')
         
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
-                     self.whatsthis_btn_clicked)
+                     QWhatsThis.enterWhatsThisMode)
         
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
@@ -119,6 +120,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
         whatsThis_MinimizeEnergyDialog(self)
             
         self.update_widgets() # to make sure self attrs are set
+        return
 
     def setup_ruc(self):
         """
@@ -157,6 +159,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
         self.update_widgets() # only the convergence criteria, for A8, plus All/Sel command from self.seltype
         self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them; only conv crit for A8
         self.exec_() # Show dialog as a modal dialog.
+        return
            
     def gather_parameters(self): ###e should perhaps include update_data from ruc (not sure it's good) -- but no time for A8
         """
@@ -257,13 +260,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
         self.minimize_engine_combobox.setCurrentIndex(0) # ND1
         env.prefs.restore_defaults([endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key])
         self.update_widgets(update_seltype = False)
-        
-    def whatsthis_btn_clicked(self):
-        """
-        Slot for the What's This button
-        """
-        QWhatsThis.enterWhatsThisMode()
-        
+        return
     # Dialog slots
     
     def update_minimize_engine(self, ignoredIndex = 0):
@@ -309,6 +306,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
             env.prefs[endRMS_prefs_key] = endRms
         else:
             env.prefs[endRMS_prefs_key] = -1.0
+        return
         
     def changeEndMax(self, endMax):
         """
@@ -328,6 +326,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
             env.prefs[cutoverRMS_prefs_key] = cutoverRms
         else:
             env.prefs[cutoverRMS_prefs_key] = -1.0
+        return
             
     def changeCutoverMax(self, cutoverMax):
         """
@@ -337,6 +336,7 @@ class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
             env.prefs[cutoverMax_prefs_key] = cutoverMax
         else:
             env.prefs[cutoverMax_prefs_key] = -1.0
+        return
 
     pass # end of class MinimizeEnergyProp
 

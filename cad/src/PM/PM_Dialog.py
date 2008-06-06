@@ -533,7 +533,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
                      self.whatsThisButtonClicked)
-        self.whatsthis_btn.setToolTip("What\'s This Help")
+        self.whatsthis_btn.setToolTip("Enter \"What's This\" help mode")
         
         topRowBtnsHLayout.addWidget(self.whatsthis_btn)
         
@@ -547,11 +547,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         # Add What's This for buttons.
         
         self.done_btn.setWhatsThis("""<b>Done</b>
-            <p><img source=\"ui/actions/Properties Manager/Done.png\"><br>
+            <p>
+            <img source=\"ui/actions/Properties Manager/Done.png\"><br>
             Completes and/or exits the current command.</p>""")
         
         self.cancel_btn.setWhatsThis("""<b>Cancel</b>
-            <p><img source=\"ui/actions/Properties Manager/Abort.png\"><br>
+            <p>
+            <img source=\"ui/actions/Properties Manager/Abort.png\"><br>
             Cancels the current command.</p>""")
         
         self.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
@@ -559,16 +561,19 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             Restores the defaut values of the Property Manager.</p>""")
         
         self.preview_btn.setWhatsThis("""<b>Preview</b>
-            <p><img source=\"ui/actions/Properties Manager/Preview.png\"><br>
+            <p>
+            <img source=\"ui/actions/Properties Manager/Preview.png\"><br>
             Preview the structure based on current Property Manager settings.
             </p>""")
 
         self.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
-            <p><img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
-            Click this option to invoke a small question mark that is attached 
-            to the mouse pointer,then click on an object which you would like 
-            more information about. A pop-up box appears with information about 
-            the object you selected.</p>""")
+            <p>
+            <img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
+            This invokes \"What's This?\" help mode which is part of 
+            NanoEngineer-1's online help system, and provides users with 
+            information about the functionality and usage of a particular 
+            command button or widget.
+            </p>""")
         
         return
 
