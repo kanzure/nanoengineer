@@ -15,7 +15,7 @@ bruce extended it at various later times.
 
 from utilities import debug_flags
 import foundation.env as env
-
+from utilities.Comparison import same_vals
 from utilities.debug import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
 from platform.PlatformDependent import fix_plurals
@@ -50,6 +50,13 @@ class ops_copy_Mixin:
     # bruce 050131/050201 revised these Cut and Copy methods to fix some Alpha bugs;
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.delete_sel (Delete operation).
+    
+    
+    #@see: self._getInitialPasteOffsetForPastableNodes() to see how these are 
+    #attrs are used
+    _initial_paste_offset_for_chunks = V(0, 0, 0)
+    _initial_paste_offset_for_other_pastables = V(0, 0, 0)
+    _previously_pasted_node_list = None
 
     def cut(self): # we should remove this obsolete alias shortly after the release. [bruce 080414 comment]
         print "bug (worked around): assy.cut called, should use its new name cut_sel" #bruce 050927
@@ -433,6 +440,7 @@ class ops_copy_Mixin:
         @see:L{MWsemantics.editPaste}, L{MWsemantics.editPasteFromClipboard}
         """
         ###REVIEW: this has not been reviewed for DNA data model. No time to fix for .rc1. [bruce 080414 late]
+        
         pastable = pastableNode 
         pos = mousePosition
         moveOffset = V( 0, 0, 0)
@@ -505,6 +513,17 @@ class ops_copy_Mixin:
         newChunk = pastable.copy_single_chunk(None)
         chunkCenter  = newChunk.center
         
+        
+        #@see: self._getInitialPasteOffsetForPastableNodes()
+        original_copied_nodes = [chunkToPaste]
+        if chunkToPaste:
+            initial_offset_for_chunks, initial_offset_for_other_pastables = \
+                                     self._getInitialPasteOffsetForPastableNodes(original_copied_nodes)
+        else:
+            initial_offset_for_chunks = V(0, 0, 0)
+            initial_offset_for_other_pastables = V(0, 0, 0)
+            
+        
         if pos:
             #Paste from clipboard (by Double clicking)
             moveOffset = pos - chunkCenter
@@ -516,7 +535,11 @@ class ops_copy_Mixin:
             if scale < 0.001:
                 scale = 0.1                 
             moveOffset = scale * self.assy.o.right 
-            moveOffset += scale * self.assy.o.down       
+            moveOffset += scale * self.assy.o.down
+            moveOffset += initial_offset_for_chunks
+                
+        #@see: self._getInitialPasteOffsetForPastableNodes()   
+        self._initial_paste_offset_for_chunks = moveOffset
             
         newChunk.move(moveOffset)       
         self.assy.addmol(newChunk)
@@ -534,6 +557,7 @@ class ops_copy_Mixin:
         @type mousePosition:  Array containing the x, y, z 
                               positions on the screen or 'None'
         @see: L{self.paste} for implementation notes.
+        @see: self. _getInitialPasteOffsetForPastableNodes()
         """
         #@TODO: REFACTOR and REVIEW this. 
         #Many changes made just before v1.1.0 codefreeze for a new must have
@@ -572,6 +596,8 @@ class ops_copy_Mixin:
                                         autogroup_at_top = False, 
                                         assy = assy)
         
+        
+        
         if not newNodeList:
             errorMsg = orangemsg("Clipboard item is probably an empty group."\
                                  "Paste cancelled")
@@ -602,6 +628,7 @@ class ops_copy_Mixin:
             chunk or DnaAxis chunk. Otherwise returns TRUE. (does exactly opposite
             of def filterChunks
             @see: sub method filterChunks. 
+            _getInitialPasteOffsetForPastableNodesc
             """
             if isinstance(node, self.assy.Chunk):
                 if not node.isAxisChunk() or node.isStrandChunk():
@@ -617,6 +644,16 @@ class ops_copy_Mixin:
             other_pastable_items = filter(lambda newNode: 
                                           filterOtherPastables(newNode), 
                                           newNodeList) 
+        
+        #@see: self._getInitialPasteOffsetForPastableNodes()
+        original_copied_nodes = nodes 
+        if nodes:
+            initial_offset_for_chunks, initial_offset_for_other_pastables = \
+                                     self._getInitialPasteOffsetForPastableNodes(original_copied_nodes)
+        else:
+            initial_offset_for_chunks = V(0, 0, 0)
+            initial_offset_for_other_pastables = V(0, 0, 0)
+        
         if chunkList:
             boundingBox = BBox()
             for m in chunkList:
@@ -635,6 +672,10 @@ class ops_copy_Mixin:
             else:                       
                 moveOffset  = scale * self.assy.o.right 
                 moveOffset += scale * self.assy.o.down 
+                moveOffset += initial_offset_for_chunks
+                
+            #@see: self._getInitialPasteOffsetForPastableNodes()   
+            self._initial_paste_offset_for_chunks = moveOffset
             #Move the chunks (these will be later added to the newGroup)
             for m in chunkList:
                 m.move(moveOffset)
@@ -644,10 +685,15 @@ class ops_copy_Mixin:
             scale = scale_when_dna_in_newNodeList       
             if pos:
                 moveOffset = pos - approxCenter
-            else:                       
-                moveOffset  = scale * self.assy.o.right 
-                moveOffset += scale * self.assy.o.down                
-                
+            else:  
+                moveOffset = initial_offset_for_other_pastables                 
+                moveOffset += scale * self.assy.o.right 
+                moveOffset += scale * self.assy.o.down 
+            
+            #@see: self._getInitialPasteOffsetForPastableNodes()
+            self._initial_paste_offset_for_other_pastables = moveOffset 
+            
+            
             for m in other_pastable_items:
                 m.move(moveOffset)
                 
@@ -678,6 +724,37 @@ class ops_copy_Mixin:
                 if node.isStrandChunk() or node.isAxisChunk():
                     return True
         return False
+    
+    def _getInitialPasteOffsetForPastableNodes(self, original_copied_nodes):
+        """
+        @see: self._pasteGroup(), self._pasteChunk()
+        What it supports:
+        1. User selects some objects 
+        2. Hits Ctrl + C
+        3. Hits Ctrl + V
+          - first ctrl V  pastes object at an offset, (doesn't recenter the view)
+            to the original one
+          - 2nd paste offsets it further and like that....
+          
+        This fixes bug 2890
+        """
+        #@TODO: Review this method. It was added just before v1.1.0 to fix a 
+        #copy-'paste-pasteagain-pasteagain bug -- Ninad 2008-06-06
+        
+        if same_vals(original_copied_nodes, self._previously_pasted_node_list):
+            initial_offset_for_chunks = self._initial_paste_offset_for_chunks 
+            initial_offset_for_other_pastables = self._initial_paste_offset_for_other_pastables 
+        else:
+            initial_offset_for_chunks = V(0, 0, 0)
+            initial_offset_for_other_pastables = V(0, 0, 0)
+            
+        self._previously_pasted_node_list = original_copied_nodes    
+        
+        return initial_offset_for_chunks, initial_offset_for_other_pastables
+            
+          
+    
+    
         
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
