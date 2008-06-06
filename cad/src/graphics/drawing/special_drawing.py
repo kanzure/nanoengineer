@@ -43,6 +43,9 @@ class _USE_CURRENT_class(object):
         # let the graphicsMode interpret the prefs key,
         # in case it wants to override it with a local pref
         # (or conceivably, someday, track it in a different way)
+        # (note, ThumbView has no graphicsMode, but that doesn't
+        #  affect this code since it uses main glpane even when
+        #  drawing into a ThumbView. [bruce 080606 comment])
         try:
             res = graphicsMode.get_prefs_value(key)
         except:
@@ -238,6 +241,7 @@ class SpecialDrawing_UsedValueTrackerAndComparator(UsedValueTrackerAndComparator
         #  but in its case it's not a kluge.)
         ### TODO to fix this kluge: make a "prefs value object" which
         # wraps this object but stores glpane, to use instead of this object.
+        # But note that ThumbView has no graphicsMode attribute!
         win = env.mainWindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode
@@ -313,6 +317,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         @param highlighted: whether to draw highlighted, or not. (The same csdl handles both.)
         """
         graphicsMode = glpane.graphicsMode
+            # note: ThumbView lacks this attribute;
+            # for now, client code in Chunk worries about this,
+            # and won't call us then. [bruce 080606 comment]
         context = graphicsMode
         if self.comparator.do_we_need_to_recompute(context):
             # maybe: also compare havelist, if some data not tracked

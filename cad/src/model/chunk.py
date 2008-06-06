@@ -2295,13 +2295,21 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         can be drawn from separate display lists, to avoid remaking our
         main one whenever those need to change.
         """
-        if wantlist and debug_pref("use special_drawing_handlers?",
+        if wantlist and \
+            hasattr(glpane, 'graphicsMode') and \
+            debug_pref("use special_drawing_handlers?",
                                    Choice_boolean_True, #bruce 080606 enable by default for v1.1
                                    non_debug = True,    # (but leave it visible in case of bugs)
                                    prefs_key = True):
             # set up the right kind of special_drawing_handler for self;
             # this will be passed to the draw calls of our atoms and bonds
             # [new feature, bruce 080605]
+            #
+            # bugfix [bruce 080606 required for v1.1, for dna in partlib view]:
+            # hasattr test, since ThumbView has no graphicsMode.
+            # (It ought to, but that's a refactoring too big for this release,
+            #  and giving it a fake one just good enough for this purpose doesn't
+            #  seem safe enough.)
             special_drawing_classes = { # todo: move into a class constant
                 SPECIAL_DRAWING_STRAND_END: SpecialDrawing_ExtraChunkDisplayList,
              }
