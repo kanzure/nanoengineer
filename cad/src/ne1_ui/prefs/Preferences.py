@@ -91,6 +91,10 @@ from utilities.prefs_constants import cpkScaleFactor_prefs_key
 from utilities.prefs_constants import showBondStretchIndicators_prefs_key
 from utilities.prefs_constants import showValenceErrors_prefs_key
 
+#General  page prefs - paste offset scale for chunk and dna pasting prefs key
+from utilities.prefs_constants import pasteOffsetScaleFactorForChunks_pref_key
+from utilities.prefs_constants import pasteOffsetScaleFactorForDnaObjects_pref_key
+
 # Color (page) prefs
 from utilities.prefs_constants import backgroundColor_prefs_key
 from utilities.prefs_constants import backgroundGradient_prefs_key
@@ -630,6 +634,23 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
         connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
+        
+        #Scale factor for copy-paste operation (see ops_copy_Mixin._pasteGroup())
+        
+        self.pasteOffsetScaleFactorForChunks_doubleSpinBox.setValue(
+            env.prefs[pasteOffsetScaleFactorForChunks_pref_key])
+        
+        self.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox.setValue(
+            env.prefs[pasteOffsetScaleFactorForDnaObjects_pref_key])
+        
+        
+        
+        self.connect(self.pasteOffsetScaleFactorForChunks_doubleSpinBox,
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_pasteOffsetScaleFactorForChunks)
+        self.connect(self.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox,
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_pasteOffsetScaleFactorForDnaObjects)
         return
 
     def _setupPage_Color(self):
@@ -897,6 +918,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100.0))
         return
 
+
     def _setupPage_Dna(self):
         """
         Setup the "DNA" page.
@@ -940,6 +962,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.strandFivePrimeArrowheadsCustomColorCheckBox,
             useCustomColorForFivePrimeArrowheads_prefs_key)
 
+        #Join strands command may override global strand arrow head options
+                
         connect_colorpref_to_colorframe( 
             dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, 
             self.strandThreePrimeArrowheadsCustomColorFrame)
@@ -948,6 +972,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, 
             self.strandFivePrimeArrowheadsCustomColorFrame)
 
+        
         self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
 
@@ -1538,6 +1563,23 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         # update the glpane
         self.glpane.compassPosition = val
         self.glpane.gl_update()
+        
+    def change_pasteOffsetScaleFactorForChunks(self, val):
+        """
+        Slot method for the I{Paste offset scale for chunks} doublespinbox.
+        @param val: The timeout interval in seconds.
+        @type  val: double
+        @see ops_copy_Mixin._pasteGroup()
+	"""
+        env.prefs[pasteOffsetScaleFactorForChunks_pref_key] = val
+
+    def change_pasteOffsetScaleFactorForDnaObjects(self, val):
+        """
+        Slot method for the I{Paste offset scale for dna objects} doublespinbox.
+        @param val: The timeout interval in seconds.
+        @type  val: double
+	"""
+        env.prefs[pasteOffsetScaleFactorForDnaObjects_pref_key] = val        
 
     def enable_fog(self, val):
         """

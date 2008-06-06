@@ -147,6 +147,13 @@ rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
 fogEnabled_prefs_key = "V110/Enable fog"
 
+
+#General preferences for copy-paste operation (see ops_copy_mixin._pasteGroup
+#for detail) Feature introduced in v1.1.0, on 2008-06-06
+pasteOffsetScaleFactorForChunks_pref_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
+pasteOffsetScaleFactorForDnaObjects_pref_key = 'V110/Scale factor is used to offset dna objects to be pasted w.r.t. original dna objects'
+
+
 # Color prefs (for "Color" page).
 backgroundColor_prefs_key = 'A9/Background Color'
 backgroundGradient_prefs_key = 'A9/Background Gradient'
@@ -274,10 +281,10 @@ dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
-useCustomColorForThreePrimeArrowheads_prefs_key = 'A101/ Use custom color for three-prime arrowheads/spheres'
-dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for strand three-prime arrowheads/spheres'
-useCustomColorForFivePrimeArrowheads_prefs_key = 'A101/ Use custom color for five-prime arrowheads/spheres'
-dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A101/ Custom color for five-prime strand arrowheads/spheres'
+useCustomColorForThreePrimeArrowheads_prefs_key = 'A111/ Use custom color for three-prime arrowheads/spheres'
+dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A111/ Custom color for strand three-prime arrowheads/spheres'
+useCustomColorForFivePrimeArrowheads_prefs_key = 'A111/ Use custom color for five-prime arrowheads/spheres'
+dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A111/ Custom color for five-prime strand arrowheads/spheres'
 #Join strands command prefs 
 
 joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Join strands command, show three prime ends as out arrow heads'
@@ -565,6 +572,14 @@ prefs_table = (
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
     
+    #Paste offset scale factor preferences (see Ops_copy_Mixin._pasteGroup)
+    ('paste offset scale for chunks', 'float', 
+     pasteOffsetScaleFactorForChunks_pref_key, 0.1),
+    
+    ('paste offset scale for dna objects' , 'float', 
+     pasteOffsetScaleFactorForDnaObjects_pref_key, 3.0),
+    
+    
     # Color (page) preferences
     ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
     ('', 'color', backgroundColor_prefs_key, white),
@@ -700,9 +715,10 @@ prefs_table = (
     ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
     ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
-    ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, True),
+    #cusotom color for arrowheads -- default changed to False in v1.1.0
+    ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, False),
     ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
-    ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, True),
+    ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, False),
     ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
     
     #Join strands command arrowhead display pref.(should it override global pref)
