@@ -677,6 +677,8 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         if farQ or vlen( dragpoint - apos0 ) > a.max_pixel_radius():
             # dragpoint is not realistic -- find a better one (using code 
             #similar to innards of dragstart_using_GL_DEPTH)
+            # [following comment appears to be obs, since +0.2 is no longer here
+            #  [bruce 080605 comment]:]
             ###@@@ Note: + 0.2 is purely a guess (probably too big) -- 
             ###what it should be is a new method a.max_drawn_radius(),
             # which gives max distance from center of a drawn pixel, including 

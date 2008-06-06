@@ -152,9 +152,8 @@ from graphics.drawing.gl_lighting import endPatternedDrawing
 
 from graphics.drawables.Selobj import Selobj_API
 
-from graphics.drawing.special_drawing import USE_CURRENT
 from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
-from graphics.drawing.special_drawing import StrandEnd_ExtraChunkDisplayList
+from graphics.drawing.special_drawing import SpecialDrawing_ExtraChunkDisplayList
 from graphics.drawing.special_drawing import Chunk_SpecialDrawingHandler
 
 _inval_all_bonds_counter = 1 #bruce 050516
@@ -410,7 +409,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
-        self.glname = env.alloc_my_glselect_name(self) 
+        self.glname = env.alloc_my_glselect_name(self)
+
+        self.extra_displists = {} # precaution, probably not needed
 
         return # from Chunk.__init__
 
@@ -1002,6 +1003,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             #russ 080225: Moved deallocation into ColorSortedDisplayList class for ColorSorter.
             top = self.displist.dl
             self.displist.deallocate_displists()
+            for extra_displist in self.extra_displists.values():
+                extra_displist.deallocate_displists()
+            self.extra_displists = {}
             if debug_pref("GLPane: print deleted display lists", Choice_boolean_False): #bruce 071205 made debug pref
                 print "fyi: deleted OpenGL display list %r belonging to %r" % (top, self)
                 # keep this print around until this feature is tested on all platforms
@@ -1988,8 +1992,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         # needs to be kept synchronized -- this ought to be refactored
                         # (to use the new self.displist.draw() method, once it's tested)
                         # so that state is not in self.displist [bruce 080604 comment])
-                    for extra_displist in self.extra_displists.itervalues(): #####
-                        extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked) #####
+                    for extra_displist in self.extra_displists.itervalues():
+                        # [bruce 080604 new feature]
+                        extra_displist.draw_but_first_recompile_if_needed(glpane, selected = self.picked)
                             # todo: pass wantlist? yes in theory, but not urgent.
                 else:
                     # our main display list (and all extra lists) needs to be remade
@@ -2295,17 +2300,13 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # this will be passed to the draw calls of our atoms and bonds
             # [new feature, bruce 080605]
             special_drawing_classes = { # todo: move into a class constant
-                SPECIAL_DRAWING_STRAND_END: StrandEnd_ExtraChunkDisplayList,
+                SPECIAL_DRAWING_STRAND_END: SpecialDrawing_ExtraChunkDisplayList,
              }
             self.special_drawing_handler = \
                     Chunk_SpecialDrawingHandler( self, special_drawing_classes )
         else:
             self.special_drawing_handler = None
-        
-        del wantlist # for now; bruce 080605 #####
-            #   incl kind -> class, wantlist, self.extra_displists for where to put them
-            # or self to ask all that stuff (already passed of course).
-            # this needs to add things to self.extra_displists as needed
+        del wantlist
 
         #bruce 050513 optimizing this somewhat; 060608 revising it
         if debug_pref("GLPane: report remaking of chunk display lists?",
@@ -2412,6 +2413,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 apply_material(color)
                 self.pushMatrix()
                 glCallList(self.displist.nocolor_dl)
+                for extra_displist in self.extra_displists.itervalues():
+                    extra_displist.draw_nocolor_dl()
                 self.popMatrix()
                 pass
 
@@ -2481,6 +2484,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                      self.displist.color_dl,
                      self.displist.nocolor_dl,
                      self.displist.selected_dl)))
+            if self.extra_displists:
+                print " note: %s also has extra_displists %r; printing their dls is nim" % \
+                      (self.name, self.extra_displists.values())
             pass
 
         return
@@ -2618,7 +2624,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                             else:
                                 # internal bond, not yet drawn
                                 drawn[id(bond)] = bond
-                                bond.draw(glpane, disp, bondcolor, drawLevel)  
+                                bond.draw(glpane, disp, bondcolor, drawLevel,
+                                          special_drawing_handler = self.special_drawing_handler
+                                          )  
             except:
                 # [bruce 041028 general workaround to make bugs less severe]
                 # exception in drawing one atom. Ignore it and try to draw the
@@ -3374,6 +3382,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             if (drawing_globals.allow_color_sorting and drawing_globals.use_color_sorted_dls):
                 # russ 080303: Back again to display lists, this time color-sorted.
                 self.displist.selectPick(True)
+                    # shouldn't be needed for self.extra_displists, due to how they're drawn
             else:
                 self.havelist = 0
             pass
@@ -3410,6 +3419,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 drawing_globals.use_color_sorted_dls):
                 # russ 080303: Back again to display lists, this time color-sorted.
                 self.displist.selectPick(False)
+                    # shouldn't be needed for self.extra_displists, due to how they're drawn
             else:
                 self.havelist = 0
             pass

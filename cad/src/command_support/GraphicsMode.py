@@ -1180,66 +1180,36 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         pass
 
-    # ==
-
-    def pref_arrowsOnThreePrimeEnds(self):
+    def get_prefs_value(self, prefs_key): #bruce 080605
         """
-        Return the appropriate value of the preference for whether to
-        draw arrows on 3' strand ends of PAM DNA.
+        Get the prefs_value to use for the given prefs_key in this graphicsMode.
+        This is env.prefs[prefs_key] by default, but is sometimes overridden
+        for specific combinations of graphicsMode and prefs_key,
+        e.g. to return the value of a "command-specific pref" instead
+        of the global one.
 
-        [subclasses might override how this is determined]
+        @note: callers can continue to call env.prefs[prefs_key] directly
+               except for specific prefs_keys for which some graphicsModes
+               locally override them. (This is not yet declared as a property
+               of a prefs_key, so there is not yet any way to detect the error
+               of not calling this when needed for a specific prefs_key.)
+
+        @note: the present implementation usage tracks env.prefs[whatever key
+               or keys it accesses], but ideally, whenever the result depends
+               on the specific graphicsMode, it would also track a variable
+               corresponding to the current graphicsMode (so that changes
+               to the graphicsMode would invalidate whatever was derived
+               from the return value). Until that's implemented, callers
+               must use other methods to invalidate the values they derived
+               from this when our actual return value changes, if that might
+               have been due to a change in current graphicsMode.
+
+        [some subclasses should override this for specific prefs_keys,
+         but use the passed prefs_key otherwise; ideally they should call
+         their superclass version of this method for whatever prefs lookups
+         they end up doing, rather than using env.prefs directly.]
         """
-        return env.prefs[arrowsOnThreePrimeEnds_prefs_key]
-
-    def pref_arrowsOnFivePrimeEnds(self):
-        """
-        Return the appropriate value of the preference for whether to
-        draw arrows on 5' strand ends of PAM DNA.
-
-        [subclasses might override how this is determined]
-        """
-        return env.prefs[arrowsOnFivePrimeEnds_prefs_key]
-
-    def pref_useCustomColorForThreePrimeArrowheads(self):
-        """
-        Return the appropriate value of the preference for whether to use a
-        custom color for 3' arrowheads (if they are drawn)
-        or for 3' strand end atoms (if arrowheads are not drawn).
-
-        [subclasses might override how this is determined]
-        """
-        return env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key]
-
-    def pref_useCustomColorForFivePrimeArrowheads(self):
-        """
-        Return the appropriate value of the preference for whether to use a
-        custom color for 5' arrowheads (if they are drawn)
-        or for 5' strand end atoms (if arrowheads are not drawn).
-
-        [subclasses might override how this is determined]
-        """
-        return env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key]
-
-    def pref_dnaStrandThreePrimeArrowheadsCustomColor(self):
-        """
-        Return the appropriate value of the preference for what custom color
-        to use when drawing 3' arrowheads (if they are drawn)
-        or 3' strand end atoms (if arrowheads are not drawn).
-
-        [subclasses might override how this is determined]
-        """
-        return env.prefs[dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
-
-    def pref_dnaStrandFivePrimeArrowheadsCustomColor(self):
-        """
-        Return the appropriate value of the preference for what custom color
-        to use when drawing 5' arrowheads (if they are drawn)
-        or 5' strand end atoms (if arrowheads are not drawn).
-
-        [subclasses might override how this is determined]
-        """
-        return env.prefs[dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
-
+        return env.prefs[prefs_key]
 
     pass # end of class basicGraphicsMode
 

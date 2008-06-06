@@ -24,6 +24,10 @@ from foundation.changes import SubUsageTrackingMixin
 
 from utilities.debug import print_compact_traceback
 
+from OpenGL.GL import glCallList
+
+DEBUG_COMPARATOR = False
+
 # ==
 
 class _USE_CURRENT_class(object):
@@ -40,18 +44,18 @@ class _USE_CURRENT_class(object):
         # in case it wants to override it with a local pref
         # (or conceivably, someday, track it in a different way)
         try:
-            res = graphicsMode.get_prefs_value(key) ##### IMPLEM
+            res = graphicsMode.get_prefs_value(key)
         except:
-            ##### REENABLE THIS when api method is there:
-##            msg = "routine-for-now bug: exception in %r.get_prefs_value(%r), falling back to env.prefs" % \
-##                  (graphicsMode, key)
-##            print_compact_traceback(msg + ": ")
+            msg = "bug: exception in %r.get_prefs_value(%r), falling back to env.prefs" % \
+                  (graphicsMode, key)
+            print_compact_traceback(msg + ": ")
             res = env.prefs[key]
         return res
     pass
 
 USE_CURRENT = _USE_CURRENT_class()
 
+# ==
 
 # kinds of special drawing (only one so far)
 
@@ -79,15 +83,17 @@ class UsedValueTrackerAndComparator(object):
     """
 
     _recomputing = False
-    valid = False
+    valid = False # whether client's recomputation is up to date,
+        # as far as we know. Client should use this as *its* valid flag
+        # and invalidate it as needed by calling self.invalidate().
     
     def __init__(self):
         # since not valid, no need to _reset
         return
 
-    # == methods to use during a recomputation by the client
+    # == methods to use during a recomputation (or side effect, such as drawing) by the client
     
-    def before_recompute(self): #e rename
+    def before_recompute(self): #e rename?
         """
         Prepare for the client to do another recomputation
         which will call self.get_value for all keys whose values
@@ -105,8 +111,6 @@ class UsedValueTrackerAndComparator(object):
         return
 
     def get_value(self, key, context):
-        ##### @@@@@ CALL THIS SOMEHOW in place of env.prefs when drawing extra displist contents --
-        ### need to make a "prefs value object" (stores glpane) to pass to draw funcs, which looks up keys by calling this ######
         """
         ... call this while redoing the client computation...
         It will record the value it returns, both to optimize repeated calls,
@@ -114,6 +118,8 @@ class UsedValueTrackerAndComparator(object):
         by self.are_all_values_still_the_same()
         when the client next considers doing a recomputation.
         """
+        # usage note: current code calls this (indirectly) in place of env.prefs
+        # when drawing extra displist contents
         if not self._keys_used.has_key(key):
             val = self._compute_current_value(key, context)
             # inline _track_use
@@ -150,9 +156,16 @@ class UsedValueTrackerAndComparator(object):
 
     # ==
 
-    ## def invalidate(self): #### ambiguous: cause recompute or cause decision?
-    ##     # del self._keys_used and self._ordered_key_val_pairs ?
-    ##     pass
+    def invalidate(self):
+        """
+        Client realizes its recomputation is invalid for "external reasons".
+        """
+        if self.valid:
+            self.valid = False
+            # and that means these attrs won't be needed ...
+            del self._keys_used
+            del self._ordered_key_val_pairs
+        return
     
     # == methods to use when deciding whether to do a recomputation
     
@@ -173,6 +186,12 @@ class UsedValueTrackerAndComparator(object):
                 #e could optim self.before_recompute (for some callers) to leave the values
                 # cached that were already found to be the same (by prior iterations
                 # of this loop)
+                # Note: we don't call self.invalidate() here, in case client
+                # does nothing, current state changes, and it turns out we're
+                # valid again. Clients doubting this matters and wanting to
+                # optimize repeated calls of this (if they're not going to
+                # recompute right away) can call it themselves. Most clients
+                # needn't bother since they'll recompute right away.
                 return True
         return False
     
@@ -189,7 +208,7 @@ class UsedValueTrackerAndComparator(object):
 
 # ==
 
-class StrandEnd_UsedValueTrackerAndComparator(UsedValueTrackerAndComparator): ##### RENAME: specific to special drawing, not strand end
+class SpecialDrawing_UsedValueTrackerAndComparator(UsedValueTrackerAndComparator):
     """
     ... if necessary, reset and re-track the values used this time... knows how to compute them... 
     """
@@ -202,12 +221,29 @@ class StrandEnd_UsedValueTrackerAndComparator(UsedValueTrackerAndComparator): ##
         Compute current value for key in context
         when needed by self.get_value
         (since it has no cached value for this key).
+
+        @note: called by superclass get_value method.
         """
+##        print "compute current value:", key, context
         # require key to be in a hardcoded list??
         graphicsMode = context
-        methodname = key
-        method = getattr(graphicsMode, methodname)
-        return method()
+        return graphicsMode.get_prefs_value(key) # see also USE_CURRENT
+
+    def __getitem__(self, key):
+        # KLUGE 1: provide this interface in this class
+        # rather than in a wrapper class. (No harm, AFAIK.)
+        # KLUGE 2: get current global graphicsMode
+        # instead of getting it from how we're called.
+        # (See also USE_CURRENT, which also does this,
+        #  but in its case it's not a kluge.)
+        ### TODO to fix this kluge: make a "prefs value object" which
+        # wraps this object but stores glpane, to use instead of this object.
+        win = env.mainWindow()
+        glpane = win.glpane
+        graphicsMode = glpane.graphicsMode
+
+        context = graphicsMode
+        return self.get_value(key, context)
 
     pass
 
@@ -229,7 +265,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     # default values of instance variables
     
-    valid = False
+    ## valid = False -- WRONG, we use self.comparator.valid for this.
 
     def __init__(self):
         self.csdl = ColorSortedDisplayList()
@@ -237,6 +273,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         self.before_client_main_recompile() # get ready right away
         return
 
+    def deallocate_displists(self):
+        self.csdl.deallocate_displists()
+    
     # == methods related to the client compiling its *main* display list
     # (not this extra one, but that's when it finds out what goes into
     #  this extra one, or that it needs it at all)
@@ -250,9 +289,18 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         return
 
     def after_client_main_recompile(self): #e rename?
+        ### todo: CALL THIS (when I figure out where to call it from)
+        # (not urgent until it needs to do something)
         return
 
     # == methods for drawing self (with or without recompiling)
+
+    def draw_nocolor_dl(self):
+        if self.csdl.nocolor_dl:
+            glCallList(self.csdl.nocolor_dl)
+        else:
+            print "unexpected: %r.draw_nocolor_dl with no nocolor_dl" % self
+        return
     
     def draw_but_first_recompile_if_needed(self, glpane, selected = False, highlighted = False, wantlist = True):
         """
@@ -264,9 +312,16 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
         @param highlighted: whether to draw highlighted, or not. (The same csdl handles both.)
         """
-        if not self.valid or self.comparator.do_we_need_to_recompute(): ##### also compare havelist, if some data not tracked
+        graphicsMode = glpane.graphicsMode
+        context = graphicsMode
+        if self.comparator.do_we_need_to_recompute(context):
+            # maybe: also compare havelist, if some data not tracked
+            if DEBUG_COMPARATOR:
+                print "_draw_by_remaking in %r; valid = %r" % (self, self.comparator.valid)
             self._draw_by_remaking(glpane, selected, highlighted, wantlist)
         else:
+            if DEBUG_COMPARATOR:
+                print "_draw_by_reusing in %r" % self
             self._draw_by_reusing(glpane, selected, highlighted)
         return
 
@@ -277,12 +332,21 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         if wantlist:
             match_checking_code = self.begin_tracking_usage()
                 # note: method defined in superclass, SubUsageTrackingMixin
-            ColorSorter.start(self.csdl)
+            ColorSorter.start(self.csdl, selected)
+                ### REVIEW: is selected arg needed? guess yes,
+                # since .finish will draw it based on the csdl state
+                # which is determined by that arg. If so, this point needs
+                # correcting in the docstring for csdl.draw().
+        self.comparator.before_recompute()
         try:
             self._do_drawing()
         except:
             print_compact_traceback("bug: exception in %r._do_drawing, skipping the rest: " % self)
+            self.comparator.after_recompute()
+                # note: sets self.comparator.valid (in spite of error)
             pass
+        else:
+            self.comparator.after_recompute()
         if wantlist:
             ColorSorter.finish()
             self._glpane = glpane # needed by self.inval_display_list for gl_update
@@ -299,7 +363,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     # ==
 
     def invalidate(self):
-        self.valid = False
+        self.comparator.invalidate()
         return
 
     def inval_display_list(self):
@@ -307,6 +371,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         This is meant to be called when something whose usage we tracked
         (while making our display list) next changes.
         """
+        print "fyi: called %r.inval_display_list" % self #### is this happening? its effect (correct redraw) is not.
         self.invalidate()
         self._glpane.gl_update() # self._glpane should always exist
         return
@@ -327,7 +392,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
 # ==
 
-class StrandEnd_ExtraChunkDisplayList(ExtraChunkDisplayList): ##### RENAME, it's for any special drawing, not just strand ends
+class SpecialDrawing_ExtraChunkDisplayList(ExtraChunkDisplayList):
     """
     """
     # note about current usage by client code (chunk drawing code):
@@ -342,15 +407,21 @@ class StrandEnd_ExtraChunkDisplayList(ExtraChunkDisplayList): ##### RENAME, it's
 
     # subclass constants
     
-    _comparator_class = StrandEnd_UsedValueTrackerAndComparator
+    _comparator_class = SpecialDrawing_UsedValueTrackerAndComparator
 
     # overridden methods
 
     def _construct_args_for_drawing_functions(self):
-        prefs_value_finder = USE_CURRENT # KLUGE, but should partly work --
-            # we should construct one that uses the current glpane,
-            # but this one knows how to find it...
-            # but WRONG since it fails to do tracking as it ought to... through our own get_value call, with context = the GM. #####FIX
+##        prefs_value_finder = USE_CURRENT # KLUGE, but should partly work --
+##            # we should construct one that uses the current glpane,
+##            # but this one knows how to find it...
+##            # but WRONG since it fails to do tracking as it ought to...
+##            # namely through our own get_value call, with context = the GM.
+        # ideally (non klugy): know glpane, and wrap self.comparator with it,
+        # and give that wrapper a __getitem__ interface.
+        # actual code: use our comparator subclass directly, give it __getitem__,
+        # and make it find glpane dynamically (KLUGE).
+        prefs_value_finder = self.comparator
         return (prefs_value_finder,)
 
     pass # end of class
@@ -367,22 +438,34 @@ class Chunk_SpecialDrawingHandler(object):
     A SpecialDrawingHandler is .... #doc
     """
     def __init__(self, chunk, classes):
+        """
+        @param classes: a dict from special_drawing_kinds to subclasses of
+                        ExtraChunkDisplayList whose method
+                        _construct_args_for_drawing_functions returns
+                        a tuple of one argument, namely a prefs_value_finder
+                        which maps __getitem__ to get_value of a
+                        SpecialDrawing_UsedValueTrackerAndComparator;
+                        the only suitable class as of 080605 is
+                        SpecialDrawing_ExtraChunkDisplayList.
+        """
         self.chunk = chunk
         self.classes = classes
+        return 
     def should_defer(self, special_drawing_kind):
         assert special_drawing_kind in ALL_SPECIAL_DRAWING_KINDS
         return self.classes.has_key(special_drawing_kind)
     def draw_by_calling_with_prefsvalues(self, special_drawing_kind, func): #e rename?
         # print "fyi: draw_by_calling_with_prefsvalues got", special_drawing_kind, func # this happens
         extra_displist = self._get_extra_displist(special_drawing_kind)
-        extra_displist.add_another_drawing_function( func) ##### make sure called with one arg, a prefsvalues object
+        extra_displist.add_another_drawing_function( func)
         return
     def _get_extra_displist(self, special_drawing_kind):
         """
         Find or make, and return, the right kind of ExtraChunkDisplayList
         for the given special_drawing_kind.
         """
-        extra_displists = self.chunk.extra_displists # cache dict for this kind
+        extra_displists = self.chunk.extra_displists
+            # a dict from kind to extra_displist
         try:
             return extra_displists[special_drawing_kind]
         except KeyError:

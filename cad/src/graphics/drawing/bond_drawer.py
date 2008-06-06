@@ -30,6 +30,9 @@ from graphics.drawing.CS_draw_primitives import drawcylinder
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawpolycone
 
+from graphics.drawing.special_drawing import USE_CURRENT
+from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
+
 import foundation.env as env
 from utilities import debug_flags
 
@@ -181,7 +184,16 @@ def bond_draw_in_CPK(self): #bruce 080212 # todo: make this a Bond method
     # if they just barely touch.
     return ( vlen(pos1 - pos2) > radius1 + radius2 )
     
-def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False):
+def draw_bond(self,
+              glpane,
+              dispdef,
+              col,
+              level,
+              highlighted = False,
+              bool_fullBondLength = False,
+              special_drawing_handler = None,
+              special_drawing_prefs = USE_CURRENT
+             ):
     #bruce 050702 adding shorten_tubes option; 050727 that's now implied by new highlighted option
     """
     Draw the bond 'self'. This function is only meant to be called as the implementation of Bond.draw.
@@ -240,7 +252,9 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     try: #bruce 050610 to ensure calling glPopName    
         povfile = None
         draw_bond_main( self, glpane, disp, col, level, highlighted, 
-                        povfile, bool_fullBondLength)
+                        povfile, bool_fullBondLength,
+                        special_drawing_handler = special_drawing_handler,
+                        special_drawing_prefs = special_drawing_prefs )
     except:
         glPopName()
         print_compact_traceback("ignoring exception when drawing bond %r: " % self) #bruce 060622 moved this before ColorSorter.popName
@@ -251,11 +265,25 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     
     return # from draw_bond, implem of Bond.draw
 
-def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None, bool_fullBondLength = False):
+def draw_bond_main( self,
+                    glpane,
+                    disp,
+                    col,
+                    level,
+                    highlighted,
+                    povfile = None,
+                    bool_fullBondLength = False,
+                    special_drawing_handler = None,
+                    special_drawing_prefs = USE_CURRENT
+                  ):
     """
     [private helper function for this module only.]
     self is a bond. For other doc, see the calls.
     """
+    _our_args = ( self, glpane, disp, col, level, highlighted, povfile, bool_fullBondLength)
+        # This must be kept in agreement with all args of this function except special_*.
+        # We include self in the tuple, since this function is not a method. [bruce 080605]
+    
     # figure out how this display mode draws bonds; return now if it doesn't [moved inside this function, bruce 060622]
     if disp == diLINES:
         sigmabond_cyl_radius = diBALL_SigmaBondRadius / 5.0
@@ -336,35 +364,52 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 # update, bruce 071016: could it have been simply that debug_prefs are not change_tracked?
                 # I am not sure, but IIRC, they're not.
 
-            _disable_do_not_draw = disable_do_not_draw_open_bonds()
-                # for debugging [bruce 080122]
-            
-            bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
-            bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
-            
-            # Determine whether cylinders of strand open bonds should be drawn.
-            # Atom._draw_atom_style() takes care of drawing singlets as 
-            # arrowheads (or not drawing them at all) based on these 
-            # two user prefs. - mark 2007-10-20.
-            if self.isFivePrimeOpenBond():
-                if not bool_arrowsOnFivePrimeEnds:
-                    # Don't draw bond 5' open bond cylinder.
-                    if _disable_do_not_draw:
-                        if not highlighted and debug_flags.atom_debug:
-                            col = lighterblue #bruce 800406 revised color & cond
-                        pass
-                    else:
-                        return
-            if self.isThreePrimeOpenBond():
-                if not bool_arrowsOnThreePrimeEnds:
-                    # Don't draw bond 3' open bond cylinder.
-                    if _disable_do_not_draw:
-                        if not highlighted and debug_flags.atom_debug:
-                            col = lighterblue
-                        pass
-                    else:
-                        return
+            if self.isFivePrimeOpenBond() or \
+               self.isThreePrimeOpenBond():
+                # draw self into the "strand end" display list, if caller has one [bruce 080605]
+                if special_drawing_handler and \
+                   special_drawing_handler.should_defer( SPECIAL_DRAWING_STRAND_END):
+                    # defer all drawing of self to special_drawing_handler
+                    def func(special_drawing_prefs, args = _our_args):
+                        draw_bond_main(*args, **dict(special_drawing_prefs = special_drawing_prefs))
+                    special_drawing_handler.draw_by_calling_with_prefsvalues(
+                        SPECIAL_DRAWING_STRAND_END, func )
+                    return
+
+                # otherwise, draw now, using special_drawing_prefs
                 
+                _disable_do_not_draw = disable_do_not_draw_open_bonds()
+                    # for debugging [bruce 080122]
+                            
+                # Determine whether cylinders of strand open bonds should be drawn.
+                # Atom._draw_atom_style() takes care of drawing singlets as 
+                # arrowheads (or not drawing them at all) based on these 
+                # two user prefs. - mark 2007-10-20.
+                if self.isFivePrimeOpenBond():
+                    if not special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
+                        # Don't draw bond 5' open bond cylinder.
+                        if _disable_do_not_draw:
+                            if not highlighted and debug_flags.atom_debug:
+                                col = lighterblue #bruce 800406 revised color & cond
+                            pass
+                        else:
+                            return
+                if self.isThreePrimeOpenBond():
+                    if not special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
+                        # Don't draw bond 3' open bond cylinder.
+                        if _disable_do_not_draw:
+                            if not highlighted and debug_flags.atom_debug:
+                                col = lighterblue
+                            pass
+                        else:
+                            return
+                pass # note: this might fall through -- only some cases above return
+            
+            # if we didn't defer, we don't need to use special_drawing_handler at all
+            del special_drawing_handler
+
+            del special_drawing_prefs # not used below (fyi)
+            
             bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
 
             if bool_arrowsOnAll:

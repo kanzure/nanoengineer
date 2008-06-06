@@ -67,6 +67,8 @@ from foundation.state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCA
 
 from graphics.drawing.bond_drawer import writepov_bond
 
+from graphics.drawing.special_drawing import USE_CURRENT
+
 from graphics.drawables.Selobj import Selobj_API
 
 # bond length constants
@@ -1723,7 +1725,10 @@ class Bond(BondBase, StateMixin, Selobj_API):
     
     def draw(self, glpane, dispdef, col, level,
              highlighted = False,
-             bool_fullBondLength = False ):
+             bool_fullBondLength = False,
+             special_drawing_handler = None,
+             special_drawing_prefs = USE_CURRENT
+            ):
         """
         Draw the bond. Note that for external bonds, this is [or used to be?]
         called twice, once for each bonded molecule (in arbitrary order)
@@ -1759,7 +1764,11 @@ class Bond(BondBase, StateMixin, Selobj_API):
             import graphics.drawing.bond_drawer as bond_drawer
             reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
         from graphics.drawing.bond_drawer import draw_bond
-        draw_bond( self, glpane, dispdef, col, level, highlighted, bool_fullBondLength)
+        draw_bond( self, glpane, dispdef, col, level, highlighted,
+                   bool_fullBondLength,
+                   special_drawing_handler = special_drawing_handler,
+                   special_drawing_prefs = special_drawing_prefs
+                  )
         # if we're an external bond, also draw our atoms'
         # geometry_error_indicators, so those stay out of their chunk
         # display lists (since they depend on external info, namely,

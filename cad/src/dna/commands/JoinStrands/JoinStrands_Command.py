@@ -15,6 +15,13 @@ from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from dna.commands.JoinStrands.JoinStrands_PropertyManager import JoinStrands_PropertyManager
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
+from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key 
+from utilities.prefs_constants import useCustomColorForThreePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import dnaStrandThreePrimeArrowheadsCustomColor_prefs_key 
+from utilities.prefs_constants import useCustomColorForFivePrimeArrowheads_prefs_key 
+from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
+
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key 
 from utilities.prefs_constants import joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key 
@@ -103,65 +110,31 @@ class JoinStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
         #deposited from the MMKit. So simply return None. 
         #Fixes bug 2831
         return None
+
+    _GLOBAL_TO_LOCAL_PREFS_KEYS = {
+        arrowsOnThreePrimeEnds_prefs_key:
+            joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key,
+        arrowsOnFivePrimeEnds_prefs_key:
+            joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key,
+        useCustomColorForThreePrimeArrowheads_prefs_key:
+            joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key,
+        useCustomColorForFivePrimeArrowheads_prefs_key:
+            joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key,
+        dnaStrandThreePrimeArrowheadsCustomColor_prefs_key:
+            joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
+        dnaStrandFivePrimeArrowheadsCustomColor_prefs_key:
+            joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
+     }
+        
+    def get_prefs_value(self, prefs_key): #bruce 080605
+        """
+        [overrides superclass method for certain prefs_keys]
+        """
+        # map global keys to local ones, when we have them
+        actual_prefs_key = self._GLOBAL_TO_LOCAL_PREFS_KEYS.get( prefs_key, prefs_key)
+        return _superclass_for_GM.get_prefs_value( self, prefs_key)
+
     
-    def pref_arrowsOnThreePrimeEnds(self):
-        """
-        Return the appropriate value of the preference for whether to
-        draw arrows on 3' strand ends of PAM DNA.
-        [overrides superclass method, using different prefs_key]
-        """
-        return env.prefs[joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key]
-
-    def pref_arrowsOnFivePrimeEnds(self):
-        """
-        Return the appropriate value of the preference for whether to
-        draw arrows on 5' strand ends of PAM DNA.
-
-        [overrides superclass method, using different prefs_key]
-        """
-        return env.prefs[joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key]
-
-    def pref_useCustomColorForThreePrimeArrowheads(self):
-        """
-        Return the appropriate value of the preference for whether to use a
-        custom color for 3' arrowheads (if they are drawn)
-        or for 3' strand end atoms (if arrowheads are not drawn).
-
-        [overrides superclass method, using different prefs_key]
-        """
-        return env.prefs[joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key]
-
-    def pref_useCustomColorForFivePrimeArrowheads(self):
-        """
-        Return the appropriate value of the preference for whether to use a
-        custom color for 5' arrowheads (if they are drawn)
-        or for 5' strand end atoms (if arrowheads are not drawn).
-        [overrides superclass method, using different prefs_key]
-        """
-        return env.prefs[joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key]
-
-    def pref_dnaStrandThreePrimeArrowheadsCustomColor(self):
-        """
-        Return the appropriate value of the preference for what custom color
-        to use when drawing 3' arrowheads (if they are drawn)
-        or 3' strand end atoms (if arrowheads are not drawn).
-        [overrides superclass method, using different prefs_key]
-
-        """
-        return env.prefs[joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
-
-    def pref_dnaStrandFivePrimeArrowheadsCustomColor(self):
-        """
-        Return the appropriate value of the preference for what custom color
-        to use when drawing 5' arrowheads (if they are drawn)
-        or 5' strand end atoms (if arrowheads are not drawn).
-        [overrides superclass method, using different prefs_key]
-        """
-        return env.prefs[joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
-    
- 
-    
-  
 # == Command part
 
 class JoinStrands_Command(BuildAtoms_Command): 

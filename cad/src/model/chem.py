@@ -1621,7 +1621,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # and avoid calling it multiple times in other methods below?
 
 ##        print "got special_drawing_handler %r, special_drawing_prefs %r" % \
-##              (special_drawing_handler, special_drawing_prefs) ##########################
+##              (special_drawing_handler, special_drawing_prefs)
         
         if special_drawing_handler and (
             self._draw_atom_style(special_drawing_handler = special_drawing_handler) ==
@@ -1694,7 +1694,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     # bruce 070409 split this out of draw_atom_sphere; 
     # 070424 revised return value (None -> "")
-    def _draw_atom_style(self, special_drawing_handler = None, special_drawing_prefs = None): ##### TODO: pass one of these args to each call
+    def _draw_atom_style(self, special_drawing_handler = None, special_drawing_prefs = None):
         """
         [private helper method for L{draw_atom_sphere}, and perhaps related
         methods like L{draw_wirespheres}]
@@ -1766,7 +1766,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         [private helper for _draw_atom_style]
         """
         #bruce 080605 split this out, revised it
-        assert special_drawing_prefs, "need special_drawing_prefs" ##### BUG: will fail in max_pixel_radius until fixed!
+        assert special_drawing_prefs, "need special_drawing_prefs"
             # note: for optimal redraw (by avoiding needless remakes of some
             # display lists), only access each of the values this can provide
             # when that value is actually needed to do the drawing.
@@ -2067,7 +2067,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         from self's center to any pixel drawn for self.
         """
         res = self.selatom_radius() + 0.2
-        if self._draw_atom_style().startswith('arrowhead-'):
+        if self._draw_atom_style(special_drawing_prefs = USE_CURRENT).startswith('arrowhead-'):
             res *= 3
         return res
     
