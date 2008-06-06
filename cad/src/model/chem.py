@@ -1771,15 +1771,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # display lists), only access each of the values this can provide
             # when that value is actually needed to do the drawing.
         
-        if self.isFivePrimeEndAtom():
+        if self.isFivePrimeEndAtom() and not special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
             # (this happens even if self.isThreePrimeEndAtom() is also true
             #  (which may happen for a length-1 PAM3 strand);
             #  I guess that's either ok or good [bruce 080605 comment])
-            if not special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
-                return 'five_prime_end_atom'
-        elif self.isThreePrimeEndAtom():
-            if not special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]: 
-                return 'three_prime_end_atom'
+            return 'five_prime_end_atom'
+        elif self.isThreePrimeEndAtom() and not special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
+            return 'three_prime_end_atom'
         
         bond = self.strand_end_bond()
             # never non-None if self has two bonds with directions set
@@ -1790,12 +1788,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # Determine how singlets of strand open bonds should be drawn.
             # draw_bond_main() takes care of drawing bonds accordingly.
             # - mark 2007-10-20.
-            if bond.isFivePrimeOpenBond():
-                if special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
-                    return 'arrowhead-in'
-            elif bond.isThreePrimeOpenBond():
-                if special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
-                    return 'arrowhead-out'
+            if bond.isFivePrimeOpenBond() and special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
+                return 'arrowhead-in'
+            elif bond.isThreePrimeOpenBond() and special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
+                return 'arrowhead-out'
             else:
                 return 'do not draw'
             #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
