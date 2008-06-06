@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Fri Jun 06 11:41:20 2008
+# Created: Fri Jun 06 11:55:35 2008
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,14 +12,14 @@ from PyQt4 import QtCore, QtGui
 class Ui_MinimizeEnergyPropDialog(object):
     def setupUi(self, MinimizeEnergyPropDialog):
         MinimizeEnergyPropDialog.setObjectName("MinimizeEnergyPropDialog")
-        MinimizeEnergyPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,300,480).size()).expandedTo(MinimizeEnergyPropDialog.minimumSizeHint()))
+        MinimizeEnergyPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,300,500).size()).expandedTo(MinimizeEnergyPropDialog.minimumSizeHint()))
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MinimizeEnergyPropDialog.sizePolicy().hasHeightForWidth())
         MinimizeEnergyPropDialog.setSizePolicy(sizePolicy)
-        MinimizeEnergyPropDialog.setMinimumSize(QtCore.QSize(300,480))
+        MinimizeEnergyPropDialog.setMinimumSize(QtCore.QSize(300,500))
 
         self.gridlayout = QtGui.QGridLayout(MinimizeEnergyPropDialog)
         self.gridlayout.setMargin(9)
