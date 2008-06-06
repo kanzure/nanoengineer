@@ -1701,10 +1701,11 @@ def readmmp(assy,
             filename,
             isInsert = False,
             showProgressDialog = False,
-            returnListOfAtoms = False): #### TODO: fix docstring, wrong in several places re return value
+            returnListOfAtoms = False):
     """
     Read an mmp file to create a new model (including a new
-    Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
+    Clipboard).  Returns a tuple described below, which
+    contains a grouplist tuple of (viewdata, tree, shelf). If
     isInsert is False (the default), assy will be modified to include
     the new items. (If caller wants assy to be marked as "not modified"
     afterwards, it's up to caller to handle this, e.g. using
@@ -1744,7 +1745,7 @@ def readmmp(assy,
              - SUCCESS
              - ABORTED
              - READ_ERROR
-    @rtype:  (string, list)
+    @rtype:  (string, atom list) or (string, grouplist or None)
     """
     # todo: This interface needs revising and clarifying. Ideally, it should take only
     # a filename as parameter, and return a single data structure (of the same
