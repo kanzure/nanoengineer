@@ -288,17 +288,17 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     def chooseCustomColorOnThreePrimeEnds(self):
         """
-        Choose custom color for 5' prime end
+        Choose custom color for 3' ends
         """
         color = self.threePrimeEndColorChooser.getColor()
-        prefs_key = self._prefs_key_dnaStrandThreePrimeArrowheadsCustomColor
+        prefs_key = self._prefs_key_dnaStrandThreePrimeArrowheadsCustomColor()
         env.prefs[prefs_key] = color
         self.win.glpane.gl_update() 
         return
        
     def chooseCustomColorOnFivePrimeEnds(self):
         """
-        Choose custom color for 5' prime end
+        Choose custom color for 5' ends
         """
         color = self.fivePrimeEndColorChooser.getColor()
         prefs_key = self._prefs_key_dnaStrandFivePrimeArrowheadsCustomColor()
