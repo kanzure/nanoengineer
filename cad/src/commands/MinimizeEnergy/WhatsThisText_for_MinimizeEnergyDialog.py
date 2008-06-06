@@ -62,12 +62,6 @@ def whatsThis_MinimizeEnergyDialog(minimizeEnergyDialog):
     _med.cutoverRmsDoubleSpinBox.setWhatsThis(_text)
     _med.cutoverrms_lbl.setWhatsThis(_text)
     
-    _med.sponsor_btn.setWhatsThis(
-        """<b>NanoEngineer-1 Sponsor</b>
-        <p>
-        Click on the logo to learn more
-        about this NanoEngineer-1 sponsor.
-        </p>""")
     _med.minimize_all_rbtn.setWhatsThis(
         """<b>Minimize All</b>
         <p>Perform energy minimization on all the atoms in the workspace.

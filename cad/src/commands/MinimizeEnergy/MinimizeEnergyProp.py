@@ -25,7 +25,7 @@ from PyQt4.Qt import QSize
 from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from commands.MinimizeEnergy.MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
 from PM.GroupButtonMixin import GroupButtonMixin
-from sponsors.Sponsors import SponsorableMixin
+#@from sponsors.Sponsors import SponsorableMixin
 from utilities.icon_utilities import geticon
 
 from utilities.prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
@@ -48,11 +48,11 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 #class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_MinimizeEnergyPropDialog):
-class MinimizeEnergyProp(QDialog, SponsorableMixin, Ui_MinimizeEnergyPropDialog):
+class MinimizeEnergyProp(QDialog, Ui_MinimizeEnergyPropDialog):
 
     cmdname = greenmsg("Minimize Energy: ") # WARNING: self.cmdname might be used by one of the superclasses
     plain_cmdname = "Minimize Energy"
-    sponsor_keyword = None
+    #@sponsor_keyword = None
 
     def __init__(self, win):
         QDialog.__init__(self, win)  # win is parent.
@@ -66,40 +66,24 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, Ui_MinimizeEnergyPropDialog)
         #fix some icon problems
         self.setWindowIcon(
             geticon('ui/border/MinimizeEnergy.png'))
-        self.done_btn.setIcon(
-            geticon('ui/actions/Properties Manager/Done.png'))
-        self.abort_btn.setIconSize(QSize(22, 22))  
-        self.abort_btn.setIcon(
-            geticon('ui/actions/Properties Manager/Abort.png'))
-        self.restore_btn.setIconSize(QSize(22, 22))  
-        self.restore_btn.setIcon(
-            geticon('ui/actions/Properties Manager/Restore.png'))
-        self.done_btn.setIconSize(QSize(22, 22))  
-        self.whatsthis_btn.setIcon(
-            geticon('ui/actions/Properties Manager/WhatsThis.png'))
-        self.whatsthis_btn.setIconSize(QSize(22, 22))  
-        
+
         self.connect(self.cancel_btn,
                      SIGNAL("clicked()"),
                      self.cancel_btn_clicked)
-        self.connect(self.done_btn,
-                     SIGNAL("clicked()"),
-                     self.ok_btn_clicked)
         self.connect(self.ok_btn,
                      SIGNAL("clicked()"),
                      self.ok_btn_clicked)
         self.connect(self.restore_btn,
                      SIGNAL("clicked()"),
                      self.restore_defaults_btn_clicked)
-        self.connect(self.sponsor_btn,
-                     SIGNAL("clicked()"),
-                     self.open_sponsor_homepage)
+        
+        self.whatsthis_btn.setIcon(
+            geticon('ui/actions/Properties Manager/WhatsThis.png'))
+        self.whatsthis_btn.setIconSize(QSize(22, 22))  
+        
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
                      self.whatsthis_btn_clicked)
-        self.connect(self.abort_btn,
-                     SIGNAL("clicked()"),
-                     self.cancel_btn_clicked)
         
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
