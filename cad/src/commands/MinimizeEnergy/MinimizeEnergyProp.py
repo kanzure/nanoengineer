@@ -47,7 +47,8 @@ from widgets.widget_helpers import double_fixup
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
-class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_MinimizeEnergyPropDialog):
+#class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_MinimizeEnergyPropDialog):
+class MinimizeEnergyProp(QDialog, SponsorableMixin, Ui_MinimizeEnergyPropDialog):
 
     cmdname = greenmsg("Minimize Energy: ") # WARNING: self.cmdname might be used by one of the superclasses
     plain_cmdname = "Minimize Energy"
@@ -171,7 +172,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
             self.minimize_selection_enabled = False
         self.update_widgets() # only the convergence criteria, for A8, plus All/Sel command from self.seltype
         self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them; only conv crit for A8
-        self.show()
+        self.exec_() # Show dialog as a modal dialog.
            
     def gather_parameters(self): ###e should perhaps include update_data from ruc (not sure it's good) -- but no time for A8
         """
