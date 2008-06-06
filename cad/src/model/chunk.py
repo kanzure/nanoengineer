@@ -2295,9 +2295,9 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         can be drawn from separate display lists, to avoid remaking our
         main one whenever those need to change.
         """
-        if wantlist and debug_pref("use special_drawing_handlers? (not yet working)",
-                                   Choice_boolean_False,
-                                   non_debug = True,
+        if wantlist and debug_pref("use special_drawing_handlers?",
+                                   Choice_boolean_True, #bruce 080606 enable by default for v1.1
+                                   non_debug = True,    # (but leave it visible in case of bugs)
                                    prefs_key = True):
             # set up the right kind of special_drawing_handler for self;
             # this will be passed to the draw calls of our atoms and bonds
