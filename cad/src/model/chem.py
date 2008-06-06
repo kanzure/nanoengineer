@@ -1632,7 +1632,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 self.draw(*args, **dict(special_drawing_prefs = special_drawing_prefs))
             special_drawing_handler.draw_by_calling_with_prefsvalues(
                 SPECIAL_DRAWING_STRAND_END, func )
-            return
+            return default_display_mode ### REVIEW: is this return value always ok?
         
         # if we didn't defer, we don't need to use special_drawing_handler at all
         del special_drawing_handler
