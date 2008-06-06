@@ -12,6 +12,7 @@ for widgets in the Main Window.
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
+import sys
 
 def whatsThis_PreferencesDialog(preferencesDialog):
     """
@@ -19,7 +20,30 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     """
     
     _pd = preferencesDialog
+    if sys.platform == 'darwin':        
+        _keyString = "<b>(Cmd + C and Cmd + V)</b> respectively"
+    else:
+        _keyString = "<b>(Ctrl + C and Ctrl + V)</b> respectively"
+    #General preference 
+    _text = """<b>Offset scale factor for pasting chunks</b>
+    <p>When one or more chunks, that are placed as independent nodes in the 
+    Model Tree, are copied and then pasted using the modifier 
+    keys %s, this scale factor determines the offset of the pasted chunks 
+    from the original chunks. Note that if the copied selection includes any 
+    DNA objects such as DNA segments, strands etc, the program will use 
+    an offset scale that is used for pasting the DNA objects instead of this 
+    offset scale) </p>"""%(_keyString)
+    _pd.pasteOffsetScaleFactorForChunks_doubleSpinBox.setWhatsThis(_text)
+    _pd.pasteOffsetForChunks_lable.setWhatsThis(_text)
     
+    _text = """<b>Offset scale factor for pasting Dna objects</b>
+    <p>When one or more DNA objects such as DNA segments, strands etc, are 
+    copied and then pasted using the modifier keys %s, this scale factor 
+    determines the offset of the pasted DNA objects from the original ones. 
+    Note that this also applies to pasting chunks within a group in the Model 
+    Tree. </p>"""%(_keyString)
+    _pd.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox.setWhatsThis(_text)
+    _pd.pasteOffsetForDna_lable.setWhatsThis(_text)
     # Bond line thickness
 
     _text = \
