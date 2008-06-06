@@ -371,7 +371,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         This is meant to be called when something whose usage we tracked
         (while making our display list) next changes.
         """
-        print "fyi: called %r.inval_display_list" % self #### is this happening? its effect (correct redraw) is not.
+        # print "fyi: called %r.inval_display_list" % self # this happens
         self.invalidate()
         self._glpane.gl_update() # self._glpane should always exist
         return
