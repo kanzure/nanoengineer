@@ -1480,21 +1480,27 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
     return
 
 # ==
+
 _readmmp_aborted = False
+
+_reference_to_readmmp_abort_function = None #bruce 080606 precaution
 
 def _readmmp(assy, filename, isInsert = False, showProgressDialog = False): 
     """
     Read an mmp file, print errors and warnings to history,
     modify assy in various ways (a bad design, see comment in insertmmp)
     (but don't actually add file contents to assy -- let caller do that if and
-    where it prefers), and return either None (after an error for which caller
-    should store no file contents at all) or a list of 3 Groups, which caller
-    should treat as having roles "viewdata", "tree", "shelf", regardless of 
-    how many toplevel items were in the file, or of whether they were groups.
+    where it prefers), and return (as part of a larger tuple described below)
+    either None (after an error for which caller should store no file contents
+    at all) or a list of 3 Groups, which caller should treat as having roles
+    "viewdata", "tree", "shelf", regardless of how many toplevel items were
+    in the file, or of whether they were groups.
     (We handle normal mmp files with exactly those 3 groups, old sim-input
     files with only the first two, and newer sim-input files for Parts 
     (one group) or for minimize selection (maybe no groups at all). And most 
     other weird kinds of mmp files someone might create.)
+
+    @warning: the optional arguments are sometimes passed positionally.
     
     @param assy: the assembly the file contents are being added into
     @type  assy: assembly.assembly
@@ -1512,7 +1518,10 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     @type  showProgressDialog: boolean
 
     @return: the tuple (ok, grouplist or None, listOfAtomsInFileOrder), where
-             ok is "SUCCESS", "ABORTED", or "READ ERROR".
+             ok is one of the string constants named (in utilities.constants)
+             SUCCESS, ABORTED, or READ_ERROR. (If ok is not SUCCESS, grouplist
+             will be None and listOfAtomsInFileOrder will be [], but callers
+             will be cleaner if they don't rely on this.)
     @rtype: (string, list, list)
     """
     #bruce 050405 revised code & docstring
@@ -1548,7 +1557,12 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     # another caller based on success.
     #if not isInsert:
     #    assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
-        
+
+    global _readmmp_aborted
+    global _reference_to_readmmp_abort_function
+
+    _readmmp_aborted = False #bruce 080606 bugfix or precaution
+    
     # Create and display a Progress dialog while reading the MMP file. 
     # One issue with this implem is that QProgressDialog always displays 
     # a "Cancel" button, which is not hooked up. I think this is OK for now,
@@ -1567,24 +1581,40 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         _progressDialogDisplayed = False
         _timerStart = time.time()
         
-        # Ask Bruce to review this approach. [mark 2008-06-05]
         def abort_readmmp():
             """
             This slot is called when the user aborts opening a large
             MMP file by pressing the "Cancel" button in the progress dialog.
             """
-            global _readmmp_aborted # Ask Bruce about this.
-            _readmmp_aborted = True
-            win.disconnect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
+            try:
+                print "cancelled reading file"
+                global _readmmp_aborted
+                _readmmp_aborted = True
+                win.disconnect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
+                    # review: why no NameError for this abort_readmmp?
+                    # guess: it's a legal read-only reference into the
+                    # outer function's scope. But it's also possible that we have
+                    # an exception and don't see it, so I'm adding some prints to
+                    # find out, and try/except. These can remain since they are
+                    # harmless. [bruce 080606]
+                print " (returning from abort_readmmp)"
+            except:
+                print_compact_traceback("exception in abort_readmmp ignored: ")
             return
         
         from PyQt4.Qt import SIGNAL
         win.connect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
+
+        _reference_to_readmmp_abort_function = abort_readmmp
+            # make sure abort_readmmp doesn't get deallocated before use
+            # [bruce 080606 precaution]
+
+        pass
     
     for card in lines:
         if _readmmp_aborted: # User aborted while reading the MMP file.
-            global _readmmp_aborted
-            _readmmp_aborted = False # Reset global to False for next time.
+            _readmmp_aborted = False # (precaution, not really needed, since not
+                # sufficient to replace the reset earlier in this function)
             return ABORTED, None, []
         try:
             errmsg = state.readmmp_line( card) # None or an error message
@@ -1635,6 +1665,10 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     if len(grouplist) == 0:
         state.format_error("nothing in file")
         return SUCCESS, None, []
+            ### REVIEW: this is really a file format error;
+            # what return code is best? need a new one?
+            # guess: READ_ERROR would be best; needs analysis.
+            # [bruce 080606 Q]
     elif len(grouplist) == 1:
         state.guess_sim_input('one_part')
             # note: 'one_part' gives same warning as 'missing_group_or_chunk' as of 050406
@@ -1658,6 +1692,8 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
+
+    _reference_to_readmmp_abort_function = None
     
     return SUCCESS, grouplist, listOfAtomsInFileOrder # from _readmmp
 
@@ -1665,7 +1701,7 @@ def readmmp(assy,
             filename,
             isInsert = False,
             showProgressDialog = False,
-            returnListOfAtoms = False):
+            returnListOfAtoms = False): #### TODO: fix docstring, wrong in several places re return value
     """
     Read an mmp file to create a new model (including a new
     Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
@@ -1674,14 +1710,10 @@ def readmmp(assy,
     afterwards, it's up to caller to handle this, e.g. using
     assy.reset_changed().)
 
-    This interface needs revising and clarifying.  It should take only
-    a filename as parameter, and return a single data structure
-    representing the contents of that file.
-
     @note: mmp stands for Molecular Machine Part.
 
-    @param assy: the assembly the file contents are being added into
-    @type  assy: assembly.assembly
+    @param assy: the assembly object which the file contents are being added to
+    @type  assy: instance of assembly.Assembly
     
     @param filename: where the data will be read from
     @type  filename: string
@@ -1698,18 +1730,38 @@ def readmmp(assy,
                                a file. Default is False.
     @type  showProgressDialog: boolean
 
-    @param returnListOfAtoms: if True, return value is a list of all
+    @param returnListOfAtoms: if True, return value contains a list of all
                               atoms in the file, in the order they
                               appeared.  If False (the default),
-                              returns the group list.
+                              return value contains the group list.
+                              See return value doc for details.
     @type  returnListOfAtoms: boolean
     
-    @return: the tuple (ok, grouplist) where ok is
-             - "SUCCESS", 
-             - "ABORTED", or 
-             - "READ ERROR".
+    @return: the tuple (ok, grouplist) or (ok, listOfAtoms)
+             (depending on the returnListOfAtoms option)
+             where ok is one of the following named string constants
+             defined in utilities.constants:
+             - SUCCESS
+             - ABORTED
+             - READ_ERROR
     @rtype:  (string, list)
     """
+    # todo: This interface needs revising and clarifying. Ideally, it should take only
+    # a filename as parameter, and return a single data structure (of the same
+    # class which we use for "the contents of a model file", more or less)
+    # representing the contents of that file, and a success code.
+    # (Whether it's practical for the data not to point to "its assy" is
+    #  questionable, but can be thought of as an independent issue,
+    #  except perhaps for performance considerations for Insert.)
+    # Maybe the listOfAtoms should be accessible from the data structure
+    # even if it's not identical to "all the atoms ultimately in that
+    # structure"; if that's not wise, then returning it separately is ok.
+    # [comment probably by EricM; revised/extended by bruce 080606]
+
+    # TODO: clean up return value format to return a tuple of three values,
+    # always in the same format (ok, grouplist, listOfAtoms)
+    # (just like _readmmp does now). [bruce 080606 suggestion]
+
     kluge_main_assy = env.mainwindow().assy
         # use this instead of assy to fix logic bug in use of assy_valid flag
         # (explained where it's used in master_model_updater)
@@ -1727,6 +1779,11 @@ def readmmp(assy,
     finally:
         kluge_main_assy.assy_valid = True
     if (not isInsert):
+        # NOTE: we want to call this even if ok != SUCCESS,
+        # since it detects grouplist is None in that case
+        # and has side effects on assy which might be required
+        # (needs review to see if they are really required).
+        # [bruce 080606 comment]
         _reset_grouplist(assy, grouplist)
             # note: handles grouplist is None (though not very well)
             # note: runs all updaters when done, and sets per-part viewdata
@@ -1845,10 +1902,24 @@ def _maybe_set_partview( assy, namedView, nameprefix, namedViewattr): #bruce 050
             break
     return
 
-def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly/part bugs, I hope
+def insertmmp(assy, filename):
     """
     Read an mmp file and insert its main part into the existing model.
+    Discards other info from the file it reads, like the clipboard.
+
+    @note: does not emit a history message about its result.
+           The caller must do that if desired.
+
+    @return: success_code, which is one of these named string constants
+             defined in utilities.constants:
+             - SUCCESS
+             - ABORTED
+             - READ_ERROR
     """
+    #bruce 050405 revised to fix one or more assembly/part bugs, I hope
+    #bruce 080606 revised to return success code (but didn't yet fix
+    # callers to make use of it)
+    
     # Note: this is a normal user operation, so there is no need
     # to refrain from setting assy's modified flag.
     kluge_main_assy = env.mainwindow().assy
@@ -1858,19 +1929,19 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         # [bruce 080319]
     assert kluge_main_assy.assy_valid
     kluge_main_assy.assy_valid = False # disable updaters during insert [bruce 080117]
+    ok = READ_ERROR
     try:
-        #Fixes bug 2825 (_readmmp returns 2 vals so added 'listOfAtomsInFileOrder'
-        #below.
         ok, grouplist, listOfAtomsInFileOrder = _readmmp(assy, 
                                                          filename, 
                                                          isInsert = True,
                                                          showProgressDialog = True)
-        
         del listOfAtomsInFileOrder        
         
             # isInsert = True prevents most side effects on assy;
             # a better design would be to let the caller do them (or not)
-        if grouplist:
+        if ok == SUCCESS and grouplist:
+            #bruce 080606 added ok == SUCCESS condition (precaution or cleanup)
+            ### TODO: NEEDS ERROR MESSAGE OTHERWISE
             viewdata, mainpart, shelf = grouplist
             del viewdata
             ## not yet (see below): del shelf
@@ -1913,7 +1984,7 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         pass
     finally:
         kluge_main_assy.assy_valid = True
-    return
+    return ok
 
 def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
     """

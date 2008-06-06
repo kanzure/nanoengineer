@@ -233,11 +233,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             if import_filename[-3:] == "mmp":
                 try:
-                    insertmmp(self.assy, import_filename)
+                    success_code = insertmmp(self.assy, import_filename)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % import_filename )
                     env.history.message( cmd + redmsg( "Internal error while inserting MMP file: [ " + import_filename +" ]") )
                 else:
+                    ###TODO: needs history message to depend on success_code
+                    # (since Insert can be cancelled or see a syntax error or
+                    #  read error). [bruce 080606 comment]
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(import_filename) + " ]" ) # fix bug 453 item. ninad060721
 
@@ -260,11 +263,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 result = self.launch_ne1_openbabel(in_format = ext[1:], infile = import_filename, 
                                                    out_format = "mmp", outfile = mmpfile)
                 if result:
-                    insertmmp(self.assy, mmpfile)
+                    success_code = insertmmp(self.assy, mmpfile)
                     # Theoretically, we have successfully imported the file at this point.
-                    # But there might be a warning from insertmmp.
-                    
+                    # But there might be a warning from insertmmp.                    
                     # We'll assume it went well. Mark 2007-06-05
+                    ###TODO: needs history message to depend on success_code
+                    # (since Insert can be cancelled or see a syntax error or
+                    #  read error). [bruce 080606 comment]
                     msg = cmd + "File imported: [ " + os.path.normpath(import_filename) + " ]"
                     env.history.message(msg)
 
@@ -595,11 +600,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             if fn[-3:] == "mmp":
                 try:
-                    insertmmp(self.assy, fn)
+                    success_code = insertmmp(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
                     env.history.message( redmsg( "Internal error while inserting MMP file: [ " + fn+" ]") )
                 else:
+                    ###TODO: needs history message to depend on success_code
+                    # (since Insert can be cancelled or see a syntax error or
+                    #  read error). [bruce 080606 comment]
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( "MMP file inserted: [ " + os.path.normpath(fn) + " ]" )# fix bug 453 item. ninad060721
             
@@ -702,15 +710,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             fn = str(fn)
             if not os.path.exists(fn):
                 return
-
-            #k Can that return ever happen? Does it need an error message?
-            # Should preceding clear and modechange be moved down here??
-            # (Moving modechange even farther below would be needed,
-            #  if we ever let the default mode be one that cares about the
-            #  model or viewpoint when it's entered.)
-            # [bruce 050911 questions]
+                #k Can that return ever happen? Does it need an error message?
+                # Should preceding clear and modechange be moved down here??
+                # (Moving modechange even farther below would be needed,
+                #  if we ever let the default mode be one that cares about the
+                #  model or viewpoint when it's entered.)
+                # [bruce 050911 questions]
             
             _openmsg = "" # Precaution.
+                ### REVIEW: it looks like this is sometimes used, and it probably
+                # ought to be more informative, or be tested as a flag if
+                # no message is needed in those cases. If it's never used,
+                # it's not obvious why so that needs to be explained.
+                # [bruce 080606 comment]
             env.history.message("Opening file...")
             
             isMMPFile = False
@@ -757,10 +769,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 elif ok == READ_ERROR:
                     _openmsg = redmsg("Error reading: [ " + os.path.normpath(fn) + " ]")
                 else:
-                    msg = "Unknown return value '%s'" % ok
-                    print_compact_traceback(msg)
+                    msg = "Unrecognized readmmp return value %r" % (ok,)
+                    print_compact_traceback(msg + ": ")
+                    _openmsg = redmsg("Bug: " + msg) #bruce 080606 bugfix
                 isMMPFile = True
-                if (gromacsCoordinateFile):
+                if ok == SUCCESS and (gromacsCoordinateFile):
+                    #bruce 080606 added condition ok == SUCCESS (likely bugfix) 
                     newPositions = readGromacsCoordinates(gromacsCoordinateFile, listOfAtoms)
                     if (type(newPositions) == type([])):
                         move_alist_and_snuggle(listOfAtoms, newPositions)
