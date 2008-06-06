@@ -117,6 +117,8 @@ from utilities.prefs_constants import selectionColor_prefs_key
 
 from utilities.constants import gensym, genKey
 
+from utilities.constants import default_display_mode
+
 from utilities.constants import diDEFAULT
 from utilities.constants import diINVISIBLE
 from utilities.constants import diBALL
@@ -1769,9 +1771,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # piotr 080409: fixed bug 2785
         # If the chunk is not DNA and global display mode == diDNACYLINDER
-        # use the default_display_mode instead 
-        # (equal to diTUBES in utilities.constants).
-        from utilities.constants import default_display_mode
+        # use default_display_mode instead.
+        # (Warning: default_display_mode is no longer the same as the default
+        #  global display style. Is it still correct here? Needs analysis
+        #  and cleanup. [bruce 080606 comment])
         if disp == diDNACYLINDER \
            and not (self.isAxisChunk() or
                     self.isStrandChunk()): # non-DNA chunk

@@ -369,7 +369,13 @@ def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
 # ==
 
 # display style for new glpanes (#e should be a user preference) [bruce 041129]
-default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
+# Now in user prefs db, set in GLPane.__init__ [Mark 050715]
+# WARNING: this is no longer used as the default global display style,
+# and now has a different value from that, but it is still used in other ways,
+# which would need analysis in order to determine whether they can be replaced
+# with the actual default global display style. Needs cleanup.
+# [bruce 080606 comment]
+default_display_mode = diTUBES
 
 TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
 diBALL_SigmaBondRadius = 0.1
