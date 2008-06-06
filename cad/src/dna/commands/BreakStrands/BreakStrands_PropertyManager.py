@@ -35,8 +35,6 @@ from utilities.prefs_constants import breakStrandsCommand_dnaStrandThreePrimeArr
 from utilities.prefs_constants import breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key 
 from utilities.prefs_constants import breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key 
 
-from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-
 from dna.command_support.BreakOrJoinStrands_PropertyManager import BreakOrJoinStrands_PropertyManager
 
 _superclass = BreakOrJoinStrands_PropertyManager

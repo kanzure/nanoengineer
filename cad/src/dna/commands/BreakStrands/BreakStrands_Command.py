@@ -97,7 +97,7 @@ class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
         [overrides superclass method for certain prefs_keys]
         """
         # map global keys to local ones, when we have them
-        actual_prefs_key = self._GLOBAL_TO_LOCAL_PREFS_KEYS.get( prefs_key, prefs_key)
+        prefs_key = self._GLOBAL_TO_LOCAL_PREFS_KEYS.get( prefs_key, prefs_key)
         return _superclass_for_GM.get_prefs_value( self, prefs_key)
 
 
