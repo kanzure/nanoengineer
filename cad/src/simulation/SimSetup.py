@@ -25,6 +25,7 @@ from PyQt4.Qt import QDialog
 from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QAbstractButton
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QSize, QWhatsThis
 
 import foundation.env as env
 
@@ -82,6 +83,14 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         self.setupUi(self)
         
         self.setWindowIcon(geticon('ui/border/RunDynamics.png'))
+        
+        self.whatsthis_btn.setIcon(
+            geticon('ui/actions/Properties Manager/WhatsThis.png'))
+        self.whatsthis_btn.setIconSize(QSize(22, 22))  
+        
+        self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     QWhatsThis.enterWhatsThisMode)
         
         self.watch_motion_buttongroup = QButtonGroup()
         self.watch_motion_buttongroup.setExclusive(True)
@@ -172,6 +181,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             Molecular Dynamics simulation run. Specify the simulation parameters
             and click <b>Run Simulation</b> to launch.</p>
             <p>
+            <img source=\"ui/actions/Simulation/Play_Movie.png\"><br>
             The <b>Play Movie</b> command can be used to play back the 
             simulation.
             </p>""")
