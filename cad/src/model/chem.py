@@ -1605,7 +1605,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Also draws picked-atom wireframe, but doesn't draw any bonds.
         [Caller must draw bonds separately.]
         
-        @return: the display mode we used (whether self's or inherited).
+        @return: the display mode we used (whether self's or inherited),
+                 or will use (if our drawing is handled by
+                 special_drawing_handler).
 
         @param col: the molecule color to use, or None to use per-atom colors.
                     (Should not be a boolean-false color -- black is ok if
@@ -1616,13 +1618,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         assert not self.__killed
 
-        # review: future: should we always compute _draw_atom_style here,
-        # just once, so we can pass it to methods below such as howdraw,
-        # and avoid calling it multiple times in other methods below?
-
-##        print "got special_drawing_handler %r, special_drawing_prefs %r" % \
-##              (special_drawing_handler, special_drawing_prefs)
+        # figure out display style to use
+        disp, drawrad = self.howdraw(dispdef)
         
+        # review: future: should we always compute _draw_atom_style here,
+        # just once, so we can avoid calling it multiple times inside
+        # various methods we call?
+
         if special_drawing_handler and (
             self._draw_atom_style(special_drawing_handler = special_drawing_handler) ==
             'special_drawing_handler'
@@ -1632,23 +1634,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 self.draw(*args, **dict(special_drawing_prefs = special_drawing_prefs))
             special_drawing_handler.draw_by_calling_with_prefsvalues(
                 SPECIAL_DRAWING_STRAND_END, func )
-            return default_display_mode ### REVIEW: is this return value always ok?
+            return disp
         
-        # if we didn't defer, we don't need to use special_drawing_handler at all
+        # if we didn't defer, we shouldn't use special_drawing_handler at all
         del special_drawing_handler
 
         glname = self.get_glname(glpane)
 
-        disp = default_display_mode # to be returned in case of early exception
-
         # note use of basepos (in atom.baseposn) since it's being drawn under
         # rotation/translation of molecule
         pos = self.baseposn()
-        disp, drawrad = self.howdraw(dispdef)
+        
         if disp == diTUBES:
             pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
         else:
             pickedrad = drawrad * 1.1
+        
         color = col or self.drawing_color()
 
         glPushName( glname) #bruce 050610 (for comments, see same code in Bond.draw)
@@ -1657,7 +1658,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #  which is what's done (in GLPane.py) as of 050610.)
         ColorSorter.pushName(glname)
         try:
-            if disp in [diTrueCPK, diBALL, diTUBES]:
+            if disp in (diTrueCPK, diBALL, diTUBES):
                 self.draw_atom_sphere(color, pos, drawrad, level, dispdef,
                                       special_drawing_prefs = special_drawing_prefs )
             self.draw_wirespheres(glpane, disp, pos, pickedrad,
@@ -2442,8 +2443,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         though the atoms are not shown).
         """
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
-            if debug_flags.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
-                print "bug warning: dispdef == diDEFAULT in Atom.howdraw for %r" % self
+            #bruce 050419 disable this since always happens for Element Color Prefs dialog:
+            ## if debug_flags.atom_debug: 
+            ##     print "bug warning: dispdef == diDEFAULT in Atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element is Singlet:
             try:
