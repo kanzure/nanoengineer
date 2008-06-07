@@ -232,11 +232,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         for sym, code, num in elemKeyTab: 
             # Set the atom type in the MMKit and combobox.
             if key == code:
-                self.w.setElement(num) ###@@@ does this update our own 
-                ##spinbox too??
-                ### REVIEW: should we add a 'return' here, to prevent the 
-                ## superclass
-                # from taking more actions from the same keyPress?? 
+                self.command.propMgr.regularElementChooser.setElement(num)
+                # = REVIEW: should we add a 'return' here, to prevent the 
+                # superclass from taking more actions from the same keyPress?
                 #[bruce question 071012]
         
         # Pressing Escape does the following:
