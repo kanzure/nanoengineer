@@ -227,6 +227,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                 self.w.filtered_elements.remove(element)
                 
         self.update_selection_filter_list_widget()
+        return
         
     def update_selection_filter_list_widget(self):
         """
@@ -245,7 +246,18 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             filtered_syms += e.symbol
             
         self.filterlistLE.setText(filtered_syms)
-                
+        return
+    
+    def setElement(self, elementNumber):
+        """
+        Set the current element in the MMKit to I{elementNumber}.
+        
+        @param elementNumber: Element number. (i.e. 6 = Carbon)
+        @type  elementNumber: int
+        """
+        self.regularElementChooser.setElement(elementNumber)
+        return
+    
     def updateMessage(self, msg = ""):
         """
         Updates the message box with an informative message based on the 

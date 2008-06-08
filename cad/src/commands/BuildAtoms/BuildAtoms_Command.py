@@ -1169,7 +1169,18 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             if self.propMgr.selectionFilterCheckBox:
                 self.propMgr.selectionFilterCheckBox.setChecked(False) 
             return
+        
+        return
     
+    def setElement(self, elementNumber):
+        """
+        Set the current (active) element to I{elementNumber}.
+        
+        @param elementNumber: Element number. (i.e. 6 = Carbon)
+        @type  elementNumber: int
+        """
+        self.propMgr.setElement(elementNumber)
+        return
     
 class BuildAtoms_Command(BuildAtoms_basicCommand):
     """
@@ -1195,6 +1206,7 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
         args = [self] 
         kws = {} 
         self.graphicsMode = GM_class(*args, **kws)
+        return
 
     def _post_init_modify_GraphicsMode(self):
         pass

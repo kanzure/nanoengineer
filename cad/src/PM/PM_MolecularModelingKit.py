@@ -131,6 +131,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         """
         PM_GroupBox.restoreDefault(self)
         self._updateAtomTypesButtons()
+        return
         
     def getElementNumber(self):
         """
@@ -165,16 +166,17 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         
     def setElement(self, elementNumber):
         """
-        Set the selected element to I{elementNumber}.
+        Set the current element in the MMKit to I{elementNumber}.
         
-        @param elementNumber: Element number.
+        @param elementNumber: Element number. (i.e. 6 = carbon)
         @type  elementNumber: int
         """
         self.element = self._periodicTable.getElement(elementNumber)
         self._updateAtomTypesButtons()
         self.updateElementViewer()
         self._updateParentPropMgr()
-            
+        return
+    
     def updateElementViewer(self):
         """
         Update the view in the element viewer (if present) 
@@ -187,6 +189,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         self.elementViewer.resetView()                
         self.elementViewer.changeHybridType(self.atomType)        
         self.elementViewer.refreshDisplay(self.element, self.viewerDisplay)
+        return
     
     def _updateParentPropMgr(self):
         """
