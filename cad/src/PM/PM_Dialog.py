@@ -25,25 +25,25 @@ from PM.PM_Colors import pmColor
 from PM.PM_Colors import pmHeaderFrameColor
 from PM.PM_Colors import pmHeaderTitleColor
 
-from PM.PM_Constants import pmMainVboxLayoutMargin
-from PM.PM_Constants import pmMainVboxLayoutSpacing
-from PM.PM_Constants import pmHeaderFrameMargin
-from PM.PM_Constants import pmHeaderFrameSpacing
-from PM.PM_Constants import pmHeaderFont
-from PM.PM_Constants import pmHeaderFontPointSize
-from PM.PM_Constants import pmHeaderFontBold
-from PM.PM_Constants import pmSponsorFrameMargin
-from PM.PM_Constants import pmSponsorFrameSpacing
-from PM.PM_Constants import pmTopRowBtnsMargin
-from PM.PM_Constants import pmTopRowBtnsSpacing
-from PM.PM_Constants import pmLeftAlignment
+from PM.PM_Constants import PM_MAINVBOXLAYOUT_MARGIN
+from PM.PM_Constants import PM_MAINVBOXLAYOUT_SPACING
+from PM.PM_Constants import PM_HEADER_FRAME_MARGIN
+from PM.PM_Constants import PM_HEADER_FRAME_SPACING
+from PM.PM_Constants import PM_HEADER_FONT
+from PM.PM_Constants import PM_HEADER_FONT_POINT_SIZE
+from PM.PM_Constants import PM_HEADER_FONT_BOLD
+from PM.PM_Constants import PM_SPONSOR_FRAME_MARGIN
+from PM.PM_Constants import PM_SPONSOR_FRAME_SPACING
+from PM.PM_Constants import PM_TOPROWBUTTONS_MARGIN
+from PM.PM_Constants import PM_TOPROWBUTTONS_SPACING
+from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT
 
-from PM.PM_Constants import pmAllButtons
-from PM.PM_Constants import pmDoneButton
-from PM.PM_Constants import pmCancelButton
-from PM.PM_Constants import pmRestoreDefaultsButton
-from PM.PM_Constants import pmPreviewButton
-from PM.PM_Constants import pmWhatsThisButton
+from PM.PM_Constants import PM_ALL_BUTTONS
+from PM.PM_Constants import PM_DONE_BUTTON
+from PM.PM_Constants import PM_CANCEL_BUTTON
+from PM.PM_Constants import PM_RESTORE_DEFAULTS_BUTTON
+from PM.PM_Constants import PM_PREVIEW_BUTTON
+from PM.PM_Constants import PM_WHATS_THIS_BUTTON
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QDialog
@@ -120,8 +120,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         # Main vertical layout for PropMgr.
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.setMargin(pmMainVboxLayoutMargin)
-        self.vBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
+        self.vBoxLayout.setMargin(PM_MAINVBOXLAYOUT_MARGIN)
+        self.vBoxLayout.setSpacing(PM_MAINVBOXLAYOUT_SPACING)
 
         # Add PropMgr's header, sponsor button, top row buttons and (hidden) 
         # message group box.
@@ -327,9 +327,9 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         # and label (title).
         HeaderFrameHLayout = QHBoxLayout(self.headerFrame)
         # 2 pixels around edges --
-        HeaderFrameHLayout.setMargin(pmHeaderFrameMargin) 
+        HeaderFrameHLayout.setMargin(PM_HEADER_FRAME_MARGIN) 
         # 5 pixel between pixmap and label. --
-        HeaderFrameHLayout.setSpacing(pmHeaderFrameSpacing) 
+        HeaderFrameHLayout.setSpacing(PM_HEADER_FRAME_SPACING) 
 
         # PropMgr icon. Set image by calling setHeaderIcon().
         self.headerIcon = QLabel(self.headerFrame)
@@ -345,7 +345,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.headerTitle = QLabel(self.headerFrame)
         headerTitlePalette = self._getHeaderTitlePalette()
         self.headerTitle.setPalette(headerTitlePalette)
-        self.headerTitle.setAlignment(pmLeftAlignment)
+        self.headerTitle.setAlignment(PM_LABEL_LEFT_ALIGNMENT)
 
         # Assign header title font.
         self.headerTitle.setFont(self._getHeaderFont())
@@ -365,9 +365,9 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         @rtype:  QFont
         """
         font = QFont()
-        font.setFamily(pmHeaderFont)
-        font.setPointSize(pmHeaderFontPointSize)
-        font.setBold(pmHeaderFontBold)
+        font.setFamily(PM_HEADER_FONT)
+        font.setPointSize(PM_HEADER_FONT_POINT_SIZE)
+        font.setBold(PM_HEADER_FONT_BOLD)
         return font
         
     def setHeaderTitle(self, title):
@@ -407,8 +407,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.sponsor_frame.setFrameShadow(QFrame.Plain)
 
         SponsorFrameGrid = QGridLayout(self.sponsor_frame)
-        SponsorFrameGrid.setMargin(pmSponsorFrameMargin)
-        SponsorFrameGrid.setSpacing(pmSponsorFrameSpacing) # Has no effect.
+        SponsorFrameGrid.setMargin(PM_SPONSOR_FRAME_MARGIN)
+        SponsorFrameGrid.setSpacing(PM_SPONSOR_FRAME_SPACING) # Has no effect.
 
         self.sponsor_btn = QPushButton(self.sponsor_frame)
         self.sponsor_btn.setAutoDefault(False)
@@ -462,8 +462,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         # Create Hbox layout for main frame.
         topRowBtnsHLayout = QHBoxLayout(self.topRowBtnsFrame)
-        topRowBtnsHLayout.setMargin(pmTopRowBtnsMargin)
-        topRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
+        topRowBtnsHLayout.setMargin(PM_TOPROWBUTTONS_MARGIN)
+        topRowBtnsHLayout.setSpacing(PM_TOPROWBUTTONS_SPACING)
         
         topRowBtnsHLayout.addItem(horizontalSpacer)
         
@@ -586,42 +586,42 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         @param pmButtonFlags: This enumerator describes the which buttons to 
                               hide, where:
         
-            - pmDoneButton            =  1
-            - pmCancelButton          =  2
-            - pmRestoreDefaultsButton =  4
-            - pmPreviewButton         =  8
-            - pmWhatsThisButton       = 16
-            - pmAllButtons            = 31
+            - PM_DONE_BUTTON            =  1
+            - PM_CANCEL_BUTTON          =  2
+            - PM_RESTORE_DEFAULTS_BUTTON =  4
+            - PM_PREVIEW_BUTTON         =  8
+            - PM_WHATS_THIS_BUTTON       = 16
+            - PM_ALL_BUTTONS            = 31
             
         @type  pmButtonFlags: int
         """
         
-        if pmButtonFlags & pmDoneButton: 
+        if pmButtonFlags & PM_DONE_BUTTON: 
             self.done_btn.hide()
         else: 
             self.done_btn.show()
             
-        if pmButtonFlags & pmCancelButton: 
+        if pmButtonFlags & PM_CANCEL_BUTTON: 
             self.cancel_btn.hide()
         else: 
             self.cancel_btn.show()
             
-        if pmButtonFlags & pmRestoreDefaultsButton: 
+        if pmButtonFlags & PM_RESTORE_DEFAULTS_BUTTON: 
             self.restore_defaults_btn.hide()
         else: 
             self.restore_defaults_btn.show()
             
-        if pmButtonFlags & pmPreviewButton: 
+        if pmButtonFlags & PM_PREVIEW_BUTTON: 
             self.preview_btn.hide()
         else: 
             self.preview_btn.show()
             
-        if pmButtonFlags & pmWhatsThisButton: 
+        if pmButtonFlags & PM_WHATS_THIS_BUTTON: 
             self.whatsthis_btn.hide()
         else: 
             self.whatsthis_btn.show()
         
-    def showTopRowButtons(self, pmButtonFlags = pmAllButtons):
+    def showTopRowButtons(self, pmButtonFlags = PM_ALL_BUTTONS):
         """
         Shows one or more top row buttons using <pmButtonFlags>.
         Button flags not set will cause the button to be hidden
@@ -630,17 +630,17 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         @param pmButtonFlags: this enumerator describes which buttons to 
         display, where:
         
-            - pmDoneButton            =  1
-            - pmCancelButton          =  2
-            - pmRestoreDefaultsButton =  4
-            - pmPreviewButton         =  8
-            - pmWhatsThisButton       = 16
-            - pmAllButtons            = 31
+            - PM_DONE_BUTTON            =  1
+            - PM_CANCEL_BUTTON          =  2
+            - PM_RESTORE_DEFAULTS_BUTTON =  4
+            - PM_PREVIEW_BUTTON         =  8
+            - PM_WHATS_THIS_BUTTON       = 16
+            - PM_ALL_BUTTONS            = 31
             
         @type  pmButtonFlags: int
         """
         
-        self.hideTopRowButtons(pmButtonFlags ^ pmAllButtons)
+        self.hideTopRowButtons(pmButtonFlags ^ PM_ALL_BUTTONS)
         
     def _getHeaderTitlePalette(self):
         """

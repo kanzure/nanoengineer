@@ -285,11 +285,11 @@ def _init_miscellaneous_commands():
     
     return
 
-def _set_mainwindow_splitter_position( win): 
+def _set_mainwindow_splitter_position(win): 
     # TODO: this function should be moved into some other module.
     """
     Set the position of the splitter between the MT and graphics area
-    so that the starting width of the property manager is "pmDefaultWidth"
+    so that the starting width of the property manager is "PM_DEFAULT_WIDTH"
     pixels.
 
     This should be called after all visible changes to the main window.
@@ -319,16 +319,16 @@ def _set_mainwindow_splitter_position( win):
     # I get the widths of the MT/PropMgr and glpane using wHSplitter.sizes().
     # These (2) widths add up and equal a "magic value". You can only feed
     # pwSplitter.setSizes() two values that add up to the "magic value".
-    # Since we want the default width of the PropMgr to be <pmDefaultWidth>,
-    # I compute the new glpane width = magic_combined_width - pmDefaultWidth.
+    # Since we want the default width of the PropMgr to be PM_DEFAULT_WIDTH,
+    # I compute the new glpane width = magic_combined_width - PM_DEFAULT_WIDTH.
     # Note: the resize is visible at startup.
 
     pw = win.activePartWindow()
-    from PM.PropMgr_Constants import pmDefaultWidth
+    from PM.PM_Constants import PM_DEFAULT_WIDTH
     w1, w2 = pw.pwSplitter.sizes()
     magic_combined_width = w1 + w2
-    new_glpane_width = magic_combined_width - pmDefaultWidth
-    pw.pwSplitter.setSizes([pmDefaultWidth, new_glpane_width])
+    new_glpane_width = magic_combined_width - PM_DEFAULT_WIDTH
+    pw.pwSplitter.setSizes([PM_DEFAULT_WIDTH, new_glpane_width])
     return
 
 def _initialize_plugin_generators(): #bruce 060621

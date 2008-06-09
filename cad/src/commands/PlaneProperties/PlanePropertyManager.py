@@ -17,7 +17,7 @@ from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_RadioButtonList import PM_RadioButtonList
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
-from PM.PM_Constants     import pmRestoreDefaultsButton
+from PM.PM_Constants     import PM_RESTORE_DEFAULTS_BUTTON
 from PM.PM_FileChooser   import PM_FileChooser
 from command_support.EditCommand_PM import EditCommand_PM
 import foundation.env as env
@@ -72,7 +72,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.resized_from_glpane = False
 
         # Hide Preview and Restore defaults button for Alpha9.
-        self.hideTopRowButtons(pmRestoreDefaultsButton)
+        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)
         # needed to figure out if the model has changed or not
         self.previousPMParams = None
         self.imageFile = ""

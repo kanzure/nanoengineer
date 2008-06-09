@@ -32,8 +32,8 @@ from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_ColorComboBox import PM_ColorComboBox
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
 from utilities.constants import diDNACYLINDER
 from utilities.constants import yellow, orange, red, magenta, cyan, blue
@@ -337,8 +337,8 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         msg = "Edit the color scheme for NE1, including the background color, "\
             "hover highlighting and selection colors, etc."

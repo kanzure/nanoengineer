@@ -36,8 +36,8 @@ from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
 from utilities.constants import diDNACYLINDER
 
@@ -337,8 +337,8 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         msg = "Modify the DNA display settings below."
         self.updateMessage(msg)

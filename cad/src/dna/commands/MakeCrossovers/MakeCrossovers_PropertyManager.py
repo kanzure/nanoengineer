@@ -18,8 +18,8 @@ from PM.PM_Dialog import PM_Dialog
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_PushButton import PM_PushButton
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_CheckBox      import PM_CheckBox
 
 
@@ -85,8 +85,8 @@ class MakeCrossovers_PropertyManager( PM_Dialog,
 
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         self.defaultLogMessage = """Pairs of white cylinders (if any) in the 
         3D workspace indicate potential crossover sites. Clicking on such a 

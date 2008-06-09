@@ -18,7 +18,7 @@ from PyQt4.Qt import QCheckBox
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QWidget
 
-from PM.PM_Constants import pmLeftColumn, pmRightColumn
+from PM.PM_Constants import PM_LEFT_COLUMN, PM_RIGHT_COLUMN
 
 from widgets.prefs_widgets import widget_connectWithState
 from widgets.prefs_widgets import QCheckBox_ConnectionWithState

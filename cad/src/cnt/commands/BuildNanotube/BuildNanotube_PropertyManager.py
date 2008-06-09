@@ -34,9 +34,9 @@ from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_Constants     import pmCancelButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from cnt.model.NanotubeSegment import NanotubeSegment
@@ -83,8 +83,8 @@ class BuildNanotube_PropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
     
     def connect_or_disconnect_signals(self, isConnect):
         """

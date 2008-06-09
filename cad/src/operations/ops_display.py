@@ -266,14 +266,24 @@ class displaySlotsMixin:
 
     def dispResetChunkColor(self):
         """
-        Resets the selected chunk's atom colors to the current element colors.
+        Resets the color of any selected jigs to their default color 
+        and the color of any selected chunk's to their atom's (default) 
+        element colors.
         """
-        if not self.assy.selmols: 
-            env.history.message(redmsg("Reset Chunk Color: No chunks selected."))
+        
+        _selectedChunks = self.assy.selmols
+        _selectedJigs = self.assy.getSelectedJigs()
+        
+        if not _selectedChunks and not _selectedJigs: 
+            env.history.message(redmsg("Reset Color: No chunks or jigs selected."))
             return
 
-        for chunk in self.assy.selmols:
+        for chunk in _selectedChunks:
             chunk.setcolor(None)
+            
+        for jig in _selectedJigs:
+            jig.color = jig.normcolor
+        
         self.glpane.gl_update()
 
     def dispResetAtomsDisplay(self):

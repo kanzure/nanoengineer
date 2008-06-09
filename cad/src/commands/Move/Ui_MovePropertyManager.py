@@ -24,8 +24,8 @@ from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 
-from PM.PM_Constants       import pmDoneButton
-from PM.PM_Constants       import pmWhatsThisButton
+from PM.PM_Constants       import PM_DONE_BUTTON
+from PM.PM_Constants       import PM_WHATS_THIS_BUTTON
 
 
 
@@ -58,7 +58,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
 
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)        
-        self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
+        self.showTopRowButtons(PM_DONE_BUTTON | PM_WHATS_THIS_BUTTON)
     
     def _addGroupBoxes(self):
         """

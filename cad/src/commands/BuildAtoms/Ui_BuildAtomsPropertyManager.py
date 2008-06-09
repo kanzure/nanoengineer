@@ -37,8 +37,8 @@ from PM.PM_PAM5_AtomChooser    import PM_PAM5_AtomChooser
 from PM.PM_PAM3_AtomChooser    import PM_PAM3_AtomChooser
 from PM.PM_PreviewGroupBox     import PM_PreviewGroupBox
 
-from PM.PM_Constants       import pmDoneButton
-from PM.PM_Constants       import pmWhatsThisButton
+from PM.PM_Constants       import PM_DONE_BUTTON
+from PM.PM_Constants       import PM_WHATS_THIS_BUTTON
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
@@ -105,7 +105,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
-        self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)        
+        self.showTopRowButtons(PM_DONE_BUTTON | PM_WHATS_THIS_BUTTON)        
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
 

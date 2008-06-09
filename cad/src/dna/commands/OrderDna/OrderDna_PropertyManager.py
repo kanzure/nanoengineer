@@ -21,8 +21,8 @@ from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ComboBox import PM_ComboBox
 from PM.PM_LineEdit import PM_LineEdit
 from PM.PM_PushButton import PM_PushButton
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
 from platform.PlatformDependent import find_or_make_Nanorex_subdir
 from platform.PlatformDependent import open_file_in_editor
@@ -99,8 +99,8 @@ class OrderDna_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         self.update_includeStrands() # Updates the message box.
         """

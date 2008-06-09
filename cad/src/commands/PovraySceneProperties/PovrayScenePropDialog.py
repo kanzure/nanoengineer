@@ -29,8 +29,8 @@ from the .ui file on this date:
 
 from PyQt4 import QtCore, QtGui
 from utilities.icon_utilities import geticon
-from PM.PropMgr_Constants import getHeaderFont
-from PM.PropMgr_Constants import pmLabelLeftAlignment
+#@from PM.PM_Constants import getHeaderFont
+#@from PM.PM_Constants import pmLabelLeftAlignment
 
 class Ui_PovrayScenePropDialog(object):
     def setupUi(self, PovrayScenePropDialog):
@@ -65,8 +65,8 @@ class Ui_PovrayScenePropDialog(object):
         self.hboxlayout.addWidget(self.heading_pixmap)
 
         self.heading_label = QtGui.QLabel(self.heading_frame)
-        self.heading_label.setFont(getHeaderFont())
-        self.heading_label.setAlignment(pmLabelLeftAlignment)
+        #@self.heading_label.setFont(getHeaderFont())
+        #@self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout.addWidget(self.heading_label)
         self.vboxlayout.addWidget(self.heading_frame)
 

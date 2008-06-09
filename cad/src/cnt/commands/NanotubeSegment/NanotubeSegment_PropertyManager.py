@@ -12,9 +12,9 @@ from PM.PM_GroupBox      import PM_GroupBox
 
 from command_support.DnaOrCnt_PropertyManager   import DnaOrCnt_PropertyManager
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_Constants     import pmCancelButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
@@ -73,9 +73,9 @@ class NanotubeSegment_PropertyManager( DnaOrCnt_PropertyManager ):
                                     editCommand)
 
         
-        self.showTopRowButtons( pmDoneButton | \
-                                pmCancelButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_CANCEL_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
     
     def connect_or_disconnect_signals(self, isConnect):
         """

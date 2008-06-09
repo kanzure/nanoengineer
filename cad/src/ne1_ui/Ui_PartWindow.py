@@ -29,7 +29,7 @@ import os
 from PyQt4.Qt import Qt, QWidget, QFrame, QVBoxLayout, QSplitter
 from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from graphics.widgets.GLPane import GLPane
-from PM.PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
+from PM.PM_Constants import PM_DEFAULT_WIDTH, PM_MAXIMUM_WIDTH, PM_MINIMUM_WIDTH
 from utilities.icon_utilities import geticon
 from modelTree.ModelTree import modelTree
 from utilities.qt4transition import qt4warnDestruction
@@ -117,7 +117,7 @@ class Ui_PartWindow(QWidget):
         self.updateWindowTitle()
         
         # Used in expanding or collapsing the Model Tree/ PM area
-        self._previous_pwLeftAreaWidth = pmDefaultWidth
+        self._previous_pwLeftAreaWidth = PM_DEFAULT_WIDTH
         
         # The main layout for the part window is a VBoxLayout <pwVBoxLayout>.
         self.pwVBoxLayout = QVBoxLayout(self)
@@ -145,8 +145,8 @@ class Ui_PartWindow(QWidget):
         self.pwLeftArea = QFrame()
         pwLeftArea = self.pwLeftArea
         pwLeftArea.setObjectName("pwLeftArea")
-        pwLeftArea.setMinimumWidth(pmMinWidth)
-        pwLeftArea.setMaximumWidth(pmMaxWidth)
+        pwLeftArea.setMinimumWidth(PM_MINIMUM_WIDTH)
+        pwLeftArea.setMaximumWidth(PM_MAXIMUM_WIDTH)
         pwLeftArea.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Fixed),
                         QSizePolicy.Policy(QSizePolicy.Expanding)))
@@ -321,7 +321,7 @@ class Ui_PartWindow(QWidget):
         showing how it is used.
 	"""
         if self._previous_pwLeftAreaWidth == 0:
-            self._previous_pwLeftAreaWidth = pmDefaultWidth
+            self._previous_pwLeftAreaWidth = PM_DEFAULT_WIDTH
         self.pwLeftArea.setMaximumWidth(
             self._previous_pwLeftAreaWidth)  
         self.pwSplitter.setMaximumWidth(self.pwLeftArea.width())

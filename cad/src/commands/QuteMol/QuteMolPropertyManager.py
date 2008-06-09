@@ -22,7 +22,7 @@ from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_Dialog        import PM_Dialog
 
-from PM.PM_Constants     import pmRestoreDefaultsButton, pmPreviewButton
+from PM.PM_Constants     import PM_RESTORE_DEFAULTS_BUTTON, PM_PREVIEW_BUTTON
 
 import foundation.env as env
 
@@ -78,7 +78,7 @@ class QuteMolPropertyManager(PM_Dialog):
         self.updateMessage(msg)
         
         # Hide Preview and Restore defaults button for Alpha9.
-        self.hideTopRowButtons(pmRestoreDefaultsButton | pmPreviewButton)
+        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON | PM_PREVIEW_BUTTON)
 
     def _addGroupBoxes(self):
         """

@@ -23,16 +23,16 @@ from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors import pmGrpBoxBorderColor
 from PM.PM_Colors import pmGrpBoxButtonColor
 
-from PM.PM_Constants import pmGroupBoxSpacing
-from PM.PM_Constants import pmGrpBoxVboxLayoutMargin
-from PM.PM_Constants import pmGrpBoxVboxLayoutSpacing
-from PM.PM_Constants import pmGrpBoxGridLayoutMargin
-from PM.PM_Constants import pmGrpBoxGridLayoutSpacing
+from PM.PM_Constants import PM_GROUPBOX_SPACING
+from PM.PM_Constants import PM_GROUPBOX_VBOXLAYOUT_MARGIN
+from PM.PM_Constants import PM_GROUPBOX_VBOXLAYOUT_SPACING
+from PM.PM_Constants import PM_GROUPBOX_GRIDLAYOUT_MARGIN
+from PM.PM_Constants import PM_GROUPBOX_GRIDLAYOUT_SPACING
 
-from PM.PM_Constants import pmGridLayoutMargin
-from PM.PM_Constants import pmGridLayoutSpacing
+from PM.PM_Constants import PM_GRIDLAYOUT_MARGIN
+from PM.PM_Constants import PM_GRIDLAYOUT_SPACING
 
-from PM.PM_Constants import pmLeftAlignment, pmRightAlignment
+from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
 
 from PyQt4.Qt import QGroupBox
 from PyQt4.Qt import QGridLayout
@@ -181,13 +181,13 @@ class PM_GroupBox( QGroupBox ):
         
         # Create vertical box layout
         self.vBoxLayout = QVBoxLayout(self._containerWidget)
-        self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-        self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+        self.vBoxLayout.setMargin(PM_GROUPBOX_VBOXLAYOUT_MARGIN)
+        self.vBoxLayout.setSpacing(PM_GROUPBOX_VBOXLAYOUT_SPACING)
         
         # Create grid layout
         self.gridLayout = QGridLayout()
-        self.gridLayout.setMargin(pmGridLayoutMargin)
-        self.gridLayout.setSpacing(pmGridLayoutSpacing)
+        self.gridLayout.setMargin(PM_GRIDLAYOUT_MARGIN)
+        self.gridLayout.setSpacing(PM_GRIDLAYOUT_SPACING)
         
         # Insert grid layout in its own vBoxLayout
         self.vBoxLayout.addLayout(self.gridLayout)
@@ -220,7 +220,7 @@ class PM_GroupBox( QGroupBox ):
         Method: Assume this is going to be the last group box in the PM, so set
         its spacer's vertical sizePolicy to MinimumExpanding. We then set the 
         vertical sizePolicy of the last group box's spacer to Fixed and set its
-        height to pmGroupBoxSpacing.
+        height to PM_GROUPBOX_SPACING.
         """
         # Spacers are only added to groupboxes in the PropMgr, not
         # nested groupboxes.
@@ -251,7 +251,7 @@ class PM_GroupBox( QGroupBox ):
             # _lastGroupBox, so we must change the verticalSpacer height 
             # and sizePolicy of _lastGroupBox to be a fixed
             # spacer between it and <self>.
-            defaultHeight = pmGroupBoxSpacing
+            defaultHeight = PM_GROUPBOX_SPACING
             self.parentWidget._lastGroupBox.verticalSpacer.changeSize(
                 10, defaultHeight, 
                 QSizePolicy.Fixed,
@@ -310,7 +310,7 @@ class PM_GroupBox( QGroupBox ):
         if not self.labelWidget:
             self.labelWidget = QLabel()
             self.vBoxLayout.insertWidget(0, self.labelWidget)
-            labelAlignment = pmLeftAlignment
+            labelAlignment = PM_LABEL_LEFT_ALIGNMENT
             self.labelWidget.setAlignment(labelAlignment)
         
         self._title = title
@@ -339,12 +339,12 @@ class PM_GroupBox( QGroupBox ):
                 widgetRow      = row
                 widgetColumn   = pmWidget.widgetColumn
                 widgetSpanCols = 1
-                widgetAlignment = pmLeftAlignment
+                widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
                 rowIncrement   = 1
                 #set a virtual label
                 labelRow       = row
                 labelSpanCols  = 1
-                labelAlignment = pmRightAlignment
+                labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
                             
                 if widgetColumn == 0:
                     labelColumn   = 1                              
@@ -355,13 +355,13 @@ class PM_GroupBox( QGroupBox ):
                 widgetRow      = row
                 widgetColumn   = pmWidget.widgetColumn
                 widgetSpanCols = 2
-                widgetAlignment = pmLeftAlignment
+                widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
                 rowIncrement   = 1
                 #no label 
                 labelRow       = 0
                 labelColumn    = 0
                 labelSpanCols  = 0
-                labelAlignment = pmRightAlignment
+                labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
                 
             
             return widgetRow, \
@@ -383,18 +383,18 @@ class PM_GroupBox( QGroupBox ):
             # This widget and its label are on the same row
             labelRow       = row
             labelSpanCols  = 1
-            labelAlignment = pmRightAlignment
+            labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
             # Set the widget's row and column parameters.
             widgetRow      = row
             widgetColumn   = 1
             widgetSpanCols = 1
-            widgetAlignment = pmLeftAlignment
+            widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
             rowIncrement   = 1
             
             if labelColumn == 1:
                 widgetColumn   = 0
-                labelAlignment = pmLeftAlignment
-                widgetAlignment = pmRightAlignment
+                labelAlignment = PM_LABEL_LEFT_ALIGNMENT
+                widgetAlignment = PM_LABEL_RIGHT_ALIGNMENT
                         
         else: 
                       
@@ -423,8 +423,8 @@ class PM_GroupBox( QGroupBox ):
                 widgetSpanCols = 2
                 rowIncrement   = 1
                 
-            labelAlignment = pmLeftAlignment
-            widgetAlignment = pmLeftAlignment
+            labelAlignment = PM_LABEL_LEFT_ALIGNMENT
+            widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
                 
         return widgetRow, \
                widgetColumn, \
@@ -484,7 +484,7 @@ class PM_GroupBox( QGroupBox ):
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
 
-        if widgetAlignment == pmLeftAlignment:
+        if widgetAlignment == PM_LABEL_LEFT_ALIGNMENT:
             self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,
@@ -575,10 +575,10 @@ class PM_GroupBox( QGroupBox ):
         Expand this group box i.e. show all its contents and change the look 
         and feel of the groupbox button. 
         """       
-        self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-        self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
-        self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
-        self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
+        self.vBoxLayout.setMargin(PM_GROUPBOX_VBOXLAYOUT_MARGIN)
+        self.vBoxLayout.setSpacing(PM_GROUPBOX_VBOXLAYOUT_SPACING)
+        self.gridLayout.setMargin(PM_GROUPBOX_GRIDLAYOUT_MARGIN)
+        self.gridLayout.setSpacing(PM_GROUPBOX_GRIDLAYOUT_SPACING)
             
         # The styleSheet contains the expand/collapse.
         styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)

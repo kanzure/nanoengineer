@@ -21,7 +21,7 @@ from PyQt4.Qt import Qt, QWidget, QVBoxLayout, QGridLayout
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_CheckBox import PM_CheckBox
-from PM.PM_Constants import pmLeftAlignment, pmRightAlignment
+from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
 from utilities.icon_utilities import getpixmap
 
 class PM_DockWidget(QDockWidget):
@@ -143,12 +143,12 @@ class PM_DockWidget(QDockWidget):
             widgetRow      = row
             widgetColumn   = pmWidget.widgetColumn
             widgetSpanCols = 1
-            widgetAlignment = pmLeftAlignment
+            widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
             rowIncrement   = 1
             #set a virtual label
             labelRow       = row
             labelSpanCols  = 1
-            labelAlignment = pmRightAlignment
+            labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
                         
             if widgetColumn == 0:
                 labelColumn   = 1                              
@@ -174,18 +174,18 @@ class PM_DockWidget(QDockWidget):
             # This widget and its label are on the same row
             labelRow       = row
             labelSpanCols  = 1
-            labelAlignment = pmRightAlignment
+            labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
             # Set the widget's row and column parameters.
             widgetRow      = row
             widgetColumn   = 1
             widgetSpanCols = 1
-            widgetAlignment = pmLeftAlignment
+            widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
             rowIncrement   = 1
             
             if labelColumn == 1:
                 widgetColumn   = 0
-                labelAlignment = pmLeftAlignment
-                widgetAlignment = pmRightAlignment
+                labelAlignment = PM_LABEL_LEFT_ALIGNMENT
+                widgetAlignment = PM_LABEL_RIGHT_ALIGNMENT
                         
         else: 
                       
@@ -214,8 +214,8 @@ class PM_DockWidget(QDockWidget):
                 widgetSpanCols = 2
                 rowIncrement   = 1
                 
-            labelAlignment = pmLeftAlignment
-            widgetAlignment = pmLeftAlignment
+            labelAlignment = PM_LABEL_LEFT_ALIGNMENT
+            widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
                 
         return (widgetRow, 
                 widgetColumn, 
@@ -272,7 +272,7 @@ class PM_DockWidget(QDockWidget):
         # value that can be supplied to maintain the behavior (0 doesn't 
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
-        if widgetAlignment == pmLeftAlignment:
+        if widgetAlignment == PM_LABEL_LEFT_ALIGNMENT:
             self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,

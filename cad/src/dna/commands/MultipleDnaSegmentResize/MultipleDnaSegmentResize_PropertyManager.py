@@ -15,8 +15,8 @@ from PyQt4.Qt import Qt, SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_WidgetRow     import PM_WidgetRow
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
@@ -68,8 +68,8 @@ class MultipleDnaSegmentResize_PropertyManager( EditCommand_PM, DebugMenuMixin )
 
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         msg = "Use resize handles to resize the segments."
         self.updateMessage(msg)   

@@ -12,7 +12,7 @@ mark 2007-07-22: Split PropMgrTextEdit out of PropMgrBaseClass.py into this
 file and renamed it PM_TextEdit.
 """
 
-from PM.PM_Constants import pmMinWidth
+from PM.PM_Constants import PM_MINIMUM_WIDTH
 
 ##from PM.PM_Colors    import getPalette
 ##from PM.PM_Colors    import pmMessageBoxColor
@@ -258,7 +258,7 @@ class PM_TextEdit( QTextEdit ):
             print "current_width (of PM_TextEdit)=", current_width
         
         # Reset height of PM_TextEdit.
-        self.setMinimumSize(QSize(pmMinWidth * 0.5, new_height))
+        self.setMinimumSize(QSize(PM_MINIMUM_WIDTH * 0.5, new_height))
         self.setMaximumHeight(new_height)
     
     def restoreDefault(self):

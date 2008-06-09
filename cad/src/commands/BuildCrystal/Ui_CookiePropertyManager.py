@@ -29,9 +29,9 @@ from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_WidgetRow     import PM_WidgetRow
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_Constants     import pmCancelButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
+from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 from utilities.icon_utilities import geticon
 
@@ -79,9 +79,9 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
-        self.showTopRowButtons( pmDoneButton | \
-                                pmCancelButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_CANCEL_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         
         msg = ''

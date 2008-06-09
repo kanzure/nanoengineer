@@ -533,7 +533,6 @@ packageMapping_for_files = {
 
     "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation
     "Process"                          : "io|processes",
-    "PropMgr_Constants"                : "PM",
     "PyrexSimulator"                   : "io|simulation",
     
     "qt4transition"                    : "utilities",
@@ -823,7 +822,6 @@ needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
 
     # deprecated files
     "GroupButtonMixin"  : "GroupButtonMixin_deprecated?",
-    "PropMgr_Constants" : "PropMgr_Constants_deprecated?",
 
 ##    # kluge: use fake renamings to add notes for the listing
 ##    "JobManager" : "(should be processes or own package -- import cycle issue)",

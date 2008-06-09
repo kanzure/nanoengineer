@@ -23,8 +23,8 @@ from PyQt4.Qt import Qt
 from command_support.DnaOrCnt_PropertyManager import DnaOrCnt_PropertyManager
 
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
@@ -87,8 +87,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
 
 
         
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
         self._loadSequenceEditor()
         

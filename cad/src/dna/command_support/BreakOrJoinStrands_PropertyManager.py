@@ -21,8 +21,8 @@ from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_ColorComboBox import PM_ColorComboBox
 
-from PM.PM_Constants     import pmDoneButton
-from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_Constants     import PM_DONE_BUTTON
+from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 
 from utilities.prefs_constants import arrowsOnBackBones_prefs_key
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
@@ -55,8 +55,8 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         
         DebugMenuMixin._init1( self )
 
-        self.showTopRowButtons( pmDoneButton | \
-                                pmWhatsThisButton)
+        self.showTopRowButtons( PM_DONE_BUTTON | \
+                                PM_WHATS_THIS_BUTTON)
         
                 
         
