@@ -70,6 +70,10 @@ from utilities.prefs_constants import selectionColor_prefs_key
 from graphics.drawing.gl_lighting import isPatternedDrawing
 from graphics.drawing.gl_lighting import startPatternedDrawing
 from graphics.drawing.gl_lighting import endPatternedDrawing
+from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
+from utilities.prefs_constants import HHS_HALO
+from utilities.prefs_constants import selectionColorStyle_prefs_key
+from utilities.prefs_constants import SS_HALO
 
 import graphics.drawing.drawing_globals as drawing_globals
 if drawing_globals.quux_module_import_succeeded:
@@ -121,38 +125,47 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         @param highlight_color: Option to over-ride the highlight color set in the color scheme preferences.
         """
-        patterned = patterning and isPatternedDrawing(select = selected,
-                                                      highlight = highlighted)
-        if patterned:
-            # Patterned highlighting or selection drawing needs a normal draw
-            # done first to overlay with the pattern.  When doing patterned
-            # highlighting over a selected object, the selected_dl is called.
+
+        patterned_highlighting = (patterning and
+                                  isPatternedDrawing(highlight = highlighted))
+        halo_selection = (selected and
+                          env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
+        halo_highlighting = (highlighted and
+                 env.prefs[hoverHighlightingColorStyle_prefs_key] == HHS_HALO)
+        # Normal or selected drawing are done before a patterned highlight
+        # overlay, and also when not highlighting at all.  You'd think that when
+        # we're drawing a solid highlight appearance, there'd be no need to draw
+        # the normal appearance first, because it will be obscured by the
+        # highlight.  But halo selection extends beyond the object and is only
+        # obscured by halo highlighting.  [russ 080610]
+        if (patterned_highlighting or not highlighted or
+               (halo_selection and not halo_highlighting)) :
             if selected:
+                # Draw the selected appearance.  If the selection mode is
+                # patterned, the selected_dl does first normal drawing and then
+                # draws an overlay.
                 glCallList(self.selected_dl)
             else:
+                # Plain, old, solid drawing of the base object appearance.
                 glCallList(self.color_dl)
                 pass
 
-            # Set up a patterned drawing mode for the following draw.
-            startPatternedDrawing(select = selected, highlight = highlighted)
-            pass
-
         if highlighted:
-            # Draw highlighted (solid, or in an overlay pattern set up above.)
-            apply_material( highlight_color is not None and highlight_color
-                            or env.prefs[hoverHighlightingColor_prefs_key])
-            glCallList(self.nocolor_dl)
-        elif selected:
-            # Draw the selected appearance.  If the selection mode is patterned,
-            # the selected_dl does first normal drawing and then an overlay.
-            glCallList(self.selected_dl)
-        else:
-            # Plain, old, solid drawing of the base object appearance.
-            glCallList(self.color_dl)
+            if patterned_highlighting:
+                # Set up a patterned drawing mode for the following draw.
+                startPatternedDrawing(highlight = highlighted)
+                pass
 
-        if patterned:
-            # Reset from a patterned drawing mode set up above.
-            endPatternedDrawing(select = selected, highlight = highlighted)
+            # Draw a highlight overlay (solid, or in an overlay pattern.)
+            apply_material(highlight_color is not None and highlight_color
+                           or env.prefs[hoverHighlightingColor_prefs_key])
+            glCallList(self.nocolor_dl)
+
+            if patterned_highlighting:
+                # Reset from a patterned drawing mode set up above.
+                endPatternedDrawing(highlight = highlighted)
+                pass
+
             pass
         return
 
