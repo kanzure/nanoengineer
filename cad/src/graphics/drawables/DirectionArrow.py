@@ -137,12 +137,14 @@ class DirectionArrow(DragHandler_API, Selobj_API):
             #(i.e. use V(0,0,1)). This will change if we decide to draw the 
             #direction arrow outside of the parent object 
             #requesting this drawing.--ninad 20070612
-            
-            ##headPoint = self.tailPoint + V(0,0,1) * 2.0
-            headPoint = self.tailPoint + 2.0 * norm(self.parent.getaxis())
+            #Using headPoint = self.tailPoint + V(0,0,1) * 2.0 etc along with 
+	    #the transformation matrix in self.draw_in_abs_coordinate()
+	    #fixes bug 2702 and 2703 -- Ninad 2008-06-11
+            headPoint = self.tailPoint + V(0,0,1) * 2.0
+            ##headPoint = self.tailPoint + 2.0 * norm(self.parent.getaxis())
         else:            
-            ##headPoint = self.tailPoint - V(0,0,1) * 2.0
-            headPoint = self.tailPoint - 2.0 * self.parent.getaxis()
+            headPoint = self.tailPoint - V(0,0,1) * 2.0
+            ##headPoint = self.tailPoint - 2.0 * self.parent.getaxis()
         
          
         
@@ -164,12 +166,23 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @type  glpane: L{GLPane}
         @param color: Highlight color 
         """    
+        q = self.parent.quat 	 
+	glPushMatrix() 	 
+	glTranslatef( self.parent.center[0], 	 
+		      self.parent.center[1], 	 
+		      self.parent.center[2]) 	 
+	glRotatef( q.angle * ONE_RADIAN, 	 
+		   q.x, 	 
+		   q.y, 	 
+		   q.z)
                   
         if self.flipDirection:            
             self._draw(flipDirection = self.flipDirection, 
                        highlighted   = True)    
         else:
             self._draw(highlighted   = True)
+	
+	glPopMatrix()
         
     ###=========== Drag Handler interface Starts =============###
     #@TODO Need some documentation. Basically it implements the drag handler 
