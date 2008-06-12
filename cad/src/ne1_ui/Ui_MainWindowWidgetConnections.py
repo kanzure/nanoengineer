@@ -254,6 +254,9 @@ def setupUi(win):
     win.connect(win.fileExportOpenBabelAction,
                 SIGNAL("triggered()"),
                 win.fileOpenBabelExport)
+    win.connect(win.fileExportIOSAction,
+                SIGNAL("triggered()"),
+                win.fileIOSExport)
     win.connect(win.viewIsometricAction,SIGNAL("triggered()"),win.viewIsometric)
     win.connect(win.modifyMirrorAction,SIGNAL("triggered()"),win.modifyMirror)
     win.connect(win.setViewZoomtoSelectionAction,SIGNAL("triggered()"),win.setViewZoomToSelection)
