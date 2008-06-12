@@ -29,6 +29,7 @@ def setupUi(win):
     win.exportMenu.addAction(win.fileExportAmdlAction)
     win.exportMenu.addSeparator()
     win.exportMenu.addAction(win.fileExportOpenBabelAction)
+    win.exportMenu.addAction(win.fileExportIOSAction)
     
     # Populate the "File" menu.
     win.fileMenu.addAction(win.fileOpenAction)
