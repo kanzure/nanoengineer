@@ -46,7 +46,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
     The DirectionArrow class provides a 3D direction arrow that can be
     interacted with in the 3D graphics area. The direction arrow object
     is created in its parent class. (class corresponding to self.parent)
-    
+
     Example: Used to generate a plane offset to the selected plane, 
              in the direction indicated by the direction arrow.
              Clicking on the arrow reverses its direction and 
@@ -55,16 +55,16 @@ class DirectionArrow(DragHandler_API, Selobj_API):
     def __init__(self, parent, glpane, tailPoint, defaultDirection):
         """
         Creates a direction arrow.
-        
+
         @param parent: The parent object.
         @type  parent:
-        
+
         @param glpane: The 3D graphics area object.
         @type  glpane: L{GLPane}
-        
+
         @param tailPoint: The origin of the arrow.
         @type  tailPoint: V
-        
+
         @param defaultDirection: The direction of the arrow.
         @type  defaultDirection: 
         """
@@ -75,7 +75,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         self.glname = env.alloc_my_glselect_name(self)  
         self.flipDirection = False
         self.drawRequested = False
-    
+
     def setDrawRequested(self, bool_request = False):
         """
         Sets the draw request for drawing the direction arrow. 
@@ -86,7 +86,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @type  bool_request: bool
         """
         self.drawRequested = bool_request
-    
+
     def isDrawRequested(self): 
         """ 
         Returns the flag that decides whether to draw the direction arrow. 
@@ -94,7 +94,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @rtype  instance variable B{self.drawRequested}
         """
         return self.drawRequested 
-             
+
     def draw(self):
         """ 
         Draw the direction arrow. (This method is called inside of the 
@@ -112,7 +112,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         else:
             glPopName()        
         pass
-    
+
     def _draw(self, flipDirection = False, highlighted = False):
         """ Main drawing code. 
         @param flipDirection: This flag decides the direction in which the 
@@ -122,9 +122,9 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @param highlighted: Decids the color of the arrow based on whether 
                it is highlighted. The default value is 'False'
         @type  highlighted: bool
-        
+
         """
-               
+
         if highlighted:
             color = orange
         else:
@@ -138,27 +138,27 @@ class DirectionArrow(DragHandler_API, Selobj_API):
             #direction arrow outside of the parent object 
             #requesting this drawing.--ninad 20070612
             #Using headPoint = self.tailPoint + V(0,0,1) * 2.0 etc along with 
-	    #the transformation matrix in self.draw_in_abs_coordinate()
-	    #fixes bug 2702 and 2703 -- Ninad 2008-06-11
+            #the transformation matrix in self.draw_in_abs_coordinate()
+            #fixes bug 2702 and 2703 -- Ninad 2008-06-11
             headPoint = self.tailPoint + V(0,0,1) * 2.0
             ##headPoint = self.tailPoint + 2.0 * norm(self.parent.getaxis())
         else:            
             headPoint = self.tailPoint - V(0,0,1) * 2.0
             ##headPoint = self.tailPoint - 2.0 * self.parent.getaxis()
-        
-         
-        
+
+
+
         vec = vlen(headPoint - self.tailPoint)
         vec = self.glpane.scale*0.07*vec
         tailRadius = vlen(vec)*0.16
-       
+
         drawDirectionArrow(color, 
                            self.tailPoint, 
                            headPoint,
                            tailRadius,
                            self.glpane.scale,
                            flipDirection = flipDirection)
- 
+
     def draw_in_abs_coords(self, glpane, color):
         """
         Draw the handle as a highlighted object.
@@ -167,53 +167,53 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @param color: Highlight color 
         """    
         q = self.parent.quat 	 
-	glPushMatrix() 	 
-	glTranslatef( self.parent.center[0], 	 
-		      self.parent.center[1], 	 
-		      self.parent.center[2]) 	 
-	glRotatef( q.angle * ONE_RADIAN, 	 
-		   q.x, 	 
-		   q.y, 	 
-		   q.z)
-                  
+        glPushMatrix() 	 
+        glTranslatef( self.parent.center[0], 	 
+                      self.parent.center[1], 	 
+                      self.parent.center[2]) 	 
+        glRotatef( q.angle * ONE_RADIAN, 	 
+                   q.x, 	 
+                   q.y, 	 
+                   q.z)
+
         if self.flipDirection:            
             self._draw(flipDirection = self.flipDirection, 
                        highlighted   = True)    
         else:
             self._draw(highlighted   = True)
-	
-	glPopMatrix()
-        
+
+        glPopMatrix()
+
     ###=========== Drag Handler interface Starts =============###
     #@TODO Need some documentation. Basically it implements the drag handler 
     #interface described in DragHandler.py See also exprs.Highlightable.py
     # -- ninad 20070612
     def handles_updates(self): 
         return True
-            
+
     def DraggedOn(self, event, mode): 
         return
-    
+
     def ReleasedOn(self, selobj, event, mode): 
         pass
-    
+
     # =========== Drag Handler interface Ends =============
-    
+
     # ============== selobj interface Starts ==============
-        
+
     #@TODO Need some documentation. Basically it implements the selobj 
     # interface mentioned in exprs.Highlightable.py -- ninad 2007-06-12
-    
+
     def leftClick(self, point, event, mode):
         """
         Left clicking on the DirectionArrow flips its direction.
-        
+
         @param point: not used for now.
         @type  point: V
-        
+
         @param event: Left down event.
         @type  event: QEvent
-        
+
         @param mode: Current mode program is in.
         @type  mode: L{anyMode}
         """
@@ -226,16 +226,16 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         """
         Returns the statusbar message to display when the cursor is over the
         direction arrow in the 3D graphics area.
-        
+
         @return: The statusbar message
         @rtype:  str
         """
         msg1 = "Click on arrow to flip its direction"
         return msg1 
-        
+
     def highlight_color_for_modkeys(self, modkeys):
         return orange
-    
+
     # Copied Bruce's code from class Highlightable with some mods. 
     # Need to see if selobj_still_ok() is needed. OK for now.
     # --Ninad 2007-05-31
@@ -255,7 +255,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self
         return res
-        
+
         ###============== selobj interface Ends===============###
-               
+
     pass
