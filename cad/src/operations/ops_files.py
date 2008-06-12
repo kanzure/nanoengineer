@@ -44,9 +44,12 @@ from simulation.runSim import readGromacsCoordinates
 from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
 from files.mmp.files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
+from  files.ios.files_ios import exportToIOSFormat
+
 from graphics.rendering.fileIO import writepovfile
 from graphics.rendering.fileIO import writemdlfile
 from graphics.rendering.qutemol.qutemol import write_qutemol_pdb_file
+
 
 from utilities.debug import print_compact_traceback
 from utilities.debug import linenum
@@ -286,6 +289,46 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Update the current working directory (CWD).
             #dir, fil = os.path.split(import_filename)
             #self.setCurrentWorkingDirectory(dir)
+    
+    def fileIOSExport(self): #Urmi 20080610
+        """
+        Slot method for 'File > Export'.
+        Creates File in IOS format to be used by Parabon Computation Inc 
+        Optimizer from the NE-1 model.
+        """
+        
+        cmd = greenmsg("Export File: ")
+        
+        
+        if hasattr(self.assy.part.topnode, 'members'):
+            numberOfMembers = len(self.assy.part.topnode.members)
+        else:
+            #Its a clipboard part, probably a chunk or a jig not contained in 
+            #a group.
+            numberOfMembers = 1
+        
+        if numberOfMembers == 0:
+            print "Nothing to export"
+            return
+        
+        currentFilename = self.getCurrentFilename()
+        sfilter = QString("Extensive Markup Language (*.xml)")
+        formats = \
+            "Extensive Markup Language (*.xml);;"
+        export_filename = \
+            QFileDialog.getSaveFileName(self, 
+                                        "Export File", 
+                                        currentFilename,
+                                        formats,
+                                        sfilter
+                                       )
+        if not export_filename:
+            env.history.message(cmd + "Cancelled")
+        export_filename = str(export_filename)  + ".xml"
+        
+        exportToIOSFormat(self.assy.part, export_filename)
+        return
+            
             
     def fileOpenBabelExport(self): # Fixed up by Mark. 2007-06-05
         """
