@@ -88,6 +88,10 @@ def setupUi(win):
     win.fileExportOpenBabelAction = QtGui.QAction(MainWindow)
     win.fileExportOpenBabelAction.setObjectName("fileExportOpenBabelAction")
 
+    win.fileExportIOSAction = QtGui.QAction(MainWindow)
+    win.fileExportIOSAction.setObjectName("fileExportIOSAction")
+    
+    
     # This action (i.e. the "Set Working Directory" menu item) was removed from 
     # the File menu for Alpha 9 since it was deemed undesireable.
     # If you want a full explanation, ask me. Mark 2007-12-30.
@@ -1023,7 +1027,23 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileExportOpenBabelAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel export", None, QtGui.QApplication.UnicodeUTF8))        
+            "MainWindow", "Open Babel export", None, QtGui.QApplication.UnicodeUTF8))    
+    
+    #ios export
+    win.fileExportIOSAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS export...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileExportIOSAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileExportIOSAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS export", None, QtGui.QApplication.UnicodeUTF8))   
+    
+    
+    
     win.fileExitAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
