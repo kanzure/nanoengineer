@@ -34,8 +34,14 @@ class PM_DockWidget(QDockWidget):
     """   
         
     
-    def __init__(self, parentWidget, title = ""):
+    def __init__(self, parentWidget, title = "", showWidget = True):
         """
+        Constructor for PM_dockWidget
+        
+        @param showWidget: If true, this class will show the widget 
+        immediately in the __init__ method itself. This is the default behavior 
+        and subclasses may pass appropriate value to this flag
+        @type showWidget: bool
         """
         self.labelWidget  = None    
         self._title         = ""
@@ -59,7 +65,7 @@ class PM_DockWidget(QDockWidget):
             
         self.setEnabled(True) 
         self.setFloating(False)
-        self.setVisible(True)
+        self.setVisible(showWidget)
         self.setWindowTitle(self._title)
         self.setAutoFillBackground(True)
         self.setPalette(getPalette( None,
