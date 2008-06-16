@@ -32,7 +32,7 @@ from OpenGL.GL import GL_TEXTURE_2D
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
-
+from graphics.drawing.draw_grid_lines import drawGPGrid
 from graphics.drawing.drawers import drawHeightfield
 from utilities.constants import black, orange, yellow, brown
 
@@ -145,9 +145,18 @@ class Plane(ReferenceGeometry):
         self.display_heightfield = False
         self.heightfield_hq = False
         
+        #related to grid
+        
+        self.showGrid = False
+        self.gridColor = yellow
+        self.gridLineType = 3
+        self.gridXSpacing = 5.0
+        self.gridYSpacing = 5.0       
+        
+        
         if not READ_FROM_MMP:
-            self.width      =  10.0 # piotr 080605 - change default dimensions to square
-            self.height     =  10.0
+            self.width      =  15.0 # piotr 080605 - change default dimensions to square
+            self.height     =  15.0  #Urmi 080616 -increased default size for better viewing of grid
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
             self.directionArrow = DirectionArrow(self, 
@@ -315,7 +324,14 @@ class Plane(ReferenceGeometry):
             fill_color = brown #backside
         else:
             fill_color = self.fill_color
+         
+        # Urmi-20080613: display grid lines on the plane
         
+        if self.showGrid == True:
+            drawGPGrid(self.glpane, self.gridColor, self.gridLineType, self.width, self.height, self.gridXSpacing, self.gridYSpacing,
+                       self.quat.unrot(self.glpane.up), self.quat.unrot(self.glpane.right))
+            self.glpane.gl_update()
+            
         textureReady = False
         if self.tex_image:
             textureReady = True
