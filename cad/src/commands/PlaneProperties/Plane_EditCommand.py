@@ -182,9 +182,20 @@ class Plane_EditCommand(EditCommand):
             ctr     =  self.struct.center 
         else:
             ctr = None
-        imagePath = self.propMgr.imageFile    
-        return (width, height, ctr, atmList, imagePath)
+        imagePath = self.propMgr.imageFile  
+        
+        #gather grid related values
+        showGrid = self.propMgr.gridPlaneCheckBox.isChecked()
+        gridColor = self.propMgr.gridColor
+        gridXSpacing = self.propMgr.gridXSpacing
+        gridYSpacing = self.propMgr.gridYSpacing
+        gridLineType = self.propMgr.gridLineType
+        
+        return (width, height, ctr, atmList, imagePath, showGrid, gridColor, gridLineType, gridXSpacing, 
+                gridYSpacing)
 
+       
+        
     def _createStructure(self):
         """
         Create a Plane object. (The model object which this edit controller 
@@ -206,12 +217,19 @@ class Plane_EditCommand(EditCommand):
         """
         assert self.struct
         assert params 
-        assert len(params) == 5             
-
-        width, height, center_junk, atmList_junk, imagePath = params
+        assert len(params) == 10             
+        width, height, center_junk, atmList_junk, imagePath, showGrid, gridColor, gridLineType, gridXSpacing, gridYSpacing = params
+      
+       
         self.struct.width   =  width        
         self.struct.height  =  height 
         self.struct.imagePath = imagePath
+        
+        self.struct.showGrid = showGrid
+        self.struct.gridColor = gridColor
+        self.struct.gridLineType = gridLineType
+        self.struct.gridXSpacing = gridXSpacing
+        self.struct.gridYSpacing = gridYSpacing
         
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
