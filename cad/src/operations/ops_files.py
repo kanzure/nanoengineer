@@ -324,7 +324,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                        )
         if not export_filename:
             env.history.message(cmd + "Cancelled")
-        export_filename = str(export_filename)  + ".xml"
+            return
+        dir, fil, ext = _fileparse(str(export_filename))
+        
+        if ext == "":
+            export_filename = str(export_filename)  + ".xml"
         
         exportToIOSFormat(self.assy.part, export_filename)
         return
