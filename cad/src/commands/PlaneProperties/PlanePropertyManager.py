@@ -19,9 +19,13 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
 from PM.PM_Constants     import PM_RESTORE_DEFAULTS_BUTTON
 from PM.PM_FileChooser   import PM_FileChooser
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ComboBox import PM_ComboBox
+from PM.PM_ColorComboBox import PM_ColorComboBox
 from command_support.EditCommand_PM import EditCommand_PM
 import foundation.env as env
-
+from utilities.constants import yellow, orange, red, magenta
+from utilities.constants import cyan, blue, white, black, gray
 
 # Placement Options radio button list to create radio button list.
 # Format: buttonId, buttonText, tooltip
@@ -76,6 +80,11 @@ class PlanePropertyManager(EditCommand_PM):
         # needed to figure out if the model has changed or not
         self.previousPMParams = None
         self.imageFile = ""
+        self.gridColor = black
+        self.gridXSpacing = 5.0
+        self.gridYSpacing = 5.0
+        self.gridLineType = 3
+        
         
     def _addGroupBoxes(self):
         """
@@ -97,8 +106,235 @@ class PlanePropertyManager(EditCommand_PM):
         #image groupbox
         self.pmGroupBox2 = PM_GroupBox(self, title = "Image")
         self._loadGroupBox2(self.pmGroupBox2)
+        
+        #grid plane groupbox
+        self.pmGroupBox3 = PM_GroupBox(self, title = "Grid")
+        self._loadGroupBox3(self.pmGroupBox3)
 
+    def _loadGroupBox3(self, pmGroupBox):
+        """
+        Load widgets in the grid plane group box.
 
+        @param pmGroupBox: The grid  group box in the PM.
+        @type  pmGroupBox: L{PM_GroupBox}
+        """
+        self.gridPlaneCheckBox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "Show grid",
+                         widgetColumn  = 0,
+                         state        = Qt.Unchecked,
+                         setAsDefault = True,
+                         spanWidth = True
+                         )
+        
+        self.gpXSpacingDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "X Spacing:",
+                              value         =  5.000,
+                              setAsDefault  =  True,
+                              minimum       =  1.00,
+                              maximum       =  200.0,
+                              decimals      =  3,
+                              singleStep    =  1.0, 
+                              spanWidth = False)
+        
+        self.gpYSpacingDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Y Spacing:",
+                              value         =  5.000,
+                              setAsDefault  =  True,
+                              minimum       =  1.00,
+                              maximum       =  200.0,
+                              decimals      =  3,
+                              singleStep    =  1.0, 
+                              spanWidth = False)
+        
+        lineTypeChoices =[ 'Dotted (default)',
+                           'Dashed',
+                           'Solid'
+                        ]
+                        
+        self.gpLineTypeComboBox = \
+            PM_ComboBox( pmGroupBox ,     
+                         label         =  "Line type:", 
+                         choices       =  lineTypeChoices,
+                         setAsDefault  =  True)
+        
+        hhColorList = [black, orange, red, magenta, 
+                       cyan, blue, white, yellow, gray]
+        hhColorNames = ["Black (default)", "Orange", "Red", "Magenta", 
+                        "Cyan", "Blue", "White", "Yellow", "Other color..."]
+    
+        self.gpColorTypeComboBox = \
+            PM_ColorComboBox(pmGroupBox,
+                             colorList = hhColorList,
+                             colorNames = hhColorNames,
+                             color = black
+                             )
+                        
+        
+        
+        self.pmGroupBox5 = PM_GroupBox(pmGroupBox)
+        
+        self.gpDisplayLabels =\
+            PM_CheckBox(self.pmGroupBox5,
+                         text         = "Display labels",
+                         widgetColumn  = 0,
+                         state        = Qt.Unchecked,
+                         setAsDefault = True,
+                         spanWidth = False)
+        
+        originChoices =['Lower left (default)',
+                        'Upper left',
+                        'Lower right',
+                        'Upper right'
+                        ]
+                        
+        self.gpOriginComboBox = \
+            PM_ComboBox( self.pmGroupBox5 ,     
+                         label         =  "Origin:", 
+                         choices       =  originChoices,
+                         setAsDefault  =  True)
+        
+        positionChoices =['Along origin axes (default)',
+                        'Around plane edges'
+                        ]
+                        
+        self.gpPositionComboBox = \
+            PM_ComboBox( self.pmGroupBox5 ,     
+                         label         =  "Position:", 
+                         choices       =  positionChoices,
+                         setAsDefault  =  True)
+        
+        self.showHideGPWidgets()
+        if self.gpDisplayLabels.isChecked() == False:
+            self.gpOriginComboBox.setEnabled(False)
+            self.gpPositionComboBox.setEnabled(False)
+        else:
+            self.gpOriginComboBox.setEnabled(True)
+            self.gpPositionComboBox.setEnabled(True)
+            
+        self.connectionsForGridPlane()
+        return
+    
+    def connectionsForGridPlane(self):
+        # when show grid is checked a grid is displayed
+        self.connect(self.gridPlaneCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.displayGridPlane)
+        
+        self.connect(self.gpXSpacingDoubleSpinBox,
+                     SIGNAL("valueChanged(double)"),
+                     self.changeXSpacingInGP)
+        
+        self.connect(self.gpYSpacingDoubleSpinBox,
+                     SIGNAL("valueChanged(double)"),
+                     self.changeYSpacingInGP)
+        
+        self.connect( self.gpLineTypeComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.changeLineTypeInGP )
+        
+        self.connect( self.gpColorTypeComboBox,
+                      SIGNAL("editingFinished()"),
+                      self.changeColorTypeInGP )
+        
+        self.connect( self.gpDisplayLabels,
+                      SIGNAL("stateChanged(int)"),
+                      self.displayLabelsInGP )
+        
+        self.connect( self.gpOriginComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.changeOriginInGP )
+        
+        self.connect( self.gpPositionComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.changePositionInGP )
+        
+        return
+    
+    def changePositionInGP(self, idx):
+        return
+    
+    def changeOriginInGP(self, idx):
+        return
+    
+    def displayLabelsInGP(self, state):
+        if self.gpDisplayLabels.isChecked() == True:
+            self.gpOriginComboBox.setEnabled(True)
+            self.gpPositionComboBox.setEnabled(True)
+        else:
+            self.gpOriginComboBox.setEnabled(False)
+            self.gpPositionComboBox.setEnabled(False)
+        return
+    
+    def changeColorTypeInGP(self):
+        
+        self.gridColor = self.gpColorTypeComboBox.getColor()
+        return
+    
+    def changeLineTypeInGP(self, idx):
+        
+        #line_type for actually drawing the grid is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
+        if idx == 0:
+            self.gridLineType = 3
+        if idx == 1:
+            self.gridLineType = 2
+        if idx == 2:
+            self.gridLineType = 1   
+        return
+    
+    def changeYSpacingInGP(self, val):
+        
+        self.gridYSpacing = float(val)
+        return
+    
+    def changeXSpacingInGP(self, val):
+        
+        self.gridXSpacing = float(val)
+        return
+    
+    def displayGridPlane(self, state):
+        
+        self.showHideGPWidgets()
+        self.makeGridPlane()
+        return 
+    
+    def makeGridPlane(self):
+        
+        #get all the grid related values in here
+        self.gridXSpacing = float(self.gpXSpacingDoubleSpinBox.value())
+        self.gridYSpacing = float(self.gpYSpacingDoubleSpinBox.value())
+        
+        #line_type for actually drawing the grid is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
+        self.gridLineType = 3
+        self.gridColor = self.gpColorTypeComboBox.getColor()
+        
+        #grid width and height same as plane
+        #no labels for now, since does not show up in Mac OS X
+        
+        return
+    
+    
+    def showHideGPWidgets(self):
+        
+        if self.gridPlaneCheckBox.isChecked():
+            
+            self.gpXSpacingDoubleSpinBox.setEnabled(True)
+            self.gpYSpacingDoubleSpinBox.setEnabled(True)
+            self.gpLineTypeComboBox.setEnabled(True)
+            self.gpColorTypeComboBox.setEnabled(True)
+            self.gpDisplayLabels.setEnabled(True)
+            
+        else:
+            self.gpXSpacingDoubleSpinBox.setEnabled(False)
+            self.gpXSpacingDoubleSpinBox.setEnabled(False)
+            self.gpYSpacingDoubleSpinBox.setEnabled(False)
+            self.gpLineTypeComboBox.setEnabled(False)
+            self.gpColorTypeComboBox.setEnabled(False)
+            self.gpDisplayLabels.setEnabled(False)
+        return
+    
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in the image group box.
@@ -263,7 +499,7 @@ class PlanePropertyManager(EditCommand_PM):
                              singleStep   = 1.0, 
                              decimals     = 1, 
                              suffix       = ' Angstroms')
-
+        
         self.connect(self.widthDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_plane_width)
