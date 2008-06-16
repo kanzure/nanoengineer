@@ -193,7 +193,15 @@ def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
     
     # Draw unit labels for gridlines (in nm).
     text_color = color
-    font_size = 8
+    
+    import sys
+    if sys.platform == "darwin":
+        # WARNING: Anything smaller than 9 pt on Mac OS X results in 
+        # un-rendered text. Not sure why. -- piotr 080616
+        font_size = 9
+    else:
+        font_size = 8
+        
     text_offset = 0.5 # Offset from edge of border, in Angstroms.
     
     # Draw unit text labels for horizontal lines (nm)
