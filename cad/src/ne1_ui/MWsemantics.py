@@ -1387,7 +1387,6 @@ class MWsemantics(QMainWindow,
         from PyQt4.Qt import QWhatsThis ##bruce 050408
         QWhatsThis.enterWhatsThisMode ()
 
-
     ###################################
     # Modes Toolbar Slots
     ###################################
@@ -2156,18 +2155,20 @@ class MWsemantics(QMainWindow,
     # Show View > Orientation Window     
     #######################################
 
-    def showOrientationWindow(self): #Ninad 061121
-
-        if not self.orientationWindow:
-            self.orientationWindow  = ViewOrientationWindow(self)
-            #self.orientationWindow.createOrientationViewList(namedViewList)
-            self.orientationWindow.createOrientationViewList()
-            self.viewOrientationAction.setChecked(True)
-            self.orientationWindow.setVisible(True)    	
+    def showOrientationWindow(self, isChecked = False): #Ninad 061121
+        
+        if isChecked:
+            if not self.orientationWindow:
+                self.orientationWindow  = ViewOrientationWindow(self)
+                #self.orientationWindow.createOrientationViewList(namedViewList)
+                self.orientationWindow.createOrientationViewList()
+                self.orientationWindow.setVisible(True)    	
+            else:
+                if not self.orientationWindow.isVisible():
+                    self.orientationWindow.setVisible(True)                    
         else:
-            if not self.orientationWindow.isVisible():
-                self.orientationWindow.setVisible(True)
-                self.viewOrientationAction.setChecked(True)
+            if self.orientationWindow and self.orientationWindow.isVisible():
+                self.orientationWindow.setVisible(False)
 
         return self.orientationWindow
 

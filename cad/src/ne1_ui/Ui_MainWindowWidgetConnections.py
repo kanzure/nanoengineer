@@ -192,9 +192,10 @@ def setupUi(win):
     win.connect(win.selectInvertAction,SIGNAL("triggered()"),win.selectInvert)
     win.connect(win.selectNoneAction,SIGNAL("triggered()"),win.selectNone)
     win.connect(win.selectLockAction,SIGNAL("toggled(bool)"),win.selectLock)
+    
+    ##win.connect(win.helpTipAction,SIGNAL("triggered()"), win.toggleQuickHelpTip)
 
-
-    win.connect(win.viewOrientationAction,SIGNAL("triggered()"),win.showOrientationWindow) #ninad061114
+    win.connect(win.viewOrientationAction,SIGNAL("toggled(bool)"),win.showOrientationWindow) #ninad061114
 
     ##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the 
     ##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
