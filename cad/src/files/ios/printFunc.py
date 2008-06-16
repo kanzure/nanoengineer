@@ -3,6 +3,8 @@ printFunc.py: print method that can be called after populating DOM in order to
 see the XML objects in human readable format.
 
 Based on the original files from the pyXML 0.8.4 dom/ext module. 
+@author: Urmi
+@version:
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
@@ -274,13 +276,13 @@ class PrintVisitor(Visitor):
                 if not self._namespaces[-1].has_key(prefix) or self._namespaces[-1][prefix] != nss[prefix]:
                     nsuri, delimiter = TranslateCdataAttr(nss[prefix])
                     if prefix:
-                        print "In prefix for namespace", namespaces
+                        
                         xmlns = " xmlns:%s=%s%s%s" % (prefix, delimiter,nsuri,delimiter)
                         namespaces = namespaces + xmlns
                     else:
-                        #print "Not in prefix for namespace", namespaces   
+                         
                         xmlns = " xmlns=%s%s%s" % (delimiter,nsuri,delimiter)
-                    #namespaces = namespaces + xmlns
+                   
 
                 self._namespaces[-1][prefix] = nss[prefix]
             self._write(namespaces)
