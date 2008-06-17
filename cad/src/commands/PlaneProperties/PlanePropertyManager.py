@@ -26,6 +26,9 @@ from command_support.EditCommand_PM import EditCommand_PM
 import foundation.env as env
 from utilities.constants import yellow, orange, red, magenta
 from utilities.constants import cyan, blue, white, black, gray
+from utilities.constants import LOWER_LEFT, LOWER_RIGHT, UPPER_LEFT, UPPER_RIGHT
+from utilities.constants import LABELS_ALONG_ORIGIN, LABELS_ALONG_PLANE_EDGES
+from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
 # Placement Options radio button list to create radio button list.
 # Format: buttonId, buttonText, tooltip
@@ -81,10 +84,12 @@ class PlanePropertyManager(EditCommand_PM):
         self.previousPMParams = None
         self.imageFile = ""
         self.gridColor = black
-        self.gridXSpacing = 5.0
-        self.gridYSpacing = 5.0
+        self.gridXSpacing = 4.0
+        self.gridYSpacing = 4.0
         self.gridLineType = 3
-        
+        self.displayLabels = False
+        self.originLocation = LOWER_LEFT
+        self.labelDisplayStyle = LABELS_ALONG_ORIGIN
         
     def _addGroupBoxes(self):
         """
@@ -122,15 +127,21 @@ class PlanePropertyManager(EditCommand_PM):
             PM_CheckBox( pmGroupBox,
                          text         = "Show grid",
                          widgetColumn  = 0,
-                         state        = Qt.Unchecked,
                          setAsDefault = True,
                          spanWidth = True
                          )
+        #setting check state based on pref key
+        if env.prefs[PlanePM_showGrid_prefs_key] == True:
+            self.gridPlaneCheckBox.setCheckState(Qt.Checked)
+            
+        else:
+            self.gridPlaneCheckBox.setCheckState(Qt.Unchecked)
+            
         
         self.gpXSpacingDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "X Spacing:",
-                              value         =  5.000,
+                              value         =  4.000,
                               setAsDefault  =  True,
                               minimum       =  1.00,
                               maximum       =  200.0,
@@ -141,7 +152,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.gpYSpacingDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Y Spacing:",
-                              value         =  5.000,
+                              value         =  4.000,
                               setAsDefault  =  True,
                               minimum       =  1.00,
                               maximum       =  200.0,
@@ -207,13 +218,17 @@ class PlanePropertyManager(EditCommand_PM):
                          setAsDefault  =  True)
         
         self.showHideGPWidgets()
-        if self.gpDisplayLabels.isChecked() == False:
-            self.gpOriginComboBox.setEnabled(False)
-            self.gpPositionComboBox.setEnabled(False)
-        else:
+        if env.prefs[PlanePM_showGridLabels_prefs_key] ==  True:
+            self.gpDisplayLabels.setCheckState(Qt.Checked)
+            self.displayLabels = True
             self.gpOriginComboBox.setEnabled(True)
             self.gpPositionComboBox.setEnabled(True)
-            
+        else:
+            self.gpDisplayLabels.setCheckState(Qt.Unchecked)
+            self.displayLabels = False
+            self.gpOriginComboBox.setEnabled(False)
+            self.gpPositionComboBox.setEnabled(False)
+         
         self.connectionsForGridPlane()
         return
     
@@ -254,18 +269,41 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def changePositionInGP(self, idx):
+        
+        if idx == 0:
+            self.labelDisplayStyle = LABELS_ALONG_ORIGIN
+        elif idx == 1:
+            self.labelDisplayStyle = LABELS_ALONG_PLANE_EDGES
+        else:
+            print "Invalid index", idx
         return
     
     def changeOriginInGP(self, idx):
+        if idx == 0:
+            self.originLocation = LOWER_LEFT
+        elif idx ==1:
+            self.originLocation = UPPER_LEFT
+        elif idx == 2:
+            self.originLocation = LOWER_RIGHT
+        elif idx == 3:
+            self.originLocation = UPPER_RIGHT
+        else:
+            print "Invalid index", idx
         return
     
     def displayLabelsInGP(self, state):
         if self.gpDisplayLabels.isChecked() == True:
+            env.prefs[PlanePM_showGridLabels_prefs_key] = True
             self.gpOriginComboBox.setEnabled(True)
             self.gpPositionComboBox.setEnabled(True)
+            self.displayLabels = True
+            self.originLocation = LOWER_LEFT
+            self.labelDisplayStyle = LABELS_ALONG_ORIGIN
         else:
+            env.prefs[PlanePM_showGridLabels_prefs_key] = False
             self.gpOriginComboBox.setEnabled(False)
             self.gpPositionComboBox.setEnabled(False)
+            self.displayLabels = False
         return
     
     def changeColorTypeInGP(self):
@@ -297,7 +335,12 @@ class PlanePropertyManager(EditCommand_PM):
     def displayGridPlane(self, state):
         
         self.showHideGPWidgets()
-        self.makeGridPlane()
+        if self.gridPlaneCheckBox.isChecked():
+            env.prefs[PlanePM_showGrid_prefs_key] = True
+            self.makeGridPlane()
+        else:
+            env.prefs[PlanePM_showGrid_prefs_key] = False
+            
         return 
     
     def makeGridPlane(self):
@@ -307,7 +350,8 @@ class PlanePropertyManager(EditCommand_PM):
         self.gridYSpacing = float(self.gpYSpacingDoubleSpinBox.value())
         
         #line_type for actually drawing the grid is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
-        self.gridLineType = 3
+        idx = self.gpLineTypeComboBox.currentIndex()
+        self.changeLineTypeInGP(idx)
         self.gridColor = self.gpColorTypeComboBox.getColor()
         
         #grid width and height same as plane
@@ -324,8 +368,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.gpYSpacingDoubleSpinBox.setEnabled(True)
             self.gpLineTypeComboBox.setEnabled(True)
             self.gpColorTypeComboBox.setEnabled(True)
-            self.gpDisplayLabels.setEnabled(True)
-            
+            self.gpDisplayLabels.setEnabled(True)        
         else:
             self.gpXSpacingDoubleSpinBox.setEnabled(False)
             self.gpXSpacingDoubleSpinBox.setEnabled(False)
@@ -492,7 +535,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.widthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                              label        = "Width:",
-                             value        = 10.0, 
+                             value        = 16.0, 
                              setAsDefault = True,
                              minimum      = 1.0, 
                              maximum      = 10000.0, # 1000 nm
@@ -507,7 +550,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.heightDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                              label        =" Height:",
-                             value        = 10.0, 
+                             value        = 16.0, 
                              setAsDefault = True,
                              minimum      = 1.0, 
                              maximum      = 10000.0, # 1000 nm
@@ -654,11 +697,39 @@ class PlanePropertyManager(EditCommand_PM):
                         self.heightfieldTextureCheckBox.setEnabled(True)
                         self.vScaleSpinBox.setEnabled(True)
 
-
+    def _updateGrid(self):
+        """
+        Show grid if grid prefs set to true
+        """
+        #UM: 20080617: show grid if grid prefs set to true
+        if env.prefs[PlanePM_showGrid_prefs_key] == True:
+            self.gridPlaneCheckBox.setCheckState(Qt.Checked)
+        else:
+            self.gridPlaneCheckBox.setCheckState(Qt.Unchecked)
+            
+        self.showHideGPWidgets()
+        if env.prefs[PlanePM_showGridLabels_prefs_key] ==  True:
+            self.gpDisplayLabels.setCheckState(Qt.Checked)
+            self.displayLabels = True
+            self.gpOriginComboBox.setEnabled(True)
+            self.gpPositionComboBox.setEnabled(True)
+        else:
+            self.gpDisplayLabels.setCheckState(Qt.Unchecked)
+            self.displayLabels = False
+            self.gpOriginComboBox.setEnabled(False)
+            self.gpPositionComboBox.setEnabled(False)
+        if self.editCommand.struct is not None:
+            current_params = self.editCommand._gatherParameters()
+            self.editCommand._modifyStructure(current_params)
+        return
+    
+                        
+                        
     def show(self):
         """
         Show the Plane Property Manager.
         """
+        self._updateGrid()
         self.update_spinboxes() 
         EditCommand_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
@@ -668,8 +739,9 @@ class PlanePropertyManager(EditCommand_PM):
 
         if self.editCommand.struct:
             self.editCommand.struct.updateCosmeticProps(previewing = True)
-
-
+    
+    
+    
     def change_plane_width(self, newWidth):
         """
         Slot for width spinbox in the Property Manager.
