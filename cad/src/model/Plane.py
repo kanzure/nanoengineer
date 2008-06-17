@@ -32,7 +32,7 @@ from OpenGL.GL import GL_TEXTURE_2D
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
-from graphics.drawing.draw_grid_lines import drawGPGrid
+from graphics.drawing.draw_grid_lines import drawGPGridForPlane
 from graphics.drawing.drawers import drawHeightfield
 from utilities.constants import black, orange, yellow, brown
 
@@ -46,7 +46,7 @@ from utilities.Log     import redmsg
 from model.ReferenceGeometry import ReferenceGeometry 
 from graphics.drawables.DirectionArrow import DirectionArrow
 from graphics.drawables.ResizeHandle import ResizeHandle  
-
+from utilities.constants import LOWER_LEFT, LABELS_ALONG_ORIGIN
 from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
 ONE_RADIAN = 180.0 / pi
@@ -150,13 +150,15 @@ class Plane(ReferenceGeometry):
         self.showGrid = False
         self.gridColor = yellow
         self.gridLineType = 3
-        self.gridXSpacing = 5.0
-        self.gridYSpacing = 5.0       
-        
+        self.gridXSpacing = 4.0
+        self.gridYSpacing = 4.0       
+        self.displayLabels = False
+        self.originLocation = LOWER_LEFT
+        self.displayLabelStyle = LABELS_ALONG_ORIGIN
         
         if not READ_FROM_MMP:
-            self.width      =  15.0 # piotr 080605 - change default dimensions to square
-            self.height     =  15.0  #Urmi 080616 -increased default size for better viewing of grid
+            self.width      =  10.0 # piotr 080605 - change default dimensions to square
+            self.height     =  10.0  
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
             self.directionArrow = DirectionArrow(self, 
@@ -328,8 +330,11 @@ class Plane(ReferenceGeometry):
         # Urmi-20080613: display grid lines on the plane
         
         if self.showGrid == True:
-            drawGPGrid(self.glpane, self.gridColor, self.gridLineType, self.width, self.height, self.gridXSpacing, self.gridYSpacing,
-                       self.quat.unrot(self.glpane.up), self.quat.unrot(self.glpane.right))
+            drawGPGridForPlane(self.glpane, self.gridColor, self.gridLineType, 
+                               self.width, self.height, self.gridXSpacing, self.gridYSpacing,
+                               self.quat.unrot(self.glpane.up), self.quat.unrot(self.glpane.right), 
+                               self.displayLabels, self.originLocation, self.displayLabelStyle)
+            
             self.glpane.gl_update()
             
         textureReady = False
