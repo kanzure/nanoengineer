@@ -339,8 +339,7 @@ class Plane(ReferenceGeometry):
                                self.width, self.height, self.gridXSpacing, self.gridYSpacing,
                                self.quat.unrot(self.glpane.up), self.quat.unrot(self.glpane.right), 
                                self.displayLabels, self.originLocation, self.displayLabelStyle)
-            
-            self.glpane.gl_update()
+            #self.glpane.gl_update()
             
         textureReady = False
 
