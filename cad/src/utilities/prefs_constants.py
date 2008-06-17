@@ -295,8 +295,8 @@ joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While
 joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
 
 #Urmi 20080617: display grid in Plane Property Manager pref keys
-PlanePM_showGrid_prefs_key = 'A111/Show Grid on the Plane'
-PlanePM_showGridLabels_prefs_key = 'A111/Show Grid Labels on the Plane'
+PlanePM_showGrid_prefs_key = 'V111/Show Grid on the Plane'
+PlanePM_showGridLabels_prefs_key = 'V111/Show Grid Labels on the Plane'
 
 #Break strands command prefs
 breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Break strands command, show three prime ends as out arrow heads'
