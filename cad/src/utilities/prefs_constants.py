@@ -294,6 +294,10 @@ joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ W
 joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Join strands command,use custom color for five-prime arrowheads/spheres'
 joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Join strands command, Custom color for strand five-prime arrowheads/spheres'
 
+#Urmi 20080617: display grid in Plane Property Manager pref keys
+PlanePM_showGrid_prefs_key = 'A111/Show Grid on the Plane'
+PlanePM_showGridLabels_prefs_key = 'A111/Show Grid Labels on the Plane'
+
 #Break strands command prefs
 breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Break strands command, show three prime ends as out arrow heads'
 breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key = 'A110/ While in Break strands command, show five prime ends as in arrow heads'
@@ -301,6 +305,7 @@ breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ Whi
 breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand three-prime arrowheads/spheres'
 breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Break strands command,use custom color for five-prime arrowheads/spheres'
 breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand five-prime arrowheads/spheres'
+
 
 #Various cursor text prefs =======================
 dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
@@ -730,6 +735,10 @@ prefs_table = (
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
     
+    
+    #Urmi 20080617: Plane_PM display grid prefs
+    ('','boolean',PlanePM_showGrid_prefs_key, False),
+    ('','boolean',PlanePM_showGridLabels_prefs_key, False),
     
     #Break strands command arrowhead display pref.(should it override global pref)
        
