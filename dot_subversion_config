@@ -65,11 +65,15 @@
 
 ### Section for configuring miscelleneous Subversion options.
 [miscellany]
+
 ### Set global-ignores to a set of whitespace-delimited globs
 ### which Subversion will ignore in its 'status' output, and
 ### while importing or adding files and directories.
+
 # global-ignores = *.o *.lo *.la #*# .*.rej *.rej .*~ *~ .#* .DS_Store
-global-ignores = *.o *.lo *.la #*# .*.rej *.rej .*~ *~ .#* .DS_Store *.pyc *.md5 *.so *.dll
+global-ignores = *.o *.lo *.la #*# .*.rej *.rej .*~ *~ .#* .DS_Store *.pyc *.pyo
+    *.md5 *.so *.dll
+
 ### Set log-encoding to the default encoding for log messages
 # log-encoding = latin1
 ### Set use-commit-times to make checkout/update/switch/revert
