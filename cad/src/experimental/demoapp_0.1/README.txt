@@ -5,6 +5,13 @@ demo application readme file
 
 requires: pyglet, which requires Python 2.4 and ctypes, or Python 2.5
 
+(pyglet1.1beta2 is also present here, with a few typo corrections in
+docstrings, and it will be used (so no separate install of pyglet is
+required, and if you have one it *won't* be used) unless you remove or
+rename  the subdirectory 'pyglet'.)
+
+==
+
 some useful commands (to be run in this directory):
 
 % make clean
