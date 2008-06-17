@@ -190,9 +190,13 @@ class Plane_EditCommand(EditCommand):
         gridXSpacing = self.propMgr.gridXSpacing
         gridYSpacing = self.propMgr.gridYSpacing
         gridLineType = self.propMgr.gridLineType
+        displayLabels = self.propMgr.displayLabels
+        originLocation = self.propMgr.originLocation 
+        labelDisplayStyle = self.propMgr.labelDisplayStyle 
         
-        return (width, height, ctr, atmList, imagePath, showGrid, gridColor, gridLineType, gridXSpacing, 
-                gridYSpacing)
+        return (width, height, ctr, atmList, imagePath, showGrid, 
+                gridColor, gridLineType, gridXSpacing, 
+                gridYSpacing, displayLabels, originLocation, labelDisplayStyle)
 
        
         
@@ -217,8 +221,10 @@ class Plane_EditCommand(EditCommand):
         """
         assert self.struct
         assert params 
-        assert len(params) == 10             
-        width, height, center_junk, atmList_junk, imagePath, showGrid, gridColor, gridLineType, gridXSpacing, gridYSpacing = params
+        assert len(params) == 13             
+        width, height, center_junk, atmList_junk, imagePath, \
+             showGrid, gridColor, gridLineType, gridXSpacing, \
+             gridYSpacing, displayLabels, originLocation, displayLabelStyle = params
       
        
         self.struct.width   =  width        
@@ -230,6 +236,10 @@ class Plane_EditCommand(EditCommand):
         self.struct.gridLineType = gridLineType
         self.struct.gridXSpacing = gridXSpacing
         self.struct.gridYSpacing = gridYSpacing
+        self.struct.displayLabels = displayLabels
+        
+        self.struct.originLocation = originLocation
+        self.struct.displayLabelStyle = displayLabelStyle
         
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
