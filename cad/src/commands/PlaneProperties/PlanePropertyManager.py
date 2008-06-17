@@ -82,7 +82,6 @@ class PlanePropertyManager(EditCommand_PM):
         self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)
         # needed to figure out if the model has changed or not
         self.previousPMParams = None
-        self.imageFile = ""
         self.gridColor = black
         self.gridXSpacing = 4.0
         self.gridYSpacing = 4.0
@@ -613,6 +612,9 @@ class PlanePropertyManager(EditCommand_PM):
         else:
             pass
 
+        self.editCommand.struct.glpane.gl_update()
+
+    
     def toggleHeightfield(self, checked):
         """
         Enables 3D relief drawing mode.
@@ -644,7 +646,7 @@ class PlanePropertyManager(EditCommand_PM):
 
     def toggleTexture(self, checked):
         """
-        Enables high quality rendering in 3D relief mode.
+        Enables texturing in 3D relief mode.
         """
         if self.editCommand and self.editCommand.struct:
             plane = self.editCommand.struct
@@ -658,7 +660,6 @@ class PlanePropertyManager(EditCommand_PM):
         Loads image file if path is valid
         """
         
-        self.imageFile = ""
         self.mirrorButton.setEnabled(False)
         self.plusNinetyButton.setEnabled(False)
         self.minusNinetyButton.setEnabled(False)
@@ -671,18 +672,19 @@ class PlanePropertyManager(EditCommand_PM):
         plane = self.editCommand.struct
         plane.deleteImage()
         plane.heightfield = None
+        plane.display_image = self.imageDisplayCheckBox.isChecked()
         
-        if self.imageDisplayCheckBox.isChecked(): 
-            self.imageFile = str(self.imageDisplayFileChooser.lineEdit.text())
+        if plane.display_image: 
+            imageFile = str(self.imageDisplayFileChooser.lineEdit.text())
             
             from model.Plane import checkIfValidImagePath
-            validPath = checkIfValidImagePath(self.imageFile)
+            validPath = checkIfValidImagePath(imageFile)
 
             if validPath:
                 from PIL import Image
 
-                plane.image = Image.open(self.imageFile)
-                plane.loadImage(self.imageFile)
+                plane.image = Image.open(imageFile)
+                plane.loadImage(imageFile)
 
                 plane.computeHeightfield()
                     
@@ -738,10 +740,13 @@ class PlanePropertyManager(EditCommand_PM):
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
 
         if self.editCommand.struct:
-            self.editCommand.struct.updateCosmeticProps(previewing = True)
-    
-    
-    
+
+            plane = self.editCommand.struct 
+            plane.updateCosmeticProps(previewing = True)
+            if plane.imagePath:
+                self.imageDisplayFileChooser.setText(plane.imagePath)
+            self.imageDisplayCheckBox.setCheckState(plane.display_image) 
+
     def change_plane_width(self, newWidth):
         """
         Slot for width spinbox in the Property Manager.

@@ -7,9 +7,11 @@
 History:
 ninad 2007-05-21: Created. 
 ninad 2007-06-03: Implemented Plane Property Manager
+piotr 2008-06-13: Added image reading from MMP file.
 
 This file also used to contain DirectionArrow and  ResizeHandle classes. 
 Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
+
 
 TODO:
 - Need to implement some grid plane features. 
@@ -29,6 +31,9 @@ from OpenGL.GL import glRotatef
 from OpenGL.GL import glBindTexture
 from OpenGL.GL import glDeleteTextures
 from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glEnable
+from OpenGL.GL import glDisable
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
@@ -49,6 +54,8 @@ from graphics.drawables.ResizeHandle import ResizeHandle
 from utilities.constants import LOWER_LEFT, LABELS_ALONG_ORIGIN
 from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
+from PIL import Image
+
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
 # This is for optimization since this computation occurs repeatedly
@@ -56,7 +63,6 @@ ONE_RADIAN = 180.0 / pi
 
 
 def checkIfValidImagePath(imagePath):
-    from PIL import Image
     try:
         im = Image.open(imagePath)
     except IOError:
@@ -130,20 +136,19 @@ class Plane(ReferenceGeometry):
 
         self.editCommand      =  editCommand
         self.imagePath = ""
-        self.imageSize = 0
-        self.imagePreviousSize = -1
         self.heightfield = None
         self.heightfield_scale = 1.0
         self.heightfield_use_texture = True
         
         # piotr 080528
         # added tex_image attribute for texture image
-        self.tex_image = None
         self.tex_coords       = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0]] 
         
-        self.image = None
+        self.display_image = False
         self.display_heightfield = False
         self.heightfield_hq = False
+        self.tex_image = None
+        self.image = None
         
         #related to grid
         
@@ -328,7 +333,7 @@ class Plane(ReferenceGeometry):
             fill_color = self.fill_color
          
         # Urmi-20080613: display grid lines on the plane
-        
+
         if self.showGrid == True:
             drawGPGridForPlane(self.glpane, self.gridColor, self.gridLineType, 
                                self.width, self.height, self.gridXSpacing, self.gridYSpacing,
@@ -338,12 +343,16 @@ class Plane(ReferenceGeometry):
             self.glpane.gl_update()
             
         textureReady = False
-        if self.tex_image:
+
+        if self.display_image and \
+           self.tex_image:
             textureReady = True
             glBindTexture(GL_TEXTURE_2D, self.tex_image)
-
+            fill_color = [1.0,1.0,1.0]
+            
         if self.display_heightfield:
-            if self.heightfield and self.image:
+            if self.heightfield and \
+               self.image:
                 if not self.heightfield_use_texture:
                     textureReady = False
                 drawHeightfield(fill_color, 
@@ -791,7 +800,6 @@ class Plane(ReferenceGeometry):
         """
         
         # calculate heightfield data        
-        from PIL import Image
         from PIL.Image import ANTIALIAS
         
         self.heightfield = None
@@ -868,43 +876,6 @@ class Plane(ReferenceGeometry):
                                 tstrip_norm.append(V(0.0, 0.0, -1.0))
 
                     self.heightfield.append((tstrip_vert, tstrip_norm, tstrip_tex))
-
-    def loadImageFromValidPath(self):
-        """
-        Loads an image to be displayed on a plane.
-        
-        This code is obsolete, image loading functions are now directly called 
-        from PlanePropertyManager. piotr 080603
-        """
-
-        validImagePath = 0 
-        if self.imagePath:
-            validImagePath = checkIfValidImagePath(self.imagePath)
-        else:
-            self.deleteImage()
-            self.imagePreviousSize = 0 
-            self.tex_image = None
-
-        if validImagePath:
-            im = Image.open(self.imagePath)
-            self.imageSize = im.size
-            # load texture image from the disk only if the image is changed
-            if self.imageSize != self.imagePreviousSize:
-                try:
-                    self.deleteImage()
-                    mipmaps, self.tex_image = load_image_into_new_texture_name(self.imagePath)
-                    self.imagePreviousSize = self.imageSize
-                except:
-                    msg = redmsg("Can't load the image file.") 
-                    env.history.message(msg)
-                    self.deleteImage()
-                    self.tex_image = None
-            im = None
-        else:
-            self.deleteImage()
-            self.tex_image = None
-            self.imagePreviousSize = 0 
-
  
     def rotateImage(self, direction):
         """
@@ -965,3 +936,29 @@ class Plane(ReferenceGeometry):
             glDeleteTextures(self.tex_image)
             self.tex_image = None
 
+    def writemmp(self, mapping):
+        """
+        [extends ReferenceGeometry method]
+        """
+        # piotr 080613 added this method
+        super = ReferenceGeometry
+        super.writemmp(self, mapping)
+        # Write plane "info" record (image data). 
+        line = "info plane image_file = " + self.imagePath + "\n"
+        mapping.write(line)
+        line = "info plane image_settings = %d\n" % (self.display_image)                               
+        mapping.write(line)
+        return
+
+    def readmmp_info_plane_setitem( self, key, val, interp ):
+        """
+        Image settings read from mmp file.
+        """
+        if key[0] == "image_file":
+            self.imagePath = val
+            self.image = Image.open(self.imagePath)
+            self.loadImage(self.imagePath)
+        if key[0] == "image_settings":
+            self.display_image = val
+        return
+    

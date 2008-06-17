@@ -886,6 +886,9 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     else:
         vt = tex_coords
     
+    if textureReady:
+        opacity = 1.0
+            
     glDisable(GL_LIGHTING)
     glColor4fv(list(color) + [opacity])
 
@@ -897,7 +900,7 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     else:
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
     glDisable(GL_CULL_FACE) 
-
+    
     if not pickCheckOnly:
         glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
         glEnable(GL_BLEND)

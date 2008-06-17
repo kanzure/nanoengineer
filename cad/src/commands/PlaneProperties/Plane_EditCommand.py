@@ -180,9 +180,9 @@ class Plane_EditCommand(EditCommand):
             self.propMgr.pmPlacementOptions.checkedId())
         if self.struct:            
             ctr     =  self.struct.center 
+            imagePath = self.struct.imagePath    
         else:
             ctr = None
-        imagePath = self.propMgr.imageFile  
         
         #gather grid related values
         showGrid = self.propMgr.gridPlaneCheckBox.isChecked()
@@ -197,8 +197,6 @@ class Plane_EditCommand(EditCommand):
         return (width, height, ctr, atmList, imagePath, showGrid, 
                 gridColor, gridLineType, gridXSpacing, 
                 gridYSpacing, displayLabels, originLocation, labelDisplayStyle)
-
-       
         
     def _createStructure(self):
         """
