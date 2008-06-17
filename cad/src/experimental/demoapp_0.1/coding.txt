@@ -1,0 +1,16 @@
+coding standards
+
+
+
+assume the developer will run with python main.py normally,
+or with python -O main.py for speed,
+and the user will often use -O as well.
+
+So don't assume asserts will fire (never use them as part of logic;
+raise other exceptions for things that should be asserted even in production code).
+
+And use __debug__ (sp?) to control general debugging options
+(as pyglet does for opengl error checking).
+
+
+
