@@ -16,7 +16,13 @@ from PyQt4.Qt import Qt
 
 # ==
 
-
+#grid origin related constants: UM 20080616
+LOWER_LEFT = 1
+LOWER_RIGHT = 2
+UPPER_LEFT = 3
+UPPER_RIGHT = 4
+LABELS_ALONG_ORIGIN = 1
+LABELS_ALONG_PLANE_EDGES = 2
 
 MULTIPANE_GUI = True # enable some code which was intended to permit the main window
     # to contain multiple PartWindows. Unfortunately we're far from that being possible,
@@ -80,6 +86,7 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 # or in many modules.
 # (Only a very few functions are trivial enough to be put here,
 #  and their names always need to be suitable for using up in every module.)
+
 
 def noop(*args,**kws): pass
 
@@ -673,5 +680,6 @@ else:
     # (spelling?) should also be available (only in a release and only on Mac),
     # and might make more sense to use then.]
     pass
+
 
 # end
