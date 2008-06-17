@@ -16,7 +16,7 @@ from PyQt4.Qt import Qt
 
 # ==
 
-#grid origin related constants: UM 20080616
+#Urmi 20080617: grid origin related constants: UM 20080616
 LOWER_LEFT = 1
 LOWER_RIGHT = 2
 UPPER_LEFT = 3
