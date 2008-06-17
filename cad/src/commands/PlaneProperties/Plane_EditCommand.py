@@ -224,18 +224,15 @@ class Plane_EditCommand(EditCommand):
              showGrid, gridColor, gridLineType, gridXSpacing, \
              gridYSpacing, displayLabels, originLocation, displayLabelStyle = params
       
-       
         self.struct.width   =  width        
         self.struct.height  =  height 
         self.struct.imagePath = imagePath
-        
         self.struct.showGrid = showGrid
         self.struct.gridColor = gridColor
         self.struct.gridLineType = gridLineType
         self.struct.gridXSpacing = gridXSpacing
         self.struct.gridYSpacing = gridYSpacing
-        self.struct.displayLabels = displayLabels
-        
+        self.struct.displayLabels = displayLabels 
         self.struct.originLocation = originLocation
         self.struct.displayLabelStyle = displayLabelStyle
         
