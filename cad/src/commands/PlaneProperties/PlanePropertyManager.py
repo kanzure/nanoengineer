@@ -745,7 +745,7 @@ class PlanePropertyManager(EditCommand_PM):
             plane.updateCosmeticProps(previewing = True)
             if plane.imagePath:
                 self.imageDisplayFileChooser.setText(plane.imagePath)
-            self.imageDisplayCheckBox.setCheckState(plane.display_image) 
+            self.imageDisplayCheckBox.setChecked(plane.display_image) 
 
     def change_plane_width(self, newWidth):
         """
