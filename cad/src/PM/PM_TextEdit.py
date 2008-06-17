@@ -116,11 +116,7 @@ class PM_TextEdit( QTextEdit ):
         
         self._setHeight() # Default height is 4 lines high.
         
-        # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
-        # is displayed in the MessageGroupBox. Mark 2007-05-24.
-        # Shouldn't be needed with _setHeight().
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        
         
 ##        from PM.PM_MessageGroupBox import PM_MessageGroupBox
 ##        if isinstance(parentWidget, PM_MessageGroupBox):

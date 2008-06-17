@@ -18,6 +18,8 @@ into this file and renamed it PM_MessageGroupBox.
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QPalette
+from PyQt4.Qt import QString, QTextCursor
+from PyQt4.Qt import Qt
 
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors    import pmMessageBoxColor
@@ -58,14 +60,25 @@ class PM_MessageGroupBox( PM_GroupBox ):
         self.MessageTextEdit = PM_TextEdit(self,
                                            label='',
                                            spanWidth = True,
-                                           addToParent = False)
+                                           addToParent = False,
+                                           ##cursorPosition = 'beginning'
+                                       )
             # We pass addToParent = False to suppress the usual call by
             # PM_TextEdit.__init__ of self.addPmWidget(new textedit widget),
             # since we need to add it to self in a different way (below).
             # [bruce 071103 refactored this from what used to be a special case
             #  in PM_TextEdit.__init__ based on self being an instance of
             #  PM_MessageGroupBox.]
-
+            
+        # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
+        # is displayed in the MessageGroupBox. Mark 2007-05-24.
+        # Shouldn't be needed with _setHeight() in PM_TextEdit.
+        
+        #Note 2008-06-17: We now permit a vertical scrollbar in message groupbox
+        #--Ninad
+        
+        self.MessageTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                
         # Add self.MessageTextEdit to self's vBoxLayout.
         self.vBoxLayout.addWidget(self.MessageTextEdit)
         # We should be calling the PM's getMessageTextEditPalette() method,
@@ -124,7 +137,8 @@ helpful messages to the user.</p>""")
                           setAsDefault = False, 
                           minLines     = 4, 
                           maxLines     = 10, 
-                          replace      = True ):
+                          replace      = True,
+                          scrolltoTop =  True):
         """
         Insert text (HTML) into the message box. Displays the message box if it is hidden.
 
@@ -149,6 +163,23 @@ helpful messages to the user.</p>""")
                                          minLines = minLines, 
                                          maxLines = maxLines, 
                                          replace  = True )
+        if scrolltoTop:
+            cursor  =  self.MessageTextEdit.textCursor()
+            cursor.setPosition( 0, 
+                                QTextCursor.MoveAnchor )
+            self.MessageTextEdit.setTextCursor( cursor )
+            self.MessageTextEdit.ensureCursorVisible()
+            
+            ##self.MessageTextEdit.moveCursor(QTextCursor.Start)
+            ##self.MessageTextEdit.ensureCursorVisible()
+            #text2 = self.MessageTextEdit.toPlainText()
+            #print "***PM = %s, len(text) =%s"%(self.parentWidget, len(text))
+            #if len(text2) > 16:
+                #anchorText = text2[:16]
+                #print "***anchorText =", anchorText
+                #self.MessageTextEdit.scrollToAnchor(anchorText)
+                #self.MessageTextEdit.ensureCursorVisible()
+                
         self.show()
 
 # End of PM_MessageGroupBox ############################
