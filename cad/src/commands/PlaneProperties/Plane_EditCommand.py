@@ -247,9 +247,15 @@ class Plane_EditCommand(EditCommand):
         if self.hasValidStructure() is None:
             return
         
+        # piotr 080617 
+        # fixed plane resizing bug - should return if the plane
+        # is being interactively modified
+        if self.propMgr.resized_from_glpane:
+            return
+        
         #see if values in PM has changed
         currentParams = self._gatherParameters()
-        
+
         if same_vals(currentParams,self.propMgr.previousPMParams):
             return
         
