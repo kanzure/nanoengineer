@@ -102,10 +102,6 @@ class PlanePropertyManager(EditCommand_PM):
                                 buttonList = PLACEMENT_OPTIONS_BUTTON_LIST,
                                 checkedId  = 3 )
 
-        self.connect(self.pmPlacementOptions.buttonGroup,
-                     SIGNAL("buttonClicked(int)"),
-                     self.changePlanePlacement)
-
         self.pmGroupBox1 = PM_GroupBox(self, title = "Parameters")
         self._loadGroupBox1(self.pmGroupBox1)
 
@@ -131,12 +127,12 @@ class PlanePropertyManager(EditCommand_PM):
                          setAsDefault = True,
                          spanWidth = True
                          )
+        
         #setting check state based on pref key
         if env.prefs[PlanePM_showGrid_prefs_key] == True:
-            self.gridPlaneCheckBox.setCheckState(Qt.Checked)
-            
+            self.gridPlaneCheckBox.setCheckState( Qt.Checked )
         else:
-            self.gridPlaneCheckBox.setCheckState(Qt.Unchecked)
+            self.gridPlaneCheckBox.setCheckState( Qt.Unchecked )
             
         
         self.gpXSpacingDoubleSpinBox  =  \
@@ -163,8 +159,7 @@ class PlanePropertyManager(EditCommand_PM):
         
         lineTypeChoices = [ 'Dotted (default)',
                             'Dashed',
-                            'Solid'
-                         ]
+                            'Solid' ]
                         
         self.gpLineTypeComboBox = \
             PM_ComboBox( pmGroupBox ,     
@@ -172,43 +167,40 @@ class PlanePropertyManager(EditCommand_PM):
                          choices       =  lineTypeChoices,
                          setAsDefault  =  True)
         
-        hhColorList = [black, orange, red, magenta, 
-                       cyan, blue, white, yellow, gray]
-        hhColorNames = ["Black (default)", "Orange", "Red", "Magenta", 
-                        "Cyan", "Blue", "White", "Yellow", "Other color..."]
+        hhColorList = [ black, orange, red, magenta, 
+                       cyan, blue, white, yellow, gray ]
+        hhColorNames = [ "Black (default)", "Orange", "Red", "Magenta", 
+                        "Cyan", "Blue", "White", "Yellow", "Other color..." ]
     
         self.gpColorTypeComboBox = \
-            PM_ColorComboBox(pmGroupBox,
-                             colorList = hhColorList,
-                             colorNames = hhColorNames,
-                             color = black
-                             )
+            PM_ColorComboBox( pmGroupBox,
+                              colorList = hhColorList,
+                              colorNames = hhColorNames,
+                              color = black )
         
-        self.pmGroupBox5 = PM_GroupBox(pmGroupBox)
+        self.pmGroupBox5 = PM_GroupBox( pmGroupBox )
         
         self.gpDisplayLabels =\
-            PM_CheckBox(self.pmGroupBox5,
+            PM_CheckBox( self.pmGroupBox5,
                          text         = "Display labels",
                          widgetColumn  = 0,
                          state        = Qt.Unchecked,
                          setAsDefault = True,
-                         spanWidth = True)
+                         spanWidth = True )
         
-        originChoices = ['Lower left (default)',
+        originChoices = [ 'Lower left (default)',
                          'Upper left',
                          'Lower right',
-                         'Upper right'
-                         ]
+                         'Upper right' ]
                         
         self.gpOriginComboBox = \
             PM_ComboBox( self.pmGroupBox5 ,     
                          label         =  "Origin:", 
                          choices       =  originChoices,
-                         setAsDefault  =  True)
+                         setAsDefault  =  True )
         
-        positionChoices = ['Origin axes (default)',
-                           'Plane perimeter'
-                           ]
+        positionChoices = [ 'Origin axes (default)',
+                           'Plane perimeter' ]
                         
         self.gpPositionComboBox = \
             PM_ComboBox( self.pmGroupBox5 ,     
@@ -216,17 +208,18 @@ class PlanePropertyManager(EditCommand_PM):
                          choices       =  positionChoices,
                          setAsDefault  =  True)
         
-        self.showHideGPWidgets()
+        self._showHideGPWidgets()
+        
         if env.prefs[PlanePM_showGridLabels_prefs_key] ==  True:
-            self.gpDisplayLabels.setCheckState(Qt.Checked)
+            self.gpDisplayLabels.setCheckState( Qt.Checked )
             self.displayLabels = True
-            self.gpOriginComboBox.setEnabled(True)
-            self.gpPositionComboBox.setEnabled(True)
+            self.gpOriginComboBox.setEnabled( True )
+            self.gpPositionComboBox.setEnabled( True )
         else:
             self.gpDisplayLabels.setCheckState(Qt.Unchecked)
             self.displayLabels = False
-            self.gpOriginComboBox.setEnabled(False)
-            self.gpPositionComboBox.setEnabled(False)
+            self.gpOriginComboBox.setEnabled( False )
+            self.gpPositionComboBox.setEnabled( False )
          
         #@self.connectionsForGridPlane()
         return
@@ -243,7 +236,57 @@ class PlanePropertyManager(EditCommand_PM):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-            
+          
+        self.connect(self.pmPlacementOptions.buttonGroup,
+                     SIGNAL("buttonClicked(int)"),
+                     self.changePlanePlacement)
+        
+        #signal slot connection for imageDisplayCheckBox
+        self.connect(self.imageDisplayCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleFileChooserBehavior)
+
+        #signal slot connection for imageDisplayFileChooser
+        self.connect(self.imageDisplayFileChooser.lineEdit, 
+                     SIGNAL("editingFinished()"),
+                     self.update_imageFile)
+
+        #signal slot connection for heightfieldDisplayCheckBox
+        self.connect(self.heightfieldDisplayCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleHeightfield)
+
+        #signal slot connection for heightfieldHQDisplayCheckBox
+        self.connect(self.heightfieldHQDisplayCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleHeightfieldHQ)        
+        
+        #signal slot connection for heightfieldTextureCheckBox
+        self.connect(self.heightfieldTextureCheckBox, 
+                     SIGNAL("stateChanged(int)"), 
+                     self.toggleTexture)
+
+        #signal slot connection for vScaleSpinBox
+        self.connect(self.vScaleSpinBox, 
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_vertical_scale)
+        
+        self.connect(self.plusNinetyButton,
+                     SIGNAL("clicked()"),
+                     self.rotate_90)
+        
+        self.connect(self.minusNinetyButton,
+                     SIGNAL("clicked()"),
+                     self.rotate_neg_90)
+        
+        self.connect(self.flipButton,
+                     SIGNAL("clicked()"),
+                     self.flip_image)
+        
+        self.connect(self.mirrorButton,
+                     SIGNAL("clicked()"),
+                     self.mirror_image)
+    
         self.connect(self.gridPlaneCheckBox, 
                      SIGNAL("stateChanged(int)"), 
                      self.displayGridPlane)
@@ -279,7 +322,12 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def changePositionInGP(self, idx):
-        
+        """
+        Change Display of origin Labels (choices are along origin edges or along
+        the plane perimeter.
+        @param idx: Current index of the change grid label position combo box
+        @type idx: int
+        """
         if idx == 0:
             self.labelDisplayStyle = LABELS_ALONG_ORIGIN
         elif idx == 1:
@@ -289,6 +337,11 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def changeOriginInGP(self, idx):
+        """
+        Change Display of origin Labels based on the location of the origin
+        @param idx: Current index of the change origin position combo box
+        @type idx: int
+        """
         if idx == 0:
             self.originLocation = LOWER_LEFT
         elif idx ==1:
@@ -302,6 +355,11 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def displayLabelsInGP(self, state):
+        """
+        Choose to show or hide grid labels
+        @param state: State of the Display Label Checkbox 
+        @type state: boolean
+        """
         if self.gpDisplayLabels.isChecked() == True:
             env.prefs[PlanePM_showGridLabels_prefs_key] = True
             self.gpOriginComboBox.setEnabled(True)
@@ -317,12 +375,18 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def changeColorTypeInGP(self):
-        
+        """
+        Change Color of grid
+        """
         self.gridColor = self.gpColorTypeComboBox.getColor()
         return
     
     def changeLineTypeInGP(self, idx):
-        
+        """
+        Change line type in grid
+        @param idx: Current index of the Line type combo box
+        @type idx: int
+        """
         #line_type for actually drawing the grid is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
         if idx == 0:
             self.gridLineType = 3
@@ -333,28 +397,42 @@ class PlanePropertyManager(EditCommand_PM):
         return
     
     def changeYSpacingInGP(self, val):
-        
+        """
+        Change Y spacing on the grid
+        @param val:value of Y spacing
+        @type val: double
+        """
         self.gridYSpacing = float(val)
         return
     
     def changeXSpacingInGP(self, val):
-        
+        """
+        Change X spacing on the grid
+        @param val:value of X spacing
+        @type val: double
+        """
         self.gridXSpacing = float(val)
         return
     
     def displayGridPlane(self, state):
-        
-        self.showHideGPWidgets()
+        """
+        Display or hide grid based on the state of the checkbox
+        @param state: State of the Display Label Checkbox 
+        @type state: boolean
+        """
+        self._showHideGPWidgets()
         if self.gridPlaneCheckBox.isChecked():
             env.prefs[PlanePM_showGrid_prefs_key] = True
-            self.makeGridPlane()
+            self._makeGridPlane()
         else:
             env.prefs[PlanePM_showGrid_prefs_key] = False
             
         return 
     
-    def makeGridPlane(self):
-        
+    def _makeGridPlane(self):
+        """
+        Show grid on the plane
+        """
         #get all the grid related values in here
         self.gridXSpacing = float(self.gpXSpacingDoubleSpinBox.value())
         self.gridYSpacing = float(self.gpYSpacingDoubleSpinBox.value())
@@ -364,16 +442,15 @@ class PlanePropertyManager(EditCommand_PM):
         self.changeLineTypeInGP(idx)
         self.gridColor = self.gpColorTypeComboBox.getColor()
         
-        #grid width and height same as plane
-        #no labels for now, since does not show up in Mac OS X
-        
         return
     
     
-    def showHideGPWidgets(self):
-        
+    def _showHideGPWidgets(self):
+        """
+        Enable Disable grid related widgets based on the state of the show grid 
+        checkbox.
+        """
         if self.gridPlaneCheckBox.isChecked():
-            
             self.gpXSpacingDoubleSpinBox.setEnabled(True)
             self.gpYSpacingDoubleSpinBox.setEnabled(True)
             self.gpLineTypeComboBox.setEnabled(True)
@@ -499,40 +576,8 @@ class PlanePropertyManager(EditCommand_PM):
         self.heightfieldTextureCheckBox.setEnabled(False)
         self.vScaleSpinBox.setEnabled(False)
         
-        self.connect(self.plusNinetyButton,SIGNAL("clicked()"),self.rotate_90)
-        self.connect(self.minusNinetyButton,SIGNAL("clicked()"),self.rotate_neg_90)
-        self.connect(self.flipButton,SIGNAL("clicked()"),self.flip_image)
-        self.connect(self.mirrorButton,SIGNAL("clicked()"),self.mirror_image)
-    
-        #signal slot connection for imageDisplayCheckBox
-        self.connect(self.imageDisplayCheckBox, 
-                     SIGNAL("stateChanged(int)"), 
-                     self.toggleFileChooserBehavior)
-
-        #signal slot connection for imageDisplayFileChooser
-        self.connect(self.imageDisplayFileChooser.lineEdit, 
-                     SIGNAL("editingFinished()"),
-                     self.update_imageFile)
-
-        #signal slot connection for heightfieldDisplayCheckBox
-        self.connect(self.heightfieldDisplayCheckBox, 
-                     SIGNAL("stateChanged(int)"), 
-                     self.toggleHeightfield)
-
-        #signal slot connection for heightfieldHQDisplayCheckBox
-        self.connect(self.heightfieldHQDisplayCheckBox, 
-                     SIGNAL("stateChanged(int)"), 
-                     self.toggleHeightfieldHQ)        
         
-        #signal slot connection for heightfieldTextureCheckBox
-        self.connect(self.heightfieldTextureCheckBox, 
-                     SIGNAL("stateChanged(int)"), 
-                     self.toggleTexture)
-
-        #signal slot connection for vScaleSpinBox
-        self.connect(self.vScaleSpinBox, 
-                     SIGNAL("valueChanged(double)"), 
-                     self.change_vertical_scale)
+        
 
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -719,8 +764,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.gridPlaneCheckBox.setCheckState(Qt.Checked)
         else:
             self.gridPlaneCheckBox.setCheckState(Qt.Unchecked)
-            
-        self.showHideGPWidgets()
+        self._showHideGPWidgets()
         if env.prefs[PlanePM_showGridLabels_prefs_key] ==  True:
             self.gpDisplayLabels.setCheckState(Qt.Checked)
             self.displayLabels = True
