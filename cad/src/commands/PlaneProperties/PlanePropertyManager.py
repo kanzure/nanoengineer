@@ -43,6 +43,8 @@ class PlanePropertyManager(EditCommand_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
     (reference) Plane.
+    
+    
     """
 
     # The title that appears in the Property Manager header.
@@ -159,10 +161,10 @@ class PlanePropertyManager(EditCommand_PM):
                               singleStep    =  1.0, 
                               spanWidth = False)
         
-        lineTypeChoices =[ 'Dotted (default)',
-                           'Dashed',
-                           'Solid'
-                        ]
+        lineTypeChoices = [ 'Dotted (default)',
+                            'Dashed',
+                            'Solid'
+                         ]
                         
         self.gpLineTypeComboBox = \
             PM_ComboBox( pmGroupBox ,     
@@ -181,8 +183,6 @@ class PlanePropertyManager(EditCommand_PM):
                              colorNames = hhColorNames,
                              color = black
                              )
-                        
-        
         
         self.pmGroupBox5 = PM_GroupBox(pmGroupBox)
         
@@ -192,13 +192,13 @@ class PlanePropertyManager(EditCommand_PM):
                          widgetColumn  = 0,
                          state        = Qt.Unchecked,
                          setAsDefault = True,
-                         spanWidth = False)
+                         spanWidth = True)
         
-        originChoices =['Lower left (default)',
-                        'Upper left',
-                        'Lower right',
-                        'Upper right'
-                        ]
+        originChoices = ['Lower left (default)',
+                         'Upper left',
+                         'Lower right',
+                         'Upper right'
+                         ]
                         
         self.gpOriginComboBox = \
             PM_ComboBox( self.pmGroupBox5 ,     
@@ -206,9 +206,9 @@ class PlanePropertyManager(EditCommand_PM):
                          choices       =  originChoices,
                          setAsDefault  =  True)
         
-        positionChoices =['Along origin axes (default)',
-                        'Around plane edges'
-                        ]
+        positionChoices = ['Origin axes (default)',
+                           'Plane perimeter'
+                           ]
                         
         self.gpPositionComboBox = \
             PM_ComboBox( self.pmGroupBox5 ,     
@@ -228,11 +228,22 @@ class PlanePropertyManager(EditCommand_PM):
             self.gpOriginComboBox.setEnabled(False)
             self.gpPositionComboBox.setEnabled(False)
          
-        self.connectionsForGridPlane()
+        #@self.connectionsForGridPlane()
         return
     
-    def connectionsForGridPlane(self):
-        # when show grid is checked a grid is displayed
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+            
         self.connect(self.gridPlaneCheckBox, 
                      SIGNAL("stateChanged(int)"), 
                      self.displayGridPlane)
