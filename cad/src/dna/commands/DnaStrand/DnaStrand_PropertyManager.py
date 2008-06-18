@@ -359,31 +359,16 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             
         if self.sequenceEditor:
             self.sequenceEditor.close()
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.show()
-                
+                            
         _superclass.close(self)
             
     def _showSequenceEditor(self):
         if self.sequenceEditor:
-            #hide the history widget first
-            #(It will be shown back during self.close)
-            #The history widget is hidden or shown only when both 
-            # 'View > Full Screen' and View > Semi Full Screen actions 
-            # are *unchecked*
-            #Thus show or close methods won't do anything to history widget
-            # if either of the above mentioned actions is checked.
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.hide()
-            
             if not self.sequenceEditor.isVisible():
                 #Show the sequence editor
+                #ATTENTION: the sequence editor also closes (temporarily) the
+                #reports dockwidget (if visible) Its state is later restored when
+                #the sequuence Editor is closed. 
                 self.sequenceEditor.show()     
                                               
             self.updateSequence()

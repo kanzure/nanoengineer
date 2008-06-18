@@ -82,11 +82,8 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         """
         Creates a dockable sequence editor
         """
-        self.win = win
-        # Should parentWidget for a docwidget always be win? 
-        #Not necessary but most likely it will be the case.        
-        parentWidget = win                
-        Ui_DnaSequenceEditor.__init__(self, parentWidget)  
+                       
+        Ui_DnaSequenceEditor.__init__(self, win)  
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         #Flag used in self.sequenceChanged so that it doesn't get called 
