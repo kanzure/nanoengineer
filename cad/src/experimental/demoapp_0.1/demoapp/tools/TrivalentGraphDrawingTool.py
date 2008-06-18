@@ -38,6 +38,7 @@ from pyglet.event import EVENT_HANDLED
 from demoapp.foundation.MouseBehavior import Tool, CMD_RETVAL, ToolStateBehavior, Transition ##, SAME_STATE
 
 from demoapp.tools.HuntForClickAction_ToolStateBehavior import HuntForClickAction_ToolStateBehavior
+from demoapp.tools.HuntForReleaseAction_ToolStateBehavior import HuntForReleaseAction_ToolStateBehavior
 
 from demoapp.geometry.vectors import A, V
 
@@ -149,7 +150,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
             #  for us. For this state's code the buttons had better be in front or in another pane.)
     pass
 
-class DragNode(ToolStateBehavior):
+class DragNode(ToolStateBehavior): ### TODO: replace with DragNode2, below
     def __init__(self, tool, node, dragstart_pos):
         ToolStateBehavior.__init__(self, tool)
         self.node = node
@@ -178,6 +179,50 @@ class DragNode(ToolStateBehavior):
                 self.tool._f_HighlightGraphics_instance )
         pass
     pass
+
+class DragNode2(HuntForReleaseAction_ToolStateBehavior): ### TODO: debug, then use
+    def __init__(self, tool, node, dragstart_pos):
+        super(DragNode2, self).__init__(tool)
+        self.node = node
+        # todo: assert isinstance(node, Node), "DragNode needs a Node, not %r" % (node,)
+        # for now:
+        assert node, "DragNode needs a Node, not %r" % (node,) # only checks existence, not class
+        ### ISSUE: are node.pos and dragstart_pos in same coords? probably not. need model to pane, vice versa. #####
+        self.node_offset = node.pos - A(dragstart_pos)
+
+    def on_mouse_release_would_do(self, x, y, button, modifiers):
+        model = self.model
+        obj = self.pane.find_object(x, y,
+                                    excluding = [self.node] + list(self.node.edges)
+                                    ) # might be None
+        hh = self.tool._f_HighlightGraphics_descriptions
+        if isinstance(obj, model.Node):
+            return Transition( [hh.tip_text("merge with existing node", obj),
+                                hh.highlight_merge(self.node, obj),
+                                ],
+                               ("cmd_MergeNodes", self.node, obj),
+                               (HuntForNode, None) )
+        else:
+            return Transition( None, None, (HuntForNode, None) )
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        "[extends superclass version]"
+        self.node.pos = self.node_offset + V(x, y)
+        res = super(DragNode2, self).on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+            # superclass method handles tip & highlighting specific to this potential release-point
+        return res
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        "[extends superclass version]"
+        self.node.pos = self.node_offset + V(x, y)
+        res = super(DragNode2, self).on_mouse_release(x, y, button, modifiers)
+        return res
+
+    ### REVIEW: what about on_draw_handle?
+    
+    pass
+
+#DragNode = DragNode2 #### TEST - for some reason this breaks drawing of rubber_edges during HuntForNode! No idea how that could be.
 
 # ==
 

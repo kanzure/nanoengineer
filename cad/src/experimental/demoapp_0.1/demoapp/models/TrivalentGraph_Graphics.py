@@ -47,7 +47,11 @@ class TrivalentGraph_HighlightGraphics( HighlightGraphics):
         obj.draw( highlight_color = red) # bug: only implemented for nodes
         pass
     def highlight_connect_to(self, node):
-        node.draw( highlight_color = green) # yellow might be best -- green is for testing
+        node.draw( highlight_color = yellow)
+        pass
+    def highlight_merge(self, node1, node2):
+        node1.draw( highlight_color = yellow)
+        node2.draw( highlight_color = yellow)
         pass
     def highlight_insert_into(self, edge):
         #todo

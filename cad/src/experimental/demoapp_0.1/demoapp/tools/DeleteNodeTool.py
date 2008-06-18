@@ -29,7 +29,7 @@ class _HuntForNode(HuntForClickAction_ToolStateBehavior): # rename?
                                 hh.highlight_delete(obj),
                                 ],
                                ("cmd_deleteNode", obj,),
-                               (_HuntForNode,) )
+                               (_HuntForNode,) ) # todo: use SAME_STATE here
         return None # for anything we don't understand, use handler below us
     pass
 

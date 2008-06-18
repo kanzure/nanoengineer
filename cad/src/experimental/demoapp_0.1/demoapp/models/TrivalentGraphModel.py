@@ -2,6 +2,8 @@
 TrivalentGraphModel.py
 
 $Id$
+
+bug: rubber edges stopped working...
 """
 
 from demoapp.geometry.vectors import V
@@ -29,6 +31,11 @@ class Node(ModelComponent):
         self.x = x
         self.y = y
         self.edges = [] # sequence or set of our edges
+    def destroy(self):
+        for e in self.edges:
+            e.destroy()
+        self.edges = []
+        del self.model.nodes[self]
     def new_edge_ok(self):
         return len(self.edges) < 3
     def draw(self, highlight_color = None):
@@ -41,7 +48,7 @@ class Node(ModelComponent):
     def set_pos(self, pos):
         self.x, self.y = pos
     pos = property(get_pos, set_pos)
-    def hit_test(self, x, y): # modified from soundspace.py; made 2d
+    def hit_test(self, x, y): # modified from soundspace.py; made 2d; could improve using vectors.py functions
         dx, dy  = [a - b for a, b in zip(self.pos, (x, y))]
         if dx * dx + dy * dy  < self.radius * self.radius:
             return -dx, -dy,  # return relative position within object
@@ -66,10 +73,32 @@ class Edge(ModelComponent):
     @property
     def n2(self):
         return self.nodes[1]
-    # todo: def hit_test
+    def other(self, node):
+        if self.nodes[0] is node:
+            return self.nodes[1]
+        else:
+            assert self.nodes[1] is node
+            return self.nodes[0]
+        pass
+    def hit_test(self, x, y):
+        return False ##### REMOVE THIS when below funcs are implemented #####
+        HALO_RADIUS = 2 # or maybe 1?
+        p1 = self.nodes[0].pos
+        p2 = self.nodes[1].pos
+        along_edge = unitVector(p2 - p1) # IMPLEM unitVector, rotate2d_90, dot, vlen; import V
+        perp_to_edge = rotate2d_90(along_edge)
+        vec = V(x,y) - p1
+        distance_from_edge_line = dot(vec, perp_to_edge)
+        if distance_from_edge_line > HALO_RADIUS:
+            return False
+        distance_along_edge_line = dot(vec, along_edge)
+        if - HALO_RADIUS <= distance_along_edge_line <= vlen(p2 - p1) + HALO_RADIUS:
+            # approximation -- matches to a rectangle centered on the edge
+            return True
+        return False
     pass
     
-class TrivalentGraphModel(object): ## was: (pyglet.event.EventDispatcher)
+class TrivalentGraphModel(object):
     # REVISE: rename, then split out superclass Model
     """
     model for a partial or complete trivalent graph
@@ -118,21 +147,27 @@ class TrivalentGraphModel(object): ## was: (pyglet.event.EventDispatcher)
         node2 = self.cmd_addNodeOnEdge(x, y, edge)
         self.cmd_addEdge(node, node2)
         return node2
+
+    def cmd_MergeNodes(self, node1, node2):
+        "merge node1 with node2 (retaining properties of node2, e.g. .pos)"
+        node1_neighbors = [e.other(node1) for e in node1.edges] # might include node2
+        node1.destroy()
+        for n in node1_neighbors:
+            if n is not node2:
+                self.cmd_addEdge(n, node2)
+        return True
     
-    def draw(self):
-        for obj in self.drawn_objects():
-            obj.draw()
     def hit_test_objects(self): # front to back
         for node in self.nodes.itervalues():
             yield node
         for edge in self.edges.itervalues():
             yield edge
+
     def drawn_objects(self):
         return self.hit_test_objects() #stub
-    pass
 
-##TrivalentGraphModel.register_event_type('cmd_addNode')
-##TrivalentGraphModel.register_event_type('cmd_addEdge')
-##TrivalentGraphModel.register_event_type('cmd_addNodeAndConnectFrom')
-##TrivalentGraphModel.register_event_type('cmd_addNodeOnEdge')
-##TrivalentGraphModel.register_event_type('cmd_addNodeOnEdgeAndConnectFrom') # todo: autoregister based on prefix; or pass 'cmd_*' to this method
+    def draw(self):
+        for obj in self.drawn_objects():
+            obj.draw()
+
+    pass

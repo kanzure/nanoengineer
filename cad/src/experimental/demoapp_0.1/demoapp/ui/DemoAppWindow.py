@@ -96,9 +96,9 @@ class ToolPane(pyglet.event.EventDispatcher):
     _last_tool = None
     def __init__(self, parent):
         self.parent = parent
-    def find_object(self, x, y):
+    def find_object(self, x, y, excluding = ()):
         for obj in self.model.hit_test_objects():
-            if obj.hit_test(x, y):
+            if obj.hit_test(x, y) and not obj in excluding:
                 return obj
         return None
     def draw_tip_and_highlight(self, stuff, instance):

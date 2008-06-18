@@ -22,7 +22,8 @@ class HuntForClickAction_ToolStateBehavior(ToolStateBehavior): # rename?
           actions and see highlighting for all of them).
 
     @see: other classes for similar behavior during a drag
-          (tip & highlight for places where mouse *up* has certain effects).
+          (tip & highlight for places where mouse *up* has certain effects),
+          e.g. HuntForReleaseAction_ToolStateBehavior.
     """
     # instance variables
     _tip_and_highlight_info = None
