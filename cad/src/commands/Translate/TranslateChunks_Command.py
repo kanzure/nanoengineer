@@ -21,6 +21,7 @@ class TranslateChunks_Command(Move_Command):
     """
     commandName = 'TRANSLATE_CHUNKS'
     featurename = "Translate Chunks"
+    default_mode_status_text = "Translate Chunks"
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 

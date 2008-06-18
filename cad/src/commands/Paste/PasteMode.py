@@ -46,8 +46,8 @@ class PasteMode(depositMode):
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
     """
     commandName = 'PASTE' 
-    msg_commandName = "Paste Mode" 
-    default_mode_status_text = "Mode: Paste"
+    msg_commandName = "Paste" 
+    default_mode_status_text = "Paste Command"
     featurename = "Paste"
 
     command_can_be_suspended = True #bruce 071011, 

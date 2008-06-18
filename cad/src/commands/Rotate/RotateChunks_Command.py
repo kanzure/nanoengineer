@@ -21,6 +21,7 @@ class RotateChunks_Command(Move_Command):
      
     commandName = 'ROTATE_CHUNKS'
     featurename = "Rotate Chunks"
+    default_mode_status_text = "Rotate Chunks"
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
