@@ -18,6 +18,7 @@ from PyQt4.Qt import QPalette
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QAction, QMenu
+from PyQt4.Qt import Qt
 
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors    import sequenceEditStrandMateBaseColor
@@ -198,6 +199,12 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         self.sequenceTextEdit_mate.setFixedHeight(20)
         self.sequenceTextEdit_mate.setReadOnly(True)
         self.sequenceTextEdit_mate.setWordWrapMode(QTextOption.WrapAnywhere)
+        
+        #Important to make sure that the horizontal and vertical scrollbars 
+        #for these text edits are never displayed. 
+        for textEdit in (self.sequenceTextEdit, self.sequenceTextEdit_mate):
+            textEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
     
     def _getFindLineEditStyleSheet(self):
