@@ -150,45 +150,18 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
             #  for us. For this state's code the buttons had better be in front or in another pane.)
     pass
 
-class DragNode(ToolStateBehavior): ### TODO: replace with DragNode2, below
-    def __init__(self, tool, node, dragstart_pos):
-        ToolStateBehavior.__init__(self, tool)
-        self.node = node
-        # todo: assert isinstance(node, Node), "DragNode needs a Node, not %r" % (node,)
-        # for now:
-        assert node, "DragNode needs a Node, not %r" % (node,) # only checks existence, not class
-        ### ISSUE: are node.pos and dragstart_pos in same coords? probably not. need model to pane, vice versa. #####
-        self.node_offset = node.pos - A(dragstart_pos)
-    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        # todo: have caller only send this if distance gets high enough...
-        self.node.pos = self.node_offset + V(x, y)
-        return EVENT_HANDLED
-    def on_mouse_release(self, x, y, button, modifiers):
-        next_state = (HuntForNode, self.node) #### or, should this state DragNode be "called" and at this point "return"?
-        self.transition_to(next_state)
-        return EVENT_HANDLED
-    def on_mouse_press(self, x, y, button, modifiers):
-        self.done()
-        print "unexpected: DragNode.on_mouse_press"
-        return None
-    def on_draw_handle(self):
-        # highlight this node to indicate we're dragging it?
-        hh = self.tool._f_HighlightGraphics_descriptions
-        self.pane.draw_tip_and_highlight(
-                hh.highlight_drag(self.node), # review: different look for could drag or is dragging? text tip "dragging"?
-                self.tool._f_HighlightGraphics_instance )
-        pass
-    pass
+# ==
 
-class DragNode2(HuntForReleaseAction_ToolStateBehavior): ### TODO: debug, then use
+class DragNode(HuntForReleaseAction_ToolStateBehavior): # works, except for bugs in merging operation (doesn't delete enough edges)
     def __init__(self, tool, node, dragstart_pos):
-        super(DragNode2, self).__init__(tool)
+        super(DragNode, self).__init__(tool)
         self.node = node
         # todo: assert isinstance(node, Node), "DragNode needs a Node, not %r" % (node,)
         # for now:
         assert node, "DragNode needs a Node, not %r" % (node,) # only checks existence, not class
         ### ISSUE: are node.pos and dragstart_pos in same coords? probably not. need model to pane, vice versa. #####
-        self.node_offset = node.pos - A(dragstart_pos)
+        self.dragstart_pos = A(dragstart_pos)
+        self.node_offset = node.pos - self.dragstart_pos
 
     def on_mouse_release_would_do(self, x, y, button, modifiers):
         model = self.model
@@ -202,27 +175,35 @@ class DragNode2(HuntForReleaseAction_ToolStateBehavior): ### TODO: debug, then u
                                 ],
                                ("cmd_MergeNodes", self.node, obj),
                                (HuntForNode, None) )
-        else:
+        elif V(x, y) != self.dragstart_pos:
+            # it moved; don't draw edges from it during subsequent mouse motion
+            # (future: small motions should not count, for this or for dragging;
+            #  could be done here, or by caller not sending drag events at first)
             return Transition( None, None, (HuntForNode, None) )
+        else:
+            # it didn't move; do perhaps draw edges from it during subsequent motion
+            return Transition( None, None, (HuntForNode, self.node) )
+                #### review: should this state DragNode be "called" and at this point "return",
+                # rather than being jumped to and hardcoding what to jump back out to?
+                # if so, how to pass None or self.node?
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         "[extends superclass version]"
         self.node.pos = self.node_offset + V(x, y)
-        res = super(DragNode2, self).on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+        res = super(DragNode, self).on_mouse_drag(x, y, dx, dy, buttons, modifiers)
             # superclass method handles tip & highlighting specific to this potential release-point
         return res
 
     def on_mouse_release(self, x, y, button, modifiers):
         "[extends superclass version]"
         self.node.pos = self.node_offset + V(x, y)
-        res = super(DragNode2, self).on_mouse_release(x, y, button, modifiers)
+        res = super(DragNode, self).on_mouse_release(x, y, button, modifiers)
         return res
 
-    ### REVIEW: what about on_draw_handle?
+    ### REVIEW: what about on_draw_handle? (to highlight this node to indicate we're dragging it)
+    # different look for could drag or is dragging? text tip "dragging"?
     
     pass
-
-#DragNode = DragNode2 #### TEST - for some reason this breaks drawing of rubber_edges during HuntForNode! No idea how that could be.
 
 # ==
 
