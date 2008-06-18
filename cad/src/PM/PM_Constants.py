@@ -23,31 +23,6 @@ from PyQt4.Qt import Qt
 __author__ = "Mark"
 
 # PropMgr constants (system specific).
-"""
-if sys.platform == "darwin":
-    pmMinWidth = 300 # The min PropMgr width.
-    pmMaxWidth = 450 # The max PropMgr width.
-    pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Arial" # Font type used in PropMgr header.
-    pmHeaderFontPointSize = 20
-    pmHeaderFontBold = True
-elif sys.platform == "win32":
-    pmMinWidth = 240 # The min PropMgr width.
-    pmMaxWidth = 400 # The max PropMgr width.
-    pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Arial" # Font type used in PropMgr header.
-    pmHeaderFontPointSize = 12
-    pmHeaderFontBold = True
-else: #Linux
-    pmMinWidth = 250 # The min PropMgr width.
-    pmMaxWidth = 400 # The max PropMgr width.
-    pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Arial" # Font type used in PropMgr header.
-    pmHeaderFontPointSize = 12
-    pmHeaderFontBold = True
-    """
-
-# PropMgr constants (system specific).
 # Same as above, except these names meet our Python coding guildlines. 
 # To do: search and replace all lowercase constants with uppercase constants.
 if sys.platform == "darwin":
@@ -55,8 +30,8 @@ if sys.platform == "darwin":
     PM_MAXIMUM_WIDTH = 450 # The max PropMgr width.
     PM_DEFAULT_WIDTH = PM_MINIMUM_WIDTH # Starting PropMgr width
     PM_HEADER_FONT = "Arial" # Font type used in PropMgr header.
-    PM_HEADER_FONT_POINT_SIZE = 20
-    PM_HEADER_FONT_BOLD = True
+    PM_HEADER_FONT_POINT_SIZE = 18
+    PM_HEADER_FONT_BOLD = False
 elif sys.platform == "win32":
     PM_MINIMUM_WIDTH = 240 # The min PropMgr width.
     PM_MAXIMUM_WIDTH = 400 # The max PropMgr width.
