@@ -94,8 +94,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                                    None,
                                    (DragNode, obj, (x,y)) ) # was SAME_STATE
             else:
-                return Transition( [hh.tip_text("drag this node and connect it to other nodes", obj),
-                                        # todo: revise tip and behavior: 'and' -> 'or'
+                return Transition( [hh.tip_text("drag this node, or click to connect it to other nodes", obj),
                                     hh.highlight_drag(obj) ],
                                    None,
                                    (DragNode, obj, (x,y)) )
