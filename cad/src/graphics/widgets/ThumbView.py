@@ -77,9 +77,11 @@ from utilities.debug import print_compact_traceback
 
 from utilities.constants import diTrueCPK
 from utilities.constants import gray
-from utilities.constants import bluesky
+from utilities.constants import bluesky, eveningsky, bg_seagreen, bgEVENING_SKY, bgSEAGREEN
 from utilities.constants import GL_FAR_Z
 from utilities.prefs_constants import bondpointHighlightColor_prefs_key
+from utilities.prefs_constants import backgroundGradient_prefs_key
+from utilities.prefs_constants import backgroundColor_prefs_key
 
 from foundation.Group import Group
 from model.chem import Atom
@@ -89,6 +91,7 @@ from model.chunk import Chunk
 from operations.pastables import find_hotspot_for_pasting
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
+from platform.PlatformDependent import fix_event_helper
 
 class ThumbView(GLPane_minimal):
     """
@@ -133,8 +136,8 @@ class ThumbView(GLPane_minimal):
         try:
             parent.gridLayout.addWidget(self, 0, 0, 1, 1)   
         except:
-            print_compact_traceback("bug: Preview Pane's parent widget doesn't \
-            have a layout. Preview Pane not added to the layout.")
+            print_compact_traceback("bug: Preview Pane's parent widget doesn't" \
+            " have a layout. Preview Pane not added to the layout.")
             pass
         
         self.picking = False
@@ -153,8 +156,9 @@ class ThumbView(GLPane_minimal):
         self.scale # make sure superclass set this [bruce 080219]
         
         # default color and gradient values.
-        self.backgroundColor = gray
-        self.backgroundGradient = 1 # SkyBlue
+        self.backgroundColor = env.prefs[backgroundColor_prefs_key]
+        self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
+                        
 
     def drawModel(self):
         """
@@ -254,7 +258,7 @@ class ThumbView(GLPane_minimal):
         # Change to "if 0:" to have the thubview background match the current mode background.
         # This fixes bug 1229.  Mark 060116
         if 1:
-            self.backgroundGradient = 1 
+            self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
         else:
             self.backgroundGradient = gradient
                 
@@ -332,18 +336,29 @@ class ThumbView(GLPane_minimal):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
             # see comments in GLPane
             self._setup_lighting() #bruce 060415 added this call
-        
+            
+        self.backgroundColor = env.prefs[backgroundColor_prefs_key]
         c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         del c
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
+        self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
         if self.backgroundGradient:
+            
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            drawFullWindow(bluesky) # "Blue Sky" gradient
+            
+            # Setting to blue sky (default), but might change to something else
+            _bgGradient = bluesky
+            if self.backgroundGradient == bgEVENING_SKY:
+                _bgGradient = eveningsky
+            if self.backgroundGradient == bgSEAGREEN:
+                _bgGradient = bg_seagreen
+                
+            drawFullWindow(_bgGradient)# gradient color
         
 ##        self.aspect = (self.width + 0.0) / (self.height + 0.0)
 ##        self.vdist = 6.0 * self.scale
@@ -477,7 +492,7 @@ class ThumbView(GLPane_minimal):
         """
         Dispatches mouse motion events depending on shift and
         control key state.
-        """
+        """        
         ##self.debug_event(event, 'mouseMoveEvent')
         buttons, modifiers = event.buttons(), event.modifiers()
         
