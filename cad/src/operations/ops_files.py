@@ -44,7 +44,7 @@ from simulation.runSim import readGromacsCoordinates
 from files.pdb.files_pdb import insertpdb, writepdb
 from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
 from files.mmp.files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
-from  files.ios.files_ios import exportToIOSFormat
+from  files.ios.files_ios import exportToIOSFormat,importFromIOSFile
 
 from graphics.rendering.fileIO import writepovfile
 from graphics.rendering.fileIO import writemdlfile
@@ -289,6 +289,53 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Update the current working directory (CWD).
             #dir, fil = os.path.split(import_filename)
             #self.setCurrentWorkingDirectory(dir)
+            
+    def fileIOSImport(self): #Urmi 20080618
+        """
+        Slot method for 'File > Import'.
+        Imports IOS file outputted by Parabon Computation Inc 
+        Optimizer into the NE-1 model.
+        """
+        
+        #IOS files do not have positional info, hence a structure has to be existing
+        # in the screen for this to work.
+        # Note that the optimized sequences only get assigned if the structure on
+        # the NE-1 window matches the structure in the IOS file
+        
+        cmd = greenmsg("Import IOS File: ")
+      
+        #check if screen is empty
+        if hasattr(self.assy.part.topnode, 'members'):
+            numberOfMembers = len(self.assy.part.topnode.members)
+        else:
+            #Its a clipboard part, probably a chunk or a jig not contained in 
+            #a group.
+            numberOfMembers = 1
+        
+        if numberOfMembers == 0:
+            print "Cannot import since we cannot assign optimized sequences if there's \
+             not any sequences on the NE-1 window"
+            return
+        
+        formats = \
+            "Extensive Markup Language (*.xml);;"
+        
+        import_filename = QFileDialog.getOpenFileName(self, 
+                                 "Select a file to import", 
+                                 self.currentWorkingDirectory, 
+                                 formats
+                                 ) 
+        if not import_filename:
+            env.history.message(cmd + "Cancelled")
+            return
+        
+        success = importFromIOSFile(self.assy, import_filename)
+        if success:
+            env.history.message(cmd + "Successfully imported optimized strands from" + import_filename)
+        else:    
+            
+            env.history.message(cmd + redmsg("Cannot import" + import_filename))
+        return 
     
     def fileIOSExport(self): #Urmi 20080610
         """
@@ -297,7 +344,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Optimizer from the NE-1 model.
         """
         
-        cmd = greenmsg("Export File: ")
+        cmd = greenmsg("Export IOS File: ")
         
         
         if hasattr(self.assy.part.topnode, 'members'):
@@ -330,7 +377,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if ext == "":
             export_filename = str(export_filename)  + ".xml"
         
-        exportToIOSFormat(self.assy.part, export_filename)
+        exportToIOSFormat(self.assy, export_filename)
+        env.history.message(cmd + "Sucessfully exported structure info to" + export_filename)
         return
             
             
