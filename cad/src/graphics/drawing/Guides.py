@@ -652,7 +652,7 @@ class Guides(object):
             # Draw vertical ruler tickmarks, including numeric unit labels
             for tick_num in range(num_horz_ticks + 1):
                 
-                # pt1 and pt2 are modified by each iteration of the loop (below).
+                # pt1 and pt2 are modified by each iteration of the loop.
                 self.drawLine(pt1, pt2)
                 
                 # Draw units number beside long tickmarks.
@@ -667,7 +667,8 @@ class Guides(object):
                 # Update tickmark endpoints for next tickmark.
                 pt1 = ruler_start_pt + \
                     V(0.0, 
-                      vr_tickmark_spacing * tickmark_spacing_multiplier * (tick_num + 1),
+                      vr_tickmark_spacing * tickmark_spacing_multiplier
+                      * (tick_num + 1),
                       0.0)
                 
                 if not (tick_num + 1) % long_tickmark_inc:
@@ -696,7 +697,7 @@ class Guides(object):
             # numeric unit labels
             for tick_num in range(num_vert_ticks + 1):
                 
-                # pt1 and pt2 are modified by each iteration of the loop (below).
+                # pt1 and pt2 are modified by each iteration of the loop.
                 self.drawLine(pt1, pt2)
                 
                 # Draw units number beside long tickmarks.
@@ -711,7 +712,8 @@ class Guides(object):
                 # Update tickmark endpoints for next tickmark.
                 pt1 = \
                     ruler_start_pt + \
-                    V(hr_tickmark_spacing * tickmark_spacing_multiplier * (tick_num + 1),
+                    V(hr_tickmark_spacing * tickmark_spacing_multiplier
+                      * (tick_num + 1),
                       0.0,
                       0.0)
                 

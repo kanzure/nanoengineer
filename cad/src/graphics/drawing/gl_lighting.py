@@ -26,13 +26,13 @@ parent's displist attr to keep track of all that stuff.
 080311 piotr Added a "drawpolycone_multicolor" function for drawing polycone
 tubes with per-vertex colors (necessary for DNA display style)
 
-080313 russ: Added triangle-strip icosa-sphere constructor, "getSphereTriStrips".
+080313 russ: Added triangle-strip icosa-sphere constructor,"getSphereTriStrips".
 
 080420 piotr Solved highlighting and selection problems for multi-colored
 objects (e.g. rainbow colored DNA structures).
 
-080519 russ: pulled the globals into a drawing_globals module and broke drawer.py
-into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
+080519 russ: pulled the globals into a drawing_globals module and broke
+drawer.py into 10 smaller chunks: glprefs.py setup_draw.py shape_vertices.py
 ColorSorter.py CS_workers.py CS_ShapeList.py CS_draw_primitives.py drawers.py
 gl_lighting.py gl_buffers.py
 
@@ -106,8 +106,9 @@ import utilities.debug as debug # for debug.print_compact_traceback
 import numpy
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColorStyle_prefs_key
-from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1
-from utilities.prefs_constants import HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_HALO
+from utilities.prefs_constants import HHS_SOLID, HHS_SCREENDOOR1
+from utilities.prefs_constants import HHS_CROSSHATCH1, HHS_BW_PATTERN
+from utilities.prefs_constants import HHS_POLYGON_EDGES, HHS_HALO
 from utilities.prefs_constants import selectionColorStyle_prefs_key
 from utilities.prefs_constants import SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1
 from utilities.prefs_constants import SS_BW_PATTERN, SS_POLYGON_EDGES, SS_HALO
@@ -127,13 +128,16 @@ except:
 
 # Helper functions for use by GL widgets wanting to set up lighting.
 
-#bruce 051212 made these from the code in GLPane which now calls them, so they can also be used in ThumbView
+#bruce 051212 made these from the code in GLPane which now calls them, so they
+#can also be used in ThumbView
 
-# Default lights tuples (format is as used by setup_standard_lights; perhaps also assumed by other code).
+# Default lights tuples (format is as used by setup_standard_lights; perhaps
+# also assumed by other code).
 #grantham 20051121 comment - Light should probably be a class.  Right now,
 # changing the behavior of lights requires changing a bunch of
 # ambiguous tuples and tuple packing/unpacking.
-#bruce 051212 moved this here from GLPane; maybe it belongs in prefs_constants instead?
+#bruce 051212 moved this here from GLPane; maybe it belongs in prefs_constants
+# instead?
 # Note: I'm not sure whether this is the only place where this data is coded.
 _default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
                    (white, 0.1, 0.5, 0.5, -20, 20, 20, True),
@@ -141,13 +145,15 @@ _default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
         # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
         # revised format to include s,x,y,z.  Mark 051202.
         # revised format to include c (r,g,b). Mark 051204.
-        # Be sure to keep the lightColor prefs keys and _lights colors synchronized.
+        # Be sure to keep the lightColor prefs keys and _lights colors
+        # synchronized.
         # Mark 051204. [a comment from when this was located in GLPane]
 
 def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
     """
-    Return a summary of the glprefs data used by setup_standard_lights,
-    for use in later deciding whether it needs to be called again due to changes in glprefs.
+    Return a summary of the glprefs data used by setup_standard_lights, for use
+    in later deciding whether it needs to be called again due to changes in
+    glprefs.
     """
     if glprefs is None:
         glprefs = drawing_globals.glprefs
@@ -157,21 +163,29 @@ def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
 
 def setup_standard_lights( lights, glprefs = None):
     """
-    Set up lighting in the current GL context using the supplied "lights" tuple (in the format used by GLPane's prefs)
-    and the optional glprefs object (which defaults to drawing_globals.glprefs ).
-       Note: the glprefs data used can be summarized by the related function glprefs_data_used_by_setup_standard_lights (which see).
+    Set up lighting in the current GL context using the supplied "lights" tuple
+    (in the format used by GLPane's prefs) and the optional glprefs object
+    (which defaults to drawing_globals.glprefs ).
+
+       Note: the glprefs data used can be summarized by the related function
+       glprefs_data_used_by_setup_standard_lights (which see).
+
        Warning: has side effects on GL_MODELVIEW matrix.
-       Note: If GL_NORMALIZE needs to be enabled, callers should do that themselves,
-    since this depends on what they will draw and might slow down drawing.
+
+       Note: If GL_NORMALIZE needs to be enabled, callers should do that
+       themselves, since this depends on what they will draw and might slow down
+       drawing.
     """
-    #e not sure whether projection matrix also needs to be reset here [bruce 051212]
+    #e not sure whether projection matrix also needs to be reset here
+    # [bruce 051212]
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
     if glprefs is None:
         glprefs = drawing_globals.glprefs
         # note: whatever glprefs data is used below must also be present
-        # in the return value of glprefs_data_used_by_setup_standard_lights(). [bruce 051212]
+        # in the return value of glprefs_data_used_by_setup_standard_lights().
+        # [bruce 051212]
 
     try:
         # new code
@@ -179,7 +193,8 @@ def setup_standard_lights( lights, glprefs = None):
          ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
          ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = lights
 
-        # Great place for a print statement for debugging lights.  Keep this.  Mark 051204. [revised by bruce 051212]
+        # Great place for a print statement for debugging lights.  Keep this.
+        # Mark 051204. [revised by bruce 051212]
         #print "-------------------------------------------------------------"
         #print "setup_standard_lights: lights[0]=", lights[0]
         #print "setup_standard_lights: lights[1]=", lights[1]
@@ -232,9 +247,12 @@ def setup_standard_lights( lights, glprefs = None):
         else:
             glDisable(GL_LIGHT2)
     except:
-        debug.print_compact_traceback("bug (worked around): setup_standard_lights reverting to old code, because: ")
-        # old code, used only to set up some sort of workable lighting in case of bugs
-        # (this is not necessarily using the same values as _default_lights; doesn't matter since never used unless there are bugs)
+        debug.print_compact_traceback(
+            "bug (worked around): setup_standard_lights reverting to old code.")
+        # old code, used only to set up some sort of workable lighting in case
+        # of bugs (this is not necessarily using the same values as
+        # _default_lights; doesn't matter since never used unless there are
+        # bugs)
         glLightfv(GL_LIGHT0, GL_POSITION, (-50, 70, 30, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
@@ -276,21 +294,26 @@ def disable_fog():
 
 # ==
 
-def apply_material(color): # grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added specular_brightness), 051215
+# grantham 20051121, renamed 20051201; revised by bruce 051126, 051203 (added
+# specular_brightness), 051215
+def apply_material(color):
     """
     Set OpenGL material parameters based on the given color (length 3 or 4) and
     the material-related prefs values in drawing_globals.glprefs.
     """
 
-    #bruce 051215: make sure color is a tuple, and has length exactly 4, for all uses inside this function,
-    # assuming callers pass sequences of length 3 or 4. Needed because glMaterial requires four-component
-    # vector and PyOpenGL doesn't check. [If this is useful elsewhere, we can split it into a separate function.]
+    #bruce 051215: make sure color is a tuple, and has length exactly 4, for all
+    # uses inside this function, assuming callers pass sequences of length 3 or
+    # 4. Needed because glMaterial requires four-component vector and PyOpenGL
+    # doesn't check. [If this is useful elsewhere, we can split it into a
+    # separate function.]
     color = tuple(color)
     if len(color) == 3:
         color = color + (1.0,) # usual case
     elif len(color) != 4:
         # should never happen; if it does, this assert will always fail
-        assert len(color) in [3,4], "color tuples must have length 3 or 4, unlike %r" % (color,)
+        assert len(color) in [3,4], \
+               "color tuples must have length 3 or 4, unlike %r" % (color,)
 
     glColor4fv(color)          # For drawing lines with lighting disabled.
 
@@ -311,10 +334,15 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
         else:
             # assume color[3] (alpha) is not passed or is always 1.0
             c1 = 1.0 - whiteness
-            specular = ( c1 * color[0] + whiteness, c1 * color[1] + whiteness, c1 * color[2] + whiteness, 1.0 )
+            specular = ( c1 * color[0] + whiteness,
+                         c1 * color[1] + whiteness,
+                         c1 * color[2] + whiteness, 1.0 )
     if brightness != 1.0:
-        specular = ( specular[0] * brightness, specular[1] * brightness, specular[2] * brightness, 1.0 )
-            #e could optimize by merging this with above 3 cases (or, of course, by doing it in C, which we'll do eventually)
+        specular = ( specular[0] * brightness,
+                     specular[1] * brightness,
+                     specular[2] * brightness, 1.0 )
+            #e Could optimize by merging this with above 3 cases (or, of course,
+            #  by doing it in C, which we'll do eventually.)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular)
 
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS,
@@ -325,8 +353,11 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
 
 #russ 080515: We should find a better place for this!
 def get_gl_info_string(glpane): # grantham 20051129
-    """Return a string containing some useful information about the OpenGL implementation.
-    Use the GL context from the given QGLWidget glpane (by calling glpane.makeCurrent()).
+    """Return a string containing some useful information about the OpenGL
+    implementation.
+
+    Use the GL context from the given QGLWidget glpane (by calling
+    glpane.makeCurrent()).
     """
 
     glpane.makeCurrent() #bruce 070308 added glpane arg and makeCurrent call
@@ -339,7 +370,8 @@ def get_gl_info_string(glpane): # grantham 20051129
     gl_info_string += 'GL_EXTENSIONS : "%s"\n' % glGetString(GL_EXTENSIONS)
 
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("get_gl_info_string call glAreTexturesResident?", Choice_boolean_False):
+    if debug_pref("get_gl_info_string call glAreTexturesResident?",
+                  Choice_boolean_False):
         # Give a practical indication of how much video memory is available.
         # Should also do this with VBOs.
 
@@ -376,7 +408,8 @@ def get_gl_info_string(glpane): # grantham 20051129
         glDisable(GL_TEXTURE_2D)
         glDeleteTextures(tex_names)
 
-        gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
+        gl_info_string += "Could create %d 512x512 RGBA resident textures\n" \
+                          % tex_count
     return gl_info_string
 
 # ==
@@ -430,7 +463,8 @@ def isPatternedDrawing(highlight = False, select = False):
     corresponding preference is set to select a patterned (non-solid) drawing
     style.
     """
-    (key, style, solid, pattern, edges, halos) = _decodePatternPrefs(highlight, select)
+    (key, style, solid, pattern, edges, halos) = \
+          _decodePatternPrefs(highlight, select)
     return not solid
 
 def startPatternedDrawing(highlight = False, select = False):
@@ -444,7 +478,8 @@ def startPatternedDrawing(highlight = False, select = False):
 
     Return value is True if one of the patterned styles is selected.
     """
-    (key, style, solid, pattern, edges, halos) = _decodePatternPrefs(highlight, select)
+    (key, style, solid, pattern, edges, halos) = \
+          _decodePatternPrefs(highlight, select)
         
     if solid:
         # Nothing to do here for solid colors.
@@ -484,7 +519,8 @@ def endPatternedDrawing(highlight = False, select = False):
 
     Return value is True if one of the patterned styles is selected.
     """
-    (key, style, solid, pattern, edges, halos) = _decodePatternPrefs(highlight, select)
+    (key, style, solid, pattern, edges, halos) = \
+          _decodePatternPrefs(highlight, select)
         
     if solid:
         # Nothing to do here for solid colors.

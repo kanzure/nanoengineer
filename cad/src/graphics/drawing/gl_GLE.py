@@ -30,4 +30,5 @@ except:
 if not bool(gleGetNumSides):
     # russ 080522: Replaced no-op functions with a patch.
     print "fyi: Patching gleGetNumSides to call gleGetNumSlices instead."
-    from graphics.drawing.gleNumSides_patch import gleGetNumSides, gleSetNumSides
+    from graphics.drawing.gleNumSides_patch import gleGetNumSides
+    from graphics.drawing.gleNumSides_patch import gleSetNumSides

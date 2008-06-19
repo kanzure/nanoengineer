@@ -61,7 +61,7 @@ def draw_debug_text(glpane, point, text): #bruce 080422, should refile
     # todo: randomize offset using hash of text
     offset = glpane.right * glpane.scale / 2.0 + \
              glpane.up    * glpane.scale / 2.0
-                 # todo: correct for aspect ratio, use min scale in each dimension
+               # todo: correct for aspect ratio, use min scale in each dimension
     offset2 = V( - offset[0], offset[1], 0.0 ) / 3.0
     drawline( white, point, point + offset, width = 2)
     drawline( white, point - offset2, point + offset2 )
@@ -69,7 +69,8 @@ def draw_debug_text(glpane, point, text): #bruce 080422, should refile
     drawtext( text, red, point + offset, point_size, glpane )
     return
 
-def _compute_ribbon_point(origin, # this needs to include axial offset from caller
+# This needs to include axial offset from caller.
+def _compute_ribbon_point(origin,
                           basesPerTurn, 
                           duplexRise, 
                           unitVectorAlongLength,
@@ -102,7 +103,9 @@ def drawDnaSingleRibbon(glpane,
                         endCenter2,
                         basesPerTurn,
                         duplexRise, 
-                        glpaneScale, # maybe: don't pass these three args, get from glpane instead? [bruce 080422 comment]             
+                        # maybe: don't pass these three args, get from glpane
+                        # instead? [bruce 080422 comment]
+                        glpaneScale,
                         lineOfSightVector,
                         displayStyle,
                         ribbon1_start_point = None,
@@ -118,7 +121,8 @@ def drawDnaSingleRibbon(glpane,
     """
 
     if 0:
-        # debug code, useful to see where the argument points are located [bruce 080422]
+        # debug code, useful to see where the argument points are located
+        # [bruce 080422]
         draw_debug_text(glpane, endCenter1, "endCenter1")
         draw_debug_text(glpane, endCenter2, "endCenter2")
         draw_debug_text(glpane, ribbon1_start_point, "ribbon1_start_point")
@@ -150,10 +154,10 @@ def drawDnaSingleRibbon(glpane,
 
     #Don't draw the vertical line (step) passing through the startpoint unless 
     #the ribbonLength is at least equal to the duplexRise. 
-    # i.e. do the drawing only when there are at least two ladder steps. 
-    # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint. It also means the dna duplex axis can be determined below
-    # from the two endpoints.
+    # i.e. do the drawing only when there are at least two ladder steps.
+    # This prevents a 'revolving line' effect due to the single ladder step at
+    # the first endpoint. It also means the dna duplex axis can be determined
+    # below from the two endpoints.
     if ribbonLength < duplexRise:
         return
 
@@ -172,22 +176,27 @@ def drawDnaSingleRibbon(glpane,
     #  -- bruce 080422 comment]
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) ## * -1 
+    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep)
+       ## * -1 
 
     if ribbon1_start_point is not None:
         # [revise the meaning of these values to give the coordinate system
-        #  with the right phase in which to draw the ribbon. bruce 080422 bugfix]
+        #  with the right phase in which to draw the ribbon.
+        #  bruce 080422 bugfix]
         vectorAlongLadderStep0 = ribbon1_start_point - endCenter1
             # note: this might not be perpendicular to duplex axis.
             # fix by subtracting off the parallel component.
             # but add the difference back to every point below.
         vectorAlongLadderStep = vectorAlongLadderStep0 - \
-            dot( unitVectorAlongLength, vectorAlongLadderStep0 ) * unitVectorAlongLength
+            dot( unitVectorAlongLength,
+                 vectorAlongLadderStep0 ) * unitVectorAlongLength
         axial_shift = (vectorAlongLadderStep0 - vectorAlongLadderStep)
-            # note: even using this, there is still a small glitch in the location of the first
-            # drawn sphere vs. the ribbon point... don't know why. [bruce 080422]
+            # note: even using this, there is still a small glitch in the
+            # location of the first drawn sphere vs. the ribbon point... don't
+            # know why. [bruce 080422]
         unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-        unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) ## * -1 
+        unitDepthVector = cross(unitVectorAlongLength,
+                                unitVectorAlongLadderStep) ## * -1 
         pass
     del vectorAlongLadderStep
     
@@ -263,8 +272,10 @@ def drawDnaSingleRibbon(glpane,
                 # To do this, we need the 'next ribbon_2' point in order to 
                 # compute the appropriate vectors. So when x = duplexRise, the 
                 # previous_ribbon2_point is nothing but y at x = 0. 
-                arrowLengthVector2  = norm(ribbon1_point - previous_ribbon1_point )
-                arrowHeightVector2  = cross(-lineOfSightVector, arrowLengthVector2)
+                arrowLengthVector2  = norm(ribbon1_point -
+                                           previous_ribbon1_point )
+                arrowHeightVector2  = cross(-lineOfSightVector,
+                                            arrowLengthVector2)
                 drawArrowHead( ribbon1Color, 
                                previous_ribbon1_point,
                                arrowDrawingScale,
@@ -430,7 +441,8 @@ def drawDnaRibbons(glpane,
     #  -- bruce 080422 comment]
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) ## * -1 
+    unitDepthVector = cross(unitVectorAlongLength,
+                            unitVectorAlongLadderStep) ## * -1 
     
     numberOfBasesDrawn = 0
     theta_offset = 0
@@ -479,25 +491,27 @@ def drawDnaRibbons(glpane,
             theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
             
             #Initialize ribbon1_point and ribbon2_point
-            ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1) + \
-                          depthVector * cos(theta_ribbon_1)
+            ribbon1_point = pointOnAxis + \
+                            amplitudeVector * sin(theta_ribbon_1) + \
+                            depthVector * cos(theta_ribbon_1)
             ribbon1_direction = +1
             
     drawDnaSingleRibbon(glpane,
-                         endCenter1,  
-                         endCenter2,
-                         basesPerTurn,
-                         duplexRise, 
-                         glpaneScale, # maybe: don't pass these three args, get from glpane instead? [bruce 080422 comment]             
-                         lineOfSightVector,
-                         displayStyle,
-                         ribbon1_start_point = ribbon1_point,
-                         ribbon1_direction = ribbon1_direction,
-                         peakDeviationFromCenter = peakDeviationFromCenter,
-                         ribbonThickness = ribbonThickness,
-                         ribbon1Color = ribbon1Color, 
-                         stepColor = stepColor)
-    
+                        endCenter1,  
+                        endCenter2,
+                        basesPerTurn,
+                        duplexRise, 
+                        # maybe: don't pass these three args, get from glpane
+                        # instead? [bruce 080422 comment]
+                        glpaneScale,
+                        lineOfSightVector,
+                        displayStyle,
+                        ribbon1_start_point = ribbon1_point,
+                        ribbon1_direction = ribbon1_direction,
+                        peakDeviationFromCenter = peakDeviationFromCenter,
+                        ribbonThickness = ribbonThickness,
+                        ribbon1Color = ribbon1Color, 
+                        stepColor = stepColor)
 
     if ribbon2_start_point is not None:
         ribbon2_point = ribbon2_start_point        
@@ -507,29 +521,32 @@ def drawDnaRibbons(glpane,
                 ribbon1_start_point,
                 ribbon1_direction,
                 endCenter1,
-                unitVectorAlongLength)                                                    
+                unitVectorAlongLength)
             
         else:
             phase_angle_ribbon_2 = asin(-6.0/(amplitude))
             theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2    
-            ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2) + \
-                          depthVector * cos(theta_ribbon_2)
+            ribbon2_point = pointOnAxis - \
+                            amplitudeVector * sin(theta_ribbon_2) + \
+                            depthVector * cos(theta_ribbon_2)
             ribbon2_direction = -1
             
     drawDnaSingleRibbon(glpane,
-                         endCenter1,  
-                         endCenter2,
-                         basesPerTurn,
-                         duplexRise, 
-                         glpaneScale, # maybe: don't pass these three args, get from glpane instead? [bruce 080422 comment]             
-                         lineOfSightVector,
-                         displayStyle,
-                         ribbon1_start_point = ribbon2_point,
-                         ribbon1_direction = ribbon2_direction,
-                         peakDeviationFromCenter = peakDeviationFromCenter,
-                         ribbonThickness = ribbonThickness,
-                         ribbon1Color = ribbon2Color, 
-                         stepColor = stepColor)
+                        endCenter1,  
+                        endCenter2,
+                        basesPerTurn,
+                        duplexRise, 
+                        # maybe: don't pass these three args, get from glpane
+                        # instead? [bruce 080422 comment]
+                        glpaneScale,
+                        lineOfSightVector,
+                        displayStyle,
+                        ribbon1_start_point = ribbon2_point,
+                        ribbon1_direction = ribbon2_direction,
+                        peakDeviationFromCenter = peakDeviationFromCenter,
+                        ribbonThickness = ribbonThickness,
+                        ribbon1Color = ribbon2Color, 
+                        stepColor = stepColor)
     
     del vectorAlongLadderStep
     

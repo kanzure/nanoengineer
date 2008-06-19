@@ -21,7 +21,8 @@ _last_glselect_name = 0
 
 def _new_glselect_name():
     """
-    Return a session-unique 32-bit unsigned int (not 0) for use as a GL_SELECT name.
+    Return a session-unique 32-bit unsigned int (not 0) for use as a GL_SELECT
+    name.
 
     @note: these are unique even between instances of class glselect_name_dict.
     """
@@ -34,8 +35,8 @@ def _new_glselect_name():
 
 class glselect_name_dict(object):
     """
-    Allocate OpenGL GL_SELECT names for use when drawing one model (e.g. an assembly),
-    and record their owners.
+    Allocate OpenGL GL_SELECT names for use when drawing one model (e.g. an
+    assembly), and record their owners.
 
     @note: The allocated names are session-unique 32-bit unsigned ints (not 0).
            They are unique even between instances of this class.
@@ -57,8 +58,8 @@ class glselect_name_dict(object):
     def alloc_my_glselect_name(self, obj):
         """
         Allocate and return a new GL_SELECT name, recording obj as its owner.
-        Obj should provide the Selobj_API so it can handle GLPane callbacks during
-        hit-testing.
+        Obj should provide the Selobj_API so it can handle GLPane callbacks
+        during hit-testing.
         
         @see: Selobj_API
         """
@@ -76,12 +77,12 @@ class glselect_name_dict(object):
     # name stack should be passed. Current code (080220) passes the last
     # (innermost) element of the name stack.
     
-    # Maybe todo: add methods for temporarily removing glname from dict (without deallocating it)
-    # and for restoring it, so killed objects needn't have names in the dict.
-    # This would mean we needn't remove the name when destroying a killed object,
-    # thus, needn't find the object at all. But when this class is per-assy, there
-    # won't be a need for that when destroying an entire assy, so it might not be
-    # needed at all.
+    # Maybe todo: add methods for temporarily removing glname from dict (without
+    # deallocating it) and for restoring it, so killed objects needn't have
+    # names in the dict.  This would mean we needn't remove the name when
+    # destroying a killed object, thus, needn't find the object at all. But when
+    # this class is per-assy, there won't be a need for that when destroying an
+    # entire assy, so it might not be needed at all.
     
     def dealloc_my_glselect_name(self, obj, glname):
         """
@@ -95,19 +96,25 @@ class glselect_name_dict(object):
                
         @see: Selobj_API
         """
-        # objs have to pass the glname, since we don't know where they keep it and don't want to have to keep a reverse dict;
-        # but we make sure they own it before zapping it!
-        #e this function could be dispensed with if our dict was weak, but maybe it's useful for other reasons too, who knows
+        # objs have to pass the glname, since we don't know where they keep it
+        # and don't want to have to keep a reverse dict; but we make sure they
+        # own it before zapping it!
+        #e This function could be dispensed with if our dict was weak, but maybe
+        #  it's useful for other reasons too, who knows.
         if not glname:
             return
         obj1 = self.obj_with_glselect_name.get(glname)
         if obj1 is obj:
             del self.obj_with_glselect_name[glname]
     ##    elif obj1 is None:
-    ##        pass # repeated destroy should be legal, and might call this (unlikely, since obj would not know glname -- hmm... ok, zap it)
+    ##        # Repeated destroy should be legal, and might call this (unlikely,
+    ##        # since obj would not know glname -- hmm... ok, zap it.)
+    ##        pass
         else:
-            print "bug: dealloc_my_glselect_name(obj, glname) mismatch for glname %r: real owner is %r, not" % (glname, obj1), obj
-                # print obj separately in case of exceptions in its repr
+            print ("bug: %s %r: real owner is %r, not" %
+                ("dealloc_my_glselect_name(obj, glname) mismatch for glname",
+                 glname, obj1)), obj
+                # Print obj separately in case of exceptions in its repr.
         return
 
     pass # end of class

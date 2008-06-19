@@ -55,25 +55,30 @@ def load_image_into_new_texture_name(image_file, tex_name = 0):
     have_mipmaps, tex_name = loadTexture(image_obj, tex_name)
     return have_mipmaps, tex_name
 
-def setup_to_draw_texture_name(have_mipmaps, tex_name): # TODO: rename, docstring
+# TODO: rename, docstring
+def setup_to_draw_texture_name(have_mipmaps, tex_name):
     # assume it's already set up [what does that mean? bruce 071017]
     #e bind it
     glBindTexture(GL_TEXTURE_2D, tex_name)
     initTextureEnv(have_mipmaps) # sets texture params the way we want them
-
-    ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix etc)
-    ## drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID = True, pickCheckOnly = self.pickCheckOnly)
+    ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix
+    ## etc)
+    ## drawPlane(self.fill_color, self.width, self.width, textureReady,
+    ##           self.opacity, SOLID = True, pickCheckOnly = self.pickCheckOnly)
     ##hw = self.width/2.0
-    ##corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
+    ##corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0),
+    ##               V(hw, -hw, 0.0), V(hw, hw, 0.0)]
     ##drawLineLoop(color, corners_pos)  
     return
 
 # ==
 
 # lower-level helpers modified from ESPImage
-# [note: some of these are called from exprs/images.py; others are copied & modified into it [bruce 061125]]
+# [note: some of these are called from exprs/images.py; others are copied &
+# modified into it [bruce 061125]]
 
-def create_PIL_image_obj_from_image_file(image_file, **kws): # misnamed, see docstring; added kws, 061127
+# misnamed, see docstring; added kws, 061127
+def create_PIL_image_obj_from_image_file(image_file, **kws):
     ### TODO: refile this into ImageUtils?
     """
     Creates and returns an nEImageOps object
@@ -90,15 +95,19 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     return have_mipmaps, tex_name
     (also leave that texture bound, BTW)
     """
-    # note: some of this code has been copied into exprs/images.py, class texture_holder [bruce 061125]
+    # note: some of this code has been copied into exprs/images.py, class
+    # texture_holder [bruce 061125]
     ix, iy, image = image_obj.getTextureData() 
 
     # allocate texture object if necessary
     if not tex_name:
         tex_name = glGenTextures(1)
-        print "debug fyi: texture_helpers.loadTexture allocated tex_name %r" % (tex_name,) # it's deprecated to let this happen much [070308]
-        # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
-        # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
+        # It's deprecated to let this happen much. [070308]
+        print "debug fyi: texture_helpers.loadTexture allocated tex_name %r" %\
+              (tex_name,)
+        # note: by experiment (iMac G5 Panther), this returns a single number
+        # (1L, 2L, ...), not a list or tuple, but for an argument >1 it returns
+        # a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
         assert tex_name != 0
     
@@ -107,32 +116,42 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
 
     glPixelStorei(GL_UNPACK_ALIGNMENT,1) ###k what's this?
     have_mipmaps = False
-    ## want_mipmaps = debug_pref("smoother tiny textures", Choice_boolean_False, prefs_key = True)
+    ##want_mipmaps = debug_pref("smoother tiny textures",
+    ##                          Choice_boolean_False, prefs_key = True)
     want_mipmaps = True
     if want_mipmaps: 
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA,
+                          GL_UNSIGNED_BYTE, image)
         have_mipmaps = True
     else:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
-            # 0 is mipmap level, GL_RGBA is internal format, ix, iy is size, 0 is borderwidth,
-            # and (GL_RGBA, GL_UNSIGNED_BYTE, image) describe the external image data. [bruce 060212 comment]
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, image)
+            # 0 is mipmap level, GL_RGBA is internal format, ix, iy is size, 0
+            # is borderwidth, and (GL_RGBA, GL_UNSIGNED_BYTE, image) describe
+            # the external image data. [bruce 060212 comment]
     return have_mipmaps, tex_name
 
-# this gets us ready to draw (using coords in) a texture if we have it bound, i think
-def initTextureEnv(have_mipmaps): # called during draw method [modified from ESPImage] #e need smooth = False/True
+# This gets us ready to draw (using coords in) a texture if we have it bound, I
+# think.  Called during draw method [modified from ESPImage.]
+#e need smooth = False/True
+def initTextureEnv(have_mipmaps):
     "have_mipmaps is boolean #doc"
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-        # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
+        # [looks like a bug that we overwrite clamp with repeat, just below?
+        # bruce 060212 comment]
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-    if 0 and "kluge" and debug_pref("smoother textures", Choice_boolean_False, prefs_key = True): ###@@@ revise to param
+    if (0 and "kluge" and
+        debug_pref("smoother textures", Choice_boolean_False,
+                   prefs_key = True)): ###@@@ revise to param
         #bruce 060212 new feature (only visible in debug version so far);
         # ideally it'd be controllable per-jig for side-by-side comparison;
         # also, changing its menu item ought to gl_update but doesn't ##e
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         if have_mipmaps: #####@@@@@
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                            GL_LINEAR_MIPMAP_LINEAR)
         else:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     else:

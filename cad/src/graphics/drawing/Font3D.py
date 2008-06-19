@@ -331,7 +331,8 @@ SCALE = 0.08
 
 class Font3D:
 
-    def __init__(self, xpos=0, ypos=0, right=None, up=None, rot90=False, glBegin=False):
+    def __init__(self, xpos=0, ypos=0, right=None, up=None,
+                 rot90=False, glBegin=False):
 
         self.glBegin = glBegin
         if right is not None and up is not None:
@@ -374,7 +375,8 @@ class Font3D:
                     return Numeric.array((xpos + fx(x), ypos + yoff1 + y1, 0.0))
             self.tfm = tfm
 
-    def drawString(self, str, yoff=1.0, color=None, tfm=None, _font_X=_font['X']):
+    def drawString(self, str, yoff=1.0, color=None, tfm=None,
+                   _font_X=_font['X']):
         n = len(str)
         if not self.glBegin:
             assert color is not None

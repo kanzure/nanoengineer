@@ -61,6 +61,9 @@ from geometry.VQT import V
 
 from graphics.drawing.Font3D import Font3D
 
+from utilities.prefs_constants import NO_LINE, SOLID_LINE
+from utilities.prefs_constants import DASHED_LINE, DOTTED_LINE
+
 SiCGridList = None # TODO: make this private
 
 # SiC grid geometry. The number in parentheses is the point's index in
@@ -103,7 +106,8 @@ def setup_draw_grid_lines():
     See comment in drawer.setup_drawer about problems with calling this
     in more than one GL context.
     """
-    #bruce 071030 split this out of drawer.setup and renamed that to setup_drawer
+    #bruce 071030 Split this out of drawer.setup and renamed that to
+    #  setup_drawer.
     global SiCGridList
     SiCGridList = glGenLists(1)
     glNewList(SiCGridList, GL_COMPILE)
@@ -124,13 +128,12 @@ def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
     
     glpane = the glpane
     color = grid line and unit text color
-    line_type is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
+    line_type is: 0=None, 1=Solid, 2=Dashed or 3=Dotted
     w = width
     h = height
     uw = width spacing between grid lines
     uh = height spacing between grid lines
     """
-    from utilities.prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return
@@ -156,7 +159,8 @@ def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
         elif line_type == DOTTED_LINE:
             glLineStipple (1, 0x0101)  #  dotted
         else:
-            print "drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            print "drawGPGrid(): line_type '", line_type, \
+                  "' is not valid.  Drawing dashed grid line."
             glLineStipple (1, 0x00FF)  #  dashed
     
     glBegin(GL_LINES)
@@ -210,27 +214,35 @@ def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
     y1 = 0
     while y1 > -hh:
         y1 -= uh
-        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
-    drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(hw + text_offset, y1, 0.0), font_size, glpane)
+    drawtext("%g" % (-y1 / 10.0), text_color,
+             V(hw + text_offset, y1, 0.0), font_size, glpane)
 
     y1 = 0
     while y1 < hh:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(hw + text_offset, y1, 0.0), font_size, glpane)
         y1 += uh
-    drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
+    drawtext("%g" % (-y1 / 10.0), text_color,
+             V(hw + text_offset, y1, 0.0), font_size, glpane)
 
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 < hw:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1, hh + text_offset, 0.0), font_size, glpane)
         x1 += uw
-    drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
+    drawtext("%g" % (x1 / 10.0), text_color,
+             V(x1, hh + text_offset, 0.0), font_size, glpane)
 
     x1 = 0
     while x1 > -hw:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1, hh + text_offset, 0.0), font_size, glpane)
         x1 -= uw
-    drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
+    drawtext("%g" % (x1 / 10.0), text_color,
+             V(x1, hh + text_offset, 0.0), font_size, glpane)
     
     glEnable(GL_LIGHTING)
     return
@@ -242,13 +254,12 @@ def drawGPGridForPlane(glpane, color, line_type, w, h, uw, uh, up, right,
     
     glpane = the glpane
     color = grid line and unit text color
-    line_type is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
+    line_type is: 0=None, 1=Solid, 2=Dashed, or 3=Dotted
     w = width
     h = height
     uw = width spacing between grid lines
     uh = height spacing between grid lines
     """
-    from utilities.prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return
@@ -270,7 +281,8 @@ def drawGPGridForPlane(glpane, color, line_type, w, h, uw, uh, up, right,
         elif line_type == DOTTED_LINE:
             glLineStipple (1, 0x0101)  #  dotted
         else:
-            print "drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            print "drawGPGrid(): line_type '", line_type,"' is not valid. ", \
+                  "Drawing dashed grid line."
             glLineStipple (1, 0x00FF)  #  dashed
     
     glBegin(GL_LINES)
@@ -320,30 +332,48 @@ def drawGPGridForPlane(glpane, color, line_type, w, h, uw, uh, up, right,
     text_offset = 0.3 # Offset from edge of border, in Angstroms.
     
     if displayLabels == True:
-        if originLocation == LOWER_LEFT and labelsDisplayStyle == LABELS_ALONG_ORIGIN:
-            displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)
-        elif originLocation == UPPER_LEFT and labelsDisplayStyle == LABELS_ALONG_ORIGIN:
-            displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)  
-        elif originLocation == UPPER_RIGHT and labelsDisplayStyle == LABELS_ALONG_ORIGIN:
-            displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw, text_offset, text_color,font_size, glpane)  
-        elif originLocation == LOWER_RIGHT and labelsDisplayStyle == LABELS_ALONG_ORIGIN:
-            displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)  
-        elif originLocation == LOWER_LEFT and labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES:
-            displayLabelsAlongPlaneEdgesLowerLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)
-        elif originLocation == UPPER_LEFT and labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES:
-            displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)  
-        elif originLocation == UPPER_RIGHT and labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES:
-            displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)  
-        elif originLocation == LOWER_RIGHT and labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES:
-            displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane)  
+        if (originLocation == LOWER_LEFT and
+            labelsDisplayStyle == LABELS_ALONG_ORIGIN):
+            displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw,
+                text_offset, text_color, font_size, glpane)
+        elif (originLocation == UPPER_LEFT and
+              labelsDisplayStyle == LABELS_ALONG_ORIGIN):
+            displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)
+        elif (originLocation == UPPER_RIGHT and
+              labelsDisplayStyle == LABELS_ALONG_ORIGIN):
+            displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw, 
+                text_offset, text_color,font_size, glpane)  
+        elif (originLocation == LOWER_RIGHT and
+              labelsDisplayStyle == LABELS_ALONG_ORIGIN):
+            displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)  
+        elif (originLocation == LOWER_LEFT and
+              labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
+            displayLabelsAlongPlaneEdgesLowerLeft(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)
+        elif (originLocation == UPPER_LEFT and
+              labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
+            displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)  
+        elif (originLocation == UPPER_RIGHT and
+              labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
+            displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)  
+        elif (originLocation == LOWER_RIGHT and
+              labelsDisplayStyle == LABELS_ALONG_PLANE_EDGES):
+            displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, 
+                text_offset, text_color, font_size, glpane)  
         
     glEnable(GL_LIGHTING)
     return
 
 # UM 20080617: Code for displaying labels depending on origin location
-def displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw,
+                  text_offset, text_color, font_size, glpane):
     """
-    Display labels when origin is on the lower right corner
+    Display labels when origin is on the lower right corner.
+
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -369,18 +399,22 @@ def displayLabelsAlongOriginLowerRight(h, w, hh, hw, uh, uw, text_offset, text_c
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(hw + text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 -= uw    
     return
 
-def displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw,
+                 text_offset, text_color, font_size, glpane):
     """
-    Display labels when origin is on the upper left corner
+    Display labels when origin is on the upper left corner.
+    
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -405,20 +439,24 @@ def displayLabelsAlongOriginUpperLeft(h, w, hh, hw, uh, uw, text_offset, text_co
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1 - hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1 - hh, 0.0), font_size, glpane)
         y1 += uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
         x1 += uw
     
     return
 
-def displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw,
+                 text_offset, text_color, font_size, glpane):
  
     """
-    Display labels when origin is on the lower left corner
+    Display labels when origin is on the lower left corner.
+    
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -443,19 +481,23 @@ def displayLabelsAlongOriginLowerLeft(h, w, hh, hw, uh, uw, text_offset, text_co
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 += uw    
     
     return
 
-def displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw,
+                  text_offset, text_color, font_size, glpane):
     """
-    Display Labels when origin is on the upper right corner
+    Display Labels when origin is on the upper right corner.
+    
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -480,19 +522,24 @@ def displayLabelsAlongOriginUpperRight(h, w, hh, hw, uh, uw, text_offset, text_c
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(hw + text_offset, y1 - hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(hw + text_offset, y1 - hh, 0.0), font_size, glpane)
         y1 += uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
         x1 -= uw
     return
 
 
-def displayLabelsAlongPlaneEdgesLowerLeft(h, w ,hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongPlaneEdgesLowerLeft(h, w ,hh, hw, uh, uw,
+                     text_offset, text_color, font_size, glpane):
     """
-    Display labels when origin is on the lower left corner along all the plane edges
+    Display labels when origin is on the lower left corner.
+    
+    along all the plane edges
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -518,30 +565,36 @@ def displayLabelsAlongPlaneEdgesLowerLeft(h, w ,hh, hw, uh, uw, text_offset, tex
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 += uw 
     #Along the non origin edges
     
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + 2 * text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(hw + 2 * text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
         x1 += uw    
     return
 
-def displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, 
+                     text_offset, text_color, font_size, glpane):
     """
-    Display labels along plane edges when origin is on the upper left corner
+    Display labels along plane edges when origin is on the upper left corner.
+    
     @param h: height of the plane
     @type h: float
     @param w: width of the plane
@@ -567,28 +620,33 @@ def displayLabelsAlongPlaneEdgesUpperLeft(h, w, hh, hw, uh, uw, text_offset, tex
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1-hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1-hh, 0.0), font_size, glpane)
         y1 += uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, -hh - text_offset, 0.0), font_size, glpane)
         x1 += uw
     #Along non origin edges
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(hw + 2 * text_offset, y1 - hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(hw + 2 * text_offset, y1 - hh, 0.0), font_size, glpane)
         y1 += uh  
         
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 <= w:
-        drawtext("%g" % (x1 / 10.0), text_color, V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (x1 / 10.0), text_color,
+                 V(x1 - hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 += uw       
     return
 
-def displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, 
+                      text_offset, text_color, font_size, glpane):
     """
     Display labels along plane edges when origin is on the lower right corner
     @param h: height of the plane
@@ -616,28 +674,33 @@ def displayLabelsAlongPlaneEdgesLowerRight(h, w, hh, hw, uh, uw, text_offset, te
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + 2 * text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(hw + 2 * text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 -= uw   
         
     #Along non origin edges  
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 >= -h:
-        drawtext("%g" % (-y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
+        drawtext("%g" % (-y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1 + hh, 0.0), font_size, glpane)
         y1 -= uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
         x1 -= uw    
     return
 
-def displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, text_offset, text_color, font_size, glpane):
+def displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, 
+                      text_offset, text_color, font_size, glpane):
     """
     Display Labels along plane edges when origin is on the upper right corner
     @param h: height of the plane
@@ -665,25 +728,29 @@ def displayLabelsAlongPlaneEdgesUpperRight(h, w, hh, hw, uh, uw, text_offset, te
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(hw + text_offset, y1 - hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(hw + text_offset, y1 - hh, 0.0), font_size, glpane)
         y1 += uh  
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, - hh - text_offset, 0.0), font_size, glpane)
         x1 -= uw
         
     #Along non-origin edges
     # Draw unit text labels for horizontal lines (nm)
     y1 = 0
     while y1 <= h:
-        drawtext("%g" % (y1 / 10.0), text_color, V(-hw - 3 * text_offset, y1 - hh, 0.0), font_size, glpane)
+        drawtext("%g" % (y1 / 10.0), text_color,
+                 V(-hw - 3 * text_offset, y1 - hh, 0.0), font_size, glpane)
         y1 += uh  
         
     # Draw unit text labels for vertical lines (nm).
     x1 = 0
     while x1 >= -w:
-        drawtext("%g" % (-x1 / 10.0), text_color, V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
+        drawtext("%g" % (-x1 / 10.0), text_color,
+                 V(x1 + hw, hh + 2 * text_offset, 0.0), font_size, glpane)
         x1 -= uw       
     return
 
@@ -691,7 +758,6 @@ def drawSiCGrid(color, line_type, w, h, up, right):
     """
     Draw SiC grid.
     """
-    from utilities.prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return
@@ -714,7 +780,8 @@ def drawSiCGrid(color, line_type, w, h, up, right):
         elif line_type == DOTTED_LINE:
             glLineStipple (1, 0x0101)  #  dotted
         else:
-            print "drawer.drawSiCGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            print "drawer.drawSiCGrid(): line_type '", line_type, \
+                  "' is not valid.  Drawing dashed grid line."
             glLineStipple (1, 0x00FF)  #  dashed
     
     glClipPlane(GL_CLIP_PLANE0, (1.0, 0.0, 0.0, hw))
@@ -746,14 +813,16 @@ def drawSiCGrid(color, line_type, w, h, up, right):
         glDisable (GL_LINE_STIPPLE)
 
     xpos, ypos = hw, 0.0
-    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=False, glBegin=False)
+    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up,
+                 rot90=False, glBegin=False)
     for j in range(j1, j2):
         yoff = j * YLen
         if -hh < yoff + ypos < hh:
             f3d.drawString("%-.4g" % yoff, color=color, yoff=yoff)
 
     xpos, ypos = 0.0, hh
-    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=True, glBegin=False)
+    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up,
+                 rot90=True, glBegin=False)
     for i in range(2*i1, 2*i2):
         yoff = i * (XLen/2)
         if -hw < yoff + xpos < hw:

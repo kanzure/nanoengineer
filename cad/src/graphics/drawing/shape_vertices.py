@@ -1,6 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-shape_vertices.py - Geometric constructions of vertex lists used by the drawing functions.
+shape_vertices.py - Geometric constructions of vertex lists used
+                    by the drawing functions.
 
 This includes vertices for the shapes of primitives that will go into display
 lists in the setup_drawer function in setup_draw.py .
@@ -233,7 +234,7 @@ def getSphereTriStrips(level):
     icosRings = [ 5 * [V(0.0, -1.0, 0.0)], # South Pole.
 
                   # South ring, first edge *centered on* the Greenwich Meridian.
-                  [V(cylRad*cos((i-.5)*p2_5), -vert0[1], cylRad*sin((i-.5)*p2_5))
+                  [V(cylRad*cos((i-.5)*p2_5),-vert0[1], cylRad*sin((i-.5)*p2_5))
                    for i in range(5)],
 
                   # North ring, first vertex *on* the Greenwich Meridian.
@@ -342,28 +343,32 @@ def indexVerts(verts, close):
 # ==
 
 def init_cyls():
-    # generate two circles in space as 13-gons,
-    # one rotated half a segment with respect to the other
-    # these are used as cylinder ends [not quite true anymore, see comments just below]
+    # generate two circles in space as 13-gons, one rotated half a segment with
+    # respect to the other these are used as cylinder ends [not quite true
+    # anymore, see comments just below]
     slices = 13
     circ1 = map((lambda n: n*2.0*pi/slices), range(slices+1))
     circ2 = map((lambda a: a+pi/slices), circ1)
-    drawing_globals.drum0 = drum0 = map((lambda a: (cos(a), sin(a), 0.0)), circ1)
+    drawing_globals.drum0 = drum0 = map((lambda a: (cos(a), sin(a), 0.0)),
+                                        circ1)
     drum1 = map((lambda a: (cos(a), sin(a), 1.0)), circ2)
     drum1n = map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 
-    # grantham 20051213 I finally decided the look of the oddly twisted
-    # cylinder bonds was not pretty enough, so I made a "drum2" which is just
-    # drum0 with a 1.0 Z coordinate, a la drum1.
-    #bruce 060609: this apparently introduced the bug of the drum1 end-cap of a cylinder being "ragged"
-    # (letting empty space show through), which I fixed by using drum2 for that cap rather than drum1.
-    # drum1 is no longer used except as an intermediate value in the next few lines.
-    drawing_globals.drum2 = drum2 = map((lambda a: (cos(a), sin(a), 1.0)), circ1)
+    #grantham 20051213 I finally decided the look of the oddly twisted cylinder
+    # bonds was not pretty enough, so I made a "drum2" which is just drum0 with
+    # a 1.0 Z coordinate, a la drum1.
+    #bruce 060609: this apparently introduced the bug of the drum1 end-cap of a
+    # cylinder being "ragged" (letting empty space show through), which I fixed
+    # by using drum2 for that cap rather than drum1.  drum1 is no longer used
+    # except as an intermediate value in the next few lines.
+    drawing_globals.drum2 = drum2 = map((lambda a: (cos(a), sin(a), 1.0)),
+                                        circ1)
 
-    # This edge list zips up the "top" vertex and normal and then
-    # the "bottom" vertex and normal.
-    # Thus each tuple in the sequence would be (vtop, ntop, vbot, nbot) [grantham 20051213]
-    # (bruce 051215 simplified the python usage in a way which should create the same list.)
+    # This edge list zips up the "top" vertex and normal and then the "bottom"
+    # vertex and normal.  Thus each tuple in the sequence would be (vtop, ntop,
+    # vbot, nbot) [grantham 20051213]
+    # (bruce 051215 simplified the python usage in a way which should create the
+    # same list.)
     drawing_globals.cylinderEdges = zip(drum0, drum0, drum2, drum0)
 
     circle = zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
@@ -414,20 +419,29 @@ init_motors()
 def init_diamond():
     # a chunk of diamond grid, to be tiled out in 3d
     drawing_globals.sp0 = sp0 = 0.0
-    #bruce 051102 replaced 1.52 with this constant (1.544), re bug 900 (partial fix)
+    #bruce 051102 replaced 1.52 with this constant (1.544),
+    #  re bug 900 (partial fix.)
     drawing_globals.sp1 = sp1 = DIAMOND_BOND_LENGTH / sqrt(3.0)
     sp2 = 2.0*sp1
     sp3 = 3.0*sp1
     drawing_globals.sp4 = sp4 = 4.0*sp1
 
-    digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
-            [[sp2, sp2, sp0], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp4, sp0]],
-            [[sp2, sp0, sp2], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp4, sp2, sp2]],
-            [[sp2, sp0, sp2], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp0, sp2, sp2]],
-            [[sp0, sp2, sp2], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp2, sp4, sp2]],
-            [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
-            [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
-            [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
+    digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]],
+            [[sp1, sp1, sp1], [sp2, sp2, sp0]],
+            [[sp2, sp2, sp0], [sp3, sp3, sp1]],
+            [[sp3, sp3, sp1], [sp4, sp4, sp0]],
+            [[sp2, sp0, sp2], [sp3, sp1, sp3]],
+            [[sp3, sp1, sp3], [sp4, sp2, sp2]],
+            [[sp2, sp0, sp2], [sp1, sp1, sp1]],
+            [[sp1, sp1, sp1], [sp0, sp2, sp2]],
+            [[sp0, sp2, sp2], [sp1, sp3, sp3]],
+            [[sp1, sp3, sp3], [sp2, sp4, sp2]],
+            [[sp2, sp4, sp2], [sp3, sp3, sp1]],
+            [[sp3, sp3, sp1], [sp4, sp2, sp2]],
+            [[sp4, sp0, sp4], [sp3, sp1, sp3]],
+            [[sp3, sp1, sp3], [sp2, sp2, sp4]],
+            [[sp2, sp2, sp4], [sp1, sp3, sp3]],
+            [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
     drawing_globals.digrid = A(digrid)
     drawing_globals.DiGridSp = sp4
     return
@@ -435,8 +449,10 @@ init_diamond()
 
 def init_cube():
     drawing_globals.cubeVertices = cubeVertices = [
-        [-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
-        [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
+        [-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
+        [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
+        [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0],
+        [1.0, -1.0, 1.0], [1.0, -1.0, -1.0]]
 
     #bruce 051117: compute this rather than letting a subroutine hardcode it as
     # a redundant constant
@@ -486,9 +502,9 @@ def _makeLonsCell():
            [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
            [-ux, 4*uy, ul],
            # Layer 2: 7 vertices
-           [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
-           [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],    [0.0, -uy, 2*ul+dz],
-           [-ux, 4*uy, 2*(ul+dz)]
+           [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)],
+           [0.0, uy, 2*(ul+dz)], [ux, 2*uy, 2*ul+dz], [-ux, 2*uy, 2*ul+dz],
+           [0.0, -uy, 2*ul+dz], [-ux, 4*uy, 2*(ul+dz)]
            ]
 
     res = [ # 2 outward vertical edges for layer 1

@@ -42,7 +42,8 @@ gl_lighting.py gl_buffers.py
 
 # Notice that the ARB-suffixed versions of the OpenGL calls are used here.
 # They're the ones with PyConvert ctypes wrappers, see: (the incomprehensible)
-#   http://pyopengl.sourceforge.net/ctypes/pydoc/OpenGL.GL.ARB.vertex_buffer_object.html
+#   http://pyopengl.sourceforge.net/ctypes/pydoc/
+#          OpenGL.GL.ARB.vertex_buffer_object.html
 # The sources will do you more good.   Also see "Array Handling Routines" here:
 #   http://pyopengl.sourceforge.net/documentation/opengl_diffs.html
 #
@@ -50,8 +51,8 @@ from OpenGL.GL.ARB.vertex_buffer_object import glGenBuffersARB
 from OpenGL.GL.ARB.vertex_buffer_object import glDeleteBuffersARB
 # Patched versions.
 from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
-
-from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB # Unwrappered.
+# Unwrappered.
+from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB
 
 class GLBufferObject(object):
     """
@@ -86,8 +87,8 @@ class GLBufferObject(object):
     def __del__(self):
         """
         Delete a GLBufferObject.  We don't expect that there will be a lot of
-        deleting of GLBufferObjects, but don't want them to sit on a lot of graphics
-        card RAM if we did.
+        deleting of GLBufferObjects, but don't want them to sit on a lot of
+        graphics card RAM if we did.
         """
 
         # Since may be too late to clean up buffer objects through the Graphics

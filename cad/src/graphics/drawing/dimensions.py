@@ -80,7 +80,7 @@ class CylindricalCoordinates:
 THICKLINEWIDTH = 20
 
 def drawLinearDimension(color,      # what color are we drawing this in
-                        right, up,  # screen directions mapped to xyz coordinates
+                        right, up,  # screen directions mapped to xyz coords
                         bpos,       # position of the handle for moving the text
                         p0, p1,     # positions of the ends of the dimension
                         text, highlighted=False):
@@ -139,7 +139,8 @@ def drawLinearDimension(color,      # what color are we drawing this in
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0, highlighted=False):
+def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text,
+                       minR1=0.0, minR2=0.0, highlighted=False):
     z = cross(p0 - p1, p2 - p1)
     try:
         csys = CylindricalCoordinates(p1, z, up, right)
@@ -220,7 +221,8 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text, highlighted=False):
+def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text,
+                          highlighted=False):
     # Draw a frame of lines that shows how the four atoms are connected
     # to the dihedral angle
     csys = CylindricalCoordinates(p1, p2 - p1, up, right)

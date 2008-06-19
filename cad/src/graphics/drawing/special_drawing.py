@@ -49,8 +49,8 @@ class _USE_CURRENT_class(object):
         try:
             res = graphicsMode.get_prefs_value(key)
         except:
-            msg = "bug: exception in %r.get_prefs_value(%r), falling back to env.prefs" % \
-                  (graphicsMode, key)
+            msg = "bug: exception in %r.get_prefs_value(%r), %s" % \
+                  (graphicsMode, key, "falling back to env.prefs")
             print_compact_traceback(msg + ": ")
             res = env.prefs[key]
         return res
@@ -94,7 +94,8 @@ class UsedValueTrackerAndComparator(object):
         # since not valid, no need to _reset
         return
 
-    # == methods to use during a recomputation (or side effect, such as drawing) by the client
+    # == Methods to use during a recomputation (or side effect, such as drawing)
+    #    by the client.
     
     def before_recompute(self): #e rename?
         """
@@ -133,8 +134,8 @@ class UsedValueTrackerAndComparator(object):
         return val
 
     def _compute_current_value(self, key, context):
-        assert 0, "subclass must implement %r._compute_current_value for key %r" % \
-                  (self, key)
+        assert 0, "subclass must implement %r%s %r" % \
+                  (self, "._compute_current_value for key", key)
         pass
 
     def _track_use(self, key, val): 
@@ -183,13 +184,15 @@ class UsedValueTrackerAndComparator(object):
             # following code would be wrong in this case
             return True
         for key, val in self.ordered_key_val_pairs():
-            newval = self._compute_current_value(key, context) # note: doesn't call _track_use, which would be a noop
+            # Note: doesn't call _track_use, which would be a noop.
+            newval = self._compute_current_value(key, context)
             if not same_vals(val, newval):
-                #e could optim the test for specific keys; probably not worth it though
-                #e could optim self.before_recompute (for some callers) to leave the values
-                # cached that were already found to be the same (by prior iterations
-                # of this loop)
-                # Note: we don't call self.invalidate() here, in case client
+                #e Could optim the test for specific keys; probably not worth it
+                #  though.
+                #e Could optim self.before_recompute (for some callers) to leave
+                #  the values cached that were already found to be the same (by
+                #  prior iterations of this loop)
+                # Note: We don't call self.invalidate() here, in case client
                 # does nothing, current state changes, and it turns out we're
                 # valid again. Clients doubting this matters and wanting to
                 # optimize repeated calls of this (if they're not going to
@@ -211,9 +214,11 @@ class UsedValueTrackerAndComparator(object):
 
 # ==
 
-class SpecialDrawing_UsedValueTrackerAndComparator(UsedValueTrackerAndComparator):
+class SpecialDrawing_UsedValueTrackerAndComparator(
+    UsedValueTrackerAndComparator):
     """
-    ... if necessary, reset and re-track the values used this time... knows how to compute them... 
+    ... if necessary, reset and re-track the values used this time... knows how
+    to compute them...
     """
     def __init__(self):
         UsedValueTrackerAndComparator.__init__(self)
@@ -265,8 +270,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
     
     # class constants
     
-    _comparator_class = None # subclass must override, with a subclass of UsedValueTrackerAndComparator
-
+    # Subclass must override, with a subclass of UsedValueTrackerAndComparator.
+    _comparator_class = None
+    
     # default values of instance variables
     
     ## valid = False -- WRONG, we use self.comparator.valid for this.
@@ -288,7 +294,8 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         self._drawing_functions = []
         return
     
-    def add_another_drawing_function(self, func): # during client main recompile
+    # During client main recompile.
+    def add_another_drawing_function(self, func):
         self._drawing_functions.append( func)
         return
 
@@ -306,15 +313,18 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
             print "unexpected: %r.draw_nocolor_dl with no nocolor_dl" % self
         return
     
-    def draw_but_first_recompile_if_needed(self, glpane, selected = False, highlighted = False, wantlist = True):
+    def draw_but_first_recompile_if_needed(
+        self, glpane, selected = False, highlighted = False, wantlist = True):
         """
         Recompile self as needed, then draw.
         Only make internal display lists (in cases where we need to remake them)
         if wantlist is true.
 
-        @param selected: whether to draw in selected or plain style. (The same csdl handles both.)
+        @param selected: whether to draw in selected or plain style. (The same
+          csdl handles both.)
 
-        @param highlighted: whether to draw highlighted, or not. (The same csdl handles both.)
+        @param highlighted: whether to draw highlighted, or not. (The same csdl
+          handles both.)
         """
         graphicsMode = glpane.graphicsMode
             # note: ThumbView lacks this attribute;
@@ -324,7 +334,8 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         if self.comparator.do_we_need_to_recompute(context):
             # maybe: also compare havelist, if some data not tracked
             if DEBUG_COMPARATOR:
-                print "_draw_by_remaking in %r; valid = %r" % (self, self.comparator.valid)
+                print "_draw_by_remaking in %r; valid = %r" % \
+                      (self, self.comparator.valid)
             self._draw_by_remaking(glpane, selected, highlighted, wantlist)
         else:
             if DEBUG_COMPARATOR:
@@ -348,7 +359,8 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         try:
             self._do_drawing()
         except:
-            print_compact_traceback("bug: exception in %r._do_drawing, skipping the rest: " % self)
+            print_compact_traceback(
+                "bug: exception in %r._do_drawing, skipping the rest: " % self)
             self.comparator.after_recompute()
                 # note: sets self.comparator.valid (in spite of error)
             pass
@@ -356,8 +368,10 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
             self.comparator.after_recompute()
         if wantlist:
             ColorSorter.finish()
-            self._glpane = glpane # needed by self.inval_display_list for gl_update
-            self.end_tracking_usage( match_checking_code, self.inval_display_list )
+            # needed by self.inval_display_list for gl_update
+            self._glpane = glpane
+            self.end_tracking_usage( match_checking_code,
+                                     self.inval_display_list )
         return
 
     def _draw_by_reusing(self, glpane, selected, highlighted):
@@ -426,8 +440,8 @@ class SpecialDrawing_ExtraChunkDisplayList(ExtraChunkDisplayList):
 ##            # namely through our own get_value call, with context = the GM.
         # ideally (non klugy): know glpane, and wrap self.comparator with it,
         # and give that wrapper a __getitem__ interface.
-        # actual code: use our comparator subclass directly, give it __getitem__,
-        # and make it find glpane dynamically (KLUGE).
+        # actual code: use our comparator subclass directly, give it
+        # __getitem__, and make it find glpane dynamically (KLUGE).
         prefs_value_finder = self.comparator
         return (prefs_value_finder,)
 
@@ -461,8 +475,11 @@ class Chunk_SpecialDrawingHandler(object):
     def should_defer(self, special_drawing_kind):
         assert special_drawing_kind in ALL_SPECIAL_DRAWING_KINDS
         return self.classes.has_key(special_drawing_kind)
-    def draw_by_calling_with_prefsvalues(self, special_drawing_kind, func): #e rename?
-        # print "fyi: draw_by_calling_with_prefsvalues got", special_drawing_kind, func # this happens
+
+    #e rename?
+    def draw_by_calling_with_prefsvalues(self, special_drawing_kind, func):
+        # print "fyi: draw_by_calling_with_prefsvalues got", \
+        #     special_drawing_kind, func # This happens.
         extra_displist = self._get_extra_displist(special_drawing_kind)
         extra_displist.add_another_drawing_function( func)
         return

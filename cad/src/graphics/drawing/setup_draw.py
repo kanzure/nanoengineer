@@ -90,11 +90,12 @@ def setup_drawer():
     """
     Set up the usual constant display lists in the current OpenGL context.
 
-    WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS --
-    or more precisely, only the GL context this has last been called in
-    (or one which shares its display lists) will work properly with the routines in drawer.py,
-    since the allocated display list names are stored in globals set by this function,
-    but in general those names might differ if this was called in different GL contexts.
+    WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS
+    -- or more precisely, only the GL context this has last been called in (or
+    one which shares its display lists) will work properly with the routines in
+    drawer.py, since the allocated display list names are stored in globals set
+    by this function, but in general those names might differ if this was called
+    in different GL contexts.
     """
     #bruce 060613 added docstring, cleaned up display list name allocation
     # bruce 071030 renamed from setup to setup_drawer
@@ -198,8 +199,10 @@ def setup_drawer():
     drawing_globals.wiresphere1list = wiresphere1list = glGenLists(1)
     glNewList(wiresphere1list, GL_COMPILE)
     didlines = {} # don't draw each triangle edge more than once
+
     def shoulddoline(v1,v2):
-        v1 = tuple(v1) # make sure not list (unhashable) or Numeric array (bug in __eq__)
+        # make sure not list (unhashable) or Numeric array (bug in __eq__)
+        v1 = tuple(v1)
         v2 = tuple(v2)
         if (v1,v2) not in didlines:
             didlines[(v1,v2)] = didlines[(v2,v1)] = None
@@ -213,7 +216,8 @@ def setup_drawer():
     glBegin(GL_LINES)
     ocdec = getSphereTriangles(1)
     for tri in ocdec:
-        #e could probably optim this more, e.g. using a vertex array or VBO or maybe GL_LINE_STRIP
+        #e Could probably optim this more, e.g. using a vertex array or VBO or
+        #  maybe GL_LINE_STRIP.
         doline(tri[0], tri[1])
         doline(tri[1], tri[2])
         doline(tri[2], tri[0])
@@ -267,8 +271,9 @@ def setup_drawer():
     drawing_globals.CubeList = CubeList = glGenLists(1)
     glNewList(CubeList, GL_COMPILE)
     glBegin(GL_QUAD_STRIP)
-    # note: CubeList has only 4 faces of the cube; only suitable for use in wireframes;
-    # see also solidCubeList [bruce 051215 comment reporting grantham 20051213 observation]
+    # note: CubeList has only 4 faces of the cube; only suitable for use in
+    # wireframes; see also solidCubeList [bruce 051215 comment reporting
+    # grantham 20051213 observation]
     glVertex((-1,-1,-1))
     glVertex(( 1,-1,-1))
     glVertex((-1, 1,-1))
@@ -414,9 +419,11 @@ def setup_drawer():
         print "\nnote: this session will NOT use color sorted display lists"
     if (drawing_globals.allow_color_sorting_pref and
         drawing_globals.use_color_sorted_vbos_pref):
-        print "note: this session WILL use color sorted Vertex Buffer Objects\n"
+        print "note: this session WILL use", \
+              "color sorted Vertex Buffer Objects\n"
     else:
-        print "note: this session will NOT use color sorted Vertex Buffer Objects\n"
+        print "note: this session will NOT use", \
+              "color sorted Vertex Buffer Objects\n"
 
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
@@ -426,8 +433,8 @@ def setup_drawer():
             debug_pref("Use native C renderer?",
                        initial_choice,
                        prefs_key = drawing_globals.use_c_renderer_prefs_key))
-            #bruce 060323 removed non_debug = True for A7 release,
-            # and changed its prefs_key so developers start over with the default value.
+            #bruce 060323 removed non_debug = True for A7 release, and changed
+            # its prefs_key so developers start over with the default value.
 
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return # from setup_drawer

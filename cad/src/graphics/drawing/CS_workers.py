@@ -93,16 +93,19 @@ def drawsphere_worker_loop(params):
     (pos, radius, detailLevel) = params
     for x in range(100): ## 500
         for y in range(100):
-            newpos = pos + (x+x/10+x/100) * V(1, 0, 0) + (y+y/10+y/100) * V(0, 1, 0)
+            newpos = pos + (x+x/10+x/100) * V(1, 0, 0) + \
+                     (y+y/10+y/100) * V(0, 1, 0)
             drawsphere_worker((newpos, radius, detailLevel))
             continue
         continue
     return
 
 def drawsphere_worker(params):
-    """Draw a sphere.  Receive parameters through a sequence so that this
-    function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see below)"""
+    """
+    Draw a sphere.  Receive parameters through a sequence so that this function
+    and its parameters can be passed to another function for deferment.  Right
+    now this is only ColorSorter.schedule (see below)
+    """
 
     (pos, radius, detailLevel) = params
 
@@ -181,9 +184,11 @@ def drawwiresphere_worker(params):
     (color, pos, radius, detailLevel) = params
     ## assert detailLevel == 1 # true, but leave out for speed
     from utilities.debug_prefs import debug_pref, Choice_boolean_True
-    newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
+    #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
+    newway = debug_pref("new wirespheres?", Choice_boolean_True)
     oldway = not newway
-    # These objects want a constant line color even if they are selected or highlighted.
+    # These objects want a constant line color even if they are selected or
+    # highlighted.
     glColor3fv(color)
     glDisable(GL_LIGHTING)
     if oldway:

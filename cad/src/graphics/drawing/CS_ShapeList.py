@@ -98,7 +98,8 @@ class ShapeList_inplace:
         """
 
         if self.petrified:
-            raise ValueError, "Tried to add a sphere to a petrified ShapeList_inplace"
+            raise ValueError, \
+                  "Tried to add a sphere to a petrified ShapeList_inplace"
 
         # struct Sphere {
         #     float m_color[4];
@@ -107,7 +108,8 @@ class ShapeList_inplace:
         #     float m_radius;
         # };
 
-        if len(self.spheres) == 0 or self.spheres[-1][1] == ShapeList_inplace._blocking:
+        if (len(self.spheres) == 0 or
+            self.spheres[-1][1] == ShapeList_inplace._blocking):
             # size of struct Sphere in floats is 9
             block = Numeric.zeros((ShapeList_inplace._blocking, 9), 'f')
             self.spheres.append([block, 0])
@@ -131,7 +133,8 @@ class ShapeList_inplace:
         """
 
         if self.petrified:
-            raise ValueError, "Tried to add a cylinder to a petrified ShapeList_inplace"
+            raise ValueError, \
+                  "Tried to add a cylinder to a petrified ShapeList_inplace"
 
         # struct Cylinder {
         #     float m_color[4];
@@ -142,7 +145,8 @@ class ShapeList_inplace:
         #     float m_radius; 
         # };
 
-        if len(self.cylinders) == 0 or self.cylinders[-1][1] == ShapeList_inplace._blocking:
+        if (len(self.cylinders) == 0 or
+            self.cylinders[-1][1] == ShapeList_inplace._blocking):
             # size of struct Cylinder in floats is 13
             block = Numeric.zeros((ShapeList_inplace._blocking, 13), 'f')
             self.cylinders.append([block, 0])
@@ -237,7 +241,7 @@ class ShapeList:
         self.cylinder_radii_array = Numeric.array(self.cylinder_radii, 'f')
         self.cylinder_pos1_array = Numeric.array(self.cylinder_pos1, 'f')
         self.cylinder_pos2_array = Numeric.array(self.cylinder_pos2, 'f')
-        self.cylinder_cappings_array = Numeric.array(self.cylinder_cappings, 'f')
+        self.cylinder_cappings_array = Numeric.array(self.cylinder_cappings,'f')
         self.cylinder_names_array = Numeric.array(self.cylinder_names, 'i')
 
 

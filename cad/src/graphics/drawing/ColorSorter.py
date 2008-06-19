@@ -63,6 +63,7 @@ from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
 from OpenGL.GL import glPopName
 from OpenGL.GL import glPushName
 from OpenGL.GL import GL_SRC_ALPHA
+
 from OpenGL.GL import GL_TRUE
 
 import foundation.env as env
@@ -91,12 +92,13 @@ from graphics.drawing.gl_lighting import apply_material
 
 class ColorSortedDisplayList:         #Russ 080225: Added.
     """
-    The ColorSorter's parent uses one of these to store color-sorted display list
-    state.  It's passed in to ColorSorter.start() .
+    The ColorSorter's parent uses one of these to store color-sorted display
+    list state.  It's passed in to ColorSorter.start() .
     """
     def __init__(self):
         self.clear()
-        self.selected = False   # Whether to draw in the selection over-ride color.
+        # Whether to draw in the selection over-ride color.
+        self.selected = False 
         return
 
     # ==
@@ -123,7 +125,8 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
           highlighting and selection, according to the prefs settings.
           If not set, it's as if the solid-color prefs are chosen.
 
-        @param highlight_color: Option to over-ride the highlight color set in the color scheme preferences.
+        @param highlight_color: Option to over-ride the highlight color set in
+          the color scheme preferences.
         """
 
         patterned_highlighting = (patterning and
@@ -190,8 +193,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Check for empty state.
         """
-        return self.dl or self.color_dl or self.nocolor_dl or self.selected_dl or \
-               self.per_color_dls and len(self.per_color_dls)
+        return (self.dl or self.color_dl or self.nocolor_dl or
+                self.selected_dl or
+                self.per_color_dls and len(self.per_color_dls))
 
     def activate(self):
         """
@@ -204,8 +208,9 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
             self.selected_dl = glGenLists(1)
             pass
         self.selectDl()
-        assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
-        assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
+         #bruce 070521 added these two asserts
+        assert type(self.dl) in (type(1), type(1L))
+        assert self.dl != 0    # This failed on Linux, keep checking. (bug 2042)
         return
 
     def draw_dl(self):                  #russ 080320 Added.
@@ -312,13 +317,14 @@ class ColorSorter:
                         # _printstats
     _immediate = 0      # Number of calls to _invoke_immediately since last
                         # _printstats
-    _gl_name_stack = [0]       # internal record of GL name stack; 0 is a sentinel
+    _gl_name_stack = [0]     # internal record of GL name stack; 0 is a sentinel
 
     def pushName(glname):
         """
         Record the current pushed GL name, which must not be 0.
         """
-        assert glname, "glname of 0 is illegal (used as sentinel)" #bruce 060217 added this assert
+        #bruce 060217 Added this assert.
+        assert glname, "glname of 0 is illegal (used as sentinel)"
         ColorSorter._gl_name_stack.append(glname)
 
     pushName = staticmethod(pushName)
@@ -338,7 +344,8 @@ class ColorSorter:
         Internal function for developers to call to print stats on number of
         sorted and immediately-called objects.
         """
-        print "Since previous 'stats', %d sorted, %d immediate: " % (ColorSorter._sorted, ColorSorter._immediate)
+        print ("Since previous 'stats', %d sorted, %d immediate: " %
+               (ColorSorter._sorted, ColorSorter._immediate))
         ColorSorter._sorted = 0
         ColorSorter._immediate = 0
 
@@ -354,8 +361,8 @@ class ColorSorter:
         color = tuple(color)
         if not ColorSorter.sorted_by_color.has_key(color):
             ColorSorter.sorted_by_color[color] = []
-        ColorSorter.sorted_by_color[color].append((func, params,
-                                                   ColorSorter._gl_name_stack[-1]))
+        ColorSorter.sorted_by_color[color].append(
+            (func, params, ColorSorter._gl_name_stack[-1]))
 
     _add_to_sorter = staticmethod(_add_to_sorter)
 
@@ -390,8 +397,8 @@ class ColorSorter:
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             elif opacity == -1: 
                 # piotr 080429: I replaced the " < 0" condition with " == -1"
-                # The opacity flag is now used to signal either "unshaded colors"
-                # (opacity == -1) or "multicolor object" (opacity == -2)
+                # The opacity flag is now used to signal either "unshaded
+                # colors" (opacity == -1) or "multicolor object" (opacity == -2)
                 glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
                 glColor3fv(color[:3])
                 pass
@@ -422,21 +429,25 @@ class ColorSorter:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color
-            ColorSorter._cur_shapelist.add_sphere(lcolor, pos, radius,
-                                                  ColorSorter._gl_name_stack[-1])
+            ColorSorter._cur_shapelist.add_sphere(
+                lcolor, pos, radius, ColorSorter._gl_name_stack[-1])
             # 20060208 grantham - I happen to know that one detailLevel
             # is chosen for all spheres, I just record it over and
             # over here, and use the last one for the render
-            if ColorSorter.sphereLevel > -1 and ColorSorter.sphereLevel != detailLevel:
-                raise ValueError, "unexpected different sphere LOD levels within same frame"
+            if (ColorSorter.sphereLevel > -1 and
+                ColorSorter.sphereLevel != detailLevel):
+                raise ValueError, \
+                      "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color	
-            ColorSorter.schedule(lcolor, drawsphere_worker, ### drawsphere_worker_loop ### Testing.
-                                 (pos, radius, detailLevel))
+            ColorSorter.schedule(
+                lcolor,
+                drawsphere_worker, ### drawsphere_worker_loop ### Testing.
+                (pos, radius, detailLevel))
 
     schedule_sphere = staticmethod(schedule_sphere)
 
@@ -452,8 +463,8 @@ class ColorSorter:
             else:
                 lcolor = color
             assert 0, "Need to implement a C add_wiresphere function."
-            ColorSorter._cur_shapelist.add_wiresphere(lcolor, pos, radius,
-                                                      ColorSorter._gl_name_stack[-1])
+            ColorSorter._cur_shapelist.add_wiresphere(
+                lcolor, pos, radius, ColorSorter._gl_name_stack[-1])
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], 1.0)
@@ -466,7 +477,7 @@ class ColorSorter:
 
     schedule_wiresphere = staticmethod(schedule_wiresphere)
 
-    def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0 ):
+    def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
         """
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
@@ -476,19 +487,23 @@ class ColorSorter:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
                 lcolor = color
-            ColorSorter._cur_shapelist.add_cylinder(lcolor, pos1, pos2, radius,
-                                                    ColorSorter._gl_name_stack[-1], capped)
+            ColorSorter._cur_shapelist.add_cylinder(
+                lcolor, pos1, pos2, radius,
+                ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color		    
 
-            ColorSorter.schedule(lcolor, drawcylinder_worker, (pos1, pos2, radius, capped))
+            ColorSorter.schedule(lcolor,
+                                 drawcylinder_worker,
+                                 (pos1, pos2, radius, capped))
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
-    def schedule_polycone(color, pos_array, rad_array, capped = 0, opacity = 1.0):
+    def schedule_polycone(color, pos_array, rad_array,
+                          capped = 0, opacity = 1.0):
         """
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
@@ -499,23 +514,28 @@ class ColorSorter:
             else:
                 lcolor = color
             assert 0, "Need to implement a C add_polycone_multicolor function."
-            ColorSorter._cur_shapelist.add_polycone(lcolor, pos_array, rad_array,
-                                                    ColorSorter._gl_name_stack[-1], capped)
+            ColorSorter._cur_shapelist.add_polycone(
+                lcolor, pos_array, rad_array,
+                ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color		    
 
-            ColorSorter.schedule(lcolor, drawpolycone_worker, (pos_array, rad_array))
+            ColorSorter.schedule(lcolor, drawpolycone_worker,
+                                 (pos_array, rad_array))
 
     schedule_polycone = staticmethod(schedule_polycone)
 
-    def schedule_polycone_multicolor(color, pos_array, color_array, rad_array, capped = 0, opacity = 1.0):
+    def schedule_polycone_multicolor(color, pos_array, color_array, rad_array,
+                                     capped = 0, opacity = 1.0):
         """
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
-        piotr 080311: this variant accepts a color array as an additional parameter
+
+        piotr 080311: this variant accepts a color array as an additional
+        parameter
         """
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
@@ -523,15 +543,18 @@ class ColorSorter:
             else:
                 lcolor = color
             assert 0, "Need to implement a C add_polycone function."
-            ColorSorter._cur_shapelist.add_polycone_multicolor(lcolor, pos_array, color_array, rad_array, 
-                                                               ColorSorter._gl_name_stack[-1], capped)
+            ColorSorter._cur_shapelist.add_polycone_multicolor(
+                lcolor, pos_array, color_array, rad_array, 
+                ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color		    
 
-            ColorSorter.schedule(lcolor, drawpolycone_multicolor_worker, (pos_array, color_array, rad_array))
+            ColorSorter.schedule(lcolor,
+                                 drawpolycone_multicolor_worker,
+                                 (pos_array, color_array, rad_array))
 
     schedule_polycone_multicolor = staticmethod(schedule_polycone_multicolor)
 
@@ -554,7 +577,7 @@ class ColorSorter:
         Schedule a line for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        #russ 080306: Signal "unshaded colors" for lines by a negative alpha.  (Hack!)
+        #russ 080306: Signal "unshaded colors" for lines by an opacity of -1.
         color = tuple(color) + (-1,)
         ColorSorter.schedule(color, drawline_worker,
                              (endpt1, endpt2, dashEnabled,
@@ -564,9 +587,13 @@ class ColorSorter:
 
     def start(csdl, pickstate = None):
         """
-        Start sorting - objects provided to "schedule", "schedule_sphere", and
-        "schedule_cylinder" will be stored for a sort at the time "finish" is called.
-        csdl is a ColorSortedDisplayList or None, in which case immediate drawing is done.
+        Start sorting - objects provided to "schedule" and primitives such as
+        "schedule_sphere" and "schedule_cylinder" will be stored for a sort at
+        the time "finish" is called.
+
+        csdl is a ColorSortedDisplayList or None, in which case immediate
+        drawing is done.
+
         pickstate (optional) indicates whether the parent is currently selected.
         """
 
@@ -580,21 +607,26 @@ class ColorSorter:
             if not (drawing_globals.allow_color_sorting and
                     (drawing_globals.use_color_sorted_dls
                      or drawing_globals.use_color_sorted_vbos)): #russ 080320
-                # This is the beginning of the single display list created when color
-                # sorting is turned off.  It is ended in ColorSorter.finish .  In
-                # between, the calls to draw{sphere,cylinder,polycone} methods pass
-                # through ColorSorter.schedule_* but are immediately sent to *_worker
-                # where they do OpenGL drawing that is captured into the display list.
+                # This is the beginning of the single display list created when
+                # color sorting is turned off.  It is ended in
+                # ColorSorter.finish .  In between, the calls to
+                # draw{sphere,cylinder,polycone} methods pass through
+                # ColorSorter.schedule_* but are immediately sent to *_worker
+                # where they do OpenGL drawing that is captured into the display
+                # list.
                 try:
                     if csdl.dl == 0:
-                        csdl.activate()             # Allocate a display list for our use.
+                        csdl.activate() # Allocate a display list for our use.
                         pass
-                    glNewList(csdl.dl, GL_COMPILE_AND_EXECUTE) # Start a single-level list.
+                    # Start a single-level list.
+                    glNewList(csdl.dl, GL_COMPILE_AND_EXECUTE)
                 except:
-                    print "data related to following exception: csdl.dl = %r" % (csdl.dl,) #bruce 070521
+                    print ("data related to following exception: csdl.dl = %r" %
+                           (csdl.dl,)) #bruce 070521
                     raise
 
-        assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
+        assert not ColorSorter.sorting, \
+               "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
         if drawing_globals.use_c_renderer and ColorSorter.sorting:
             ColorSorter._cur_shapelist = ShapeList_inplace()
@@ -610,16 +642,22 @@ class ColorSorter:
         be sorted and invoked now.
         """
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
-        debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
+        debug_which_renderer = debug_pref(
+            "debug print which renderer",
+            Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
         parent_csdl = ColorSorter.parent_csdl
         if drawing_globals.use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
-                #bruce 060314 uncommented/revised the next line; it might have to come after shapeRendererInit (not sure);
-                # it definitely has to come after a graphics context is created and initialized.
-                # 20060314 grantham - yes, has to come after quux.shapeRendererInit
-                print "using C renderer: VBO %s enabled" % (('is NOT', 'is')[quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)])
+                #bruce 060314 uncommented/revised the next line; it might have
+                # to come after shapeRendererInit (not sure); it definitely has
+                # to come after a graphics context is created and initialized.
+                # 20060314 grantham - yes, has to come after
+                # quux.shapeRendererInit .
+                enabled = quux.shapeRendererGetInteger(quux.IS_VBO_ENABLED)
+                print ("using C renderer: VBO %s enabled" %
+                       (('is NOT', 'is')[enabled]))
             quux.shapeRendererSetUseDynamicLOD(0)
             if ColorSorter.sphereLevel != -1:
                 quux.shapeRendererSetStaticLODLevels(ColorSorter.sphereLevel, 1)
@@ -635,12 +673,12 @@ class ColorSorter:
 
         else:
             if debug_which_renderer:
-                print "using Python renderer: use_color_sorted_dls %s enabled" \
-                      % (drawing_globals.use_color_sorted_dls and 'IS'
-                         or 'is NOT')
-                print "using Python renderer: use_color_sorted_vbos %s enabled" \
-                      % (drawing_globals.use_color_sorted_vbos and 'IS'
-                         or 'is NOT')
+                print ("using Python renderer: use_color_sorted_dls %s enabled"
+                       % (drawing_globals.use_color_sorted_dls and 'IS'
+                          or 'is NOT'))
+                print ("using Python renderer: use_color_sorted_vbos %s enabled"
+                       % (drawing_globals.use_color_sorted_vbos and 'IS'
+                          or 'is NOT'))
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
@@ -649,22 +687,27 @@ class ColorSorter:
                 or (ColorSortedDisplayList.cache_ColorSorter and
                     drawing_globals.allow_color_sorting and
                     drawing_globals.use_color_sorted_vbos)
-                or parent_csdl is None):  #russ 080225 Added, 080320 VBO experiment.
-
+                #russ 080225 Added, 080320 VBO experiment.
+                or parent_csdl is None):
+                
                 # Either all in one display list, or immediate-mode drawing.
-                objects_drawn += ColorSorter.draw_sorted(ColorSorter.sorted_by_color)
+                objects_drawn += ColorSorter.draw_sorted(
+                    ColorSorter.sorted_by_color)
 
                 #russ 080225: Moved glEndList here for displist re-org.
                 if parent_csdl is not None:
-                    #russ 080320: Experiment with VBO drawing from cached ColorSorter lists.
+                    #russ 080320: Experiment with VBO drawing from cached
+                    #ColorSorter lists.
                     if (ColorSortedDisplayList.cache_ColorSorter and
                         drawing_globals.allow_color_sorting and
                         drawing_globals.use_color_sorted_vbos):
-                        # Remember the ColorSorter lists for use as a pseudo-display-list.
-                        parent_csdl.sorted_by_color = ColorSorter.sorted_by_color
+                        # Remember the ColorSorter lists for use as a
+                        # pseudo-display-list.
+                        parent_csdl.sorted_by_color = \
+                                                    ColorSorter.sorted_by_color
                     else:
-                        # Terminate a single display list, created when color sorting
-                        # is turned off.  It was started in ColorSorter.start .
+                        # Terminate a single display list, created when color
+                        # sorting is turned off.  Started in ColorSorter.start .
                         glEndList()
                     pass
                 pass
@@ -812,7 +855,7 @@ class ColorSorter:
 
     finish = staticmethod(finish)
 
-    def draw_sorted(sorted_by_color):     #russ 080320: factored out of finish().
+    def draw_sorted(sorted_by_color):   #russ 080320: factored out of finish().
         """
         Traverse color-sorted lists, invoking worker procedures.
         """

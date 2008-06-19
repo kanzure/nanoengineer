@@ -83,7 +83,7 @@ def drawDnaLadder(endCenter1,
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
        
-    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep*0.5*ladderWidth    
+    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep*0.5*ladderWidth
     ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep*0.5*ladderWidth
     
     #Following limits the arrowHead Size to the given value. When you zoom out, 
@@ -113,8 +113,10 @@ def drawDnaLadder(endCenter1,
         pointOnAxis = pointOnAxis + unitVector*duplexRise		
         x += duplexRise
 
-        ladderBeam1Point = previousPoint + unitVectorAlongLadderStep*0.5*ladderWidth
-        ladderBeam2Point = previousPoint - unitVectorAlongLadderStep*0.5*ladderWidth
+        ladderBeam1Point = previousPoint + \
+                           unitVectorAlongLadderStep*0.5*ladderWidth
+        ladderBeam2Point = previousPoint - \
+                           unitVectorAlongLadderStep*0.5*ladderWidth
         
         if previousLadderBeam1Point:
             drawline(beam1Color, 

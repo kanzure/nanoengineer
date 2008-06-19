@@ -7,7 +7,8 @@
 #     print "GLE module can't be imported. Now trying _GLE"
 #     from OpenGL._GLE import gleGetNumSides, gleSetNumSides
 # if not bool(gleGetNumSides):
-#     from graphics.drawing.gleNumSides_patch import gleGetNumSides, gleSetNumSides
+#     from graphics.drawing.gleNumSides_patch import gleGetNumSides
+#     from graphics.drawing.gleNumSides_patch import gleSetNumSides
 
 # Only the interface to gle[GS]etNumSides is in PyOpenGL-3.0.0a6.
 # On 10.5.2 (Leoplard), only gle[GS]etNumSlices is in the shared lib file:
@@ -22,7 +23,8 @@
 #    programs is now a part of GLUT.
 
 # The following was extracted and modified from gle[GS]etNumSides in
-# /Library/Python/2.5/site-packages/PyOpenGL-3.0.0a6-py2.5.egg/OpenGL/raw/GLE/__init__.py
+#    /Library/Python/2.5/site-packages/PyOpenGL-3.0.0a6-py2.5.egg/
+#        OpenGL/raw/GLE/__init__.py
 from OpenGL.raw.GLE.constants import *
 
 from ctypes import *

@@ -66,8 +66,8 @@ def drawNanotubeLadder(endCenter1,
     
     ladderLength = vlen(endCenter1 - endCenter2)
     
-    #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ladderLength is atleast equal to the cntRise. 
+    # Don't draw the vertical line (step) passing through the startpoint unless 
+    # the ladderLength is atleast equal to the cntRise. 
     # i.e. do the drawing only when there are atleast two ladder steps. 
     # This prevents a 'revolving line' effect due to the single ladder step at 
     # the first endpoint 
@@ -84,14 +84,15 @@ def drawNanotubeLadder(endCenter1,
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
        
-    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep * 0.5 * ladderWidth    
-    ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep * 0.5 * ladderWidth
+    ladderBeam1Point = pointOnAxis + \
+                       unitVectorAlongLadderStep * 0.5 * ladderWidth    
+    ladderBeam2Point = pointOnAxis - \
+                       unitVectorAlongLadderStep * 0.5 * ladderWidth
     
-    #Following limits the arrowHead Size to the given value. When you zoom out, 
-    #the rest of ladder drawing becomes smaller (expected) and the following
-    #check ensures that the arrowheads are drawn proportinately. 
-    # (Not using a 'constant' to do this as using glpaneScale gives better 
-    #results)
+    # Following limits the arrowHead Size to the given value. When you zoom out,
+    # the rest of ladder drawing becomes smaller (expected) and the following
+    # check ensures that the arrowheads are drawn proportinately.  (Not using a
+    # 'constant' to do this as using glpaneScale gives better results)
     if glpaneScale > 40:
         arrowDrawingScale = 40
     else:
@@ -109,8 +110,10 @@ def drawNanotubeLadder(endCenter1,
         pointOnAxis = pointOnAxis + unitVector * cntRise		
         x += cntRise
 
-        ladderBeam1Point = previousPoint + unitVectorAlongLadderStep * 0.5 * ladderWidth
-        ladderBeam2Point = previousPoint - unitVectorAlongLadderStep * 0.5 * ladderWidth
+        ladderBeam1Point = previousPoint + \
+                           unitVectorAlongLadderStep * 0.5 * ladderWidth
+        ladderBeam2Point = previousPoint - \
+                           unitVectorAlongLadderStep * 0.5 * ladderWidth
         
         if previousLadderBeam1Point:
             drawline(beam1Color, 

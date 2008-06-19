@@ -114,7 +114,9 @@ from graphics.drawing.gl_GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 from graphics.drawing.gl_Scale import glScale, glScalef
 
 def drawCircle(color, center, radius, normal):
-    """Scale, rotate/translate the unit circle properly """
+    """
+    Scale, rotate/translate the unit circle properly.
+    """
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glColor3fv(color)
@@ -307,11 +309,14 @@ def drawArrowHead(color,
 
 def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
     """
+    Unimplemented.
     """
     pass    
 
 def drawPolyLine(color, points):
-    '''Draws a poly line passing through the given list of points'''
+    """
+    Draws a poly line passing through the given list of points
+    """
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glBegin(GL_LINE_STRIP)
@@ -357,9 +362,10 @@ def drawLineCube(color, pos, radius):
     #bruce 051117 revised this
     glVertexPointer(3, GL_FLOAT, 0, drawing_globals.flatCubeVertices)
         #grantham 20051213 observations, reported/paraphrased by bruce 051215:
-        # - should verify PyOpenGL turns Python float (i.e. C double) into C float
-        #   for OpenGL's GL_FLOAT array element type.
-        # - note that GPUs are optimized for DrawElements types GL_UNSIGNED_INT and GL_UNSIGNED_SHORT.
+        # - should verify PyOpenGL turns Python float (i.e. C double) into C
+        #     float for OpenGL's GL_FLOAT array element type.
+        # - note that GPUs are optimized for DrawElements types GL_UNSIGNED_INT
+        #     and GL_UNSIGNED_SHORT.
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glPushMatrix()
@@ -393,7 +399,8 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
-    glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
+    #bruce 050729 to help fix bug 835 or related bugs
+    glPolygonMode(GL_BACK, GL_FILL)
     return
 
 def drawwirebox(color, pos, len):
@@ -410,7 +417,8 @@ def drawwirebox(color, pos, len):
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
-    glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 to help fix bug 835 or related bugs
+    #bruce 050729 to help fix bug 835 or related bugs
+    glPolygonMode(GL_BACK, GL_FILL)
     return
 
 def segstart(color):
@@ -430,10 +438,12 @@ def segend():
     return
 
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
-    '''Draw chunk or jig axis'''
+    """
+    Draw chunk or jig axis
+    """
     #ninad060907 Note that this is different than draw 
-    #I may need this function to draw axis line. see its current implementation in 
-    #branch "ninad_060908_drawAxis_notAsAPropOfObject"
+    # I may need this function to draw axis line. see its current implementation
+    # in branch "ninad_060908_drawAxis_notAsAPropOfObject"
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glLineStipple(3, 0x1C47) # dash-dot-dash line
@@ -499,11 +509,11 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     #Notes:
     #1. drawing arrowheads implemented on 060918
     #2. ninad060921 Show the origin axes as dotted if behind the mode. 
-    #3. ninad060922 The arrow heads are drawn as wireframe cones if behind the object
-    # the arrowhead size is slightly smaller (otherwise some portion of the 
-    # the wireframe arrow shows up!
-    #3.Making origin non-zoomable is acheived by replacing 
-    #hardcoded 'n' with glpane's scale - ninad060922
+    #3. ninad060922 The arrow heads are drawn as wireframe cones if behind the
+    #   object the arrowhead size is slightly smaller (otherwise some portion of
+    #   the the wireframe arrow shows up!
+    #4 .Making origin non-zoomable is acheived by replacing hardcoded 'n' with
+    #   glpane's scale - ninad060922
 
     #ninad060922 in future , the following could be user preferences. 
     if (dashEnabled):
@@ -523,7 +533,8 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glLineWidth(lineWidth)
 
     gleNumSides = gleGetNumSides()
-    #Code to show hidden lines of the origin if some model obscures it  ninad060921
+    #Code to show hidden lines of the origin if some model obscures it
+    #  ninad060921
     if dashEnabled:
         glLineStipple(2, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
@@ -571,8 +582,9 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glEnd() #end draw lines
     glLineWidth(1.0)
 
-    glPopMatrix() # end push matrix for drawing various lines in the origin and axes
-
+    # End push matrix for drawing various lines in the origin and axes.
+    glPopMatrix()
+    
     #start draw solid arrow heads  for  X , Y and Z axes
     glPushMatrix() 
     glDisable(GL_CULL_FACE)
@@ -581,7 +593,12 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glTranslatef(xEnd, 0.0, 0.0)
     glRotatef(90, 0.0, 1.0, 0.0)
 
-    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
+    glePolyCone([[0, 0, -1],
+                 [0, 0, 0],
+                 [0, 0, arrowHeight],
+                 [0, 0, arrowHeight+1]],
+                None,
+                [arrowBase, arrowBase, 0, 0])
 
     glPopMatrix()
 
@@ -591,7 +608,12 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glTranslatef(0.0, yEnd, 0.0)
     glRotatef(-90, 1.0, 0.0, 0.0)
 
-    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
+    glePolyCone([[0, 0, -1],
+                 [0, 0, 0],
+                 [0, 0, arrowHeight],
+                 [0, 0, arrowHeight+1]],
+                None,
+                [arrowBase, arrowBase, 0, 0])
 
     glPopMatrix()
 
@@ -599,7 +621,12 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glColor3fv(lightblue)
     glTranslatef(0.0,0.0,zEnd)
 
-    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
+    glePolyCone([[0, 0, -1],
+                 [0, 0, 0],
+                 [0, 0, arrowHeight],
+                 [0, 0, arrowHeight+1]],
+                None,
+                [arrowBase, arrowBase, 0, 0])
 
     #Disable line stipple and Enable Depth test
     if dashEnabled:
@@ -615,7 +642,9 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     return
 
 def findCell(pt, latticeType):
-    """Return the cell which contains the point <pt> """
+    """
+    Return the cell which contains the point <pt>
+    """
     if latticeType == 'DIAMOND':
         a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
@@ -633,8 +662,12 @@ def findCell(pt, latticeType):
     return orig, drawing_globals.sp1
 
 def genDiam(bblo, bbhi, latticeType):
-    """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
-    <Return>: A list of unit cells"""
+    """
+    Generate a list of possible atom positions within the area enclosed by
+    (bblo, bbhi).
+
+    <Return>: A list of unit cells
+    """
     if latticeType == 'DIAMOND':
         a = 0; cellX = cellY = cellZ = drawing_globals.DiGridSp
     elif latticeType == 'LONSDALEITE':
@@ -752,14 +785,18 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glEnd()
     glEnable(GL_LIGHTING)
 
-#bruce & wware 060404: drawRubberBand apparently caused bug 1814 (Zoom Tool hanging some Macs, requiring power toggle)
-# so it should not be used until debugged. Use drawrectangle instead. (For an example of how to translate between them,
-# see ZoomMode.py rev 1.32 vs 1.31 in ViewCVS.) That bug was only repeatable on Bruce's & Will's iMacs G5.
+#bruce & wware 060404: drawRubberBand apparently caused bug 1814 (Zoom Tool
+# hanging some Macs, requiring power toggle) so it should not be used until
+# debugged. Use drawrectangle instead. (For an example of how to translate
+# between them, see ZoomMode.py rev 1.32 vs 1.31 in ViewCVS.) That bug was only
+# repeatable on Bruce's & Will's iMacs G5.
 #
-# Bruce's speculations (not very definite; no evidence for them at all) about possible causes of the bug in drawRubberBand:
-# - use of glVertex instead of glVertex3f or so??? This seems unlikely, since we have other uses of it,
-#   but perhaps they work due to different arg types.
-# - use of GL_LINE_LOOP within OpenGL xor mode, and bugs in some OpenGL drivers?? I didn't check whether cookieMode does this too.
+# Bruce's speculations (not very definite; no evidence for them at all) about
+# possible causes of the bug in drawRubberBand:
+# - use of glVertex instead of glVertex3f or so??? This seems unlikely, since we
+#   have other uses of it, but perhaps they work due to different arg types.
+# - use of GL_LINE_LOOP within OpenGL xor mode, and bugs in some OpenGL
+#   drivers?? I didn't check whether cookieMode does this too.
 ##def drawRubberBand(pt1, pt2, c2, c3, color):
 ##    """Huaicai: depth test should be disabled to make the xor work """
 ##    glBegin(GL_LINE_LOOP)
@@ -769,7 +806,6 @@ def drawrectangle(pt1, pt2, rt, up, color):
 ##    glVertex(c3[0],c3[1],c3[2])
 ##    glEnd()
 ##    return
-
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
 def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
@@ -875,10 +911,17 @@ def drawCubeCell(color):
     glEnable(GL_LIGHTING) 
     return
 
-def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False, tex_coords=None):
-    '''Draw polygon with size of <w>*<h> and with color <color>. Optionally, it could be texuture mapped, translucent.
-       @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''
-    vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
+def drawPlane(color, w, h, textureReady, opacity,
+              SOLID=False, pickCheckOnly=False, tex_coords=None):
+    """
+    Draw polygon with size of <w>*<h> and with color <color>. Optionally, it
+    could be texuture mapped, translucent.
+
+    @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick
+      selection purpose.
+    """
+    vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0],
+          [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
     
     # piotr 080529: use external texture coordinates if provided
     if tex_coords is None:
@@ -902,7 +945,9 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     glDisable(GL_CULL_FACE) 
     
     if not pickCheckOnly:
-        glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
+        # This makes sure a translucent object will not occlude another
+        # translucent object.
+        glDepthMask(GL_FALSE)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -933,9 +978,15 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     return
 
 
-def drawHeightfield(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False, hf=None):
-    '''Draw a heighfield using vertex and normal arrays. Optionally, it could be texuture mapped.
-       @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''        
+def drawHeightfield(color, w, h, textureReady, opacity,
+                    SOLID=False, pickCheckOnly=False, hf=None):
+    """
+    Draw a heighfield using vertex and normal arrays. Optionally, it could be
+    texuture mapped.
+
+    @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick
+      selection purpose.
+    """        
 
     from OpenGL.GL import glTexEnvf
     from OpenGL.GL import GL_TEXTURE_ENV
@@ -973,7 +1024,7 @@ def drawHeightfield(color, w, h, textureReady, opacity, SOLID=False, pickCheckOn
 
         if textureReady:
             glEnable(GL_TEXTURE_2D)  
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)            
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
 
     glEnableClientState(GL_VERTEX_ARRAY)
     glEnableClientState(GL_NORMAL_ARRAY)
@@ -1007,11 +1058,15 @@ def drawHeightfield(color, w, h, textureReady, opacity, SOLID=False, pickCheckOn
     return
 
 def drawFullWindow(vtColors):
-    """Draw gradient background color.
-       <vtColors> is a 4 element list specifying colors for the  
+    """
+    Draw gradient background color.
+
+    <vtColors> is a 4 element list specifying colors for the  
        left-down, right-down, right-up, left-up window corners.
-       To draw the full window, the modelview and projection should be set in identity.
-       """
+
+    To draw the full window, the modelview and projection should be set in
+    identity.
+    """
     from utilities.constants import GL_FAR_Z
     glDisable(GL_LIGHTING)
 
@@ -1073,37 +1128,62 @@ def _old_code_for_drawing_text(glpane):
 
 def renderSurface(surfaceEntities, surfaceNormals):
     ####@@@@ bruce 060927 comments:
-    # - The color needs to come before the vertex. I fixed that, but left a debug_pref that can change it
-    #   so you can see the effect of that bug before it was fixed. (Same for the normal, but it already did come before.)
-    # - I suspect normals are not used (when nc > 0) due to lighting being off. But if it's on, colors are not used.
-    #   I saw that problem before, and we had to use apply_material instead, to set color; I'm not sure why,
-    #   it might just be due to specific OpenGL settings we make for other purposes. So I'll use drawer.apply_material(color)
-    #   (again with a debug pref to control that).
-    # The effect of the default debug_pref settings is that it now works properly with color -- but only for the 2nd chunk,
-    # if you create two, and not at all if you create only one. I don't know why it doesn't work for the first chunk.
+    # - The color needs to come before the vertex. I fixed that, but left a
+    #   debug_pref that can change it so you can see the effect of that bug
+    #   before it was fixed. (Same for the normal, but it already did come
+    #   before.)
+    # - I suspect normals are not used (when nc > 0) due to lighting being
+    #   off. But if it's on, colors are not used.  I saw that problem before,
+    #   and we had to use apply_material instead, to set color; I'm not sure
+    #   why, it might just be due to specific OpenGL settings we make for other
+    #   purposes. So I'll use drawer.apply_material(color) (again with a debug
+    #   pref to control that).
+    # The effect of the default debug_pref settings is that it now works
+    # properly with color -- but only for the 2nd chunk, if you create two, and
+    # not at all if you create only one. I don't know why it doesn't work for
+    # the first chunk.
     (entityIndex, surfacePoints, surfaceColors) = surfaceEntities
     e0 = entityIndex[0]
     n = len(e0)
     nc = len(surfaceColors)
     if 1:
-        ### bruce 060927 debug code; when done debugging, we can change them to constants & simplify the code that uses them.
-        from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-        disable_lighting = debug_pref("surface: disable lighting?", Choice_boolean_False)
+        ### bruce 060927 debug code; when done debugging, we can change them to
+        ### constants & simplify the code that uses them.
+        from utilities.debug_prefs import debug_pref, Choice_boolean_True
+        from utilities.debug_prefs import Choice_boolean_False
+        disable_lighting = debug_pref("surface: disable lighting?",
+                                      Choice_boolean_False)
         if nc:
-            color_first = debug_pref("surface: color before vertex?", Choice_boolean_True)
-            use_apply_material = debug_pref("surface: use apply_material?", Choice_boolean_True)
+            color_first = debug_pref("surface: color before vertex?",
+                                     Choice_boolean_True)
+            use_apply_material = debug_pref("surface: use apply_material?",
+                                            Choice_boolean_True)
+
     ## old code was equivalent to disable_lighting = (nc > 0)
-    def use_color(color): #bruce 060927 split this out, so we can change how we apply color in a single place in the code
+    #bruce 060927 Split this out, so we can change how we apply color in a
+    #  single place in the code.
+    def use_color(color):
         if use_apply_material:
-            apply_material(color) # This makes the colors visible even when lighting is enabled.
+            # This makes the colors visible even when lighting is enabled.
+            apply_material(color)
         else:
-            glColor3fv(color) # Old code did this. These colors are only visible when lighting is not enabled.
+            # Old code did this. These colors are only visible when lighting is
+            # not enabled.
+            glColor3fv(color)
+            pass
         return
-    def onevert(vertex_index): #bruce 060927 split this out, for code clarity, and so debug prefs are used in only one place
+
+    #bruce 060927 Split this out, for code clarity, and so debug prefs are
+    #  used in only one place.
+    def onevert(vertex_index):
         glNormal3fv(surfaceNormals[vertex_index])
-        if nc > 0 and color_first: use_color(surfaceColors[vertex_index]) # this needs to be done before glVertex3fv
+        # This needs to be done before glVertex3fv.
+        if nc > 0 and color_first: use_color(surfaceColors[vertex_index])
         glVertex3fv(surfacePoints[vertex_index])
-        if nc > 0 and not color_first: use_color(surfaceColors[vertex_index]) # old code did it here -- used wrong colors sometimes
+        # Old code did it here -- used wrong colors sometimes.
+        if nc > 0 and not color_first:
+            use_color(surfaceColors[vertex_index])
+            pass
         return
     ## if nc > 0 : glDisable(GL_LIGHTING)
     if disable_lighting: glDisable(GL_LIGHTING)
