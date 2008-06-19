@@ -228,10 +228,11 @@ from utilities.constants import black, white, gray
 
 BG_BLUE_SKY = 0
 BG_EVENING_SKY = 1
-BG_BLACK = 2
-BG_WHITE = 3
-BG_GRAY = 4
-BG_CUSTOM = 5
+BG_SEAGREEN = 2
+BG_BLACK = 3
+BG_WHITE = 4
+BG_GRAY = 5
+BG_CUSTOM = 6
 
 # GDS = global display style
 GDS_INDEXES = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
@@ -1408,13 +1409,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 	Load the background color combobox with all the color options and sets 
         the current background color
 	"""
-        backgroundIndexes = [BG_BLUE_SKY, BG_EVENING_SKY, 
+        backgroundIndexes = [BG_BLUE_SKY, BG_EVENING_SKY, BG_SEAGREEN,
                              BG_BLACK, BG_WHITE, BG_GRAY, BG_CUSTOM]
 
-        backgroundNames   = ["Blue Sky (default)", "Evening Sky",
+        backgroundNames   = ["Blue Sky (default)", "Evening Sky", "Sea Green",
                              "Black", "White", "Gray", "Custom..."]
 
         backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
+                             "Background_SeaGreen", 
                              "Background_Black",   "Background_White", 
                              "Background_Gray",    "Background_Custom"]
 
@@ -1761,6 +1763,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         if idx == BG_BLUE_SKY:  
             self.glpane.setBackgroundGradient(idx + 1)
         elif idx == BG_EVENING_SKY:
+            self.glpane.setBackgroundGradient(idx + 1)
+        elif idx == BG_SEAGREEN:
             self.glpane.setBackgroundGradient(idx + 1)
         elif idx == BG_BLACK:
             self.glpane.setBackgroundColor(black)

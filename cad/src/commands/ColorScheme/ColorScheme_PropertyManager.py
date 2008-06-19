@@ -46,10 +46,11 @@ from utilities.debug import print_compact_traceback
 
 bg_BLUE_SKY = 0
 bg_EVENING_SKY = 1
-bg_BLACK = 2
-bg_WHITE = 3
-bg_GRAY = 4
-bg_CUSTOM = 5
+bg_SEAGREEN = 2
+bg_BLACK = 3
+bg_WHITE = 4
+bg_GRAY = 5
+bg_CUSTOM = 6
 
 #hover highlighting 
 # HHS = hover highlighting styles
@@ -652,13 +653,14 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
 	Load the background color combobox with all the color options and sets 
         the current background color
 	"""
-        backgroundIndexes = [bg_BLUE_SKY, bg_EVENING_SKY, 
+        backgroundIndexes = [bg_BLUE_SKY, bg_EVENING_SKY, bg_SEAGREEN,
                              bg_BLACK, bg_WHITE, bg_GRAY, bg_CUSTOM]
         
-        backgroundNames   = ["Blue Sky (default)", "Evening Sky",
+        backgroundNames   = ["Blue Sky (default)", "Evening Sky", "Sea Green",
                              "Black", "White", "Gray", "Custom..."]
         
         backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
+                             "Background_SeaGreen",
                              "Background_Black",   "Background_White", 
                              "Background_Gray",    "Background_Custom"]
         
@@ -702,6 +704,8 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         if idx == bg_BLUE_SKY:  
             self.win.glpane.setBackgroundGradient(idx + 1)
         elif idx == bg_EVENING_SKY:
+            self.win.glpane.setBackgroundGradient(idx + 1)
+        elif idx == bg_SEAGREEN:
             self.win.glpane.setBackgroundGradient(idx + 1)
         elif idx == bg_BLACK:
             self.win.glpane.setBackgroundColor(black)

@@ -595,8 +595,15 @@ lighterblue = ave_colors( 0.5, white, blue)
 brown = ave_colors(0.5, black, yellow) 
 
 bgEVENING_SKY = 2 # This is one more than BG_EVENING_SKY in Preferences.py
+bgSEAGREEN = 3
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3) # GLPane "Evening Sky" gradient
+bg_seagreen = (0.905, 0.905, 0.921), (0.905, 0.905, 0.921), (0.6, 0.8, 0.8), (0.6, 0.8, 0.8) # GLPane "Sea Green" gradient
+
+bg_seagreen_UNUSED_FOR_DEBUG = (0.894, 0.949, 0.894), (0.862, 0.929, 0.862), (0.686, 0.843, 0.843), (0.905, 0.905, 0.921), \
+             (0.862, 0.929, 0.862), (0.839, 0.921, 0.839), (0.67, 0.835, 0.835), (0.686, 0.843, 0.843), \
+             (0.686, 0.843, 0.843), (0.67, 0.835, 0.835), (0.6, 0.8, 0.8), (0.6, 0.8, 0.8), \
+             (0.905, 0.905, 0.921), (0.686, 0.843, 0.843), (0.6, 0.8, 0.8), (0.701, 0.85, 0.85) # GLPane "Evening Sky" gradient
 
 ## PickedColor = (0.0, 0.0, 1.0) # no longer used as of 080603
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)

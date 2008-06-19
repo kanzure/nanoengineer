@@ -144,7 +144,7 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
-from utilities.constants import bgEVENING_SKY
+from utilities.constants import bgEVENING_SKY, bgSEAGREEN
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -204,7 +204,7 @@ from utilities.prefs_constants import stereoViewSeparation_prefs_key
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
 from utilities.constants import GL_FAR_Z
-from utilities.constants import bluesky, eveningsky
+from utilities.constants import bluesky, eveningsky, bg_seagreen
 from utilities.constants import white
 from utilities.constants import MULTIPANE_GUI
 
@@ -221,7 +221,6 @@ from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import gray, darkgray, black, lightgray
 
 import utilities.qt4transition as qt4transition
-
 
 
 
@@ -849,6 +848,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             0 - No gradient. The background color is a solid color.
             1 - the background gradient is set to the 'Blue Sky' gradient.
             2 - the background gradient is set to the 'Evening Sky' gradient.
+            3 - the background gradient is set to the  'Sea Green' gradient.
 
         See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.
         """
@@ -2862,9 +2862,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         NOT USED YET,  DOESNT WORK, intended first use in LineMode.leftDown
         """
-        #First compute the intersection point of the mouseray with the plane 
-        #This will be our first self.handle_MovePt upon left down. 
-        #This value is further used in handleLeftDrag. -- Ninad 20070531
+        #First compute the intersection point of the mouseray with the plane        
         p1, p2     = self.mousepoints(event)
         linePoint  = p2
         lineVector = norm(p2 - p1)
@@ -2963,6 +2961,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         user event, since this will cause only one call of paintGL, after
         that user event handler has finished.
         """
+       
         self._needs_repaint = 1 #bruce 050516 experiment
         # (To restore the pre-050127 behavior, it would be sufficient to
         # change the next line from "self.update()" to "self.paintGL()".)
@@ -3671,6 +3670,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             _bgGradient = bluesky
             if self.backgroundGradient == bgEVENING_SKY:
                 _bgGradient = eveningsky
+            if self.backgroundGradient == bgSEAGREEN:
+                _bgGradient = bg_seagreen
 
             drawFullWindow(_bgGradient)
             # fogColor is an average of the gradient components
@@ -3893,7 +3894,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]
         glMatrixMode(GL_MODELVIEW)
             # (see discussion in bug 727, which was caused by that)
-            # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)
+            # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)\
 
         return # from standard_repaint_0 (which is the central submethod of paintGL)
 
