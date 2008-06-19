@@ -252,6 +252,9 @@ def setupUi(win):
     win.connect(win.fileImportOpenBabelAction,
                 SIGNAL("triggered()"),
                 win.fileOpenBabelImport)
+    win.connect(win.fileImportIOSAction,
+                SIGNAL("triggered()"),
+                win.fileIOSImport)
     win.connect(win.fileExportOpenBabelAction,
                 SIGNAL("triggered()"),
                 win.fileOpenBabelExport)
