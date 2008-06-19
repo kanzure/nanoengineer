@@ -18,6 +18,7 @@ def setupUi(win):
     win.importMenu.addAction(win.fileInsertPdbAction)
     win.importMenu.addSeparator()
     win.importMenu.addAction(win.fileImportOpenBabelAction)
+    win.importMenu.addAction(win.fileImportIOSAction)
     
     # Populate the "Export" submenu.
     win.exportMenu.addAction(win.fileExportPdbAction)
