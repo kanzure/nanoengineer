@@ -156,6 +156,8 @@ class Assembly( StateMixin, Assembly_API):
     from foundation.Group import Group
     from model.chunk      import Chunk
     from model.chem       import Atom
+    from model.jigs       import Jig
+    from model.Plane      import Plane
     
     from dna.model.Block  import Block
     from dna.model.DnaGroup   import DnaGroup
