@@ -67,6 +67,9 @@ def setupUi(win):
     win.fileImportOpenBabelAction = QtGui.QAction(MainWindow)
     win.fileImportOpenBabelAction.setObjectName("fileImportOpenBabelAction")
 
+    win.fileImportIOSAction = QtGui.QAction(MainWindow)
+    win.fileImportIOSAction.setObjectName("fileImportIOSAction")
+    
     win.fileExportPdbAction = QtGui.QAction(MainWindow)
     win.fileExportPdbAction.setObjectName("fileExportPdbAction")
 
@@ -987,6 +990,18 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Open Babel import", None, QtGui.QApplication.UnicodeUTF8))
 
+    win.fileImportIOSAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS import...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileImportIOSAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileImportIOSAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "IOS import", None, QtGui.QApplication.UnicodeUTF8))
+    
     win.fileExportPdbAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Protein Data Bank...", 
