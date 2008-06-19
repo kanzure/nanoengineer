@@ -473,6 +473,18 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @see: EditCommand._getStructureType() (overridden here)
         """
         return self.win.assy.DnaStrand
+    
+    def updateSequence(self):
+        """
+        Public method provided for convenience. If any callers outside of this 
+        command need to update the sequence in the sequence editor, they can simply 
+        do currentCommand.updateSequence() rather than 
+        currentCommand.propMgr.updateSequence()
+        @see: DnaStrand_ProprtyManager.updateSequence() which does the actual 
+        job of updating the sequence string in the sequence editor.
+        """
+        if self.propMgr is not None:
+            self.propMgr.updateSequence()
 
 
     def hasResizableStructure(self):
