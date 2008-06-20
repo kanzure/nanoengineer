@@ -15,7 +15,8 @@ from printFunc import PrettyPrint
 import os, string
 from xml.dom.minidom import parse
 from xml.parsers.expat import ExpatError
-
+from dna.model.DnaStrand import DnaStrand
+from PyQt4.Qt import QMessageBox
 
 def getAllLadders(assy):
     """
@@ -330,27 +331,33 @@ def importFromIOSFile(assy, fileName1):
     @param fileName1: IOS Import file
     @type fileName1: string
     @return: Returns True or False based on whether import was successful
+    
+    @note: Since DNA Strand Chunks do not get stored in the mmp file, there's no
+           way, chunk by chunk info can be verified between the structure on the
+           NE-1 window and that in the IOS file. The most that can be done is to 
+           verify the name of the strand Name info and their lengths. For instance
+           if two NE-1 structures have the same name and number of strands, but 
+           their pairing info is different, there's no way to check that and the
+           sequences will get imported anyways. There IOS import happens at the 
+           user's risk.
     """
-    part = assy.part
+    
     strandsOnScreen = checkStrandsOnNE_1Window(assy)
     if strandsOnScreen == False:
-        print "Cannot import since currently IOS import is supported only for \
-        DNA strands and there are no DNA strands on the screen"
+        msg = "Cannot import since currently IOS import is supported only for DNA strands and there are no DNA strands on the screen. There is also no support for importing into clipboard."
+        QMessageBox.warning(assy.win, "Warning!", msg)
         return False
         
     fileName2 = doInitialProcessingOnXMLFile(fileName1)
-    strandBasesDict, compInfoDict, strandNameSeqDict = getHybridizationInfo(fileName2)
-    if strandBasesDict is None or strandNameSeqDict is None:
+    strandNameSeqDict = getHybridizationInfo(fileName2)
+    
+    if strandNameSeqDict is None:
         # Can remove the temp file
         if os.path.exists(fileName2):
             os.remove(fileName2)
         return False
-    if compInfoDict is None:
-        print "All single strands to import"
     
-    #make sure that the file you are reading into the system has information
-    #that corresponds to the current structure in the NE-1 window.
-    infoCorrect = verifyStructureInfo(assy, strandBasesDict, compInfoDict)
+    infoCorrect = verifyStructureInfo(assy, strandNameSeqDict)
     
     if infoCorrect:
         #import optimized bases from the IOS file
@@ -362,6 +369,7 @@ def importFromIOSFile(assy, fileName1):
         
     if os.path.exists(fileName2):
         os.remove(fileName2)
+    
     
     return True
 
@@ -380,11 +388,13 @@ def checkStrandsOnNE_1Window(assy):
         for node in part.topnode.members:
             
             if hasattr(node,'members'):
+                if node.members is None:
+                    return False
                 for nodeChild in node.members:
                     if isinstance(nodeChild, assy.DnaStrand):
                         count = count +1
             else:
-                if isinstance(node, DnaStrand):
+                if isinstance(node, assy.DnaStrand):
                         count = count +1
             
     if count >= 1:        
@@ -403,7 +413,7 @@ def importBases(assy, strandNameSeqDict):
 
     @type strandNameSeqDict: dict                              
     """
-    part = assy.part
+    
     
     def func(node):
         if isinstance(node, assy.DnaStrand):
@@ -413,8 +423,8 @@ def importBases(assy, strandNameSeqDict):
                 seq = strandNameSeqDict[node.name]
                 node.setStrandSequence(seq)
             except KeyError:
-                print "Cannot import since strand %s does not exist \
-                in the IOS file" % node.name
+                msg = "Cannot import IOS file since strand %s does not exist in the IOS file" % node.name
+                QMessageBox.warning(assy.win, "Warning!", msg)
                 return
                     
     assy.part.topnode.apply2all(func)
@@ -434,162 +444,57 @@ def getStrandsBaseInfoFromNE_1(assy):
     @return: strand list and basestring list from NE-1
     """
     strandList = getAllDnaStrands(assy)
-    strandChunkListFromNE_1 = []
+    strandListFromNE_1 = []
     baseStringListFromNE_1 = []
     
     for strand in strandList:
-        strandChunkList = strand.getStrandChunks()
-        for chunk in strandChunkList:
-            chunkID = chunk.name
-            #just get the name of the strand
-            strandChunkListFromNE_1.append(chunkID)
-            atoms = chunk.get_baseatoms()
-            baseList = []
-            for a in atoms:
-                bases = a.getDnaBaseName()
-                baseList.append(bases)
-            baseString = ''.join(baseList)
-            # base string needed for length info
-            baseStringListFromNE_1.append(baseString) 
-    return strandChunkListFromNE_1, baseStringListFromNE_1
+        strandID = strand.name
+        #just get the name of the strand
+        strandListFromNE_1.append(strandID)
+        baseString = strand.getStrandSequence()
+        baseStringListFromNE_1.append(baseString) 
+    return strandListFromNE_1, baseStringListFromNE_1
     
-def verifyStrandInfo(assy, strandBasesDict):
-    """
-    Verify strand info from NE-1 part and IOS file match
-    @param part: the NE1 part.
-    @type  part: L{assembly}
-    @param strandBasesDict: the dictionary containing the strand names and 
-                              sequences from the IOS import file
 
-    @type strandBasesDict: dict   
-    @return: True or False based on whether strands in the NE-1 and that in the 
-             IOS file match up.
-    """
-    strandChunkListFromNE_1, baseStringListFromNE_1 = getStrandsBaseInfoFromNE_1(assy)
-    
-    # Once strand chunks name and base string info have been obtained from NE-1
-    #check first of all such a chunk exists in the strand dictionary and if yes
-    # the base string lengths match
-    
-    #check their lengths first
-    dictLength = len(strandBasesDict)
-    strandChunkListFromNE_1Length = len(strandChunkListFromNE_1)
-    if dictLength != strandChunkListFromNE_1Length:
-        print "Cannot import IOS file since number of strand chunks in the import file and \
-               one in NE-1 window does not match"
-        return False
-    
-    #check if all the strand chunks exist
-    for chunks in strandChunkListFromNE_1:
-        try:
-            baseString = strandBasesDict[chunks]
-        except KeyError:
-            print "Cannot import IOS file since strand chunk %s in the NE-1 window \
-               cannot be found in the IOS file" % (chunks)
-            return False
-     
-    #check if all the basestring lengths match or not
-    k = 0
-    for chunks in strandChunkListFromNE_1:
-        baseString = strandBasesDict[chunks]
-        baseStringFromNE_1 = baseStringListFromNE_1[k]
-        
-        #print baseStringFromNE_1, baseString, k, len(baseStringFromNE_1),len(baseString)
-        if len(baseStringFromNE_1) != len(baseString):
-            print "Cannot import IOS file since base string length %d of \
-            chunk %s in the NE-1 window does not match with the one found in \
-            the IOS file %d" % (len(baseStringFromNE_1), chunks, len(baseString))
-            return False
-        k = k + 1
-        
-    
-    return True
 
-def getChunkAndComplFromNE_1(assy):
-    """
-    Obtain strand chunk and their corresponding complementary chunk for NE-1 part.
-    @param part: the NE1 part.
-    @type  part: L{assembly}
-    @return: Two lists containing strand chunks and their complements respectively
-    """
-    ladderList = getAllLadders(assy)
-    strandChunkList = []
-    strandChunkComplList = []
-    for ladder in ladderList:
-        strandChunks = ladder.strand_chunks()
-        if ladder.num_strands() == 2:
-            chunk1 = strandChunks[0].name
-            chunk2 = strandChunks[1].name    
-            strandChunkList.append(chunk1)
-            strandChunkComplList.append(chunk2)
-            
-    return strandChunkList, strandChunkComplList
-
-def verifyComplementInfo(assy, compInfoDict):
-    """
-    Verify that the complementary strand info from the IOS file macthes with 
-    that from the NE-1 part.
-    
-    @param part: the NE1 part.
-    @type  part: L{assembly}
-    @param compInfoDict: dictionary containing strand and their complementary 
-                         strands from the IOS file
-    @type compInfoDict: dict
-    @return: True or False based on whether the pairing info in the IOS file matches
-             with that in the NE-1 assembly
-    """
-    strandChunkList, strandChunkComplList = getChunkAndComplFromNE_1(assy)
-    if strandChunkList != '' and compInfoDict is None:
-        print "Cannot import IOS file since no pairing info in the IOS file, but\
-        NE-1 structure has doublestranded regions"
-        return False
-    if strandChunkList == '' and compInfoDict is None:
-        #no harm having single strands info, so long they match
-        return True
-    
-    # as with strands verify the number of double stranded regions are equal
-    if len(strandChunkList) != len(compInfoDict):
-        print "Cannot do IOS import since number of double stranded regions \
-        are not equal"
-        return False
-    
-    #verify complementary strands are same in IOS file and in NE-1 window
-    k = 0
-    for chunk in strandChunkList:
-        # no need to check if the chunk exists in the dictionary since if it
-        # does not, it has already returned False from the verifyStrandInfo() 
-        # function
-        
-        complFromIOS = compInfoDict[chunk]
-        if complFromIOS != strandChunkComplList[k]:
-            print "Cannot import IOS file since matching info for %s not found" % chunk
-            return False
-        k = k + 1
-    return True
-
-def verifyStructureInfo(assy, strandBasesDict, compInfoDict):
+def verifyStructureInfo(assy, iosSeqNameDict):
     """
     Verify that the structure info in the IOS file matches with that of the NE-1 part.
     @param part: the NE1 part.
     @type  part: L{assembly}
-    @param strandBasesDict: dictionary containing strand and their corresponding
-                            base string from IOS file
-    @type strandBasesDict: dict
-    @param compInfoDict: dictionary containing strand and their complementary 
-                         strands from the IOS file
+    
+    @param iosSeqNameDict: dictionary containing strand and basestring 
+                           from the IOS file
     @type compInfoDict: dict
     @return: True or False based on if the structure in the IOS file matches up 
              with the structure in the NE-1 window.
     """
-    strandInfoCorrect = verifyStrandInfo(assy, strandBasesDict)
-    if strandInfoCorrect == False:
-        return False
-    compInfoCorrect = verifyComplementInfo(assy, compInfoDict)     
-    if compInfoCorrect:
-        return True
-    else: 
-        return False
-
+    strandListFromNE_1, baseStringListFromNE_1 = getStrandsBaseInfoFromNE_1(assy)
+    #check their lengths first
+    dictLength = len(iosSeqNameDict)
+    strandListFromNE_1Length = len(strandListFromNE_1)
+    if dictLength != strandListFromNE_1Length:
+        msg = "Cannot import IOS file since number of strands in the import file and one in NE-1 window does not match"
+        QMessageBox.warning(assy.win, "Warning!", msg)
+        return False  
+    
+    for strand in iosSeqNameDict:
+        
+        baseString = iosSeqNameDict[strand]
+        try:
+            index = strandListFromNE_1.index(strand)
+            baseStringFromNE_1 = baseStringListFromNE_1[index]
+        except ValueError:
+            msg = "Cannot import IOS file since strand %s in IOS file does not exist in NE-1 windows" % strand
+            QMessageBox.warning(assy.win, "Warning!", msg)
+            return False
+        
+        if len(baseStringFromNE_1) != len(baseString):
+            msg = "Cannot import IOS file since base string length %d of strand %s in the NE-1 window does not match with the one found in the IOS file (%s, %d)" % (len(baseStringFromNE_1), strandListFromNE_1[index], strand, len(baseString))
+            QMessageBox.warning(assy.win, "Warning!", msg)
+            return False
+    return True    
+    
 def doInitialProcessingOnXMLFile(fileName1):
     """
     do initial preprocessing on the file so that its acceptable by the parser 
@@ -621,6 +526,8 @@ def doInitialProcessingOnXMLFile(fileName1):
     
     return fileName2
 
+
+
 def getHybridizationInfo(fileName2):
     """
     Process this temporary file for strand chunk info. At the same time, we 
@@ -628,26 +535,25 @@ def getHybridizationInfo(fileName2):
     
     @param fileName2: IOS import file
     @type fileName2: string
-    @return: 3 dictionaries containing (strand, Bases), (strand, complements), 
-            and (strand, sequence)
+    @return: a dictionary containing (strand, sequence)
     """
     
     try:
         doc = parse(fileName2)
     except ExpatError:
-        print "Cannot import IOS file, since its not in correct XML format"
-        return None, None, None
+        msg = "Cannot import IOS file, since its not in correct XML format"
+        QMessageBox.warning(assy.win, "Warning!", msg)
+        return None
     
     #need to distinguish between regions for mapping and simple strand regions
     # hence get strand
     strandList = doc.getElementsByTagName("Strand")
     if len(strandList) == 0:
-        print "Cannot import IOS file since no strands to import"
-        return None, None, None
+        msg = "Cannot import IOS file since no strands to import"
+        QMessageBox.warning(assy.win, "Warning!", msg)
+        return None
     
     strandNameList = []
-    strandChunkList = []
-    basesForStrandChunkList = []
     strandSeqList = []
     
     #Within each strand access all regions
@@ -663,14 +569,13 @@ def getHybridizationInfo(fileName2):
         # no way to read it into NE-1 and hence this import is invalid.
         
         if len(regionList) == 0:
-            print "Cannot import IOS file: strand does not have any region, not \
-            a correct IOS file format"
-            return None, None, None
+            msg = "Cannot import IOS file: strand does not have any region, not a correct IOS file format"
+            QMessageBox.warning(assy.win, "Warning!", msg)
+            return None
         
         tempStrandSeq = ''
         for j in range(len(regionList)):
-            #get list of strand chunks
-            strandChunkList.append(str(regionList.item(j).getAttribute("id")))
+            
             #get new base sequence after IOS optimization
             tempBaseString = ''
             if regionList.item(j).childNodes.item(0) is not None:
@@ -679,33 +584,14 @@ def getHybridizationInfo(fileName2):
             #if the base string is empty, there's no point of analyzing any 
             #further either
             if tempBaseString== '':
-                print "Cannot import IOS file: strand chunk does not have any bases, \
-                not a correct IOS file format"
-                return None, None, None
+                msg = "Cannot import IOS file: strand region does not have any bases, not a correct IOS file format"
+                QMessageBox.warning(assy.win, "Warning!", msg)
+                return None
             
-            basesForStrandChunkList.append(tempBaseString)
+            
             tempStrandSeq = tempStrandSeq + tempBaseString
         strandSeqList.append(tempStrandSeq) 
-        
-    strandBasesDict = dict(zip(strandChunkList, basesForStrandChunkList))
+     
     strandNameSeqDict = dict(zip(strandNameList, strandSeqList)) 
     
-    #would also need the constraints region to verify the pairing info
-    strand1List = []
-    strand2List = []
-    
-    matchingList = doc.getElementsByTagName("Match")
-    if len(matchingList) == 0:
-        return strandBasesDict, None, strandNameSeqDict
-    
-    #Within each matching access the pairs individually and store them in a tuple
-    for i in range(len(matchingList)):
-        compPairs = matchingList.item(i).getElementsByTagName("Region")
-        
-        #get the names of complementary chunks
-        strand1List.append(str(compPairs.item(0).getAttribute("ref")))
-        strand2List.append(str(compPairs.item(1).getAttribute("ref"))) 
-        
-    compInfoDict = dict(zip(strand1List, strand2List))
-    
-    return strandBasesDict, compInfoDict, strandNameSeqDict
+    return strandNameSeqDict
