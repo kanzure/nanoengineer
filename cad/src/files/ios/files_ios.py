@@ -336,10 +336,10 @@ def importFromIOSFile(assy, fileName1):
            way, chunk by chunk info can be verified between the structure on the
            NE-1 window and that in the IOS file. The most that can be done is to 
            verify the name of the strand Name info and their lengths. For instance
-           if two NE-1 structures have the same name and number of strands, but 
-           their pairing info is different, there's no way to check that and the
-           sequences will get imported anyways. There IOS import happens at the 
-           user's risk.
+           if two NE-1 structures have the same name and number of strands,each
+           of same length, but their pairing info is different, there's no way 
+           to check that and the sequences will get imported anyways. There IOS 
+           import happens at the user's risk.
     """
     
     strandsOnScreen = checkStrandsOnNE_1Window(assy)
