@@ -31,6 +31,7 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glPushName, glPopName
 
 from OpenGL.GL import GL_CLAMP
 from OpenGL.GL import GL_TEXTURE_WRAP_S
@@ -95,7 +96,7 @@ from platform.PlatformDependent import find_or_make_Nanorex_subdir
 from analysis.ESP.NanoHiveUtils import get_nh_espimage_filename
 from analysis.ESP.NanoHiveUtils import run_nh_simulation
 from analysis.ESP.NanoHive_SimParameters import NanoHive_SimParameters
-
+from utilities.debug import print_compact_traceback
 # ==
 
 class ESPImage(RectGadget):
@@ -117,18 +118,7 @@ class ESPImage(RectGadget):
     mmp_record_name = "espimage"
     featurename = "ESP Image" #Renamed from ESP Window. mark 060108
 
-    draw_later_due_to_translucency = True # overrides Node default [bruce 071026]
-        # Note: all code which treats ESPImage specially due to its being translucent
-        # now uses this class-constant flag to identify it. But ESPImage has several
-        # other unique properties which are still detected using isinstance,
-        # like its desire to overdraw certain atoms or chunks when drawn in
-        # selectAtomsMode, or its relation to the mirroring feature or to NanoHive.
-        # That code needs to use some other new flag (or new other scheme), not this one.
-        #
-        # TODO: the algorithm for honoring this attribute should be made more efficient
-        # so it doesn't require two complete drawing passes over the model tree.
-        # [bruce 071026 comment]
-
+    
     def __init__(self, assy, list, READ_FROM_MMP = False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
         self.assy = assy
@@ -357,6 +347,45 @@ class ESPImage(RectGadget):
             color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
             file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
         return
+    
+    def draw(self, glpane, dispdef):
+        """
+        Does nothing. All the drawing is done after the main drawing code is 
+        done. (i.e. in self.draw_after_highlighting(). 
+        @see: self.draw_after_highlighting()
+        """
+        pass
+    
+    def draw_after_highlighting(self, 
+                                glpane, 
+                                dispdef, 
+                                pickCheckOnly = False):
+        """
+        For ESPImage class, this does all the drawing. (does it after main
+        drawing code is finished drawing) . This method ensures that the 
+        ESP image jig gets selected even when you click inside the 
+        rectangular box (i.e. not just along the edgets of the box)
+        @see: GraphicsMode.Draw_after_highlighting()
+        @see: Node.draw_after_highlighting()
+        @see:Plane.draw_after_highlighting()
+        """
+        anythingDrawn = False
+        if self.hidden:
+            return anythingDrawn
+        
+        self.pickCheckOnly = pickCheckOnly        
+        try:
+            anythingDrawn = True
+            glPushName(self.glname)
+            self._draw(glpane, dispdef) #calls self._draw_jig()
+        except:
+            anythingDrawn = False
+            glPopName()
+            print_compact_traceback("ignoring exception when drawing Jig %r: " % self)
+        else:
+            glPopName()
+            
+        return anythingDrawn
 
     def _draw_jig(self, glpane, color, highlighted = False):
         """

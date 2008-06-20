@@ -12,10 +12,6 @@ piotr 2008-06-13: Added image reading from MMP file.
 This file also used to contain DirectionArrow and  ResizeHandle classes. 
 Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
 
-
-TODO:
-- Need to implement some grid plane features. 
-
 """
 
 from math import pi, atan, cos, sin
@@ -26,14 +22,14 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
+from OpenGL.GL import glPushName, glPopName
+
+
 # piotr 080527
 # added texture-related imports
 from OpenGL.GL import glBindTexture
 from OpenGL.GL import glDeleteTextures
 from OpenGL.GL import GL_TEXTURE_2D
-from OpenGL.GL import GL_LIGHTING
-from OpenGL.GL import glEnable
-from OpenGL.GL import glDisable
 
 from graphics.drawing.drawers import drawLineLoop
 from graphics.drawing.drawers import drawPlane
@@ -91,7 +87,7 @@ class Plane(ReferenceGeometry):
     preview_fill_color   = yellow
     default_border_color = orange
     preview_border_color = yellow
-
+    
 
     def __init__(self, 
                  win, 
@@ -307,7 +303,15 @@ class Plane(ReferenceGeometry):
         @param highlighted: This argument determines if the plane is 
                             drawn in the highlighted color.
         @type  highlighted: bool
+        
+        @see: self.draw_after_highlighting() which draws things like filled 
+        plane , grids etc after the main drawing code is finished.
         """
+        
+        #IMPORTANT NOTE: See also self.draw_after_highlighting() which draws 
+        #some more things suxh as filled plane etc after the main drawing code
+        #is finished. It makes sure that plane get selected even when you click
+        #on the filled portion of it. -- Ninad 2008-06-20
         
         glPushMatrix()
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -327,49 +331,6 @@ class Plane(ReferenceGeometry):
 
         corners_pos = [bottom_left, bottom_right, top_right, top_left]
 
-        if dot(self.getaxis(), glpane.lineOfSight) < 0:
-            fill_color = brown #backside
-        else:
-            fill_color = self.fill_color
-         
-        # Urmi-20080613: display grid lines on the plane
-
-        if self.showGrid == True:
-            drawGPGridForPlane(self.glpane, self.gridColor, self.gridLineType, 
-                               self.width, self.height, self.gridXSpacing, self.gridYSpacing,
-                               self.quat.unrot(self.glpane.up), self.quat.unrot(self.glpane.right), 
-                               self.displayLabels, self.originLocation, self.displayLabelStyle)
-            
-        textureReady = False
-
-        if self.display_image and \
-           self.tex_image:
-            textureReady = True
-            glBindTexture(GL_TEXTURE_2D, self.tex_image)
-            fill_color = [1.0,1.0,1.0]
-            
-        if self.display_heightfield:
-            if self.heightfield and \
-               self.image:
-                if not self.heightfield_use_texture:
-                    textureReady = False
-                drawHeightfield(fill_color, 
-                          self.width, 
-                          self.height, 
-                          textureReady,
-                          self.opacity, 
-                          SOLID=True, 
-                          pickCheckOnly=self.pickCheckOnly,
-                          hf=self.heightfield)
-        else:
-            drawPlane(fill_color, 
-                      self.width, 
-                      self.height, 
-                      textureReady,
-                      self.opacity, 
-                      SOLID=True, 
-                      pickCheckOnly=self.pickCheckOnly,
-                      tex_coords=self.tex_coords)
 
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
@@ -397,6 +358,103 @@ class Plane(ReferenceGeometry):
 
         glPopMatrix()
         return
+    
+    def draw_after_highlighting(self,  glpane, dispdef, pickCheckOnly = False):
+        """
+        Things to draw after highlighting. Subclasses should override this 
+        method. This API method ensures that , when user clicks on the filled
+        area of a plane, the plane gets selected. 
+                
+        @param pickCheckOnly: This flag in conjunction with this API method
+                allows selection of the plane when you click inside the plane 
+                 (i.e. not along the highlighted plane borders) . 
+                 (Note flag copied over from the old implementation 
+                 before 2008-06-20)
+        @type pickCheckOnly: boolean
+        
+        @return: A boolean flag 'anythingDrawn' that tells whether this method
+                 drew something. 
+        @rtype: boolean
+        
+        @see: GraphicsMode.Draw_after_highlighting()
+        @see: Node.draw_after_highlighting() which is overridden here   
+        """      
+        #This implementation fixes bug 2900
+        anythingDrawn = False
+        self.pickCheckOnly = pickCheckOnly
+        
+        try:
+            anythingDrawn = True
+            
+            glPushName(self.glname)
+            glPushMatrix()
+            glTranslatef( self.center[0], self.center[1], self.center[2])
+            q = self.quat
+            glRotatef( q.angle * ONE_RADIAN, 
+                       q.x,
+                       q.y,
+                       q.z)   
+       
+            if dot(self.getaxis(), glpane.lineOfSight) < 0:
+                fill_color = brown #backside
+            else:
+                fill_color = self.fill_color
+             
+            # Urmi-20080613: display grid lines on the plane
+    
+            if self.showGrid == True:
+                drawGPGridForPlane(self.glpane, self.gridColor, self.gridLineType, 
+                                   self.width, self.height, 
+                                   self.gridXSpacing, self.gridYSpacing,
+                                   self.quat.unrot(self.glpane.up), 
+                                   self.quat.unrot(self.glpane.right), 
+                                   self.displayLabels, 
+                                   self.originLocation, 
+                                   self.displayLabelStyle)
+                
+            textureReady = False
+    
+            if self.display_image and \
+               self.tex_image:
+                textureReady = True
+                glBindTexture(GL_TEXTURE_2D, self.tex_image)
+                fill_color = [1.0,1.0,1.0]
+                
+            if self.display_heightfield:
+                if self.heightfield and \
+                   self.image:
+                    if not self.heightfield_use_texture:
+                        textureReady = False
+                    drawHeightfield(fill_color, 
+                              self.width, 
+                              self.height, 
+                              textureReady,
+                              self.opacity, 
+                              SOLID=True, 
+                              pickCheckOnly=self.pickCheckOnly,
+                              hf=self.heightfield)
+            else:
+                drawPlane(fill_color, 
+                          self.width, 
+                          self.height, 
+                          textureReady,
+                          self.opacity, 
+                          SOLID=True, 
+                          pickCheckOnly=self.pickCheckOnly,
+                          tex_coords=self.tex_coords)
+     
+            glPopMatrix()
+            
+        except:
+            anythingDrawn = False
+            glPopName()
+            print_compact_traceback(
+                "ignoring exception when drawing Plane %r: " % self)
+        else:
+            glPopName()
+        
+        return anythingDrawn
+            
 
     def setWidth(self, newWidth):
         """
@@ -898,7 +956,7 @@ class Plane(ReferenceGeometry):
             self.computeHeightfield()
             
         self.glpane.gl_update()
-        pass
+        
     
     def mirrorImage(self, direction):
         """
@@ -924,7 +982,7 @@ class Plane(ReferenceGeometry):
             self.computeHeightfield()
             
         self.glpane.gl_update()
-        pass
+        
     
     def deleteImage(self):
         """

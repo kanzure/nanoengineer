@@ -424,73 +424,38 @@ class basicGraphicsMode(GraphicsMode_API):
         similar but the actual implementation is different. 
         """
         pass
-       
 
-    def _drawESPImage(self, grp, pickCheckOnly): # huaicai; some comments/revisions by bruce 071026
-        """
-        Draw any member ob in the Group <grp> if it has
-        ob.draw_later_due_to_translucency = true.
-        (As of 071026 that's only true of ESPImage objects.)
-        Not consider the order of ESP Image objects.
-
-        (Note: the code permits grp to be a leaf node as well.)
-
-        (Note: unreviewed for making sense if a Group has
-         .draw_later_due_to_translucency set.)
-
-        (Note: the code tries to return a flag saying whether
-        anything was drawn, but does this incorrectly since
-        it doesn't notice this flag returned from recursive calls.
-        I don't know whether this return value is ever used.
-        The only call is in this file, but probably only pretends to use it...)
-        """
-        ### TODO: rename this, since it applies to anything
-        # whose .draw_later_due_to_translucency class constant being true
-        # caused the regular draw pass to skip it. Also improve the
-        # efficiency (for how, see comment where ESPImage defines that
-        # class constant).
-
-        anythingDrawn = False
-
-        try:
-            if grp.draw_later_due_to_translucency:
-                anythingDrawn = True
-                grp.pickCheckOnly = pickCheckOnly # this may only make sense for ESPImage
-                grp.draw(self.o, self.o.displayMode)
-            elif isinstance(grp, Group):    
-                for ob in grp.members: ## [:]:
-                    if ob.draw_later_due_to_translucency:
-                        anythingDrawn = True
-                        ob.pickCheckOnly = pickCheckOnly
-                        ob.draw(self.o, self.o.displayMode)
-                    elif isinstance(ob, Group):
-                        self._drawESPImage(ob, pickCheckOnly)
-                #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
-                #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
-                # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
-                # we have to worry about things which are drawn before or after main drawing loop --
-                # they might need to figure out their dispdef (and coords) specially, or store them during first pass
-                # (like renderpass.py egcode does when it stores modelview matrix for transparent objects).
-                # [bruce 050615 comments]
-            return anythingDrawn
-        except:
-            print_compact_traceback("exception in drawing some Group member; skipping to end: ")
-            ###k return value?
-        pass
-
+    
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
-        Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
-        Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write
+        Do more drawing, after the main drawing code has completed its 
+        highlighting/stenciling for selobj.
+        Caller will leave glstate in standard form for Draw. 
+        Implems are free to turn off depth buffer read or write
         (but must restore standard glstate when done, as for mode.Draw() method).
 
-        Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion
+        Warning: anything implems do to depth or stencil buffers will affect 
+        the standard selobj-check in bareMotion
         (presently only used in depositMode).
 
-        [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
-         water surface. Could be used for transparent drawing in general.]
+        [New method in mode API as of bruce 050610. 
+        General form not yet defined -- just a hack for Build mode's
+         water surface. Could be used for transparent drawing in general. 
+         
+        UPDATE 2008-06-20: Another example use of this method:
+        Used for selectina Reference Plane when user clicks inside the 
+        filled plane (i.e. not along the edges) 
+        See new API method Node.draw_after_highlighthing
+        which is called here. It fixes bug 2900--  Ninad ]
+         
+        @see: Plane.draw_after_highlighthing()
+        @see: Node.draw_after_highlighitng()
         """
-        return self._drawESPImage(self.o.assy.part.topnode, pickCheckOnly)
+        return self.o.assy.part.topnode.draw_after_highlighting(
+            self.glpane, 
+            self.glpane.displayMode, 
+            pickCheckOnly = pickCheckOnly )
+       
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
         """
@@ -648,6 +613,10 @@ class basicGraphicsMode(GraphicsMode_API):
          but it's not part of the GraphicsMode interface from the GLPane.]
         """
         res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
+        return res
+    
+    def dragstart_using_plane_depth(self, event, plane, **kws):
+        res = self.o.dragstart_using_plane_depth(event, plane, **kws) # note: res is a tuple whose length depends on **kws
         return res
 
     def middleShiftDown(self, event):

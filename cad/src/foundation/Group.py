@@ -1190,12 +1190,8 @@ class Group(NodeWithAtomContents):
             return
         self.draw_begin(glpane, dispdef)    
         try:
-            for ob in self.members: ## [:]:
-                if not ob.draw_later_due_to_translucency:
-                    #Exclude any ESP image drawing here because of its translucency. [Huaicai 9/28/05]
-                    # (They will be drawn later when GraphicsMode.Draw_after_highlighting calls
-                    #  the misnamed self._drawESPImage. [bruce 071026 comment])
-                    ob.draw(glpane, dispdef)
+            for ob in self.members: ## [:]:               
+                ob.draw(glpane, dispdef) #see also self.draw_after_highlighting()                
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
             # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
@@ -1207,7 +1203,31 @@ class Group(NodeWithAtomContents):
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         self.draw_end(glpane, dispdef)
         return
-
+    
+    def draw_after_highlighting(self, glpane, dispdef, pickCheckOnly = False):
+        """
+        Things to draw after highlighting. Subclasses should override this 
+        method. see superclass method for more documentation
+        @see: self.draw()
+        @see: GraphicsMode.Draw_after_highlighting()
+        @see: Node.draw_after_highlighting() which is overridden here.
+        @see: Plane.draw_after_highlighting()
+        @see: ESPImage.draw_after_highlighting()
+        """
+        anythingDrawn = False
+        anythingDrawn_by_any_member = False
+        
+        for member in self.members:
+            anythingDrawn_by_any_member = member.draw_after_highlighting(
+                glpane, 
+                dispdef, 
+                pickCheckOnly = pickCheckOnly )
+            if anythingDrawn_by_any_member and not anythingDrawn:
+                anythingDrawn = anythingDrawn_by_any_member
+        
+        return anythingDrawn
+            
+        
     def draw_begin(self, glpane, dispdef): #bruce 050615
         """
         Subclasses can override this to change how their child nodes are drawn.

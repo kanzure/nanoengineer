@@ -218,8 +218,8 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         # Note: this is not directly related to
         # ESPImage's translucency (handled by code in
-        # Utility and/or GraphicsMode which detects its
-        # .draw_later_due_to_translucency setting).
+        # Utility and/or GraphicsMode in method draw_after_highlighting()/
+        #Draw_after_highlighting() respt.
         # Rather it's due to its wanting to overdraw
         # certain model objects. AFAIK it doesn't need
         # this separate pass to do that, but could just
