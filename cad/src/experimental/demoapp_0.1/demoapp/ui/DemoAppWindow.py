@@ -69,25 +69,6 @@ class AppWindow(pyglet.window.Window): ## REFILE
         text_object.draw()
     pass
 
-## from pyglet.event import EVENT_HANDLED
-##class controls_handler(object): # OBS?
-##    def __init__(self, window, attr):
-##        self.window = window
-##        self.attr = attr
-##    @property
-##    def controls(self):
-##        return getattr(self.window, self.attr)
-##    def on_mouse_press(self, x, y, button, modifiers):
-##        ### BUG from when this was in self.window: [### TEST if fixed now]
-##        # it was never called, since tool covers this area, captures all mouse presses...
-##        # how can we divide self into panes and give them separate handlers? ####
-##        # (and colors, so we can see the white controls on the bottom.)
-##        for control in self.controls:
-##            if control.hit_test(x, y):
-##                if control.on_mouse_press(x, y, button, modifiers):
-##                    return EVENT_HANDLED
-##        return None
-##    pass
 
 class ToolPane(pyglet.event.EventDispatcher):
     x = y = 0 # KLUGE, hides some bugs -- opengl and tooltip drawing need transforms #####
@@ -126,24 +107,22 @@ class DemoAppWindow(AppWindow):
         toolpane.model = TrivalentGraphModel()
         self.tool1 = TrivalentGraphDrawingTool(toolpane)
         self.tool2 = DeleteNodeTool(toolpane)
-        # done in gui_update_state:
-        ## toolpane.set_tool(tool1) # this activates the tool
+
+        self._tool_button_table = [
+            # todo: refactor to external name->class table
+            # todo: make button width adapt to text changes -- for now,
+            #  the hardcoded width requires the text to be this short
+            ("Tool1", self.tool1),
+            ("Tool2", self.tool2),
+         ]
+
+        self._current_tool_index = 0
+        
         self.toolpane = toolpane
 
         self.children_besides_controls = [toolpane] # not counting self.controls... (kluge)
         self._event_distributor = EventDistributorToChildren(self.find_child) # finds both kinds of children
         self.push_handlers( self._event_distributor)
-
-        ## self.push_handlers(tool) # todo: more than one tool, let them be alternative states...
-            # if the tools have substates (as they do), they may need a fake whole-tool event handler
-            # to remain in each of those states, just so they can know how to remove themselves in the end.
-            # or we may need a new feature to remove a specific handler-frame...
-            # actually this is not hard -- the tool knows its state, so it knows what handler to remove.
-            # maybe the tool is two handler frames (self and its state), that's ok too.
-            #
-            # nim: GraphSelectionTool
-##        self.controls_handler = controls_handler(self, 'controls') # sees self.controls
-##        self.push_handlers(self.controls_handler)
 
         # view transform [modified from soundspace.py] ###@@@ USE ME
         self.zoom = 40 # pixels per unit
@@ -151,17 +130,17 @@ class DemoAppWindow(AppWindow):
         self.ty = self.height/2
 
         # from controls.py test code, aka media_player.py pyglet example code
-        self.play_pause_button = TextButton(self)
-        self.play_pause_button.x = self.GUI_PADDING
-        self.play_pause_button.y = self.GUI_PADDING
-        self.play_pause_button.height = self.GUI_BUTTON_HEIGHT
-        self.play_pause_button.width = 45
-        self.play_pause_button.on_press = self.on_play_pause
+        self.change_tool_button = TextButton(self)
+        self.change_tool_button.x = self.GUI_PADDING
+        self.change_tool_button.y = self.GUI_PADDING
+        self.change_tool_button.height = self.GUI_BUTTON_HEIGHT
+        self.change_tool_button.width = 45
+        self.change_tool_button.on_press = self.change_to_next_tool
 
         win = self
         self.window_button = TextButton(self)
-        self.window_button.x = self.play_pause_button.x + \
-                               self.play_pause_button.width + self.GUI_PADDING
+        self.window_button.x = self.change_tool_button.x + \
+                               self.change_tool_button.width + self.GUI_PADDING
         self.window_button.y = self.GUI_PADDING
         self.window_button.height = self.GUI_BUTTON_HEIGHT
         self.window_button.width = 90
@@ -170,7 +149,7 @@ class DemoAppWindow(AppWindow):
 
         self.controls = [
             # self.slider, 
-            self.play_pause_button, # demo
+            self.change_tool_button, # demo
             self.window_button, # useful
         ]
 
@@ -209,28 +188,26 @@ class DemoAppWindow(AppWindow):
         return self.children_besides_controls[0]
 
     def gui_update_state(self):
-        if self.playing:
-            self.play_pause_button.text = 'Tool2'
-            self.toolpane.set_tool(self.tool2)
-        else:
-            self.play_pause_button.text = 'Tool1'
-            self.toolpane.set_tool(self.tool1)
+        current_tool_data = self._tool_button_table[ self._current_tool_index]
+        label, tool = current_tool_data
+        self.change_tool_button.text = label
+        self.toolpane.set_tool( tool)
 
     def on_key_press(self, symbol, modifiers):
         if symbol == key.SPACE:
-            self.on_play_pause()
+            self.change_to_next_tool()
         elif symbol == key.ESCAPE:
             self.dispatch_event('on_close')
 
     def on_close(self):
         self.close()
 
-    playing = False
-    def on_play_pause(self):
-        if self.playing:
-            self.playing = False
-        else:
-            self.playing = True
+    def change_to_next_tool(self):
+        """
+        change to the next tool
+        """
+        self._current_tool_index += 1
+        self._current_tool_index %= len( self._tool_button_table) 
         self.gui_update_state()
 
     def on_draw(self):
