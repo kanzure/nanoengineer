@@ -310,11 +310,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             #Its a clipboard part, probably a chunk or a jig not contained in 
             #a group.
-            numberOfMembers = 1
+            print "No support for clipboard at this time"
+            return
         
         if numberOfMembers == 0:
-            print "Cannot import since we cannot assign optimized sequences if there's \
-             not any sequences on the NE-1 window"
+            msg = "Cannot import since we cannot assign optimized sequences if there is n't any sequence on the NE-1 window"
+            from PyQt4.Qt import QMessageBox
+            QMessageBox.warning(self.assy.win, "Warning!", msg)
             return
         
         formats = \
@@ -352,7 +354,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             #Its a clipboard part, probably a chunk or a jig not contained in 
             #a group.
-            numberOfMembers = 1
+            print "No support for clipboard at this time"
+            return
         
         if numberOfMembers == 0:
             print "Nothing to export"
