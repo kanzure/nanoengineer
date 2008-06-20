@@ -59,9 +59,36 @@ class Transition(object): # use superclass Description??
     Describe a potential state transition, for use by something
     which might actually do it or might just indicate something
     about it in the UI.
+
+    Note: callers are encouraged to supply these as named arguments for clarity,
+    and to always supply them in this order, and to supply all of them
+    (except for handled) even when they have their default values.
+
+    @param indicators: tooltip and highlighting indicators, to show the user
+                       what would happen if this transition was taken.
+    @type indicators: sequence of HighlightGraphics_descriptions objects ###doc more
+
+    @param command: what to do to the model when this transition is taken.
+                    Can be None for "no operation".
+    @type command: ('command name', *parameters )
+
+    @param next_state: next state to go into, when this transition is taken.
+                       Can be SAME_STATE to remain in the same state with the
+                       same parameters. Can include CMD_RETVAL when the command
+                       return value is needed as a parameter of the new state.
+    @type next_state: ( state_class, *parameters)
+
+    @param handled: whether a mouse event resulting in this transition being
+                    indicated or taken has been fully handled (true) or needs
+                    further handling by background event handlers (false)
+    @type handled: boolean
     """
-    def __init__(self, tip, command, next_state, handled = True):
-        self.tip = tip
+    def __init__(self,
+                 indicators = (),
+                 command = None,
+                 next_state = None,
+                 handled = True ):
+        self.indicators = indicators
         self.command = command
         self.next_state = next_state
         self.handled = handled and EVENT_HANDLED ## technically: or None
@@ -74,7 +101,7 @@ def parse_transition(transition):
     t = transition
     if t is None:
         return None, None, SAME_STATE, False # guesses, 080616 night
-    return t.tip, t.command, t.next_state, t.handled
+    return t.indicators, t.command, t.next_state, t.handled
 
 def parse_state( state_desc):
     "return class, args"

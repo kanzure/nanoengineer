@@ -25,11 +25,13 @@ class _HuntForNode(HuntForClickAction_ToolStateBehavior): # rename?
         hh = self.tool._f_HighlightGraphics_descriptions
         if isinstance(obj, model.Node):
             # click on any node: delete it
-            return Transition( [hh.tip_text("click to DELETE this node", obj),
-                                hh.highlight_delete(obj),
-                                ],
-                               ("cmd_deleteNode", obj,),
-                               (_HuntForNode,) ) # todo: use SAME_STATE here
+            return Transition(
+                indicators = [hh.tip_text("click to DELETE this node", obj),
+                              hh.highlight_delete(obj),
+                              ],
+                command = ("cmd_deleteNode", obj,),
+                next_state = (_HuntForNode,) # todo: use SAME_STATE here
+             )
         return None # for anything we don't understand, use handler below us
     pass
 

@@ -71,33 +71,44 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
         obj = self.pane.find_object(x, y) # might be None
         hh = self.tool._f_HighlightGraphics_descriptions
         if obj is self.node and self.node:
-            return Transition( [hh.tip_text("click to stop drawing edges", obj), #e clarify text
-                                hh.highlight_refusal(obj) ],
-                               None,
-                               (HuntForNode, None) )
+            return Transition(
+                indicators = [hh.tip_text("click to stop drawing edges", obj), #e clarify text
+                              hh.highlight_refusal(obj)
+                              ],
+                command = None,
+                next_state = (HuntForNode, None)
+             )
         elif isinstance(obj, model.Node):
             # click on another node: connect our node to it, if both nodes permit
             if obj.new_edge_ok() and self.node:
-                return Transition( [hh.tip_text("click to connect to this node", obj),
-                                    hh.highlight_connect_to(obj),
-                                    hh.rubber_edge(self.node, obj)
-                                    ],
-                                   ("cmd_addEdge", obj, self.node),
-                                   (HuntForNode, obj) )
-                                        ### TODO: sometimes, pass to HuntForNode None instead of obj,
-                                        # in order to "stop drawing edges" after making this connection,
-                                        # e.g. if it "closed a loop".
-                                        # NOTE: this means Hunt must tolerate mouse drag and release as noops
+                return Transition(
+                    indicators = [hh.tip_text("click to connect to this node", obj),
+                                  hh.highlight_connect_to(obj),
+                                  hh.rubber_edge(self.node, obj)
+                                  ],
+                    command = ("cmd_addEdge", obj, self.node),
+                    next_state = (HuntForNode, obj)
+                        ### TODO: sometimes, pass to HuntForNode None instead of obj,
+                        # in order to "stop drawing edges" after making this connection,
+                        # e.g. if it "closed a loop".
+                        # NOTE: this means Hunt must tolerate mouse drag and release as noops
+                 )
             elif self.node:
-                return Transition( [hh.tip_text("(can't connect to this node)", obj),
-                                    hh.highlight_refusal(obj) ],
-                                   None,
-                                   (DragNode, obj, (x,y)) ) # was SAME_STATE
+                return Transition(
+                    indicators = [hh.tip_text("(can't connect to this node)", obj),
+                                  hh.highlight_refusal(obj)
+                                  ],
+                    command = None,
+                    next_state = (DragNode, obj, (x,y)) # was SAME_STATE
+                 )
             else:
-                return Transition( [hh.tip_text("drag this node, or click to connect it to other nodes", obj),
-                                    hh.highlight_drag(obj) ],
-                                   None,
-                                   (DragNode, obj, (x,y)) )
+                return Transition(
+                    indicators = [hh.tip_text("drag this node, or click to connect it to other nodes", obj),
+                                  hh.highlight_drag(obj)
+                                  ],
+                    command = None,
+                    next_state = (DragNode, obj, (x,y))
+                 )
         elif obj is None:
             # click in empty space [todo: make sure not too near an existing node];
             # create a new node here [todo: depends on type of background object]
@@ -108,41 +119,49 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                 # - command (name & args),
                 # - next_state,
                 # - handled
-                return Transition( [ # tip_text is redundant with rubber objects:
-                                     ## hh.tip_text("click to create new node and connect to it", (x,y)),
-                                     hh.rubber_edge(self.node, (x,y)),
-                                     hh.rubber_node((x,y))
-                                    ],
-                                   ("cmd_addNodeAndConnectFrom", x, y, self.node), # todo: model coords
-                                   (DragNode, CMD_RETVAL, (x,y)) )
-            else:
-                return Transition( [ # tip_text is redundant with rubber objects:
-                                     ## hh.tip_text("click to create new node (and start drawing edges)", (x,y)),
-                                     hh.rubber_node((x,y))
+                return Transition(
+                    indicators = [ # tip_text is redundant with rubber objects:
+                                   ## hh.tip_text("click to create new node and connect to it", (x,y)),
+                                   hh.rubber_edge(self.node, (x,y)),
+                                   hh.rubber_node((x,y))
                                    ],
-                                   ("cmd_addNode", x, y),
-                                   (DragNode, CMD_RETVAL, (x,y)) )
+                    command = ("cmd_addNodeAndConnectFrom", x, y, self.node), # todo: model coords
+                    next_state = (DragNode, CMD_RETVAL, (x,y))
+                 )
+            else:
+                return Transition(
+                    indicators = [ # tip_text is redundant with rubber objects:
+                                   ## hh.tip_text("click to create new node (and start drawing edges)", (x,y)),
+                                   hh.rubber_node((x,y))
+                                   ],
+                    command = ("cmd_addNode", x, y),
+                    next_state = (DragNode, CMD_RETVAL, (x,y))
+                 )
         elif isinstance(obj, model.Edge):
             # click on edge: make a node there, then act as if we clicked on it [not yet called, since edge hit test is nim]
             if self.node:
-                return Transition( [hh.tip_text("click to insert new node into this edge, and connect to it", (x,y)),
-                                    hh.highlight_insert_into(obj),
-                                    hh.rubber_node((x,y)),
-                                    hh.rubber_edge(self.node, (x,y)),
-                                        # fix: not quite correct position
-                                        # (we want same corrected pos for tip and both highlights),
-                                        # and doesn't indicate change to old edge
-                                    ],
-                                   ("cmd_addNodeOnEdgeAndConnectFrom", x, y, obj, self.node),
-                                   (DragNode, CMD_RETVAL, (x,y)) )
+                return Transition(
+                    indicators = [hh.tip_text("click to insert new node into this edge, and connect to it", (x,y)),
+                                  hh.highlight_insert_into(obj),
+                                  hh.rubber_node((x,y)),
+                                  hh.rubber_edge(self.node, (x,y)),
+                                      # fix: not quite correct position
+                                      # (we want same corrected pos for tip and both highlights),
+                                      # and doesn't indicate change to old edge
+                                  ],
+                    command = ("cmd_addNodeOnEdgeAndConnectFrom", x, y, obj, self.node),
+                    next_state = (DragNode, CMD_RETVAL, (x,y))
+                 )
             else:
-                return Transition( [hh.tip_text("click to insert new node into this edge", (x,y)),
-                                    hh.highlight_insert_into(obj),
-                                    hh.rubber_node((x,y))
-                                        # fix: not quite correct position (same as in above case)
-                                    ],
-                                   ("cmd_addNodeOnEdge", x, y, obj),
-                                   (DragNode, CMD_RETVAL, (x,y)) )
+                return Transition(
+                    indicators = [hh.tip_text("click to insert new node into this edge", (x,y)),
+                                  hh.highlight_insert_into(obj),
+                                  hh.rubber_node((x,y))
+                                      # fix: not quite correct position (same as in above case)
+                                  ],
+                    command = ("cmd_addNodeOnEdge", x, y, obj),
+                    next_state = (DragNode, CMD_RETVAL, (x,y))
+                 )
         return None # for anything we don't understand, do nothing and use the handler below us...
             # (e.g. this lets us highlight and click buttons even if they are "behind" us,
             #  in the general case -- but not in current code, since even empty space has an action
@@ -169,11 +188,13 @@ class DragNode(HuntForReleaseAction_ToolStateBehavior): # works, except for bugs
                                     ) # might be None
         hh = self.tool._f_HighlightGraphics_descriptions
         if isinstance(obj, model.Node):
-            return Transition( [hh.tip_text("merge with existing node", obj),
-                                hh.highlight_merge(self.node, obj),
-                                ],
-                               ("cmd_MergeNodes", self.node, obj),
-                               (HuntForNode, None) )
+            return Transition(
+                indicators = [hh.tip_text("merge with existing node", obj),
+                              hh.highlight_merge(self.node, obj),
+                              ],
+                command = ("cmd_MergeNodes", self.node, obj),
+                next_state = (HuntForNode, None)
+             )
         elif V(x, y) != self.dragstart_pos:
             # it moved; don't draw edges from it during subsequent mouse motion
             # (future: small motions should not count, for this or for dragging;
