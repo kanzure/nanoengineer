@@ -19,7 +19,8 @@ from widgets.DebugMenuMixin import DebugMenuMixin
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 from utilities.prefs_constants import getDefaultWorkingDirectory
-from utilities.Log import greenmsg
+from utilities.prefs_constants import workingDirectory_prefs_key
+from utilities.Log import greenmsg, redmsg
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
@@ -332,7 +333,8 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         self.w = self.parentMode.w
         self.win = self.parentMode.w
         self.pw = self.parentMode.pw        
-        self.o = self.win.glpane                 
+        self.o = self.win.glpane
+        self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
                     
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
@@ -885,14 +887,22 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
         current_favorite = self.favoritesComboBox.currentText()
         favfilepath = getFavoritePathFromBasename(current_favorite)
         
+        #Check to see if favfilepath exists first
+        if not os.path.exists(favfilepath):
+            msg = "%s does not exist" % favfilepath
+            env.history.message(cmd + msg)
+            return
         formats = \
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
         
+        directory = self.currentWorkingDirectory
+        saveLocation = directory + "/" + current_favorite + ".txt"
+        
         fn = QFileDialog.getSaveFileName(
             self, 
             "Save Favorite As", # caption
-            favfilepath, #where to save
+            saveLocation, #where to save
             formats, # file format options
             QString("Favorite (*.txt)") # selectedFilter
             )
@@ -900,9 +910,41 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             env.history.message(cmd + "Cancelled")
         
         else:
+            #remember this directory
+            
+            dir, fil = os.path.split(str(fn))
+            self.setCurrentWorkingDirectory(dir)
             saveFavoriteFile(str(fn), favfilepath)
         return
+    
+    def setCurrentWorkingDirectory(self, dir = None):
+        if os.path.isdir(dir):
+            self.currentWorkingDirectory = dir
+            self._setWorkingDirectoryInPrefsDB(dir)
+        else:
+            self.currentWorkingDirectory =  getDefaultWorkingDirectory()
+    
+    def _setWorkingDirectoryInPrefsDB(self, workdir = None):
+        """
+        [private method]
+        Set the working directory in the user preferences database.
         
+        @param workdir: The fullpath directory to write to the user pref db.
+        If I{workdir} is None (default), there is no change.
+        @type  workdir: string
+        """
+        if not workdir:
+            return
+        
+        workdir = str(workdir)
+        if os.path.isdir(workdir):
+            workdir = os.path.normpath(workdir)
+            env.prefs[workingDirectory_prefs_key] = workdir # Change pref in prefs db.            
+        else:
+            msg = "[" + workdir + "] is not a directory. Working directory was not changed."
+            env.history.message( redmsg(msg))
+        return
+    
     def loadFavorite(self):
         """
         Prompts the user to choose a "favorite file" (i.e. *.txt) from disk to
@@ -916,7 +958,9 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
          
-        directory= getDefaultWorkingDirectory()
+        directory = self.currentWorkingDirectory
+        if directory == '':
+            directory= getDefaultWorkingDirectory()
         
         fname = QFileDialog.getOpenFileName(self,
                                          "Choose a file to load",
@@ -928,6 +972,8 @@ class ColorScheme_PropertyManager( PM_Dialog, DebugMenuMixin ):
             return
 
         else:
+            dir, fil = os.path.split(str(fname))
+            self.setCurrentWorkingDirectory(dir)
             canLoadFile = loadFavoriteFile(fname)
             
             if canLoadFile == 1:
