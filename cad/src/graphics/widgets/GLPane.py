@@ -102,6 +102,7 @@ from OpenGL.GL import glPolygonMode
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
 from OpenGL.GL import glColorMaterial
 from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_MODULATE
 from OpenGL.GL import glViewport
 from OpenGL.GL import GL_RGB
 from OpenGL.GL import GL_UNSIGNED_BYTE
@@ -117,6 +118,9 @@ from OpenGL.GL import GL_CLIP_PLANE5
 from OpenGL.GL import glClipPlane
 from OpenGL.GL import glPushAttrib
 from OpenGL.GL import glPopAttrib
+from OpenGL.GL import glTexEnvf
+from OpenGL.GL import GL_TEXTURE_ENV
+from OpenGL.GL import GL_TEXTURE_ENV_MODE
 from OpenGL.GL import GL_TRANSFORM_BIT
 
 from OpenGL.GLU import gluUnProject, gluProject, gluPickMatrix
@@ -3659,6 +3663,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             #e if stencil clear is expensive, we could optim and only do it when 
             #needed [bruce ca. 050615]
 
+        # piotr 080620 - fixed "white text" bug when using Qt 4.3.x
+        # before rendeirng text, the texture mode should be set to "GL_MODULATE
+        # to reflect current color changes
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
+        
         # for now only evening sky and blue sky gradient backgrounds are supported
         if self.backgroundGradient:    
             glMatrixMode(GL_PROJECTION)
@@ -3888,7 +3897,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.graphicsMode.draw_overlay() #bruce 070405 (misnamed)
         except:
             print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
-
+        
         self.drawing_phase = '?'
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]
