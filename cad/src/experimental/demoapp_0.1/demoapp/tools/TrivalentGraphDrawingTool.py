@@ -80,7 +80,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
              )
         elif isinstance(obj, model.Node):
             # click on another node: connect our node to it, if both nodes permit
-            if obj.new_edge_ok() and self.node:
+            if self.node and obj.new_edge_ok_to(self.node):
                 return Transition(
                     indicators = [hh.tip_text("click to connect to this node", obj),
                                   hh.highlight_connect_to(obj),
@@ -93,13 +93,21 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                         # e.g. if it "closed a loop".
                         # NOTE: this means Hunt must tolerate mouse drag and release as noops
                  )
+            elif self.node and obj.connected_to(self.node):
+                return Transition(
+                    indicators = [hh.tip_text("(already connected to this node)", obj),
+                                  hh.highlight_refusal(obj)
+                                  ],
+                    command = None,
+                    next_state = (DragNode, obj, (x,y))
+                 )
             elif self.node:
                 return Transition(
                     indicators = [hh.tip_text("(can't connect to this node)", obj),
                                   hh.highlight_refusal(obj)
                                   ],
                     command = None,
-                    next_state = (DragNode, obj, (x,y)) # was SAME_STATE
+                    next_state = (DragNode, obj, (x,y))
                  )
             else:
                 return Transition(
@@ -138,8 +146,8 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                     next_state = (DragNode, CMD_RETVAL, (x,y))
                  )
         elif isinstance(obj, model.Edge):
-            # click on edge: make a node there, then act as if we clicked on it [not yet called, since edge hit test is nim]
-            if self.node:
+            # click on edge: make a node there, then act as if we clicked on it
+            if self.node and self.node not in obj.nodes:
                 return Transition(
                     indicators = [hh.tip_text("click to insert new node into this edge, and connect to it", (x,y)),
                                   hh.highlight_insert_into(obj),
@@ -152,7 +160,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                     command = ("cmd_addNodeOnEdgeAndConnectFrom", x, y, obj, self.node),
                     next_state = (DragNode, CMD_RETVAL, (x,y))
                  )
-            else:
+            elif not self.node:
                 return Transition(
                     indicators = [hh.tip_text("click to insert new node into this edge", (x,y)),
                                   hh.highlight_insert_into(obj),
@@ -162,6 +170,9 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                     command = ("cmd_addNodeOnEdge", x, y, obj),
                     next_state = (DragNode, CMD_RETVAL, (x,y))
                  )
+            else:
+                # self.node is one of the endpoints of this edge (obj)
+                return None
         return None # for anything we don't understand, do nothing and use the handler below us...
             # (e.g. this lets us highlight and click buttons even if they are "behind" us,
             #  in the general case -- but not in current code, since even empty space has an action

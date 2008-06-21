@@ -6,11 +6,9 @@ $Id$
 bug: rubber edges stopped working...
 """
 
-from demoapp.geometry.vectors import V
+from demoapp.geometry.vectors import V, dot, vlen, unitVector, rotate2d_90
 
 import pyglet
-
-# from pyglet.gl import * - not sure if needed - try it
 
 from demoapp.graphics.colors import black
 
@@ -32,12 +30,19 @@ class Node(ModelComponent):
         self.y = y
         self.edges = [] # sequence or set of our edges
     def destroy(self):
-        for e in self.edges:
+        for e in self.edges[:]:
             e.destroy()
         self.edges = []
         del self.model.nodes[self]
     def new_edge_ok(self):
         return len(self.edges) < 3
+    def new_edge_ok_to(self, node):
+        return self.new_edge_ok() and not self.connected_to(node)
+    def connected_to(self, node):
+        for edge in self.edges:
+            if node in edge.nodes:
+                return True
+        return False
     def draw(self, highlight_color = None):
         draw_Node( self.pos,
                    self.radius,
@@ -56,15 +61,20 @@ class Node(ModelComponent):
 
 class Edge(ModelComponent):
     def __init__(self, model, n1, n2):
+        assert isinstance(n1, Node)
+        assert isinstance(n2, Node)
+        assert n1 is not n2
+        assert not n1.connected_to(n2)
+        assert not n2.connected_to(n1)
         self.model = model
         self.nodes = (n1, n2) # sequence or set of our nodes
         for n in self.nodes:
             n.edges.append(self)
-    def destroy(self): # CALL ME (and what about undo?)
+    def destroy(self): # (what about undo?)
         del self.model.edges[self]
         for n in self.nodes:
             n.edges.remove(self)
-        self.nodes = []
+        self.nodes = ()
     def draw(self):
         drawline2d(black, self.n1.pos, self.n2.pos) # refactor, use in rubber_edge: draw_Edge
     @property
@@ -81,19 +91,22 @@ class Edge(ModelComponent):
             return self.nodes[0]
         pass
     def hit_test(self, x, y):
-        return False ##### REMOVE THIS when below funcs are implemented #####
         HALO_RADIUS = 2 # or maybe 1?
         p1 = self.nodes[0].pos
         p2 = self.nodes[1].pos
-        along_edge = unitVector(p2 - p1) # IMPLEM unitVector, rotate2d_90, dot, vlen; import V
-        perp_to_edge = rotate2d_90(along_edge)
+        direction_along_edge = unitVector(p2 - p1)
+        unit_normal_to_edge = rotate2d_90(direction_along_edge)
         vec = V(x,y) - p1
-        distance_from_edge_line = dot(vec, perp_to_edge)
+        distance_from_edge_line = abs(dot(vec, unit_normal_to_edge))
         if distance_from_edge_line > HALO_RADIUS:
             return False
-        distance_along_edge_line = dot(vec, along_edge)
-        if - HALO_RADIUS <= distance_along_edge_line <= vlen(p2 - p1) + HALO_RADIUS:
-            # approximation -- matches to a rectangle centered on the edge
+        distance_along_edge_line = dot(vec, direction_along_edge)
+        if HALO_RADIUS <= distance_along_edge_line <= vlen(p2 - p1) - HALO_RADIUS:
+            # For our purposes, exclude points too near the endpoints --
+            # matches to a rectangle centered on the edge and not within
+            # halo radius (along the edge) of the endpoints. (If node radius
+            # is larger, near-endpoint behavior won't matter anyway, since we
+            # treat nodes as being in front of edges.)
             return True
         return False
     pass
@@ -135,7 +148,7 @@ class TrivalentGraphModel(object):
         self.cmd_addEdge(node, node2)
         return node2
 
-    def cmd_addNodeOnEdge(self, x, y, edge): #note: never called until edge hit_test is implemented ###
+    def cmd_addNodeOnEdge(self, x, y, edge):
         node2 = self.cmd_addNode(x, y) # todo: position it exactly on edge? if so, worry if mouse still over it re KLUGE elsewhere
         n1, n3 = list(edge.nodes) # seq or set; in order, if that matters
         edge.destroy()
@@ -153,7 +166,7 @@ class TrivalentGraphModel(object):
         node1_neighbors = [e.other(node1) for e in node1.edges] # might include node2
         node1.destroy()
         for n in node1_neighbors:
-            if n is not node2:
+            if n is not node2 and not n.connected_to(node2):
                 self.cmd_addEdge(n, node2)
         return True
     

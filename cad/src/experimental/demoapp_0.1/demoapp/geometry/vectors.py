@@ -68,6 +68,16 @@ def cross(v1, v2):
     x2, y2, z2 = v2
     assert 0, "cross is nim"
 
+def unitVector(v):
+    length = vlen(v)
+    if length == 0.0:
+        return v
+    return v / length
+
+def rotate2d_90(vec_2d):
+    x, y = vec_2d
+    return V( -y, x )
+
 # ==
 
 def get_pos(obj_or_pos): # not sure if these belong here
@@ -104,6 +114,9 @@ def _test():
     assert v * 2 == 2 * v
     assert v / 2 == v * 0.5
     assert vector_is_zero(v - v)
+
+    assert unitVector(V(3,4)) == V(3,4)/5.0
+    assert rotate2d_90(V(100,3)) == V(-3,100)
     print "tests done"
 
 if __name__ == '__main__':
