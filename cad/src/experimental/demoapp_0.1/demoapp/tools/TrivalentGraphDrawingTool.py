@@ -54,30 +54,39 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
     # instance variables
     # (in superclass: _tip_and_highlight_info)
     node = None
+    _ever_moved_off_self_node = False
     
     def __init__(self, tool, node):
         super(HuntForNode, self).__init__(tool)
         if node and not node.new_edge_ok():
             node = None
-        self.node = node
+        self.node = node # last-clicked node, start of rubber edge to a new node
     
     def on_mouse_press_would_do(self, x, y, button, modifiers):
-        """ ###REVIEW for accuracy, might need update:
-        If we moved off original node, find or make a node (if allowed),
-        connect to it with a new edge (if allowed); otherwise make nothing.
-        Either way [###REVIEW/REDOC], die and let older handlers re-handle the same mousepress.
+        """
+        Click makes new node or finds existing one,
+        and makes an edge to it from the last-clicked or last-made node if any.
         """
         model = self.model
         obj = self.pane.find_object(x, y) # might be None
+        if self.node and obj is not self.node:
+            self._ever_moved_off_self_node = True
         hh = self.tool._f_HighlightGraphics_descriptions
-        if obj is self.node and self.node:
-            return Transition(
-                indicators = [hh.tip_text("click to stop drawing edges", obj), #e clarify text
-                              hh.highlight_refusal(obj)
-                              ],
-                command = None,
-                next_state = (HuntForNode, None)
-             )
+        if self.node and obj is self.node:
+            if self._ever_moved_off_self_node:
+                return Transition(
+                    indicators = [hh.tip_text("click to stop drawing edges", obj), #e clarify text
+                                  hh.highlight_refusal(obj)
+                                  ],
+                    command = None,
+                    next_state = (HuntForNode, None)
+                 )
+            else:
+                return Transition(
+                    indicators = None,
+                    command = None,
+                    next_state = (HuntForNode, None)
+                 )                
         elif isinstance(obj, model.Node):
             # click on another node: connect our node to it, if both nodes permit
             if self.node and obj.new_edge_ok_to(self.node):
@@ -91,7 +100,6 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                         ### TODO: sometimes, pass to HuntForNode None instead of obj,
                         # in order to "stop drawing edges" after making this connection,
                         # e.g. if it "closed a loop".
-                        # NOTE: this means Hunt must tolerate mouse drag and release as noops
                  )
             elif self.node and obj.connected_to(self.node):
                 return Transition(
@@ -122,13 +130,8 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
             # create a new node here [todo: depends on type of background object]
             # and maybe connect to it.
             if self.node: # todo: and not too close to any existing node
-                # return a transition, which includes or implies (tip, command, next_state, handled):
-                # - tip (incl its pos & highlighting),
-                # - command (name & args),
-                # - next_state,
-                # - handled
                 return Transition(
-                    indicators = [ # tip_text is redundant with rubber objects:
+                    indicators = [ # tip_text is not needed due to rubber objects:
                                    ## hh.tip_text("click to create new node and connect to it", (x,y)),
                                    hh.rubber_edge(self.node, (x,y)),
                                    hh.rubber_node((x,y))
@@ -138,7 +141,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                  )
             else:
                 return Transition(
-                    indicators = [ # tip_text is redundant with rubber objects:
+                    indicators = [ # tip_text is not needed due to rubber objects:
                                    ## hh.tip_text("click to create new node (and start drawing edges)", (x,y)),
                                    hh.rubber_node((x,y))
                                    ],
