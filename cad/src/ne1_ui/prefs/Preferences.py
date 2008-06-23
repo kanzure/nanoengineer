@@ -2398,13 +2398,14 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
-        self.update_dnaStyleStrandsScale()
+        #self.update_dnaStyleStrandsScale()
 
     def update_dnaStyleStrandsScale(self):
         """
         Updates the DNA Style Strands Scale spin box. 
         """
-        # Set strands scale.        
+        # Set strands scale.  
+        
         self.dnaStyleStrandsScaleSpinBox.setValue(
             float(env.prefs[dnaStyleStrandsScale_prefs_key]))
 
@@ -2428,7 +2429,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  scale_factor: float
 	"""
         env.prefs[dnaStyleBasesScale_prefs_key] = scale_factor
-        self.update_dnaStyleBasesScale()
+        #self.update_dnaStyleBasesScale()
 
     def update_dnaStyleBasesScale(self):
         """
