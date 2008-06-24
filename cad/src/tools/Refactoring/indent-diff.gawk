@@ -18,7 +18,7 @@
 #      ! 12          if ord_pi_z:
 #                    draw_vane( bond, a1pz, a2pz, ord_pi_z, rad, col) 
 #
-#   Note: currently assumes that indentation is done with spaces, not tabs.
+#   Note: Tab characters go to 8-space tab stops, as Python assumes.
 
 BEGIN {
     debug = 0 ## 1
@@ -70,14 +70,20 @@ function doGroup() {
                 # Matching signatures, compare indentation.
                 nind = indLen(nl);
                 if ( nind <= (oind + mindiff) && nind >= (oind - mindiff)  ) {
-		    if ( debug ) printf "matched sigs & indentation\n  %s\n  %s\n", ol, nl;
+		    if ( debug ) \
+			printf "%s %d/%d\n  %s\n  %s\n", \
+			    "matched sigs & indentation", oind, nind, ol, nl;
 		    nonmatched = 0;
 		}
 		else {
-		    # Non-match: Insert the indentation lengths in the lines to show where.
-		    olines[o] = substr(olines[o], 1, 2) sprintf("%2d", oind) substr(olines[o], 5);
-		    nlines[n] = substr(nlines[n], 1, 2) sprintf("%2d", nind) substr(nlines[n], 5);
-		    if ( debug ) printf "Different indentation\n  %s\n  %s\n", olines[o], nlines[n]
+		    # Non-match: Insert indentation lengths to show where.
+		    olines[o] = substr(olines[o], 1, 2) sprintf("%2d", oind) \
+				substr(olines[o], 5);
+		    nlines[n] = substr(nlines[n], 1, 2) sprintf("%2d", nind) \
+				substr(nlines[n], 5);
+		    if ( debug ) \
+			printf "Different indentation %d/%d\n  %s\n  %s\n", \
+			    oind, nind, olines[o], nlines[n]
 		}
 		n++;   # Matched signatures, go on to next line.
 	        break; # Out of the new-line loop.
@@ -112,7 +118,19 @@ function sig(line) {
     
 # The length of indentation on a line in a context diff entry.
 function indLen(line) {
+    # Whitespace from the beginning of the line.
     # Skip the first two characters, which are prefixed by diff.
-    return length(gensub("..( *).*", "\\1", 1, line))
+    ws = gensub("..([ \t]*).*", "\\1", 1, line);
+    ##print "wslen=", length(ws), " ws='" ws "'"
+
+    # Convert tabs to spaces using 8-space tab stops, as Python assumes.
+    spaces = 0
+    for (i = 1; i <= length(ws); i++) {
+        if (substr(ws, i, 1) == " ") spaces++;
+	else spaces += 8 - spaces % 8;
+	##print spaces;
+    }
+
+    return spaces;
 }
 
