@@ -231,6 +231,8 @@ def loadCursors(w):
     w.removeSegmentFromResizeSegmentListCursor = \
      QCursor(getCursorPixmap("RemoveSegment_From_ResizeSegmentList_Cursor.png"), 0, 0)
     
+    w.specifyPlaneCursor = \
+     QCursor(getCursorPixmap("SpecifyPlaneCursor.png"), 0, 0)
     
     return # from loadCursors
 
