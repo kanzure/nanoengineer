@@ -173,15 +173,14 @@ stretch   0.00  519.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
 stretch  50.00  1075.00  1.0000   -1         -1       9    6   Ss5-1-Ss5
 stretch  50.00   923.40  1.0000   -1         -1       9    1   Gv5-1-Ss5
 
-
-stretch   1.00   650.00  1.0000   -1         -1       9    1   Pl5-1-Pl5
-stretch   1.00   456.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
-
 # this stretch is to the Pl on the 5' side of the Gv
 stretch   1.00  1092.90  1.0000   -1         -1       9    1   Gv5-1-Pl5
 
 # this stretch is to the Pl on the 3' side of the Gv
 stretch  0.0     1092.9  1.0000   -1         -1       9    1   Gv5-2-Pl5
+
+stretch   0.5    650.00  1.0000   -1         -1       9    1   Pl5-1-Pl5
+stretch   0.00   519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
 
 
 # These are the stretch terms for the two different Pl-Ss
@@ -197,10 +196,15 @@ pattern PAM5:5-Ss-Pl-3_ks             50.0
 #      ktheta      theta0  qual   bondName
 
 # bend   0.05442     88.000   9     Pl5-1-Ss5-1-Pl5
-bend   0.025       61.000   9     Ss5-1-Pl5-1-Ss5
+bend   0.020       61.000   9     Ss5-1-Pl5-1-Ss5
 
 # bend to Pl on the 3' side of the Gv (the 5' bend is suppressed)
 bend   0.007       180.000   9     Gv5-1-Ss5-1-Pl5
+
+# 0.07684 aJ/rad^2 => 0.5 N/m equivalent stretching stiffness @ 61 degrees
+# 0.05442 aJ/rad^2 => 0.5 N/m equivalent stretching stiffness 2 88 degrees
+#                             should convert back to a modified Pl5-Pl5 stretch
+# mean Gv-Pl in 1NVN = 10.19 most in the range 9.4 - 11.1
 
 
 # This is the interaction between the two bridging Pl's in a
