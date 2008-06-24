@@ -52,8 +52,7 @@ from utilities.constants import black
 from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
 
-
-from dna.temporary_commands.DnaLineMode import DnaLine_GM
+from dna.commands.BuildDuplex.DnaDuplex_GraphicsMode import DnaDuplex_GraphicsMode
 
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key
@@ -88,7 +87,7 @@ class DnaDuplex_EditCommand(EditCommand):
     create_name_from_prefix  =  True 
 
     #Graphics Mode set to DnaLine graphics mode
-    GraphicsMode_class = DnaLine_GM
+    GraphicsMode_class = DnaDuplex_GraphicsMode
 
     #required by DnaLine_GM
     mouseClickPoints = []
@@ -168,7 +167,7 @@ class DnaDuplex_EditCommand(EditCommand):
         EditCommand.init_gui(self)        
 
 
-        if isinstance(self.graphicsMode, DnaLine_GM):
+        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
             self._setParamsForDnaLineGraphicsMode()
             self.mouseClickPoints = []
 
@@ -206,6 +205,8 @@ class DnaDuplex_EditCommand(EditCommand):
             #if its not None? ..not a good idea. Lets just make it to None. 
             self._parentDnaGroup = None             
             self._createFallbackDnaGroup()
+            
+        self.updateDrawingPlane(plane = None)
 
     def restore_gui(self):
         """
@@ -217,7 +218,7 @@ class DnaDuplex_EditCommand(EditCommand):
         """                    
         EditCommand.restore_gui(self)
 
-        if isinstance(self.graphicsMode, DnaLine_GM):
+        if isinstance(self.graphicsMode, DnaDuplex_GraphicsMode):
             self.mouseClickPoints = []
 
         self.graphicsMode.resetVariables()   
@@ -725,6 +726,58 @@ class DnaDuplex_EditCommand(EditCommand):
 
     def _getCursorText_angle(self):
         pass
+    
+    def listWidgetHasFocus(self):
+        """
+        Delegates this to self.propMgr. 
+        @see: DnaDuplex_PropertyManager.listWidgetHasFocus()
+        """
+        return self.propMgr.listWidgetHasFocus()
+    
+    def removeListWidgetItems(self):
+        """
+        Delegates this to self.propMgr. 
+        @see: DnaDuplex_PropertyManager.removeListWidgetItems()
+        """
+        return self.propMgr.removeListWidgetItems()
+
+    def useSpecifiedDrawingPlane(self):
+        """
+        Returns True if the drawing plane specified in the Property manager 
+        should be used as a placement plane for the Dna duplex. 
+        
+        @see: self.isSpecifyPlaneToolActive()
+        @see: LineMode_GM.bareMotion() to see how this is ultimately used. 
+        @see: LineMode_GM.leftDown()
+        @see: DnaLine_GM.leftUp()
+        """
+        if self.propMgr:
+            return self.propMgr.useSpecifiedDrawingPlane()
+        return False
+    
+    def updateDrawingPlane(self, plane = None):
+        """
+        Delegates this to self.propMgr.
+        @see: DnaDuplex_GraphicsMode.jigLeftUp
+        @see: DnaDuplex_graphicsMode.setDrawingPlane()        
+        """
+        self.graphicsMode.setDrawingPlane(plane)
+        if self.propMgr:
+            self.propMgr.updateReferencePlaneListWidget(plane)
+        
+    def isSpecifyPlaneToolActive(self):
+        """
+        Returns True if the Specify reference plane radio button is enabled 
+        AND there is no reference plane specified on which the Dna duplex 
+        will be drawn. (Delegates this to the propMgr.)
+        
+        @see: DnaDuplex_Graphicsmode.isSpecifyPlaneToolActive()
+        @see: self.useSpecifiedDrawingPlane()
+        """
+        if self.propMgr:
+            return self.propMgr.isSpecifyPlaneToolActive()   
+        
+        return False
 
     def isRubberbandLineSnapEnabled(self):
         """

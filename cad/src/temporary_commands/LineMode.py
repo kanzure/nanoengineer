@@ -41,11 +41,11 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                    Select_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of LineMode.
-    
+
     Its a temporary mode that draws temporary line with mouse click points 
     as endpoints and then returns to the previous mode when the  
     mouseClickLimit specified by the user is reached.
-    
+
     Example use:
     User is working in selectMolsMode, Now he enters a temporary mode 
     called DnaLine mode, where, he clicks two points in the 3Dworkspace 
@@ -57,32 +57,32 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
     @see: L{DnaLineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs. 
-        
+
     TODO: 
     -Need further documentation. 
     """    
-    
+
     #Initial values of instance variables --
-    
+
     #The first end point of the line being drawn. 
     #It gets initialized during left down --
     endPoint1 = None 
     #The second endpoint of the line. This gets constantly updated as you 
     # free drag the mouse (bare motion) 
     endPoint2 = None
-    
-    
+
+
     #Rubberband line color
     rubberband_line_color = black
     rubberband_line_width = 1  #thickness or 'width' for drawer.drawline
-    
+
     endPoint1_sphereColor = darkred
     endPoint1_sphereOpacity = 0.5
-    
+
     _snapOn = False
     _snapType = ''
     _standardAxisVectorForDrawingSnapReference = None
-    
+
     #Flag that determines whether the cursor text should be rendered in 
     #self.Draw. Example: This class draws cursor text at the end of the draw 
     #method. Subclass of this class (say DnaLine_GM) calls this Draw mthod 
@@ -90,36 +90,80 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
     #So that subclass can temporarily supress cursor text. 
     #@see: DnaLine_GM.Draw()
     _ok_to_render_cursor_text = True
-    
+
     #cursor text. ##@@ rename it to 'cursorText' -- Ninad
     text = ''
     
+    #the drawing plane on which the line (or the structure in subclasses) 
+    #will be placed. 
+    plane = None
+
     def Enter_GraphicsMode(self):
         _superclass_for_GM.Enter_GraphicsMode(self)
-        self._ok_to_render_cursor_text = True
+        self._ok_to_render_cursor_text = True        
         
+        #Set the drawing plane to the one returned by  self.getDrawingPlane()
+        #subclasses override the implementation of self.getDrawingPlane()
+        #@see self.setDrawingPlane(). 
+        self.plane = self.getDrawingPlane()
+        
+                
+    def getDrawingPlane(self):
+        """
+        Overridden in subclasses. 
+        
+        Returns the reference plane on which the line will be drawn.
+        The default immplementation returns None.   
+        @see: DnaDuplex_GraphicsMode.getDrawingPlane()
+        """
+        return self.plane
+        
+        
+    def setDrawingPlane(self, plane):
+        """
+        Sets the plane on which the line will be drawn (in subclasses , this 
+        is the plane on which the structure will be created.)
+        @see: DnaDuplex_GraphicsMode.jigLeftUp()
+        @see: DnaDuplex_EditCommand.updateDrawingPlane()
+        """
+        if isinstance(plane, self.win.assy.Plane):
+            self.plane = plane
+        else:
+            self.plane = None
+            
+    def isSpecifyPlaneToolActive(self):
+        """
+        Default implementation returns False. Subclasses can override this 
+        method. 
+        @see: DnaDuplex_Graphicsmode.isSpecifyPlaneToolActive() which overrides 
+        this method. 
+        """
+        return False
+                                           
 
     def leftDown(self, event):
         """
         Event handler for LMB press event.
-        """        
-        #The endPoint1 and self.endPoint2 are the mouse points at the 'water' 
-        #surface. Soon, support will be added so that these are actually points 
-        #on a user specified reference plane. Also, once any temporary mode 
-        # begins supporting highlighting, we can also add feature to use 
-        # coordinates of a highlighted object (e.g. atom center) as endpoints 
-        # of the line
-        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( 
-            event,
-            always_use_center_of_view = True
-        )
+        """ 
+        if self.isSpecifyPlaneToolActive():
+            #@@@BUGGY: Ideally _superclass.leftDown should take care of this. 
+            #but Select_GraphicsMode doesn't do that. 
+            obj = self.get_obj_under_cursor(event)
+            if obj is None: # Cursor over empty space.
+                self.emptySpaceLeftDown(event)
+                return  
+            
+            self.doObjectSpecificLeftDown(obj, event)
+            return
         
+        self._leftDown_determine_endPoint1(event)        
+
         #NIY code that accepts highlighted atom center as the endPoint instead 
-         ##of always using the glpane depth. To be  implemented
+            ##of always using the glpane depth. To be  implemented
         ##if self.glpane.selobj is not None:
-             ##if isinstance(selobj, Atom):
-                 ##self.endPoint1 = self.glpane.selobj.posn()
-   
+                ##if isinstance(selobj, Atom):
+                    ##self.endPoint1 = self.glpane.selobj.posn()
+
         if self._snapOn and self.endPoint2 is not None:
             # This fixes a bug. Example: Suppose the dna line is snapped to a 
             # constraint during the bare motion and the second point is clicked
@@ -130,25 +174,63 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             # the click  -- Ninad 2007-12-04
             self.endPoint1 = self.snapLineEndPoint()    
             self._snapOn = False
-                    
+
         self.command.mouseClickPoints.append(self.endPoint1)
         return
-        
-    
+
+
+    def _leftDown_determine_endPoint1(self, event):
+        """
+        Determine the line endpoint (self.endPoint1) during the leftDown 
+        event. Subclasses can override this method. 
+        """
+        plane = self.getDrawingPlane()
+        if plane:
+            self.endPoint1 = self.dragstart_using_plane_depth( 
+                event, plane )
+        else:
+            #The endPoint1 and self.endPoint2 are the mouse points at the 'water' 
+            #surface. Soon, support will be added so that these are actually points 
+            #on a user specified reference plane. Also, once any temporary mode 
+            # begins supporting highlighting, we can also add feature to use 
+            # coordinates of a highlighted object (e.g. atom center) as endpoints 
+            # of the line
+            farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( 
+                event,
+                always_use_center_of_view = True )
+
+
     def bareMotion(self, event):
         """
         Event handler for simple drag event. (i.e. the free drag without holding
         down any mouse button)
+        @see: self.isSpecifyPlaneToolActive()
+        @see: self.getDrawingPlane()
+        @see: DnaDuplex_Graphicsmode.isSpecifyPlaneToolActive()
         """       
-        if len(self.command.mouseClickPoints) > 0:
-            self.endPoint2 = self.dragto( self.endPoint1, event)
-            self.endPoint2 = self.snapLineEndPoint()  
-            self.update_cursor_for_no_MB()
-            self.glpane.gl_update()    
-        
+        if not self.isSpecifyPlaneToolActive():
+            if len(self.command.mouseClickPoints) > 0:
+                plane = self.getDrawingPlane()
+                if plane:
+                    self.endPoint2 = self.dragto( self.endPoint1, 
+                                                  event, 
+                                                  perp = norm(plane.getaxis()))
+                else:
+                    self.endPoint2 = self.dragto( self.endPoint1, event)
+    
+                self.endPoint2 = self.snapLineEndPoint()  
+                self.update_cursor_for_no_MB()
+                self.glpane.gl_update()    
+
         value = _superclass_for_GM.bareMotion(self,event)
-        return value # russ 080527        
-            
+        
+        #Needed to make sure that the cursor is updated properly when 
+        #the mouse is moved after the 'specify reference plane tool is 
+        #activated/deactivated
+        self.update_cursor()  
+        
+        return value # russ 080527   
+
     def snapLineEndPoint(self):
         """
         Snap the line to the specified constraints. 
@@ -159,13 +241,13 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         @rtype: B{A}
         """        
         endPoint2 = self._snapEndPointHorizontalOrVertical()
-        
+
         if not self._snapOn:
             endPoint2 = self._snapEndPointToStandardAxis()
             pass
-                
+
         return endPoint2
-    
+
     def _snapEndPointHorizontalOrVertical(self):
         """
         Snap the second endpoint of the line (and thus the whole line) to the
@@ -180,29 +262,29 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         down = self.glpane.down
         left = self.glpane.left
         right = self.glpane.right  
-        
+
         endPoint2 = self.endPoint2
-        
+
         snapVector = V(0, 0, 0)
-        
+
         currentLineVector = norm(self.endPoint2 - self.endPoint1)
-        
+
         theta_horizontal = angleBetween(right, currentLineVector) 
         theta_vertical = angleBetween(up, currentLineVector) 
-        
+
         theta_horizontal_old = theta_horizontal
         theta_vertical_old = theta_vertical
-        
+
         if theta_horizontal != 90.0:            
             theta_horizontal = min(theta_horizontal, 
                                    (180.0 - theta_horizontal))
-        
+
         if theta_vertical != 90.0:            
             theta_vertical = min(theta_vertical, 
                                  180.0 - theta_vertical)
-            
+
         theta = min(theta_horizontal, theta_vertical)
-                
+
         if theta <= 2.0 and theta != 0.0:
             self._snapOn = True
             if theta == theta_horizontal:
@@ -217,15 +299,15 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                     snapVector = up
                 else:
                     snapVector = down
-                    
+
             endPoint2 = self.endPoint1 + \
                       vlen(self.endPoint1 - self.endPoint2)*snapVector
- 
+
         else:                
             self._snapOn = False
-            
+
         return endPoint2
-    
+
     def _snapEndPointToStandardAxis(self):
         """
         Snap the second endpoint of the line so that it lies on the nearest
@@ -241,20 +323,20 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         x_axis = V(1, 0, 0)
         y_axis = V(0, 1, 0)
         z_axis = V(0, 0, 1)
-        
+
         endPoint2 = self.endPoint2
         currentLineVector = norm(self.endPoint2 - self.endPoint1)
-        
+
         theta_x = angleBetween(x_axis, self.endPoint2)
         theta_y = angleBetween(y_axis, self.endPoint2)
         theta_z = angleBetween(z_axis, self.endPoint2)
-        
+
         theta_x = min(theta_x, (180 - theta_x))
         theta_y = min(theta_y, (180 - theta_y))
         theta_z = min(theta_z, (180 - theta_z))
-        
+
         theta = min(theta_x, theta_y, theta_z)
-                
+
         if theta < 2.0:    
             if theta == theta_x:                
                 self._standardAxisVectorForDrawingSnapReference = x_axis
@@ -262,15 +344,15 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                 self._standardAxisVectorForDrawingSnapReference = y_axis
             elif theta == theta_z:                
                 self._standardAxisVectorForDrawingSnapReference = z_axis
-            
+
             endPoint2 = ptonline(self.endPoint2, 
                                  V(0, 0, 0), 
                                  self._standardAxisVectorForDrawingSnapReference)
         else:
             self._standardAxisVectorForDrawingSnapReference = None            
-                    
+
         return endPoint2
-    
+
     def _drawSnapReferenceLines(self):
         """
         Draw the snap reference lines as dottedt lines. Example, if the 
@@ -278,9 +360,9 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         vector, that point is 'snapped' soi that it lies on the axis. When this 
         is done, program draws a dotted line from origin to the endPoint2 
         indicating that the endpoint is snapped to that axis line.
-        
+
         This method is called inside the self.Draw method. 
-        
+
         @see: self._snapEndPointToStandardAxis 
         @see: self.Draw
         """
@@ -293,14 +375,14 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                      dashEnabled = True, 
                      stipleFactor = 4,
                      width = 2)
-           
+
 
     def Draw(self):
         """
         Draw method for this temporary mode. 
         """
         _superclass_for_GM.Draw(self)
-        
+
         #This fixes NFR bug  2803
         #Don't draw the Dna rubberband line if the cursor is over the confirmation
         #corner. But make sure to call superclass.Draw method before doing this 
@@ -311,9 +393,9 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         if handler is not None and handler is self._ccinstance:
             self.update_cursor()
             return
-        
+
         if self.endPoint2 is not None:
-            
+
             if self.endPoint1:
                 drawsphere(self.endPoint1_sphereColor, 
                            self.endPoint1, 
@@ -322,25 +404,25 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                            opacity = self.endPoint1_sphereOpacity
                            )            
             drawline(self.rubberband_line_color, 
-                 self.endPoint1, 
-                 self.endPoint2,
-                 width = self.rubberband_line_width,
-                 dashEnabled = True)         
-            
+                     self.endPoint1, 
+                     self.endPoint2,
+                     width = self.rubberband_line_width,
+                     dashEnabled = True)         
+
             self._drawSnapReferenceLines()
-            
+
             if self._ok_to_render_cursor_text:                           
                 self._drawCursorText()
- 
+
     def _drawCursorText(self):
         """"
         """       
         if self.endPoint1 is None or self.endPoint2 is None:
             return
-        
+
         self.text = ''
         textColor = black
-        
+
         #Draw the text next to the cursor that gives info about 
         #number of base pairs etc. So this class and its command class needs 
         #cleanup. e.g. callbackMethodForCursorTextString should be simply
@@ -355,24 +437,36 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             theta = self.glpane.get_angle_made_with_screen_right(vec)
             dist = vlen(vec)
             self.text = "%5.2fA, %5.2f deg"%(dist, theta)
-                                    
+
         self.glpane.renderTextNearCursor(self.text, color = textColor)
-        
-    
+
+
     def leftUp(self, event):
         """
         Event handler for Left Mouse button left-up event
-        """     
+        """   
+        if self.isSpecifyPlaneToolActive():
+            if self.cursor_over_when_LMB_pressed == 'Empty Space':
+                self.emptySpaceLeftUp(event)
+                return
+            
+            obj = self.current_obj                  
+            if obj is None: # Nothing dragged (or clicked); return. 
+                return
+            
+            self.doObjectSpecificLeftUp(obj, event)
+            return 
+        
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
                 self.command.restore_gui()
                 self.glpane.gl_update()            
             return
-                
-            
+
+
         assert len(self.command.mouseClickPoints) <= self.command.mouseClickLimit
-                        
+
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
             self.endPoint2 = None
             self._snapOn = False
@@ -380,12 +474,13 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
             self.glpane.gl_update()
             self.command.Done(exit_using_done_or_cancel_button = False)            
             return
-         
+        
+
     def update_cursor_for_no_MB(self): 
         """
         Update the cursor for this mode.
         """
-        
+
         #self.glpane.setCursor(self.win.SelectAtomsCursor)
         if self._snapOn:
             if self._snapType == 'HORIZONTAL':
@@ -394,7 +489,7 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
                 self.glpane.setCursor(self.win.pencilVerticalSnapCursor)
         else:
             self.glpane.setCursor(self.win.colorPencilCursor)
-    
+
     def resetVariables(self):
         """
         Reset instance variables. Typically used by self.command when the 
@@ -408,7 +503,7 @@ class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
         """
         self.endPoint1 = None
         self.endPoint2 = None
- 
+
 # == Command part
 
 class LineMode(Select_Command): 
@@ -416,7 +511,7 @@ class LineMode(Select_Command):
     Encapsulates the LineMode tool functionality.
     """
     # class constants
-    
+
     commandName = 'LineMode'
     default_mode_status_text = ""
     featurename = "Line Mode"
@@ -427,22 +522,22 @@ class LineMode(Select_Command):
         #  The default implementation returns this constant
         #  or (if it's not overridden in subclasses) something
         #  derived from it. [bruce 071227])
-    
+
     hover_highlighting_enabled = True
     GraphicsMode_class = LineMode_GM
-    
+
     # Initial value for the instance variable. (Note that although it is assigned 
     # an empty tuple, later it is assigned a list.) Empty tuple is just for 
     # the safer implementation than an empty list. Also, it is not 'None' 
     # because in LineMode_GM.bareMotion, it does a check using
     # len(mouseClickPoints)
     mouseClickPoints = ()
-    
+
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_gui = False
 
-    
+
     def init_gui(self):
         """
         Initialize GUI for this mode 
@@ -451,19 +546,19 @@ class LineMode(Select_Command):
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
         self.glpane.gl_update()
-        
+
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):
             params = prevMode.provideParamsForTemporaryMode(self.commandName)
             self.setParams(params)
         return   
-    
+
     def setParams(self, params):
         """
         Assign values obtained from the previouse mode to the instance variables
         of this command object. 
         """
         self.mouseClickLimit = params        
-        
+
     def restore_gui(self):
         """
         Restore the GUI 
@@ -475,11 +570,11 @@ class LineMode(Select_Command):
                 self.mouseClickPoints)
             #clear the list
             self.mouseClickPoints = []       
-        
+
         self.graphicsMode.resetVariables()               
         return
-       
-    
+
+
     def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
         """
         Not implemented/ or used. Experimental method.  

@@ -10,6 +10,7 @@ TODO:
 """
 
 from temporary_commands.LineMode import LineMode
+from temporary_commands.LineMode import LineMode_GM
 
 from graphics.drawing.drawDnaLadder import drawDnaLadder
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
@@ -23,7 +24,8 @@ from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
 
 # == GraphicsMode part
 
-class DnaLine_GM( LineMode.GraphicsMode_class ):
+_superclass_for_GM = LineMode_GM
+class DnaLine_GM( LineMode_GM ):
     """
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
@@ -41,13 +43,17 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
     def __init__(self, command):
         """
         """
-        LineMode.GraphicsMode_class.__init__(self, command)
+        _superclass_for_GM.__init__(self, command)
         
     
     def leftUp(self, event):
         """
         Left up method
         """
+        if self.isSpecifyPlaneToolActive():
+            _superclass_for_GM.leftUp(self, event)
+            return 
+        
         if  self.command.mouseClickLimit is None:
             if len(self.command.mouseClickPoints) == 2:
                 self.endPoint2 = None
@@ -72,7 +78,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         """
                 
         if self.command.callbackForSnapEnabled() == 1:
-            endPoint2  = LineMode.GraphicsMode_class.snapLineEndPoint(self)
+            endPoint2  = _superclass_for_GM.snapLineEndPoint(self)
         else:
             endPoint2 = self.endPoint2
             
@@ -94,7 +100,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         #cursor text drawing in the superclass and draw later in this method
         #after everyting is drawn.
         self._ok_to_render_cursor_text = False
-        LineMode.GraphicsMode_class.Draw(self) 
+        _superclass_for_GM.Draw(self) 
         self._ok_to_render_cursor_text = True
         
         #This fixes NFR bug  2803

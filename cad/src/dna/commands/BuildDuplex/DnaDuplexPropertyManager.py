@@ -54,7 +54,6 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
 
 _superclass = DnaOrCnt_PropertyManager
-
 class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     """
     The DnaDuplexPropertyManager class provides a Property Manager 
@@ -89,6 +88,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self._duplexRise    = getDuplexRise(self._conformation)
         self._duplexLength  = getDuplexLength(self._conformation, 
                                               self._numberOfBases)
+        
 
         _superclass.__init__( self, 
                               win,
@@ -111,7 +111,11 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-
+            
+            
+        change_connect(self._placementOptions.buttonGroup,
+                       SIGNAL("buttonClicked(int)"),
+                       self.activateSpecifyReferencePlaneTool)
 
         change_connect( self.conformationComboBox,
                         SIGNAL("currentIndexChanged(int)"),
@@ -150,7 +154,8 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         if self.editCommand:
             self.editCommand.cancelStructure()            
         self.win.toolsCancel()
-
+        
+        
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets  in this Property manager.
@@ -211,7 +216,10 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         Add the DNA Property Manager group boxes.
         """        
-
+        self._pmReferencePlaneGroupBox = PM_GroupBox( self, 
+                                                      title = "Placement Options" )
+        self._loadReferencePlaneGroupBox( self._pmReferencePlaneGroupBox )
+        
         self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox1( self._pmGroupBox1 )
 
@@ -223,7 +231,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self._displayOptionsGroupBox = PM_GroupBox( self, 
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
-
+        
 
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -396,8 +404,9 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
-        pass
-
+        pass    
+          
+     
     def conformationComboBoxChanged( self, inIndex ):
         """
         Slot for the Conformation combobox. It is called whenever the

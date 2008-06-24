@@ -225,7 +225,7 @@ from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import gray, darkgray, black, lightgray
 
 import utilities.qt4transition as qt4transition
-
+from geometry.VQT import planeXline, ptonline
 
 
 # suspicious imports [should not really be needed, according to bruce 070919]
@@ -2864,8 +2864,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def dragstart_using_plane_depth(self, event, plane, more_info = False):
         """
-        NOT USED YET,  DOESNT WORK, intended first use in LineMode.leftDown
+        Returns the 3D point on a spcified plane, at the coordinates of event
+              
+        @param plane: The point is computed such that it lies on this Plane 
+                     at the given event coordinates. 
+                     
+        @see: LineMode.leftDown()
+        @see: DnaDuplex_GraphicsMode.
+        
+        @TODO: There will be some cases where the intersection of the mouseray 
+        and the given plane is not possible or returns very large number
+        Need to discuss this. 
         """
+                
         #First compute the intersection point of the mouseray with the plane        
         p1, p2     = self.mousepoints(event)
         linePoint  = p2
@@ -2873,7 +2884,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         planeAxis  = plane.getaxis()
         planeNorm  = norm(planeAxis)
         planePoint = plane.center
-        from geometry.VQT import planeXline, ptonline
+        
         #Find out intersection of the mouseray with the plane. 
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:
