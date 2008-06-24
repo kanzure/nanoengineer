@@ -608,10 +608,10 @@ class DnaStrand(DnaStrandOrSegment):
                 if atm.element.symbol != 'X':                    
                     baseName = 'X'
                     sequenceString = sequenceString + baseName
-
+        
         return sequenceString
 
-    def setStrandSequence(self, sequenceString):
+    def setStrandSequence(self, sequenceString, complement = True):
         """
         Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
         this strand AND the complementary baseNames to the PAM atoms of the 
@@ -620,7 +620,7 @@ class DnaStrand(DnaStrandOrSegment):
         @type sequenceString: str
         """      
         #TO BE REVISED SEE A TODO COMMENT AT THE TOP
-
+        
         sequenceString = str(sequenceString)
         #Remove whitespaces and tabs from the sequence string
         sequenceString = re.sub(r'\s', '', sequenceString)
@@ -654,7 +654,7 @@ class DnaStrand(DnaStrandOrSegment):
             #('mate') strand.
             strandAtomMate = atm.get_strand_atom_mate()
             complementBaseName= getComplementSequence(str(baseName))
-            if strandAtomMate is not None:
+            if strandAtomMate is not None and complement:
                 strandAtomMate.setDnaBaseName(str(complementBaseName)) 
 
         # piotr 080319:
