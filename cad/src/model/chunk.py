@@ -899,7 +899,21 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         Return the DnaGroup of this chunk if it has one. 
         """
         return self.parent_node_of_class(self.assy.DnaGroup)
-
+    
+    def getDnaStrand(self):
+        """
+        Returns the DnaStrand(group) node to which this chunk belongs to. 
+        
+        Returns None if there isn't a parent DnaStrand group.
+        
+        @see: Atom.getDnaStrand()
+        """
+        if self.isNullChunk():
+            return None
+        
+        dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
+        
+        return dnaStrand
 
 
     #END of Dna-Strand-or-Axis chunk specific code ========================

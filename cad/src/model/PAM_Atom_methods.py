@@ -909,6 +909,21 @@ class PAM_Atom_methods:
             """
 
         self._dnaStrandId_for_generators = dnaStrandId_for_generators
+        
+    def getDnaStrand(self):
+        """
+        Returns the DnaStrand(group) node to which this atom belongs to. 
+        
+        Returns None if there isn't a parent DnaStrand group.
+        @see: Chunk.getDnaStrand() which is used here. 
+        """
+        chunk = self.molecule
+        
+        if chunk and not chunk.isNullChunk():
+            return chunk.getDnaStrand()
+                    
+        return None
+    
 
     def getDnaStrandId_for_generators(self):
         """
