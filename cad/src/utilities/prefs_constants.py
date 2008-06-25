@@ -463,6 +463,23 @@ sponsor_permanent_permission_prefs_key  = 'A8/Sponsor download permission is per
 #
 sponsor_md5_mismatch_flag_key           = 'A9/Sponsor md5 file mismatch'
 
+# Protein display style preferences
+# piotr 080625
+
+proteinStyle_prefs_key = 'V111/Protein display style'
+proteinStyleSmooth_prefs_key = 'V111/Protein display style smoothness'
+proteinStyleQuality_prefs_key = 'V111/Protein display style quality'
+proteinStyleScaling_prefs_key = 'V111/Protein scaling'
+proteinStyleScaleFactor_prefs_key = 'V111/Protein scale factor'
+proteinStyleColors_prefs_key = 'V111/Protein colors'
+proteinStyleAuxColors_prefs_key = 'V111/Protein aux colors'
+proteinStyleCustomColor_prefs_key ='V111/Protein custom color'
+proteinStyleAuxCustomColor_prefs_key ='V111/Protein aux custom color'
+proteinStyleColorsDiscrete_prefs_key = 'V111/Protein discrete colors'
+proteinStyleHelixColor_prefs_key ='V111/Protein helix color'
+proteinStyleStrandColor_prefs_key ='V111/Protein strand color'
+proteinStyleCoilColor_prefs_key ='V111/Protein coil color'
+
 #==
 
 # List of prefs keys (strings, not _prefs_key global variable names)
@@ -576,15 +593,15 @@ prefs_table = (
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diBALL), # Mark 060815 diTUBES; revised Ninad 080423 diBALL
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-    
+
     #Paste offset scale factor preferences (see Ops_copy_Mixin._pasteGroup)
     ('paste offset scale for chunks', 'float', 
      pasteOffsetScaleFactorForChunks_pref_key, 0.1),
-    
+
     ('paste offset scale for dna objects' , 'float', 
      pasteOffsetScaleFactorForDnaObjects_pref_key, 3.0),
-    
-    
+
+
     # Color (page) preferences
     ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
     ('', 'color', backgroundColor_prefs_key, white),
@@ -593,12 +610,12 @@ prefs_table = (
     ('', 'string',   selectionColorStyle_prefs_key, SS_HALO),
     ('', 'color', selectionColor_prefs_key, darkgreen),
     ('', 'int',   haloWidth_prefs_key, 5),
-    
+
     # stereo view settings added by piotr 080516
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
     ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50), 
     ('stereo_view_angle', 'int', stereoViewAngle_prefs_key, 50), 
-    
+
     # Fog setting. Mark 2008-05-21
     ('', 'boolean', fogEnabled_prefs_key, False),
 
@@ -615,7 +632,7 @@ prefs_table = (
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
     ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
     ('', 'float', mouseWheelTimeoutInterval_pref_key, 0.5),
-    
+
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 
     ('', 'boolean', displayRulers_prefs_key, True),
@@ -725,23 +742,23 @@ prefs_table = (
     ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, False),
     ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
-    
+
     #Join strands command arrowhead display pref.(should it override global pref)
-       
+
     ('', 'boolean', joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
     ('', 'boolean', joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
-    
-    
+
+
     #Urmi 20080617: Plane_PM display grid prefs
     ('','boolean',PlanePM_showGrid_prefs_key, False),
     ('','boolean',PlanePM_showGridLabels_prefs_key, False),
-    
+
     #Break strands command arrowhead display pref.(should it override global pref)
-       
+
     ('', 'boolean', breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
     ('', 'boolean', breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
@@ -759,62 +776,62 @@ prefs_table = (
      dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key, True),
     ('',  'boolean',
      dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key, True),
-     
+
     ('', 'boolean',
      dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, True), 
-     
+
     ('', 'boolean',
      dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, True), 
-     
+
     #DnaSegment_EditCommand
-         
+
     ('',  'boolean',
      dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
-     
+
     ('', 'boolean',
-    dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key, True),
-     
+     dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key, True),
+
     ('', 'boolean',
-    dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
-     
+     dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
+
     ('', 'boolean',
-    dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
-    
-    
+     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
+
+
     #DnaStrand_EditCommand
     ('',  'boolean',
      dnaStrandEditCommand_showCursorTextCheckBox_prefs_key, True),
-     
+
     ('', 'boolean',
-    dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key, True),
-     
+     dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key, True),
+
     ('', 'boolean',
-    dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
-    
-    
+     dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
+
+
     #Make crossovers command 
     ('', 'boolean',
-    makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key,
-    True),    
-    
-    
+     makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key,
+     True),    
+
+
     #Nanotube cursor text prefs
     ('', 'boolean', 
      insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key, True),
-     
+
     ('', 'boolean',
      insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key, True),
-     
+
     ('', 'boolean',
      insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key, True),
-    
+
     #NanotubeSegment_EditCommand cursor texts
     ('', 'boolean',
      nanotubeSegmentEditCommand_cursorTextCheckBox_length_prefs_key, True),
-     
+
     ('', 'boolean',
      nanotubeSegmentEditCommand_showCursorTextCheckBox_prefs_key, True),
-     
+
     # DNA minor groove error indicator prefs.
     ('', 'boolean', dnaDisplayMinorGrooveErrorIndicators_prefs_key, True),
     ('', 'int', dnaMinMinorGrooveAngle_prefs_key,  60), # revised per Eric D [bruce 080326]
@@ -843,6 +860,22 @@ prefs_table = (
     ('', 'float', dnaStyleBasesScale_prefs_key, 1.7),
     ('', 'boolean', dnaStyleBasesDisplayLetters_prefs_key, False),
 
+    # protein style preferences
+    # piotr 080625
+    ('', 'int', proteinStyle_prefs_key, 0),
+    ('', 'boolean', proteinStyleSmooth_prefs_key, True),
+    ('', 'int', proteinStyleQuality_prefs_key, 10),
+    ('', 'int', proteinStyleScaling_prefs_key, 0),
+    ('', 'float', proteinStyleScaleFactor_prefs_key, 1.0),
+    ('', 'int', proteinStyleColors_prefs_key, 0),
+    ('', 'int', proteinStyleAuxColors_prefs_key, 0),
+    ('', 'color', proteinStyleCustomColor_prefs_key, gray),
+    ('', 'color', proteinStyleAuxCustomColor_prefs_key, gray),
+    ('', 'boolean', proteinStyleColorsDiscrete_prefs_key, True),
+    ('', 'color', proteinStyleHelixColor_prefs_key, red),
+    ('', 'color', proteinStyleStrandColor_prefs_key, blue),
+    ('', 'color', proteinStyleCoilColor_prefs_key, gray),
+
     # DNA angle and base indicators 080325 piotr
     ('', 'boolean', dnaStrandLabelsEnabled_prefs_key, False),
     ('', 'color', dnaStrandLabelsColor_prefs_key, _default_strandLabelsColor),
@@ -854,7 +887,7 @@ prefs_table = (
     ('', 'float', dnaBaseIndicatorsAngle_prefs_key, 30.0),
     ('', 'int', dnaBaseIndicatorsDistance_prefs_key, 0),
     ('', 'int', dnaBaseIndicatorsPlaneNormal_prefs_key, 0),
-    
+
     # Modes preferences [added to this table by mark 050910]
 
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
