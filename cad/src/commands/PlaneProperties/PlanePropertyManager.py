@@ -43,8 +43,7 @@ class PlanePropertyManager(EditCommand_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
     (reference) Plane.
-    
-    
+        
     """
 
     # The title that appears in the Property Manager header.
@@ -90,7 +89,7 @@ class PlanePropertyManager(EditCommand_PM):
         self.gridLineType = 3
         self.displayLabels = False
         self.originLocation = LOWER_LEFT
-        self.labelDisplayStyle = LABELS_ALONG_ORIGIN
+        self.displayLabelStyle = LABELS_ALONG_ORIGIN
         
     def _addGroupBoxes(self):
         """
@@ -329,9 +328,9 @@ class PlanePropertyManager(EditCommand_PM):
         @type idx: int
         """
         if idx == 0:
-            self.labelDisplayStyle = LABELS_ALONG_ORIGIN
+            self.displayLabelStyle = LABELS_ALONG_ORIGIN
         elif idx == 1:
-            self.labelDisplayStyle = LABELS_ALONG_PLANE_EDGES
+            self.displayLabelStyle = LABELS_ALONG_PLANE_EDGES
         else:
             print "Invalid index", idx
         return
@@ -366,7 +365,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.gpPositionComboBox.setEnabled(True)
             self.displayLabels = True
             self.originLocation = LOWER_LEFT
-            self.labelDisplayStyle = LABELS_ALONG_ORIGIN
+            self.displayLabelStyle = LABELS_ALONG_ORIGIN
         else:
             env.prefs[PlanePM_showGridLabels_prefs_key] = False
             self.gpOriginComboBox.setEnabled(False)
@@ -786,7 +785,12 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Show the Plane Property Manager.
         """
-        self._updateGrid()
+        #@REVIEW: self._updateGrid needs to be revised. Also note that it 
+        #even calls editCommand._modifyStructure -- which is not supposed 
+        #to be called in PropertyManager. Disabling the call to 
+        #self._updateGrid() as its buggy -- Ninad 2008-06-25
+        ##self._updateGrid()
+        
         self.update_spinboxes() 
         EditCommand_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
@@ -801,7 +805,40 @@ class PlanePropertyManager(EditCommand_PM):
             if plane.imagePath:
                 self.imageDisplayFileChooser.setText(plane.imagePath)
             self.imageDisplayCheckBox.setChecked(plane.display_image) 
-
+            
+    def setParameters(self, params):
+        """
+        """
+        width, height, gridColor, gridLineType, \
+             gridXSpacing, gridYSpacing, originLocation, \
+             displayLabelStyle = params
+        
+        self.widthDblSpinBox.setValue(width)
+        self.heightDblSpinBox.setValue(height)
+        
+        self.gpColorTypeComboBox.setColor(gridColor)
+        self.gridLineType = gridLineType
+        
+        self.gpXSpacingDoubleSpinBox.setValue(gridXSpacing)
+        self.gpYSpacingDoubleSpinBox.setValue(gridYSpacing)
+                        
+        self.gpOriginComboBox.setCurrentIndex(originLocation)
+        self.gpPositionComboBox.setCurrentIndex(displayLabelStyle)
+                     
+    def getParameters(self):
+        """
+        """
+        width = self.widthDblSpinBox.value()
+        height = self.heightDblSpinBox.value()
+        gridColor = self.gpColorTypeComboBox.getColor()
+        
+        params = (width, height, gridColor, self.gridLineType,
+                  self.gridXSpacing, self.gridYSpacing, self.originLocation,  
+                  self.displayLabelStyle)
+        
+        return params
+    
+    
     def change_plane_width(self, newWidth):
         """
         Slot for width spinbox in the Property Manager.
@@ -908,7 +945,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.resized_from_glpane = True
             self.heightDblSpinBox.setValue(self.editCommand.struct.height)
             self.widthDblSpinBox.setValue(self.editCommand.struct.width)
-            self.editCommand.struct.glpane.gl_update()
+            self.win.glpane.gl_update()
             self.resized_from_glpane = False
 
     def _enableAspectRatioSpinBox(self, enable):

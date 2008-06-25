@@ -17,12 +17,12 @@ from PyQt4.Qt import Qt
 # ==
 
 #Urmi 20080617: grid origin related constants: UM 20080616
-LOWER_LEFT = 1
-LOWER_RIGHT = 2
-UPPER_LEFT = 3
-UPPER_RIGHT = 4
-LABELS_ALONG_ORIGIN = 1
-LABELS_ALONG_PLANE_EDGES = 2
+LOWER_LEFT = 0
+LOWER_RIGHT = 1
+UPPER_LEFT = 2
+UPPER_RIGHT = 3
+LABELS_ALONG_ORIGIN = 0
+LABELS_ALONG_PLANE_EDGES = 1
 
 MULTIPANE_GUI = True # enable some code which was intended to permit the main window
     # to contain multiple PartWindows. Unfortunately we're far from that being possible,

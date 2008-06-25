@@ -13,7 +13,7 @@ This file also used to contain DirectionArrow and  ResizeHandle classes.
 Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
 
 """
-
+import foundation.env as env
 from math import pi, atan, cos, sin
 from Numeric import add, dot
 
@@ -37,7 +37,7 @@ from graphics.drawing.draw_grid_lines import drawGPGridForPlane
 from graphics.drawing.drawers import drawHeightfield
 from utilities.constants import black, orange, yellow, brown
 
-from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
+from geometry.VQT import V, Q, A, cross, planeXline, vlen, norm, ptonline
 from geometry.BoundingBox import BBox
 
 from utilities.debug import print_compact_traceback
@@ -51,6 +51,7 @@ from utilities.constants import LOWER_LEFT, LABELS_ALONG_ORIGIN
 from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
 from PIL import Image
+from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
@@ -73,7 +74,11 @@ class Plane(ReferenceGeometry):
 
     sym             = "Plane"    
     is_movable      = True 
-    mutable_attrs   = ('center', 'quat')
+    
+        
+    mutable_attrs   = ('center', 'quat', 'gridColor', 'gridLineType',  
+                       'gridXSpacing', 'gridYSpacing')
+    
     icon_names      = ["modeltree/Plane.png", "modeltree/Plane-hide.png"]
     sponsor_keyword = 'Plane'    
     copyable_attrs  = ReferenceGeometry.copyable_attrs + mutable_attrs
@@ -147,19 +152,17 @@ class Plane(ReferenceGeometry):
         self.image = None
         
         #related to grid
-        
-        self.showGrid = False
+      
         self.gridColor = yellow
         self.gridLineType = 3
         self.gridXSpacing = 4.0
         self.gridYSpacing = 4.0       
-        self.displayLabels = False
         self.originLocation = LOWER_LEFT
         self.displayLabelStyle = LABELS_ALONG_ORIGIN
         
         if not READ_FROM_MMP:
-            self.width      =  10.0 # piotr 080605 - change default dimensions to square
-            self.height     =  10.0  
+            self.width      =  16.0 # piotr 080605 - change default dimensions to square
+            self.height     =  16.0  
             self.normcolor  =  black            
             self.setup_quat_center(atomList)   
             self.directionArrow = DirectionArrow(self, 
@@ -217,8 +220,13 @@ class Plane(ReferenceGeometry):
 
         @param props: The plane's properties.
         @type  props: tuple
+        @see: files_mmp._readmmp_state._read_plane for a comment about 
+              grid related attrs in the <props>
         """
-        name, border_color, width, height, center, wxyz = props
+        name, border_color, width, height, center, wxyz, \
+             gridColor, gridLineType, gridXSpacing, gridYSpacing, \
+             originLocation, displayLabelStyle = props
+        
 
         self.name    =  name
         self.color   =  self.normcolor = border_color
@@ -226,6 +234,26 @@ class Plane(ReferenceGeometry):
         self.height  =  height
         self.center  =  center 
         self.quat    =  Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
+        
+        #see files_mmp._readmmp_state._read_plane for a comment which 
+        #explains when the following attrs can be 'None' -- 2008-06-25
+        if gridColor is not None:
+            self.gridColor = gridColor
+            
+        if gridLineType is not None:
+            self.gridLineType = gridLineType
+            
+        if gridXSpacing is not None:
+            self.gridXSpacing = gridXSpacing
+            
+        if gridYSpacing is not None:
+            self.gridYSpacing = gridYSpacing
+            
+        if originLocation is not None:
+            self.originLocation = originLocation
+            
+        if displayLabelStyle is not None:
+            self.displayLabelStyle = displayLabelStyle
 
         if not self.directionArrow:
             self.directionArrow = DirectionArrow(self,
@@ -272,7 +300,14 @@ class Plane(ReferenceGeometry):
                  self.width, 
                  self.height, 
                  self.center, 
-                 self.quat)
+                 self.quat,
+                 self.gridColor, 
+                 self.gridLineType, 
+                 self.gridXSpacing, 
+                 self.gridYSpacing,
+                 self.originLocation, 
+                 self.displayLabelStyle)
+        
         return props
 
     def mmp_record_jigspecific_midpart(self):
@@ -283,8 +318,11 @@ class Plane(ReferenceGeometry):
         @return: The midpart of the Plane's MMP record
         @rtype:  str
         """
+                
+        gridColor = map(int, A(self.gridColor)*255)
+        
         #This value is used in method mmp_record  of class Jig
-        dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) " % \
+        dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) " %\
                  (self.width, self.height, 
                   self.center[0], self.center[1], self.center[2], 
                   self.quat.w, self.quat.x, self.quat.y, self.quat.z)
@@ -381,6 +419,10 @@ class Plane(ReferenceGeometry):
         """      
         #This implementation fixes bug 2900
         anythingDrawn = False
+        
+        if self.hidden:
+            return False
+        
         self.pickCheckOnly = pickCheckOnly
         
         try:
@@ -402,13 +444,13 @@ class Plane(ReferenceGeometry):
              
             # Urmi-20080613: display grid lines on the plane
     
-            if self.showGrid == True:
+            if env.prefs[PlanePM_showGrid_prefs_key]:
                 drawGPGridForPlane(self.glpane, self.gridColor, self.gridLineType, 
                                    self.width, self.height, 
                                    self.gridXSpacing, self.gridYSpacing,
                                    self.quat.unrot(self.glpane.up), 
                                    self.quat.unrot(self.glpane.right), 
-                                   self.displayLabels, 
+                                   env.prefs[PlanePM_showGridLabels_prefs_key], 
                                    self.originLocation, 
                                    self.displayLabelStyle)
                 
@@ -999,22 +1041,66 @@ class Plane(ReferenceGeometry):
         # piotr 080613 added this method
         super = ReferenceGeometry
         super.writemmp(self, mapping)
-        # Write plane "info" record (image data). 
-        line = "info plane image_file = " + self.imagePath + "\n"
+        # Write plane "info" record. 
+        # Ninad 2008-06-25: Added support for various grid attrs. 
+        gridColor = map(int, A(self.gridColor)*255)
+        gridColorString = "%d %d %d"%(gridColor[0] , gridColor[1] , gridColor[2])
+        
+        line = "info plane gridColor = " + gridColorString + "\n"
+        mapping.write(line)
+        
+        line = "info plane gridLineType = %d\n" %(self.gridLineType)
+        mapping.write(line)
+        
+        line = "info plane gridXSpacing = %0.2f\n" %(self.gridXSpacing)
+        mapping.write(line)
+        
+        line = "info plane gridYSpacing = %0.2f\n" %(self.gridYSpacing)
+        mapping.write(line)
+        
+        line = "info plane originLocation = %d\n" %(self.originLocation)
+        mapping.write(line)
+        
+        line = "info plane displayLabelStyle =  %d\n" %(self.displayLabelStyle)
+        mapping.write(line)
+        
+        line = "info plane image_file = %s\n" %(self.imagePath)
         mapping.write(line)
         line = "info plane image_settings = %d\n" % (self.display_image)                               
         mapping.write(line)
+        
         return
 
     def readmmp_info_plane_setitem( self, key, val, interp ):
         """
-        Image settings read from mmp file.
-        """
-        if key[0] == "image_file":
+        Read mmp file info record. 
+        """      
+        if key[0] == "gridColor":
+            gridColorString = val
+            gridColor = gridColorString.split()
+            
+            self.gridColor = map(lambda (x): int(x) / 255.0, [int(gridColor[0]),
+                                                              int(gridColor[1]),
+                                                              int(gridColor[2])]
+                                 )
+        elif key[0] == "gridLineType":
+            self.gridLineType = int(val)
+        elif key[0] == "gridXSpacing":
+            self.gridXSpacing = float(val)
+        elif key[0] == "gridYSpacing":
+            self.gridYSpacing = float(val)
+        elif key[0] == "originLocation":
+            self.originLocation = int(val)
+        elif key[0] == "displayLabelStyle":
+            self.displayLabelStyle = int(val)
+        elif key[0] == "image_file":
             self.imagePath = val
-            self.image = Image.open(self.imagePath)
-            self.loadImage(self.imagePath)
-        if key[0] == "image_settings":
-            self.display_image = val
+            if self.imagePath:
+                self.image = Image.open(self.imagePath)
+                self.loadImage(self.imagePath)
+        elif key[0] == "image_settings":
+            self.display_image = int(val)
+            
+                
         return
     

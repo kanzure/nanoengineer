@@ -109,6 +109,7 @@ KNOWN_INFO_KINDS = (
     'gamess',      #bruce 050701
     'espimage',    #mark 060108
     'povrayscene', #mark 060613
+    'plane',
  )
 
 # ==
@@ -877,11 +878,36 @@ class _readmmp_state:
         width = float(m.group(5)); height = float(m.group(6)); 
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
-               
+        
+        #@@HACK: Plane.setProps() accepts a tuple that must also contain values 
+        #for the grid related attrs such as gridColor, gridLineType etc. 
+        #But as of 2008-06-25 those (new) attrs are set using self.set_info_object 
+        #(see Plane.readmmp_info_plane_setitem)  because they are a part of 
+        #'info' record (which allows upward and backword compatibility for reading
+        #mmp files of different versions.) There is a spacial (old) code 
+        # to handle those info records. To satisfy that code as well as the 
+        #Plane.setProps() API method, we do the following -- 1. We pass 'None' 
+        #for the items, in the  'props' tuple that are a part of info record 
+        #2. Note that the info record will be read afterwords in this method
+        #3. Plane.setProps takes extra precaution to check if the passed 
+        #parameter is None (and set its attrs only when that param is not None)
+        # --  Ninad 2008-06-25
+        gridColor = None        
+        gridLineType = None
+        gridXSpacing = None
+        gridYSpacing = None
+        originLocation = None
+        displayLabelStyle = None
+        
         plane = Plane(self.assy.w, READ_FROM_MMP = True)
-        props = (name, border_color, width, height, center, quat)
+        props = (name, border_color, width, height, center, quat,  
+                 gridColor, gridLineType, gridXSpacing, gridYSpacing, 
+                 originLocation, displayLabelStyle)
         plane.setProps(props)
         self.addmember(plane)
+        
+        #This sets the Plane attrs such as gridColor, gridLineType etc. 
+        self.set_info_object('plane', plane)
 
     # Read the MMP record for a Atom Set as:
     # atomset (name) atom1 atom2 ... atom_n {no limit}

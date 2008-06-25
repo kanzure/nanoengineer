@@ -12,6 +12,8 @@ ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to Plane_EditCommand
                   while refactoring the old GeometryGeneratorBaseClass
 ninad 2007-12-26: Changes to make Plane_EditCommand a command on command stack
 
+
+
 @TODO 2008-04-15:
 Note that Plane_EditCommand was originally implemented before the command 
 sequencer was operational. This class and its Property Manager has some methods 
@@ -19,15 +21,17 @@ that need cleanup to matchup with the command/commandsequencer API.
 e.g. in its PM, the method update_props_if_needed_before_closing need to be 
 revised because there is any easy way now, to know which command is currently 
 active.Also a general clanup is due -- Ninad
-"""
 
+
+"""
+import foundation.env as env
 from utilities.Log import greenmsg
 from command_support.EditCommand import EditCommand
 from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
 from model.Plane import Plane
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 from utilities.Comparison import same_vals
-
+from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
 class Plane_EditCommand(EditCommand):
     """
@@ -169,34 +173,29 @@ class Plane_EditCommand(EditCommand):
 
 
     ##=========== Structure Generator like interface ======##
+    
     def _gatherParameters(self):
         """
         Return all the parameters from the Plane Property Manager.
         """
-        height  =  self.propMgr.heightDblSpinBox.value()
-        width   =  self.propMgr.widthDblSpinBox.value()
+        width, height, gridColor, gridLineType, gridXSpacing, gridYSpacing, \
+             originLocation,  displayLabelStyle = self.propMgr.getParameters()
+    
         atmList =  self.win.assy.selatoms_list()
         self.propMgr.changePlanePlacement(
-            self.propMgr.pmPlacementOptions.checkedId())
+            self.propMgr.pmPlacementOptions.checkedId())        
+        
         if self.struct:            
             ctr     =  self.struct.center 
             imagePath = self.struct.imagePath    
         else:
             ctr = None
+            imagePath = ''
+   
         
-        #gather grid related values
-        showGrid = self.propMgr.gridPlaneCheckBox.isChecked()
-        gridColor = self.propMgr.gridColor
-        gridXSpacing = self.propMgr.gridXSpacing
-        gridYSpacing = self.propMgr.gridYSpacing
-        gridLineType = self.propMgr.gridLineType
-        displayLabels = self.propMgr.displayLabels
-        originLocation = self.propMgr.originLocation 
-        labelDisplayStyle = self.propMgr.labelDisplayStyle 
-        
-        return (width, height, ctr, atmList, imagePath, showGrid, 
+        return (width, height, ctr, atmList, imagePath, 
                 gridColor, gridLineType, gridXSpacing, 
-                gridYSpacing, displayLabels, originLocation, labelDisplayStyle)
+                gridYSpacing, originLocation, displayLabelStyle)
         
     def _createStructure(self):
         """
@@ -219,23 +218,21 @@ class Plane_EditCommand(EditCommand):
         """
         assert self.struct
         assert params 
-        assert len(params) == 13             
+        assert len(params) == 11           
         width, height, center_junk, atmList_junk, imagePath, \
-             showGrid, gridColor, gridLineType, gridXSpacing, \
-             gridYSpacing, displayLabels, originLocation, displayLabelStyle = params
+             gridColor, gridLineType, gridXSpacing, \
+             gridYSpacing,  originLocation, displayLabelStyle = params
       
         self.struct.width   =  width        
         self.struct.height  =  height 
         self.struct.imagePath = imagePath
-        self.struct.showGrid = showGrid
         self.struct.gridColor = gridColor
         self.struct.gridLineType = gridLineType
         self.struct.gridXSpacing = gridXSpacing
-        self.struct.gridYSpacing = gridYSpacing
-        self.struct.displayLabels = displayLabels 
+        self.struct.gridYSpacing = gridYSpacing        
         self.struct.originLocation = originLocation
         self.struct.displayLabelStyle = displayLabelStyle
-        
+                
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
 
@@ -262,4 +259,42 @@ class Plane_EditCommand(EditCommand):
         self.propMgr.previousPMParams = currentParams
         self._modifyStructure(currentParams)
         
+    def editStructure(self, struct = None):
+        """
+        """
+        EditCommand.editStructure(self, struct)        
+        if self.hasValidStructure():             
+            self._updatePropMgrParams()
+
+            #Store the previous parameters. Important to set it after you 
+            #set attrs in the propMgr. 
+            #self.previousParams is used in self._previewStructure and 
+            #self._finalizeStructure to check if self.struct changed.
+            self.previousParams = self._gatherParameters()
+            
+            
+    def _updatePropMgrParams(self):
+        """
+        Subclasses may override this method. 
+        Update some property manager parameters with the parameters of
+        self.struct (which is being edited)
+        @see: self.editStructure()
+        """             
         
+        params_for_propMgr = (self.struct.width, 
+                              self.struct.height, 
+                              self.struct.gridColor, 
+                              self.struct.gridLineType, 
+                              self.struct.gridXSpacing,
+                              self.struct.gridYSpacing,
+                              self.struct.originLocation,
+                              self.struct.displayLabelStyle
+                              )
+        
+        
+        #TODO 2008-03-25: better to get all parameters from self.struct and
+        #set it in propMgr?  This will mostly work but some params used in 
+        #PM are not required by structy and vice versa. (e.g. struct.name)
+      
+        self.propMgr.setParameters(params_for_propMgr)
+    
