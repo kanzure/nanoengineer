@@ -882,6 +882,7 @@ class Plane(ReferenceGeometry):
         
         try:
             mipmaps, image = load_image_into_new_texture_name(file_name)
+            self.imagePath = file_name # piotr 080624
             self.tex_image = image
             # this gl_update may not be enough to show the image immediately
             self.glpane.gl_update()
@@ -1041,12 +1042,14 @@ class Plane(ReferenceGeometry):
         # piotr 080613 added this method
         super = ReferenceGeometry
         super.writemmp(self, mapping)
+
         # Write plane "info" record. 
         # Ninad 2008-06-25: Added support for various grid attrs. 
         gridColor = map(int, A(self.gridColor)*255)
         gridColorString = "%d %d %d"%(gridColor[0] , gridColor[1] , gridColor[2])
         
         line = "info plane gridColor = " + gridColorString + "\n"
+
         mapping.write(line)
         
         line = "info plane gridLineType = %d\n" %(self.gridLineType)
