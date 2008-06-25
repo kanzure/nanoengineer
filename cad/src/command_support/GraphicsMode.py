@@ -1,6 +1,6 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-GraphicsMode.py -- 
+GraphicsMode.py --
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
@@ -110,7 +110,7 @@ class nullGraphicsMode(GraphicsMode_API):
     def keyReleaseEvent(self, e):
         pass
     def bareMotion(self, e):
-        return False # russ 080527        
+        return False # russ 080527
     def drawTags(self, *args, **kws): #bruce 080325
         pass
 
@@ -139,12 +139,12 @@ class basicGraphicsMode(GraphicsMode_API):
     # object (a running command which owns the graphics mode object).
     # This is done differently in different subclasses, since in some of
     # them, those are the same object.
-    
+
     # Draw tags on entities in the 3D workspace if wanted. See self._drawTags
     # for details.
     _tagPositions = ()
     _tagColor = yellow
-    
+
     def __init__(self, glpane):
         """
         """
@@ -173,17 +173,17 @@ class basicGraphicsMode(GraphicsMode_API):
         self._setup_menus_in_init()
 
         return # from basicGraphicsMode.__init__
-    
+
     def Enter_GraphicsMode(self):
         """
-        Things needed while entering the GraphicsMode (e.g. updating cursor, 
-        setting some attributes etc). 
+        Things needed while entering the GraphicsMode (e.g. updating cursor,
+        setting some attributes etc).
         This method is called in self.command.Enter
         @see: B{basicCommand.Enter}
         """
-        #NOTE: See a comment in basicCommand.Enter for things still needed 
+        #NOTE: See a comment in basicCommand.Enter for things still needed
         # to be done
-        
+
         self.picking = False
         self.update_cursor()
 
@@ -253,7 +253,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
         from utilities.debug_prefs import debug_pref, Choice_boolean_True
         if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
-            return 
+            return
         # figure out what kind of confirmation corner we want, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner
         cctype = self.command.want_confirmation_corner_type()
@@ -331,7 +331,7 @@ class basicGraphicsMode(GraphicsMode_API):
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
                 drawOriginAsSmallAxis(self.o.scale, (0.0,0.0,0.0))
-                #ninad060921: note: we are also drawing a dotted origin displayed only when 
+                #ninad060921: note: we are also drawing a dotted origin displayed only when
                 #the solid origin is hidden. See def standard_repaint_0 in GLPane.py
                 #ninad060922 passing self.o.scale makes sure that the origin / pov axes are not zoomable
             else:
@@ -351,13 +351,13 @@ class basicGraphicsMode(GraphicsMode_API):
                         drawaxes(self.o.scale, -self.o.pov)
             else:
                 drawaxes(self.o.scale, -self.o.pov)
-        
+
         #Draw tags if any
         self._drawTags()
-        
+
         #Draw Special indicators if any (subclasses can draw custom indicators)
         self._drawSpecialIndicators()
-                        
+
 
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
@@ -366,96 +366,96 @@ class basicGraphicsMode(GraphicsMode_API):
         if debug_flags.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
         return
-    
+
     def drawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
         """
-        Public method that accepts requests to draw tags at the given 
+        Public method that accepts requests to draw tags at the given
         tagPositions.
-        @param tagPositions: The client can provide a list or tuple of tag 
+        @param tagPositions: The client can provide a list or tuple of tag
                             base positions. The default value for this parameter
-                            is an empty tuple. Thus, if no tag position is 
-                            specified, it won't draw any tags and will also 
+                            is an empty tuple. Thus, if no tag position is
+                            specified, it won't draw any tags and will also
                             clear the previously drawn tags.
         @type tagPositions: list or tuple
         @param tagColor: The color of the tags
         @type tagColor:  B{A}
-        @see: self._drawTags 
+        @see: self._drawTags
         @see: DnaDuplexPropertyManager.clearTags for an example
         """
         self._tagPositions = list(tagPositions)
         self._tagColor = tagColor
-        
+
     def _drawTags(self):
         """
-        Private method, called in self.Draw that actually draws the tags 
+        Private method, called in self.Draw that actually draws the tags
         for self._tagPositions.
-        @see: self.drawTag 
+        @see: self.drawTag
         """
-        
-        if self._tagPositions:            
-            for basePoint in self._tagPositions: 
+
+        if self._tagPositions:
+            for basePoint in self._tagPositions:
                 if self.glpane.scale < 5:
                     lineScale = 5
                 else:
                     lineScale = self.glpane.scale
-                
+
                 endPoint = basePoint + self.glpane.up*0.2*lineScale
-                
+
                 pointSize = round(self.glpane.scale*0.5)
-                
-                drawTag(self._tagColor, 
-                        basePoint, 
-                        endPoint, 
+
+                drawTag(self._tagColor,
+                        basePoint,
+                        endPoint,
                         pointSize = pointSize)
-                
-                
+
+
     def _drawSpecialIndicators(self):
         """
-        Subclasses should override this method. Default implementation does 
-        nothing. Many times, the graphics mode needs to draw some things to 
+        Subclasses should override this method. Default implementation does
+        nothing. Many times, the graphics mode needs to draw some things to
         emphasis some entities in the 3D workspace.
-        
-        Example: In MultiplednaSegmentResize_GraphicsMode, it draws 
-        transparent cylinders around the DnaSegments being resized at once. 
-        This visually distinguishes them from the rest of the segments. 
-        
+
+        Example: In MultiplednaSegmentResize_GraphicsMode, it draws
+        transparent cylinders around the DnaSegments being resized at once.
+        This visually distinguishes them from the rest of the segments.
+
         @see: MultipleDnaSegmentResize_GraphicsMode._drawSpecialIndicators()
-        @TODO: cleanup self._drawTags() that method and this method look 
-        similar but the actual implementation is different. 
+        @TODO: cleanup self._drawTags() that method and this method look
+        similar but the actual implementation is different.
         """
         pass
 
-    
+
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
-        Do more drawing, after the main drawing code has completed its 
+        Do more drawing, after the main drawing code has completed its
         highlighting/stenciling for selobj.
-        Caller will leave glstate in standard form for Draw. 
+        Caller will leave glstate in standard form for Draw.
         Implems are free to turn off depth buffer read or write
         (but must restore standard glstate when done, as for mode.Draw() method).
 
-        Warning: anything implems do to depth or stencil buffers will affect 
+        Warning: anything implems do to depth or stencil buffers will affect
         the standard selobj-check in bareMotion
         (presently only used in depositMode).
 
-        [New method in mode API as of bruce 050610. 
+        [New method in mode API as of bruce 050610.
         General form not yet defined -- just a hack for Build mode's
-         water surface. Could be used for transparent drawing in general. 
-         
+         water surface. Could be used for transparent drawing in general.
+
         UPDATE 2008-06-20: Another example use of this method:
-        Used for selectina Reference Plane when user clicks inside the 
-        filled plane (i.e. not along the edges) 
+        Used for selectina Reference Plane when user clicks inside the
+        filled plane (i.e. not along the edges)
         See new API method Node.draw_after_highlighthing
         which is called here. It fixes bug 2900--  Ninad ]
-         
+
         @see: Plane.draw_after_highlighthing()
         @see: Node.draw_after_highlighitng()
         """
         return self.o.assy.part.topnode.draw_after_highlighting(
-            self.glpane, 
-            self.glpane.displayMode, 
+            self.glpane,
+            self.glpane.displayMode,
             pickCheckOnly = pickCheckOnly )
-       
+
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
         """
@@ -561,9 +561,9 @@ class basicGraphicsMode(GraphicsMode_API):
         Rotate the view with MMB+Drag.
         """
         # Huaicai 4/12/05: Originally 'self.picking = False in both middle*Down
-        # and middle*Drag methods. Change it as it is now is to prevent 
-        # possible similar bug that happened in the modifyMode where 
-        # a *Drag method is called before a *Down() method. This 
+        # and middle*Drag methods. Change it as it is now is to prevent
+        # possible similar bug that happened in the modifyMode where
+        # a *Drag method is called before a *Down() method. This
         # comment applies to all three *Down/*Drag/*Up methods.
         if not self.picking:
             return
@@ -576,31 +576,31 @@ class basicGraphicsMode(GraphicsMode_API):
     def middleUp(self, event):
         self.picking = False
         self.update_cursor()
-        
+
     def end_selection_from_GLPane(self):
         """
-        GraphicsMode API method that decides whether to do some additional 
+        GraphicsMode API method that decides whether to do some additional
         selection/ deselection (delegates this to a node API method)
-        
-        Example: If all content od a Dna group is selected (such as 
+
+        Example: If all content od a Dna group is selected (such as
         direct members, other logical contents), then pick the whole DnaGroup
-        
+
         @see: Node.pick_if_all_glpane_content_is_picked()
         @see: Select_GraphicsMode.end_selection_curve() for an example use
-	"""
+        """
         part = self.win.assy.part
-        
-        class_list = (self.win.assy.DnaStrandOrSegment, 
-                      self.win.assy.DnaGroup, 
-                      self.win.assy.NanotubeGroup, 
+
+        class_list = (self.win.assy.DnaStrandOrSegment,
+                      self.win.assy.DnaGroup,
+                      self.win.assy.NanotubeGroup,
                       self.win.assy.NanotubeSegment
                   )
-        
+
         topnode = part.topnode
         topnode.call_on_topmost_unpicked_nodes_of_certain_classes(
             lambda node: node.pick_if_all_glpane_content_is_picked(),
             class_list )
-        
+
 
     def dragstart_using_GL_DEPTH(self, event, **kws):
         """
@@ -614,7 +614,7 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
         return res
-    
+
     def dragstart_using_plane_depth(self, event, plane, **kws):
         res = self.o.dragstart_using_plane_depth(event, plane, **kws) # note: res is a tuple whose length depends on **kws
         return res
@@ -695,7 +695,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def middleShiftDrag(self, event):
         """
-        Pan view with MMB+Shift+Drag. 
+        Pan view with MMB+Shift+Drag.
         Move point of view so that the model appears to follow the cursor on the screen.
         """
         point = self.dragto( self.movingPoint, event)
@@ -836,7 +836,7 @@ class basicGraphicsMode(GraphicsMode_API):
     # other events
 
     def bareMotion(self, event):
-        return False # russ 080527        
+        return False # russ 080527
 
     def Wheel(self, event):
         #e sometime we need to give this a modifier key binding too;
@@ -848,7 +848,7 @@ class basicGraphicsMode(GraphicsMode_API):
         if mod & Qt.ShiftModifier and mod & Qt.ControlModifier:
             # Shift + Control + Wheel zooms at same rate as without a modkey.
             pass
-        elif mod & Qt.ShiftModifier: 
+        elif mod & Qt.ShiftModifier:
             # Shift + Wheel zooms in quickly (2x),
             dScale *= 2.0
         elif mod & Qt.ControlModifier:
@@ -948,23 +948,23 @@ class basicGraphicsMode(GraphicsMode_API):
     # the old key event API (for modes which don't override keyPressEvent etc)
 
     def keyPress(self, key): # several modes extend this method, some might replace it
-        
+
         def zoom(dScale):
             self.o.scale *= dScale
             self.o.gl_update()
-            
+
         def pan(offsetVector, panIncrement):
             planePoint = V(0.0, 0.0, 0.0)
             offsetPoint = offsetVector * self.o.scale * panIncrement
             povOffset = planeXline(planePoint, self.o.out, offsetPoint, self.o.out)
             self.glpane.pov += povOffset
             self.glpane.gl_update()
-            
+
         if key == Qt.Key_Delete:
             self.w.killDo()
         elif key == Qt.Key_Escape: # Select None. mark 060129.
             self.o.assy.selectNone()
-            
+
         # Zoom in & out for Eric and Paul:
         # - Eric D. requested Period/Comma keys for zoom in/out.
         # - Paul R. requested Minus/Equal keys for zoom in/out.
@@ -973,23 +973,23 @@ class basicGraphicsMode(GraphicsMode_API):
         # a lot, and Underscore and Greater keys for zoom in a lot. If this
         # conflicts with other uses of these keys, it can be easily changed.
         # Mark 2008-02-28.
-        elif key in (Qt.Key_Minus, Qt.Key_Period):  # Zoom in.         
+        elif key in (Qt.Key_Minus, Qt.Key_Period):  # Zoom in.
             dScale = 0.95
             if self.o.modkeys == 'Control': # Zoom in a little.
                 dScale = 0.995
             zoom(dScale)
-        elif key in (Qt.Key_Underscore, Qt.Key_Greater):  # Zoom in a lot.         
+        elif key in (Qt.Key_Underscore, Qt.Key_Greater):  # Zoom in a lot.
             dScale = 0.8
             zoom(dScale)
-        elif key in (Qt.Key_Equal, Qt.Key_Comma): # Zoom out.          
+        elif key in (Qt.Key_Equal, Qt.Key_Comma): # Zoom out.
             dScale = 1.05
             if self.o.modkeys == 'Control':
                 dScale = 1.005
             zoom(dScale)
-        elif key in (Qt.Key_Plus, Qt.Key_Less):  # Zoom out a lot.         
+        elif key in (Qt.Key_Plus, Qt.Key_Less):  # Zoom out a lot.
             dScale = 1.2
             zoom(dScale)
-            
+
         # Pan left, right, up and down using arrow keys, requested by Paul.
         # Mark 2008-04-13
         elif key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
@@ -1083,10 +1083,10 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         Update the cursor for operations when no mouse button is pressed.
         The default implementation just sets it to a simple arrow cursor
-        (arrow cursor seen in selectMolsMode) 
+        (arrow cursor seen in selectMolsMode)
         """
         self.o.setCursor(self.w.SelectArrowCursor)
-        
+
     def update_cursor_for_LMB(self): # mark 060228
         """
         Update the cursor for operations when the left mouse button (LMB) is pressed

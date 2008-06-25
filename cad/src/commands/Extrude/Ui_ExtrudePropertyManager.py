@@ -1,13 +1,13 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 $Id$
-The Ui_ExtrudePropertyManager class defines UI elements for the Property 
+The Ui_ExtrudePropertyManager class defines UI elements for the Property
 Manager of the B{Extrude mode}.
 
 History:
-ninad 2007-01-10: Split the ui code out of extrudeMode while converting 
-extrude dashboard to extrude property manager. 
+ninad 2007-01-10: Split the ui code out of extrudeMode while converting
+extrude dashboard to extrude property manager.
 ninad 2007-09-10: Code clean up to use PM module classes
 """
 
@@ -28,7 +28,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 
 class Ui_ExtrudePropertyManager(PM_Dialog):
     """
-    The Ui_ExtrudePropertyManager class defines UI elements for the Property 
+    The Ui_ExtrudePropertyManager class defines UI elements for the Property
     Manager of the B{Extrude mode}.
 
     @ivar title: The title that appears in the property manager header.
@@ -43,7 +43,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
     @type iconPath: str
     """
 
-    # The title that appears in the Property Manager header        
+    # The title that appears in the Property Manager header
     title = "Extrude"
     # The name of this Property Manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
@@ -53,31 +53,31 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
     def __init__(self, parentMode):
         """
-        Constructor for the B{Extrude} property manager class that defines 
+        Constructor for the B{Extrude} property manager class that defines
         its UI.
 
         @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{extrudeMode}        
+        @type  parentMode: L{extrudeMode}
         """
         self.parentMode = parentMode
         self.w = self.parentMode.w
         self.win = self.parentMode.w
-        self.pw = self.parentMode.pw        
-        self.o = self.win.glpane         
-        
+        self.pw = self.parentMode.pw
+        self.o = self.win.glpane
+
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
 
-        
+
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
 
     def _addGroupBoxes(self):
         """
-        Add various group boxes to the Extrude Property manager. 
+        Add various group boxes to the Extrude Property manager.
         """
 
         self._addProductSpecsGroupBox()
@@ -85,9 +85,9 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
     def _addProductSpecsGroupBox(self):
         """
-	"""
+        """
         self.productSpecsGroupBox = \
-            PM_GroupBox( self, title = "Product Specifications" )          
+            PM_GroupBox( self, title = "Product Specifications" )
         self._loadProductSpecsGroupBox(self.productSpecsGroupBox)
 
     def _addAdvancedOptionsGroupBox(self):
@@ -95,24 +95,24 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         Add 'Advanced Options' groupbox
         """
         self.advancedOptionsGroupBox = \
-            PM_GroupBox( self, title = "Advanced Options" )          
+            PM_GroupBox( self, title = "Advanced Options" )
         self._loadAdvancedOptionsGroupBox(self.advancedOptionsGroupBox)
 
     def _loadProductSpecsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Product specifications group box.
         @param inPmGroupBox: The roduct specifications box in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
 
         productChoices = ['rod', 'ring']
 
         self.extrude_productTypeComboBox = \
             PM_ComboBox( inPmGroupBox,
-                         label        = 'Final Product:', 
+                         label        = 'Final Product:',
                          labelColumn  = 0,
-                         choices      = productChoices, 
-                         index        = 0, 
+                         choices      = productChoices,
+                         index        = 0,
                          setAsDefault = True,
                          spanWidth    = False )
 
@@ -121,7 +121,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         # from this list unless they are at the end!!!
         self.extrude_productTypeComboBox_ptypes = ["straight rod", \
                                                    "closed ring", \
-                                                   "corkscrew"] 
+                                                   "corkscrew"]
 
         self.extrudeSpinBox_n = \
             PM_SpinBox( inPmGroupBox,
@@ -132,8 +132,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                         maximum       =  99
                     )
         #@WARNING: This method initializes some instance varaiables for various
-        #checkboxes. (Example: self.mergeCopiesCheckBox.default = False). 
-        #These values are needed in extrudemode.py. This 
+        #checkboxes. (Example: self.mergeCopiesCheckBox.default = False).
+        #These values are needed in extrudemode.py. This
         #won't be needed once extrudeMode.py is cleaned up. -- ninad 2007-09-10
 
         self.extrudeBondCriterionSlider =  \
@@ -147,7 +147,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
             self.extrudeBondCriterionSlider.labelWidget
 
         self.extrudeBondCriterionSlider_dflt = 100
-        self.extrudeBondCriterionSlider.setPageStep(5) 
+        self.extrudeBondCriterionSlider.setPageStep(5)
 
         self.makeBondsCheckBox = \
             PM_CheckBox(inPmGroupBox,
@@ -164,20 +164,20 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         """
         Load widgets in the Advanced Options group box.
         @param inPmGroupBox: The Advanced Options box in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
+        @type  inPmGroupBox: L{PM_GroupBox}
 
         """
 
-        self.mergeOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
+        self.mergeOptionsGroupBox = PM_GroupBox(inPmGroupBox,
                                                 title = 'Merge Options:' )
         self._loadMergeOptionsGroupBox(self.mergeOptionsGroupBox)
 
-        self.displayOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
+        self.displayOptionsGroupBox = PM_GroupBox(inPmGroupBox,
                                                   title = 'Display Options:')
         self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
 
 
-        self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox, 
+        self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox,
                                                title = 'Offset Between Copies:'
                                            )
         self._loadOffsetSpecsGroupBox(self.offsetSpecsGroupBox)
@@ -185,14 +185,14 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
     def _loadDisplayOptionsGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Display Options groupbox (which is a groupbox within
-	the B{Advanced Options group box} ) .
-        @param inPmGroupBox: The Display Options groupbox 
-        @type  inPmGroupBox: L{PM_GroupBox} 
-	@WARNING: This method initializes some instance varaiables for various 
-	checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This 
-	won't be needed once extrudeMode.py is cleaned up.
-	"""
+        Load widgets in the Display Options groupbox (which is a groupbox within
+        the B{Advanced Options group box} ) .
+        @param inPmGroupBox: The Display Options groupbox
+        @type  inPmGroupBox: L{PM_GroupBox}
+        @WARNING: This method initializes some instance varaiables for various
+        checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This
+        won't be needed once extrudeMode.py is cleaned up.
+        """
         self.showEntireModelCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Show Entire Model' ,
@@ -215,14 +215,14 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
     def _loadMergeOptionsGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Merge Options groupbox (which is a groupbox within 
-	the B{Advanced Options group box}).
-        @param inPmGroupBox: The Merge Options groupbox 
-        @type  inPmGroupBox: L{PM_GroupBox} 
-	@WARNING: This method initializes some instance varaiables for various 
-	checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This 
-	won't be needed once extrudeMode.py is cleaned up.
-	"""
+        Load widgets in the Merge Options groupbox (which is a groupbox within
+        the B{Advanced Options group box}).
+        @param inPmGroupBox: The Merge Options groupbox
+        @type  inPmGroupBox: L{PM_GroupBox}
+        @WARNING: This method initializes some instance varaiables for various
+        checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This
+        won't be needed once extrudeMode.py is cleaned up.
+        """
         self.mergeCopiesCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Merge Copies' ,
@@ -246,11 +246,11 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
     def _loadOffsetSpecsGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Offset specs groupbox (which is a groupbox within 
-	the B{Advanced Options group box}).
-        @param inPmGroupBox: The Offset Specs gropbox box 
-        @type  inPmGroupBox: L{PM_GroupBox} 
-	"""
+        Load widgets in the Offset specs groupbox (which is a groupbox within
+        the B{Advanced Options group box}).
+        @param inPmGroupBox: The Offset Specs gropbox box
+        @type  inPmGroupBox: L{PM_GroupBox}
+        """
         self.extrudeSpinBox_length = \
             PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "Total Offset",
@@ -261,7 +261,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               singleStep    =  1,
                               decimals      =  3,
                               suffix        =  ' Angstroms'
-                          )   
+                          )
 
         self.extrudeSpinBox_x = \
             PM_DoubleSpinBox( inPmGroupBox,
@@ -272,7 +272,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               singleStep    =  1,
                               decimals      =  3,
                               suffix        =  ' Angstroms'
-                          )   
+                          )
 
         self.extrudeSpinBox_y = \
             PM_DoubleSpinBox( inPmGroupBox,
@@ -283,7 +283,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               singleStep    =  1,
                               decimals      =  3,
                               suffix        =  ' Angstroms'
-                          ) 
+                          )
         self.extrudeSpinBox_z = \
             PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "Z Offset",
@@ -293,15 +293,15 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               singleStep    =  1,
                               decimals      =  3,
                               suffix        =  ' Angstroms'
-                          ) 
-    
+                          )
+
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_ExtrudePropertyManager
         whatsThis_ExtrudePropertyManager(self)
-        
+
         return

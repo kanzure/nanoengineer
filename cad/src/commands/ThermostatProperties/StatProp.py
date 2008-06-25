@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 StatProp.py - edit properties of Thermostat jig
 
@@ -22,26 +22,26 @@ class StatProp(QDialog, Ui_StatPropDialog):
         self.connect(self.choose_color_btn, SIGNAL("clicked()"), self.change_jig_color)
         self.jig = stat
         self.glpane = glpane
-        
-	jigtype_name = self.jig.__class__.__name__ 
+
+        jigtype_name = self.jig.__class__.__name__
         self.setWindowIcon(QtGui.QIcon("ui/border/"+ jigtype_name))
 
     def setup(self):
-        
+
         self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
-        
+
         # Jig color
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         self.jig_color_pixmap = get_widget_with_color_palette(
-		self.jig_color_pixmap, self.jig_QColor)
-                
+                self.jig_color_pixmap, self.jig_QColor)
+
 
         # Jig name
         self.nameLineEdit.setText(self.jig.name)
-        
+
         self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name)
         self.tempSpinBox.setValue(int(self.jig.temp))
-        
+
     def change_jig_color(self):
         """
         Slot method to change the jig's color.
@@ -50,8 +50,8 @@ class StatProp(QDialog, Ui_StatPropDialog):
 
         if color.isValid():
             self.jig_QColor = color
-	    self.jig_color_pixmap = get_widget_with_color_palette(
-		self.jig_color_pixmap, self.jig_QColor)
+            self.jig_color_pixmap = get_widget_with_color_palette(
+                self.jig_color_pixmap, self.jig_QColor)
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
@@ -61,11 +61,11 @@ class StatProp(QDialog, Ui_StatPropDialog):
         """
         self.jig.try_rename(self.nameLineEdit.text())
         self.jig.temp = self.tempSpinBox.value()
-        
+
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         QDialog.accept(self)
-        
+
     def reject(self):
         """
         Slot for the 'Cancel' button

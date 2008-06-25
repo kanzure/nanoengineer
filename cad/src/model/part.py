@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 part.py -- class Part, for all chunks and jigs in a single physical space,
 together with their selection state and grouping structure (shown in the
@@ -157,7 +157,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # These are for implementing optional indicators about overlapping atoms.
     _f_state_for_indicate_overlapping_atoms = None
     indicate_overlapping_atoms = False
-    
+
 
     def _undo_update_always(self): #bruce 060224
         """
@@ -216,24 +216,24 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # which are not yet added (and we don't want to assume topnode's
             # kids will all be added, though for now this might be true --
             # not sure).
-            
-            #Default scale is usually = 10.0-- obtained from the preference 
+
+            #Default scale is usually = 10.0-- obtained from the preference
             #value for startup_GLPane_scale_prefs_key
-            #@see: GLPane.__init__, 
+            #@see: GLPane.__init__,
             #@see:GLPane._adjust_GLPane_scale_if_needed()
             default_scale = float(env.prefs[startup_GLPane_scale_prefs_key])
-            self.homeView = NamedView(self.assy, 
-                                      "HomeView", 
-                                      default_scale, 
-                                      V(0,0,0), 
-                                      1.0, 
+            self.homeView = NamedView(self.assy,
+                                      "HomeView",
+                                      default_scale,
+                                      V(0,0,0),
+                                      1.0,
                                       Q(1.0, 0.0, 0.0, 0.0))
-            
-            self.lastView = NamedView(self.assy, 
-                                      "LastView", 
-                                      default_scale, 
-                                      V(0,0,0), 
-                                      1.0, 
+
+            self.lastView = NamedView(self.assy,
+                                      "LastView",
+                                      default_scale,
+                                      V(0,0,0),
+                                      1.0,
                                       Q(1.0, 0.0, 0.0, 0.0))
 
         self.add(topnode)
@@ -340,7 +340,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if isinstance(node, Chunk): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
             self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
                 #e or we could append node to self.molecules... but I doubt that's worthwhile ###@@@
-            self.adjust_natoms( len(node.atoms)) 
+            self.adjust_natoms( len(node.atoms))
         # note that node is not added to any comprehensive list of nodes; in fact, we don't have one.
         # presumably this function is only called when node was just, or is about to be,
         # added to a nodetree in a place which puts it into this part's tree.
@@ -396,7 +396,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.destroy()
         return
 
-    def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
+    def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573
         """
         forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
         WARNING [060322]: This doesn't follow the semantics of other destroy methods; in particular, destroyed Parts might be revived
@@ -412,7 +412,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.assy.o.forget_part(self) # just in case we're its current part
         ## self.invalidate_all_attrs() # not needed
         self.alive = False # do this one first ####@@@@ see if this can help a Movie who knows us see if we're safe... [050420]
-        if "be conservative for now, though memory leaks might result": #bruce 050428 
+        if "be conservative for now, though memory leaks might result": #bruce 050428
             return
         # bruce 050428 removed the rest for now. In fact, even what we had was probably not enough to
         # prevent memory leaks, since we've never paid attention to that, so the Nodes might have them
@@ -602,7 +602,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         Intended to be called after self has just been read, either
         before or after update_parts and/or the dna updater has first run
         (with appropriate options passed to distinguish those cases).
-        
+
         Make sure all our groups that only permit some kinds of members
         (e.g. DnaStrandOrSegment groups)
         only have that kind of members, by ejecting non-permitted members
@@ -644,7 +644,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # ensure_toplevel_group created a group to wrap the old topnode,
         # which is what contains the ejected nodes.
         # Verify this, and if it happened, repeat once, and then
-        # ungroup if it has one or no members.        
+        # ungroup if it has one or no members.
         if ejected_anything != (orig_topnode is not self.topnode):
             if ejected_anything:
                 print "\n***BUG: sanitize_dnagroups ejected from topnode %r " \
@@ -744,16 +744,16 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         """
         movables = self.getSelectedMovables()
 
-        #We will compute a Bbox with a point list. 
+        #We will compute a Bbox with a point list.
         #Approach to fix bug 2250. ninad060905
         pointList = []
 
         selatoms_list = self.selatoms_list()
         if selatoms_list:
             for atm in selatoms_list:
-                if atm.display == diINVISIBLE: #ninad 060903  may not be necessary. 
-                #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom 
-                #and you are now allowing zoom to selection. Same is true for invisible chunks. 
+                if atm.display == diINVISIBLE: #ninad 060903  may not be necessary.
+                #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom
+                #and you are now allowing zoom to selection. Same is true for invisible chunks.
                     continue
                 pointList.append(atm.posn())
 
@@ -924,18 +924,18 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def addmol(self, mol): # searching for "def addnode" should also find this
         """
         [Public method; the name addmol is DEPRECATED, use addnode instead:]
-        
+
         Add any kind of Node to this Part (usually the "current Part"),
         at the end of the top level of its node tree
         (so it will be visible as the last node in this Part's
          section of the Model Tree, when this Part is visible).
-        
+
         Invalidate part attributes which summarize part content (e.g. bbox, drawLevel).
 
         @param mol: the Node to add to self
         @type mol: Node
 
-        @note: The method name addmol is deprecated. New code should use its alias, addnode. 
+        @note: The method name addmol is deprecated. New code should use its alias, addnode.
         """
         #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
         ## not needed since done in changed_members:
@@ -960,7 +960,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         Make sure this Part's toplevel node is a Group (of a kind which
          does not mind having arbitrary new members added to it),
         by Grouping it if not.
-        
+
         @note: most operations which create new nodes and want to add them
                needn't call this directly, since they can call self.addnode or
                assy.addnode instead.
@@ -1059,7 +1059,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
         self.indicate_overlapping_atoms = \
             env.prefs[indicateOverlappingAtoms_pref_key]
-        
+
         if self.indicate_overlapping_atoms:
             TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for
                 # bonded atoms, or atoms and their bondpoints,
@@ -1075,7 +1075,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self._f_state_for_indicate_overlapping_atoms = \
                 NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
             pass
-        
+
         return
 
     def after_drawing_model(self, error = False): #bruce 070928
@@ -1089,7 +1089,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                       since most calls don't pass anything. (#REVIEW: good?)
         """
         del error # not yet used (error param added by bruce 080411)
-        
+
         assert self.repeated_bonds_dict is not None
         del self.repeated_bonds_dict
             # this exposes the default value (not a dict)
@@ -1101,7 +1101,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
         self.indicate_overlapping_atoms = False
         self._f_state_for_indicate_overlapping_atoms = None
-        
+
         return
 
     def draw_text_label(self, glpane):
@@ -1189,16 +1189,16 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
 
     # ==
-       
+
 
     def createLine(self):
         """
-	Create a line passing through the center of the selected atoms. 
-	TODO: This feature is available only as a debug option as of 20070726. 
-	The line generation options will be heavily revised after Command
-	Sequencer implementation. 
-	"""
-        # Insert a line 
+        Create a line passing through the center of the selected atoms.
+        TODO: This feature is available only as a debug option as of 20070726.
+        The line generation options will be heavily revised after Command
+        Sequencer implementation.
+        """
+        # Insert a line
         lst = self.getOnlyAtomsSelectedByUser()
         line = Line(self.w, lst = lst)
 
@@ -1214,8 +1214,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # I think this will never happen [bruce 071214]
             env.history.message( redmsg( "Internal error making new geometry: " + msg))
         fix_one_or_complain( plane, self.topnode, errfunc)
-        self.assy.changed() 
-        self.w.win_update()    
+        self.assy.changed()
+        self.w.win_update()
         return
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
@@ -1268,7 +1268,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     def resetAtomsDisplay(self):
         """
-        Resets the display mode for each atom in the selected chunks 
+        Resets the display mode for each atom in the selected chunks
         to default display mode.
         Returns the total number of atoms that had their display setting reset.
         """
@@ -1280,7 +1280,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     def showInvisibleAtoms(self):
         """
-        Resets the display mode for each invisible (diINVISIBLE) atom in the 
+        Resets the display mode for each invisible (diINVISIBLE) atom in the
         selected chunks to default display mode.
         Returns the total number of invisible atoms that had their display setting reset.
         """

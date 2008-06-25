@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 units.py - physical units for calculations
 
@@ -39,38 +39,38 @@ class Quantity:
         if name != None:
             self.name = name
     def __repr__(self):
-	str = '<'
+        str = '<'
         try:
             str = str + self.name + ' '
         except AttributeError:
             pass
-	str = str + '%g' % self.coeff
-	for k in self.units.keys():
+        str = str + '%g' % self.coeff
+        for k in self.units.keys():
             str = str + ' ' + k
             if self.units[k] != 1:
                 str = str + '^' + repr(self.units[k])
-	return str + '>'
+        return str + '>'
 
     def __abs__(self):
-	return Quantity(abs(self.coeff), self.units.copy())
+        return Quantity(abs(self.coeff), self.units.copy())
 
     def __neg__(self):
-	return Quantity(-self.coeff, self.units.copy())
+        return Quantity(-self.coeff, self.units.copy())
 
     def __cmp__(self,other):
-	self.unitsMatch(other)
-	return cmp(self.coeff, other.coeff)
+        self.unitsMatch(other)
+        return cmp(self.coeff, other.coeff)
 
     def __add__(self,other):
-	self.unitsMatch(other)
-	units = self.units.copy()
-	return Quantity(self.coeff + other.coeff,
-			units)
+        self.unitsMatch(other)
+        units = self.units.copy()
+        return Quantity(self.coeff + other.coeff,
+                        units)
     def __sub__(self,other):
-	self.unitsMatch(other)
-	units = self.units.copy()
-	return Quantity(self.coeff - other.coeff,
-			units)
+        self.unitsMatch(other)
+        units = self.units.copy()
+        return Quantity(self.coeff - other.coeff,
+                        units)
     def __mul__(self,other):
         if isinstance(other, Quantity):
             c = 1. * self.coeff * other.coeff
@@ -103,9 +103,9 @@ class Quantity:
         return Quantity(newcoeff, newunits)
     def reciprocal(self):
         a = 1. / self.coeff
-	b = self.units.copy()
-	for k in b.keys():
-	    b[k] = -b[k]
+        b = self.units.copy()
+        for k in b.keys():
+            b[k] = -b[k]
         return Quantity(a, b)
     def inTermsOf(self, other):
         ratio = self / other
@@ -115,25 +115,25 @@ class Quantity:
             str = repr(ratio)
         return str + " " + other.name + "s"
     def multUnits(self,other,n):
-	units1 = self.units.copy()
-	units2 = other.units.copy()
-	for k in units1.keys():
-	    if k in units2.keys():
-		units1[k] = units1[k] + n * units2[k]
-	for k in units2.keys():
-	    if k not in units1.keys():
-		units1[k] = n * units2[k]
+        units1 = self.units.copy()
+        units2 = other.units.copy()
+        for k in units1.keys():
+            if k in units2.keys():
+                units1[k] = units1[k] + n * units2[k]
+        for k in units2.keys():
+            if k not in units1.keys():
+                units1[k] = n * units2[k]
         for k in units1.keys():
             if units1[k] == 0:
                 del units1[k]
-	return units1
+        return units1
     def unitsMatch(self,other):
-	otherkeys = other.units.keys()
-	for k in self.units.keys():
-	    if k not in otherkeys:
-		raise UnitsMismatch
-	    if k != "coeff" and self.units[k] != other.units[k]:
-		raise UnitsMismatch
+        otherkeys = other.units.keys()
+        for k in self.units.keys():
+            if k not in otherkeys:
+                raise UnitsMismatch
+            if k != "coeff" and self.units[k] != other.units[k]:
+                raise UnitsMismatch
 
 # Lotsa good stuff on units and measures at:
 # http://aurora.rg.iupui.edu/UCUM/UCUM-tab.html

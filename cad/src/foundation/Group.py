@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Group.py -- Class (or superclass) for all non-leaf nodes in the
 internal model tree of Nodes.
@@ -49,7 +49,7 @@ class Group(NodeWithAtomContents):
     """
 
     # default values of per-subclass constants
-    
+
     featurename = "" # (redundant with Node)
         # It's intentional that we don't provide this for Group itself, so a selected Group in the MT
         # doesn't bother you by offering wiki help on Group. Maybe we'll leave it off of Chunk as well...
@@ -88,7 +88,7 @@ class Group(NodeWithAtomContents):
     _s_attr_temporarily_prevent_autodelete_when_empty = S_DATA
 
     # ==
-    
+
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before _superclass.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
@@ -97,10 +97,10 @@ class Group(NodeWithAtomContents):
         for ob in members:
             self.addchild(ob)
 
-        #@WARNING: Following (self.editCommand) is a temporary code that 
-        # allows editing of DNA Duplex which is, at the moment, same as a 
-        # group in the MT. Once we have a DNA object model ready, 
-        # the following should be removed/ revised . 
+        #@WARNING: Following (self.editCommand) is a temporary code that
+        # allows editing of DNA Duplex which is, at the moment, same as a
+        # group in the MT. Once we have a DNA object model ready,
+        # the following should be removed/ revised .
         # See also self.edit where this is being used. -- Ninad 2007-10-26
         self.editCommand = editCommand
 
@@ -375,7 +375,7 @@ class Group(NodeWithAtomContents):
             #bruce 080317 -- we should revise all addmember calls that this turns up
             # to test what they care about and call addchild or addsibling explicitly
             print_compact_stack( "WARNING: addmember on class of %r has not been reviewed for correctness: " % self) ###
-        
+
         self.addchild( node, top = before_or_top)
         return
 
@@ -655,13 +655,13 @@ class Group(NodeWithAtomContents):
 
         @note: in spite of the name, if self contains *no* glpane content,
                and is not glpane content itself, this does not pick self.
-        
+
         [overrides Node method; shouldn't need to be overridden on subclasses,
          since they can override is_glpane_content_itself instead]
         """
         has_glpane_content = False # modified below if glpane content is found
         any_is_unpicked = False # modified below; only covers glpane content
-        
+
         for m in self.members:
             m_has_glpane_content = m.pick_if_all_glpane_content_is_picked()
             if m_has_glpane_content:
@@ -673,7 +673,7 @@ class Group(NodeWithAtomContents):
                     # and to call pick_if_all_glpane_content_is_picked for its
                     # side effects within remaining members
             continue
-        
+
         for m in [self]: # this form shows the similarity with the above loop
             m_has_glpane_content = m.is_glpane_content_itself()
             if m_has_glpane_content:
@@ -681,19 +681,19 @@ class Group(NodeWithAtomContents):
                 if not m.picked:
                     any_is_unpicked = True
             continue
-        
+
         if any_is_unpicked and self.picked:
             print "\n*** BUG: %r is picked but apparently has unpicked content" % self
-        
+
         if has_glpane_content and not any_is_unpicked:
             # note: we might add arguments which modify when this behavior
             # occurs, e.g., to disable it for ordinary Groups which are not
             # inside any special Groups (such as DnaGroups) for some callers;
             # if so, they may be able to skip some of the member loop as well.
             self.pick()
-        
+
         return has_glpane_content
-    
+
     def _f_move_nonpermitted_members( self, **opts): # in Group [bruce 080319]
         """
         [friend method for enforce_permitted_members_in_groups]
@@ -706,7 +706,7 @@ class Group(NodeWithAtomContents):
          after self from one source, try to preserve their relative order.
          When from several sources, keep putting newly moved ones after
          earlier moved ones. This is less important than safety and efficiency.)
-        
+
         If this makes self sufficiently invalid to need to be killed,
         it's up to the caller to find out (via _f_wants_to_be_killed)
         and kill self. We don't do this here in case the caller wants to
@@ -726,7 +726,7 @@ class Group(NodeWithAtomContents):
                     self.dad.addchild(m, after = move_after_this) #k verify it removes m from old home == self
                     move_after_this = m
                     if 1:
-                        # emit a summary message                    
+                        # emit a summary message
                         summary_format = "Warning: ejected [N] nonpermitted member(s) of a %s of class %s" % \
                                          (self.short_classname(), m.short_classname())
                         env.history.deferred_summary_message( redmsg(summary_format) )
@@ -751,7 +751,7 @@ class Group(NodeWithAtomContents):
                         # so don't do it
                 continue # next m
             continue # while have_unscanned_members
-        
+
         return (move_after_this is not self) # whether anything was ejected
 
     def permit_as_member(self, node, pre_updaters = True, **opts): # in Group [bruce 080319]
@@ -772,20 +772,20 @@ class Group(NodeWithAtomContents):
     def _f_wants_to_be_killed(self, pre_updaters = True, **opts): # in Group [bruce 080319]
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
-        
+
         Does self want to be killed due to members that got ejected
         by _f_move_nonpermitted_members (or due to completely invalid structure
         from before then, and no value in keeping self even temporarily)?
 
         @rtype: boolean
 
-        [overridden in class DnaStrandOrSegment]        
+        [overridden in class DnaStrandOrSegment]
         """
         del opts, pre_updaters
         return False
 
     # ==
-    
+
     def inherit_part(self, part): # Group method; bruce 050308
         """
         Self (a Group) is inheriting part from its dad.
@@ -802,14 +802,14 @@ class Group(NodeWithAtomContents):
     def all_content_is_hidden(self): # Ninad 080129; revised by Bruce 080205
         """
         [overrides Node.all_content_is_hidden]
-        Return True if *all* members of this group are hidden. Otherwise 
-        return False. 
-        @see: dna_model.DnaGroup.node_icon() for an example use. 
-        """               
+        Return True if *all* members of this group are hidden. Otherwise
+        return False.
+        @see: dna_model.DnaGroup.node_icon() for an example use.
+        """
         for memberNode in self.members:
             if not memberNode.all_content_is_hidden():
-                return False     
-        return True 
+                return False
+        return True
 
     def hide(self):
         for ob in self.members:
@@ -943,7 +943,7 @@ class Group(NodeWithAtomContents):
         new = class_for_copies(self.name, mapping.assy, None)
 
         ## probably not needed: self._copy_editCommand_to_copy_of_self_if_desirable(new)
-        
+
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name; also copies .open
             # (This might be wrong for some Group subclasses! Not an issue for now, but someday
@@ -963,7 +963,7 @@ class Group(NodeWithAtomContents):
         """
         # default implem, for subclasses meant for new model objects
         del mapping
-        return self.__class__ 
+        return self.__class__
 
 # probably not needed (based on Ninad reply to Bruce email query, 080414 late;
 #  if this is confirmed, we can remove it entirely after the release --
@@ -977,7 +977,7 @@ class Group(NodeWithAtomContents):
 ##        if not new.editCommand and self.editCommand and new.assy is self.assy:
 ##            new.editCommand = self.editCommand
 ##        return
-    
+
     def copy_with_provided_copied_partial_contents( self, name, assy, dad, members): #bruce 080414
         """
         Imitate Group(name, assy, dad, members) but using the correct class
@@ -1065,7 +1065,7 @@ class Group(NodeWithAtomContents):
         """
         npick = _superclass.nodespicked(self)
             # bruce 050126 bugfix: was 0 (as if this was called leavespicked)
-        for ob in self.members: 
+        for ob in self.members:
             npick += ob.nodespicked()
         return npick
 
@@ -1125,10 +1125,10 @@ class Group(NodeWithAtomContents):
 
     def make_modeltree_context_menu(self):
         """
-        
+
         Subclasses may override this method. The default impllementation returns
         an empty list.
-        """    
+        """
         return ()
 
 
@@ -1162,18 +1162,18 @@ class Group(NodeWithAtomContents):
 
     def getProps(self):
         """
-	Temporary method to support Dna duplex editing. see Group.__init__ for 
-	a comment
-	"""
+        Temporary method to support Dna duplex editing. see Group.__init__ for
+        a comment
+        """
         if self.editCommand:
             props = ()
             return props
 
     def setProps(self, props):
         """
-	Temporary method to support Dna duplex editing. see Group.__init__ for 
-	a comment
-	"""
+        Temporary method to support Dna duplex editing. see Group.__init__ for
+        a comment
+        """
         pass
 
     def dumptree(self, depth = 0):
@@ -1188,10 +1188,10 @@ class Group(NodeWithAtomContents):
         if self.hidden:
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
             return
-        self.draw_begin(glpane, dispdef)    
+        self.draw_begin(glpane, dispdef)
         try:
-            for ob in self.members: ## [:]:               
-                ob.draw(glpane, dispdef) #see also self.draw_after_highlighting()                
+            for ob in self.members: ## [:]:
+                ob.draw(glpane, dispdef) #see also self.draw_after_highlighting()
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".
             # Or it might be easier for drawing prefs to be separately pushed and popped in the glpane itself...
@@ -1203,10 +1203,10 @@ class Group(NodeWithAtomContents):
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
         self.draw_end(glpane, dispdef)
         return
-    
+
     def draw_after_highlighting(self, glpane, dispdef, pickCheckOnly = False):
         """
-        Things to draw after highlighting. Subclasses should override this 
+        Things to draw after highlighting. Subclasses should override this
         method. see superclass method for more documentation
         @see: self.draw()
         @see: GraphicsMode.Draw_after_highlighting()
@@ -1216,18 +1216,18 @@ class Group(NodeWithAtomContents):
         """
         anythingDrawn = False
         anythingDrawn_by_any_member = False
-        
+
         for member in self.members:
             anythingDrawn_by_any_member = member.draw_after_highlighting(
-                glpane, 
-                dispdef, 
+                glpane,
+                dispdef,
                 pickCheckOnly = pickCheckOnly )
             if anythingDrawn_by_any_member and not anythingDrawn:
                 anythingDrawn = anythingDrawn_by_any_member
-        
+
         return anythingDrawn
-            
-        
+
+
     def draw_begin(self, glpane, dispdef): #bruce 050615
         """
         Subclasses can override this to change how their child nodes are drawn.
@@ -1259,7 +1259,7 @@ class Group(NodeWithAtomContents):
             encoded_classifications and
             (" " + encoded_classifications) or ""
         ))
-        
+
         # someday: we might optimize by skipping info opengroup open if it has
         # the default value, but it's hard to find out what that is reliably
         # for the various special cases. It's not yet known if it will be
@@ -1268,9 +1268,9 @@ class Group(NodeWithAtomContents):
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False"))
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
-        
+
         self.writemmp_other_info_opengroup(mapping) #bruce 080507 refactoring
-        
+
         # [bruce 050422: this is where we'd write out "jigs moved forward" if they should come at start of this group...]
         for xx in mapping.pop_forwarded_nodes_after_opengroup(self):
             mapping.write_forwarded_node_for_real(xx)
@@ -1301,7 +1301,7 @@ class Group(NodeWithAtomContents):
         """
         del mapping
         return
-    
+
     def writepov(self, f, dispdef):
         if self.hidden:
             return

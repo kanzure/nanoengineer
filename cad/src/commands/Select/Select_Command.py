@@ -1,12 +1,12 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-Select_Command.py 
+Select_Command.py
 
-The 'Command' part of the Select Mode (Select_basicCommand and 
-Select_basicGraphicsMode are the two split classes of the old selectMode) 
+The 'Command' part of the Select Mode (Select_basicCommand and
+Select_basicGraphicsMode are the two split classes of the old selectMode)
 It provides the command object for its GraphicsMode class. The Command class
-defines anything related to the 'command half' of the mode  -- 
-For example: 
+defines anything related to the 'command half' of the mode  --
+For example:
 - Anything related to its current Property Manager, its settings or state
 - The model operations the command does (unless those are so simple
   that the mouse event bindings in the _GM half can do them directly
@@ -18,13 +18,13 @@ For example:
 
 
 TODO:
-- Items mentioned in Select_GraphicsMode.py 
+- Items mentioned in Select_GraphicsMode.py
 - The Enter method needs to be split into Enter_Command and Enter_GM parts
 
 History:
-Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from 
-                          the old class selectMode and moved the 
-                          Command related methods into this class from 
+Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
+                          the old class selectMode and moved the
+                          Command related methods into this class from
                           selectMode.py
 
 """
@@ -34,33 +34,33 @@ from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 
 class Select_basicCommand(basicCommand):
-    """    
-    The 'Command' part of the Select Mode (Select_basicCommand and 
-    Select_basicGraphicsMode are the two split classes of the old selectMode) 
+    """
+    The 'Command' part of the Select Mode (Select_basicCommand and
+    Select_basicGraphicsMode are the two split classes of the old selectMode)
     It provides the command object for its GraphicsMode class. The Command class
-    defines anything related to the 'command half' of the mode  -- 
-    For example: 
+    defines anything related to the 'command half' of the mode  --
+    For example:
     - Anything related to its current Property Manager, its settings or state
     - The model operations the command does (unless those are so simple
       that the mouse event bindings in the _GM half can do them directly
       and the code is still clean, *and* no command-half subclass needs
       to override them).
-    
+
     @see: cad/doc/splitting_a_mode.py that gives a detailed explanation on how
-          this is implemented. 
+          this is implemented.
     @see: B{Select_GraphicsMode}, B{Select_basicGraphicsMode}
     @see: B{Select_Command}, B{selectMode}
     @see: B{SelectChunks_basicCommand}, B{SelectAtoms_basicCommand}
-          which inherits this class          
-          
+          which inherits this class
+
     """
     hover_highlighting_enabled = True
     # Set this to False if you want to disable hover highlighting.
-    
+
     # Don't highlight singlets. (This attribute is set to True in
     # SelectAtoms_Command)
     highlight_singlets = False
-    
+
     def __init__(self, commandSequencer):
         """
         ...
@@ -75,56 +75,56 @@ class Select_basicCommand(basicCommand):
         #  to have it for clarity, especially if there is more than one
         #  superclass.)
         return
-        
+
     def init_gui(self):
         """
-	Handles all the GUI display when entering a command
+        Handles all the GUI display when entering a command
         Subclasses should override this method
-	"""
-        pass 
-    
+        """
+        pass
+
     def connect_or_disconnect_signals(self, connect):
         """
-	Subclasses should override this method
-	"""
+        Subclasses should override this method
+        """
         pass
-    
+
     def restore_gui(self):
         """
         Handles all the GUI display when leaving a command
-	Subclasses should override this method
-	"""
-        pass 
-    
+        Subclasses should override this method
+        """
+        pass
+
     def makeMenus(self):
         """
         Overrided in subclasses. Default implementation does nothing
         @see: selectAtoms_Command.makeMenus
-        @see: selectChunks_Command.makeMenus         
+        @see: selectChunks_Command.makeMenus
         """
-        pass 
+        pass
 
 
 class Select_Command(Select_basicCommand):
-            
+
     # This is needed so the init code knows what kind of GM to make.
     GraphicsMode_class = Select_GraphicsMode
-    
+
     def __init__(self, commandSequencer):
         Select_basicCommand.__init__(self, commandSequencer)
         self._create_GraphicsMode()
         self._post_init_modify_GraphicsMode()
         return
-        
+
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
         assert issubclass(GM_class, GraphicsMode_API)
-        args = [self] 
-        kws = {} 
+        args = [self]
+        kws = {}
         self.graphicsMode = GM_class(*args, **kws)
         pass
 
     def _post_init_modify_GraphicsMode(self):
         pass
-        
-    
+
+

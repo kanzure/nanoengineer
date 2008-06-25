@@ -1,6 +1,6 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-DnaGroup.py - ... 
+DnaGroup.py - ...
 
 @author: Bruce
 @version: $Id$
@@ -40,53 +40,53 @@ class DnaGroup(Group):
     - whatever other properties the user needs to assign, which are not
       covered by the member nodes or superclass attributes. [nim?]
     """
-    
-    # The iconPath specifies path(string) of an icon that represents the 
-    # objects of this class  
-    iconPath = "modeltree/DNA.png"    
+
+    # The iconPath specifies path(string) of an icon that represents the
+    # objects of this class
+    iconPath = "modeltree/DNA.png"
     hide_iconPath = "modeltree/DNA-hide.png"
 
     # This should be a tuple of classifications that appear in
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('DnaGroup',)
-    
+
     # Open/closed state of the Dna Group in the Model Tree --
     # default closed.
     # OBSOLETE COMMENT: Note: this is ignored by the Model Tree code
     # (since we inherit from Block), but whether it affects any other code
     # (e.g. a PM display widget) is not yet decided.
     open = False
-    
+
     autodelete_when_empty = True
         # (but only if current command permits that for this class --
         #  see comment near Group.autodelete_when_empty for more info,
         #  and implems of Command.keep_empty_group)
-    
+
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
-        @see: Group.all_content_is_hidden() 
+        @see: Group.all_content_is_hidden()
         """
         del display_prefs # unused
-        
-        if self.all_content_is_hidden():    
+
+        if self.all_content_is_hidden():
             return imagename_to_pixmap( self.hide_iconPath)
         else:
-            return imagename_to_pixmap( self.iconPath) 
-        
+            return imagename_to_pixmap( self.iconPath)
+
 
     def make_DnaStrandOrSegment_for_marker(self, controlling_marker): # review: wholechain arg needed? @@@
         """
         The given DnaMarker is either newly made to control a wholechain,
         or old but newly controlling it; but it has no DnaStrandOrSegment.
-        
+
         Make and return a new DnaStrand or DnaSegment
         (ask marker what class to use)
         inside self (review: inside some Group inside self?),
         perhaps making use of info in controlling_marker
         to help decide how to initialize some of its attributes.
-        
+
         (Assume calling code will later move all chunks
         and markers from marker's wholechain into the new DnaStrandOrSegment,
         and will store references to it as needed
@@ -104,11 +104,11 @@ class DnaGroup(Group):
         self.addchild(obj) # note: this asserts self.assy is not None
             # (but it can't assert not self.killed(), see its comment for why)
         return obj
-    
+
     # Note: some methods below this point are examples or experiments or stubs,
     # and are likely to be revised significantly or replaced.
     # [bruce 080115 comment]
-    
+
     # example method:
     def get_segments(self):
         """
@@ -119,20 +119,20 @@ class DnaGroup(Group):
     def addSegment(self, segment):
         """
         Adds a new segment object for this dnaGroup.
-        
+
         @param segment: The DnaSegment to be added to this DnaGroup object
-        @type: B{DnaSegment}  
-        """       
+        @type: B{DnaSegment}
+        """
         self.addchild(segment)
-    
+
     def getProps(self):
         """
-	Method to support Dna duplex editing. see Group.__init__ for 
-	a comment
-        
+        Method to support Dna duplex editing. see Group.__init__ for
+        a comment
+
         THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
-	"""
-        #Should it supply the Dna Segment list (children) and then add 
+        """
+        #Should it supply the Dna Segment list (children) and then add
         #individual segments when setProps is called??
         # [probably not; see B&N email discussion from when this comment was added]
         if self.editCommand:
@@ -141,13 +141,13 @@ class DnaGroup(Group):
 
     def setProps(self, props):
         """
-	Method  to support Dna duplex editing. see Group.__init__ for 
-	a comment
+        Method  to support Dna duplex editing. see Group.__init__ for
+        a comment
         THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
-	"""
+        """
         #Should it accept the Dna Segment list and then add individual segments?
         pass
-    
+
     def edit(self):
         """
         @see: Group.edit()
@@ -157,121 +157,121 @@ class DnaGroup(Group):
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_DNA'
         currentCommand.editStructure(self)
-    
+
     def getDnaSequence(self, format = 'CSV'):
         """
-        Return the complete Dna sequence information string (i.e. all strand 
-        sequences) in the specified format. 
-        
+        Return the complete Dna sequence information string (i.e. all strand
+        sequences) in the specified format.
+
         @return: The Dna sequence string
         @rtype: string
-        
+
         """
         if format == 'CSV':#comma separated values.
             separator = ','
         dnaSequenceString = ''
         strandList = self.getStrands()
-        
+
         for strand in strandList:
             dnaSequenceString = dnaSequenceString + strand.name + separator
             strandSequenceString = str(strand.getStrandSequence())
-            if strandSequenceString: 
+            if strandSequenceString:
                 strandSequenceString = strandSequenceString.upper()
                 dnaSequenceString = dnaSequenceString + strandSequenceString
-                
+
             dnaSequenceString = dnaSequenceString + "\n"
-            
+
         return dnaSequenceString
-        
-    
+
+
     def getStrands(self):
         """
         Returns a list of strands inside a DnaGroup object
-        
+
         @return: A list containing all the strand objects
                  within self.
         @rtype: list
-        
-        @see: B{BuildDna_PropertyManager.updateStrandListWidget()} 
+
+        @see: B{BuildDna_PropertyManager.updateStrandListWidget()}
         @see: B{BuildDna_PropertyManager._currentSelectionParams}
         """
-        
-        #TO BE REVISED. As of 2008-01-17, it uses isinstance check for  
+
+        #TO BE REVISED. As of 2008-01-17, it uses isinstance check for
         #Chunk and some additional things to find out a list of strands inside
-        # a DnaGroup -- Ninad 2008-01-17        
-        
+        # a DnaGroup -- Ninad 2008-01-17
+
         if self.assy is None:
-            #This is to avoid possible bugs if group gets deleted. But print 
-            #traceback so that we know about this bug. This could happen due to 
+            #This is to avoid possible bugs if group gets deleted. But print
+            #traceback so that we know about this bug. This could happen due to
             #insufficient command sequencer stack. Temporary fix for bug 2699
             print_compact_stack("bug: self.assy is None for DnaGroup %s."%self)
             return ()
-        
+
         strandList = []
-        
+
         def filterStrands(node):
             if isinstance(node, self.assy.DnaStrand) and not node.isEmpty():
-                strandList.append(node)            
+                strandList.append(node)
             elif isinstance(node, self.assy.Chunk) and node.isStrandChunk():
                 if node.parent_node_of_class(self.assy.DnaStrand) is None:
-                    strandList.append(node)    
-                
+                    strandList.append(node)
+
         self.apply2all(filterStrands)
-        
+
         return strandList
-    
+
     def getAxisChunks(self):
         """
         Returns a list of Axis chunks inside a DnaGroup object
-        
+
         @return: A list containing all the axis chunks
                  within self.
         @rtype: list
         """
         if self.assy is None:
-            #This is to avoid possible bugs if group gets deleted. But print 
-            #traceback so that we know about this bug. This could happen due to 
-            #insufficient command sequencer stack. Temporary fix for bug 2699        
+            #This is to avoid possible bugs if group gets deleted. But print
+            #traceback so that we know about this bug. This could happen due to
+            #insufficient command sequencer stack. Temporary fix for bug 2699
             print_compact_stack("bug: self.assy is None for DnaGroup %s."%self)
             return ()
-        
-        #TO BE REVISED. It uses isinstance check for  
+
+        #TO BE REVISED. It uses isinstance check for
         #Chunk and some additional things to find out a list of strands inside
-        # a DnaGroup -- Ninad 2008-02-02  
-        
+        # a DnaGroup -- Ninad 2008-02-02
+
         axisChunkList = []
         def filterAxisChunks(node):
             if isinstance(node, self.assy.Chunk) and node.isAxisChunk():
-                axisChunkList.append(node)    
-                
+                axisChunkList.append(node)
+
         self.apply2all(filterAxisChunks)
-        
+
         return axisChunkList
-    
+
     def isEmpty(self):
         """
-        Returns True if there are no axis or strand chunks as its members 
+        Returns True if there are no axis or strand chunks as its members
         (Returns True even when there are empty DnaSegment objects inside)
-        
-        TODO: It doesn't consider other possibilitis such as hairpins . 
-        In general it relies on what getAxisChunks and getStrands returns 
+
+        TODO: It doesn't consider other possibilitis such as hairpins .
+        In general it relies on what getAxisChunks and getStrands returns
         (which in turn use 'Chunk' object to determine these things.)
         This method must be revised in the near future in a fully functional
         dna data model
-        @see: BuildDna_EditCommand._finalizeStructure where this test is used. 
+        @see: BuildDna_EditCommand._finalizeStructure where this test is used.
         """
-        #May be for the short term, we can use self.getAtomList()? But that 
-        #doesn't ensure if the DnaGroup always has atom of type either 
-        #'strand' or 'axis' . 
+        #May be for the short term, we can use self.getAtomList()? But that
+        #doesn't ensure if the DnaGroup always has atom of type either
+        #'strand' or 'axis' .
         if len(self.getStrands()) == 0 and len(self.getAxisChunks()) == 0:
             return True
         else:
             return False
-        
-        
+
+
     def getSelectedStrands(self):
         """
-        Returns a list of selected strands of the DnaGroup        
+        Returns a list of selected strands of the DnaGroup
         @return: A list containing the selected strand objects
                  within self.
         @rtype: list
@@ -280,44 +280,44 @@ class DnaGroup(Group):
         for strand in self.getStrands():
             if strand.picked:
                 selectedStrandList.append(strand)
-        
+
         return selectedStrandList
-    
+
     def getSelectedSegments(self):
         """
-        Returns a list of segments whose all members are selected.        
+        Returns a list of segments whose all members are selected.
         @return: A list containing the selected strand objects
                  within self.
         @rtype: list
         """
-        #TODO: This is a TEMPORARY KLUDGE  until Dna model is fully functional. 
-        #Must be revised. Basically it returns a list of DnaSegments whose 
-        #all members are selected. 
+        #TODO: This is a TEMPORARY KLUDGE  until Dna model is fully functional.
+        #Must be revised. Basically it returns a list of DnaSegments whose
+        #all members are selected.
         #See BuildDna_PropertyManager._currentSelectionParams() where it is used
         #-- Ninad 2008-01-18
         segmentList = self.get_segments()
-        
-        selectedSegmentList = []    
-                                    
+
+        selectedSegmentList = []
+
         for segment in segmentList:
-            
+
             pickedNodes = []
             unpickedNodes = []
-            
+
             def func(node):
                 if isinstance(node, self.assy.Chunk):
                     if not node.picked:
                         unpickedNodes.append(node)
                     else:
-                        pickedNodes.append(node)   
-                        
+                        pickedNodes.append(node)
+
             segment.apply2all(func)
-            
+
             if len(unpickedNodes) == 0 and pickedNodes:
-                selectedSegmentList.append(segment)  
-                
+                selectedSegmentList.append(segment)
+
         return selectedSegmentList
-    
+
     def getAtomList(self):
         """
         Return a list of all atoms cotained within this DnaGroup
@@ -326,27 +326,27 @@ class DnaGroup(Group):
         def func(node):
             if isinstance(node, self.assy.Chunk):
                 atomList.extend(node.atoms.itervalues())
-        
+
         self.apply2all(func)
         return atomList
-    
+
     def draw_highlighted(self, glpane, color):
         """
-        Draw the strand and axis chunks as highlighted. (Calls the related 
+        Draw the strand and axis chunks as highlighted. (Calls the related
         methods in the chunk class)
-        @param: GLPane object 
+        @param: GLPane object
         @param color: The highlight color
         @see: Chunk.draw_highlighted()
         @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
-        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
-        """  
+        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()
+        """
         for c in self.getStrands():
             c.draw_highlighted(glpane, color)
         for c in self.getAxisChunks():
             c.draw_highlighted(glpane, color)
-   
- 
+
+
     pass # end of class DnaGroup
 
 # ==
@@ -406,5 +406,5 @@ def _make_DnaGroup_for_homeless_objects_in_Part(part):
         print "dna_updater: made new dnaGroup %r" % dnaGroup, \
               "(bug or unfixed mmp file)"
     return dnaGroup
-    
+
 # end

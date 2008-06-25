@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 InsertNanotube_PropertyManager.py
 
@@ -6,7 +6,7 @@ InsertNanotube_PropertyManager.py
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-Mark 2008-03-09: 
+Mark 2008-03-09:
 - Created. Copied and edited DnaDuplexPropertyManager.py.
 """
 
@@ -47,7 +47,7 @@ _superclass = DnaOrCnt_PropertyManager
 
 class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
     """
-    The InsertNanotube_PropertyManager class provides a Property Manager 
+    The InsertNanotube_PropertyManager class provides a Property Manager
     for the B{Build > Nanotube > CNT} command.
 
     @ivar title: The title that appears in the property manager header.
@@ -72,120 +72,120 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         """
         self.endPoint1 = None
         self.endPoint2 = None
-        
+
         self.nanotube = Nanotube() # A 5x5 CNT.
-    
-        _superclass.__init__( self, 
+
+        _superclass.__init__( self,
                                  win,
                                  editCommand)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-          
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-        
+            change_connect = self.win.disconnect
+
         change_connect( self.ntTypeComboBox,
                       SIGNAL("currentIndexChanged(const QString&)"),
                       self._ntTypeComboBoxChanged )
-        
+
         change_connect(self.chiralityNSpinBox,
                        SIGNAL("valueChanged(int)"),
                        self._chiralityFixup)
-        
+
         change_connect(self.chiralityMSpinBox,
                        SIGNAL("valueChanged(int)"),
                        self._chiralityFixup)
-        
+
         change_connect(self.endingsComboBox,
                        SIGNAL("currentIndexChanged(const QString&)"),
                        self._endingsComboBoxChanged )
-        
+
         # This spin box is currently hidden.
         change_connect(self.bondLengthDoubleSpinBox,
                        SIGNAL("valueChanged(double)"),
                        self._bondLengthChanged)
-        
-        change_connect(self.showCursorTextCheckBox, 
-                       SIGNAL('stateChanged(int)'), 
+
+        change_connect(self.showCursorTextCheckBox,
+                       SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
-  
+
     def ok_btn_clicked(self):
         """
         Slot for the OK button
-        """   
+        """
         if self.editCommand:
             self.editCommand.preview_or_finalize_structure(previewing = False)
-            ##env.history.message(self.editCommand.logMessage)        
+            ##env.history.message(self.editCommand.logMessage)
         self.win.toolsDone()
-    
+
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
         """
         if self.editCommand:
-            self.editCommand.cancelStructure()            
-        self.win.toolsCancel()        
-    
-        
+            self.editCommand.cancelStructure()
+        self.win.toolsCancel()
+
+
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets in this Property manager.
-        Overrides MotorPropertyManager._update_widgets_in_PM_before_show. 
-        The various  widgets , (e.g. spinboxes) will get values from the 
-        structure for which this propMgr is constructed for 
+        Overrides MotorPropertyManager._update_widgets_in_PM_before_show.
+        The various  widgets , (e.g. spinboxes) will get values from the
+        structure for which this propMgr is constructed for
         (self.editcCntroller.struct)
-        
-        @see: MotorPropertyManager._update_widgets_in_PM_before_show
-        @see: self.show where it is called. 
-        """       
-        pass     
 
-    def getFlyoutActionList(self): 
-        """ 
-        Returns custom actionlist that will be used in a specific mode 
-	or editing a feature etc Example: while in movie mode, 
-	the _createFlyoutToolBar method calls this.
-	"""
-        #'allActionsList' returns all actions in the flyout toolbar 
+        @see: MotorPropertyManager._update_widgets_in_PM_before_show
+        @see: self.show where it is called.
+        """
+        pass
+
+    def getFlyoutActionList(self):
+        """
+        Returns custom actionlist that will be used in a specific mode
+        or editing a feature etc Example: while in movie mode,
+        the _createFlyoutToolBar method calls this.
+        """
+        #'allActionsList' returns all actions in the flyout toolbar
         #including the subcontrolArea actions
         allActionsList = []
 
-        #Action List for  subcontrol Area buttons. 
-        #In this mode there is really no subcontrol area. 
-        #We will treat subcontrol area same as 'command area' 
-        #(subcontrol area buttons will have an empty list as their command area 
+        #Action List for  subcontrol Area buttons.
+        #In this mode there is really no subcontrol area.
+        #We will treat subcontrol area same as 'command area'
+        #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
         #subcontrol area.
 
-        subControlAreaActionList =[] 
+        subControlAreaActionList =[]
 
         self.exitEditCommandAction.setChecked(True)
         subControlAreaActionList.append(self.exitEditCommandAction)
 
         separator = QAction(self.w)
         separator.setSeparator(True)
-        subControlAreaActionList.append(separator) 
+        subControlAreaActionList.append(separator)
 
 
         allActionsList.extend(subControlAreaActionList)
 
         #Empty actionlist for the 'Command Area'
-        commandActionLists = [] 
+        commandActionLists = []
 
-        #Append empty 'lists' in 'commandActionLists equal to the 
-        #number of actions in subControlArea 
+        #Append empty 'lists' in 'commandActionLists equal to the
+        #number of actions in subControlArea
         for i in range(len(subControlAreaActionList)):
             lst = []
             commandActionLists.append(lst)
@@ -197,78 +197,78 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
     def _addGroupBoxes( self ):
         """
         Add the Insert Nanotube Property Manager group boxes.
-        """        
-       
+        """
+
         self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox1( self._pmGroupBox1 )
         self._pmGroupBox1.hide()
-        
+
         self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
-        
-        self._displayOptionsGroupBox = PM_GroupBox( self, 
+
+        self._displayOptionsGroupBox = PM_GroupBox( self,
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
-        
+
         self._pmGroupBox3 = PM_GroupBox( self, title = "Nanotube Distortion" )
         self._loadGroupBox3( self._pmGroupBox3 )
         self._pmGroupBox3.hide() #@ Temporary.
-        
+
         self._pmGroupBox4 = PM_GroupBox( self, title = "Multi-Walled CNTs" )
         self._loadGroupBox4( self._pmGroupBox4 )
         self._pmGroupBox4.hide() #@ Temporary.
-        
+
         self._pmGroupBox5 = PM_GroupBox( self, title = "Advanced Options" )
         self._loadGroupBox5( self._pmGroupBox5 )
         self._pmGroupBox5.hide() #@ Temporary.
-       
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box 1.
         """
         #Following toolbutton facilitates entering a temporary NanotubeLineMode
-        #to create a CNT using endpoints of the specified line. 
+        #to create a CNT using endpoints of the specified line.
         self.specifyCntLineButton = PM_ToolButton(
-            pmGroupBox, 
+            pmGroupBox,
             text = "Specify Endpoints",
             iconPath  = "ui/actions/Properties Manager/Pencil.png",
-            spanWidth = True                        
+            spanWidth = True
         )
         self.specifyCntLineButton.setCheckable(True)
         self.specifyCntLineButton.setAutoRaise(True)
         self.specifyCntLineButton.setToolButtonStyle(
             Qt.ToolButtonTextBesideIcon)
-    
-        #EndPoint1 and endPoint2 coordinates. These widgets are hidden 
+
+        #EndPoint1 and endPoint2 coordinates. These widgets are hidden
         # as of 2007- 12 - 05
-        self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+        self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox,
                                                 label = "End Point 1")
         self.x1SpinBox = self._endPoint1SpinBoxes.xSpinBox
         self.y1SpinBox = self._endPoint1SpinBoxes.ySpinBox
         self.z1SpinBox = self._endPoint1SpinBoxes.zSpinBox
-        
-        self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+
+        self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox,
                                                 label = "End Point 2")
         self.x2SpinBox = self._endPoint2SpinBoxes.xSpinBox
         self.y2SpinBox = self._endPoint2SpinBoxes.ySpinBox
         self.z2SpinBox = self._endPoint2SpinBoxes.zSpinBox
-        
+
         self._endPoint1SpinBoxes.hide()
         self._endPoint2SpinBoxes.hide()
-       
+
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box 2.
         """
 
-        _ntTypeChoices = ['Carbon', 
+        _ntTypeChoices = ['Carbon',
                           'Boron Nitride']
         self.ntTypeComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Type:", 
+                         label         =  "Type:",
                          choices       =  _ntTypeChoices,
                          setAsDefault  =  True)
-        
+
         self.ntRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
@@ -278,9 +278,9 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
-        
+
         self.ntRiseDoubleSpinBox.hide()
-        
+
         # Nanotube Length
         self.ntLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
@@ -290,7 +290,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.ntLengthLineEdit.setDisabled(True)
         self.ntLengthLineEdit.hide()
-        
+
         # Nanotube Radius
         self.ntDiameterLineEdit  =  \
             PM_LineEdit( pmGroupBox,
@@ -299,23 +299,23 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
 
         self.ntDiameterLineEdit.setDisabled(True)
         self.updateNanotubeDiameter()
-                
+
         self.chiralityNSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label        = "Chirality (n) :", 
-                        value        = self.nanotube.getChiralityN(), 
+            PM_SpinBox( pmGroupBox,
+                        label        = "Chirality (n) :",
+                        value        = self.nanotube.getChiralityN(),
                         minimum      =  2,
                         maximum      =  100,
                         setAsDefault = True )
-        
+
         self.chiralityMSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label        = "Chirality (m) :", 
+            PM_SpinBox( pmGroupBox,
+                        label        = "Chirality (m) :",
                         value        = self.nanotube.getChiralityM(),
                         minimum      =  0,
                         maximum      =  100,
                         setAsDefault = True )
-        
+
         # How about having user prefs for CNT and BNNT bond lengths?
         # I'm guessing that if the user wants to set these values, they will
         # do it once and would like those bond length values persist forever.
@@ -323,69 +323,69 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         # --Mark 2008-03-29
         self.bondLengthDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
-                              label        = "Bond Length :", 
-                              value        = self.nanotube.getBondLength(), 
+                              label        = "Bond Length :",
+                              value        = self.nanotube.getBondLength(),
                               setAsDefault = True,
-                              minimum      = 1.0, 
-                              maximum      = 3.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 1.0,
+                              maximum      = 3.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         #self.bondLengthDoubleSpinBox.hide()
-        
+
         endingChoices = ["Hydrogen", "None"] # Removed:, "Nitrogen"]
-        
+
         self.endingsComboBox= \
             PM_ComboBox( pmGroupBox,
-                         label        = "Endings :", 
-                         choices      = endingChoices, 
-                         index        = 0, 
+                         label        = "Endings :",
+                         choices      = endingChoices,
+                         index        = 0,
                          setAsDefault = True,
                          spanWidth    = False )
-        
+
     def _loadGroupBox3(self, inPmGroupBox):
         """
         Load widgets in group box 3.
         """
-        
+
         self.zDistortionDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Z-distortion :", 
-                              value        = 0.0, 
+                              label        = "Z-distortion :",
+                              value        = 0.0,
                               setAsDefault = True,
-                              minimum      = 0.0, 
-                              maximum      = 10.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 0.0,
+                              maximum      = 10.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         self.xyDistortionDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "XY-distortion :", 
-                              value        = 0.0, 
+                              label        = "XY-distortion :",
+                              value        = 0.0,
                               setAsDefault = True,
-                              minimum      = 0.0, 
-                              maximum      = 2.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 0.0,
+                              maximum      = 2.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         self.twistSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Twist :", 
-                        value        = 0, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Twist :",
+                        value        = 0,
                         setAsDefault = True,
-                        minimum      = 0, 
+                        minimum      = 0,
                         maximum      = 100, # What should maximum be?
                         suffix       = " deg/A" )
-        
+
         self.bendSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Bend :", 
-                        value        = 0, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Bend :",
+                        value        = 0,
                         setAsDefault = True,
-                        minimum      = 0, 
+                        minimum      = 0,
                         maximum      = 360,
                         suffix       = " deg" )
 
@@ -393,31 +393,31 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         """
         Load widgets in group box 4.
         """
-        
+
         # "Number of Nanotubes" SpinBox
         self.mwntCountSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Number :", 
-                        value        = 1, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Number :",
+                        value        = 1,
                         setAsDefault = True,
-                        minimum      = 1, 
+                        minimum      = 1,
                         maximum      = 10,
                         suffix       = " nanotubes" )
-        
+
         self.mwntCountSpinBox.setSpecialValueText("SWNT")
-            
+
         # "Spacing" lineedit.
         self.mwntSpacingDoubleSpinBox = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Spacing :", 
-                              value        = 2.46, 
+                              label        = "Spacing :",
+                              value        = 2.46,
                               setAsDefault = True,
-                              minimum      = 1.0, 
-                              maximum      = 10.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 1.0,
+                              maximum      = 10.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
     def _loadGroupBox5(self, pmGroupBox):
         """
         Load widgets in group box 5.
@@ -425,72 +425,72 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         self._rubberbandLineGroupBox = PM_GroupBox(
             pmGroupBox,
             title = 'Rubber band Line:')
-        
+
         ntLineChoices = ['Ladder']
         self.ntRubberBandLineDisplayComboBox = \
-            PM_ComboBox( self._rubberbandLineGroupBox ,     
-                         label         =  " Display As:", 
+            PM_ComboBox( self._rubberbandLineGroupBox ,
+                         label         =  " Display As:",
                          choices       =  ntLineChoices,
                          setAsDefault  =  True)
-        
+
         self.lineSnapCheckBox = \
             PM_CheckBox(self._rubberbandLineGroupBox ,
                         text         = 'Enable line snap' ,
                         widgetColumn = 1,
                         state        = Qt.Checked
                         )
-        
-        
+
+
     def _connect_showCursorTextCheckBox(self):
         """
         Connect the show cursor text checkbox with user prefs_key.
-        Overrides 
+        Overrides
         DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
         """
         connect_checkbox_with_boolean_pref(
-            self.showCursorTextCheckBox , 
+            self.showCursorTextCheckBox ,
             insertNanotubeEditCommand_showCursorTextCheckBox_prefs_key )
 
 
     def _params_for_creating_cursorTextCheckBoxes(self):
         """
         Returns params needed to create various cursor text checkboxes connected
-        to prefs_keys  that allow custom cursor texts. 
+        to prefs_keys  that allow custom cursor texts.
         @return: A list containing tuples in the following format:
-                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes
                 uses this data to create checkboxes with the the given names and
-                connects them to the provided preference keys. (Note that 
+                connects them to the provided preference keys. (Note that
                 PM_PrefsCheckBoxes puts thes within a GroupBox)
         @rtype: list
         @see: PM_PrefsCheckBoxes
-        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: self._loadDisplayOptionsGroupBox where this list is used.
         @see: Superclass method which is overridden here --
         DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
                [  #Format: (" checkbox text", prefs_key)
-                  
+
                    ("Nanotube length",
                     insertNanotubeEditCommand_cursorTextCheckBox_length_prefs_key ),
 
                     ("Angle",
-                     insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key ) 
+                     insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key )
                  ]
 
         return params
-    
+
 
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in the Insert Nanotube Property Manager.  
+        Tool Tip text for widgets in the Insert Nanotube Property Manager.
         """
         pass
-    
+
     def _setEndPoints(self):
         """
         Set the two endpoints of the nanotube using the values from the
         X, Y, Z coordinate spinboxes in the property manager.
-        
+
         @note: The group box containing the 2 sets of XYZ spin boxes are
         currently hidden.
         """
@@ -508,21 +508,21 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
             self.endPoint1 = V(x1, y1, z1)
         if not self.endPoint2:
             self.endPoint2 = V(x2, y2, z2)
-            
+
         self.nanotube.setEndPoints(self.endPoint1, self.endPoint2)
             # Need arg "recompute=True", which will recompute the second
             # endpoint (endPoint2) using the nanotube rise.
-        
+
     def getParameters(self):
         """
         Return the parameters from this property manager to be used to create
-        the nanotube. 
-        
-        @return: A nanotube instance with its attrs set to the current 
+        the nanotube.
+
+        @return: A nanotube instance with its attrs set to the current
                  parameters in the property manager.
         @rtype: L{Nanotube}
-        
-        @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used 
+
+        @see: L{InsertNanotube_EditCommand._gatherParameters} where this is used
         """
         self._setEndPoints()
         return (self.nanotube)
@@ -539,7 +539,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         print "Bond Length =", self.nanotube.getBondLength()
         self.bondLengthDoubleSpinBox.setValue(self.nanotube.getBondLength())
         #self.bondLengthDoubleSpinBox.setValue(ntBondLengths[inIndex])
-        
+
     def _bondLengthChanged(self, bondLength):
         """
         Slot for the B{Bond Length} spinbox.
@@ -547,53 +547,53 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         self.nanotube.setBondLength(bondLength)
         self.updateNanotubeDiameter()
         return
-    
+
     def _chiralityFixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.
         This gets called whenever the user changes the n, m chirality values.
-        
+
         @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
-        @type  spinBoxValueJunk: double or None  
-        """        
-        _n, _m = self.nanotube.setChirality(self.chiralityNSpinBox.value(), 
+        @type  spinBoxValueJunk: double or None
+        """
+        _n, _m = self.nanotube.setChirality(self.chiralityNSpinBox.value(),
                                             self.chiralityMSpinBox.value())
-        
+
         #self.n, self.m = self.nanotube.getChirality()
-        
+
         self.connect_or_disconnect_signals(isConnect = False)
         self.chiralityNSpinBox.setValue(_n)
         self.chiralityMSpinBox.setValue(_m)
         self.connect_or_disconnect_signals(isConnect = True)
-        
+
         self.updateNanotubeDiameter()
-    
+
     def updateNanotubeDiameter(self):
         """
         Update the nanotube Diameter lineEdit widget.
         """
         diameterText = "%-7.4f Angstroms" %  (self.nanotube.getDiameter())
         self.ntDiameterLineEdit.setText(diameterText)
-        
+
         # ntRiseDoubleSpinBox is currently hidden.
         self.ntRiseDoubleSpinBox.setValue(self.nanotube.getRise())
-        
+
     def _endingsComboBoxChanged(self, endings):
         """
         Slot for the B{Ending} combobox.
-        
+
         @param endings: The option's text.
         @type  endings: string
         """
         self.nanotube.setEndings(str(endings))
         return
-        
+
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         whatsThis_InsertNanotube_PropertyManager(self)
-        return 
+        return
 

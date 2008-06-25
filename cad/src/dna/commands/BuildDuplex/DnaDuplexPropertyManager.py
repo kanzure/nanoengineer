@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaDuplexPropertyManager.py
 
@@ -6,7 +6,7 @@ DnaDuplexPropertyManager.py
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-Mark 2007-10-18: 
+Mark 2007-10-18:
 - Created. Major rewrite of DnaGeneratorPropertyManager.py.
 
 Ninad 2007-10-24:
@@ -56,7 +56,7 @@ from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 _superclass = DnaOrCnt_PropertyManager
 class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     """
-    The DnaDuplexPropertyManager class provides a Property Manager 
+    The DnaDuplexPropertyManager class provides a Property Manager
     for the B{Build > DNA > Duplex} command.
 
     @ivar title: The title that appears in the property manager header.
@@ -86,11 +86,11 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self._numberOfBases = 0
         self._basesPerTurn  = getDuplexBasesPerTurn(self._conformation)
         self._duplexRise    = getDuplexRise(self._conformation)
-        self._duplexLength  = getDuplexLength(self._conformation, 
+        self._duplexLength  = getDuplexLength(self._conformation,
                                               self._numberOfBases)
-        
 
-        _superclass.__init__( self, 
+
+        _superclass.__init__( self,
                               win,
                               editCommand)
 
@@ -103,16 +103,16 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-            
-            
+            change_connect = self.win.disconnect
+
+
         change_connect(self._placementOptions.buttonGroup,
                        SIGNAL("buttonClicked(int)"),
                        self.activateSpecifyReferencePlaneTool)
@@ -133,18 +133,18 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                         SIGNAL("valueChanged(double)"),
                         self.duplexRiseChanged )
 
-        change_connect(self.showCursorTextCheckBox, 
-                       SIGNAL('stateChanged(int)'), 
+        change_connect(self.showCursorTextCheckBox,
+                       SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
 
 
     def ok_btn_clicked(self):
         """
         Slot for the OK button
-        """   
+        """
         if self.editCommand:
             self.editCommand.preview_or_finalize_structure(previewing = False)
-            ##env.history.message(self.editCommand.logMessage)        
+            ##env.history.message(self.editCommand.logMessage)
         self.win.toolsDone()
 
     def cancel_btn_clicked(self):
@@ -152,58 +152,58 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         Slot for the Cancel button.
         """
         if self.editCommand:
-            self.editCommand.cancelStructure()            
+            self.editCommand.cancelStructure()
         self.win.toolsCancel()
-        
-        
+
+
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets  in this Property manager.
-        Overrides MotorPropertyManager._update_widgets_in_PM_before_show. 
-        The various  widgets , (e.g. spinboxes) will get values from the 
-        structure for which this propMgr is constructed for 
+        Overrides MotorPropertyManager._update_widgets_in_PM_before_show.
+        The various  widgets , (e.g. spinboxes) will get values from the
+        structure for which this propMgr is constructed for
         (self.editcCntroller.struct)
 
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
-        @see: self.show where it is called. 
-        """       
-        pass     
+        @see: self.show where it is called.
+        """
+        pass
 
-    def getFlyoutActionList(self): 
-        """ returns custom actionlist that will be used in a specific mode 
-	or editing a feature etc Example: while in movie mode, 
-	the _createFlyoutToolBar method calls
-	this """	
+    def getFlyoutActionList(self):
+        """ returns custom actionlist that will be used in a specific mode
+        or editing a feature etc Example: while in movie mode,
+        the _createFlyoutToolBar method calls
+        this """
 
 
-        #'allActionsList' returns all actions in the flyout toolbar 
+        #'allActionsList' returns all actions in the flyout toolbar
         #including the subcontrolArea actions
         allActionsList = []
 
-        #Action List for  subcontrol Area buttons. 
-        #In this mode there is really no subcontrol area. 
-        #We will treat subcontrol area same as 'command area' 
-        #(subcontrol area buttons will have an empty list as their command area 
+        #Action List for  subcontrol Area buttons.
+        #In this mode there is really no subcontrol area.
+        #We will treat subcontrol area same as 'command area'
+        #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
         #subcontrol area.
 
-        subControlAreaActionList =[] 
+        subControlAreaActionList =[]
 
         self.exitEditCommandAction.setChecked(True)
         subControlAreaActionList.append(self.exitEditCommandAction)
 
         separator = QAction(self.w)
         separator.setSeparator(True)
-        subControlAreaActionList.append(separator) 
+        subControlAreaActionList.append(separator)
 
 
         allActionsList.extend(subControlAreaActionList)
 
         #Empty actionlist for the 'Command Area'
-        commandActionLists = [] 
+        commandActionLists = []
 
-        #Append empty 'lists' in 'commandActionLists equal to the 
-        #number of actions in subControlArea 
+        #Append empty 'lists' in 'commandActionLists equal to the
+        #number of actions in subControlArea
         for i in range(len(subControlAreaActionList)):
             lst = []
             commandActionLists.append(lst)
@@ -215,11 +215,11 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
-        """        
-        self._pmReferencePlaneGroupBox = PM_GroupBox( self, 
+        """
+        self._pmReferencePlaneGroupBox = PM_GroupBox( self,
                                                       title = "Placement Options" )
         self._loadReferencePlaneGroupBox( self._pmReferencePlaneGroupBox )
-        
+
         self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox1( self._pmGroupBox1 )
 
@@ -228,37 +228,37 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
 
-        self._displayOptionsGroupBox = PM_GroupBox( self, 
+        self._displayOptionsGroupBox = PM_GroupBox( self,
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
-        
+
 
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box 3.
         """
         #Folllowing toolbutton facilitates entering a temporary DnaLineMode
-        #to create a DNA using endpoints of the specified line. 
+        #to create a DNA using endpoints of the specified line.
         self.specifyDnaLineButton = PM_ToolButton(
-            pmGroupBox, 
+            pmGroupBox,
             text = "Specify Endpoints",
             iconPath  = "ui/actions/Properties Manager/Pencil.png",
-            spanWidth = True                        
+            spanWidth = True
         )
         self.specifyDnaLineButton.setCheckable(True)
         self.specifyDnaLineButton.setAutoRaise(True)
         self.specifyDnaLineButton.setToolButtonStyle(
             Qt.ToolButtonTextBesideIcon)
 
-        #EndPoint1 and endPoint2 coordinates. These widgets are hidden 
+        #EndPoint1 and endPoint2 coordinates. These widgets are hidden
         # as of 2007- 12 - 05
-        self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+        self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox,
                                                           label = "End Point 1")
         self.x1SpinBox = self._endPoint1SpinBoxes.xSpinBox
         self.y1SpinBox = self._endPoint1SpinBoxes.ySpinBox
         self.z1SpinBox = self._endPoint1SpinBoxes.zSpinBox
 
-        self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+        self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox,
                                                           label = "End Point 2")
         self.x2SpinBox = self._endPoint2SpinBoxes.xSpinBox
         self.y2SpinBox = self._endPoint2SpinBoxes.ySpinBox
@@ -274,14 +274,14 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
 
         self.conformationComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Conformation:", 
+                         label         =  "Conformation:",
                          choices       =  ["B-DNA"],
                          setAsDefault  =  True)
 
         dnaModelChoices = ['PAM3', 'PAM5']
         self.dnaModelComboBox = \
-            PM_ComboBox( pmGroupBox,     
-                         label         =  "Model:", 
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Model:",
                          choices       =  dnaModelChoices,
                          setAsDefault  =  True)
 
@@ -308,14 +308,14 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
 
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label         =  "Base pairs:", 
+            PM_SpinBox( pmGroupBox,
+                        label         =  "Base pairs:",
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  0,
                         maximum       =  10000 )
 
-        self.numberOfBasePairsSpinBox.setDisabled(True)   
+        self.numberOfBasePairsSpinBox.setDisabled(True)
 
         # Duplex Length
         self.duplexLengthLineEdit  =  \
@@ -324,7 +324,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 
-        self.duplexLengthLineEdit.setDisabled(True)        
+        self.duplexLengthLineEdit.setDisabled(True)
 
 
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
@@ -332,11 +332,11 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         Load widgets in the Display Options GroupBox
         @see: DnaOrCnt_PropertyManager. _loadDisplayOptionsGroupBox
         """
-        #Call the superclass method that loads the cursor text checkboxes. 
+        #Call the superclass method that loads the cursor text checkboxes.
         #Note, as of 2008-05-19, the superclass, DnaOrCnt_PropertyManager
-        #only loads the cursor text groupboxes. Subclasses like this can 
-        #call custom methods like self._loadCursorTextCheckBoxes etc if they 
-        #don't need all groupboxes that the superclass loads. 
+        #only loads the cursor text groupboxes. Subclasses like this can
+        #call custom methods like self._loadCursorTextCheckBoxes etc if they
+        #don't need all groupboxes that the superclass loads.
         _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
 
         self._rubberbandLineGroupBox = PM_GroupBox(
@@ -345,8 +345,8 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
 
         dnaLineChoices = ['Ribbons', 'Ladder']
         self.dnaRubberBandLineDisplayComboBox = \
-            PM_ComboBox( self._rubberbandLineGroupBox ,     
-                         label         =  " Display as:", 
+            PM_ComboBox( self._rubberbandLineGroupBox ,
+                         label         =  " Display as:",
                          choices       =  dnaLineChoices,
                          setAsDefault  =  True)
 
@@ -356,57 +356,57 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
                         widgetColumn = 1,
                         state        = Qt.Checked
                     )
-        
+
     def _connect_showCursorTextCheckBox(self):
         """
         Connect the show cursor text checkbox with user prefs_key.
-        Overrides 
+        Overrides
         DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
         """
         connect_checkbox_with_boolean_pref(
-            self.showCursorTextCheckBox , 
+            self.showCursorTextCheckBox ,
             dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key)
-        
-        
+
+
     def _params_for_creating_cursorTextCheckBoxes(self):
         """
         Returns params needed to create various cursor text checkboxes connected
-        to prefs_keys  that allow custom cursor texts. 
+        to prefs_keys  that allow custom cursor texts.
         @return: A list containing tuples in the following format:
-                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes
                 uses this data to create checkboxes with the the given names and
-                connects them to the provided preference keys. (Note that 
+                connects them to the provided preference keys. (Note that
                 PM_PrefsCheckBoxes puts thes within a GroupBox)
         @rtype: list
         @see: PM_PrefsCheckBoxes
-        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: self._loadDisplayOptionsGroupBox where this list is used.
         @see: Superclass method which is overridden here --
         DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
         [  #Format: (" checkbox text", prefs_key)
-            ("Number of base pairs", 
+            ("Number of base pairs",
              dnaDuplexEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
-             
+
             ("Number of turns",
              dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key),
-             
+
             ("Duplex length",
              dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key),
-             
+
             ("Angle",
              dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key) ]
-        
+
         return params
 
-    
+
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in the DNA Property Manager.  
+        Tool Tip text for widgets in the DNA Property Manager.
         """
-        pass    
-          
-     
+        pass
+
+
     def conformationComboBoxChanged( self, inIndex ):
         """
         Slot for the Conformation combobox. It is called whenever the
@@ -435,7 +435,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         Slot for the B{Number of Bases} spinbox.
         """
         # Update the Duplex Length lineEdit widget.
-        text = str(getDuplexLength(self._conformation, 
+        text = str(getDuplexLength(self._conformation,
                                    numberOfBases,
                                    self._duplexRise)) \
              + " Angstroms"
@@ -462,10 +462,10 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     def getParameters(self):
         """
         Return the parameters from this property manager
-        to be used to create the DNA duplex. 
+        to be used to create the DNA duplex.
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{DnaDuplex_EditCommand._gatherParameters} where this is used 
+        @see: L{DnaDuplex_EditCommand._gatherParameters} where this is used
         """
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())
@@ -489,17 +489,17 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         if not self.endPoint2:
             self.endPoint2 = V(x2, y2, z2)
 
-        return (numberOfBases, 
+        return (numberOfBases,
                 dnaForm,
                 dnaModel,
                 basesPerTurn,
                 duplexRise,
-                self.endPoint1, 
+                self.endPoint1,
                 self.endPoint2)
 
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         whatsThis_DnaDuplexPropertyManager(self)
 

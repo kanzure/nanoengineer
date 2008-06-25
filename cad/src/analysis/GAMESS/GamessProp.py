@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 GamessProp.py
 
@@ -43,16 +43,16 @@ ui={'comment':'','runtyp':0,'scftyp':0, 'icharg':0, 'mult':0, 'gbasis':0, 'ecm':
 # The general form for the $CONTRL group is (keyword order does not matter):
 #
 #   $CONTRL
-#   runtyp=energy coord=unique scftyp=rhf icharg=1 mult=1 mplevl=0 
+#   runtyp=energy coord=unique scftyp=rhf icharg=1 mult=1 mplevl=0
 #   maxit=200 inttyp=pople icut=11 qmttol=1.0E-6
 #   $END
 #
 # $CONTRL group keywords and their default values.
-contrl={'runtyp':'energy', 'coord':'unique', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0', 
+contrl={'runtyp':'energy', 'coord':'unique', 'scftyp':'RHF', 'icharg':0, 'mult':1, 'mplevl':'0',
         'maxit':50, 'icut':11, 'inttyp':'hondo', 'qmttol':'1.0E-6', 'dfttyp':0, 'nprint':9}
 # Note: The 'dfttyp' keyword in the $CONTRL group is only valid for PC GAMESS.
 
-# $CONTRL keywords and their optional values 
+# $CONTRL keywords and their optional values
 runtyp=['energy', 'optimize'] # RUNTYP
 scftyp=['RHF', 'UHF', 'ROHF'] # SCFTYP
 mplevl=[ 0, 0, '2'] # MPLEVL: None=0, DFT=0, MP2='2'
@@ -103,10 +103,10 @@ system={'timlim':1000, 'memory':70000000}
 # So, with the checkbox not checked, ncore=0, and the NCORE keyword isn't written.
 # With the checkbox checked, ncore='0' (string type), NCORE=0 is written.  Mark 050528.
 mp2={'ncore':0} # Core electrons for MP2
-ncore=[0, '0'] # Core electrons: Not included=0, Included='0'. 
+ncore=[0, '0'] # Core electrons: Not included=0, Included='0'.
 
 # Useful Electron Correlation Method variables.
-ecm=['None', 'DFT', 'MP2'] 
+ecm=['None', 'DFT', 'MP2']
 DFT=1
 MP2=2
 
@@ -120,7 +120,7 @@ MP2=2
 #
 # $DFT group keywords and their default values.
 dft={'dfttyp':0, 'nrad':0}
-# Note: In PC GAMESS, the $DFT group contains the grid size parameters 
+# Note: In PC GAMESS, the $DFT group contains the grid size parameters
 # only, and the DFTTYP keyword is placed in the $CONTRL group.
 
 # DFTTYP functions for GAMESS, specified by the DFTTYP keyword in the $DFT group.
@@ -133,7 +133,7 @@ gms_dfttyp_items='SLATER (E)','BECKE (E)','GILL (E)','PBE (E)','VWN (C)', \
     'PBEVWN (E+C)', 'PBELYP (E+C)', 'PBEOP (E+C)', 'BHHLYP (H)', 'B3LYP (H)'
 
 # DFTTYP functions for PC GAMESS. These are different for GAMESS.
-# The DFTTYP keyword values are the same without the '(x)' text.                
+# The DFTTYP keyword values are the same without the '(x)' text.
 pcgms_dfttyp_items = 'SLATER (E)','B88 (E)','GILL96 (E)','XPBE96 (E)','LYP (C)', \
     'VWN1RPA (C)','VWN5 (C)','PW91LDA (C)','CPBE96 (C)','CPW91 (C)', \
     'SLYP (E+C)','BLYP (E+C)','GLYP (E+C)','SVWN1RPA (E+C)', \
@@ -143,7 +143,7 @@ pcgms_dfttyp_items = 'SLATER (E)','B88 (E)','GILL96 (E)','XPBE96 (E)','LYP (C)',
 
 # The 5 DFT grid size parameters for:
 #   - Course
-#   - Default, 
+#   - Default,
 #   - Fine
 #   - Very Fine
 #   - Army Grade.
@@ -155,7 +155,7 @@ gms_gridsize= '=48 nthe=12 nphi=24 switch=1.0E-03', \
                 '96 nthe=36 nphi=72 switch=3.0E-04'
 # Note: the first number is the 'nrad' parm. 'nrad=' is printed by the prin1 method.
 # Also, Damian needs to supply parameters for "Very Fine" (Army Grade used twice).
-                
+
 # These are the $DFT grid size parameters for PC GAMESS.
 pcgms_gridsize='48 lmax=19', \
                             '63 lmax=29', \
@@ -177,9 +177,9 @@ guess={'guess':'huckel'}
 
 # The GUESS keyword and its optional values
 guess_keyword=['huckel', 'moread']
-# Note: Writing the 'guess' keyword requires special case code in the prin1 method 
+# Note: Writing the 'guess' keyword requires special case code in the prin1 method
 # since its group name is the same ('guess'). Mark 050529
-    
+
 # $STATPT group section ##############################
 #
 # The general form for the $STATPT group is:
@@ -230,19 +230,19 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=0 NFFUNC=0 DIFFSP=.T. DIFFS=.T.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=1 NFFUNC=0 DIFFSP=.T. DIFFS=.T.'
 
-        
+
 class GamessProp(QDialog, Ui_GamessPropDialog):
     '''The Gamess Jig Properties dialog used for:
     - running a GAMESS energy calculation on a structure (group of atoms).
     - running a GAMESS optimization on a structure.
     - setting and saving the GAMESS parameters used for an energy calculation or optimization.
     '''
-       
+
     def __init__(self):
         QDialog.__init__(self)
         self.setModal(True)
         self.setupUi(self)
-        
+
         self.ecm_btngrp = QButtonGroup()
         self.ecm_btngrp.setExclusive(True)
         objId = 0
@@ -250,8 +250,8 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             if isinstance(obj, QAbstractButton):
                 self.ecm_btngrp.addButton(obj)
                 self.ecm_btngrp.setId(obj, objId)
-                objId +=1  
-        
+                objId +=1
+
         self.scftyp_btngrp = QButtonGroup()
         self.scftyp_btngrp.setExclusive(True)
         objId = 0
@@ -259,8 +259,8 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             if isinstance(obj, QAbstractButton):
                 self.scftyp_btngrp.addButton(obj)
                 self.scftyp_btngrp.setId(obj, objId)
-                objId +=1 
-                
+                objId +=1
+
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ecm_btngrp,SIGNAL("buttonPressed(int)"),self.set_ecmethod)
         self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
@@ -277,7 +277,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.sManager = ServerManager()
         self.servers = self.sManager.getServers()
         self.server = self.servers[0]
-        
+
         self.name_linedit.setWhatsThis("""Name of the GAMESS jig.""")
         self.runtyp_combox.setWhatsThis("""Type of calculation, where "Energy" calculates the Energy Minima,and "Optimization" calculates the "Equilibrium Geometry".""")
         self.comment_linedit.setWhatsThis("""Description, also placed in the comment line of the $DATA section of the INP file.""")
@@ -306,7 +306,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.run_job_btn.setWhatsThis("""Save GAMESS parameters, generates the INP file and launches the GAMESS job.""")
         self.save_btn.setWhatsThis("""Save GAMESS parameters and generates the INP file.  It does not launch the GAMESS job.""")
         self.cancel_btn.setWhatsThis("""Cancels changes and closes dialog.""")
-        
+
     def showDialog(self, job):
         '''Display the GAMESS Jig Properties dialog'''
         self.gamessJig =  job.gamessJig
@@ -314,7 +314,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.pset = self.gamessJig.pset
         self.win = self.gamessJig.assy.w
         self.glpane = self.gamessJig.assy.o
-        
+
         if self._setup(): return
         self.exec_()
 
@@ -323,27 +323,27 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
     def _setup(self):
         ''' Setup widgets to initial (default or defined) values. Return True on error.
         '''
-        
+
         #To fix bug 684
         #if gamess.is_disabled():
         #    self.run_job_btn.setEnabled(False)
         #else:
         #    self.run_job_btn.setEnabled(True)
-        
+
         self.jig_attrs = self.gamessJig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
-        
+
         # Jig color
-        self.original_normcolor = self.gamessJig.normcolor 
+        self.original_normcolor = self.gamessJig.normcolor
         self.jig_QColor = RGBf_to_QColor(self.gamessJig.normcolor) # Used as default color by Color Chooser
         self.jig_color_pixmap = get_widget_with_color_palette(
-		self.jig_color_pixmap, self.jig_QColor)
-        
+                self.jig_color_pixmap, self.jig_QColor)
+
         # Init the top widgets (name, runtyp drop box, comment)
         self.name_linedit.setText(self.gamessJig.name)
         self.runtyp_combox.setCurrentIndex(self.pset.ui.runtyp) # RUNTYP
         self.calculate_changed(self.pset.ui.runtyp)
         self.comment_linedit.setText(self.pset.ui.comment)
-        
+
         # Electronic Structure Properties section.
         btn = self.scftyp_btngrp.button(self.pset.ui.scftyp)# RHF, UHF, or ROHF
         btn.setChecked(True)
@@ -354,24 +354,24 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.rhf_radiobtn.setEnabled(1) # Enable RHF
         else:
             self.rhf_radiobtn.setEnabled(0) # Disable RHF
-        
+
         # System Memory and Usage
         self.dirscf_checkbox.setChecked(self.pset.ui.dirscf) # DIRSCF
         self.memory_spinbox.setValue(self.pset.ui.memory) # Memory
-        
+
         # Electron Correlation Method and Basis Set
         ecm = self.pset.ui.ecm
         btn = self.ecm_btngrp.button(self.pset.ui.ecm)# None, DFT or MP2
         btn.setChecked(True)
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
         self.gbasis_combox.setCurrentIndex(self.pset.ui.gbasis) # Basis set
-        
-        # Load the combo box with all the valid DFT functions.  
+
+        # Load the combo box with all the valid DFT functions.
         self._load_dfttyp_combox()
         self.dfttyp_combox.setCurrentIndex(self.pset.ui.dfttyp) # DFT Functional
         self.gridsize_combox.setCurrentIndex(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
-            
+
         # Convergence Criteria
         self.density_conv_combox.setCurrentIndex(self.pset.ui.conv) # Density Convergence
         self.rmsd_combox.setCurrentIndex(self.pset.ui.rmsdconv) # RMSD Convergence
@@ -385,13 +385,13 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 #        self.shift_checkbox.setChecked(self.pset.ui.shift) # SHIFT
 #        self.soscf_checkbox.setChecked(self.pset.ui.soscf) # SOSCF
 #        self.rstrct_checkbox.setChecked(self.pset.ui.rstrct) # RSTRCT
-        
+
         # Load the server combo box
         #self._reloadServerList() # Not used in A6.  Mark.
-        
+
         # If there is an error, return 1. NIY.
         return 0
- 
+
     def _reloadServerList(self):
         """ Load the server combo box"""
         self.server_combox.clear()
@@ -401,7 +401,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         if self.server not in self.servers:
             self.server = self.servers[0]
         indx = self.servers.index(self.server)
-        self.server_combox.setCurrentIndex(indx)    
+        self.server_combox.setCurrentIndex(indx)
 
     def _load_dfttyp_combox(self):
         '''Load list of DFT function in a combobox widget'''
@@ -439,16 +439,16 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         '''
         self.pset.ui.comment = str(self.comment_linedit.text()) # Description
         self.pset.ui.runtyp = self.runtyp_combox.currentIndex() # RUNTYP = Energy or Optimize
-        
+
         # Electronic Structure Props and Basis Set section.
         self.pset.ui.scftyp = self.scftyp_btngrp.checkedId() # SCFTYP = RHF, UHF, or ROHF
         self.pset.ui.icharg = self.icharg_spinbox.value() # Charge
         self.pset.ui.mult = self.multi_combox.currentIndex() # Multiplicity
-        
+
         # System Memory and Usage
         self.pset.ui.memory = self.memory_spinbox.value() # Memory
         self.pset.ui.dirscf = self.dirscf_checkbox.isChecked() # DIRSCF
-        
+
         # Electron Correlation Method
         self.pset.ui.ecm = self.ecm_btngrp.checkedId() # None, DFT or MP2
         #self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
@@ -457,12 +457,12 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.pset.ui.dfttyp = self.dfttyp_combox.currentIndex() # DFT Functional Type
         self.pset.ui.gridsize = self.gridsize_combox.currentIndex() # Grid Size
         self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
-        
+
         # Convergence Criteria
         self.pset.ui.conv = self.density_conv_combox.currentIndex() # Density Convergence
         self.pset.ui.rmsdconv = self.rmsd_combox.currentIndex() # RMSD Convergence
         self.pset.ui.iterations = self.iterations_spinbox.value() # Iterations
-        
+
 #        self.pset.ui.extrap = self.extrap_checkbox.isChecked() # EXTRAP
 #        self.pset.ui.damp = self.damp_checkbox.isChecked() # DAMP
 #        self.pset.ui.diis = self.diis_checkbox.isChecked() # DIIS
@@ -480,23 +480,23 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self.job.Engine = self.server.engine
 
     ######End of private or helper methods.########################
-    
-    ###### Unused methods ###############   
-    
+
+    ###### Unused methods ###############
+
     def openServerManager(self):
         """Pop up ServerManagerDialog to edit the properties of the servers."""
         self.sManager.showDialog(self.server)
         self.servers = self.sManager.getServers()
         self._reloadServerList()
-        
+
     def serverChanged(self, si):
         """User has changed server, so update the DFT comboBox. Currently not used."""
         self.server = self.servers[si]
         self._load_dfttyp_combox()
-        
-    ###### End of unused methods ###############  
-    
-    ##########Slot methods for some GUI controls################   
+
+    ###### End of unused methods ###############
+
+    ##########Slot methods for some GUI controls################
 
     def calculate_changed(self, val):
         '''
@@ -532,27 +532,27 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             #if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
             #    self.rhf_radiobtn.setEnabled(0)
             #    return
-            
+
             ret = QMessageBox.warning( self, "Multiplicity Conflict",
                 "If Multiplicity is greater than 1, then <b>UHF</b> or <b>ROHF</b> must be selected.\n"
                 "Select Cancel to keep <b>RHF</b>.",
                 "&UHF", "&ROHF", "Cancel",
                 0, 2 )
-            
+
             if ret == 0: # UHF
                 self.uhf_radiobtn.toggle()
                 self.rhf_radiobtn.setEnabled(0)
-                
+
             elif ret == 1: # ROHF
                 self.rohf_radiobtn.toggle()
                 self.rhf_radiobtn.setEnabled(0)
-            
+
             elif ret == 2: # Cancel
                 self.multi_combox.setCurrentIndex(0)
-        
+
         elif val == 0:
             self.rhf_radiobtn.setEnabled(1)
-    
+
     def set_ecmethod(self, val):
         '''Enable/disable widgets when user changes Electron Correlation Method.
         '''
@@ -564,14 +564,14 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.gridsize_combox.setEnabled(1)
             self.core_electrons_checkbox.setChecked(0)
             self.core_electrons_checkbox.setEnabled(0)
-            
+
         elif val == MP2:
             self.core_electrons_checkbox.setEnabled(1)
             self.dfttyp_label.setEnabled(0)
             self.dfttyp_combox.setEnabled(0)
             self.gridsize_label.setEnabled(0)
             self.gridsize_combox.setEnabled(0)
-            
+
         else: # None = Hartree-Fock
             self.dfttyp_label.setEnabled(0)
             self.dfttyp_combox.setEnabled(0)
@@ -579,7 +579,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
             self.gridsize_combox.setEnabled(0)
             self.core_electrons_checkbox.setChecked(0)
             self.core_electrons_checkbox.setEnabled(0)
-        
+
         # AM1 and PM3 are not options for DFT or MP2.
         # We have to remove or add them from the combo box.
         self._update_gbasis_list(val)
@@ -593,36 +593,36 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         tmpdir = find_or_make_Nanorex_subdir('temp')
         basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
         tmp_inputfile = os.path.join(tmpdir, "%s.inp" % basename)
-        
+
         # Write INP file (in ~/Nanorex/temp subdirectory)
         from analysis.GAMESS.files_gms import writegms_inpfile
         writegms_inpfile(tmp_inputfile, self.gamessJig)
-        
+
         from platform.PlatformDependent import open_file_in_editor
         open_file_in_editor(tmp_inputfile)
-                
+
     def run_job(self):
         """Slot method for the 'Save and Run' button """
-        
+
         self.accept()
-        
+
         # Run GAMESS job.  Return value r:
         # 0 = success
         # 1 = job cancelled
         # 2 = job failed.
         r = self.job.launch()
-        
+
         if r == 1: # Job was cancelled
             env.history.message( redmsg( "GAMESS job cancelled."))
             return
-            
+
         if r == 2: # Job failed.
             env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             return
-        
-        # Job success.  
+
+        # Job success.
         fn = self.gamessJig.outputfile
-        
+
         # Print energy or move atoms
         if self.pset.ui.runtyp == 0: #Energy
             self.gamessJig.print_energy()
@@ -648,11 +648,11 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         if color.isValid():
             self.jig_QColor = color
             self.jig_color_pixmap = get_widget_with_color_palette(
-		self.jig_color_pixmap, self.jig_QColor)
-            
+                self.jig_color_pixmap, self.jig_QColor)
+
             self.gamessJig.color = self.gamessJig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
-                                
+
     def accept(self):
         """The slot method for the 'Save' button."""
         QDialog.accept(self)
@@ -662,7 +662,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         self._save_job_parms()
         if self.edit_input_file_cbox.isChecked():
             self.open_tmp_inputfile()
-                
+
     def reject(self):
         """The slot method for the 'Cancel' button."""
         QDialog.reject(self)
@@ -670,7 +670,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         # self.gamessJig.color = self.gamessJig.normcolor = self.original_normcolor
         self.gamessJig.cancelled = True
         self.glpane.gl_update()
-        
+
     def whats_this(self):
         from PyQt4.Qt import QWhatsThis, QDialog
         QWhatsThis.enterWhatsThisMode()

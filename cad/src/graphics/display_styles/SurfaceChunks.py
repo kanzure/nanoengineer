@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 SurfaceChunks.py -- define a new whole-chunk display mode,
 which uses Oleksandr's new code to display a chunk as a surface in the chunk's color.
@@ -35,9 +35,9 @@ from utilities.prefs_constants import atomHighlightColor_prefs_key
 
 _psurface_import_worked = False
 
-#Flag that suppresses the console print that reports failed psurface import. 
-#The psurface feature (surface chunks display) is not a part of NE1 anymore 
-#by default (as of before 2008-02-15) 
+#Flag that suppresses the console print that reports failed psurface import.
+#The psurface feature (surface chunks display) is not a part of NE1 anymore
+#by default (as of before 2008-02-15)
 _VERBOSE_IMPORT_ERROR = False
 
 _psurface_import_status_has_been_reported = False
@@ -66,7 +66,7 @@ except ImportError:
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
-class Interval: 
+class Interval:
 
     def __init__(self, *args):
         """interval constructor"""
@@ -85,43 +85,43 @@ class Interval:
 
     def Empty(self):
         """clear interval"""
-        self.min = 1000000   
-        self.max = -1000000   
+        self.min = 1000000
+        self.max = -1000000
 
     def Center(self):
         """calculate center"""
-        return (self.max + self.min) / 2   
+        return (self.max + self.min) / 2
 
     def Extent(self):
         """calculate extent"""
-        return (self.max - self.min) / 2   
+        return (self.max - self.min) / 2
 
     def Point(self, u):
         """calculate point"""
-        return (1 - u) * self.min + u * self.max  
+        return (1 - u) * self.min + u * self.max
 
     def Normalize(self, u):
         """normalization"""
-        return (u - self.min) / (self.max - self.min)  
+        return (u - self.min) / (self.max - self.min)
 
     def Contains(self, p):
         """interval contains point"""
-        return p >= self.min and p <= self.max  
+        return p >= self.min and p <= self.max
 
     def Enclose(self, p):
         """adjust interval"""
-        if (p < self.min): 
+        if (p < self.min):
             self.min = p;
-        if (p > self.max): 
+        if (p > self.max):
             self.max = p;
 
-class Box: 
+class Box:
 
     def __init__(self, *args):
         """box constructor"""
         self.x = Interval()
-        self.y = Interval()       
-        self.z = Interval()      
+        self.y = Interval()
+        self.z = Interval()
         if len(args) == 0:
             pass
         if len(args) == 3:
@@ -137,9 +137,9 @@ class Box:
 
     def Empty(self):
         """clear box"""
-        self.x.Empty()   
-        self.y.Empty()  
-        self.z.Empty()          
+        self.x.Empty()
+        self.y.Empty()
+        self.z.Empty()
 
     def Center(self):
         """calculate center"""
@@ -159,7 +159,7 @@ class Box:
 
     def Contains(self, p):
         """box contains point"""
-        return self.x.Contains(p.x) and self.y.Contains(p.y) and self.z.Contains(p.z)  
+        return self.x.Contains(p.x) and self.y.Contains(p.y) and self.z.Contains(p.z)
 
     def Enclose(self, p):
         """adjust box"""
@@ -185,7 +185,7 @@ class Triple:
                 self.x = args[0][0]
                 self.y = args[0][1]
                 self.z = args[0][2]
-            else:    
+            else:
                 self.x = args[0]
                 self.y = args[0]
                 self.z = args[0]
@@ -194,7 +194,7 @@ class Triple:
             self.y = args[1][1] - args[0][1]
             self.z = args[1][2] - args[0][2]
         if len(args) == 3:
-            self.x, self.y, self.z = args 
+            self.x, self.y, self.z = args
 
     def __str__(self):
         """returns the triple in a textual form"""
@@ -206,7 +206,7 @@ class Triple:
 
     def Len2(self):
         """square of vector length"""
-        return self.x * self.x + self.y * self.y + self.z * self.z    
+        return self.x * self.x + self.y * self.y + self.z * self.z
 
     def Len(self):
         """vector length"""
@@ -218,7 +218,7 @@ class Triple:
         self.x /= length
         self.y /= length
         self.z /= length
-        return self    
+        return self
 
     def Greatest(self):
         """calculate greatest value"""
@@ -227,11 +227,11 @@ class Triple:
                 return self.x
             else:
                 return self.z
-        else:    
+        else:
             if self.y > self.z:
                 return self.y
             else:
-                return self.z  
+                return self.z
 
     def __add__( self, rhs ):
         """operator a + b"""
@@ -244,7 +244,7 @@ class Triple:
         t.x += self.x
         t.y += self.y
         t.z += self.z
-        return t    
+        return t
 
     def __sub__( self, rhs ):
         """operator a - b"""
@@ -257,12 +257,12 @@ class Triple:
         t.x -= self.x
         t.y -= self.y
         t.z -= self.z
-        return t    
+        return t
 
     def __mul__( self, rhs ):
         """operator a * b"""
         t = Triple(rhs)
-        return Triple(self.x * t.x, self.y * t.y, self.z * t.z)    
+        return Triple(self.x * t.x, self.y * t.y, self.z * t.z)
 
     def __rmul__( self, lhs ):
         """operator b * a"""
@@ -270,7 +270,7 @@ class Triple:
         t.x *= self.x
         t.y *= self.y
         t.z *= self.z
-        return t    
+        return t
 
     def __div__( self, rhs ):
         """operator a / b"""
@@ -283,18 +283,18 @@ class Triple:
         t.x /= self.x
         t.y /= self.y
         t.z /= self.z
-        return t    
+        return t
 
     def __mod__( self, rhs ):
         """operator a % b (scalar product)"""
         r = self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
-        return r    
+        return r
 
     def __neg__( self):
         """operator -a"""
         return Triple(-self.x, -self.y, -self.z)
 
-class Surface: 
+class Surface:
 
     def __init__(self):
         """surface constructor"""
@@ -308,7 +308,7 @@ class Surface:
            equal to zero on the boundary,
            negative outside"""
         om = 0.0
-        #  calculate omega for all moleculas 
+        #  calculate omega for all moleculas
         for i in range(len(self.spheres)):
             t = p - self.spheres[i]
             r = self.radiuses[i]
@@ -316,9 +316,9 @@ class Surface:
             if i == 0:
                 om = s
             else:
-                if om < s: 
+                if om < s:
                     om = s
-        return om     
+        return om
 
     def SurfaceTriangles(self, trias):
         """make projection all points onto molecula"""
@@ -337,8 +337,8 @@ class Surface:
             om = self.Predicate(pt)
             if om < -2.0 : om = -2.0
             pn = pt - 0.5 * om * nt
-            self.points[j] = (pn.x, pn.y, pn.z) 
-        return (self.trias, self.points, self.colors)        
+            self.points[j] = (pn.x, pn.y, pn.z)
+        return (self.trias, self.points, self.colors)
 
     def Duplicate(self, trias):
         """delete duplicate points"""
@@ -356,9 +356,9 @@ class Surface:
             points.append(Triple(t[0][0],t[0][1],t[0][2]))
             points.append(Triple(t[1][0],t[1][1],t[1][2]))
             points.append(Triple(t[2][0],t[2][1],t[2][2]))
-        nb = 17 
+        nb = 17
         #use bucket for increase speed
-        bucket = Bucket(nb,points)    
+        bucket = Bucket(nb,points)
         for i in range(n3):
             p = points[i]
             v = bucket.Array(p)
@@ -401,7 +401,7 @@ class Surface:
         self.normals = []
         for n in normals:
             self.normals.append((n[0],n[1],n[2]))
-        return self.normals    
+        return self.normals
 
     def CalculateTorus(self, a, b, u, v):
         """calculate point on torus"""
@@ -438,10 +438,10 @@ class Surface:
 
                 trias.append(t1)
                 trias.append(t2)
-        return trias	
+        return trias
 
 
-class Bucket: 
+class Bucket:
 
     def __init__(self, n, points):
         """bucket constructor"""
@@ -451,7 +451,7 @@ class Bucket:
         self.a = []
         for i in range(self.nnn):
             self.a.append([])
-        count = 0    
+        count = 0
         for p in points:
             self.a[self.Index(p)].append(count)
             count += 1
@@ -498,7 +498,7 @@ class SurfaceChunks(ChunkDisplayMode):
         that info should be computed by our compute_memo method and will be passed as the memo argument
         (whose format and content is whatever self.compute_memo returns). That info must not depend on
         the highlighted variable or on whether the chunk is selected.
-	"""
+        """
         if not chunk.atoms:
             return
         pos, radius, color, tm, nm = memo
@@ -537,8 +537,8 @@ class SurfaceChunks(ChunkDisplayMode):
         """
         Draws the chunk style that may depend on a current view.
         piotr 080320
-        """        
-        return    
+        """
+        return
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
         compute that info and return it.
@@ -566,7 +566,7 @@ class SurfaceChunks(ChunkDisplayMode):
         env.history.h_update() # Update history widget with last message. # Mark 060623.
 
         _report_psurface_import_status() # prints only once per session
-        
+
         if _psurface_import_worked: # cpp surface stuff
             center = chunk.center
             bcenter = chunk.abs_to_base(center)
@@ -578,7 +578,7 @@ class SurfaceChunks(ChunkDisplayMode):
             coltypes = []
             for a in chunk.atoms.values():
                 col = a.drawing_color()
-                ii = 0 
+                ii = 0
                 for ic in range(len(coltypes)):
                     ct = coltypes[ic]
                     if ct == col:
@@ -609,7 +609,7 @@ class SurfaceChunks(ChunkDisplayMode):
             color = chunk.drawing_color()
             if color is None:
                 color = V(0.5,0.5,0.5)
-            #  create surface 
+            #  create surface
             level = 3
             if rad > 6 : level = 4
             ps = psurface
@@ -648,7 +648,7 @@ class SurfaceChunks(ChunkDisplayMode):
             color = chunk.drawing_color()
             if color is None:
                 color = V(0.5,0.5,0.5)
-            #  create surface 
+            #  create surface
             level = 3
             if rad > 6 : level = 4
             ts = getSphereTriangles(level)

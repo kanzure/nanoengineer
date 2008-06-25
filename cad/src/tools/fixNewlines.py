@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 fixNewlines.py - standardize newlines in each input file, nondestructively
 (by producing differently named output files). Also print details of
@@ -26,7 +26,7 @@ def process(pat, found):
     n = found.get(pat,0)
     found[pat] = n+1
     pass
-	
+
 def printres(found):
     items_to_sort = []
     for pat, count in found.items():
@@ -58,8 +58,8 @@ def dofile1(file):
     if pat:
         process(pat,found)
     printres(found)
-  
-  
+
+
 def dofile2(file, fileoutname, bakname = None, fileinname = None):
     """
     turn any kind of newline (incl \r\n) into \n,
@@ -86,9 +86,9 @@ def dofile2(file, fileoutname, bakname = None, fileinname = None):
             fixed = 1
         elif char1 == "\n":
             if char0 != '\r':
-		output += char1 # lone \n
+                output += char1 # lone \n
             else:
-		fixed = 1 # \n after \r; skip it, thus output differs from file here
+                fixed = 1 # \n after \r; skip it, thus output differs from file here
         else:
             output += char1 # most chars get included unchanged
     # (it doesn't matter whether the last char in the file was \r or not)
@@ -142,9 +142,9 @@ def do_filename(filename):
 ##            sys.exc_info()[0], sys.exc_info()[1]
 ##    sys.stdout.flush()
 ##    pass
-    
+
 if __name__ == "__main__":
-    
+
     filenames = sys.argv[1:]
 
     program = os.path.basename(sys.argv[0])
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     for filename in filenames:
         do_filename(filename)
-        
+
     pass
 
 # end

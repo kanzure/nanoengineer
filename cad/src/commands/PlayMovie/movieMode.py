@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 movieMode.py -- movie player mode.
 
@@ -15,7 +15,7 @@ Adding various comments and revising docstrings; perhaps not signing every such 
 (Most movie code revisions will be in other files, and most revisions here will
  probably just be to adapt this file to the external changes.)
 
-ninad20070507: moved Movie Player dashboard to Movie Property Manager. 
+ninad20070507: moved Movie Player dashboard to Movie Property Manager.
 """
 
 import os
@@ -75,7 +75,7 @@ class MovieRewindDialog(QDialog):
 ###doc
 
 class movieMode(basicMode):
-    """ 
+    """
     This class is used to play movie files.
     Users know it as "Movie mode".
     When entered, it might start playing a recently-made movie,
@@ -122,20 +122,20 @@ class movieMode(basicMode):
             #@bug BUG: following is a workaround for bug 2494
             changes.keep_forever(self.propMgr)
 
-        #@NOTE: self.propMgr.show() is called later in this (init_gui) method. 
+        #@NOTE: self.propMgr.show() is called later in this (init_gui) method.
 
         self.updateCommandToolbar(bool_entering = True)
 
         self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
 
         # Disable some action items in the main window.
-        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k 
+        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k
         #  and suggest for some others (especially "simulator") that they
         #  auto-exit the mode rather than be disabled,
         #  but I won't revise these for now.]
         self.w.disable_QActions_for_movieMode(True)
             #  Actions marked #k are now in disable_QActions_for_movieMode(). mark 060314)
-        
+
         # MP dashboard initialization.
         self.enableMovieControls(False)
             #bruce 050428 precaution (has no noticable effect but seems safer in theory)
@@ -148,7 +148,7 @@ class movieMode(basicMode):
             frameno = movie.currentFrame
         else:
             frameno = 0 #bruce 050426 guessed value
-            
+
         self.propMgr.frameNumberSpinBox.setValue(frameno) # bruce 050428 question: does this call our slot method?? ###k
         self.propMgr.moviePlayActiveAction.setVisible(0)
         self.propMgr.moviePlayRevActiveAction.setVisible(0)
@@ -162,8 +162,8 @@ class movieMode(basicMode):
         else:
             self.enableMovieControls(False)
 
-        #Need to do this after calling movie._setUp (propMgr displays movie 
-        #information in its msg groupbox.  All this will be cleaned up when we 
+        #Need to do this after calling movie._setUp (propMgr displays movie
+        #information in its msg groupbox.  All this will be cleaned up when we
         #do moviemode code cleanup.
 
         self.propMgr.show()
@@ -178,11 +178,11 @@ class movieMode(basicMode):
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
         self.connect_or_disconnect_signals(True)
 
-    def connect_or_disconnect_signals(self, connect): 
+    def connect_or_disconnect_signals(self, connect):
         """
         Connect or disconnect widget signals sent to their slot methods.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if connect:
@@ -190,32 +190,32 @@ class movieMode(basicMode):
         else:
             change_connect = self.w.disconnect
 
-        change_connect(self.exitMovieAction, 
-                       SIGNAL("triggered()"), 
+        change_connect(self.exitMovieAction,
+                       SIGNAL("triggered()"),
                        self.w.toolsDone)
-        
+
         self.propMgr.connect_or_disconnect_signals(connect)
 
     def getFlyoutActionList(self): #Ninad 20070618
-        """ 
-        Returns custom actionlist that will be used in a specific mode 
-	or editing a feature etc Example: while in movie mode, 
-	the _createFlyoutToolBar method calls
-	this.
+        """
+        Returns custom actionlist that will be used in a specific mode
+        or editing a feature etc Example: while in movie mode,
+        the _createFlyoutToolBar method calls
+        this.
         """
 
-        #'allActionsList' returns all actions in the flyout toolbar 
+        #'allActionsList' returns all actions in the flyout toolbar
         #including the subcontrolArea actions
         allActionsList = []
 
-        #Action List for  subcontrol Area buttons. 
-        #In this mode there is really no subcontrol area. 
-        #We will treat subcontrol area same as 'command area' 
-        #(subcontrol area buttons will have an empty list as their command area 
+        #Action List for  subcontrol Area buttons.
+        #In this mode there is really no subcontrol area.
+        #We will treat subcontrol area same as 'command area'
+        #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
         #subcontrol area.
 
-        subControlAreaActionList =[] 
+        subControlAreaActionList =[]
 
         self.exitMovieAction = QWidgetAction(self.w)
         self.exitMovieAction.setText("Exit Movie")
@@ -228,17 +228,17 @@ class movieMode(basicMode):
 
         separator = QAction(self.w)
         separator.setSeparator(True)
-        subControlAreaActionList.append(separator) 
+        subControlAreaActionList.append(separator)
 
         subControlAreaActionList.append(self.w.simPlotToolAction)
 
         allActionsList.extend(subControlAreaActionList)
 
         #Empty actionlist for the 'Command Area'
-        commandActionLists = [] 
+        commandActionLists = []
 
-        #Append empty 'lists' in 'commandActionLists equal to the 
-        #number of actions in subControlArea 
+        #Append empty 'lists' in 'commandActionLists equal to the
+        #number of actions in subControlArea
         for i in range(len(subControlAreaActionList)):
             lst = []
             commandActionLists.append(lst)
@@ -249,15 +249,15 @@ class movieMode(basicMode):
 
     def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
         """
-	Update the command toolbar.
-	"""	
-        # object that needs its own flyout toolbar. In this case it is just 
-        #the mode itself. 
+        Update the command toolbar.
+        """
+        # object that needs its own flyout toolbar. In this case it is just
+        #the mode itself.
 
         action = self.w.simMoviePlayerAction
-        obj = self  	    	    
+        obj = self
         self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj, 
+                                                   obj,
                                                    entering = bool_entering)
         return
 

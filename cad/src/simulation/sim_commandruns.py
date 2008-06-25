@@ -102,12 +102,12 @@ class simSetup_CommandRun(CommandRun):
             except:
                 # this might happen if earlier exceptions prevented us storing one, so nevermind it for now
                 duration = 0.0
-            if duration >= 10.0: 
+            if duration >= 10.0:
                 spf = "%.2f" % (duration / movie.totalFramesRequested)
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
-                env.history.message(self.cmdname + ": " + msg) 
+                env.history.message(self.cmdname + ": " + msg)
             msg = "Movie written to [" + movie.filename + "]." \
                 "<br>To play the movie, select <b>Simulation > Play Movie</b>"
             env.history.message(self.cmdname + ": " + msg)
@@ -146,7 +146,7 @@ class simSetup_CommandRun(CommandRun):
         r = writemovie(self.part, movie, print_sim_warnings = True, cmdname = self.cmdname)
             # not passing mtype means "run dynamic sim (not minimize), make movie"
             ###@@@ bruce 050324 comment: maybe should do following in that function too
-        if not r: 
+        if not r:
             # Movie file created. Initialize. ###@@@ bruce 050325 comment: following mods private attrs, needs cleanup.
             movie.IsValid = True # Movie is valid.###@@@ bruce 050325 Q: what exactly does this (or should this) mean?
                 ###@@@ bruce 050404: need to make sure this is a new obj-- if not always and this is not init False, will cause bugs
@@ -224,17 +224,17 @@ class Minimize_CommandRun(CommandRun):
             self.word_minimize = "adjust"
             self.word_minimization = "adjustment"
             self.word_minimizing = "adjusting"
-            
+
             anchor_all_nonmoving_atoms = False
             pass
-        
+
         else:
 
             assert cmd_type.startswith('Minimize')
             self.word_minimize = "minimize"
             self.word_minimization = "minimization"
             self.word_minimizing = "minimizing"
-            
+
             anchor_all_nonmoving_atoms = True
                 #bruce 080513 revision to implement nfr bug 2848 item 2
                 # (note: we might decide to add a checkbox for this into the UI,
@@ -243,7 +243,7 @@ class Minimize_CommandRun(CommandRun):
 
         self.word_Minimize = _capitalize_first_word( self.word_minimize)
         self.word_Minimizing = _capitalize_first_word( self.word_minimizing)
-        
+
         if cmd_subclass_code == 'All':
             cmdtype = _MIN_ALL
             cmdname = "%s All" % self.word_Minimize
@@ -273,7 +273,7 @@ class Minimize_CommandRun(CommandRun):
         hasPAM_junk = part_contains_pam_atoms( self.part,
                             kill_leftover_sim_feedback_atoms = True )
         self.part.assy.update_parts() ###k is this always safe or good?
-        
+
         # Make sure some chunks are in the part.
         # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.
@@ -418,7 +418,7 @@ class Minimize_CommandRun(CommandRun):
                     msg2 = "holding %d atom(s) fixed around %s" % (nfixed, them_or_it)
                 info += ", " + fix_plurals(msg2 )
             info += ")"
-            env.history.message( info) 
+            env.history.message( info)
             self.doMinimize(mtype = 1, simaspect = simaspect)
                 # mtype = 1 means single-frame XYZ file.
                 # [this also sticks results back into the part]
@@ -632,14 +632,14 @@ class Minimize_CommandRun(CommandRun):
             ###e bruce 050428 comment: if self.assy.current_movie exists, should do something like close or destroy it... need to review
             self.assy.current_movie = movie
             # If cueMovie() returns a non-zero value, something went wrong loading the movie.
-            if movie.cueMovie(): 
+            if movie.cueMovie():
                 return
             movie._play()
             movie._close()
         return
     pass # end of class Minimize_CommandRun
 
-# ==    
+# ==
 
 def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
     win = atomlist[0].molecule.part.assy.w # kluge!
@@ -652,7 +652,7 @@ def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
 
 # == helper code for Minimize Selection [by bruce, circa 050406] [also used for Minimize All, probably as of 050419, as guessed 051115]
 
-def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21. 
+def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
     """
     Adjusts I{singlet} using one of two methods based on I{minimize}:
 
@@ -660,11 +660,11 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
     (default). Singlet positions are much better after this, but
     they are not in their optimal location.
 
-    2. Hydrogenate the singlet, then call the simulator via the 
+    2. Hydrogenate the singlet, then call the simulator via the
     L{LocalMinimize_Function} to adjust (minimize) the hydrogen atom, then
     tranmute the hydrogen back to a singlet. Singlet positions are best
     after using this method, but it has one major drawback -- it
-    redraws while minimizing. This is a minor problem when breaking 
+    redraws while minimizing. This is a minor problem when breaking
     strands, but is intolerable in the DNA duplex generator (which adjusts
     open bond singlets in its postProcess method.
 
@@ -672,13 +672,13 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
     @type  singlet: L{Atom}
 
     @param minimize: If True, use the minimizer to adjust the singlet
-		     (i.e. method #2).
+                     (i.e. method #2).
     @type  minimize: bool
 
     @note: Real atoms are not adjusted.
 
     @see: L{Hydrogenate} for details about how we are using it to
-	  reposition singlets (via method 1 mentioned above).
+          reposition singlets (via method 1 mentioned above).
     """
     if not singlet.is_singlet():
         return
@@ -691,10 +691,10 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
         # The problem is that this redraws while running. Don't want that!
         # Talk to Bruce and Eric M. about it. Mark 2007-10-21.
         LocalMinimize_function( [singlet], nlayers = 0 )
-    # Transmute() will not transmute singlets. Since <singlet> is a Hydrogen, 
+    # Transmute() will not transmute singlets. Since <singlet> is a Hydrogen,
     # and not a singlet, this will work. -mark 2007-10-31 (Boo!)
     from model.elements import Singlet
-    singlet.Transmute(Singlet) 
+    singlet.Transmute(Singlet)
     return
 
 # end

@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 UserPrefs.py
 
@@ -210,8 +210,8 @@ modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', '
 # List of Default Modes and Startup Modes.  Mark 050921.
 # [bruce 060403 guesses these need to correspond to certain combobox indices.]
 
-#ninad070430, 070501 For A9 , startup mode = default mode = SELECTMOLS mode 
-#but not changing the values in the list per Bruc's suggestions. 
+#ninad070430, 070501 For A9 , startup mode = default mode = SELECTMOLS mode
+#but not changing the values in the list per Bruc's suggestions.
 #instead, default_commandName and startup_commandName will return 'SELMOLS'
 #Although the following lists contain "illegal values",
 #there is code that cares about their indices in the lists.
@@ -249,8 +249,8 @@ def default_commandName(): #bruce 060403
 
 def startup_commandName(): #bruce 060403
     """
-    Return the commandName string (literal or symbolic, e.g. '$DEFAULT_MODE') 
-    of the user's startup mode. External code should use this, rather than 
+    Return the commandName string (literal or symbolic, e.g. '$DEFAULT_MODE')
+    of the user's startup mode. External code should use this, rather than
     directly using env.prefs[ startupMode_prefs_key ].
     """
     #ninad 070501 For A9 , startup mode = default mode = SELECTMOLS mode
@@ -285,7 +285,7 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     if not filename: # Cancelled.
         return None
 
-    # Save filename in prefs db.    
+    # Save filename in prefs db.
     prefs = preferences.prefs_context()
     prefs[prefs_key] = os.path.normpath(str(filename))
 
@@ -294,7 +294,7 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
 def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 for Mac A8
     """
     Present user with the Qt file chooser to select an existing directory.
-    If they do that, and if prefs_key is not null, save its full pathname in 
+    If they do that, and if prefs_key is not null, save its full pathname in
     env.prefs[prefs_key].
 
     @param prefs_key: the pref_key to save the pathname.
@@ -317,7 +317,7 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     if not filename: # Cancelled.
         return None
 
-    # Save filename in prefs db.    
+    # Save filename in prefs db.
     prefs = preferences.prefs_context()
     prefs[prefs_key] = str(filename)
 
@@ -418,11 +418,11 @@ def validate_gamess_path(parent, gmspath):
     """
     Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
     if they want to use the File Chooser to select the GAMESS executable.
-    This function does not check whether the GAMESS path is actually GAMESS 
+    This function does not check whether the GAMESS path is actually GAMESS
     or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS
     for Windows).
 
-    @return:  "gmspath" if it is validated or if the user does not want to 
+    @return:  "gmspath" if it is validated or if the user does not want to
               change it for any reason, or
               "new_gmspath" if gmspath is invalid and the user selected a new
               GAMESS executable. Return value might be "".
@@ -450,7 +450,7 @@ def validate_gamess_path(parent, gmspath):
 
 def get_pref_or_optval(key, val, optval):
     """
-    Return <key>'s value. If <val> is equal to <key>'s value, return <optval> 
+    Return <key>'s value. If <val> is equal to <key>'s value, return <optval>
     instead.
     """
     if env.prefs[key] == val:
@@ -460,7 +460,7 @@ def get_pref_or_optval(key, val, optval):
 
 class UserPrefs(QDialog, Ui_UserPrefsDialog):
     """
-    The User Preferences dialog used for accessing and changing user 
+    The User Preferences dialog used for accessing and changing user
     preferences.
     """
 
@@ -473,12 +473,12 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.w = assy.w
         self.assy = assy
 
-        #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin, 
-        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
-        #This is for the rattlesnake spring backlog item 
+        #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin,
+        #ESP Image plugin (nanohive) path widgets.(under plugins tab)
+        #This is for the rattlesnake spring backlog item
         #"disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)"
         #See also: Ui_SimulationMenu.py where the coresponding commands are hidden
-        #or shown based on a debug pref. 
+        #or shown based on a debug pref.
         self._hideOrShowTheseWidgetsInUserPreferenceDialog()
 
         self.resetMouseSpeedDuringRotation_btn.setIcon(
@@ -487,7 +487,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             geticon('ui/dialogs/Reset.png'))
         self.whatsThisToolButton.setIcon(
             geticon("ui/actions/Help/WhatsThis.png"))
-        #this is for solid background color frame. It is important to 
+        #this is for solid background color frame. It is important to
         #setAutofillBackground to True in order for it to work.
         #ideally should be done in UserPrefsDialog.py -- ninad070430
         self.bg1_color_frame.setAutoFillBackground(True)
@@ -511,7 +511,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             if isinstance(obj, QAbstractButton):
                 self.default_projection_btngrp.addButton(obj)
                 self.default_projection_btngrp.setId(obj, objId)
-                objId +=1       
+                objId +=1
 
         if env.prefs[defaultProjection_prefs_key] == 0:
             self.perspective_radioButton.setChecked(True)
@@ -542,7 +542,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.high_order_bond_display_btngrp.setExclusive(True)
 
         objId = 0
-        for obj in [self.multCyl_radioButton, self.vanes_radioButton, 
+        for obj in [self.multCyl_radioButton, self.vanes_radioButton,
                     self.ribbons_radioButton]:
             self.high_order_bond_display_btngrp.addButton(obj)
             self.high_order_bond_display_btngrp.setId(obj, objId)
@@ -597,19 +597,19 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.strandThreePrimeArrowheadsCustomColorPushButton,
                      SIGNAL("clicked()"),
                      self.change_dnaStrandThreePrimeArrowheadCustomColor)
-        
+
         self.connect(self.strandFivePrimeArrowheadsCustomColorPushButton,
                      SIGNAL("clicked()"),
                      self.change_dnaStrandFivePrimeArrowheadCustomColor)
-        
+
         self.connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
                      SIGNAL("toggled(bool)"),
                      self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets)
-        
+
         self.connect(self.strandFivePrimeArrowheadsCustomColorCheckBox,
                      SIGNAL("toggled(bool)"),
                      self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets)
-        
+
         # DNA Minor Groove Error Indicator signal/slot connections.
         self.connect(self.dnaMinGrooveAngleSpinBox,
                      SIGNAL("valueChanged(int)"),
@@ -646,8 +646,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.cutoverrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutoverrms)
         self.connect(self.default_display_btngrp,SIGNAL("buttonClicked(int)"),
                      self.set_default_display_mode)
-        #ninad070430 : For A9, there is only one default and startup mode 
-        #(which is Select Chunbks mode) So disabling the following. 
+        #ninad070430 : For A9, there is only one default and startup mode
+        #(which is Select Chunbks mode) So disabling the following.
         ##self.connect(self.default_mode_combox,SIGNAL("activated(int)"),
                 ##self.change_default_mode)
         ##self.connect(self.startup_mode_combox,
@@ -737,9 +737,9 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.cutovermax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
         self.cutovermax_linedit.setValidator(self.cutovermax_validator)
 
-        #ninad20070509 setup general page. The items on the general page don't 
-        #work properly if the current index of UserPrefs dialog is set as 0 
-        #(which is 'General' page) . The following call makes sure that 
+        #ninad20070509 setup general page. The items on the general page don't
+        #work properly if the current index of UserPrefs dialog is set as 0
+        #(which is 'General' page) . The following call makes sure that
         #this won't happen.
 
         self._setup_general_page()
@@ -800,16 +800,16 @@ behavior of <b>Adjust All</b> and <b>Adjust Selection</b>.</p>""")
 
         # Sponsor Logos Download Permission
         self.sponsorLogosGroupBox.setWhatsThis("""<b>Sponsor Logos Download Permission</b>
-                                               <p>This group of buttons sets the permission for downloading sponsor 
+                                               <p>This group of buttons sets the permission for downloading sponsor
 logos.</p>""")
         self.logoAlwaysAskRadioBtn.setWhatsThis("""<b>Always ask before downloading</b>
-                                                <p>When sponsor logos have been updated, ask permission to download 
+                                                <p>When sponsor logos have been updated, ask permission to download
 them.</p>""")
         self.logoNeverAskRadioBtn.setWhatsThis("""<b>Never ask before downloading</b>
                                                <p>When sponsor logos have been updated, download them without asking
 permission to do so.</p>""")
         self.logoNeverDownLoadRadioBtn.setWhatsThis("""<b>Never download</b>
-                                                    <p>Don't ask permission to download sponsor logos and don't download 
+                                                    <p>Don't ask permission to download sponsor logos and don't download
 them.</p>""")
 
         self.animate_views_checkbox.setWhatsThis("""<p><b>Animate Between Views</b></p><p>Enables/disables animation
@@ -988,7 +988,7 @@ restored when the user undoes a structural change.</p>
             # (Both for the lineedit whose signal we're catching, and the one whose signal catching is initially nim.)
             # Certainly that makes it a good idea to catch it, though it'd be better to somehow "capture" it
             # so it would not close the dialog.
-        self.any_caption_text_changed()        
+        self.any_caption_text_changed()
 
     # caption_suffix slot methods can be equivalent to the ones for caption_prefix
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
@@ -1003,7 +1003,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.qutemol_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_qutemol)
-        self.connect( self.qutemol_path_lineedit, 
+        self.connect( self.qutemol_path_lineedit,
                       SIGNAL("textEdited (const QString&) "), \
                       self.set_qutemol_path)
         self.connect(self.qutemol_choose_btn,
@@ -1014,7 +1014,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.nanohive_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_nanohive)
-        self.connect( self.nanohive_path_lineedit, 
+        self.connect( self.nanohive_path_lineedit,
                       SIGNAL("textEdited (const QString&) "), \
                       self.set_nanohive_path)
         self.connect(self.nanohive_choose_btn,
@@ -1025,7 +1025,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.povray_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_povray)
-        self.connect( self.povray_path_lineedit, 
+        self.connect( self.povray_path_lineedit,
                       SIGNAL("textEdited (const QString&) "), \
                       self.set_povray_path)
         self.connect(self.povray_choose_btn,
@@ -1036,13 +1036,13 @@ restored when the user undoes a structural change.</p>
         self.connect(self.povdir_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_povdir)
-        self.connect( self.povdir_lineedit, 
+        self.connect( self.povdir_lineedit,
                       SIGNAL("textEdited (const QString&) "), \
                       self.povdir_lineedit_textChanged )
         self.connect(self.povdir_choose_btn,
                      SIGNAL("clicked()"),
                      self.set_povdir)
-        self.connect( self.povdir_lineedit, 
+        self.connect( self.povdir_lineedit,
                       SIGNAL("returnPressed()"), \
                       self.povdir_lineedit_returnPressed )
 
@@ -1050,7 +1050,7 @@ restored when the user undoes a structural change.</p>
         self.connect(self.megapov_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_megapov)
-        self.connect( self.megapov_path_lineedit, 
+        self.connect( self.megapov_path_lineedit,
                       SIGNAL("textEdited (const QString&) "), \
                       self.set_megapov_path )
         self.connect(self.megapov_choose_btn,
@@ -1103,7 +1103,7 @@ restored when the user undoes a structural change.</p>
 
     def showDialog(self, pagename = 'General'):
         """
-        Display the Preferences dialog with page I{pagename}. 
+        Display the Preferences dialog with page I{pagename}.
 
         @param pagename: name of the Preferences page. Default is "General".
         @type  pagename: text
@@ -1146,23 +1146,23 @@ restored when the user undoes a structural change.</p>
     def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
         """
         2007-11-16:
-        THIS METHOD PERMANENTLY HIDES SOME WIDGETS in UserPrefs tab 
-        #(e.g. GAMESS plugin, 
-        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
-        #This is for the rattlesnake spring backlog item 
+        THIS METHOD PERMANENTLY HIDES SOME WIDGETS in UserPrefs tab
+        #(e.g. GAMESS plugin,
+        #ESP Image plugin (nanohive) path widgets.(under plugins tab)
+        #This is for the rattlesnake spring backlog item
         #'disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)'
 
         """
-        widgetList = [self.nanohive_lbl, 
-                      self.nanohive_checkbox, 
+        widgetList = [self.nanohive_lbl,
+                      self.nanohive_checkbox,
                       self.nanohive_path_lineedit,
                       self.nanohive_choose_btn,
                       self.gamess_checkbox,
                       self.gamess_lbl,
                       self.gamess_path_lineedit,
-                      self.gamess_choose_btn]      
+                      self.gamess_choose_btn]
 
-        for widget in widgetList:    
+        for widget in widgetList:
             if debug_pref("Show GAMESS and ESP Image UI options",
                           Choice_boolean_False,
                           prefs_key = True):
@@ -1228,11 +1228,11 @@ restored when the user undoes a structural change.</p>
         startup_display_style = env.prefs[startupGlobalDisplayStyle_prefs_key]
         if startup_display_style == 2:
             self.cpk_rbtn.setChecked(True)
-        elif startup_display_style == 4: 
+        elif startup_display_style == 4:
             self.ballNstick_rbtn.setChecked(True)
-        elif startup_display_style == 3: 
+        elif startup_display_style == 3:
             self.lines_rbtn.setChecked(True)
-        elif startup_display_style == 5: 
+        elif startup_display_style == 5:
             self.tubes_rbtn.setChecked(True)
 
             # bruce comments:
@@ -1259,7 +1259,7 @@ restored when the user undoes a structural change.</p>
             if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
                 self.displayOriginAsSmallAxis_rbtn.setChecked(True)
             else:
-                self.displayOriginAsCrossWires_rbtn.setChecked(True) 
+                self.displayOriginAsCrossWires_rbtn.setChecked(True)
 
         # Setup Background Color widgets.
         if self.glpane.backgroundGradient:
@@ -1335,7 +1335,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.update_btngrp,
             Adjust_watchRealtimeMinimization_prefs_key )
-        #Preference for enabling/disabling electrostatics during Adjustment 
+        #Preference for enabling/disabling electrostatics during Adjustment
         #for the DNA reduced model. Ninad 20070809
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringAdjust_checkBox,
@@ -1346,7 +1346,7 @@ restored when the user undoes a structural change.</p>
             env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
 
         # Convergence Criteria groupbox
-        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
+        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]
         self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
         self.endrms_linedit.setText(str(self.endrms))
 
@@ -1386,7 +1386,7 @@ restored when the user undoes a structural change.</p>
         self.disconnect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.disconnect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
 
-        # self.lights[light_num][0] contains 'color' attribute.  
+        # self.lights[light_num][0] contains 'color' attribute.
         # We already have it (self.light_color) from the prefs key (above).
         a = self.lights[light_num][1] # ambient intensity
         d = self.lights[light_num][2] # diffuse intensity
@@ -1515,13 +1515,13 @@ restored when the user undoes a structural change.</p>
         # but make sure to only have one such subs (for one widget's bgcolor) at a time.
         # The colors in these frames will now automatically update whenever the prefs value changes.
         ##e (should modify this code to share its prefskey list with the one for restore_defaults)
-        connect_colorpref_to_colorframe( 
+        connect_colorpref_to_colorframe(
             bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
-        connect_colorpref_to_colorframe( 
+        connect_colorpref_to_colorframe(
             bondStretchColor_prefs_key, self.bond_stretch_color_frame)
-        connect_colorpref_to_colorframe( 
+        connect_colorpref_to_colorframe(
             bondVaneColor_prefs_key, self.bond_vane_color_frame)
-        connect_colorpref_to_colorframe( 
+        connect_colorpref_to_colorframe(
             diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
         connect_checkbox_with_boolean_pref(
             self.showBondStretchIndicators_checkBox,
@@ -1576,10 +1576,10 @@ restored when the user undoes a structural change.</p>
         self.dnaRiseDoubleSpinBox.setValue(
             env.prefs[bdnaRise_prefs_key])
 
-        connect_colorpref_to_colorframe( 
+        connect_colorpref_to_colorframe(
             dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
 
-        # DNA strand arrowheads preferences 
+        # DNA strand arrowheads preferences
         connect_checkbox_with_boolean_pref(
             self.arrowsOnBackBones_checkBox,
             arrowsOnBackBones_prefs_key)
@@ -1591,27 +1591,27 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref(
             self.arrowsOnFivePrimeEnds_checkBox,
             arrowsOnFivePrimeEnds_prefs_key)
-        
+
         connect_checkbox_with_boolean_pref(
             self.strandThreePrimeArrowheadsCustomColorCheckBox,
             useCustomColorForThreePrimeArrowheads_prefs_key)
-        
+
         connect_checkbox_with_boolean_pref(
             self.strandFivePrimeArrowheadsCustomColorCheckBox,
             useCustomColorForFivePrimeArrowheads_prefs_key)
-        
-        connect_colorpref_to_colorframe( 
-            dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, 
+
+        connect_colorpref_to_colorframe(
+            dnaStrandThreePrimeArrowheadsCustomColor_prefs_key,
             self.strandThreePrimeArrowheadsCustomColorFrame)
-        
-        connect_colorpref_to_colorframe( 
-            dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, 
+
+        connect_colorpref_to_colorframe(
+            dnaStrandFivePrimeArrowheadsCustomColor_prefs_key,
             self.strandFivePrimeArrowheadsCustomColorFrame)
-        
-        
+
+
         self.update_dnaStrandThreePrimeArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForThreePrimeArrowheads_prefs_key])
-        
+
         self.update_dnaStrandFivePrimeArrowheadCustomColorWidgets(
             env.prefs[useCustomColorForFivePrimeArrowheads_prefs_key])
 
@@ -1627,8 +1627,8 @@ restored when the user undoes a structural change.</p>
         self.dnaMaxGrooveAngleSpinBox.setValue(
             env.prefs[dnaMaxMinorGrooveAngle_prefs_key])
 
-        connect_colorpref_to_colorframe( 
-            dnaMinorGrooveErrorIndicatorColor_prefs_key, 
+        connect_colorpref_to_colorframe(
+            dnaMinorGrooveErrorIndicatorColor_prefs_key,
             self.dnaGrooveIndicatorColorFrame)
 
         # DNA Base Orientation Indicator stuff.
@@ -1667,7 +1667,7 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
         connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
 
-        #ninad060904 
+        #ninad060904
         self.historyHeight_spinbox.setValue(env.prefs[historyHeight_prefs_key] )
 
         return
@@ -1708,7 +1708,7 @@ restored when the user undoes a structural change.</p>
 
     def _setup_tooltips_page(self): #Ninad 060830
         """
-        Setup widgets to initialize (default or defined) values on the tooltips 
+        Setup widgets to initialize (default or defined) values on the tooltips
         page.
         """
         #Atom related Dynamic tooltip preferences
@@ -1756,11 +1756,11 @@ restored when the user undoes a structural change.</p>
 
     ###### End of private methods. ########################
 
-    ########## Slot methods for "General" page widgets ################   
+    ########## Slot methods for "General" page widgets ################
 
     def display_compass(self, val):
         """
-        Slot for the Display Compass checkbox, which enables/disables the 
+        Slot for the Display Compass checkbox, which enables/disables the
         Display Compass Labels checkbox.
         """
         self.display_compass_labels_checkbox.setEnabled(val)
@@ -1797,12 +1797,12 @@ restored when the user undoes a structural change.</p>
 
     def change_displayOriginAsSmallAxis(self, value):
         """"
-        This sets the preference to view origin as small axis so that it is 
+        This sets the preference to view origin as small axis so that it is
         sticky across sessions.
         """
         #set the preference
         env.prefs[displayOriginAsSmallAxis_prefs_key] = value
-            #niand060920 This condition might not be necessary as we are disabling the btn_grp 
+            #niand060920 This condition might not be necessary as we are disabling the btn_grp
             #for the oridin axis radiobuttons
         if env.prefs[displayOriginAxis_prefs_key]:
             self.glpane.gl_update()
@@ -1811,7 +1811,7 @@ restored when the user undoes a structural change.</p>
         """
         Enable/disable high quality graphics during view animations.
 
-        @attention: This has never been implemented. The checkbox has been 
+        @attention: This has never been implemented. The checkbox has been
                     removed from the UI file for A9. Mark 060815.
         """
         # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
@@ -1832,13 +1832,13 @@ restored when the user undoes a structural change.</p>
 
     def change_mouseSpeedDuringRotation(self, val):
         """
-        Slot that sets the factor controlling rotation speed during middle 
+        Slot that sets the factor controlling rotation speed during middle
         mouse drag 0.3(slow) and 1(fast).
         """
         env.prefs[mouseSpeedDuringRotation_prefs_key] = \
            self.mouseSpeedDuringRotation_slider.value() / 100.0
 
-        val = self.mouseSpeedDuringRotation_slider.value() 
+        val = self.mouseSpeedDuringRotation_slider.value()
         if val == 60:
             self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
         else:
@@ -1928,7 +1928,7 @@ restored when the user undoes a structural change.</p>
     def setPrefsLogoDownloadPermissions(self, permission):
         """
         Set the sponsor logos download permissions in the persistent user
-		preferences database.
+                preferences database.
 
         0 = Always ask before downloading, 1 = Never ask before downloading
         2 = Never download
@@ -1950,7 +1950,7 @@ restored when the user undoes a structural change.</p>
     def change_fill_type(self, ftype):
         """
         Slot called when the user changes the Fill Type.
-        """        
+        """
         if ftype == 'Solid':
             self.bg_solid_setup()
         else: # 'Blue Sky'
@@ -1971,7 +1971,7 @@ restored when the user undoes a structural change.</p>
 
         # Get the bg color rgb values of the glpane.
 
-        plt = QtGui.QPalette()      
+        plt = QtGui.QPalette()
         plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
                      RGBf_to_QColor(self.glpane.backgroundColor))
         plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
@@ -1996,7 +1996,7 @@ restored when the user undoes a structural change.</p>
 
         # Get the bg color rgb values of the mode selected in the "Mode" combo box.
 
-        plt = QtGui.QPalette()      
+        plt = QtGui.QPalette()
         plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
                      RGBf_to_QColor(self.glpane.backgroundColor))
         plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
@@ -2019,7 +2019,7 @@ restored when the user undoes a structural change.</p>
         ##self.bg1_color_frame.setBackgroundRole(QPalette.Window)
         c = QColorDialog.getColor(self.bg1_color_frame.palette().color(QPalette.Window), self)
         if c.isValid():
-            plt = QtGui.QPalette()      
+            plt = QtGui.QPalette()
             plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,c)
             plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,c)
             plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,c)
@@ -2061,7 +2061,7 @@ restored when the user undoes a structural change.</p>
         Slot for Mouse Wheel "Zoom In Position" combo box.
 
         @param position: The mouse wheel zoom in position, where:
-                        0 = Cursor position (default) 
+                        0 = Cursor position (default)
                         1 = Graphics area center
         @type  position: int
         """
@@ -2074,7 +2074,7 @@ restored when the user undoes a structural change.</p>
         Slot for Mouse Wheel "Zoom Out Position" combo box.
 
         @param position: The mouse wheel zoom out position, where:
-                        0 = Cursor position (default) 
+                        0 = Cursor position (default)
                         1 = Graphics area center
         @type  position: int
         """
@@ -2173,7 +2173,7 @@ restored when the user undoes a structural change.</p>
         """
         Change the bondpoint highlight color.
         """
-        self.usual_change_color( bondpointHighlightColor_prefs_key)    
+        self.usual_change_color( bondpointHighlightColor_prefs_key)
 
     def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
         """
@@ -2192,14 +2192,14 @@ restored when the user undoes a structural change.</p>
 
     def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
         """
-        Change the level of detail, where <level_of_detail_item> is a value 
+        Change the level of detail, where <level_of_detail_item> is a value
         between 0 and 3 where:
             - 0 = low
             - 1 = medium
             - 2 = high
             - 3 = variable (based on number of atoms in the part)
 
-        @note: the prefs db value for 'variable' is -1, to allow for higher LOD 
+        @note: the prefs db value for 'variable' is -1, to allow for higher LOD
                levels in the future.
         """
         lod = level_of_detail_item
@@ -2254,13 +2254,13 @@ restored when the user undoes a structural change.</p>
         """
         Change the bond highlight color.
         """
-        self.usual_change_color( bondHighlightColor_prefs_key)        
+        self.usual_change_color( bondHighlightColor_prefs_key)
 
     def change_bond_stretch_color(self):
         """
         Change the bond stretch color.
         """
-        self.usual_change_color( bondStretchColor_prefs_key)        
+        self.usual_change_color( bondStretchColor_prefs_key)
 
     def change_bond_vane_color(self):
         """
@@ -2272,7 +2272,7 @@ restored when the user undoes a structural change.</p>
         """
         Change the bond cylinder color used in Ball & Stick display mode.
         """
-        self.usual_change_color( diBALL_bondcolor_prefs_key)        
+        self.usual_change_color( diBALL_bondcolor_prefs_key)
 
     def reset_bond_colors(self):
         #bruce 050805 let's try it like this:
@@ -2319,7 +2319,7 @@ restored when the user undoes a structural change.</p>
 
     def change_bond_line_thickness(self, pixel_thickness): #mark 050831
         """
-        Set the default bond line thickness for Lines display.  
+        Set the default bond line thickness for Lines display.
         pixel_thickness can be 1, 2 or 3.
         """
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
@@ -2334,7 +2334,7 @@ restored when the user undoes a structural change.</p>
         else:
             self.bond_line_thickness_spinbox.setSuffix(' pixels')
 
-    def change_ballstick_cylinder_radius(self, val): 
+    def change_ballstick_cylinder_radius(self, val):
         """
         Change the CPK (Ball and Stick) cylinder radius by % value <val>.
         """
@@ -2345,7 +2345,7 @@ restored when the user undoes a structural change.</p>
         #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
         # so I tested it and confirmed that gl_update() isn't needed.
         # Mark 2008-01-31
-        #self.glpane.gl_update() 
+        #self.glpane.gl_update()
 
     ########## End of slot methods for "Bonds" page widgets ###########
 
@@ -2356,7 +2356,7 @@ restored when the user undoes a structural change.</p>
         Slot for I{Bases per turn} spinbox.
         @param bases_per_turn: The number of bases per turn.
         @type  bases_per_turn: double
-	"""
+        """
         env.prefs[bdnaBasesPerTurn_prefs_key] = bases_per_turn
 
     def save_dnaRise(self, rise):
@@ -2364,27 +2364,27 @@ restored when the user undoes a structural change.</p>
         Slot for B{Rise} spinbox.
         @param rise: The rise.
         @type  rise: double
-	"""
+        """
         env.prefs[bdnaRise_prefs_key] = rise
 
     def dnaRestoreFactoryDefaults(self):
         """
         Slot for I{Restore Factory Defaults} button.
-	"""
+        """
         env.prefs.restore_defaults([
             bdnaBasesPerTurn_prefs_key,
             bdnaRise_prefs_key,
             dnaDefaultSegmentColor_prefs_key
         ])
 
-        # These generate signals (good), which calls slots 
+        # These generate signals (good), which calls slots
         # save_dnaBasesPerTurn() and save_dnaRise()
         self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
         self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
 
     def changeDnaDefaultSegmentColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA default segment color.
         """
         self.usual_change_color( dnaDefaultSegmentColor_prefs_key )
@@ -2394,9 +2394,9 @@ restored when the user undoes a structural change.</p>
         Slot for B{Strut Scale Factor} spinbox.
         @param scale_factor: The struct scale factor.
         @type  scale_factor: int
-	"""
+        """
         env.prefs[dnaStrutScaleFactor_prefs_key] = scale_factor * .01
-    
+
     def update_dnaStrandThreePrimeArrowheadCustomColorWidgets(self, enabled_flag):
         """
         Slot for the "Custom color" checkbox,for three prime arrowhead
@@ -2405,7 +2405,7 @@ restored when the user undoes a structural change.</p>
         self.strandThreePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
         self.strandThreePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
         return
-    
+
     def update_dnaStrandFivePrimeArrowheadCustomColorWidgets(self, enabled_flag):
         """
         Slot for the "Custom color" checkbox, used to disable/enable the
@@ -2414,17 +2414,17 @@ restored when the user undoes a structural change.</p>
         self.strandFivePrimeArrowheadsCustomColorFrame.setEnabled(enabled_flag)
         self.strandFivePrimeArrowheadsCustomColorPushButton.setEnabled(enabled_flag)
         return
-    
+
     def change_dnaStrandThreePrimeArrowheadCustomColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA strand three prime arrowhead color.
         """
         self.usual_change_color( dnaStrandThreePrimeArrowheadsCustomColor_prefs_key )
-        
+
     def change_dnaStrandFivePrimeArrowheadCustomColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA strand five prime arrowhead color.
         """
         self.usual_change_color( dnaStrandFivePrimeArrowheadsCustomColor_prefs_key )
@@ -2449,16 +2449,16 @@ restored when the user undoes a structural change.</p>
 
     def change_dnaMinorGrooveErrorIndicatorColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA minor groove error indicator color.
         """
         self.usual_change_color( dnaMinorGrooveErrorIndicatorColor_prefs_key )
 
     def _restore_dnaMinorGrooveFactoryDefaults(self):
         """
-        Slot for Minor Groove Error Indicator I{Restore Factory Defaults} 
+        Slot for Minor Groove Error Indicator I{Restore Factory Defaults}
         button.
-	"""
+        """
         env.prefs.restore_defaults([
             dnaMinMinorGrooveAngle_prefs_key,
             dnaMaxMinorGrooveAngle_prefs_key,
@@ -2571,8 +2571,8 @@ restored when the user undoes a structural change.</p>
         Changes DNA Style strands shape.
 
         @param shape: The shape mode:
-                    - 0 = none (hidden) 
-                    - 1 = spheres 
+                    - 0 = none (hidden)
+                    - 1 = spheres
                     - 2 = cartoon-like
 
         @type shape: int
@@ -2583,44 +2583,44 @@ restored when the user undoes a structural change.</p>
         """
         @param scale_factor: The strands scale factor.
         @type  scale_factor: float
-	"""
+        """
         env.prefs[dnaStyleStrandsScale_prefs_key] = scale_factor
-        
-    
+
+
     def change_dnaStyleStrutsScale(self, scale_factor):
         """
         @param scale_factor: The struts scale factor.
         @type  scale_factor: float
-	"""
+        """
         env.prefs[dnaStyleStrutsScale_prefs_key] = scale_factor
 
     def change_dnaStyleAxisScale(self, scale_factor):
         """
         @param scale_factor: The axis scale factor.
         @type  scale_factor: float
-	"""
+        """
         env.prefs[dnaStyleAxisScale_prefs_key] = scale_factor
 
     def change_dnaStyleBasesScale(self, scale_factor):
         """
         @param scale_factor: The bases scale factor.
         @type  scale_factor: float
-	"""
+        """
         env.prefs[dnaStyleBasesScale_prefs_key] = scale_factor
-        
-    
+
+
     def change_dnaBaseIndicatorsAngle(self, angle):
         """
         @param angle: The angular threshold for DNA base indicators.
         @type  angle: double
-	"""
+        """
         print "angle (set) = ", angle
         env.prefs[dnaBaseIndicatorsAngle_prefs_key] = angle
         self.update_dnaBaseIndicatorsAngle()
 
     def update_dnaBaseIndicatorsAngle(self):
         """
-        Updates the DNA base orientation indicators angular threshold spinbox. 
+        Updates the DNA base orientation indicators angular threshold spinbox.
         """
         self.dnaBaseOrientationIndicatorsThresholdSpinBox.setValue(
             float(env.prefs[dnaBaseIndicatorsAngle_prefs_key]))
@@ -2629,13 +2629,13 @@ restored when the user undoes a structural change.</p>
         """
         @param distance: The distance threshold for DNA base indicators.
         @type  distance: double
-	"""
+        """
         env.prefs[dnaBaseIndicatorsDistance_prefs_key] = distance
         self.update_dnaBaseIndicatorsDistance()
 
     def update_dnaBaseIndicatorsDistance(self):
         """
-        Updates the DNA base orientation indicators distance threshold spinbox. 
+        Updates the DNA base orientation indicators distance threshold spinbox.
         """
         self.dnaBaseOrientationIndicatorsTerminalDistanceSpinBox.setValue(
             int(env.prefs[dnaBaseIndicatorsDistance_prefs_key]))
@@ -2645,7 +2645,7 @@ restored when the user undoes a structural change.</p>
         Changes DNA Style strands shape.
 
         @param shape: The shape mode:
-                    - 0 = none (hidden) 
+                    - 0 = none (hidden)
 
         @type shape: int
         """
@@ -2666,7 +2666,7 @@ restored when the user undoes a structural change.</p>
         """
         env.prefs[dnaStyleAxisEndingStyle_prefs_key] = shape
 
-    def toggle_dnaDisplayStrandLabelsGroupBox(self, state):        
+    def toggle_dnaDisplayStrandLabelsGroupBox(self, state):
         """
         Toggles DNA Strand Labels GroupBox.
 
@@ -2712,28 +2712,28 @@ restored when the user undoes a structural change.</p>
 
     def change_dnaBaseOrientIndicatorsPlane(self, idx):
         """
-        Slot for the "Plane" combobox for changing the 
+        Slot for the "Plane" combobox for changing the
         DNA base indicators plane.
         """
         env.prefs[dnaBaseIndicatorsPlaneNormal_prefs_key] = idx
-        
+
     def change_dnaBaseIndicatorsColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA base indicators color.
         """
         self.usual_change_color( dnaBaseIndicatorsColor_prefs_key )
 
     def change_dnaBaseInvIndicatorsColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA base inverse indicators color.
         """
         self.usual_change_color( dnaBaseInvIndicatorsColor_prefs_key )
 
     def change_dnaStrandLabelsColor(self):
         """
-        Slot for the I{Choose...} button for changing the 
+        Slot for the I{Choose...} button for changing the
         DNA strand labels color.
         """
         self.usual_change_color( dnaStrandLabelsColor_prefs_key )
@@ -2746,7 +2746,7 @@ restored when the user undoes a structural change.</p>
                     - 0 = same as chunk
                     - 1 = black
                     - 2 = white
-		    - 3 = custom
+                    - 3 = custom
 
         @type mode: int
         """
@@ -2766,18 +2766,18 @@ restored when the user undoes a structural change.</p>
     def change_default_mode(self, val):
         """
         Slot for the combobox that sets the Default Mode.
-	"""
+        """
         env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentIndex()]
         self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
         return
 
     def set_default_display_mode(self, display_style): #bruce 050810 revised this to set the pref immediately
         """
-	Set the global display style at start up to I{display_style}. 
+        Set the global display style at start up to I{display_style}.
 
-        This also changes the global display style of the glpane to 
+        This also changes the global display style of the glpane to
         <display_style>.
-        """        
+        """
         if display_style == env.prefs[startupGlobalDisplayStyle_prefs_key]:
             return
         # set the pref
@@ -2797,12 +2797,12 @@ restored when the user undoes a structural change.</p>
 
     def change_lighting(self, specularityValueJunk = None):
         """
-	Updates glpane lighting using the current lighting parameters from 
-	the light checkboxes and sliders. This is also the slot for the light 
-	sliders.
-	@param specularityValueJunk: This value from the slider is not used
-				     We are interested in valueChanged signal 
-				     only
+        Updates glpane lighting using the current lighting parameters from
+        the light checkboxes and sliders. This is also the slot for the light
+        sliders.
+        @param specularityValueJunk: This value from the slider is not used
+                                     We are interested in valueChanged signal
+                                     only
         @type specularityValueJunk = int or None
 
         """
@@ -2837,19 +2837,19 @@ restored when the user undoes a structural change.</p>
 
     def change_active_light(self, currentIndexJunk = None):
         """
-	Slot for the Light number combobox.  This changes the current light.
-	@param currentIndexJunk: This index value from the combobox is not used
-				 We are interested in 'activated' signal only
+        Slot for the Light number combobox.  This changes the current light.
+        @param currentIndexJunk: This index value from the combobox is not used
+                                 We are interested in 'activated' signal only
         @type currentIndexJunk = int or None
         """
         self._setup_lighting_page()
 
     def change_light_color(self):
         """
-        Slot for light color "Choose" button.  Saves the new color in the 
+        Slot for light color "Choose" button.  Saves the new color in the
         prefs db.
 
-        Changes the current Light color in the graphics area and the light 
+        Changes the current Light color in the graphics area and the light
         color swatch in the UI.
         """
         self.usual_change_color(self.current_light_key)
@@ -2868,8 +2868,8 @@ restored when the user undoes a structural change.</p>
 
     def toggle_light(self, on):
         """
-        Slot for light 'On' checkbox.  
-        It updates the current item in the light combobox with '(On)' or 
+        Slot for light 'On' checkbox.
+        It updates the current item in the light combobox with '(On)' or
         '(Off)' label.
         """
         if on:
@@ -2882,8 +2882,8 @@ restored when the user undoes a structural change.</p>
 
     def save_lighting(self):
         """
-        Saves lighting parameters (but not material specularity parameters) 
-        to pref db. This is also the slot for light sliders (only when 
+        Saves lighting parameters (but not material specularity parameters)
+        to pref db. This is also the slot for light sliders (only when
         released).
         """
         self.change_lighting()
@@ -2898,7 +2898,7 @@ restored when the user undoes a structural change.</p>
     def change_material_finish(self, finish):
         """
         This is the slot for the Material Finish slider.
-        'finish' is between 0 and 100. 
+        'finish' is between 0 and 100.
         Saves finish parameter to pref db.
         """
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
@@ -2981,8 +2981,8 @@ restored when the user undoes a structural change.</p>
         """
         Slot for GAMESS path "Choose" button.
         """
-        gamess_exe = get_filename_and_save_in_prefs(self, 
-                                                    gmspath_prefs_key, 
+        gamess_exe = get_filename_and_save_in_prefs(self,
+                                                    gmspath_prefs_key,
                                                     'Choose GAMESS Executable')
 
         if gamess_exe:
@@ -3181,8 +3181,8 @@ restored when the user undoes a structural change.</p>
         """
         Slot for QuteMolX path "Choose" button.
         """
-        qp = get_filename_and_save_in_prefs(self, 
-                                            qutemol_path_prefs_key, 
+        qp = get_filename_and_save_in_prefs(self,
+                                            qutemol_path_prefs_key,
                                             'Choose QuteMolX Executable')
 
         if qp:
@@ -3229,8 +3229,8 @@ restored when the user undoes a structural change.</p>
         Slot for Nano-Hive path "Choose" button.
         """
 
-        nh = get_filename_and_save_in_prefs(self, 
-                                            nanohive_path_prefs_key, 
+        nh = get_filename_and_save_in_prefs(self,
+                                            nanohive_path_prefs_key,
                                             'Choose Nano-Hive Executable')
 
         if nh:
@@ -3289,8 +3289,8 @@ restored when the user undoes a structural change.</p>
         """
         Slot for POV-Ray path "Choose" button.
         """
-        povray_exe = get_filename_and_save_in_prefs(self, 
-                                                    povray_path_prefs_key, 
+        povray_exe = get_filename_and_save_in_prefs(self,
+                                                    povray_path_prefs_key,
                                                     'Choose POV-Ray Executable')
 
         if povray_exe:
@@ -3457,7 +3457,7 @@ restored when the user undoes a structural change.</p>
 
     def change_undo_stack_memory_limit(self, mb_val):
         """
-        Slot for 'Undo Stack Memory Limit' spinbox. 
+        Slot for 'Undo Stack Memory Limit' spinbox.
         Sets the RAM limit for the Undo Stack.
         <mb-val> can range from 0-99999 (MB).
         """
@@ -3492,10 +3492,10 @@ restored when the user undoes a structural change.</p>
 
     def change_window_size(self, val = 0):
         """
-        Slot for both the width and height spinboxes that change the current 
-        window size. 
+        Slot for both the width and height spinboxes that change the current
+        window size.
 
-        Also called from other slots to change the window size based on new 
+        Also called from other slots to change the window size based on new
         values in spinboxes. <val> is not used.
         """
         w = self.current_width_spinbox.value()
@@ -3565,22 +3565,22 @@ restored when the user undoes a structural change.</p>
         env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
         self.set_font_widgets(setFontFromPrefs = True) # Also sets the current display font.
 
-        if debug_flags.atom_debug: 
+        if debug_flags.atom_debug:
             print "change_selected_font_to_default_font(): " \
                   "Button clicked. Default font: ", font.family(), \
-                  ", size=", font.pointSize()        
+                  ", size=", font.pointSize()
 
     def set_font_widgets(self, setFontFromPrefs = True):
         """
         Update font widgets based on font prefs.
         Unconnects signals from slots, updates widgets, then reconnects slots.
 
-        @param setFontFromPrefs: when True (default), sets the display font 
+        @param setFontFromPrefs: when True (default), sets the display font
                                 (based on font prefs).
         @type  setFontFromPrefs: bool
         """
 
-        if debug_flags.atom_debug: 
+        if debug_flags.atom_debug:
             print "set_font_widgets(): Here!"
 
 
@@ -3598,7 +3598,7 @@ restored when the user undoes a structural change.</p>
             font_size = font.pointSize()
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = font_size
-            if debug_flags.atom_debug: 
+            if debug_flags.atom_debug:
                 print "set_font_widgets(): No prefs db. " \
                       "Using default font: ", font.family(), \
                       ", size=", font.pointSize()
@@ -3639,12 +3639,12 @@ restored when the user undoes a structural change.</p>
             font.setPointSize(fontsize)
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = fontsize
-            if debug_flags.atom_debug: 
+            if debug_flags.atom_debug:
                 print "set_font(): Using selected font: ", font.family(), ", size=", font.pointSize()
 
         else: # Use default font
             font = self.w.defaultFont
-            if debug_flags.atom_debug: 
+            if debug_flags.atom_debug:
                 print "set_font(): Using default font: ", font.family(), ", size=", font.pointSize()
 
         # Set font
@@ -3681,7 +3681,7 @@ restored when the user undoes a structural change.</p>
 
     ########## Slot methods for top level widgets ################
 
-    def setup_current_page(self, pagename):        
+    def setup_current_page(self, pagename):
         #bruce 050817 fix new A6 bug introduced by Mark's fix of bug 894
         # (which was: lack of showing general page could reset gamess path to ""):
         # always call self._setup_general_page regardless of argument,
@@ -3732,7 +3732,7 @@ restored when the user undoes a structural change.</p>
         # when the user hits the dialog's "Close" button in the dialog's window border (upper right X).
         # Since I've not implemented 'Cancel', it is safer to go ahead and
         # save all preferences anyway.  Otherwise, any changed preferences
-        # will not be persistent (after this session).  
+        # will not be persistent (after this session).
         # This will need to be removed when we implement a true cancel function.
         # Mark 050629.
         # self._update_prefs() # Removed by Mark 050919.

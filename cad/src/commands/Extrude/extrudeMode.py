@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 extrudeMode.py - Extrude mode, including its internal "rod" and "ring" modes.
 Unfinished [as of 050518], especially ring mode.
@@ -11,11 +11,11 @@ History:
 
 by bruce, 040924/041011/041015... 050107...
 
-ninad 070110: retired extrude dashboard  (in Qt4 branch). It was 
-replaced with its 'Property Manager' (see Ui_ExtrudePropertyManager, 
-ExtrudePropertyManager) 
+ninad 070110: retired extrude dashboard  (in Qt4 branch). It was
+replaced with its 'Property Manager' (see Ui_ExtrudePropertyManager,
+ExtrudePropertyManager)
 
-ninad 20070725: code cleanup to create a propMgr object for extrude mode. 
+ninad 20070725: code cleanup to create a propMgr object for extrude mode.
 Moved many ui helper methods to class ExtrudePropertyManager .
 """
 
@@ -76,7 +76,7 @@ MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Mo
 
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     """
-    Reinitialize the extrude controls; used whenever we enter the mode; 
+    Reinitialize the extrude controls; used whenever we enter the mode;
     win should be the main window (MWSemantics object).
     """
     self = win
@@ -117,9 +117,9 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         x,y,z = (x * rr, y * rr, z * rr)
     self.propMgr.set_extrude_controls_xyz((x,y,z))
 
-    self.extrude_pref_toggles = [self.propMgr.showEntireModelCheckBox, 
-                                 self.propMgr.showBondOffsetCheckBox, 
-                                 self.propMgr.makeBondsCheckBox, 
+    self.extrude_pref_toggles = [self.propMgr.showEntireModelCheckBox,
+                                 self.propMgr.showBondOffsetCheckBox,
+                                 self.propMgr.makeBondsCheckBox,
                                  self.propMgr.mergeCopiesCheckBox,
                                  self.propMgr.extrudePrefMergeSelection]
     for toggle in self.extrude_pref_toggles:
@@ -175,8 +175,8 @@ class extrudeMode(basicMode):
             # this is new as of bruce 060412; called from restore_gui; might help with bug 1750
 
 
-        change_connect(self.exitExtrudeAction, SIGNAL("triggered()"), 
-                       self.w.toolsDone)        
+        change_connect(self.exitExtrudeAction, SIGNAL("triggered()"),
+                       self.w.toolsDone)
 
         for toggle in self.extrude_pref_toggles:
             change_connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
@@ -228,8 +228,8 @@ class extrudeMode(basicMode):
             else:
                 hset.radius_multiplier = self.bond_tolerance
 
-            # number of resulting bonds not yet known, will be set later    
-            self.propMgr.set_bond_tolerance_and_number_display(self.bond_tolerance) 
+            # number of resulting bonds not yet known, will be set later
+            self.propMgr.set_bond_tolerance_and_number_display(self.bond_tolerance)
             self.recompute_bonds() # re-updates set_bond_tolerance_and_number_display when done
             self.repaint_if_needed() ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
         return
@@ -261,9 +261,9 @@ class extrudeMode(basicMode):
 
     def refuseEnter(self, warn):
         """
-	If we'd refuse to enter this mode, then (iff warn) tell user why, 
-	and (always) return true.
-	"""
+        If we'd refuse to enter this mode, then (iff warn) tell user why,
+        and (always) return true.
+        """
         ok, mol = assy_extrude_unit(self.o.assy, really_make_mol = 0)
         if not ok:
             whynot = mol
@@ -288,7 +288,7 @@ class extrudeMode(basicMode):
         if not self.propMgr:
             self.propMgr = ExtrudePropertyManager(self)
             #@bug BUG: following is a workaround for bug 2494
-            changes.keep_forever(self.propMgr)    
+            changes.keep_forever(self.propMgr)
 
         initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
                                     prefs_key = True, non_debug = True) #bruce 070410
@@ -366,32 +366,32 @@ class extrudeMode(basicMode):
 
     def updateMessage(self):
         """
-	Update the message box win property manager with an informative message.
+        Update the message box win property manager with an informative message.
         """
         self.propMgr.updateMessage()
 
     def getFlyoutActionList(self): #Ninad 20070622
         """
-        Returns a tuple that contains mode specific actionlists in the 
-	added in the flyout toolbar of the mode. 
-	CommandToolbar._createFlyoutToolBar method calls this 
-        
-	@return: params: A tuple that contains 3 lists: 
-	(subControlAreaActionList, commandActionLists, allActionsList).
-        """	
+        Returns a tuple that contains mode specific actionlists in the
+        added in the flyout toolbar of the mode.
+        CommandToolbar._createFlyoutToolBar method calls this
 
-        #'allActionsList' returns all actions in the flyout toolbar 
+        @return: params: A tuple that contains 3 lists:
+        (subControlAreaActionList, commandActionLists, allActionsList).
+        """
+
+        #'allActionsList' returns all actions in the flyout toolbar
         #including the subcontrolArea actions
         allActionsList = []
 
-        #Action List for  subcontrol Area buttons. 
-        #In this mode, there is really no subcontrol area. 
-        #We will treat subcontrol area same as 'command area' 
-        #(subcontrol area buttons will have an empty list as their command area 
+        #Action List for  subcontrol Area buttons.
+        #In this mode, there is really no subcontrol area.
+        #We will treat subcontrol area same as 'command area'
+        #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
         #subcontrol area.
 
-        subControlAreaActionList =[] 
+        subControlAreaActionList =[]
 
         self.exitExtrudeAction = QtGui.QWidgetAction(self.w)
         self.exitExtrudeAction.setText("Exit Extrude")
@@ -403,15 +403,15 @@ class extrudeMode(basicMode):
 
         separator = QtGui.QAction(self.w)
         separator.setSeparator(True)
-        subControlAreaActionList.append(separator) 
+        subControlAreaActionList.append(separator)
 
         allActionsList.extend(subControlAreaActionList)
 
         #Empty actionlist for the 'Command Area'
-        commandActionLists = [] 
+        commandActionLists = []
 
-        #Append empty 'lists' in 'commandActionLists equal to the 
-        #number of actions in subControlArea 
+        #Append empty 'lists' in 'commandActionLists equal to the
+        #number of actions in subControlArea
         for i in range(len(subControlAreaActionList)):
             lst = []
             commandActionLists.append(lst)
@@ -423,14 +423,14 @@ class extrudeMode(basicMode):
     def updateCommandToolbar(self, bool_entering = True): #Ninad 20070622
         """
         Update the command toolbar.
-        """	
-        # object that needs its own flyout toolbar. In this case it is just 
-        #the mode itself. 
+        """
+        # object that needs its own flyout toolbar. In this case it is just
+        #the mode itself.
 
         action = self.w.toolsFuseChunksAction
-        obj = self  	    	    
+        obj = self
         self.w.commandToolbar.updateCommandToolbar(action,
-                                                   obj, 
+                                                   obj,
                                                    entering = bool_entering)
         return
 
@@ -510,7 +510,7 @@ class extrudeMode(basicMode):
 
     def want_center_and_quat(self, ii, ptype = None):
         """
-        Return desired basecenter and quat of molcopies[ii], relative to 
+        Return desired basecenter and quat of molcopies[ii], relative to
         original ones, assuming they're same as in basemol.
         """
         #  update 070407: if self.basemol is a fake_merged_mol, we use the basecenter of its first true Chunk
@@ -637,7 +637,7 @@ class extrudeMode(basicMode):
         When that's not possible (e.g. when no record of prior value to compare to current value),
         we'd better check an invalid flag for some of what we compute,
         and/or a changed flag for some of the inputs we use.
-        """        
+        """
         self.asserts()
 
         # get control values
@@ -732,7 +732,7 @@ class extrudeMode(basicMode):
             ii = self.ncopies
             self.ncopies = ii + 1
             # pre-050216 code:
-            ## newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below) 
+            ## newmols = assy_copy(self.o.assy, [self.basemol]) # fyi: offset is redundant with mol.set_basecenter_and_quat (below)
             ## new = newmols[0]
             # new code 050216:
             new = self.basemol.copy_single_chunk(None)
@@ -779,7 +779,7 @@ class extrudeMode(basicMode):
     def update_offset_bonds_display(self):
         # should be the last function called by some user event method (??)... not sure if it always is! some weird uses of it...
         """
-        Update whatever is needed of the offset_specific_data, the bonds, 
+        Update whatever is needed of the offset_specific_data, the bonds,
         and the display itself.
         """
         ###### now, if needed, recompute (or start recomputing) the offset-specific data
@@ -973,7 +973,7 @@ class extrudeMode(basicMode):
         except:
             print "fyi: hset2/hset kluge failed"
         # don't call recompute_bonds, our callers do that if nec.
-        return 
+        return
 
     bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
     offset_for_bonds = None
@@ -1122,7 +1122,7 @@ class extrudeMode(basicMode):
                 else:
                     #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
                     chunk.changeapp(0)
-            continue            
+            continue
         self.finalize_product(cancelling = cancelling)
             # this also emits status messages and does some cleanup of broken_externs...
         self.o.assy.update_parts()
@@ -1316,7 +1316,7 @@ class extrudeMode(basicMode):
         return None
 
     def StateCancel(self): # [bruce 050228 revised/commented this to fix bug 314]
-        self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here        
+        self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here
         self.update_from_controls()
         #e could also change back to rod mode, but if that is needed we'll make the subroutine do it
         return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
@@ -1497,7 +1497,7 @@ class extrudeMode(basicMode):
         Change the controls to reflect offset, then update from the controls.
         """
         x,y,z = offset
-        self.propMgr.call_while_suppressing_valuechanged( 
+        self.propMgr.call_while_suppressing_valuechanged(
             lambda: self.propMgr.set_extrude_controls_xyz( (x, y, z) ) )
 
         #e worry about too-low resolution of those spinbox numbers? at least not in self.dragged_offset...
@@ -1714,9 +1714,9 @@ class extrudeMode(basicMode):
         return # from Draw
 
     ## Added this method to fix bug 1043 [Huaicai 10/04/05]
-    def Draw_after_highlighting(self): 
+    def Draw_after_highlighting(self):
         """
-        Only draw those translucent parts of the whole model when we are 
+        Only draw those translucent parts of the whole model when we are
         requested to draw the whole model
         """
         if self.show_entire_model:
@@ -1792,7 +1792,7 @@ class extrudeMode(basicMode):
         print "about to reinit modes"
         self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
         self.commandSequencer.start_using_mode( '$DEFAULT_MODE' )
-            ###e or could use commandName of prior self.commandSequencer.currentCommand 
+            ###e or could use commandName of prior self.commandSequencer.currentCommand
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
 
@@ -1802,7 +1802,7 @@ class extrudeMode(basicMode):
 
 # helper functions for extrudeMode.Enter
 
-def assy_merge_mols(assy, mollist): 
+def assy_merge_mols(assy, mollist):
     """
     merge multiple mols (Chunks) in assy (namely, the elements of sequence mollist)
     into one mol in assy [destructively modifying the first mol in mollist to be the one],
@@ -2212,7 +2212,7 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
     private helper class for extrude, to serve as a "rep-unit" copy of a fake_merged_mol instance.
     Holds a list of copied mols (chunks) made by copying extrude's basemol when it's a fake_merged_mol,
     and (if desired) a Group made from them (for use in MT).
-    
+
     @warning: our client extrudeMode will also do isinstance tests on this class,
     and peer into our private attrs like self._mols,
     so some of our semantics comes from client code that depends on our class.

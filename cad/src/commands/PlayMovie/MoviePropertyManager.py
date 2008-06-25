@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 MoviePropertyManager.py
 <<<<<<< .mine
@@ -9,7 +9,7 @@ MoviePropertyManager.py
 @copyright: 2007 Nanorex, Inc.  All rights reserved.
 
 History:
-ninad20070507 : Converted movie dashboard into movie Property manager 
+ninad20070507 : Converted movie dashboard into movie Property manager
 (authors: various)
 
 """
@@ -27,35 +27,35 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
     The MoviePropertyManager class provides the Property Manager for the
     B{Movie mode}.  The UI is defined in L{Ui_MoviePropertyManager}
     """
-    
+
     #see self.connect_or_disconnect_signals for comment about this flag
     isAlreadyConnected = False
-    
+
     def __init__(self, parentMode):
         """
         Constructor for the B{Movie} property manager.
 
         @param parentMode: The parent mode where this Property Manager is used
-        @type  parentMode: L{movieMode} 
+        @type  parentMode: L{movieMode}
         """
         Ui_MoviePropertyManager.__init__(self, parentMode)
-        ##self.updateMessage(msg) 
+        ##self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, connect):
         """
-        Connect the slots in the Property Manager. 
+        Connect the slots in the Property Manager.
         """
         if connect:
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
 
-        #TODO: This is a temporary fix for a bug. When you invoke a temp mode 
-        #such as LineMode or PanMode, entering such a temporary mode keeps the 
-        #PM from the previous mode open (and thus keeps all its signals 
-        #connected)  but while exiting that temporary mode and reentering the 
-        #previous mode, it actually reconnects the signal! This gives rise to 
-        #lots  of bugs. This needs more general fix in Temporary mode API. 
+        #TODO: This is a temporary fix for a bug. When you invoke a temp mode
+        #such as LineMode or PanMode, entering such a temporary mode keeps the
+        #PM from the previous mode open (and thus keeps all its signals
+        #connected)  but while exiting that temporary mode and reentering the
+        #previous mode, it actually reconnects the signal! This gives rise to
+        #lots  of bugs. This needs more general fix in Temporary mode API.
         # -- Ninad 2007-10-29
 
         if connect and self.isAlreadyConnected:
@@ -66,23 +66,23 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         change_connect(self.movieResetAction,
                        SIGNAL("triggered()"),
                        self.movieReset)
-        
+
         change_connect(self.moviePlayRevAction,
                        SIGNAL("triggered()"),
                        self.moviePlayRev)
-        
+
         change_connect(self.moviePauseAction,
                        SIGNAL("triggered()"),
                        self.moviePause)
-        
+
         change_connect(self.moviePlayAction,
                        SIGNAL("triggered()"),
                        self.moviePlay)
-        
+
         change_connect(self.movieMoveToEndAction,
                        SIGNAL("triggered()"),
                        self.movieMoveToEnd)
-        
+
         change_connect(self.frameNumberSlider,
                        SIGNAL("valueChanged(int)"),
                        self.movieSlider)
@@ -90,31 +90,31 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         change_connect(self.frameNumberSpinBox,
                        SIGNAL("valueChanged(int)"),
                        self.moviePlayFrame)
-        
+
         change_connect(self.fileOpenMovieAction,
                        SIGNAL("triggered()"),
                        self.fileOpenMovie)
-        
+
         change_connect(self.fileSaveMovieAction,
                        SIGNAL("triggered()"),
                        self.fileSaveMovie)
-        
+
         change_connect(self.movieInfoAction,
                        SIGNAL("triggered()"),
                        self.movieInfo)
-        
+
     def ok_btn_clicked(self):
         """
-        Calls MainWindow.toolsDone to exit the current mode. 
-        @attention: this method needs to be renamed. (this should be done in 
+        Calls MainWindow.toolsDone to exit the current mode.
+        @attention: this method needs to be renamed. (this should be done in
         PM_Dialog)
         """
         self.w.toolsDone()
 
     def cancel_btn_clicked(self):
         """
-        Calls MainWindow.toolsDone to exit the current mode. 
-        @attention: this method needs to be renamed. (this should be done in 
+        Calls MainWindow.toolsDone to exit the current mode.
+        @attention: this method needs to be renamed. (this should be done in
         PM_Dialog)
         """
         self.w.toolsCancel()
@@ -129,14 +129,14 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 previously saved movie for this model using \
                 <b>'Open Movie File...'</b> option."
 
-        self.MessageGroupBox.insertHtmlMessage( msg, 
+        self.MessageGroupBox.insertHtmlMessage( msg,
                                                 minLines      = 6,
                                                 setAsDefault  =  True )
 
     def getOpenMovieFileInfo(self):
         """
-	Updates the message groupbox message in the Movie Property Manager
-	"""
+        Updates the message groupbox message in the Movie Property Manager
+        """
         msg = ''
         movie = self.w.assy.current_movie
 
@@ -159,24 +159,24 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     def show(self):
         """
-	Overrides the Ui_MoviePropertyManager.show) method. 
-	Updates the message groupbox with movie file information
+        Overrides the Ui_MoviePropertyManager.show) method.
+        Updates the message groupbox with movie file information
         """
         msg = self.getOpenMovieFileInfo()
-        self.updateMessage(msg) 
+        self.updateMessage(msg)
         Ui_MoviePropertyManager.show(self)
-        
+
 # ==
 
-    # bruce 050428: these attrs say when we're processing a valueChanged 
+    # bruce 050428: these attrs say when we're processing a valueChanged
     # signal from slider or spinbox
     _moviePropMgr_in_valuechanged_SL = False
     _moviePropMgr_in_valuechanged_SB = False
     # bruce 050428: this says whether to ignore signals from slider and spinbox,
-    # since they're being changed by the program rather than by the user. 
+    # since they're being changed by the program rather than by the user.
     # (#e The Movie method that sets it should be made a method of this class.)
     _moviePropMgr_ignore_slider_and_spinbox = False
-    
+
     def _moviePropMgr_reinit(self):
         self._moviePropMgr_ignore_slider_and_spinbox = True
         try:
@@ -187,7 +187,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         finally:
             self._moviePropMgr_ignore_slider_and_spinbox = False
         return
-            
+
     def moviePlay(self):
         """
         Play current movie foward from current position.
@@ -225,7 +225,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     def moviePlayFrame(self, fnum):
         """
-        Show frame fnum in the current movie. This slot receives 
+        Show frame fnum in the current movie. This slot receives
         valueChanged(int) signal from self.frameNumberSpinBox.
         """
         if not self.w.assy.current_movie:
@@ -244,7 +244,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     def movieSlider(self, fnum):
         """
-        Show frame fnum in the current movie. This slot receives 
+        Show frame fnum in the current movie. This slot receives
         valueChanged(int) signal from self.frameNumberSlider.
         """
         if not self.w.assy.current_movie:
@@ -295,7 +295,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
 
         fn = QFileDialog.getOpenFileName(
-            self, 
+            self,
             "Differential Position Bytes Format (*.dpb)",
             odir)
 
@@ -310,13 +310,13 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         #  which I've commented out below.]
         from simulation.movie import _checkMovieFile
         r = _checkMovieFile(self.w.assy.part, fn)
-        
+
         if r == 1:
-            
+
 ##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
 ##            env.history.message(msg)
             return
-        elif r == 2: 
+        elif r == 2:
 ##            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
 ##            env.history.message(msg)
             if self.w.assy.current_movie and self.w.assy.current_movie.might_be_playable(): #bruce 050427 isOpen -> might_be_playable()
@@ -349,15 +349,15 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     def _updateMessageInModePM(self, msg = ''):
         """
-	Updates the message box in the Movie Property Manager with the 
-	information about the opened movie file. 
-	@WARNING: This is a temporary method. Likely to be moved/ modified 
-	when movieMode.py is cleaned up. See bug 2428 for details. 
-	"""
-        #@WARNING: Following updates  the Movie property manager's message 
-        #groupbox. This should be done in a better way. At present there 
-        # is no obvious way to tell the Movie Property manager that the 
-        # movie has changed. So this is a kludge. 
+        Updates the message box in the Movie Property Manager with the
+        information about the opened movie file.
+        @WARNING: This is a temporary method. Likely to be moved/ modified
+        when movieMode.py is cleaned up. See bug 2428 for details.
+        """
+        #@WARNING: Following updates  the Movie property manager's message
+        #groupbox. This should be done in a better way. At present there
+        # is no obvious way to tell the Movie Property manager that the
+        # movie has changed. So this is a kludge.
         # See bug 2428 comment 8 for further details -- Ninad 2007-10-02
         currentCommand = self.w.assy.o.currentCommand
         if currentCommand.commandName == "MOVIE":
@@ -377,7 +377,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             msg = redmsg("Save Movie File: No movie file to save.")
             env.history.message(msg)
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            #QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
+            #QMimeSourceFactory.defaultFactory().setPixmap( "simicon",
             #            self.simSetupAction.iconSet().pixmap() )
             env.history.message(msg)
             return
@@ -389,7 +389,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
         sfilter = QString("Differential Position Bytes Format (*.dpb)")
 
-        # Removed .xyz as an option in the sfilter since the section of code below 
+        # Removed .xyz as an option in the sfilter since the section of code below
         # to save XYZ files never worked anyway.  This also fixes bug 492.  Mark 050816.
 
         fn = QFileDialog.getSaveFileName(
@@ -416,7 +416,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
             if os.path.exists(safile): # ...and if the "Save As" file exists...
 
                 # ... confirm overwrite of the existing file.
-                ret = QMessageBox.warning( 
+                ret = QMessageBox.warning(
                     self, "Confirm overwrite",
                     "The file \"" + fil + ext + "\" already exists.\n"\
                     "Do you want to overwrite the existing file or cancel?",
@@ -437,7 +437,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 tfile1 = self.w.assy.current_movie.get_trace_filename()
 
                 # Copy the tracefile
-                if os.path.exists(tfile1): 
+                if os.path.exists(tfile1):
                     fullpath, ext = os.path.splitext(safile)
                     tfile2 = fullpath + "-trace.txt"
                     shutil.copy(tfile1, tfile2)
@@ -449,7 +449,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 self.w.assy.current_movie.cueMovie(propMgr = self, hflag = False) # Do not print info to history widget.
 
             elif ext == '.pov':
-                self.w.assy.current_movie._write_povray_series( 
+                self.w.assy.current_movie._write_povray_series(
                     os.path.normpath(dir + "/" + fil))
 
             else: #.xyz (or something unexpected)
@@ -457,20 +457,20 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 QMessageBox.warning(self, "ERROR", "internal error: unsupported file extension %r" % (ext,) ) # args are title, content
 
         return # from fileSaveMovie
-    
+
     def updateFrameInformation(self):
         """
         Update movie control widgets in PM to the current movie frames.
         """
         movie = self.w.assy.current_movie
-        self.frameNumberSlider.setMaximum(movie.getTotalFrames())      
+        self.frameNumberSlider.setMaximum(movie.getTotalFrames())
         self.frameNumberSpinBox.setMaximum(movie.getTotalFrames())
-        self.frameSkipSpinBox.setMaximum(movie.getTotalFrames()) 
+        self.frameSkipSpinBox.setMaximum(movie.getTotalFrames())
             #ninad060928 fixed bug 2285
         self.updateCurrentFrame()
-        
+
         return
-    
+
     def updateCurrentFrame(self):
         """
         Update dashboard controls which show self.currentFrame, except for the
@@ -490,14 +490,14 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
                 currentFrameLbl = str(self.frameNumberSlider.value())
                 totalFrameLbl = str(movie.getTotalFrames())
                 flabel = "Current Frame: " + currentFrameLbl + "/" + \
-                       totalFrameLbl                
+                       totalFrameLbl
                 self.movieFrameUpdateLabel.setText(flabel)
             if not dont_update_spinbox:
                 self.frameNumberSpinBox.setValue(movie.getCurrentFrame())
         finally:
             self._moviePropMgr_ignore_slider_and_spinbox = old
         return
-    
+
     def enableMovieControls(self, enabled = True):
         """
         Enable or disable movie control button.
@@ -513,4 +513,4 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         return
 
     pass # end of class movieDashboardSlotsMixin
-   
+

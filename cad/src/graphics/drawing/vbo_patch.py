@@ -10,27 +10,27 @@ import ctypes
 from OpenGL.raw.GL.ARB.vertex_buffer_object import *
 
 def _sizeOfArrayInput( pyArgs, index, wrapper ):
-	return (
+        return (
                 # Was arraySize.
-		arrays.ArrayDatatype.arrayByteCount( pyArgs[index] )
-	)
+                arrays.ArrayDatatype.arrayByteCount( pyArgs[index] )
+        )
 
 glBufferDataARB = wrapper.wrapper( glBufferDataARB ).setPyConverter(
-	'data', arrays.asVoidArray(),
-).setPyConverter( 'size' ).setCResolver( 
-	'data', arrays.ArrayDatatype.voidDataPointer ,
+        'data', arrays.asVoidArray(),
+).setPyConverter( 'size' ).setCResolver(
+        'data', arrays.ArrayDatatype.voidDataPointer ,
 ).setCConverter(
-	'size', _sizeOfArrayInput,
-).setReturnValues( 
-	wrapper.returnPyArgument( 'data' ) 
+        'size', _sizeOfArrayInput,
+).setReturnValues(
+        wrapper.returnPyArgument( 'data' )
 )
 
 glBufferSubDataARB = wrapper.wrapper( glBufferSubDataARB ).setPyConverter(
-	'data', arrays.asVoidArray(),
-).setPyConverter( 'size' ).setCResolver( 
-	'data', arrays.ArrayDatatype.voidDataPointer ,
+        'data', arrays.asVoidArray(),
+).setPyConverter( 'size' ).setCResolver(
+        'data', arrays.ArrayDatatype.voidDataPointer ,
 ).setCConverter(
-	'size', _sizeOfArrayInput,
-).setReturnValues( 
-	wrapper.returnPyArgument( 'data' ) 
+        'size', _sizeOfArrayInput,
+).setReturnValues(
+        wrapper.returnPyArgument( 'data' )
 )
