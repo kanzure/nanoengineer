@@ -208,8 +208,6 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         - See also the routines GraphicsMode.setParams or object.setProps
         ..better to name them all in one style?  
         """
-        #Set the duplex rise and bases per turn spinbox values. 
-
         numberOfBasePairs, \
                          dnaForm, \
                          dnaModel,\
@@ -262,34 +260,6 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             duplexRise,
             self.endPoint1, 
             self.endPoint2)
-
-
-    def _update_widgets_in_PM_before_show(self):
-        """
-        This is called only when user is editing an existing structure. 
-        Its different than self.update_widgets_in_pm_before_show. (that method 
-        is called just before showing the property manager) 
-        @see: DnaSegment_EditCommand.editStructure()
-
-        """
-        if self.editCommand is not None and self.editCommand.hasValidStructure():
-
-            self.endPoint1, self.endPoint2 = self.editCommand.struct.getAxisEndPoints()
-
-            duplexLength = vlen(self.endPoint1 - self.endPoint2)
-
-            numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                     duplexLength) 
-
-            self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs) 
-            #Set the legth of duplex field. Note that 
-            #_update_widgets_in_PM_before_show is called in self.show, before
-            #you connect the signals. So, for the 'first show' we will need to 
-            #manually set the value of the duplex length in that field. 
-            #But later, whan a different DnaSegment is clicked, (while still in 
-            #DnaSegment_EditCommand, the propMgr will already be connected 
-            #so the call below in that case is redundant (but harmless)
-            self.numberOfBasesChanged(numberOfBasePairs)
 
     def numberOfBasesChanged( self, numberOfBases ):
         """

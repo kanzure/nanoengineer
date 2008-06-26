@@ -30,6 +30,10 @@ from utilities.icon_utilities import imagename_to_pixmap
 from utilities.Comparison     import same_vals
 from utilities.constants import MODEL_PAM3
 
+from dna.model.Dna_Constants    import getNumberOfBasePairsFromDuplexLength
+
+
+_superclass = DnaStrandOrSegment
 class DnaSegment(DnaStrandOrSegment):
     """
     Model object which represents a Dna Segment inside a Dna Group.
@@ -69,7 +73,7 @@ class DnaSegment(DnaStrandOrSegment):
         self._duplexRise = 3.18 #Default value.
         self._basesPerTurn = 10 #Default value
         
-        DnaStrandOrSegment.__init__(self, 
+        _superclass.__init__(self, 
                                     name, 
                                     assy, 
                                     dad, 
@@ -115,14 +119,27 @@ class DnaSegment(DnaStrandOrSegment):
                 c.draw_highlighted(glpane, color)   
                 
     
-    def getNumberOfBasePairs(self):
-        #@REVIEW: Is it okay to simply return the number of axis atoms within 
-        #the segment (like done below)? But what if there is a bare axis atom 
-        #within the segment?In any case, the way we compute the numberOfBase 
-        #pairs is again an estimatebased on the duplex length! (i.e. it doesn't 
-        #count the individual base-pairs. BTW, a segment may even have a single 
-        #strand,so the word basepair is not always correct. -- Ninad 2008-04-08
-        return self.getNumberOfAxisAtoms()
+    def getNumberOfBasePairs(self):        
+        duplexLength = self.getSegmentLength()        
+        #@ATTENTION: This method assumes that the dna model is PAM3 and 
+        #uses that info to return the number of bases. 
+        
+        if duplexLength:
+            numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                     duplexLength, 
+                                                                     duplexRise = self._duplexRise )
+            
+        else:        
+            #@REVIEW: Is it okay to simply return the number of axis atoms within 
+            #the segment (like done below)? But what if there is a bare axis atom 
+            #within the segment?In any case, the way we compute the numberOfBase 
+            #pairs is again an estimatebased on the duplex length! (i.e. it doesn't 
+            #count the individual base-pairs. BTW, a segment may even have a single 
+            #strand,so the word basepair is not always correct. -- Ninad 2008-04-08
+            numberOfBasePairs = self.getNumberOfAxisAtoms()
+            
+        return numberOfBasePairs
+        
     
     def getNumberOfAxisAtoms(self): 
         """
@@ -257,6 +274,14 @@ class DnaSegment(DnaStrandOrSegment):
                 content_strand_chunks.extend(ladder.strand_chunks())
                 
         return content_strand_chunks
+    
+    def getAllAxisAtoms(self):
+        allAtomList = []
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                allAtomList.extend(member.atoms.values())
+                
+        return allAtomList
     
     def is_PAM3_DnaSegment(self):
         """
@@ -621,6 +646,45 @@ class DnaSegment(DnaStrandOrSegment):
     def setBasesPerTurn(self, basesPerTurn):
         if basesPerTurn:
             self._basesPerTurn = basesPerTurn
+            
+            
+    def writemmp_other_info_opengroup(self, mapping): 
+        """
+        """
+        #This method is copied over from NanotubeSegment class . 
+        #Retaining comments by Bruce in that method. Method added to write
+        #bases per turn and related info to the mmp file. -- Ninad 2008-06-26
+        
+        
+        #bruce 080507 refactoring (split this out of Group.writemmp)
+        # (I think the following condition is always true, but I didn't
+        #  prove this just now, so I left in the test for now.)
+        encoded_classifications = self._encoded_classifications()
+        
+        if encoded_classifications == "DnaSegment":
+            
+            # Write the parameters into an info record so we can read and 
+            #restore them in the next session. 
+            mapping.write("info opengroup dnaSegment-parameters = %0.3f, %0.3f \n" % (self.getBasesPerTurn(),
+                            self.getDuplexRise()))
+            pass
+        return
+
+    def readmmp_info_opengroup_setitem( self, key, val, interp ):
+        """
+        [extends superclass method]
+        """
+        #bruce 080507 refactoring (split this out of the superclass method)
+        if key == ['dnaSegment-parameters']:
+            # val includes all the parameters, separated by commas.
+            basesPerTurn, duplexRise = val.split(",")
+            self.setBasesPerTurn(float(basesPerTurn))
+            self.setDuplexRise(float(duplexRise))
+            
+        else:
+            _superclass.readmmp_info_opengroup_setitem( self, key, val, interp)
+        return
+    
                    
     
     def _computeDuplexRise(self):

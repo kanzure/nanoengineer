@@ -204,6 +204,8 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
         #e also provide exprs/opts for use in the caps, incl some way to be capped on one end, different colors, etc
     #e color for marks/sketch elements: point, line & fill & text -- maybe inherit defaults & option-decls for this
     #e surface texture/coordsys options
+    
+    opacity = Option(float, 1.0) #ninad 2008-06-25 See also self.draw. 
 
     # formulae
     ## dx = norm_Expr(axis) # ValueError: matrices are not aligned -- probably means we passed an array of V's to norm
@@ -222,12 +224,29 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
     dz = _self._dy_dz[1]
     length = vlen_Expr(axisvector)
     center = (end1 + end2) / 2.0
-    def draw(self):
-        color = self.fix_color(self.color)
+    def draw(self):        
+        #@ATTENTION: The new attr 'self.opacity'  was added on 2008-06-26. But 
+        #call to self.fix_color doesn't set the opacity (transparency) properly. 
+        #Also, based on test, not 'fixing the color' and directly using 
+        #self.color works. So, defining the following condition. (use of 
+        #self.fix_color may be unnecessary even for opaque objects but it is 
+        #untested -- Ninad 2008-06-26
+        if self.opacity == 1.0:
+            color = self.fix_color(self.color)
+        else:
+            color = self.color
+            
         end1, end2 = self.axis #####
         radius = self.radius
         capped = self.capped
-        drawcylinder(color, end1, end2, radius, capped = capped) ###coordsys?
+
+        drawcylinder(color, 
+                     end1,
+                     end2, 
+                     radius, 
+                     capped = capped, 
+                     opacity = self.opacity
+                     ) ###coordsys?
         return
     def perpvec_at_surfacepoint(self, point): #e rename?
         """Given a point on or near my surface (actually, on the surface of any coaxial cylinder),

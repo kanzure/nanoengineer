@@ -27,12 +27,12 @@ from exprs.Arrow import Arrow
 import foundation.env as env
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
 from utilities.prefs_constants import selectionColor_prefs_key
-from utilities.constants import darkgreen
 from utilities.constants import olive
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
 from exprs.ExprsConstants import StateRef
+from exprs.dna_ribbon_view import Cylinder
 
 
 class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
@@ -49,6 +49,10 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #See DnaSegment_EditCommand._determine_resize_handle_radius() for more 
     #details
     sphereRadius = Option(StateRef, 1.2)
+    
+    discRadius = Option(StateRef, 1.2)
+    
+    discThickness = Option(StateRef, 1.2)
     
     #Stateusbar text. Variable needs to be renamed in superclass. 
     sbar_text = Option(str, 
@@ -81,10 +85,18 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #whether to draw the highlightable object. 
     should_draw = State(bool, True) 
     
+    
+    pt = _self.direction*_self.discThickness
+    
     appearance = Overlay(
         Sphere(_self.sphereRadius, 
                handleColor, 
                center = ORIGIN), 
+        
+        Cylinder((ORIGIN + pt, ORIGIN - pt),
+                 radius = _self.discRadius,
+                 color = handleColor, 
+                 opacity = 0.5),
                
         Arrow( 
             color = handleColor, 
@@ -101,6 +113,10 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
             Sphere(_self.sphereRadius,                       
                    HHColor, 
                    center = ORIGIN),
+            
+            Cylinder((ORIGIN + pt, ORIGIN - pt),
+                 radius = _self.discRadius,
+                 color = HHColor),
                    
             Arrow( 
                 color = HHColor, 

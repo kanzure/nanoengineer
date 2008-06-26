@@ -75,7 +75,8 @@ from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_n
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
-
+from utilities.prefs_constants import dnaSegmentResizeHandle_discRadius_prefs_key
+from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs_key
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -152,6 +153,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             fixedEndOfStructure = handlePoint2,
             direction = norm_Expr(handlePoint1 - handlePoint2),
             sphereRadius = handleSphereRadius1, 
+            discRadius = env.prefs[dnaSegmentResizeHandle_discRadius_prefs_key],
+            discThickness = env.prefs[dnaSegmentResizeHandle_discThickness_prefs_key],
             range = (_resizeHandle_stopper_length, 10000)   
         ))
 
@@ -163,6 +166,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             fixedEndOfStructure = handlePoint1,
             direction = norm_Expr(handlePoint2 - handlePoint1),
             sphereRadius = handleSphereRadius2,
+            discRadius = env.prefs[dnaSegmentResizeHandle_discRadius_prefs_key],
+            discThickness = env.prefs[dnaSegmentResizeHandle_discThickness_prefs_key],
             range = (_resizeHandle_stopper_length, 10000)
         ))
 
@@ -311,10 +316,22 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.struct (which is being edited)
         @see: self.editStructure()
         """
-        #Set the duplex rise and number of bases
+        
+        #Format in which params need to be provided to the Property manager
+        #(i.e. in propMgr.setParameters():
+            #numberOfBasePairs,
+            #dnaForm, 
+            #dnaModel,
+            #basesPerTurn,
+            #duplexRise, 
+            #endPoint1, 
+            #endPoint2
+        
         basesPerTurn, duplexRise = self.struct.getProps()
         endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-        params_for_propMgr = (None,
+        numberOfBasePairs = self.struct.getNumberOfBasePairs()
+        
+        params_for_propMgr = (numberOfBasePairs,
                               None, 
                               None,
                               basesPerTurn, 
@@ -498,7 +515,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         Finds out the sphere radius to use for the resize handles, based on 
         atom /chunk or glpane display (whichever decides the display of the end 
-        atoms.  The default  value is 1.2.
+        atoms.  
 
 
         @see: self.updateHandlePositions()
@@ -506,11 +523,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         atm1 , atm2 = self.struct.getAxisEndAtoms()                  
         if atm1 is not None:
-            self.handleSphereRadius1 = max(1.005*atm1.drawing_radius(), 
-                                           1.005*HANDLE_RADIUS_DEFAULT_VALUE)
+            self.handleSphereRadius1 = max(1.25*atm1.drawing_radius(), 
+                                           1.25*HANDLE_RADIUS_DEFAULT_VALUE)
         if atm2 is not None: 
-            self.handleSphereRadius2 =  max(1.005*atm2.drawing_radius(), 
-                                            1.005*HANDLE_RADIUS_DEFAULT_VALUE)
+            self.handleSphereRadius2 =  max(1.25*atm2.drawing_radius(), 
+                                            1.25*HANDLE_RADIUS_DEFAULT_VALUE)
 
     def _update_resizeHandle_stopper_length(self):
         """
@@ -809,8 +826,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
         duplexLength = vlen( currentPosition - fixedEndOfStructure )
+        duplexRise = self.struct.getDuplexRise()
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength)
+                                                                 duplexLength, 
+                                                                 duplexRise = duplexRise
+                                                                 )
         
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
@@ -853,8 +873,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             text += commaString
         
         text += changedBasePairsString         
-        
-        
+                
         #########          
 
         return (text, textColor)

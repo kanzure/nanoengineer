@@ -319,6 +319,9 @@ dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key = 'A110/Sho
 dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key = 'A110/Show duplex length info in cursor text while in DnaSegment_Editcommand'
 dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key = 'A110/Show changed number of basepairs info in cursor text while in DnaSegment_Editcommand'
 
+#DnaSegment_ResizeHandle preferences
+dnaSegmentResizeHandle_discRadius_prefs_key = 'V111/Radius of the disc component of the DnaSegment resize handle'
+dnaSegmentResizeHandle_discThickness_prefs_key = 'V111/Thickness of the disc component of the DnaSegment resize handle'
 
 dnaStrandEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex in DnaStrand_EditCommand'
 dnaStrandEditCommand_cursorTextCheckBox_numberOfBases_prefs_key = 'A110/Show number of bases info in cursor text while in DnaStrand_Editcommand'
@@ -364,6 +367,7 @@ dnaBaseInvIndicatorsColor_prefs_key = 'A10/DNA base inverse orientation indicato
 dnaBaseIndicatorsDistance_prefs_key = 'A10/DNA base orientation indicators distance'
 dnaStyleBasesDisplayLetters_prefs_key = 'A10/DNA base letters enabled'
 dnaBaseIndicatorsPlaneNormal_prefs_key = 'V110/DNA base orientation indicators plane option'
+
 
 
 #Nanotube cursor texts ============
@@ -796,6 +800,10 @@ prefs_table = (
 
     ('', 'boolean',
      dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
+    
+    #DnaSegment_ResizeHandle preferences
+    ('', 'float', dnaSegmentResizeHandle_discRadius_prefs_key, 12.5), 
+    ('', 'float', dnaSegmentResizeHandle_discThickness_prefs_key, 0.25),
 
 
     #DnaStrand_EditCommand
