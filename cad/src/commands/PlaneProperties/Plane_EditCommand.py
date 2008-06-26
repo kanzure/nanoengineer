@@ -259,6 +259,33 @@ class Plane_EditCommand(EditCommand):
         self.propMgr.previousPMParams = currentParams
         self._modifyStructure(currentParams)
         
+    def runCommand(self):
+        """
+        Overrides superclass method. 
+        Run this edit command. This method is called when user invokes 
+        Insert > Plane command (to create a new plane object) . In addition 
+        to creating the Plane object and Property manager, this also updates
+        the property manager values with the ones for the new Plane object. 
+        
+        @see: MWSemantics.createPlane() which calls this while inserting a 
+        new Plane
+        @see: self.editStructure()
+        @see: PlanePropertyManager.setParameters()
+        @see: self._updatePropMgrParams()
+        @TODO: The code that updates the PropMgr params etc needs to be in the 
+        EditCommand API method/
+        
+        """
+        EditCommand.runCommand(self)
+        if self.hasValidStructure():             
+            self._updatePropMgrParams()
+
+            #Store the previous parameters. Important to set it after you 
+            #set attrs in the propMgr. 
+            #self.previousParams is used in self._previewStructure and 
+            #self._finalizeStructure to check if self.struct changed.
+            self.previousParams = self._gatherParameters()
+        
     def editStructure(self, struct = None):
         """
         """
