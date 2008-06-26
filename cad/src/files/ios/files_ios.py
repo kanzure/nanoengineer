@@ -189,7 +189,7 @@ def railImplementation(assy):
     for strand in strandList:
         strandID = strand.name
         
-        #Note: Ninad needs to look at this, what do the indices in 
+        #Note: Ninad/Bruce needs to look at this, what do the indices in 
         #wholechain_baseindex_range_for_rail(rail) for each rail of the wholechain
         #coresspond to? When you sort them, and arrange the corresponding basestrings
         #accordinly, it does not yield the original sequence. The error is, however
@@ -197,6 +197,7 @@ def railImplementation(assy):
         #from one or more strands.
         #Also rails and chunks cannot be used since they are not in the same order
         #as the sequence string
+        #Piotr has used this method before successfully, how?
         
         print "Strand Name =", strand.name
         strand_wholechain = strand.get_strand_wholechain()
@@ -204,7 +205,7 @@ def railImplementation(assy):
         indexTupleListInOrder = []
         if strand_wholechain:
             for rail in strand_wholechain.rails():
-                #print "Rail baseatoms", rail.baseatoms
+                
                 baseList = []
                 for a in rail.baseatoms:
                     bases = a.getDnaBaseName()
@@ -234,6 +235,7 @@ def railImplementation(assy):
                 else:
                     #locate place in the list where to insert basestring and index 
                     #tuple
+                    oldListLength = len(indexTupleListInOrder)
                     for i in range(len(indexTupleListInOrder)):
                         if i == 0 and indexTuple[1] < indexTupleListInOrder[i][0]:
                             #insert this string at index 0
@@ -245,6 +247,10 @@ def railImplementation(assy):
                             baseStringListInOrder.insert(i,baseStringFinal)
                         else:
                             continue
+                    if oldListLength == len(indexTupleListInOrder):
+                        indexTupleListInOrder.insert(oldListLength, indexTuple)
+                        baseStringListInOrder.insert(oldListLength,baseStringFinal)
+                        
         print "BaseString List=", baseStringListInOrder
         print "Index Tuple List= ", indexTupleListInOrder
                 
@@ -599,8 +605,8 @@ def createStrands(doc,elemDoc, assy):
     """
     
     #Run by Ninad/Bruce: UM 20080624
-    #railImplementation(assy)
-    atomByAtomImplementation(assy)
+    railImplementation(assy)
+    #atomByAtomImplementation(assy)
     
     """ 
     #old implementation for getting strand information
