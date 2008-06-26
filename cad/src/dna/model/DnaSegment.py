@@ -119,24 +119,14 @@ class DnaSegment(DnaStrandOrSegment):
                 c.draw_highlighted(glpane, color)   
                 
     
-    def getNumberOfBasePairs(self):        
-        duplexLength = self.getSegmentLength()        
-        #@ATTENTION: This method assumes that the dna model is PAM3 and 
-        #uses that info to return the number of bases. 
-        
-        if duplexLength:
-            numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                     duplexLength, 
-                                                                     duplexRise = self._duplexRise )
-            
-        else:        
-            #@REVIEW: Is it okay to simply return the number of axis atoms within 
-            #the segment (like done below)? But what if there is a bare axis atom 
-            #within the segment?In any case, the way we compute the numberOfBase 
-            #pairs is again an estimatebased on the duplex length! (i.e. it doesn't 
-            #count the individual base-pairs. BTW, a segment may even have a single 
-            #strand,so the word basepair is not always correct. -- Ninad 2008-04-08
-            numberOfBasePairs = self.getNumberOfAxisAtoms()
+    def getNumberOfBasePairs(self):  
+        #@REVIEW: Is it okay to simply return the number of axis atoms within 
+        #the segment (like done below)? But what if there is a bare axis atom 
+        #within the segment?In any case, the way we compute the numberOfBase 
+        #pairs is again an estimatebased on the duplex length! (i.e. it doesn't 
+        #count the individual base-pairs. BTW, a segment may even have a single 
+        #strand,so the word basepair is not always correct. -- Ninad 2008-04-08
+        numberOfBasePairs = self.getNumberOfAxisAtoms()
             
         return numberOfBasePairs
         
