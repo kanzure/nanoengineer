@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 node_indices.py
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Utilities for finding node indices in a tree,
 and using them to help move the nodes around.
@@ -20,6 +20,8 @@ so those classes can stay small and to the point.
 Module classification: in foundation, since deals with
 Node trees in a sufficiently general way. [bruce 071214]
 """
+
+from utilities.constants import common_prefix
 
 from foundation.Group import Group # for isinstance in assertion
 ##from jigs import Jig # for isinstance [bruce 071214 removed this]
@@ -102,22 +104,6 @@ def node_new_index(node, root, after_these):
         res = grouppos + [ind]
         assert is_list_of_ints(res)
     return res
-
-def common_prefix( seq1, seq2 ):
-    """
-    Given two python sequences, return the initial common prefix of them
-    (as a list and/or the sequence type of either of these sequences --
-     which of these sequence types to use is not defined by this fuction's
-     specification, but it will be one of those three types)
-    (it's also undefined whether the retval might be the same mutable object
-     as one of the inputs!)
-    """
-    maxlen = min(len(seq1),len(seq2))
-    for i in xrange(maxlen):
-        if seq1[i] != seq2[i]:
-            return seq1[0:i] # might be 0-length; type same as seq1
-    # one is a prefix of the other (or they are the same)
-    return seq1[0:maxlen] # might be all or part of seq1
     
 def just_after(extended_index): # not presently used
     """

@@ -238,6 +238,29 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
 
 # ==
 
+def common_prefix( seq1, *moreseqs ):
+    """
+    Given one or more python sequences (as separate arguments),
+    return the initial common prefix of them (determined by != of elements)
+    (as a list and/or the sequence type of the first of these sequences --
+     which of these sequence types to use is not defined by this function's
+     specification, but it will be one of those three types)
+    (it's also undefined whether the retval might be the same mutable object
+     as the first argument!)
+    """
+    #bruce 080626, modified from a version in node_indices.py
+    length_ok = len(seq1)
+    for seq2 in moreseqs:
+        if len(seq2) < length_ok:
+            length_ok = len(seq2)
+        for i in xrange(length_ok):
+            if seq1[i] != seq2[i]:
+                length_ok = i
+                break
+    return seq1[0:length_ok] # might be all or part of seq1, or 0-length
+
+# ==
+
 # Display styles (aka display modes)
 
 # Note: this entire section ought to be split into its own file.
