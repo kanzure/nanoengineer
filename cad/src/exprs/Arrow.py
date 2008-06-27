@@ -10,9 +10,12 @@ History:
 """
 from exprs.widget2d import Widget2D
 from exprs.attr_decl_macros import ArgOrOption
+from exprs.attr_decl_macros import Option
 from exprs.ExprsConstants import Color, Position, ORIGIN, DX
 
 from utilities.constants import gray
+
+from exprs.__Symbols__ import Anything
 
 from graphics.drawing.CS_draw_primitives import drawDirectionArrow 
 
@@ -29,6 +32,15 @@ class Arrow(Widget2D):
     arrowBasePoint = ArgOrOption(Position, ORIGIN + 2*DX)
     scale = ArgOrOption(float, 10.0)
     tailRadius = ArgOrOption(float, 0.4)
+    #tailRadiusLimits ensure a min and max size for the arrow (including arrow 
+    #tail and arrow head. drawDirectionArrow method uses tailRadius as a reference
+    #to derive other params such as arrowhead base radius etc. Thats why this arg
+    #is named this way.
+    #@See DnaSegment_ResizeHandle to see how these limits are defined. 
+    tailRadiusLimits = ArgOrOption(tuple, ())
+    glpane = ArgOrOption(Anything, None)
+    scale_to_glpane = Option(bool, False)
+    
     def draw(self):        
         drawDirectionArrow(
             self.color, 
@@ -36,7 +48,10 @@ class Arrow(Widget2D):
             self.arrowBasePoint,
             self.tailRadius,
             self.scale,
-            numberOfSides = 6
+            tailRadiusLimits = self.tailRadiusLimits,
+            numberOfSides = 6,
+            glpane = self.glpane,
+            scale_to_glpane = self.scale_to_glpane
         )          
 
         

@@ -87,7 +87,6 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     
     
     pt = _self.direction*_self.discThickness
-    
     appearance = Overlay(
         Sphere(_self.sphereRadius, 
                handleColor, 
@@ -97,13 +96,16 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
                  radius = _self.discRadius,
                  color = handleColor, 
                  opacity = 0.5),
-               
+            
         Arrow( 
             color = handleColor, 
             arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius,
             tailPoint = ORIGIN, 
             tailRadius = _self.sphereRadius*0.3,
-            scale = _self.command.glpane.scale)
+            tailRadiusLimits = (0.36, 3.0),
+            scale = _self.command.glpane.scale, 
+            glpane = _self.command.glpane,
+            scale_to_glpane = True )                   
             )
 
     HHColor = env.prefs[hoverHighlightingColor_prefs_key]
@@ -123,7 +125,11 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
                 arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius, 
                 tailPoint = ORIGIN, 
                 tailRadius = _self.sphereRadius*0.3,
-                scale = _self.command.glpane.scale)
+                tailRadiusLimits = (0.36, 3.0),
+                scale = _self.command.glpane.scale,
+                glpane = _self.command.glpane, 
+                scale_to_glpane = True
+            )
             ))
         
     def on_press(self):  

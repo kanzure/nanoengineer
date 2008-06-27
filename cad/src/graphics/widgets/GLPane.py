@@ -765,14 +765,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         x = pos.x() + offset
         y = pos.y() - offset
+        
+        offset_val = 1
+        
 
-        deltas_for_bg_color = ((1, 1), (-1, -1), (-1, 1), (1, -1))
-
+        deltas_for_bg_color = ((offset_val, offset_val), 
+                               (-offset_val, -offset_val), 
+                               (-offset_val, offset_val), 
+                               (offset_val, -offset_val))
+        
         #background color
         bg_color = lightgray
         #Foreground color 
         fg_color = black
-
+        
         for dx, dy in deltas_for_bg_color: 
             self.qglColor(RGBf_to_QColor(bg_color)) 
 
@@ -780,7 +786,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.renderText(x + dx ,
                             y + dy,
                             QString(textString),
-                            self._getFontForTextNearCursor())
+                            self._getFontForTextNearCursor(fontSize = 11, 
+                                                           isBold = True))
             self.qglClearColor(RGBf_to_QColor(bg_color))
 
         # Note: It is necessary to set the font color, otherwise it may change!
@@ -793,7 +800,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.renderText(x ,
                         y ,
                         QString(textString),
-                        self._getFontForTextNearCursor())
+                        self._getFontForTextNearCursor(fontSize = 11, 
+                                                       isBold = True))
         self.qglClearColor(RGBf_to_QColor(fg_color))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)

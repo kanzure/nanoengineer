@@ -895,19 +895,18 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         #Add commas (to be refactored)
         commaString = ", "
-        text = numberOfBasePairsString 
-
-        if text and duplexLengthString:
-            text += commaString
-
-        text += duplexLengthString
+        text = numberOfBasePairsString        
 
         if text and changedBasePairsString:
             text += commaString
 
-        text += changedBasePairsString         
+        text += changedBasePairsString 
+        
+        if text and duplexLengthString:
+            text += commaString
 
-        #########          
+        text += duplexLengthString
+       
 
         return (text, textColor)
 

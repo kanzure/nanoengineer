@@ -34,13 +34,17 @@ modes so this should be refactored then.
 
 """
 
-
+import foundation.env as env
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
-from utilities.constants import darkred, black
+from graphics.drawing.CS_draw_primitives import drawcylinder
+from utilities.constants import darkred, black, orange
 from model.chem import Atom
+from utilities.prefs_constants import dnaSegmentResizeHandle_discRadius_prefs_key
+from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs_key
 
+from geometry.VQT import norm
 
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2
@@ -153,7 +157,6 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         @see:self._drawCursorText()
         @see:self._drawHandles()
         """
-
         _superclass.Draw(self)
         if self._handleDrawingRequested:
             self._drawHandles()
@@ -216,14 +219,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                                ribbon1Color = ribbon1Color,
                                ribbon2Color = ribbon2Color,
                                stepColor = black )
-
+                        
             #Draw the text next to the cursor that gives info about
             #number of base pairs etc
             self._drawCursorText()
-
-
-
-
-
-
-

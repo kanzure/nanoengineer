@@ -140,9 +140,12 @@ def drawDirectionArrow(color,
                        arrowBasePoint, 
                        tailRadius,
                        scale,  
+                       tailRadiusLimits = (),
                        flipDirection = False,
                        opacity = 1.0,
-                       numberOfSides = 20
+                       numberOfSides = 20,
+                       glpane = None, 
+                       scale_to_glpane = False
                        ):
     """
     Draw a directional arrow staring at <tailPoint> with an endpoint decided
@@ -166,8 +169,29 @@ def drawDirectionArrow(color,
                         (a glePolycone) The default value if 20 (20 sided 
                         polycone)
     @type  numberOfSides: int
+    
+    @param scale_to_glpane: If True, the arrow size will be determined by the 
+                            glpane scale. 
     """
-
+    #@See DnaSegment_ResizeHandle to see how the tailRadiusLimits 
+    #are defined. See also exprs.Arrow. Note that we are not using 
+    #argument 'scale' for this purpose because the 
+    if scale_to_glpane and glpane is not None:
+        scaled_tailRadius = tailRadius*0.05*glpane.scale     
+        if tailRadiusLimits:
+            min_tailRadius = tailRadiusLimits[0]
+            max_tailRadius = tailRadiusLimits[1]
+            if scaled_tailRadius < min_tailRadius:
+                pass #use the provided tailRadius
+            elif scaled_tailRadius > max_tailRadius:
+                tailRadius = max_tailRadius
+            else:
+                tailRadius = scaled_tailRadius                
+        else:
+            tailRadius = scaled_tailRadius
+            
+                
+    
     vec = arrowBasePoint - tailPoint
     vec = scale*0.07*vec
     arrowBase =  tailRadius*3.0
