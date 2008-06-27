@@ -29,6 +29,9 @@ While in this command, user can
 History:
 Ninad 2008-01-18: Created
 
+TODO:
+- Needs cleanup and REFACTORING.
+
 
 """
 
@@ -77,6 +80,7 @@ from utilities.prefs_constants import dnaSegmentEditCommand_showCursorTextCheckB
 from utilities.prefs_constants import dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key
 from utilities.prefs_constants import dnaSegmentResizeHandle_discRadius_prefs_key
 from utilities.prefs_constants import dnaSegmentResizeHandle_discThickness_prefs_key
+from dna.model.Dna_Constants import getDuplexLength
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2
@@ -828,7 +832,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
-        duplexLength = vlen( currentPosition - fixedEndOfStructure )
         duplexRise = self.struct.getDuplexRise()
 
         #############
@@ -870,6 +873,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
             return '', black
+        
+                
+        #@@TODO: refactor. 
+        #this duplex length canculation fixes bug 2906
+        duplexLength = getDuplexLength('B-DNA', 
+                                   numberOfBasePairs, 
+                                   duplexRise = duplexRise)
 
         #Cursor text strings --
         duplexLengthString = str(round(duplexLength, 3))

@@ -265,8 +265,11 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         """
         Slot for the B{Number of Bases" spinbox.
         """
+        duplexRise = self.duplexRiseDoubleSpinBox.value()
         # Update the Duplex Length lineEdit widget.
-        text = str(getDuplexLength(self._conformation, numberOfBases)) \
+        text = str(getDuplexLength(self._conformation, 
+                                   numberOfBases, 
+                                   duplexRise = duplexRise)) \
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
         return
