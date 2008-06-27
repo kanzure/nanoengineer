@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 extrudeMode.py - Extrude mode, including its internal "rod" and "ring" modes.
 Unfinished [as of 050518], especially ring mode.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -71,6 +71,9 @@ from graphics.drawables.handles import niceoffsetsHandleSet
 from graphics.drawables.handles import draggableHandle_HandleSet
 from utilities.constants import blue
 from utilities.constants import green
+
+from utilities.constants import common_prefix
+
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
@@ -311,6 +314,11 @@ class extrudeMode(basicMode):
         self.basemol = mol
         #bruce 070407 set self.separate_basemols; all uses of it must be read, to fully understand fake_merged_mol semantics
         self.separate_basemols = true_Chunks_in(mol) # since mol might be a Chunk or a fake_merged_mol
+
+        #bruce 080626 new feature: figure out where we want to add whatever new
+        # nodes we create
+        self.add_new_nodes_here = self._compute_add_new_nodes_here( self.separate_basemols)
+        
         ## partly done new code [bruce 041222] ###@@@
         # temporarily break bonds between our base unit (mol) and the rest
         # of the model; record the pairs of singlets thus formed,
@@ -364,6 +372,38 @@ class extrudeMode(basicMode):
 
         return # from Enter
 
+    def _compute_add_new_nodes_here(self, nodes): #bruce 080626
+        """
+        If we are copying the given nodes, figure out where we'd like
+        to add new nodes (as a group to call addchild on).
+        """
+        assert nodes
+        def _compute_it():
+            return common_prefix( *[self._ok_groups_for_copies_of_node(node)
+                                    for node in nodes] )
+        groups = _compute_it()
+        if not groups:
+            nodes[0].part.ensure_toplevel_group()
+            groups = _compute_it()
+            assert groups
+        return groups[-1]
+
+    def _ok_groups_for_copies_of_node(self, node): #bruce 080626
+        """
+        Considering node alone, which groups (outermost first)
+        do we think are ok as a place to add copies of it?
+
+        @note: return value might be empty. If this is an issue,
+               caller may want to call node.part.ensure_toplevel_group(),
+               but it might cause bugs to do that in this method,
+               since it should have no side effects on the node tree.
+        """
+        res = node.containing_groups(within_same_part = True) # innermost first
+        res = res[::-1] # outermost first
+        while res and not res[-1].permit_addnode_inside():
+            res = res[:-1]
+        return res
+    
     def updateMessage(self):
         """
         Update the message box win property manager with an informative message.
@@ -751,9 +791,18 @@ class extrudeMode(basicMode):
             else:
                 new_nodes = [new]
             for node in new_nodes:
-                self.o.assy.addmol(node)
-                    #e addmol is inefficient when adding many mols at once, needs change to inval system
+                self.addnode(node)
+                    #e this is inefficient when adding many mols at once, needs change to inval system
                     #e this is probably not the best place in the MT to add it
+                    #
+                    # Note: by test, in current code (using fake_copied_mol)
+                    # this is redundant, since the nodes have already been added
+                    # when the copy was made. But it's harmless so I'll leave it
+                    # in, in case there are some conditions in which that hasn't
+                    # happened. Also, soon I'll revise this to add it in a
+                    # better place, so it will no longer be redundant
+                    # (unless the addmol in copy_single_chunk is also fixed).
+                    # [bruce 080626 comment]
                 # end 050216 changes
                 if self.keeppicked:
                     pass ## done later: self.basemol.pick()
@@ -776,6 +825,20 @@ class extrudeMode(basicMode):
         self.needs_repaint = 1 # assume this is always true, due to what calls us
         self.update_offset_bonds_display()
 
+    def addnode(self, node): #bruce 080626 split this out
+        """
+        Add node to the current part, in the best place
+        for the purposes of this command. It's ok if this
+        is called more than once on the same node.
+        """
+        group = self.add_new_nodes_here #bruce 080626 new feature
+        if group:
+            group.addchild(node)
+        else:
+            self.o.assy.addnode(node)
+                # note: addnode used to be called addmol
+        return
+    
     def update_offset_bonds_display(self):
         # should be the last function called by some user event method (??)... not sure if it always is! some weird uses of it...
         """
@@ -2142,6 +2205,16 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
                     # this should work for any kind of node, unless it has an update bug for some of them,
                     # but since the node doesn't yet have a dad, that's very unlikely.
                 assy.addmol(newMol)
+                    # Note: this might not be the best location in assy,
+                    # but the caller can fix that. This might be easier
+                    # than fixing it here (if not, maybe we'll revise this).
+                    # (Maybe it's best to put this in the same DnaGroup
+                    #  if there is one? Or, in the same Group except for
+                    #  Groups with a controlled membership, like
+                    #  DnaStrandOrSegment?)
+                    # REVIEW: it is necessary to add newMol to assy anywhere?
+                    # The method we override on class Chunk probably doesn't.
+                    # [bruce 080626]
             else:
                 print "warning: extrude ignoring failed copy" # can this ever happen? if so, we'll print way too much here...
         ###k will we also need assy.update_parts()??
