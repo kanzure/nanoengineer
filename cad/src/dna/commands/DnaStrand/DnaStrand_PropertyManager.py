@@ -56,7 +56,7 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Strand Properties"
+    title         =  "DnaStrand Properties"
     pmName        =  title
     iconPath      =  "ui/actions/Properties Manager/Strand.png"
 

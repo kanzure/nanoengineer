@@ -51,7 +51,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     @type iconPath: str
     """
 
-    title         =  "Dna Segment Properties"
+    title         =  "DnaSegment Properties"
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/DNA.png"
 
