@@ -177,12 +177,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             rotationDistanceRef = call_Expr( ObjAttr_StateRef,
                                              _self, 
                                              'rotation_distance1'),
-                                             center = handlePoint1,
-                                             axis = norm_Expr(handlePoint1 - handlePoint2),
-                                             origin = rotationHandleBasePoint1,
-                                             radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
+            center = handlePoint1,
+            axis = norm_Expr(handlePoint1 - handlePoint2),
+            origin = rotationHandleBasePoint1,
+            radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
 
-                                         ))
+        ))
 
     rotationHandle2 = Instance(         
         RotationHandle(    
@@ -190,12 +190,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             rotationDistanceRef = call_Expr( ObjAttr_StateRef,
                                              _self, 
                                              'rotation_distance2'),
-                                             center = handlePoint2,
-                                             axis = norm_Expr(handlePoint2 - handlePoint1),
-                                             origin = rotationHandleBasePoint2,
-                                             radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
+            center = handlePoint2,
+            axis = norm_Expr(handlePoint2 - handlePoint1),
+            origin = rotationHandleBasePoint2,
+            radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
 
-                                         ))
+        ))
 
 
     def __init__(self, commandSequencer, struct = None):
@@ -316,7 +316,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.struct (which is being edited)
         @see: self.editStructure()
         """
-        
+
         #Format in which params need to be provided to the Property manager
         #(i.e. in propMgr.setParameters():
             #numberOfBasePairs,
@@ -326,11 +326,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #duplexRise, 
             #endPoint1, 
             #endPoint2
-        
+
         basesPerTurn, duplexRise = self.struct.getProps()
         endPoint1, endPoint2 = self.struct.getAxisEndPoints()
         numberOfBasePairs = self.struct.getNumberOfBasePairs()
-        
+
         params_for_propMgr = (numberOfBasePairs,
                               None, 
                               None,
@@ -719,7 +719,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         del endPoint2
         del number_of_basePairs_from_struct
 
+
+
         numberOfBasePairsToAddOrRemove =  self._determine_numberOfBasePairs_to_change()
+
 
         ladderEndAxisAtom = self.get_axisEndAtom_at_resize_end()
 
@@ -821,17 +824,37 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #DnaStrand_EditCommand.getCursorText() -- Ninad 2008-04-12
         if self.grabbedHandle is None:
             return        
-      
+
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
         duplexLength = vlen( currentPosition - fixedEndOfStructure )
         duplexRise = self.struct.getDuplexRise()
-        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength, 
-                                                                 duplexRise = duplexRise
-                                                                 )
-        
+
+        #############
+
+        raw_numberOfBasePairsToAddOrRemove = self._determine_numberOfBasePairs_to_change()
+
+        #Following fixes bugs like 2904 and 2906
+        #Note that we are using numberOfBasePairsToAddOrRemove in self._modifyStructure()
+        #if self._determine_numberOfBasePairs_to_change() returns the number of basepairs 
+        #to add, it returns 1 more than the actual number of basepairs. Because 
+        #while creating the dna, it removes the first base pair of the newly created 
+        #dna. So, for cursor text and for PM spinbox, we should make adjustments to the
+        #raw_numberOfBasePairsToAddOrRemove so that it reflects the correct value 
+        #in the spinbox and in the PM
+
+        if raw_numberOfBasePairsToAddOrRemove > 1:
+            numberOfBasePairsToAddOrRemove = raw_numberOfBasePairsToAddOrRemove - 1
+
+        else:
+            numberOfBasePairsToAddOrRemove = raw_numberOfBasePairsToAddOrRemove
+
+        ##############
+
+        current_numberOfBasePairs = self.struct.getNumberOfBasePairs()
+
+        numberOfBasePairs = current_numberOfBasePairs + numberOfBasePairsToAddOrRemove
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
         #than just to return a textString -- Ninad 2007-12-20
@@ -842,24 +865,24 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #changed based on Mark's user experience. The text is now always shown
         #in black color. -- Ninad 2008-04-17
         textColor = black  
-        
+
         text = "" 
-        
+
         if not env.prefs[dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key]:
             return '', black
-        
+
         #Cursor text strings --
         duplexLengthString = str(round(duplexLength, 3))
-        
+
         numberOfBasePairsString = self._getCursorText_numberOfBasePairs(
             numberOfBasePairs)
-        
+
 
         duplexLengthString  = self._getCursorText_length(duplexLength)
-        
+
         changedBasePairsString = self._getCursorText_changedBasePairs(
             numberOfBasePairs)
-        
+
         #Add commas (to be refactored)
         commaString = ", "
         text = numberOfBasePairsString 
@@ -868,16 +891,16 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             text += commaString
 
         text += duplexLengthString
-        
+
         if text and changedBasePairsString:
             text += commaString
-        
+
         text += changedBasePairsString         
-                
+
         #########          
 
         return (text, textColor)
-    
+
     def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
         """
         Return the cursor textstring that gives information about the number 
@@ -890,7 +913,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             numberOfBasePairsString = "%db"%numberOfBasePairs
 
         return numberOfBasePairsString
-    
+
     def _getCursorText_length(self, duplexLength):
         """
         """
@@ -903,29 +926,29 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 lengthUnitString = 'nm'
                 duplexLength = duplexLength * 0.1
             duplexLengthString = "%5.3f%s"%(duplexLength, lengthUnitString)
-        
+
         return duplexLengthString
-    
-    
+
+
     def _getCursorText_changedBasePairs(self, numberOfBasePairs):
         """
         """
         changedBasePairsString = ''
-        
+
         if env.prefs[
             dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key]:            
-        
+
             original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
-            
+
             changed_basePairs = numberOfBasePairs - original_numberOfBasePairs
-    
+
             if changed_basePairs > 0:
                 changedBasePairsString = "(" + "+" + str(changed_basePairs) + ")"
             else:
                 changedBasePairsString = "(" + str(changed_basePairs) + ")"
-        
+
         return changedBasePairsString
-    
+
 
     def getDnaRibbonParams(self):
         """
@@ -1056,34 +1079,94 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     def _determine_numberOfBasePairs_to_change(self):
         """
         """
+
         duplexRise = self.struct.getDuplexRise()
+        numberOfBasesToAddOrRemove = 0
+        #Following helps fixing bugs like 2904 and 2906 see also self.getCursorText()
+        #and TODO items in that method. Also note that the grabbed handle case
+        #is similar to the one in MultipleDnaSegmentResize_EditCommand. 
+        #needs refactoring and overall cleanup.
+        if self.grabbedHandle is not None:
+            
+            currentPosition = self.grabbedHandle.currentPosition
+            fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
-        #The Property manager will be showing the current number 
-        #of base pairs (w. May be we can use that number directly here? 
-        #The following is  safer to do so lets just recompute the 
-        #number of base pairs. (if it turns out to be slow, we will consider
-        #using the already computed calue from the property manager
-        new_numberOfBasePairs = self.propMgr.numberOfBasePairsSpinBox.value()
 
-        endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-        if endPoint1 is None or endPoint2 is None:
-            return 0
+            changedLength = vlen(currentPosition - self.grabbedHandle.origin)
 
-        original_duplex_length = vlen(endPoint1 - endPoint2)
+            direction_of_drag = norm(self.grabbedHandle.currentPosition - \
+                                     self.grabbedHandle.origin)
 
-        original_numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                          original_duplex_length, 
-                                                                          duplexRise = duplexRise
-                                                                      )
 
-        numberOfBasesToAddOrRemove = new_numberOfBasePairs - original_numberOfBasePairs 
+            #Even when the direction of drag is negative (i.e. the basepairs being 
+            #removed), make sure not to remove base pairs for very small movement
+            #of the grabbed handle 
+            if changedLength < 0.2*duplexRise:
+                return 0
 
-        if numberOfBasesToAddOrRemove > 0:
-            #dna.modify will remove the first base pair it creates 
-            #(that basepair will only be used for proper alignment of the 
-            #duplex with the existing structure) So we need to compensate for
-            #this basepair by adding 1 to the new number of base pairs. 
-            numberOfBasesToAddOrRemove += 1
+            #This check quickly determines if the grabbed handle moved by a distance
+            #more than the duplexRise and avoids further computations
+            #This condition is applicable only when the direction of drag is 
+            #positive..i.e. bases bing added to the segment. 
+            if changedLength < duplexRise and \
+               dot(self.grabbedHandle.direction, direction_of_drag) > 0:
+                return 0
+
+
+            #If the segment is being shortened (determined by checking the 
+            #direction of drag)  
+
+            numberOfBasesToAddOrRemove =  \
+                                       getNumberOfBasePairsFromDuplexLength(
+                                           'B-DNA', 
+                                           changedLength,
+                                           duplexRise = duplexRise)
+
+            if dot(self.grabbedHandle.direction, direction_of_drag) < 0:            
+                numberOfBasesToAddOrRemove = - numberOfBasesToAddOrRemove
+
+
+            if numberOfBasesToAddOrRemove > 0:
+                #dna.modify will remove the first base pair it creates 
+                #(that basepair will only be used for proper alignment of the 
+                #duplex with the existing structure) So we need to compensate for
+                #this basepair by adding 1 to the new number of base pairs. 
+
+                #UPDATE 2008-05-14: The following commented out code 
+                #i.e. "##numberOfBasesToAddOrRemove += 1" is not required in this 
+                #class , because the way we compute the number of base pairs to 
+                #be added is different than than how its done at the moment in the
+                #superclass. In this method, we compute bases to be added from 
+                #the resize end and that computation INCLUDES the resize end. 
+                #so the number that it returns is already one more than the actual
+                #bases to be added. so commenting out the following line
+                # -- Ninad 2008-05-14
+                ##numberOfBasesToAddOrRemove += 1   
+                pass
+        else:
+            #The Property manager will be showing the current number 
+            #of base pairs (w. May be we can use that number directly here? 
+            #The following is  safer to do so lets just recompute the 
+            #number of base pairs. (if it turns out to be slow, we will consider
+            #using the already computed calue from the property manager
+            new_numberOfBasePairs = self.propMgr.numberOfBasePairsSpinBox.value()
+
+            endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+            if endPoint1 is None or endPoint2 is None:
+                return 0
+
+            original_duplex_length = vlen(endPoint1 - endPoint2)
+
+            original_numberOfBasePairs = self.struct.getNumberOfBasePairs()
+
+            numberOfBasesToAddOrRemove = new_numberOfBasePairs - original_numberOfBasePairs 
+
+            if numberOfBasesToAddOrRemove > 0:
+                #dna.modify will remove the first base pair it creates 
+                #(that basepair will only be used for proper alignment of the 
+                #duplex with the existing structure) So we need to compensate for
+                #this basepair by adding 1 to the new number of base pairs. 
+                numberOfBasesToAddOrRemove += 1
 
         return numberOfBasesToAddOrRemove
 
