@@ -211,7 +211,9 @@ def post_main_show( win):
     _initialize_plugin_generators()
     _init_experimental_commands()
     _init_miscellaneous_commands()
-    _set_mainwindow_splitter_position( win)
+    # Set default splitter position in the part window.
+    pw = win.activePartWindow()
+    pw.setSplitterPosition()
     return
 
 def _init_experimental_commands():
@@ -283,52 +285,6 @@ def _init_miscellaneous_commands():
     import model.virtual_site_indicators as virtual_site_indicators
     virtual_site_indicators.initialize() #bruce 080519
     
-    return
-
-def _set_mainwindow_splitter_position(win): 
-    # TODO: this function should be moved into some other module.
-    """
-    Set the position of the splitter between the MT and graphics area
-    so that the starting width of the property manager is "PM_DEFAULT_WIDTH"
-    pixels.
-
-    This should be called after all visible changes to the main window.
-
-    @param win: the single Main Window object.
-    @type  win: L{MWsemantics}
-    """
-    # This code fixes bug 2424. Mark 2007-06-27.
-    #
-    # Bug 2424 was difficult to fix for many reasons:
-    #
-    # - QSplitter.sizes() does not return valid values until the main window
-    #   is displayed. Specifically, the value of the second index (the glpane
-    #   width) is always zero until the main window is displayed. I suspect 
-    #   that the initial size of the glpane (in its constructor) is not set
-    #   (or set to 0) and may be contributing to the confusion. This is only
-    #   a theory.
-    #
-    # - QSplitter.setSizes() only works if width1 (the PropMgr width) and
-    #   width2 (the glpane width) equal a "magic combined width". See 
-    #   more about this in the Method description below.
-    #
-    # - Qt's QSplitter.moveSplitter() function doesn't work.
-    #   
-    # Method for bug fix:
-    #
-    # I get the widths of the MT/PropMgr and glpane using wHSplitter.sizes().
-    # These (2) widths add up and equal a "magic value". You can only feed
-    # pwSplitter.setSizes() two values that add up to the "magic value".
-    # Since we want the default width of the PropMgr to be PM_DEFAULT_WIDTH,
-    # I compute the new glpane width = magic_combined_width - PM_DEFAULT_WIDTH.
-    # Note: the resize is visible at startup.
-
-    pw = win.activePartWindow()
-    from PM.PM_Constants import PM_DEFAULT_WIDTH
-    w1, w2 = pw.pwSplitter.sizes()
-    magic_combined_width = w1 + w2
-    new_glpane_width = magic_combined_width - PM_DEFAULT_WIDTH
-    pw.pwSplitter.setSizes([PM_DEFAULT_WIDTH, new_glpane_width])
     return
 
 def _initialize_plugin_generators(): #bruce 060621

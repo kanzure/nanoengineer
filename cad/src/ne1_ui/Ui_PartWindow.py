@@ -417,3 +417,40 @@ class Ui_PartWindow(QWidget):
 
     def dismiss(self):
         self.parent.removePartWindow(self)
+    
+    def setSplitterPosition(self, leftAreaWidth = PM_DEFAULT_WIDTH): 
+        """
+        Set the position of the splitter between the left area and graphics area
+        so that the starting width of the model tree/property manager is 
+        I{leftAreaWdith} pixels wide.
+        """
+        # This code fixes bug 2424. Mark 2007-06-27.
+        #
+        # Bug 2424 was difficult to fix for many reasons:
+        #
+        # - QSplitter.sizes() does not return valid values until the main window
+        #   is displayed. Specifically, the value of the second index (the glpane
+        #   width) is always zero until the main window is displayed. I suspect 
+        #   that the initial size of the glpane (in its constructor) is not set
+        #   (or set to 0) and may be contributing to the confusion. This is only
+        #   a theory.
+        #
+        # - QSplitter.setSizes() only works if width1 (the PropMgr width) and
+        #   width2 (the glpane width) equal a "magic combined width". See 
+        #   more about this in the Method description below.
+        #
+        # - Qt's QSplitter.moveSplitter() function doesn't work.
+        #   
+        # Method for bug fix:
+        #
+        # Get the widths of the left area and the glpane using QSplitter.sizes().
+        # These (2) widths add up and equal a total width. You can only
+        # feed QSplitter.setSizes() two values that add up to the total width
+        # or it will do nothing.
+    
+        pw = self
+        w1, w2 = pw.pwSplitter.sizes()
+        total_combined_width = w1 + w2
+        new_glpane_width = total_combined_width - leftAreaWidth
+        pw.pwSplitter.setSizes([leftAreaWidth, new_glpane_width])
+        return
