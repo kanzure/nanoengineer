@@ -240,7 +240,9 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         assert cls is not None, "self.cls None in check, self.clsname = %r, self.attr = %r" % \
                (self.clsname, self.attr)
                # need to call _ExprsMeta__set_cls before now
-        assert self.clsname == cls.__name__ # make sure no one changed this since we last checked
+        assert self.clsname == cls.__name__, "self.clsname %r != cls.__name__ %r for self %r, cls %r" % \
+               (self.clsname, cls.__name__, self, cls)
+            # make sure no one changed this since we last checked
         attr = self.attr
         assert cls.__dict__[attr] is self
         if cls2 is not None: #k can that ever fail??
