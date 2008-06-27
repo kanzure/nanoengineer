@@ -269,6 +269,12 @@ class NanotubeSegment(Group):
     # =======================================================================
     # These methods were copied from DnaStrandOrSegment and edited for 
     # this class.
+
+    def permit_addnode_inside(self): #bruce 080626
+        """
+        [overrides Group method]
+        """
+        return False
     
     def permits_ungrouping(self): 
         """

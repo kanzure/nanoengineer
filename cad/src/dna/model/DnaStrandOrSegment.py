@@ -46,6 +46,12 @@ class DnaStrandOrSegment(Group):
         or segment (as it will in any case control its base indexing).
     """
 
+    def permit_addnode_inside(self): #bruce 080626
+        """
+        [overrides Group method]
+        """
+        return False
+    
     def permits_ungrouping(self): 
         """
         Should the user interface permit users to dissolve this Group

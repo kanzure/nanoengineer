@@ -785,6 +785,18 @@ class Group(NodeWithAtomContents):
         return False
 
     # ==
+    
+    def permit_addnode_inside(self): #bruce 080626 added this to Group API
+        """
+        Can UI operations wanting to add new nodes to some convenient place
+        decide to add them inside this Group?
+
+        [should be overridden in some Group subclasses which look like leaf nodes
+         to the user when seen in the model tree]
+        """
+        return True # for most Groups
+    
+    # ==
 
     def inherit_part(self, part): # Group method; bruce 050308
         """
