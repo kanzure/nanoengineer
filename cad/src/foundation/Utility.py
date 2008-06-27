@@ -366,17 +366,23 @@ class Node( StateMixin):
             node = node.dad
         return None
 
-    def containing_groups(self): #bruce 080507
+    def containing_groups(self, within_same_part = False):
         """
         Return a list of the 0 or more group nodes which contain this node,
         in innermost to outermost order, not including self.assy.root.
+
+        @param within_same_part: if true, only return groups in the same Part
+                                 as self (i.e. don't return assy.shelf).
         """
+        #bruce 080507, revised 080626
         # review: would this be safe for a node in a thumbview?
-        # maybe: add an option, within_same_part (default False like now??)
         res = []
         group = self.dad
         limit = self.assy.root
         while group is not None and group is not limit:
+            if within_same_part and group is self.assy.shelf:
+                # review: use is_selection_group_container in that test?
+                break
             res.append(group)
             group = group.dad
         return res
