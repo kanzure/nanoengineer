@@ -64,6 +64,11 @@ import sys, os, time
 
 print
 print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime()
+print "using Python: " + sys.version
+try:
+    print "on path: " + sys.executable
+except:
+    pass
 
 if __name__ != '__main__':
     print
