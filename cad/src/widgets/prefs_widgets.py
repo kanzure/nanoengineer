@@ -359,6 +359,26 @@ def connect_checkbox_with_boolean_pref( qcheckbox, prefs_key ): #bruce 050810, r
     widget_connectWithState( qcheckbox, stateref, QCheckBox_ConnectionWithState)
     return
 
+def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key):
+    """
+    Cause the QDoubleSpinbox to track the value of the given preference key AND
+    causes changes to the Double spinbox to change the value of that prefs_key.
+    
+    @param qDoubleSpinBox: QDoublespinbox  object which needs to be 'connected'
+        to the given <prefs_key> (preference key)
+    @type qDoubleSpinBox: B{QDoubleSpinBox}
+    
+    @param prefs_key: The preference key to be assocuated with <qDoubleSpinBox>
+
+    @see: B{connect_checkbox_with_boolean_pref()}
+    @see: B{QDoubleSpinBox_ConnectionWithState}
+    @see: Preferences._setupPage_Dna() for an example use.  
+    """
+    stateref = Preferences_StateRef( prefs_key) # note: no default value specified
+    widget_connectWithState( qDoubleSpinBox, stateref, QDoubleSpinBox_ConnectionWithState)
+    return
+    
+
 # ==
 
 class _twoway_Qt_connection: #bruce 070814, experimental, modified from destroyable_Qt_connection

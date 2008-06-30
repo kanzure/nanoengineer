@@ -51,7 +51,9 @@ from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_nu
 from utilities.prefs_constants import dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key
 from utilities.prefs_constants import dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
-
+from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
+from utilities.prefs_constants import bdnaRise_prefs_key
+from widgets.prefs_widgets import Preferences_StateRef_double
 
 _superclass = DnaOrCnt_PropertyManager
 class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
@@ -136,8 +138,20 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         change_connect(self.showCursorTextCheckBox,
                        SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
+        
+        self.duplexRiseDoubleSpinBox.connectWithState(
+            Preferences_StateRef_double( bdnaRise_prefs_key, 
+                                         env.prefs[bdnaRise_prefs_key] )
+            )
+        
+        self.basesPerTurnDoubleSpinBox.connectWithState(
+            Preferences_StateRef_double( bdnaBasesPerTurn_prefs_key, 
+                                         env.prefs[bdnaBasesPerTurn_prefs_key] )
+            )
 
-
+        
+                
+ 
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -159,10 +173,7 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets  in this Property manager.
-        Overrides MotorPropertyManager._update_widgets_in_PM_before_show.
-        The various  widgets , (e.g. spinboxes) will get values from the
-        structure for which this propMgr is constructed for
-        (self.editcCntroller.struct)
+        Overrides superclass method
 
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called.
@@ -289,22 +300,26 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Bases per turn:",
-                              value         =  self._basesPerTurn,
+                              value         =  env.prefs[bdnaBasesPerTurn_prefs_key],
                               setAsDefault  =  True,
                               minimum       =  8.0,
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-
+        
+        
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
-                              value         =  self._duplexRise,
+                              value         =  env.prefs[bdnaRise_prefs_key],
                               setAsDefault  =  True,
                               minimum       =  2.0,
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
+        
+        
+        
 
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
@@ -457,7 +472,6 @@ class DnaDuplexPropertyManager( DnaOrCnt_PropertyManager ):
         self.editCommand.duplexRise = rise
         self._duplexRise = rise
         return
-
 
     def getParameters(self):
         """
