@@ -435,8 +435,12 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @see: Chunk.setStrandSequence
         """
         sequenceString = self.propMgr.sequenceEditor.getPlainSequence()
-        sequenceString = str(sequenceString)       
-        self.struct.setStrandSequence(sequenceString) 
+        sequenceString = str(sequenceString)      
+        #assign strand sequence only if it not the same as the current sequence
+        seq = self.struct.getStrandSequence()
+        
+        if seq != sequenceString:
+            self.struct.setStrandSequence(sequenceString) 
 
 
     def editStructure(self, struct = None):
