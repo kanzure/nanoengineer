@@ -140,7 +140,7 @@ class PM_CheckBox( QCheckBox ):
         #in PM_Slider. 
         #-- Ninad 2008-06-30
         if state is None:
-            self.setCheckState(Qt.UnChecked)
+            self.setCheckState(Qt.Unchecked)
         else:
             self.setCheckState(state)        
                  
