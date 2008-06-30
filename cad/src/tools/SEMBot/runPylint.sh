@@ -18,8 +18,7 @@ PM_STAR=`ls PM/PM_*.py|grep -v PM_CheckBox|grep -v PM_Slider.py`
 # Run in batches
 for batch in `find . -type f -name "*.py" | grep -v .svn | grep -v experimental | grep -v tools | grep -v outtakes | grep -v scratch | grep -v .png` 
 do
-  echo "checking: $batch"
-  echo Running batch $BATCH_NUMBER
+  echo "Running batch $BATCH_NUMBER: $batch"
   /usr/local/bin/pylint --rcfile=../../../Pylint.rcfile $batch
 
   # Post process results
