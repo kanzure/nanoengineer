@@ -652,10 +652,12 @@ class DnaStrand(DnaStrandOrSegment):
 
             #Also assign the baseNames for the PAM atoms on the complementary 
             #('mate') strand.
-            strandAtomMate = atm.get_strand_atom_mate()
-            complementBaseName= getComplementSequence(str(baseName))
-            if strandAtomMate is not None and complement:
-                strandAtomMate.setDnaBaseName(str(complementBaseName)) 
+            if complement:
+                
+                strandAtomMate = atm.get_strand_atom_mate()
+                complementBaseName= getComplementSequence(str(baseName))
+                if strandAtomMate is not None:
+                    strandAtomMate.setDnaBaseName(str(complementBaseName)) 
 
         # piotr 080319:
         # Redraw the chunks in DNA display style
