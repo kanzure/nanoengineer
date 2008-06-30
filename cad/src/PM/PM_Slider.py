@@ -23,7 +23,7 @@ class PM_Slider(QSlider):
     
     def __init__( self, 
                   parentWidget, 
-                  orientation  = Qt.Horizontal,
+                  orientation  = None, ##Qt.Horizontal,
                   currentValue = 0,
                   minimum      = 0,
                   maximum      = 100,
@@ -75,13 +75,26 @@ class PM_Slider(QSlider):
         
         """
         
-        QSlider.__init__(self, orientation, parentWidget)
+        ##QSlider.__init__(self, orientation, parentWidget)
+        QSlider.__init__(self, parentWidget)
         
         self.parentWidget = parentWidget
         self.label        = label
         self.labelColumn  = labelColumn
         self.setAsDefault = setAsDefault
         self.spanWidth    = spanWidth
+        
+        #Ideally, this should be simply self.setOrientation(orientation)  with the 
+        #default orientation = Qt.Horizontal in the init argument itself. But, 
+        #apparently pylint chokes up when init argument is a Qt enum. 
+        #This problem happened while running pylint 0.23 on the SEMBOT server 
+        #so comitting this temporary workaround. The pylint on my machine is 
+        #0.25 and it runs fine even before this workaround. Similar changes made
+        #in PM_CheckBox. -- Ninad 2008-06-30
+        if orientation is None:
+            self.setOrientation(Qt.Horizontal)
+        else:
+            self.setOrientation(orientation)
         
         if label: # Create this widget's QLabel.
             self.labelWidget = QLabel()

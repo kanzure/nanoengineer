@@ -82,7 +82,7 @@ class PM_CheckBox( QCheckBox ):
                  parentWidget, 
                  text          = '', 
                  widgetColumn  = 1,
-                 state         = Qt.Unchecked, 
+                 state         = None, ##Qt.Unchecked, 
                  setAsDefault  = True,
                  spanWidth = False
                  ):
@@ -130,8 +130,19 @@ class PM_CheckBox( QCheckBox ):
         
         if self.setAsDefault:
             self.setDefaultState(state)
-            
-        self.setCheckState(state)        
+        
+        #Ideally, this should be simply self.setCheckState(state)  with the 
+        #default state = Qt.UnChecked in the ,init argument itself. But, 
+        #apparently pylint chokes up when init argument is a Qt enum. 
+        #This problem happened while running pylint 0.23 on the SEMBOT server 
+        #so comitting this temporary workaround. The pylint on my machine is 
+        #0.25 and it runs fine even before this workaround. Similar changes made
+        #in PM_Slider. 
+        #-- Ninad 2008-06-30
+        if state is None:
+            self.setCheckState(Qt.UnChecked)
+        else:
+            self.setCheckState(state)        
                  
         parentWidget.addPmWidget(self)
     
