@@ -2512,10 +2512,8 @@ class MWsemantics(QMainWindow,
         return
 
     def colorSchemeCommand(self):
-
         """
-        Displas/hides the color scheme property manager
-
+        This is a slot method for invoking the B{Color Scheme} command.
         """
 
         commandSequencer = self.commandSequencer
@@ -2527,9 +2525,24 @@ class MWsemantics(QMainWindow,
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'COLOR_SCHEME':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
-
-
-
+        return
+                
+    def lightingSchemeCommand(self):
+        """
+        This is a slot method for invoking the B{Lighting Scheme} command.
+        """
+        
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "LIGHTING_SCHEME":
+            commandSequencer.userEnterTemporaryCommand(
+                'LIGHTING_SCHEME')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'LIGHTING_SCHEME':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
+                
     def toggleRulers(self, isChecked):
         """
         Displays/hides the rulers in the 3D graphics area (glpane).

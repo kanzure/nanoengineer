@@ -48,6 +48,7 @@ from commands.Fuse.FuseChunks_Command import FuseChunks_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 # Urmi background color chooser PM 080523
 from commands.ColorScheme.ColorScheme_Command import ColorScheme_Command
+from commands.LightingScheme.LightingScheme_Command import LightingScheme_Command
 from commands.StereoProperties.StereoProperties_Command import StereoProperties_Command
 
 from temporary_commands.ZoomToAreaMode import ZoomToAreaMode
@@ -126,7 +127,8 @@ def preloaded_command_classes():
         FuseChunks_Command,
         RotateAboutPoint_Command,        
         StereoProperties_Command,
-        ColorScheme_Command
+        ColorScheme_Command,
+        LightingScheme_Command
     ]
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs

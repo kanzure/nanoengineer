@@ -46,6 +46,7 @@ def setupUi(win, toolbarArea):
     win.standardToolBar.addAction(win.resetChunkColorAction)
     win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.colorSchemeAction)
+    win.standardToolBar.addAction(win.lightingSchemeAction)
     win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.editRenameAction)
     win.standardToolBar.addAction(win.editRenameObjectsAction)

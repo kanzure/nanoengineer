@@ -537,6 +537,10 @@ def setupUi(win):
     win.colorSchemeAction.setIcon(geticon("ui/actions/View/ColorScheme.png"))
     win.colorSchemeAction.setObjectName("colorSchemeAction")
     
+    win.lightingSchemeAction = QtGui.QAction(MainWindow)
+    win.lightingSchemeAction.setIcon(geticon("ui/actions/View/LightingScheme.png"))
+    win.lightingSchemeAction.setObjectName("lightingSchemeAction")
+    
     win.modifyAdjustSelAction = QtGui.QWidgetAction(MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
     win.modifyAdjustSelAction.setIcon(
@@ -1547,6 +1551,12 @@ def retranslateUi(win):
             "MainWindow", "Color Scheme...", 
             None, QtGui.QApplication.UnicodeUTF8))
     
+    win.lightingSchemeAction.setText(QtGui.QApplication.translate(
+        "MainWindow",
+        "Lighting Scheme",
+        None,
+        QtGui.QApplication.UnicodeUTF8))
+    
     win.modifyMirrorAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
         "Mirror", 
@@ -1592,6 +1602,17 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Color Scheme", 
             None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.lightingSchemeAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Lighting Scheme", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
+    win.lightingSchemeAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Lighting Scheme", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
 
     #= Tools > Build Structures (menu and toolbar) actions.
     win.toolsDepositAtomAction.setText(

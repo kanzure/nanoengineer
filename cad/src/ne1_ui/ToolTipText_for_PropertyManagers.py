@@ -355,7 +355,7 @@ def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
 
 def ToolTip_ColorScheme_PropertyManager(propMgr):
     """
-    Add "What's This" text for widgets in the Color Scheme Property Manager.
+    Add tooltip text for widgets in the Color Scheme Property Manager.
     """
     propMgr.favoritesComboBox.setToolTip("List of favorites")
     propMgr.backgroundColorComboBox.setToolTip("Change background color")
@@ -363,4 +363,11 @@ def ToolTip_ColorScheme_PropertyManager(propMgr):
     propMgr.hoverHighlightingColorComboBox.setToolTip("Change hover highlighting color") 
     propMgr.selectionStyleComboBox.setToolTip("Change selection style")
     propMgr.selectionColorComboBox.setToolTip("Change selection color")
+    return
+
+def ToolTip_LightingScheme_PropertyManager(propMgr):
+    """
+    Add tooltip text for widgets in the Lighting Scheme Property 
+    Manager.
+    """
     return

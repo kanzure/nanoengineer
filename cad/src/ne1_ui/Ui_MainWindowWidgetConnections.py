@@ -76,6 +76,9 @@ def setupUi(win):
     win.connect(win.colorSchemeAction, 
                 SIGNAL("triggered()"), 
                 win.colorSchemeCommand)
+    win.connect(win.lightingSchemeAction,
+                SIGNAL("triggered()"),
+                win.lightingSchemeCommand)
     
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
