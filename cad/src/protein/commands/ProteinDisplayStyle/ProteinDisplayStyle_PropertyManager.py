@@ -329,9 +329,8 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         msg = "Modify the protein display settings below."
         self.updateMessage(msg)
 
-    def connect_or_disconnect_signals(self, isConnect):
+    def connect_or_disconnect_signals(self, isConnect = True):
         
-
         if isConnect:
             change_connect = self.win.connect
         else:
