@@ -88,6 +88,30 @@ def whatsThisTextForAtomsCommandToolbar(commandToolbar):
     """
     return
 
+def whatsThisTextForProteinCommandToolbar(commandToolbar):
+    """
+    "What's This" text for the Build Protein Command Toolbar
+    """
+    commandToolbar.exitProteinAction.setWhatsThis(
+        """<b>Exit Protein</b>
+        <p>
+        Exits <b>Build Protein</b>.
+        </p>""")
+    
+    commandToolbar.buildPeptideAction.setWhatsThis(
+        """<b>Insert Peptide</b>
+        <p>
+        Insert a peptide into the 3D graphics area.
+        </p>""")
+    commandToolbar.displayProteinStyleAction.setWhatsThis(
+        """<b>Protein Display</b>
+        <p>
+        Displays the Protein Display Property Manager 
+        </p>""")   
+    
+    return
+
+
 def whatsThisTextForDnaCommandToolbar(commandToolbar):
     """
     "What's This" text for the Build DNA Command Toolbar
