@@ -76,7 +76,8 @@ from dna.commands.OrderDna.OrderDna_Command       import OrderDna_Command
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_Command import DnaDisplayStyle_Command
 from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand import MultipleDnaSegmentResize_EditCommand
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
-
+from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
+from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
 
 def preloaded_command_classes():
     """
@@ -128,7 +129,14 @@ def preloaded_command_classes():
         RotateAboutPoint_Command,        
         StereoProperties_Command,
         ColorScheme_Command,
-        LightingScheme_Command
+        BuildProtein_EditCommand,
+        ProteinDisplayStyle_Command,
+        LightingScheme_Command]
+    
+    # note: we could extract each one's commandName (class constant)
+    # if we wanted to return them as commandName, commandClass pairs
+    return command_classes
+
     ]
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs
