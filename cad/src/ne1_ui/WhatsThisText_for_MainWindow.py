@@ -465,10 +465,10 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.setViewHomeAction.setWhatsThis( setViewHomeActionText )
 
-    # Fit to Window
+    # Zoom to fit
 
     setViewFitToWindowActionText = \
-        "<u><b>Fit To Window</b></u>"\
+        "<u><b>Zoom to Fit</b></u>"\
         "<p><img source=\"ui/actions/View/Modify/Zoom_To_Fit.png\"><br> "\
         "Refits the model to the screen so you can "\
         "view the entire model."\
@@ -1545,15 +1545,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Build Chunks</b></u><!-- [[Feature:Build Chunks]] -->"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
-        "<b>Build Chunks</b> allows you to build structures one atom at "\
-        "a time or by depositing objects that are on the paste "\
-        "clipboard. You can also insert structures from the "\
-        "NanoEngineer-1 Parts Library.</p>"\
-        "<p>"\
-        "It is also possible to change bond types "\
-        "between atoms using the <b>Bond Tool</b> or "\
-        "by simply dragging and dropping one bondpoint "\
-        "onto another. </p>"
+        "<b>Build Chunks</b> provides an interactive molecular modeler "\
+        "that allows the user to easily build molecular structures one "\
+        "atom at a time.</p>"
 
     win.toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
 
@@ -1665,7 +1659,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<p>"\
         "<img source=\"ui/actions/Edit/Edit_Color.png\"><br> "\
         "Allows the user to change the color of all selected chunks and/or "\
-        "jigs (i.e. Rotary Motor)."\
+        "jigs (i.e. rotary and linear motors)."\
         "</p>"
     
     win.dispObjectColorAction.setWhatsThis(  dispObjectColorActionText )
