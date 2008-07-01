@@ -78,8 +78,7 @@ class ProteinDisplayStyle_Command(EditCommand):
         EditCommand.restore_gui(self)
         if self.flyoutToolbar:
             self.flyoutToolbar.displayProteinStyleAction.setChecked(False)    
-        if self.propMgr is not None:
-            self.propMgr.close()
+        
     
    
     def keep_empty_group(self, group):
