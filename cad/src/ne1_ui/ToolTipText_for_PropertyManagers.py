@@ -327,6 +327,12 @@ def ToolTip_PasteItemPropertyManager(propMgr) :
     
     propMgr.clipboardGroupBox.setToolTip("Clipboard")
     
+def ToolTip_EditProteinDisplayStyle_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Edit DNA Display Style Property Manager.
+    """
+    return
+    
 def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Edit DNA Display Style Property Manager.
