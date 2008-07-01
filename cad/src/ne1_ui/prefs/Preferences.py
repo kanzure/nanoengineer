@@ -2845,9 +2845,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             # Sets the GROMACS (executable) path to the standard location, if it exists.
             if not env.prefs[gromacs_path_prefs_key]:
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS_3.3.2+HDF5_p2\\bin\\mdrun.exe", \
-                    "/Applications/GROMACS_3.3.2+HDF5_p2/bin/mdrun",
-                    "/usr/local/GROMCAS_3.3.2+HDF5_p2/bin/mdrun")
+                    "C:\\GROMACS_3.3.3\\bin\\mdrun.exe", \
+                    "/Applications/GROMACS_3.3.3/bin/mdrun",
+                    "/usr/local/GROMCAS_3.3.3/bin/mdrun")
 
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
 
@@ -2898,9 +2898,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             # Sets the cpp path to the standard location, if it exists.
             if not env.prefs[cpp_path_prefs_key]:
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS_3.3.2+HDF5_p2\\MCPP\\bin\\mcpp.exe", \
-                    "/Applications/GROMACS_3.3.2+HDF5_p2/mcpp/bin/mcpp", \
-                    "/usr/local/GROMACS_3.3.2+HDF5_p2/mcpp/bin/mcpp")
+                    "C:\\GROMACS_3.3.3\\MCPP\\bin\\mcpp.exe", \
+                    "/Applications/GROMACS_3.3.3/mcpp/bin/mcpp", \
+                    "/usr/local/GROMACS_3.3.3/mcpp/bin/mcpp")
 
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
 
