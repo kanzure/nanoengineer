@@ -77,32 +77,27 @@ class BreakStrands_PropertyManager( BreakOrJoinStrands_PropertyManager):
         """
         Add the Property Manager group boxes.
         """        
-        self._pmGroupBox5 = PM_GroupBox( self, title = "Broken Strand Options" )
-        self._loadGroupBox1( self._pmGroupBox5 )
+        self._breakOptionsGroupbox = PM_GroupBox( self, title = "Break Options" )
+        self._loadBreakOptionsGroupbox( self._breakOptionsGroupbox )
         
         self._displayOptionsGroupBox = PM_GroupBox( self, title = "Display options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
     
         
-    def _loadGroupBox1(self, pmGroupBox):
+    def _loadBreakOptionsGroupbox(self, pmGroupBox):
         """
-        Load widgets in group box.
+        Load widgets in this group box.
         """
-        _state = Qt.Checked
-        
+                
         self.assignColorToBrokenDnaStrandsCheckBox = \
             PM_CheckBox(pmGroupBox ,
                         text         = 'Assign new color to broken strands',
-                        widgetColumn = 1,
-                        state        = _state
-                        )
+                        widgetColumn = 1   )
         
         connect_checkbox_with_boolean_pref(
             self.assignColorToBrokenDnaStrandsCheckBox, 
             assignColorToBrokenDnaStrands_prefs_key )
         
-        # This (re)initializes the pref to _state (True) each time NE1 starts.
-        self.assignColorToBrokenDnaStrandsCheckBox.setCheckState(_state)
         
         
     #Return varius prefs_keys for arrowhead display options ui elements =======     
