@@ -1430,3 +1430,72 @@ def WhatsThis_ColorScheme_PropertyManager(propMgr):
         the <b>Load Favorite</b> button.
         """)
     return
+def WhatsThis_EditProteinDisplayStyle_PropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Edit Protein Display Style Property 
+    Manager.
+    """
+    propMgr.favoritesComboBox.setWhatsThis(
+        """<b>Protein Display Style Favorites</b>
+        <p>
+        A list of Protein display style favorites added by the user that can be
+        applied by pressing the <b>Apply Favorite</b> button. </p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
+        The <b>Apply Favorite</b> button must be clicked to apply the 
+        current favorite selected from this list. <b>Factory default
+        settings</b> resets all options to their default
+        settings.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        The <b>Add Favorite</b> button allows new favorites to
+        be added to the list. This saves the current settings
+        to a user specified name.</p>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        The <b>Delete Favorite</b> button allows an existing favorite to
+        be deleted from the list. <b>Factory default settings</b> can
+        never be deleted, however.
+            """)
+    
+    propMgr.applyFavoriteButton.setWhatsThis(
+        """<b>Apply Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/ApplyFavorite.png\"><br>
+        Applies the settings stored in the selected Favorite to the current 
+        settings.
+        """)
+        
+    propMgr.addFavoriteButton.setWhatsThis(
+        """<b>Add Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/AddFavorite.png\"><br>
+        Allows a new Favorite to be added to the list. 
+        This saves the current settings to a user specified Favorite name.
+        """)
+    
+    propMgr.deleteFavoriteButton.setWhatsThis(
+        """<b>Delete Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/DeleteFavorite.png\"><br>
+        Allows an existing favorite to be deleted from the list. 
+        <b>Factory default settings</b> can never be deleted, however.
+        """)
+    
+    propMgr.loadFavoriteButton.setWhatsThis(
+        """<b>Load Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/LoadFavorite.png\"><br>
+        Allows the user to load a <i>favorites file</i> from disk to be
+        added to the favorites list. Favorites files must have a .txt extension.
+        """)
+    propMgr.saveFavoriteButton.setWhatsThis(
+        """<b>Save Favorite </b>
+        <p>
+        <img source=\"ui/actions/Properties Manager/SaveFavorite.png\"><br>
+        Writes the selected favorite (selected in the combobox) to a file that
+        can be given to another NE1 user (i.e. as an email attachment). The 
+        file is saved with a .txt entension so that it can loaded back using
+        the <b>Load Favorite</b> button.
+        """)   
+    return
