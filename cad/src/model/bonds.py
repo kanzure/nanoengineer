@@ -1274,7 +1274,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
     
     def invalidate_bonded_mols(self): #bruce 041109
         """
-        Private method to call when a bond is made or destroyed;
+        Mostly-private method (also called from atoms),
+        to be called when a bond is made or destroyed;
         knows which kinds of bonds are put into a display list by molecule.draw
         (internal bonds) or put into mol.externs (external bonds),
         though this knowledge should ideally be private to class molecule.
@@ -1529,50 +1530,39 @@ class Bond(BondBase, StateMixin, Selobj_API):
             return self.atom1.molecule.base_to_abs(point)
         pass
 
-    # "break" is a python keyword
-    def bust(self, make_bondpoints = True):
-        #bruce 070601 added make_bondpoints feature (was effectively always True before)
+    def bust(self, make_bondpoints = True): #bruce 080701 cleaned up comments
         """
-        Destroy this bond, modifying the bonded atoms as needed
-        (by adding singlets in place of this bond, in most cases (unless make_bondpoints is false) --
-         note that the newly added singlets might overlap in space!),
+        Destroy this bond, modifying the bonded atoms as needed,
         and invalidating the bonded molecules as needed.
+        If either bonded atom is a singlet, kill that atom.
 
-        Return the added singlets as a 2-tuple.
-        (This method is named 'bust' since 'break' is a python keyword.)
-        If either atom is a singlet, kill that atom.
-        (Note: as of 041115 bust is never called with either atom a singlet.
-        If it ever is, retval remains a 2-tuple but has None in 1 or both
-        places ... precise effect needs review in that case.)
-        """
-        # bruce 041115: bust is never called with either atom a singlet,
-        # but since atom.unbond now kills singlets lacking any bonds,
-        # and since not doing that would be bad, I added a note about that
-        # to the docstring.
+        @param make_bondpoints: if true (the default), add singlets
+                                on this bond's atoms in its place
+                                (unless prevented by various conditions).
+                                Note that the added singlets might
+                                overlap in space.
 
-        assert Singlet.bonds_can_be_directional # bruce 071105 
-##        if not Singlet.bonds_can_be_directional:
-##            # mark 071014 added condition
-##            # bruce comment 071016: the following comment by me
-##            # (and perhaps this code change by mark)
-##            # might be completely wrong, since I am now thinking
-##            # that the remaining bonds are all-new (created by unbond).
-##            # ### REVIEW that, and until then, don't trust the following comment or this code:
-##            # Motivation [bruce guess 071015 -- should ask mark ###]: don't destroy preexisting direction info
-##            # if it remains legal on an open bond. Probably a good change, once I make
-##            # the other aspects of the mark 071014 changes safe. Note that rebond (which
-##            # due to this change, might occur on an open bond with direction, when some new
-##            # non-directional element is deposited on it) already calls changed_atoms,
-##            # which clears directions if they are no longer allowed.
-##            ### TODO: copy direction onto the newly created bonds to x1 and x2.
-##            # [update 071105: I think that todo item is done now.]
-##            self.clear_bond_direction() #bruce 070415
+        @return: the added singlets, as a 2-tuple (with None in place
+                 of a singlet if no singlet was added for that atom).
+                 The order is: added singlet for self.atom1 (if any),
+                 then added singlet for self.atom2 (if any).
+        @rtype: 2-tuple, of atom or None.
         
+        @note: This method is named 'bust' since 'break' is a python keyword.
+
+        @note: as of 041115 bust is never called with either atom a singlet.
+               If it ever is, retval remains a 2-tuple but has None in 1 or both
+               places ... precise effect needs review in that case.
+        """
+        # note: the following unbond calls might:
+        # - copy self's bond direction onto newly created open bonds [review: really?]
+        # - kill singlets left with no bonds
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
-        ###e do we want to also change our atoms and key to None, for safety?
-        ###e check all callers and decide -- in case some callers reuse the bond or for some reason still need its atoms
-        return x1, x2 # retval is new feature, bruce 041222
+        # REVIEW: change our atoms and key to None, for safety?
+        # check all callers and decide -- in case some callers
+        # reuse the bond or for some reason still need its atoms.
+        return x1, x2
 
     def rebond(self, old, new):
         """

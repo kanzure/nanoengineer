@@ -184,7 +184,7 @@ from graphics.drawing.special_drawing import SPECIAL_DRAWING_STRAND_END
 
 # ==
 
-debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
+DEBUG_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
 
 BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
 
@@ -3342,8 +3342,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if 1:
             #bruce 060327 optim of Chunk.kill: if we're being killed right now, don't make a new bondpoint
             if self._will_kill == Utility._will_kill_count:
-                if debug_1779:
-                    print "debug_1779: self._will_kill %r == Utility._will_kill_count %r" % \
+                if DEBUG_1779:
+                    print "DEBUG_1779: self._will_kill %r == Utility._will_kill_count %r" % \
                       ( self._will_kill , Utility._will_kill_count )
                 return None
         if self.__killed:
@@ -3352,8 +3352,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                   ( self, b )
             print msg
             return None
-        if debug_1779:
-            print "debug_1779: Atom.unbond on %r is making X" % self
+        if DEBUG_1779:
+            print "DEBUG_1779: Atom.unbond on %r is making X" % self
         x = Atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
         bond_copied_atoms( self, x, b, self)
@@ -3591,14 +3591,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
     def kill(self):
         """
-        Public method:
-        kill an atom: unpick it, remove it from its jigs, remove its bonds,
-        then remove it from its molecule. Do all necessary invalidations.
+        [public method]
+        kill self: unpick it, remove it from its jigs, remove its bonds,
+        then remove it from its chunk. Do all necessary invalidations.
+        
         (Note that molecules left with no atoms, by this or any other op,
-        will themselves be killed.)
+         will immediately kill themselves.)
         """        
-        if debug_1779:
-            print "debug_1779: Atom.kill on %r" % self
+        if DEBUG_1779:
+            print "DEBUG_1779: Atom.kill on %r" % self
         if self.__killed:
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
@@ -3610,7 +3611,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 pass
             return
 
-        self.atomtype #bruce 080208 bugfix of bugs which complain about
+        self.atomtype
+            #bruce 080208 bugfix of bugs which complain about
             # "reguess_atomtype of killed atom" in a console print:
             # make sure atomtype is set, since it's needed when neighbor atom
             # makes a bondpoint (since bond recomputes geometry all at once).
@@ -3627,9 +3629,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         _changed_parent_Atoms[self.key] = self
-        # unpick
+        # unpick self
         try:
-            self.unpick(filtered = False) #bruce 041029
+            self.unpick(filtered = False)
                 #bruce 060331 adding filtered = False (and implementing it in unpick) to fix bug 1796
         except:
             print_compact_traceback("fyi: Atom.kill: ignoring error in unpick: ")
@@ -3638,53 +3640,53 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # delatom (now at the end, after things which depend on self.molecule),
         # since delatom resets self.molecule to None.
         
-        # josh 10/26 to fix bug 85 - remove from jigs
-        for j in self.jigs[:]: #bruce 050214 copy list as a precaution
+        # remove from jigs
+        for j in self.jigs[:]:
             try:
                 j.remove_atom(self)
-                # [bruce 050215 comment: this might kill the jig (if it has no
-                #  atoms left), and/or it might remove j from self.jigs, but it
-                #  will never recursively kill this atom, so it should be ok]
+                    # note: this might kill the jig (if it has no atoms left),
+                    # and/or it might remove j from self.jigs, but it will never
+                    # recursively kill this atom, so it should be ok
+                    # [bruce 050215 comment]
             except:
                 # does this ever still happen? TODO: if so, document when & why.
                 print_compact_traceback("fyi: Atom.kill: ignoring error in remove_atom %r from jig %r: " % (self, j) )
-        self.jigs = [] #bruce 041029 mitigate repeated kills
-            # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]
+        self.jigs = [] # mitigate repeated kills
         _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322
         
         # remove bonds
-        for b in self.bonds[:]: #bruce 050214 copy list as a precaution
+        for b in self.bonds[:]:
             n = b.other(self)
-            if debug_1779:
-                print "debug_1779: Atom.kill on %r is calling unbond on %r" % (self,b)
-            n.unbond(b) # note: this can create a new singlet on n, if n is real,
-                        # which requires computing b.ubp which uses self.posn()
-                        # or self.baseposn(); or it can kill n if it's a singlet.
-                        #e We should optim this for killing lots of atoms at once,
-                        # eg when killing a chunk, since these new singlets are
-                        # wasted then. [bruce 041201]
-            # note: as of 041029 unbond also invalidates externs if necessary
-            ## if n.element is Singlet: n.kill() -- done in unbond as of 041115
-        self.bonds = [] #bruce 041029 mitigate repeated kills
+            if DEBUG_1779:
+                print "DEBUG_1779: Atom.kill on %r is calling unbond on %r" % (self, b)
+            n.unbond(b)
+                # note: this can create a new singlet on n, if n is a real atom,
+                # which requires computing b.ubp, which uses self.posn()
+                # or self.baseposn(); or it can kill n if it's a singlet.
+                # In some cases this is optimized to avoid creating singlets
+                # when killing lots of atoms at once; search for "prekill".
+                # It also invalidates chunk externs lists if necessary.
+        self.bonds = [] # mitigate repeated kills
 
-        # only after disconnected from everything else, remove it from its molecule
+        # only after disconnected from everything else, remove self from its chunk
         try:
-            ## del self.molecule.atoms[self.key]
-            self.molecule.delatom(self) # bruce 041115
-            # delatom also kills the chunk if it becomes empty (as of bruce 041116)
+            self.molecule.delatom(self)
+                # delatom also kills our chunk (self.molecule) if it becomes empty
         except KeyError:
             print "fyi: Atom.kill: atom %r not in its molecule (killed twice?)" % self
             pass
         return # from Atom.kill
         
-    def filtered(self): # mark 060303.
+    def filtered(self): # mark 060303
         """
-        Returns True if self is not the element type/name currently listed in the Select Atoms filter combobox.
+        Returns True if self is not the element type/name currently listed in
+        the Select Atoms filter combobox.
         """
-        if self.is_singlet(): return False # Fixes bug 1608.  mark 060303.
+        if self.is_singlet():
+            return False # Fixes bug 1608 [mark 060303]
         
         if self.molecule.assy.w.selection_filter_enabled:
-            for e in self.molecule.assy.w.filtered_elements[:]:
+            for e in self.molecule.assy.w.filtered_elements:
                 if e is self.element:
                     return False
             return True

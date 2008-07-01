@@ -1,5 +1,8 @@
 # Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+PAM_Atom_methods.py - methods for class Atom, which are only meant
+to be called on PAM Atoms.
+
 @author: Bruce, Mark, Ninad
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
