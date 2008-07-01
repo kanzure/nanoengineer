@@ -133,11 +133,7 @@ def preloaded_command_classes():
         ProteinDisplayStyle_Command,
         LightingScheme_Command]
     
-    # note: we could extract each one's commandName (class constant)
-    # if we wanted to return them as commandName, commandClass pairs
-    return command_classes
-
-    ]
+    
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs
     return command_classes
