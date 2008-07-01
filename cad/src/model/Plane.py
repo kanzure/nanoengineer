@@ -1,7 +1,7 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author: Ninad
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
 History:
@@ -50,7 +50,15 @@ from graphics.drawables.ResizeHandle import ResizeHandle
 from utilities.constants import LOWER_LEFT, LABELS_ALONG_ORIGIN
 from graphics.drawing.texture_helpers import load_image_into_new_texture_name
 
-from PIL import Image
+try:
+    #bruce 080701 revised this (and related code far below);
+    # Derrick may revise further, along with several other imports from PIL
+    # or its submodules, in this and other files (search separately for PIL and
+    # Image to find them all).
+    import Image # from PIL
+except ImportError:
+    from PIL import Image
+
 from utilities.prefs_constants import PlanePM_showGridLabels_prefs_key, PlanePM_showGrid_prefs_key
 
 ONE_RADIAN = 180.0 / pi
@@ -898,8 +906,15 @@ class Plane(ReferenceGeometry):
         These arrays are used by drawers.drawHeighfield method.
         """
         
-        # calculate heightfield data        
-        from PIL.Image import ANTIALIAS
+        # calculate heightfield data
+        try:
+            #bruce 080701 revised this; UNTESTED;
+            # Derrick may revise further; see related comment above.
+            # Also, this probably ought to be done as a toplevel import,
+            # unless it can fail on some systems where import Image works.
+            from Image import ANTIALIAS
+        except:
+            from PIL.Image import ANTIALIAS
         
         self.heightfield = None
         
