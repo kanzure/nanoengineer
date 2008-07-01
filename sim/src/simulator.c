@@ -164,6 +164,7 @@ set_py_exc_str(const char *filename,
 #define OPT_PATH_TO_CPP LONG_OPT (19)
 #define OPT_SYSTEM_PARAMETERS LONG_OPT (20)
 #define OPT_VDW_CUTOFF_RADIUS LONG_OPT (21)
+#define OPT_OUTPUT_FORMAT_3 LONG_OPT (22)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -199,6 +200,7 @@ static const struct option option_vec[] = {
     { "dump-intermediate-text", no_argument, NULL, 'X' },
     { "output-format-1", no_argument, NULL, 'O' },
     { "output-format-2", no_argument, NULL, 'N' },
+    { "output-format-3", no_argument, NULL, OPT_OUTPUT_FORMAT_3},
     { "id-key", required_argument, NULL, 'I' },
     { "key-record-interval", required_argument, NULL, 'K' },
     { "debug", required_argument, NULL, 'D' },
@@ -354,6 +356,9 @@ main(int argc, char **argv)
 	case 'N':
 	    OutputFormat = 2;
 	    break;
+	case OPT_OUTPUT_FORMAT_3:
+	    OutputFormat = 3;
+	    break;
 	case 'I':
 	    IDKey = optarg;
 	    break;
@@ -431,7 +436,23 @@ main(int argc, char **argv)
     if (outputFilename) {
         OutputFileName = copy_string(outputFilename);
     } else {
-        OutputFileName = replaceExtension(fileNameTemplate, DumpAsText ? "xyz" : "dpb");
+        char *extension;
+        
+        switch (OutputFormat) {
+        case 0:
+            extension = "xyz";
+            break;
+        case 1:
+        case 2:
+        default:
+            extension = "dpb";
+            break;
+        case 3:
+            extension = "gro";
+            break;
+        }
+        
+        OutputFileName = replaceExtension(fileNameTemplate, extension);
     }
 
     if (TraceFileName) {
