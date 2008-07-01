@@ -162,6 +162,7 @@ class MWsemantics(QMainWindow,
         self.buildDnaPropMgr = None
         self.buildCntPropMgr = None
         self.cntSegmentPropMgr = None
+        self.buildProteinPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -1539,9 +1540,9 @@ class MWsemantics(QMainWindow,
         self.ensureInCommand('SELECTMOLS')
         self.atomcntl.show()
 
-    def insertPeptide(self): # piotr 080304
-        self.ensureInCommand('SELECTMOLS')
-        self.peptidecntl.show()
+    #def insertPeptide(self): # piotr 080304
+    #    self.ensureInCommand('SELECTMOLS')
+    #    self.peptidecntl.show()
 
     def insertGraphene(self):
         self.ensureInCommand('SELECTMOLS')
@@ -1749,6 +1750,54 @@ class MWsemantics(QMainWindow,
             if currentCommand.commandName == 'EDIT_DNA_DISPLAY_STYLE':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
 
+    #UM 063008: protein flyout toolbar commands
+    
+    def activateProteinTool(self):
+        commandSequencer = self.commandSequencer
+        if commandSequencer.currentCommand.commandName != 'BUILD_PROTEIN':
+            commandSequencer.userEnterCommand('BUILD_PROTEIN')
+        
+        assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+        self.commandSequencer.currentCommand.runCommand()
+        return
+    
+    def createBuildProteinPropMgr_if_needed(self, editCommand):
+        """
+        Create Build Dna PM object (if one doesn't exist)
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM
+        @type editCommand: B{BuildDna_EditCommand}
+        @see: B{BuildDna_EditCommand._createPropMgrObject}
+        """
+        from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
+        if self.buildProteinPropMgr is None:
+            self.buildProteinPropMgr = \
+                BuildProtein_PropertyManager(self, editCommand)
+        else:
+            self.buildProteinPropMgr.setEditCommand(editCommand)
+
+        return self.buildProteinPropMgr
+        
+    
+    def insertPeptide(self, isChecked = False):
+        self.ensureInCommand('SELECTMOLS')
+        self.peptidecntl.show()
+        return 
+      
+    def enterProteinDisplayStyleCommand(self, isChecked = False):
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "EDIT_PROTEIN_DISPLAY_STYLE":
+            commandSequencer.userEnterTemporaryCommand(
+                'EDIT_PROTEIN_DISPLAY_STYLE')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'EDIT_PROTEIN_DISPLAY_STYLE':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
+    
+    
     def enterStereoPropertiesCommand(self):
         """
         """
