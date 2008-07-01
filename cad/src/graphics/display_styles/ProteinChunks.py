@@ -25,7 +25,7 @@ from graphics.drawing.CS_draw_primitives import drawpolycone
 from graphics.drawing.CS_draw_primitives import drawpolycone_multicolor
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
-from graphics.drawing.CS_draw_primitives import drawtriangle_strip
+# from graphics.drawing.CS_draw_primitives import drawtriangle_strip
 
 from Numeric import dot
 
@@ -680,7 +680,7 @@ def display_protein(chunk, style, color):
                    p+2 not in sheet:
                     mult -= 0.1
 
-        drawtriangle_strip([1.0,1.0,1.0], tri, None)
+        # drawtriangle_strip([1.0,1.0,1.0], tri, None)
 
         """
         ### backbone plates
