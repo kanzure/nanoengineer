@@ -38,6 +38,7 @@ from PyQt4.Qt import QEvent
 from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import QHelpEvent
 from PyQt4.Qt import QPoint
+from PyQt4.Qt import QFontMetrics
 
 from PyQt4.Qt import Qt, QFont, QMessageBox, QString
 from PyQt4.Qt import SIGNAL, QTimer
@@ -223,7 +224,7 @@ from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 from utilities.constants import gray, darkgray, black, lightgray
-
+from utilities.constants import white
 import utilities.qt4transition as qt4transition
 from geometry.VQT import planeXline, ptonline
 
@@ -719,7 +720,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def renderTextNearCursor(self, 
                              textString, 
-                             offset = 5, 
+                             offset = 10, 
                              color = (0, 0, 0)):
         """
         Renders text near the cursor position, on the top right side of the
@@ -749,6 +750,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
 
         pos = self.cursor().pos()  
+        
         # x, y coordinates need to be in window coordinate system. 
         # See QGLWidget.mapToGlobal for more details.
         pos = self.mapFromGlobal(pos)
@@ -760,14 +762,50 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # the text rendering as well (if GL_Lighting is not disabled)
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
+        
+        
         ############
-        from utilities.constants import white
-
-        x = pos.x() + offset
-        y = pos.y() - offset
+        #Add 'stoppers' for the cursor text. Example: If the cursor is near the
+        #extreme right hand corner of the 3D workspace, the following code 
+        #ensures that all the text string is visible. It does this check for 
+        #right(x) and top(for y) borders of the glpane. 
         
+        xOffset = offset
+        yOffset = offset
+        #signForDX and signForDY are used by the code that draws the same 
+        #text in the background (offset by 1 pixel in 4 directions) 
+        signForDX = 1
+        signForDY = 1
+             
+        xLimit = self.width - pos.x()
+        
+        #Note that at the top edge, y coord is 0
+        yLimit = pos.y()
+        
+        textString = QString(textString)
+        font = self._getFontForTextNearCursor(fontSize = 11, 
+                                              isBold = True)
+        
+        #Now determine the total x and y pixels used to render the text 
+        #(add some tolerance to that number) 
+        fm = QFontMetrics(font)
+        xPixels = fm.width(textString) + 10
+        yPixels = fm.height() + 10
+ 
+                
+        if xLimit < xPixels:
+            xOffset = - (xPixels - xLimit)
+            signForDX = -1
+        
+        if yLimit < yPixels:
+            yOffset = - (yPixels - pos.y())
+            signForDY = -1
+                        
+        x = pos.x() + xOffset
+        y = pos.y() - yOffset
+        
+    
         offset_val = 1
-        
 
         deltas_for_bg_color = ((offset_val, offset_val), 
                                (-offset_val, -offset_val), 
@@ -783,25 +821,23 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             self.qglColor(RGBf_to_QColor(bg_color)) 
 
             ### Note: self.renderText is QGLWidget.renderText method.
-            self.renderText(x + dx ,
-                            y + dy,
-                            QString(textString),
-                            self._getFontForTextNearCursor(fontSize = 11, 
-                                                           isBold = True))
+            self.renderText(x + dx*signForDX ,
+                            y + dy*signForDY,
+                            textString,
+                            font)
             self.qglClearColor(RGBf_to_QColor(bg_color))
 
         # Note: It is necessary to set the font color, otherwise it may change!
 
         self.qglColor(RGBf_to_QColor(fg_color))   
-        x = pos.x() + offset
-        y = pos.y() - offset
+        x = pos.x() + xOffset
+        y = pos.y() - yOffset
 
         ### Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x ,
                         y ,
-                        QString(textString),
-                        self._getFontForTextNearCursor(fontSize = 11, 
-                                                       isBold = True))
+                        textString,
+                        font)
         self.qglClearColor(RGBf_to_QColor(fg_color))
             # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
@@ -812,8 +848,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @see: self.renderTextNearCursor
         """
         font = QFont("Arial", fontSize)
-        font.setBold(isBold)
-        ##font.setPixelSize(15)                
+        font.setBold(isBold)              
         return font
 
     # == Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
