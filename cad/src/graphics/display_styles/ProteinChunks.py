@@ -940,7 +940,8 @@ class ProteinChunks(ChunkDisplayMode):
                                              capped=1)
                                 
                 elif style == PROTEIN_STYLE_TUBE or \
-                     style == PROTEIN_STYLE_LADDER:
+                     style == PROTEIN_STYLE_LADDER or \
+                     style == PROTEIN_STYLE_ZIGZAG:
 
                     tube_pos = []
                     tube_col = []
@@ -978,24 +979,11 @@ class ProteinChunks(ChunkDisplayMode):
                                 tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
                         
-                        # print "CBPOS1 = ", cbpos1
                         
                         if style == PROTEIN_STYLE_LADDER:
                             drawcylinder(color, pos1, cbpos1, rad * 0.75)
                             drawsphere(color, cbpos1, rad * 1.5, 2)
                             
-                        #if secondary == 1:
-                        #    rad = 1.0
-                        
-                        """
-                        if secondary == 2:
-                            if n == n_atoms - 4:
-                                rad = 1.5
-                            elif n >= n_atoms - 3:
-                                rad = 0.4
-                            else:
-                                rad = 1.0
-                        """ 
                         if pos1:
                             tube_pos.append(pos1)
                             tube_col.append(V(color))
@@ -1013,56 +1001,61 @@ class ProteinChunks(ChunkDisplayMode):
                                 tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
 
-                    #last_pos = None
-                    #color = red
-                    #for n in range(len(tube_pos)):
-                    #    pos1 = tube_pos[n]
-                    #    dpos1 = tube_dpos[n]
-                    #    drawline(red, pos1, 5.0*dpos1+pos1, width=2)                                
-                        
-                    tube_pos, tube_col, tube_rad, tube_dpos = make_tube(tube_pos, tube_col, tube_rad, tube_dpos, resolution=self.proteinStyleQuality)
-
-                    gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
-
-                    drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
+                    tube_pos, tube_col, tube_rad, tube_dpos = make_tube(
+                        tube_pos, 
+                        tube_col, 
+                        tube_rad, 
+                        tube_dpos, 
+                        resolution=resolution)
                     
-                    """
-                    for p in range(len(tube_pos)):
-                        pos = tube_pos[p]
-                        color = V(tube_col[p])
-                        dpos = 3.0*tube_dpos[p]
-                        # print "dpos = ", dpos
-                        drawline(blue, pos, pos + dpos)
-                    """
-                    """
-                    if secondary == 2:
+                    if style == PROTEIN_STYLE_ZIGZAG:
                         last_pos = None
-                        tri = []
-                        nor = []
-                        for p in range(len(tube_pos)):
-                            pos = tube_pos[p]
-                            color = V(tube_col[p])
-                            dpos = tube_dpos[p]
-                            # print "dpos = ", dpos
-                            if last_pos:
-                                drawcylinder(cyan, last_pos - dpos, pos - dpos, 0.1, capped=True)
-                                drawcylinder(cyan, last_pos + dpos, pos + dpos, 0.1, capped=True)
-                            
-                            if last_pos:
-                                v0 = pos - last_pos
-                                v1 = dpos
-                                nx = norm(cross(v0, v1))
-                                nor.append(nx)
-                                nor.append(nx)
-                                
-                                tri.append(pos - dpos)
-                                tri.append(pos + dpos)
-                            
-                            last_pos = pos
+                        last_width = 1.0
+                        reset = False
+                        if secondary < 2:
+                            width = scaleFactor * 0.1
+                            dw = (1.0 * scaleFactor) / (resolution - 3)
+                        else:
+                            width = scaleFactor * 1.0
+                            dw = (1.6 * scaleFactor) / (resolution - 3)
                         
-                        #drawtriangle_strip(cyan, tri, nor)
-                    """
-            # increase sec. str. counter
+                        for n in range(1, len(tube_pos)-1):
+                            pos = tube_pos[n]
+                            
+                            col = tube_col[n][0]
+                            if last_pos:
+                                dpos1 = last_width * tube_dpos[n-1]
+                                dpos2 = width * tube_dpos[n]
+                                if reset:
+                                    dpos1 = dpos2
+                                    reset = False
+                                drawline(col, last_pos-dpos1, pos-dpos2, width=2)
+                                drawline(col, last_pos+dpos1, pos+dpos2, width=2)
+                                drawline(col, last_pos-dpos1, pos+dpos2, width=2)
+                                drawline(col, last_pos-dpos1, last_pos+dpos1, width=2)
+                                drawline(col, pos-dpos2, pos+dpos2, width=2)
+
+                            last_pos = pos
+                            last_width = width
+                            
+                            if secondary == 1:
+                                if n > len(tube_pos) - resolution:
+                                    width -= dw 
+                                elif width < 1.0 * scaleFactor:
+                                    width += dw
+                                
+                            if secondary == 2:
+                                if n == len(tube_pos) - resolution:
+                                    width = scaleFactor * 1.6
+                                    reset = True
+                                if n > len(tube_pos) - resolution:
+                                    width -= dw 
+                    else:    
+                        # Draw tube.
+                        gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
+                        drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
+                    
+            # increase Sec. Str. element counter
             current_sec += 1
         
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
@@ -1146,11 +1139,12 @@ class ProteinChunks(ChunkDisplayMode):
         from utilities.prefs_constants import proteinStyleHelixColor_prefs_key
         from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
         from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
+        from utilities.prefs_constants import proteinStyleSmooth_prefs_key
         
         self.proteinStyle =  env.prefs[proteinStyle_prefs_key] + 1
         
-        self.proteinStyleSmooth = False
-        self.proteinStyleQuality = env.prefs[proteinStyleQuality_prefs_key]
+        self.proteinStyleSmooth = env.prefs[proteinStyleSmooth_prefs_key]
+        self.proteinStyleQuality = 2 * env.prefs[proteinStyleQuality_prefs_key]
         self.proteinStyleScaling = env.prefs[proteinStyleScaling_prefs_key]
         self.proteinStyleScaleFactor = env.prefs[proteinStyleScaleFactor_prefs_key]
         
@@ -1232,9 +1226,12 @@ class ProteinChunks(ChunkDisplayMode):
         
         ## print "CA LIST = ", ca_list
         
-        if self.proteinStyle == PROTEIN_STYLE_TUBE:
+        # Smoothing beta-strands.
+        if self.proteinStyleSmooth and \
+           (self.proteinStyle == PROTEIN_STYLE_TUBE or 
+            self.proteinStyle == PROTEIN_STYLE_LADDER or 
+            self.proteinStyle == PROTEIN_STYLE_ZIGZAG):
 
-            # Smooth beta-strands.
             
             smooth_list = [] 
 

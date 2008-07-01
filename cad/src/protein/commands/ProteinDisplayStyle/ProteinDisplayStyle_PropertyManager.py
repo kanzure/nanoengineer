@@ -650,8 +650,8 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               label         =  "Resolution:",
                               value         =  5,
                               setAsDefault  =  True,
-                              minimum       =  3,
-                              maximum       =  20,
+                              minimum       =  2,
+                              maximum       =  10,
                               decimals      =  0,
                               singleStep    =  1 )
             

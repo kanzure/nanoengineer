@@ -533,6 +533,7 @@ packageMapping_for_files = {
 
     "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation
     "Process"                          : "io|processes",
+    "ProteinChunks"                    : "graphics_view",
     "PyrexSimulator"                   : "io|simulation",
     
     "qt4transition"                    : "utilities",
