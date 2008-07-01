@@ -127,10 +127,7 @@ class PM_CheckBox( QCheckBox ):
         self.widgetColumn = widgetColumn
         self.setAsDefault = setAsDefault
         self.spanWidth = spanWidth
-        
-        if self.setAsDefault:
-            self.setDefaultState(state)
-        
+   
         #Ideally, this should be simply self.setCheckState(state)  with the 
         #default state = Qt.UnChecked in the ,init argument itself. But, 
         #apparently pylint chokes up when init argument is a Qt enum. 
@@ -140,10 +137,13 @@ class PM_CheckBox( QCheckBox ):
         #in PM_Slider. 
         #-- Ninad 2008-06-30
         if state is None:
-            self.setCheckState(Qt.Unchecked)
-        else:
-            self.setCheckState(state)        
-                 
+            state = Qt.Unchecked
+        
+        if self.setAsDefault:
+            self.setDefaultState(state)
+            
+        self.setCheckState(Qt.Unchecked)          
+        
         parentWidget.addPmWidget(self)
     
     def setDefaultState(self, state):
