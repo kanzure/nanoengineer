@@ -1700,7 +1700,7 @@ def retranslateUi(win):
     # Peptide Generator. piotr 080304
     win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
-        "Peptide", 
+        "Protein", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
     win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
