@@ -31,7 +31,11 @@ from utilities.version import Version
 from datetime import datetime
 import foundation.env as env
 
-def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
+def _readpdb(assy, 
+             filename, 
+             isInsert = False, 
+             showProgressDialog = False, 
+             chainId = None):
     """
     Read a Protein DataBank-format file into a single new chunk, which is 
     returned unless there are no atoms in the file, in which case a warning
@@ -60,6 +64,9 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
+    
+    from graphics.display_styles.ProteinChunks import postprocess_pdb_line
+    
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
@@ -174,6 +181,9 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
             n = int(card[6:11])
             a = Atom(sym, A(xyz), mol)
             ndix[n] = a
+            
+            # piotr 080620
+            postprocess_pdb_line(card, mol, a)            
         elif key == "conect":
             try:
                 a1 = ndix[int(card[6:11])]
@@ -201,7 +211,10 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
                         continue
                     bond_atoms(a1, a2)
                     numconects += 1
-        
+        else:
+            # piotr 080620
+            postprocess_pdb_line(card, mol, None)
+            
         if showProgressDialog: # Update the progress dialog.
             _progressValue += 1
             if _progressValue >= _progressFinishValue:
@@ -233,7 +246,10 @@ def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
     
 # read a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
-def readpdb(assy, filename, showProgressDialog = False):
+def readpdb(assy, 
+            filename, 
+            showProgressDialog = False,
+            chainId = None):
     """
     Reads (loads) a PDB file.
     
@@ -247,15 +263,20 @@ def readpdb(assy, filename, showProgressDialog = False):
                                a file. Default is False.
     @type  showProgressDialog: boolean
     """
-    mol  = _readpdb(assy, filename, 
-                    isInsert = False, showProgressDialog = showProgressDialog)
+    mol  = _readpdb(assy, 
+                    filename, 
+                    isInsert = False, 
+                    showProgressDialog = showProgressDialog,
+                    chainId = chainId)
     if mol is not None:
         assy.addmol(mol)
     return
     
 # Insert a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
-def insertpdb(assy, filename):
+def insertpdb(assy, 
+              filename,
+              chainId = None):
     """
     Reads a pdb file and inserts it into the existing model.
     
@@ -265,7 +286,11 @@ def insertpdb(assy, filename):
     @param filename: The PDB filename to read.
     @type  filename: string
     """
-    mol  = _readpdb(assy, filename, isInsert = True, showProgressDialog = True)
+    mol  = _readpdb(assy, 
+                    filename, 
+                    isInsert = True, 
+                    showProgressDialog = True,
+                    chainId = chainId)
     if mol is not None:
         assy.addmol(mol)
     return

@@ -16,7 +16,7 @@ import os
 from PyQt4.Qt import SIGNAL, QComboBox
 import foundation.env as env
 from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
-from utilities.constants import diBALL, diTUBES, diDNACYLINDER
+from utilities.constants import diBALL, diTUBES, diDNACYLINDER, diPROTEIN
 from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
 from utilities.icon_utilities import geticon
 
@@ -24,9 +24,9 @@ from utilities.icon_utilities import geticon
 # except DNA invisible. If we leave it in the list, we must document this 
 # confusing behavior in the "What's This" text.
 # --Mark 2008-03-16
-displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER]
-displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder"]
-displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder" ]
+displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER, diPROTEIN]
+displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder", "Protein"]
+displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder", "Protein"]
 
 displayIconsDict = dict(zip(displayNames, displayIcons))
 displayNamesDict = dict(zip(displayIndexes, displayNames))

@@ -12,6 +12,8 @@ piotr 080623: First preliminary version of the protein display style.
 
 """
 
+import foundation.env as env
+
 from model.chunk import Chunk
 
 from geometry.VQT import V, norm, cross
@@ -71,25 +73,34 @@ except:
 
 
 # protein coloring styles    
+PROTEIN_COLOR_SAME        = -1
 PROTEIN_COLOR_CHUNK       = 0
-PROTEIN_COLOR_ORDER       = 1
-PROTEIN_COLOR_POLAR       = 2
-PROTEIN_COLOR_SIZE        = 3
-PROTEIN_COLOR_TEMPERATURE = 4
-PROTEIN_COLOR_SECONDARY   = 5
-PROTEIN_COLOR_HYDROPATHY  = 6
+PROTEIN_COLOR_CHAIN       = 1
+PROTEIN_COLOR_ORDER       = 2
+PROTEIN_COLOR_HYDROPATHY  = 3
+PROTEIN_COLOR_POLARITY    = 4
+PROTEIN_COLOR_ACIDITY     = 5
+PROTEIN_COLOR_SIZE        = 6
+PROTEIN_COLOR_CHARACTER   = 7
+PROTEIN_COLOR_NOC         = 8
+PROTEIN_COLOR_SECONDARY   = 9
+PROTEIN_COLOR_SS_ORDER    = 10
+PROTEIN_COLOR_BFACTOR     = 11
+PROTEIN_COLOR_OCCUPANCY   = 12
+PROTEIN_COLOR_CUSTOM      = 13
 
 # protein display styles
-PROTEIN_STYLE_CA_WIRE         =  1
-PROTEIN_STYLE_CA_CYLINDER     =  2
-PROTEIN_STYLE_CA_BALL_STICK   =  3
-PROTEIN_STYLE_TUBE            =  4
-PROTEIN_STYLE_ZIGZAG          =  5
-PROTEIN_STYLE_LADDER          =  6
-PROTEIN_STYLE_FLAT_RIBBON     =  7
-PROTEIN_STYLE_SOLID_RIBBON    =  8
-PROTEIN_STYLE_SIMPLE_CARTOONS =  9
+PROTEIN_STYLE_CA_WIRE         = 1
+PROTEIN_STYLE_CA_CYLINDER     = 2
+PROTEIN_STYLE_CA_BALL_STICK   = 3
+PROTEIN_STYLE_TUBE            = 4
+PROTEIN_STYLE_LADDER          = 5
+PROTEIN_STYLE_ZIGZAG          = 6
+PROTEIN_STYLE_FLAT_RIBBON     = 7
+PROTEIN_STYLE_SOLID_RIBBON    = 8
+PROTEIN_STYLE_SIMPLE_CARTOONS = 9
 PROTEIN_STYLE_FANCY_CARTOONS  = 10
+PROTEIN_STYLE_PEPTIDE_TILES   = 11
 
 # 3-letter to 1-letter conversion
 AA_3_TO_1 = {
@@ -279,7 +290,7 @@ def make_tube(points, colors, radii, dpos, resolution=8, trim=True):
     using spline interpolation of points, colors and radii.
     """
     n = len(points)
-    print "points = ", points
+    ## print "points = ", points
     if n > 3:
         new_points = []
         new_colors = []
@@ -827,7 +838,7 @@ class ProteinChunks(ChunkDisplayMode):
     icon_name = "modeltree/DnaCylinder.png"
     hide_icon_name = "modeltree/DnaCylinder-hide.png"
 
-    def _get_aa_color(self, chunk, pos, n_pos, sec, aa):
+    def _get_aa_color(self, chunk, pos, n_pos, sec, aa, c_sec, n_sec):
         """
         Returns an amino acid color according to current colormode.
         """
@@ -839,18 +850,28 @@ class ProteinChunks(ChunkDisplayMode):
             if chunk.color:
                 color = chunk.color
             pass
-        elif self.proteinStyleColors == PROTEIN_COLOR_POLAR:            
+        elif self.proteinStyleColors == PROTEIN_COLOR_POLARITY:            
             if aa in AA_COLORS_POLARITY:
                 color = AA_COLORS_POLARITY[aa]
+        elif self.proteinStyleColors == PROTEIN_COLOR_ACIDITY:            
+            if aa in AA_COLORS_ACIDITY:
+                color = AA_COLORS_ACIDITY[aa]
         elif self.proteinStyleColors == PROTEIN_COLOR_HYDROPATHY: 
             if aa in AA_COLORS_HYDROPATHY:
                 color = AA_COLORS_HYDROPATHY[aa]
         elif self.proteinStyleColors == PROTEIN_COLOR_SECONDARY:
             if sec == 1:
-                color = red
-            if sec == 2:
-                color = blue
-                    
+                color = self.proteinStyleHelixColor
+            elif sec == 2:
+                color = self.proteinStyleStrandColor
+            else:
+                color = self.proteinStyleCoilColor
+        elif self.proteinStyleColors == PROTEIN_COLOR_SS_ORDER:
+            if sec > 0:
+                color = get_rainbow_color_in_range(c_sec, n_sec-1, 1.0, 1.0)
+            else:
+                color = self.proteinStyleCoilColor
+                
         return color
     
     def drawchunk(self, glpane, chunk, memo, highlighted):
@@ -858,22 +879,33 @@ class ProteinChunks(ChunkDisplayMode):
         Draws reduced representation of a protein chunk.
         """
         
-        structure, total_length, ca_list = memo
+        structure, total_length, ca_list, n_sec = memo
 
         style = self.proteinStyle
+        scaleFactor = self.proteinStyleScaleFactor
+        resolution = self.proteinStyleQuality
+        scaling = self.proteinStyleScaling
         
+        current_sec = 0
         for sec, secondary in structure:
-            n_atoms = len(sec) # this should be at least 3
+            # Number of atoms in SS element including dummy atoms.
+            n_atoms = len(sec) 
+            # The length should be at least 3.
             if n_atoms >= 3:
                 if style == PROTEIN_STYLE_CA_WIRE or \
                    style == PROTEIN_STYLE_CA_CYLINDER or \
                    style == PROTEIN_STYLE_CA_BALL_STICK:
                     for n in range( 1, n_atoms-2 ):
-                        pos0, ss0, aa0, idx0, dpos0 = sec[n - 1]
-                        pos1, ss1, aa1, idx1, dpos1 = sec[n]
-                        pos2, ss2, aa2, idx2, dpos2 = sec[n + 1]
-                        #print "SEQ: ", (idx1, ss1, aa1)
-                        color = self._get_aa_color(chunk, idx1, total_length, ss1, aa1)
+                        pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
+                        pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
+                        pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
+                        color = self._get_aa_color(chunk, 
+                                                   idx1, 
+                                                   total_length, 
+                                                   ss1, 
+                                                   aa1,
+                                                   current_sec,
+                                                   n_sec)
                         if style == PROTEIN_STYLE_CA_WIRE:
                             if pos0:
                                 drawline(color, 
@@ -892,55 +924,68 @@ class ProteinChunks(ChunkDisplayMode):
                                 drawcylinder(color, 
                                              pos1 + 0.5 * (pos0 - pos1), 
                                              pos1,
-                                             0.25, capped=1)
+                                             0.25 * scaleFactor, 
+                                             capped=1)
                             
                             if style == PROTEIN_STYLE_CA_BALL_STICK:
-                                drawsphere(color, pos1, 0.5, 2)
+                                drawsphere(color, pos1, 0.5 * scaleFactor, 2)
                             else:
-                                drawsphere(color, pos1, 0.25, 2)
+                                drawsphere(color, pos1, 0.25 * scaleFactor, 2)
                             
                             if pos2:
                                 drawcylinder(color, 
                                              pos1, 
                                              pos1 + 0.5 * (pos2 - pos1),
-                                             0.25, capped=1)
-                elif style == PROTEIN_STYLE_TUBE:
+                                             0.25 * scaleFactor, 
+                                             capped=1)
+                                
+                elif style == PROTEIN_STYLE_TUBE or \
+                     style == PROTEIN_STYLE_LADDER:
 
-                    #print ""
-                    #print "SEC = ", sec
-                    #print "N_ATOMS = ", n_atoms
-                    
                     tube_pos = []
                     tube_col = []
                     tube_rad = []
                     tube_dpos = []
                     
-                    for ca, pos, ss, aa, dpos in ca_list:
-                        drawline(green, pos, pos+4.0*dpos)
-                        
                     for n in range( 2, n_atoms-2 ):
-                        pos00, ss00, a00, idx00, dpos00 = sec[n - 2]
-                        pos0, ss0, aa0, idx0, dpos0 = sec[n - 1]
-                        pos1, ss1, aa1, idx1, dpos1 = sec[n]
-                        pos2, ss2, aa2, idx2, dpos2 = sec[n + 1]
-                        pos22, ss22, aa22, idx22, dpos22 = sec[n + 2]
+                        pos00, ss00, a00, idx00, dpos00, cbpos00 = sec[n - 2]
+                        pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
+                        pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
+                        pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
+                        pos22, ss22, aa22, idx22, dpos22, cbpos22 = sec[n + 2]
                             
-                        color = self._get_aa_color(chunk, idx1, total_length, ss1, aa1)
+                        color = self._get_aa_color(chunk, 
+                                                   idx1, 
+                                                   total_length, 
+                                                   ss1, 
+                                                   aa1,
+                                                   current_sec,
+                                                   n_sec)
 
+                        rad = 0.5 * scaleFactor
+                        if scaling == 1:
+                            if secondary > 0: 
+                                rad *= 2.0
+                                
                         if n == 2:
                             if pos0:
                                 tube_pos.append(pos00)
                                 tube_col.append(V(color))
-                                tube_rad.append(0.4)
+                                tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
                                 tube_pos.append(pos0)
                                 tube_col.append(V(color))
-                                tube_rad.append(0.4)
+                                tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
                         
-                        rad = 0.4
-                        if secondary == 1:
-                            rad = 1.0
+                        # print "CBPOS1 = ", cbpos1
+                        
+                        if style == PROTEIN_STYLE_LADDER:
+                            drawcylinder(color, pos1, cbpos1, rad * 0.75)
+                            drawsphere(color, cbpos1, rad * 1.5, 2)
+                            
+                        #if secondary == 1:
+                        #    rad = 1.0
                         
                         """
                         if secondary == 2:
@@ -961,34 +1006,35 @@ class ProteinChunks(ChunkDisplayMode):
                             if pos2:
                                 tube_pos.append(pos2)
                                 tube_col.append(V(color))
-                                tube_rad.append(0.4)
+                                tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
                                 tube_pos.append(pos22)
                                 tube_col.append(V(color))
-                                tube_rad.append(0.4)
+                                tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
 
-                    last_pos = None
-                    color = red
-                    for n in range(len(tube_pos)):
-                        pos1 = tube_pos[n]
-                        dpos1 = tube_dpos[n]
-                        drawline(red, pos1, 5.0*dpos1+pos1, width=2)                                
+                    #last_pos = None
+                    #color = red
+                    #for n in range(len(tube_pos)):
+                    #    pos1 = tube_pos[n]
+                    #    dpos1 = tube_dpos[n]
+                    #    drawline(red, pos1, 5.0*dpos1+pos1, width=2)                                
                         
                     tube_pos, tube_col, tube_rad, tube_dpos = make_tube(tube_pos, tube_col, tube_rad, tube_dpos, resolution=self.proteinStyleQuality)
 
                     gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
 
-                    if secondary < 2:
-                        drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
+                    drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
                     
+                    """
                     for p in range(len(tube_pos)):
                         pos = tube_pos[p]
                         color = V(tube_col[p])
                         dpos = 3.0*tube_dpos[p]
-                        print "dpos = ", dpos
+                        # print "dpos = ", dpos
                         drawline(blue, pos, pos + dpos)
-                    
+                    """
+                    """
                     if secondary == 2:
                         last_pos = None
                         tri = []
@@ -997,11 +1043,11 @@ class ProteinChunks(ChunkDisplayMode):
                             pos = tube_pos[p]
                             color = V(tube_col[p])
                             dpos = tube_dpos[p]
-                            print "dpos = ", dpos
+                            # print "dpos = ", dpos
                             if last_pos:
                                 drawcylinder(cyan, last_pos - dpos, pos - dpos, 0.1, capped=True)
                                 drawcylinder(cyan, last_pos + dpos, pos + dpos, 0.1, capped=True)
-                            """
+                            
                             if last_pos:
                                 v0 = pos - last_pos
                                 v1 = dpos
@@ -1011,11 +1057,14 @@ class ProteinChunks(ChunkDisplayMode):
                                 
                                 tri.append(pos - dpos)
                                 tri.append(pos + dpos)
-                            """
+                            
                             last_pos = pos
                         
                         #drawtriangle_strip(cyan, tri, nor)
-                            
+                    """
+            # increase sec. str. counter
+            current_sec += 1
+        
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
         Given the same arguments as drawchunk, plus selection_frame_color, 
@@ -1089,20 +1138,32 @@ class ProteinChunks(ChunkDisplayMode):
 
         structure = []
 
-        self.proteinStyle = PROTEIN_STYLE_TUBE
+        from utilities.prefs_constants import proteinStyle_prefs_key
+        from utilities.prefs_constants import proteinStyleColors_prefs_key
+        from utilities.prefs_constants import proteinStyleQuality_prefs_key
+        from utilities.prefs_constants import proteinStyleScaleFactor_prefs_key
+        from utilities.prefs_constants import proteinStyleScaling_prefs_key
+        from utilities.prefs_constants import proteinStyleHelixColor_prefs_key
+        from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
+        from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
+        
+        self.proteinStyle =  env.prefs[proteinStyle_prefs_key] + 1
+        
         self.proteinStyleSmooth = False
-        self.proteinStyleQuality = 10
-        self.proteinStyleScaling = 0
-        self.proteinStyleScaleFactor = 1.0
-        self.proteinStyleColors = PROTEIN_COLOR_ORDER
+        self.proteinStyleQuality = env.prefs[proteinStyleQuality_prefs_key]
+        self.proteinStyleScaling = env.prefs[proteinStyleScaling_prefs_key]
+        self.proteinStyleScaleFactor = env.prefs[proteinStyleScaleFactor_prefs_key]
+        
+        self.proteinStyleColors = env.prefs[proteinStyleColors_prefs_key] 
+        
         self.proteinStyleAuxColors = 0
         self.proteinStyleCustomColor = gray
         self.proteinStyleAuxCustomColor = gray
         self.proteinStyleColorsDiscrete = False
-        self.proteinStyleHelixColor = red
-        self.proteinStyleStrandColor = blue
-        self.proteinStyleCoilColor = gray
-        
+        self.proteinStyleHelixColor = env.prefs[proteinStyleHelixColor_prefs_key]
+        self.proteinStyleStrandColor = env.prefs[proteinStyleStrandColor_prefs_key]
+        self.proteinStyleCoilColor = env.prefs[proteinStyleCoilColor_prefs_key]
+                
         helix = []
         sheet = []
 
@@ -1117,29 +1178,36 @@ class ProteinChunks(ChunkDisplayMode):
         # in the same secondary structure conformation. The list also includes
         # two "dummy" atoms - either preceding and following residues, or 
         # pre-computed chain extensions.
-        
-        sec = [(None, None, None, None)]
+
+        # Empty SS element.
+        sec = []
         
         # Extract a list of alpha carbon atoms and corresponding C-O vectors.
         # The C-O vectors are rotated to avoid sudden orientation changes.
         ca_list = []
+        
+        # dictionary of corresponding Ca-Cb atoms 
+        ca_cb = {}
+        
         n_ca = 0
         last_c_atom = None
         last_o_atom = None
         last_dpos = None
+        last_ca = None
         for atom in chunk.atoms.itervalues():
             if hasattr(atom, "_protein_c"):
                 if atom._protein_c:
                     last_c_atom = atom
+                    
             if hasattr(atom, "_protein_o"):
                 if atom._protein_o:
                     last_o_atom = atom
+                    
             if hasattr(atom, "_protein_ca"):
                 if atom._protein_ca:
                     dpos = None
                     if last_o_atom and last_c_atom:
                         dpos = norm(last_o_atom.posn() - last_c_atom.posn())
-                        print "DPOS = ", (last_c_atom.posn(), last_o_atom.posn(), dpos)
                         if last_dpos:
                             n0 = norm(last_dpos)
                             n1 = norm(dpos)
@@ -1148,8 +1216,11 @@ class ProteinChunks(ChunkDisplayMode):
                                 dpos = -1.0 * dpos
                         last_dpos = dpos
                     ca_list.append((atom, chunk.abs_to_base(atom.posn()), _get_ss(n_ca), _get_aa(atom), dpos))
+                    last_ca = atom
                     n_ca += 1
                     
+            if hasattr(atom, "_protein_cb"):
+                ca_cb[last_ca] = chunk.abs_to_base(atom.posn())
 
         for p in range(len(ca_list)-1):
             atom, pos, ss, aa, dpos = ca_list[p]
@@ -1159,7 +1230,7 @@ class ProteinChunks(ChunkDisplayMode):
                 
         anum = 0
         
-        print "CA LIST = ", ca_list
+        ## print "CA LIST = ", ca_list
         
         if self.proteinStyle == PROTEIN_STYLE_TUBE:
 
@@ -1190,20 +1261,21 @@ class ProteinChunks(ChunkDisplayMode):
                     
                 if (ss == 2 or prev_ss == 2 or next_ss == 2) and prev_ca and next_ca:
                     ca_pos = 0.5 * (0.5*prev_ca_pos + ca_pos + 0.5*next_ca_pos)
-                    #if next_ss == 2 and prev_ss == 2:
-                    #    dpos = 0.333333 * (prev_dpos + dpos + next_dpos)
+                    if next_ss == 2 and prev_ss == 2:
+                        dpos = 0.333333 * (prev_dpos + dpos + next_dpos)
                     smooth_list.append((ca, ca_pos, ss, aa, dpos, i))
                 
             for ca, ca_pos, ss, aa, dpos, i in smooth_list:
                 ca_list[i] = (ca, ca_pos, ss, aa, dpos)
             
-            
+        n_sec = 0
+        
         for i in range( n_ca ):
 
             ca, ca_pos, ss, aa, dpos = ca_list[i]
             
             if i > 0:
-                prev_ca, prev_ca_pos, prev_ss, prev_aa, dpos = ca_list[i - 1]
+                prev_ca, prev_ca_pos, prev_ss, prev_aa, prev_dpos = ca_list[i - 1]
             else:
                 prev_ca = ca
                 prev_ca_pos = ca_pos
@@ -1221,10 +1293,10 @@ class ProteinChunks(ChunkDisplayMode):
                 prev2_dpos = prev_dpos
                 
             if len(sec) == 0:
-                sec.append((prev2_ca_pos, prev2_ss, prev2_aa, i - 2, prev2_dpos))
-                sec.append((prev_ca_pos, prev_ss, prev_aa, i - 1, prev_dpos))
+                sec.append((prev2_ca_pos, prev2_ss, prev2_aa, i - 2, prev2_dpos, ca_cb[prev2_ca]))
+                sec.append((prev_ca_pos, prev_ss, prev_aa, i - 1, prev_dpos, ca_cb[prev_ca]))
 
-            sec.append((ca_pos, ss, aa, i, dpos))
+            sec.append((ca_pos, ss, aa, i, dpos, ca_cb[ca]))
                                             
             if i < n_ca - 1:
                 next_ca, next_ca_pos, next_ss, next_aa, next_dpos = ca_list[i + 1]
@@ -1255,8 +1327,8 @@ class ProteinChunks(ChunkDisplayMode):
                 # the spline interpolator has to compute fake positions
                 # of the terminal atoms.
                 
-                sec.append((next_ca_pos, next_ss, next_aa, i + 1, dpos))                
-                sec.append((next2_ca_pos, next2_ss, next2_aa, i + 2, dpos))                
+                sec.append((next_ca_pos, next_ss, next_aa, i + 1, dpos, ca_cb[next_ca]))                
+                sec.append((next2_ca_pos, next2_ss, next2_aa, i + 2, dpos, ca_cb[next2_ca]))                
                     
                 # Ignore terminal beta-strand dpos vectors, use neighbors instead.
                 for n in range(2, len(sec)-2):
@@ -1265,9 +1337,10 @@ class ProteinChunks(ChunkDisplayMode):
                 
                 # Append the secondary structure elemeny.
                 structure.append((sec, ss))
-
+                n_sec += 1
+                
                 sec = []                            
 
-        return (structure, n_ca, ca_list)
+        return (structure, n_ca, ca_list, n_sec)
 
 ChunkDisplayMode.register_display_mode_class(ProteinChunks)

@@ -189,6 +189,10 @@ def _initialize_custom_display_modes(win):
     if enable_SurfaceChunks:
         win.displayStylesToolBar.addAction(win.dispSurfaceAction)
 
+    # diPROTEIN
+    # piotr 080624
+    import graphics.display_styles.ProteinChunks as ProteinChunks
+        
     return
 
 # ==

@@ -378,13 +378,12 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         #color groupbox
         change_connect(self.proteinComponentComboBox,
-                       SIGNAL("valueChanged(int)"),
+                       SIGNAL("currentIndexChanged(int)"),
                        self.chooseProteinComponent)
         
         change_connect(self.proteinAuxComponentComboBox,
-                       SIGNAL("valueChanged(int)"),
-                       self.chooseAuxilliaryProteinComponent)
-        
+                       SIGNAL("currentIndexChanged(int)"),
+                       self.chooseAuxilliaryProteinComponent)        
         
         change_connect(self.customColorComboBox,
                        SIGNAL("editingFinished()"),
@@ -444,7 +443,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         return
     
     def chooseAuxilliaryProteinComponent(self, idx):
-        env.prefs[proteinStyleAuxColors_prefs_key] = idx
+        env.prefs[proteinStyleAuxColors_prefs_key] = idx - 1
         return
     
     def chooseCustomColor(self):
@@ -627,16 +626,16 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Load widgets in group box.
         """
-        proteinStyleChoices = ['Main chain - wire', 
-                               'Main chain - cylinder', 
-                               'Main chain - ball and stick',
-                               'Spline',
-                               'Tue',
-                               'Strand',
+        proteinStyleChoices = ['CA trace (wire)', 
+                               'CA trace (cylinders)', 
+                               'CA trace (ball and stick)',
+                               'Tube',
+                               'Ladder',
+                               'Zigzag',
                                'Flat ribbon',
                                'Solid ribbon',
                                'Cartoons',
-                               'Ladder',
+                               'Fancy cartoons',
                                'Peptide tiles'
                                ]
 
@@ -648,10 +647,10 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.splineDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Spline:",
+                              label         =  "Resolution:",
                               value         =  5,
                               setAsDefault  =  True,
-                              minimum       =  1,
+                              minimum       =  3,
                               maximum       =  20,
                               decimals      =  0,
                               singleStep    =  1 )
@@ -697,9 +696,9 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         colorList = [orange, yellow, red, magenta, 
                        cyan, blue, white, black, gray]
+        
         colorNames = ["Orange(default)", "Yellow", "Red", "Magenta", 
                         "Cyan", "Blue", "White", "Black", "Other color..."]
-    
         
         self.customColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
@@ -716,7 +715,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.proteinAuxComponentComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Color:",
+                         label         =  "Aux color:",
                          choices       =  colorChoices1,
                          setAsDefault  =  True)
         
@@ -729,13 +728,13 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                              colorList = colorListAux,
                              colorNames = colorNamesAux, 
-                             label = "Auxilliary color:",
+                             label = "Custom aux color:",
                              color = gray,
                              setAsDefault  =  True)
 
         self.discColorCheckBox = \
             PM_CheckBox( pmGroupBox,
-                         text = "Discrete color:",
+                         text = "Discretize colors",
                          setAsDefault = True
                          )
 
@@ -744,6 +743,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         colorNamesHelix = ["Red(default)", "Yellow", "Gray", "Magenta", 
                            "Cyan", "Blue", "White", "Black", "Other color..."]
+        
         self.helixColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListHelix,
