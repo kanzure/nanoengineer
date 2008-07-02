@@ -20,6 +20,9 @@ def setupUi(win):
     win.importMenu.addAction(win.fileImportOpenBabelAction)
     win.importMenu.addAction(win.fileImportIOSAction)
     
+    #Populate the Fetch submenu
+    win.fetchMenu.addAction(win.fileFetchPdbAction)
+    
     # Populate the "Export" submenu.
     win.exportMenu.addAction(win.fileExportPdbAction)
     win.exportMenu.addAction(win.fileExportQuteMolXPdbAction)
@@ -41,6 +44,7 @@ def setupUi(win):
     win.fileMenu.addSeparator()
     win.fileMenu.addMenu(win.importMenu)
     win.fileMenu.addMenu(win.exportMenu)
+    win.fileMenu.addMenu(win.fetchMenu)
     win.fileMenu.addSeparator()
     win.fileMenu.addAction(win.fileExitAction)
     
@@ -65,6 +69,10 @@ def retranslateUi(win):
     win.exportMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "Export", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fetchMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Fetch", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.openRecentFilesMenu.setTitle(
         QtGui.QApplication.translate(
