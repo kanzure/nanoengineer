@@ -129,8 +129,6 @@ _global_assy_number = 0 # count Assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-## undo_archive.register_class_nickname("assembly", "Assembly") # for use in Undo attr-dependency decls # might not be needed
-
 # ==
 
 class Assembly( StateMixin, Assembly_API):

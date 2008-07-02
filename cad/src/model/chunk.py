@@ -181,14 +181,10 @@ _inval_all_bonds_counter = 1 #bruce 050516
 #  physical space, containing perhaps many bonded chunks. So any use of
 #  "part" to mean "chunk" would be misleading.]
 
-# Huaicai: It's completely possible to create a Chunk without any atoms,
-# so don't assume it always has atoms.   09/30/04
-# (However, as of bruce 041116 we kill any mol which loses all its atoms
+# Note: as of bruce 041116 we kill any mol which loses all its atoms
 # after having had some. This is an experimental change; if it causes
 # problems, we should instead do it when we update the model tree or glpane,
 # since we need to ensure it's always done by the end of any user event.)
-
-##register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency decls
 
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 

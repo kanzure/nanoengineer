@@ -1196,7 +1196,7 @@ assert undo_classname_for_decls("_testclass") == "_testclass"
 
 _classname_for_nickname = {}
 
-def register_class_nickname(name, class1):
+def register_class_nickname(name, class1): # not used as of before 080702, but should be kept
     """
     Permit <name>, in addition to class1.__name__ (or class1 itself if it's a string),
     to be used in declarations involving class1 to the Undo system.
@@ -1243,7 +1243,8 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
     to support multiple classes of the same name, but it won't do anything to stop you from trying. In the future
     we might add explicit support for runtime reloading of classes and upgrading of their instances to the new versions
     of the same classes.)
-       Certain classes have nicknames (like 'Chunk' for class molecule) which can be used here because they've been
+       Certain classes have nicknames (like 'Chunk' for class molecule,
+    before it was renamed) which can be used here because they've been
     specifically registered as permitted, using register_class_nickname.
        [This docstring was written before the code was, and when only one <func> was being registered so far,
     so it's subject to revision from encountering reality (or to being out of date if that revision hasn't

@@ -143,7 +143,7 @@ class RotateTranslate(DelegatingInstanceOrExpr):#070225
         self.drawkid(self.delegate) # has exception protection (#e#k or will soon)
         self.popMatrix()
         return
-    def pushMatrix(self): # [modified from same method in class molecule, chunk.py]
+    def pushMatrix(self): # [modified from same method in class Chunk]
         """Do glPushMatrix(), and then transform from external to local coordsys.
         """
         # do most of the things that might cause exceptions before doing any OpenGL calls.
@@ -162,7 +162,7 @@ class RotateTranslate(DelegatingInstanceOrExpr):#070225
         glRotatef(a,b,c,d)
         glTranslatef(-cx,-cy,-cz)
         return
-    def popMatrix(self): # [copied from same method in class molecule, chunk.py]
+    def popMatrix(self): # [copied from same method in class Chunk]
         "Undo the effect of self.pushMatrix()."
         glPopMatrix()
     pass

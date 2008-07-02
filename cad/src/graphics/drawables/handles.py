@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 handles.py - graphical handles used in Extrude Mode.
 
@@ -7,7 +7,7 @@ used by most handle-like things.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -56,7 +56,7 @@ class HandleSet:
         self.origin = V(0,0,0) # changed from this only by certain subclasses, in practice
         self.handles = [] # list of (pos,radius,info) tuples
         # handlpos and maxradius are not used now, but might be used later to optimize this.
-        self.handlpos = [] # list of their pos's (compare to singlpos in class molecule (_recompute_singlpos))
+        self.handlpos = [] # list of their pos's (compare to singlpos in class Chunk (_recompute_singlpos))
         self.maxradius = 0.01 # not true, but best if it's always positive, I think
     #e to optimize, we might want a "compile" method which caches Array versions of these lists
     def addHandle(self, pos, radius, info):
@@ -110,7 +110,8 @@ class HandleSet:
 ##        """
 ##        assert 0
     def findHandles_exact(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0)):
-        """return a list of (dist, handle) pairs, in arbitrary order,
+        """
+        return a list of (dist, handle) pairs, in arbitrary order,
         which includes, for each handle (spherical surface) hit by the ray from p1 thru p2,
         its front-surface intersection with the ray,
         unless that has dist < cutoff and backs_ok,
@@ -144,7 +145,8 @@ class HandleSet:
                         res.append((back,(pos,radius,info)))
         return res
     def frontDistHandle(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0), copy_id = None):
-        """return None, or the frontmost (dist, handle) pair, as computed by findHandles_exact;
+        """
+        return None, or the frontmost (dist, handle) pair, as computed by findHandles_exact;
         but turn the handle into a pyobj for convenience of caller.
         """
         #####k i don't know if retval needs self.radius_multiplier...

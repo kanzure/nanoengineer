@@ -14,7 +14,7 @@ History:
 
 - lots of changes, by various developers
 
-- class molecule, for chunks, was moved into new file chunk.py circa 041118
+- class Chunk (then called class molecule) was moved into new file chunk.py circa 041118
 
 - elements.py was split out of this module on 041221
 

@@ -172,7 +172,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
 
 #
 
-class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule and (via UsageTracker) in preferences.py
+class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class Chunk and (via UsageTracker) in preferences.py
     """
     You can mix this into classes which need to let all other code track uses and changes
     of their "main value" (what value that means is up to them).
@@ -409,7 +409,7 @@ def after_current_tracked_usage_ends(func):# new feature 070108 [tested and work
     usage_tracker._do_after_current_tracked_usage_ends[ func] = func
     return
 
-class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule, class GLPane, class Formula
+class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class Chunk, class GLPane, class Formula
     # [note, 060926: this doesn't use self at all. Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
     """
     ###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;

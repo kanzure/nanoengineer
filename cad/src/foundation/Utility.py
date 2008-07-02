@@ -1881,7 +1881,7 @@ class Node( StateMixin):
         have this method called on them or not.
            The Group implem does *not* call this on its members --
         use apply2all for that.
-        [As of 050308, this is overridden only in class molecule and
+        [As of 050308, this is overridden only in class Chunk and
          class Jig and/or its subclasses.]
         """
         pass
