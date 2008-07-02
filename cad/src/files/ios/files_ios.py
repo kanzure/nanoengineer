@@ -2,7 +2,7 @@
 files_ios.py - provides functions to export a NE-1 model into IOS format as well
 as import optimized sequences into NE-1
 
-@version: $Id: 
+@version: $Id$: 
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @author: Urmi
 
