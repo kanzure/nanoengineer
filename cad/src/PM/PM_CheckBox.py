@@ -142,7 +142,7 @@ class PM_CheckBox( QCheckBox ):
         if self.setAsDefault:
             self.setDefaultState(state)
             
-        self.setCheckState(Qt.Unchecked)          
+        self.setCheckState(state)          
         
         parentWidget.addPmWidget(self)
     
