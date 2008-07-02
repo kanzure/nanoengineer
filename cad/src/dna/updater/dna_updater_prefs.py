@@ -222,21 +222,24 @@ def pref_fix_after_readmmp_after_updaters():
 
 # ==
 
-def pref_debug_dna_updater(): # 080228
+def pref_debug_dna_updater(): # 080228; note: accessed using flags matching debug_flags.DEBUG_DNA_UPDATER*
     res = debug_pref("DNA: updater debug prints",
                      Choice(["off", "minimal", "on", "verbose"],
-                            defaultValue = "on"), # todo: revise defaultValue after debugging
-                         # defaultValue left "on" for now, though a bit verbose, bruce 080317
+                            ## defaultValue = "on", # todo: revise defaultValue after debugging
+                            # defaultValue left "on" for now, though a bit verbose, bruce 080317
+                            defaultValue = "off" #bruce 080702 revised this, and the prefs key
+                           ),
                      non_debug = True,
-                     prefs_key = "A10 devel/DNA updater: debug prints", # changed, bruce 080317
+                     prefs_key = "v111/DNA updater: debug prints", # changed, bruce 080317, 080702
                      call_with_new_value = _update_our_debug_flags )
     return res
 
-def pref_dna_updater_slow_asserts(): # 080228
+def pref_dna_updater_slow_asserts(): # 080228; note: accessed using debug_flags.DNA_UPDATER_SLOW_ASSERTS
     res = debug_pref("DNA: updater slow asserts?",
-                     Choice_boolean_True, # todo: test speed effect; revise before release if too slow
+                     ## Choice_boolean_True, # todo: test speed effect; revise before release if too slow
+                     Choice_boolean_False, #bruce 080702 revised this, and the prefs key
                      non_debug = True,
-                     prefs_key = "A10 devel/DNA updater: slow asserts?", # changed, bruce 080317
+                     prefs_key = "v111/DNA updater: slow asserts?", # changed, bruce 080317, 080702
                      call_with_new_value = _update_our_debug_flags )
     return res
 

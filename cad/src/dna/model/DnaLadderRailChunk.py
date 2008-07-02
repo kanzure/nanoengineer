@@ -865,6 +865,9 @@ class DnaLadderRailChunk(Chunk):
         atoms = self.indexed_atoms_in_order(mapping)
         assert atoms
         if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
+            # warning: not well tested, since this flag was turned off
+            # by default 080702, but write_bonds_compactly is not yet
+            # used by default as of then.
             codes = [mapping.encode_atom_written(atom) for atom in atoms]
             for i in range(len(codes)):
                 # it might be an int or a string version of an int
