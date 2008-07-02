@@ -1510,19 +1510,22 @@ class Bond(BondBase, StateMixin, Selobj_API):
         assert self.atom2 is atm #bruce 041029
         return self.atom1
 
-    def othermol(self, mol): #bruce 041123; not yet used or tested
+    def other_chunk(self, mol): #bruce 041123; revised and first used, 080702
         """
-        Given the molecule of one atom of this bond, return the mol
-        of the other one. Error if mol is not one of the bonded mols.
-        Note that this implies that for an internal bond within mol,
-        the input must be mol and we always return mol.
+        Given the chunk of one atom of this bond, return the chunk
+        of the other atom. Error if chunk is not one of our atoms' cnunks.
+        
+        @note: if self is an internal bond in chunk1, our specification
+               implies that mol must be chunk1 and we always return chunk1.
         """
-        if mol is self.atom1.molecule:
-            return self.atom2.molecule
-        elif mol is self.atom2.molecule:
-            return self.atom1.molecule
+        c1 = self.atom1.molecule
+        c2 = self.atom2.molecule
+        if mol is c1:
+            return c2
+        elif mol is c2:
+            return c1
         else:
-            assert mol in [self.atom1.molecule, self.atom2.molecule]
+            assert mol in (c1, c2)
             # this always fails (so it's ok if it's slow) -- it's just our "understandable error message"
         pass
     
@@ -1742,6 +1745,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
             # involve some comparison by undo of old and new bonds between the
             # same atoms (a speculation; but the tracebacks seem to always
             # mention undo, and the atoms in the bonds seem to be the same).
+            # Or maybe there is code to make a new bond, see if it's already
+            # on the atoms, and discard it if so (Bond.__init__ might do that).
             msg = "debug: fyi: different bond objects (on same atoms) equal: " \
                   "%r == %r: " % (self, obj)
             print_compact_stack( msg )
@@ -1893,6 +1898,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 # Problem: without it, this might be wrong if the bond was "busted"
                 # without either atom being killed. For now, just leave it out; fix this sometime. #####@@@@@
                 # Warning: that last condition is slow, too.
+                # [later: see also ExternalBondSet._correct_bond, which
+                #  checks this itself, and its comments. [bruce 080702 comment]]
         except:
             # (if this can happen, it's probably from one of the atoms being None,
             #  though self.bust() doesn't presently set them to None)
@@ -2279,7 +2286,7 @@ class _bonder_at_singlets:
 ##    """
 ##    res = []
 ##    for bond in mol.externs:
-##        mol2 = bond.othermol(mol)
+##        mol2 = bond.other_chunk(mol)
 ##        assert mol2 != mol, "an internal bond %r was in self.externs of %r" % (bond, mol)
 ##        if mol not in others:
 ##            if mol not in res:

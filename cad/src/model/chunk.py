@@ -104,6 +104,8 @@ from utilities.icon_utilities import imagename_to_pixmap
 
 import model.bonds as bonds # TODO: import specific functions, since no longer an import cycle
 
+from model.ExternalBondSet import ExternalBondSet
+
 from model.elements import Singlet
 
 from geometry.BoundingBox import BBox
@@ -427,6 +429,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         self.extra_displists = {} # precaution, probably not needed
 
+        # keep track of other chunks we're bonded to; lazily updated
+        # [bruce 080702]
+        self._bonded_chunks = {}
+
         return # from Chunk.__init__
 
     # ==
@@ -586,6 +592,60 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             return []
         return self.containing_nodes()
 
+    def _update_bonded_chunks(self): #bruce 080702
+        """
+        Make sure our map from (other chunk -> ExternalBondSet for self and it)
+        (stored in self._bonded_chunks) is up to date, and that those
+        ExternalBondSets have the correct subsets of our external bonds.
+        Use the flags self._f_lost_externs and self._f_gained_externs to know
+        what needs checking, and reset them.
+        """
+        maybe_empty = []
+        if self._f_lost_externs:
+            for ebset in self._bonded_chunks.itervalues():
+                ebset.remove_incorrect_bonds()
+                if ebset.empty():
+                    maybe_empty.append(ebset)
+                        # but don't yet remove it from self._bonded_chunks --
+                        # we might still add bonds below
+            self._f_lost_externs = False
+        if self._f_gained_externs:
+            for bond in self.externs: # this might recompute self.externs
+                otherchunk = bond.other_chunk(self)
+                if not self._bonded_chunks.has_key( otherchunk):
+                    if not otherchunk._bonded_chunks.has_key( self):
+                        ebset = ExternalBondSet( self, otherchunk)
+                        otherchunk._bonded_chunks[ self] = ebset
+                    else:
+                        # was there but not here -- should never happen
+                        # (since the only way to make one is the above case,
+                        #  which ends up storing it in both otherchunk and self,
+                        #  and the only way to remove one removes it from both)
+                        ebset = otherchunk._bonded_chunks[ self]
+                        print "likely bug: ebset %r was in %r but not in %r" % \
+                              (ebset, otherchunk, self)
+                    self._bonded_chunks[ otherchunk] = ebset
+                else:
+                    ebset = self._bonded_chunks[ otherchunk]
+                ebset.add_bond( bond) # ok if bond is already there
+            self._f_gained_externs = False
+        # if some of our ExternalBondSets are now empty, destroy them
+        # (this removes them from *both* their chunks, not only from self)
+        for ebset in maybe_empty:
+            if ebset.empty():
+                ebset.destroy()
+        return
+
+    def _destroy_bonded_chunks(self):
+        for ebset in self._bonded_chunks.values():
+            ebset.destroy()
+        self._bonded_chunks = {} # precaution (should be already true)
+        return
+
+    def _f_remove_ExternalBondSet(self, ebset):
+        otherchunk = ebset.other_chunk(self)
+        del self._bonded_chunks[otherchunk]
+    
     # START of Dna-Strand-or-Axis chunk specific code ==========================
 
     # Note: all these methods will be removed from class Chunk once the
@@ -2154,6 +2214,10 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
+        if 1:
+            # for debugging, call this here (though not always needed):
+            # [bruce 080702]
+            self._update_bonded_chunks()
         selColor = env.prefs[selectionColor_prefs_key]
         #bruce 080215 split this out, added debug_pref
         # piotr 080320: if this debug_pref is set, the external bonds 
@@ -3521,6 +3585,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         [extends Node method]
         """
+        self._destroy_bonded_chunks()
         ## print "fyi debug: mol.kill on %r" % self
         # Bruce 041116 revised docstring, made redundant kills noticed
         # and fully legal, and made kill forget about dad and assy.
