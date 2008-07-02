@@ -42,7 +42,7 @@ from PyQt4.Qt import QFontMetrics
 
 from PyQt4.Qt import Qt, QFont, QMessageBox, QString
 from PyQt4.Qt import SIGNAL, QTimer
-from PyQt4.Qt import QGLWidget
+from PyQt4.QtOpenGL import QGLWidget
 
 
 from OpenGL.GL import glGenLists

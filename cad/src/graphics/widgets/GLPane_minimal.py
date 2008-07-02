@@ -14,8 +14,8 @@ It needs to be in its own file to avoid import loop problems.
 
 from OpenGL.GL import glDepthRange
 
-from PyQt4.Qt import QGLFormat
-from PyQt4.Qt import QGLWidget
+from PyQt4.QtOpenGL import QGLFormat
+from PyQt4.QtOpenGL import QGLWidget
 
 from geometry.VQT import V, Q
 from graphics.behaviors.Trackball import Trackball

@@ -12,7 +12,7 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QFileDialog
 from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QApplication
-from PyQt4.Qt import QGLFormat
+from PyQt4.QtOpenGL import QGLFormat
 
 from commands.ElementColors.ElementColorsDialog import Ui_ElementColorsDialog
 from model.elements import PeriodicTable 
