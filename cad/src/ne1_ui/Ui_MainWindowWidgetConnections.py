@@ -120,6 +120,11 @@ def setupUi(win):
     win.connect(win.fileExportPdbAction,
                 SIGNAL("triggered()"),
                 win.fileExportPdb)
+    
+    win.connect(win.fileFetchPdbAction,
+                SIGNAL("triggered()"),
+                win.fileFetchPdb)
+    
     win.connect(win.fileExportJpgAction,
                 SIGNAL("triggered()"),
                 win.fileExportJpg)
