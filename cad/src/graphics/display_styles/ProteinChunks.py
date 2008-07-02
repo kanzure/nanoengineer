@@ -25,7 +25,7 @@ from graphics.drawing.CS_draw_primitives import drawpolycone
 from graphics.drawing.CS_draw_primitives import drawpolycone_multicolor
 from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
-# from graphics.drawing.CS_draw_primitives import drawtriangle_strip
+from graphics.drawing.CS_draw_primitives import drawtriangle_strip
 
 from Numeric import dot
 
@@ -886,6 +886,8 @@ class ProteinChunks(ChunkDisplayMode):
         resolution = self.proteinStyleQuality
         scaling = self.proteinStyleScaling
         
+        gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED ) 
+
         current_sec = 0
         for sec, secondary in structure:
             # Number of atoms in SS element including dummy atoms.
@@ -941,7 +943,11 @@ class ProteinChunks(ChunkDisplayMode):
                                 
                 elif style == PROTEIN_STYLE_TUBE or \
                      style == PROTEIN_STYLE_LADDER or \
-                     style == PROTEIN_STYLE_ZIGZAG:
+                     style == PROTEIN_STYLE_ZIGZAG or \
+                     style == PROTEIN_STYLE_FLAT_RIBBON or \
+                     style == PROTEIN_STYLE_SOLID_RIBBON or \
+                     style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                     style == PROTEIN_STYLE_FANCY_CARTOONS:
 
                     tube_pos = []
                     tube_col = []
@@ -963,7 +969,7 @@ class ProteinChunks(ChunkDisplayMode):
                                                    current_sec,
                                                    n_sec)
 
-                        rad = 0.5 * scaleFactor
+                        rad = 0.25 * scaleFactor
                         if scaling == 1:
                             if secondary > 0: 
                                 rad *= 2.0
@@ -1008,33 +1014,190 @@ class ProteinChunks(ChunkDisplayMode):
                         tube_dpos, 
                         resolution=resolution)
                     
-                    if style == PROTEIN_STYLE_ZIGZAG:
+                    if style == PROTEIN_STYLE_ZIGZAG or \
+                       style == PROTEIN_STYLE_FLAT_RIBBON or \
+                       style == PROTEIN_STYLE_SOLID_RIBBON or \
+                       style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                       style == PROTEIN_STYLE_FANCY_CARTOONS:
+                        
                         last_pos = None
                         last_width = 1.0
                         reset = False
-                        if secondary < 2:
+                        
+                        # Find SS element widths and determine width increment.
+                        if secondary == 0:
+                            # Coils have a constant width.
+                            width = scaleFactor * 0.1
+                            dw = 0.0
+                        elif secondary == 1:
+                            # Helices expand and shrink at the ends.
                             width = scaleFactor * 0.1
                             dw = (1.0 * scaleFactor) / (resolution - 3)
                         else:
+                            # Strands just shrink at the C-terminal end.
                             width = scaleFactor * 1.0
-                            dw = (1.6 * scaleFactor) / (resolution - 3)
+                            dw = (1.6 * scaleFactor) / (1.5 * resolution - 3)
+                        
+                        
+                        if style == PROTEIN_STYLE_FLAT_RIBBON or \
+                           style == PROTEIN_STYLE_SOLID_RIBBON or \
+                           style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                           style == PROTEIN_STYLE_FANCY_CARTOONS:
+                            
+                            tri_arr0 = []
+                            nor_arr0 = []
+                            col_arr0 = []
+                            
+                            if style == PROTEIN_STYLE_SOLID_RIBBON or \
+                               style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                               style == PROTEIN_STYLE_FANCY_CARTOONS: 
+                                
+                                tri_arr1 = []
+                                nor_arr1 = []
+                                col_arr1 = []
+                                
+                                tri_arr2 = []
+                                nor_arr2 = []
+                                col_arr2 = []
+                                
+                                tri_arr3 = []
+                                nor_arr3 = []
+                                col_arr3 = []
+                        
+                        new_tube_dpos = list(tube_dpos)
                         
                         for n in range(1, len(tube_pos)-1):
                             pos = tube_pos[n]
                             
                             col = tube_col[n][0]
+                            col2 = tube_col[n+1][0]
                             if last_pos:
+                                next_pos = tube_pos[n+1]
                                 dpos1 = last_width * tube_dpos[n-1]
                                 dpos2 = width * tube_dpos[n]
+                                new_tube_dpos[n] = dpos2
+                                ddpos = dpos1-dpos2
                                 if reset:
                                     dpos1 = dpos2
                                     reset = False
-                                drawline(col, last_pos-dpos1, pos-dpos2, width=2)
-                                drawline(col, last_pos+dpos1, pos+dpos2, width=2)
-                                drawline(col, last_pos-dpos1, pos+dpos2, width=2)
-                                drawline(col, last_pos-dpos1, last_pos+dpos1, width=2)
-                                drawline(col, pos-dpos2, pos+dpos2, width=2)
+                                    
+                                if self.proteinStyle == PROTEIN_STYLE_ZIGZAG:
+                                    drawline(col, last_pos-dpos1, pos-dpos2, width=3)
+                                    drawline(col, last_pos+dpos1, pos+dpos2, width=3)
+                                    drawline(col, last_pos-dpos1, pos+dpos2, width=1)
+                                    drawline(col, pos-dpos2, pos+dpos2, width=1)
+                                    drawline(col, last_pos-dpos1, last_pos+dpos1, width=1)
 
+                                if self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON:
+                                    if pos != last_pos:
+                                        
+                                        nvec1 = norm(cross(dpos1, pos-last_pos))
+                                        if next_pos != pos:
+                                            nvec2 = norm(cross(dpos2, next_pos-pos))
+                                        else:
+                                            nvec2 = nvec1
+                                                                                    
+                                        nor_arr0.append(nvec1)
+                                        nor_arr0.append(nvec1)
+                                        nor_arr0.append(nvec2)
+                                        nor_arr0.append(nvec2)
+                                        
+                                        tri_arr0.append(last_pos-dpos1) 
+                                        tri_arr0.append(last_pos+dpos1)
+                                        tri_arr0.append(pos-dpos2) 
+                                        tri_arr0.append(pos+dpos2)
+                                        
+                                        col_arr0.append(col)
+                                        col_arr0.append(col)
+                                        col_arr0.append(col2)
+                                        col_arr0.append(col2)
+                                        
+                                if self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON or \
+                                   self.proteinStyle == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                                   self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS:
+                                                                        
+                                    if secondary > 0:
+                                            
+                                        col3 = col4 = V(gray)
+                                        
+                                        if pos != last_pos:
+                                            
+                                            nvec1 = norm(cross(dpos1, pos-last_pos))
+                                            if next_pos != pos:
+                                                nvec2 = norm(cross(dpos2, next_pos-pos))
+                                            else:
+                                                nvec2 = nvec1
+                                                                                        
+                                            nor_arr0.append(nvec1)
+                                            nor_arr0.append(nvec1)
+                                            nor_arr0.append(nvec2)
+                                            nor_arr0.append(nvec2)
+                                            
+                                            dn1 = 0.25 * nvec1 * scaleFactor
+                                            dn2 = 0.25 * nvec2 * scaleFactor
+                                            
+                                            tri_arr0.append(last_pos - dpos1 - dn1) 
+                                            tri_arr0.append(last_pos + dpos1 - dn1)
+                                            tri_arr0.append(pos - dpos2 - dn2) 
+                                            tri_arr0.append(pos + dpos2 - dn2)
+                                            
+                                            col_arr0.append(col)
+                                            col_arr0.append(col)
+                                            col_arr0.append(col2)
+                                            col_arr0.append(col2)
+                                                                                        
+                                            nor_arr1.append(nvec1)
+                                            nor_arr1.append(nvec1)
+                                            nor_arr1.append(nvec2)
+                                            nor_arr1.append(nvec2)
+                                            
+                                            tri_arr1.append(last_pos - dpos1 + dn1) 
+                                            tri_arr1.append(last_pos + dpos1 + dn1)
+                                            tri_arr1.append(pos - dpos2 + dn2) 
+                                            tri_arr1.append(pos + dpos2 + dn2)
+                                            
+                                            if secondary == 1:
+                                                col_arr1.append(0.5 * col + 0.5 * V(white))
+                                                col_arr1.append(0.5 * col + 0.5 * V(white))
+                                                col_arr1.append(0.5 * col2 + 0.5 * V(white))
+                                                col_arr1.append(0.5 * col2 + 0.5 * V(white))
+                                            else:
+                                                col_arr1.append(col)
+                                                col_arr1.append(col)
+                                                col_arr1.append(col2)
+                                                col_arr1.append(col2)
+                                                
+                                            nor_arr2.append(-dpos1)
+                                            nor_arr2.append(-dpos1)
+                                            nor_arr2.append(-dpos2)
+                                            nor_arr2.append(-dpos2)
+                                            
+                                            tri_arr2.append(last_pos - dpos1 - dn1) 
+                                            tri_arr2.append(last_pos - dpos1 + dn1)
+                                            tri_arr2.append(pos - dpos2 - dn2) 
+                                            tri_arr2.append(pos - dpos2 + dn2)
+                                            
+                                            col_arr2.append(col3)
+                                            col_arr2.append(col3)
+                                            col_arr2.append(col4)
+                                            col_arr2.append(col4)
+                                                                                        
+                                            nor_arr3.append(-dpos1)
+                                            nor_arr3.append(-dpos1)
+                                            nor_arr3.append(-dpos2)
+                                            nor_arr3.append(-dpos2)
+                                            
+                                            tri_arr3.append(last_pos + dpos1 - dn1) 
+                                            tri_arr3.append(last_pos + dpos1 + dn1)
+                                            tri_arr3.append(pos + dpos2 - dn2) 
+                                            tri_arr3.append(pos + dpos2 + dn2)
+                                            
+                                            col_arr3.append(col3)
+                                            col_arr3.append(col3)
+                                            col_arr3.append(col4)
+                                            col_arr3.append(col4)
+                                                                                        
+                                                
                             last_pos = pos
                             last_width = width
                             
@@ -1045,14 +1208,46 @@ class ProteinChunks(ChunkDisplayMode):
                                     width += dw
                                 
                             if secondary == 2:
-                                if n == len(tube_pos) - resolution:
+                                if n == len(tube_pos) - 1.5 * resolution:
                                     width = scaleFactor * 1.6
                                     reset = True
-                                if n > len(tube_pos) - resolution:
+                                if n > len(tube_pos) - 1.5 * resolution:
                                     width -= dw 
+                        
+                                
+                        ###drawcylinder(white, tube_pos[0], tube_pos[10], 1.0)
+
+                        if self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON:
+                            drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
+                         
+                        if self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON or \
+                           self.proteinStyle == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+                           self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS:
+                            if secondary == 0:
+                                drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
+                            else:
+                                if (secondary == 1 and self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON) or \
+                                   secondary == 2:
+                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
+                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr1, nor_arr1, col_arr1)
+                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr2, nor_arr2, col_arr2)
+                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr3, nor_arr3, col_arr3)
+                                if (secondary == 1 and self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS):
+                                    drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
+                                    drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr1, nor_arr1, col_arr1)
+                                    for p in range(len(tube_pos)):
+                                        tube_pos[p] += new_tube_dpos[p]
+                                        tube_rad[p] *= 0.75
+                                    drawpolycone_multicolor([0,0,0,-2], tube_pos[1:], tube_col[1:], tube_rad[1:])
+                                    
+                                    for p in range(len(tube_pos)):
+                                        tube_pos[p] -= 2.0 * new_tube_dpos[p]
+                                    drawpolycone_multicolor([0,0,0,-2], tube_pos[1:], tube_col[1:], tube_rad[1:])
+                                        
+                        
                     else:    
                         # Draw tube.
-                        gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED) 
+                        gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED ) 
                         drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
                     
             # increase Sec. Str. element counter
@@ -1224,15 +1419,16 @@ class ProteinChunks(ChunkDisplayMode):
                 
         anum = 0
         
-        ## print "CA LIST = ", ca_list
-        
-        # Smoothing beta-strands.
+        # Smoothing of helices and beta-strands.
         if self.proteinStyleSmooth and \
            (self.proteinStyle == PROTEIN_STYLE_TUBE or 
             self.proteinStyle == PROTEIN_STYLE_LADDER or 
-            self.proteinStyle == PROTEIN_STYLE_ZIGZAG):
+            self.proteinStyle == PROTEIN_STYLE_ZIGZAG or
+            self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON or
+            self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON or \
+            self.proteinStyle == PROTEIN_STYLE_SIMPLE_CARTOONS or \
+            self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS):
 
-            
             smooth_list = [] 
 
             for i in range(len(ca_list)):
@@ -1259,9 +1455,13 @@ class ProteinChunks(ChunkDisplayMode):
                 if (ss == 2 or prev_ss == 2 or next_ss == 2) and prev_ca and next_ca:
                     ca_pos = 0.5 * (0.5*prev_ca_pos + ca_pos + 0.5*next_ca_pos)
                     if next_ss == 2 and prev_ss == 2:
-                        dpos = 0.333333 * (prev_dpos + dpos + next_dpos)
+                        dpos = norm(prev_dpos + dpos + next_dpos)
                     smooth_list.append((ca, ca_pos, ss, aa, dpos, i))
                 
+                if ss == 1 and prev_ca and next_ca:
+                    dpos = norm(prev_dpos + dpos + next_dpos)
+                    smooth_list.append((ca, ca_pos, ss, aa, dpos, i))
+                    
             for ca, ca_pos, ss, aa, dpos, i in smooth_list:
                 ca_list[i] = (ca, ca_pos, ss, aa, dpos)
             
