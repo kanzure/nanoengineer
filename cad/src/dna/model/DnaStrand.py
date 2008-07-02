@@ -512,17 +512,16 @@ class DnaStrand(DnaStrandOrSegment):
         #       atom list. Will definitely be revised and refactored within the
         #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
 
-        sequenceString = ''     
-        rawAtomList = []
-        for c in self.members:
-            if isinstance(c, DnaStrandChunk):
-                rawAtomList.extend(c.atoms.itervalues())
+        
+        
 
         #see a to do comment about rawAtom list above
 
         sequenceString = ''  
         complementSequenceString = ''
-        for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
+        
+        atomList = self.get_strand_atoms_in_bond_direction()
+        for atm in atomList:
 
             baseName = str(atm.getDnaBaseName())
             complementBaseAtom = atm.get_strand_atom_mate()
@@ -584,19 +583,13 @@ class DnaStrand(DnaStrandOrSegment):
         #       atom list. Will definitely be revised and refactored within the
         #       coming days (need to discuss with Bruce) -- Ninad 2008-03-01
 
-        sequenceString = ''     
-        rawAtomList = []
-        for c in self.members:
-            if isinstance(c, DnaStrandChunk):
-                rawAtomList.extend(c.atoms.itervalues())
-
+        
         #see a to do comment about rawAtom list above
 
         sequenceString = ''  
-        for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
-
+        atomList = self.get_strand_atoms_in_bond_direction()
+        for atm in atomList:
             baseName = str(atm.getDnaBaseName())
-
             if baseName:
                 sequenceString = sequenceString + baseName
             else:
@@ -625,20 +618,14 @@ class DnaStrand(DnaStrandOrSegment):
         #Remove whitespaces and tabs from the sequence string
         sequenceString = re.sub(r'\s', '', sequenceString)
 
-        rawAtomList = []
-        for c in self.members:
-            if isinstance(c, DnaStrandChunk):
-                rawAtomList.extend(c.atoms.itervalues())
-
-
         #May be we set this beginning with an atom marked by the 
         #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
         # [yes, see my longer reply comment above -- Bruce 080117]
-        atomList = []           
-        for atm in self.get_strand_atoms_in_bond_direction(rawAtomList):
-            if not atm.is_singlet():
-                atomList.append(atm)
-
+        atomList = []     
+        rawAtomList = self.get_strand_atoms_in_bond_direction()
+        
+        atomList = filter(lambda atm: not atm.is_singlet(), rawAtomList)
+        
         for atm in atomList:   
             atomIndex = atomList.index(atm)
             if atomIndex > (len(sequenceString) - 1):
@@ -678,9 +665,16 @@ class DnaStrand(DnaStrandOrSegment):
                                 if cc.get_dispdef() == diDNACYLINDER:
                                     cc.inval_display_list()
 
-    def get_strand_atoms_in_bond_direction(self, inputAtomList): 
+    def get_strand_atoms_in_bond_direction(self, inputAtomList = ()): 
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
+        
+        @param inputAtomList: An optional argument. If its not provided, this
+               method will return a list of all atoms within the strand, 
+               in the strand's bond direction. Otherwise, it will just return 
+               the list <inputAtomList> whose atoms are ordered in the strand's
+               bond direction. 
+        @type inputAtomList: list  (with default value as an empty tuple)
 
         @note: this is a stub and we can modify it so that
         it can accept other direction i.e. 3' to 5' , as an argument.
@@ -708,19 +702,29 @@ class DnaStrand(DnaStrandOrSegment):
         @TODO:  THIS method is copied over from chunk class. with a minor modification
         To be revised. See self.getStrandSequence() for a comment. 
         """         
+        rawAtomList = []
+        if inputAtomList:
+            rawAtomList = inputAtomList
+        else:
+            for c in self.members:
+                if isinstance(c, DnaStrandChunk):
+                    rawAtomList.extend(c.atoms.itervalues())
+                
+                
         startAtom = None
         atomList = []
 
         #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
         # and not a bondpoint)
-        for atm in inputAtomList:
+        for atm in rawAtomList:
             if atm.element.symbol == 'Ss3':
                 startAtom = atm
                 break        
             elif atm.element.pam == MODEL_PAM5: 
                 # piotr 080411
                 # If inputAtomList contains PAM5 atoms, process it independently.
-                atomList = self._get_pam5_strand_atoms_in_bond_direction(inputAtomList)
+                atomList = self._get_pam5_strand_atoms_in_bond_direction( 
+                    inputAtomList = rawAtomList)
                 return atomList
             
         if startAtom is None:
@@ -850,9 +854,16 @@ class DnaStrand(DnaStrandOrSegment):
         return atomList   
 
 
-    def _get_pam5_strand_atoms_in_bond_direction(self, inputAtomList): 
+    def _get_pam5_strand_atoms_in_bond_direction(self, inputAtomList = ()): 
         """
         Return a list of sugar atoms in a fixed direction -- from 5' to 3'
+        
+        @param inputAtomList: An optional argument. If its not provided, this
+               method will return a list of all atoms within the strand, 
+               in the strand's bond direction. Otherwise, it will just return 
+               the list <inputAtomList> whose atoms are ordered in the strand's
+               bond direction. 
+        @type inputAtomList: list  (with default value as an empty tuple)
 
         @note: this is a stub and we can modify it so that
         it can accept other direction i.e. 3' to 5' , as an argument.
@@ -877,10 +888,19 @@ class DnaStrand(DnaStrandOrSegment):
         """ 
         startAtom = None
         atomList = []
+        
+        rawAtomList = []
+        if inputAtomList:
+            rawAtomList = inputAtomList
+        else:
+            for c in self.members:
+                if isinstance(c, DnaStrandChunk):
+                    rawAtomList.extend(c.atoms.itervalues())
+                    
 
         #Choose startAtom randomly (make sure that it's a Sugar atom 
         # and not a bondpoint)
-        for atm in inputAtomList:
+        for atm in rawAtomList:
             if atm.element.symbol == 'Ss3' or \
                atm.element.symbol == 'Ss5':
                 startAtom = atm
