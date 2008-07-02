@@ -596,7 +596,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # ###REVIEW: will this come late enough to fix any explicit
             # sets by other undo effects? I think so, since it's only
             # set by user ops or creating bonds or transmuting atoms.
-            # But Bond.changed_atoms runs at some point during Undo,
+            # But Bond._changed_atoms runs at some point during Undo,
             # and if that comes later than this, it'll be a ###BUG.
             # And it might well be, so this needs analysis or testing.
             # If it's a bug, do this in a later pass over atoms, I guess.
@@ -618,6 +618,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # As for why the bug went uncaught until now, maybe no other operation creates external bonds without also
             # deleting bonds on the same atoms (which evidently prevents the bug, as mentioned). For details of what was
             # tried and how it affected what happened, see crossovers.py cvs history circa now.
+        self.molecule._f_lost_externs = True
+        self.molecule._f_gained_externs = True
         self._changed_structure()
         self.changed()
         posn = self.posn()
@@ -3268,31 +3270,41 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def unbond(self, b, make_bondpoint = True):
         """
         Private method (for use mainly by bonds); remove bond b from self and
-        usually replace it with a singlet (which is returned). Details:
-           Remove bond b from self (error if b not in self.bonds).
+        usually replace it with a singlet (which is returned).
+
+        Details:
+
+        Remove bond b from self (error if b not in self.bonds).
+
         Note that bonds are compared with __eq__, not 'is', by 'in' and 'remove'.
         Only call this when b will be destroyed, or "recycled" (by bond.rebond);
         thus no need to invalidate the bond b itself -- caller must do whatever
         inval of bond b is needed (which is nothing, if it will be destroyed).
-           Then replace bond b in self.bonds with a new bond to a new singlet,
-        unless self or the old neighbor atom is a singlet, or unless make_bondpoint
-        is false. Return the new singlet, or None if one was not created.
-        Do all necessary invalidations of Chunks, and self._changed_structure(),
-        BUT NOT OF b (see above). 
-           If self is a singlet, kill it (singlets must always have one bond).
-           As of 041109, this is called from Atom.kill of the other atom,
-        and from bond.bust, and [added by bruce 041109] from bond.rebond.
-           As of 050727, newly created open bonds have same bond type as the
-        removed bond.
-        """
-        # [obsolete comment: Caller is responsible for shakedown
-        #  or kill (after clearing externs) of affected molecules.]
-        
-        # code and docstring revised by bruce 041029, 041105-12
 
-        self._changed_structure() #bruce 050725
+        Then replace bond b in self.bonds with a new bond to a new singlet,
+        unless self or the old neighbor atom is a singlet, or unless make_bondpoint
+        is false.
+
+        Return the new singlet, or None if one was not created.
+
+        Do all necessary invalidations, including self._changed_structure(),
+        EXCEPT:
+        - of Chunk._f_lost_externs flags (since some callers don't need this
+          even when self is an external bond);
+        - of b.
+
+        If self is a singlet, kill it (singlets must always have one bond).
         
-        b.invalidate_bonded_mols() #e more efficient if callers did this
+        @note: As of 041109 (still true 080701), this is called only from
+               Atom.kill of the other atom, and from bond.bust, and from
+               bond.rebond.
+
+        @note: As of 050727, newly created open bonds have same bond type as the
+               removed bond.
+        """
+        self._changed_structure()
+        
+        b.invalidate_bonded_mols() #e would be more efficient if callers did this
         
         try:
             self.bonds.remove(b)
@@ -3655,22 +3667,27 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322
         
         # remove bonds
+        selfmol = self.molecule
         for b in self.bonds[:]:
-            n = b.other(self)
+            other = b.other(self)
             if DEBUG_1779:
                 print "DEBUG_1779: Atom.kill on %r is calling unbond on %r" % (self, b)
-            n.unbond(b)
-                # note: this can create a new singlet on n, if n is a real atom,
+            if other.molecule is not selfmol: #bruce 080701
+                other.molecule._f_lost_externs = True
+                selfmol._f_lost_externs = True
+            other.unbond(b)
+                # note: this can create a new singlet on other, if other is a real atom,
                 # which requires computing b.ubp, which uses self.posn()
-                # or self.baseposn(); or it can kill n if it's a singlet.
+                # or self.baseposn(); or it can kill other if it's a singlet.
                 # In some cases this is optimized to avoid creating singlets
                 # when killing lots of atoms at once; search for "prekill".
-                # It also invalidates chunk externs lists if necessary.
+                # It also invalidates chunk externs lists if necessary
+                # (but not their _f_lost_externs flags).
         self.bonds = [] # mitigate repeated kills
 
         # only after disconnected from everything else, remove self from its chunk
         try:
-            self.molecule.delatom(self)
+            selfmol.delatom(self)
                 # delatom also kills our chunk (self.molecule) if it becomes empty
         except KeyError:
             print "fyi: Atom.kill: atom %r not in its molecule (killed twice?)" % self

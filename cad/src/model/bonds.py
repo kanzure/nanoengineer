@@ -574,14 +574,17 @@ class Bond(BondBase, StateMixin, Selobj_API):
 
     _s_attr_key = S_DATA #bruce 060405, not sure why this wasn't needed before (or if it will help now)
         # (update 060407: I don't if it did help, but it still seems needed in principle.
-        #  It's change-tracked by self.changed_atoms.)
+        #  It's change-tracked by self._changed_atoms.)
 
     # this default value is needed for repeated destroy [bruce 060322]
     glname = 0 
     
     def _undo_update(self): #bruce 060223 guess
-        self.changed_atoms()
-        self.changed_valence()
+        self._changed_atoms()
+        # note: we don't set chunk flags _f_lost_externs or _f_gained_externs;
+        # see comment where they are defined about why Bond._undo_update
+        # needs to do that instead. [bruce 080702 comment]
+        self._changed_v6()
         self._changed_bond_direction() #bruce 070415
         ## self.invalidate_bonded_mols() # probably not needed, leave out at first
         # not setup_invalidate, that needs calling by our Atom's _undo_update methods ##k
@@ -604,8 +607,11 @@ class Bond(BondBase, StateMixin, Selobj_API):
         self.atom2 = at2
         self.v6 = v6 # bond-valence times 6, as exact int; a public attribute
         assert v6 in BOND_VALENCES
-        self.changed_atoms()
+        self._changed_atoms()
         self.invalidate_bonded_mols() #bruce 041109 new feature
+        if at1.molecule is not at2.molecule:
+            at1.molecule._f_gained_externs = True
+            at2.molecule._f_gained_externs = True
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
     def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406; see also new_Bond_oursQ in undo_archive.py
@@ -981,6 +987,10 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         @see: comments in L{Atom.destroy} docstring.
         """
+        try:
+            self.bust() #bruce 080702 precaution
+        except:
+            pass # necessary for repeated destroy, given current implem -- should fix
         if self._direction:
             self._changed_bond_direction() #bruce 070415
         env.dealloc_my_glselect_name( self, self.glname )
@@ -989,7 +999,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             dict1.pop(key, None)
         if self.pi_bond_obj is not None:
             self.pi_bond_obj.destroy() ###k is this safe, if that obj and ones its knows are destroyed?
-            ##e is this also needed in self.changed_atoms or changed_valence??? see if bond orientation bugs are helped by that...
+            ##e is this also needed in self._changed_atoms or _changed_v6??? see if bond orientation bugs are helped by that...
             #####@@@@@ [bruce 060322 comments]
         self.__dict__.clear() ###k is this safe??? [see comments in Atom.destroy implem for ways we might change this ##e]
         return
@@ -997,14 +1007,14 @@ class Bond(BondBase, StateMixin, Selobj_API):
     def is_open_bond(self): #bruce 050727
         return self.atom1.element is Singlet or self.atom2.element is Singlet
     
-    def set_v6(self, v6): #bruce 050717 revision: only call changed_valence when needed
+    def set_v6(self, v6): #bruce 050717 revision: only call _changed_v6 when needed
         """
         #doc; can't be used for illegal valences, as some of our actual setters need to do...
         """
         assert v6 in BOND_VALENCES
         if self.v6 != v6:
             self.v6 = v6
-            self.changed_valence()
+            self._changed_v6()
         return
 
     def reduce_valence_noupdate(self, vdelta, permit_illegal_valence = False):
@@ -1048,7 +1058,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # now set valence to v_want
         if v_want != v_have:
             self.v6 = v_want
-            self.changed_valence()
+            self._changed_v6()
         return v_have - v_want # return actual decrease (warning: order of subtraction will differ in sister method)
 
     def increase_valence_noupdate(self, vdelta, permit_illegal_valence = False): #k is that option needed?
@@ -1092,13 +1102,13 @@ class Bond(BondBase, StateMixin, Selobj_API):
             if debug_1951:
                 print "debug_1951: increase_valence_noupdate changes %r.v6 from %r to %r, returns %r" % \
                       (self, v_have, v_want, v_want - v_have)
-            self.changed_valence()
+            self._changed_v6()
         return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
 
-    def changed_valence(self): # MISNAMED, actually about bond order
+    def _changed_v6(self): #bruce 080702 renamed changed_valence -> _changed_v6
         """
         [private method]
-        This should be called whenever this bond's valence is changed
+        This should be called whenever this bond's v6 (bond order code) is changed
         (whether to a legal or (presumably temporary) illegal value).
         It does whatever invalidations that requires, but does no "updates".
         """
@@ -1172,7 +1182,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
     def numeric_valence(self): # has a long name so you won't be tempted to use it when you should use .v6 ###@@@ not yet used?
         return self.v6 / 6.0
     
-    def changed_atoms(self):
+    def _changed_atoms(self):
         """
         Private method to call when the atoms assigned to this bond are changed.
         
@@ -1276,9 +1286,13 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         Mostly-private method (also called from atoms),
         to be called when a bond is made or destroyed;
-        knows which kinds of bonds are put into a display list by molecule.draw
-        (internal bonds) or put into mol.externs (external bonds),
-        though this knowledge should ideally be private to class molecule.
+        knows which kinds of bonds are put into the Chunk display list by
+        molecule.draw (internal bonds) or put into mol.externs (external bonds),
+        though this knowledge should ideally be private to class Chunk.
+
+        @note: we don't set the chunk flags _f_lost_externs and _f_gained_externs
+               (on our atoms' chunks) if we're an external bond; caller must
+               do this if desired.
         """
         # assume mols are not None (they might be _nullMol, that's ok);
         # if they are, we'll detect the error with exceptions in either case below
@@ -1288,6 +1302,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
             # external bond
             mol1.invalidate_attr('externs')
             mol2.invalidate_attr('externs')
+            ## mol1._f_lost_externs = mol1._f_gained_externs = True
+            ## mol2._f_lost_externs = mol2._f_gained_externs = True
+            # note: we don't also set these flags,
+            # since some callers want to optimize that away (rebond)
+            # and others do it themselves, perhaps in an optimized
+            # manner (e.g. __init__). [bruce 080702 comment]
         else:
             # internal bond
             mol1.havelist = 0
@@ -1308,7 +1328,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         appearance, like disp or color of bonded molecules, though for internal
         bonds, the molecule's .havelist should be reset when those things change.)
          (It's not yet clear whether this needs to be called when bond-valence is changed.
-        If it does, that will be done from one place, the changed_valence() method. [bruce 050502])
+        If it does, that will be done from one place, the _changed_v6() method. [bruce 050502])
           Note that before the "inval/update" revisions [bruce 041104],
         self.setup() (the old name for this method, from point of view of callers)
         did the recomputation now done on demand by __setup_update; now this method
@@ -1554,11 +1574,17 @@ class Bond(BondBase, StateMixin, Selobj_API):
                If it ever is, retval remains a 2-tuple but has None in 1 or both
                places ... precise effect needs review in that case.
         """
+        atom1 = self.atom1
+        atom2 = self.atom2
+        if atom1.molecule is not atom2.molecule:
+            # external bond -- warn our chunks they're losing us [bruce 080701]
+            atom1.molecule._f_lost_externs = True
+            atom2.molecule._f_lost_externs = True
         # note: the following unbond calls might:
         # - copy self's bond direction onto newly created open bonds [review: really?]
         # - kill singlets left with no bonds
-        x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
-        x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
+        x1 = atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
+        x2 = atom2.unbond(self, make_bondpoint = make_bondpoints)
         # REVIEW: change our atoms and key to None, for safety?
         # check all callers and decide -- in case some callers
         # reuse the bond or for some reason still need its atoms.
@@ -1591,14 +1617,30 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # Josh said: intended for use on singlets, other uses may have bugs.
         # bruce 041109: I think that means "old" is intended to be a singlet.
         # I will try to make it safe for any atoms, and do all needed invals.
+        def _inval_externs( old, new, other): #bruce 080701, maybe untested
+            """
+            [local helper function]
+            We're moving a bond from old to new, always bonded to other.
+            If it was or becomes external, do appropriate invals.
+            """
+            if old.molecule is not new.molecule:
+                # guess: this condition is rarely satisfied; optim for it failing.
+                # REVIEW: is .molecule ever None or not yet correct at this point? BUG IF SO.
+                if old.molecule is not other.molecule:
+                    old.molecule._f_lost_externs = True
+                    other.molecule._f_lost_externs = True
+                if new.molecule is not other.molecule:
+                    new.molecule._f_gained_externs = True
+                    other.molecule._f_gained_externs = True
+            return # from local helper function
         if self.atom1 is old:
+            _inval_externs( old, new, self.atom2)
             old.unbond(self, make_bondpoint = False)
-            # (make_bondpoint = False added by bruce 080312)
-            # also kills old if it's a singlet, as of 041115
-            ## if len(old.bonds) == 1: del old.molecule.atoms[old.key] --
-            ## the above code removed the singlet, old, without killing it.
+                # (make_bondpoint = False added by bruce 080312)
+                # also kills old if it's a singlet            
             self.atom1 = new
         elif self.atom2 is old:
+            _inval_externs( old, new, self.atom1)
             old.unbond(self, make_bondpoint = False)
             self.atom2 = new
         else:
@@ -1608,7 +1650,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             return
         # bruce 041109 worries slightly about order of the following:
         # invalidate this bond itself
-        self.changed_atoms()
+        self._changed_atoms()
         self.setup_invalidate()
         # add this bond to new (it's already on A, i.e. in the list A.bonds)
         new.bonds.append(self)

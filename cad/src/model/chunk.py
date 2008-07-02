@@ -291,6 +291,23 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
 
+    # flags to tell us that our ExternalBondSets need updating
+    # (they might have lost or gained external bonds between specific
+    #  chunk pairs, of self and some other chunk). Note that this can happen
+    # even if self.externs remains unchanged, if one of it's bonds' other atoms
+    # changes parent. Here are the reasons these need to be set, and where we do that:
+    # - changes inside a bond:
+    #   - make it: Bond.__init__
+    #   - delete it or change one of its atoms: each caller of Atom.unbond
+    #   - change atoms by Undo/Redo: Atom._undo_update (since its list of bonds
+    #      changes); note that Bond._undo_udpate doesn't have enough info to do
+    #      this, since it doesn't know the old atom if one got replaced
+    # - changes to an atom's parent chunk (.molecule):
+    #   Chunk.invalidate_atom_lists (also called by Chunk._undo_update)
+    # [bruce 080702]
+    _f_lost_externs = False
+    _f_gained_externs = False
+
     # ==
 
     # note: def __init__ occurs below a few undo-related methods. TODO: move them below it.
@@ -308,8 +325,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
         # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
         # [bruce 060313]
-        self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
-        self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
+        self.invalidate_everything() # this is probably overkill, but its call of self.invalidate_atom_lists() is certainly needed
 
         self._colorfunc = None
         del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
@@ -1306,17 +1322,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         self.invalidate_atom_lists()
         return
 
-    def addcopiedatom(self, atom):
-        """
-        private method for mol.copy;
-        leaves out asserts which are wrong in that case; caller must do invals
-        (it can do invalidate_atom_lists once, for many calls of this)
-        """
-        atom.molecule = self
-        _changed_parent_Atoms[atom.key] = atom #bruce 060322
-        self.atoms[atom.key] = atom
-        return
-
     def delatom(self, atom):
         """
         Private method;
@@ -1356,7 +1361,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
     def invalidate_atom_lists(self, invalidate_atom_content = True):
         """
-        private method:
+        private method (but also called directly from undo_archive):
         for now this is the same for addatom and delatom
         so we have common code for it --
         some atom is joining or leaving this mol, do all needed invals
@@ -1370,6 +1375,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         self.havelist = 0
         self.haveradii = 0
+        self._f_lost_externs = True
+        self._f_gained_externs = True
 
         if invalidate_atom_content:
             self.invalidate_atom_content() #bruce 080306
@@ -1428,21 +1435,21 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 # - could skip all diDEFAULT atoms [###doit]
         return atom_content
 
-    # debugging methods (not fully tested, use at your own risk)
-
     def invalidate_everything(self):
         """
-        debugging method (also used in _undo_update)
+        Invalidate all invalidatable attrs of self.
+        (Used in _undo_update and in some debugging methods.)
         """
         self.invalidate_all_bonds()
-        self.havelist = 0
-        self.haveradii = 0
+        self.invalidate_atom_lists() # _undo_update depends on us calling this
         attrs  = self.invalidatable_attrs()
         # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             self.invalidate_attr(attr)
         # (these might be sufficient: ['externs', 'atlist', 'atpos'])
         return
+
+    # debugging methods (not fully tested, use at your own risk)
 
     def update_everything(self):
         attrs  = self.invalidatable_attrs()
