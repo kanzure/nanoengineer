@@ -169,7 +169,7 @@ def drawDirectionArrow(color,
                         (a glePolycone) The default value if 20 (20 sided 
                         polycone)
     @type  numberOfSides: int
-    
+
     @param scale_to_glpane: If True, the arrow size will be determined by the 
                             glpane scale. 
     """
@@ -189,9 +189,9 @@ def drawDirectionArrow(color,
                 tailRadius = scaled_tailRadius                
         else:
             tailRadius = scaled_tailRadius
-            
-                
-    
+
+
+
     vec = arrowBasePoint - tailPoint
     vec = scale*0.07*vec
     arrowBase =  tailRadius*3.0
@@ -300,6 +300,9 @@ def drawline(color,
     """
     ColorSorter.schedule_line(color, endpt1, endpt2, dashEnabled,
                               stipleFactor, width, isSmooth)
+
+def drawtriangle_strip(color, triangles, normals, colors):
+    ColorSorter.schedule_triangle_strip(color, triangles, normals, colors)
 
 def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     """

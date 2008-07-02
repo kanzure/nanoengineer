@@ -88,6 +88,7 @@ from graphics.drawing.CS_workers import drawpolycone_worker
 from graphics.drawing.CS_workers import drawsphere_worker
 from graphics.drawing.CS_workers import drawsurface_worker
 from graphics.drawing.CS_workers import drawwiresphere_worker
+from graphics.drawing.CS_workers import drawtriangle_strip_worker
 from graphics.drawing.gl_lighting import apply_material
 
 class ColorSortedDisplayList:         #Russ 080225: Added.
@@ -116,7 +117,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
         Then when you want to draw the display lists call csdl.draw() with the
         desired options:
-        
+
         @param highlighted: Whether to draw highlighted.
 
         @param selected: Whether to draw selected.
@@ -134,7 +135,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         halo_selection = (selected and
                           env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
         halo_highlighting = (highlighted and
-                 env.prefs[hoverHighlightingColorStyle_prefs_key] == HHS_HALO)
+                             env.prefs[hoverHighlightingColorStyle_prefs_key] == HHS_HALO)
         # Normal or selected drawing are done before a patterned highlight
         # overlay, and also when not highlighting at all.  You'd think that when
         # we're drawing a solid highlight appearance, there'd be no need to draw
@@ -142,7 +143,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         # highlight.  But halo selection extends beyond the object and is only
         # obscured by halo highlighting.  [russ 080610]
         if (patterned_highlighting or not highlighted or
-               (halo_selection and not halo_highlighting)) :
+            (halo_selection and not halo_highlighting)) :
             if selected:
                 # Draw the selected appearance.  If the selection mode is
                 # patterned, the selected_dl does first normal drawing and then
@@ -174,7 +175,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
 
     # ==
     # CSDL state maintenance.
-    
+
     #russ 080320 Experiment with VBO drawing from cached ColorSorter lists.
     cache_ColorSorter = False ## True
 
@@ -208,7 +209,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
             self.selected_dl = glGenLists(1)
             pass
         self.selectDl()
-         #bruce 070521 added these two asserts
+            #bruce 070521 added these two asserts
         assert type(self.dl) in (type(1), type(1L))
         assert self.dl != 0    # This failed on Linux, keep checking. (bug 2042)
         return
@@ -585,6 +586,17 @@ class ColorSorter:
 
     schedule_line = staticmethod(schedule_line)
 
+
+    def schedule_triangle_strip(color, triangles, normals, colors):
+        """
+        Schedule a line for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        ColorSorter.schedule(color, drawtriangle_strip_worker,
+                             (triangles, normals, colors))
+
+    schedule_triangle_strip = staticmethod(schedule_triangle_strip)
+
     def start(csdl, pickstate = None):
         """
         Start sorting - objects provided to "schedule" and primitives such as
@@ -689,7 +701,7 @@ class ColorSorter:
                     drawing_globals.use_color_sorted_vbos)
                 #russ 080225 Added, 080320 VBO experiment.
                 or parent_csdl is None):
-                
+
                 # Either all in one display list, or immediate-mode drawing.
                 objects_drawn += ColorSorter.draw_sorted(
                     ColorSorter.sorted_by_color)
@@ -704,7 +716,7 @@ class ColorSorter:
                         # Remember the ColorSorter lists for use as a
                         # pseudo-display-list.
                         parent_csdl.sorted_by_color = \
-                                                    ColorSorter.sorted_by_color
+                                   ColorSorter.sorted_by_color
                     else:
                         # Terminate a single display list, created when color
                         # sorting is turned off.  Started in ColorSorter.start .

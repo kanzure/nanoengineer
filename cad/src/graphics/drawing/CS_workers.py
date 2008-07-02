@@ -46,9 +46,11 @@ from Numeric import pi
 # russ 080519 No doubt many of the following imports are unused.
 # When the dust settles, the unnecessary ones will be removed.
 from OpenGL.GL import glBegin
+from OpenGL.GL import GL_BACK 
 from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import GL_COLOR_MATERIAL
+from OpenGL.GL import GL_CULL_FACE 
 from OpenGL.GL import GL_CURRENT_BIT
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
@@ -57,29 +59,37 @@ from OpenGL.GL import glDrawElements
 from OpenGL.GL import glEnable
 from OpenGL.GL import glEnableClientState
 from OpenGL.GL import glEnd
+from OpenGL.GL import GL_FALSE
 from OpenGL.GL import GL_FILL
 from OpenGL.GL import GL_FLOAT
 from OpenGL.GL import GL_FRONT
 from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_LIGHT_MODEL_TWO_SIDE
+from OpenGL.GL import glLightModelfv
 from OpenGL.GL import GL_LINE
 from OpenGL.GL import GL_LINES
 from OpenGL.GL import GL_LINE_SMOOTH
 from OpenGL.GL import glLineStipple
 from OpenGL.GL import GL_LINE_STIPPLE
 from OpenGL.GL import glLineWidth
+from OpenGL.GL import glNormal3fv
 from OpenGL.GL import glNormalPointer
 from OpenGL.GL import GL_NORMAL_ARRAY
 from OpenGL.GL import glPolygonMode
+from OpenGL.GL import glPolygonOffset 
 from OpenGL.GL import glPopAttrib
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushAttrib
 from OpenGL.GL import glPushMatrix
+from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GL import glRotate
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import GL_TRIANGLE_STRIP
 from OpenGL.GL import glVertex
+from OpenGL.GL import glVertex3fv
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
+from OpenGL.GL import GL_TRUE
 
 from geometry.VQT import norm, vlen, V, Q, A
 
@@ -94,7 +104,7 @@ def drawsphere_worker_loop(params):
     for x in range(100): ## 500
         for y in range(100):
             newpos = pos + (x+x/10+x/100) * V(1, 0, 0) + \
-                     (y+y/10+y/100) * V(0, 1, 0)
+                   (y+y/10+y/100) * V(0, 1, 0)
             drawsphere_worker((newpos, radius, detailLevel))
             continue
         continue
@@ -316,3 +326,52 @@ def drawline_worker(params):
         glDisable(GL_LINE_STIPPLE)
     ###glEnable(GL_LIGHTING)
     return
+
+def drawtriangle_strip_worker(params):
+    """ 
+    Draw a triangle strip using a list of triangle vertices
+    and (optional) normals.
+    """
+    (triangles, normals, colors) = params
+
+    #glEnable(GL_LIGHTING)
+
+    glDisable(GL_CULL_FACE)
+    glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
+
+    if colors:
+        glEnable(GL_COLOR_MATERIAL)
+
+    #glPolygonMode(GL_FRONT, GL_FILL)
+    #glPolygonMode(GL_BACK, GL_FILL)
+    # glPolygonOffset(0.0, 10.0)    
+
+    glBegin(GL_TRIANGLE_STRIP)
+    if normals:
+        if colors:
+            for p in range(len(triangles)):
+                n = normals[p]
+                v = triangles[p]
+                c = colors[p]
+                glNormal3fv(n)
+                glColor3fv(c[:3])
+                glVertex3fv(v)
+        else:
+            for p in range(len(triangles)):
+                n = normals[p]
+                v = triangles[p]
+                glNormal3fv(n)
+                glVertex3fv(v)
+    else:
+        for v in triangles:
+            glVertex3fv(v)
+    glEnd()
+
+    if colors:
+        glDisable(GL_COLOR_MATERIAL)
+
+    glEnable(GL_CULL_FACE)
+    glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
+
+    return
+
