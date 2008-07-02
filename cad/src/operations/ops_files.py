@@ -65,7 +65,9 @@ from utilities.debug_prefs import Choice_boolean_False
 from utilities.debug_prefs import debug_pref
 
 from utilities.constants import SUCCESS, ABORTED, READ_ERROR
-
+from ne1_ui.FetchPDBDialog import FetchPDBDialog
+from PyQt4.Qt import SIGNAL
+from urllib import urlopen
 debug_babel = False   # DO NOT COMMIT with True
 
 def set_waitcursor(on_or_off):
@@ -110,6 +112,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     Assembly(self), and Assembly expects an MWsemantics.  Has slot
     methods and their helper methods.
     """
+    #UM 20080702: required for fetching pdb files from the internet
+    _pdbCode = ''
     
     def getCurrentFilename(self, extension = False):
         """
@@ -659,7 +663,149 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 "Molecular Machine Part (*.mmp);;"\
                 "All Files (*.*)"
         self.fileInsert(formats)
+    
+    #UM 20080702: methods for fetching pdb files from the internet 
+    def fileFetchPdb(self):
+        """
+        Slot method for 'File > Fetch > Fetch PDB...'.
+        """      
+        form = FetchPDBDialog(self)
+        self.connect(form, SIGNAL('editingFinished()'), self.getPDBFileFromInternet)
+        return
+    
+    def checkIfCodeIsValid(self, code):
+        """
+        Check if pdb code is valid. If a five letter code is entered and the 
+        last character is '_' it is altered to ' '
+        """
+        #first check if the length is correct
+        if not (len(code) == 4 or  len(code) == 5):
+            msg = "Not a valid PDB Code. Try again"
+            QMessageBox.warning(self, "Warning!", msg)
+            return False, code
+        if len(code) == 4:
+            end = len(code)
+        else:
+            end = len(code) - 1
+        if not code[0].isdigit(): 
+            return False, code
+        for i in range(1, end):
+            if not (code[i].isdigit() or code[i].isalpha()):
+                return False, code
+        #special treatment for the fifth character
+        if len(code) == 5:
+            if not (code[4].isdigit() or code[4].isalpha() or code[4] == '_'):
+                return False, code
+            if code[4] == '_':
+                tempCode = code[0:3] + ' '
+                code = tempCode
+        return True, code
+    
+    def getAndWritePDBFile(self, code):
+        """
+        Fetch the pdb file from the internet and write it to a temporary location
+        that is later removed.
+        """
+        urlString = "http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb&compression=NO&structureId=" + code
+        doc = urlopen(urlString).read()
+        if doc.find("No File Found") != -1:
+            msg = "No protein exists in the PDB with this code"
+            QMessageBox.warning(self, "Warning!", msg)
+            return None, ''
+        directory = self.currentWorkingDirectory
+        filePath = directory + '/tempPdb.pdb'
+        f = open(filePath, 'w')
+        if f:
+            f.write(doc)
+            f.close()
         
+        return f, filePath   
+    
+    def insertPDBFromURL(self, filePath, chainID):
+        """
+        read the pdb file
+        """
+        try:
+            if chainID is not None:
+                insertpdb(self.assy, filePath, chainID)
+            else:
+                insertpdb(self.assy, filePath)
+        except:
+            print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % filePath )
+            env.history.message( redmsg( "Internal error while inserting PDB file: [ " + filePath + " ]") )
+        else:
+            self.assy.changed() # The file and the part are not the same.
+            env.history.message( "PDB file inserted: [ " + os.path.normpath(filePath) + " ]" )
+            
+        self.glpane.scale = self.assy.bbox.scale()
+        self.glpane.gl_update()
+        self.mt.mt_update()
+        return
+    
+    def savePDBFileIfDesired(self, code, filePath):
+        """
+        Since the downloaded pdb file is stored in a temporary location, this
+        allows the user to store it permanently
+        """
+        # ask the user if he wants to save the file otherwise its deleted
+        msg = "Do you want to save this pdb file?"
+        ret = QMessageBox.warning( self, "Warning!",
+                                   msg,
+                                   "&Yes", "&No", "",
+                                   0,    # Enter == button 0
+                                   1)   # Escape == button 1
+        if ret == 0:
+            #save this file
+            formats = \
+                    "Protein Data BanK (*.pdb);;"
+            directory = self.currentWorkingDirectory
+            fileName = code + ".pdb"
+            currentFilename = directory + '/' + fileName
+            sfilter = QString("Protein Data Bank (*.pdb)")
+            fn = QFileDialog.getSaveFileName(self, 
+                                             "Export File", 
+                                             currentFilename,
+                                             formats,
+                                             sfilter)
+            fileObject1 = open(filePath, 'r')
+            fileObject2 = open(fn, 'w+')
+            doc = fileObject1.readlines()
+            # we will write to this pdb file everything, irrespective of
+            # what the chain id is. Its too complicated to parse the info related
+            # to this particular chain id
+            fileObject2.writelines(doc)
+            fileObject1.close()
+            fileObject2.close()
+            dir, fil = os.path.split(str(fn))
+            self.setCurrentWorkingDirectory(dir)
+            if not fn:
+                env.history.message(cmd + "Cancelled")
+                
+    
+    def getPDBFileFromInternet(self):
+        """
+        slot method for PDBFileDialog
+        """
+        checkIfCodeValid, code = self.checkIfCodeIsValid(self._pdbCode)  
+        if checkIfCodeValid:
+            f, filePath = self.getAndWritePDBFile(code[0:4])    
+            if f is not None:
+                if len(code) == 5:
+                    self.insertPDBFromURL(filePath, code[4])
+                else:
+                    self.insertPDBFromURL(filePath, None)
+                self.savePDBFileIfDesired(code, filePath)
+                #delete the temp file
+                os.remove(filePath)
+        return
+    
+    def setPDBCode(self, code):
+        """
+        Sets the pdb code 
+        """
+        self._pdbCode = code  
+        return
+    
     def fileInsertPdb(self):
         """
         Slot method for 'Insert > Protein Data Bank file...'.
