@@ -28,6 +28,8 @@ usage(void)
                     files.  Writes output_prefix.top and output_prefix.gro\n\
    --path-to-cpp path\n\
                     path to the c preprocessor executable (for gromacs)\n\
+   --neighbor-searching=<int>\n\
+                    Enable neighbor searching in gromacs\n\
    --system-parameters path\n\
                     path to the system sim-params.txt file\n\
    --print-potential-function=<bond>\n\
@@ -165,6 +167,7 @@ set_py_exc_str(const char *filename,
 #define OPT_SYSTEM_PARAMETERS LONG_OPT (20)
 #define OPT_VDW_CUTOFF_RADIUS LONG_OPT (21)
 #define OPT_OUTPUT_FORMAT_3 LONG_OPT (22)
+#define OPT_NEIGHBOR_SEARCHING LONG_OPT (23)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -207,6 +210,7 @@ static const struct option option_vec[] = {
     { "output-file", required_argument, NULL, 'o' },
     { "trace-file", required_argument, NULL, 'q' },
     { "base-file", required_argument, NULL, 'B' },
+    { "neighbor-searching", required_argument, NULL, OPT_NEIGHBOR_SEARCHING },
     { NULL, no_argument, NULL, 0 }
 };
 
@@ -322,6 +326,9 @@ main(int argc, char **argv)
             break;
         case OPT_PRINT_ENERGIES:
             PrintPotentialEnergy = 1;
+            break;
+        case OPT_NEIGHBOR_SEARCHING:
+            NeighborSearching = atoi(optarg);
             break;
 	case 'n':
 	    // ignored

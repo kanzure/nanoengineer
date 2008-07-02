@@ -60,6 +60,7 @@ def ask(question, default):
       Return their answer or the default if they just entered a blank
       line.
     """
+    print
     print "%s [%s]? " % (question, default), # suppress newline
     try:
         reply = sys.stdin.readline()
@@ -72,7 +73,6 @@ def ask(question, default):
     return reply
 
 def askInt(question, default):
-    print
     while (True):
         reply = ask(question, default)
         try:
@@ -83,7 +83,6 @@ def askInt(question, default):
             print "reply was not an integer: " + reply.strip()
 
 def askFloat(question, default):
-    print
     while (True):
         reply = ask(question, default)
         try:
@@ -114,6 +113,7 @@ def runJob(jobNumber):
     for command in run:
         status = os.system(command)
         if (status):
+            print >>sys.stderr, "command: %s\nexited with status: %d" % (command, status)
             break
 
     os.close(0)
@@ -182,28 +182,55 @@ def scanInput():
         if (fileName.endswith(".mmp")):
             baseName = fileName[:-4]
             print "processing " + baseName
-            min_dyn = ask("[M]inimize or [D]ynamics", "D").strip().lower()
-            minimize = min_dyn.startswith("m")
-            if (minimize):
+
+            dirInQueue = os.path.join(QUEUE, nextJobNumber())
+            os.mkdir(dirInQueue)
+            os.rename(os.path.join(INPUT, fileName), os.path.join(dirInQueue, fileName))
+            runFile = open(os.path.join(dirInQueue, "run"), 'w')
+
+            minimize = ask("[M]inimize or [D]ynamics", "D").strip().lower()
+            if (minimize.startswith("m")):
+
                 end_rms = askFloat("Ending force threshold (pN)", 50.0)
-                dirInQueue = os.path.join(QUEUE, nextJobNumber())
-                os.mkdir(dirInQueue)
-                os.rename(os.path.join(INPUT, fileName), os.path.join(dirInQueue, fileName))
-                runFile = open(os.path.join(dirInQueue, "run"), 'w')
-                print >>runFile, "simulator -m --output-format-3 --min-threshold-end-rms=%f --trace-file %s-trace.txt %s" \
-                      % (end_rms, baseName, fileName)
+                useGromacs = ask("Use [G]romacs (required for DNA) or [N]D-1 (required for double bonds)", "G").strip().lower()
+                if (useGromacs.startswith("g")):
+                    hasPAM = ask("Does your model contain PAM atoms (DNA)? (Y/N)", "Y").strip().lower()
+                    hasPAM = hasPAM.startswith("y")
+                    if (hasPAM):
+                        vdwCutoffRadius = 2
+                    else:
+                        vdwCutoffRadius = -1
+                    doNS = ask("Enable neighbor searching? [Y]es (more accurate)/[N]o (faster)", "N").strip().lower()
+                    if (doNS.startswith("y")):
+                        neighborSearching = 1
+                    else:
+                        neighborSearching = 0
+                    print >>runFile, "simulator -m --min-threshold-end-rms=%f --trace-file %s-trace.txt --write-gromacs-topology %s --path-to-cpp /usr/bin/cpp --system-parameters %s/control/sim-params.txt --vdw-cutoff-radius %f --neighbor-searching %d %s" \
+                          % (end_rms, baseName, baseName, baseDirectory, vdwCutoffRadius, neighborSearching, fileName)
+
+                    print >>runFile, "grompp -f %s.mdp -c %s.gro -p %s.top -n %s.ndx -o %s.tpr -po %s-out.mdp" \
+                          % (baseName, baseName, baseName, baseName, baseName, baseName)
+
+                    if (hasPAM):
+                        tableFile = "%s/control/yukawa.xvg" % baseDirectory
+                        table = "-table %s -tablep %s" % (tableFile, tableFile)
+                    else:
+                        table = ""
+
+                    print >>runFile, "mdrun -s %s.tpr -o %s.trr -e %s.edr -c %s.xyz-out.gro -g %s.log %s" \
+                          % (baseName, baseName, baseName, baseName, baseName, table)
+                else:
+                    print >>runFile, "simulator -m --system-parameters %s/control/sim-params.txt --output-format-3 --min-threshold-end-rms=%f --trace-file %s-trace.txt %s" \
+                          % (baseDirectory, end_rms, baseName, fileName)
             else:
                 temp = askInt("Temperature in Kelvins", 300)
                 stepsPerFrame = askInt("Steps per frame", 10)
                 frames = askInt("Frames", 900)
                 print
                 print "temp %d steps %d frames %d" % (temp, stepsPerFrame, frames)
-                dirInQueue = os.path.join(QUEUE, nextJobNumber())
-                os.mkdir(dirInQueue)
-                os.rename(os.path.join(INPUT, fileName), os.path.join(dirInQueue, fileName))
-                runFile = open(os.path.join(dirInQueue, "run"), 'w')
-                print >>runFile, "simulator --temperature=%d --iters-per-frame=%d --num-frames=%d --trace-file %s-trace.txt %s" \
-                      % (temp, stepsPerFrame, frames, baseName, fileName)
+
+                print >>runFile, "simulator  --system-parameters %s/control/sim-params.txt --temperature=%d --iters-per-frame=%d --num-frames=%d --trace-file %s-trace.txt %s" \
+                      % (baseDirectory, temp, stepsPerFrame, frames, baseName, fileName)
         else:
             print "ignoring " + os.path.join(INPUT, fileName)
 
@@ -233,7 +260,7 @@ def showStatus():
     ps = os.popen("ps ax")
     header = ps.readline()
     for process in ps:
-        if (process.find("simulator") > 0):
+        if (process.find("simulator") > 0 or process.find("grompp") > 0 or process.find("mdrun") > 0):
             if (not gotProcess):
                 print
                 print "Currently running simulator processes:"
