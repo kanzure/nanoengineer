@@ -7,7 +7,7 @@ for the B{Display Style} command on the flyout toolbar in the
 Build > Protein mode. 
 
 @author: Urmi
-@version: $Id: 
+@version: $Id$ 
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """
@@ -453,7 +453,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
     
     def chooseAuxilliaryColor(self):
         color = self.auxColorComboBox.getColor()
-        env.prefs[proteinStyleAuxCustomColors_prefs_key] = color
+        env.prefs[proteinStyleAuxCustomColor_prefs_key] = color
         return  
     
         
@@ -771,7 +771,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                             colorList = colorListAux,
                             colorNames = colorNamesAux,
                             label      = "Coil color:",
-                            color      = gray,
+                            color      = orange,
                             setAsDefault  =  True)
 
     def updateProteinDisplayStyleWidgets( self ):
