@@ -49,6 +49,10 @@ def setupUi(win):
     # Create the "Export" menu, a submenu of the "File" menu.
     win.exportMenu = QtGui.QMenu(win.fileMenu)
     win.exportMenu.setObjectName("exportMenu")
+    
+    #Create the "Fetch" menu, a submenu of file menu
+    win.fetchMenu = QtGui.QMenu(win.fileMenu)
+    win.fetchMenu.setObjectName("fetchMenu")
 
     win.fileOpenAction = QtGui.QAction(MainWindow)
     win.fileOpenAction.setIcon(geticon("ui/actions/File/Open.png"))
@@ -69,6 +73,9 @@ def setupUi(win):
 
     win.fileImportIOSAction = QtGui.QAction(MainWindow)
     win.fileImportIOSAction.setObjectName("fileImportIOSAction")
+    
+    win.fileFetchPdbAction = QtGui.QAction(MainWindow)
+    win.fileFetchPdbAction.setObjectName("fileFetchPdbAction")
     
     win.fileExportPdbAction = QtGui.QAction(MainWindow)
     win.fileExportPdbAction.setObjectName("fileExportPdbAction")
@@ -1061,7 +1068,18 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "IOS export", None, QtGui.QApplication.UnicodeUTF8))   
     
-    
+    #fetch pdb
+    win.fileFetchPdbAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Fetch PDB...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileFetchPdbAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "PDB", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileFetchPdbAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Fetch PDB", None, QtGui.QApplication.UnicodeUTF8))  
     
     win.fileExitAction.setText(
         QtGui.QApplication.translate(
