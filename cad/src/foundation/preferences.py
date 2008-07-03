@@ -60,6 +60,7 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
 
 import os
 import time
+import NE1_Build_Constants
 
 from utilities import debug_flags
 from platform.PlatformDependent import mkdirs_in_filename
@@ -72,12 +73,16 @@ from foundation.changes import UsageTracker
 
 from utilities.prefs_constants import prefs_table
 
-DEFAULT_PREFS_BASENAME = "default_prefs_v1-1-0.txt" #bruce 080505
-    # note: this name is also hardcoded into packaging/Pref_Mod/pref_modifier.py
-    # todo: should derive name from current version number.
-    # review: should we only read the one from the current version's installer,
-    # or do we want to know a list of all prior names used for this file
-    # and in some cases read from older ones? Guess: current one is enough.
+tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
+if len(tmpary) >= 3:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s-%s.txt" % \
+                             (tmpary[0],tmpary[1],tmpary[2])
+else:
+    DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s.txt" % \
+                             (tmpary[0],tmpary[1])
+    #Derrick 080703
+    # note: this name is still hardcoded into 
+    # packaging/Pref_Mod/pref_modifier.py
 
 # some imports remain lower down, for now: bsddb and shelve
 
@@ -187,7 +192,10 @@ Usage by client code (for now -- this might change!):
 # but I don't know a good-enough way to find out which db module shelve is actually using.)
 
 try:
-    import bsddb as _junk
+    if NE1_Build_Constants.NE1_USE_bsddb3:
+        import bsddb3 as _junk
+    else:
+        import bsddb as _junk
     _junk # try to tell pylint we need this import [bruce 071023]
 except:
     dbname = "somedb"
@@ -210,7 +218,10 @@ else:
 # shelve will use it. (I don't know any straightforward way to check this. But the
 # docs for shelve say it will use it, I think. #k check this ###@@@)
 
-import shelve
+if NE1_Build_Constants.NE1_USE_bsddb3:
+    from bsddb3 import dbshelve as shelve
+else:
+    import shelve
 
 # (For the actual filename of the prefs file, see the code of _make_prefs_shelf()
 #  below, which specifies the basename only; the db module decides what extension

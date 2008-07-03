@@ -27,6 +27,8 @@ entirely low-level and classify it as either utilities or constants.
 [bruce 071215]
 """
 
+import NE1_Build_Constants
+
 # Note: __copyright__ and __author__ below are about NE1 as a whole,
 # not about this specific file. (In some source files, __author__
 # is defined and is about that specific file. That usage of
@@ -60,17 +62,20 @@ class Version:
     print v, v.product, v.authors
     """
     # Every instance of Version will share the same state
+    tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
     __shared_state = {
-        "major": 1,
-        "minor": 1,
-        "tiny": 0,     # tiny and teensy are optional
-        # "teensy": 0,   # you can have both, or just tiny, or neither
+        "major": int(tmpary[0]),
+        "minor": int(tmpary[1]),
         "releaseType": "",
-        "releaseDate": "Jun 04, 2008",
+        "releaseDate": NE1_Build_Constants.NE1_RELEASE_DATE,
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
         }
+    if len(tmpary) >= 3:  #tiny and teensy are both not required in version
+        __shared_state["tiny"] = int(tmpary[2])
+        if len(tmpary) == 4:
+            __shared_state["teensy"] = int(tmpary[3])
     def __init__(self):
         # Use Alex Martelli's singleton recipe
         # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66531
