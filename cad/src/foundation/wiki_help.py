@@ -131,10 +131,11 @@ def open_wiki_help_dialog( featurename, actually_open = True ):
         # - doesn't put new dialog fully in front -- at least, closing mmkit brings main window in front of dialog
         # - dialog might be nonmodal, but if we keep that, we'll need to autoupdate its contents i suppose
         html = """Click one of the following links to launch your web browser
-                  to a Nanorex wiki page containing help on the appropriate topic:<br>
-                  * your current mode or selected jig: %s<br>
-                  * NanoEngineer-1 Wiki main page: %s
-               """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
+                  to a NanoEngineer-1 wiki page containing help on the appropriate topic:<br>
+                  - The current command/mode: %s<br>
+                  - %s 
+               </p>""" % (HTML_link(url, featurename), \
+                      HTML_link(wiki_prefix() + "Main_Page", "The NanoEngineer-1 Wiki main page"))
                     #e in real life it'll be various aspects of your current context
         def clicked_func(url):
             worked = open_wiki_help_URL(url)
@@ -142,7 +143,7 @@ def open_wiki_help_dialog( featurename, actually_open = True ):
             close_dialog = True
             return close_dialog
         parent = env.mainwindow() # WikiHelpBrowser now in a Dialog, so this works. Fixes bug 1235. mark060322
-        w = WikiHelpBrowser(html, parent, clicked_func = clicked_func, caption = "Context Help")
+        w = WikiHelpBrowser(html, parent, clicked_func = clicked_func, caption = "Web Help")
         w.show()
         return
         ## if not actually_open: ## not yet used (and untested) as of 051201
@@ -222,7 +223,7 @@ def wiki_help_menutext( featurename):
     """
     Return the conventional menu text for offering wiki help for the feature with the given name.
     """
-    return "web help: " + featurename # see module docstring re "wiki help" vs. "web help"
+    return "Web help: " + featurename # see module docstring re "wiki help" vs. "web help"
 
 def wiki_help_lambda( featurename):
     """
@@ -267,43 +268,32 @@ class WikiHelpBrowser(QDialog):
         self.setWindowTitle(caption)
         self.setWindowIcon(QtGui.QIcon("ui/border/MainWindow"))
         self.setObjectName("WikiHelpBrowser")
-        ##TextBrowserLayout = QGridLayout(self,1,1,5,-1,"WikiHelpBrowserLayout")
         TextBrowserLayout = QGridLayout(self)
-        TextBrowserLayout.setSpacing(1)
+        TextBrowserLayout.setSpacing(5)
+        TextBrowserLayout.setMargin(2)
         self.text_browser = QTextBrowser(self)
         self.text_browser.setOpenExternalLinks(True)
         self.text_browser.setObjectName("text_browser")
-        TextBrowserLayout.addWidget(self.text_browser,0,0,0,1)
+        TextBrowserLayout.addWidget(self.text_browser, 0, 0, 1, 0)
         
         self.text_browser.setMinimumSize(400, 200)
         # make it pale yellow like a post-it note
         self.text_browser.setHtml("<qt bgcolor=\"#FFFF80\">" + text)
-        #self.mf = mf = MimeFactory()
-        #mf.owner = self
         
         self.close_button = QPushButton(self)
         self.close_button.setObjectName("close_button")
         self.close_button.setText("Close")
-        TextBrowserLayout.addWidget(self.close_button,1,1)
+        TextBrowserLayout.addWidget(self.close_button, 1, 1)
         
-        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TextBrowserLayout.addItem(spacer,1,0)
+        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        TextBrowserLayout.addItem(spacer, 1, 0)
 
         self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
   
-        self.connect(self.close_button,SIGNAL("clicked()"),self.close)
+        self.connect(self.close_button, SIGNAL("clicked()"), self.close)
+        return
+    
     pass
-
-##class WikiHelpBrowser_ORIG(QTextBrowser):
-##    def __init__(self, text, parent = None, clicked_func = None, caption = "(caption)"):
-##        QTextBrowser.__init__(self,parent)
-##        self.setMinimumSize(400, 300)
-##        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
-##        # make it pale yellow like a post-it note
-##        self.setText("<qt bgcolor=\"#FFFF80\">" + text)
-##        #self.mf = mf = MimeFactory()
-##        #mf.owner = self
-##        qt4todo('self.setMimeSourceFactory(mf)')
 
 def wiki_url_for_topic(topic, wikiprefix = None):
     wikiprefix = wikiprefix or "http://www.nanoengineer-1.net/mediawiki/index.php?title="
