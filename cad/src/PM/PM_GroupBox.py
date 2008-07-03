@@ -212,6 +212,7 @@ class PM_GroupBox( QGroupBox ):
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
         
         self._addBottomSpacer()
+        return
         
     def _addBottomSpacer(self):
         """
@@ -273,6 +274,7 @@ class PM_GroupBox( QGroupBox ):
         
         # This groupbox is now the last one in the PropMgr.
         self.parentWidget._lastGroupBox = self
+        return
         
     def restoreDefault (self):
         """
@@ -283,6 +285,8 @@ class PM_GroupBox( QGroupBox ):
                 print "PM_GroupBox.restoreDefault(): widget =", \
                       widget.objectName()
             widget.restoreDefault()
+            
+        return
     
     def getTitle(self):
         """
@@ -315,6 +319,7 @@ class PM_GroupBox( QGroupBox ):
         
         self._title = title
         self.labelWidget.setText(title)
+        return
         
     def getPmWidgetPlacementParameters(self, pmWidget):
         """
@@ -456,8 +461,6 @@ class PM_GroupBox( QGroupBox ):
         labelAlignment = \
             self.getPmWidgetPlacementParameters(pmWidget)
         
-        
-        
         if pmWidget.labelWidget: 
             #Create Label as a pixmap (instead of text) if a valid icon path 
             #is provided
@@ -503,6 +506,7 @@ class PM_GroupBox( QGroupBox ):
         self._widgetList.append(pmWidget)
         
         self._rowCount += rowIncrement
+        return
     
     def getRowCount(self):
         """
@@ -520,6 +524,7 @@ class PM_GroupBox( QGroupBox ):
         @type  increment: int
         """
         self._rowCount += increment
+        return
         
     def addQtWidget(self, qtWidget, column = 0, spanWidth = False):
         """
@@ -545,7 +550,7 @@ class PM_GroupBox( QGroupBox ):
                                    widgetSpanCols )
         
         self._rowCount += 1
-        
+        return
     
     def collapse(self):
         """
@@ -559,16 +564,9 @@ class PM_GroupBox( QGroupBox ):
         # The styleSheet contains the expand/collapse.
         styleSheet = self._getTitleButtonStyleSheet(showExpanded = False)
         self.titleButton.setStyleSheet(styleSheet)
-        # Why do we have to keep resetting the palette?
-        # Does assigning a new styleSheet reset the button's palette?
-        # If yes, we should add the button's color to the styleSheet.
-        # Mark 2007-05-20
-        self.titleButton.setPalette(self._getTitleButtonPalette())
-        self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
-                    print_errors = False))
         self._containerWidget.hide()
         self.expanded = False 
+        return
     
     def expand(self):
         """
@@ -583,17 +581,9 @@ class PM_GroupBox( QGroupBox ):
         # The styleSheet contains the expand/collapse.
         styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)
         self.titleButton.setStyleSheet(styleSheet)
-        # Why do we have to keep resetting the palette?
-        # Does assigning a new styleSheet reset the button's palette?
-        # If yes, we should add the button's color to the styleSheet.
-        # Mark 2007-05-20
-        self.titleButton.setPalette(self._getTitleButtonPalette())
-        self.titleButton.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
-                    print_errors = False))
         self._containerWidget.show()
         self.expanded = True
-           
+        return
 
     def hide(self):
         """
@@ -612,6 +602,7 @@ class PM_GroupBox( QGroupBox ):
         
         if self.verticalSpacer:
             self.verticalSpacer.changeSize(10, 0)
+        return
             
     def show(self):
         """
@@ -629,6 +620,7 @@ class PM_GroupBox( QGroupBox ):
         if self.verticalSpacer:
             self.verticalSpacer.changeSize(10, 
                                            self.verticalSpacer.defaultHeight)
+        return
 
     # Title Button Methods #####################################
     
@@ -665,28 +657,7 @@ class PM_GroupBox( QGroupBox ):
         
         button.setStyleSheet(self._getTitleButtonStyleSheet(showExpanded))     
         
-        self.titleButtonPalette = self._getTitleButtonPalette()
-        button.setPalette(self.titleButtonPalette)
-        
-        # ninad 070221 set a non-existant 'Ghost Icon' for this button.
-        # By setting this icon, the button text left aligns! 
-        # (which what we want :-) )
-        # So this might be a bug in Qt4.2.  If we don't use the following kludge
-        # there is no way to left align the push button text but to subclass it.
-        # (could means a lot of work for such a minor thing).  So OK for now.
-        
-        button.setIcon(
-            geticon("ui/actions/Properties Manager/GHOST_ICON.png", 
-                    print_errors = False))
-        
         return button
-    
-    def _getTitleButtonPalette(self):
-        """
-        Return a palette for the title button. 
-        """
-        return getPalette(None, QPalette.Button, pmGrpBoxButtonColor)
-    
     
     def _getTitleButtonStyleSheet(self, showExpanded = True):
         """
@@ -703,30 +674,38 @@ class PM_GroupBox( QGroupBox ):
         # Need to move border color and text color to top 
         # (make global constants).
         if showExpanded:        
-            styleSheet = "QPushButton {border-style:outset;\
-            border-width: 2px;\
-            border-color: " + pmGrpBoxButtonBorderColor + ";\
-            border-radius:2px;\
-            font:bold 12px 'Arial'; \
-            color: " + pmGrpBoxButtonTextColor + ";\
-            min-width:10em;\
-            background-image: url("+ pmGrpBoxExpandedIconPath + ");\
-            background-position: right;\
-            background-repeat: no-repeat;\
-            }"       
+            styleSheet = \
+                       "QPushButton {"\
+                       "border-style: outset;"\
+                       "border-width: 2px;"\
+                       "border-color: " + pmGrpBoxButtonBorderColor + ";"\
+                       "border-radius: 2px;"\
+                       "background-color: " + pmGrpBoxButtonColor + ";"\
+                       "font: bold 12px 'Arial';"\
+                       "color: " + pmGrpBoxButtonTextColor + ";"\
+                       "min-width: 10em;"\
+                       "background-image: url("+ pmGrpBoxExpandedIconPath + ");"\
+                       "background-position: right;"\
+                       "background-repeat: no-repeat;"\
+                       "text-align: left;"\
+                       "}"       
         else:
-            
-            styleSheet = "QPushButton {border-style:outset;\
-            border-width: 2px;\
-            border-color: " + pmGrpBoxButtonBorderColor + ";\
-            border-radius:2px;\
-            font: bold 12px 'Arial'; \
-            color: " + pmGrpBoxButtonTextColor + ";\
-            min-width:10em;\
-            background-image: url(" + pmGrpBoxCollapsedIconPath + ");\
-            background-position: right;\
-            background-repeat: no-repeat;\
-            }"
+            # Collapsed.
+            styleSheet = \
+                       "QPushButton {"\
+                       "border-style: outset;"\
+                       "border-width: 2px;"\
+                       "border-color: " + pmGrpBoxButtonBorderColor + ";"\
+                       "border-radius:2px;"\
+                       "background-color: " + pmGrpBoxButtonColor + ";"\
+                       "font: bold 12px 'Arial';"\
+                       "color: " + pmGrpBoxButtonTextColor + ";"\
+                       "min-width:10em;"\
+                       "background-image: url(" + pmGrpBoxCollapsedIconPath + ");"\
+                       "background-position: right;"\
+                       "background-repeat: no-repeat;"\
+                       "text-align: left;"\
+                       "}"
         return styleSheet
             
     def toggleExpandCollapse(self):
@@ -739,8 +718,9 @@ class PM_GroupBox( QGroupBox ):
             else: # Expand groupbox by showing all widgets in groupbox.
                 self.expand()         
         else:
-            print "Clicking on the group box button has no effect \
-                   since it has no widgets."
+            print "Clicking on the group box button has no effect "\
+                   "since it has no widgets."
+        return
     
     # GroupBox palette and stylesheet methods. ##############################
     
@@ -766,18 +746,16 @@ class PM_GroupBox( QGroupBox ):
         
         @return: The group box style sheet.
         @rtype:  str
-        
         """
         
         styleSheet = \
-                   "QGroupBox {border-style:solid;\
-                   border-width: 1px;\
-                   border-color: " + pmGrpBoxBorderColor + ";\
-                   border-radius: 0px;\
-                   min-width: 10em; }" 
-        
-        ## For Groupboxs' Pushbutton : 
-        ##Other options not used : font:bold 10px;  
+                   "QGroupBox {"\
+                   "border-style: solid;"\
+                   "border-width: 1px;"\
+                   "border-color: " + pmGrpBoxBorderColor + ";"\
+                   "border-radius: 0px;"\
+                   "min-width: 10em;"\
+                   "}" 
         
         return styleSheet
 

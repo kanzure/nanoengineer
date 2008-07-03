@@ -132,7 +132,6 @@ if COLOR_THEME == "Gray":
     pmTitleLabelColor = QColor(255, 255, 255)
     # pmTitleLabelColor to be deprecated. Mark 2007-07-24
     pmHeaderTitleColor = pmTitleLabelColor 
-    pmGrpBoxButtonColor = QColor(172, 173, 190)
     pmCheckBoxTextColor = QColor(0, 0, 255) # used in MMKit
     pmCheckBoxButtonColor = QColor(172, 173, 190)
     
@@ -143,6 +142,7 @@ if COLOR_THEME == "Gray":
     pmGrpBoxBorderColor = "#444F51"
     pmGrpBoxButtonBorderColor = "#939089"
     pmGrpBoxButtonTextColor = "#282821" # Same as pmCheckBoxTextColor
+    pmGrpBoxButtonColor = "#AAAAAA"
 
     # Locations of expanded and collapsed title button images.
     pmGrpBoxExpandedIconPath  = getIconPath("GroupBox_Opened_Gray.png")
@@ -157,7 +157,6 @@ else: # Blue Color Theme
     pmTitleLabelColor = QColor(255, 255, 255)
     # pmTitleLabelColor to be deprecated. Mark 2007-07-24
     pmHeaderTitleColor = pmTitleLabelColor 
-    pmGrpBoxButtonColor = QColor(172, 173, 190)
     pmCheckBoxTextColor = QColor(0, 0, 255)
     pmCheckBoxButtonColor = QColor(172, 173, 190)
     pmMessageTextEditColor = QColor(255, 255, 100)
@@ -166,8 +165,8 @@ else: # Blue Color Theme
     pmGrpBoxBorderColor = "blue"
     pmGrpBoxButtonBorderColor = "gray"
     pmGrpBoxButtonTextColor = "blue"
+    pmGrpBoxButtonColor = "#9090CC"
 
     # Locations of groupbox opened and closed images.
     pmGrpBoxExpandedIconPath  = getIconPath("GroupBox_Opened_Blue.png")
-    
     pmGrpBoxCollapsedIconPath = getIconPath("GroupBox_Closed_Blue.png")
