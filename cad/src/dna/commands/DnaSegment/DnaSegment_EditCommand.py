@@ -898,7 +898,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         text = numberOfBasePairsString        
 
         if text and changedBasePairsString:
-            text += commaString
+            text += " "# commaString not needed here. Mark 2008-07-03
 
         text += changedBasePairsString 
         
@@ -906,8 +906,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             text += commaString
 
         text += duplexLengthString
-       
-
+        
         return (text, textColor)
 
     def _getCursorText_numberOfBasePairs(self, numberOfBasePairs):
