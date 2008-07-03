@@ -644,23 +644,8 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          label         =  "Style:",
                          choices       =  proteinStyleChoices,
                          setAsDefault  =  True)
-
-        self.splineDoubleSpinBox = \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Resolution:",
-                              value         =  5,
-                              setAsDefault  =  True,
-                              minimum       =  2,
-                              maximum       =  10,
-                              decimals      =  0,
-                              singleStep    =  1 )
             
         
-        self.smoothingCheckBox = \
-            PM_CheckBox( pmGroupBox,
-                         text         = "Smoothing",
-                         setAsDefault = True)
-
         scaleChoices = ['Constant', 'Secondary structure', 'B-factor']
 
 
@@ -675,10 +660,25 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
                               value         =  1.00,
                               setAsDefault  =  True,
                               minimum       =  0.1,
-                              maximum       =  5.0,
+                              maximum       =  3.0,
                               decimals      =  1,
                               singleStep    =  0.1 )
    
+        self.splineDoubleSpinBox = \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Resolution:",
+                              value         =  4,
+                              setAsDefault  =  True,
+                              minimum       =  2,
+                              maximum       =  8,
+                              decimals      =  0,
+                              singleStep    =  1 )
+        
+        self.smoothingCheckBox = \
+            PM_CheckBox( pmGroupBox,
+                         text         = "Smoothing",
+                         setAsDefault = True)
+        
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box.
@@ -690,7 +690,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.proteinComponentComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Color:",
+                         label         =  "Color by:",
                          choices       =  colorChoices,
                          setAsDefault  =  True)
 
@@ -704,7 +704,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorList,
                             colorNames = colorNames,
-                            label      = "Custom color:",
+                            label      = "Custom:",
                             color      = orange,
                             setAsDefault  =  True)
                             
@@ -715,7 +715,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.proteinAuxComponentComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Aux color:",
+                         label         =  "Aux:",
                          choices       =  colorChoices1,
                          setAsDefault  =  True)
         
@@ -728,7 +728,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                              colorList = colorListAux,
                              colorNames = colorNamesAux, 
-                             label = "Custom aux color:",
+                             label = "Custom aux:",
                              color = gray,
                              setAsDefault  =  True)
 
@@ -748,7 +748,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListHelix,
                             colorNames = colorNamesHelix,  
-                            label      = "Helix color:",
+                            label      = "Helix:",
                             color      = red,
                             setAsDefault  =  True)
         
@@ -762,7 +762,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListStrand,
                             colorNames = colorNamesStrand, 
-                            label      = "Strand color:",
+                            label      = "Strand:",
                             color      = cyan,
                             setAsDefault  =  True)
 
@@ -770,7 +770,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListAux,
                             colorNames = colorNamesAux,
-                            label      = "Coil color:",
+                            label      = "Coil:",
                             color      = orange,
                             setAsDefault  =  True)
 
