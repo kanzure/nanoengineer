@@ -13,7 +13,7 @@ ExternalBondSet.py - keep track of external bonds, to optimize redraw
 # initial test implem: do all bond drawing through this object,
 # but do it just as often as right now, in the same way.
 #
-# see chunk.draw_external_bonds
+# see chunk._draw_external_bonds
 
 # for now, we just maintain them but do nothing else with them, as of 080702 noon PT
 

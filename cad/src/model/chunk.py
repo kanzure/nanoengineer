@@ -2205,7 +2205,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        if self.externs and draw_external_bonds:
+        if draw_external_bonds and self.externs:
             self._draw_external_bonds(glpane, disp, drawLevel, is_chunk_visible)
 
         return # from Chunk._draw_outside_local_coords()
@@ -2290,19 +2290,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                     repeated_bonds_dict[id(bond)] = bond
                     if frustum_culling and not is_chunk_visible:
                         # bond frustum culling test piotr 080401
-                        if not glpane.is_lozenge_visible(
-                            # Note: piotr 080402
-                            # MAX_ATOM_SPHERE_RADIUS = maximum atom radius
-                            # in any display style. Look at Chunk.draw
-                            # for derivation.
-                            bond.atom1.posn(), bond.atom2.posn(), 
-                            MAX_ATOM_SPHERE_RADIUS + 0.5):
-                            # The radius is currently not used. It should be
-                            # replaced by a proper maximum bond radius
-                            # when the is_lozenge_visible method is fully
-                            # implemented. piotr 080401
+                        ### REVIEW: efficient under all settings of debug_prefs?? [bruce 080702 question]
+                        c1, c2, radius = bond.bounding_lozenge()
+                        if not glpane.is_lozenge_visible(c1, c2, radius):
                             continue # skip the bond drawing if culled
-                    if bond.atom1.molecule.picked and bond.atom2.molecule.picked:
+                    if bond.should_draw_as_picked():
                         color = selColor #bruce 080430 cosmetic improvement
                             # REVIEW: not sure this color is correct; it needs to be a named constant
                     else:

@@ -37,6 +37,8 @@ from utilities.debug import reload_once_per_event
 
 from utilities import debug_flags
 
+from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
+
 from model.elements import Singlet
 
 from model.bond_constants import V_SINGLE
@@ -1759,6 +1761,46 @@ class Bond(BondBase, StateMixin, Selobj_API):
         return not self.__eq__(obj)
 
     # ==
+
+    def bounding_lozenge(self):
+        """
+        Return the bounding lozenge of self,
+        in absolute coordinates (whether or not
+        self is an external bond).
+        """
+        #bruce 080702 split out of Chunk._draw_external_bonds
+
+        # Note:
+        # MAX_ATOM_SPHERE_RADIUS = maximum atom radius
+        # in any display style. Look at Chunk.draw
+        # for derivation. [piotr 080402]
+
+        # [comment from original context in Chunk._draw_external_bonds:]
+        # The radius is currently not used. It should be
+        # replaced by a proper maximum bond radius
+        # when the is_lozenge_visible method is fully
+        # implemented. [piotr 080401]
+        # update [bruce 080702]: actually, radius is used
+        # (when calling gplane.is_lozenge_visible, as is done
+        #  in the context in which that comment was written).
+        # I'm not sure whether this comment implies
+        # that the radius above is too small,
+        # nor whether it is in fact too small.
+        # I'm not sure how the 0.5 additional radius was derived.
+        res = (
+            self.atom1.posn(),
+            self.atom2.posn(),
+            MAX_ATOM_SPHERE_RADIUS + 0.5
+         )
+        return res
+
+    def should_draw_as_picked(self):
+        """
+        Should the visual appearance conventions for a selected object
+        be used on (all of) self when drawing it?
+        """
+        #bruce 080702 split this out of Chunk._draw_external_bonds
+        return self.atom1.molecule.picked and self.atom2.molecule.picked
     
     def draw(self, glpane, dispdef, col, level,
              highlighted = False,
