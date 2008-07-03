@@ -675,13 +675,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
     def checkIfCodeIsValid(self, code):
         """
-        Check if pdb code is valid. If a five letter code is entered and the 
-        last character is '_' it is altered to ' '
-        """
+        Check if the PDB ID I{code} is valid. 
+        
+        @return: ok, code
+        
+        If a five letter code is entered and the last character is '_' it 
+        is altered to ' '
+        """            
         #first check if the length is correct
         if not (len(code) == 4 or  len(code) == 5):
-            msg = "Not a valid PDB Code. Try again"
-            QMessageBox.warning(self, "Warning!", msg)
             return False, code
         if len(code) == 4:
             end = len(code)
@@ -721,25 +723,24 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 msg = "No protein exists in the PDB with this code."
                 QMessageBox.warning(self, "Attention!", msg)
                 showWaitCursor(False)
-                return None, ''
+                return ''
         except:
             msg = "Error connecting to RCSB using URL [%s]: " % urlString
             print_compact_traceback( msg )
             env.history.message( cmd + redmsg( msg) )
             showWaitCursor(False)
-            return None, ''
+            return ''
         
         # Create full path to Nanorex temp directory for pdb file.
         tmpdir = find_or_make_Nanorex_subdir('temp')
         pdbTmpFile = os.path.join(tmpdir, code + ".pdb")
         
         f = open(pdbTmpFile, 'w')
-        if f:
-            f.write(doc)
-            f.close()
+        f.write(doc)
+        f.close()
         
         showWaitCursor(False) # Revert to the previous cursor.
-        return f, pdbTmpFile   
+        return pdbTmpFile   
     
     def insertPDBFromURL(self, filePath, chainID):
         """
@@ -769,62 +770,72 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         """
         # ask the user if he wants to save the file otherwise its deleted
 
-        msg = "Do you want to save the original pdb file?"
+        msg = "Do you want to save a copy of this PDB file in its original "\
+            "format to your system disk before continuing?"
 
-        ret = QMessageBox.warning( self, "Warning!",
+        ret = QMessageBox.warning( self, "Attention!",
                                    msg,
                                    "&Yes", "&No", "",
-                                   0,    # Enter == button 0
-                                   1)   # Escape == button 1
-        if ret == 0:
-            #save this file
-            formats = \
-                    "Protein Data BanK (*.pdb);;"
-            directory = self.currentWorkingDirectory
-            fileName = code + ".pdb"
-            currentFilename = directory + '/' + fileName
-            sfilter = QString("Protein Data Bank (*.pdb)")
-            fn = QFileDialog.getSaveFileName(self, 
-                                             "Save PDB File", 
-                                             currentFilename,
-                                             formats,
-                                             sfilter)
-            print "File name = ", fn
-            fileObject1 = open(filePath, 'r')
-            if fn:
-                fileObject2 = open(fn, 'w+')
-            else:
-                return
-            doc = fileObject1.readlines()
-            # we will write to this pdb file everything, irrespective of
-            # what the chain id is. Its too complicated to parse the info related
-            # to this particular chain id
-            fileObject2.writelines(doc)
-            fileObject1.close()
-            fileObject2.close()
-            dir, fil = os.path.split(str(fn))
-            self.setCurrentWorkingDirectory(dir)
+                                   0,   # Enter  = button 0 (yes)
+                                   1)   # Escape = button 1 (no)
+        if ret: 
+            return # User selected 'No'.
+        
+        # Save this file
+        formats = \
+                "Protein Data BanK (*.pdb);;"
+        directory = self.currentWorkingDirectory
+        fileName = code + ".pdb"
+        currentFilename = directory + '/' + fileName
+        sfilter = QString("Protein Data Bank (*.pdb)")
+        fn = QFileDialog.getSaveFileName(self, 
+                                         "Save PDB File", 
+                                         currentFilename,
+                                         formats,
+                                         sfilter)
+        fileObject1 = open(filePath, 'r')
+        if fn:
+            fileObject2 = open(fn, 'w+') 
+                #@ Review: fileObject2 will be overwritten if it exists.
+                # You should get confirmation from user first!
+                # mark 2008-07-03
         else:
-            env.history.message("Fetch Pdb" + "Cancelled")
+            return
+        doc = fileObject1.readlines()
+        # we will write to this pdb file everything, irrespective of
+        # what the chain id is. Its too complicated to parse the info related
+        # to this particular chain id
+        fileObject2.writelines(doc)
+        fileObject1.close()
+        fileObject2.close()
+        dir, fil = os.path.split(str(fn))
+        self.setCurrentWorkingDirectory(dir)
+        
+        env.history.message( "PDB file saved: [ " + os.path.normpath(fn) + " ]")
+        
         return    
-                
-                
-    
+
     def getPDBFileFromInternet(self):
         """
         slot method for PDBFileDialog
         """
         checkIfCodeValid, code = self.checkIfCodeIsValid(self._pdbCode)  
-        if checkIfCodeValid:
-            f, filePath = self.getAndWritePDBFile(code[0:4])    
-            if f is not None:
-                if len(code) == 5:
-                    self.insertPDBFromURL(filePath, code[4])
-                else:
-                    self.insertPDBFromURL(filePath, None)
-                self.savePDBFileIfDesired(code, filePath)
-                #delete the temp file
-                os.remove(filePath)
+        if not checkIfCodeValid:
+            msg = "'%s' is an invalid PDB ID. Download aborted." % code
+            env.history.message(redmsg(msg))
+            QMessageBox.warning(self, "Attention!", msg)
+            return
+        
+        filePath = self.getAndWritePDBFile(code[0:4])    
+        if not filePath:
+            return
+        if len(code) == 5:
+            self.insertPDBFromURL(filePath, code[4])
+        else:
+            self.insertPDBFromURL(filePath, None)
+        self.savePDBFileIfDesired(code, filePath)
+        # delete the temp PDB file
+        os.remove(filePath)
         return
     
     def setPDBCode(self, code):
