@@ -782,12 +782,36 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
 
                 if name == "CA ":
                     # Set c-alpha flag for protein main chain visualization.
-                    atom.is_calpha = True
+                    atom._protein_ca = True
                 else:
-                    atom.is_calpha = False
+                    atom._protein_ca = False
 
-                # debug - output in PDB format
-                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])
+                if name == "CB ":
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_cb = True
+                else:
+                    atom._protein_cb = False
+
+                if name == "N  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_n = True
+                else:
+                    atom._protein_n = False
+
+                if name == "C  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_c = True
+                else:
+                    atom._protein_c = False
+
+                if name == "O  ": 
+                    # Set c-alpha flag for protein main chain visualization.
+                    atom._protein_o = True
+                else:
+                    atom._protein_o = False
+
+                # debug - output in PDB format	
+                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
 
         self.prev_psi = psi # Remember previous psi angle.
 
@@ -833,14 +857,22 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
             self._buildResiduum(mol, zmatrix, size, phi, psi, None, symbol)
 
         # Add a C-terminal OH group
-        self._buildResiduum(mol, CTERM_ZMATRIX, 5, 0.0, 0.0, None, symbol)
-
+        self._buildResiduum(mol, CTERM_ZMATRIX, 5, 0.0, 0.0, None, symbol)        
+        
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment.
         inferBonds(mol)
 
+        mol._protein_helix = []
+        mol._protein_sheet = []
+        
         # Assign proper bond orders.
+        i = 1
         for atom in mol.atoms.itervalues():
+            if self.ss_idx == 1:
+                mol._protein_helix.append(i) 
+            elif self.ss_idx == 2:
+                mol._protein_sheet.append(i)  
             if atom.bonds:
                 for bond in atom.bonds:
                     if bond.atom1.getAtomTypeName()=="sp2" and \
@@ -853,7 +885,8 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
                                not (bond.atom1._is_single and
                                     bond.atom2._is_single)):
                             bond.set_v6(V_DOUBLE)
-
+            i += 1
+                            
         # Remove temporary attributes.
         for atom in mol.atoms.itervalues():
             del atom._is_aromatic
