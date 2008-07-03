@@ -1310,15 +1310,24 @@ class MWsemantics(QMainWindow,
     ###################################
     # Help Toolbar Slots
     ###################################
+    
+    def helpTutorials(self):
+        from foundation.wiki_help import open_wiki_help_URL
+        url = "http://www.nanoengineer-1.net/mediawiki/index.php?title=Tutorials"
+        worked = open_wiki_help_URL(url)
+        return
 
     def helpMouseControls(self):
         self.help.showDialog(0)
+        return
 
     def helpKeyboardShortcuts(self):
         self.help.showDialog(1)
+        return
 
     def helpSelectionShortcuts(self):
         self.help.showDialog(2)
+        return
 
     def helpGraphicsCard(self):
         """
@@ -1330,6 +1339,7 @@ class MWsemantics(QMainWindow,
         msgbox.setWindowTitle("Graphics Card Info")
         msgbox.setText(ginfo)
         msgbox.show()
+        return
 
 # I modified a copy of cpuinfo.py from
 # http://cvs.sourceforge.net/viewcvs.py/numpy/Numeric3/scipy/distutils/
@@ -1383,10 +1393,12 @@ class MWsemantics(QMainWindow,
                  + wiki
 
         QMessageBox.about ( self, "About NanoEngineer-1", aboutstr)
+        return
 
     def helpWhatsThis(self):
         from PyQt4.Qt import QWhatsThis ##bruce 050408
-        QWhatsThis.enterWhatsThisMode ()
+        QWhatsThis.enterWhatsThisMode()
+        return
 
     ###################################
     # Modes Toolbar Slots

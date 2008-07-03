@@ -829,6 +829,9 @@ def setupUi(win):
 
     win.helpMenu = QtGui.QMenu(win.MenuBar)
     win.helpMenu.setObjectName("helpMenu")
+    
+    win.helpTutorialsAction = QtGui.QAction(MainWindow)
+    win.helpTutorialsAction.setObjectName("helpAboutAction")
 
     win.helpMouseControlsAction = QtGui.QAction(MainWindow)
     win.helpMouseControlsAction.setObjectName("helpMouseControlsAction")
@@ -1071,15 +1074,15 @@ def retranslateUi(win):
     #fetch pdb
     win.fileFetchPdbAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Fetch PDB...", 
+            "MainWindow", "PDB file from RCSB...", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileFetchPdbAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "PDB", 
+            "MainWindow", "Fetch PDB", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileFetchPdbAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Fetch PDB", None, QtGui.QApplication.UnicodeUTF8))  
+            "MainWindow", "Fetch a PDB file from RCSB", None, QtGui.QApplication.UnicodeUTF8))  
     
     win.fileExitAction.setText(
         QtGui.QApplication.translate(
@@ -1888,8 +1891,8 @@ def retranslateUi(win):
     win.helpSelectionShortcutsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts...", None, QtGui.QApplication.UnicodeUTF8))
     win.helpSelectionShortcutsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
 
-
-
+    win.helpTutorialsAction.setText(QtGui.QApplication.translate("MainWindow", "NanoEngineer-1 Tutorials...", None, QtGui.QApplication.UnicodeUTF8))
+    win.helpTutorialsAction.setIconText(QtGui.QApplication.translate("MainWindow", "NanoEngineer-1 Tutorials...", None, QtGui.QApplication.UnicodeUTF8))
 
     # Other QActions not used in menus. These QActions are used in toolbars,
     # context menus, etc.

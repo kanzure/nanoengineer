@@ -138,6 +138,7 @@ def setupUi(win):
                 SIGNAL("triggered()"),
                 win.fileExportAmdl)
 
+    win.connect(win.helpTutorialsAction,SIGNAL("triggered()"),win.helpTutorials)
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)
     win.connect(win.helpKeyboardShortcutsAction,SIGNAL("triggered()"),win.helpKeyboardShortcuts)
