@@ -646,7 +646,8 @@ def verifyStructureInfo(assy, iosSeqNameDict):
     dictLength = len(iosSeqNameDict)
     strandListFromNE_1Length = len(strandListFromNE_1)
     if dictLength != strandListFromNE_1Length:
-        msg = "Cannot import IOS file since number of strands in the import file and one in NE-1 window does not match"
+        msg = "IOS import aborted since the number of strands in the IOS file "\
+            "does not equal the number of strands in the current model."
         QMessageBox.warning(assy.win, "Warning!", msg)
         return False  
     
@@ -657,12 +658,19 @@ def verifyStructureInfo(assy, iosSeqNameDict):
             index = strandListFromNE_1.index(strand)
             baseStringFromNE_1 = baseStringListFromNE_1[index]
         except ValueError:
-            msg = "Cannot import IOS file since strand %s in IOS file does not exist in NE-1 windows" % strand
+            msg = "IOS import aborted since strand '%s' in the IOS file does"\
+                "not exist in the current model." % strand
             QMessageBox.warning(assy.win, "Warning!", msg)
             return False
         
         if len(baseStringFromNE_1) != len(baseString):
-            msg = "Cannot import IOS file since base string length %d of strand %s in the NE-1 window does not match with the one found in the IOS file (%s, %d)" % (len(baseStringFromNE_1), strandListFromNE_1[index], strand, len(baseString))
+            msg = "IOS import aborted since the length of strand '%s' "\
+                 "(%s bases) in the current model does not match the length "\
+                 "of strand '%s' found in the IOS file (%d bases)." % \
+                (strandListFromNE_1[index], 
+                 len(baseStringFromNE_1), 
+                 strand, 
+                 len(baseString))
             QMessageBox.warning(assy.win, "Warning!", msg)
             return False
     return True    

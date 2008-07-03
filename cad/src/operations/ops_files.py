@@ -318,7 +318,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             return
         
         if numberOfMembers == 0:
-            msg = "Cannot import since we cannot assign optimized sequences if there is n't any sequence on the NE-1 window"
+            msg = "IOS import aborted since there aren't any DNA strands in "\
+                "the current model."
             from PyQt4.Qt import QMessageBox
             QMessageBox.warning(self.assy.win, "Warning!", msg)
             return
@@ -337,10 +338,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         success = importFromIOSFile(self.assy, import_filename)
         if success:
-            env.history.message(cmd + "Successfully imported optimized strands from" + import_filename)
-        else:    
-            
-            env.history.message(cmd + redmsg("Cannot import" + import_filename))
+            env.history.message(cmd + "Successfully imported optimized strands from " + import_filename)
+        else:
+            env.history.message(cmd + redmsg("Cannot import " + import_filename))
         return 
     
     def fileIOSExport(self): #Urmi 20080610
@@ -385,7 +385,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             export_filename = str(export_filename)  + ".xml"
         
         exportToIOSFormat(self.assy, export_filename)
-        env.history.message(cmd + "Sucessfully exported structure info to" + export_filename)
+        env.history.message(cmd + "Successfully exported structure info to " + export_filename)
         return
             
             
