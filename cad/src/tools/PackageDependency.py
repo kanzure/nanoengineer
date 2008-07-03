@@ -103,6 +103,8 @@ libraryReferences = [
     "cPickle",
     "bsddb",
     "shelve",
+    "bsddb3",
+    "bsddb3.dbshelve",
     "doctest",
     "base64",
     "md5",
