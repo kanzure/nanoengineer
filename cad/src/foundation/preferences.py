@@ -73,13 +73,13 @@ from foundation.changes import UsageTracker
 
 from utilities.prefs_constants import prefs_table
 
-tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
-if len(tmpary) >= 3:
+_tmpary = NE1_Build_Constants.NE1_RELEASE_VERSION.split(".")
+if len(_tmpary) >= 3:
     DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s-%s.txt" % \
-                             (tmpary[0],tmpary[1],tmpary[2])
+                             (_tmpary[0], _tmpary[1], _tmpary[2])
 else:
     DEFAULT_PREFS_BASENAME = "default_prefs_v%s-%s.txt" % \
-                             (tmpary[0],tmpary[1])
+                             (_tmpary[0], _tmpary[1])
     #Derrick 080703
     # note: this name is still hardcoded into 
     # packaging/Pref_Mod/pref_modifier.py
@@ -191,8 +191,10 @@ Usage by client code (for now -- this might change!):
 # since there's no guarantee the db format without bsddb is always the same...
 # but I don't know a good-enough way to find out which db module shelve is actually using.)
 
+_USE_bsddb3 = NE1_Build_Constants.NE1_USE_bsddb3
+
 try:
-    if NE1_Build_Constants.NE1_USE_bsddb3:
+    if _USE_bsddb3:
         import bsddb3 as _junk
     else:
         import bsddb as _junk
@@ -218,7 +220,7 @@ else:
 # shelve will use it. (I don't know any straightforward way to check this. But the
 # docs for shelve say it will use it, I think. #k check this ###@@@)
 
-if NE1_Build_Constants.NE1_USE_bsddb3:
+if _USE_bsddb3:
     from bsddb3 import dbshelve as shelve
 else:
     import shelve
