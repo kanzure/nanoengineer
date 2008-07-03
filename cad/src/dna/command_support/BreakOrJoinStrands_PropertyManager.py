@@ -7,9 +7,7 @@
 
 History:
 Ninad 2008-06-05: Revised and refactored code in JoinStrands_PropertyManager, 
-and moved it to this class. 
-
-TODO:
+and moved it to this class.
 """
 import sys
 from PyQt4.Qt import Qt
@@ -34,10 +32,6 @@ from utilities.prefs_constants import dnaStrandFivePrimeArrowheadsCustomColor_pr
 
 from widgets.prefs_widgets import connect_checkbox_with_boolean_pref
 
-from utilities.constants import red, green, orange, magenta, cyan, white, gray
-END_COLOR_LIST  = [red, green, orange, magenta, cyan, white, gray]
-END_COLOR_NAMES = ["Red", "Green", "Orange", "Magenta", "Cyan", "White", "Other color..."]
-
 class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
     
     def __init__( self, parentCommand ):
@@ -57,11 +51,8 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-        
-                
-        
-
-        
+        return
+    
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -95,8 +86,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         change_connect(self.strandThreePrimeArrowheadsCustomColorCheckBox,
                        SIGNAL("toggled(bool)"),
                        self.allowChoosingColorsOnThreePrimeEnd)
-        
-
+        return
     
     def show(self):
         """
@@ -104,7 +94,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         PM_Dialog.show(self)        
         self.connect_or_disconnect_signals(isConnect = True)    
-        
+        return
                 
     def close(self):
         """
@@ -138,16 +128,17 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
             self._prefs_key_useCustomColorForFivePrimeArrowheads(), 
             arrowsOnBackBones_prefs_key)
         
-        
         for checkbox, prefs_key in zip(checkboxes, prefs_keys):
             connect_checkbox_with_boolean_pref(checkbox, prefs_key)
-            
-            
+        
+        return
+    
     def ok_btn_clicked(self):
         """
         Slot for the OK button
         """      
         self.win.toolsDone()
+        return
         
     #Load various widgets ====================
         
@@ -163,6 +154,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         self._load3PrimeEndArrowAndCustomColor(self._arrowheadPrefsGroupBox)
         self._load5PrimeEndArrowAndCustomColor(self._arrowheadPrefsGroupBox)
         self._loadArrowOnBackBone(pmGroupBox)
+        return
 
     def _load3PrimeEndArrowAndCustomColor(self, pmGroupBox):
         """
@@ -171,7 +163,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         self.pmGroupBox3 = PM_GroupBox(pmGroupBox, title = "3' end:")
         
         self.arrowsOnThreePrimeEnds_checkBox = PM_CheckBox( self.pmGroupBox3,
-                                                            text         = "Show arrow",
+                                                            text         = "Show arrowhead",
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True )
@@ -183,15 +175,13 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
             self.arrowsOnThreePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
             
         self.strandThreePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox3,
-                                                            text         = "Display Custom Color",
+                                                            text         = "Display custom color",
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True)
         prefs_key = self._prefs_key_dnaStrandThreePrimeArrowheadsCustomColor()
         self.threePrimeEndColorChooser = \
             PM_ColorComboBox(self.pmGroupBox3,
-                             colorList  = END_COLOR_LIST,
-                             colorNames = END_COLOR_NAMES,
                              color      = env.prefs[prefs_key])
         
         prefs_key = self._prefs_key_useCustomColorForThreePrimeArrowheads()
@@ -210,7 +200,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         self.pmGroupBox2 = PM_GroupBox(pmGroupBox, title = "5' end:")
         self.arrowsOnFivePrimeEnds_checkBox = PM_CheckBox( self.pmGroupBox2,
-                                                            text         = "Show arrow",
+                                                            text         = "Show arrowhead",
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True
@@ -223,7 +213,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
             self.arrowsOnFivePrimeEnds_checkBox.setCheckState(Qt.Unchecked)
             
         self.strandFivePrimeArrowheadsCustomColorCheckBox = PM_CheckBox( self.pmGroupBox2,
-                                                            text         = "Display Custom Color",
+                                                            text         = "Display custom color",
                                                             widgetColumn  = 0,
                                                             setAsDefault = True,
                                                             spanWidth = True )
@@ -231,8 +221,6 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         prefs_key = self._prefs_key_dnaStrandFivePrimeArrowheadsCustomColor()        
         self.fivePrimeEndColorChooser = \
             PM_ColorComboBox(self.pmGroupBox2,
-                             colorList  = END_COLOR_LIST,
-                             colorNames = END_COLOR_NAMES,
                              color      = env.prefs[prefs_key]
                              )
         
@@ -263,6 +251,7 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
             self.arrowsOnBackBones_checkBox.setCheckState(Qt.Checked) 
         else:
             self.arrowsOnBackBones_checkBox.setCheckState(Qt.Unchecked)
+        return
             
     def allowChoosingColorsOnFivePrimeEnd(self, state):
         """
@@ -306,11 +295,6 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         self.win.glpane.gl_update() 
         return
     
-    
-    
-    
-        
-     
     #Return varius prefs_keys for arrowhead display options ui elements =======     
     def _prefs_key_arrowsOnThreePrimeEnds(self):
         """
@@ -358,5 +342,3 @@ class BreakOrJoinStrands_PropertyManager(PM_Dialog, DebugMenuMixin):
         """
         return dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
     
-    
-        
