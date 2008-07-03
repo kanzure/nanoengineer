@@ -14,10 +14,27 @@ self.o.setCursor(win.ArrowCursor)).
 - Replace all bitmap cursors with color PNG cursors.
 """
 
-from PyQt4.Qt import QCursor, QBitmap, Qt, QPainter
+from PyQt4.Qt import QCursor, QBitmap, Qt, QPainter, QApplication
 import os, sys
 
 from utilities.icon_utilities import getCursorPixmap
+
+def showWaitCursor(on_or_off):
+    """
+    Show the wait cursor or revert to the prior cursor if the current cursor
+    is the wait cursor.
+    
+    For on_or_off True, set the main window waitcursor.
+    For on_or_off False, revert to the prior cursor.
+    
+    [It might be necessary to always call it in matched pairs,
+     I don't know [bruce 050401].]
+    """
+    if on_or_off:
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+    else:
+        QApplication.restoreOverrideCursor() # Restore the cursor
+    return
 
 def loadCursors(w):
     """
@@ -25,48 +42,6 @@ def loadCursors(w):
     """
 
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-    def loadCursor(cursor_name, hot_x, hot_y):
-        """
-        Returns a cursor built from two BMP files located (by default)        
-        in the cad/src/ui/cursors directory. If the cursor_name starts with 
-        ui/, then it is relative to cad/src, thus permitting some cursors to
-        live in other directories besides cad/src/ui/cursors.
-        
-        @param cursor_name: The cursor basename. It is used to find both the
-                            bitmap file (cursor_name.bmp) and the bitmask file
-                            (cursor_name.-bm.bmp).
-        @type  cursor_name: string
-        
-        @param hot_x: the x coordinate of the cursor's hotspot.
-        @type  hot_x: int
-        @param hot_y: the y coordinate of the cursor's hotspot.
-        @type  hot_y: int
-
-        @deprecated: Use QCursor(getCursorPixmap(color_cursor_pathname), 
-                                 hot_x, hot_y)
-        """
-        
-        if cursor_name.startswith("ui/"):
-            #bruce 070626 new feature, needed for ui/confcorner cursors
-            dirpath = filePath + "/../src/"
-        else:
-            dirpath = filePath + "/../src/ui/cursors/"
-
-        cursor_bitmap = dirpath + cursor_name + ".bmp"
-        cursor_bitmsk = dirpath + cursor_name + "-bm.bmp"
-
-        if os.path.exists(cursor_bitmap) and os.path.exists(cursor_bitmsk):
-            cursor = QCursor(
-                QBitmap(cursor_bitmap),
-                QBitmap(cursor_bitmsk),
-                hot_x, hot_y)
-        else:
-            print "loadCursor: Cursor file(s) do not exist for cursor '", \
-                  cursor_name, "'. Returning null cursor."
-            cursor = None
-
-        return cursor
     
     # Pencil symbols.
     w.addSymbol = QCursor(getCursorPixmap("symbols/PlusSign.png"), 0, 0)
