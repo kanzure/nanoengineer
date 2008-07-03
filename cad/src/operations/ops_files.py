@@ -703,23 +703,43 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
     def getAndWritePDBFile(self, code):
         """
-        Fetch the pdb file from the internet and write it to a temporary location
-        that is later removed.
+        Fetch a PDB file from the internet (RCSB databank) and write it to a 
+        temporary location that is later removed.
+        
+        @return: The full path to the PDB temporary file fetched from RCSB.
+        @rtype: string
         """
-        urlString = "http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb&compression=NO&structureId=" + code
-        doc = urlopen(urlString).read()
-        if doc.find("No File Found") != -1:
-            msg = "No protein exists in the PDB with this code"
-            QMessageBox.warning(self, "Warning!", msg)
+        
+        try:
+            # Display the "wait cursor" since this might take some time.
+            from ne1_ui.cursors import showWaitCursor
+            showWaitCursor(True) 
+            
+            urlString = "http://www.rcsb.org/pdb/download/downloadFile.do?fileFormat=pdb&compression=NO&structureId=" + code
+            doc = urlopen(urlString).read()
+            if doc.find("No File Found") != -1:
+                msg = "No protein exists in the PDB with this code."
+                QMessageBox.warning(self, "Attention!", msg)
+                showWaitCursor(False)
+                return None, ''
+        except:
+            msg = "Error connecting to RCSB using URL [%s]: " % urlString
+            print_compact_traceback( msg )
+            env.history.message( cmd + redmsg( msg) )
+            showWaitCursor(False)
             return None, ''
-        directory = self.currentWorkingDirectory
-        filePath = directory + '/tempPdb.pdb'
-        f = open(filePath, 'w')
+        
+        # Create full path to Nanorex temp directory for pdb file.
+        tmpdir = find_or_make_Nanorex_subdir('temp')
+        pdbTmpFile = os.path.join(tmpdir, code + ".pdb")
+        
+        f = open(pdbTmpFile, 'w')
         if f:
             f.write(doc)
             f.close()
         
-        return f, filePath   
+        showWaitCursor(False) # Revert to the previous cursor.
+        return f, pdbTmpFile   
     
     def insertPDBFromURL(self, filePath, chainID):
         """
@@ -745,10 +765,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def savePDBFileIfDesired(self, code, filePath):
         """
         Since the downloaded pdb file is stored in a temporary location, this
-        allows the user to store it permanently
+        allows the user to store it permanently.
         """
         # ask the user if he wants to save the file otherwise its deleted
-        msg = "Do you want to save this pdb file?"
+        msg = "Do you want to save this PDB file?"
         ret = QMessageBox.warning( self, "Warning!",
                                    msg,
                                    "&Yes", "&No", "",
