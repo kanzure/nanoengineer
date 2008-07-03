@@ -161,7 +161,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         
         self.moveFromToButton = PM_ToolButton(
                     inPmGroupBox, 
-                    text = "Translate From/To",
+                    text = "Translate from/to",
                     iconPath  = "ui/actions/Properties Manager"\
                     "/Translate_Components.png",
                     spanWidth = True
@@ -297,7 +297,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         
         self.rotateAsUnitCB = \
             PM_CheckBox( inPmGroupBox,
-                         text         = 'Rotate As a Unit' ,
+                         text         = 'Rotate as a unit' ,
                          widgetColumn = 0,
                          state        = Qt.Checked )
         
