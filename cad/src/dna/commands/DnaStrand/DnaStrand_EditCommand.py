@@ -796,13 +796,10 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         changedBases = self._getCursorText_changedBases(
             numberOfBases)
         
-        #Add commas (to be refactored)
-        commaString = ", "
-        
         text = numberOfBasesString 
         
         if text and changedBases:
-            text += commaString
+            text += " " # Removed comma. Mark 2008-07-03
         
         text += changedBases                   
 
