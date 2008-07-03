@@ -768,7 +768,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         allows the user to store it permanently.
         """
         # ask the user if he wants to save the file otherwise its deleted
-        msg = "Do you want to save this PDB file?"
+
+        msg = "Do you want to save the original pdb file?"
+
         ret = QMessageBox.warning( self, "Warning!",
                                    msg,
                                    "&Yes", "&No", "",
@@ -783,12 +785,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             currentFilename = directory + '/' + fileName
             sfilter = QString("Protein Data Bank (*.pdb)")
             fn = QFileDialog.getSaveFileName(self, 
-                                             "Export File", 
+                                             "Save PDB File", 
                                              currentFilename,
                                              formats,
                                              sfilter)
+            print "File name = ", fn
             fileObject1 = open(filePath, 'r')
-            fileObject2 = open(fn, 'w+')
+            if fn:
+                fileObject2 = open(fn, 'w+')
+            else:
+                return
             doc = fileObject1.readlines()
             # we will write to this pdb file everything, irrespective of
             # what the chain id is. Its too complicated to parse the info related
@@ -798,8 +804,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             fileObject2.close()
             dir, fil = os.path.split(str(fn))
             self.setCurrentWorkingDirectory(dir)
-            if not fn:
-                env.history.message(cmd + "Cancelled")
+        else:
+            env.history.message("Fetch Pdb" + "Cancelled")
+        return    
+                
                 
     
     def getPDBFileFromInternet(self):
