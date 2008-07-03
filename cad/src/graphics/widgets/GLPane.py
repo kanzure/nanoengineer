@@ -3645,7 +3645,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                   GL matrices are in the same state as when _compute_frustum_planes
                   was last called (i.e. in absolute model space coordinates).
         """
-        ### uncomment the following line for the bounding sphere debugg
+        ### uncomment the following line for the bounding sphere debug
         ### drawwiresphere(white, center, radius, 2)
 
         if self._frustum_planes_available:
@@ -3679,19 +3679,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         are allocated, i.e. glpane._compute_frustum_planes was already called.
         (If it wasn't, the test will always succeed.)
 
-        Currently, this is only a stub and it currently it calls 
-        glpane.is_sphere_visible. The radius parameter is used only if it 
-        exceeds the distance between the ends of the cylinder.
+        Currently, this is a loose (but correct) approximation which calls
+        glpane.is_sphere_visible on the lozenge's bounding sphere.
 
         @warning: this will give incorrect results unless the current
                   GL matrices are in the same state as when _compute_frustum_planes
                   was last called (i.e. in absolute model space coordinates).
-
         """
 
         if self._frustum_planes_available:
-            center = 0.5*(pos1+pos2)
-            sphere_radius = 0.5*vlen(pos2-pos1) + radius
+            center = 0.5 * (pos1 + pos2)
+            sphere_radius = 0.5 * vlen(pos2 - pos1) + radius
             res = self.is_sphere_visible(center, sphere_radius)
             # Read Bruce's comment in glpane.is_sphere_visible
             # It applies here, as well.
