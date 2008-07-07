@@ -373,10 +373,32 @@ def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key):
     @see: B{connect_checkbox_with_boolean_pref()}
     @see: B{QDoubleSpinBox_ConnectionWithState}
     @see: Preferences._setupPage_Dna() for an example use.  
+    @see: connect_spinBox_with_pref()
     """
     stateref = Preferences_StateRef( prefs_key) # note: no default value specified
     widget_connectWithState( qDoubleSpinBox, stateref, QDoubleSpinBox_ConnectionWithState)
     return
+
+def connect_spinBox_with_pref(qSpinBox, prefs_key):
+    """
+    Cause the QSpinbox to track the value of the given preference key AND
+    causes changes to the Double spinbox to change the value of that prefs_key.
+    
+    @param qSpinBox: QSpinBox  object which needs to be 'connected'
+        to the given <prefs_key> (preference key)
+    @type qSpinBox: B{QSpinBox}
+    
+    @param prefs_key: The preference key to be assocuated with <qSpinBox>
+
+    @see: B{connect_checkbox_with_boolean_pref()}
+    @see: B{QSpinBox_ConnectionWithState}
+    @see: Preferences._setupPage_Dna() for an example use.  
+    @see: connect_doubleSpinBox_with_pref()
+    """
+    stateref = Preferences_StateRef( prefs_key) # note: no default value specified
+    widget_connectWithState( qSpinBox, stateref, QSpinBox_ConnectionWithState)
+    return
+
     
 
 # ==
@@ -484,7 +506,17 @@ class QDoubleSpinBox_ConnectionWithState( _twoway_Qt_connection):
                                        stateref,
                                        widget_setter)
         return
-    pass
+    
+    
+class QSpinBox_ConnectionWithState( _twoway_Qt_connection):
+    def __init__(self, qspinbox, stateref):
+        widget_setter = qspinbox.setValue           
+        self.qspinbox = qspinbox
+        _twoway_Qt_connection.__init__(self, qspinbox, SIGNAL("valueChanged(int)"),
+                                       stateref,
+                                       widget_setter)
+        return
+
 
 class QPushButton_ConnectionWithAction(destroyable_Qt_connection):
     def __init__(self, qpushbutton, aCallable, cmdname = None):
