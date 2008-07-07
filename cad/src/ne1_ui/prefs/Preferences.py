@@ -219,7 +219,7 @@ from utilities.constants import diDEFAULT ,diTrueCPK, diLINES
 from utilities.constants import diBALL, diTUBES, diDNACYLINDER
 
 from utilities.constants import black, white, gray
-
+from widgets.prefs_widgets import connect_doubleSpinBox_with_pref
 # =
 # Preferences widgets constants. I suggest that these be moved to another
 # file (i.e. prefs_constants.py or another file). Discuss with Bruce. -Mark
@@ -925,8 +925,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Setup the "DNA" page.
         """
         # Connections for "DNA defaults" groupbox widgets.
-        self.connect(self.dnaBasesPerTurnDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaBasesPerTurn)
-        self.connect(self.dnaRiseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.save_dnaRise)
+        
+        connect_doubleSpinBox_with_pref(self.dnaBasesPerTurnDoubleSpinBox, 
+                                        bdnaBasesPerTurn_prefs_key
+                                        )
+        
+        connect_doubleSpinBox_with_pref(self.dnaRiseDoubleSpinBox,
+                                        bdnaRise_prefs_key)
+                                        
+        
+               
         self.connect(self.dnaRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self.dnaRestoreFactoryDefaults)
 
         connect_colorpref_to_colorframe(dnaDefaultStrand1Color_prefs_key, self.dnaDefaultStrand1ColorFrame)
@@ -2148,22 +2156,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
     ########## Slot methods for "DNA" page widgets ################
 
-    def save_dnaBasesPerTurn(self, bases_per_turn):
-        """
-        Slot for I{Bases per turn} spinbox.
-        @param bases_per_turn: The number of bases per turn.
-        @type  bases_per_turn: double
-        """
-        env.prefs[bdnaBasesPerTurn_prefs_key] = bases_per_turn
-
-    def save_dnaRise(self, rise):
-        """
-        Slot for B{Rise} spinbox.
-        @param rise: The rise.
-        @type  rise: double
-        """
-        env.prefs[bdnaRise_prefs_key] = rise
-
+   
     def dnaRestoreFactoryDefaults(self):
         """
         Slot for I{Restore Factory Defaults} button.
