@@ -65,7 +65,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         
         #For model changed signal
-        self.previousSelectionParams = None
+        self._previousSelectionParams = None
+        
+        self._previousStructureParams = None
                 
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
@@ -150,7 +152,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if hasattr(self.editCommand, 'flyoutToolbar') and \
            self.editCommand.flyoutToolbar:            
             self.editCommand.flyoutToolbar.exitDnaAction.setEnabled(not bool_enable)
-        
+            
+                    
     def model_changed(self):
         """       
         When the editCommand is treated as a 'command' by the 
@@ -169,37 +172,50 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                methods in the API are revised to be called at appropiraite 
                time. 
         """  
+        
         newSelectionParams = self._currentSelectionParams()   
         
-        if same_vals(newSelectionParams, self.previousSelectionParams) and \
-           same_vals(self.strandListWidget.count(), self._currentStructureParams()):
+        selection_params_unchanged = same_vals(newSelectionParams, 
+                                                  self._previousSelectionParams)
+        
+        #introduing self._previousStructureParams and adding structure_params_unchanged
+        #check to the if condition below fixes bug 2910. 
+        structure_params_unchanged = same_vals(self._previousStructureParams, 
+                                                self._currentStructureParams())
+        
+        if selection_params_unchanged and \
+           structure_params_unchanged:
             #This second condition above fixes bug 2888
             return
         
+        self._previousStructureParams = self._currentStructureParams()
         
-        self.previousSelectionParams = newSelectionParams  
-        
-        selectedStrands, selectedSegments = newSelectionParams
-        self.strandListWidget.updateSelection(selectedStrands) 
-        self.segmentListWidget.updateSelection(selectedSegments)
-        
-        if len(selectedStrands) == 1:
-            self.editStrandPropertiesButton.setEnabled(True)                         
-        else:
-            self.editStrandPropertiesButton.setEnabled(False)  
-        
-        if len(selectedSegments) == 1:
-            self.editSegmentPropertiesButton.setText("Edit Properties...")
-            self.editSegmentPropertiesButton.setEnabled(True)
-        elif len(selectedSegments) > 1:
-            resizeString = "Resize Selected Segments (%d)..."%len(selectedSegments)
-            self.editSegmentPropertiesButton.setText(resizeString)
-            self.editSegmentPropertiesButton.setEnabled(True)
-            self.searchForCrossoversButton.setEnabled(True)
-        else:
-            self.editSegmentPropertiesButton.setText("Edit Properties...")
-            self.editSegmentPropertiesButton.setEnabled(False)
-            self.searchForCrossoversButton.setEnabled(False)
+        if not selection_params_unchanged and structure_params_unchanged:            
+            
+            self._previousSelectionParams = newSelectionParams  
+            
+            selectedStrands, selectedSegments = newSelectionParams
+            
+            self.strandListWidget.updateSelection(selectedStrands) 
+            self.segmentListWidget.updateSelection(selectedSegments)
+            
+            if len(selectedStrands) == 1:
+                self.editStrandPropertiesButton.setEnabled(True)                         
+            else:
+                self.editStrandPropertiesButton.setEnabled(False)  
+            
+            if len(selectedSegments) == 1:
+                self.editSegmentPropertiesButton.setText("Edit Properties...")
+                self.editSegmentPropertiesButton.setEnabled(True)
+            elif len(selectedSegments) > 1:
+                resizeString = "Resize Selected Segments (%d)..."%len(selectedSegments)
+                self.editSegmentPropertiesButton.setText(resizeString)
+                self.editSegmentPropertiesButton.setEnabled(True)
+                self.searchForCrossoversButton.setEnabled(True)
+            else:
+                self.editSegmentPropertiesButton.setText("Edit Properties...")
+                self.editSegmentPropertiesButton.setEnabled(False)
+                self.searchForCrossoversButton.setEnabled(False)
                          
         #Update the strand and segmment list widgets. 
         #Ideally it should only update when the structure is modified 
@@ -215,8 +231,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #items (done by self.updateListWidgets)
         #..This probably interferes with the selection
         #within that list. So better to do it after updating the selection.
-        if not same_vals(self.strandListWidget.count(), 
-                         self._currentStructureParams()):  
+        if not structure_params_unchanged:  
             self.updateListWidgets()   
                       
     def _currentSelectionParams(self):
