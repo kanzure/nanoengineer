@@ -305,7 +305,7 @@ breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key = 'A110/ Whi
 breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand three-prime arrowheads/spheres'
 breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key = 'A110/ While in Break strands command,use custom color for five-prime arrowheads/spheres'
 breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A110/ While in Break strands command, Custom color for strand five-prime arrowheads/spheres'
-
+breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key  = 'A111/Number of bases before the next break site'
 
 #Various cursor text prefs =======================
 dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key = 'A110/Show cursor text while drawing the duplex'
@@ -451,7 +451,7 @@ useSelectedFont_prefs_key = 'A9/Use Selected Font'
 displayFont_prefs_key = 'A9/Display Font'
 displayFontPointSize_prefs_key = 'A9/Display Font Point Size'
 mtColor_prefs_key = 'A9/Model Tree Background Color' # Not yet in Preferences. Mark 2007-06-04
-toolbar_state_prefs_key = 'A10/ Toolbar State '
+toolbar_state_prefs_key = 'V111/ Toolbar State ' #this was introduce in A10 but the value (string) changed in V111 to fix a bug in Qt4.3.5
 displayReportsWidget_prefs_key = 'A10/Display Reports Widget'
 #colorTheme_prefs_key = 'A9/Color Theme'
 
@@ -761,7 +761,8 @@ prefs_table = (
     ('','boolean',PlanePM_showGrid_prefs_key, False),
     ('','boolean',PlanePM_showGridLabels_prefs_key, False),
 
-    #Break strands command arrowhead display pref.(should it override global pref)
+    #Break strands command preferences 
+      #=== arrowhead display pref.(should it override global pref)
 
     ('', 'boolean', breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
@@ -769,6 +770,8 @@ prefs_table = (
     ('', 'color', breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
     ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+    
+    ('', 'int', breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key, 5),
 
     #DNA cursor text preferences 
 
