@@ -17,7 +17,15 @@ ExternalBondSet.py - keep track of external bonds, to optimize redraw
 
 # for now, we just maintain them but do nothing else with them, as of 080702 noon PT
 
+
+from geometry.VQT import V
+
+from graphics.drawing.ColorSorter import ColorSorter
+from graphics.drawing.ColorSorter import ColorSortedDisplayList # not yet used?
+
+
 _DEBUG_EBSET = False # DO NOT COMMIT WITH TRUE
+
 
 class ExternalBondSet(object):
     """
@@ -50,7 +58,7 @@ class ExternalBondSet(object):
         It must be a bond between our two chunks (not checked).
         Do appropriate invals within self.
         """
-        assert self._correct_bond(bond) # REMOVE WHEN DEVEL IS DONE (for speed)
+        # removed for speed: assert self._correct_bond(bond)
         if not self._bonds.has_key(id(bond)):
             # test is to avoid needless invalidation (important optim)
             self._invalid = True
@@ -126,12 +134,49 @@ class ExternalBondSet(object):
               )
         return res
 
-    def draw(self, glpane): # disp? selected? highlighted?
-        # still valid?
-        # culled?
-        # draw...
-        nim
-        pass
+    # ==
+
+    # methods needed only for drawing
+    
+    def bounding_lozenge(self):
+        center, radius = self.bounding_sphere()
+        return center, center, radius
+
+    def bounding_sphere(self): # note: abs coords, even after we have display list and permit relative motion
+        ### STUB
+        # in future we'll compute a real one (though it may be a loose approximation),
+        # then cache it when we redraw display list, then transform here into abs coords
+        center = V(0,0,0)
+        radius = 10.0**9
+        return center, radius
+
+    def should_draw_as_picked(self):
+        # stub: ask one of our bonds
+        # (kluge: doesn't matter which one, answer depends only on their chunks)
+        # todo: clean this up by defining this directly, duplicating code from
+        # Bond.should_draw_as_picked
+        for bond in self._bonds.itervalues():
+            return bond.should_draw_as_picked()
+    
+    def draw(self, glpane, disp, color, drawLevel): # selected? highlighted?
+        # initial testing stub -- just draw in immediate mode, in the same way
+        # as if we were not being used.
+        # (notes for a future implem: displist still valid (self._invalid)? culled?)
+
+        # modified from Chunk._draw_external_bonds:
+        
+        use_outer_colorsorter = True # not sure whether/why this is needed
+        
+        if use_outer_colorsorter:
+            ColorSorter.start(None)
+
+        for bond in self._bonds.itervalues():
+            bond.draw(glpane, disp, color, drawLevel)
+        
+        if use_outer_colorsorter:
+            ColorSorter.finish()
+
+        return
     
     pass
 

@@ -2101,7 +2101,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
                         #russ 080225: displist side effect allocates a ColorSortedDisplayList.
                         #russ 080305: Chunk may already be selected, tell the CSDL.
-                        ColorSorter.start(self.displist, self.picked) # grantham 20051205
+                        ColorSorter.start(self.displist, self.picked)
 
                     # bruce 041028 -- protect against exceptions while making display
                     # list, or OpenGL will be left in an unusable state (due to the lack
@@ -2113,7 +2113,7 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         print_compact_traceback("exception in Chunk._draw_for_main_display_list ignored: ")
 
                     if wantlist:
-                        ColorSorter.finish() # grantham 20051205
+                        ColorSorter.finish()
                         #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
 
                         self.end_tracking_usage( match_checking_code, self.inval_display_list )
@@ -2214,93 +2214,129 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         """
         Draw self's external bonds (if debug_prefs and frustum culling permit).
         """
-        if 1:
-            # for debugging, call this here (though not always needed):
-            # [bruce 080702]
-            self._update_bonded_chunks()
-        selColor = env.prefs[selectionColor_prefs_key]
-        #bruce 080215 split this out, added debug_pref
+        #bruce 080215 split this out, added one debug_pref
+        
+        # decide whether to draw any external bonds at all
+        # (possible optim: decide once per redraw, cache in glpane)
+        
         # piotr 080320: if this debug_pref is set, the external bonds 
         # are hidden whenever the mouse is dragged. this speeds up interactive 
-        # manipulation of DNA segments by a factor of 3-4x in tube 
+        # manipulation of DNA segments by a factor of 3-4x in tubes
         # or ball-and-sticks display styles.
         # this extends the previous condition to suppress the external
         # bonds during animation.
-        # piotr 080401: Added the 'is_chunk_visible' parameter default to True
-        # to indicate if the chunk is culled or not. Assume that if the chunk
-        # is not culled, we have to draw the external bonds anyway. 
-        # Otherwise, there is a significant performance hit for frustum
-        # testing the visible bonds. 
-        in_drag = False
-        if hasattr(glpane, "in_drag"): 
-            in_drag = glpane.in_drag
-        if (not in_drag or 
-            not debug_pref("GLPane: suppress external bonds when dragging?",
+        suppress_external_bonds = (
+           (getattr(glpane, 'in_drag', False) # glpane.in_drag undefined in ThumbView
+            and
+            debug_pref("GLPane: suppress external bonds when dragging?",
                            Choice_boolean_False,
                            non_debug = True,
                            prefs_key = True
-                           )) and \
-           (not self.assy.o.is_animating or 
-            not debug_pref("GLPane: suppress external bonds when animating?",
+                           ))
+           or 
+           (self.assy.o.is_animating # review: test in self.assy.o or glpane?
+            and
+            debug_pref("GLPane: suppress external bonds when animating?",
                            Choice_boolean_False,
                            non_debug = True,
                            prefs_key = True
-                           )):
-            # check if frustum culling is enabled 
-            frustum_culling = use_frustum_culling()
+                           ))
+         )
+        
+        if suppress_external_bonds:
+            return
+        
+        # external bonds will be drawn (though some might be culled).
+        # make sure the info needed to draw them is up to date.
+        
+        self._update_bonded_chunks()
+        
+        bondcolor = self.drawing_color()
+        selColor = env.prefs[selectionColor_prefs_key]
+        
+        # decide whether external bonds should be frustum-culled.
+        frustum_culling_for_external_bonds = \
+            not is_chunk_visible and use_frustum_culling()
+            # piotr 080401: Added the 'is_chunk_visible' parameter default to True
+            # to indicate if the chunk is culled or not. Assume that if the chunk
+            # is not culled, we have to draw the external bonds anyway. 
+            # Otherwise, there is a significant performance hit for frustum
+            # testing the visible bonds. 
 
-            bondcolor = self.drawing_color()
-            ColorSorter.start(None) # grantham 20051205 #russ 080225: Added arg.
+        # find or set up repeated_bonds_dict
+        
+        # Note: to prevent objects (either external bonds themselves,
+        # or ExternalBondSet objects) from being drawn twice,
+        # [new feature, bruce 070928 bugfix and optimization]
+        # we use a dict recreated each time their part gets drawn,
+        # in case of multiple views of the same part in one glpane;
+        # ideally the draw methods would be passed a "model-draw-frame"
+        # instance (associated with the part) to make this clearer.
+        # If we can ever draw one chunk more than once when drawing one part,
+        # we'll need to modify this scheme, e.g. by optionally passing
+        # that kind of object -- in general, a "drawing environment"
+        # which might differ on each draw call of the same object.)
+        model_draw_frame = self.part # kluge, explained above
+            # note: that's the same as each bond's part.
+        repeated_bonds_dict = model_draw_frame and model_draw_frame.repeated_bonds_dict
+        del model_draw_frame
+        if repeated_bonds_dict is None:
+            # (Note: we can't just test "not repeated_bonds_dict",
+            #  in case it's {}.)
+            # This can happen when chunks are drawn in other ways than
+            # via Part.draw (e.g. as Extrude mode repeat units),
+            # or [as revised 080314] due to bugs in which self.part is None;
+            # we need a better fix for this, but for now,
+            # just don't use the dict. As a kluge to avoid messing up
+            # the loop below, just use a junk dict instead.
+            # [bruce 070928 fix new bug 2548]
+            # (This kluge means that external bonds drawn by e.g. Extrude
+            # will still be subject to the bug of being drawn twice.
+            # The better fix is for Extrude to set up part.repeated_bonds_dict
+            # when it draws its extra objects. We need a bug report for that.)
+            repeated_bonds_dict = {} # KLUGE
 
-            # draw external bonds.
-            #
-            # Note: to prevent them from being drawn twice,
-            # [new feature, bruce 070928 bugfix and optimization]
-            # we use a dict recreated each time their part gets drawn,
-            # in case of multiple views of the same part in one glpane;
-            # ideally the draw methods would be passed a "model-draw-frame"
-            # instance (associated with the part) to make this clearer.
-            # If we can ever draw one chunk more than once when drawing one part,
-            # we'll need to modify this scheme, e.g. by optionally passing
-            # that kind of object -- in general, a "drawing environment"
-            # which might differ on each draw call of the same object.)
-            model_draw_frame = self.part # kluge, explained above
-                # note: that's the same as each bond's part.
-            repeated_bonds_dict = model_draw_frame and model_draw_frame.repeated_bonds_dict
-            del model_draw_frame
-            if repeated_bonds_dict is None:
-                # This can happen when chunks are drawn in other ways than
-                # via Part.draw (e.g. as Extrude mode repeat units),
-                # or [as revised 080314] due to bugs in which self.part is None;
-                # we need a better fix for this, but for now,
-                # just don't use the dict. As a kluge to avoid messing up
-                # the loop below, just use a junk dict instead.
-                # [bruce 070928 fix new bug 2548]
-                # (This kluge means that external bonds drawn by e.g. Extrude
-                # will still be subject to the bug of being drawn twice.
-                # The better fix is for Extrude to set up part.repeated_bonds_dict
-                # when it draws its extra objects. We need a bug report for that.)
-                repeated_bonds_dict = {} # KLUGE
-            for bond in self.externs:
-                if id(bond) not in repeated_bonds_dict:
-                    # BUG: disp and bondcolor depend on self, so the bond appearance
-                    # may depend on which chunk draws it first (i.e. on their Model
-                    # Tree order). How to fix this is the subject of a current design
-                    # discussion. [bruce 070928 comment]
-                    repeated_bonds_dict[id(bond)] = bond
-                    if frustum_culling and not is_chunk_visible:
-                        # bond frustum culling test piotr 080401
-                        ### REVIEW: efficient under all settings of debug_prefs?? [bruce 080702 question]
-                        c1, c2, radius = bond.bounding_lozenge()
-                        if not glpane.is_lozenge_visible(c1, c2, radius):
-                            continue # skip the bond drawing if culled
-                    if bond.should_draw_as_picked():
-                        color = selColor #bruce 080430 cosmetic improvement
-                            # REVIEW: not sure this color is correct; it needs to be a named constant
-                    else:
-                        color = bondcolor
-                    bond.draw(glpane, disp, color, drawLevel)
-            ColorSorter.finish() # grantham 20051205
+        if debug_pref("GLPane: use ExternalBondSets for drawing?", #bruce 080707
+                      Choice_boolean_False,
+                          # won't be default True until it's not slower, & tested
+                      non_debug = True,
+                      prefs_key = True ):
+            objects_to_draw = self._bonded_chunks.itervalues()
+            use_outer_colorsorter = False
+        else:
+            objects_to_draw = self.externs
+            use_outer_colorsorter = True
+        
+        # actually draw them
+
+        if use_outer_colorsorter:
+            ColorSorter.start(None)
+                # [why is this needed? bruce 080707 question]
+        
+        for bond in objects_to_draw:
+            # note: bond might be a Bond, or an ExternalBondSet
+            if id(bond) not in repeated_bonds_dict:
+                # BUG: disp and bondcolor depend on self, so the bond appearance
+                # may depend on which chunk draws it first (i.e. on their Model
+                # Tree order). How to fix this is the subject of a current design
+                # discussion. [bruce 070928 comment]
+                repeated_bonds_dict[id(bond)] = bond
+                if frustum_culling_for_external_bonds:
+                    # bond frustum culling test piotr 080401
+                    ### REVIEW: efficient under all settings of debug_prefs?? [bruce 080702 question]
+                    c1, c2, radius = bond.bounding_lozenge()
+                    if not glpane.is_lozenge_visible(c1, c2, radius):
+                        continue # skip the bond drawing if culled
+                if bond.should_draw_as_picked():
+                    color = selColor #bruce 080430 cosmetic improvement
+                else:
+                    color = bondcolor
+                bond.draw(glpane, disp, color, drawLevel)
+            continue
+        
+        if use_outer_colorsorter:
+            ColorSorter.finish()
+        
         return # from _draw_external_bonds
 
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
