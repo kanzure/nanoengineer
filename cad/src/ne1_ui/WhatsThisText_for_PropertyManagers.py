@@ -41,10 +41,9 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
         Allows the user to create a duplex by specifying the number 
         of base pairs
         </p>""")
-    print "inside this what's this"
     
     propMgr.basesPerTurnDoubleSpinBox.setWhatsThis(
-           """<b>Bases Per Turn</b>
+        """<b>Bases Per Turn</b>
         <p>
         Allows the user to specifying the number of base pairs between one full 
         turn of the DNA helix
