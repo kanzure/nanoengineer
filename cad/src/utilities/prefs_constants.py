@@ -37,7 +37,7 @@ getDefaultWorkingDirectory.
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, lightgray, lightgreen
-from utilities.constants import orange, darkred, darkgreen
+from utilities.constants import orange, darkred, darkblue, darkgreen
 from utilities.constants import ave_colors, diBALL
 
 import sys, os # for getDefaultWorkingDirectory
@@ -733,7 +733,7 @@ prefs_table = (
     ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
     ('', 'float', zdnaRise_prefs_key, 3.715),
     ('', 'color', dnaDefaultStrand1Color_prefs_key, darkred),
-    ('', 'color', dnaDefaultStrand2Color_prefs_key, blue),
+    ('', 'color', dnaDefaultStrand2Color_prefs_key, darkblue),
     ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
 
@@ -741,21 +741,19 @@ prefs_table = (
     ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
     ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
-    #cusotom color for arrowheads -- default changed to False in v1.1.0
+    #custom color for arrowheads -- default changed to False in v1.1.0
     ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, False),
     ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', useCustomColorForFivePrimeArrowheads_prefs_key, False),
-    ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
+    ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
 
     #Join strands command arrowhead display pref.(should it override global pref)
-
     ('', 'boolean', joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
     ('', 'boolean', joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
     ('', 'boolean', joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
-    ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, red),
-
+    ('', 'color', joinStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
 
     #Urmi 20080617: Plane_PM display grid prefs
     ('','boolean',PlanePM_showGrid_prefs_key, False),
