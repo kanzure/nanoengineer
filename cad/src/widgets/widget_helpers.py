@@ -88,6 +88,13 @@ def QColor_to_RGBf(qcolor): # by Mark 050921
     """
     return qcolor.red()/255.0, qcolor.green()/255.0, qcolor.blue()/255.0
 
+def QColor_to_Hex(qcolor): # by Mark 050921
+    """
+    Converts QColor to a hex color string. For example, a QColor of
+    blue (0, 0, 255) returns "0000FF".
+    """
+    return "%02X%02X%02X" % (qcolor.red(), qcolor.green(), qcolor.blue())
+
 def get_widget_with_color_palette(frame, color):
     """
     Return the widget <frame> after setting its palette based on <color>
