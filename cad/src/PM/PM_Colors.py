@@ -21,7 +21,6 @@ from PyQt4.Qt import QPalette
 
 from utilities.debug_prefs import debug_pref, Choice
 
-
 _iconPrefix = os.path.dirname(os.path.abspath(sys.argv[0]))
 _iconPrefix = os.sep.join(_iconPrefix.split(os.sep)[:-1] + ["src"])
 
@@ -135,14 +134,11 @@ if COLOR_THEME == "Gray":
     pmCheckBoxTextColor = QColor(0, 0, 255) # used in MMKit
     pmCheckBoxButtonColor = QColor(172, 173, 190)
     
-    
-    # Property Manager stylesheet colors (uses HTML Color Codes)
-    #@ To do: I intend to add a method for each (like those above) 
-    # that returns a palette. Mark 2007-05-17.
-    pmGrpBoxBorderColor = "#444F51"
-    pmGrpBoxButtonBorderColor = "#939089"
-    pmGrpBoxButtonTextColor = "#282821" # Same as pmCheckBoxTextColor
-    pmGrpBoxButtonColor = "#AAAAAA"
+    # Property Manager group box colors.
+    pmGrpBoxBorderColor = QColor(68, 79, 81)
+    pmGrpBoxButtonBorderColor = QColor(147, 144, 137)
+    pmGrpBoxButtonTextColor = QColor(40, 40, 33) # Same as pmCheckBoxTextColor
+    pmGrpBoxButtonColor = QColor(170, 170, 170)
 
     # Locations of expanded and collapsed title button images.
     pmGrpBoxExpandedIconPath  = getIconPath("GroupBox_Opened_Gray.png")
@@ -161,11 +157,11 @@ else: # Blue Color Theme
     pmCheckBoxButtonColor = QColor(172, 173, 190)
     pmMessageTextEditColor = QColor(255, 255, 100)
 
-    # Property Manager stylesheet colors (uses HTML Color Codes)
-    pmGrpBoxBorderColor = "blue"
-    pmGrpBoxButtonBorderColor = "gray"
-    pmGrpBoxButtonTextColor = "blue"
-    pmGrpBoxButtonColor = "#9090CC"
+    # Property Manager group box colors.
+    pmGrpBoxBorderColor = QColor(0, 0, 255) # blue
+    pmGrpBoxButtonBorderColor = QColor(127, 127, 127) 
+    pmGrpBoxButtonTextColor = QColor(0, 0, 255)
+    pmGrpBoxButtonColor = QColor(144, 144, 200)
 
     # Locations of groupbox opened and closed images.
     pmGrpBoxExpandedIconPath  = getIconPath("GroupBox_Opened_Blue.png")

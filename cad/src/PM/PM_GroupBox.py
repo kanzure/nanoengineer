@@ -45,6 +45,7 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
+from widgets.widget_helpers import QColor_to_Hex
 from utilities.icon_utilities import geticon, getpixmap
 
 #This import is only used in isinstance check--
@@ -161,8 +162,7 @@ class PM_GroupBox( QGroupBox ):
         self._title = title
         self.setAsDefault = setAsDefault
         
-        self.setAutoFillBackground(True) 
-        self.setPalette(self._getPalette())
+        self.setAutoFillBackground(True)
         self.setStyleSheet(self._getStyleSheet())
         
         # Create vertical box layout which will contain two widgets:
@@ -676,36 +676,45 @@ class PM_GroupBox( QGroupBox ):
         if showExpanded:        
             styleSheet = \
                        "QPushButton {"\
-                       "border-style: outset;"\
-                       "border-width: 2px;"\
-                       "border-color: " + pmGrpBoxButtonBorderColor + ";"\
-                       "border-radius: 2px;"\
-                       "background-color: " + pmGrpBoxButtonColor + ";"\
-                       "font: bold 12px 'Arial';"\
-                       "color: " + pmGrpBoxButtonTextColor + ";"\
-                       "min-width: 10em;"\
-                       "background-image: url("+ pmGrpBoxExpandedIconPath + ");"\
-                       "background-position: right;"\
-                       "background-repeat: no-repeat;"\
-                       "text-align: left;"\
-                       "}"       
+                       "border-style: outset; "\
+                       "border-width: 2px; "\
+                       "border-color: #%s; "\
+                       "border-radius: 2px; "\
+                       "background-color: #%s; "\
+                       "font: bold 12px 'Arial'; "\
+                       "color: #%s; "\
+                       "min-width: 10em; "\
+                       "background-image: url(%s); "\
+                       "background-position: right; "\
+                       "background-repeat: no-repeat; "\
+                       "text-align: left; "\
+                       "}" % (QColor_to_Hex(pmGrpBoxButtonBorderColor),
+                              QColor_to_Hex(pmGrpBoxButtonColor),
+                              QColor_to_Hex(pmGrpBoxButtonTextColor),
+                              pmGrpBoxExpandedIconPath
+                              )
+                              
         else:
             # Collapsed.
             styleSheet = \
                        "QPushButton {"\
-                       "border-style: outset;"\
-                       "border-width: 2px;"\
-                       "border-color: " + pmGrpBoxButtonBorderColor + ";"\
-                       "border-radius:2px;"\
-                       "background-color: " + pmGrpBoxButtonColor + ";"\
-                       "font: bold 12px 'Arial';"\
-                       "color: " + pmGrpBoxButtonTextColor + ";"\
-                       "min-width:10em;"\
-                       "background-image: url(" + pmGrpBoxCollapsedIconPath + ");"\
-                       "background-position: right;"\
-                       "background-repeat: no-repeat;"\
-                       "text-align: left;"\
-                       "}"
+                       "border-style: outset; "\
+                       "border-width: 2px; "\
+                       "border-color: #%s; "\
+                       "border-radius: 2px; "\
+                       "background-color: #%s; "\
+                       "font: bold 12px 'Arial'; "\
+                       "color: #%s; "\
+                       "min-width: 10em; "\
+                       "background-image: url(%s); "\
+                       "background-position: right; "\
+                       "background-repeat: no-repeat; "\
+                       "text-align: left; "\
+                       "}" % (QColor_to_Hex(pmGrpBoxButtonBorderColor),
+                              QColor_to_Hex(pmGrpBoxButtonColor),
+                              QColor_to_Hex(pmGrpBoxButtonTextColor),
+                              pmGrpBoxCollapsedIconPath
+                              )
         return styleSheet
             
     def toggleExpandCollapse(self):
@@ -742,7 +751,7 @@ class PM_GroupBox( QGroupBox ):
          - border width
          - border color
          - border radius (on corners)
-        The background color for a groupbox is set using getPalette().
+         - background color
         
         @return: The group box style sheet.
         @rtype:  str
@@ -750,13 +759,15 @@ class PM_GroupBox( QGroupBox ):
         
         styleSheet = \
                    "QGroupBox {"\
-                   "border-style: solid;"\
-                   "border-width: 1px;"\
-                   "border-color: " + pmGrpBoxBorderColor + ";"\
-                   "border-radius: 0px;"\
-                   "min-width: 10em;"\
-                   "}" 
-        
+                   "border-style: solid; "\
+                   "border-width: 1px; "\
+                   "border-color: #%s; "\
+                   "border-radius: 0px; "\
+                   "background-color: #%s; "\
+                   "min-width: 10em; "\
+                   "}" % ( QColor_to_Hex(pmGrpBoxBorderColor), 
+                           QColor_to_Hex(pmGrpBoxColor)
+                           )
         return styleSheet
 
 # End of PM_GroupBox ############################
