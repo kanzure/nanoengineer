@@ -655,11 +655,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
         exitStatus = proc.exitStatus()
         stderr = str(proc.readAllStandardError())[:-1]
-        stderr2 = stderr.split(os.linesep)[-1]
+        stderr2 = str(stderr.split(os.linesep)[-1])
+        stderr2 = stderr2.strip()
         success = (exitStatus == 0 and stderr2 == "1 molecule converted")
         if not success or debug_flags.atom_debug:
-            print "exit status", exitStatus
-            print "stderr says", stderr
+            print "exit status:", exitStatus
+            print "stderr says:", stderr
+            print "stderr2 says:"%stderr2
+            print "'success' is:", success
+            print "stderr2 == str(1 molecule converted)?" , (stderr2 == "1 molecule converted")
             print "finish launch_ne1_openbabel(%s, %s)" % (repr(infile), repr(outfile))
         return success
 
