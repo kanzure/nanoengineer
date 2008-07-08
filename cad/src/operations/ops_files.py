@@ -65,6 +65,8 @@ from utilities.debug_prefs import Choice_boolean_False
 from utilities.debug_prefs import debug_pref
 
 from utilities.constants import SUCCESS, ABORTED, READ_ERROR
+from utilities.constants import str_or_unicode
+
 from ne1_ui.FetchPDBDialog import FetchPDBDialog
 from PyQt4.Qt import SIGNAL
 from urllib import urlopen
@@ -567,7 +569,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         """
         Runs NE1's own version of Open Babel for translating to/from MMP and
         many chemistry file formats. It will not work with other versions of
-        Open Babel since they to not support MMP file format (yet).
+        Open Babel since they do not support MMP file format (yet).
         
         <in_format> - the chemistry format of the input file, specified by the
                       file format extension.
@@ -575,6 +577,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         <out_format> - the chemistry format of the output file, specified by the
                       file format extension.
         <outfile> is the converted file.
+
+        @return: boolean success code (*not* error code)
         
         Example: babel -immp methane.mmp -oxyz methane.xyz
         """
@@ -589,7 +593,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
         if not os.path.exists(program):
             print "Babel program not found here: ", program
-            return 1
+            return False # failure
         
         # Will (Ware) had this debug arg for our version of Open Babel, but
         # I've no idea if it works now or what it does. Mark 2007-06-05.
@@ -638,22 +642,26 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             babelLibPath = babelLibPath + '/openbabel'
             os.environ['BABEL_LIBDIR'] = babelLibPath
 
+        print "launching openbabel:", program, [str_or_unicode(arg) for arg in arguments]
+        
         proc = QProcess()
         proc.start(program, arguments) # Mark 2007-06-05
 
         if not proc.waitForFinished (100000): 
             # Wait for 100000 milliseconds (100 seconds)
             # If not done by then, return an error.
-            return 1
+            print "openbabel timeout (100 sec)"
+            return False # failure
     
         exitStatus = proc.exitStatus()
         stderr = str(proc.readAllStandardError())[:-1]
-        if debug_flags.atom_debug:
+        stderr2 = stderr.split(os.linesep)[-1]
+        success = (exitStatus == 0 and stderr2 == "1 molecule converted")
+        if not success or debug_flags.atom_debug:
             print "exit status", exitStatus
             print "stderr says", stderr
             print "finish launch_ne1_openbabel(%s, %s)" % (repr(infile), repr(outfile))
-        stderr = stderr.split(os.linesep)[-1]
-        return exitStatus == 0 and stderr == "1 molecule converted"
+        return success
 
     def fileInsertMmp(self):
         """
