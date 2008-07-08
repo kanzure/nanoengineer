@@ -1818,13 +1818,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
     
                     # this doesn't work with PAM5 models
                     ### all_atoms = chunk.get_strand_atoms_in_bond_direction()
-                    
-                    rawAtomList = []
-                    for c in strand.members:
-                        if isinstance(c, DnaStrandChunk):
-                            rawAtomList.extend(c.atoms.itervalues())
-    
-                    all_atoms = strand.get_strand_atoms_in_bond_direction(rawAtomList)
+                                            
+                    all_atoms = strand.get_strand_atoms_in_bond_direction()
     
                     start_atom = strand_atoms[current_strand][0]
                     end_atom = strand_atoms[current_strand][len(strand_atoms[0])-1]
