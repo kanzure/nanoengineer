@@ -50,6 +50,7 @@ from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
+from utilities.prefs_constants import displayConfirmationCorner_prefs_key
 
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key
@@ -251,8 +252,7 @@ class basicGraphicsMode(GraphicsMode_API):
         [part of GLPane's drawing interface to modes]
         """
         # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
-        from utilities.debug_prefs import debug_pref, Choice_boolean_True
-        if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
+        if not env.prefs[displayConfirmationCorner_prefs_key]:
             return
         # figure out what kind of confirmation corner we want, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner

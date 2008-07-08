@@ -47,6 +47,7 @@ from utilities.icon_utilities import geticon
 from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayCompassLabels_prefs_key
 from utilities.prefs_constants import displayPOVAxis_prefs_key
+from utilities.prefs_constants import displayConfirmationCorner_prefs_key
 from utilities.prefs_constants import animateStandardViews_prefs_key
 from utilities.prefs_constants import displayVertRuler_prefs_key
 from utilities.prefs_constants import displayHorzRuler_prefs_key
@@ -707,6 +708,8 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
+        
+        connect_checkbox_with_boolean_pref( self.display_confirmation_corner_checkbox, displayConfirmationCorner_prefs_key )
 
         return
 
