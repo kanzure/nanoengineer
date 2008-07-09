@@ -12,9 +12,9 @@ mark 2007-07-22: Split PropMgrGroupBox out of PropMgrBaseClass.py into this
 file and renamed it PM_GroupBox.
 """
 
+import sys
 from utilities import debug_flags
 
-from PM.PM_Colors import getPalette
 from PM.PM_Colors import pmGrpBoxButtonBorderColor
 from PM.PM_Colors import pmGrpBoxButtonTextColor
 from PM.PM_Colors import pmGrpBoxExpandedIconPath
@@ -177,6 +177,7 @@ class PM_GroupBox( QGroupBox ):
         # expanding of a group box by calling this widget's hide()
         # and show() methods.
         self._containerWidget = QWidget()
+        
         self._vBoxLayout.insertWidget(0, self._containerWidget)
         
         # Create vertical box layout
@@ -205,6 +206,7 @@ class PM_GroupBox( QGroupBox ):
                     self.connect( self.titleButton, 
                                   SIGNAL("clicked()"),
                                   self.toggleExpandCollapse)
+                self._insertMacSpacer()
             
         # Fixes the height of the group box. Very important. Mark 2007-05-29
         self.setSizePolicy(
@@ -212,6 +214,22 @@ class PM_GroupBox( QGroupBox ):
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
         
         self._addBottomSpacer()
+        return
+    
+    def _insertMacSpacer(self, spacerHeight = 5):
+        """
+        This addresses a Qt 4.3.5 layout bug on Mac OS X in which the 
+        title button will overlap with and cover the first widget in 
+        the group box. This workaround inserts a I{spacerHeight} tall
+        spacer between the group box's title button and container widget.
+        """
+        if sys.platform != "darwin":
+            return
+        
+        self._macVerticalSpacer = QSpacerItem(10, spacerHeight, 
+                                        QSizePolicy.MinimumExpanding,
+                                        QSizePolicy.Fixed)
+        self._vBoxLayout.insertItem(1, self._macVerticalSpacer)
         return
         
     def _addBottomSpacer(self):
@@ -731,17 +749,7 @@ class PM_GroupBox( QGroupBox ):
                    "since it has no widgets."
         return
     
-    # GroupBox palette and stylesheet methods. ##############################
-    
-    def _getPalette(self):
-        """
-        Return a palette for this group box. The color should be slightly 
-        darker (or lighter) than the property manager background.
-        
-        @return: The group box palette.
-        @rtype:  U{B{QPalette}<http://doc.trolltech.com/4/qpalette.html>}
-        """
-        return getPalette( None, QPalette.Window, pmGrpBoxColor )
+    # GroupBox stylesheet methods. ##############################
     
     def _getStyleSheet(self):
         """
