@@ -10,17 +10,16 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from dna.commands.DnaDisplayStyle.DnaDisplayStyle_PropertyManager import DnaDisplayStyle_PropertyManager
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
 
-class DnaDisplayStyle_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
-                                    SelectChunks_GraphicsMode ):
+class DnaDisplayStyle_GraphicsMode( SelectChunks_GraphicsMode ):
     """
     Graphics mode for (DNA) Display Style command. 
     """
+    pass
     
 # == Command part
 

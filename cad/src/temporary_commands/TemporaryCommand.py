@@ -15,7 +15,7 @@ from PyQt4.Qt import Qt
 from command_support.Command import Command, commonCommand
 
 from command_support.GraphicsMode import GraphicsMode, commonGraphicsMode
-
+import ne1_ui.prefs.Preferences as Preferences
 
 # == useful pieces -- Command
 
@@ -38,11 +38,17 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     A pre-Mixin class for GraphicsModes which overrides their keyPress method
     to call self.command.Done() when the ESC key is pressed,
     but delegate all other keypresses to the superclass.
+    NOTE: The default mode or command will override this implementation 
+    (i.e. while in default command which is 'Select chunks', hitting Escape key 
+    will not exit that command. This is intentional)
     """
     def keyPress(self, key):
         # ESC - Exit our command.
         if key == Qt.Key_Escape:
-            self.command.Done(exit_using_done_or_cancel_button = False)
+            #Escape key to exit should not exit the command if its the 
+            #default command (which is select chunks or 'SELECTMOLS') 
+            if self.command.commandName != Preferences.default_commandName():
+                self.command.Done(exit_using_done_or_cancel_button = False)
         else:
             #bruce 071012 bugfix: add 'else' to prevent letting superclass
             # also handle Key_Escape and do assy.selectNone.

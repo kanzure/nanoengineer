@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Urmi
 @version:   $Id: LightingScheme_Command.py 12835 2008-05-19 18:58:51Z urmim $
@@ -10,19 +10,17 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
-
 from commands.LightingScheme.LightingScheme_PropertyManager import LightingScheme_PropertyManager
 
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
 
-class LightingScheme_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
-                                    SelectChunks_GraphicsMode ):
+class LightingScheme_GraphicsMode( SelectChunks_GraphicsMode ):
     """
     Graphics mode for (DNA) Display Style command. 
     """
+    pass
     
 # == Command part
 

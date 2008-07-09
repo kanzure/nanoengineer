@@ -247,9 +247,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         #    current selection (when it's handled by our superclass's 
         #    keyPress method).
         # Fixes bug (nfr) 1770. mark 060402
-        if key == Qt.Key_Escape:
+        if key == Qt.Key_Escape and self.w.selection_filter_enabled:
             if hasattr(self.command, 'disable_selection_filter'):
                 self.command.disable_selection_filter()
+                return
       
         _superclass.keyPress(self, key)
         

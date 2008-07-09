@@ -13,7 +13,6 @@ import foundation.changes as changes
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from dna.commands.JoinStrands.JoinStrands_PropertyManager import JoinStrands_PropertyManager
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from utilities.prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from utilities.prefs_constants import arrowsOnFivePrimeEnds_prefs_key 
@@ -34,8 +33,7 @@ from utilities.prefs_constants import joinStrandsCommand_dnaStrandFivePrimeArrow
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
 
-class JoinStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
-                                BuildAtoms_GraphicsMode ):
+class JoinStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
     """
     Graphics mode for Join strands command
     

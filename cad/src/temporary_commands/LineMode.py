@@ -27,8 +27,6 @@ from utilities.constants import black, darkred, blue
 
 from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
-
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -37,8 +35,7 @@ STARTPOINT_SPHERE_DRAWLEVEL = 2
 
 _superclass_for_GM = Select_GraphicsMode
 
-class LineMode_GM( ESC_to_exit_GraphicsMode_preMixin,
-                   Select_GraphicsMode ):
+class LineMode_GM( Select_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of LineMode.
 

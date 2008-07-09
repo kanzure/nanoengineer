@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Mark
 @version:   $Id$
@@ -10,17 +10,16 @@ from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_Graphic
 from command_support.EditCommand import EditCommand
 from utilities.constants import red
 from dna.commands.OrderDna.OrderDna_PropertyManager import OrderDna_PropertyManager
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 # == GraphicsMode part
 
 _superclass_for_GM = SelectChunks_GraphicsMode
 
-class OrderDna_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
-                                    SelectChunks_GraphicsMode ):
+class OrderDna_GraphicsMode( SelectChunks_GraphicsMode ):
     """
     Graphics mode for "Order DNA" command. 
     """
+    pass
     
 # == Command part
 

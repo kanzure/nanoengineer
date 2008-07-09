@@ -36,7 +36,6 @@ modes so this should be refactored then.
 
 import foundation.env as env
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 from graphics.drawing.CS_draw_primitives import drawcylinder
 from utilities.constants import darkred, black, orange
@@ -51,8 +50,7 @@ SPHERE_DRAWLEVEL = 2
 
 _superclass = BuildDna_GraphicsMode
 
-class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
-                              BuildDna_GraphicsMode):
+class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     """
     Graphics mode for DnaSegment_EditCommand.
     """

@@ -143,10 +143,11 @@ from command_support.GraphicsMode import basicGraphicsMode
 
 from commands.Select.Select_GraphicsMode_MouseHelpers_preMixin import Select_GraphicsMode_MouseHelpers_preMixin
 from commands.Select.Select_GraphicsMode_DrawMethod_preMixin import Select_GraphicsMode_DrawMethod_preMixin
-
+from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
                                Select_GraphicsMode_MouseHelpers_preMixin,
+                               ESC_to_exit_GraphicsMode_preMixin,
                                basicGraphicsMode):
     """
     The GraphicsMode part of the Select_Command. It provides the graphicsMode

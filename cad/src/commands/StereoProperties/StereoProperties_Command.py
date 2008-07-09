@@ -1,7 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Piotr
-@version:   
+@version:   $Id$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
@@ -11,17 +11,15 @@ from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from command_support.Command import Command
 from utilities.constants import red
 from commands.StereoProperties.StereoProperties_PropertyManager import StereoProperties_PropertyManager
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 # == GraphicsMode part
 
-### _superclass_for_GM = SelectChunks_GraphicsMode
 
-class StereoProperties_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
-                                    SelectChunks_GraphicsMode ):
+class StereoProperties_GraphicsMode(SelectChunks_GraphicsMode ):
     """
     Graphics mode for StereoProperties command. 
     """
+    pass
 
 # == Command part
 

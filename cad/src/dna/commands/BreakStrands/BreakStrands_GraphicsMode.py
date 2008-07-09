@@ -34,12 +34,10 @@ from utilities.prefs_constants import breakStrandsCommand_dnaStrandThreePrimeArr
 from utilities.prefs_constants import breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key
 from utilities.prefs_constants import breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key
 
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 _superclass = BuildAtoms_GraphicsMode
 
-class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
-                                 BuildAtoms_GraphicsMode ):
+class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
     """
     Graphics mode for Break Strands command.
     """

@@ -40,7 +40,6 @@ from PyQt4.Qt import QMouseEvent
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
@@ -63,8 +62,7 @@ from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import DEBUG_CLICK_ON
 
 _superclass = BuildNanotube_GraphicsMode
 
-class NanotubeSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
-                              BuildNanotube_GraphicsMode):
+class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
     """
     Graphics mode for NanotubeSegment_EditCommand.
     """

@@ -20,10 +20,12 @@ from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from utilities.debug import print_compact_traceback
 import math
 
+
 DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = True
 
 _superclass = SelectChunks_GraphicsMode
-class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
+class BuildDna_GraphicsMode(
+                            SelectChunks_GraphicsMode):
     """
     """
 

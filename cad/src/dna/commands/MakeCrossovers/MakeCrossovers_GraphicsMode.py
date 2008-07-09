@@ -28,7 +28,6 @@ from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna.commands.MakeCrossovers.ListWidgetItems_GraphicsMode_Mixin import ListWidgetItems_GraphicsMode_Mixin
 from dna.commands.MakeCrossovers.CrossoverSite_Marker import CrossoverSite_Marker
 from utilities.prefs_constants import makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 
 SPHERE_DRAWLEVEL = 2
@@ -40,14 +39,13 @@ SPHERE_RADIUS_FOR_TAGS =  4.0
 
 
 _superclass = BuildDna_GraphicsMode
-class MakeCrossovers_Graphicsmode(ESC_to_exit_GraphicsMode_preMixin,
-                                  BuildDna_GraphicsMode,
+class MakeCrossovers_Graphicsmode(BuildDna_GraphicsMode,
                                   ListWidgetItems_GraphicsMode_Mixin):
     
     DEBUG_DRAW_PLANE_NORMALS = False
     DEBUG_DRAW_AVERAGE_CENTER_PAIRS_OF_POTENTIAL_CROSSOVERS = False
     DEBUG_DRAW_ALL_POTENTIAL_CROSSOVER_SITES =  False
-
+    
     _crossoverSite_marker = None
     
     _handleDrawingRequested = True

@@ -11,15 +11,13 @@ Created 2008-02-14
 
 """
 from dna.commands.BuildDna.BuildDna_GraphicsMode import BuildDna_GraphicsMode
-from temporary_commands.TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 from graphics.drawing.drawDnaRibbons import drawDnaSingleRibbon
 from utilities.constants import black
 
 
 _superclass = BuildDna_GraphicsMode
 
-class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
-                             BuildDna_GraphicsMode):
+class DnaStrand_GraphicsMode(BuildDna_GraphicsMode):
     
     _handleDrawingRequested = True
     cursor_over_when_LMB_pressed = ''
