@@ -297,7 +297,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                      dnaForm, \
                      dnaModel, \
                      basesPerTurn, \
-                     duplexRise = params
+                     duplexRise, \
+                     color_junk = params
+        #see a note about color_junk in DnaSegment_EditCommand._modifyStructure()
 
 
         numberOfBasesToAddOrRemove =  self._determine_numberOfBases_to_change()
@@ -451,8 +453,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         """
         EditCommand.editStructure(self, struct)        
         if self.hasValidStructure():
-            self._previousNumberOfBases = self.struct.getNumberOfBases()
-            self.propMgr.numberOfBasesSpinBox.setValue(self._previousNumberOfBases)
+            self._updatePropMgrParams()            
 
             #TO BE REVISED post dna data model - 2008-02-14
             if isinstance(self.struct.dad , self.assy.DnaSegment):
@@ -467,6 +468,46 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             else:
                 self._updateHandleList()
                 self.updateHandlePositions()
+                
+    def _updatePropMgrParams(self):
+        """
+        Subclasses may override this method. 
+        Update some property manager parameters with the parameters of
+        self.struct (which is being edited)
+        @see: self.editStructure()
+        """
+
+        #Format in which params need to be provided to the Property manager
+        
+                #numberOfBases, 
+                #dnaForm,
+                #dnaModel,
+                #basesPerTurn,
+                #duplexRise, 
+                #color
+
+        self._previousNumberOfBases = self.struct.getNumberOfBases()
+        numberOfBases = self._previousNumberOfBases        
+        color = self.struct.getColor()
+
+        params_for_propMgr = ( numberOfBases,
+                               None, 
+                               None,
+                               None, 
+                               None,                               
+                               color )
+
+
+        #TODO 2008-03-25: better to get all parameters from self.struct and
+        #set it in propMgr?  This will mostly work except that reverse is 
+        #not true. i.e. we can not specify same set of params for 
+        #self.struct.setProps ...because endPoint1 and endPoint2 are derived.
+        #by the structure when needed. Commenting out following line of code
+        #UPDATE 2008-05-06 Fixes a bug due to which the parameters in propMGr
+        #of DnaSegment_EditCommand are not same as the original structure
+        #(e.g. bases per turn and duplexrise)
+        self.propMgr.setParameters(params_for_propMgr)
+        
 
 
     def _getStructureType(self):

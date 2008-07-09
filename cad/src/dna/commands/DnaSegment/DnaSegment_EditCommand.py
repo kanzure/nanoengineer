@@ -334,14 +334,17 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         basesPerTurn, duplexRise = self.struct.getProps()
         endPoint1, endPoint2 = self.struct.getAxisEndPoints()
         numberOfBasePairs = self.struct.getNumberOfBasePairs()
+        color = self.struct.getColor()
 
-        params_for_propMgr = (numberOfBasePairs,
+        params_for_propMgr = (
+                              numberOfBasePairs,
                               None, 
                               None,
                               basesPerTurn, 
                               duplexRise, 
                               endPoint1, 
-                              endPoint2)
+                              endPoint2, 
+                              color )
 
 
         #TODO 2008-03-25: better to get all parameters from self.struct and
@@ -603,7 +606,12 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                                        basesPerTurn, \
                                        duplexRise, \
                                        endPoint1, \
-                                       endPoint2 = params
+                                       endPoint2, \
+                                       color_junk = params
+        #Note: color_junk is not used. Ideally it should do struct.setColor(color) 
+        #but the color combobox in the PM directly sets the color of the 
+        #structure to the specified one when the current index in the combobx 
+        #changes
 
         #If user enters the number of basepairs and hits preview i.e. endPoint1
         #and endPoint2 are not entered by the user and thus have default value 

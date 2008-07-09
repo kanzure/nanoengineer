@@ -25,7 +25,7 @@ TODO:
    special code is needed to add or remove segments from the list. 
    [-- Ninad 2008-06-24 comment]
 """
-from PyQt4.Qt              import Qt
+from PyQt4.Qt              import Qt, SIGNAL
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_PrefsCheckBoxes import PM_PrefsCheckBoxes
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
@@ -34,6 +34,9 @@ from utilities.constants       import lightgreen_2
 
 from command_support.EditCommand_PM import EditCommand_PM
 from widgets.DebugMenuMixin         import DebugMenuMixin
+
+from PM.PM_ColorChooser import PM_ColorChooser
+from PM.PM_ColorComboBox import PM_ColorComboBox
 
 _superclass = EditCommand_PM
 class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
@@ -51,6 +54,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         """
         
         self._cursorTextGroupBox = None
+        self._colorChooser     = None
         self.showCursorTextCheckBox = None
         self.referencePlaneListWidget = None
 
@@ -77,7 +81,11 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         Load widgets in the Display Options GroupBox
         """
         self._loadCursorTextGroupBox(pmGroupBox)
-
+        
+    def _loadColorChooser(self, pmGroupBox):
+        self._colorChooser = PM_ColorComboBox(pmGroupBox)
+        
+            
     def _loadCursorTextGroupBox(self, pmGroupBox):
         """
         Load various checkboxes within the cursor text groupbox. 
@@ -100,6 +108,21 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
             pmGroupBox, 
             paramsForCheckBoxes = paramsForCheckBoxes,            
             title = 'Cursor text options:')
+        
+    def connect_or_disconnect_signals(self, isConnect):
+        
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+        
+        if self._colorChooser:
+            change_connect(self._colorChooser, 
+                           SIGNAL("editingFinished()"), 
+                           self._changeStructureColor)
+
+        pass
+    
 
     def _connect_showCursorTextCheckBox(self):
         """
@@ -286,4 +309,17 @@ class DnaOrCnt_PropertyManager(EditCommand_PM, DebugMenuMixin):
         
         return False   
     
+    
+    def _changeStructureColor(self):
+        """
+        """
+        if self._colorChooser is None:
+            return
+        
+        if self.editCommand and self.editCommand.hasValidStructure():
+            color = self._colorChooser.getColor()
+            if hasattr(self.editCommand.struct, 'setColor'):
+                self.editCommand.struct.setColor(color)
+                self.win.glpane.gl_update()
+            
 

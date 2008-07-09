@@ -176,6 +176,15 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
         self.sequenceEditor.hide()
         
+        
+    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
+        """
+        Overrides superclass method. 
+        Also loads the color chooser widget. 
+        """
+        self._loadColorChooser(pmGroupBox)
+        _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
+        
          
     def _connect_showCursorTextCheckBox(self):
         """
@@ -221,12 +230,15 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         dnaModel = self.dnaModel
         basesPerTurn = self.basesPerTurn
         duplexRise = self.duplexRise
+        color = self._colorChooser.getColor()
               
         return (numberOfBases, 
                 dnaForm,
                 dnaModel,
                 basesPerTurn,
-                duplexRise)
+                duplexRise, 
+                color
+                )
     
     def setParameters(self, params):
         """
@@ -240,14 +252,15 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
         """
         #Set the duplex rise and bases per turn spinbox values. 
         
-        numberOfBasePairs, \
-                         dnaForm, \
-                             dnaModel,\
-                             basesPerTurn, \
-                             duplexRise = params 
+        numberOfBases, \
+                     dnaForm, \
+                     dnaModel, \
+                     basesPerTurn, \
+                     duplexRise, \
+                     color  = params 
         
-        if numberOfBasePairs is not None:
-            self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        if numberOfBases is not None:
+            self.numberOfBasesSpinBox.setValue(numberOfBases)
         if dnaForm is not None:
             self._conformation = dnaForm
         if dnaModel is not None:
@@ -256,6 +269,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
             self.duplexRiseDoubleSpinBox.setValue(duplexRise)
         if basesPerTurn is not None:
             self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)    
+        if color is not None:
+            self._colorChooser.setColor(color)
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -296,6 +311,8 @@ class DnaStrand_PropertyManager( DnaOrCnt_PropertyManager):
                 
         if self.sequenceEditor:
             self.sequenceEditor.connect_or_disconnect_signals(isConnect)
+            
+        _superclass.connect_or_disconnect_signals(self, isConnect)
             
         
         change_connect(self.disableStructHighlightingCheckbox, 

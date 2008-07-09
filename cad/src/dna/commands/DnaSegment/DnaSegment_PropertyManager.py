@@ -104,6 +104,9 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
+            
+        
+        _superclass.connect_or_disconnect_signals(self, isConnect)
 
 
         change_connect( self.numberOfBasePairsSpinBox,
@@ -214,7 +217,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                          basesPerTurn, \
                          duplexRise, \
                          endPoint1, \
-                         endPoint2   = params 
+                         endPoint2 , \
+                         color = params 
 
         if numberOfBasePairs is not None:
             self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
@@ -230,6 +234,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             self.endPoint1 = endPoint1
         if endPoint2 is not None:
             self.endPoint2 = endPoint2
+        if color is not None:
+            self._colorChooser.setColor(color)
 
 
 
@@ -250,6 +256,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         dnaModel = self.dnaModel
         basesPerTurn = self.basesPerTurn
         duplexRise = self.duplexRise
+        color = self._colorChooser.getColor()
 
         return (
             number_of_basePairs_from_struct,
@@ -259,7 +266,9 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
             basesPerTurn,
             duplexRise,
             self.endPoint1, 
-            self.endPoint2)
+            self.endPoint2, 
+            color
+        )
 
     def numberOfBasesChanged( self, numberOfBases ):
         """
@@ -349,6 +358,16 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                          setAsDefault  =  False)
 
         self.duplexLengthLineEdit.setDisabled(True)  
+        
+        
+    def _loadDisplayOptionsGroupBox(self, pmGroupBox):
+        """
+        Overrides superclass method. 
+        Also loads the color chooser widget. 
+        """
+        self._loadColorChooser(pmGroupBox)
+        _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
+        
 
 
     def _connect_showCursorTextCheckBox(self):
