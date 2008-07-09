@@ -589,7 +589,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         file in an editor.
         '''
         # Make tmp_inputfile filename (i.e. ~/Nanorex/temp/jigname_parms_info.inp)
-        from platform.PlatformDependent import find_or_make_Nanorex_subdir
+        from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         tmpdir = find_or_make_Nanorex_subdir('temp')
         basename = self.gamessJig.name + "-" + self.gamessJig.gms_parms_info('_')
         tmp_inputfile = os.path.join(tmpdir, "%s.inp" % basename)
@@ -598,7 +598,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         from analysis.GAMESS.files_gms import writegms_inpfile
         writegms_inpfile(tmp_inputfile, self.gamessJig)
 
-        from platform.PlatformDependent import open_file_in_editor
+        from platform_dependent.PlatformDependent import open_file_in_editor
         open_file_in_editor(tmp_inputfile)
 
     def run_job(self):

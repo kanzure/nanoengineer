@@ -26,7 +26,7 @@ from graphics.rendering.povray.povray import decode_povray_prefs, write_povray_i
 from graphics.rendering.fileIO import writepovfile
 from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 from utilities import debug_flags
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 from utilities.debug import print_compact_traceback
 
 import re

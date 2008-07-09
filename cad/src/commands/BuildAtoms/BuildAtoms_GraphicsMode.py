@@ -59,7 +59,7 @@ from PyQt4.Qt import Qt
 import foundation.env as env
 from utilities import debug_flags
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 from model.chunk import Chunk
 from model.chem import Atom

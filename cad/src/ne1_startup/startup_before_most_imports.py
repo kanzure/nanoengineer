@@ -34,7 +34,7 @@ def before_most_imports( main_globals ):
 
     # gpl_only check at startup [bruce 041217]
     try:
-        import platform.gpl_only as _gpl_only
+        import platform_dependent.gpl_only as _gpl_only
             # if this module is there, this lets it verify it should be there,
             # and if not, complain (to developers) whenever the program starts
         print "(running a GPL distribution)" #e retain or zap this?

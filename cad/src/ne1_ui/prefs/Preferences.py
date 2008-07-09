@@ -39,9 +39,9 @@ from widgets.widget_helpers import double_fixup
 from widgets.prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 from utilities import debug_flags
 from utilities.constants import str_or_unicode
-from platform.PlatformDependent import screen_pos_size
-from platform.PlatformDependent import get_rootdir
-from platform.Paths import get_default_plugin_path
+from platform_dependent.PlatformDependent import screen_pos_size
+from platform_dependent.PlatformDependent import get_rootdir
+from platform_dependent.Paths import get_default_plugin_path
 from utilities.icon_utilities import geticon
 
 from utilities.prefs_constants import displayCompass_prefs_key

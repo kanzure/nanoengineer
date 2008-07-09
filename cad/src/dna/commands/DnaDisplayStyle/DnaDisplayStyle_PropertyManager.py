@@ -131,7 +131,7 @@ def getFavoritePathFromBasename( basename ):
     _ext = "txt"
 
     # Make favorite filename (i.e. ~/Nanorex/Favorites/DnaDisplayStyleFavorites/basename.txt)
-    from platform.PlatformDependent import find_or_make_Nanorex_subdir
+    from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     _dir = find_or_make_Nanorex_subdir('Favorites/DnaDisplayStyle')
     return os.path.join(_dir, "%s.%s" % (basename, _ext))
 
@@ -522,7 +522,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
         #look for all the favorite files in the favorite folder and add them to
         # the list
-        from platform.PlatformDependent import find_or_make_Nanorex_subdir
+        from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         _dir = find_or_make_Nanorex_subdir('Favorites/DnaDisplayStyle')
 
 

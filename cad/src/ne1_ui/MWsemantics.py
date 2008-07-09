@@ -43,9 +43,9 @@ import time
 
 from utilities import debug_flags
 
-from platform.PlatformDependent import find_or_make_Nanorex_directory
-from platform.PlatformDependent import open_file_in_editor
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_directory
+from platform_dependent.PlatformDependent import open_file_in_editor
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from ne1_ui.ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 

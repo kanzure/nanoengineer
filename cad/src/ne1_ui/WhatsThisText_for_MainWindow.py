@@ -253,7 +253,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Redo
 
-    from platform.PlatformDependent import is_macintosh
+    from platform_dependent.PlatformDependent import is_macintosh
     if is_macintosh():
         redo_accel = "(Ctrl + Shift + Z)" # note: this is further 
                                           #modified (Ctrl -> Cmd) by other code

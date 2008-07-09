@@ -33,7 +33,7 @@ import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL
 from PyQt4.Qt import QMessageBox, QStatusBar, QWidget, QFrame, QHBoxLayout, QToolBar
 from utilities import debug_flags
-from platform.PlatformDependent import hhmmss_str #bruce 060106 moved that function there
+from platform_dependent.PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import foundation.env as env
 from utilities.icon_utilities import geticon
 from utilities.icon_utilities import getpixmap

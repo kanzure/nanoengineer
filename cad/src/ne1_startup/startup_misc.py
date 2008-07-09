@@ -88,7 +88,7 @@ def pre_main_show( win):
     #  screen size even on a very small screen.]
     # [bruce 050118 further modified this and removed some older comments
     #  (see cvs for those); also split out some code into platform.py.]
-    from platform.PlatformDependent import screen_pos_size
+    from platform_dependent.PlatformDependent import screen_pos_size
     ((x0, y0), (screen_w, screen_h)) = screen_pos_size()
     # note: y0 is nonzero on mac, due to menubar at top of screen.
 

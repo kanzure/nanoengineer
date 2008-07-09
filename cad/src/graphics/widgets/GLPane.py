@@ -161,8 +161,8 @@ from utilities import debug_flags
 ### from utilities.debug import profile, doProfile ###
 
 from utilities.Log import orangemsg
-from platform.PlatformDependent import fix_event_helper
-from platform.PlatformDependent import wrap_key_event
+from platform_dependent.PlatformDependent import fix_event_helper
+from platform_dependent.PlatformDependent import wrap_key_event
 from widgets.menu_helpers import makemenu_helper
 from widgets.DebugMenuMixin import DebugMenuMixin
 from utilities.debug import print_compact_traceback, print_compact_stack

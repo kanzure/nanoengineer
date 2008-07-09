@@ -91,7 +91,7 @@ from model.jigs_planes import RectGadget
 from model.jigs_planes import povStrVec
 
 from analysis.ESP.ESPImageProp import ESPImageProp
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from analysis.ESP.NanoHiveUtils import get_nh_espimage_filename
 from analysis.ESP.NanoHiveUtils import run_nh_simulation

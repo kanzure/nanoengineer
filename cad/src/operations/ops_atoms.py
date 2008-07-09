@@ -17,7 +17,7 @@ from utilities.Log import greenmsg, redmsg
 
 from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from model.elements import Singlet
 import foundation.env as env
 

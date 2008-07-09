@@ -44,7 +44,7 @@ from processes.ServerManager import ServerManager
 ## from PlatformDependent import open_file_in_editor
 from utilities.debug import print_compact_traceback
 from ne1_ui.prefs.Preferences import get_filename_and_save_in_prefs
-from platform.PlatformDependent import hhmmss_str
+from platform_dependent.PlatformDependent import hhmmss_str
 
 from utilities.prefs_constants import gmspath_prefs_key
 from utilities.prefs_constants import gamess_enabled_prefs_key

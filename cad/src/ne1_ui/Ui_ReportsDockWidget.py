@@ -17,7 +17,7 @@ from PyQt4.Qt import Qt, QDockWidget, QWidget, QVBoxLayout, QTabWidget
 from PyQt4.Qt import QPalette, QSizePolicy
 from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors import getPalette
-from platform.PlatformDependent import make_history_filename
+from platform_dependent.PlatformDependent import make_history_filename
 from utilities.qt4transition import qt4todo
 from utilities.prefs_constants import displayReportsWidget_prefs_key
 import foundation.env as env

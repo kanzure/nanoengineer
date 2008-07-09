@@ -63,8 +63,8 @@ import time
 import NE1_Build_Constants
 
 from utilities import debug_flags
-from platform.PlatformDependent import mkdirs_in_filename
-from platform.PlatformDependent import find_or_make_Nanorex_directory
+from platform_dependent.PlatformDependent import mkdirs_in_filename
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_directory
 import foundation.env as env
 import utilities.EndUser as EndUser
 from utilities.debug import print_compact_traceback

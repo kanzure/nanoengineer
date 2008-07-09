@@ -28,7 +28,7 @@ import foundation.env as env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from utilities.debug import print_compact_traceback
 from utilities import debug_flags
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from utilities.GlobalPreferences import permit_atom_chunk_coselection
 from utilities.icon_utilities import geticon
 

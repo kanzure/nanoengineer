@@ -91,7 +91,7 @@ from model.chunk import Chunk
 from operations.pastables import find_hotspot_for_pasting
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
-from platform.PlatformDependent import fix_event_helper
+from platform_dependent.PlatformDependent import fix_event_helper
 
 class ThumbView(GLPane_minimal):
     """

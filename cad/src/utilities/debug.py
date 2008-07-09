@@ -167,7 +167,7 @@ def legally_execfile_in_globals(filename, globals, error_exception = True):
     execute the python commands in the given file, in this process.
     """
     try:
-        import platform.gpl_only as gpl_only
+        import platform_dependent.gpl_only as gpl_only
     except ImportError:
         msg = "execfile(%r): not allowed in this non-GPL version" % (filename,)
         print msg #e should be in a dialog too, maybe depending on an optional arg
@@ -186,7 +186,7 @@ def legally_exec_command_in_globals( command, globals, error_exception = True ):
     in this process.
     """
     try:
-        import platform.gpl_only as gpl_only
+        import platform_dependent.gpl_only as gpl_only
     except ImportError:
         msg = "exec is not allowed in this non-GPL version"
         print msg #e should be in a dialog too, maybe depending on an optional arg
@@ -204,7 +204,7 @@ def exec_allowed():
     are exec and/or execfile allowed in this version of NE1?
     """
     try:
-        import platform.gpl_only as gpl_only
+        import platform_dependent.gpl_only as gpl_only
     except ImportError:
         return False
     return True

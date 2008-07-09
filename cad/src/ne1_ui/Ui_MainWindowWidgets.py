@@ -1121,7 +1121,7 @@ def retranslateUi(win):
     # - Ctrl+Y on Windows and Linux
     # We take care of tooltips and keyboard shortcut settings here.
     # -Mark 2008-05-05.
-    from platform.PlatformDependent import is_macintosh
+    from platform_dependent.PlatformDependent import is_macintosh
     if is_macintosh():
         redo_accel = "Cmd+Shift+Z"
     else:

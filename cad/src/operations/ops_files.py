@@ -34,7 +34,7 @@ from PyQt4.Qt import QStringList
 import foundation.env as env
 from utilities import debug_flags
 
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import Assembly
 from model.chem import move_alist_and_snuggle

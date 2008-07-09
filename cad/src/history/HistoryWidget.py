@@ -31,7 +31,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
 from utilities import debug_flags
-from platform.PlatformDependent import mkdirs_in_filename
+from platform_dependent.PlatformDependent import mkdirs_in_filename
 from widgets.DebugMenuMixin import DebugMenuMixin
 import foundation.env as env
 
@@ -41,7 +41,7 @@ from utilities.prefs_constants import historyHeight_prefs_key
 
 from utilities.Log import graymsg, quote_html, greenmsg, redmsg, orangemsg
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 class message:
     """

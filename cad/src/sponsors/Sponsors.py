@@ -55,7 +55,7 @@ from PyQt4.Qt import SIGNAL
 import foundation.env as env
 from utilities import debug_flags
 
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 from foundation.wiki_help import WikiHelpBrowser
 from utilities.debug import print_compact_stack, print_compact_traceback
 from utilities.qt4transition import qt4todo

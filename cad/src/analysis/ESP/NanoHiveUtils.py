@@ -18,7 +18,7 @@ Probably "simulation". [bruce 071214]
 """
 
 import foundation.env as env, os, sys, time
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 from utilities.prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
 from widgets.StatusBar import NanoHiveProgressReporter

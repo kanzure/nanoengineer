@@ -19,7 +19,7 @@ from utilities.Log import quote_html
 
 from utilities.debug import register_debug_menu_command
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 from utilities.constants import gensym
 

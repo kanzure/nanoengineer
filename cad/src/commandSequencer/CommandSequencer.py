@@ -679,7 +679,7 @@ class modeMixin(object):
                 print "fyi: error adding testmode.py from cad/src/exprs to custom modes menu (ignored)"
             pass
         try:
-            import platform.gpl_only as gpl_only
+            import platform_dependent.gpl_only as gpl_only
         except ImportError:
             pass
         else:
@@ -722,7 +722,7 @@ class modeMixin(object):
                     # we'll load it from there instead. That's basically a bug,
                     # but prepending dir onto path would risk much worse bugs
                     # if dir masked any standard modules which got loaded now.
-            import platform.gpl_only as gpl_only # make sure exec is ok in this version (caller should have done this already)
+            import platform_dependent.gpl_only as gpl_only # make sure exec is ok in this version (caller should have done this already)
             _module = _modeclass = None # fool pylint into realizing this is not undefined 2 lines below
             exec("import %s as _module" % (base,))
             reload(_module)

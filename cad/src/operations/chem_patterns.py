@@ -18,7 +18,7 @@ __author__ = "bruce"
 import foundation.env as env
 import utilities.debug as debug
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 cmdname = "Select Bad Atoms"
 

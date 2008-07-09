@@ -82,7 +82,7 @@ from utilities.prefs_constants import workingDirectory_prefs_key
 
 from utilities.Log import orangemsg ##, greenmsg, redmsg
 from utilities import debug_flags
-from platform.PlatformDependent import find_or_make_any_directory
+from platform_dependent.PlatformDependent import find_or_make_any_directory
 import foundation.env as env
 from foundation.state_utils import StateMixin
 from utilities.debug import print_compact_stack

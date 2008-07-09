@@ -9,7 +9,7 @@ ops_pam.py - PAM3+5 <-> PAM5 conversion operations
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 import foundation.env as env
 
 from utilities.GlobalPreferences import debug_pref_enable_pam_convert_sticky_ends

@@ -24,7 +24,7 @@ from model.bonds import bond_atoms
 from operations.bonds_from_atoms import inferBonds
 from string import capitalize
 from model.elements import PeriodicTable, Singlet
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
 from utilities.version import Version

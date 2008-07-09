@@ -16,7 +16,7 @@ import os
 import cPickle as pickle
 from utilities.debug import print_compact_stack
 from utilities.qt4transition import qt4todo
-from platform.PlatformDependent import find_or_make_Nanorex_directory
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_directory
 
 class ServerManager(QDialog, Ui_ServerManagerDialog):
     """

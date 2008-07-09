@@ -164,7 +164,7 @@ class AtomTypeDepositionTool(DepositionTool):
                 msg = " (%d bond(s) made)" % n
             else:
                 msg = " (%d bond(s) NOT made, since autobond is off)" % (n-1) #bruce 050901 new feature
-            from platform.PlatformDependent import fix_plurals
+            from platform_dependent.PlatformDependent import fix_plurals
             msg = fix_plurals(msg)
             desc += msg
         return atm, desc

@@ -13,7 +13,7 @@ from model.global_model_changedicts import _changed_structure_Atoms
 
 import foundation.env as env
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 from utilities.Log import greenmsg
 

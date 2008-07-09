@@ -32,9 +32,9 @@ from utilities.debug import print_compact_traceback
 from utilities.debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 
 from utilities import debug_flags
-from platform.PlatformDependent import shift_name
-from platform.PlatformDependent import control_name
-from platform.PlatformDependent import context_menu_prefix
+from platform_dependent.PlatformDependent import shift_name
+from platform_dependent.PlatformDependent import control_name
+from platform_dependent.PlatformDependent import context_menu_prefix
 
 import foundation.env as env
 from foundation.state_utils import StateMixin

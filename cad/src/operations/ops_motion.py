@@ -13,7 +13,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 """
 
 from utilities.Log import greenmsg, redmsg
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from geometry.VQT import V, norm, Q, vlen, orthodist
 import foundation.env as env
 from math import pi

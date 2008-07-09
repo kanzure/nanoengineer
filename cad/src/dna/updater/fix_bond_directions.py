@@ -11,7 +11,7 @@ from model.elements import Singlet
 
 import foundation.env as env
 from utilities.Log import orangemsg
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 from dna.updater.dna_updater_prefs import pref_print_bond_direction_errors
 

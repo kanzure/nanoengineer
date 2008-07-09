@@ -17,8 +17,8 @@ Bruce 080321 split this into its own file
 """
 
 from utilities.debug import print_compact_traceback
-from platform.PlatformDependent import fix_plurals
-from platform.PlatformDependent import hhmmss_str
+from platform_dependent.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import hhmmss_str
 
 from simulation.SimSetup import SimSetup
 from simulation.movie import Movie

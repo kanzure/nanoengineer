@@ -17,7 +17,7 @@ from model.chunk import Chunk
 from model.chem import Atom
 from string import capitalize
 from model.elements import PeriodicTable
-from platform.PlatformDependent import get_gms_name
+from platform_dependent.PlatformDependent import get_gms_name
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
 import foundation.env as env

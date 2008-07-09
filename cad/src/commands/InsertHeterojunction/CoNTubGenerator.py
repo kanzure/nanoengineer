@@ -30,7 +30,7 @@ from command_support.ParameterDialog import ParameterDialog, ParameterPane
 from command_support.GeneratorController import GeneratorController
 from command_support.GeneratorBaseClass import UserError, PluginBug ##, CadBug
 from utilities.debug import print_compact_traceback
-from platform.PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
+from platform_dependent.PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 import utilities.EndUser as EndUser
 
 debug_install = False

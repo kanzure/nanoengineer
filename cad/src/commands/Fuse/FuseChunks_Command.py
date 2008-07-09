@@ -24,7 +24,7 @@ from geometry.VQT import vlen
 
 from model.elements import Singlet
 from utilities.Log import redmsg, orangemsg
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager
 from utilities.icon_utilities import geticon
 from utilities.constants import diINVISIBLE

@@ -16,7 +16,7 @@ function for GROMACS.
 
 import os
 import foundation.env as env
-from platform.PlatformDependent import find_plugin_dir
+from platform_dependent.PlatformDependent import find_plugin_dir
 
 from utilities.debug import print_compact_traceback
 

@@ -42,7 +42,7 @@ from model.jigs import Jig
 from geometry.VQT import vlen
 from geometry.VQT import atom_angle_radians
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 from utilities.prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
 from utilities.prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key

@@ -48,7 +48,7 @@ def touch_job_id_status_file(job_id, Status = 'Queued'):
     """
     
     # Get the Job Manager directory
-    from platform.PlatformDependent import find_or_make_Nanorex_subdir
+    from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     jobdir = find_or_make_Nanorex_subdir('JobManager')
     
     # Job Id dir (i.e. ~/Nanorex/JobManager/123/)
@@ -95,7 +95,7 @@ def get_job_manager_job_id_and_dir():
     #    job_id += 1 # Increment the Job Id
     
     # Get the Job Manager directory
-    from platform.PlatformDependent import find_or_make_Nanorex_subdir
+    from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     jobdir = find_or_make_Nanorex_subdir('JobManager')
     
     while 1:
@@ -247,7 +247,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         """
         Scan Job manager directories to find and return all the list of jobs
         """
-        from platform.PlatformDependent import find_or_make_Nanorex_directory
+        from platform_dependent.PlatformDependent import find_or_make_Nanorex_directory
         tmpFilePath = find_or_make_Nanorex_directory()
         managerDir = os.path.join(tmpFilePath, "JobManager")
         jobDirs = os.listdir(managerDir)

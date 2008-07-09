@@ -42,7 +42,7 @@ from processes.Plugins import checkPluginPreferences
 
 from processes.Process import Process
 from commands.GroupProperties.GroupProp import Statistics
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 
 def launch_qutemol(pdb_file):
     """

@@ -21,7 +21,7 @@ from geometry.VQT import A
 from foundation.state_utils import IdentityCopyMixin
 from model.chem import move_alist_and_snuggle
 from utilities import debug_flags
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from utilities.debug import print_compact_stack, print_compact_traceback
 from files.dpb_trajectory.moviefile import MovieFile #e might be renamed, creation API revised, etc
 

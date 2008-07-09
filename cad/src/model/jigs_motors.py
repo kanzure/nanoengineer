@@ -352,7 +352,7 @@ class RotaryMotor(Motor):
 
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
-        from platform.PlatformDependent import fix_plurals
+        from platform_dependent.PlatformDependent import fix_plurals
         attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Rotary Motor"\
                +  "<br>" + "<font color=\"#0000FF\">Torque: </font>" + str(self.torque) +  " nN-nm " \
@@ -700,7 +700,7 @@ class LinearMotor(Motor):
 
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
-        from platform.PlatformDependent import fix_plurals
+        from platform_dependent.PlatformDependent import fix_plurals
         attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Linear Motor"\
                +  "<br>" + "<font color=\"#0000FF\">Force: </font>" + str(self.force) +  " pN " \

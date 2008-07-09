@@ -39,10 +39,10 @@ import widgets.DebugMenuMixin as DebugMenuMixin
     # to move this variable (sim_params_set) (and related code?) out of it;
     # see its module docstring for more info [bruce 080104 comment]
 from utilities import debug_flags
-from platform.PlatformDependent import fix_plurals
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
-from platform.PlatformDependent import hhmmss_str
-from platform.PlatformDependent import find_plugin_dir
+from platform_dependent.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import hhmmss_str
+from platform_dependent.PlatformDependent import find_plugin_dir
 import os, sys, time
 from math import sqrt
 from time import sleep

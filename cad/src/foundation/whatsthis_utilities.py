@@ -72,7 +72,7 @@ def fix_whatsthis_text_and_links(parent):
     """
     if _DEBUG_WHATSTHIS_LINKS:
         print "running fix_whatsthis_text_and_links"
-    from platform.PlatformDependent import is_macintosh
+    from platform_dependent.PlatformDependent import is_macintosh
     mac = is_macintosh()
     if mac or ENABLE_WHATSTHIS_LINKS:
         # fix text in 1 or 2 ways for all QAction objects
@@ -167,7 +167,7 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
     """
     import foundation.env as env
     win = env.mainwindow()
-    from platform.PlatformDependent import is_macintosh
+    from platform_dependent.PlatformDependent import is_macintosh
     mac = is_macintosh()
     fix_QAction_whatsthis(win.editUndoAction, mac)
     fix_QAction_whatsthis(win.editRedoAction, mac)

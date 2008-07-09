@@ -20,7 +20,7 @@ from PyQt4.Qt import QStringList
 from commands.Plot.PlotToolDialog import Ui_PlotToolDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
 from simulation.movie import find_saved_movie
-from platform.PlatformDependent import open_file_in_editor
+from platform_dependent.PlatformDependent import open_file_in_editor
 import foundation.env as env
 from utilities.debug import print_compact_traceback
 

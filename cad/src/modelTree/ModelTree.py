@@ -41,7 +41,7 @@ from PyQt4 import QtCore
 
 import foundation.env as env
 from utilities import debug_flags
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 import modelTree.modelTreeGui as modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
 
 from model.chunk import Chunk

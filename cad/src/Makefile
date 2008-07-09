@@ -57,7 +57,7 @@ LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
 SHARED_LIBRARIES = $(SHARED:.lib=.so)
-PYREXC=$(shell python -c "import platform.PlatformDependent; print platform.PlatformDependent.find_pyrexc()")
+PYREXC=$(shell python -c "import platform_dependent.PlatformDependent; print platform_dependent.PlatformDependent.find_pyrexc()")
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
 # These CFLAGS and LDFLAGS are not used by distutils. If asked to

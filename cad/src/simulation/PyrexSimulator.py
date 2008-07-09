@@ -11,7 +11,7 @@ src/sim/globals.c.
 
 import os
 import foundation.env as env
-from platform.PlatformDependent import find_plugin_dir
+from platform_dependent.PlatformDependent import find_plugin_dir
 
 _thePyrexSimulator = None
 

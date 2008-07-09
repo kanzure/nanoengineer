@@ -18,7 +18,7 @@ import foundation.env as env
 from utilities.Comparison import same_vals
 from utilities.debug import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from foundation.Group import Group
 from model.chunk import Chunk
 from model.chunk import mol_copy_name

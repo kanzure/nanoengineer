@@ -154,7 +154,7 @@ from graphics.drawables.Selobj import Selobj_API
 
 from utilities import debug_flags
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 import foundation.env as env
 

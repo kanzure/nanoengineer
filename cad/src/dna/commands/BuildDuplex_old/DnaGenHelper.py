@@ -47,7 +47,7 @@ from math    import sin, cos, pi
 
 from utilities.debug import print_compact_traceback
 
-from platform.PlatformDependent import find_plugin_dir
+from platform_dependent.PlatformDependent import find_plugin_dir
 from files.mmp.files_mmp import readmmp
 from geometry.VQT import V
 from commands.Fuse.fusechunksMode import fusechunksBase

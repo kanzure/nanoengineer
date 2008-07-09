@@ -24,8 +24,8 @@ from PM.PM_PushButton import PM_PushButton
 from PM.PM_Constants     import PM_DONE_BUTTON
 from PM.PM_Constants     import PM_WHATS_THIS_BUTTON
 from utilities.prefs_constants import assignColorToBrokenDnaStrands_prefs_key
-from platform.PlatformDependent import find_or_make_Nanorex_subdir
-from platform.PlatformDependent import open_file_in_editor
+from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
+from platform_dependent.PlatformDependent import open_file_in_editor
 
 from dna.model.DnaStrand import DnaStrand
 

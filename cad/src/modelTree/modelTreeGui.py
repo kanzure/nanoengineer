@@ -72,7 +72,7 @@ from PyQt4.Qt import QApplication
 from PyQt4.Qt import QPalette
 
 from utilities.debug import print_compact_traceback, print_compact_stack
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 from utilities.Log import quote_html
 from utilities.debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from widgets.menu_helpers import makemenu_helper

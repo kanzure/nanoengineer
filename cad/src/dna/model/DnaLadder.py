@@ -59,7 +59,7 @@ from utilities.Log import orangemsg, redmsg, quote_html
 from utilities import debug_flags
 from utilities.debug import print_compact_stack
 
-from platform.PlatformDependent import fix_plurals
+from platform_dependent.PlatformDependent import fix_plurals
 
 import foundation.env as env
 
