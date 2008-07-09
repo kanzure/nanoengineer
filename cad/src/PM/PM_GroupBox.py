@@ -216,7 +216,7 @@ class PM_GroupBox( QGroupBox ):
         self._addBottomSpacer()
         return
     
-    def _insertMacSpacer(self, spacerHeight = 5):
+    def _insertMacSpacer(self, spacerHeight = 6):
         """
         This addresses a Qt 4.3.5 layout bug on Mac OS X in which the 
         title button will overlap with and cover the first widget in 
