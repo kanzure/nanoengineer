@@ -128,6 +128,7 @@ from utilities.constants import diLINES
 from utilities.constants import diTUBES
 from utilities.constants import diTrueCPK
 from utilities.constants import diDNACYLINDER
+from utilities.constants import diPROTEIN
 
 from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
 from utilities.constants import BBOX_MIN_RADIUS
@@ -306,6 +307,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
     _f_lost_externs = False
     _f_gained_externs = False
 
+    protein = None
+    
     # ==
 
     # note: def __init__ occurs below a few undo-related methods. TODO: move them below it.
@@ -1853,11 +1856,26 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # (Warning: default_display_mode is no longer the same as the default
         #  global display style. Is it still correct here? Needs analysis
         #  and cleanup. [bruce 080606 comment])
-        if disp == diDNACYLINDER \
-           and not (self.isAxisChunk() or
-                    self.isStrandChunk()): # non-DNA chunk
-            disp = default_display_mode 
+        if disp == diDNACYLINDER:
+            if not self.isDnaChunk(): # non-DNA chunk
+                if self.isProteinChunk(): 
+                    # piotr 080709 -- If the chunk is a protein, 
+                    # use diPROTEIN style.
+                    disp = diPROTEIN
+                else:
+                    # Otherwise, use a default display mode.
+                    disp = default_display_mode 
 
+        # piotr 080709: If the chunk is not a protein chunk and global
+        # display mode == diPROTEIN, use default_display_mode instead.
+        if disp == diPROTEIN:
+            if not self.isProteinChunk():
+                # If this is a DNA chunk, use diDNACYLINDER display mode.
+                if self.isDnaChunk():
+                    disp = diDNACYLINDER
+                else:
+                    disp = default_display_mode
+                    
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
@@ -1988,14 +2006,28 @@ class Chunk(NodeWithAtomContents, InvalMixin,
 
         # piotr 080415: fixing bug 2785 again (not in rc1)
         # Non-DNA chunks shouldn't be drawn using the diDNACYLINDER style. 
-        if disp == diDNACYLINDER \
-           and not (self.isAxisChunk() or
-                    self.isStrandChunk()): # non-DNA chunk
-            disp = diDEFAULT # use diDEFAULT instead
+        if disp == diDNACYLINDER and \
+           not self.isDnaChunk(): # non-DNA chunk
+            if self.isProteinChunk():
+                # piotr 080709: If the chunk is a protein chunk, use
+                # reduced protein display style.
+                disp = diPROTEIN
+            else:
+                disp = diDEFAULT # use diDEFAULT instead
             # note: it should never happen that disp == diDNACYLINDER
             # if the global display style == diDNACYLINDER and the chunk is non-DNA. 
             # self.get_dispdef takes care of that case.
 
+        # piotr 080709: If the chunk is not a protein chunk and global
+        # display mode == diPROTEIN, use default_display_mode instead.
+        if disp == diPROTEIN and \
+           not self.isProteinChunk():
+                # If this is a DNA chunk, use diDNACYLINDER
+                if self.isDnaChunk():
+                    disp = diDNACYLINDER
+                else:
+                    disp = diDEFAULT
+                    
         if is_chunk_visible:
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
             # external bonds (unless a separate debug pref is set.) 
@@ -2568,7 +2600,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 endPatternedDrawing(highlight = True)
             
         else:
-            if self.get_dispdef() == diDNACYLINDER :
+            if self.get_dispdef() == diDNACYLINDER or \
+               self.get_dispdef() == diPROTEIN:
                 #If the chunk is drawn with the DNA cylinder display style, 
                 #then do not use the following highlighting code (which 
                 #highlights individual bonds and atoms) . When color sorter
@@ -2577,6 +2610,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 #display list and such chunks will be highlighted only when
                 #the color sorter and use displist debug pref are enabled. 
                 # --Ninad 2008-03-13
+                # piotr 080709: Added a condition check for reduced protein
+                # display style.
                 return
 
             for atom in self.atoms.itervalues():
@@ -4369,6 +4404,22 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         else:
             return True
 
+    def isDnaChunk(self):
+        """
+        Returns True is the chunk is a DNA object (either strand or axis).
+        """
+        return self.isAxisChunk() or \
+               self.isStrandChunk()
+    
+    def isProteinChunk(self):
+        """
+        Returns True if the chunk is a protein object.
+        """
+        if self.protein is None:
+            return False
+        else:
+            return True
+        
     pass # end of class Chunk
 
 ##Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
