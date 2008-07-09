@@ -21,7 +21,7 @@ def setupUi(win):
     win.insertMenu.addAction(win.fileInsertPdbAction)
     win.insertMenu.addSeparator()
     win.insertMenu.addAction(win.referencePlaneAction)        
-    win.insertMenu.addAction(win.jigsGridPlaneAction)
+    #win.insertMenu.addAction(win.jigsGridPlaneAction) # Grid Plane deprecated at v1.1.1 --Mark 2008-07-09
     if debug_pref("Show Insert > Line option",
                   Choice_boolean_False,
                   prefs_key=True):
