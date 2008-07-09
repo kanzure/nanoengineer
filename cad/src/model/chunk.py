@@ -479,19 +479,17 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         # (i.e. selobj = an Atom). So ideally, that old method should be renamed
         # to this one. [Ninad]
         if command is None:
-            return 
-
-        if command.commandName == 'SELECTMOLS':
-            dnaGroup = self.getDnaGroup()
-            if dnaGroup is not None:
-                item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
-                contextMenuList.append(item)	    
-                item = (("Edit DnaGroup Properties..."), 
-                        dnaGroup.edit) 
-                contextMenuList.append(item)
-
-            #return
-                # Don't return since we check for commandName SELECTMOLS again.
+            return
+        
+        def addDnaGroupMenuItems(dnaGroup):
+            if dnaGroup is None:
+                return
+            item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
+            contextMenuList.append(item)	    
+            item = (("Edit DnaGroup Properties..."), 
+                    dnaGroup.edit) 
+            contextMenuList.append(item)
+            return
 
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'NANOTUBE_SEGMENT'):
             if self.isNanotubeChunk():
@@ -539,8 +537,11 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                         strand.edit) 			  
                 contextMenuList.append(item)
                 contextMenuList.append(None) #adds a separator in the contextmenu
+                
+                addDnaGroupMenuItems(dnaGroup)
+                
                 # add menu commands from our DnaLadder [bruce 080407]
-                if self.ladder: # in case dna updater failed or is not enabled
+                if 0: #self.ladder: # in case dna updater failed or is not enabled
                     menu_spec = self.ladder.dnaladder_menu_spec(self)
                     if menu_spec:
                         # append separator?? ## contextMenuList.append(None)
@@ -574,12 +575,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                                     self.assy.win.resizeSelectedDnaSegments)
                             contextMenuList.append(item)
                             contextMenuList.append(None)
-                    if self.ladder:
+                    if 0: # self.ladder:
                         menu_spec = self.ladder.dnaladder_menu_spec(self)
                         if menu_spec:
                             contextMenuList.extend(menu_spec)
-
-
+                            
+                    addDnaGroupMenuItems(dnaGroup)
 
         return # from make_glpane_context_menu_items
 

@@ -86,6 +86,9 @@ class SelectChunks_basicCommand(Select_basicCommand):
     #bruce 050914 enable dynamic context menus
     # [fixes an unreported bug analogous to 971]
     def makeMenus(self): # mark 060303.
+        """
+        Make the GLPane context menu for Select Chunks.
+        """
 
         self.Menu_spec = []
         selobj = self.glpane.selobj
@@ -99,52 +102,70 @@ class SelectChunks_basicCommand(Select_basicCommand):
             chunk2 = selobj.atom2.molecule
             if chunk1 is chunk2 and chunk1 is not None:
                 highlightedChunk = chunk1
-
-        if highlightedChunk is not None:
-            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                     command = self)
-            
-
-        if self.o.assy.selmols:
-            # Menu items added when there are selected chunks.
-            
-            contextMenuList = [
-                # These are marked for removal (toolbar commands now available).
-                # --Mark 2008-03-10
-                #@('Change Color of Selected Chunks...', 
-                #@ self.w.dispObjectColor),
-                #@('Reset Color of Selected Chunks', 
-                #@ self.w.dispResetChunkColor),
-                ('Reset Atoms Display of Selected Chunks', 
-                 self.w.dispResetAtomsDisplay),
-                ('Show Invisible Atoms of Selected Chunks', 
-                 self.w.dispShowInvisAtoms),
-                ('Hide Selected Chunks', self.o.assy.Hide),
-            ]
-            
-            self.Menu_spec.extend(contextMenuList)
-
-        # Enable/Disable Jig Selection.
-        # This is duplicated in depositMode.makeMenus().
-        if self.o.jigSelectionEnabled:
-            self.Menu_spec.extend( [('Enable Jig Selection',  
-                                     self.graphicsMode.toggleJigSelection, 
-                                     'checked')])
-        else:
-            self.Menu_spec.extend( [('Enable Jig Selection',  
-                                     self.graphicsMode.toggleJigSelection, 
-                                     'unchecked')])
-
-        self.Menu_spec.extend( [
-            # mark 060303. added the following:
-            None,
-            ('Edit Color Scheme...', self.w.colorSchemeCommand)
-        ])
-
+        
         self.debug_Menu_spec = [
             ('debug: invalidate selection', self.invalidate_selection),
             ('debug: update selection', self.update_selection),
         ]
+        
+        if highlightedChunk is not None:
+            highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
+                                                     command = self)
+            return
+
+        _numberOfSelectedChunks = self.o.assy.getNumberOfSelectedChunks()
+        
+        # BUG here when only one strand or segment is select. The problem is
+        # that _numberOfSelectChunks != 1 in this case.
+        # Ninad and Mark will be discussing this and Ninad
+        # is going to fix. -Mark 2008-07-09.
+            
+        print "Number of selected chunks =", _numberOfSelectedChunks
+        
+        if _numberOfSelectedChunks == 0:
+            self.addStandardMenuItems()
+        
+        elif _numberOfSelectedChunks == 1:
+            selectedChunk = self.o.assy.selmols[0]
+            selectedChunk.make_glpane_context_menu_items(self.Menu_spec,
+                                                 command = self)
+            
+        else:
+            contextMenuList = [ 
+                ('Hide', self.o.assy.Hide),
+                ('Reset atoms display of selected chunks', 
+                 self.w.dispResetAtomsDisplay),
+                ('Show invisible atoms of selected chunks', 
+                 self.w.dispShowInvisAtoms),
+                ]
+            self.Menu_spec.extend(contextMenuList)
+            self.Menu_spec.extend([None]) # inserts separator
+            self.addStandardMenuItems()
+        return
+    
+    def addStandardMenuItems(self):
+        """
+        Insert the 'standard' menu items for the GLPane context menu.
+        """
+        
+        self.Menu_spec.extend(
+            [('Edit Color Scheme...', self.w.colorSchemeCommand)])
+        
+        # Enable/Disable Jig Selection.
+        # This is duplicated in depositMode.makeMenus().
+        if self.o.jigSelectionEnabled:
+            self.Menu_spec.extend( 
+                [None,
+                 ('Enable jig selection',  
+                  self.graphicsMode.toggleJigSelection, 
+                  'checked')])
+        else:
+            self.Menu_spec.extend( 
+                [None,
+                 ('Enable jig selection',  
+                  self.graphicsMode.toggleJigSelection, 
+                  'unchecked')])
+        return
 
     # moved here from modifyMode.  mark 060303.
     def invalidate_selection(self): #bruce 041115 (debugging method)
