@@ -28,6 +28,7 @@ def setupUi(win):
     win.displayMenu.addAction(win.dispTubesAction)
     win.displayMenu.addAction(win.dispBallAction)
     win.displayMenu.addAction(win.dispCPKAction)
+    win.displayMenu.addAction(win.dispDnaCylinderAction)
     win.displayMenu.addAction(win.dispCylinderAction)
     win.displayMenu.addAction(win.dispSurfaceAction)
     win.displayMenu.addSeparator()
@@ -39,6 +40,8 @@ def setupUi(win):
     win.displayMenu.addSeparator()
     win.displayMenu.addAction(win.viewQuteMolAction)
     win.displayMenu.addAction(win.viewRaytraceSceneAction)
+    win.displayMenu.addSeparator()
+    win.displayMenu.addAction(win.setStereoViewAction)
     
     # Temporary. See comments at top of this file.
     if SHOW_HYBRID_DISPLAY_MENU:

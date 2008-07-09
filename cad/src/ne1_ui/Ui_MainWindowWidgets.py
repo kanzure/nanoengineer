@@ -187,8 +187,16 @@ def setupUi(win):
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color.png"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
     
+    win.editDnaDisplayStyleAction = QtGui.QAction(MainWindow)
+    win.editDnaDisplayStyleAction.setText("DNA Display Style")       
+    win.editDnaDisplayStyleAction.setIcon(
+        geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
     
-    
+    win.editProteinDisplayStyleAction = QtGui.QAction(MainWindow)
+    win.editProteinDisplayStyleAction.setText("Protein Display Style")       
+    win.editProteinDisplayStyleAction.setIcon(
+        geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
+        
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
     win.resetChunkColorAction.setIcon(
         geticon("ui/actions/Edit/Reset_Chunk_Color.png"))
@@ -1569,7 +1577,7 @@ def retranslateUi(win):
 
     win.colorSchemeAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme...", 
+            "MainWindow", "Color Scheme", 
             None, QtGui.QApplication.UnicodeUTF8))
     
     win.lightingSchemeAction.setText(QtGui.QApplication.translate(

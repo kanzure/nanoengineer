@@ -167,7 +167,7 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         pair sequences for the all strands in the <b>selected</b> node. 
         </p>""")
         
-    commandToolbar.displayStyleAction.setWhatsThis(
+    commandToolbar.editDnaDisplayStyleAction.setWhatsThis(
         """<b>DNA Display</b>
         <p>
         Displays the DNA Display Property Manager 

@@ -81,7 +81,7 @@ class DnaFlyout:
         self.subControlActionGroup.addAction(self.breakStrandAction) 
         self.subControlActionGroup.addAction(self.joinStrandsAction)
         self.subControlActionGroup.addAction(self.makeCrossoversAction)
-        self.subControlActionGroup.addAction(self.displayStyleAction)
+        self.subControlActionGroup.addAction(self.editDnaDisplayStyleAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -96,7 +96,7 @@ class DnaFlyout:
         subControlAreaActionList.append(self.convertPAM3to5Action)
         subControlAreaActionList.append(self.convertPAM5to3Action)
         subControlAreaActionList.append(self.orderDnaAction)
-        subControlAreaActionList.append(self.displayStyleAction)
+        subControlAreaActionList.append(self.editDnaDisplayStyleAction)
 
         allActionsList.extend(subControlAreaActionList)
 
@@ -162,10 +162,10 @@ class DnaFlyout:
         self.orderDnaAction.setIcon(
             geticon("ui/actions/Command Toolbar/Order_DNA.png"))
         
-        self.displayStyleAction = QtGui.QWidgetAction(parentWidget)
-        self.displayStyleAction.setText("Edit Style")
-        self.displayStyleAction.setCheckable(True)        
-        self.displayStyleAction.setIcon(
+        self.editDnaDisplayStyleAction = QtGui.QWidgetAction(parentWidget)
+        self.editDnaDisplayStyleAction.setText("Edit Style")
+        self.editDnaDisplayStyleAction.setCheckable(True)        
+        self.editDnaDisplayStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
         
     def _addWhatsThisText(self):
@@ -240,7 +240,7 @@ class DnaFlyout:
                                  SIGNAL("triggered()"),
                                  self.orderDnaCommand)
         
-        change_connect(self.displayStyleAction, 
+        change_connect(self.editDnaDisplayStyleAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateDisplayStyle_Command)
     
@@ -434,7 +434,7 @@ class DnaFlyout:
         #Uncheck all the actions except the Order DNA action
         #in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
-            if action is not self.displayStyleAction and action.isChecked():
+            if action is not self.editDnaDisplayStyleAction and action.isChecked():
                 action.setChecked(False)
                 
     def activateDisplayStyle_Command(self, isChecked):
@@ -450,5 +450,5 @@ class DnaFlyout:
         #Uncheck all the actions except the (DNA) display style action
         #in the flyout toolbar (subcontrol area)
         for action in self.subControlActionGroup.actions():
-            if action is not self.displayStyleAction and action.isChecked():
+            if action is not self.editDnaDisplayStyleAction and action.isChecked():
                 action.setChecked(False)

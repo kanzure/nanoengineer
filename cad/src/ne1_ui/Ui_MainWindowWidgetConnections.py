@@ -49,6 +49,14 @@ def setupUi(win):
     win.connect(win.editDeleteAction,SIGNAL("triggered()"),win.killDo)
     win.connect(win.editMakeCheckpointAction,SIGNAL("triggered()"),win.editMakeCheckpoint)
     win.connect(win.editPasteAction,SIGNAL("triggered()"),win.editPaste)
+    
+    win.connect(win.editDnaDisplayStyleAction, 
+                SIGNAL("triggered()"), 
+                win.enterDnaDisplayStyleCommand)
+    win.connect(win.editProteinDisplayStyleAction, 
+                SIGNAL("triggered()"), 
+                win.enterProteinDisplayStyleCommand)
+    
     win.connect(win.editRenameAction,SIGNAL("triggered()"),win.editRename)
     win.connect(win.editRenameObjectsAction,SIGNAL("triggered()"),win.editRenameSelectedObjects)
     win.connect(win.editAddSuffixAction,SIGNAL("triggered()"),win.editAddSuffix)
