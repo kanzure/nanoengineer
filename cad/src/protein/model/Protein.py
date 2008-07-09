@@ -62,19 +62,26 @@ class Residuum:
         id is a PDB residue number.
         name is a PDB name (amino acid name in three-letter code.
         """
-        self.atoms = {}
+        self.atoms = {} # dictionary for name -> atom mapping
+        self.names = {} # inverse dictionary for atom -> name mapping
         self.name = name[:3]
         self.id = id
         self.secondary_structure = SS_COIL
         
-    def get_id(self):
-        return self.id
-    
+    def get_atom_name(self, atom):
+        """
+        For a given PDB atom name, return a corresponding atom.
+        """
+        if atom in self.names:
+            return self.names[atom]
+        return None
+       
     def add_atom(self, atom, pdbname):
         """ 
         Add a new atom to the atom dictionary. 
         """
         self.atoms[pdbname] = atom
+        self.names[atom] = pdbname
         
     def get_atom_list(self):
         """
@@ -112,6 +119,15 @@ class Residuum:
             return self.atoms[pdbname]
         return None
 
+    def has_atom(self, atom):
+        """
+        Check if the atom belongs to self.
+        """
+        if atom in self.atoms.values():
+            return True
+        else:
+            return False
+        
     def set_secondary_structure(self, type):
         """
         Set a secondary structure type for current amino acid.
@@ -268,5 +284,15 @@ class Protein:
             aa = self.sequence[resId]
             aa.set_secondary_structure(SS_TURN)
             
+    def get_residuum(self, atom):
+        """
+        For a given atom, return a residuum the atom belongs to.
+        """
+        for aa in self.sequence.itervalues():
+            if aa.has_atom(atom):
+                return aa
+        
+        return None
+        
 # end of Protein class
 

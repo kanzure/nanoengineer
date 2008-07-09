@@ -644,6 +644,78 @@ def insertpdb(assy,
 #  and made it not write useless 1-atom CONECT records, and include each bond
 #  in just one CONECT record instead of two.]
 
+def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resName):
+    """
+    Write a PDB ATOM record for the atom into I{file}.
+    
+    @param atom: The atom.
+    @type  atom: Atom
+    
+    @param file: The PDB file to write the ATOM record to.
+    @type  file: file
+    
+    @param atomSerialNumber: A unique number for this atom.
+    @type  atomSerialNumber: int
+    
+    @param chainId: The chain id. It is a single character. See the PDB
+                    documentation for the ATOM record more information.
+    @type  chainId: str
+    
+    @note: If you edit the ATOM record, be sure to to test QuteMolX.
+                
+    @see: U{B{ATOM Record Format}<http://www.wwpdb.org/documentation/format23/sect9.html#ATOM>}
+    """
+    space = " "
+    # Begin ATOM record ----------------------------------
+    # Column 1-6: "ATOM  " (str)
+    atomRecord = "ATOM  "
+    # Column 7-11: Atom serial number (int)
+    atomRecord += "%5d" % atomSerialNumber
+    # Column 12: Whitespace (str)
+    atomRecord += "%1s" % space
+    # Column 13-16 Atom name (str)
+    atomRecord += "%-4s" % atomName
+    # Column 17: Alternate location indicator (str) *unused*
+    atomRecord += "%1s" % space
+    # Column 18-20: Residue name - unused (str)
+    atomRecord += "%3s" % resName
+    # Column 21: Whitespace (str)
+    atomRecord += "%1s" % space
+    # Column 22: Chain identifier - single letter (str) 
+    # This has been tested with 35 chunks and still works in QuteMolX.
+    atomRecord += "%1s" % chainId.upper()
+    # Column 23-26: Residue sequence number (int) *unused*.
+    atomRecord += "%4d" % resId
+    # Column 27: Code for insertion of residues (AChar) *unused*
+    atomRecord += "%1s" % space
+    # Column 28-30: Whitespace (str)
+    atomRecord += "%3s" % space
+    # Get atom XYZ coordinate
+    _xyz = atom.posn()
+    # Column 31-38: X coord in Angstroms (float 8.3)
+    atomRecord += "%8.3f" % float(_xyz[0])
+    # Column 39-46: Y coord in Angstroms (float 8.3)
+    atomRecord += "%8.3f" % float(_xyz[1])
+    # Column 47-54: Z coord in Angstroms (float 8.3)
+    atomRecord += "%8.3f" % float(_xyz[2])
+    # Column 55-60: Occupancy (float 6.2) *unused*
+    atomRecord += "%6s" % space
+    # Column 61-66: Temperature factor. (float 6.2) *unused*
+    atomRecord += "%6s" % space
+    # Column 67-76: Whitespace (str)
+    atomRecord += "%10s" % space
+    # Column 77-78: Element symbol, right-justified (str)
+    atomRecord += "%2s" % atom.element.symbol[:2]
+    # Column 79-80: Charge on the atom (str) *unused*
+    atomRecord += "%2s\n" % space
+    # End ATOM record ----------------------------------
+    
+    file.write(atomRecord)
+
+    return
+
+
+
 # PDB exclude flags, used by writepdb() and its callers. 
 # Ask Bruce what "constants" file these should be moved to (if any).
 # Mark 2007-06-11
@@ -702,6 +774,12 @@ def writepdb(part,
     
     atomSerialNumber = 1
 
+    enableProteins = debug_pref("Enable Proteins?",
+                                Choice_boolean_False,
+                                non_debug = True,
+                                prefs_key = True) # use new PDB writing code
+
+    
     def exclude(atm): #bruce 050318
         """
         Exclude this atom (and bonds to it) from the file under the following
@@ -765,7 +843,20 @@ def writepdb(part,
             atomConnectList = []
             
             atomsTable[a.key] = atomSerialNumber
-            a.writepdb(f, atomSerialNumber, chr(chainIdChar))
+            if enableProteins:
+                # piotr 080709 : Use more robust ATOM output code for Proteins.
+                resId = 1
+                resName = "UNK"
+                atomName = a.element.name
+                if mol.protein:
+                    res = mol.protein.get_residuum(a)
+                    if res:
+                        resId = res.get_id()
+                        resName = res.get_three_letter_code()
+                        atomName = res.get_atom_name(a)
+                writepdb_atom(a, f, atomSerialNumber, atomName, chr(chainIdChar), resId, resName)
+            else:
+                a.writepdb(f, atomSerialNumber, chr(chainIdChar))
             atomConnectList.append(a)
     
             for b in a.bonds:
