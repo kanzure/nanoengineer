@@ -15,7 +15,6 @@ from PyQt4.Qt import Qt
 from command_support.Command import Command, commonCommand
 
 from command_support.GraphicsMode import GraphicsMode, commonGraphicsMode
-import ne1_ui.prefs.Preferences as Preferences
 
 # == useful pieces -- Command
 
@@ -45,9 +44,9 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     def keyPress(self, key):
         # ESC - Exit our command.
         if key == Qt.Key_Escape:
-            #Escape key to exit should not exit the command if its the 
-            #default command (which is select chunks or 'SELECTMOLS') 
-            if self.command.commandName != Preferences.default_commandName():
+            #Escape key to exit should not exit the command if it's the 
+            #default command (which is select chunks or 'SELECTMOLS') [ninad 080709]
+            if not self.command.is_default_command():
                 self.command.Done(exit_using_done_or_cancel_button = False)
         else:
             #bruce 071012 bugfix: add 'else' to prevent letting superclass

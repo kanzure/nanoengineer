@@ -310,24 +310,18 @@ class modeMixin(object):
         Exception if requested mode object is not found -- unlike pre-050911 code,
         never return some other mode than asked for -- let caller do that if desired.
         """
-        import ne1_ui.prefs.Preferences as Preferences #bruce 060403
         assert commandName_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (commandName_or_obj,)
         if type(commandName_or_obj) == type(''):
             # usual case - internal or symbolic commandName string
             commandName = commandName_or_obj
             if commandName == '$SAFE_MODE':
-                commandName = 'SELECTMOLS' #k
+                commandName = 'SELECTMOLS' # todo: should be a defined constant, SAFE_MODE
             elif commandName == '$STARTUP_MODE':
-                ## commandName = env.prefs[startupMode_prefs_key]
-                commandName = Preferences.startup_commandName()
-                # Needed when Preferences | Modes | Startup Mode = Default Mode.  
-                # Mark 050921.
+                commandName = self.startup_commandName()
                 if commandName == '$DEFAULT_MODE':
-                    ## commandName = env.prefs[defaultMode_prefs_key]
-                    commandName = Preferences.default_commandName()
+                    commandName = self.default_commandName()
             elif commandName == '$DEFAULT_MODE':
-                ## commandName = env.prefs[defaultMode_prefs_key]
-                commandName = Preferences.default_commandName()
+                commandName = self.default_commandName()
             return self._commandTable[ commandName]
         else:
             # assume it's a mode object; make sure it's legit
@@ -339,6 +333,27 @@ class modeMixin(object):
                 print "bug: invalid internal mode; using mode %r" % (commandName,)
             return mode1
         pass
+
+    # default and startup command name methods.
+    # These were written by bruce 060403 in UserPrefs.py (now Preferences.py)
+    # and at some point were settable by user preferences.
+    # They were revised to constants by ninad 070501 for A9,
+    # then moved into this class by bruce 080709 as a refactoring.
+    
+    def default_commandName(self):
+        """
+        Return the commandName string of the user's default mode.
+        """
+        # note: at one point this made use of env.prefs[ defaultMode_prefs_key].
+        return 'SELECTMOLS' # todo: use a named constant for this, maybe DEFAULT_MODE
+
+    def startup_commandName(self):
+        """
+        Return the commandName string (literal or symbolic, e.g. '$DEFAULT_MODE')
+        of the user's startup mode.
+        """
+        # note: at one point this made use of env.prefs[ startupMode_prefs_key].
+        return 'SELECTMOLS'
 
     # user requests a specific new mode.
 

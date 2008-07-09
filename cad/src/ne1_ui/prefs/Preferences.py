@@ -199,8 +199,6 @@ from utilities.prefs_constants import pibondStyle_prefs_key
 from utilities.prefs_constants import pibondLetters_prefs_key
 from utilities.prefs_constants import linesDisplayModeThickness_prefs_key
 from utilities.prefs_constants import diBALL_BondCylinderRadius_prefs_key
-from utilities.prefs_constants import startupMode_prefs_key
-from utilities.prefs_constants import defaultMode_prefs_key
 from utilities.prefs_constants import material_specular_highlights_prefs_key
 from utilities.prefs_constants import material_specular_shininess_prefs_key
 from utilities.prefs_constants import material_specular_brightness_prefs_key
@@ -271,57 +269,9 @@ def debug_povdir_signals():
     return 0 and env.debug()
 
 # This list of mode names correspond to the names listed in the modes combo box.
+# [TODO: It needs to be renamed, since "modes" is too generic to search for
+#  as a global name, which in theory could referenced from other modules.]
 modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
-
-# List of Default Modes and Startup Modes.  Mark 050921.
-# [bruce 060403 guesses these need to correspond to certain combobox indices.]
-
-#ninad070430, 070501 For A9 , startup mode = default mode = SELECTMOLS mode
-#but not changing the values in the list per Bruc's suggestions.
-#instead, default_commandName and startup_commandName will return 'SELMOLS'
-#Although the following lists contain "illegal values",
-#there is code that cares about their indices in the lists.
-
-default_modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT']
-startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
-
-def fix_commandName_pref( commandName, commandName_list, commandName_fallback = None): #bruce 060403
-    """
-    commandName came from prefs db; if it's in commandName_list, return it unchanged,
-    but if not, return one of the commandNames in commandName_list to be used in place of it, or commandName_fallback.
-    This is REQUIRED for decoding any commandName-valued prefs value.
-    """
-    assert len(commandName_list) > 0 or commandName_fallback
-    if commandName in commandName_list:
-        return commandName
-    # handle SELECTATOMS being superseded by DEPOSIT
-    if commandName == 'SELECTATOMS' and 'DEPOSIT' in commandName_list:
-        return 'DEPOSIT'
-    # handle future modes not yet supported by current code
-    # (at this point it might be better to return the user's default mode;
-    #  callers wanting this can pass it as commandName_fallback)
-    return commandName_fallback or commandName_list[-1]
-        # could use any arbitrary element rather than the last one (at -1),
-        # but in the list constants above, the last choices seem to be best
-
-def default_commandName(): #bruce 060403
-    """
-    Return the commandName string of the user's default mode.
-    External code should use this, rather than directly using env.prefs[ defaultMode_prefs_key ].
-    """
-    #ninad070501 For A9 , startup mode = default mode = SELECTMOLS mode
-    return 'SELECTMOLS'
-    ##return fix_commandName_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
-
-def startup_commandName(): #bruce 060403
-    """
-    Return the commandName string (literal or symbolic, e.g. '$DEFAULT_MODE')
-    of the user's startup mode. External code should use this, rather than
-    directly using env.prefs[ startupMode_prefs_key ].
-    """
-    #ninad 070501 For A9 , startup mode = default mode = SELECTMOLS mode
-    return 'SELECTMOLS'
-    ##return fix_commandName_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
 
 def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
     # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up

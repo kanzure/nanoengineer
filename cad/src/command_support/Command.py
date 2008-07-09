@@ -973,8 +973,7 @@ class basicCommand(anyCommand):
         
         # This shows the Done button on the dashboard unless the current command is the 
         # Default command. Resolves bug #958 and #959. Mark 050922.
-        import ne1_ui.prefs.Preferences as Preferences
-        if self.commandName == Preferences.default_commandName(): #bruce 060403 revised this
+        if self.is_default_command(): #bruce 060403, 080709 revised this
             self.w.toolsDoneAction.setVisible(0)
         else:
             self.w.toolsDoneAction.setVisible(1)
@@ -985,6 +984,9 @@ class basicCommand(anyCommand):
         
         return
 
+    def is_default_command(self): #bruce 080709 refactoring
+        return self.commandName == self.commandSequencer.default_commandName()
+    
     def update_mode_status_text(self):        
         """
         new method, bruce 040927; here is my guess at its doc

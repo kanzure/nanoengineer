@@ -391,8 +391,8 @@ stereoViewAngle_prefs_key = 'Stereo view angle'
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
 # of the superclass basicMode (modes.py).
-startupMode_prefs_key = 'A7/Startup Mode'
-defaultMode_prefs_key = 'A7/Default Mode'
+## startupMode_prefs_key = 'A7/Startup Mode' #bruce 080709 commented out, not used since A9
+## defaultMode_prefs_key = 'A7/Default Mode'
 buildModeAutobondEnabled_prefs_key = 'A7/Build Mode Autobond Enabled' # mark 060203.
 buildModeWaterEnabled_prefs_key = 'A7/Build Mode Water Enabled' # mark 060203.
 buildModeHighlightingEnabled_prefs_key = 'A7/Build Mode Highlighting Enabled' # mark 060203.
@@ -905,11 +905,13 @@ prefs_table = (
 
     # Modes preferences [added to this table by mark 050910]
 
-    ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
-    ##('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
-    #ninad070430:  made select chunks mode the only startup and defasult option 
-    #for A9  based on discussion
-    ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ), 
+    #bruce 080709 commented these out, not used since A9:
+    ## ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
+    ## ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
+    ## #ninad070430:  made select chunks mode the only startup and default option 
+    ## #for A9 based on discussion
+    ## ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
+    
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
