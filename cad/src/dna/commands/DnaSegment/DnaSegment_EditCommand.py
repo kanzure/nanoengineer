@@ -724,7 +724,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                                        basesPerTurn, \
                                        duplexRise, \
                                        endPoint1, \
-                                       endPoint2 = params
+                                       endPoint2 , \
+                                       color = params
 
         #Delete unused parameters. 
         del endPoint1
@@ -763,7 +764,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                                     basesPerTurn, 
                                     duplexRise,
                                     new_end1,
-                                    new_end2)
+                                    new_end2, 
+                                    color)
 
         #TODO: Need to set these params in the PM 
         #and then self.previousParams = params_to_set_in_propMgr
