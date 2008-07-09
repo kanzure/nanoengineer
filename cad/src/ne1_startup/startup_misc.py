@@ -189,6 +189,10 @@ def _initialize_custom_display_modes(win):
     if enable_SurfaceChunks:
         win.displayStylesToolBar.addAction(win.dispSurfaceAction)
 
+    enable_Proteins = debug_pref("Enable Proteins?",
+                                Choice_boolean_False,
+                                non_debug = True,
+                                prefs_key = True)
     # diPROTEIN
     # piotr 080624
     import graphics.display_styles.ProteinChunks as ProteinChunks

@@ -764,7 +764,6 @@ class DnaCylinderChunks(ChunkDisplayMode):
         """
         # ---------------------------------------------------------------------
 
-
         if not memo: # nothing to render
             return
 

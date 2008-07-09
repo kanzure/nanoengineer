@@ -28,8 +28,11 @@ from platform_dependent.PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
 from utilities.version import Version
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from datetime import datetime
 import foundation.env as env
+
+from protein.model.Protein import Residuum, Protein
 
 def _readpdb(assy, 
              filename, 
@@ -64,9 +67,7 @@ def _readpdb(assy,
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
-    
-    from graphics.display_styles.ProteinChunks import postprocess_pdb_line
-    
+        
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
@@ -104,7 +105,6 @@ def _readpdb(assy,
         win.progressDialog.setRange(0, _progressFinishValue)
         _progressDialogDisplayed = False
         _timerStart = time.time()
-
     for card in lines:
         key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
@@ -133,7 +133,7 @@ def _readpdb(assy,
                 nodigits(name4),
                 nodigits(name3),
                 nodigits(name2) # like code as revised on 070410
-             ]
+            ]
             foundit = False
             for atomname in atomnames_to_try:
                 atomname = atomname_exceptions.get(atomname, atomname)
@@ -180,10 +180,7 @@ def _readpdb(assy,
             xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
             n = int(card[6:11])
             a = Atom(sym, A(xyz), mol)
-            ndix[n] = a
-            
-            # piotr 080620
-            postprocess_pdb_line(card, mol, a)            
+            ndix[n] = a            
         elif key == "conect":
             try:
                 a1 = ndix[int(card[6:11])]
@@ -211,9 +208,6 @@ def _readpdb(assy,
                         continue
                     bond_atoms(a1, a2)
                     numconects += 1
-        else:
-            # piotr 080620
-            postprocess_pdb_line(card, mol, None)
             
         if showProgressDialog: # Update the progress dialog.
             _progressValue += 1
@@ -244,6 +238,325 @@ def _readpdb(assy,
         inferBonds(mol)
     return mol
     
+
+def _readpdb_new(assy, 
+             filename, 
+             isInsert = False, 
+             showProgressDialog = False, 
+             chainId = None):
+    """
+    Read a Protein DataBank-format file into a single new chunk, which is 
+    returned unless there are no atoms in the file, in which case a warning
+    is printed and None is returned. (The new chunk (if returned) is in assy,
+    but is not yet added into any Group or Part in assy -- caller must do that.)
+    Unless isInsert = True, set assy.filename to match the file we read,
+    even if we return None.
+    
+    @param assy: The assembly.
+    @type  assy: L{assembly}
+    
+    @param filename: The PDB filename to read.
+    @type  filename: string
+    
+    @param isInsert: If True, the PDB file will be inserted into the current
+                     assembly. If False (default), the PDB is opened as the 
+                     assembly.
+    @param isInsert: boolean
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file.
+    @type  showProgressDialog: boolean
+    
+    @return: A chunk containing the contents of the PDB file.
+    @rtype:  L{Chunk}
+    
+    @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
+    """
+
+    def _finish_molecule():
+        """
+        Perform some operations after reading entire PDB chain:
+          - rebuild (infer) bonds
+          - rename molecule to reflect a chain ID
+          - delete protein object if this is not a protein
+          - append the molecule to the molecule list
+        """
+        
+        if mol.atoms:                
+            if numconects == 0:
+                msg = orangemsg("PDB file has no bond info; inferring bonds")
+                env.history.message(msg)
+                # let user see message right away (bond inference can take significant 
+                # time) [bruce 060620]
+                env.history.h_update() 
+                inferBonds(mol)
+                
+            mol.protein.set_chain_id(chainId)
+            
+            mol.name = mol.name.replace(".pdb","").lower() + chainId
+
+            ### print "SEQUENCE = ", mol.protein.get_sequence_string()
+            
+            if mol.protein.count_c_alpha_atoms() == 0:
+                # If there is no C-alpha atoms, consider the chunk 
+                # not a protein.
+                mol.protein = None
+                    
+            mollist.append(mol)
+        else:
+            env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
+            env.history.h_update() 
+            
+        
+    fi = open(filename,"rU")
+    lines = fi.readlines()
+    fi.close()
+    
+    mollist = []
+
+    # Lists of secondary structure tuples (res_id, chain_id) 
+    helix = []
+    sheet = []
+    turn = []
+    
+    dir, nodename = os.path.split(filename)
+    if not isInsert:
+        #nodename, extension = os.path.splitext(nodename)
+        assy.filename = filename
+    
+    ndix = {}
+    mol = Chunk(assy, nodename)
+    
+    mol.protein = Protein()
+    
+    numconects = 0
+
+    atomname_exceptions = {
+        "HB":"H", #k these are all guesses -- I can't find this documented 
+                  # anywhere [bruce 070410]
+        ## "HE":"H", ### REVIEW: I'm not sure about this one -- 
+                    ###          leaving it out means it's read as Helium,
+        # but including it erroneously might prevent reading an actual Helium 
+        # if that was intended.
+        # Guess for now: include it for ATOM but not HETATM. (So it's 
+        # specialcased below, rather than being included in this table.)
+        # (Later: can't we use the case of the 'E' to distinguish it from He?)
+        "HN":"H",
+     }
+    
+    # Create and display a Progress dialog while reading the MMP file. 
+    # One issue with this implem is that QProgressDialog always displays 
+    # a "Cancel" button, which is not hooked up. I think this is OK for now,
+    # but later we should either hook it up or create our own progress
+    # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
+    if showProgressDialog:
+        _progressValue = 0
+        _progressFinishValue = len(lines)
+        win = env.mainwindow()
+        win.progressDialog.setLabelText("Reading file...")
+        win.progressDialog.setRange(0, _progressFinishValue)
+        _progressDialogDisplayed = False
+        _timerStart = time.time()
+
+    for card in lines:
+        key = card[:6].lower().replace(" ", "")
+        if key in ["atom", "hetatm"]:
+            ## sym = capitalize(card[12:14].replace(" ", "").replace("_", "")) 
+            # bruce 080508 revision (guess at a bugfix for reading NE1-saved
+            # pdb files):
+            # get a list of atomnames to try; use the first one we recognize.
+            # Note that full atom name is in columns 13-16 i.e. card[12:16];
+            # see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf,
+            # page 156. The old code only looked at two characters,
+            # card[12:14] == columns 13-14, and discarded ' ' and '_',
+            # and capitalized (the first character only). The code as I revised
+            # it on 070410 also discarded digits, and handled HB, HE, HN
+            # (guesses) using the atomname_exceptions dict.
+            name4 = card[12:16].replace(" ", "").replace("_", "")
+            name3 = card[12:15].replace(" ", "").replace("_", "")
+            name2 = card[12:14].replace(" ", "").replace("_", "")
+            chainId = card[21]
+            resIdStr = card[22:26].replace(" ", "")
+            if resIdStr != "":
+                resId = int(resIdStr)
+            else:
+                resId = 0
+            resName = card[17:20]
+            sym = card[77:78]
+            
+###ATOM    131  CB  ARG A  18     104.359  32.924  58.573  1.00 36.93           C  
+
+            def nodigits(name):
+                for bad in "0123456789":
+                    name = name.replace(bad, "")
+                return name
+            atomnames_to_try = [
+                name4, # as seems best according to documentation
+                name3,
+                name2, # like old code
+                nodigits(name4),
+                nodigits(name3),
+                nodigits(name2) # like code as revised on 070410
+            ]
+            
+            # First, look at 77-78 field - it should include an element symbol.
+            foundit = False
+            try:
+                PeriodicTable.getElement(sym)
+            except:
+                pass
+            else:
+                foundit = True
+            if not foundit:
+                for atomname in atomnames_to_try:
+                    atomname = atomname_exceptions.get(atomname, atomname)
+                    if atomname[0] == 'H' and key == "atom":
+                        atomname = "H" # see comment in atomname_exceptions
+                    sym = capitalize(atomname) # turns either 'he' or 'HE' into 'He'
+                    
+                    try:
+                        PeriodicTable.getElement(sym)
+                    except:
+                        # note: this typically fails with AssertionError 
+                        # (not e.g. KeyError) [bruce 050322]
+                        continue
+                    else:
+                        foundit = True
+                        break
+                    pass
+            if not foundit:
+                msg = "Warning: Pdb file: will use Carbon in place of unknown element %s in: %s" \
+                    % (name4, card)
+                print msg #bruce 070410 added this print
+                env.history.message( redmsg( msg ))
+
+                ##e It would probably be better to create a fake atom, so the 
+                # CONECT records would still work.
+                #bruce 080508 let's do that:
+                sym = "C"
+                
+                # Better still might be to create a fake element, 
+                # so we could write out the pdb file again
+                # (albeit missing lots of info). [bruce 070410 comment]
+                
+                # Note: an advisor tells us:
+                #   PDB files sometimes encode atomtypes,
+                #   using C_R instead of C, for example, to represent sp2 
+                #   carbons.
+                # That particular case won't trigger this exception, since we
+                # only look at 2 characters [eventually, after trying more, as of 080508],
+                # i.e. C_ in that case. It would be better to realize this means
+                # sp2 and set the atomtype here (and perhaps then use it when
+                # inferring bonds,  which we do later if the file doesn't have 
+                # any bonds). [bruce 060614/070410 comment]
+
+            # Now the element name is in sym.
+            xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
+            n = int(card[6:11])
+            a = Atom(sym, A(xyz), mol)
+            ndix[n] = a
+            
+            mol.protein.add_pdb_atom(a, name4, resId, resName)
+            
+            # Assign secondary structure.            
+            if (resId, chainId) in helix:
+                mol.protein.assign_helix(resId)
+            
+            if (resId, chainId) in sheet:
+                mol.protein.assign_strand(resId)
+                
+            #if (resId, chainId) in turn:
+            #    mol.protein.set_turn(resId)
+                
+        elif key == "conect":
+            try:
+                a1 = ndix[int(card[6:11])]
+            except:
+                #bruce 050322 added this level of try/except and its message;
+                # see code below for at least two kinds of errors this might
+                # catch, but we don't try to distinguish these here. BTW this 
+                # also happens as a consequence of not finding the element 
+                # symbol, above,  since atoms with unknown elements are not 
+                # created.
+                env.history.message( redmsg( "Warning: Pdb file: can't find first atom in CONECT record: %s" % (card,) ))
+            else:
+                for i in range(11, 70, 5):
+                    try:
+                        a2 = ndix[int(card[i:i+5])]
+                    except ValueError:
+                        # bruce 050323 comment:
+                        # we assume this is from int('') or int(' ') etc;
+                        # this is the usual way of ending this loop.
+                        break
+                    except KeyError:
+                        #bruce 050322-23 added history warning for this,
+                        # assuming it comes from ndix[] lookup.
+                        env.history.message( redmsg( "Warning: Pdb file: can't find atom %s in: %s" % (card[i:i+5], card) ))
+                        continue
+                    bond_atoms(a1, a2)
+                    numconects += 1
+        elif key == "ter":
+            # Finish current molecule.
+            _finish_molecule()
+            # Create a new molecule 
+            mol = Chunk(assy, nodename)
+            mol.protein = Protein()
+            numconects = 0
+            
+        elif key in ["helix", "sheet", "turn"]:
+            # Read secondary structure information.
+            if key == "helix":
+                begin = int(card[22:25])
+                end = int(card[34:37])
+                chainId = card[19]
+                for s in range(begin, end+1):
+                    helix.append((s, chainId))            
+            elif key == "sheet":
+                begin = int(card[23:26])
+                end = int(card[34:37])
+                chainId = card[21]
+                for s in range(begin, end+1):
+                    sheet.append((s, chainId))            
+            elif key == "turn":
+                begin = int(card[23:26])
+                end = int(card[34:37])
+                chainId = card[19]
+                for s in range(begin, end+1):
+                    turn.append((s, chainId))            
+        
+        if showProgressDialog: # Update the progress dialog.
+            _progressValue += 1
+            if _progressValue >= _progressFinishValue:
+                win.progressDialog.setLabelText("Building model...")
+            elif _progressDialogDisplayed:
+                win.progressDialog.setValue(_progressValue)
+            else:
+                _timerDuration = time.time() - _timerStart
+                if _timerDuration > 0.25: 
+                    # Display progress dialog after 0.25 seconds
+                    win.progressDialog.setValue(_progressValue)
+                    _progressDialogDisplayed = True
+    
+    if showProgressDialog: # Make the progress dialog go away.
+        win.progressDialog.setValue(_progressFinishValue) 
+    
+    _finish_molecule()
+    """
+    #bruce 050322 part of fix for bug 433: don't return an empty chunk
+    #if not mol.atoms:
+    #    env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
+    #    return None
+    if numconects == 0:
+        msg = orangemsg("PDB file has no bond info; inferring bonds")
+        env.history.message(msg)
+        # let user see message right away (bond inference can take significant 
+        # time) [bruce 060620]
+        env.history.h_update() 
+        inferBonds(mol)
+    """
+    
+    return mollist
+    
 # read a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
 def readpdb(assy, 
@@ -263,13 +576,28 @@ def readpdb(assy,
                                a file. Default is False.
     @type  showProgressDialog: boolean
     """
-    mol  = _readpdb(assy, 
-                    filename, 
-                    isInsert = False, 
-                    showProgressDialog = showProgressDialog,
-                    chainId = chainId)
-    if mol is not None:
-        assy.addmol(mol)
+    
+    if debug_pref("Enable Proteins?",
+                    Choice_boolean_False,
+                    non_debug = True,
+                    prefs_key = True): # use new PDB reading code
+        molecules  = _readpdb_new(assy, 
+                        filename, 
+                        isInsert = False, 
+                        showProgressDialog = showProgressDialog,
+                        chainId = chainId)
+        if molecules:
+            for mol in molecules:
+                if mol is not None:
+                    assy.addmol(mol)
+    else:
+        mol  = _readpdb(assy, 
+                        filename, 
+                        isInsert = False, 
+                        showProgressDialog = showProgressDialog,
+                        chainId = chainId)
+        if mol is not None:
+            assy.addmol(mol)
     return
     
 # Insert a Protein DataBank-format file into a single Chunk
@@ -286,13 +614,29 @@ def insertpdb(assy,
     @param filename: The PDB filename to read.
     @type  filename: string
     """
-    mol  = _readpdb(assy, 
-                    filename, 
-                    isInsert = True, 
-                    showProgressDialog = True,
-                    chainId = chainId)
-    if mol is not None:
-        assy.addmol(mol)
+    
+
+    if debug_pref("Enable Proteins?",
+                    Choice_boolean_False,
+                    non_debug = True,
+                    prefs_key = True): # use new PDB reading code
+        molecules  = _readpdb_new(assy, 
+                        filename, 
+                        isInsert = True, 
+                        showProgressDialog = True,
+                        chainId = chainId)
+        if molecules:
+            for mol in molecules:
+                if mol is not None:
+                    assy.addmol(mol)
+    else:
+        mol  = _readpdb(assy, 
+                        filename, 
+                        isInsert = True, 
+                        showProgressDialog = True,
+                        chainId = chainId)
+        if mol is not None:
+            assy.addmol(mol)
     return
 
 # Write all Chunks into a Protein DataBank-format file
