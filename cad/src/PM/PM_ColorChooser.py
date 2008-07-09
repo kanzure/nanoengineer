@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PM_ColorChooser.py
 
@@ -177,6 +177,7 @@ class PM_ColorChooser( QWidget ):
         if default:
             self.defaultColor = color
             self.setAsDefault = default
+        print "*** in PM_colorChoose.setColor"
         self.color = color
         self._updateColorFrame()
         return
@@ -232,7 +233,7 @@ class PM_ColorChooser( QWidget ):
         c = QColorDialog.getColor(qcolor, self)
         if c.isValid():
             self.setColor(QColor_to_RGBf(c))
-            self.emit(SIGNAL("editingFinished()"))
+            self.colorFrame.emit(SIGNAL("editingFinished()"))
     
     def restoreDefault(self):
         """

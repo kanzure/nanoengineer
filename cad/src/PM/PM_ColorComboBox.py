@@ -3,7 +3,7 @@
 PM_ColorComboBox.py
 
 @author: Mark
-@version: $Id:$
+@version: $Id$
 @copyright: 2006-2008 Nanorex, Inc.  All rights reserved.
 
 To do:
@@ -18,7 +18,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 
 from utilities.constants import white, black, red, green, blue
-from utilities.constants import yellow, orange, cyan, magenta, gray
+from utilities.constants import yellow, orange, cyan, magenta, gray, darkblue, darkred, darkgreen, lightgray
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 
 class PM_ColorComboBox( PM_ComboBox ):
@@ -37,13 +37,17 @@ class PM_ColorComboBox( PM_ComboBox ):
     """
     customColorCount  = 0
     color = None
-    otherColor = gray
+    otherColor = lightgray
     otherColorList = [] # List of custom (other) colors the user has selected.
     
-    colorList = [white, black, red, green, blue, yellow, 
-                 orange, cyan, magenta, otherColor]
-    colorNames = ["White", "Black", "Red", "Green", "Blue", "Yellow", 
-                  "Orange", "Cyan", "Magenta", "Other color..."]
+    colorList = [white, gray, black, red, darkred, green, darkgreen, blue, darkblue, 
+                 yellow, orange, cyan, magenta, gray, otherColor]
+    colorNames = ["White", "Gray", "Black", 
+                  "Red", "Dark Red", 
+                  "Green", "Dark Green",  
+                  "Blue", "Dark Blue", 
+                  "Yellow",  "Orange", "Cyan", "Magenta",  
+                  "Other color..."]
     
     def __init__(self, 
                  parentWidget, 
@@ -218,4 +222,5 @@ class PM_ColorComboBox( PM_ComboBox ):
         c = QColorDialog.getColor(qcolor, self)
         if c.isValid():
             self.setColor(QColor_to_RGBf(c))
+            self.emit(SIGNAL("editingFinished()"))
         
