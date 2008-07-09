@@ -81,6 +81,32 @@ class DnaStrand(DnaStrandOrSegment):
             return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)  
+        
+    def getColor(self):
+        """
+        Returns the color of an arbitrary internal strand chunk. It iterates 
+        over the strand chunk list until it gets a valid color. If no color
+        is assigned to any of its strand chunks, it simply returns None. 
+        """
+        
+        color = None
+        for m in self.members:
+            if isinstance(m, DnaStrandChunk):
+                color = m.color
+                if color is not None:
+                    break
+
+        return color
+        
+    
+        
+    def setColor(self, color):
+        """
+        Public method provided for convenience. Delegates the color 
+        assignment task to self.setStrandColor()
+        @see: DnaOrCntPropertyManager._changeStructureColor()
+        """
+        self.setStrandColor(color)
 
     def setStrandColor(self, color):
         """
@@ -89,6 +115,7 @@ class DnaStrand(DnaStrandOrSegment):
         @param color: The new color of the strand chunks
         @see: BuildAtoms_GraphicsMode._singletLeftUp_joinstrands()
         @see: BuildAtoms_GraphicsMode._singletLeftUp()
+        @see: self.setColor()
         """
         m = None
         for m in self.members:

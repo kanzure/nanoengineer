@@ -32,7 +32,6 @@ from utilities.constants import MODEL_PAM3
 
 from dna.model.Dna_Constants    import getNumberOfBasePairsFromDuplexLength
 
-
 _superclass = DnaStrandOrSegment
 class DnaSegment(DnaStrandOrSegment):
     """
@@ -638,6 +637,42 @@ class DnaSegment(DnaStrandOrSegment):
             self._basesPerTurn = basesPerTurn
             
             
+    def setColor(self, color):
+        """
+        Public method provided for convenience. Delegates the color 
+        assignment task to self.setStrandColor()
+        @see: DnaOrCntPropertyManager._changeStructureColor()
+        """
+        self.setSegmentColor(color)
+
+    def setSegmentColor(self, color):
+        """
+        Set the color of the all the axis chunks within this DNA segment group
+        to  the given color 
+        @see: self.setColor()
+        """
+        m = None
+        for m in self.members:
+            if isinstance(m, DnaAxisChunk):
+                m.setcolor(color)
+                
+    def getColor(self):
+        """
+        Returns the color of an arbitrary internal axis chunk. It iterates 
+        over the axisChunk list until it gets a valid color. If no color
+        is assigned to any of its axis chunks, it simply returns None. 
+        """
+        
+        color = None
+        for m in self.members:
+            if isinstance(m, DnaAxisChunk):
+                color = m.color
+                if color is not None:
+                    break
+
+        return color
+                
+     
     def writemmp_other_info_opengroup(self, mapping): 
         """
         """
