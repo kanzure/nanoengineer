@@ -93,8 +93,8 @@ from utilities.prefs_constants import showBondStretchIndicators_prefs_key
 from utilities.prefs_constants import showValenceErrors_prefs_key
 
 #General  page prefs - paste offset scale for chunk and dna pasting prefs key
-from utilities.prefs_constants import pasteOffsetScaleFactorForChunks_pref_key
-from utilities.prefs_constants import pasteOffsetScaleFactorForDnaObjects_pref_key
+from utilities.prefs_constants import pasteOffsetScaleFactorForChunks_prefs_key
+from utilities.prefs_constants import pasteOffsetScaleFactorForDnaObjects_prefs_key
 
 # Color (page) prefs
 from utilities.prefs_constants import backgroundColor_prefs_key
@@ -109,7 +109,7 @@ from utilities.prefs_constants import haloWidth_prefs_key
 from utilities.prefs_constants import mouseWheelDirection_prefs_key
 from utilities.prefs_constants import zoomInAboutScreenCenter_prefs_key
 from utilities.prefs_constants import zoomOutAboutScreenCenter_prefs_key
-from utilities.prefs_constants import mouseWheelTimeoutInterval_pref_key
+from utilities.prefs_constants import mouseWheelTimeoutInterval_prefs_key
 
 # DNA prefs
 from utilities.prefs_constants import bdnaBasesPerTurn_prefs_key
@@ -212,7 +212,7 @@ from utilities.prefs_constants import displayFontPointSize_prefs_key
 from utilities.prefs_constants import useSelectedFont_prefs_key
 from utilities.prefs_constants import displayFont_prefs_key
 from utilities.prefs_constants import keepBondsDuringTransmute_prefs_key
-from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
+from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
 from utilities.prefs_constants import fogEnabled_prefs_key
 
 #global display preferences
@@ -640,10 +640,10 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         #Scale factor for copy-paste operation (see ops_copy_Mixin._pasteGroup())
 
         self.pasteOffsetScaleFactorForChunks_doubleSpinBox.setValue(
-            env.prefs[pasteOffsetScaleFactorForChunks_pref_key])
+            env.prefs[pasteOffsetScaleFactorForChunks_prefs_key])
 
         self.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox.setValue(
-            env.prefs[pasteOffsetScaleFactorForDnaObjects_pref_key])
+            env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key])
 
 
 
@@ -751,7 +751,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.mouseWheelZoomOutPointComboBox.setCurrentIndex(
             env.prefs[zoomOutAboutScreenCenter_prefs_key])
 
-        self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_pref_key])
+        self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_prefs_key])
 
         # Connections for "Mouse controls" page.
         self.connect(self.mouseWheelDirectionComboBox, SIGNAL("currentIndexChanged(int)"), self.set_mouse_wheel_direction)
@@ -834,7 +834,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.change_cpkAtomScaleFactor(env.prefs[cpkScaleFactor_prefs_key]) # Needed to update the reset button.
 
         # Checkboxes.
-        connect_checkbox_with_boolean_pref( self.overlappingAtomIndicatorsCheckBox, indicateOverlappingAtoms_pref_key )
+        connect_checkbox_with_boolean_pref( self.overlappingAtomIndicatorsCheckBox, indicateOverlappingAtoms_prefs_key )
         connect_checkbox_with_boolean_pref( self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
         return
 
@@ -1584,7 +1584,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @type  val: double
         @see ops_copy_Mixin._pasteGroup()
         """
-        env.prefs[pasteOffsetScaleFactorForChunks_pref_key] = val
+        env.prefs[pasteOffsetScaleFactorForChunks_prefs_key] = val
 
     def change_pasteOffsetScaleFactorForDnaObjects(self, val):
         """
@@ -1592,7 +1592,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @param val: The timeout interval in seconds.
         @type  val: double
         """
-        env.prefs[pasteOffsetScaleFactorForDnaObjects_pref_key] = val
+        env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key] = val
 
     def enable_fog(self, val):
         """
@@ -1894,7 +1894,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         @param interval: The timeout interval in seconds.
         @type  interval: double
         """
-        env.prefs[mouseWheelTimeoutInterval_pref_key] = interval
+        env.prefs[mouseWheelTimeoutInterval_prefs_key] = interval
 
     # = Ruler slot methods
 

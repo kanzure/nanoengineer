@@ -42,7 +42,7 @@ from utilities.debug import print_compact_traceback, print_compact_stack
 
 from utilities.constants import orange, ave_colors, red
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
-from utilities.prefs_constants import mouseWheelTimeoutInterval_pref_key
+from utilities.prefs_constants import mouseWheelTimeoutInterval_prefs_key
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_True
 from utilities import debug_flags
@@ -961,7 +961,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #
         if self.timeAtLastWheelEvent:
             time_since_wheel_event = time.time() - self.timeAtLastWheelEvent
-            if time_since_wheel_event < env.prefs[mouseWheelTimeoutInterval_pref_key]:
+            if time_since_wheel_event < env.prefs[mouseWheelTimeoutInterval_prefs_key]:
                 if DEBUG_BAREMOTION:
                     #bruce 080129 re highlighting bug 2606 reported by Paul
                     print "debug fyi: ignoring %r.bareMotion since time_since_wheel_event is only %r " % \

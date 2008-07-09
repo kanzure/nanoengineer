@@ -87,7 +87,7 @@ from utilities.constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 from utilities.prefs_constants import levelOfDetail_prefs_key
 from utilities.prefs_constants import startup_GLPane_scale_prefs_key
-from utilities.prefs_constants import indicateOverlappingAtoms_pref_key
+from utilities.prefs_constants import indicateOverlappingAtoms_prefs_key
 
 from model.Line import Line
 
@@ -1058,7 +1058,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # it. [bruce 070928]
 
         self.indicate_overlapping_atoms = \
-            env.prefs[indicateOverlappingAtoms_pref_key]
+            env.prefs[indicateOverlappingAtoms_prefs_key]
 
         if self.indicate_overlapping_atoms:
             TOO_CLOSE = 0.3 # stub, guess; needs to not be true even for

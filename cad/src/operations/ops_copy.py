@@ -33,8 +33,8 @@ from geometry.BoundingBox import BBox
 from model.jigs import Jig
 
 #General  page prefs - paste offset scale for chunk and dna pasting prefs key
-from utilities.prefs_constants import pasteOffsetScaleFactorForChunks_pref_key
-from utilities.prefs_constants import pasteOffsetScaleFactorForDnaObjects_pref_key
+from utilities.prefs_constants import pasteOffsetScaleFactorForChunks_prefs_key
+from utilities.prefs_constants import pasteOffsetScaleFactorForDnaObjects_prefs_key
 
 DEBUG_COPY = False # do not leave this as True in the release [bruce 080414]
 
@@ -607,8 +607,8 @@ class ops_copy_Mixin:
                     
         selection_has_dna_objects = self.__pasteGroup_nodeList_contains_Dna_objects(newNodeList)
         
-        scale_when_dna_in_newNodeList =  env.prefs[pasteOffsetScaleFactorForDnaObjects_pref_key]
-        scale_when_no_dna_in_newNodeList = env.prefs[pasteOffsetScaleFactorForChunks_pref_key]  
+        scale_when_dna_in_newNodeList =  env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key]
+        scale_when_no_dna_in_newNodeList = env.prefs[pasteOffsetScaleFactorForChunks_prefs_key]  
         
         def filterChunks(node):
             """

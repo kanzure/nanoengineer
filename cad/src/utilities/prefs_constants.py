@@ -128,6 +128,7 @@ MINIMIZE_ENGINE_GROMACS_BACKGROUND = 2
 displayCompass_prefs_key = 'A6/Display Compass'
 displayCompassLabels_prefs_key = 'A7/Display Compass Label'
 compassPosition_prefs_key = 'A6/Compass Position'
+originAxisColor_prefs_key = 'V111/Origin Axis Color'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
 displayConfirmationCorner_prefs_key = 'V111/Display POV Axis'
@@ -151,8 +152,8 @@ fogEnabled_prefs_key = "V110/Enable fog"
 
 #General preferences for copy-paste operation (see ops_copy_mixin._pasteGroup
 #for detail) Feature introduced in v1.1.0, on 2008-06-06
-pasteOffsetScaleFactorForChunks_pref_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
-pasteOffsetScaleFactorForDnaObjects_pref_key = 'V110/Scale factor is used to offset dna objects to be pasted w.r.t. original dna objects'
+pasteOffsetScaleFactorForChunks_prefs_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
+pasteOffsetScaleFactorForDnaObjects_prefs_key = 'V110/Scale factor is used to offset dna objects to be pasted w.r.t. original dna objects'
 
 
 # Color prefs (for "Color" page).
@@ -168,7 +169,7 @@ haloWidth_prefs_key = 'V110/halo width in pixels'
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
 zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
 zoomOutAboutScreenCenter_prefs_key = 'A10/Mouse Wheel Zoom Out To Screen Center'
-mouseWheelTimeoutInterval_pref_key = 'V110/Mouse Wheel Event Timeout Interval'
+mouseWheelTimeoutInterval_prefs_key = 'V110/Mouse Wheel Event Timeout Interval'
 
 
 #GLpane scale preferences
@@ -248,7 +249,7 @@ cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
 keepBondsDuringTransmute_prefs_key = 'A9/Keep Bonds During Transmute'
 reshapeAtomsSelection_prefs_key = 'A10/Reshape Atoms Selection in Build Atoms'
-indicateOverlappingAtoms_pref_key = "A10/GLPane: indicate overlapping atoms? "
+indicateOverlappingAtoms_prefs_key = "A10/GLPane: indicate overlapping atoms? "
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -602,10 +603,10 @@ prefs_table = (
 
     #Paste offset scale factor preferences (see Ops_copy_Mixin._pasteGroup)
     ('paste offset scale for chunks', 'float', 
-     pasteOffsetScaleFactorForChunks_pref_key, 0.1),
+     pasteOffsetScaleFactorForChunks_prefs_key, 0.1),
 
     ('paste offset scale for dna objects' , 'float', 
-     pasteOffsetScaleFactorForDnaObjects_pref_key, 3.0),
+     pasteOffsetScaleFactorForDnaObjects_prefs_key, 3.0),
 
 
     # Color (page) preferences
@@ -637,7 +638,7 @@ prefs_table = (
     ('', 'int', mouseWheelDirection_prefs_key,      0),
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
     ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
-    ('', 'float', mouseWheelTimeoutInterval_pref_key, 0.5),
+    ('', 'float', mouseWheelTimeoutInterval_prefs_key, 0.5),
 
     # Ruler prefs. Mark 2008-02-12
     # Ruler constants defined in Constants_Rulers.py. 
@@ -701,7 +702,7 @@ prefs_table = (
     # Preference to force to keep bonds while transmuting atoms 
     ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
     ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
-    ('', 'boolean', indicateOverlappingAtoms_pref_key, False),
+    ('', 'boolean', indicateOverlappingAtoms_prefs_key, False),
 
     # Bond preferences - colors
 
