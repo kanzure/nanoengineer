@@ -219,7 +219,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "YASARA.org YOB (*.yob)"
         
         import_filename = QFileDialog.getOpenFileName(self, 
-                                 "Select a file to import", 
+                                 "Open Babel Import", 
                                  self.currentWorkingDirectory, 
                                  formats
                                  ) 
@@ -283,7 +283,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message(msg)
 
                 else:
-                    print "NE1 babel had problem converting ", import_filename, "->", mmpfile
+                    print "Open Babel had problem converting ", import_filename, "->", mmpfile
                     env.history.message(cmd + redmsg("File translation failed."))
             
             self.glpane.scale = self.assy.bbox.scale()
@@ -308,7 +308,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Note that the optimized sequences only get assigned if the structure on
         # the NE-1 window matches the structure in the IOS file
         
-        cmd = greenmsg("Import IOS File: ")
+        cmd = greenmsg("IOS Import: ")
       
         #check if screen is empty
         if hasattr(self.assy.part.topnode, 'members'):
@@ -330,7 +330,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "Extensive Markup Language (*.xml);;"
         
         import_filename = QFileDialog.getOpenFileName(self, 
-                                 "Select a file to import", 
+                                 "IOS Import", 
                                  self.currentWorkingDirectory, 
                                  formats
                                  ) 
@@ -352,7 +352,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Optimizer from the NE-1 model.
         """
         
-        cmd = greenmsg("Export IOS File: ")
+        cmd = greenmsg("IOS Export: ")
         
         
         if hasattr(self.assy.part.topnode, 'members'):
@@ -373,7 +373,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "Extensive Markup Language (*.xml);;"
         export_filename = \
             QFileDialog.getSaveFileName(self, 
-                                        "Export File", 
+                                        "IOS Export", 
                                         currentFilename,
                                         formats,
                                         sfilter
@@ -491,7 +491,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         export_filename = \
             QFileDialog.getSaveFileName(self, 
-                                        "Export File", 
+                                        "Open Babel Export", 
                                         currentFilename,
                                         formats,
                                         sfilter
@@ -556,10 +556,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     print "file translation failed"
                 print "Problem translating ", tmp_mmp_filename, '->', export_filename
                 env.history.message(cmd + redmsg("File translation failed."))
-
-        self.glpane.scale = self.assy.bbox.scale()
-        self.glpane.gl_update()
-        self.mt.mt_update()
 
         if debug_flags.atom_debug:
             linenum()
@@ -877,7 +873,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         env.history.message(greenmsg("Insert File:"))
         
         fn = QFileDialog.getOpenFileName(self, 
-                                         "Select a file to insert", 
+                                         "Insert File", 
                                          self.currentWorkingDirectory, 
                                          formats)
                         
@@ -974,7 +970,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "All Files (*.*)"
             
             fn = QFileDialog.getOpenFileName(self,
-                                             "Choose a file to open",
+                                             "Open File",
                                              self.currentWorkingDirectory,
                                              formats)
                     
