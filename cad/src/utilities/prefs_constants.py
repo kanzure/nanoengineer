@@ -36,8 +36,9 @@ getDefaultWorkingDirectory.
 ### do no imports that would not be ok for constants.py to do! ###
 
 from utilities.constants import yellow, pink, red, black, magenta, mustard
-from utilities.constants import blue, gray, white, green, lightgray, lightgreen
-from utilities.constants import orange, darkred, darkblue, darkgreen
+from utilities.constants import blue, gray, white, green, orange
+from utilities.constants import lightgray, lightblue, lightgreen
+from utilities.constants import darkred, darkblue, darkgreen
 from utilities.constants import ave_colors, diBALL
 
 import sys, os # for getDefaultWorkingDirectory
@@ -128,9 +129,10 @@ MINIMIZE_ENGINE_GROMACS_BACKGROUND = 2
 displayCompass_prefs_key = 'A6/Display Compass'
 displayCompassLabels_prefs_key = 'A7/Display Compass Label'
 compassPosition_prefs_key = 'A6/Compass Position'
-originAxisColor_prefs_key = 'V111/Origin Axis Color'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
+originAxisColor_prefs_key = 'V111/Origin Axis Color'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
+povAxisColor_prefs_key = 'V111/Point of View Axis Color'
 displayConfirmationCorner_prefs_key = 'V111/Display POV Axis'
 defaultProjection_prefs_key = 'A7/Default Projection'
 animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #mark 060315. NIY.
@@ -590,7 +592,9 @@ prefs_table = (
     ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
     ('display_position', 'int', compassPosition_prefs_key, LOWER_LEFT), # Mark 2007-0507.
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
+    ('', 'color', originAxisColor_prefs_key, lightblue),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, False),
+    ('', 'color', povAxisColor_prefs_key, darkgreen),
     ('', 'boolean', displayConfirmationCorner_prefs_key, True),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
@@ -607,7 +611,6 @@ prefs_table = (
 
     ('paste offset scale for dna objects' , 'float', 
      pasteOffsetScaleFactorForDnaObjects_prefs_key, 3.0),
-
 
     # Color (page) preferences
     ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky

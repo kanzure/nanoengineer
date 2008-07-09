@@ -32,7 +32,7 @@ from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawTag
 from graphics.drawing.drawers import drawOriginAsSmallAxis
-from graphics.drawing.drawers import drawaxes
+from graphics.drawing.drawers import drawaxes, drawPointOfViewAxes
 from graphics.drawing.drawers import drawrectangle
 
 from utilities.debug import print_compact_traceback
@@ -338,19 +338,19 @@ class basicGraphicsMode(GraphicsMode_API):
                 drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
 
         if env.prefs[displayPOVAxis_prefs_key]:
-            drawaxes(self.o.scale, -self.o.pov)
+            drawPointOfViewAxes(self.o.scale, -self.o.pov)
 
         # Draw the Point of View axis unless it is at the origin (0,0,0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
             if not env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 if vlen(self.o.pov):
-                    drawaxes(self.o.scale, -self.o.pov)
+                    drawPointOfViewAxes(self.o.scale, -self.o.pov)
                 else:
                     # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
                     if not env.prefs[displayOriginAxis_prefs_key]:
-                        drawaxes(self.o.scale, -self.o.pov)
+                        drawPointOfViewAxes(self.o.scale, -self.o.pov)
             else:
-                drawaxes(self.o.scale, -self.o.pov)
+                drawPointOfViewAxes(self.o.scale, -self.o.pov)
 
         #Draw tags if any
         self._drawTags()

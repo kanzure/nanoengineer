@@ -43,6 +43,8 @@ from math import floor, ceil, acos
 import Numeric
 from Numeric import pi
 
+import foundation.env as env
+
 from OpenGL.GL import GL_BACK
 from OpenGL.GL import glBegin
 from OpenGL.GL import GL_BLEND
@@ -105,8 +107,10 @@ from OpenGL.GL import GL_TRIANGLE_STRIP
 
 from geometry.VQT import norm, vlen, V, Q, A
 
-from utilities.constants import blue, red
-from utilities.constants import darkgreen, lightblue
+from utilities.constants import blue, red, darkgreen, black
+
+from utilities.prefs_constants import originAxisColor_prefs_key
+from utilities.prefs_constants import povAxisColor_prefs_key
 
 import graphics.drawing.drawing_globals as drawing_globals
 from graphics.drawing.gl_lighting import apply_material
@@ -460,40 +464,55 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     glEnable(GL_LIGHTING)
     return
 
-def drawaxes(n,point,coloraxes=False, dashEnabled = False):
-
-    n *= 0.5
+def drawPointOfViewAxes(scale, point):
+    """
+    Draw a point of view (POV) axis.
+    """
+    color = env.prefs[povAxisColor_prefs_key]
+    drawaxes(scale * 0.1, point, color, coloraxes = False, dashEnabled = False)
+    
+def drawaxes(scale, point, color = black, coloraxes = False, dashEnabled = False):
+    """
+    Draw axes.
+    """
+    n = scale
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
-
+    
+    if dashEnabled:
+        #ninad060921 Note that we will only support dotted origin axis 
+        #(hidden lines) but not POV axis. (as it could be annoying)
+        glLineStipple(5, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+        glDisable(GL_DEPTH_TEST)
+    
+    glColor3fv(color)
+    
     if coloraxes: 
-        glColor3f(red[0], red[1], red[2])
-        if dashEnabled:
-            #ninad060921 Note that we will only support dotted origin axis 
-            #(hidden lines)but not POV axis. (as it could be annoying)
-            glLineStipple(5, 0xAAAA)
-            glEnable(GL_LINE_STIPPLE)
-            glDisable(GL_DEPTH_TEST)
-    else:
-        glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-
+        glColor3fv(red)
+        
     glBegin(GL_LINES)
-    glVertex(n,0,0)
-    glVertex(-n,0,0)
-    glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    glVertex(0,n,0)
-    glVertex(0,-n,0)
-    if coloraxes: glColor3f(blue[0], blue[1], blue[2])
-    else: glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    glVertex(0,0,n)
-    glVertex(0,0,-n)
+    glVertex( n, 0, 0)
+    glVertex(-n, 0, 0)
+    
+    if coloraxes: 
+        glColor3fv(darkgreen)
+        
+    glVertex(0,  n, 0)
+    glVertex(0, -n, 0)
+    
+    if coloraxes: 
+        glColor3fv(blue)
+        
+    glVertex(0, 0,  n)
+    glVertex(0, 0, -n)
+    
     glEnd()
 
-    if coloraxes:
-        if dashEnabled:
-            glDisable(GL_LINE_STIPPLE)
-            glEnable(GL_DEPTH_TEST)
+    if dashEnabled:
+        glDisable(GL_LINE_STIPPLE)
+        glEnable(GL_DEPTH_TEST)
 
     glEnable(GL_LIGHTING)
     glPopMatrix()
@@ -546,8 +565,9 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
 
     glBegin(GL_LINES)
 
-    #glColor3f(black)
-    glColor3fv(lightblue)
+    color = env.prefs[originAxisColor_prefs_key]
+    
+    glColor3fv(color)
 
     #start draw a point at origin . 
     #ninad060922 is thinking about using GL_POINTS here
@@ -567,16 +587,16 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     #end draw a point at origin 
 
     #start draw small origin axes
-    #glColor3fv(darkred)
-    glColor3fv(lightblue)
+
+    glColor3fv(color)
     glVertex(xEnd, 0.0, 0.0)
     glVertex( 0.0, 0.0, 0.0)
-    #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    glColor3fv(lightblue)
+
+    glColor3fv(color)
     glVertex(0.0, yEnd, 0.0)
     glVertex(0.0,  0.0, 0.0)
-    #glColor3f(blue[0], blue[1], blue[2])
-    glColor3fv(lightblue)
+
+    glColor3fv(color)
     glVertex(0.0, 0.0, zEnd)
     glVertex(0.0, 0.0,  0.0)
     glEnd() #end draw lines
@@ -588,8 +608,7 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     #start draw solid arrow heads  for  X , Y and Z axes
     glPushMatrix() 
     glDisable(GL_CULL_FACE)
-    #glColor3fv(darkred)
-    glColor3fv(lightblue)
+    glColor3fv(color)
     glTranslatef(xEnd, 0.0, 0.0)
     glRotatef(90, 0.0, 1.0, 0.0)
 
@@ -603,8 +622,7 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glPopMatrix()
 
     glPushMatrix()
-    #glColor3f(darkgreen)
-    glColor3fv(lightblue)
+    glColor3fv(color)
     glTranslatef(0.0, yEnd, 0.0)
     glRotatef(-90, 1.0, 0.0, 0.0)
 
@@ -618,7 +636,7 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     glPopMatrix()
 
     glPushMatrix()
-    glColor3fv(lightblue)
+    glColor3fv(color)
     glTranslatef(0.0,0.0,zEnd)
 
     glePolyCone([[0, 0, -1],

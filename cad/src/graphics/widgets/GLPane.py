@@ -149,7 +149,7 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
-from utilities.constants import bgEVENING_SKY, bgSEAGREEN
+from utilities.constants import bgEVENING_SKY, bgSEAGREEN, ave_colors
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -191,6 +191,7 @@ from utilities.prefs_constants import light3Color_prefs_key
 from utilities.prefs_constants import displayCompass_prefs_key
 from utilities.prefs_constants import displayOriginAxis_prefs_key
 from utilities.prefs_constants import displayOriginAsSmallAxis_prefs_key
+from utilities.prefs_constants import originAxisColor_prefs_key
 from utilities.prefs_constants import UPPER_RIGHT
 from utilities.prefs_constants import UPPER_LEFT
 from utilities.prefs_constants import LOWER_LEFT
@@ -869,7 +870,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
         """
-        Sets the mode\'s background color and stores it in the prefs db.
+        Set the background color and store it in the prefs db.
 
         @param color: r,g,b tuple with values between 0.0-1.0
         @type  color: tuple with 3 floats
@@ -901,6 +902,28 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         """
         self.backgroundGradient = gradient
         env.prefs[ backgroundGradient_prefs_key ] = gradient
+        self._updateOriginAxisColor()
+        return
+    
+    def _updateOriginAxisColor(self):
+        """
+        [private]
+        Update the color of the origin axis to a shade that 
+        will contrast well with the background.
+        """
+        env.prefs.restore_defaults([originAxisColor_prefs_key])
+        axisColor = env.prefs[originAxisColor_prefs_key]
+        gradient = env.prefs[ backgroundGradient_prefs_key ]
+        
+        if gradient == 0: # No gradient (solid bg).
+            bgColor = self.backgroundColor
+            axis_vec = V(axisColor[0], axisColor[1], axisColor[2])
+            bg_vec = V(bgColor[0], bgColor[1], bgColor[2])
+            color_diff = vlen(axis_vec - bg_vec)
+            if color_diff < 0.51:
+                env.prefs[originAxisColor_prefs_key] = ave_colors( 0.5, axisColor, white)
+        elif gradient == 2: # "Evening Sky"
+            env.prefs[originAxisColor_prefs_key] = ave_colors( 0.9, axisColor, white)
         return
 
     # self.part maintenance [bruce 050419]
