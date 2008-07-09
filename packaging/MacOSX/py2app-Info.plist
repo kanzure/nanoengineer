@@ -55,7 +55,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.1</string>
+	<string>1.1.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
@@ -93,24 +93,24 @@
 	</dict>
 	<key>PyResourcePackages</key>
 	<array>
-		<string>lib/python2.3</string>
-		<string>lib/python2.3/lib-dynload</string>
-		<string>lib/python2.3/site-packages.zip</string>
+		<string>lib/python2.4</string>
+		<string>lib/python2.4/lib-dynload</string>
+		<string>lib/python2.4/site-packages.zip</string>
 	</array>
 	<key>PyRuntimeLocations</key>
 	<array>
-		<string>@executable_path/../Frameworks/Python.framework/Versions/2.3/Python</string>
-		<string>/System/Library/Frameworks/Python.framework/Versions/2.3/Python</string>
+		<string>@executable_path/../Frameworks/Python.framework/Versions/2.4/Python</string>
+		<string>/Library/Frameworks/Python.framework/Versions/2.4/Python</string>
 	</array>
 	<key>PythonInfoDict</key>
 	<dict>
 		<key>PythonExecutable</key>
 		<string>/usr/bin/python</string>
 		<key>PythonLongVersion</key>
-		<string>2.3.5 (#1, Jan 13 2006, 20:13:11) 
-[GCC 4.0.1 (Apple Computer, Inc. build 5250)]</string>
+		<string>Python 2.4.4 (#1, Oct 18 2006, 10:34:39) 
+[GCC 4.0.1 (Apple Computer, Inc. build 5341)]</string>
 		<key>PythonShortVersion</key>
-		<string>2.3</string>
+		<string>2.4</string>
 		<key>py2app</key>
 		<dict>
 			<key>alias</key>

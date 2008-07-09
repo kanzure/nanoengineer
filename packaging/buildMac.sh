@@ -2,7 +2,7 @@
 
 # Usage: Run ./buildMac.sh from the packaging directory.
 
-VERSION_NUM=1.1.0
+VERSION_NUM=1.1.1
 DIST_VERSION=NanoEngineer-1_$VERSION_NUM
 MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
 MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
@@ -13,28 +13,27 @@ cd ..
 TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT/NanoEngineer-1.app/Contents
+export MACOSX_DEPLOYMENT_TARGET=10.3
 
 cd $TOP_LEVEL
 # Modifying the foundation/preferences.py file for version
 PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
 cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
-cp cad/src/foundation/preferences.py.ptmp
-cad/src/foundation/preferences.py || exit 1
+cp cad/src/foundation/preferences.py.ptmp cad/src/foundation/preferences.py || exit 1
+DATECODE=`date "+%B %d, %Y"`
 
-#Modifying the utilities/version.py file for version number and release date
-cat cad/src/utilities/version.py | sed -e "s/\\\"major\\\": ./\\\"major\\\": $MAJOR/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-cat cad/src/utilities/version.py | sed -e "s/\\\"minor\\\": ./\\\"minor\\\": $MINOR/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-cat cad/src/utilities/version.py | sed -e "s/\\\"tiny\\\": ./\\\"tiny\\\": $TINY/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-DATECODE=`date "+%b %d, %Y"`
-cat cad/src/utilities/version.py | sed -e "s/\\\"releaseDate\\\": \\\".*\\\",/\\\"releaseDate\\\": \\\"$DATECODE\\\",/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
+#Make modifications to the build constants file.
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_RELEASE_VERSION = \\\".*\\\":NE1_RELEASE_VERSION = \\\"$VERSION_NUM\\\":" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_RELEASE_DATE = \\\".*\\\":NE1_RELEASE_DATE = \\\"$DATECODE\\\":" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_USE_bsddb3 = .*:NE1_USE_bsddb3 = True:" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 
-# Modifying the foundation/preferences.py file for bsddb3
-cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
-mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
+#Modifying the welcome screen (to avoid manual editing)
+cp packaging/MacOSX/Welcome.rtf packaging/MacOSX/Welcome.rtf.orig
+cat packaging/MacOSX/Welcome.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > out.rtf
+mv out.rtf packaging/MacOSX/Welcome.rtf || exit 1
 
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
@@ -42,7 +41,10 @@ cd $TOP_LEVEL/cad/src
 sudo rm -rf dist build
 cp $TOP_LEVEL/packaging/MacOSX/setup.py .
 python setup.py py2app --frameworks=/usr/local/BerkeleyDB.4.5/lib/libdb-4.5.dylib,/usr/local/lib/libopenbabel.1.0.2.dylib,/usr/local/lib/openbabel/APIInterface.so,/usr/local/lib/openbabel/CSRformat.so,/usr/local/lib/openbabel/PQSformat.so,/usr/local/lib/openbabel/alchemyformat.so,/usr/local/lib/openbabel/amberformat.so,/usr/local/lib/openbabel/balstformat.so,/usr/local/lib/openbabel/bgfformat.so,/usr/local/lib/openbabel/boxformat.so,/usr/local/lib/openbabel/cacaoformat.so,/usr/local/lib/openbabel/cacheformat.so,/usr/local/lib/openbabel/carformat.so,/usr/local/lib/openbabel/cccformat.so,/usr/local/lib/openbabel/chem3dformat.so,/usr/local/lib/openbabel/chemdrawformat.so,/usr/local/lib/openbabel/chemtoolformat.so,/usr/local/lib/openbabel/cmlreactlformat.so,/usr/local/lib/openbabel/copyformat.so,/usr/local/lib/openbabel/crkformat.so,/usr/local/lib/openbabel/cssrformat.so,/usr/local/lib/openbabel/dmolformat.so,/usr/local/lib/openbabel/fastsearchformat.so,/usr/local/lib/openbabel/featformat.so,/usr/local/lib/openbabel/fhformat.so,/usr/local/lib/openbabel/fingerprintformat.so,/usr/local/lib/openbabel/freefracformat.so,/usr/local/lib/openbabel/gamessformat.so,/usr/local/lib/openbabel/gaussformat.so,/usr/local/lib/openbabel/ghemicalformat.so,/usr/local/lib/openbabel/gromos96format.so,/usr/local/lib/openbabel/hinformat.so,/usr/local/lib/openbabel/inchiformat.so,/usr/local/lib/openbabel/jaguarformat.so,/usr/local/lib/openbabel/mdlformat.so,/usr/local/lib/openbabel/mmodformat.so,/usr/local/lib/openbabel/mmpformat.so,/usr/local/lib/openbabel/mol2format.so,/usr/local/lib/openbabel/mopacformat.so,/usr/local/lib/openbabel/mpdformat.so,/usr/local/lib/openbabel/mpqcformat.so,/usr/local/lib/openbabel/nwchemformat.so,/usr/local/lib/openbabel/pcmodelformat.so,/usr/local/lib/openbabel/pdbformat.so,/usr/local/lib/openbabel/povrayformat.so,/usr/local/lib/openbabel/pubchem.so,/usr/local/lib/openbabel/qchemformat.so,/usr/local/lib/openbabel/reportformat.so,/usr/local/lib/openbabel/rxnformat.so,/usr/local/lib/openbabel/shelxformat.so,/usr/local/lib/openbabel/smilesformat.so,/usr/local/lib/openbabel/tinkerformat.so,/usr/local/lib/openbabel/turbomoleformat.so,/usr/local/lib/openbabel/unichemformat.so,/usr/local/lib/openbabel/viewmolformat.so,/usr/local/lib/openbabel/xcmlformat.so,/usr/local/lib/openbabel/xedformat.so,/usr/local/lib/openbabel/xmlformat.so,/usr/local/lib/openbabel/xyzformat.so,/usr/local/lib/openbabel/yasaraformat.so,/usr/local/lib/openbabel/zindoformat.so --includes=sip --packages=ctypes,bsddb3 --iconfile ../../packaging/MacOSX/nanorex.icns || exit 1
-if [ ! -e "$DIST_CONTENTS/Resources/lib/python2.3/lib-dynload/PyQt4/QtOpenGL.so" ]; then exit; fi
+if [ ! -e "$DIST_CONTENTS/Resources/lib/python2.4/lib-dynload/PyQt4/QtOpenGL.so" ]; then
+  cp /Library/Python/2.4/site-packages/PyQt4/QtOpenGL.so $DIST_CONTENTS/Resources/lib/python2.4/lib-dynload/PyQt4/QtOpenGL.so
+  strip $DIST_CONTENTS/Resources/lib/python2.4/lib-dynload/PyQt4/QtOpenGL.so
+fi
 cp $TOP_LEVEL/packaging/MacOSX/py2app-Info.plist $DIST_CONTENTS/Info.plist
 cd $TOP_LEVEL
 
@@ -67,7 +69,8 @@ cp $TOP_LEVEL/packaging/MacOSX/ND1-Makefile ./Makefile
 make clean || exit 1
 make || exit 1
 make pyx || exit 1
-cp sim.so $DIST_CONTENTS/bin/
+sudo install_name_tool -change /Library/Frameworks/Python.framework/Versions/2.4/Python @executable_path/../Frameworks/Python.framework/Versions/2.4/Python sim.so || exit 1
+cp sim.so $DIST_CONTENTS/bin/ || exit 1
 if [ ! -e "$DIST_CONTENTS/bin/sim.so" ]; then exit; fi
 cd $TOP_LEVEL
 
@@ -79,6 +82,7 @@ if [ ! -e "$DIST_CONTENTS/Frameworks/AquaTerm.framework" ]; then exit; fi
 
 # Copy and arrange the OpenBabel binaries
 cp /usr/local/bin/babel $DIST_CONTENTS/bin/ || exit 1
+#sudo install_name_tool -change /usr/local/lib/libopenbabel.1.dylib @executable_path/../Frameworks/libopenbabel.1.dylib $DIST_CONTENTS/bin/babel || exit 1
 cd $DIST_CONTENTS/Frameworks
 ln -s libopenbabel.1.0.2.dylib libopenbabel.1.dylib
 mkdir openbabel || exit 1
@@ -170,12 +174,12 @@ cd $TOP_LEVEL
 rm -rf `find $DIST_ROOT -name CVS`
 rm -rf $DIST_ROOT/partlib/*/CVS
 rm -rf $DIST_ROOT/partlib/*/*/CVS
-rm -rf $DIST_CONTENTS/Resources/lib/python2.3/bsddb3/tests || exit 1
-rm -rf $DIST_CONTENTS/Resources/lib/python2.3/ctypes/test || exit 1
-rm -rf $DIST_CONTENTS/Resources/lib/python2.3/numpy/doc || exit 1
+#rm -rf $DIST_CONTENTS/Resources/lib/python2.3/bsddb3/tests || exit 1
+#rm -rf $DIST_CONTENTS/Resources/lib/python2.3/ctypes/test || exit 1
+#rm -rf $DIST_CONTENTS/Resources/lib/python2.3/numpy/doc || exit 1
 #rm -rf $DIST_CONTENTS/Resources/lib/python2.3/numpy/testing || exit 1
-rm -rf $DIST_CONTENTS/Resources/lib/python2.3/numpy/tests || exit 1
-rm -rf $DIST_CONTENTS/Resources/lib/python2.3/OpenGL/tests || exit 1
+#rm -rf $DIST_CONTENTS/Resources/lib/python2.3/numpy/tests || exit 1
+#rm -rf $DIST_CONTENTS/Resources/lib/python2.3/OpenGL/tests || exit 1
 for file in `find $DIST_ROOT -name *.py`; do
   if [ -e ${file}c ]; then
     rm $file
@@ -199,14 +203,20 @@ chmod ugo-x $DIST_ROOT/$DIST_VERSION/partlib/*/*/*.mmp
 chmod ugo-x $DIST_ROOT/$DIST_VERSION/Licenses/*
 chmod ugo-x $DIST_ROOT/$DIST_VERSION/ReadMe.html
 sudo chown -R root:admin $DIST_ROOT/$DIST_VERSION
-
+sudo chmod -R g+w $DIST_ROOT/$DIST_VERSION
+sudo chmod -R o+w $DIST_ROOT/$DIST_VERSION
+cd $DIST_ROOT/$DIST_VERSION
+echo "Removing:"
+sudo find . -depth -type d -name ".svn" -print -exec rm -rf {} \;
+cd $TOP_LEVEL
 # Create package
-sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg -f $DIST_ROOT -s -ds -v -r $TOP_LEVEL/packaging/MacOSX -i $TOP_LEVEL/packaging/MacOSX/PackageMaker-Info.plist -d $TOP_LEVEL/packaging/MacOSX/Description.plist
+
+sudo /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -o $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg -r $DIST_ROOT -v -e $TOP_LEVEL/packaging/MacOSX -f $TOP_LEVEL/packaging/MacOSX/NE1-package-info.plist
 
 # Create the disk image
 sudo mkdir $TOP_LEVEL/cad/src/build/$DIST_VERSION
 sudo mv $TOP_LEVEL/cad/src/build/$DIST_VERSION.pkg $TOP_LEVEL/cad/src/build/$DIST_VERSION/
-sudo hdiutil create -srcfolder $TOP_LEVEL/cad/src/build/$DIST_VERSION -format UDZO $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg
+sudo hdiutil create -srcfolder $TOP_LEVEL/cad/src/build/$DIST_VERSION -fs HFS+ -format UDZO $TOP_LEVEL/cad/src/build/${DIST_VERSION}.dmg
 
 cd $TOP_LEVEL/packaging
 

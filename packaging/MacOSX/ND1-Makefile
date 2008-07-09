@@ -3,10 +3,12 @@
 # $Id: Makefile,v 1.105 2007/05/11 04:41:28 emessick Exp $
 
 UNAME := $(shell uname)
+# PYPATH is left in in case a way to run versus another python is needed
+PYPATH = ""
 # dotted python version (2.3, 2.4)
-PYDVER := $(shell python -c "import sys; print sys.version[:3]")
+PYDVER := $(shell $(PYPATH)python -c "import sys; print sys.version[:3]")
 # un-dotted python version (23, 24)
-PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
+PYVER := $(shell $(PYPATH)python -c "import sys; print sys.version[0]+sys.version[2]")
 
 LODE=
 USEODE=
@@ -30,7 +32,7 @@ LDFLAGS=-L"$(CCDIR)/lib" -L"C:/ode-win32-0.7/lib/releasedll" $(LODE)
 PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
-PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
+PYREXC=$(PYPATH)python c:/Python$(PYVER)/Scripts/pyrexc.py
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
@@ -43,9 +45,12 @@ SIMTARGET=simulator
 CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-CFLAGS+=-arch i386 -arch ppc -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
-    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
-LDFLAGS=-arch i386 -arch ppc -Wl,-F. -framework Python
+CFLAGS+=-arch i386 -arch ppc -force_cpusubtype_ALL -isysroot /Developer/SDKs/MacOSX10.4u.sdk -I/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
+    -I/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+
+LDFLAGSDIST= $(shell $(PYPATH)python -c "import sys,os.path;print '-L%s/lib -L%s/lib/python$(PYDVER)/config -lpython%s' % (os.path.normpath(sys.prefix), os.path.normpath(sys.prefix), $(PYDVER))")
+
+LDFLAGS=-arch i386 -arch ppc -force_cpusubtype_ALL -isysroot /Developer/SDKs/MacOSX10.4u.sdk $(LDFLAGSDIST)  -Wl,-F.,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -framework Python
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
@@ -55,7 +60,7 @@ LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config $(LODE) -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
-PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
+PYREXC=$(shell $(PYPATH)python -c "import findpyrex; print findpyrex.find_pyrexc()")
 LDFLAGS+=-L/usr/lib -lm
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
@@ -158,13 +163,13 @@ sim.so: $(PYREXOBJS)
 endif
 
 tables.c: gentab.py
-	python gentab.py > tables.c
+	$(PYPATH)python gentab.py > tables.c
 
 bonds.gen: stretch.py stretch.parms
-	python stretch.py stretch.parms > bonds.gen
+	$(PYPATH)python stretch.py stretch.parms > bonds.gen
 
 bends.gen: bend.py bending.parms
-	python bend.py bending.parms > bends.gen
+	$(PYPATH)python bend.py bending.parms > bends.gen
 
 # There is something about bends.gen that the compiler doesn't want to
 # optimize. It's getting tripped up by the bend names; if they are all
@@ -173,7 +178,7 @@ newtables.o: newtables.c
 	$(CC) -o newtables.o -arch i386 -arch ppc -c -g newtables.c
 
 version.h:
-	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
+	$(PYPATH)python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
 		| grep -v "^running " > version.h
 
 noopt:

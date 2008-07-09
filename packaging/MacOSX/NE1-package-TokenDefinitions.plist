@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>pkmk-token-2</key>
+	<array>
+		<dict>
+			<key>identifier</key>
+			<string>com.nanorex.NanoEngineer-1</string>
+			<key>path</key>
+			<string>./NanoEngineer-1_1.1.1/NanoEngineer-1.app</string>
+			<key>searchPlugin</key>
+			<string>CommonAppSearch</string>
+		</dict>
+	</array>
+</dict>
+</plist>
