@@ -419,7 +419,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # For file export, we will use Open Babel's chemistry MDL format.
         
         currentFilename = self.getCurrentFilename()
-        sfilter = QString("Protein Data Bank (*.pdb)")
+        sfilter = QString("Protein Data Bank format (*.pdb)")
 
         formats = \
             "Alchemy format (*.alc);;"\
