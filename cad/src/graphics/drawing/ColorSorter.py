@@ -775,7 +775,6 @@ class ColorSorter:
                             objects_drawn += 1
                             if name != 0:
                                 glPushName(name)
-                            pos_array, color_array, rad_array = params
                             if func == drawpolycone_multicolor_worker:
                                 # Just to be sure, check if the func
                                 # is drawpolycone_multicolor_worker
@@ -783,7 +782,16 @@ class ColorSorter:
                                 # I think in the future we can figure out 
                                 # a more general way of handling the 
                                 # GL_COLOR_MATERIAL objects. piotr 080420
+                                pos_array, color_array, rad_array = params
                                 drawpolycone_worker((pos_array, rad_array))
+                            elif func == drawtriangle_strip_worker:
+                                # piotr 080710: Multi-color modification
+                                # for triangle_strip primitive (used by 
+                                # reduced protein style).
+                                pos_array, normal_array, color_array = params
+                                drawtriangle_strip_worker((pos_array, 
+                                                           normal_array,
+                                                           None))
                             if name != 0:
                                 glPopName()
                                 pass

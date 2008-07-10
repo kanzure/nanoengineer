@@ -3,7 +3,7 @@
 ProteinChunks.py -- defines I{Reduced Protein} display modes.
 
 @author: Piotr
-@version: $Id 
+$Id$ 
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
@@ -11,6 +11,10 @@ History:
 piotr 080623: First preliminary version of the protein display style.
 
 piotr 080702: Implemented ribbons and cartoons.
+
+piotr 080709: Making the file compliant with a Protein class.
+
+piotr 080710: Minor fixes.
 
 """
 
@@ -193,25 +197,16 @@ def compute_spline(data, idx, t):
 
 def make_tube(points, colors, radii, dpos, resolution=8, trim=True):
     """
-    Converts a polycylinder tube to a smooth, curved tube
+    Converts a polycylinder tube into a smooth, curved tube
     using spline interpolation of points, colors and radii.
     """
     n = len(points)
-    ## print "points = ", points
     if n > 3:
         new_points = []
         new_colors = []
         new_radii = []
         new_dpos = []
         o = 1
-        #print ""
-        #for sp in points:
-        #    print "pre-spline = ", sp
-        
-        #new_points.append(points[0])
-        #new_colors.append(colors[0])
-        #new_radii.append(radii[0])
-        
         ir = 1.0/float(resolution)
         for p in range (1, n-2):
             start_spline = 0
@@ -230,13 +225,13 @@ def make_tube(points, colors, radii, dpos, resolution=8, trim=True):
                 new_colors.append(sc)
                 new_radii.append(sr)
                 new_dpos.append(sd)
-                
+
         t = ir * (m + 1)
         sp = compute_spline(points, p, t)
         sc = compute_spline(colors, p, t)
         sr = compute_spline(radii, p, t)
         sd = compute_spline(dpos, p, t)
-        
+
         new_points.append(sp)
         new_colors.append(sc)
         new_radii.append(sr)
@@ -258,6 +253,9 @@ def get_rainbow_color(hue, saturation, value):
     return colorsys.hsv_to_rgb(hue, saturation, value)
 
 def get_rainbow_color_in_range(pos, count, saturation, value):
+    """
+    Create a rainbow color from a range (0, pos/count).
+    """
     if count > 1: 
         count -= 1
     hue = float(pos)/float(count)        
@@ -286,7 +284,7 @@ class ProteinChunks(ChunkDisplayMode):
         Returns an amino acid color according to current colormode.
         """
         color = gray
-        
+
         if self.proteinStyleColors == PROTEIN_COLOR_ORDER:
             color = get_rainbow_color_in_range(pos, n_pos, 1.0, 1.0)
         elif self.proteinStyleColors == PROTEIN_COLOR_CHUNK:
@@ -314,14 +312,14 @@ class ProteinChunks(ChunkDisplayMode):
                 color = get_rainbow_color_in_range(c_sec, n_sec-1, 1.0, 1.0)
             else:
                 color = self.proteinStyleCoilColor
-                
+
         return color
-    
+
     def drawchunk(self, glpane, chunk, memo, highlighted):
         """
         Draws reduced representation of a protein chunk.
         """
-        
+
         structure, total_length, ca_list, n_sec = memo
 
         style = self.proteinStyle
@@ -329,7 +327,7 @@ class ProteinChunks(ChunkDisplayMode):
         resolution = self.proteinStyleQuality
         scaling = self.proteinStyleScaling
         smooth = self.proteinStyleSmooth
-        
+
         gleSetJoinStyle(TUBE_JN_ANGLE | TUBE_NORM_PATH_EDGE | TUBE_JN_CAP | TUBE_CONTOUR_CLOSED ) 
 
         current_sec = 0
@@ -373,12 +371,12 @@ class ProteinChunks(ChunkDisplayMode):
                                              pos1,
                                              0.25 * scaleFactor, 
                                              capped=1)
-                            
+
                             if style == PROTEIN_STYLE_CA_BALL_STICK:
                                 drawsphere(color, pos1, 0.5 * scaleFactor, 2)
                             else:
                                 drawsphere(color, pos1, 0.25 * scaleFactor, 2)
-                            
+
                             if pos2:
                                 drawcylinder(color, 
                                              pos1, 
@@ -400,8 +398,8 @@ class ProteinChunks(ChunkDisplayMode):
                         tri = []
                         nor = []
                         col = []
-                        
-                        
+
+
                 elif style == PROTEIN_STYLE_TUBE or \
                      style == PROTEIN_STYLE_LADDER or \
                      style == PROTEIN_STYLE_ZIGZAG or \
@@ -414,14 +412,14 @@ class ProteinChunks(ChunkDisplayMode):
                     tube_col = []
                     tube_rad = []
                     tube_dpos = []
-                    
+
                     for n in range( 2, n_atoms-2 ):
                         pos00, ss00, a00, idx00, dpos00, cbpos00 = sec[n - 2]
                         pos0, ss0, aa0, idx0, dpos0, cbpos0 = sec[n - 1]
                         pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[n]
                         pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[n + 1]
                         pos22, ss22, aa22, idx22, dpos22, cbpos22 = sec[n + 2]
-                            
+
                         color = self._get_aa_color(chunk, 
                                                    idx1, 
                                                    total_length, 
@@ -435,7 +433,7 @@ class ProteinChunks(ChunkDisplayMode):
                            scaling == 1:
                             if secondary > 0: 
                                 rad *= 2.0
-                                
+
                         if n == 2:
                             if pos0:
                                 tube_pos.append(pos00)
@@ -446,18 +444,18 @@ class ProteinChunks(ChunkDisplayMode):
                                 tube_col.append(V(color))
                                 tube_rad.append(rad)
                                 tube_dpos.append(dpos1)
-                        
-                        
+
+
                         if style == PROTEIN_STYLE_LADDER:
                             drawcylinder(color, pos1, cbpos1, rad * 0.75)
                             drawsphere(color, cbpos1, rad * 1.5, 2)
-                            
+
                         if pos1:
                             tube_pos.append(pos1)
                             tube_col.append(V(color))
                             tube_rad.append(rad)
                             tube_dpos.append(dpos1)
-                            
+
                         if n == n_atoms - 3:
                             if pos2:
                                 tube_pos.append(pos2)
@@ -472,7 +470,7 @@ class ProteinChunks(ChunkDisplayMode):
                     # For smoothed helices we need to add virtual atoms
                     # located approximately at the centers of peptide bonds
                     # but slightly moved away from the helix axis.
-                    
+
                     new_tube_pos = []
                     new_tube_col = []
                     new_tube_rad = []
@@ -484,7 +482,7 @@ class ProteinChunks(ChunkDisplayMode):
                             new_tube_col.append(tube_col[p])
                             new_tube_rad.append(tube_rad[p])                        
                             new_tube_dpos.append(tube_dpos[p])
-                            
+
                             if p > 1 and p < len(tube_pos) - 3:
                                 pv = tube_pos[p-1] - tube_pos[p]
                                 nv = tube_pos[p+2] - tube_pos[p+1]
@@ -496,12 +494,12 @@ class ProteinChunks(ChunkDisplayMode):
                                 new_tube_col.append(0.5*(tube_col[p]+tube_col[p+1]))
                                 new_tube_rad.append(0.5*(tube_rad[p]+tube_rad[p+1]))                        
                                 new_tube_dpos.append(0.5*(tube_dpos[p]+tube_dpos[p+1]))
-                        
+
                         tube_pos = new_tube_pos
                         tube_col = new_tube_col
                         tube_rad = new_tube_rad
                         tube_dpos = new_tube_dpos
-                        
+
                     if secondary != 1 or \
                        style != PROTEIN_STYLE_SIMPLE_CARTOONS:
                         tube_pos, tube_col, tube_rad, tube_dpos = make_tube(
@@ -510,17 +508,17 @@ class ProteinChunks(ChunkDisplayMode):
                             tube_rad, 
                             tube_dpos, 
                             resolution=resolution)
-                    
+
                         if style == PROTEIN_STYLE_ZIGZAG or \
                            style == PROTEIN_STYLE_FLAT_RIBBON or \
                            style == PROTEIN_STYLE_SOLID_RIBBON or \
                            style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                            style == PROTEIN_STYLE_FANCY_CARTOONS:
-                            
+
                             last_pos = None
                             last_width = 1.0
                             reset = False
-                            
+
                             # Find SS element widths and determine width increment.
                             if secondary == 0:
                                 # Coils have a constant width.
@@ -534,38 +532,38 @@ class ProteinChunks(ChunkDisplayMode):
                                 # Strands just shrink at the C-terminal end.
                                 width = scaleFactor * 1.0
                                 dw = (1.6 * scaleFactor) / (1.5 * resolution - 3)
-                                                  
+
                             if style == PROTEIN_STYLE_FLAT_RIBBON or \
                                style == PROTEIN_STYLE_SOLID_RIBBON or \
                                style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                                style == PROTEIN_STYLE_FANCY_CARTOONS:
-                                
+
                                 tri_arr0 = []
                                 nor_arr0 = []
                                 col_arr0 = []
-                                
+
                                 if style == PROTEIN_STYLE_SOLID_RIBBON or \
                                    style == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                                    style == PROTEIN_STYLE_FANCY_CARTOONS: 
-                                    
+
                                     tri_arr1 = []
                                     nor_arr1 = []
                                     col_arr1 = []
-                                    
+
                                     tri_arr2 = []
                                     nor_arr2 = []
                                     col_arr2 = []
-                                    
+
                                     tri_arr3 = []
                                     nor_arr3 = []
                                     col_arr3 = []
-                            
+
                             from copy import copy
                             new_tube_dpos = copy(tube_dpos)
-                            
+
                             for n in range(1, len(tube_pos)-1):
                                 pos = tube_pos[n]
-                                
+
                                 col = tube_col[n][0]
                                 col2 = tube_col[n+1][0]
                                 if last_pos:
@@ -576,86 +574,86 @@ class ProteinChunks(ChunkDisplayMode):
                                     if reset:
                                         dpos1 = dpos2
                                         reset = False
-                                        
+
                                     if self.proteinStyle == PROTEIN_STYLE_ZIGZAG:
                                         drawline(col, last_pos-dpos1, pos-dpos2, width=3)
                                         drawline(col, last_pos+dpos1, pos+dpos2, width=3)
                                         drawline(col, last_pos-dpos1, pos+dpos2, width=1)
                                         drawline(col, pos-dpos2, pos+dpos2, width=1)
                                         drawline(col, last_pos-dpos1, last_pos+dpos1, width=1)
-    
+
                                     if self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON:
                                         if pos != last_pos:
-                                            
+
                                             nvec1 = norm(cross(dpos1, pos-last_pos))
                                             if next_pos != pos:
                                                 nvec2 = norm(cross(dpos2, next_pos-pos))
                                             else:
                                                 nvec2 = nvec1
-                                                                                        
+
                                             nor_arr0.append(nvec1)
                                             nor_arr0.append(nvec1)
                                             nor_arr0.append(nvec2)
                                             nor_arr0.append(nvec2)
-                                            
+
                                             tri_arr0.append(last_pos-dpos1) 
                                             tri_arr0.append(last_pos+dpos1)
                                             tri_arr0.append(pos-dpos2) 
                                             tri_arr0.append(pos+dpos2)
-                                            
+
                                             col_arr0.append(col)
                                             col_arr0.append(col)
                                             col_arr0.append(col2)
                                             col_arr0.append(col2)
-                                            
+
                                     if self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON or \
                                        self.proteinStyle == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                                        self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS:
-                                                                            
+
                                         if secondary > 0:
-                                                
+
                                             col3 = col4 = V(gray)
-                                            
+
                                             if pos != last_pos:
-                                                
+
                                                 nvec1 = norm(cross(dpos1, pos-last_pos))
                                                 if next_pos != pos:
                                                     nvec2 = norm(cross(dpos2, next_pos-pos))
                                                 else:
                                                     nvec2 = nvec1
-                                                                                            
+
                                                 nor_arr0.append(nvec1)
                                                 nor_arr0.append(nvec1)
                                                 nor_arr0.append(nvec2)
                                                 nor_arr0.append(nvec2)
-                                                
+
                                                 if self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS:
                                                     dn1 = 0.15 * nvec1 * scaleFactor
                                                     dn2 = 0.15 * nvec2 * scaleFactor
                                                 else:
                                                     dn1 = 0.15 * nvec1 * scaleFactor
                                                     dn2 = 0.15 * nvec2 * scaleFactor
-                                                   
+
                                                 tri_arr0.append(last_pos - dpos1 - dn1) 
                                                 tri_arr0.append(last_pos + dpos1 - dn1)
                                                 tri_arr0.append(pos - dpos2 - dn2) 
                                                 tri_arr0.append(pos + dpos2 - dn2)
-                                                
+
                                                 col_arr0.append(col)
                                                 col_arr0.append(col)
                                                 col_arr0.append(col2)
                                                 col_arr0.append(col2)
-                                                                                            
+
                                                 nor_arr1.append(nvec1)
                                                 nor_arr1.append(nvec1)
                                                 nor_arr1.append(nvec2)
                                                 nor_arr1.append(nvec2)
-                                                
+
                                                 tri_arr1.append(last_pos - dpos1 + dn1) 
                                                 tri_arr1.append(last_pos + dpos1 + dn1)
                                                 tri_arr1.append(pos - dpos2 + dn2) 
                                                 tri_arr1.append(pos + dpos2 + dn2)
-                                                
+
                                                 if secondary == 1:
                                                     col_arr1.append(0.5 * col + 0.5 * V(white))
                                                     col_arr1.append(0.5 * col + 0.5 * V(white))
@@ -666,61 +664,61 @@ class ProteinChunks(ChunkDisplayMode):
                                                     col_arr1.append(col)
                                                     col_arr1.append(col2)
                                                     col_arr1.append(col2)
-                                                    
+
                                                 nor_arr2.append(-dpos1)
                                                 nor_arr2.append(-dpos1)
                                                 nor_arr2.append(-dpos2)
                                                 nor_arr2.append(-dpos2)
-                                                
+
                                                 tri_arr2.append(last_pos - dpos1 - dn1) 
                                                 tri_arr2.append(last_pos - dpos1 + dn1)
                                                 tri_arr2.append(pos - dpos2 - dn2) 
                                                 tri_arr2.append(pos - dpos2 + dn2)
-                                                
+
                                                 col_arr2.append(col3)
                                                 col_arr2.append(col3)
                                                 col_arr2.append(col4)
                                                 col_arr2.append(col4)
-                                                                                            
+
                                                 nor_arr3.append(-dpos1)
                                                 nor_arr3.append(-dpos1)
                                                 nor_arr3.append(-dpos2)
                                                 nor_arr3.append(-dpos2)
-                                                
+
                                                 tri_arr3.append(last_pos + dpos1 - dn1) 
                                                 tri_arr3.append(last_pos + dpos1 + dn1)
                                                 tri_arr3.append(pos + dpos2 - dn2) 
                                                 tri_arr3.append(pos + dpos2 + dn2)
-                                                
+
                                                 col_arr3.append(col3)
                                                 col_arr3.append(col3)
                                                 col_arr3.append(col4)
                                                 col_arr3.append(col4)
-                                                                                            
-                                                    
+
+
                                 last_pos = pos
                                 last_width = width
-                                
+
                                 if secondary == 1:
                                     if n > len(tube_pos) - resolution:
                                         width -= dw 
                                     elif width < 1.0 * scaleFactor:
                                         width += dw
-                                    
+
                                 if secondary == 2:
                                     if n == len(tube_pos) - 1.5 * resolution:
                                         width = scaleFactor * 1.6
                                         reset = True
                                     if n > len(tube_pos) - 1.5 * resolution:
                                         width -= dw 
-                            
+
                                 new_tube_dpos[n] = width * tube_dpos[n]
-    
+
                         ###drawcylinder(white, tube_pos[0], tube_pos[10], 1.0)
 
                         if self.proteinStyle == PROTEIN_STYLE_FLAT_RIBBON:
-                            drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
-                         
+                            drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr0, nor_arr0, col_arr0)
+
                         if self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON or \
                            self.proteinStyle == PROTEIN_STYLE_SIMPLE_CARTOONS or \
                            self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS:
@@ -729,31 +727,31 @@ class ProteinChunks(ChunkDisplayMode):
                             else:
                                 if (secondary == 1 and self.proteinStyle == PROTEIN_STYLE_SOLID_RIBBON) or \
                                    secondary == 2:
-                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
-                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr1, nor_arr1, col_arr1)
-                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr2, nor_arr2, col_arr2)
-                                        drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr3, nor_arr3, col_arr3)
-                                        # Fill in the strand N-terminal end.
-                                        quad_tri = []
-                                        quad_nor = []
-                                        quad_col = []
-                                        quad_tri.append(tri_arr2[0])
-                                        quad_tri.append(tri_arr3[0])
-                                        quad_tri.append(tri_arr2[1])
-                                        quad_tri.append(tri_arr3[1])
-                                        quad_nor.append(nor_arr2[0])
-                                        quad_nor.append(nor_arr3[0])
-                                        quad_nor.append(nor_arr2[1])
-                                        quad_nor.append(nor_arr3[1])
-                                        quad_col.append(col_arr2[0])
-                                        quad_col.append(col_arr3[0])
-                                        quad_col.append(col_arr2[1])
-                                        quad_col.append(col_arr3[1])
-                                        drawtriangle_strip([1.0,1.0,1.0,1.0],quad_tri,quad_nor,quad_col)
-                                        
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr0, nor_arr0, col_arr0)
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr1, nor_arr1, col_arr1)
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr2, nor_arr2, col_arr2)
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr3, nor_arr3, col_arr3)
+                                    # Fill in the strand N-terminal end.
+                                    quad_tri = []
+                                    quad_nor = []
+                                    quad_col = []
+                                    quad_tri.append(tri_arr2[0])
+                                    quad_tri.append(tri_arr3[0])
+                                    quad_tri.append(tri_arr2[1])
+                                    quad_tri.append(tri_arr3[1])
+                                    quad_nor.append(nor_arr2[0])
+                                    quad_nor.append(nor_arr3[0])
+                                    quad_nor.append(nor_arr2[1])
+                                    quad_nor.append(nor_arr3[1])
+                                    quad_col.append(col_arr2[0])
+                                    quad_col.append(col_arr3[0])
+                                    quad_col.append(col_arr2[1])
+                                    quad_col.append(col_arr3[1])
+                                    drawtriangle_strip([1.0,1.0,1.0,-2.0],quad_tri,quad_nor,quad_col)
+
                                 if (secondary == 1 and self.proteinStyle == PROTEIN_STYLE_FANCY_CARTOONS):
-                                    drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr0, nor_arr0, col_arr0)
-                                    drawtriangle_strip([1.0,1.0,0.0,1.0], tri_arr1, nor_arr1, col_arr1)
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr0, nor_arr0, col_arr0)
+                                    drawtriangle_strip([1.0,1.0,0.0,-2.0], tri_arr1, nor_arr1, col_arr1)
                                     tube_pos_left = []
                                     tube_pos_right = []
                                     new_tube_dpos[0] *= 0.1
@@ -766,20 +764,20 @@ class ProteinChunks(ChunkDisplayMode):
                                         tube_rad[p] *= 0.75
                                     drawpolycone_multicolor([0,0,0,-2], tube_pos_left, tube_col, tube_rad)
                                     drawpolycone_multicolor([0,0,0,-2], tube_pos_right, tube_col, tube_rad)
-                                                            
+
 #                    else:                               
                     if (secondary == 1 and style == PROTEIN_STYLE_SIMPLE_CARTOONS):
                         drawcylinder(tube_col[0][0], tube_pos[1], tube_pos[-3], 2.5, capped=1)
                         #print "hopsa"
-                    
+
                     if style == PROTEIN_STYLE_LADDER or \
                        style == PROTEIN_STYLE_TUBE:
                         # Draw tube.
                         drawpolycone_multicolor([0,0,0,-2], tube_pos, tube_col, tube_rad)
-                    
+
             # increase Sec. Str. element counter
             current_sec += 1
-        
+
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """
         Given the same arguments as drawchunk, plus selection_frame_color, 
@@ -838,20 +836,20 @@ class ProteinChunks(ChunkDisplayMode):
         def _get_ss(aa):
             if aa:
                 return aa.get_secondary_structure()
-            
+
             return 0
-        
+
         def _get_aa(aa):
             if aa:
                 return aa.get_three_letter_code()
             return "UNK"
-            
+
         if chunk is None:
             return None
 
         if chunk.protein is None:
             return None
-        
+
         structure = []
 
         from utilities.prefs_constants import proteinStyle_prefs_key
@@ -863,16 +861,16 @@ class ProteinChunks(ChunkDisplayMode):
         from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
         from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
         from utilities.prefs_constants import proteinStyleSmooth_prefs_key
-        
+
         self.proteinStyle =  env.prefs[proteinStyle_prefs_key] + 1
-        
+
         self.proteinStyleSmooth = env.prefs[proteinStyleSmooth_prefs_key]
         self.proteinStyleQuality = 2 * env.prefs[proteinStyleQuality_prefs_key]
         self.proteinStyleScaling = env.prefs[proteinStyleScaling_prefs_key]
         self.proteinStyleScaleFactor = env.prefs[proteinStyleScaleFactor_prefs_key]
-        
+
         self.proteinStyleColors = env.prefs[proteinStyleColors_prefs_key] 
-        
+
         self.proteinStyleAuxColors = 0
         self.proteinStyleCustomColor = gray
         self.proteinStyleAuxCustomColor = gray
@@ -880,7 +878,7 @@ class ProteinChunks(ChunkDisplayMode):
         self.proteinStyleHelixColor = env.prefs[proteinStyleHelixColor_prefs_key]
         self.proteinStyleStrandColor = env.prefs[proteinStyleStrandColor_prefs_key]
         self.proteinStyleCoilColor = env.prefs[proteinStyleCoilColor_prefs_key]
-                
+
         # Extract secondary structure elements
         # Every element is a list of consecutive, non-broken C-alpha atoms
         # in the same secondary structure conformation. The list also includes
@@ -889,25 +887,25 @@ class ProteinChunks(ChunkDisplayMode):
 
         # Empty SS element.
         sec = []
-        
+
         # Extract a list of alpha carbon atoms and corresponding C-O vectors.
         # The C-O vectors are rotated to avoid sudden orientation changes.
         ca_list = []
-        
+
         # dictionary of corresponding Ca-Cb atoms 
         ca_cb = {}
-        
+
         n_ca = 0
         last_c_atom = None
         last_o_atom = None
         last_dpos = None
         last_ca_atom = None
-        
+
         from files.pdb.files_pdb import Residuum
         from files.pdb.files_pdb import Protein
-        
-        
-        
+
+
+
         for aa in chunk.protein.get_amino_acids():
             last_c_atom = aa.get_c_atom()
             last_o_atom = aa.get_o_atom()
@@ -934,23 +932,23 @@ class ProteinChunks(ChunkDisplayMode):
                                 dpos))
                 last_ca_atom = ca_atom
                 n_ca += 1
-            
+
             if last_cb_atom:
                 ca_cb[ca_atom] = chunk.abs_to_base(last_cb_atom.posn())
             else:
                 ca_cb[ca_atom] = chunk.abs_to_base(last_ca_atom.posn())
-                
+
         for p in range(len(ca_list)-1):
             atom, pos, ss, aa, dpos = ca_list[p]
             if dpos == None:
                 atom2, pos2, ss2, aa2, dpos2 = ca_list[p+1]
                 ca_list[p] = (atom, pos, ss, aa, dpos2)
-        
-        
+
+
         anum = 0
-        
+
         # Smoothing of helices and beta-strands.
-        
+
         if self.proteinStyleSmooth and \
            (self.proteinStyle == PROTEIN_STYLE_TUBE or 
             self.proteinStyle == PROTEIN_STYLE_LADDER or 
@@ -971,9 +969,9 @@ class ProteinChunks(ChunkDisplayMode):
                     prev_ss = 0
                     prev_aa = None
                     prev_dpos = None
-                    
+
                 ca, ca_pos, ss, aa, dpos = ca_list[i]
-                
+
                 if i < n_ca - 1:
                     next_ca, next_ca_pos, next_ss, next_aa, next_dpos = ca_list[i + 1]
                 else:
@@ -982,27 +980,27 @@ class ProteinChunks(ChunkDisplayMode):
                     next_ss = 0
                     next_aa = None
                     next_dpos = None
-                    
+
                 if (ss == 2 or prev_ss == 2 or next_ss == 2) and prev_ca and next_ca:
                     ca_pos = 0.5 * (0.5*prev_ca_pos + ca_pos + 0.5*next_ca_pos)
                     if next_ss == 2 and prev_ss == 2:
                         dpos = norm(prev_dpos + dpos + next_dpos)
                     smooth_list.append((ca, ca_pos, ss, aa, dpos, i))
-                
+
                 if ss == 1:
                     if prev_dpos and next_dpos:
                         dpos = norm(prev_dpos + dpos + next_dpos)
                     smooth_list.append((ca, ca_pos, ss, aa, dpos, i))
-                    
+
             for ca, ca_pos, ss, aa, dpos, i in smooth_list:
                 ca_list[i] = (ca, ca_pos, ss, aa, dpos)
-            
+
         n_sec = 0
-        
+
         for i in range( n_ca ):
 
             ca, ca_pos, ss, aa, dpos = ca_list[i]
-            
+
             if i > 0:
                 prev_ca, prev_ca_pos, prev_ss, prev_aa, prev_dpos = ca_list[i - 1]
             else:
@@ -1011,7 +1009,7 @@ class ProteinChunks(ChunkDisplayMode):
                 prev_ss = ss
                 prev_aa = aa                        
                 prev_dpos = dpos
-                
+
             if i > 1:
                 prev2_ca, prev2_ca_pos, prev2_ss, prev2_aa, prev2_dpos = ca_list[i - 2]
             else:
@@ -1020,13 +1018,13 @@ class ProteinChunks(ChunkDisplayMode):
                 prev2_ss = prev_ss
                 prev2_aa = prev_aa
                 prev2_dpos = prev_dpos
-                
+
             if len(sec) == 0:
                 sec.append((prev2_ca_pos, prev2_ss, prev2_aa, i - 2, prev2_dpos, ca_cb[prev2_ca]))
                 sec.append((prev_ca_pos, prev_ss, prev_aa, i - 1, prev_dpos, ca_cb[prev_ca]))
 
             sec.append((ca_pos, ss, aa, i, dpos, ca_cb[ca]))
-                                            
+
             if i < n_ca - 1:
                 next_ca, next_ca_pos, next_ss, next_aa, next_dpos = ca_list[i + 1]
             else:
@@ -1035,9 +1033,9 @@ class ProteinChunks(ChunkDisplayMode):
                 next_ss = ss
                 next_aa = aa
                 next_dpos = dpos
-                
+
             if next_ss != ss or i == n_ca-1:                
-                                                 
+
                 if i < n_ca - 2:
                     next2_ca, next2_ca_pos, next2_ss, next2_aa, next2_dpos = ca_list[i + 2]
                 else:
@@ -1046,7 +1044,7 @@ class ProteinChunks(ChunkDisplayMode):
                     next2_ss = next_ss
                     next2_aa = next_aa                
                     next2_dpos = next_dpos
-                    
+
                 # Preasumably, the sec list includes all atoms
                 # inside a continuous secondary structure chain fragment
                 # (ss element) and FOUR dummy atom positions (two at
@@ -1055,10 +1053,10 @@ class ProteinChunks(ChunkDisplayMode):
                 # The dummy atom positions can be None and therefore
                 # the spline interpolator has to compute fake positions
                 # of the terminal atoms.
-                
+
                 sec.append((next_ca_pos, next_ss, next_aa, i + 1, dpos, ca_cb[next_ca]))                
                 sec.append((next2_ca_pos, next2_ss, next2_aa, i + 2, dpos, ca_cb[next2_ca]))                
-                    
+
                 # Fix the endings.
                 pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[1]
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[2]
@@ -1066,25 +1064,25 @@ class ProteinChunks(ChunkDisplayMode):
                 if pos1 == pos2:
                     pos1 =  2.0 * pos2 - pos3
                     sec[1] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)
-    
+
                 pos1, ss1, aa1, idx1, dpos1, cbpos1 = sec[-2]
                 pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[-3]
                 pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[-4]
                 if pos1 == pos2:
                     pos1 =  2.0 * pos2 - pos3
                     sec[-2] = (pos1, ss1, aa1, idx1, dpos1, cbpos1)                
-                
+
                 # Make sure that the interior surface of helices 
                 # is properly oriented.
-                
+
                 if ss == 1:
                     pos2, ss2, aa2, idx2, dpos2, cbpos2 = sec[2]
                     pos3, ss3, aa3, idx3, dpos3, cbpos3 = sec[3]
                     pos4, ss4, aa4, idx4, dpos4, cbpos4 = sec[4]
-                
+
                     xvec = cross(pos4-pos3, pos3-pos2)
                     sign = dot(xvec, dpos3)
-                    
+
                     if sign > 0: 
                         # Wrong orientation, invert peptide plates
                         for n in range(2, len(sec)-2):
@@ -1095,7 +1093,7 @@ class ProteinChunks(ChunkDisplayMode):
                 # Append the secondary structure element.
                 structure.append((sec, ss))
                 n_sec += 1
-                
+
                 sec = []                            
 
         return (structure, n_ca, ca_list, n_sec)
