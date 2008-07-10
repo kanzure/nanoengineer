@@ -85,7 +85,6 @@ def pref_nt_segment_resize_by_recreating_nanotube():
                      prefs_key = True )
     return res
 
-
 class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a NanotubeSegment object. 
@@ -106,8 +105,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
     command_has_its_own_gui = True
     command_can_be_suspended = False
 
-    # Generators for DNA, nanotubes and graphene have their MT name 
-    # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
     call_makeMenus_for_each_event = True 
@@ -191,7 +188,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
                                          ))
 
-
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
@@ -208,8 +204,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         #Initialize DEBUG preference
         pref_nt_segment_resize_by_recreating_nanotube()
-
-
+        return
 
     def init_gui(self):
         """
@@ -231,6 +226,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #  EditCommand API was written before the command sequencer API and 
         #  it has some loose ends like this. ) -- Ninad 2008-01-22
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
+        return
 
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
@@ -258,6 +254,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
+        return
 
     def keep_empty_group(self, group):
         """
@@ -291,7 +288,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         return bool_keep
 
-
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
@@ -318,7 +314,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         return self.win.assy.NanotubeSegment
 
-
     def _updateHandleList(self):
         """        
         Updates the list of handles (self.handles) 
@@ -335,6 +330,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         if DEBUG_ROTATION_HANDLES:
             self.handles.append(self.rotationHandle1)
             self.handles.append(self.rotationHandle2)
+        return
 
     def updateHandlePositions(self):
         """
@@ -381,6 +377,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0
+        return
 
     def _update_resizeHandle_radius(self):
         """
@@ -392,6 +389,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         self.handleSphereRadius1 = HANDLE_RADIUS_DEFAULT_VALUE
         self.handleSphereRadius2 = HANDLE_RADIUS_DEFAULT_VALUE
+        return
 
     def _update_resizeHandle_stopper_length(self):
         """
@@ -410,6 +408,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         total_length = vlen(self.handlePoint1 - self.handlePoint2)        
         nanotubeRise = self.struct.nanotube.getRise()
         self._resizeHandle_stopper_length = - total_length + nanotubeRise
+        return
 
     def _createPropMgrObject(self):
         """
@@ -429,14 +428,12 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """     
         return self.propMgr.getParameters()
 
-
     def _createStructure(self):
         """
-        Creates and returns the structure (in this case a L{Group} object that 
-        contains the DNA strand and axis chunks. 
-        @return : group containing that contains the DNA strand and axis chunks.
-        @rtype: L{Group}  
-        @note: This needs to return a DNA object once that model is implemented        
+        Creates and returns the structure (in this case a L{NanotubeSegment} 
+        object. 
+        @return : Nanotube segment that include the nanotube chunk.
+        @rtype: L{NanotubeSegment}        
         """
         # self.name needed for done message
         if self.create_name_from_prefix:
@@ -463,10 +460,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
                                     self.win.assy.part.topnode,
                                     editCommand = self  )
         try:
-            # Make the DNA duplex. <nanotubeGroup> will contain three chunks:
-            #  - Strand1
-            #  - Strand2
-            #  - Axis
+            # Make the NanotubeSegment.
 
             n, m, type, endings, endPoint1, endPoint2 = self._gatherParameters()
 
@@ -509,7 +503,8 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
             ntSegment.kill()
-            raise PluginBug("Internal error while trying to create DNA duplex.")
+            raise PluginBug("Internal error while trying to create a NanotubeSegment.")
+        return
 
     def _modifyStructure(self, params):
         """
@@ -576,7 +571,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #@TODO: - rename this method from _modifyStructure_NEW_SEGMENT_RESIZE
         #to self._modifyStructure, after more testing
         #This method is used for debug prefence: 
-        #'DNA Segment: resize without recreating whole duplex'
+        #'Nanotube Segment: resize without recreating whole duplex'
         #see also self.modifyStructure_NEW_SEGMENT_RESIZE
 
         assert self.struct      
@@ -622,7 +617,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #and then self.previousParams = params_to_set_in_propMgr
 
         self.previousParams = params
-
         return  
 
     def _get_resizeEnd_final_position(self, 
@@ -651,8 +645,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         """
         if self.hasValidStructure():
             return self.struct.name
-        else:
-            return None
+        return None
 
     def setStructureName(self, name):
         """
@@ -676,6 +669,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         if self.hasValidStructure():
             self.struct.name = name
+        return
 
     def getCursorText(self):
         """
@@ -707,7 +701,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         return text, textColor
     
-    
     def _getCursorText_length(self, nanotubeLength):
         """
         Returns a string that gives the length of the Nanotube for the cursor 
@@ -726,8 +719,6 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         
         return nanotubeLengthString
     
-
-
     def modifyStructure(self):
         """
         Called when a resize handle is dragged to change the length of the 
@@ -764,7 +755,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         self.updateHandlePositions()
         self.glpane.gl_update()
-
+        return
 
     def modifyStructure_NEW_SEGMENT_RESIZE(self): #@ NOT FIXED
         """
@@ -793,7 +784,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         #@TODO: - rename this method from modifyStructure_NEW_SEGMENT_RESIZE
         #to self.modifyStructure, after more testing
         #This method is used for debug prefence: 
-        #'DNA Segment: resize without recreating whole duplex'
+        #'Nanotube Segment: resize without recreating whole duplex'
         #see also self._modifyStructure_NEW_SEGMENT_RESIZE
 
         if self.grabbedHandle is None:
@@ -854,6 +845,7 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
         ##self.previousParams = params_to_set_in_propMgr
 
         self.glpane.gl_update()
+        return
 
     def get_axisEndAtom_at_resize_end(self):
         ladderEndAxisAtom = None
@@ -922,4 +914,4 @@ class NanotubeSegment_EditCommand(State_preMixin, EditCommand):
 
         highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                         command = self)
-
+        return
