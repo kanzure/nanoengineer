@@ -124,6 +124,10 @@ def _convertFiletypesForMacFileDialog(filetypes):
         """
         Return filetype with "- suffix " just before "(*.ext")
         """
+        
+        if filetype.find("(*.*)") != -1: 
+            return filetype # Was found.
+
         # if filetype includes more than one period (.) character, replace it
         # with an underscore (_) character since a file type entry with more
         # than one period will not be displayed correctly in the Mac file dialog.
