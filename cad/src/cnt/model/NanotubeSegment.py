@@ -51,6 +51,17 @@ class NanotubeSegment(Group):
     iconPath = "ui/modeltree/NanotubeSegment.png"
     hide_iconPath = "ui/modeltree/NanotubeSegment-hide.png"
     
+    # This partially fixes bug 2914. Copying now works, but the following
+    # "warning" is printed to stdout:
+    # ****************** needs _copyOfObject: <cnt.model.Nanotube.Nanotube instance at 0x164FC030>
+    # I'm guessing this means that we need to override abstract method 
+    # _copyOfObject() of DataMixin, but I'd like to discuss this with Bruce first.
+    # I also have confirmed that there is still a bug when editing the 
+    # copied nanotube (it will automatically move from the clipboard
+    # to the part after it is resized).
+    # Mark 2008-07-09.
+    copyable_attrs = Group.copyable_attrs + ('nanotube',)
+    
     def __init__(self, name, assy, dad, members = (), editCommand = None):
             
         Group.__init__(self, 
