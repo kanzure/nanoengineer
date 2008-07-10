@@ -115,8 +115,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
 
         _numberOfSelectedChunks = self.o.assy.getNumberOfSelectedChunks()
                     
-        print "Number of selected chunks =", _numberOfSelectedChunks
-        
+                
         if _numberOfSelectedChunks == 0:
             self.addStandardMenuItems()
         
