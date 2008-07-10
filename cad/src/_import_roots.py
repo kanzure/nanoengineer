@@ -19,10 +19,9 @@ with a comment which mentions why they are needed
 When no longer needed, they should be removed.
 """
 
-# Note: our toplevel packages 'platform' and 'commands'
-# have the same names as modules in the Python 2.3 library.
-# ('platform' is new in Python version 2.3.
-#  'commands' is Unix only (including Mac), and probably old.)
+# Note: our toplevel package 'commands'
+# has the same name as a module in the Python 2.3 library.
+# ('commands' is Unix only (including Mac), and probably old.)
 #
 # This is a potential problem for anything which might want to
 # import both our package and the Python library module with
@@ -38,8 +37,11 @@ When no longer needed, they should be removed.
 #
 # In the meantime, this situation needs to be monitored as we port
 # to newer versions of Python.
+
+# (It got a lot better as of 080708, when we renamed 'platform'
+#  to 'platform_dependent'.)
 #
-# [bruce 080602 comment]
+# [bruce 080602 comment, revised 080710]
 
 import main # the NE1 main program file
 
