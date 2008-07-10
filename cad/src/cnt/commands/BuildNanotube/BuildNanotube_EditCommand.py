@@ -392,6 +392,7 @@ class BuildNanotube_EditCommand(EditCommand):
         selobj = self.glpane.selobj
 
         if selobj is None:
+            self._makeEditContextMenus()
             return
 
         self.Menu_spec = []
@@ -410,3 +411,4 @@ class BuildNanotube_EditCommand(EditCommand):
         if highlightedChunk is not None:
             highlightedChunk.make_glpane_context_menu_items(self.Menu_spec,
                                                             command = self)
+            return

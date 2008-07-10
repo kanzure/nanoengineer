@@ -114,12 +114,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
             return
 
         _numberOfSelectedChunks = self.o.assy.getNumberOfSelectedChunks()
-        
-        # BUG here when only one strand or segment is select. The problem is
-        # that _numberOfSelectChunks != 1 in this case.
-        # Ninad and Mark will be discussing this and Ninad
-        # is going to fix. -Mark 2008-07-09.
-            
+                    
         print "Number of selected chunks =", _numberOfSelectedChunks
         
         if _numberOfSelectedChunks == 0:
@@ -128,21 +123,23 @@ class SelectChunks_basicCommand(Select_basicCommand):
         elif _numberOfSelectedChunks == 1:
             selectedChunk = self.o.assy.selmols[0]
             selectedChunk.make_glpane_context_menu_items(self.Menu_spec,
-                                                 command = self)
-            
-        else:
+                                                 command = self)            
+        elif _numberOfSelectedChunks > 1:            
+            self._makeEditContextMenus()
+            self.Menu_spec.extend([None]) # inserts separator
             contextMenuList = [ 
                 ('Hide', self.o.assy.Hide),
                 ('Reset atoms display of selected chunks', 
                  self.w.dispResetAtomsDisplay),
                 ('Show invisible atoms of selected chunks', 
                  self.w.dispShowInvisAtoms),
-                ]
+                ]                
             self.Menu_spec.extend(contextMenuList)
-            self.Menu_spec.extend([None]) # inserts separator
+            
+        else:
             self.addStandardMenuItems()
         return
-    
+
     def addStandardMenuItems(self):
         """
         Insert the 'standard' menu items for the GLPane context menu.
