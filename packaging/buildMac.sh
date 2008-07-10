@@ -18,8 +18,8 @@ export MACOSX_DEPLOYMENT_TARGET=10.3
 cd $TOP_LEVEL
 # Modifying the foundation/preferences.py file for version
 PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
-cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
-cp cad/src/foundation/preferences.py.ptmp cad/src/foundation/preferences.py || exit 1
+#cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
+#cp cad/src/foundation/preferences.py.ptmp cad/src/foundation/preferences.py || exit 1
 DATECODE=`date "+%B %d, %Y"`
 
 #Make modifications to the build constants file.
@@ -31,8 +31,7 @@ cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_USE_bsddb3 = .*:NE1_USE_bsddb
 mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 
 #Modifying the welcome screen (to avoid manual editing)
-cp packaging/MacOSX/Welcome.rtf packaging/MacOSX/Welcome.rtf.orig
-cat packaging/MacOSX/Welcome.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > out.rtf
+cat packaging/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > packaging/MacOSX/Welcome.rtf
 mv out.rtf packaging/MacOSX/Welcome.rtf || exit 1
 
 # Build the base .app directory contents
