@@ -46,8 +46,10 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
         if key == Qt.Key_Escape:
             #Escape key to exit should not exit the command if it's the 
             #default command (which is select chunks or 'SELECTMOLS') [ninad 080709]
-            if not self.command.is_default_command():
+            if self.command.should_exit_when_ESC_key_pressed():
                 self.command.Done(exit_using_done_or_cancel_button = False)
+            else:
+                self.glpane.assy.selectNone()
         else:
             #bruce 071012 bugfix: add 'else' to prevent letting superclass
             # also handle Key_Escape and do assy.selectNone.

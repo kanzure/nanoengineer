@@ -879,6 +879,20 @@ class basicCommand(anyCommand):
         self.graphicsMode.Enter_GraphicsMode()
         
         return None
+    
+    def should_exit_when_ESC_key_pressed(self):
+        """
+        Returns whether the command should exit when the ESC key is pressed.
+        May be overridden in subclasses. 
+        
+        Default implementation does the following: 
+        If its going to resume the previous command
+        (which can be verified using attr command_should_resume_prevMode). For 
+        now, if you hit Escape key in all such commands, the command will 
+        exit. 
+        @see: class ESC_to_exit_GraphicsMode_preMixin.keyPress().
+        """
+        return (self.command_should_resume_prevMode and not self.is_default_command())
 
     def init_gui(self):
         """
@@ -1057,7 +1071,7 @@ class basicCommand(anyCommand):
             if hasattr( self.propMgr, 'selection_changed'):
                 self.propMgr.selection_changed()
         return
-
+    
     def selobj_changed(self):
         """
         Called whenever the glpane.selobj (object under mouse)

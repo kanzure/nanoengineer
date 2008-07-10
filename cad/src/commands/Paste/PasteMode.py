@@ -240,20 +240,7 @@ class PasteMode(depositMode):
 
         return
 
-    def keyPress(self, key):
-        """
-        Handles the key press event in this mode. 
-        @param key: Pressed keyboard key
-        @type  key: U{L{enum Qt.Key} 
-                    <http://doc.trolltech.com/4.2/qt.html#Key-enum>}
-        """
-        # Exit Paste mode.
-        if key == Qt.Key_Escape: 
-            self.Done(exit_using_done_or_cancel_button = False)
-            # REVIEW: should we also do assy.selectNone? The lack of 'else' here
-            # means we will, in superclass method. [bruce comment 071012]
-        depositMode.keyPress(self, key) 
-
+    
     def _init_flyoutActions(self):
         """
         Defines the actions to be added in the flyout toolbar section of the 

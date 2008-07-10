@@ -962,9 +962,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         if key == Qt.Key_Delete:
             self.w.killDo()
-        elif key == Qt.Key_Escape: # Select None. mark 060129.
-            self.o.assy.selectNone()
-
+        
         # Zoom in & out for Eric and Paul:
         # - Eric D. requested Period/Comma keys for zoom in/out.
         # - Paul R. requested Minus/Equal keys for zoom in/out.
