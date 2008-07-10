@@ -260,7 +260,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "UniChem XYZ (*.unixyz);;"\
             "ViewMol (*.vmol);;"\
             "XYZ cartesian coordinates (*.xyz);;"\
-            "YASARA.org YOB (*.yob)")
+            "YASARA YOB (*.yob);;")
         
         import_filename = QFileDialog.getOpenFileName(self, 
                                  "Open Babel Import", 
