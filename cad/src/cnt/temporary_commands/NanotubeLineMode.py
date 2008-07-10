@@ -9,11 +9,15 @@ TODO:
 - User Preferences for different rubberband line display styles 
 """
 
+import foundation.env as env
+
 from temporary_commands.LineMode import LineMode
 
 from graphics.drawing.drawNanotubeLadder import drawNanotubeLadder
 
 from utilities.constants import gray, black, darkred, blue, white
+
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 
 # == GraphicsMode part
 
@@ -88,9 +92,9 @@ class NanotubeLine_GM( LineMode.GraphicsMode_class ):
                           self.glpane.lineOfSight,
                           ladderWidth = self.command.nanotube.getDiameter(),
                           beamThickness = 4.0,
-                          beam1Color = gray,
-                          beam2Color = gray,
-                          stepColor = black ) 
+                          beam1Color = env.prefs[DarkBackgroundContrastColor_prefs_key],
+                          beam2Color = env.prefs[DarkBackgroundContrastColor_prefs_key],
+                          stepColor  = env.prefs[DarkBackgroundContrastColor_prefs_key] ) 
 
 # == Command part
 class NanotubeLineMode(LineMode): 

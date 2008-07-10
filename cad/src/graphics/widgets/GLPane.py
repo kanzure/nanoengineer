@@ -149,7 +149,8 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
-from utilities.constants import bgEVENING_SKY, bgSEAGREEN, ave_colors
+from utilities.constants import bgEVENING_SKY, bgSEAGREEN
+from utilities.constants import ave_colors, color_difference
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -203,6 +204,9 @@ from utilities.prefs_constants import GLPane_scale_for_atom_commands_prefs_key
 from utilities.prefs_constants import GLPane_scale_for_dna_commands_prefs_key
 from utilities.prefs_constants import fogEnabled_prefs_key
 
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.prefs_constants import LightBackgroundContrastColor_prefs_key
+
 from utilities.prefs_constants import stereoViewMode_prefs_key
 from utilities.prefs_constants import stereoViewAngle_prefs_key
 from utilities.prefs_constants import stereoViewSeparation_prefs_key
@@ -210,8 +214,7 @@ from utilities.prefs_constants import stereoViewSeparation_prefs_key
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
 from utilities.constants import GL_FAR_Z
-from utilities.constants import bluesky, eveningsky, bg_seagreen
-from utilities.constants import white
+
 from utilities.constants import MULTIPANE_GUI
 
 from utilities.debug_prefs import debug_pref
@@ -224,8 +227,8 @@ from utilities.GlobalPreferences import pref_show_highlighting_in_MT
 from utilities.GlobalPreferences import pref_skip_redraws_requested_only_by_Qt
 
 from graphics.widgets.GLPane_minimal import GLPane_minimal
-from utilities.constants import gray, darkgray, black, lightgray
-from utilities.constants import white
+from utilities.constants import black, gray, darkgray, lightgray, white
+from utilities.constants import bluesky, eveningsky, bg_seagreen
 import utilities.qt4transition as qt4transition
 from geometry.VQT import planeXline, ptonline
 
@@ -903,6 +906,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.backgroundGradient = gradient
         env.prefs[ backgroundGradient_prefs_key ] = gradient
         self._updateOriginAxisColor()
+        self._updateSpecialConstrastColors()
         return
     
     def _updateOriginAxisColor(self):
@@ -916,14 +920,31 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         gradient = env.prefs[ backgroundGradient_prefs_key ]
         
         if gradient == 0: # No gradient (solid bg).
-            bgColor = self.backgroundColor
-            axis_vec = V(axisColor[0], axisColor[1], axisColor[2])
-            bg_vec = V(bgColor[0], bgColor[1], bgColor[2])
-            color_diff = vlen(axis_vec - bg_vec)
-            if color_diff < 0.51:
+            if not color_difference(self.backgroundColor, axisColor, minimum_difference = 0.51):
                 env.prefs[originAxisColor_prefs_key] = ave_colors( 0.5, axisColor, white)
         elif gradient == 2: # "Evening Sky"
             env.prefs[originAxisColor_prefs_key] = ave_colors( 0.9, axisColor, white)
+        return
+    
+    def _updateSpecialConstrastColors(self):
+        """
+        [private]
+        Update the special constrast colors (used to draw lines, etc.) to a 
+        shade that contrasts well with the current background.
+        """
+        env.prefs.restore_defaults([DarkBackgroundContrastColor_prefs_key,
+                                    LightBackgroundContrastColor_prefs_key])
+        dark_color = env.prefs[DarkBackgroundContrastColor_prefs_key]  # black
+        lite_color = env.prefs[LightBackgroundContrastColor_prefs_key] # white
+        gradient = env.prefs[ backgroundGradient_prefs_key ]
+        
+        if gradient == 0: # No gradient (solid bg).
+            if not color_difference(self.backgroundColor, dark_color, minimum_difference = 0.51):
+                env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.5, dark_color, white)
+            if not color_difference(self.backgroundColor, lite_color, minimum_difference = 0.51):
+                env.prefs[LightBackgroundContrastColor_prefs_key] = ave_colors( 0.5, lite_color, black)
+        elif gradient == 2: # "Evening Sky"
+            env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.6, dark_color, white)
         return
 
     # self.part maintenance [bruce 050419]

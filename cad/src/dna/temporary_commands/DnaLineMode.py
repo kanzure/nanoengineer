@@ -21,6 +21,7 @@ import foundation.env as env
 
 from utilities.prefs_constants import dnaDefaultStrand1Color_prefs_key
 from utilities.prefs_constants import dnaDefaultStrand2Color_prefs_key
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 
 # == GraphicsMode part
 
@@ -150,7 +151,7 @@ class DnaLine_GM( LineMode_GM ):
                               beamThickness = 4.0,
                               beam1Color = env.prefs[dnaDefaultStrand1Color_prefs_key],
                               beam2Color = env.prefs[dnaDefaultStrand2Color_prefs_key],
-                              stepColor = black )
+                              stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] )
             elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
                 #Default dna rubberband line display style       
                 drawDnaRibbons(self.glpane,
@@ -164,7 +165,7 @@ class DnaLine_GM( LineMode_GM ):
                                ribbonThickness = 4.0,
                                ribbon1Color = env.prefs[dnaDefaultStrand1Color_prefs_key],
                                ribbon2Color = env.prefs[dnaDefaultStrand2Color_prefs_key],
-                               stepColor = black )   
+                               stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] )   
             else:
                 pass
             

@@ -568,6 +568,19 @@ def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handl
     weight = float(weight)
     return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
 
+def color_difference(color1, color2, minimum_difference = 0.5):
+    """
+    Returns True if the difference between color1 and color2 is greater than
+    constrast_difference (0.5 by default). Otherwise, returns False.
+    """
+    from geometry.VQT import V, vlen
+    c1_vec = V(color1[0], color1[1], color1[2])
+    c2_vec = V(color2[0], color2[1], color2[2])
+    color_diff = vlen(c1_vec - c2_vec)
+    if color_diff > minimum_difference:
+        return True
+    return False
+
 # colors
 # [note: some of the ones whose names describe their function
 #  are default values for user preferences]

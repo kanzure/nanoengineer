@@ -46,6 +46,11 @@ from utilities.constants import red
 from utilities.debug import print_compact_traceback
 from utilities import debug_flags 
 
+import foundation.env as env
+from utilities.constants import color_difference
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+from utilities.prefs_constants import LightBackgroundContrastColor_prefs_key
+
 from geometry.BoundingBox import BBox
 
 def get_selCurve_color(selSense, bgcolor = white):
@@ -59,12 +64,15 @@ def get_selCurve_color(selSense, bgcolor = white):
     if selSense == DELETE_SELECTION: 
         return red
     
-    color_diff = vlen(A(black) - A(bgcolor))
+    # Problems with this when the user picks a light gradient (i.e. Blue Sky)
+    # but the bgcolor is a dark color. Simply returning 
+    # "DarkBackgroundContrastColor_prefs_key" works fine. Mark 2008-07-10
+    #if color_difference(bgcolor, black, minimum_difference = 0.51):
+    #    return env.prefs[DarkBackgroundContrastColor_prefs_key]
+    #else:
+    #    return env.prefs[LightBackgroundContrastColor_prefs_key]
     
-    if color_diff < 0.5:
-        return white
-    else:
-        return black
+    return env.prefs[DarkBackgroundContrastColor_prefs_key]
 
 def fill(mat, p, dir): # TODO: rename (less generic so searchable), and perhaps make private
     """

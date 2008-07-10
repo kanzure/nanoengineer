@@ -167,6 +167,16 @@ selectionColorStyle_prefs_key = 'V110/3D selection color style rev1'
 selectionColor_prefs_key = 'V110/3D selection color'
 haloWidth_prefs_key = 'V110/halo width in pixels'
 
+# Special colors pref key(s).
+# DarkBackgroundContrastColor_prefs_key provides a dark color (black or
+# some dark shade of gray) that is guaranteed to contrast well with the current
+# background color.
+DarkBackgroundContrastColor_prefs_key = 'V111/Dark Background Contrast Color'
+# LightBackgroundContrastColor_prefs_key provides a light color (white or
+# some light shade of gray) that is guaranteed to contrast well with the current
+# background color.
+LightBackgroundContrastColor_prefs_key = 'V111/Light Background Contrast Color'
+
 # Mouse wheel Prefs
 mouseWheelDirection_prefs_key = 'A10/Mouse Wheel Direction'
 zoomInAboutScreenCenter_prefs_key  = 'A10/Mouse Wheel Zoom In To Screen Center'
@@ -620,6 +630,10 @@ prefs_table = (
     ('', 'string',   selectionColorStyle_prefs_key, SS_HALO),
     ('', 'color', selectionColor_prefs_key, darkgreen),
     ('', 'int',   haloWidth_prefs_key, 5),
+    
+    # Special colors. Mark 2008-07-10
+    ('', 'color', DarkBackgroundContrastColor_prefs_key, black),
+    ('', 'color', LightBackgroundContrastColor_prefs_key, white),
 
     # stereo view settings added by piotr 080516
     ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
