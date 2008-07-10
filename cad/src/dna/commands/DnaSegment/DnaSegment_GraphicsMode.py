@@ -216,7 +216,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                                ribbon2_direction = ribbon2_direction,
                                ribbon1Color = ribbon1Color,
                                ribbon2Color = ribbon2Color,
-                               stepColor = black )
+                               )
                         
             #Draw the text next to the cursor that gives info about
             #number of base pairs etc

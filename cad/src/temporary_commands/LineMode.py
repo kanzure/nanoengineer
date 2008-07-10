@@ -27,6 +27,8 @@ from utilities.constants import black, darkred, blue
 
 from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
+import foundation.env as env
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -70,7 +72,7 @@ class LineMode_GM( Select_GraphicsMode ):
 
 
     #Rubberband line color
-    rubberband_line_color = black
+    rubberband_line_color = env.prefs[DarkBackgroundContrastColor_prefs_key]
     rubberband_line_width = 1  #thickness or 'width' for drawer.drawline
 
     endPoint1_sphereColor = darkred

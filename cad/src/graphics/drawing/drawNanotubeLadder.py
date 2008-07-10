@@ -7,7 +7,7 @@ Draws the CNT in a ladder display.
 @version:   $Id$
 @license:   GPL
 """
-
+import foundation.env as env
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
 from OpenGL.GL import GL_LIGHTING
@@ -20,6 +20,7 @@ from graphics.drawing.drawers import drawPoint
 from graphics.drawing.drawers import drawCircle
 
 from geometry.VQT import norm, vlen, V, cross
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 
 def drawNanotubeLadder(endCenter1,  
                   endCenter2,
@@ -75,6 +76,16 @@ def drawNanotubeLadder(endCenter1,
         return
     
     unitVector = norm(endCenter2 - endCenter1)
+    
+    if beam1Color is None:
+        beam1Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
+        
+    if beam2Color is None:
+        beam2Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
+    
+    if stepColor is None:
+        stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] 
+        
     
     glDisable(GL_LIGHTING) 
     glPushMatrix()

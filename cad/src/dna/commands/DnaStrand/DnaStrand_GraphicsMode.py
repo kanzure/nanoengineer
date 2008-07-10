@@ -64,7 +64,7 @@ class DnaStrand_GraphicsMode(BuildDna_GraphicsMode):
                                ribbon1_direction = ribbon1_direction,
                                ribbonThickness = 4.0,
                                ribbon1Color = ribbon1Color,
-                               stepColor = black )
+                               )
                 
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc

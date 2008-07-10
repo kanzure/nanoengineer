@@ -12,6 +12,7 @@ TODO:
 It should support various display styles that match with the display of the 
 actual model.
 """
+import foundation.env as env
 
 from math import asin, acos
 from Numeric import sin, cos, pi
@@ -38,6 +39,10 @@ from utilities.constants import white, blue
 from utilities.constants import diTrueCPK, diTUBES, diLINES
 
 from Numeric import dot
+
+
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
+
 #Constants for drawing the ribbon points as spheres.
 SPHERE_RADIUS = 1.0
 SPHERE_DRAWLEVEL = 2
@@ -149,6 +154,9 @@ def drawDnaSingleRibbon(glpane,
         #will be rendered in ball and stick display style
         SPHERE_RADIUS = 1.0
         ribbonThickness = 3.0
+    
+    if stepColor is None:
+        stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] 
 
     ribbonLength = vlen(endCenter1 - endCenter2)
 
@@ -415,6 +423,8 @@ def drawDnaRibbons(glpane,
         #will be rendered in ball and stick display style
         SPHERE_RADIUS = 1.0
         ribbonThickness = 3.0
+        
+    
 
 
 

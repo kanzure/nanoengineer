@@ -518,7 +518,7 @@ class NanotubeSegment_GraphicsMode(BuildNanotube_GraphicsMode):
                           beamThickness = 4.0,
                           beam1Color = gray,
                           beam2Color = gray,
-                          stepColor = black )
+                          )
 
             self._drawCursorText()
         else:

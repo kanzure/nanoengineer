@@ -8,7 +8,7 @@ beam and each step represents duplex rise.
 @version:   $Id$
 @license:   GPL
 """
-
+import foundation.env as env
 from Numeric import  pi
 ONE_RADIAN = 180.0 / pi
 HALF_PI  = pi/2.0
@@ -26,6 +26,7 @@ from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.drawers import drawPoint
 
 from geometry.VQT import norm, vlen, V, cross
+from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 
 def drawDnaLadder(endCenter1,  
                   endCenter2,
@@ -72,6 +73,15 @@ def drawDnaLadder(endCenter1,
     # the first endpoint 
     if ladderLength < duplexRise:
         return
+    
+    if beam1Color is None:
+        beam1Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
+        
+    if beam2Color is None:
+        beam2Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
+    
+    if stepColor is None:
+        stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] 
     
     unitVector = norm(endCenter2 - endCenter1)
     
