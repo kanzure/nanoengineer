@@ -205,7 +205,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         # This format list generated from the Open Babel wiki page: 
         # http://openbabel.sourceforge.net/wiki/Babel#File_Formats
-        formats = \
+        formats = _convertFiletypesForMacFileDialog(\
             "All Files (*.*);;"\
             "Molecular Machine Part (*.mmp);;"\
             "Accelrys/MSI Biosym/Insight II CAR (*.car);;"\
@@ -260,7 +260,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "UniChem XYZ (*.unixyz);;"\
             "ViewMol (*.vmol);;"\
             "XYZ cartesian coordinates (*.xyz);;"\
-            "YASARA.org YOB (*.yob)"
+            "YASARA.org YOB (*.yob)")
         
         import_filename = QFileDialog.getOpenFileName(self, 
                                  "Open Babel Import", 
@@ -482,7 +482,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "CML Reaction format (*.cmlr);;"\
             "Gaussian 98/03 Cartesian Input (*.com);;"\
             "Copies raw text (*.copy);;"\
-            "Chemical Resource Kit diagram format (2D) (*.crk2d);;"\
+            "Chemical Resource Kit 2D diagram format (*.crk2d);;"\
             "Chemical Resource Kit 3D format (*.crk3d);;"\
             "Accelrys/MSI Quanta CSR format (*.csr);;"\
             "CSD CSSR format (*.cssr);;"\
