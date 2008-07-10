@@ -320,7 +320,7 @@ class DnaDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
     title         =  "Edit DNA Display Style"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Dna_Display_Style.png"
+    iconPath      =  "ui/actions/Edit/EditDnaDisplayStyle.png"
 
 
     def __init__( self, parentCommand ):

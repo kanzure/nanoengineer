@@ -113,7 +113,7 @@ class ProteinFlyout:
         self.displayProteinStyleAction.setText("Edit Style")
         self.displayProteinStyleAction.setCheckable(True)        
         self.displayProteinStyleAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
+            geticon("ui/actions/Edit/EditProteinDisplayStyle.png"))
         
     def _addWhatsThisText(self):
         """

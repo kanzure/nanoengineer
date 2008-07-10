@@ -190,12 +190,12 @@ def setupUi(win):
     win.editDnaDisplayStyleAction = QtGui.QAction(MainWindow)
     win.editDnaDisplayStyleAction.setText("DNA Display Style")       
     win.editDnaDisplayStyleAction.setIcon(
-        geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
+        geticon("ui/actions/Edit/EditDnaDisplayStyle.png"))
     
     win.editProteinDisplayStyleAction = QtGui.QAction(MainWindow)
     win.editProteinDisplayStyleAction.setText("Protein Display Style")       
     win.editProteinDisplayStyleAction.setIcon(
-        geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
+        geticon("ui/actions/Edit/EditProteinDisplayStyle.png"))
         
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
     win.resetChunkColorAction.setIcon(

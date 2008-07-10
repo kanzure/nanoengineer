@@ -166,7 +166,7 @@ class DnaFlyout:
         self.editDnaDisplayStyleAction.setText("Edit Style")
         self.editDnaDisplayStyleAction.setCheckable(True)        
         self.editDnaDisplayStyleAction.setIcon(
-            geticon("ui/actions/Command Toolbar/Dna_Display_Style.png"))
+            geticon("ui/actions/Edit/EditDnaDisplayStyle.png"))
         
     def _addWhatsThisText(self):
         """

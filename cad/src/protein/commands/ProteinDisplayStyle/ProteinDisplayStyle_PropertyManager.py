@@ -303,7 +303,7 @@ class ProteinDisplayStyle_PropertyManager( PM_Dialog, DebugMenuMixin ):
 
     title         =  "Edit Protein Display Style"
     pmName        =  title
-    iconPath      =  "ui/actions/Command Toolbar/Dna_Display_Style.png"
+    iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
 
     
     def __init__( self, parentCommand ):

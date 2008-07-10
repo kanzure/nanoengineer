@@ -104,9 +104,10 @@ def whatsThisTextForProteinCommandToolbar(commandToolbar):
         Insert a peptide into the 3D graphics area.
         </p>""")
     commandToolbar.displayProteinStyleAction.setWhatsThis(
-        """<b>Protein Display</b>
+        """<b>Edit (Protein Display) Style</b>
         <p>
-        Displays the Protein Display Property Manager 
+        Edit the Protein Display Style settings used whenever the <b>Global Display
+        Style</b> is set to <i>Protein</i>.
         </p>""")   
     
     return
@@ -168,9 +169,12 @@ def whatsThisTextForDnaCommandToolbar(commandToolbar):
         </p>""")
         
     commandToolbar.editDnaDisplayStyleAction.setWhatsThis(
-        """<b>DNA Display</b>
+        """<b>Edit (DNA Display) Style</b>
         <p>
-        Displays the DNA Display Property Manager 
+        Edit the DNA Display Style settings used whenever the <b>Global Display
+        Style</b> is set to <i>DNA Cylinder</i>. These settings also apply
+        to DNA strands and segments that have had their display style set
+        to <i>DNA Cylinder</i>.
         </p>""")    
     
     commandToolbar.makeCrossoversAction.setWhatsThis(

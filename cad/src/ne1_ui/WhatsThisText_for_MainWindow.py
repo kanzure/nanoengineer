@@ -346,7 +346,26 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
      
     win.pasteFromClipboardAction.setWhatsThis( pasteFromClipboardText )
-        
+    
+    win.editDnaDisplayStyleAction.setWhatsThis(
+        """<b>Edit DNA Display Style</b>
+        <p>
+        <img source=\"ui/actions/Edit/EditDnaDisplayStyle.png\">
+        <br>
+        Edit the DNA Display Style settings used whenever the <b>Global Display
+        Style</b> is set to <i>DNA Cylinder</i>. These settings also apply
+        to DNA strands and segments that have had their display style set
+        to <i>DNA Cylinder</i>.
+        </p>""")
+    
+    win.editProteinDisplayStyleAction.setWhatsThis(
+        """<b>Edit Protein Display Style</b>
+        <p>
+        <img source=\"ui/actions/Edit/EditProteinDisplayStyle.png\">
+        <br>
+        Edit the Protein Display Style settings used whenever the <b>Global Display
+        Style</b> is set to <i>Protein</i>.
+        </p>""") 
    
     #Rename
     EditrenameActionText = \
