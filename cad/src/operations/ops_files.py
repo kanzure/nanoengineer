@@ -107,6 +107,50 @@ def _fileparse(name):
     fil, ext = os.path.splitext(x)
     return dir + os.path.sep, fil, ext
 
+def _convertFiletypesForMacFileDialog(filetypes):
+    """
+    Returns a QString file type list that includes "- suffix" 
+    in the name of each file type so that the extension (suffix)
+    will appear in the file dialog file type menu.
+    
+    @note: Mac only.
+    @see: QFileDialog
+    """
+    
+    if sys.platform != "darwin":
+        return filetypes
+    
+    def munge_ext(filetype):
+        """
+        Return filetype with "- suffix " just before "(*.ext")
+        """
+        # if filetype includes more than one period (.) character, replace it
+        # with an underscore (_) character since a file type entry with more
+        # than one period will not be displayed correctly in the Mac file dialog.
+        if filetype.count(".") > 1:
+            filetype = filetype.replace(".", "_", filetype.count(".") - 1)
+        
+        
+        _tmpstr = filetype.split(".",1)
+        _tmpstr[1] = _tmpstr[1].split(')',1)
+        _tmpstr2 = filetype.rsplit("(",1)
+        return _tmpstr2[0]+"- "+_tmpstr[1][0]+" ("+_tmpstr2[1]
+
+    separator = ";;"
+    filetypes = str(filetypes)
+    if filetypes.endswith(separator):
+        filetypeList = filetypes.split(separator)
+    else:
+        filetypeList = [filetypes, ""]
+    
+    _newFileTypes = ""
+    
+    # Rebuild and return the file type list string.
+    for ftype in filetypeList[:-1]:
+        _newFileTypes += munge_ext(ftype) + separator
+    _newFileTypes.rstrip(";")
+    return QString(_newFileTypes)
+
 class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     """
     Mixin class to provide file-related methods for class MWsemantics.
@@ -419,9 +463,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # For file export, we will use Open Babel's chemistry MDL format.
         
         currentFilename = self.getCurrentFilename()
-        sfilter = QString("Protein Data Bank format (*.pdb)")
 
-        formats = \
+        sfilter = _convertFiletypesForMacFileDialog(
+            QString("Protein Data Bank format (*.pdb)"))
+
+        formats = _convertFiletypesForMacFileDialog(\
             "Alchemy format (*.alc);;"\
             "MSI BGF format (*.bgf);;"\
             "Dock 3.5 Box format (*.box);;"\
@@ -457,7 +503,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "InChI format (*.inchi);;"\
             "GAMESS Input (*.inp);;"\
             "Jaguar input format (*.jin);;"\
-            "Compares first molecule to others using InChI. (*.k);;"\
+            "Compares first molecule to others using InChI (*.k);;"\
             "MacroModel format (*.mmd);;"\
             "MacroModel format (*.mmod);;"\
             "Molecular Machine Part format (*.mmp);;"\
@@ -486,8 +532,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "ViewMol format (*.vmol);;"\
             "XED format (*.xed);;"\
             "XYZ cartesian coordinates format (*.xyz);;"\
-            "YASARA.org YOB format (*.yob);;"\
-            "ZINDO input format (*.zin);;"
+            "YASARA YOB format (*.yob);;"\
+            "ZINDO input format (*.zin);;")
 
         export_filename = \
             QFileDialog.getSaveFileName(self, 
