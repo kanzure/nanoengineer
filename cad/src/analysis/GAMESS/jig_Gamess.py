@@ -662,7 +662,8 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 
     # override abstract method of DataMixin
     def __eq__(self, other): #bruce 060306-08 for Undo bug 1616
-        # note: defining __eq__ is sufficient, but only because we inherit from state_utils.DataMixin, which defines __ne__ based on it
+        # note: defining __eq__ is sufficient, but only because we inherit
+        # from DataMixin, which defines __ne__ based on __eq__
         if other.__class__ is not self.__class__:
             return False
         return self.param_names_and_valstrings(canonical = True) == other.param_names_and_valstrings(canonical = True)

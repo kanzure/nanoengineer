@@ -1939,7 +1939,7 @@ class DataMixin:
     values of declared state-holding attributes. Provides method stubs
     to remind you when you haven't declared a necessary method.  Makes
     sure state system treats this object as data (and doesn't warn
-    about it).  All such data like classes which may be handled by
+    about it).  All such data-like classes which may be handled by
     copy_val must inherit DataMixin.
     """
     def _copyOfObject(self, copyfunc):
@@ -1973,7 +1973,7 @@ class DataMixin:
     def _s_isPureData(self): # note: presence of this method makes sure this object is treated as data.
         pass
     def __eq__(self, other):
-        print "__eq__ needs to be overridden in", self ### don't put this mixin into Gamess til I test lack of __eq__ there
+        print "__eq__ needs to be overridden in", self
         print "  (implem must be compatible with _copyOfObject; don't forget to avoid '==' when comparing Numeric arrays)"
         return self is other
     def __ne__(self, other):

@@ -789,8 +789,11 @@ class image_mod_record(DataMixin): #bruce 060210; maybe should be refiled in Ima
         return self.__class__(self.mirrorQ, self.rot)
 
     # override abstract method of DataMixin
-    def __eq__(self, other): #bruce 060222 for Undo; but had a bug until we defined __ne__, since != never calls __eq__ on its own.
-        return self.__class__ is other.__class__ and (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
+    def __eq__(self, other): #bruce 060222 for Undo; in class image_mod_record
+        # note: defining __eq__ is sufficient, but only because we inherit
+        # from DataMixin, which defines __ne__ based on __eq__
+        return self.__class__ is other.__class__ and \
+               (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
 
     pass # end of class image_mod_record
 

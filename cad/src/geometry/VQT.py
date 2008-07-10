@@ -356,6 +356,7 @@ class Q(DataMixin):
     #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons given presence of __getattr__ (desirable for Undo)
     # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
     #bruce 060222 note that it also now needs __eq__ and __ne__ to be compatible with its _copyOfObject (they are).
+    # later, __ne__ no longer needed since defined in DataMixin.
 
     # override abstract method of DataMixin
     def _copyOfObject(self, copyfunc): #bruce 051003, for use by state_utils.copy_val (in class Q)
