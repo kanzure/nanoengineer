@@ -466,7 +466,7 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
 
 def drawPointOfViewAxes(scale, point):
     """
-    Draw a point of view (POV) axis.
+    Draw point of view (POV) axes.
     """
     color = env.prefs[povAxisColor_prefs_key]
     drawaxes(scale * 0.1, point, color, coloraxes = False, dashEnabled = False)
@@ -474,6 +474,10 @@ def drawPointOfViewAxes(scale, point):
 def drawaxes(scale, point, color = black, coloraxes = False, dashEnabled = False):
     """
     Draw axes.
+
+    @note: used for both origin axes and point of view axes.
+
+    @see: drawOriginAsSmallAxis (related code)
     """
     n = scale
     glPushMatrix()
@@ -523,6 +527,8 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     Draws a small wireframe version of the origin. It is rendered as a 
     3D point at (0, 0, 0) with 3 small axes extending from it in the positive
     X, Y, Z directions.
+
+    @see: drawaxes (related code)
     """
     #Perhaps we should split this method into smaller methods? ninad060920
     #Notes:

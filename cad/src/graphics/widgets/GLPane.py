@@ -2510,7 +2510,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         return
 
-#== Timer helper methods
+    #== Timer helper methods
 
     highlightTimer = None #bruce 070110 (was not needed before)
 
@@ -2685,7 +2685,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.timer_event_last_xy = xy_now
         return
 
-#== end of Timer helper methods
+    #== end of Timer helper methods
 
     def selectedJigTextPosition(self):
         return A(gluUnProject(5, 5, 0))
@@ -2705,7 +2705,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # piotr 080529
         # modify modelview matrix in side-by-side stereo view modes        
-        self._enable_stereo(self.current_stereo_image, no_clipping=True)            
+        self._enable_stereo(self.current_stereo_image, no_clipping = True)            
 
         p1 = A(gluUnProject(x, y, just_beyond))
         p2 = A(gluUnProject(x, y, 1.0))
@@ -3939,7 +3939,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         for stereo_image in stereo_image_range: 
             # iterate over stereo images
-            self._enable_stereo(stereo_image, preserve_colors=True)
+            self._enable_stereo(stereo_image, preserve_colors = True)
+            
+            # Draw the Origin axes.
+            # WARNING: this code is duplicated, or almost duplicated,
+            # in GraphicsMode.py and GLPane.py.
+            # It should be moved into a common method in drawers.py.
+            # [bruce 080710 comment]
 
             #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
             # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
@@ -4808,7 +4814,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     # stereo rendering methods added by piotr 080515
 
-    def _enable_stereo(self, stereo_image, preserve_colors=False, no_clipping=False):
+    def _enable_stereo(self, stereo_image, preserve_colors = False, no_clipping = False):
         """
         Enables stereo rendering.        
         Stereo_image . 

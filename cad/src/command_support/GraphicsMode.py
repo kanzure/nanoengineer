@@ -327,26 +327,30 @@ class basicGraphicsMode(GraphicsMode_API):
         since not all modes want to always draw it.
         """
 
-        # Draw the Origin axis.
+        # Draw the Origin axes.
+        # WARNING: this code is duplicated, or almost duplicated,
+        # in GraphicsMode.py and GLPane.py.
+        # It should be moved into a common method in drawers.py.
+        # [bruce 080710 comment]
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
-                drawOriginAsSmallAxis(self.o.scale, (0.0,0.0,0.0))
+                drawOriginAsSmallAxis(self.o.scale, (0.0, 0.0, 0.0))
                 #ninad060921: note: we are also drawing a dotted origin displayed only when
                 #the solid origin is hidden. See def standard_repaint_0 in GLPane.py
                 #ninad060922 passing self.o.scale makes sure that the origin / pov axes are not zoomable
             else:
-                drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
+                drawaxes(self.o.scale, (0.0, 0.0, 0.0), coloraxes = True)
 
         if env.prefs[displayPOVAxis_prefs_key]:
             drawPointOfViewAxes(self.o.scale, -self.o.pov)
 
-        # Draw the Point of View axis unless it is at the origin (0,0,0) AND draw origin as cross wire is true ninad060920
+        # Draw the Point of View axis unless it is at the origin (0, 0, 0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
             if not env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 if vlen(self.o.pov):
                     drawPointOfViewAxes(self.o.scale, -self.o.pov)
                 else:
-                    # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
+                    # POV is at the origin (0, 0, 0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
                     if not env.prefs[displayOriginAxis_prefs_key]:
                         drawPointOfViewAxes(self.o.scale, -self.o.pov)
             else:
@@ -550,7 +554,7 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         self.update_cursor()
         self.o.SaveMouse(event)
-        self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
+        self.o.trackball.start(self.o.MousePos[0], self.o.MousePos[1])
         self.picking = True
 
         # Turn off hover highlighting while rotating the view with middle mouse button. Fixes bug 1657. Mark 060805.
@@ -569,7 +573,7 @@ class basicGraphicsMode(GraphicsMode_API):
             return
 
         self.o.SaveMouse(event)
-        q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
+        q = self.o.trackball.update(self.o.MousePos[0], self.o.MousePos[1])
         self.o.quat += q
         self.o.gl_update()
 
@@ -728,12 +732,12 @@ class basicGraphicsMode(GraphicsMode_API):
             return
 
         self.o.SaveMouse(event)
-        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
+        dx, dy = (self.o.MousePos - self.Zorg) * V(1,-1)
 
         self.o.pov = self.Zpov
 
         w = self.o.width+0.0
-        self.o.quat = self.Zq + Q(V(0,0,1),2*math.pi*dx/w)
+        self.o.quat = self.Zq + Q(V(0,0,1), 2*math.pi*dx/w)
 
         self.o.gl_update()
 
@@ -755,9 +759,9 @@ class basicGraphicsMode(GraphicsMode_API):
             return
 
         self.o.SaveMouse(event)
-        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
+        dx, dy = (self.o.MousePos - self.Zorg) * V(1,-1)
         self.o.quat = Q(self.Zq)
-        h=self.o.height+0.0
+        h = self.o.height+0.0
         self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
 
         self.o.gl_update()
@@ -1033,7 +1037,7 @@ class basicGraphicsMode(GraphicsMode_API):
             self.keyPress(key)
         return
 
-    def keyRelease(self,key): # mark 2004-10-11
+    def keyRelease(self, key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
         # have bugs when more than one modifier is pressed and then one is
         # released, and perhaps when the focus changes. To fix those, we need to
@@ -1126,9 +1130,9 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         color = get_selCurve_color(self.selSense, self.o.backgroundColor)
 
-        pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
+        pl = zip(self.selCurve_List[:-1], self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
-            drawline(color,pp[0],pp[1])
+            drawline(color, pp[0], pp[1])
 
         if self.selShape == SELSHAPE_RECT:  # Draw the selection rectangle.
             drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
@@ -1136,9 +1140,9 @@ class basicGraphicsMode(GraphicsMode_API):
 
         if debug_flags.atom_debug and 0: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
-            pl = zip(self.o.selArea_List[:-1],self.o.selArea_List[1:])
+            pl = zip(self.o.selArea_List[:-1], self.o.selArea_List[1:])
             for pp in pl:
-                drawline(color,pp[0],pp[1])
+                drawline(color, pp[0], pp[1])
 
     def surfset(self, num):
         """
