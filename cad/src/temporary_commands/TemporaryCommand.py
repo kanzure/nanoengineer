@@ -78,6 +78,8 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
             # doing this fixes the bug in which Pan etc doesn't show the right things
             # for Cookie or Extrude modes (e.g. bond-offset spheres in Extrude)
         if not drew:
+            # (This means no prior command was found. It is unrelated to any Draw method
+            #  return value, since there isn't one.)
             # I think this can't happen, since our subclasses always run as a temporary
             # command while suspending another one:
             print "fyi: %s using fallback Draw code (I suspect this can never happen)" % self

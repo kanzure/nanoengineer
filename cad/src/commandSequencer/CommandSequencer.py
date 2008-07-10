@@ -511,7 +511,7 @@ class modeMixin(object):
 
     # delegation to saved commands
 
-    def prior_command_Draw(self, calling_command):
+    def prior_command_Draw(self, calling_command): # warning: "prior command" terminology might change, as will self.prevMode
         """
         Draw whatever the prior command (relative to calling_command, a Command object)
         would draw in its own Draw method, if it was the currentCommand.
@@ -539,7 +539,7 @@ class modeMixin(object):
             prevMode.graphicsMode.Draw()
             # WARNING/TODO: this implem assumes there is at most one saved command
             # which should be drawn. If this changes, we'll need to replace
-            # .prevMode with a deeper command stack in the Command Sequencer
+            # self.prevMode with a deeper command stack in the Command Sequencer
             # which provides a way to draw whatever each suspended command
             # thinks it needs to; or we'll need to arrange for prevMode
             # to *be* that stack, delegating Draw to each stack element in turn.

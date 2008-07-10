@@ -937,16 +937,6 @@ class MWsemantics(QMainWindow,
             currentCommand = commandSequencer.currentCommand
 
             if currentCommand.commandName != "PASTE":
-##              #Make sure that previous command (commandSequencer.prevMode) never
-##              #stores a 'temporary command' i.e. after exiting Paste Command, the
-##              #command NE1 enters is not one of the following --
-##              # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-##
-##              if currentCommand.commandName not in ['PASTE', 'PARTLIB',
-##                                                 'ZOOM', 'PAN', 'ROTATE']:
-##                  commandSequencer.prevMode = currentCommand
-##
-##              commandSequencer.userEnterCommand('PASTE', suspend_old_mode = False)
                 commandSequencer.userEnterTemporaryCommand('PASTE') #bruce 071011 guess ### REVIEW
                 return
         else:
@@ -963,15 +953,6 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
         if currentCommand.commandName != "PARTLIB":
-##          #Make sure that previous command (commandSequencer.prevMode) never
-##          #stores a 'temporary command' i.e. after exiting Paste Command, the
-##          #command NE1 enters is not one of the following --
-##          # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-##          if currentCommand.commandName not in ['PASTE', 'PARTLIB',
-##                                             'ZOOM', 'PAN', 'ROTATE']:
-##              commandSequencer.prevMode = currentCommand
-##
-##          commandSequencer.userEnterCommand('PARTLIB', suspend_old_mode = False)
             commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
         return
 

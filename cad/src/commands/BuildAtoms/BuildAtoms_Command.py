@@ -189,7 +189,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             change_connect = self.w.disconnect
         
         
-        #Atom , Bond Tools Groupbox
+        #Atom, Bond Tools Groupbox
         change_connect(self.bondToolsActionGroup,
                        SIGNAL("triggered(QAction *)"), 
                        self.changeBondTool)
@@ -220,8 +220,11 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         #Connect or disconnect the property mgr widget that enables/disables
         #the 'water'. This is done here instead of doing it in 
         #propMgr.connect_or_disconnect because this widget needs to talk with 
-        #the graphicsMode of the parentCommand, so better it be here and do it 
-        #safely.
+        #the graphicsMode of this command (i.e. of the propMgr's .parentMode),
+        # so better it be here and do it safely. [ninad]
+        # [bruce 080710 adds: ideally the water enabled flag would be maintained
+        #  in the command (as all state ought to be) and only used by the
+        #  graphicsMode.]
         if hasattr(self.graphicsMode, 'setWater'):
             change_connect(self.propMgr.waterCheckBox,
                             SIGNAL("toggled(bool)"),
