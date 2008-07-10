@@ -14,6 +14,8 @@ ninad 2007-08-09: Created.
 """
 
 from PM.PM_WidgetGrid import PM_WidgetGrid
+from widgets.widget_helpers import QColor_to_Hex
+from PM.PM_Colors import pmGrpBoxColor
 
 class PM_WidgetRow( PM_WidgetGrid ):
     """
@@ -139,14 +141,18 @@ class PM_WidgetRow( PM_WidgetGrid ):
          - border width
          - border color
          - border radius (on corners)
+         - background color
         @see: L{PM_GroupBox._getStyleSheet} (overrided here)
         """
         
-        styleSheet = "QGroupBox {border-style:hidden;\
-        border-width: 0px;\
-        border-color: "";\
-        border-radius: 0px;\
-        min-width: 10em; }" 
+        styleSheet = "QGroupBox {border-style:hidden; "\
+        "border-width: 0px; "\
+        "border-color: ""; "\
+        "border-radius: 0px;"\
+        "min-width: 10em; "\
+        "background-color: #%s;"\
+        "}" % ( QColor_to_Hex(pmGrpBoxColor))
+                           
    
         return styleSheet
  
