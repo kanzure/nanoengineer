@@ -275,7 +275,7 @@ def _readpdb_new(assy,
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
-    def _finish_molecule():
+    def _finish_molecule(id):
         """
         Perform some operations after reading entire PDB chain:
           - rebuild (infer) bonds
@@ -284,7 +284,9 @@ def _readpdb_new(assy,
           - append the molecule to the molecule list
         """
         
-        if mol.atoms:                
+        if mol.atoms:  
+            ###print "READING PDB ", (mol, numconects, chainId)
+            
             if numconects == 0:
                 msg = orangemsg("PDB file has no bond info; inferring bonds")
                 env.history.message(msg)
@@ -295,21 +297,25 @@ def _readpdb_new(assy,
                 
             mol.protein.set_chain_id(chainId)
             
-            mol.name = mol.name.replace(".pdb","").lower() + chainId
+            pdbId = id
+                        
+            if pdbId == None:
+                pdbId = mol.name.replace(".pdb","").lower()
 
-            ### print "SEQUENCE = ", mol.protein.get_sequence_string()
+            mol.protein.set_pdb_id(pdbId)
             
+            mol.name = pdbId.lower() + chainId
+                
             if mol.protein.count_c_alpha_atoms() == 0:
                 # If there is no C-alpha atoms, consider the chunk 
-                # not a protein.
+                # as a non-protein.
                 mol.protein = None
                     
             mollist.append(mol)
         else:
             env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
             env.history.h_update() 
-            
-        
+                    
     fi = open(filename,"rU")
     lines = fi.readlines()
     fi.close()
@@ -328,9 +334,9 @@ def _readpdb_new(assy,
     
     ndix = {}
     mol = Chunk(assy, nodename)
-    
+        
     mol.protein = Protein()
-    
+        
     numconects = 0
 
     atomname_exceptions = {
@@ -467,8 +473,8 @@ def _readpdb_new(assy,
             if (resId, chainId) in sheet:
                 mol.protein.assign_strand(resId)
                 
-            #if (resId, chainId) in turn:
-            #    mol.protein.set_turn(resId)
+            if (resId, chainId) in turn:
+                mol.protein.assign_turn(resId)
                 
         elif key == "conect":
             try:
@@ -498,13 +504,17 @@ def _readpdb_new(assy,
                     bond_atoms(a1, a2)
                     numconects += 1
         elif key == "ter":
-            # Finish current molecule.
-            _finish_molecule()
+            # Finish the current molecule.
+            _finish_molecule(pdbId)
             # Create a new molecule 
             mol = Chunk(assy, nodename)
             mol.protein = Protein()
             numconects = 0
             
+        elif key == "header":
+            # Extract PDB ID from the header string.
+            pdbId = card[62:66].lower()
+        
         elif key in ["helix", "sheet", "turn"]:
             # Read secondary structure information.
             if key == "helix":
@@ -542,7 +552,7 @@ def _readpdb_new(assy,
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue) 
     
-    _finish_molecule()
+    _finish_molecule(pdbId)
     
     return mollist
     
@@ -684,7 +694,10 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     atomRecord += "%1s" % space
     # Column 13-16 Atom name (str)
     # piotr 080710: moved Atom name to column 13
-    atomRecord += " %-3s" % atomName[:3] 
+    if len(atomName) == 4:
+        atomRecord += "%-4s" % atomName[:4]
+    else:
+        atomRecord += " %-3s" % atomName[:3]        
     # Column 17: Alternate location indicator (str) *unused*
     atomRecord += "%1s" % space
     # Column 18-20: Residue name - unused (str)
@@ -708,10 +721,10 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     atomRecord += "%8.3f" % float(_xyz[1])
     # Column 47-54: Z coord in Angstroms (float 8.3)
     atomRecord += "%8.3f" % float(_xyz[2])
-    # Column 55-60: Occupancy (float 6.2) *unused*
-    atomRecord += "%6s" % space
+    # Column 55-60: Occupancy (float 6.2) - should be "1.0"
+    atomRecord += "%6.2f" % float(1.0)
     # Column 61-66: Temperature factor. (float 6.2) *unused*
-    atomRecord += "%6s" % space
+    atomRecord += "%6.2f" % float(0.0)
     # Column 67-76: Whitespace (str)
     atomRecord += "%10s" % space
     # Column 77-78: Element symbol, right-justified (str)

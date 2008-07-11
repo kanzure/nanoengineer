@@ -198,6 +198,7 @@ class Protein:
         self.ca_atom_list = []
         self.sequence = {}
         self.chainId = ''
+        self.pdbId = ""
         
     def set_chain_id(self, chainId):
         """
@@ -205,6 +206,18 @@ class Protein:
         """
         self.chainId = chainId
 
+    def set_pdb_id(self, pdbId):
+        """
+        Set a four-letter PDB identificator.
+        """
+        self.pdbId = pdbId
+        
+    def get_pdb_id(self, pdbId):
+        """
+        Return a four-letter PDB identificator.
+        """
+        return self.pdbId
+        
     def add_pdb_atom(self, atom, pdbname, resId, resName):
         """
         Adds a new atom to the protein.
@@ -303,3 +316,161 @@ class Protein:
         
 # end of Protein class
 
+"""
+def getPathLocation():
+    #Piotr harcode your dataBasePath and simFilesPath here
+    #simplest would be to overwrite the path's file everytime, instead of
+    #doing text processing to figure out if the file has changed
+    # paths.txt is small enough to do so
+    dataBasePath = "/Users/piotr/Programs/RosettaBundle-2.3.0/rosetta_database"
+    simFilesPath = "/Users/piotr/Programs/RosettaBundle-2.3.0/tests/"
+    pathFile = simFilesPath + "/paths.txt"
+    f = open(pathFile, "w+")
+    line = "Rosetta Input/Output Paths (order essential)\n"
+    f.write(line)
+    line = "path is first '/', './',or  '../' to next whitespace, must end with '/'\n"
+    f.write(line)
+    line = "INPUT PATHS:\n"
+    f.write(line)
+    word = ["Temp", "Temp"]
+          # input files wil always be in this directory
+    tempWord = "pdb1"
+    word[0] = "%-32s" % tempWord
+    simFilesPath = "/Users/piotr/Programs/RosettaBundle-2.3.0/tests/"
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+    tempWord = "pdb2"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "alternate data files"
+    word[0] = "%-32s" % tempWord
+    word[1] = dataBasePath + '/\n'
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "fragments"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "structure dssp,ssa (dat,jones)"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "sequence fasta,dat,jones"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "constraints"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "starting structure"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "data files"
+    word[0] = "%-32s" % tempWord
+    tempWord = dataBasePath + "/\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    line = "OUTPUT PATHS:\n"
+    f.write(line)
+
+    tempWord = "movie"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "pdb path"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "score"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "status"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "user"
+    word[0] = "%-32s" % tempWord
+    tempWord = simFilesPath + "\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    line = "FRAGMENTS: (use '*****' in place of pdb name and chain)\n"
+    f.write(line)
+
+    tempWord = "2"
+    word[0] = "%-39s" % tempWord
+    tempWord = "number of valid fragment files\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "3"
+    word[0] = "%-39s" % tempWord
+    tempWord = "frag file 1 size\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "aa*****03_05.200_v1_3"
+    word[0] = "%-39s" % tempWord
+    tempWord = "name\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "9"
+    word[0] = "%-39s" % tempWord
+    tempWord = "frag file 2 size\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+
+    tempWord = "aa*****09_05.200_v1_3"
+    word[0] = "%-39s" % tempWord
+    tempWord = "name\n"
+    word[1] = tempWord
+    line = ''.join(word)
+    f.write(line)
+    f.close()
+    return pathFile
+"""
