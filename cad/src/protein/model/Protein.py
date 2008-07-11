@@ -54,7 +54,7 @@ SS_TURN = 3
 
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 
-enableProteins =  debug_pref("Enable Proteins?",
+enableProteins =  debug_pref("Enable Proteins? (next session)",
     Choice_boolean_False,
     non_debug = True,
     prefs_key = True)
