@@ -2835,7 +2835,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Column 12: Whitespace (str)
         atomRecord += "%1s" % space
         # Column 13-16 Atom name (str)
-        atomRecord += "%-4s" % self.element.symbol
+        # piotr 080711 : Changed atom name alignment to start from column 14.
+        # This should make our files more compatible with software that
+        # is very strict about PDB format compliance.
+        atomRecord += " %-3s" % self.element.symbol
         # Column 17: Alternate location indicator (str) *unused*
         atomRecord += "%1s" % space
         # Column 18-20: Residue name - unused (str)
@@ -2846,7 +2849,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # This has been tested with 35 chunks and still works in QuteMolX.
         atomRecord += "%1s" % chainId.upper()
         # Column 23-26: Residue sequence number (int) *unused*.
-        atomRecord += "%4s" % space
+        # piotr 080711: Use "1" as a residue number, as certain programs
+        # may have difficulties readin the file if this field is empty.
+        atomRecord += "%4d" % int(1)
         # Column 27: Code for insertion of residues (AChar) *unused*
         atomRecord += "%1s" % space
         # Column 28-30: Whitespace (str)
@@ -2866,7 +2871,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Column 67-76: Whitespace (str)
         atomRecord += "%10s" % space
         # Column 77-78: Element symbol, right-justified (str) *unused*
-        atomRecord += "%2s" % space
+        # piotr 080711: Output the element symbol here, as well (but
+        # truncate it to two characters).
+        atomRecord += "%2s" % self.element.symbol[:2].upper()
         # Column 79-80: Charge on the atom (str) *unused*
         atomRecord += "%2s\n" % space
         # End ATOM record ----------------------------------
