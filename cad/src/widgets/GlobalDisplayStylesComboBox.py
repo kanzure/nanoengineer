@@ -10,6 +10,8 @@ To do (for Mark):
 - Add tooltip and What's This text.
 - Change "Default Display Style" in the preferences dialog (Mode page) to
 "Global Display Style at start up"
+
+REVIEW: does this module belong in the ne1_ui package? [bruce 080711 comment]
 """
 
 import os
@@ -24,6 +26,7 @@ from utilities.icon_utilities import geticon
 # except DNA invisible. If we leave it in the list, we must document this 
 # confusing behavior in the "What's This" text.
 # --Mark 2008-03-16
+# [note: this may have been fixed since then; not sure. [bruce 080711 comment]]
 
 displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER, diPROTEIN]
 displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder", "Protein"]
