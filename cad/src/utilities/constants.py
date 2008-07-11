@@ -181,6 +181,8 @@ def gensym(prefix, assy = None):
     names_to_avoid = {} # maps name -> anything, for 0 or more names we don't want to generate
     # fill names_to_avoid with node names from assy, if provided
     import debug_flags # might be an import cycle, but probably ok for now
+        ### TODO: move this function elsewhere; it violates this module's
+        # import policy [bruce 080711 comment]
     if assy is not None:
         try:
             # the try/except is not needed unless this new code has bugs
@@ -310,6 +312,7 @@ def get_dispName_for_writemmp(display): #bruce 080324, revised 080328
     """
     if 1:
         # temporary import cycle. Should be ok, and will be removed soon.
+        # But do move it since it violates this module's import policy. (TODO)
         # Might need to be a relative import to work, so use one.
         # Surely needs to be a runtime import, and only run in this function.
         # [bruce 080328]
@@ -570,14 +573,15 @@ def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handl
 
 def color_difference(color1, color2, minimum_difference = 0.5):
     """
-    Returns True if the difference between color1 and color2 is greater than
-    constrast_difference (0.5 by default). Otherwise, returns False.
+    Return True if the difference between color1 and color2 is greater than
+    minimum_difference (0.5 by default). Otherwise, return False.
     """
-    from geometry.VQT import V, vlen
-    c1_vec = V(color1[0], color1[1], color1[2])
-    c2_vec = V(color2[0], color2[1], color2[2])
-    color_diff = vlen(c1_vec - c2_vec)
-    if color_diff > minimum_difference:
+    # [probably by Mark, circa 080710]
+    # [revised by bruce 080711 to remove import cycle involving VQT]
+    # Note: this function name is misleading, since it does not return
+    # the color difference. [bruce 080711 comment]
+    color_diff_squared = sum([(color2[i] - color1[i])**2 for i in (0,1,2)])
+    if color_diff_squared > minimum_difference ** 2:
         return True
     return False
 
