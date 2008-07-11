@@ -44,7 +44,11 @@ def setupUi(win):
     win.fileMenu.addSeparator()
     win.fileMenu.addMenu(win.importMenu)
     win.fileMenu.addMenu(win.exportMenu)
-    win.fileMenu.addMenu(win.fetchMenu)
+    
+    from protein.model.Protein import enableProteins
+    if enableProteins:
+        win.fileMenu.addMenu(win.fetchMenu)
+        
     win.fileMenu.addSeparator()
     win.fileMenu.addAction(win.fileExitAction)
     

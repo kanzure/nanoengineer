@@ -24,6 +24,7 @@ from utilities.icon_utilities import geticon
 # except DNA invisible. If we leave it in the list, we must document this 
 # confusing behavior in the "What's This" text.
 # --Mark 2008-03-16
+
 displayIndexes = [diLINES, diTUBES, diBALL, diTrueCPK, diDNACYLINDER, diPROTEIN]
 displayNames   = ["Lines", "Tubes", "Ball and Stick", "CPK", "DNA Cylinder", "Protein"]
 displayIcons   = ["Lines", "Tubes", "Ball_and_Stick", "CPK", "DNACylinder", "Protein"]
@@ -52,7 +53,14 @@ class GlobalDisplayStylesComboBox(QComboBox):
         """
         Private method. Populates self and sets the current display style.
         """
+
+        from utilities.debug_prefs import debug_pref, Choice_boolean_False
         
+        # Add a new experimental Protein display style
+        # if the Enable proteins debug pref is set to True.
+        # piotr 080710
+        from protein.model.Protein import enableProteins
+            
         if display_style == diDEFAULT:
             display_style = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         
@@ -65,6 +73,12 @@ class GlobalDisplayStylesComboBox(QComboBox):
         ADD_DEFAULT_TEXT = False
         
         for displayName in displayNames:
+
+            # Experimental display style for Proteins.
+            if displayName == "Protein" and \
+               not enableProteins:
+                # Skip the Proteins style.
+                continue
             
             basename = displayIconsDict[displayName] + ".png"
             iconPath = os.path.join("ui/actions/View/Display/", 

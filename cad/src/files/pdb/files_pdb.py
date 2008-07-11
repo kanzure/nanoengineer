@@ -32,6 +32,8 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from datetime import datetime
 import foundation.env as env
 
+from utilities.constants import gensym
+
 from protein.model.Protein import Residuum, Protein
 
 def _readpdb(assy, 
@@ -541,19 +543,6 @@ def _readpdb_new(assy,
         win.progressDialog.setValue(_progressFinishValue) 
     
     _finish_molecule()
-    """
-    #bruce 050322 part of fix for bug 433: don't return an empty chunk
-    #if not mol.atoms:
-    #    env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
-    #    return None
-    if numconects == 0:
-        msg = orangemsg("PDB file has no bond info; inferring bonds")
-        env.history.message(msg)
-        # let user see message right away (bond inference can take significant 
-        # time) [bruce 060620]
-        env.history.h_update() 
-        inferBonds(mol)
-    """
     
     return mollist
     
@@ -577,25 +566,36 @@ def readpdb(assy,
     @type  showProgressDialog: boolean
     """
     
-    if debug_pref("Enable Proteins?",
-                    Choice_boolean_False,
-                    non_debug = True,
-                    prefs_key = True): # use new PDB reading code
+    from protein.model.Protein import enableProteins
+    
+    if enableProteins:
+        
         molecules  = _readpdb_new(assy, 
                         filename, 
                         isInsert = False, 
                         showProgressDialog = showProgressDialog,
                         chainId = chainId)
         if molecules:
+            from dna.model.DnaGroup import DnaGroup
+            from model.assembly import Group
+            
+            self.win.assy.part.ensure_toplevel_group()
+
+            name = gensym("DnaGroup", assy) 
+            
+            dnaGroup = Group(name, assy, assy.part.topnode) 
             for mol in molecules:
                 if mol is not None:
-                    assy.addmol(mol)
+                    dnaGroup.addchild(mol)
+
+            assy.addnode(dnaGroup)            
     else:
         mol  = _readpdb(assy, 
                         filename, 
                         isInsert = False, 
                         showProgressDialog = showProgressDialog,
                         chainId = chainId)
+        
         if mol is not None:
             assy.addmol(mol)
     return
@@ -616,19 +616,29 @@ def insertpdb(assy,
     """
     
 
-    if debug_pref("Enable Proteins?",
-                    Choice_boolean_False,
-                    non_debug = True,
-                    prefs_key = True): # use new PDB reading code
+    from protein.model.Protein import enableProteins
+    
+    if enableProteins: # use new PDB reading code
+        
         molecules  = _readpdb_new(assy, 
                         filename, 
                         isInsert = True, 
                         showProgressDialog = True,
                         chainId = chainId)
         if molecules:
+            from dna.model.DnaGroup import DnaGroup
+            from model.assembly import Group
+            
+            assy.part.ensure_toplevel_group()
+
+            name = gensym("DnaGroup", assy) 
+            
+            dnaGroup = DnaGroup(name, assy, assy.part.topnode) 
             for mol in molecules:
                 if mol is not None:
-                    assy.addmol(mol)
+                    dnaGroup.addchild(mol)
+
+            assy.addnode(dnaGroup)            
     else:
         mol  = _readpdb(assy, 
                         filename, 
@@ -639,10 +649,9 @@ def insertpdb(assy,
             assy.addmol(mol)
     return
 
-# Write all Chunks into a Protein DataBank-format file
-# [bruce 050318 revised comments, and made it not write singlets or their bonds,
-#  and made it not write useless 1-atom CONECT records, and include each bond
-#  in just one CONECT record instead of two.]
+# Write a PDB ATOM record record.
+# Copied (and modified) from chem.py Atom.writepdb method.
+# piotr 080710
 
 def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resName):
     """
@@ -674,7 +683,8 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     # Column 12: Whitespace (str)
     atomRecord += "%1s" % space
     # Column 13-16 Atom name (str)
-    atomRecord += "%-4s" % atomName
+    # piotr 080710: moved Atom name to column 13
+    atomRecord += " %-3s" % atomName[:3] 
     # Column 17: Alternate location indicator (str) *unused*
     atomRecord += "%1s" % space
     # Column 18-20: Residue name - unused (str)
@@ -715,6 +725,10 @@ def writepdb_atom(atom, file, atomSerialNumber, atomName, chainId, resId, resNam
     return
 
 
+# Write all Chunks into a Protein DataBank-format file
+# [bruce 050318 revised comments, and made it not write singlets or their bonds,
+#  and made it not write useless 1-atom CONECT records, and include each bond
+#  in just one CONECT record instead of two.]
 
 # PDB exclude flags, used by writepdb() and its callers. 
 # Ask Bruce what "constants" file these should be moved to (if any).
@@ -774,11 +788,7 @@ def writepdb(part,
     
     atomSerialNumber = 1
 
-    enableProteins = debug_pref("Enable Proteins?",
-                                Choice_boolean_False,
-                                non_debug = True,
-                                prefs_key = True) # use new PDB writing code
-
+    from protein.model.Protein import enableProteins
     
     def exclude(atm): #bruce 050318
         """
@@ -847,7 +857,7 @@ def writepdb(part,
                 # piotr 080709 : Use more robust ATOM output code for Proteins.
                 resId = 1
                 resName = "UNK"
-                atomName = a.element.name
+                atomName = a.element.symbol
                 if mol.protein:
                     res = mol.protein.get_residuum(a)
                     if res:

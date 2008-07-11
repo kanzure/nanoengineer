@@ -4,7 +4,7 @@
 Protein.py -- Protein class implementation.
 
 @author: Piotr
-@version: $Id:  $
+$Id:$
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -51,6 +51,13 @@ SS_COIL = 0
 SS_HELIX = 1
 SS_STRAND = 2
 SS_TURN = 3
+
+from utilities.debug_prefs import debug_pref, Choice_boolean_False
+
+enableProteins =  debug_pref("Enable Proteins?",
+    Choice_boolean_False,
+    non_debug = True,
+    prefs_key = True)
 
 class Residuum:
     """
