@@ -67,6 +67,7 @@ class Version:
         "major": int(tmpary[0]),
         "minor": int(tmpary[1]),
         "releaseType": "",
+        "releaseCandidate": NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE,
         "releaseDate": NE1_Build_Constants.NE1_RELEASE_DATE,
         "product": "NanoEngineer-1",
         "copyright": __copyright__,

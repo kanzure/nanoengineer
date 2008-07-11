@@ -16,7 +16,7 @@ and split out of main.py into this file (main_startup.py)
 by bruce 070704.
 """
 
-import sys, time
+import sys, time, NE1_Build_Constants
 
 from ne1_startup import startup_before_most_imports
 
@@ -52,7 +52,14 @@ def startup_script( main_globals):
     # functions that need to be careful to do very few or no imports,
     # and functions that are free to do any imports.
     
-
+    if NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE:
+        print "Version: NanoEngineer-1 v%s_RC%s" % \
+              (NE1_Build_Constants.NE1_RELEASE_VERSION, \
+               NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE)
+    else:
+        print "Version: NanoEngineer-1 v%s" % \
+              NE1_Build_Constants.NE1_RELEASE_VERSION 
+    
     # "Do things that should be done before most imports occur."
     
     startup_before_most_imports.before_most_imports( main_globals )

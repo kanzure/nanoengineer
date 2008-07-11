@@ -1349,6 +1349,8 @@ class MWsemantics(QMainWindow,
         v = Version()
         product = v.product
         versionString = "Version " + repr(v)
+        if v.releaseCandidate:
+            versionString += ("_RC%d" % v.releaseCandidate)
         if v.releaseType:
             versionString += (" (%s)" % v.releaseType)
         date = "Release Date: " + v.releaseDate

@@ -13,4 +13,5 @@ None other than system imports should be used without good reason.
 
 NE1_RELEASE_VERSION = "1.1.0"
 NE1_RELEASE_DATE = "July 3, 2008"
+NE1_OFFICIAL_RELEASE_CANDIDATE = 0
 NE1_USE_bsddb3 = False
