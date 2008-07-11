@@ -127,18 +127,42 @@ def _convertFiletypesForMacFileDialog(filetypes):
         
         if filetype.find("(*.*)") != -1: 
             return filetype # Was found.
+     
+        # rsplit based on the last open paren
+        _tmpstr = filetype.rsplit("(",1)
+        # save the front part as the type description,
+        # also replace "." in the descriptor with a " " as extra "."'s can cause 
+        # display problems on Mac computers.
+        type_descriptor = _tmpstr[0].strip().replace(".", " ")
+    
+        # split based on the matching close paren 
+        _tmpstr = _tmpstr[1].rsplit(")",1)
+        # save the end of the string for later
+        type_end = _tmpstr[1]
+        filter_string = _tmpstr[0]
+        
+        # if the filter is empty or has parens, return it
+        if len(filter_string.strip()) < 1 or filter_string.count("(") > 0 or \
+           filter_string.count(")") > 0:
+            return filetype
 
-        # if filetype includes more than one period (.) character, replace it
-        # with an underscore (_) character since a file type entry with more
-        # than one period will not be displayed correctly in the Mac file dialog.
-        if filetype.count(".") > 1:
-            filetype = filetype.replace(".", "_", filetype.count(".") - 1)
-        
-        
-        _tmpstr = filetype.split(".",1)
-        _tmpstr[1] = _tmpstr[1].split(')',1)
-        _tmpstr2 = filetype.rsplit("(",1)
-        return _tmpstr2[0]+"- "+_tmpstr[1][0]+" ("+_tmpstr2[1]
+        # replace all occurances of ";" inside because we don't care about that
+        # for the purposes of splitting up the file types, then split on " "
+        typelist = filter_string.replace(";"," ").strip().split(" ")
+
+        # run a list comprehension to append the separate strings and remove 
+        # "*" and "."
+        type_filter = "".join(\
+            [" "+x.replace('*','').replace('.','') for x in typelist]).strip()
+
+        #assemble the string back together in the new format
+        if type_descriptor != "":
+            filetype = "%s - %s (%s)%s" % \
+                       (type_descriptor, type_filter, filter_string, type_end)
+        else:
+            filetype = "%s (%s)%s" % \
+                       (type_filter, filter_string, type_end)
+        return filetype
 
     separator = ";;"
     filetypes = str(filetypes)
