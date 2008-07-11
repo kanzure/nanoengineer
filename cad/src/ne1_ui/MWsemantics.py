@@ -1746,13 +1746,22 @@ class MWsemantics(QMainWindow,
     #UM 063008: protein flyout toolbar commands
     
     def activateProteinTool(self):
-        commandSequencer = self.commandSequencer
-        if commandSequencer.currentCommand.commandName != 'BUILD_PROTEIN':
-            commandSequencer.userEnterCommand('BUILD_PROTEIN')
-        
-        assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
-        self.commandSequencer.currentCommand.runCommand()
-        return
+        """
+        Activates the Protein toolbar.
+        """
+        # piotr 080710
+        # If "Enable Proteins" is set to False, use old Peptide Generator instead.
+        from protein.model.Protein import enableProteins        
+        if not enableProteins:
+            self.insertPeptide()
+        else:
+            commandSequencer = self.commandSequencer
+            if commandSequencer.currentCommand.commandName != 'BUILD_PROTEIN':
+                commandSequencer.userEnterCommand('BUILD_PROTEIN')
+            
+            assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
+            self.commandSequencer.currentCommand.runCommand()
+            return
     
     def createBuildProteinPropMgr_if_needed(self, editCommand):
         """
@@ -1769,7 +1778,7 @@ class MWsemantics(QMainWindow,
                 BuildProtein_PropertyManager(self, editCommand)
         else:
             self.buildProteinPropMgr.setEditCommand(editCommand)
-
+    
         return self.buildProteinPropMgr
         
     

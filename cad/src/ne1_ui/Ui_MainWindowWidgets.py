@@ -1727,17 +1727,34 @@ def retranslateUi(win):
         QtGui.QApplication.UnicodeUTF8))
 
     # Peptide Generator. piotr 080304
-    win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Protein", 
-        None, 
-        QtGui.QApplication.UnicodeUTF8))
-    win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Generate Peptide", 
-        None, 
-        QtGui.QApplication.UnicodeUTF8))
-
+    # piotr 080710 : Use "Peptide" label instead of "Protein"
+    # if the "Enable Proteins" debug pref is set to False.
+    # This should be moved to "interactive builders" sections
+    # on the Build Structures toolbar.
+    from protein.model.Protein import enableProteins
+    if enableProteins:    
+        win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
+            "MainWindow", 
+            "Protein", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
+        win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
+            "MainWindow", 
+            "Build Protein", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
+    else:
+        win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
+            "MainWindow", 
+            "Peptide", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
+        win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
+            "MainWindow", 
+            "Generate Peptide", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
+        
     #= "Tools > Build Tools" (menu and toolbar) actions.
 
     win.modifyHydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Hydrogenate", 
