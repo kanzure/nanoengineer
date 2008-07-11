@@ -52,6 +52,8 @@ def startup_script( main_globals):
     # functions that need to be careful to do very few or no imports,
     # and functions that are free to do any imports.
     
+    # print the version information including official release candidate if it
+    # is not 0 (false)
     if NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE:
         print "Version: NanoEngineer-1 v%s_RC%s" % \
               (NE1_Build_Constants.NE1_RELEASE_VERSION, \
