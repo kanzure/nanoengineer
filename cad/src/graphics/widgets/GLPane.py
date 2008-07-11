@@ -906,7 +906,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.backgroundGradient = gradient
         env.prefs[ backgroundGradient_prefs_key ] = gradient
         self._updateOriginAxisColor()
-        self._updateSpecialConstrastColors()
+        self._updateSpecialContrastColors()
         return
     
     def _updateOriginAxisColor(self):
@@ -926,12 +926,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             env.prefs[originAxisColor_prefs_key] = ave_colors( 0.9, axisColor, white)
         return
     
-    def _updateSpecialConstrastColors(self):
+    def _updateSpecialContrastColors(self): # [probably by Mark, circa 080710]
         """
         [private]
-        Update the special constrast colors (used to draw lines, etc.) to a 
+        Update the special contrast colors (used to draw lines, etc.) to a 
         shade that contrasts well with the current background.
         """
+        # REVIEW: the following is only legitimate since these prefs variables
+        # are (I think) not actual user prefs, but just global state variables.
+        # However, if that's true, they should not really be stored in the
+        # prefs db. Furthermore, if we had multiple GLPanes with different
+        # background colors, I think these variables would need to be
+        # per-glpane, so really they ought to be GLPane instance variables.
+        # [bruce 080711 comment]
         env.prefs.restore_defaults([DarkBackgroundContrastColor_prefs_key,
                                     LightBackgroundContrastColor_prefs_key])
         dark_color = env.prefs[DarkBackgroundContrastColor_prefs_key]  # black
