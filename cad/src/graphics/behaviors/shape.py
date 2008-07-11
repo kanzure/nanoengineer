@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 shape.py -- handle freehand curves for selection and cookie-cutting
 
 @author: Josh, Huaicai, maybe others
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -47,7 +47,7 @@ from utilities.debug import print_compact_traceback
 from utilities import debug_flags 
 
 import foundation.env as env
-from utilities.constants import color_difference
+##from utilities.constants import color_difference
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key
 from utilities.prefs_constants import LightBackgroundContrastColor_prefs_key
 
