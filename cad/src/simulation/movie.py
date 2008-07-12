@@ -1419,6 +1419,10 @@ def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] not valid for the current part.")
             env.history.message(msg)
+            msg = redmsg("Movie is for %d frames, size is %d, natoms %d" % (nframes, filesize, natoms))
+            env.history.message(msg)
+            msg = redmsg("Current part has %d atoms" % (part.natoms))
+            env.history.message(msg)
         return 2
     pass
 
