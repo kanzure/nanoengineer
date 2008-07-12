@@ -1,13 +1,13 @@
-mmpformat 050920 required; 051103 preferred
+mmpformat 080327 required; 080529 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (13.875855) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.997951, 0.018280, 0.060927, -0.006970) (13.875855) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (2 planet gears with motors)
+group (023_rotarymotor_two_planet_gears)
 info opengroup open = True
-mol (Molecule.2-copy1) tub
+mol (Molecule.2-copy1) Tubes
 atom 1 (6) (-561, 458, -1559) def
 atom 2 (6) (-570, 461, 1565) def
 atom 3 (6) (-578, 1812, -779) def
@@ -66,13 +66,13 @@ atom 29 (1) (2689, -1482, 1157) def
 bond1 23
 atom 30 (1) (2645, 2477, 1152) def
 bond1 22
-rmotor (Rotary Motor-38) (127, 127, 127) 1.00 1.00 (-565, 459, 3) (999, 11, 2) 2.00 0.50 0.10
+rmotor (Rotary Motor-38) (127, 127, 127) 1.000000 1.000000 (-565, 459, 3) (999, 11, 2) 2.000 0.500 0.100
 shaft 1 2 3 4 5 6
 thermo (Thermo-39) (153, 0, 51) 1 30 12
-forward_ref (425120552) # ground (Anchor-40)
+ground (Anchor-40) (0, 0, 0) 22 19 20 21 23 24
 group (Untitled-copy4)
 info opengroup open = True
-mol (Molecule.2-copy1) tub
+mol (Molecule.2-copy1) Tubes
 atom 31 (8) (664, -7655, -2072) def
 atom 32 (8) (622, -7680, 2060) def
 atom 33 (1) (-1382, -5337, -1991) def
@@ -123,16 +123,13 @@ atom 59 (8) (602, -5293, 2073) def
 bond1 53 41
 atom 60 (8) (612, -4094, 14) def
 bond1 51 39
-rmotor (Rotary Motor-38) (127, 127, 127) 1.00 1.00 (-577, -6485, -11) (999, 8, 10) 2.00 0.50 0.10
+rmotor (Rotary Motor-38) (127, 127, 127) 1.000000 1.000000 (-577, -6485, -11) (999, 8, 10) 2.000 0.500 0.100
 shaft 51 52 53 54 55 56
 thermo (Thermo-39) (153, 0, 51) 31 60 32
 egroup (Untitled-copy4)
-egroup (2 planet gears with motors)
+egroup (023_rotarymotor_two_planet_gears)
 end1
 group (Clipboard)
 info opengroup open = False
-ground (Anchor-40) (0, 0, 0) 22 19 20 21 23 24
-info leaf disabled = True
-info leaf forwarded = 425120552
 egroup (Clipboard)
-end molecular machine part 2 planet gears with motors
+end molecular machine part 023_rotarymotor_two_planet_gears

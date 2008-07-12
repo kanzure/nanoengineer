@@ -1,133 +1,135 @@
-mmpformat 050920 required; 051103 preferred
+mmpformat 080327 required; 080529 preferred
 kelvin 300
-group (2 planet gears with motors)
+group (View Data)
 info opengroup open = True
-mol (Molecule.2-copy1) tub
-atom 1 (6) (-561, 458, -1559) -
-atom 2 (6) (-570, 461, 1565) -
-atom 3 (6) (-578, 1812, -779) -
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.997951, 0.018280, 0.060927, -0.006970) (13.875855) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (023_rotarymotor_two_planet_gears)
+info opengroup open = True
+mol (Molecule.2-copy1) Tubes
+atom 1 (6) (-561, 458, -1559) def
+atom 2 (6) (-570, 461, 1565) def
+atom 3 (6) (-578, 1812, -779) def
 bond1 1
-atom 4 (6) (-583, 1813, 783) -
+atom 4 (6) (-583, 1813, 783) def
 bond1 2 3
-atom 5 (6) (-552, -892, 786) -
+atom 5 (6) (-552, -892, 786) def
 bond1 2
-atom 6 (6) (-547, -894, -776) -
+atom 6 (6) (-547, -894, -776) def
 bond1 1 5
-atom 7 (8) (671, -1591, -1186) -
+atom 7 (8) (671, -1591, -1186) def
 bond1 6
-atom 8 (8) (638, 476, 2392) -
+atom 8 (8) (638, 476, 2392) def
 bond1 2
-atom 9 (8) (624, 2538, -1188) -
+atom 9 (8) (624, 2538, -1188) def
 bond1 3
-atom 10 (8) (651, 471, -2379) -
+atom 10 (8) (651, 471, -2379) def
 bond1 1
-atom 11 (8) (665, -1588, 1204) -
+atom 11 (8) (665, -1588, 1204) def
 bond1 5
-atom 12 (8) (618, 2541, 1197) -
+atom 12 (8) (618, 2541, 1197) def
 bond1 4
-atom 13 (1) (-1354, -1530, -1139) -
+atom 13 (1) (-1354, -1530, -1139) def
 bond1 6
-atom 14 (1) (-1387, 452, 2286) -
+atom 14 (1) (-1387, 452, 2286) def
 bond1 2
-atom 15 (1) (-1400, 2428, -1143) -
+atom 15 (1) (-1400, 2428, -1143) def
 bond1 3
-atom 16 (1) (-1375, 447, -2284) -
+atom 16 (1) (-1375, 447, -2284) def
 bond1 1
-atom 17 (1) (-1360, -1528, 1146) -
+atom 17 (1) (-1360, -1528, 1146) def
 bond1 5
-atom 18 (1) (-1406, 2430, 1141) -
+atom 18 (1) (-1406, 2430, 1141) def
 bond1 4
-atom 19 (6) (1860, 485, -1552) -
+atom 19 (6) (1860, 485, -1552) def
 bond1 10
-atom 20 (6) (1851, 489, 1572) -
+atom 20 (6) (1851, 489, 1572) def
 bond1 8
-atom 21 (6) (1842, 1839, -772) -
+atom 21 (6) (1842, 1839, -772) def
 bond1 19 9
-atom 22 (6) (1838, 1841, 789) -
+atom 22 (6) (1838, 1841, 789) def
 bond1 20 21 12
-atom 23 (6) (1868, -864, 792) -
+atom 23 (6) (1868, -864, 792) def
 bond1 20 11
-atom 24 (6) (1873, -866, -769) -
+atom 24 (6) (1873, -866, -769) def
 bond1 19 23 7
-atom 25 (1) (2695, -1484, -1128) -
+atom 25 (1) (2695, -1484, -1128) def
 bond1 24
-atom 26 (1) (2665, 499, 2297) -
+atom 26 (1) (2665, 499, 2297) def
 bond1 20
-atom 27 (1) (2651, 2474, -1132) -
+atom 27 (1) (2651, 2474, -1132) def
 bond1 21
-atom 28 (1) (2677, 493, -2273) -
+atom 28 (1) (2677, 493, -2273) def
 bond1 19
-atom 29 (1) (2689, -1482, 1157) -
+atom 29 (1) (2689, -1482, 1157) def
 bond1 23
-atom 30 (1) (2645, 2477, 1152) -
+atom 30 (1) (2645, 2477, 1152) def
 bond1 22
-rmotor (Rotary Motor-38) (127, 127, 127) 1.00 1.00 (-565, 459, 3) (999, 11, 2) 2.00 0.50 0.10
+rmotor (Rotary Motor-38) (127, 127, 127) 1.000000 1.000000 (-565, 459, 3) (999, 11, 2) 2.000 0.500 0.100
 shaft 1 2 3 4 5 6
 thermo (Thermo-39) (153, 0, 51) 1 30 12
-forward_ref (425120552) # ground (Anchor-40)
+ground (Anchor-40) (0, 0, 0) 22 19 20 21 23 24
 group (Untitled-copy4)
 info opengroup open = True
-mol (Molecule.2-copy1) tub
-atom 31 (8) (664, -7655, -2072) -
-atom 32 (8) (622, -7680, 2060) -
-atom 33 (1) (-1382, -5337, -1991) -
-atom 34 (1) (-1373, -8777, -32) -
-atom 35 (1) (-1422, -5360, 1965) -
-atom 36 (1) (-1411, -4206, -6) -
-atom 37 (1) (-1363, -7623, -2005) -
-atom 38 (1) (-1402, -7646, 1952) -
-atom 39 (6) (1830, -4903, 22) -
-atom 40 (6) (1857, -8027, 4) -
-atom 41 (6) (1823, -5691, 1370) -
+mol (Molecule.2-copy1) Tubes
+atom 31 (8) (664, -7655, -2072) def
+atom 32 (8) (622, -7680, 2060) def
+atom 33 (1) (-1382, -5337, -1991) def
+atom 34 (1) (-1373, -8777, -32) def
+atom 35 (1) (-1422, -5360, 1965) def
+atom 36 (1) (-1411, -4206, -6) def
+atom 37 (1) (-1363, -7623, -2005) def
+atom 38 (1) (-1402, -7646, 1952) def
+atom 39 (6) (1830, -4903, 22) def
+atom 40 (6) (1857, -8027, 4) def
+atom 41 (6) (1823, -5691, 1370) def
 bond1 39
-atom 42 (6) (1837, -7253, 1361) -
+atom 42 (6) (1837, -7253, 1361) def
 bond1 32 40 41
-atom 43 (6) (1864, -7238, -1344) -
+atom 43 (6) (1864, -7238, -1344) def
 bond1 31 40
-atom 44 (6) (1851, -5675, -1335) -
+atom 44 (6) (1851, -5675, -1335) def
 bond1 39 43
-atom 45 (1) (2669, -5303, -1950) -
+atom 45 (1) (2669, -5303, -1950) def
 bond1 44
-atom 46 (1) (2679, -8742, 8) -
+atom 46 (1) (2679, -8742, 8) def
 bond1 40
-atom 47 (1) (2629, -5326, 2006) -
+atom 47 (1) (2629, -5326, 2006) def
 bond1 41
-atom 48 (1) (2638, -4171, 34) -
+atom 48 (1) (2638, -4171, 34) def
 bond1 39
-atom 49 (1) (2689, -7588, -1964) -
+atom 49 (1) (2689, -7588, -1964) def
 bond1 43
-atom 50 (1) (2649, -7611, 1994) -
+atom 50 (1) (2649, -7611, 1994) def
 bond1 42
-atom 51 (6) (-591, -4924, -2) -
+atom 51 (6) (-591, -4924, -2) def
 bond1 36
-atom 52 (6) (-563, -8047, -20) -
+atom 52 (6) (-563, -8047, -20) def
 bond1 34
-atom 53 (6) (-597, -5712, 1346) -
+atom 53 (6) (-597, -5712, 1346) def
 bond1 51 35
-atom 54 (6) (-584, -7274, 1337) -
+atom 54 (6) (-584, -7274, 1337) def
 bond1 52 53 32 38
-atom 55 (6) (-556, -7258, -1369) -
+atom 55 (6) (-556, -7258, -1369) def
 bond1 52 31 37
-atom 56 (6) (-570, -5696, -1360) -
+atom 56 (6) (-570, -5696, -1360) def
 bond1 51 55 33
-atom 57 (8) (643, -5269, -2058) -
+atom 57 (8) (643, -5269, -2058) def
 bond1 56 44
-atom 58 (8) (653, -8861, -12) -
+atom 58 (8) (653, -8861, -12) def
 bond1 52 40
-atom 59 (8) (602, -5293, 2073) -
+atom 59 (8) (602, -5293, 2073) def
 bond1 53 41
-atom 60 (8) (612, -4094, 14) -
+atom 60 (8) (612, -4094, 14) def
 bond1 51 39
-rmotor (Rotary Motor-38) (127, 127, 127) 1.00 1.00 (-577, -6485, -11) (999, 8, 10) 2.00 0.50 0.10
+rmotor (Rotary Motor-38) (127, 127, 127) 1.000000 1.000000 (-577, -6485, -11) (999, 8, 10) 2.000 0.500 0.100
 shaft 51 52 53 54 55 56
 thermo (Thermo-39) (153, 0, 51) 31 60 32
 egroup (Untitled-copy4)
-egroup (2 planet gears with motors)
+egroup (023_rotarymotor_two_planet_gears)
 end1
 group (Clipboard)
 info opengroup open = False
-ground (Anchor-40) (0, 0, 0) 22 19 20 21 23 24
-info leaf disabled = True
-info leaf forwarded = 425120552
 egroup (Clipboard)
-end molecular machine part 2 planet gears with motors
+end molecular machine part 023_rotarymotor_two_planet_gears

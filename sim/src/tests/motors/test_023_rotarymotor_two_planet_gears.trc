@@ -1,12 +1,30 @@
-# nanoENGINEER-1.com Simulator Trace File, Version 050310
+# NanoEngineer-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
+# uname -a: Linux lagrange.syzygy.com 2.6.22.6 #3 Fri Sep 21 12:48:15 PDT 2007 i686 GNU/Linux
 # 
-# CFLAGS: -g -Wmissing-prototypes -Wall
-# LDFLAGS: -L/usr/lib -lm
+# CFLAGS: -pthread -fno-strict-aliasing -g -I/usr/include/python2.3 -fno-strict-aliasing -Wall -Wmissing-prototypes -Wstrict-prototypes -fPIC -I/usr/include/python2.5  -fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes -Wstrict-prototypes -fPIC
+# LDFLAGS: -L/usr/lib/python2.5/config  -lm -lpython2.5 -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_023_rotarymotor_two_planet_gears.trc test_023_rotarymotor_two_planet_gears.mmp 
-# Date and Time: Wed Apr 19 10:53:30 2006
+#
+# debug_flags: 0x0
+# IterPerFrame: 100
+# NumFrames: 1
+# DumpAsText: 1
+# DumpIntermediateText: 0
+# PrintFrameNums: 0
+# OutputFormat: 0
+# KeyRecordInterval: 32
+# DirectEvaluate: 0
+# ExcessiveEnergyLevel: 0.100000 aJ
+# QualityWarningLevel: 5
+# VanDerWaalsCutoffRadius: -1.000000
+# VanDerWaalsCutoffFactor: 1.700000
+# EnableElectrostatic: 1
+# NeighborSearching: 1
+# ThermostatGamma: 0.010000
+#
+# Date and Time: Sat Jul 12 14:40:24 2008
 # Input File: test_023_rotarymotor_two_planet_gears.mmp
 # Output File: test_023_rotarymotor_two_planet_gears.xyz
 # Trace File: test_023_rotarymotor_two_planet_gears.trc
@@ -18,17 +36,27 @@
 # Temperature: 300.0
 # Number of Atoms: 60
 # 
+# Rotary Motor-38 Zero Speed Torque: 1.000000 nN-nm
+# Rotary Motor-38 Zero Torque Speed: 1.000000 Ghz
+# Rotary Motor-38 Initial Speed: 0.000000 Ghz
+# Rotary Motor-38 Damping coefficient: 0.707100
+# Rotary Motor-38 Zero Speed Torque: 1.000000 nN-nm
+# Rotary Motor-38 Zero Torque Speed: 1.000000 Ghz
+# Rotary Motor-38 Initial Speed: 0.000000 Ghz
+# Rotary Motor-38 Damping coefficient: 0.707100
+#
 # 7 columns:
 # Rotary Motor-38: speed (GHz)
 # Rotary Motor-38: torque (nn-nm)
 # Thermo-39: temperature (K)
+# Anchor-40: torque (nn-nm)
 # Rotary Motor-38: speed (GHz)
 # Rotary Motor-38: torque (nn-nm)
 # Thermo-39: temperature (K)
-# Anchor-40: torque (nn-nm)
 #
-#     Time       speed           torque          T.meter         speed           torque          T.meter         Anchor          
-#  picosec       Rotary Motor-38                 Thermo-39       Rotary Motor-38                 Thermo-39       Anchor-40      
+#     Time       speed           torque          T.meter         Anchor          speed           torque          T.meter         
+#  picosec       Rotary Motor-38                 Thermo-39       Anchor-40       Rotary Motor-38                 Thermo-39      
 #
-    0.0100            1.226          -0.144          209.24           1.167          -0.108          264.37            0.46
+    0.0100            1.183          -0.116          245.54            0.43           1.153          -0.098          306.98
+# Duration: 00:00:00:00.042080, 0.000701 sec/frame, 0.000007 sec/iteration
 # Done: 

@@ -764,8 +764,7 @@ readMMP(char *filename)
       makeLinearMotor(p, name, force, stiffness, &center, &axis, atomListLength, atomList); BAILP();
     }
 		
-    else if (!strcmp(tok, "end")) {
-      consumeRestOfLine(mmp);
+    else if (!strncmp(tok, "end", 3)) {
       break;
     }
 
