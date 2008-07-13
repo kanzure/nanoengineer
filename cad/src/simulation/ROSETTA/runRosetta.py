@@ -6,6 +6,8 @@ runRosetta.py -- setting up and running rosetta simulations
 
 History:
 Urmi copied this file from runSim.py and then modified it.
+
+To do: implement rosetta design for highlighted protein chunk
 """
 from files.pdb.files_pdb import writepdb
 from files.pdb.files_pdb import insertpdb
@@ -70,16 +72,11 @@ class RosettaRunner:
         pdbId = self.getPDBIDFromChunk(part)
         if pdbId is None:
             return None
-        #Urmi  20080713: hardcoded pdb file name since currently Rosetta cannot
-        #read pdb files written by NE-1
-        pdbId = '2GB1'
+        
         fileName = pdbId + '.pdb'
         dir = os.path.dirname(self.tmp_file_prefix)
         fileLocation = dir + '/' + fileName
-        #Urmi  20080710: the condition will be removed as soon as Piotr updates
-        #writepdb code
-        if not os.path.exists(fileLocation):
-            writepdb(part, fileLocation) 
+        writepdb(part, fileLocation) 
         return fileName
     
     def getPDBIDFromChunk(self, part):
@@ -91,8 +88,12 @@ class RosettaRunner:
         for chunk in chunkList:
             if chunk.isProteinChunk():
                 pdbID = chunk.protein.get_pdb_id()   
-                return pdbID
-    
+                chainID = chunk.protein.chainId
+                if chainID =='':
+                    return pdbID
+                else:
+                    pdbID = pdbID + chainID
+                    return pdbID
         return None
     
     def removeOldOutputPDBFiles(self):
