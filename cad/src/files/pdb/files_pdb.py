@@ -275,7 +275,7 @@ def _readpdb_new(assy,
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
-    def _finish_molecule(id):
+    def _finish_molecule():
         """
         Perform some operations after reading entire PDB chain:
           - rebuild (infer) bonds
@@ -297,14 +297,9 @@ def _readpdb_new(assy,
                 
             mol.protein.set_chain_id(chainId)
             
-            pdbId = id
-                        
-            if pdbId == None:
-                pdbId = mol.name.replace(".pdb","").lower()
-
-            mol.protein.set_pdb_id(pdbId)
+            mol.protein.set_pdb_id(pdbid)
             
-            mol.name = pdbId.lower() + chainId
+            mol.name = pdbid.lower() + chainId
                 
             if mol.protein.count_c_alpha_atoms() == 0:
                 # If there is no C-alpha atoms, consider the chunk 
@@ -329,7 +324,6 @@ def _readpdb_new(assy,
     
     dir, nodename = os.path.split(filename)
     if not isInsert:
-        #nodename, extension = os.path.splitext(nodename)
         assy.filename = filename
     
     ndix = {}
@@ -338,7 +332,8 @@ def _readpdb_new(assy,
     mol.protein = Protein()
         
     numconects = 0
-
+    pdbid = nodename.replace(".pdb","").lower()
+    
     atomname_exceptions = {
         "HB":"H", #k these are all guesses -- I can't find this documented 
                   # anywhere [bruce 070410]
@@ -505,7 +500,7 @@ def _readpdb_new(assy,
                     numconects += 1
         elif key == "ter":
             # Finish the current molecule.
-            _finish_molecule(pdbId)
+            _finish_molecule()
             # Create a new molecule 
             mol = Chunk(assy, nodename)
             mol.protein = Protein()
@@ -513,8 +508,8 @@ def _readpdb_new(assy,
             
         elif key == "header":
             # Extract PDB ID from the header string.
-            pdbId = card[62:66].lower()
-        
+            pdbid = card[62:66].lower()
+            
         elif key in ["helix", "sheet", "turn"]:
             # Read secondary structure information.
             if key == "helix":
@@ -552,7 +547,7 @@ def _readpdb_new(assy,
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue) 
     
-    _finish_molecule(pdbId)
+    _finish_molecule()
     
     return mollist
     
@@ -586,19 +581,18 @@ def readpdb(assy,
                         showProgressDialog = showProgressDialog,
                         chainId = chainId)
         if molecules:
-            from dna.model.DnaGroup import DnaGroup
             from model.assembly import Group
             
             self.win.assy.part.ensure_toplevel_group()
 
-            name = gensym("DnaGroup", assy) 
+            name = gensym("Group", assy) 
             
-            dnaGroup = Group(name, assy, assy.part.topnode) 
+            group = Group(name, assy, assy.part.topnode) 
             for mol in molecules:
                 if mol is not None:
-                    dnaGroup.addchild(mol)
+                    group.addchild(mol)
 
-            assy.addnode(dnaGroup)            
+            assy.addnode(group)            
     else:
         mol  = _readpdb(assy, 
                         filename, 
@@ -641,14 +635,14 @@ def insertpdb(assy,
             
             assy.part.ensure_toplevel_group()
 
-            name = gensym("DnaGroup", assy) 
+            name = gensym("Group", assy) 
             
-            dnaGroup = DnaGroup(name, assy, assy.part.topnode) 
+            group = Group(name, assy, assy.part.topnode) 
             for mol in molecules:
                 if mol is not None:
-                    dnaGroup.addchild(mol)
+                    group.addchild(mol)
 
-            assy.addnode(dnaGroup)            
+            assy.addnode(group)            
     else:
         mol  = _readpdb(assy, 
                         filename, 

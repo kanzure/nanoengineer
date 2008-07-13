@@ -212,7 +212,7 @@ class Protein:
         """
         self.pdbId = pdbId
         
-    def get_pdb_id(self, pdbId):
+    def get_pdb_id(self):
         """
         Return a four-letter PDB identificator.
         """
