@@ -1447,6 +1447,12 @@ class MWsemantics(QMainWindow,
         cmdrun.run()
         return
 
+    def rosettaSetup(self):
+        from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
+        cmdrun = rosettaSetup_CommandRun(self)
+        cmdrun.run()        
+        return
+    
     def simNanoHive(self):
         """
         Opens the Nano-Hive dialog... for details see subroutine's docstring.
@@ -2343,6 +2349,7 @@ class MWsemantics(QMainWindow,
         self.modifyAdjustSelAction.setEnabled(enable) # "Adjust Selection"
         self.modifyAdjustAllAction.setEnabled(enable) # "Adjust All"
         self.simMinimizeEnergyAction.setEnabled(enable) # Minimize Energy
+        self.rosettaSetupAction.setEnabled(enable)
         self.simSetupAction.setEnabled(enable) # "Simulator"
         self.fileSaveAction.setEnabled(enable) # "File Save"
         self.fileSaveAsAction.setEnabled(enable) # "File Save As"
