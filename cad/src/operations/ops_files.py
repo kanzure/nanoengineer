@@ -892,8 +892,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         fileObject2.close()
         dir, fil = os.path.split(str(fn))
         self.setCurrentWorkingDirectory(dir)
-        
-        env.history.message( "PDB file saved: [ " + os.path.normpath(fn) + " ]")
+        env.history.message( "PDB file saved: [ " + os.path.normpath(str(fn)) + " ]")
         
         return    
 
