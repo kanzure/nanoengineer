@@ -773,6 +773,14 @@ def setupUi(win):
     win.simMoviePlayerAction.setIcon(
         geticon("ui/actions/Simulation/Play_Movie.png"))
 
+    win.rosettaSetupAction = QtGui.QWidgetAction(MainWindow)
+    win.rosettaSetupAction.setCheckable(True)
+    win.rosettaSetupAction.setChecked(False)
+    win.rosettaSetupAction.setEnabled(True)
+    win.rosettaSetupAction.setIcon(
+        geticon("ui/actions/Simulation/Run_Dynamics.png"))
+    win.rosettaSetupAction.setObjectName("rosettaSetupAction")
+    
     win.simPlotToolAction = QtGui.QWidgetAction(MainWindow)
     win.simPlotToolAction.setEnabled(True)
     win.simPlotToolAction.setIcon(
@@ -1853,7 +1861,15 @@ def retranslateUi(win):
     win.simMoviePlayerAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
     win.simMoviePlayerAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))    
+        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8)) 
+    
+    win.rosettaSetupAction.setText(QtGui.QApplication.translate(
+        "MainWindow", " Rosetta Design...", None, QtGui.QApplication.UnicodeUTF8))
+    win.rosettaSetupAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Rosetta Design", None, QtGui.QApplication.UnicodeUTF8))
+    win.rosettaSetupAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Rosetta Design", None, QtGui.QApplication.UnicodeUTF8))
+    
     win.simPlotToolAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Graphs...", None, QtGui.QApplication.UnicodeUTF8))
     win.simPlotToolAction.setIconText(QtGui.QApplication.translate(
