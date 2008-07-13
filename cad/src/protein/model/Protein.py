@@ -206,6 +206,12 @@ class Protein:
         """
         self.chainId = chainId
 
+    def get_chain_id(self):
+        """
+        Gets a single letter chain ID.
+        """
+        return self.chainId
+
     def set_pdb_id(self, pdbId):
         """
         Set a four-letter PDB identificator.
