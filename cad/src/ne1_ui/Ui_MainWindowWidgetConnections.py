@@ -241,6 +241,7 @@ def setupUi(win):
     win.connect(win.simNanoHiveAction,SIGNAL("triggered()"),win.simNanoHive)
     win.connect(win.simPlotToolAction,SIGNAL("triggered()"),win.simPlot)
     win.connect(win.simSetupAction,SIGNAL("triggered()"),win.simSetup)
+    win.connect(win.rosettaSetupAction,SIGNAL("triggered()"),win.rosettaSetup)
     win.connect(win.toolsCookieCutAction,SIGNAL("triggered()"),win.toolsCookieCut)
     win.connect(win.setStereoViewAction,SIGNAL("triggered()"),win.stereoSettings)
 
