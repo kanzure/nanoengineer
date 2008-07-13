@@ -88,7 +88,7 @@ class RosettaRunner:
         for chunk in chunkList:
             if chunk.isProteinChunk():
                 pdbID = chunk.protein.get_pdb_id()   
-                chainID = chunk.protein.chainId
+                chainID = chunk.protein.get_chain_id()
                 if chainID =='':
                     return pdbID
                 else:
