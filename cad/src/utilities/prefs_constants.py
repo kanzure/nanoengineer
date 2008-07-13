@@ -442,6 +442,9 @@ gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 gromacs_path_prefs_key = 'A10/GROMACS Path'
 gromacs_enabled_prefs_key = 'A10/GROMACS Enabled'
+rosetta_path_prefs_key = 'V111/Rosetta Path'
+rosetta_enabled_prefs_key = 'V111/Rosetta Enabled'
+rosetta_database_prefs_key = 'V111/Rosetta Database'
 cpp_path_prefs_key = 'A10/cpp Path'
 cpp_enabled_prefs_key = 'A10/cpp Enabled'
 nv1_path_prefs_key = 'A10/NanoVision-1 Path'
@@ -963,6 +966,11 @@ prefs_table = (
     ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     ('gromacs_exe_path', 'string', gromacs_path_prefs_key, "" ),
     ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
+    #Urmi 20080709: since this is not in the pref dialog as yet, we'll hard code
+    # for testing purposes
+    ('rosetta_exe_path', 'string', rosetta_path_prefs_key, "/Users/marksims/Nanorex/Rosetta/rosetta++/rosetta.mactel" ),
+    ('rosetta_enabled', 'boolean', rosetta_enabled_prefs_key, True ),
+    ('rosetta_database_path', 'string', rosetta_database_prefs_key, '/Users/marksims/Nanorex/Rosetta/rosetta_database'),
     ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
     ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
     ('nv1_exe_path', 'string', nv1_path_prefs_key, "" ),
