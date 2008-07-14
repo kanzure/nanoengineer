@@ -225,8 +225,8 @@ from widgets.prefs_widgets import connect_doubleSpinBox_with_pref
 
 # Widget constants for the "Model View" page.
 
-BG_BLUE_SKY = 0
-BG_EVENING_SKY = 1
+BG_EVENING_SKY = 0
+BG_BLUE_SKY = 1
 BG_SEAGREEN = 2
 BG_BLACK = 3
 BG_WHITE = 4
@@ -1370,13 +1370,13 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Load the background color combobox with all the color options and sets
         the current background color
         """
-        backgroundIndexes = [BG_BLUE_SKY, BG_EVENING_SKY, BG_SEAGREEN,
+        backgroundIndexes = [BG_EVENING_SKY, BG_BLUE_SKY, BG_SEAGREEN,
                              BG_BLACK, BG_WHITE, BG_GRAY, BG_CUSTOM]
 
-        backgroundNames   = ["Blue Sky (default)", "Evening Sky", "Sea Green",
+        backgroundNames   = ["Evening Sky (default)", "Blue Sky", "Sea Green",
                              "Black", "White", "Gray", "Custom..."]
 
-        backgroundIcons   = ["Background_BlueSky", "Background_EveningSky",
+        backgroundIcons   = ["Background_EveningSky", "Background_BlueSky",
                              "Background_SeaGreen",
                              "Background_Black",   "Background_White",
                              "Background_Gray",    "Background_Custom"]

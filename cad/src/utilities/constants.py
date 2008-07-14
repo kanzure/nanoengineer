@@ -636,10 +636,15 @@ lighterblue = ave_colors( 0.5, white, blue)
 #(or suggest better name by looking at it. ) - ninad 20070615
 brown = ave_colors(0.5, black, yellow) 
 
-bgEVENING_SKY = 2 # This is one more than BG_EVENING_SKY in Preferences.py
+# The background gradient types/values.
+# Gradient values are one more than the gradient constant values in Preferences.py.
+# (i.e. bgEVENING_SKY =  BG_EVENING_SKY + 1)
+bgSOLID = 0
+bgEVENING_SKY = 1 
+bgBLUE_SKY = 2
 bgSEAGREEN = 3
-bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3) # GLPane "Evening Sky" gradient
+bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 bg_seagreen = (0.905, 0.905, 0.921), (0.905, 0.905, 0.921), (0.6, 0.8, 0.8), (0.6, 0.8, 0.8) # GLPane "Sea Green" gradient
 
 bg_seagreen_UNUSED_FOR_DEBUG = (0.894, 0.949, 0.894), (0.862, 0.929, 0.862), (0.686, 0.843, 0.843), (0.905, 0.905, 0.921), \

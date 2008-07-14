@@ -149,7 +149,7 @@ from graphics.drawing.gl_lighting import setup_standard_lights
 from graphics.drawing.glprefs import glprefs
 from graphics.drawing.setup_draw import setup_drawer
 
-from utilities.constants import bgEVENING_SKY, bgSEAGREEN
+from utilities.constants import bgSOLID, bgEVENING_SKY, bgBLUE_SKY, bgSEAGREEN
 from utilities.constants import ave_colors, color_difference
 
 # note: the list of preloaded_command_classes for the Command Sequencer
@@ -897,8 +897,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         Stores the background gradient prefs value in the prefs db.
         gradient can be either:
             0 - No gradient. The background color is a solid color.
-            1 - the background gradient is set to the 'Blue Sky' gradient.
-            2 - the background gradient is set to the 'Evening Sky' gradient.
+            1 - the background gradient is set to the 'Evening Sky' gradient.
+            2 - the background gradient is set to the 'Blue Sky' gradient.
             3 - the background gradient is set to the  'Sea Green' gradient.
 
         See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.
@@ -919,10 +919,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         axisColor = env.prefs[originAxisColor_prefs_key]
         gradient = env.prefs[ backgroundGradient_prefs_key ]
         
-        if gradient == 0: # No gradient (solid bg).
+        if gradient == bgSOLID:
             if not color_difference(self.backgroundColor, axisColor, minimum_difference = 0.51):
                 env.prefs[originAxisColor_prefs_key] = ave_colors( 0.5, axisColor, white)
-        elif gradient == 2: # "Evening Sky"
+        elif gradient == bgEVENING_SKY:
             env.prefs[originAxisColor_prefs_key] = ave_colors( 0.9, axisColor, white)
         return
     
@@ -945,12 +945,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         lite_color = env.prefs[LightBackgroundContrastColor_prefs_key] # white
         gradient = env.prefs[ backgroundGradient_prefs_key ]
         
-        if gradient == 0: # No gradient (solid bg).
+        if gradient == bgSOLID:
             if not color_difference(self.backgroundColor, dark_color, minimum_difference = 0.51):
                 env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.5, dark_color, white)
             if not color_difference(self.backgroundColor, lite_color, minimum_difference = 0.51):
                 env.prefs[LightBackgroundContrastColor_prefs_key] = ave_colors( 0.5, lite_color, black)
-        elif gradient == 2: # "Evening Sky"
+        elif gradient == bgEVENING_SKY:
             env.prefs[DarkBackgroundContrastColor_prefs_key] = ave_colors( 0.6, dark_color, white)
         return
 
@@ -3778,12 +3778,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
 
-            # Setting to blue sky (default), but might change to evening sky.
-            _bgGradient = bluesky
+            # 
             if self.backgroundGradient == bgEVENING_SKY:
                 _bgGradient = eveningsky
-            if self.backgroundGradient == bgSEAGREEN:
+            elif self.backgroundGradient == bgBLUE_SKY:
+                _bgGradient = bluesky
+            elif self.backgroundGradient == bgSEAGREEN:
                 _bgGradient = bg_seagreen
+            else:
+                msg = "Warning: Unknown background gradient = %s. "\
+                    "Setting gradient to evening sky." % self.backgroundGradient
+                print_compact_stack(msg)
+                _bgGradient = eveningsky
 
             drawFullWindow(_bgGradient)
             # fogColor is an average of the gradient components

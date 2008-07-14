@@ -39,7 +39,7 @@ from utilities.constants import yellow, pink, red, black, magenta, mustard
 from utilities.constants import blue, gray, white, green, orange
 from utilities.constants import lightgray, lightblue, lightgreen
 from utilities.constants import darkred, darkblue, darkgreen
-from utilities.constants import ave_colors, diBALL
+from utilities.constants import ave_colors, diBALL, bgEVENING_SKY
 
 import sys, os # for getDefaultWorkingDirectory
 
@@ -160,7 +160,7 @@ pasteOffsetScaleFactorForDnaObjects_prefs_key = 'V110/Scale factor is used to of
 
 # Color prefs (for "Color" page).
 backgroundColor_prefs_key = 'A9/Background Color'
-backgroundGradient_prefs_key = 'A9/Background Gradient'
+backgroundGradient_prefs_key = 'V111/Background Gradient'
 hoverHighlightingColorStyle_prefs_key = 'V110/3D hover highlighting color style rev1'
 hoverHighlightingColor_prefs_key = 'V110/3D hover highlighting color'
 selectionColorStyle_prefs_key = 'V110/3D selection color style rev1'
@@ -626,7 +626,7 @@ prefs_table = (
      pasteOffsetScaleFactorForDnaObjects_prefs_key, 3.0),
 
     # Color (page) preferences
-    ('', 'int',   backgroundGradient_prefs_key, 1), # 1=BlueSky
+    ('', 'int',   backgroundGradient_prefs_key, bgEVENING_SKY),
     ('', 'color', backgroundColor_prefs_key, white),
     ('', 'string',   hoverHighlightingColorStyle_prefs_key, HHS_HALO),
     ('', 'color', hoverHighlightingColor_prefs_key, yellow),
