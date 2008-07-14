@@ -118,7 +118,7 @@ class ProteinFlyout:
         self.editRotamersAction.setCheckable(True)  
         #set this icon path later
         self.editRotamersAction.setIcon(
-            geticon("ui/actions/Tools/Build Structures/Peptide.png"))
+            geticon("ui/actions/Tools/Build Structures/Rotamer.png"))
 
         self.displayProteinStyleAction = QtGui.QWidgetAction(parentWidget)
         self.displayProteinStyleAction.setText("Edit Style")
@@ -179,7 +179,7 @@ class ProteinFlyout:
         """                   
         if self._isActive:
             return
-
+        
         self._isActive = True
 
         self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
