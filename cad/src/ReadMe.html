@@ -162,6 +162,10 @@ Style menu.</li>
 and line
 color of region selection polyline (rectangle/lasso), DNA lines and
 Nanotube lines.</li>
+      <li>New disc geometry for DnaSegment resize
+handles&nbsp;to aid resize operations.</li>
+      <li>Enlarged the resize handles (the 3D arrowhead
+only)&nbsp;when resizing a Dna Segment</li>
     </ul>
   </li>
   <li>Other new features</li>
@@ -169,6 +173,7 @@ Nanotube lines.</li>
     <li>Plane images are saved/restored between sessions.</li>
     <li>NanoEngineer-1 is now built with Qt 4.3.5.</li>
     <li>IOS import and export feature added</li>
+    <li>Added the ability to draw a dna duplex on specified plane</li>
   </ul>
   <li> Fixed Bugs
     <ul>
@@ -184,6 +189,16 @@ export.<br>
 concerning the switch to Qt 4.3.5</li>
       <li>Modified the file selection box extension choices for
 OpenBabel export/import so that file extensions are displayed on Mac</li>
+      <li>now its possible to select a plane by clicking anywhere
+inside it</li>
+      <li>Fixed bug where the bases per turn value was incorrect</li>
+      <li>Dna Segment property manager could display the wrong
+number of base pairs</li>
+      <li>When resizing a Dna Segment 1, the cursor text that
+indicates length delta is off by 1</li>
+      <li>Resizing a Dna Segment adds one base pair when finished</li>
+      <li>Fixed a bug where the "Bases per turn", duplex rise
+widgets in the Insert DNA don't honor global preferences.</li>
       <li>Other miscellaneous bug fixes</li>
     </ul>
   </li>
@@ -197,18 +212,18 @@ for information on previous versions.
 <h2>Known Issues and Bugs</h2>
 Currently, NanoEngineer-1 and its installers should work properly on
 MacOSX 10.4+.
-
 Due to a switch to a newer version of the
-installer system, the NanoEngineer-1 folder may be installed directly 
+installer system, the NanoEngineer-1 folder may be installed directly
 into the toplevel folder of the root partition, rather than into its
-intended location of /Applications/Nanorex. &nbsp;During testing, 
-this error did not occur on versions of MacOSX 10.4 and above. &nbsp;If
-this occurs, just move the entire NanoEngineer-1 folder to its intended location
+intended location of /Applications/Nanorex. &nbsp;During testing,
+this error did not occur on versions of MacOSX 10.4 and above.
+&nbsp;If
+this occurs, just move the entire NanoEngineer-1 folder to its intended
+location
 using the Finder.
-
 The application itself may not work on MacOSX 10.3 as it did before,
-due to a crash apparently related to our use of a newer version of Qt (4.3.5).
-
+due to a crash apparently related to our use of a newer version of Qt
+(4.3.5).
 You may access a current copy of NE1 Known Bugs on-line at:
 <p><a
  href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs">http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs</a>
@@ -1470,4 +1485,3 @@ than 940 frames on Windows. </li>
 </ol>
 </body>
 </html>
-
