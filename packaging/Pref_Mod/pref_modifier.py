@@ -2,6 +2,7 @@ import os
 from preferences import prefs_context
 import sys
 import getopt
+import NE1_Build_Constants
 
 prefs = prefs_context()
 
@@ -105,9 +106,8 @@ prefs.update(prefstmp) # modifies bsddb-shelf
 # also write the key/value pair to a text file next to the prefs db
 # for later use by NE1 [bruce 080505 for v1.0.1]
 
-DEFAULT_PREFS_BASENAME = "default_prefs_v1-0-1.txt"
-    # should derive name from current version number
-    # note: this name will also be hardcoded into cad/src/preferences.py
+newver = NE1_Build_Constants.NE1_RELEASE_VERSION.replace(".","-")
+DEFAULT_PREFS_BASENAME = "default_prefs_v"+newver+".txt"
 
 try:
     from preferences import find_or_make_Nanorex_directory
