@@ -10,6 +10,9 @@ TODO:
 - The implementation may change after Command Manager (Command toolbar) code 
   cleanup. The implementation as of 2007-12-20 is an attempt to define 
   flyouttoolbar object in the 'Command.
+
+piotr 080713: Added editRotamers action.
+
 """
 
 import foundation.env as env
@@ -81,6 +84,7 @@ class ProteinFlyout:
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
         subControlAreaActionList.append(self.buildPeptideAction)        
+        subControlAreaActionList.append(self.editRotamersAction)        
         subControlAreaActionList.append(self.displayProteinStyleAction)
         allActionsList.extend(subControlAreaActionList)
 
@@ -107,6 +111,13 @@ class ProteinFlyout:
         self.buildPeptideAction.setCheckable(True)  
         #set this icon path later
         self.buildPeptideAction.setIcon(
+            geticon("ui/actions/Tools/Build Structures/Peptide.png"))
+
+        self.editRotamersAction = QtGui.QWidgetAction(parentWidget)
+        self.editRotamersAction.setText("Rotamers")
+        self.editRotamersAction.setCheckable(True)  
+        #set this icon path later
+        self.editRotamersAction.setIcon(
             geticon("ui/actions/Tools/Build Structures/Peptide.png"))
 
         self.displayProteinStyleAction = QtGui.QWidgetAction(parentWidget)
@@ -154,6 +165,9 @@ class ProteinFlyout:
                        SIGNAL("triggered(bool)"),
                        self.activateInsertPeptide_EditCommand)
 
+        change_connect(self.editRotamersAction, 
+                       SIGNAL("triggered(bool)"),
+                       self.activateEditRotamers_EditCommand)
 
         change_connect(self.displayProteinStyleAction, 
                        SIGNAL("triggered(bool)"),
@@ -232,6 +246,16 @@ class ProteinFlyout:
                 action.setChecked(False)
 
 
+    def activateEditRotamers_EditCommand(self, isChecked):
+        """
+        Slot for B{EditRotamers} action.
+        """
+
+        self.win.enterEditRotamersCommand(isChecked)
+
+        for action in self.subControlActionGroup.actions():
+            if action is not self.editRotamersAction and action.isChecked():
+                action.setChecked(False)
 
     def activateProteinDisplayStyle_Command(self, isChecked):
         """

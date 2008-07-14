@@ -798,6 +798,20 @@ class ProteinChunks(ChunkDisplayMode):
         return
 
     def drawchunk_realtime(self, glpane, chunk, highlighted=False):
+        if chunk.protein:
+            for aa in chunk.protein.get_amino_acids():
+                if chunk.protein.is_expanded(aa):
+                    for atom in aa.get_atom_list():
+                        pos1 = chunk.abs_to_base(atom.posn())
+                        color = atom.drawing_color()
+                        drawsphere(color, pos1, 0.25, 1)
+                        for bond in atom.bonds:
+                            if atom == bond.atom1:
+                                pos2 = chunk.abs_to_base(bond.atom2.posn())
+                                drawcylinder(color, pos1, pos1 + 0.5*(pos2 - pos1), 0.2, 1)
+                            else:
+                                pos2 = chunk.abs_to_base(bond.atom1.posn())
+                                drawcylinder(color, pos1 + 0.5*(pos2 - pos1), pos1, 0.2, 1)
         return
 
     def writepov(self, chunk, memo, file):

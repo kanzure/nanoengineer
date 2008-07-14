@@ -197,8 +197,10 @@ class Protein:
     def __init__(self):
         self.ca_atom_list = []
         self.sequence = {}
+        self.expanded_rotamers_list = []
         self.chainId = ''
         self.pdbId = ""
+        self.current_aa_idx = 0
         
     def set_chain_id(self, chainId):
         """
@@ -284,7 +286,7 @@ class Protein:
         """
         Return a list of residues in current protein object.
         """
-        return self.sequence.itervalues()
+        return self.sequence.values()
     
     def assign_helix(self, resId):
         """
@@ -310,6 +312,28 @@ class Protein:
             aa = self.sequence[resId]
             aa.set_secondary_structure(SS_TURN)
             
+    def expand_rotamer(self, aa):
+        """
+        Expand a rotamer.
+        """
+        if not aa in self.expanded_rotamers_list:
+            self.expanded_rotamers_list.append(aa)
+            
+    def is_expanded(self, aa):
+        """
+        Check if a given amino acid's rotamer is expanded.
+        """
+        if aa in self.expanded_rotamers_list:
+            return True
+    
+        return False
+    
+    def collapse_all_rotamers(self):
+        """
+        Collapse all rotamers.
+        """
+        self.expanded_rotamers_list = []
+        
     def get_residuum(self, atom):
         """
         For a given atom, return a residuum the atom belongs to.
@@ -320,163 +344,36 @@ class Protein:
         
         return None
         
+    def traverse_forward(self):
+        """
+        Increase an index of the current amino acid.
+        """
+        if self.current_aa_idx < len(self.sequence)-1:
+            self.current_aa_idx += 1
+            return True
+        return False
+    
+    def traverse_backward(self):
+        """
+        Decrease an index of the current amino acid.
+        """
+        if self.current_aa_idx > 0:
+            self.current_aa_idx -= 1
+            return True
+        return False
+    
+    def get_current_amino_acid(self):
+        """
+        Get current amino acid. 
+        """
+        if self.current_aa_idx in range(len(self.sequence)):
+            return self.sequence.values()[self.current_aa_idx]
+        return None
+    
+    def get_current_amino_acid_index(self):
+        """
+        """
+        return self.current_aa_idx
+        
 # end of Protein class
 
-"""
-def getPathLocation():
-    #Piotr harcode your dataBasePath and simFilesPath here
-    #simplest would be to overwrite the path's file everytime, instead of
-    #doing text processing to figure out if the file has changed
-    # paths.txt is small enough to do so
-    dataBasePath = "/Users/piotr/Programs/RosettaBundle-2.3.0/rosetta_database"
-    simFilesPath = "/Users/piotr/Programs/RosettaBundle-2.3.0/tests/"
-    pathFile = simFilesPath + "/paths.txt"
-    f = open(pathFile, "w+")
-    line = "Rosetta Input/Output Paths (order essential)\n"
-    f.write(line)
-    line = "path is first '/', './',or  '../' to next whitespace, must end with '/'\n"
-    f.write(line)
-    line = "INPUT PATHS:\n"
-    f.write(line)
-    word = ["Temp", "Temp"]
-          # input files wil always be in this directory
-    tempWord = "pdb1"
-    word[0] = "%-32s" % tempWord
-    simFilesPath = "/Users/piotr/Programs/RosettaBundle-2.3.0/tests/"
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-    tempWord = "pdb2"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "alternate data files"
-    word[0] = "%-32s" % tempWord
-    word[1] = dataBasePath + '/\n'
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "fragments"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "structure dssp,ssa (dat,jones)"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "sequence fasta,dat,jones"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "constraints"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "starting structure"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "data files"
-    word[0] = "%-32s" % tempWord
-    tempWord = dataBasePath + "/\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    line = "OUTPUT PATHS:\n"
-    f.write(line)
-
-    tempWord = "movie"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "pdb path"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "score"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "status"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "user"
-    word[0] = "%-32s" % tempWord
-    tempWord = simFilesPath + "\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    line = "FRAGMENTS: (use '*****' in place of pdb name and chain)\n"
-    f.write(line)
-
-    tempWord = "2"
-    word[0] = "%-39s" % tempWord
-    tempWord = "number of valid fragment files\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "3"
-    word[0] = "%-39s" % tempWord
-    tempWord = "frag file 1 size\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "aa*****03_05.200_v1_3"
-    word[0] = "%-39s" % tempWord
-    tempWord = "name\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "9"
-    word[0] = "%-39s" % tempWord
-    tempWord = "frag file 2 size\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-
-    tempWord = "aa*****09_05.200_v1_3"
-    word[0] = "%-39s" % tempWord
-    tempWord = "name\n"
-    word[1] = tempWord
-    line = ''.join(word)
-    f.write(line)
-    f.close()
-    return pathFile
-"""

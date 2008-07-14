@@ -1807,6 +1807,18 @@ class MWsemantics(QMainWindow,
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
         return
     
+    def enterEditRotamersCommand(self, isChecked = False):
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "EDIT_ROTAMERS":
+            commandSequencer.userEnterTemporaryCommand(
+                'EDIT_ROTAMERS')
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'EDIT_ROTAMERS':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        return
+    
     
     def enterStereoPropertiesCommand(self):
         """

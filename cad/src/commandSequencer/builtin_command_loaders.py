@@ -78,6 +78,7 @@ from dna.commands.MultipleDnaSegmentResize.MultipleDnaSegmentResize_EditCommand 
 from dna.temporary_commands.DnaLineMode             import DnaLineMode
 from protein.commands.BuildProtein.BuildProtein_EditCommand import BuildProtein_EditCommand
 from protein.commands.ProteinDisplayStyle.ProteinDisplayStyle_Command import ProteinDisplayStyle_Command
+from protein.commands.EditRotamers.EditRotamers_Command import EditRotamers_Command
 
 def preloaded_command_classes():
     """
@@ -131,7 +132,8 @@ def preloaded_command_classes():
         ColorScheme_Command,
         BuildProtein_EditCommand,
         ProteinDisplayStyle_Command,
-        LightingScheme_Command]
+        LightingScheme_Command,
+        EditRotamers_Command]
     
     
     # note: we could extract each one's commandName (class constant)
