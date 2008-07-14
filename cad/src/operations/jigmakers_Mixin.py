@@ -41,7 +41,7 @@ class jigmakers_Mixin:
         #This check fixes bug 2697. Simply don't enter the command (to create 
         #a new motor), if the there aren't enough atoms selected.
         if len(atoms) < 2:
-            logMessage = "To create a rotary motor, you muse select atleast"\
+            logMessage = "To create a rotary motor, you muse select at least"\
             " two atoms. Rotary motor not created "
             env.history.message(redmsg(logMessage))
             return
@@ -56,7 +56,7 @@ class jigmakers_Mixin:
       
     def makeLinearMotor(self):
         """
-        Creates a Linear Motor edit controller, whhich in turn creates a
+        Creates a Linear Motor edit controller, which in turn creates a
         linear motor connected to the selected atoms.
         """ 
         
