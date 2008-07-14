@@ -531,6 +531,15 @@ def _readpdb_new(assy,
             # Extract PDB ID from the header string.
             pdbid = card[62:66].lower()
             
+        elif key == "model":
+            # Check out the MODEL record, ignore everything other than MODEL 1.
+            # This behavior has to be optional and set via User Preference.
+            # piotr 080714
+            model_id = int(card[6:20])
+            if model_id > 1:
+                # Skip remaining part of the file.
+                break
+            
         elif key in ["helix", "sheet", "turn"]:
             # Read secondary structure information.
             if key == "helix":
