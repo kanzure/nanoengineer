@@ -5,14 +5,15 @@
 # Set up path variables
 echo $PATH | grep "Qt/[0-9]*\.[0-9]*\.[0-9]*/bin"
 if [ "$?" != "0" ]; then
-  export PATH=$PATH:/c/Qt/4.2.3/bin
+  export PATH=$PATH:/c/Qt/4.3.5/bin
 fi
 
 cd ..
 TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT
-VERSION_NUM="1.1.0"
+VERSION_NUM="1.1.1"
+RC_NUMBER="0"
 MAJOR=`echo $VERSION_NUM | cut -d "." -f 1`
 MINOR=`echo $VERSION_NUM | cut -d "." -f 2`
 TINY=`echo $VERSION_NUM | cut -d "." -f 3`
@@ -23,41 +24,32 @@ if [ ! -e "$TOP_LEVEL/cad/src" ]; then
   exit 1
 fi
 
-
-#Modifying the utilities/version.py file for version number and release date
-cat cad/src/utilities/version.py | sed -e "s/\\\"major\\\": ./\\\"major\\\": $MAJOR/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-cat cad/src/utilities/version.py | sed -e "s/\\\"minor\\\": ./\\\"minor\\\": $MINOR/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-cat cad/src/utilities/version.py | sed -e "s/\\\"tiny\\\": ./\\\"tiny\\\": $TINY/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-DATECODE=`date "+%b %d, %Y"`
-cat cad/src/utilities/version.py | sed -e "s/\\\"releaseDate\\\": \\\".*\\\",/\\\"releaseDate\\\": \\\"$DATECODE\\\",/g" > cad/src/utilities/version.py.ptmp
-mv cad/src/utilities/version.py.ptmp cad/src/utilities/version.py || exit 1
-
 cat packaging/Win32/installer.nsi | sed -e "s:^!define PRODUCT_VERSION .*:!define PRODUCT_VERSION \\\"$VERSION_NUM\\\":" > packaging/Win32/installer.nsi.btmp
 mv packaging/Win32/installer.nsi.btmp packaging/Win32/installer.nsi || exit 1
 
-
 cd $TOP_LEVEL
-# Modifying the foundation/preferences.py file for version
-PREFS_VER=`echo $VERSION_NUM | sed -e "s:\.:-:g"`
-cat cad/src/foundation/preferences.py | sed -e "s:default_prefs_v.-.-..txt:default_prefs_v$PREFS_VER.txt:g" > cad/src/foundation/preferences.py.ptmp
-cp cad/src/foundation/preferences.py.ptmp cad/src/foundation/preferences.py || exit 1
 
+DATECODE=`date "+%B %d, %Y"`
+
+# Make modifications to the build constants file
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_RELEASE_VERSION = \\\".*\\\":NE1_RELEASE_VERSION = \\\"$VERSION_NUM\\\":" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_RELEASE_DATE = \\\".*\\\":NE1_RELEASE_DATE = \\\"$DATECODE\\\":" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_USE_bsddb3 = .*:NE1_USE_bsddb3 = True:" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+cat cad/src/NE1_Build_Constants.py | sed -e "s:NE1_OFFICIAL_RELEASE_CANDIDATE = .*:NE1_OFFICIAL_RELEASE_CANDIDATE = $RC_NUMBER:" > cad/src/NE1_Build_Constants.ptmp
+mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
+exit 0
 #Make a tarball of the uncompiled source for later.
 tar -cz -X packaging/Win32/exclude_files.txt -f /c/NE1_source.tar.gz *
-
-# Modifying the foundation/preferences.py file for bsddb3
-cat cad/src/foundation/preferences.py | sed -e "s:import bsddb as _junk:import bsddb3 as _junk:" | sed -e "s:^import shelve:from bsddb3 import dbshelve:" | sed -e "s:_shelf = shelve.open(_shelfname):_shelf = dbshelve.open(_shelfname):g" > cad/src/foundation/preferences.py.btmp
-mv cad/src/foundation/preferences.py.btmp cad/src/foundation/preferences.py || exit 1
 
 # Modify the main.py file to find the pyopengl egg file for Win
 cat cad/src/main.py | grep "sys.path.insert" | grep "pyopengl"
 if [ "$?" != "0" ]; then
   cat cad/src/main.py | sed -e "/import sys, os, time/a\\
 sys.path.insert(0, os.path.dirname(sys.argv[0]) + \'\\\\\\\\pyopengl-3.0.0a6-py2.4.egg\')" > cad/src/main.py.btmp
-  mv cad/src/main.py.btmp cad/src/main.py || exit 1
+mv cad/src/main.py.btmp cad/src/main.py || exit 1
 fi
 
 
@@ -196,7 +188,7 @@ rm -rf $DIST_ROOT/src/ui/*/*/.svn
 mkdir $DIST_ROOT/source
 cd $DIST_ROOT/source
 tar -xzf /c/NE1_source.tar.gz
-rm /c/NE1_source.tar.gz
+#rm /c/NE1_source.tar.gz
 cd $TOP_LEVEL
 
 # Create the installer

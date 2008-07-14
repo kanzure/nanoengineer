@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "NanoEngineer-1"
-!define PRODUCT_VERSION "1.0.1"
+!define PRODUCT_VERSION "1.1.1"
 ;!define PRODUCT_NICKNAME "(Rattlesnake)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
@@ -81,7 +81,7 @@ Section "MainSection" SEC01
 
   ; hack
   SetOutPath "$INSTDIR\program"
-  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
+  File "C:\Qt\4.3.5\bin\QtSvg4.dll"
   
   SetOutPath "$SYSDIR"
   SetOverwrite off

@@ -4,7 +4,7 @@
 ; HM NIS Edit Wizard helper defines
 ; NE1 Defines
 !define PRODUCT_NAME "NanoEngineer-1 Suite"
-!define PRODUCT_VERSION "1.0.0"
+!define PRODUCT_VERSION "1.1.1"
 ;!define PRODUCT_NICKNAME "(Rattlesnake)"
 !define PRODUCT_PUBLISHER "Nanorex, Inc."
 !define PRODUCT_WEB_SITE "http://www.nanoengineer-1.com"
@@ -15,7 +15,7 @@
 !define NE1_INST_DIR "NanoEngineer-1 ${PRODUCT_VERSION}"
 
 ;QMX Defines
-!define PRODUCT_QMX_VERSION "0.5.0"
+!define PRODUCT_QMX_VERSION "0.5.1"
 !define PRODUCT_QMX_NAME "QuteMolX"
 !define PRODUCT_QMX_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_QMX_WEB_SITE "http://www.nanoengineer-1.com/QuteMolX/"
@@ -25,15 +25,15 @@
 !define QMX_INST_DIR "${PRODUCT_QMX_NAME} ${PRODUCT_QMX_VERSION}"
 
 ;GMX Defines
-!define PRODUCT_GMX_VERSION "3.3.2"
+!define PRODUCT_GMX_VERSION "3.3.3"
 !define PRODUCT_GMX_PATCH_VERSION "p2"
-!define PRODUCT_GMX_NAME "GROMACS_HDF5"
+!define PRODUCT_GMX_NAME "GROMACS"
 !define PRODUCT_GMX_PUBLISHER "Nanorex, Inc"
 !define PRODUCT_GMX_WEB_SITE "http://www.nanorex.com"
 !define PRODUCT_GMX_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}\${PRODUCT_GMX_VERSION}"
 !define PRODUCT_GMX_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_GMX_UNINST_ROOT_KEY "HKLM"
-!define GMX_INST_DIR "GROMACS_${PRODUCT_GMX_VERSION}+HDF5_${PRODUCT_GMX_PATCH_VERSION}"
+!define GMX_INST_DIR "GROMACS_${PRODUCT_GMX_VERSION}"
 
 ;NV1 Defines
 !define PRODUCT_NV1_VERSION "0.1.0"
@@ -54,6 +54,7 @@
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
+!include "registerExtension.nsh"
 
 ; MUI Settings
 !define MUI_ABORTWARNING
@@ -131,7 +132,7 @@ Section "NanoEngineer-1 Program" SECNE1
   
   ; hack
   SetOutPath "$INSTDIR\${NE1_INST_DIR}\program"
-  File "C:\Qt\4.2.3\bin\QtSvg4.dll"
+  File "C:\Qt\4.3.5\bin\QtSvg4.dll"
   
   SetOutPath "$SYSDIR"
   SetOverwrite off
@@ -143,7 +144,7 @@ Section "NanoEngineer-1 Program" SECNE1
   CreateShortCut "$SMPROGRAMS\${NE1_INST_DIR}\ReadMe.html.lnk" "$INSTDIR\${NE1_INST_DIR}\ReadMe.html"
   SetOutPath "$INSTDIR"
   SetOutPath "$INSTDIR\Pref_Mod"
-  File /r "\pref_mod\dist\*"
+  File /r "..\..\Pref_mod\dist\*"
   SetOutPath "$INSTDIR"
 SectionEnd
 Section /o "Source" SEC_NE1_SRC
@@ -293,7 +294,7 @@ Section /o "Source" SEC_GMX_SRC
   SectionIn 2
   SetOverwrite try
   SetOutPath "c:\${GMX_INST_DIR}\source"
-  file /r "\GMX_Install\dist\src\gromacs-3.3.2\*"
+  file /r "\GMX_Install\dist\src\gromacs-3.3.3\*"
 SectionEnd
 SectionGroupEnd
 
@@ -340,6 +341,7 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  ${registerExtension} "$INSTDIR\${NE1_INST_DIR}\program\main.exe " ".mmp" "NanoEngineer-1 File"
 SectionEnd
 
 
@@ -380,6 +382,7 @@ Section Uninstall
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+  ${unregisterExtension} ".mmp" "NanoEngineer-1 File"
   SetAutoClose true
 
 SectionEnd
