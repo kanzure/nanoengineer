@@ -1859,12 +1859,12 @@ class Chunk(NodeWithAtomContents, InvalMixin,
         if disp == diDNACYLINDER:
             if not self.isDnaChunk(): # non-DNA chunk
                 if self.isProteinChunk(): 
-                    # piotr 080709 -- If the chunk is a protein, 
-                    # use diPROTEIN style.
+                    # piotr 080709 -- If the chunk is a protein, use 
+                    # diPROTEIN style.
                     disp = diPROTEIN
                 else:
-                    # Otherwise, use a default display mode.
-                    disp = default_display_mode 
+                    # Otherwise, use last non-reduced global display mode.
+                    disp = glpane.lastNonReducedDisplayMode
 
         # piotr 080709: If the chunk is not a protein chunk and global
         # display mode == diPROTEIN, use default_display_mode instead.
@@ -1874,7 +1874,8 @@ class Chunk(NodeWithAtomContents, InvalMixin,
                 if self.isDnaChunk():
                     disp = diDNACYLINDER
                 else:
-                    disp = default_display_mode
+                    # Otherwise, use last non-reduced global display mode.
+                    disp = glpane.lastNonReducedDisplayMode
                     
         return disp
 
@@ -2004,30 +2005,6 @@ class Chunk(NodeWithAtomContents, InvalMixin,
             # piotr 080401: Moved it here, because disp is required by 
             # _draw_external_bonds.
 
-        # piotr 080415: fixing bug 2785 again (not in rc1)
-        # Non-DNA chunks shouldn't be drawn using the diDNACYLINDER style. 
-        if disp == diDNACYLINDER and \
-           not self.isDnaChunk(): # non-DNA chunk
-            if self.isProteinChunk():
-                # piotr 080709: If the chunk is a protein chunk, use
-                # reduced protein display style.
-                disp = diPROTEIN
-            else:
-                disp = diDEFAULT # use diDEFAULT instead
-            # note: it should never happen that disp == diDNACYLINDER
-            # if the global display style == diDNACYLINDER and the chunk is non-DNA. 
-            # self.get_dispdef takes care of that case.
-
-        # piotr 080709: If the chunk is not a protein chunk and global
-        # display mode == diPROTEIN, use default_display_mode instead.
-        if disp == diPROTEIN and \
-           not self.isProteinChunk():
-                # If this is a DNA chunk, use diDNACYLINDER
-                if self.isDnaChunk():
-                    disp = diDNACYLINDER
-                else:
-                    disp = diDEFAULT
-                    
         if is_chunk_visible:
             # piotr 080401: If the chunk is culled, skip drawing, but still draw 
             # external bonds (unless a separate debug pref is set.) 

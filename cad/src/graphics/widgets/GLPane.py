@@ -576,6 +576,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # this is here in anticipation of being able to have multiple windows on the same assembly.
         # Start the GLPane's current display mode in "Default Display Mode" (pref).
         self.displayMode = env.prefs[startupGlobalDisplayStyle_prefs_key]
+        
+        # piotr 080714: Remeber last non-reduced display style.
+        self.lastNonReducedDisplayMode = self.displayMode
         #self.win.statusBar().dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
 
         ###### End of User Preference initialization ########################## 
@@ -2792,12 +2795,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         @note: doesn't update the MT, and callers typically won't need to,
                since the per-node display style icons are not changing.
         """
+        from utilities.constants import diDNACYLINDER
+        from utilities.constants import diPROTEIN
+        
         if disp == diDEFAULT:
             disp = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
 
+        # piotr 080714: Remeber last non-reduced display mode.
+        if disp != diDNACYLINDER and \
+           disp != diPROTEIN:
+            self.lastNonReducedDisplayMode = disp
+            
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
         if self.currentCommand.commandName == 'COOKIE':
             self.win.statusBar().dispbarLabel.setEnabled(False)
