@@ -397,6 +397,14 @@ def _readpdb_new(assy,
                 resId = 0
             resName = card[17:20]
             sym = card[77:78]
+            alt = card[16] # Alternate location indicator
+            
+            if alt != ' ' and \
+               alt != 'A':
+                # Skip non-standard ALT location
+                print "Skipping ALT location: ", card[6:]
+                print "ALT = ", alt
+                continue
             
 ###ATOM    131  CB  ARG A  18     104.359  32.924  58.573  1.00 36.93           C  
 
@@ -466,7 +474,6 @@ def _readpdb_new(assy,
 
             _is_water = is_water(resName, name4)
             if _is_water:
-                print "IS WATER: ", (resName, name4)
                 tmpmol = mol
                 mol = water
                 
