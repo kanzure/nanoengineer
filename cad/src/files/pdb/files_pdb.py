@@ -275,6 +275,8 @@ def _readpdb_new(assy,
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
+    from protein.model.Protein import is_water
+    
     def _finish_molecule():
         """
         Perform some operations after reading entire PDB chain:
@@ -283,6 +285,10 @@ def _readpdb_new(assy,
           - delete protein object if this is not a protein
           - append the molecule to the molecule list
         """
+        
+        if mol == water:
+            # Skip water, to be added explicitly at the end.
+            return
         
         if mol.atoms:  
             ###print "READING PDB ", (mol, numconects, chainId)
@@ -328,10 +334,15 @@ def _readpdb_new(assy,
     
     ndix = {}
     mol = Chunk(assy, nodename)
-        
+    
+    water = Chunk(assy, nodename)
+    
     mol.protein = Protein()
         
     numconects = 0
+    
+    # Create a temporary PDB ID - it should be later extracted from the
+    # file header.
     pdbid = nodename.replace(".pdb","").lower()
     
     atomname_exceptions = {
@@ -453,13 +464,20 @@ def _readpdb_new(assy,
                 # inferring bonds,  which we do later if the file doesn't have 
                 # any bonds). [bruce 060614/070410 comment]
 
+            _is_water = is_water(resName, name4)
+            if _is_water:
+                print "IS WATER: ", (resName, name4)
+                tmpmol = mol
+                mol = water
+                
             # Now the element name is in sym.
             xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
             n = int(card[6:11])
             a = Atom(sym, A(xyz), mol)
             ndix[n] = a
             
-            mol.protein.add_pdb_atom(a, name4, resId, resName)
+            if not _is_water:
+                mol.protein.add_pdb_atom(a, name4, resId, resName)
             
             # Assign secondary structure.            
             if (resId, chainId) in helix:
@@ -470,7 +488,10 @@ def _readpdb_new(assy,
                 
             if (resId, chainId) in turn:
                 mol.protein.assign_turn(resId)
-                
+            
+            if mol == water:
+                mol = tmpmol
+            
         elif key == "conect":
             try:
                 a1 = ndix[int(card[6:11])]
@@ -549,6 +570,11 @@ def _readpdb_new(assy,
     
     _finish_molecule()
     
+    if water.atoms:
+        # Check if there are any water molecules
+        water.name = "Water"
+        mollist.append(water)
+        
     return mollist
     
 # read a Protein DataBank-format file into a single Chunk
@@ -585,7 +611,9 @@ def readpdb(assy,
             
             self.win.assy.part.ensure_toplevel_group()
 
-            name = gensym("Group", assy) 
+            dir, name = os.path.split(filename)
+            
+            #name = gensym(nodename, assy) 
             
             group = Group(name, assy, assy.part.topnode) 
             for mol in molecules:
@@ -635,7 +663,9 @@ def insertpdb(assy,
             
             assy.part.ensure_toplevel_group()
 
-            name = gensym("Group", assy) 
+            dir, name = os.path.split(filename)
+            
+            #name = gensym(nodename, assy) 
             
             group = Group(name, assy, assy.part.topnode) 
             for mol in molecules:
@@ -871,7 +901,13 @@ def writepdb(part,
                         resId = res.get_id()
                         resName = res.get_three_letter_code()
                         atomName = res.get_atom_name(a)
-                writepdb_atom(a, f, atomSerialNumber, atomName, chr(chainIdChar), resId, resName)
+                writepdb_atom(a, 
+                              f, 
+                              atomSerialNumber, 
+                              atomName, 
+                              chr(chainIdChar), 
+                              resId, 
+                              resName)
             else:
                 a.writepdb(f, atomSerialNumber, chr(chainIdChar))
             atomConnectList.append(a)

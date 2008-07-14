@@ -59,6 +59,20 @@ enableProteins =  debug_pref("Enable Proteins? (next session)",
     non_debug = True,
     prefs_key = True)
 
+def is_water(resName, atomName):
+    """
+    Check if a PDB residue is a water molecule.
+    """    
+    water_codes = ["H2O", "HHO", "OHH", "HOH", "OH2", "SOL", "WAT", "DOD", 
+                   "DOH", "HOD", "D2O", "DDO", "ODD", "OD2", "HO1", "HO2",
+                   "HO3", "HO4"]
+    
+    if atomName == "O" and \
+       resName in water_codes:
+        return True
+    
+    return False
+
 class Residuum:
     """
     This class implements a Residuum object.
@@ -282,6 +296,28 @@ class Protein:
             seq += aa.get_one_letter_code()
         return seq
 
+    def get_amino_acid_id_list(self):
+        """
+        Create and return a list of amino acid IDs (protein name, 
+        index, residuum name, residuum index).
+        """
+        id_list = []
+        idx = 1
+        for aa in self.get_amino_acids():
+            aa_id = self.get_pdb_id() + \
+                  self.get_chain_id() + \
+                  "[" + \
+                  repr(idx) + \
+                  "] : " + \
+                  aa.get_three_letter_code() + \
+                  "[" + \
+                  repr(int(aa.get_id())) + \
+                  "]" 
+            id_list.append(aa_id)
+            idx += 1
+            
+        return id_list
+    
     def get_amino_acids(self):
         """
         Return a list of residues in current protein object.
@@ -374,6 +410,11 @@ class Protein:
         """
         """
         return self.current_aa_idx
+        
+    def set_current_amino_acid_index(self, index):
+        """
+        """
+        self.current_aa_idx = index
         
 # end of Protein class
 
