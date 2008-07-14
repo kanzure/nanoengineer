@@ -104,6 +104,9 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                        SIGNAL("clicked()"),
                        self._expandPreviousRotamer)
         
+        self.connect( self.aminoAcidsComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self._aminoAcidChanged)
         
     #Protein Display methods         
 
@@ -145,20 +148,31 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         Add the Property Manager group boxes.
         """
         self._pmGroupBox1 = PM_GroupBox( self,
-                                         title = "Rotamers")
+                                         title = "Position")
         self._loadGroupBox1( self._pmGroupBox1 )
+
+        self._pmGroupBox2 = PM_GroupBox( self,
+                                         title = "Rotamer")
+        self._loadGroupBox2( self._pmGroupBox2 )
 
 
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
         """
-        
-        self.currentAANameLineEdit = PM_LineEdit( pmGroupBox,
-                                 label         =  "Rotamer:",
-                                 text          =  "",
+
+        aa_list = []
+        for mol in self.win.assy.molecules:
+            if mol.isProteinChunk():
+                aa_list = mol.protein.get_amino_acid_id_list()
+                break
+            
+        self.aminoAcidsComboBox = PM_ComboBox( pmGroupBox,
+                                 label         =  "Residuum:",
+                                 choices       =  aa_list,
                                  setAsDefault  =  False)
 
+        
         self.previousAAPushButton  = \
             PM_PushButton( pmGroupBox,
                          text         =  "Previous AA",
@@ -174,6 +188,44 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                          text          =  "Re-center view",
                          setAsDefault  =  True,
                          state         = Qt.Checked)
+        
+    def _loadGroupBox2(self, pmGroupBox):
+        """
+        Load widgets in group box.
+        """
+        
+        self.chi1SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Chi1 angle:",
+                              value         =  0.000,
+                              setAsDefault  =  True,
+                              minimum       =  -180.0,
+                              maximum       =  180.0,
+                              decimals      =  1,
+                              singleStep    =  1.0, 
+                              spanWidth = False)
+        
+        self.chi2SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Chi2 angle:",
+                              value         =  0.000,
+                              setAsDefault  =  True,
+                              minimum       =  -180.0,
+                              maximum       =  180.0,
+                              decimals      =  1,
+                              singleStep    =  1.0, 
+                              spanWidth = False)
+        
+        self.chi3SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Chi3 angle:",
+                              value         =  0.000,
+                              setAsDefault  =  True,
+                              minimum       =  -180.0,
+                              maximum       =  180.0,
+                              decimals      =  1,
+                              singleStep    =  1.0, 
+                              spanWidth = False)
         
     def _addWhatsThisText( self ):
         
@@ -191,26 +243,29 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
-                chunk.protein.collapse_all_rotamers()
                 chunk.protein.traverse_forward()
-                current_aa = chunk.protein.get_current_amino_acid()
-                if current_aa:
-                    chunk.protein.expand_rotamer(current_aa)
-                    if self.recenterViewCheckBox.isChecked():
-                        ca_atom = current_aa.get_c_alpha_atom()
-                        if ca_atom:
-                            self.win.glpane.pov = -ca_atom.posn()
-                        self.win.glpane.gl_update()
-                        self._updateAminoAcidInfo()
-                        return
+                self._display_and_recenter()
+                self._updateAminoAcidInfo(
+                    chunk.protein.get_current_amino_acid_index())
+                return
 
     def _expandPreviousRotamer(self):
         """
         """
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
-                chunk.protein.collapse_all_rotamers()
                 chunk.protein.traverse_backward()
+                self._display_and_recenter()
+                self._updateAminoAcidInfo(
+                    chunk.protein.get_current_amino_acid_index())
+                return
+        
+    def _display_and_recenter(self):
+        """
+        """
+        for chunk in self.win.assy.molecules:
+            if chunk.isProteinChunk():
+                chunk.protein.collapse_all_rotamers()
                 current_aa = chunk.protein.get_current_amino_acid()
                 if current_aa:
                     chunk.protein.expand_rotamer(current_aa)
@@ -218,26 +273,19 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
                         ca_atom = current_aa.get_c_alpha_atom()
                         if ca_atom:
                             self.win.glpane.pov = -ca_atom.posn()                            
+                    #self.win.glpane.gl_update()
                     self.win.glpane.gl_update()
-                    self._updateAminoAcidInfo()
-                    return
-            
-    def _updateAminoAcidInfo(self):
+        
+    def _updateAminoAcidInfo(self, index):
+        """
+        """
+        self.aminoAcidsComboBox.setCurrentIndex(index)
+        
+    def _aminoAcidChanged(self, index):
         """
         """
         for chunk in self.win.assy.molecules:
             if chunk.isProteinChunk():
-                current_aa = chunk.protein.get_current_amino_acid()
-                if current_aa:
-                    self.currentAANameLineEdit.setText(
-                        chunk.protein.get_pdb_id() + 
-                        chunk.protein.get_chain_id() + 
-                        "[" + 
-                        repr(chunk.protein.get_current_amino_acid_index()+1) +
-                        "] : " +
-                        current_aa.get_three_letter_code() + 
-                        "[" +  
-                        repr(int(current_aa.get_id())) + 
-                        "]")
-                    return
-            
+                chunk.protein.set_current_amino_acid_index(index)
+                self._display_and_recenter()
+                
