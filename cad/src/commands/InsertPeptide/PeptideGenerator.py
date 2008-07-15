@@ -14,7 +14,6 @@ for notes about what's going on here.
 """
 
 import foundation.env as env
-import platform
 
 from commands.InsertPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager
 from command_support.GeneratorBaseClass import GeneratorBaseClass
