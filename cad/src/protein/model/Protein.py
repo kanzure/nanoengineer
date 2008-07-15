@@ -201,6 +201,34 @@ class Residuum:
             return self.atoms["O"]
         return None
         
+    def get_chi1_axis(self):
+        """
+        Returs an axis corresponding to Chi1 angle.
+        """
+        if self.atoms.has_key("CA") and \
+           self.atoms.has_key("CB"):
+            ca_atom = self.atoms["CA"]
+            cb_atom = self.atoms["CB"]
+            return (cb_atom.posn() - ca_atom.posn())
+    
+    def get_chi1_rotation_atom_set(self):
+        """
+        Returns a list of atoms that can be rotated around Chi1 axis.
+        """
+        atom_list = []
+        for atom in self.atoms.values():
+            if self.names[atom] != "N" and \
+               self.names[atom] != "C" and \
+               self.names[atom] != "O" and \
+               self.names[atom] != "H" and \
+               self.names[atom] != "CA" and \
+               self.names[atom] != "HA" and \
+               self.names[atom] != "HA1" and \
+               self.names[atom] != "HA2" and \
+               self.names[atom] != "HA3":
+                atom_list.append(atom)
+        return atom_list
+            
 # End of Residuum class.
 
 class Protein:
@@ -295,6 +323,22 @@ class Protein:
         for aa in self.get_amino_acids():
             seq += aa.get_one_letter_code()
         return seq
+
+    def get_secondary_structure_string(self):
+        """
+        Create and return a protein sequence string.
+        """
+        ss_str = ""
+        for aa in self.get_amino_acids():
+            ss = aa.get_secondary_structure()
+            if ss == SS_HELIX:    
+                ss_str += "H"
+            elif ss == SS_STRAND:
+                ss_str += "E"
+            else:
+                ss_str += "-"
+                
+        return ss_str
 
     def get_amino_acid_id_list(self):
         """
