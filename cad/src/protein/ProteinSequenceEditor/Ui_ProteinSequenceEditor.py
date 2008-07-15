@@ -211,7 +211,10 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                          spanWidth = False,
                          permit_enter_keystroke = False) 
         
-        
+        palette = getPalette(None, 
+                             QPalette.Base, 
+                             sequenceEditStrandMateBaseColor)
+        self.secStrucTextEdit.setPalette(palette)     
         self.secStrucTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.secStrucTextEdit.setFixedHeight(20)
         self.secStrucTextEdit.setReadOnly(True)
