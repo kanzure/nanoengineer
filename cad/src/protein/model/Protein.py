@@ -462,3 +462,68 @@ class Protein:
         
 # end of Protein class
 
+def write_rosetta_resfile(filename, chunk):
+    """
+    Write a Rosetta resfile for a given protein chunk. Return True 
+    if succefully written, otherwise return False.
+    """
+    
+    # Make sure this is a valid protein chunk.
+    if chunk is None or \
+       chunk.protein is None:
+        return False
+
+    # Get a list of amino acids.
+    amino_acids = chunk.protein.get_amino_acids()
+
+    # Open the output file.
+    f = open(filename, "w")
+    
+    if not f:
+        return False
+    
+    # Write a standard file header.
+    f.write(" This file specifies which residues will be varied\n")
+    f.write("                                                  \n")
+    f.write(" Column   2:  Chain                               \n")
+    f.write(" Column   4-7:  sequential residue number         \n")
+    f.write(" Column   9-12:  pdb residue number               \n")
+    f.write(" Column  14-18: id  (described below)             \n")
+    f.write(" Column  20-40: amino acids to be used            \n")
+    f.write("                                                  \n")
+    f.write(" NATAA  => use native amino acid                  \n")
+    f.write(" ALLAA  => all amino acids                        \n")
+    f.write(" NATRO  => native amino acid and rotamer          \n")
+    f.write(" PIKAA  => select inividual amino acids           \n")
+    f.write(" POLAR  => polar amino acids                      \n")
+    f.write(" APOLA  => apolar amino acids                     \n")
+    f.write("                                                  \n")
+    f.write(" The following demo lines are in the proper format\n")
+    f.write("                                                  \n")
+    f.write(" A    1    3 NATAA                                \n")
+    f.write(" A    2    4 ALLAA                                \n")
+    f.write(" A    3    6 NATRO                                \n")
+    f.write(" A    4    7 NATAA                                \n")
+    f.write(" B    5    1 PIKAA  DFLM                          \n")
+    f.write(" B    6    2 PIKAA  HIL                           \n")
+    f.write(" B    7    3 POLAR                                \n")
+    f.write(" -------------------------------------------------\n")
+
+    # Begin the actual data records.
+    f.write(" start\n")
+
+    index = 0
+    for aa in amino_acids:
+        index += 1
+        out_str = " " + \
+                chunk.protein.get_chain_id() + \
+                "%5d" % int(index) + \
+                "%5d" % int(aa.get_id()) + \
+                " NATRO\n"    
+        f.write(out_str)
+        
+    # Close the output file. 
+    f.close()
+    
+    return True
+
