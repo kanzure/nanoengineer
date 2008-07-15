@@ -204,13 +204,26 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.sequenceTextEdit.setCursorWidth(2)
         self.sequenceTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.sequenceTextEdit.setFixedHeight(20)
+        
+        self.secStrucTextEdit = \
+            PM_TextEdit( self, 
+                         label = " Secondary structure: ", 
+                         spanWidth = False,
+                         permit_enter_keystroke = False) 
+        
+        
+        self.secStrucTextEdit.setCursorWidth(2)
+        self.secStrucTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
+        self.secStrucTextEdit.setFixedHeight(20)
+        self.secStrucTextEdit.setEnabled(False)
 
         #Important to make sure that the horizontal and vertical scrollbars 
         #for these text edits are never displayed. 
         
         self.sequenceTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.sequenceTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
+        self.secStrucTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.secStrucTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
 
     def _getFindLineEditStyleSheet(self):
         """
