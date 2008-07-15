@@ -1757,16 +1757,18 @@ class MWsemantics(QMainWindow,
         """
         Activates the Protein toolbar.
         """
+        
         # piotr 080710
         # If "Enable Proteins" is set to False, use old Peptide Generator instead.
-        from protein.model.Protein import enableProteins        
+        from protein.model.Protein import enableProteins 
+        
         if not enableProteins:
             self.insertPeptide()
         else:
             commandSequencer = self.commandSequencer
             if commandSequencer.currentCommand.commandName != 'BUILD_PROTEIN':
                 commandSequencer.userEnterCommand('BUILD_PROTEIN')
-            
+                
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_PROTEIN'
             self.commandSequencer.currentCommand.runCommand()
             return
@@ -1997,6 +1999,23 @@ class MWsemantics(QMainWindow,
 
         return self.sequenceEditor
 
+    def createProteinSequenceEditorIfNeeded(self):
+        """
+        Returns a Sequence editor object (a dockwidget).
+        If one doesn't already exists, it creates one .
+        (created only once and only when its first requested and then the
+        object is reused)
+        @return: The sequence editor object (self.sequenceEditor
+        @rtype: B{ProteinSequenceEditor}
+        
+        """
+        if not self.sequenceEditor:
+            from protein.ProteinSequenceEditor.ProteinSequenceEditor import ProteinSequenceEditor
+            self.sequenceEditor = ProteinSequenceEditor(self)
+            self.sequenceEditor.setObjectName("sequence_editor")
+
+        return self.sequenceEditor
+    
     def createRotaryMotorPropMgr_if_needed(self, editCommand):
         """
         Create the Rotary motor PM object (if one doesn't exist)
