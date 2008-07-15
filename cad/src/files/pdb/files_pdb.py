@@ -30,6 +30,8 @@ from geometry.VQT import A
 from utilities.version import Version
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from datetime import datetime
+from model.Comment import Comment
+
 import foundation.env as env
 
 from utilities.constants import gensym
@@ -316,6 +318,7 @@ def _readpdb_new(assy,
                 from protein.model.Protein import write_rosetta_resfile
                 ###write_rosetta_resfile("/Users/piotr/test.resfile", mol)
                     
+
             mollist.append(mol)
         else:
             env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
@@ -344,6 +347,8 @@ def _readpdb_new(assy,
     mol.protein = Protein()
         
     numconects = 0
+    
+    comment_text = ""
     
     # Create a temporary PDB ID - it should be later extracted from the
     # file header.
@@ -541,6 +546,13 @@ def _readpdb_new(assy,
         elif key == "header":
             # Extract PDB ID from the header string.
             pdbid = card[62:66].lower()
+            comment_text += card
+        
+        elif key == "compound":
+            comment_text += card
+        
+        elif key == "remark":
+            comment_text += card
             
         elif key == "model":
             # Check out the MODEL record, ignore everything other than MODEL 1.
@@ -597,8 +609,74 @@ def _readpdb_new(assy,
         water.hide()
         mollist.append(water)
         
-    return mollist
+    return (mollist, comment_text)
     
+
+# read oa Protein DataBank-format file or insert it into a single Chunk
+# piotr 080715 refactored "read" and "insert" code so they both call
+# this method instead having a redundant code (the only difference is
+# "isInsert" parameter.
+#bruce 050322 revised this for bug 433
+def read_or_insert_pdb(assy, 
+            filename, 
+            showProgressDialog = False,
+            chainId = None,
+            isInsert = False):
+    """
+    Reads (loads) a PDB file, or inserts it into an existing chunk.
+    
+    @param assy: The assembly.
+    @type  assy: L{assembly}
+    
+    @param filename: The PDB filename to read.
+    @type  filename: string
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file. Default is False.
+    @type  showProgressDialog: boolean
+    """
+    
+    from protein.model.Protein import enableProteins
+    
+    if enableProteins:
+        
+        molecules, comment_text  = _readpdb_new(assy, 
+                        filename, 
+                        isInsert = isInsert, 
+                        showProgressDialog = showProgressDialog,
+                        chainId = chainId)
+        if molecules:
+            from model.assembly import Group
+            
+            assy.part.ensure_toplevel_group()
+
+            dir, name = os.path.split(filename)
+            
+            #name = gensym(nodename, assy) 
+            
+            group = Group(name, assy, assy.part.topnode) 
+            for mol in molecules:
+                if mol is not None:
+                    group.addchild(mol)
+
+            comment = Comment(assy, "Information", comment_text)
+
+            group.addchild(comment)
+            
+            assy.addnode(group)
+            
+    else:
+        mol  = _readpdb(assy, 
+                        filename, 
+                        isInsert = isInsert, 
+                        showProgressDialog = showProgressDialog,
+                        chainId = chainId)
+        
+        if mol is not None:
+            assy.addmol(mol)
+    return
+    
+
 # read a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
 def readpdb(assy, 
@@ -619,40 +697,12 @@ def readpdb(assy,
     @type  showProgressDialog: boolean
     """
     
-    from protein.model.Protein import enableProteins
-    
-    if enableProteins:
-        
-        molecules  = _readpdb_new(assy, 
-                        filename, 
-                        isInsert = False, 
-                        showProgressDialog = showProgressDialog,
-                        chainId = chainId)
-        if molecules:
-            from model.assembly import Group
-            
-            self.win.assy.part.ensure_toplevel_group()
+    read_or_insert_pdb(assy, 
+                       filename, 
+                       showProgressDialog = showProgressDialog,
+                       chainId = chainId,
+                       isInsert = False)
 
-            dir, name = os.path.split(filename)
-            
-            #name = gensym(nodename, assy) 
-            
-            group = Group(name, assy, assy.part.topnode) 
-            for mol in molecules:
-                if mol is not None:
-                    group.addchild(mol)
-
-            assy.addnode(group)            
-    else:
-        mol  = _readpdb(assy, 
-                        filename, 
-                        isInsert = False, 
-                        showProgressDialog = showProgressDialog,
-                        chainId = chainId)
-        
-        if mol is not None:
-            assy.addmol(mol)
-    return
     
 # Insert a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
@@ -669,41 +719,12 @@ def insertpdb(assy,
     @type  filename: string
     """
     
+    read_or_insert_pdb(assy, 
+                       filename, 
+                       showProgressDialog = True,
+                       chainId = chainId,
+                       isInsert = True)
 
-    from protein.model.Protein import enableProteins
-    
-    if enableProteins: # use new PDB reading code
-        
-        molecules  = _readpdb_new(assy, 
-                        filename, 
-                        isInsert = True, 
-                        showProgressDialog = True,
-                        chainId = chainId)
-        if molecules:
-            from dna.model.DnaGroup import DnaGroup
-            from model.assembly import Group
-            
-            assy.part.ensure_toplevel_group()
-
-            dir, name = os.path.split(filename)
-            
-            #name = gensym(nodename, assy) 
-            
-            group = Group(name, assy, assy.part.topnode) 
-            for mol in molecules:
-                if mol is not None:
-                    group.addchild(mol)
-
-            assy.addnode(group)            
-    else:
-        mol  = _readpdb(assy, 
-                        filename, 
-                        isInsert = True, 
-                        showProgressDialog = True,
-                        chainId = chainId)
-        if mol is not None:
-            assy.addmol(mol)
-    return
 
 # Write a PDB ATOM record record.
 # Copied (and modified) from chem.py Atom.writepdb method.
