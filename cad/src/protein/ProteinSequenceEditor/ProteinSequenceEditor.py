@@ -306,7 +306,6 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         # Specify that theSequence is definitely HTML format, because 
         # Qt can get confused between HTML and Plain Text. 
         
-        
         self.sequenceTextEdit.insertHtml( inSequence1)
 
         if inRestoreCursor:                      
@@ -315,6 +314,27 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             self.sequenceTextEdit.setTextCursor( cursor )
                           
         return
+    
+    def setSecondaryStructure(self, inSequence):
+        """
+        Set the secondary structure of the protein
+        """
+        colorList = ['Red','Blue', 'Green']
+        secStrucList = ['H','E', '-']
+        secStrucDict = dict(zip(secStrucList, colorList))
+        outSequence = ""
+        for i in range(len(inSequence)):
+            currentAA = inSequence[i]
+            color = secStrucDict[currentAA]
+            outSequence = outSequence + "<font color=" + color + ">" 
+            outSequence = outSequence + currentAA + "</font>"
+            
+        #Now put html tags and make everything bold
+        fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New >"  + outSequence
+        fixedPitchSequence +=  "</font></bold></html>"
+        self.secStrucTextEdit.insertHtml(fixedPitchSequence)
+        return 
+    
     
     def convertProteinSequenceToColoredSequence(self, inSequence):
         outSequence = ""
@@ -349,8 +369,8 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #we have two text edits. (strand and Mate) the 'Mate' edit gets updated
         #as you type in letters in the 'StrandEdit' and these two should
         #appear to user as having equal lengths. 
-        fixedPitchSequence  =  "<html>"  + sequence
-        fixedPitchSequence +=  "</html>"
+        fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New >"  + sequence
+        fixedPitchSequence +=  "</bold></font></html>"
         
         return fixedPitchSequence
         
