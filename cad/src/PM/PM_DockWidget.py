@@ -23,6 +23,7 @@ from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_CheckBox import PM_CheckBox
 from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
 from utilities.icon_utilities import getpixmap
+from utilities.debug import print_compact_traceback
 
 class PM_DockWidget(QDockWidget):
     """
