@@ -293,6 +293,8 @@ def _readpdb_new(assy,
         if mol.atoms:  
             ###print "READING PDB ", (mol, numconects, chainId)
             
+            mol.name = pdbid.lower() + chainId
+
             if numconects == 0:
                 msg = orangemsg("PDB file has no bond info; inferring bonds")
                 env.history.message(msg)
@@ -301,16 +303,18 @@ def _readpdb_new(assy,
                 env.history.h_update() 
                 inferBonds(mol)
                 
-            mol.protein.set_chain_id(chainId)
+            ###idzialprint "SEQ = ", mol.protein.get_sequence_string()
+            ###print "SEC = ", mol.protein.get_secondary_structure_string()
             
-            mol.protein.set_pdb_id(pdbid)
-            
-            mol.name = pdbid.lower() + chainId
-                
             if mol.protein.count_c_alpha_atoms() == 0:
                 # If there is no C-alpha atoms, consider the chunk 
                 # as a non-protein.
                 mol.protein = None
+            else:
+                mol.protein.set_chain_id(chainId)
+                mol.protein.set_pdb_id(pdbid)
+                from protein.model.Protein import write_rosetta_resfile
+                ###write_rosetta_resfile("/Users/piotr/test.resfile", mol)
                     
             mollist.append(mol)
         else:
@@ -588,7 +592,9 @@ def _readpdb_new(assy,
     
     if water.atoms:
         # Check if there are any water molecules
-        water.name = "Water"
+        water.name = "Solvent"
+        # The water should be hidden by default.
+        water.hide()
         mollist.append(water)
         
     return mollist
