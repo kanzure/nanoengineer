@@ -27,8 +27,8 @@ def checkIfProteinChunkInPart(part):
     part.topnode.apply2all(getAllChunks)    
     for chunk in chunkList:
         if chunk.isProteinChunk():
-            return True
-    return False
+            return True, chunk
+    return False, None
 
 def writemovie(part,
                movie,
@@ -96,7 +96,7 @@ class rosettaSetup_CommandRun(CommandRun):
             return
         #check if at least one protein chunk is present on the NE-1 window,
         #otherwise there's no point calling the simulator
-        proteinExists = checkIfProteinChunkInPart(self.part)
+        proteinExists, chunk = checkIfProteinChunkInPart(self.part)
         if not proteinExists:
             msg = redmsg("No protein to simulate.")
             env.history.message(self.cmdname + ": " + msg)
