@@ -117,9 +117,17 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                     command = None,
                     next_state = (DragNode, obj, (x,y))
                  )
-            else:
+            elif obj.new_edge_ok():
                 return Transition(
                     indicators = [hh.tip_text("drag this node, or click to connect it to other nodes", obj),
+                                  hh.highlight_drag(obj)
+                                  ],
+                    command = None,
+                    next_state = (DragNode, obj, (x,y))
+                 )
+            else:
+                return Transition(
+                    indicators = [hh.tip_text("drag this node", obj),
                                   hh.highlight_drag(obj)
                                   ],
                     command = None,
