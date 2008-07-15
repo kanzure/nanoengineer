@@ -31,6 +31,8 @@ from utilities.version import Version
 from utilities.debug_prefs import debug_pref, Choice_boolean_False
 from datetime import datetime
 from model.Comment import Comment
+from model.assembly import Group
+
 
 import foundation.env as env
 
@@ -297,29 +299,43 @@ def _readpdb_new(assy,
             
             mol.name = pdbid.lower() + chainId
 
-            if numconects == 0:
-                msg = orangemsg("PDB file has no bond info; inferring bonds")
-                env.history.message(msg)
-                # let user see message right away (bond inference can take significant 
-                # time) [bruce 060620]
-                env.history.h_update() 
-                inferBonds(mol)
-                
             ###idzialprint "SEQ = ", mol.protein.get_sequence_string()
             ###print "SEC = ", mol.protein.get_secondary_structure_string()
             
             if mol.protein.count_c_alpha_atoms() == 0:
                 # If there is no C-alpha atoms, consider the chunk 
-                # as a non-protein.
-                mol.protein = None
+                # as a non-protein. But! Split it into individual 
+                # hetero groups.
+                res_list = mol.protein.get_amino_acids()
+                assy.part.ensure_toplevel_group()
+                hetgroup = Group("Heteroatoms", assy, assy.part.topnode) 
+                for res in res_list:
+                    hetmol = Chunk(assy, 
+                                   res.get_three_letter_code().replace(" ", "") + \
+                                   "[" + str(res.get_id()) + "]")
+                    for atom in res.get_atom_list():
+                        newatom = Atom(atom.element.symbol, atom.posn(), hetmol)
+                    # New chunk - infer the bonds anyway (this is not
+                    # correct, should first check connectivity read from
+                    # the PDB file CONECT records).
+                    inferBonds(hetmol)
+                    hetgroup.addchild(hetmol)
+                mollist.append(hetgroup)
             else:
+                #if numconects == 0:
+                #    msg = orangemsg("PDB file has no bond info; inferring bonds")
+                #    env.history.message(msg)
+                #    # let user see message right away (bond inference can take significant 
+                #    # time) [bruce 060620]
+                #    env.history.h_update() 
+
+                # For protein - infer the bonds anyway.
+                inferBonds(mol)
+                    
                 mol.protein.set_chain_id(chainId)
                 mol.protein.set_pdb_id(pdbid)
-                from protein.model.Protein import write_rosetta_resfile
-                ###write_rosetta_resfile("/Users/piotr/test.resfile", mol)
-                    
-
-            mollist.append(mol)
+                if mol.atoms:
+                    mollist.append(mol)                
         else:
             env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
             env.history.h_update() 
@@ -341,11 +357,11 @@ def _readpdb_new(assy,
     
     ndix = {}
     mol = Chunk(assy, nodename)
-    
-    water = Chunk(assy, nodename)
-    
     mol.protein = Protein()
-        
+    
+    # Create a chunk for water molecules.
+    water = Chunk(assy, nodename)
+            
     numconects = 0
     
     comment_text = ""
@@ -410,9 +426,9 @@ def _readpdb_new(assy,
             
             if alt != ' ' and \
                alt != 'A':
-                # Skip non-standard ALT location
-                print "Skipping ALT location: ", card[6:]
-                print "ALT = ", alt
+                # Skip non-standard alternate location
+                # This is not very safe test, it should preserve
+                # the remaining atoms. piotr 080715 
                 continue
             
 ###ATOM    131  CB  ARG A  18     104.359  32.924  58.573  1.00 36.93           C  
@@ -493,7 +509,10 @@ def _readpdb_new(assy,
             ndix[n] = a
             
             if not _is_water:
-                mol.protein.add_pdb_atom(a, name4, resId, resName)
+                mol.protein.add_pdb_atom(a, 
+                                         name4, 
+                                         resId, 
+                                         resName)
             
             # Assign secondary structure.            
             if (resId, chainId) in helix:
@@ -538,17 +557,18 @@ def _readpdb_new(assy,
         elif key == "ter":
             # Finish the current molecule.
             _finish_molecule()
-            # Create a new molecule 
+            
+            # Discard the original molecule and create a new one. 
             mol = Chunk(assy, nodename)
             mol.protein = Protein()
             numconects = 0
-            
+                        
         elif key == "header":
             # Extract PDB ID from the header string.
             pdbid = card[62:66].lower()
             comment_text += card
         
-        elif key == "compound":
+        elif key == "compnd":
             comment_text += card
         
         elif key == "remark":
@@ -646,8 +666,6 @@ def read_or_insert_pdb(assy,
                         showProgressDialog = showProgressDialog,
                         chainId = chainId)
         if molecules:
-            from model.assembly import Group
-            
             assy.part.ensure_toplevel_group()
 
             dir, name = os.path.split(filename)
@@ -659,7 +677,7 @@ def read_or_insert_pdb(assy,
                 if mol is not None:
                     group.addchild(mol)
 
-            comment = Comment(assy, "Information", comment_text)
+            comment = Comment(assy, "PDB File Header", comment_text)
 
             group.addchild(comment)
             

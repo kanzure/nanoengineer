@@ -414,6 +414,14 @@ class Protein:
         """
         self.expanded_rotamers_list = []
         
+    def expand_all_rotamers(self):
+        """
+        Expand all rotamers.
+        """
+        self.expanded_rotamers_list = []
+        for aa in self.sequence.values():
+            self.expanded_rotamers_list.append(aa)
+        
     def get_residuum(self, atom):
         """
         For a given atom, return a residuum the atom belongs to.
@@ -519,7 +527,7 @@ def write_rosetta_resfile(filename, chunk):
                 chunk.protein.get_chain_id() + \
                 "%5d" % int(index) + \
                 "%5d" % int(aa.get_id()) + \
-                " NATRO\n"    
+                " ALLAA\n"    
         f.write(out_str)
         
     # Close the output file. 
