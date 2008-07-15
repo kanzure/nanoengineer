@@ -117,6 +117,8 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if proteinExists:
             sequence = proteinChunk.protein.get_sequence_string()
             self.sequenceEditor.setSequence(sequence)
+            secStructure = proteinChunk.protein.get_secondary_structure_string()
+            self.sequenceEditor.setSecondaryStructure(secStructure)
             self.sequenceEditor.show()    
         else:
             self.sequenceEditor.hide()   
