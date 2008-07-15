@@ -212,10 +212,9 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                          permit_enter_keystroke = False) 
         
         
-        self.secStrucTextEdit.setCursorWidth(2)
         self.secStrucTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.secStrucTextEdit.setFixedHeight(20)
-        self.secStrucTextEdit.setEnabled(False)
+        self.secStrucTextEdit.setReadOnly(True)
 
         #Important to make sure that the horizontal and vertical scrollbars 
         #for these text edits are never displayed. 
