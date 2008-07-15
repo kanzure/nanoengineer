@@ -13,7 +13,14 @@ cd ..
 TOP_LEVEL=`pwd`
 DIST_ROOT=$TOP_LEVEL/cad/src/dist
 DIST_CONTENTS=$DIST_ROOT/NanoEngineer-1.app/Contents
+
+# Do required exports for building on MacOSX 10.5
 export MACOSX_DEPLOYMENT_TARGET=10.3
+export CFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+export LDFLAGS="-arch i386 -arch ppc -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -isysroot /Developer/SDKs/MacOSX10.4u.sdk -L/usr/local/lib"
+export CPPFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+export CXXFLAGS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3 -I/usr/local/include"
+
 
 cd $TOP_LEVEL
 # Modifying the foundation/preferences.py file for version
@@ -32,7 +39,7 @@ mv cad/src/NE1_Build_Constants.ptmp cad/src/NE1_Build_Constants.py || exit 1
 
 #Modifying the welcome screen (to avoid manual editing)
 cat packaging/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > packaging/MacOSX/Welcome.rtf
-mv out.rtf packaging/MacOSX/Welcome.rtf || exit 1
+cat packaging/Suite/MacOSX/Welcome_template.rtf | sed -e "s:VERSION_GOES_HERE:$VERSION_NUM:g" | sed -e "s:DATE_GOES_HERE:$DATECODE:g" > packaging/Suite/MacOSX/Welcome.rtf
 
 # Build the base .app directory contents
 if [ ! -e "$TOP_LEVEL/cad/src" ]; then exit; fi
@@ -55,6 +62,7 @@ mkdir $DIST_CONTENTS/bin
 
 # Build atombase.so and samevals.so (some native binary NE1 optimizations)
 cd $TOP_LEVEL/cad/src
+cp ../../packaging/MacOSX/SV_AB_Makefile Makefile
 make clean || exit 1
 make shared || exit 1
 cp atombase.so $DIST_CONTENTS/bin/
