@@ -3,7 +3,7 @@
 BuildProtein_PropertyManager.py
 
 @author: Urmi
-@version: $Id: 
+@version: $Id$: 
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
@@ -16,7 +16,8 @@ from PyQt4.Qt import QString
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
-
+from PM.PM_LineEdit import PM_LineEdit
+from PM.PM_SpinBox import PM_SpinBox
 from widgets.DebugMenuMixin import DebugMenuMixin
 from command_support.EditCommand_PM import EditCommand_PM
 
@@ -26,6 +27,7 @@ from PM.PM_Constants     import PM_CANCEL_BUTTON
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 
+_superclass = EditCommand_PM
 class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
     The BuildDna_PropertyManager class provides a Property Manager 
@@ -55,7 +57,13 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         #For model changed signal
         self.previousSelectionParams = None
-                
+         
+        #Urmi 20080713: set the protein chunk name and its length
+        #for the first available chunk and not the selected one, that's
+        #not implemented as yet
+        
+        #self.showProteinParametersAndSequenceEditorForInit(win)
+        
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False           
@@ -71,8 +79,48 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         
-
+        
+    def show(self):
+        self.showProteinParametersAndSequenceEditor(self.win)
+        EditCommand_PM.show(self)        
+        
+        return
     
+    def close(self):
+        self.sequenceEditor.hide() 
+        EditCommand_PM.close(self)
+        return
+    
+    
+    
+    def showProteinParametersAndSequenceEditor(self, win):
+        part = win.assy.part
+        from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
+        proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
+        print proteinExists
+        if proteinExists:
+            self._proteinChunkName = proteinChunk.protein.get_pdb_id() + proteinChunk.protein.get_chain_id()
+            self._numberOfAA = len(proteinChunk.protein.get_sequence_string())
+        else:
+            self._proteinChunkName = ''
+            self._numberOfAA = 0
+            
+        self.nameLineEdit.setText(self._proteinChunkName)
+        self.numberOfAASpinBox.setValue(self._numberOfAA)
+        if proteinExists:
+            self.nameLineEdit.setEnabled(True)
+        else:
+            self.nameLineEdit.setEnabled(False)
+            
+        self.sequenceEditor = win.createProteinSequenceEditorIfNeeded() 
+        #get the sequence for this protein chunk
+        if proteinExists:
+            sequence = proteinChunk.protein.get_sequence_string()
+            self.sequenceEditor.setSequence(sequence)
+            self.sequenceEditor.show()    
+        else:
+            self.sequenceEditor.hide()   
+            
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -132,25 +180,6 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
                   
         self.win.toolsCancel()
-        
-    
-    def close(self):
-        """
-        Closes the Property Manager. Overrides EditCommand_PM.close()
-        """
-        #Clear tags, if any, due to the selection in the self.strandListWidget.
-        
-            
-        EditCommand_PM.close(self)
-    
-    def show(self):
-        """
-        Show this PM 
-        As of 2007-11-20, it also shows the Sequence Editor widget and hides 
-        the history widget. This implementation may change in the near future
-        """
-        EditCommand_PM.show(self) 
-         
     
     def _addWhatsThisText( self ):
         """
@@ -168,6 +197,31 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Add the DNA Property Manager group boxes.
         """
+        """
+        Add the DNA Property Manager group boxes.
+        """        
+                
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
+        self._loadGroupBox1( self._pmGroupBox1 )
+        
         pass
     
-    
+    def _loadGroupBox1(self, pmGroupBox):
+        """
+        Load widgets in group box 4.
+        """
+        
+        self.nameLineEdit = PM_LineEdit( pmGroupBox,
+                         label         =  "Protein chunk name:",
+                         text          =  "",
+                         setAsDefault  =  False)
+        
+        #Urmi 20080713: May be useful to set the minimum value to not zero
+        self.numberOfAASpinBox = \
+            PM_SpinBox( pmGroupBox, 
+                        label         =  "Number of amino acids:", 
+                        value         =  0,
+                        setAsDefault  =  False,
+                        minimum       =  0,
+                        maximum       =  10000 )
+        self.numberOfAASpinBox.setEnabled(False)
