@@ -97,7 +97,6 @@ class BuildProtein_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         part = win.assy.part
         from simulation.ROSETTA.rosetta_commandruns import checkIfProteinChunkInPart
         proteinExists, proteinChunk = checkIfProteinChunkInPart(part)
-        print proteinExists
         if proteinExists:
             self._proteinChunkName = proteinChunk.protein.get_pdb_id() + proteinChunk.protein.get_chain_id()
             self._numberOfAA = len(proteinChunk.protein.get_sequence_string())
