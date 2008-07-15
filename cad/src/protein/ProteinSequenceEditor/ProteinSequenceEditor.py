@@ -183,6 +183,10 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
                       ##SIGNAL("textChanged()"),
                       ##self.sequenceChanged )
 
+        #Urmi 20080715: need to update the sec structure text edit as well
+        secStrucSeq = self.secStrucTextEdit.toPlainText()
+        fixedPitchSequence = self.getFormattedSequence(str(secStrucSeq))
+        self.secStrucTextEdit.insertHtml(fixedPitchSequence)
         self.synchronizeLengths()
         
         self._supress_textChanged_signal = False
@@ -240,7 +244,7 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #sequence each time. This needs to be cleaned up. - Ninad 2007-04-10
         
         cursor          =  self.sequenceTextEdit.textCursor()
-                
+        cursorMate      =  self.secStrucTextEdit.textCursor()        
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         seq = str(inSequence)
@@ -256,8 +260,9 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
             cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
             self.sequenceTextEdit.setTextCursor( cursor )
-        
-    
+            cursorMate.setPosition( selectionStart, QTextCursor.MoveAnchor )
+            cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+            self.secStrucTextEdit.setTextCursor( cursorMate )
 
     def setSequence( self,
                      inSequence,
@@ -290,7 +295,8 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #Apparently PM_TextEdit.insertHtml replaces the the whole 
         #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
         
-        cursor          =  self.sequenceTextEdit.textCursor()        
+        cursor          =  self.sequenceTextEdit.textCursor()     
+        cursorMate      =  self.secStrucTextEdit.textCursor()
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         seq = str(inSequence)
@@ -307,18 +313,17 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         # Qt can get confused between HTML and Plain Text. 
         
         self.sequenceTextEdit.insertHtml( inSequence1)
-
+        
         if inRestoreCursor:                      
             cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
             cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
             self.sequenceTextEdit.setTextCursor( cursor )
-                          
+            cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.secStrucTextEdit.setTextCursor( cursorMate )
         return
     
-    def setSecondaryStructure(self, inSequence):
-        """
-        Set the secondary structure of the protein
-        """
+    def getFormattedSequence(self, inSequence):
         colorList = ['Red','Blue', 'Green']
         secStrucList = ['H','E', '-']
         secStrucDict = dict(zip(secStrucList, colorList))
@@ -332,7 +337,26 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         #Now put html tags and make everything bold
         fixedPitchSequence  =  "<html><bold><font size=3 face=Courier New >"  + outSequence
         fixedPitchSequence +=  "</font></bold></html>"
+        return fixedPitchSequence 
+     
+    
+    def setSecondaryStructure(self, inSequence, inRestoreCursor  =  True):
+        """
+        Set the secondary structure of the protein
+        """
+        cursor          =  self.sequenceTextEdit.textCursor()     
+        cursorMate      =  self.secStrucTextEdit.textCursor()
+        selectionStart  =  cursor.selectionStart()
+        selectionEnd    =  cursor.selectionEnd()
+        fixedPitchSequence = self.getFormattedSequence(inSequence)
         self.secStrucTextEdit.insertHtml(fixedPitchSequence)
+        if inRestoreCursor:                      
+            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
+            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+            self.sequenceTextEdit.setTextCursor( cursor )
+            cursorMate.setPosition(selectionStart, QTextCursor.MoveAnchor)  
+            cursorMate.setPosition(selectionEnd, QTextCursor.KeepAnchor) 
+            self.secStrucTextEdit.setTextCursor( cursorMate )
         return 
     
     
@@ -402,7 +426,13 @@ class ProteinSequenceEditor(Ui_ProteinSequenceEditor):
         """  
         strandSequence = self.sequenceTextEdit.toPlainText() 
         cursor  =  self.sequenceTextEdit.textCursor()
-        
+        cursor_mate =  self.secStrucTextEdit.textCursor()
+        if cursor_mate.position() != cursor.position():
+            cursor_mate.setPosition( cursor.position(), 
+                                    QTextCursor.MoveAnchor )
+            #After setting position, it is important to do setTextCursor 
+            #otherwise no effect will be observed. 
+            self.secStrucTextEdit.setTextCursor(cursor_mate)
 
     def synchronizeLengths( self ):
         """
