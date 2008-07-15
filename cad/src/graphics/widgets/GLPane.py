@@ -214,6 +214,9 @@ from utilities.prefs_constants import stereoViewSeparation_prefs_key
 from utilities.constants import diDEFAULT
 from utilities.constants import dispLabel
 from utilities.constants import GL_FAR_Z
+from utilities.constants import diDNACYLINDER
+from utilities.constants import diPROTEIN
+from utilities.constants import default_display_mode
 
 from utilities.constants import MULTIPANE_GUI
 
@@ -578,7 +581,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         self.displayMode = env.prefs[startupGlobalDisplayStyle_prefs_key]
         
         # piotr 080714: Remeber last non-reduced display style.
-        self.lastNonReducedDisplayMode = self.displayMode
+        if self.displayMode == diDNACYLINDER or \
+           self.displayMode == diPROTEIN:
+            self.lastNonReducedDisplayMode = default_display_mode
+        else:
+            self.lastNonReducedDisplayMode = self.displayMode
         #self.win.statusBar().dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
 
         ###### End of User Preference initialization ########################## 

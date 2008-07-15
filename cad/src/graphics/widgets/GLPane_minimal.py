@@ -24,6 +24,8 @@ from model.NamedView import NamedView
 from utilities.prefs_constants import undoRestoreView_prefs_key
 from utilities.prefs_constants import startup_GLPane_scale_prefs_key
 
+from utilities.constants import default_display_mode
+
 from utilities.debug_prefs import Choice
 from utilities.debug_prefs import debug_pref
 
@@ -138,6 +140,9 @@ class GLPane_minimal(QGLWidget, object): #bruce 070914
 
         self._functions_to_call_when_gl_context_is_current = []
 
+        # piotr 080714: Defined this attribute here in case
+        # chunk.py accesses it in ThumbView. 
+        self.lastNonReducedDisplayMode = default_display_mode
         return
 
     def _setup_display_lists(self): # bruce 071030
