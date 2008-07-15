@@ -291,10 +291,10 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         self.ntLengthLineEdit.setDisabled(True)
         self.ntLengthLineEdit.hide()
 
-        # Nanotube Radius
+        # Nanotube diameter
         self.ntDiameterLineEdit  =  \
             PM_LineEdit( pmGroupBox,
-                         label         =  "Nanotube Diameter: ",
+                         label         =  "Diameter: ",
                          setAsDefault  =  False)
 
         self.ntDiameterLineEdit.setDisabled(True)
@@ -323,7 +323,7 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
         # --Mark 2008-03-29
         self.bondLengthDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
-                              label        = "Bond Length :",
+                              label        = "Bond length :",
                               value        = self.nanotube.getBondLength(),
                               setAsDefault = True,
                               minimum      = 1.0,
