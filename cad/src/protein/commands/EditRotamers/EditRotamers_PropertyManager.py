@@ -127,6 +127,8 @@ class EditRotamers_PropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Shows the Property Manager. Overrides PM_Dialog.show.
         """
+        self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
+        self.sequenceEditor.hide()
         PM_Dialog.show(self)
 
         # Update all PM widgets, then establish their signal-slot connections.
