@@ -1,9 +1,9 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 BuildProtein_EditCommand.py
 
 @author: Urmi
-@version: $Id: 
+@version: $Id$: 
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
@@ -70,7 +70,6 @@ class BuildProtein_EditCommand(EditCommand):
         @see: L{self.restore_gui}
         """
         EditCommand.init_gui(self)
-
         if self.flyoutToolbar is None:
             self.flyoutToolbar = ProteinFlyout(self.win, self.propMgr)
 
@@ -113,6 +112,7 @@ class BuildProtein_EditCommand(EditCommand):
         @see: L{self.init_gui}
         """
         EditCommand.restore_gui(self)
+        
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
 
@@ -120,6 +120,7 @@ class BuildProtein_EditCommand(EditCommand):
         """
         @see: Command.StateDone
         """
+        
         return None
 
     def StateCancel(self):
@@ -166,7 +167,7 @@ class BuildProtein_EditCommand(EditCommand):
         EditCommand.create_and_or_show_PM_if_wanted(
             self,
             showPropMgr = showPropMgr)
-
+        
         self.propMgr.updateMessage("Use appropriate command in the command "\
                                    "toolbar to create or modify a Protein Object"\
                                    "<br>"
