@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+"""
+hackit - modify an installed NE1 application on Mac to use ALTERNATE_CAD_SRC_PATH
+
+@author: Bruce
+@version: $Id$
+"""
+
+import sys, os, time
+
+if len(sys.argv) != 3:
+    print """usage: hackit </path/to/ne1/folder> $W
+ (for example, hackit /Applications/Nanorex/NanoEngineer-1_1.1.1 /Nanorex/trunk/cad/src)
+ will install ALTERNATE_CAD_SRC_PATH pointing to $W inside
+ the .app in </path/to/ne1/folder> (even if the .app has been renamed),
+ and also do some or all of the extra hacks documented on
+ the wiki page about that feature, namely:
+ http://www.nanoengineer-1.net/mediawiki/index.php?title=Using_the_Libraries_from_an_NE1_Installation_for_Mac_Development
+"""
+    sys.exit(1)
+    
+
+progname, ne1_folder, alt_src_dir = sys.argv
+
+def fix_dir(dirpath):
+    fixed = os.path.normpath(os.path.expanduser(dirpath))
+    if not os.path.isdir(fixed):
+        print "error: can't find directory [%s]" % fixed
+        if fixed != dirpath:
+            print " (expanded from [%s])" % dirpath
+        sys.exit(1)
+    return fixed
+
+ne1_folder = fix_dir(ne1_folder)
+alt_src_dir = fix_dir(alt_src_dir)
+
+def find_app_in_dir(dirpath):
+    res = []
+    for filename in os.listdir( dirpath):
+        if filename.endswith('.app'):
+            res.append(filename)
+    assert len(res) == 1, "not exactly one .app in [%s]" % dirpath
+    return os.path.join( dirpath, res[0] )
+        
+ne1_app_folder = find_app_in_dir(ne1_folder)
+
+Contents_Resources = os.path.join( ne1_app_folder, "Contents", "Resources")
+
+os.chdir( Contents_Resources )
+
+# warn if this may have been done before, and stop
+
+stop = False
+for filename in ( "main-ORIG.py", "ALTERNATE_CAD_SRC_PATH"):
+    if os.path.exists(filename):
+        print "already have file [%s]" % filename
+        stop = True
+if stop:
+    print "so stopping, since we probably did this before."
+    print "to redo, remove those files from [%s]." % Contents_Resources
+    sys.exit(1)
+    
+# create ALTERNATE_CAD_SRC_PATH file
+
+altfile = file("ALTERNATE_CAD_SRC_PATH", "wb")
+altfile.write("%s\n" % alt_src_dir)
+altfile.close()
+
+print "created (or rewrote) %r containing %r" % (
+    Contents_Resources + "/" + "ALTERNATE_CAD_SRC_PATH",
+    alt_src_dir
+    )
+
+### todo: verify it has correct contents
+
+# make main.py a symlink
+
+os.system("mv main.py main-ORIG.py")
+os.system("ln -s %s/main.py main.py" % alt_src_dir)
+
+print "made main.py a symlink"
+
+### todo: verify it exists and points to correct place, and works
+
+# done
+
+print
+print """NOT YET SPECIFICALLY HANDLED HERE:
+partlib
+cad/src/ui
+sim.so
+cad/plugins
+samevals.so
+atombase.so
+"""
+
+print
+print "done"
+
+sys.exit(0)

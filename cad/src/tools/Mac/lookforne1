@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+"""
+lookforne1 - look for an installed NE1 of a given version, on a Mac,
+and print other related info
+
+@author: Bruce
+@version: $Id$
+"""
+
+import sys, os, time
+
+# bruce 080715
+
+assert len(sys.argv) == 2, "usage: lookforne1 <1.1.1 or whatever>"
+
+arg = sys.argv[1]
+
+LF = "ls -Fild " # different on Mac OS 10.4 (no g) and 10.3 (should have g)
+
+foldername = "NanoEngineer*%s*" % arg
+
+PATTERNS = (
+    "/" + foldername,
+    "/Applications/" + foldername,
+    "/Applications/Nanorex/" + foldername,
+    "/Library/Receipts/" + foldername
+)
+
+cmdline = LF + " ".join(PATTERNS)
+
+print
+print "permissions:"
+os.system(LF + "/ /Applications /Applications/Nanorex")
+print
+print "will run:", cmdline
+print
+os.system(cmdline)
+sys.exit(0)
