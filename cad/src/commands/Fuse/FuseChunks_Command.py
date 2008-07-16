@@ -34,8 +34,11 @@ from commands.Fuse.fusechunksMode import fusechunksBase
 
 from commands.Fuse.fusechunksMode import fusechunks_lambda_tol_natoms, fusechunks_lambda_tol_nbonds
 
-MAKEBONDS = 'Make Bonds Between Chunks'
-FUSEATOMS = 'Fuse Overlapping Atoms'
+#@ Warning: MAKEBONDS and FUSEATOMS must be the same exact strings used in the
+#  PM combo box "fuseComboBox" widget in FusePropertyManager.
+#  This implementation is fragile and should be fixed. Mark 2008-07-16
+MAKEBONDS = 'Make bonds between chunks'
+FUSEATOMS = 'Fuse overlapping atoms'
 
 from commands.Fuse.FuseChunks_GraphicsMode import FuseChunks_GraphicsMode
 from commands.Fuse.FuseChunks_GraphicsMode import Translate_in_FuseChunks_GraphicsMode
@@ -89,10 +92,9 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         self.propMgr.show()
 
-        self.change_fuse_mode(self.propMgr.fuseComboBox.currentText())
+        self.change_fuse_mode(str(self.propMgr.fuseComboBox.currentText()))
             # This maintains state of fuse mode when leaving/reentering mode,
             # and syncs the PM and glpane (and does a gl_update).
-
 
         self.w.toolsFuseChunksAction.setChecked(1)
 
@@ -204,11 +206,12 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
             return # The mode did not change.  Don't do anything.
         self.fuse_mode = str(fuse_mode) # Must cast here.
 
-        if self.fuse_mode == str(MAKEBONDS):
+        if self.fuse_mode == MAKEBONDS:
             self.propMgr.fusePushButton.setText('Make Bonds')
         else:
             self.propMgr.fusePushButton.setText('Fuse Atoms')
 
+        self.propMgr.updateMessage()
         self.o.gl_update() # the Draw() method will update based on the current
                            #combo box item.
 

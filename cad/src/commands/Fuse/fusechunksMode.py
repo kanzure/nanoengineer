@@ -14,10 +14,6 @@ from model.bonds import bond_at_singlets
 from utilities.Log import orangemsg
 from utilities.constants import diINVISIBLE
 
-
-MAKEBONDS = 'Make Bonds Between Chunks'
-FUSEATOMS = 'Fuse Overlapping Atoms'
-
 def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     """
     Returns the bondable pairs tolerance string for the tolerance slider.

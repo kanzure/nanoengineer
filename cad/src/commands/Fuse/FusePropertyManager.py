@@ -66,7 +66,13 @@ class FusePropertyManager(MovePropertyManager):
         """
         Load the widgets inside the Fuse Options groupbox.
         """
-        fuseChoices = ['Make Bonds Between Chunks', 'Fuse Overlapping Atoms']
+        
+        #@ Warning: If you change fuseChoices, you must also change the
+        #  constants MAKEBONDS and FUSEATOMS in FuseChunks_Command.py.
+        #  This implementation is fragile and should be fixed. Mark 2008-07-16
+        
+        fuseChoices = ['Make bonds between chunks', 
+                       'Fuse overlapping atoms']
         
         self.fuseComboBox = \
             PM_ComboBox( inPmGroupBox,
@@ -89,7 +95,6 @@ class FusePropertyManager(MovePropertyManager):
                       SIGNAL("clicked()"),
                       self.parentMode.fuse_something)
         
-        
         self.toleranceSlider =  PM_Slider( inPmGroupBox,
                                            currentValue = 100,
                                            minimum      = 0,
@@ -102,7 +107,7 @@ class FusePropertyManager(MovePropertyManager):
                        self.parentMode.tolerance_changed)
         
         self.mergeChunksCheckBox = PM_CheckBox( inPmGroupBox,
-                                                text         = 'Merge Chunks',
+                                                text         = 'Merge chunks',
                                                 widgetColumn = 0,
                                                 state        = Qt.Checked )
         
@@ -160,31 +165,40 @@ class FusePropertyManager(MovePropertyManager):
         
         self.isTranslateGroupBoxActive = False
         self.parentMode.graphicsMode.update_cursor()
-                    
+        return
+    
     def updateMessage(self, msg = ''): 
         """
         Updates the message box with an informative message.
+        
+        @param msg: The message to display. If msg is an empty string,
+                    a default message is displayed.
+        @type  msg: string
         Overrides the MovePropertyManager.updateMessage method
         @see: MovePropertyManager.updateMessage
         """
-        
         #@bug: BUG: The message box height is fixed. The verticle scrollbar 
-        #appears as the following message is long. It however tries to make the 
+        # appears as the following message is long. It however tries to make the 
         # cursor visible within the message box . This results in scrolling the 
         # msg box to the last line and thus doesn't look good.-- ninad 20070723
         
+        if msg:
+            self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = True )
+            return
+        
         if self.fuseComboBox.currentIndex() == 0:
             #i.e. 'Make Bonds Between Chunks'
-            msg = "To <b> make bonds</b> between two or more chunks, \
-            drag the selected chunk(s) such that their one or more bondpoints \
-            overlap with the other chunk(s). Then hit <b> Make Bonds </b> to \
-            create bond(s) between them. "
+            msg = "To <b> make bonds</b> between two or more chunks, "\
+            "drag the selected chunk(s) such that their one or more "\
+            "bondpoints overlap with the other chunk(s). Then click the "\
+            "<b> Make Bonds </b> button to create bond(s) between them. "
         else:   
-            msg = "To <b>fuse overlapping atoms</b> in two or more chunks,\
-            drag the selected chunk(s) such that their one or more atoms \
-            overlap  with the atoms in the other chunk(s). Then hit \
-            <b> Fuse Atoms </b>\ to remove the overlapping atoms of unselected \
-            chunk. "
+            msg = "To <b>fuse overlapping atoms</b> in two or more chunks, "\
+            "drag the selected chunk(s) such that their one or more atoms "\
+            "overlap  with the atoms in the other chunk(s). Then click the "\
+            "<b> Fuse Atoms </b>\ button to remove the overlapping atoms of "\
+            "unselected chunk. "
         
-        self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
+        self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = True )
+        return
         
