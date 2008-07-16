@@ -1050,10 +1050,10 @@ def whatsThis_RotaryMotorPropertyManager(propMgr):
         radius of the spokes, measured in angstroms. 
         </p>""")
     
-    propMgr.colorPushButton.setWhatsThis(
+    propMgr.motorColorComboBox.setWhatsThis(
         """<b>Color</b>
         <p>
-        Allows you to change the color of the motor body and spokes
+        Changes the color of the motor.
         </p>""")
     
     propMgr.directionPushButton.setWhatsThis(
@@ -1116,10 +1116,10 @@ def whatsThis_LinearMotorPropertyManager(propMgr):
         radius of the spokes, measured in angstroms.
         </p>""")
     
-    propMgr.colorPushButton.setWhatsThis(
+    propMgr.motorColorComboBox.setWhatsThis(
         """<b>Color</b>
         <p>
-        Allows you to change the color of the motor body and spokes
+        Changes the color of the motor.
         </p>""")
     
     propMgr.directionPushButton.setWhatsThis(

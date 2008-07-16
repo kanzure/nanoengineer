@@ -16,8 +16,7 @@ from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
-
-from widgets.widget_helpers import RGBf_to_QColor
+from PM.PM_ColorComboBox import PM_ColorComboBox
 
 from command_support.MotorPropertyManager import MotorPropertyManager
 
@@ -44,6 +43,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         MotorPropertyManager.__init__( self,
                                        win,
                                        motorEditCommand)
+        return
 
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -72,9 +72,10 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         change_connect(self.spokeRadiusDblSpinBox,
                      SIGNAL("valueChanged(double)"),
                      self.change_motor_size)
-        change_connect(self.colorPushButton,
-                     SIGNAL("clicked()"),
-                     self.change_jig_color)
+        change_connect(self.motorColorComboBox, 
+                       SIGNAL("editingFinished()"), 
+                       self.change_jig_color)
+        return
 
     def _update_widgets_in_PM_before_show(self):
         """
@@ -113,9 +114,8 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         self.motorLengthDblSpinBox.setValue(length)
         self.motorWidthDblSpinBox.setValue(width)
         self.spokeRadiusDblSpinBox.setValue(spoke_radius)
-        self.jig_QColor = RGBf_to_QColor(normcolor)
-
-
+        return
+    
     def change_motor_size(self, gl_update=True):
         """
         Slot method to change the jig's length, width and/or spoke radius.
@@ -126,6 +126,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         self.editCommand.struct.sradius = self.spokeRadiusDblSpinBox.value()
         if gl_update:
             self.glpane.gl_update()
+        return
 
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -163,7 +164,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
 
         self.enableMinimizeCheckBox = \
             PM_CheckBox(pmGroupBox,
-                        text ="Enable in Minimize",
+                        text ="Enable in minimize",
                         widgetColumn = 1
                         )
         self.enableMinimizeCheckBox.setChecked(enable_minimize)
@@ -173,8 +174,8 @@ class LinearMotorPropertyManager(MotorPropertyManager):
                           label = "Direction :",
                           text = "Reverse",
                           spanWidth = False)
-
-
+        return
+    
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in groubox 2.
@@ -194,7 +195,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
 
         self.motorLengthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                                label = "Motor Length :",
+                                label = "Motor length :",
                                 value = length,
                                 setAsDefault = True,
                                 minimum = 0.5,
@@ -206,7 +207,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
 
         self.motorWidthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                                label="Motor Width :",
+                                label="Motor width :",
                                 value = width,
                                 setAsDefault = True,
                                 minimum = 0.1,
@@ -218,7 +219,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
 
         self.spokeRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                                label = "Spoke Radius :",
+                                label = "Spoke radius :",
                                 value = spoke_radius,
                                 setAsDefault = True,
                                 minimum = 0.1,
@@ -227,13 +228,10 @@ class LinearMotorPropertyManager(MotorPropertyManager):
                                 decimals = 1,
                                 suffix = ' Angstroms')
 
-        # Used as default color by Color Chooser
-        self.jig_QColor = RGBf_to_QColor(normcolor)
-
-        self.colorPushButton = \
-            PM_PushButton(pmGroupBox,
-                          label = "Color :",
-                          text = "Choose...")
+        self.motorColorComboBox = \
+            PM_ColorComboBox(pmGroupBox,
+                             color = normcolor)
+        return
 
     def _addWhatsThisText(self):
         """
@@ -241,11 +239,12 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_LinearMotorPropertyManager
         whatsThis_LinearMotorPropertyManager(self)
-
-
+        return
+    
     def _addToolTipText(self):
         """
         What's Tool Tip text for widgets in this Property Manager.
         """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_LinearMotorPropertyManager
         ToolTip_LinearMotorPropertyManager(self)
+        return

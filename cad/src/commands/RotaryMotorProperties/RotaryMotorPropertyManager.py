@@ -21,8 +21,8 @@ from PyQt4.Qt import SIGNAL
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
+from PM.PM_ColorComboBox import PM_ColorComboBox
 
-from widgets.widget_helpers import RGBf_to_QColor
 from utilities.constants import gray
 
 from command_support.MotorPropertyManager import MotorPropertyManager
@@ -49,6 +49,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         MotorPropertyManager.__init__( self, 
                                        win,
                                        motorEditCommand) 
+        return
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -77,9 +78,10 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         change_connect(self.spokeRadiusDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_motor_size)
-        change_connect(self.colorPushButton, 
-                     SIGNAL("clicked()"), 
-                     self.change_jig_color)
+        change_connect(self.motorColorComboBox, 
+                SIGNAL("editingFinished()"), 
+                self.change_jig_color) 
+        return
     
     def _update_widgets_in_PM_before_show(self):
         """
@@ -124,8 +126,8 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         self.motorLengthDblSpinBox.setValue(length)
         self.motorRadiusDblSpinBox.setValue(radius)
         self.spokeRadiusDblSpinBox.setValue(spoke_radius)
-        self.jig_QColor = RGBf_to_QColor(normcolor)
-            
+        return
+    
     def change_motor_size(self, gl_update = True):
         """
         Slot method to change the jig's length, radius and/or spoke radius.
@@ -140,6 +142,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
             
             if gl_update:
                 self.glpane.gl_update()
+        return
     
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -171,7 +174,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         
         self.initialSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                                label = "Initial Speed :", 
+                                label = "Initial speed :", 
                                 value = initial_speed, 
                                 setAsDefault = True,
                                 minimum    = 0.0, 
@@ -182,7 +185,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         
         self.finalSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                                label = "Final Speed :", 
+                                label = "Final speed :", 
                                 value = final_speed, 
                                 setAsDefault = True,
                                 minimum  = 0.0, 
@@ -202,7 +205,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         
         self.enableMinimizeCheckBox = \
             PM_CheckBox(pmGroupBox,
-                        text = "Enable in Minimize",
+                        text = "Enable in minimize",
                         widgetColumn = 0
                         )
         self.enableMinimizeCheckBox.setChecked(enable_minimize)
@@ -212,8 +215,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                           label = "Direction :",
                           text = "Reverse",
                           spanWidth = False)
-        
-        
+        return
     
     def _loadGroupBox2(self, pmGroupBox):
         """
@@ -232,7 +234,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
 
         self.motorLengthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
-                                label = "Motor Length :", 
+                                label = "Motor length :", 
                                 value = length, 
                                 setAsDefault = True,
                                 minimum = 0.5, 
@@ -243,7 +245,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
 
         self.motorRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
-                                label="Motor Radius :", 
+                                label="Motor radius :", 
                                 value = radius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
@@ -254,7 +256,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
 
         self.spokeRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
-                                label = "Spoke Radius :", 
+                                label = "Spoke radius :", 
                                 value = spoke_radius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
@@ -263,14 +265,10 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                                 decimals = 1, 
                                 suffix = ' Angstroms')
         
-        
-        # Used as default color by Color Chooser
-        self.jig_QColor = RGBf_to_QColor(normcolor) 
-        
-        self.colorPushButton = \
-            PM_PushButton(pmGroupBox,
-                          label = "Color :",
-                          text = "Choose...")
+        self.motorColorComboBox = \
+            PM_ColorComboBox(pmGroupBox,
+                             color = normcolor)
+        return
     
     def _addWhatsThisText(self):
         """
@@ -278,6 +276,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_RotaryMotorPropertyManager
         whatsThis_RotaryMotorPropertyManager(self)
+        return
         
     def _addToolTipText(self):
         """
@@ -285,5 +284,6 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """       
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_RotaryMotorPropertyManager
         ToolTip_RotaryMotorPropertyManager(self)
+        return
 
 

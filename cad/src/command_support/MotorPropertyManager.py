@@ -113,23 +113,18 @@ class MotorPropertyManager(EditCommand_PM):
             except Exception:
                 print_compact_traceback("Ignored exception while disabling "\
                                         " an action.")
-
+        return
+    
     def change_jig_color(self):
         """
-        Slot method to change the jig's color.
+        Slot method for the ColorComboBox.
+        @note: This overrides change_jig_color in class MotorPropertyManager.
         """
-        color = QColorDialog.getColor(self.jig_QColor, self)
-
-        if color.isValid():
-            self.jig_QColor = color
-
-            ## I intend to implement this once PropMgrColorChooser is complete.
-            #- Mark 2007-05-28
-            #self.jig_color_pixmap = \
-                #get_widget_with_color_palette(self.jig_color_pixmap,
-                                              #self.jig_QColor)
-            self.editCommand.struct.color = self.editCommand.struct.normcolor = QColor_to_RGBf(color)
-            self.glpane.gl_update()
+        color = self.motorColorComboBox.getColor()
+        self.editCommand.struct.color = color
+        self.editCommand.struct.normcolor = color
+        self.glpane.gl_update()
+        return
 
     def change_motor_size(self, gl_update = True):
         """

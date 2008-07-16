@@ -45,26 +45,26 @@ def ToolTip_RotaryMotorPropertyManager(propMgr):
     "Tool Tip" text for widgets in the Rotary Motor Property Manager.
     """
 
-    propMgr.torqueDblSpinBox.setToolTip("Motor Torque")
+    propMgr.torqueDblSpinBox.setToolTip("Motor torque")
 
-    propMgr.initialSpeedDblSpinBox.setToolTip("Initial Speed")
+    propMgr.initialSpeedDblSpinBox.setToolTip("Initial speed")
 
-    propMgr.finalSpeedDblSpinBox.setToolTip("Final Speed")
+    propMgr.finalSpeedDblSpinBox.setToolTip("Final speed")
 
-    propMgr.dampersCheckBox.setToolTip("Turn Motor Dampers ON/OFF")
+    propMgr.dampersCheckBox.setToolTip("Turn motor dampers on/off")
 
-    propMgr.enableMinimizeCheckBox.setToolTip("Motor is Enabled During" \
-                                              " Minimizations")
+    propMgr.enableMinimizeCheckBox.setToolTip("Enable motor during" \
+                                              " minimizations")
 
-    propMgr.motorLengthDblSpinBox.setToolTip("Set Motor Length")
+    propMgr.motorLengthDblSpinBox.setToolTip("Set motor length")
 
-    propMgr.motorRadiusDblSpinBox.setToolTip("Set Motor Radius")
+    propMgr.motorRadiusDblSpinBox.setToolTip("Set motor radius")
 
-    propMgr.spokeRadiusDblSpinBox.setToolTip("Set Spoke Radius")
+    propMgr.spokeRadiusDblSpinBox.setToolTip("Set spoke radius")
 
-    propMgr.colorPushButton.setToolTip("Change Color")
+    propMgr.motorColorComboBox.setToolTip("Change motor color")
 
-    propMgr.directionPushButton.setToolTip("Rotation Direction")
+    propMgr.directionPushButton.setToolTip("Set rotation direction")
 
 
 def ToolTip_LinearMotorPropertyManager(propMgr):
@@ -73,22 +73,22 @@ def ToolTip_LinearMotorPropertyManager(propMgr):
     Tool Tip text for widgets in the Linear Motor Property Manager.
     """
 
-    propMgr.forceDblSpinBox.setToolTip("Motor Force")
+    propMgr.forceDblSpinBox.setToolTip("Specify motor force")
 
-    propMgr.enableMinimizeCheckBox.setToolTip("Motor is Enabled During" \
-                                              " Minimizations")
+    propMgr.enableMinimizeCheckBox.setToolTip("Enabled motor during" \
+                                              " minimizations")
 
-    propMgr.stiffnessDblSpinBox.setToolTip("Stiffness")
+    propMgr.stiffnessDblSpinBox.setToolTip("Specify stiffness")
 
-    propMgr.motorLengthDblSpinBox.setToolTip("Motor Length")
+    propMgr.motorLengthDblSpinBox.setToolTip("Set motor length")
 
-    propMgr.motorWidthDblSpinBox.setToolTip("Motor Width")
+    propMgr.motorWidthDblSpinBox.setToolTip("Set motor width")
 
-    propMgr.spokeRadiusDblSpinBox.setToolTip("Motor Radius")
+    propMgr.spokeRadiusDblSpinBox.setToolTip("Set motor radius")
 
-    propMgr.colorPushButton.setToolTip("Change Color")
+    propMgr.motorColorComboBox.setToolTip("Change motor color")
 
-    propMgr.directionPushButton.setToolTip("Motor Direction")  
+    propMgr.directionPushButton.setToolTip("Set motor direction")  
 
 def ToolTip_GrapheneGeneratorPropertyManager(propMgr):
 
