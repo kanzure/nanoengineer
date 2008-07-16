@@ -16,8 +16,8 @@ from PyQt4.Qt import QPalette
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QAction, QMenu
-from PyQt4.Qt import Qt
-
+from PyQt4.Qt import Qt, QColor
+from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors    import getPalette
 from PM.PM_Colors    import sequenceEditStrandMateBaseColor
 
@@ -189,11 +189,27 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                                  widgetList = widgetList,
                                  label = "",
                                  spanWidth = True )
+        
+        
 
     def _loadTextEditWidget(self):
         """
         Load the SequenceTexteditWidgets.         
         """        
+        self.aaRulerTextEdit = \
+            PM_TextEdit( self, 
+                         label = "", 
+                         spanWidth = False,
+                         permit_enter_keystroke = False) 
+        
+        palette = getPalette(None, 
+                             QPalette.Base, 
+                             pmGrpBoxColor)
+        self.aaRulerTextEdit.setPalette(palette)     
+        self.aaRulerTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
+        self.aaRulerTextEdit.setFixedHeight(20)
+        self.aaRulerTextEdit.setReadOnly(True)
+        
         self.sequenceTextEdit = \
             PM_TextEdit( self, 
                          label = " Sequence: ", 
@@ -225,7 +241,9 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.sequenceTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.sequenceTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.secStrucTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.secStrucTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  
+        self.secStrucTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.aaRulerTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.aaRulerTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def _getFindLineEditStyleSheet(self):
         """
