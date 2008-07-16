@@ -144,8 +144,11 @@ class MWsemantics(QMainWindow,
 
         self._init_part_two_done = False
         self._activepw = None
+        
+        self.commandToolbar = None
 
         self.orientationWindow = None
+
 
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded
                                     #for details
@@ -1225,6 +1228,8 @@ class MWsemantics(QMainWindow,
         @type  lockState: boolean
         """
         self.assy.lockSelection(lockState)
+        
+        
 
     ###################################
     # Jig Toolbar Slots
