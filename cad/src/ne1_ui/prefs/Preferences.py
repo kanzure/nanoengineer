@@ -74,6 +74,10 @@ from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import gromacs_path_prefs_key
 from utilities.prefs_constants import cpp_enabled_prefs_key
 from utilities.prefs_constants import cpp_path_prefs_key
+from utilities.prefs_constants import rosetta_enabled_prefs_key
+from utilities.prefs_constants import rosetta_path_prefs_key
+from utilities.prefs_constants import rosetta_database_enabled_prefs_key
+from utilities.prefs_constants import rosetta_dbdir_prefs_key
 from utilities.prefs_constants import nv1_enabled_prefs_key
 from utilities.prefs_constants import nv1_path_prefs_key
 from utilities.prefs_constants import startupGlobalDisplayStyle_prefs_key
@@ -1221,6 +1225,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.cpp_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_cpp_path)
         self.connect(self.cpp_choose_btn, SIGNAL("clicked()"), self.choose_cpp_path)
 
+        # Rosetta signal-slots connections.
+        self.connect(self.rosetta_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta)
+        self.connect(self.rosetta_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_path)
+        self.connect(self.rosetta_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_path)
+        
+        # Rosetta database signal-slots connections.
+        self.connect(self.rosetta_db_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta_db)
+        self.connect(self.rosetta_db_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_db_path)
+        self.connect(self.rosetta_db_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_db_path)
+        
         # NanoVision-1 signal-slots connections.
         self.connect(self.nv1_checkbox, SIGNAL("toggled(bool)"), self.enable_nv1)
         self.connect(self.nv1_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_nv1_path)
@@ -1327,19 +1341,45 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         been added but not fully implemented. It is also possible to
         show hidden widgets that have a debug pref set to enable them.
         """
-        widgetList = [self.nanohive_lbl,
-                      self.nanohive_checkbox,
-                      self.nanohive_path_lineedit,
-                      self.nanohive_choose_btn,
-                      self.gamess_checkbox,
-                      self.gamess_lbl,
-                      self.gamess_path_lineedit,
-                      self.gamess_choose_btn]
-
-        for widget in widgetList:
+        gms_and_esp_widgetList = [self.nanohive_lbl,
+                                  self.nanohive_checkbox,
+                                  self.nanohive_path_lineedit,
+                                  self.nanohive_choose_btn,
+                                  self.gamess_checkbox,
+                                  self.gamess_lbl,
+                                  self.gamess_path_lineedit,
+                                  self.gamess_choose_btn]
+        
+        for widget in gms_and_esp_widgetList:
             if debug_pref("Show GAMESS and ESP Image UI options",
                           Choice_boolean_False,
                           prefs_key = True):
+                widget.show()
+            else:
+                widget.hide()
+        
+        # NanoVision-1 
+        nv1_widgetList = [self.nv1_checkbox,
+                          self.nv1_label,
+                          self.nv1_path_lineedit,
+                          self.nv1_choose_btn]
+        
+        for widget in nv1_widgetList:
+            widget.hide()
+        
+        # Rosetta 
+        rosetta_widgetList = [self.rosetta_checkbox,
+                              self.rosetta_label,
+                              self.rosetta_path_lineedit,
+                              self.rosetta_choose_btn,
+                              self.rosetta_db_checkbox,
+                              self.rosetta_db_label,
+                              self.rosetta_db_path_lineedit,
+                              self.rosetta_db_choose_btn]
+
+        from protein.model.Protein import enableProteins
+        for widget in rosetta_widgetList:
+            if enableProteins:
                 widget.show()
             else:
                 widget.hide()
@@ -2881,7 +2921,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
     def enable_nv1(self, enable = True):
         """
-        If True, NV1 path is set in Preferences>Plug-ins
+        If True, NV1 path is set in Preferences > Plug-ins
 
         @param enable: Is the path set?
         @type  enable: bool
@@ -2912,6 +2952,114 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             #self.nv1_path_lineedit.setText("")
             #env.prefs[nv1_path_prefs_key] = ''
             env.prefs[nv1_enabled_prefs_key] = False
+        return
+    
+    # Rosetta slots #######################################
+
+    def choose_rosetta_path(self):
+        """
+        Slot for Rosetta path "Choose" button.
+        """
+
+        rosetta_executable = get_filename_and_save_in_prefs(self,
+                                                        rosetta_path_prefs_key,
+                                                        'Choose Rosetta Executable')
+
+        if rosetta_executable:
+            self.rosetta_path_lineedit.setText(env.prefs[rosetta_path_prefs_key])
+
+    def set_rosetta_path(self, newValue):
+        """
+        Slot for Rosetta path line editor.
+        """
+        env.prefs[rosetta_path_prefs_key] = str_or_unicode(newValue)
+        return
+
+    def enable_rosetta(self, enable = True):
+        """
+        If True, rosetta path is set in Preferences > Plug-ins
+
+        @param enable: Is the path set?
+        @type  enable: bool
+        """
+
+        state = self.rosetta_checkbox.checkState()
+        if enable:
+            if (state != Qt.Checked):
+                self.rosetta_checkbox.setCheckState(Qt.Checked)
+            self.rosetta_path_lineedit.setEnabled(True)
+            self.rosetta_choose_btn.setEnabled(True)
+            env.prefs[rosetta_enabled_prefs_key] = True
+
+            # Sets the rosetta (executable) path to the standard location, if it exists.
+            if not env.prefs[rosetta_path_prefs_key]:
+                env.prefs[rosetta_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\Rosetta\\rosetta.exe", \
+                    "/Users/marksims/Nanorex/Rosetta/rosetta++/rosetta.mactel", \
+                    "/usr/local/Rosetta/Rosetta")
+
+            self.rosetta_path_lineedit.setText(env.prefs[rosetta_path_prefs_key])
+
+        else:
+            if (state != Qt.Unchecked):
+                self.rosetta_checkbox.setCheckState(Qt.Unchecked)
+            self.rosetta_path_lineedit.setEnabled(False)
+            self.rosetta_choose_btn.setEnabled(False)
+            env.prefs[rosetta_enabled_prefs_key] = False
+        return
+    
+    # Rosetta DB slots #######################################
+    
+    def choose_rosetta_db_path(self):
+        """
+        Slot for Rosetta DB path "Choose" button.
+        """
+
+        rosetta_db_executable = get_filename_and_save_in_prefs(self,
+                                                        rosetta_dbdir_prefs_key,
+                                                        'Choose Rosetta database directory')
+
+        if rosetta_db_executable:
+            self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_db_path_prefs_key])
+
+    def set_rosetta_db_path(self, newValue):
+        """
+        Slot for Rosetta db path line editor.
+        """
+        env.prefs[rosetta_dbdir_prefs_key] = str_or_unicode(newValue)
+
+    def enable_rosetta_db(self, enable = True):
+        """
+        If True, rosetta db path is set in Preferences > Plug-ins
+
+        @param enable: Is the path set?
+        @type  enable: bool
+        """
+
+        state = self.rosetta_db_checkbox.checkState()
+        if enable:
+            if (state != Qt.Checked):
+                self.rosetta_db_checkbox.setCheckState(Qt.Checked)
+            self.rosetta_db_path_lineedit.setEnabled(True)
+            self.rosetta_db_choose_btn.setEnabled(True)
+            env.prefs[rosetta_database_enabled_prefs_key] = True
+
+            # Sets the rosetta (executable) path to the standard location, if it exists.
+            if not env.prefs[rosetta_dbdir_prefs_key]:
+                env.prefs[rosetta_dbdir_prefs_key] = get_default_plugin_path( \
+                    "C:\\Rosetta\\rosetta_database", \
+                    "/Users/marksims/Nanorex/Rosetta/Rosetta_database", \
+                    "/usr/local/Rosetta/Rosetta_database")
+
+            self.rosetta_db_path_lineedit.setText(env.prefs[rosetta_dbdir_prefs_key])
+
+        else:
+            if (state != Qt.Unchecked):
+                self.rosetta_db_checkbox.setCheckState(Qt.Unchecked)
+            self.rosetta_db_path_lineedit.setEnabled(False)
+            self.rosetta_db_choose_btn.setEnabled(False)
+            env.prefs[rosetta_database_enabled_prefs_key] = False
+        return
 
     # QuteMolX slots #######################################
 

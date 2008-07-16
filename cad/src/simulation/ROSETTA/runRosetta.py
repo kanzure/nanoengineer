@@ -26,8 +26,8 @@ import re
 from utilities.constants import filesplit
 from processes.Process import Process
 from processes.Plugins import checkPluginPreferences
-from utilities.prefs_constants import rosetta_enabled_prefs_key
-from utilities.prefs_constants import rosetta_path_prefs_key, rosetta_database_prefs_key
+from utilities.prefs_constants import rosetta_enabled_prefs_key, rosetta_path_prefs_key
+from utilities.prefs_constants import rosetta_database_enabled_prefs_key, rosetta_dbdir_prefs_key
 from protein.model.Protein import write_rosetta_resfile
 
 
@@ -490,7 +490,7 @@ class RosettaRunner:
         plugin_name = "ROSETTA_DATABASE"
         #Urmi 20080710: using the same code as exectuables. Its kind of bad
         # but probably ok before RosettaCon
-        plugin_prefs_keys = (rosetta_enabled_prefs_key, rosetta_database_prefs_key)
+        plugin_prefs_keys = (rosetta_database_enabled_prefs_key, rosetta_dbdir_prefs_key)
             
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys)

@@ -74,10 +74,16 @@ from operations.ops_select import ATOMS
 from widgets.widget_helpers import TextMessageBox
 from widgets.simple_dialogs import grab_text_line_using_dialog
 
+from utilities.prefs_constants import qutemol_enabled_prefs_key
 from utilities.prefs_constants import nanohive_enabled_prefs_key
+from utilities.prefs_constants import povray_enabled_prefs_key
+from utilities.prefs_constants import megapov_enabled_prefs_key
+from utilities.prefs_constants import povdir_enabled_prefs_key
 from utilities.prefs_constants import gamess_enabled_prefs_key
 from utilities.prefs_constants import gromacs_enabled_prefs_key
 from utilities.prefs_constants import cpp_enabled_prefs_key
+from utilities.prefs_constants import rosetta_enabled_prefs_key
+from utilities.prefs_constants import rosetta_database_enabled_prefs_key
 from utilities.prefs_constants import nv1_enabled_prefs_key
 from utilities.prefs_constants import workingDirectory_prefs_key
 from utilities.prefs_constants import getDefaultWorkingDirectory
@@ -312,10 +318,16 @@ class MWsemantics(QMainWindow,
 
         # Enable/disable plugins.  These should be moved to a central method
         # where all plug-ins get added and enabled during invocation.  Mark 050921.
+        self.userPrefs.enable_qutemol(env.prefs[qutemol_enabled_prefs_key])
         self.userPrefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
+        self.userPrefs.enable_povray(env.prefs[povray_enabled_prefs_key])
+        self.userPrefs.enable_megapov(env.prefs[megapov_enabled_prefs_key])
+        self.userPrefs.enable_povdir(env.prefs[povdir_enabled_prefs_key])
         self.userPrefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
         self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
         self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
+        self.userPrefs.enable_rosetta(env.prefs[rosetta_enabled_prefs_key])
+        self.userPrefs.enable_rosetta_db(env.prefs[rosetta_database_enabled_prefs_key])
         self.userPrefs.enable_nv1(env.prefs[nv1_enabled_prefs_key])
 
         #Mouse wheel behavior settings.

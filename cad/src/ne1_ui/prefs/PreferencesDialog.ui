@@ -114,7 +114,7 @@
        <item row="0" column="1" >
         <widget class="QStackedWidget" name="prefsStackedWidget" >
          <property name="currentIndex" >
-          <number>2</number>
+          <number>12</number>
          </property>
          <widget class="QWidget" name="General" >
           <layout class="QGridLayout" >
@@ -6307,58 +6307,24 @@
           </layout>
          </widget>
          <widget class="QWidget" name="Plugins" >
-          <layout class="QGridLayout" >
-           <property name="leftMargin" >
-            <number>9</number>
-           </property>
-           <property name="topMargin" >
-            <number>9</number>
-           </property>
-           <property name="rightMargin" >
-            <number>9</number>
-           </property>
-           <property name="bottomMargin" >
-            <number>9</number>
-           </property>
-           <property name="horizontalSpacing" >
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing" >
-            <number>6</number>
-           </property>
-           <item row="1" column="0" >
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>20</width>
-               <height>218</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="0" >
+          <layout class="QVBoxLayout" >
+           <item>
             <widget class="QGroupBox" name="file_locations_grp" >
              <property name="title" >
               <string>Location of executables</string>
              </property>
              <layout class="QGridLayout" >
               <property name="leftMargin" >
-               <number>2</number>
+               <number>4</number>
               </property>
               <property name="topMargin" >
-               <number>2</number>
+               <number>4</number>
               </property>
               <property name="rightMargin" >
-               <number>2</number>
+               <number>4</number>
               </property>
               <property name="bottomMargin" >
-               <number>2</number>
+               <number>4</number>
               </property>
               <property name="horizontalSpacing" >
                <number>2</number>
@@ -6366,6 +6332,66 @@
               <property name="verticalSpacing" >
                <number>2</number>
               </property>
+              <item row="0" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="qutemol_checkbox" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Enable QuteMolX</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="qutemol_lbl" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="sizePolicy" >
+                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize" >
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>QuteMolX:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item row="0" column="1" >
                <widget class="QLineEdit" name="qutemol_path_lineedit" >
                 <property name="enabled" >
@@ -6379,480 +6405,12 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" >
-               <widget class="QLineEdit" name="nanohive_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the NanoHive-1 executable file.</string>
-                </property>
+              <item row="0" column="2" >
+               <widget class="QToolButton" name="qutemol_choose_btn" >
                 <property name="text" >
-                 <string/>
+                 <string>...</string>
                 </property>
                </widget>
-              </item>
-              <item row="2" column="1" >
-               <widget class="QLineEdit" name="povray_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>32767</width>
-                  <height>32767</height>
-                 </size>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the POV-Ray executable file.</string>
-                </property>
-                <property name="text" >
-                 <string/>
-                </property>
-                <property name="maxLength" >
-                 <number>32767</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" >
-               <widget class="QLineEdit" name="megapov_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>32767</width>
-                  <height>32767</height>
-                 </size>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the MegaPOV executable file (megapov.exe).</string>
-                </property>
-                <property name="text" >
-                 <string/>
-                </property>
-                <property name="maxLength" >
-                 <number>32767</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" >
-               <widget class="QLineEdit" name="povdir_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Select custom POV include directory</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1" >
-               <widget class="QLineEdit" name="gamess_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>32767</width>
-                  <height>32767</height>
-                 </size>
-                </property>
-                <property name="toolTip" >
-                 <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                </property>
-                <property name="text" >
-                 <string/>
-                </property>
-                <property name="maxLength" >
-                 <number>32767</number>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1" >
-               <widget class="QLineEdit" name="gromacs_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the mdrun executable file for GROMACS.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="1" >
-               <widget class="QLineEdit" name="nv1_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the mdrun executable file for GROMACS.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="1" >
-               <widget class="QLineEdit" name="cpp_path_lineedit" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>The full path to the C-preprocessor (cpp) executable file for GROMACS to use.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="nv1_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable GROMACS</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="nv1_label" >
-                  <property name="text" >
-                   <string>NanoVision-1:</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="8" column="2" >
-               <widget class="QPushButton" name="nv1_choose_btn" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Choose the mdrun executable file for GROMACS</string>
-                </property>
-                <property name="text" >
-                 <string>Browse...</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="2" >
-               <widget class="QPushButton" name="gromacs_choose_btn" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Choose the mdrun executable file for GROMACS</string>
-                </property>
-                <property name="text" >
-                 <string>Browse...</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="gromacs_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable GROMACS</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="gromacs_label" >
-                  <property name="text" >
-                   <string>GROMACS:</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="7" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="cpp_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable cpp (needed by GROMACS)</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="cpp_label" >
-                  <property name="text" >
-                   <string>cpp:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="5" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="gamess_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable GAMESS</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="gamess_lbl" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize" >
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="toolTip" >
-                   <string/>
-                  </property>
-                  <property name="text" >
-                   <string>GAMESS:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="4" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>2</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="povdir_checkbox" >
-                  <property name="enabled" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="minimumSize" >
-                   <size>
-                    <width>15</width>
-                    <height>15</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize" >
-                   <size>
-                    <width>15</width>
-                    <height>15</height>
-                   </size>
-                  </property>
-                  <property name="toolTip" >
-                   <string>Custom directory for POV libraries</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="povdir_lbl" >
-                  <property name="enabled" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="text" >
-                   <string>POV include dir:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="3" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="megapov_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable MegaPOV</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="megapov_lbl" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize" >
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="toolTip" >
-                   <string/>
-                  </property>
-                  <property name="text" >
-                   <string>MegaPOV:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0" >
-               <layout class="QHBoxLayout" >
-                <property name="spacing" >
-                 <number>0</number>
-                </property>
-                <property name="leftMargin" >
-                 <number>0</number>
-                </property>
-                <property name="topMargin" >
-                 <number>0</number>
-                </property>
-                <property name="rightMargin" >
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="povray_checkbox" >
-                  <property name="toolTip" >
-                   <string>Enable POV-Ray</string>
-                  </property>
-                  <property name="text" >
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="povray_lbl" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize" >
-                   <size>
-                    <width>60</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="toolTip" >
-                   <string/>
-                  </property>
-                  <property name="text" >
-                   <string>POV-Ray:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
               </item>
               <item row="1" column="0" >
                <layout class="QHBoxLayout" >
@@ -6914,7 +6472,27 @@
                 </item>
                </layout>
               </item>
-              <item row="0" column="0" >
+              <item row="1" column="1" >
+               <widget class="QLineEdit" name="nanohive_path_lineedit" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>The full path to the NanoHive-1 executable file.</string>
+                </property>
+                <property name="text" >
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" >
+               <widget class="QToolButton" name="nanohive_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" >
                <layout class="QHBoxLayout" >
                 <property name="spacing" >
                  <number>0</number>
@@ -6932,12 +6510,9 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QCheckBox" name="qutemol_checkbox" >
-                  <property name="enabled" >
-                   <bool>true</bool>
-                  </property>
+                 <widget class="QCheckBox" name="povray_checkbox" >
                   <property name="toolTip" >
-                   <string>Enable QuteMolX</string>
+                   <string>Enable POV-Ray</string>
                   </property>
                   <property name="text" >
                    <string/>
@@ -6945,10 +6520,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="qutemol_lbl" >
-                  <property name="enabled" >
-                   <bool>true</bool>
-                  </property>
+                 <widget class="QLabel" name="povray_lbl" >
                   <property name="sizePolicy" >
                    <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
                     <horstretch>0</horstretch>
@@ -6965,7 +6537,7 @@
                    <string/>
                   </property>
                   <property name="text" >
-                   <string>QuteMolX:</string>
+                   <string>POV-Ray:</string>
                   </property>
                   <property name="alignment" >
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -6974,117 +6546,561 @@
                 </item>
                </layout>
               </item>
-              <item row="7" column="2" >
-               <widget class="QPushButton" name="cpp_choose_btn" >
+              <item row="2" column="1" >
+               <widget class="QLineEdit" name="povray_path_lineedit" >
                 <property name="enabled" >
                  <bool>false</bool>
                 </property>
-                <property name="toolTip" >
-                 <string>Choose the C-preprocessor (cpp) executable file for GROMACS to use.</string>
-                </property>
-                <property name="text" >
-                 <string>Browse...</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2" >
-               <widget class="QPushButton" name="qutemol_choose_btn" >
-                <property name="enabled" >
-                 <bool>false</bool>
+                <property name="maximumSize" >
+                 <size>
+                  <width>32767</width>
+                  <height>32767</height>
+                 </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Choose location of QuteMolX executable </string>
+                 <string>The full path to the POV-Ray executable file.</string>
                 </property>
                 <property name="text" >
-                 <string>Browse...</string>
+                 <string/>
                 </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
+                <property name="maxLength" >
+                 <number>32767</number>
                 </property>
                </widget>
               </item>
               <item row="2" column="2" >
-               <widget class="QPushButton" name="povray_choose_btn" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Choose POV-Ray executable</string>
-                </property>
+               <widget class="QToolButton" name="povray_choose_btn" >
                 <property name="text" >
-                 <string>Browse...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
+                 <string>...</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="2" >
-               <widget class="QPushButton" name="povdir_choose_btn" >
+              <item row="3" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="megapov_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable MegaPOV</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="megapov_lbl" >
+                  <property name="sizePolicy" >
+                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize" >
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>MegaPOV:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="1" >
+               <widget class="QLineEdit" name="megapov_path_lineedit" >
                 <property name="enabled" >
                  <bool>false</bool>
                 </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>32767</width>
+                  <height>32767</height>
+                 </size>
+                </property>
                 <property name="toolTip" >
-                 <string>Choose the POV include directory</string>
+                 <string>The full path to the MegaPOV executable file (megapov.exe).</string>
                 </property>
                 <property name="text" >
-                 <string>Browse...</string>
+                 <string/>
                 </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
+                <property name="maxLength" >
+                 <number>32767</number>
                 </property>
                </widget>
               </item>
               <item row="3" column="2" >
-               <widget class="QPushButton" name="megapov_choose_btn" >
+               <widget class="QToolButton" name="megapov_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>2</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="povdir_checkbox" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="minimumSize" >
+                   <size>
+                    <width>15</width>
+                    <height>15</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>15</width>
+                    <height>15</height>
+                   </size>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Custom directory for POV libraries</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="povdir_lbl" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="text" >
+                   <string>POV include dir:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="4" column="1" >
+               <widget class="QLineEdit" name="povdir_lineedit" >
                 <property name="enabled" >
                  <bool>false</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>Choose MegaPOV executable (megapov.exe)</string>
+                 <string>Select custom POV include directory</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2" >
+               <widget class="QToolButton" name="povdir_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="gamess_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable GAMESS</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="gamess_lbl" >
+                  <property name="sizePolicy" >
+                   <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize" >
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip" >
+                   <string/>
+                  </property>
+                  <property name="text" >
+                   <string>GAMESS:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="5" column="1" >
+               <widget class="QLineEdit" name="gamess_path_lineedit" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>32767</width>
+                  <height>32767</height>
+                 </size>
+                </property>
+                <property name="toolTip" >
+                 <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
                 </property>
                 <property name="text" >
-                 <string>Browse...</string>
+                 <string/>
                 </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
+                <property name="maxLength" >
+                 <number>32767</number>
                 </property>
                </widget>
               </item>
               <item row="5" column="2" >
-               <widget class="QPushButton" name="gamess_choose_btn" >
-                <property name="enabled" >
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Choose GAMESS executable</string>
-                </property>
+               <widget class="QToolButton" name="gamess_choose_btn" >
                 <property name="text" >
-                 <string>Browse...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
+                 <string>...</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="2" >
-               <widget class="QPushButton" name="nanohive_choose_btn" >
+              <item row="6" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="gromacs_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable GROMACS</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="gromacs_label" >
+                  <property name="text" >
+                   <string>GROMACS:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="6" column="1" >
+               <widget class="QLineEdit" name="gromacs_path_lineedit" >
                 <property name="enabled" >
                  <bool>false</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>Choose location of NanoHive-1 executable </string>
+                 <string>The full path to the mdrun executable file for GROMACS.</string>
                 </property>
+               </widget>
+              </item>
+              <item row="6" column="2" >
+               <widget class="QToolButton" name="gromacs_choose_btn" >
                 <property name="text" >
-                 <string>Browse...</string>
+                 <string>...</string>
                 </property>
-                <property name="autoDefault" >
+               </widget>
+              </item>
+              <item row="7" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="cpp_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable cpp (needed by GROMACS)</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="cpp_label" >
+                  <property name="text" >
+                   <string>cpp:</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="7" column="1" >
+               <widget class="QLineEdit" name="cpp_path_lineedit" >
+                <property name="enabled" >
                  <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>The full path to the C-preprocessor (cpp) executable file for GROMACS to use.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2" >
+               <widget class="QToolButton" name="cpp_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="nv1_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable NanoVision-1</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="nv1_label" >
+                  <property name="text" >
+                   <string>NanoVision-1:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="10" column="1" >
+               <widget class="QLineEdit" name="nv1_path_lineedit" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>The full path to the mdrun executable file for NanoVision-1.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="2" >
+               <widget class="QToolButton" name="nv1_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="rosetta_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable Rosetta</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="rosetta_label" >
+                  <property name="text" >
+                   <string>Rosetta:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="8" column="1" >
+               <widget class="QLineEdit" name="rosetta_path_lineedit" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>The full path to Rosetta executable file.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2" >
+               <widget class="QToolButton" name="rosetta_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="0" >
+               <layout class="QHBoxLayout" >
+                <property name="spacing" >
+                 <number>0</number>
+                </property>
+                <property name="leftMargin" >
+                 <number>0</number>
+                </property>
+                <property name="topMargin" >
+                 <number>0</number>
+                </property>
+                <property name="rightMargin" >
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin" >
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="rosetta_db_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable Rosetta Database</string>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="rosetta_db_label" >
+                  <property name="text" >
+                   <string>Rosetta DB:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="9" column="1" >
+               <widget class="QLineEdit" name="rosetta_db_path_lineedit" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>The top-level Rosetta database directory.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="2" >
+               <widget class="QToolButton" name="rosetta_db_choose_btn" >
+                <property name="text" >
+                 <string>...</string>
                 </property>
                </widget>
               </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType" >
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>384</width>
+               <height>71</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>

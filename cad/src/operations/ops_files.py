@@ -807,9 +807,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 showWaitCursor(False)
                 return ''
         except:
-            msg = "Error connecting to RCSB using URL [%s]: " % urlString
+            msg = "Error connecting to RCSB using URL [%s]" % urlString
             print_compact_traceback( msg )
-            env.history.message( cmd + redmsg( msg) )
+            env.history.message( redmsg( msg ) )
             showWaitCursor(False)
             return ''
         
