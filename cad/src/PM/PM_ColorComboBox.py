@@ -17,8 +17,13 @@ from PyQt4.Qt import QPixmap, QIcon, QColor, QSize
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 
-from utilities.constants import white, black, red, green, blue
-from utilities.constants import yellow, orange, cyan, magenta, gray, darkblue, darkred, darkgreen, lightgray
+from utilities.constants import white, gray, black
+from utilities.constants import red, orange, yellow
+from utilities.constants import green, cyan, blue
+from utilities.constants import magenta, violet, purple
+from utilities.constants import darkred, darkorange, mustard
+from utilities.constants import darkgreen, darkblue, darkpurple
+from utilities.constants import lightgray
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 
 class PM_ColorComboBox( PM_ComboBox ):
@@ -40,13 +45,19 @@ class PM_ColorComboBox( PM_ComboBox ):
     otherColor = lightgray
     otherColorList = [] # List of custom (other) colors the user has selected.
     
-    colorList = [white, gray, black, red, darkred, green, darkgreen, blue, darkblue, 
-                 yellow, orange, cyan, magenta, gray, otherColor]
+    colorList = [white, gray, black, 
+                 red, orange, yellow,
+                 green, cyan, blue,
+                 magenta, violet, purple,
+                 darkred, darkorange, mustard, 
+                 darkgreen, darkblue, darkpurple,
+                 otherColor]
     colorNames = ["White", "Gray", "Black", 
-                  "Red", "Dark Red", 
-                  "Green", "Dark Green",  
-                  "Blue", "Dark Blue", 
-                  "Yellow",  "Orange", "Cyan", "Magenta",  
+                  "Red", "Orange", "Yellow",
+                  "Green", "Cyan",  
+                  "Blue", "Magenta", "Violet", "Purple",
+                  "Dark red", "Dark orange", "Mustard",
+                  "Dark green", "Dark blue", "Dark purple",
                   "Other color..."]
     
     def __init__(self, 
