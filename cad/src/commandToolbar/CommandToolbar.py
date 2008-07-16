@@ -243,8 +243,8 @@ class CommandToolbar(Ui_CommandToolbar):
                         self.cmdButtonGroup.checkedId())
             except:
                 print_compact_traceback(
-                    "command button doesn't have a menu' No actions added \
-                to the flyout toolbar")
+                    "command button doesn't have a menu, or other exception; No actions added " \
+                    "to the flyout toolbar: " )
                 return
 
 
