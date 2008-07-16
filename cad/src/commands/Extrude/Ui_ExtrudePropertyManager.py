@@ -105,11 +105,11 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         @type  inPmGroupBox: L{PM_GroupBox}
         """
 
-        productChoices = ['rod', 'ring']
+        productChoices = ['Rod', 'Ring']
 
         self.extrude_productTypeComboBox = \
             PM_ComboBox( inPmGroupBox,
-                         label        = 'Final Product:',
+                         label        = 'Final product:',
                          labelColumn  = 0,
                          choices      = productChoices,
                          index        = 0,
@@ -125,7 +125,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.extrudeSpinBox_n = \
             PM_SpinBox( inPmGroupBox,
-                        label         =  "Number of Copies:",
+                        label         =  "Number of copies:",
                         labelColumn   =  0,
                         value         =  3,
                         minimum       =  1,
@@ -151,7 +151,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.makeBondsCheckBox = \
             PM_CheckBox(inPmGroupBox,
-                        text         = 'Make Bonds' ,
+                        text         = 'Make bonds' ,
                         widgetColumn = 0,
                         state        = Qt.Checked
                     )
@@ -167,6 +167,10 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         @type  inPmGroupBox: L{PM_GroupBox}
 
         """
+        self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox,
+                                               title = 'Offset Between Copies:'
+                                           )
+        self._loadOffsetSpecsGroupBox(self.offsetSpecsGroupBox)
 
         self.mergeOptionsGroupBox = PM_GroupBox(inPmGroupBox,
                                                 title = 'Merge Options:' )
@@ -175,14 +179,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         self.displayOptionsGroupBox = PM_GroupBox(inPmGroupBox,
                                                   title = 'Display Options:')
         self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
-
-
-        self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox,
-                                               title = 'Offset Between Copies:'
-                                           )
-        self._loadOffsetSpecsGroupBox(self.offsetSpecsGroupBox)
-
-
+        return
+    
     def _loadDisplayOptionsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Display Options groupbox (which is a groupbox within
@@ -195,7 +193,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         """
         self.showEntireModelCheckBox = \
             PM_CheckBox(inPmGroupBox,
-                        text         = 'Show Entire Model' ,
+                        text         = 'Show entire model' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
                     )
@@ -205,7 +203,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.showBondOffsetCheckBox = \
             PM_CheckBox(inPmGroupBox,
-                        text         = 'Show Bond-offset Spheres' ,
+                        text         = 'Show bond-offset spheres' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
                     )
@@ -225,7 +223,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         """
         self.mergeCopiesCheckBox = \
             PM_CheckBox(inPmGroupBox,
-                        text         = 'Merge Copies' ,
+                        text         = 'Merge copies' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
                     )
@@ -236,7 +234,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.extrudePrefMergeSelection = \
             PM_CheckBox(inPmGroupBox,
-                        text         = 'Merge Selection' ,
+                        text         = 'Merge selection' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
                     )
@@ -253,7 +251,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         """
         self.extrudeSpinBox_length = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "Total Offset",
+                              label         =  "Total offset",
                               value         =  7.0,
                               setAsDefault  =  True,
                               minimum       =  0.1,
@@ -265,7 +263,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.extrudeSpinBox_x = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "X Offset",
+                              label         =  "X offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
@@ -276,7 +274,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 
         self.extrudeSpinBox_y = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "Y Offset",
+                              label         =  "Y offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
@@ -286,7 +284,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                           )
         self.extrudeSpinBox_z = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "Z Offset",
+                              label         =  "Z offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
