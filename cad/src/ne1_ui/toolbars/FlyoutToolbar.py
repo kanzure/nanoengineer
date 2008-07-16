@@ -101,10 +101,10 @@ class FlyoutToolBar(QToolBar_WikiHelp):
         # Children of 1st QToolButton (3rd toolbar child) contains a single QMenu
         toolbtn_clist = toolbtn.children()
         
-        extension_menu = toolbtn_clist[0] # The extension menu!
-        
-        if isinstance(extension_menu, QMenu):
-            menu = extension_menu
+        if toolbtn_clist:
+            extension_menu = toolbtn_clist[0] # The extension menu!            
+            if isinstance(extension_menu, QMenu):
+                menu = extension_menu
             
         return menu
 
